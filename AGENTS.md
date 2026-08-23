@@ -269,10 +269,10 @@ Sideload (DooDesch) and hash (DooDesch) are **external repos** under `ThirdParty
 
 **Build commands:**
 ```pwsh
-Set-Location "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\ThirdParty\ScheduleOne-Sideload"
+Set-Location "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\ScheduleOne-Sideload"
 dotnet build Sideload.csproj -c Release   # builds + deploys automatically
 
-Set-Location "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\ThirdParty\ScheduleOne-Hash"
+Set-Location "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\ScheduleOne-Hash"
 dotnet build Hash.csproj -c Release        # builds + deploys automatically (needs Sideload.dll in Mods/)
 ```
 
@@ -343,7 +343,7 @@ In `OnCreatedUI(GameObject container)` always call `UITheme.Initialize...` first
 
 ```pwsh
 s1interop doctor --mono-game-path $env:SCHEDULE1_PATH --il2cpp-game-path $env:SCHEDULE1_PATH
-s1interop analyze "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Source\Mods\<Name>\src\<Name>.csproj"
+s1interop analyze "C:\Users\pc\Desktop\Schedule1-mod-only\Source\Mods\<Name>\src\<Name>.csproj"
 ```
 
 ### Mod Update Cycle
@@ -373,7 +373,7 @@ s1interop analyze "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Sche
 
 ## 7. Reference Material
 
-> **Note:** This mod-only workspace does not include the `Knowledge/` folder (decompiles, analyses, maps, tools). For the full knowledge base (4804 files / 67 MB), refer to the main modding workspace at `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding`. The `schedule1-knowledge` skill (`.agents/skills/schedule1-knowledge/`) contains search recipes and the full inventory index.
+> **Note:** This mod-only workspace does not include the `Knowledge/` folder (decompiles, analyses, maps, tools). For the full knowledge base (4804 files / 67 MB), refer to the main modding workspace at `C:\Users\pc\Desktop\Schedule1-mod-only`. The `schedule1-knowledge` skill (`.agents/skills/schedule1-knowledge/`) contains search recipes and the full inventory index.
 
 Reference decompiles and analysis snippets for archived mods are available in `Source/Archive/`.
 

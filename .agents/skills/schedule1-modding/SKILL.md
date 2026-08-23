@@ -1,14 +1,14 @@
-﻿---
+---
 name: schedule1-modding
 description: >-
-  Expert guide and runbook for developing, building, testing, and maintaining MelonLoader IL2CPP C# mods for Schedule I v0.4.6f13 (TVGS) in the Schedule I Modding Workspace (C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding).
+  Expert guide and runbook for developing, building, testing, and maintaining MelonLoader IL2CPP C# mods for Schedule I v0.4.6f13 (TVGS) in the Schedule I Modding Workspace (C:\Users\pc\Desktop\Schedule1-mod-only).
   Use this skill whenever creating new mods, modifying existing mods, writing Harmony patches, building PhoneApps via S1API, troubleshooting IL2CPP/Unity/MelonLoader issues, building solutions, or implementing UI features for Schedule I.
   Keywords: Schedule I, MelonLoader, IL2CPP, Harmony, HarmonyPatch, PhoneApp, S1API, Unity 2022.3, mod scaffolding, SafeStorage, UITheme.
 ---
 
 # Schedule I — Modding Skill & Runbook
 
-This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I v0.4.6f13** (TVGS) in `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding`.
+This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I v0.4.6f13** (TVGS) in `C:\Users\pc\Desktop\Schedule1-mod-only`.
 
 > **Version check (last verified: 2026-08-21):** Before writing patches or building, confirm the installed game version and S1API version still match this skill. If the game was updated, follow the Update Runbook (§6) first.
 
@@ -16,7 +16,7 @@ This skill provides full procedural knowledge, conventions, and architectural gu
 
 ## 1. Toolchain & Workspace Setup
 
-* **Workspace Root**: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding`
+* **Workspace Root**: `C:\Users\pc\Desktop\Schedule1-mod-only`
 * **Game Path**: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (Override via `$env:SCHEDULE1_PATH`)
 * **Runtime**: MelonLoader 0.7.3 (IL2CPP, Unity 2022.3)
 * **Target Framework**: `net6.0`, C# 12, `Nullable` enabled

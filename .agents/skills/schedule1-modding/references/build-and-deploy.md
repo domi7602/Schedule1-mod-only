@@ -1,4 +1,4 @@
-﻿# Build & Deploy — Detailed Runbook
+# Build & Deploy — Detailed Runbook
 
 This reference documents the **complete build/deploy pipeline** for the Schedule I Modding Workspace, including the conventions enforced by `Source/Mods/Directory.Build.props` + `Directory.Build.targets` and the special handling required for the ThirdParty repos (Sideload, hash, MoreDrugs).
 
@@ -86,21 +86,21 @@ These are **NOT** part of `S1Mods.sln`. They live in `ThirdParty/` (and `Knowled
 
 ### Sideload (DooDesch Phone-UI framework)
 ```pwsh
-Set-Location "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\ThirdParty\ScheduleOne-Sideload"
+Set-Location "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\ScheduleOne-Sideload"
 dotnet build Sideload.csproj -c Release       # auto-deploys to <Game>\Mods\
 ```
 Dep: needs AngleSharp + Jint + Esprima → `<Game>\UserLibs\`.
 
 ### hash (DooDesch Dev-Console)
 ```pwsh
-Set-Location "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\ThirdParty\ScheduleOne-Hash"
+Set-Location "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\ScheduleOne-Hash"
 dotnet build Hash.csproj -c Release            # auto-deploys
 ```
 Dep: requires `Sideload.dll` already in `<Game>\Mods\` (build includes `Sideload.cs` via `<Compile Include="..\..\Sideload\Sideload.cs"/>`).
 
 ### MoreDrugs (ifBars-Fork)
 ```pwsh
-Set-Location "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\external-repos\MoreDrugs"
+Set-Location "C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\external-repos\MoreDrugs"
 dotnet build src/DrugExpansion/DrugExpansion.csproj -c Il2cpp
 ```
 Dep: `local.build.props` with `S1ApiIl2CppPath` + `MApiIl2CppPath`. DLL name: `DrugExpansion_Il2cpp.dll`.
@@ -154,7 +154,7 @@ Solution-wide packaging: use `pwsh Tools/package-release.ps1 -Mod All` (creates 
 **Iterate quickly on one mod:**
 ```pwsh
 $env:SCHEDULE1_PATH = "C:\Program Files (x86)\Steam\steamapps\common\Schedule I"
-cd "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding"
+cd "C:\Users\pc\Desktop\Schedule1-mod-only"
 dotnet build "Source\Mods\NotesApp\src\NotesApp.csproj" -c Release
 # Game already running? Just alt-tab and reload the phone — most mods pick up changes on scene change
 ```
@@ -162,7 +162,7 @@ dotnet build "Source\Mods\NotesApp\src\NotesApp.csproj" -c Release
 **Clean release for all mods:**
 ```pwsh
 $env:SCHEDULE1_PATH = "C:\Program Files (x86)\Steam\steamapps\common\Schedule I"
-Set-Location "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding"
+Set-Location "C:\Users\pc\Desktop\Schedule1-mod-only"
 pwsh Tools/build-all.ps1
 s1interop doctor --il2cpp-game-path $env:SCHEDULE1_PATH
 ```

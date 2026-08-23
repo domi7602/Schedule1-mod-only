@@ -18,7 +18,7 @@ This skill is the **API-catalog map** for S1API. Use it when you need to know wh
 
 | | |
 |---|---|
-| Workspace Root | `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding` |
+| Workspace Root | `C:\Users\pc\Desktop\Schedule1-mod-only` |
 | Game Path | `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`) |
 | Runtime | MelonLoader 0.7.3 (IL2CPP, Unity 2022.3) |
 | S1API DLLs (deployed) | `Plugins\S1APILoader.MelonLoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll` |

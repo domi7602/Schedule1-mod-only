@@ -1,4 +1,4 @@
-﻿---
+---
 name: schedule1-troubleshooting
 description: >-
   Diagnostic runbook for Schedule I MelonLoader IL2CPP mods (v0.4.6f13, S1API 3.2.0).
@@ -57,7 +57,7 @@ See **[`references/logscan-and-logs.md`](references/logscan-and-logs.md)** for t
 ### `s1interop` (PRE-FLIGHT + STATIC ANALYSIS)
 ```pwsh
 s1interop doctor --il2cpp-game-path $env:SCHEDULE1_PATH                              # environment
-s1interop analyze "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Source\Mods\NotesApp\src\NotesApp.csproj"   # static
+s1interop analyze "C:\Users\pc\Desktop\Schedule1-mod-only\Source\Mods\NotesApp\src\NotesApp.csproj"   # static
 ```
 Catches `injected_type_missing_intptr_constructor`, `[HideFromIl2Cpp]` gaps, `[RegisterTypeInIl2Cpp]` issues. See **[`../schedule1-knowledge/references/inventory.md`](../schedule1-knowledge/references/inventory.md)** for s1interop tool path.
 

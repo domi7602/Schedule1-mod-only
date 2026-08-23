@@ -1,4 +1,4 @@
-﻿# Search Recipes — Concrete Patterns
+# Search Recipes — Concrete Patterns
 
 Concrete patterns to use the workspace's grep/glob/ilspycmd tools efficiently. Generic advice ("search the codebase") is not actionable; these are tested recipes.
 
@@ -10,7 +10,7 @@ Concrete patterns to use the workspace's grep/glob/ilspycmd tools efficiently. G
 
 ```pwsh
 # Step 1: Open the 1st-party decompiled file
-Get-ChildItem 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Decompiles\Assembly-CSharp\' -Recurse -Filter 'GrowContainer*.cs' | Select-Object FullName
+Get-ChildItem 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Decompiles\Assembly-CSharp\' -Recurse -Filter 'GrowContainer*.cs' | Select-Object FullName
 
 # Step 2: Read the decompile
 Read-File '<chosen path>'
@@ -18,7 +18,7 @@ Read-File '<chosen path>'
 
 Or use the pre-dumped verify-snippet:
 ```pwsh
-Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Decompiles\verify-snippets\GrowContainer.txt'
+Read-File 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Decompiles\verify-snippets\GrowContainer.txt'
 ```
 
 Or the live-game DLL via `ilspycmd`:
@@ -33,10 +33,10 @@ Or the live-game DLL via `ilspycmd`:
 
 ```pwsh
 # Search within decompile folder
-grep -rn 'SetMoistureAmount' 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Decompiles\Assembly-CSharp\Il2CppScheduleOne\Growing\'
+grep -rn 'SetMoistureAmount' 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Decompiles\Assembly-CSharp\Il2CppScheduleOne\Growing\'
 
 # Cross-reference: which systems use this method?
-grep -rn 'SetMoistureAmount' 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Analysis\'
+grep -rn 'SetMoistureAmount' 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Analysis\'
 ```
 
 ---
@@ -45,10 +45,10 @@ grep -rn 'SetMoistureAmount' 'C:\Program Files (x86)\Steam\steamapps\common\Sche
 
 ```pwsh
 # List all types under Il2CppScheduleOne.Growing
-Get-ChildItem 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Decompiles\Assembly-CSharp\Il2CppScheduleOne\Growing\' | Select-Object Name
+Get-ChildItem 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Decompiles\Assembly-CSharp\Il2CppScheduleOne\Growing\' | Select-Object Name
 
 # Or read the CodeTree index
-Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Analysis\Reference\ScheduleOne_CodeTree.md' -Limit 200
+Read-File 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Analysis\Reference\ScheduleOne_CodeTree.md' -Limit 200
 ```
 
 ---
@@ -57,13 +57,13 @@ Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 M
 
 ```pwsh
 # 1. Open the System doc
-Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Analysis\Systems\08-Plant-Growing.md'
+Read-File 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Analysis\Systems\08-Plant-Growing.md'
 
 # 2. Drill into the Source-Export detail
-Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Analysis\Source-Export\34-Growing-Detail.md'
+Read-File 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Analysis\Source-Export\34-Growing-Detail.md'
 
 # 3. Look at the canonical concept
-Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Analysis\Learnings\Concepts\12-PhoneApp-Mod-Patterns.md'  # or similar concept
+Read-File 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Analysis\Learnings\Concepts\12-PhoneApp-Mod-Patterns.md'  # or similar concept
 ```
 
 ---
@@ -72,10 +72,10 @@ Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 M
 
 ```pwsh
 # Search the catalog
-grep -rn 'GrowContainer' 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Analysis\Learnings\ThirdParty\'
+grep -rn 'GrowContainer' 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Analysis\Learnings\ThirdParty\'
 
 # Or browse the README
-Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Analysis\Learnings\README.md'
+Read-File 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Analysis\Learnings\README.md'
 ```
 
 ---
@@ -84,10 +84,10 @@ Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 M
 
 ```pwsh
 # Step 1: Check the version guide
-Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Frameworks\S1API\VERSIONS.md'
+Read-File 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Frameworks\S1API\VERSIONS.md'
 
 # Step 2: Check the S1API analysis doc
-Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Analysis\APIs\S1API.md'
+Read-File 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Analysis\APIs\S1API.md'
 
 # Step 3: Verify the deployed version's signature
 & 'C:\Users\pc\.dotnet\tools\ilspycmd.exe' -t 'S1API.Money.Money' `
@@ -101,10 +101,10 @@ Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 M
 ```pwsh
 # Find which event exists for "after save loaded"
 grep -rn 'OnSaveInfoLoaded\|OnLoadComplete\|OnGameplaySceneLoaded' `
-    'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Decompiles\verify-snippets\s1api-full.txt'
+    'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Decompiles\verify-snippets\s1api-full.txt'
 
 # Or read S1API's analysis doc
-Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge\Game-Reference\Analysis\APIs\S1API.md' -Offset 50 -Limit 80
+Read-File 'C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge\Game-Reference\Analysis\APIs\S1API.md' -Offset 50 -Limit 80
 ```
 
 ---
@@ -113,7 +113,7 @@ Read-File 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 M
 
 ```pwsh
 # Check the mod does not violate IL2CPP rules
-& 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Tools\s1-error-analyzer' doctor `
+& 'C:\Users\pc\Desktop\Schedule1-mod-only\Tools\s1-error-analyzer' doctor `
     --il2cpp-game-path "$env:SCHEDULE1_PATH"
 
 # Or s1interop analyze

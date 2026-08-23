@@ -1,7 +1,7 @@
 ---
 name: schedule1-knowledge
 description: >-
-  Research guide for the Schedule I Modding Knowledge Base at C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding\Knowledge (304+ files).
+  Research guide for the Schedule I Modding Knowledge Base at C:\Users\pc\Desktop\Schedule1-mod-only\Knowledge (304+ files).
   Use this skill whenever you need to find a vanilla game class/method/API, understand a game's system architecture, learn an IL2CPP/S1API/3rd-party-framework rule, study an existing mod's pattern, or navigate the workspace's decompiles + analysis + frameworks folders efficiently.
   Covers: Decompiles (Assembly-CSharp 41MB + verify-snippets), Analysis (Systems 65 / Source-Export 82 / Learnings 138 / APIs 10 / Guides / IL2CPP / Reference), Frameworks, Maps, Templates, Tools.
 ---
