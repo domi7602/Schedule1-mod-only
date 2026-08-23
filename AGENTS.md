@@ -93,7 +93,7 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 |-----------------|------------|-------------------------------------------------------------------------|----------------------------------------|-------|
 | **Sideload 1.8.2** | ✅ active | `ThirdParty/ScheduleOne-Sideload/` (git)                               | `Sideload.dll` → `<Game>\Mods\`, AngleSharp + Jint + Esprima → `<Game>\UserLibs\` | DooDesch phone UI framework (HTML/CSS/JS on uGUI). See §3 for build workarounds. |
 | **hash 1.0.3**  | ✅ active    | `ThirdParty/ScheduleOne-Hash/` (git)                                   | `Hash.dll` → `<Game>\Mods\`            | DooDesch terminal replacement for the dev console: tab-completion, `#` shorthand, history, help, plugin API via `HashCommands.Add(...)`. Build depends on Sideload (source include `Sideload.cs`). |
-| S1API 3.2.0     | ✅ active    | `Knowledge/Frameworks/S1API/3.2.0/` etc.                               | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | (itself — see §4) |
+| S1API 3.2.0     | ✅ active    | — (deployed binary only)                                               | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | (itself — see §4) |
 
 ---
 
@@ -373,7 +373,7 @@ s1interop analyze "C:\Users\pc\Desktop\Schedule1-mod-only\Source\Mods\<Name>\src
 
 ## 7. Reference Material
 
-> **Note:** This mod-only workspace does not include the `Knowledge/` folder (decompiles, analyses, maps, tools). For the full knowledge base (4804 files / 67 MB), refer to the main modding workspace at `C:\Users\pc\Desktop\Schedule1-mod-only`. The `schedule1-knowledge` skill (`.agents/skills/schedule1-knowledge/`) contains search recipes and the full inventory index.
+> **Note:** This mod-only workspace does not include the `Knowledge/` folder (decompiles, analyses, maps, tools). For the full knowledge base (4804 files / 67 MB), refer to the main modding workspace at `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding`. The `schedule1-knowledge` skill (`.agents/skills/schedule1-knowledge/`) contains search recipes and the full inventory index.
 
 Reference decompiles and analysis snippets for archived mods are available in `Source/Archive/`.
 
