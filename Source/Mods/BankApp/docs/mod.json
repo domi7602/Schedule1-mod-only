@@ -1,0 +1,6 @@
+{
+  "name": "BankApp",
+  "author": "Dominik",
+  "version": "0.1.0",
+  "description": "Mobile Banking Smartphone App for Schedule I with live balances, slot-aware deposits/withdrawals, weekly ATM limits, and save-slot isolated statement history."
+}

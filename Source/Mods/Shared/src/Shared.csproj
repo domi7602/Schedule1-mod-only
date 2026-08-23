@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Shared</AssemblyName>
+    <RootNamespace>S1Mods.Shared</RootNamespace>
+  </PropertyGroup>
+</Project>

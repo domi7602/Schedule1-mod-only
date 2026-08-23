@@ -1,0 +1,6 @@
+{
+  "name": "StackLimitMod",
+  "author": "Dominik",
+  "version": "0.1.0",
+  "description": "Configurable inventory and storage stack limits for Schedule I with in-game console commands and runtime registry patching."
+}

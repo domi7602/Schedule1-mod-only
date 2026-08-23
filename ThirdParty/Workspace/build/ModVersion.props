@@ -1,0 +1,17 @@
+<Project>
+  <!--
+    Generates DooDesch.ModVersion.Current as a constant from $(Version), so the MelonInfo attribute
+    compiles without a full DooDesch/Workspace monorepo checkout. Drop-in shim for the upstream
+    `Workspace/build/ModVersion.props`; only this one target is needed to unblock Sideload + Hash
+    builds outside the upstream CI environment.
+  -->
+  <Target Name="GenerateModVersion" BeforeTargets="BeforeCompile;CoreCompile" Condition="'$(Version)' != ''">
+    <PropertyGroup>
+      <_ModVersionFile>$(IntermediateOutputPath)DooDesch.ModVersion.g.cs</_ModVersionFile>
+    </PropertyGroup>
+    <Exec Command="powershell -NoProfile -NonInteractive -Command &quot;Set-Content -Path '$(_ModVersionFile)' -Value @('// &lt;auto-generated /&gt;', 'namespace DooDesch', '{', '    internal static class ModVersion', '    {', '        public const string Current = \&quot;$(Version)\&quot;;', '    }', '}') -Encoding UTF8&quot;" />
+    <ItemGroup>
+      <Compile Include="$(_ModVersionFile)" />
+    </ItemGroup>
+  </Target>
+</Project>

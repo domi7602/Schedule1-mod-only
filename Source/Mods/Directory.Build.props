@@ -1,0 +1,126 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DebugType>embedded</DebugType>
+    <!-- Unity-IL2CPP injiziert MonoBehaviour-Referenzen zur Laufzeit, nicht via Constructor. -->
+    <NoWarn>CS8618;CS8600;CS8601;CS8603;CS8604;CS8625</NoWarn>
+    <LangVersion>12</LangVersion>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    <GameDir Condition="'$(GameDir)' == '' And '$(SCHEDULE1_PATH)' != ''">$(SCHEDULE1_PATH)</GameDir>
+    <GameDir Condition="'$(GameDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Schedule I</GameDir>
+    <GamePath>$(GameDir)</GamePath>
+    <ModsDir>$(GameDir)\Mods</ModsDir>
+    <Il2CppAssemblies>$(GameDir)\MelonLoader\Il2CppAssemblies</Il2CppAssemblies>
+    <MelonNet6>$(GameDir)\MelonLoader\net6</MelonNet6>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="MelonLoader">
+      <HintPath>$(MelonNet6)\MelonLoader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(MelonNet6)\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>$(MelonNet6)\Il2CppInterop.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Common">
+      <HintPath>$(MelonNet6)\Il2CppInterop.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>$(Il2CppAssemblies)\Il2Cppmscorlib.dll</HintPath>
+      <Aliases>il2cpp</Aliases>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Il2CppSystem.Core" Condition="Exists('$(Il2CppAssemblies)\Il2CppSystem.Core.dll')">
+      <HintPath>$(Il2CppAssemblies)\Il2CppSystem.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(Il2CppAssemblies)\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass" Condition="Exists('$(Il2CppAssemblies)\Assembly-CSharp-firstpass.dll')">
+      <HintPath>$(Il2CppAssemblies)\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Il2CppScheduleOne.Core" Condition="Exists('$(Il2CppAssemblies)\Il2CppScheduleOne.Core.dll')">
+      <HintPath>$(Il2CppAssemblies)\Il2CppScheduleOne.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Il2CppFishNet.Runtime" Condition="Exists('$(Il2CppAssemblies)\Il2CppFishNet.Runtime.dll')">
+      <HintPath>$(Il2CppAssemblies)\Il2CppFishNet.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(Il2CppAssemblies)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(Il2CppAssemblies)\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(Il2CppAssemblies)\UnityEngine.UIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsModule" Condition="Exists('$(Il2CppAssemblies)\UnityEngine.UIElementsModule.dll')">
+      <HintPath>$(Il2CppAssemblies)\UnityEngine.UIElementsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule" Condition="Exists('$(Il2CppAssemblies)\UnityEngine.IMGUIModule.dll')">
+      <HintPath>$(Il2CppAssemblies)\UnityEngine.IMGUIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(Il2CppAssemblies)\UnityEngine.TextRenderingModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro" Condition="Exists('$(Il2CppAssemblies)\Unity.TextMeshPro.dll')">
+      <HintPath>$(Il2CppAssemblies)\Unity.TextMeshPro.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(Il2CppAssemblies)\UnityEngine.PhysicsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(Il2CppAssemblies)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule" Condition="Exists('$(Il2CppAssemblies)\UnityEngine.AudioModule.dll')">
+      <HintPath>$(Il2CppAssemblies)\UnityEngine.AudioModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule" Condition="Exists('$(Il2CppAssemblies)\UnityEngine.ImageConversionModule.dll')">
+      <HintPath>$(Il2CppAssemblies)\UnityEngine.ImageConversionModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.AssetBundleModule" Condition="Exists('$(Il2CppAssemblies)\UnityEngine.AssetBundleModule.dll')">
+      <HintPath>$(Il2CppAssemblies)\UnityEngine.AssetBundleModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <!-- S1API 3.1.2: Mod-Wrapper im Game-Mods-Ordner (Assembly-Name "S1API") ODER UserLibs-Fallback. -->
+    <Reference Include="S1API" Condition="Exists('$(ModsDir)\S1API.Il2Cpp.MelonLoader.dll')">
+      <HintPath>$(ModsDir)\S1API.Il2Cpp.MelonLoader.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="S1API" Condition="!Exists('$(ModsDir)\S1API.Il2Cpp.MelonLoader.dll') And Exists('$(GameDir)\UserLibs\S1API.dll')">
+      <HintPath>$(GameDir)\UserLibs\S1API.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="S1MAPI" Condition="Exists('$(GameDir)\UserLibs\S1MAPI_Il2Cpp.dll')">
+      <HintPath>$(GameDir)\UserLibs\S1MAPI_Il2Cpp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)Shared\src\Shared.csproj" Condition="'$(MSBuildProjectName)' != 'Shared'">
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,7 @@
+{
+  "name": "MoreSaveSlots",
+  "version": "1.0.1",
+  "author": "Dominik",
+  "description": "Expands save game slots up to 25+ with intuitive paginated navigation and in-menu save renaming.",
+  "gameVersion": "0.4.6f13"
+}

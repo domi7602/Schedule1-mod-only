@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <ModsDirectory>C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Mods</ModsDirectory>
+    <UserLibsDirectory>C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserLibs</UserLibsDirectory>
+    <WorkspaceLibPath>$(MSBuildThisFileDirectory)_Workspace</WorkspaceLibPath>
+    <!-- Hash expects this single file (the Sideload modder shim) at one of three relative locations; force
+         the resolved path so the upstream PropertyGroup conditions do not have to be re-derived. -->
+    <SideloadShimPath>$(MSBuildThisFileDirectory)ScheduleOne-Sideload\Sideload.Api\Sideload.cs</SideloadShimPath>
+  </PropertyGroup>
+</Project>

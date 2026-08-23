@@ -1,0 +1,39 @@
+name: Bug Report
+description: Report a mod bug or crash
+labels: [bug]
+body:
+  - type: input
+    id: mod
+    attributes:
+      label: Mod
+      description: Which mod is affected?
+      placeholder: NotesApp / PotScanner / HomelessMod / ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Mod version + game version (e.g. NotesApp v1.0.0, Schedule I v0.4.6f13)
+      placeholder: v1.0.0 / v0.4.6f13
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Steps to reproduce
+      placeholder: 1. Start game, 2. Open phone, 3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Latest.log excerpt
+      description: Relevant lines from MelonLoader/Latest.log (use logscan.py)
+      render: text
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs Actual
+      placeholder: Expected: ... Actual: ...

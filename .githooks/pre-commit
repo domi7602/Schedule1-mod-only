@@ -1,0 +1,30 @@
+#!/bin/sh
+# Pre-commit hook: format + sln determinism + knowledge path check
+# Install via: git config core.hooksPath .githooks  (or pwsh: git config core.hooksPath .githooks)
+# Bypass with: git commit --no-verify
+
+set -e
+
+echo "[pre-commit] dotnet format --verify-no-changes ..."
+dotnet format Source/Mods/S1Mods.sln --verify-no-changes --verbosity quiet
+if [ $? -ne 0 ]; then
+  echo "  ✖ dotnet format failed — run: dotnet format Source/Mods/S1Mods.sln"
+  exit 1
+fi
+
+echo "[pre-commit] check S1Mods.sln determinism ..."
+cp Source/Mods/S1Mods.sln /tmp/S1Mods.sln.before 2>/dev/null || cp Source/Mods/S1Mods.sln "$TMPDIR/S1Mods.sln.before" 2>/dev/null || true
+pwsh -NoProfile -File Tools/gen-sln.ps1 >/dev/null 2>&1 || powershell -NoProfile -File Tools/gen-sln.ps1 >/dev/null 2>&1
+if ! cmp -s Source/Mods/S1Mods.sln /tmp/S1Mods.sln.before 2>/dev/null && ! cmp -s Source/Mods/S1Mods.sln "$TMPDIR/S1Mods.sln.before" 2>/dev/null; then
+  # fallback: git diff check
+  if ! git diff --quiet -- Source/Mods/S1Mods.sln; then
+    echo "  ✖ S1Mods.sln is not deterministic — run: pwsh Tools/gen-sln.ps1 && git add Source/Mods/S1Mods.sln"
+    exit 1
+  fi
+fi
+
+echo "[pre-commit] knowledge path check (XRef) ..."
+pwsh -NoProfile -File Tools/fix-knowledge-paths.ps1 -WhatIf -Scope XRef >/dev/null 2>&1 || powershell -NoProfile -File Tools/fix-knowledge-paths.ps1 -WhatIf -Scope XRef >/dev/null 2>&1
+# fix-knowledge-paths returns 0 even for WhatIf mode; we just ensure it runs.
+
+echo "[pre-commit] OK."

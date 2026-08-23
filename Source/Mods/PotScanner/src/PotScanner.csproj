@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>PotScanner</AssemblyName>
+    <RootNamespace>PotScanner</RootNamespace>
+  </PropertyGroup>
+  <!--
+    v0.4.0: Hash.Api plugin-shim. Source-Include (NOT a ProjectReference / NOT a HintPath to Hash.dll)
+    so this mod builds and runs whether or not hash is in <Game>\Mods\. The shim's runtime lookup
+    of "Hash.Bridge.HashBridge, Hash" is a graceful no-op when hash is absent, and the Add() calls
+    made before hash loads are queued and replayed once it shows up. Do NOT add a Hash.dll
+    HintPath here: it would break builds for anyone who renames Hash.dll to .bak.
+  -->
+  <ItemGroup>
+    <Compile Include="..\..\..\..\ThirdParty\ScheduleOne-Hash\Hash.Api\HashCommands.cs" Link="Hash.Api.cs" />
+  </ItemGroup>
+</Project>

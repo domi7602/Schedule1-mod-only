@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>HomelessMod</AssemblyName>
+    <RootNamespace>HomelessMod</RootNamespace>
+  </PropertyGroup>
+</Project>

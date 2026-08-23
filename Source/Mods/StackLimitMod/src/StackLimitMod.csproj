@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>StackLimitMod</AssemblyName>
+    <RootNamespace>StackLimitMod</RootNamespace>
+  </PropertyGroup>
+</Project>

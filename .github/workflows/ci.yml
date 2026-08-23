@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 6
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "6.0.x"
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-
+
+      - name: Restore
+        run: dotnet restore Source/Mods/S1Mods.sln
+
+      - name: dotnet format --verify-no-changes
+        run: dotnet format Source/Mods/S1Mods.sln --verify-no-changes --verbosity diagnostic
+
+      - name: Build (Release)
+        run: dotnet build Source/Mods/S1Mods.sln -c Release --no-restore --nologo
+
+      - name: Tests (Shared.Tests)
+        run: |
+          if (Test-Path "Source/Tests/Shared.Tests/Shared.Tests.csproj") {
+            dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj -c Release --no-build --verbosity normal
+          } else {
+            Write-Host "Shared.Tests not found — skip."
+          }
+
+      - name: Check S1Mods.sln determinism
+        shell: pwsh
+        run: |
+          $before = Get-FileHash "Source/Mods/S1Mods.sln" -Algorithm SHA256
+          pwsh Tools/gen-sln.ps1
+          $after = Get-FileHash "Source/Mods/S1Mods.sln" -Algorithm SHA256
+          if ($before.Hash -ne $after.Hash) {
+            Write-Error "S1Mods.sln is not deterministic! Run pwsh Tools/gen-sln.ps1 and commit."
+            git diff -- Source/Mods/S1Mods.sln
+            exit 1
+          }
+          Write-Host "S1Mods.sln deterministic OK."
+
+      - name: Knowledge path check (XRef)
+        shell: pwsh
+        run: |
+          pwsh Tools/fix-knowledge-paths.ps1 -WhatIf -Scope XRef
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Verify mod versions in sync (bump-version dry-run)
+        shell: pwsh
+        run: |
+          Write-Host "Version sync is enforced via bump-version.ps1 — manual check TODO (ensure AGENTS.md matches mod.json)."
+          # Optional: add script to compare AGENTS.md vs mod.json versions
+
+  s1interop:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    if: false # enable when s1interop is available in CI (requires game assemblies)
+    steps:
+      - uses: actions/checkout@v4
+      - name: s1interop analyze
+        run: |
+          s1interop analyze Source/Mods/Shared/src/Shared.csproj

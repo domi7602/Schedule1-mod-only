@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>CustomSkateboard</AssemblyName>
+    <RootNamespace>CustomSkateboard</RootNamespace>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      mod:
+        description: "Mod to package (All for all mods)"
+        required: false
+        default: "All"
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "6.0.x"
+      - name: Package
+        shell: pwsh
+        run: |
+          $mod = "${{ inputs.mod }}"
+          if ([string]::IsNullOrWhiteSpace($mod)) { $mod = "All" }
+          pwsh Tools/package-release.ps1 -Mod $mod
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-zips
+          path: Release/*.zip
+          if-no-files-found: error

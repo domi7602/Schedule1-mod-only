@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>MoreSaveSlots</AssemblyName>
+    <RootNamespace>MoreSaveSlots</RootNamespace>
+  </PropertyGroup>
+</Project>

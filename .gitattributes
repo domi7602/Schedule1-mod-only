@@ -1,0 +1,13 @@
+* text=auto eol=lf
+
+*.cs text
+*.props text
+*.targets text
+*.csproj text
+*.sln text
+*.json text
+*.ps1 text
+*.md text
+*.png binary
+*.jpg binary
+*.zip binary

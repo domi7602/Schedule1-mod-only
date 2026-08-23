@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>BusinessIncome</AssemblyName>
+    <RootNamespace>BusinessIncome</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\..\ThirdParty\ScheduleOne-Hash\Hash.Api\HashCommands.cs" Link="Hash.Api.cs" />
+  </ItemGroup>
+</Project>

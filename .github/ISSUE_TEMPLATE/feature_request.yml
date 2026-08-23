@@ -1,0 +1,22 @@
+name: Feature Request
+description: Suggest a new mod or feature
+labels: [enhancement]
+body:
+  - type: input
+    id: mod
+    attributes:
+      label: Mod / Area
+      placeholder: New Mod / NotesApp / Shared / ...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should be built and why?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

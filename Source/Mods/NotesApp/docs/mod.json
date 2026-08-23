@@ -1,0 +1,7 @@
+{
+  "name": "NotesApp",
+  "author": "Dominik",
+  "version": "1.0.0",
+  "description": "In-game phone Notes app (Search & Filter, Pinning, SafeStorage, Shortcuts, Quick-Stamp, Clipboard Copy).",
+  "requires": ["S1API"]
+}

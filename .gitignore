@@ -1,0 +1,30 @@
+# Build artifacts
+**/bin/
+**/obj/
+*.dll
+*.pdb
+*.exe
+*.deps.json
+*.runtimeconfig.json
+*.assets
+*.manifest
+
+# Game-side (never commit)
+game source/
+Library/
+Temp/
+Logs/
+UserSettings/
+
+# Misc
+*.bak
+*.orig
+*.log
+__pycache__/
+*.pyc
+Thumbs.db
+# Release packages
+Release/*.zip
+
+# Archives
+Source/Archive/*.zip
