@@ -21,7 +21,7 @@ ThirdParty/                   External frameworks & mod sources (Sideload, hash,
 Tools/                        Build scripts (build-all, new-mod, gen-sln, bump-version, package-release)
 Release/                      Release packages
 .agents/skills/               AI agent skills (14 skills)
-.agents/rules/                Behavioral rules (memory-protocol.md)
+memory/                       Daily logs `memory/YYYY-MM-DD.md` + `memory-protocol.md`
 AGENTS.md                     Workspace conventions & mod inventory for AI agents
 README.md                     Player-facing mod overview
 DEVELOPERS.md                 This file

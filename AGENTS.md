@@ -47,11 +47,10 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
   ThirdParty/         External frameworks & mod sources (Sideload, hash, MoreDrugs, S1MCP)
   Tools/              PowerShell helpers: build-all.ps1, new-mod.ps1, gen-sln.ps1, bump-version.ps1, package-release.ps1
   Release/            Release packages (.gitkeep)
-  .agents/rules/      Global behavioral rules (memory-protocol.md)
   .agents/skills/     AI agent skills (14 skills: modding/phoneapp/grid/s1api/s1mapi/knowledge/troubleshooting/game-systems/economy/persistence/items/interiors/3d-assets/mcp)
   .githooks/          Pre-commit hook (dotnet format + gen-sln determinism)
   .github/            CI (workflows/ci.yml, workflows/release.yml) + Issue/PR templates
-   memory/             Daily logs `memory/YYYY-MM-DD.md` (today+yesterday at startup)
+   memory/             Daily logs `memory/YYYY-MM-DD.md` + `memory-protocol.md`
    AGENTS.md           Agent bootstrap & inventory
    CONTRIBUTING.md     Contributor guide
    DEVELOPERS.md       Developer documentation

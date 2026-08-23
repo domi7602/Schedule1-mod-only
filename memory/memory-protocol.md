@@ -13,10 +13,11 @@ This rule governs the proactive knowledge lifecycle and cross-session memory man
 
 Before formulating plans, designing features, or writing code:
 1. **Consult `MEMORY.md`**: Read the Core Architecture Standards (§2) and the Battle-Tested Gotchas Matrix (§3) — now 2026-08-21 with snapshot-revert, slot-leak, UITheme-duplication, field-accessor, and SafeStorage-atomic entries.
-2. **Load Matching Skills**: Activate relevant skills in `.agents/skills/` — core roster is now **11 skills**:
+2. **Load Matching Skills**: Activate relevant skills in `.agents/skills/` — core roster is now **14 skills**:
    - Always: `schedule1-modding` (runbook) + `schedule1-knowledge` (KB nav) + `schedule1-troubleshooting` (if bug/crash)
-   - Domain: `schedule1-phoneapp` (PhoneApps — Rule 10/11 + UITheme delegation), `schedule1-grid` (outdoor building 7 Golden Rules), `schedule1-s1api` ( Saveables/Quests/NPCs/PhoneApp), `schedule1-s1mapi` (ProceduralMesh/Building/GLTF), `schedule1-game-systems` (64 systems, decision tree)
-   - **New since 2026-08-21:** `schedule1-economy` (Money/Business/Shop — atomic purchase, double-entry, host authority, snapshot), `schedule1-persistence` (SafeStorage atomic + slot_{n} + GameLifecycle timing + TOML sidecar), `schedule1-items` (Registry dual-scan, StackLimit, inventory CashSlot)
+   - Domain: `schedule1-phoneapp` (PhoneApps — Rule 10/11 + UITheme delegation), `schedule1-grid` (outdoor building 7 Golden Rules), `schedule1-s1api` (Saveables/Quests/NPCs/PhoneApp), `schedule1-s1mapi` (ProceduralMesh/Building/GLTF), `schedule1-game-systems` (64 systems, decision tree)
+   - Economy & Items: `schedule1-economy` (Money/Business/Shop — atomic purchase, double-entry, host authority, snapshot), `schedule1-persistence` (SafeStorage atomic + slot_{n} + GameLifecycle timing + TOML sidecar), `schedule1-items` (Registry dual-scan, StackLimit, inventory CashSlot)
+   - World, 3D & MCP: `schedule1-interiors` (Door hooking, procedural shells), `schedule1-3d-assets` (Blender Y-Up pipeline, URP shaders, zero-collider rule), `schedule1-mcp` (S1MCP live bridge :8765, log capturing)
    - Load **by task**, not all — see each `SKILL.md` description for "When to use".
 3. **Verify Constraints**: Identify any known game version quirks (v0.4.6f13 / Unity 2022.3 / IL2CPP 2022.3.62f2), lifecycle timing constraints (`OnCreated` once per scene, static lists empty at `OnGameplaySceneLoaded`), or IL2CPP pointer hazards (`Pointer != IntPtr.Zero`, field accessor not patchable).
 
