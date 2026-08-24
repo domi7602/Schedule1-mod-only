@@ -42,8 +42,7 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 - **Layout:**
   ```
   Source/Mods/        Mods + Shared lib (inkl. Shared/UITheme) + Directory.Build.props/targets + S1Mods.sln
-  Source/Tests/       Tests (Shared.Tests: xUnit)
-  Source/Archive/     Archived mods (DayCounter, ProfitTracker, TVBrowser) + reference decompiles
+  Source/Archive/     Archived mods (DayCounter, ProfitTracker, TVBrowser), Tests & reference decompiles
   ThirdParty/         External frameworks & mod sources (Sideload, hash, MoreDrugs, S1MCP)
   Tools/              PowerShell helpers: build-all.ps1, new-mod.ps1, gen-sln.ps1, bump-version.ps1, package-release.ps1
   Release/            Release packages (.gitkeep)
@@ -355,7 +354,7 @@ s1interop analyze "C:\Users\pc\Desktop\Schedule1-mod-only\Source\Mods\<Name>\src
 
 ### CI & Quality Gates
 
-- **Local:** `dotnet format --verify-no-changes`, `pwsh Tools/gen-sln.ps1` (determinism check), `dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj`
+- **Local:** `dotnet format --verify-no-changes`, `pwsh Tools/gen-sln.ps1` (determinism check), `dotnet test Source/Archive/Tests/Shared.Tests/Shared.Tests.csproj`
 - **CI:** `.github/workflows/ci.yml` runs on push/PR (format + build + tests + gen-sln check + Knowledge path check)
 - **Pre-commit:** `git config core.hooksPath .githooks` enables `.githooks/pre-commit` (format + gen-sln + XRef)
 - **License:** `LICENSE` (MIT workspace + Third-Party notices), `CONTRIBUTING.md` for contributors

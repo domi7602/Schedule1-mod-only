@@ -15,8 +15,7 @@ MelonLoader modding workspace for *Schedule I* v0.4.6f13 (TVGS). Fully built on 
 ```
 Source/Mods/                  Mods + shared lib + Directory.Build.props/targets
 Source/Mods/S1Mods.sln        Solution (regeneratable via Tools/gen-sln.ps1)
-Source/Archive/               Archived mods (DayCounter, ProfitTracker, TVBrowser)
-Source/Tests/                 Tests (Shared.Tests: xUnit)
+Source/Archive/               Archived mods (DayCounter, ProfitTracker, TVBrowser), Tests
 ThirdParty/                   External frameworks & mod sources (Sideload, hash, MoreDrugs, S1MCP)
 Tools/                        Build scripts (build-all, new-mod, gen-sln, bump-version, package-release)
 Release/                      Release packages
