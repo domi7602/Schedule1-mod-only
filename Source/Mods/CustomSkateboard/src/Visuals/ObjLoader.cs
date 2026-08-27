@@ -104,8 +104,8 @@ public static class ObjLoader
                             float x = float.Parse(parts[1], CultureInfo.InvariantCulture);
                             float y = float.Parse(parts[2], CultureInfo.InvariantCulture);
                             float z = float.Parse(parts[3], CultureInfo.InvariantCulture);
-                            // Convert Blender Z-up to Unity Y-up: (X, Z, Y)
-                            rawVertices.Add(new Vector3(x, z, y));
+                            // Convert Blender Z-up to Unity Y-up: (X, Z, -Y) — fixes mirrored deck (M10)
+                            rawVertices.Add(new Vector3(x, z, -y));
                         }
                         break;
 
@@ -115,7 +115,7 @@ public static class ObjLoader
                             float nx = float.Parse(parts[1], CultureInfo.InvariantCulture);
                             float ny = float.Parse(parts[2], CultureInfo.InvariantCulture);
                             float nz = float.Parse(parts[3], CultureInfo.InvariantCulture);
-                            Vector3 n = new Vector3(nx, nz, ny).normalized;
+                            Vector3 n = new Vector3(nx, nz, -ny).normalized;
                             rawNormals.Add(n);
                         }
                         break;
@@ -189,9 +189,21 @@ public static class ObjLoader
         }
 
         string[] indices = token.Split('/');
-        int vIdx = int.Parse(indices[0]) - 1;
-        int vtIdx = (indices.Length > 1 && !string.IsNullOrEmpty(indices[1])) ? int.Parse(indices[1]) - 1 : -1;
-        int vnIdx = (indices.Length > 2 && !string.IsNullOrEmpty(indices[2])) ? int.Parse(indices[2]) - 1 : -1;
+        if (indices.Length == 0 || string.IsNullOrWhiteSpace(indices[0])) return;
+        if (!int.TryParse(indices[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out int vRaw)) return;
+        int vIdx = vRaw > 0 ? vRaw - 1 : (vRaw < 0 ? rawV.Count + vRaw : -1);
+        int vtIdx = -1;
+        if (indices.Length > 1 && !string.IsNullOrEmpty(indices[1]))
+        {
+            if (!int.TryParse(indices[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int vtRaw)) vtIdx = -1;
+            else vtIdx = vtRaw > 0 ? vtRaw - 1 : (vtRaw < 0 ? rawVT.Count + vtRaw : -1);
+        }
+        int vnIdx = -1;
+        if (indices.Length > 2 && !string.IsNullOrEmpty(indices[2]))
+        {
+            if (!int.TryParse(indices[2], NumberStyles.Integer, CultureInfo.InvariantCulture, out int vnRaw)) vnIdx = -1;
+            else vnIdx = vnRaw > 0 ? vnRaw - 1 : (vnRaw < 0 ? rawVN.Count + vnRaw : -1);
+        }
 
         int newIndex = outV.Count;
         outV.Add(vIdx >= 0 && vIdx < rawV.Count ? rawV[vIdx] : Vector3.zero);

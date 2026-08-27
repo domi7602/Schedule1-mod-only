@@ -98,6 +98,8 @@ Need live game interaction?
 3. **Localhost Only Security:** S1MCPServer binds strictly to `127.0.0.1:8765`. It never exposes ports externally.
 4. **Main-Thread Marshaling:** All Unity API and IL2CPP calls MUST execute on the Main Thread via `CommandRouter` and the mod's `OnUpdate` loop. Background threads only handle TCP socket I/O.
 
+> **Log hygiene (v1.0.1+):** `[DEBUG]` logging is **off by default** — no more Latest.log spam on agent connect. Enable only when needed via `UserData/S1MCPServer.cfg` → `[S1MCPServer] DebugLogging = true` (payload dumps truncated to 500 chars). Info/Warn lifecycle lines (connect/disconnect) always logged.
+
 ---
 
 ## 5. References

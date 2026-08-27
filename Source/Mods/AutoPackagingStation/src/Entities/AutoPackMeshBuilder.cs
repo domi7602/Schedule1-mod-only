@@ -17,9 +17,12 @@ public static class AutoPackMeshBuilder
     private static Material? _cachedConveyorMaterial;
     private static Material? _cachedHazardMaterial;
     private static Material? _cachedPistonMaterial;
+    private static Shader? _cachedSafeShader;
+    private static byte[]? _cachedGlbBytes;
 
     private static Shader GetSafeShader()
     {
+        if (_cachedSafeShader != null && _cachedSafeShader.Pointer != IntPtr.Zero) return _cachedSafeShader;
         Shader? s = Shader.Find("Universal Render Pipeline/Lit");
         if (s == null || s.Pointer == IntPtr.Zero)
         {
@@ -33,6 +36,7 @@ public static class AutoPackMeshBuilder
         {
             s = Shader.Find("Unlit/Color");
         }
+        if (s != null && s.Pointer != IntPtr.Zero) _cachedSafeShader = s;
         return s!;
     }
 
@@ -190,12 +194,15 @@ public static class AutoPackMeshBuilder
         }
 
         string modelPath = System.IO.Path.Combine(MelonLoader.Utils.MelonEnvironment.ModsDirectory, "AutoPackagingStation", "model.glb");
-        if (System.IO.File.Exists(modelPath))
+        if (System.IO.File.Exists(modelPath) || _cachedGlbBytes != null)
         {
             try 
             {
-                var glbData = System.IO.File.ReadAllBytes(modelPath);
-                var glbModel = S1MAPI.Gltf.GltfLoader.LoadGlb(glbData);
+                if (_cachedGlbBytes == null)
+                {
+                    _cachedGlbBytes = System.IO.File.ReadAllBytes(modelPath);
+                }
+                var glbModel = S1MAPI.Gltf.GltfLoader.LoadGlb(_cachedGlbBytes);
                 if (glbModel != null && glbModel.Pointer != IntPtr.Zero)
                 {
                     glbModel.transform.SetParent(visualRoot.transform, false);
@@ -206,13 +213,13 @@ public static class AutoPackMeshBuilder
                         GameObject.Destroy(colliders[i]);
                     }
 
-                    // Apply URP Lit shader to all GLB renderers to prevent pink materials
+                    // Apply URP Lit shader to all GLB renderers to prevent pink materials — use sharedMaterial to avoid leaks (H12)
                     var urpShader = GetSafeShader();
-                    var renderers = glbModel.GetComponentsInChildren<Renderer>();
+                    var renderers = glbModel.GetComponentsInChildren<Renderer>(true);
                     for (int i = 0; i < renderers.Length; i++) {
                         var renderer = renderers[i];
-                        if (renderer.material != null) {
-                            renderer.material.shader = urpShader;
+                        if (renderer != null && renderer.Pointer != IntPtr.Zero && renderer.sharedMaterial != null && renderer.sharedMaterial.Pointer != IntPtr.Zero) {
+                            renderer.sharedMaterial.shader = urpShader;
                         }
                     }
                     
@@ -220,7 +227,16 @@ public static class AutoPackMeshBuilder
                     var conveyorBelt = glbModel.transform.Find("AutoPack_ConveyorBelt") ?? glbModel.transform.Find("Station_ConveyorBelt");
                     if (conveyorBelt != null && conveyorBelt.Pointer != IntPtr.Zero) {
                         var renderer = conveyorBelt.GetComponent<Renderer>();
-                        if (renderer != null && renderer.Pointer != IntPtr.Zero) controller.RegisterConveyorVisual(renderer, renderer.material);
+                        if (renderer != null && renderer.Pointer != IntPtr.Zero)
+                        {
+                            // Conveyor needs per-instance material for UV scroll — clone once intentionally
+                            var srcMat = renderer.sharedMaterial;
+                            var instMat = srcMat != null && srcMat.Pointer != IntPtr.Zero ? new Material(srcMat) : new Material(urpShader);
+                            instMat.shader = urpShader;
+                            instMat.name = "AutoPack_GLB_Conveyor_Inst";
+                            renderer.material = instMat;
+                            controller.RegisterConveyorVisual(renderer, instMat);
+                        }
                     }
                     var piston = glbModel.transform.Find("AutoPack_PneumaticPress_Head") ?? glbModel.transform.Find("PneumaticPress_Head");
                     if (piston != null && piston.Pointer != IntPtr.Zero) controller.RegisterPistonVisual(piston);
@@ -228,10 +244,17 @@ public static class AutoPackMeshBuilder
                     if (led != null && led.Pointer != IntPtr.Zero) {
                         var renderer = led.GetComponent<Renderer>();
                         var light = led.GetComponent<Light>();
-                        if (renderer != null && renderer.Pointer != IntPtr.Zero && light != null && light.Pointer != IntPtr.Zero) controller.RegisterLedVisual(renderer, renderer.material, light);
+                        if (renderer != null && renderer.Pointer != IntPtr.Zero && light != null && light.Pointer != IntPtr.Zero)
+                        {
+                            var srcLedMat = renderer.sharedMaterial;
+                            var instLedMat = srcLedMat != null && srcLedMat.Pointer != IntPtr.Zero ? new Material(srcLedMat) : CreateLedMaterialInstance();
+                            instLedMat.shader = urpShader;
+                            renderer.material = instLedMat;
+                            controller.RegisterLedVisual(renderer, instLedMat, light);
+                        }
                     }
 
-                    MelonLoader.MelonLogger.Msg("Loaded custom AutoPackagingStation GLB model successfully.");
+                    MelonLoader.MelonLogger.Msg("Loaded custom AutoPackagingStation GLB model successfully (cached).");
                     return; // Skip procedural generation
                 }
             }
@@ -482,13 +505,15 @@ public static class AutoPackMeshBuilder
     /// </summary>
     public static Sprite GetOrCreateIconSprite()
     {
-        if (_cachedIconSprite != null && _cachedIconSprite.Pointer != IntPtr.Zero) return _cachedIconSprite;
+        if (_cachedIconSprite != null && _cachedIconSprite.Pointer != IntPtr.Zero && !_cachedIconSprite.WasCollected) return _cachedIconSprite;
+        if (_cachedIconTexture != null && _cachedIconTexture.WasCollected) _cachedIconTexture = null;
 
         int size = 128;
         _cachedIconTexture = new Texture2D(size, size, TextureFormat.RGBA32, false)
         {
             name = "AutoPackagingStation_IconTex",
-            filterMode = FilterMode.Bilinear
+            filterMode = FilterMode.Bilinear,
+            hideFlags = HideFlags.DontSave
         };
 
         var pixels = new Color32[size * size];
@@ -582,6 +607,7 @@ public static class AutoPackMeshBuilder
 
         _cachedIconSprite = Sprite.Create(_cachedIconTexture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
         _cachedIconSprite.name = "AutoPackagingStation_IconSprite";
+        _cachedIconSprite.hideFlags = HideFlags.DontSave;
         return _cachedIconSprite;
     }
 }

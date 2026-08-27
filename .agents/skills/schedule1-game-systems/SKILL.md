@@ -5,6 +5,8 @@ description: "Reference guide for all 64 core game systems in Schedule I (v0.4.6
 
 # Schedule I Game Systems
 
+> **Knowledge guard (mod-only):** `Knowledge/` is absent in this workspace. Before using `Knowledge/...` paths, `Test-Path Knowledge/` — fallback is `D:\Backup\game source` (`bundleVersion 0.4.5f2 Alternate`, ~1 version behind `v0.4.6f13`, 66k files, structure-only). Verify any decompile hit against live `Assembly-CSharp.dll` via `ilspycmd` / S1MCP before patching.
+
 This skill is the **map to the 64 game systems** — bypasses raw `Assembly-CSharp` (41 MB / ~2100 files). Every system is already curated in `Knowledge/Game-Reference/Analysis/Systems/` with core classes, events, and hook points.
 
 > **Version check (last verified: 2026-08-21):** Game v0.4.6f13, S1API 3.2.0, 4804 total Knowledge files. If the game patched, re-verify `Systems/` against `Decompiles/Assembly-CSharp/`.

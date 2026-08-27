@@ -13,6 +13,8 @@ namespace BackpackMod
         private static GameObject? _currentWorldVisualObj;
         private static GameObject? _currentMenuVisualObj;
         private static string? _currentActiveTier;
+        private static Avatar? _cachedWorldAvatar;
+        private static float _lastAvatarSearchTime = -10f;
 
         public static void UpdateVisuals(AssetBundle? bundle = null)
         {
@@ -100,11 +102,17 @@ namespace BackpackMod
 
         private static Avatar? FindWorldAvatar(PlayerMovement pm)
         {
+            if (_cachedWorldAvatar != null && _cachedWorldAvatar.Pointer != IntPtr.Zero && !_cachedWorldAvatar.WasCollected)
+                return _cachedWorldAvatar;
+
+            if (Time.unscaledTime - _lastAvatarSearchTime < 0.5f) return _cachedWorldAvatar;
+            _lastAvatarSearchTime = Time.unscaledTime;
+
             // 1. Direct child of PlayerMovement (most common)
             try
             {
                 var a = pm.GetComponentInChildren<Avatar>(true);
-                if (a != null && a.Pointer != IntPtr.Zero && !a.WasCollected) return a;
+                if (a != null && a.Pointer != IntPtr.Zero && !a.WasCollected) { _cachedWorldAvatar = a; return a; }
             }
             catch { }
 
@@ -115,12 +123,12 @@ namespace BackpackMod
                 if (player != null && player.Pointer != IntPtr.Zero && !player.WasCollected)
                 {
                     var a2 = player.GetComponentInChildren<Avatar>(true);
-                    if (a2 != null && a2.Pointer != IntPtr.Zero && !a2.WasCollected) return a2;
+                    if (a2 != null && a2.Pointer != IntPtr.Zero && !a2.WasCollected) { _cachedWorldAvatar = a2; return a2; }
                 }
             }
             catch { }
 
-            // 3. Global scan — pick Avatar that is descendant of PlayerMovement or closest to it
+            // 3. Global scan — pick Avatar that is descendant of PlayerMovement or closest to it (throttled 0.5s)
             try
             {
                 var all = Resources.FindObjectsOfTypeAll<Avatar>();
@@ -134,8 +142,7 @@ namespace BackpackMod
                         if (av == null || av.Pointer == IntPtr.Zero || av.WasCollected) continue;
                         if (av.transform == null) continue;
                         // Prefer child of PlayerMovement
-                        if (av.transform.IsChildOf(pm.transform))
-                            return av;
+                        if (av.transform.IsChildOf(pm.transform)) { _cachedWorldAvatar = av; return av; }
                         try
                         {
                             float d = Vector3.Distance(av.transform.position, pm.transform.position);
@@ -147,12 +154,12 @@ namespace BackpackMod
                         }
                         catch { }
                     }
-                    if (best != null) return best;
+                    if (best != null) { _cachedWorldAvatar = best; return best; }
                 }
             }
             catch { }
 
-            return null;
+            return _cachedWorldAvatar;
         }
 
         private static GameObject CreateBackpackVisualInstance(Transform bone, Transform root, string tierName, bool forceDefaultLayer = false)
@@ -511,6 +518,8 @@ namespace BackpackMod
                 _currentMenuVisualObj = null;
             }
             _currentActiveTier = null;
+            _cachedWorldAvatar = null;
+            _lastAvatarSearchTime = -10f;
         }
     }
 }

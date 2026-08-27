@@ -294,8 +294,12 @@ public static class CyberSkateboardVisualizer
                         string mfName = mf.gameObject.name.ToLowerInvariant();
                         string sharedMeshName = (mf.sharedMesh != null) ? mf.sharedMesh.name.ToLowerInvariant() : "";
 
-                        // Strictly swap mesh only on actual deck/board filters
-                        if (mfName.Equals("deck", StringComparison.OrdinalIgnoreCase) || mfName.Equals("board", StringComparison.OrdinalIgnoreCase) || sharedMeshName.Equals("deck", StringComparison.OrdinalIgnoreCase) || sharedMeshName.Equals("board", StringComparison.OrdinalIgnoreCase))
+                        // Strictly swap mesh only on actual deck/board filters — whitelist contains/endsWith, but exclude avatar (H6)
+                        bool isDeckCandidate = mfName.Contains("deck", StringComparison.OrdinalIgnoreCase) || mfName.Contains("board", StringComparison.OrdinalIgnoreCase)
+                            || sharedMeshName.Contains("deck", StringComparison.OrdinalIgnoreCase) || sharedMeshName.Contains("board", StringComparison.OrdinalIgnoreCase)
+                            || mfName.EndsWith("_deck", StringComparison.OrdinalIgnoreCase) || mfName.EndsWith("_board", StringComparison.OrdinalIgnoreCase);
+                        bool isAvatarPart = IsPlayerAvatarPart(mfName) || IsPlayerAvatarPart(sharedMeshName);
+                        if (isDeckCandidate && !isAvatarPart)
                         {
                             if (mf.sharedMesh != customMesh)
                             {

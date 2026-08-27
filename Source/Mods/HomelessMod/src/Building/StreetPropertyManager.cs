@@ -118,7 +118,29 @@ public static class StreetPropertyManager
 
     public static IReadOnlyList<GameObject> ActiveStreetObjects => _activeStreetObjects;
 
+    /// <summary>
+    /// Number of street items currently held in the runtime list.
+    /// Used by Mod.OnPreLoad for diagnostic logging before a potential wipe.
+    /// </summary>
+    public static int ActiveStreetItemCount => _activeStreetObjects.Count;
+
     private static string _lastKnownSlot = "default";
+    private static int _lastKnownSlotNumber = -2; // -2 = "never initialised", -1 = "no slot (main menu / pre-load)"
+
+    /// <summary>
+    /// Returns the cached last known save slot number. -1 means main menu / no slot; >= 0 is a real save slot.
+    /// Used by SaveSlot detection to distinguish a real save-slot switch from a same-slot scene reload.
+    /// </summary>
+    public static int LastKnownSlotNumber => _lastKnownSlotNumber;
+
+    /// <summary>
+    /// Updates the cached slot number. Called by Mod.OnPreLoad so subsequent ResetState decisions
+    /// see the correct "old slot" before the new save's data is loaded.
+    /// </summary>
+    public static void CacheSlotNumber(int slotNumber)
+    {
+        _lastKnownSlotNumber = slotNumber;
+    }
 
     public static string GetSaveFilePath()
     {
@@ -196,6 +218,8 @@ public static class StreetPropertyManager
                 Mod.Log.Warn($"Legacy save migration warning: {ex.Message}");
             }
         }
+
+        Mod.Log.Info($"[GetSaveFilePath] resolved slotSuffix='{slotSuffix}' path='{Path.GetFileName(slotPath)}' legacyFallback={!resolved}");
 
         return slotPath;
     }

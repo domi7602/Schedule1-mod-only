@@ -19,6 +19,8 @@ public static class PayoutStateStore
     private static string _currentSlotSuffix = "default";
     private static string _lastKnownSlot = "default";
     private static int _pendingPrevLastPaid = -1;
+    private static string? _pendingPrevSaveIdentity;
+    private static string? _pendingPrevTimestamp;
     private static Dictionary<string, int?> _pendingPrevPerBusiness = new();
 
     /// <summary>
@@ -43,7 +45,15 @@ public static class PayoutStateStore
                     }
                     else if (!string.IsNullOrEmpty(saveInfo.SavePath))
                     {
-                        slotSuffix = Path.GetFileName(saveInfo.SavePath);
+                        string file = Path.GetFileNameWithoutExtension(saveInfo.SavePath) ?? "";
+                        var m = System.Text.RegularExpressions.Regex.Match(file, @"\d+");
+                        if (m.Success) slotSuffix = $"slot_{m.Value}";
+                        else
+                        {
+                            string dir = Path.GetFileName(Path.GetDirectoryName(saveInfo.SavePath) ?? "");
+                            var m2 = System.Text.RegularExpressions.Regex.Match(dir, @"\d+");
+                            slotSuffix = m2.Success ? $"slot_{m2.Value}" : $"slot_{file}";
+                        }
                         resolved = true;
                     }
                 }
@@ -94,8 +104,25 @@ public static class PayoutStateStore
                     try { File.Delete(legacy); } catch { }
                     continue;
                 }
-                try { File.Move(legacy, slotPath); } catch { }
-                break;
+                try
+                {
+                    var legacyState = SafeStorage.LoadSafe<PayoutState>(legacy, null, Mod.Log);
+                    if (legacyState != null && legacyState.LastPaidElapsedDay >= 0)
+                    {
+                        if (SafeStorage.SaveAtomic(slotPath, legacyState, Mod.Log))
+                        {
+                            try { File.Delete(legacy); } catch { }
+                            Mod.Log?.Info($"Migrated legacy {Path.GetFileName(legacy)} -> {Path.GetFileName(slotPath)}");
+                            break;
+                        }
+                    }
+                    SafeStorage.EnsureDirectoryForFile(slotPath);
+                    File.Copy(legacy, slotPath, true);
+                    try { File.Delete(legacy); } catch { }
+                    Mod.Log?.Info($"Migrated legacy {Path.GetFileName(legacy)} -> {Path.GetFileName(slotPath)} (copy)");
+                    break;
+                }
+                catch (Exception ex) { Mod.Log?.Warn($"Legacy migrate {Path.GetFileName(legacy)} failed: {ex.Message}"); }
             }
         }
         catch { }
@@ -110,6 +137,13 @@ public static class PayoutStateStore
         if (_cachedState != null && _currentSlotSuffix == slotSuffix)
         {
             return _cachedState;
+        }
+
+        // H3: Slot change — clear stale pending snapshot from previous slot
+        if (_currentSlotSuffix != slotSuffix)
+        {
+            _pendingPrevPerBusiness.Clear();
+            _pendingPrevLastPaid = -1;
         }
 
         string path = GetStateFilePath();
@@ -157,6 +191,8 @@ public static class PayoutStateStore
     {
         var state = GetState();
         _pendingPrevLastPaid = state.LastPaidElapsedDay;
+        _pendingPrevSaveIdentity = state.SaveIdentity;
+        _pendingPrevTimestamp = state.LastPayoutTimestamp;
         _pendingPrevPerBusiness.Clear();
         var ids = paidBusinessIds.ToList();
         foreach (var id in ids)
@@ -187,6 +223,8 @@ public static class PayoutStateStore
         if (state.LastPaidElapsedDay == elapsedDay)
         {
             state.LastPaidElapsedDay = _pendingPrevLastPaid;
+            if (_pendingPrevSaveIdentity != null) state.SaveIdentity = _pendingPrevSaveIdentity;
+            if (_pendingPrevTimestamp != null) state.LastPayoutTimestamp = _pendingPrevTimestamp;
         }
         foreach (var id in paidBusinessIds)
         {
@@ -199,6 +237,8 @@ public static class PayoutStateStore
             }
         }
         _pendingPrevPerBusiness.Clear();
+        _pendingPrevSaveIdentity = null;
+        _pendingPrevTimestamp = null;
     }
 
     /// <summary>
@@ -224,6 +264,8 @@ public static class PayoutStateStore
             {
                 Mod.Log.Info($"PayoutState for day {elapsedDay} saved to {Path.GetFileName(path)}.");
                 _pendingPrevPerBusiness.Clear();
+                _pendingPrevSaveIdentity = null;
+                _pendingPrevTimestamp = null;
             }
             return success;
         }
@@ -243,6 +285,8 @@ public static class PayoutStateStore
         _currentSlotSuffix = "default";
         _pendingPrevPerBusiness.Clear();
         _pendingPrevLastPaid = -1;
+        _pendingPrevSaveIdentity = null;
+        _pendingPrevTimestamp = null;
         if (!keepSlot) _lastKnownSlot = "default";
     }
 

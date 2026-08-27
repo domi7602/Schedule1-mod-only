@@ -32,7 +32,7 @@ public static class GroundPlacementAssistant
     };
 
     private static readonly Collider[] OverlapResults = new Collider[32];
-    private static readonly int ObstacleLayerMask = LayerMask.GetMask("Default", "Building", "Props");
+    private static readonly int ObstacleLayerMask = LayerMask.GetMask("Default", "Terrain", "Building", "Props");
 
     public static GroundPlacementResult EvaluatePlacement(
         Vector3 rawHitPoint,
@@ -55,12 +55,16 @@ public static class GroundPlacementAssistant
             targetPos.x = Mathf.Round(rawHitPoint.x / snapStep) * snapStep;
             targetPos.z = Mathf.Round(rawHitPoint.z / snapStep) * snapStep;
 
-            // Sample ground height at snapped coordinate
+            // Sample ground height at snapped coordinate — fallback to raw hit if snapped probe misses (H7)
             Vector3 probe = new Vector3(targetPos.x, rawHitPoint.y + 1.8f, targetPos.z);
             if (Physics.Raycast(probe, Vector3.down, out RaycastHit gHit, 4.0f, groundLayerMask, QueryTriggerInteraction.Ignore))
             {
                 targetPos.y = gHit.point.y;
                 surfaceNormal = gHit.normal;
+            }
+            else
+            {
+                targetPos.y = rawHitPoint.y;
             }
         }
 
@@ -124,8 +128,8 @@ public static class GroundPlacementAssistant
                 if (col.gameObject.layer == LayerMask.NameToLayer("Player"))
                     continue;
 
-                // Ignore the ground we are placing on (anything that doesn't reach higher than our feet)
-                if (col.bounds.max.y <= targetPos.y + 0.1f)
+                // Ignore the ground we are placing on (anything that doesn't reach higher than our feet) — 0.02m threshold prevents curb false-positive (H5)
+                if (col.bounds.max.y <= targetPos.y + 0.02f)
                     continue;
             }
             catch { continue; } // Skip if accessing native properties throws (e.g. destroyed object)
@@ -161,7 +165,7 @@ public static class GroundPlacementAssistant
                         if (col.gameObject == null || col.gameObject.Pointer == IntPtr.Zero) continue;
                         if (ghostModel != null && col.transform.IsChildOf(ghostModel.transform)) continue;
                         if (col.gameObject.layer == LayerMask.NameToLayer("Player")) continue;
-                        if (col.bounds.max.y <= targetPos.y + 0.1f) continue;
+                        if (col.bounds.max.y <= targetPos.y + 0.02f) continue;
 
                         invalidReason += $"{col.name} (Layer: {LayerMask.LayerToName(col.gameObject.layer)})";
                         break;

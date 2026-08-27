@@ -1,5 +1,10 @@
 # Changelog - AutoPackagingStation
 
+## [0.2.0] (2026-08-24)
+- Version sync: bring `MelonInfo`, `mod.json`, AGENTS.md, and CHANGELOG into agreement at 0.2.0.
+- No code changes since 0.1.0; the "0.2.1 verified 2026-08-23" claim in AGENTS.md was a documentation drift, not a release.
+- Hardware store listing integration, 2-second packaging cycle, and atomic 2-phase engine remain as documented in 0.1.0.
+
 ## [0.1.0] - 2026-08-22
 ### Initial Release
 - Implemented 4x4 industrial Auto-Packaging Station with procedural 3D chassis, overhead arch, and dual pneumatic pistons.

@@ -47,6 +47,15 @@ public class SleepingBagInteractable : MonoBehaviour
     {
         try
         {
+            bool isTyping = false;
+            try { isTyping = S1Mods.Shared.HotkeyManager.IsInputFieldFocused(); } catch { }
+            if (isTyping || Cursor.lockState != CursorLockMode.Locked || this.WasCollected || gameObject.WasCollected)
+            {
+                _isHovered = false;
+                _rmbHoldProgress = 0f;
+                return;
+            }
+
             var player = PlayerSingleton<PlayerMovement>.Instance;
             if (player == null || player.Pointer == IntPtr.Zero)
             {
@@ -107,23 +116,24 @@ public class SleepingBagInteractable : MonoBehaviour
 
             if (_isHovered)
             {
+                // Focus guard: don't allow RMB-Hold to pack up while typing in phone/backpack or paused.
+                if (HomelessInputFocus.IsBlockingInput)
+                {
+                    _rmbHoldProgress = 0f;
+                    return;
+                }
+
                 // [E] Key: Sleep
                 if (Input.GetKeyDown(KeyCode.E))
                 {
                     TrySleep();
                 }
 
-                // [F] Key: Instant Pack Up
-                if (Input.GetKeyDown(KeyCode.F))
-                {
-                    PackUp();
-                    return;
-                }
-
-                // Hold Right Mouse Button (RMB) to Pack Up (Vanilla-style dismantle)
+                // Hold Right Mouse Button (RMB) to Pack Up (Vanilla-style dismantle).
+                // F-key path was removed in v0.1.2 — F is the vanilla flashlight and we must not steal it.
                 if (Input.GetMouseButton(1))
                 {
-                    _rmbHoldProgress += Time.deltaTime / 0.40f; // 0.4s hold duration
+                    _rmbHoldProgress += Time.deltaTime / 0.40f; // 0.4s hold duration (vanilla-style)
                     if (_rmbHoldProgress >= 1.0f)
                     {
                         PackUp();
@@ -195,7 +205,7 @@ public class SleepingBagInteractable : MonoBehaviour
         }
         else
         {
-            GUI.Label(boxRect, "<color=#2ecc71>[E] Sleep</color>  ·  <color=#b0b0b8>[F] Pack Up</color>", style);
+            GUI.Label(boxRect, "<color=#2ecc71>[E] Sleep</color>  ·  <color=#b0b0b8>Hold RMB</color> <color=#e0e0e0>Pack Up</color>", style);
         }
 
         GUI.backgroundColor = prevBg;
@@ -349,7 +359,9 @@ public static class SleepingBagItemFactory
                 builder = S1API.Items.Buildable.BuildableItemCreator.CreateBuilder();
             }
 
-            builder.WithBasicInfo(itemId, "Sleeping Bag", "A portable sleeping bag with a built-in mat. Allows sleeping and saving anywhere in the city. Press [F] to pack up.", ItemCategory.Furniture)
+            // NOTE: "Press [F] to pack up" was removed in v0.1.2 — F is the vanilla flashlight,
+            // so we describe the vanilla-correct RMB-hold gesture instead.
+            builder.WithBasicInfo(itemId, "Sleeping Bag", "A portable sleeping bag with a built-in mat. Allows sleeping and saving anywhere in the city. Hold Right Mouse Button to pack up.", ItemCategory.Furniture)
                    .WithPricing(150f, 0.5f)
                    .WithIcon(SleepingBagMeshGenerator.GetOrCreateIconSprite())
                    .WithGhostVisual((Transform parent) =>

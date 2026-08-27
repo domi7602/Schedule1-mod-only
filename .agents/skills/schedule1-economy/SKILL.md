@@ -7,6 +7,8 @@ description: >-
 
 # Schedule I — Economy Skill (Money / Business / Shop)
 
+> **Knowledge guard (mod-only):** `Knowledge/` is absent in this workspace. Before using `Knowledge/...` paths, `Test-Path Knowledge/` — fallback is `D:\Backup\game source` (`bundleVersion 0.4.5f2 Alternate`, ~1 version behind `v0.4.6f13`, 66k files, structure-only). Verify any decompile hit against live `Assembly-CSharp.dll` via `ilspycmd` / S1MCP before patching.
+
 This skill is the **runbook for every economy interaction** in Schedule I — cash vs bank, price + fees, inventory capacity, weekly ATM limits, passive daily payouts, and multiplayer-safe transaction ordering. It codifies the patterns verified in `BankApp v0.1.0`, `PocketShop v0.2.1`, `BusinessIncome v0.1.0`.
 
 > **Version check (last verified: 2026-08-21):** Game v0.4.6f13, S1API 3.2.0, `S1API.Money` + `Il2CppScheduleOne.Money.MoneyManager`. If the game patched, verify `MoneyManager` signatures with `ilspycmd`.
@@ -37,6 +39,9 @@ Need economy feature?
 │
 ├─ Passive daily revenue for owned businesses?
 │  → BusinessIncome: host authority + snapshot revert + deterministic variance (see §6)
+│
+├─ Auto-pay supplier debt (Cash / Bank / Both)?
+│  → AutoPaySuppliers: SupplierDebtAccess.ChangeDebt + Re-entry guard + Relationship gain (see §7)
 │
 ├─ Price display with fees?
 │  → perUnit = basePrice * (1 + fee%/100); total = perUnit*qty + deliveryFlat (PocketShop PurchaseService.cs:62)
@@ -114,7 +119,75 @@ PayoutStateStore.CommitPayout(day, ids); // SaveAtomic slot_{n}.json + clears sn
 
 ---
 
-## 7. Common Pitfalls
+## 7. Supplier Payments (AutoPaySuppliers — Reference Pattern)
+
+> **Source:** distilled from decompiling `AutoPaySuppliers 1.0.0` (Nexus). Verified 2026-08-26. No workspace mod currently implements this — pattern parked here for future use.
+
+**The flow** (`AutoPaySuppliers/AutoPaySuppliersMod.cs:60-111` `TryPaySupplierDebt`):
+
+```
+IsEnabled && Debt > 0 && no re-entry guard (isAutoPaying)
+  → pick source (Cash / Card / Both)
+  → read cashBalance + onlineBalance from MoneyManager
+  → amount = min(Debt, availableFunds)
+  → set re-entry flag isAutoPaying = true
+  → try {
+      ApplyPayment(source, amount, cash, supplier);   // cash first, then bank
+      SupplierDebtAccess.ChangeDebt(supplier, -amount);
+    } finally { isAutoPaying = false; }
+  → if RelationData != null && MaxOrderLimit > 0:
+      RelationData.ChangeRelationship(amount / MaxOrderLimit * 0.5f, true);
+```
+
+**Multi-source payment** (`ApplyPayment`):
+
+```csharp
+float remaining = amount;
+if (source != Card) {
+    float fromCash = Mathf.Min(remaining, cashBalance);
+    if (fromCash > 0) {
+        MoneyManager.Instance.ChangeCashBalance(-fromCash, showCashChange, playSound);
+        remaining -= fromCash;
+    }
+}
+if (remaining > 0f && source != Cash) {
+    MoneyManager.Instance.CreateOnlineTransaction("Supplier Payment", -remaining, 1f, supplier.fullName);
+}
+```
+
+Cash first, then bank — preserves physical cash for emergencies, uses the bank to top up.
+
+**Key APIs not in S1API directly:**
+
+| API | Source | Purpose |
+|---|---|---|
+| `MoneyManager.Instance.cashBalance` | `Il2CppScheduleOne.Money.MoneyManager` | Read physical cash |
+| `MoneyManager.Instance.onlineBalance` | same (use `sync___get_value_onlineBalance()` in IL2CPP) | Read bank balance |
+| `MoneyManager.Instance.ChangeCashBalance(delta, visualize, playSound)` | same | Adjust physical cash |
+| `MoneyManager.Instance.CreateOnlineTransaction(title, amount, days, note)` | same | Adjust bank + log transaction |
+| `Supplier.Debt` (get/set) | `Il2CppScheduleOne.Economy.Supplier` | Outstanding debt |
+| `Supplier.MaxOrderLimit` | same | Order cap (denominator for relationship gain) |
+| `SupplierDebtAccess.ChangeDebt(supplier, delta)` | extension on Supplier | Safe debt mutation (no direct setter on Supplier) |
+| `((NPC)supplier).RelationData.ChangeRelationship(delta, notify)` | `Il2CppScheduleOne.NPCs.NPC` + `RelationData` | Affect NPC mood/disposition |
+| `NPCManager.NPCRegistry` | `Il2CppScheduleOne.NPCs.NPCManager` | Iterate all NPCs, filter for `Supplier` |
+
+**Relationship gain rule of thumb:** gain = `(paidAmount / MaxOrderLimit) * 0.5f`. Caps at 0.5 per full MaxOrderLimit payment — never gives a huge mood swing per transaction.
+
+**Re-entry guard:** `isAutoPaying` flag is critical — `TryPaySupplierDebt` can be called from multiple paths (auto-trigger, manual click, config-change hook). Without the guard, debt is paid N times for one trigger.
+
+**Preference pattern** (`AutoPaySuppliersMod.cs:142-156`): `SubscribeToPreferenceChanges` + `RefreshCachedPreferences` — cache enum/string values as their parsed type, not raw string, so the hot path doesn't re-parse on every call. Mirror `ModConfig<T>` from `Shared` if available.
+
+**Hook points to call `TryPaySupplierDebt`:**
+- On `OnUpdate` poll (every 1-2s) if `IsEnabled`
+- On player NPC interaction end
+- On day tick (ElapseDay callback)
+- On `MelonPreferences` change for `Enabled` (auto-pay-all on enable: `PayAllLoadedSupplierDebts` enumerates `NPCManager.NPCRegistry` and casts each to `Supplier`)
+
+**Always null-check `Supplier.Debt` and `MoneyManager.Instance` — they may be null early in scene load.**
+
+---
+
+## 8. Common Pitfalls
 
 | Symptom | Cause | Fix |
 |---|---|---|
@@ -123,13 +196,17 @@ PayoutStateStore.CommitPayout(day, ids); // SaveAtomic slot_{n}.json + clears sn
 | Day 5 re-pays after Day 6 fail | `Revert` set `LastPaid=-1` (pre-2026-08-21) | Snapshot restore `PayoutStateStore.cs:149` |
 | Refund creates money | Refunded before payment ran | Guard: only refund if payment succeeded `PurchaseService.cs:243` |
 | Weekly limit ignored | `RespectVanillaAtmLimit` false or week calc off | `ElapsedDays/7` + `GetWeeklyDeposits(week)` `BankService.cs:34` |
+| Debt paid N× for one trigger | No re-entry guard | `isAutoPaying` flag around the apply block (§7) |
+| `onlineBalance` reads as 0 | IL2CPP auto-property needs sync method | `sync___get_value_onlineBalance()` instead of direct property (§7) |
+| NullRef on Supplier.Debt | NPC not fully initialized early in scene | Null-check + retry on next poll tick |
 
 ---
 
-## 8. References
+## 9. References
 
 * `references/atomic-purchase.md` — PocketShop full purchase flow with `BuyResult` enum
 * `references/atm-double-entry.md` — BankApp cash↔bank, fees, limits, history
 * `references/passive-revenue.md` — BusinessIncome snapshot + variance + host authority
 * External: `Knowledge/Game-Reference/Analysis/Systems/23-Economy-Money.md`, `11-Business-Laundering.md`, `19-Customer-Budget.md`, `45-Multiplayer.md`; `Knowledge/Analysis/APIs/S1API.md` §Money; `S1API.Money` decompile `Knowledge/Frameworks/S1API/Decompiles/3.2.0/S1API.Money/`
 * Live code: `Source/Mods/BankApp/src/Services/BankService.cs`, `Source/Mods/PocketShop/src/Services/PurchaseService.cs`, `Source/Mods/BusinessIncome/src/Services/IncomeEngine.cs` + `PayoutStateStore.cs`
+* Supplier reference (decompiled): `.scratch/mod-decompile/_decompiled/AutoPaySuppliers/AutoPaySuppliers/AutoPaySuppliersMod.cs` (key APIs: `Supplier.Debt`, `SupplierDebtAccess.ChangeDebt`, `RelationData.ChangeRelationship`)

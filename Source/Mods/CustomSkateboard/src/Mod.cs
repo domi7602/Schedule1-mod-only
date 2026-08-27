@@ -135,13 +135,29 @@ public sealed class Mod : MelonMod
                 prefix: new HarmonyMethod(typeof(SkateboardVisualPatches), nameof(SkateboardVisualPatches.OnIsOnTerrainPrefix)),
                 log: Log);
 
-            // Seller dialogue choice hook
-            PatchGuard.TryPatch(
-                HarmonyInstance,
-                typeof(DialogueController_SkateboardSeller),
-                nameof(DialogueController_SkateboardSeller.ModifyChoiceList),
-                prefix: new HarmonyMethod(typeof(SkateboardSellerInjector), nameof(SkateboardSellerInjector.OnModifyChoiceListPrefix)),
-                log: Log);
+            // Seller dialogue choice hook — specify overload to avoid AmbiguousMatchException (H4)
+            try
+            {
+                var dialogueChoiceType = typeof(Il2CppScheduleOne.Dialogue.DialogueChoiceData);
+                var listByRef = typeof(System.Collections.Generic.List<>).MakeGenericType(dialogueChoiceType).MakeByRefType();
+                PatchGuard.TryPatch(
+                    HarmonyInstance,
+                    typeof(DialogueController_SkateboardSeller),
+                    nameof(DialogueController_SkateboardSeller.ModifyChoiceList),
+                    prefix: new HarmonyMethod(typeof(SkateboardSellerInjector), nameof(SkateboardSellerInjector.OnModifyChoiceListPrefix)),
+                    parameterTypes: new[] { typeof(string), listByRef },
+                    log: Log);
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"ModifyChoiceList overload patch failed, trying fallback without types: {ex.Message}");
+                PatchGuard.TryPatch(
+                    HarmonyInstance,
+                    typeof(DialogueController_SkateboardSeller),
+                    nameof(DialogueController_SkateboardSeller.ModifyChoiceList),
+                    prefix: new HarmonyMethod(typeof(SkateboardSellerInjector), nameof(SkateboardSellerInjector.OnModifyChoiceListPrefix)),
+                    log: Log);
+            }
 
             PatchGuard.Report(Log);
         }

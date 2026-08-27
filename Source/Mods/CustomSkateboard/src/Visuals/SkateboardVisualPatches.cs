@@ -78,16 +78,38 @@ public static class SkateboardVisualPatches
         }
     }
 
+    // Hot-path early-out counters (per-physics-step).
+    // These Harmony prefix methods fire on EVERY Skateboard in the scene (player + NPCs),
+    // EVERY physics step while any board is mounted. For non-custom boards the cost must be ~0.
+    public static long SmoothnessEarlyOuts;
+    public static long SmoothnessTunedHits;
+    public static long TerrainEarlyOuts;
+    public static long TerrainTunedHits;
+
     /// <summary>
     /// Prevents gravel, grass, and dirt slowdown by returning 1.0f (maximum smoothness) for the custom skateboard.
+    ///
+    /// Performance: this fires every physics step for every mounted board in the scene.
+    /// Early-out via the tuned-instance set so non-custom boards pay only a null-check + HashSet lookup.
     /// </summary>
     public static bool OnGetSurfaceSmoothnessPrefix(Skateboard __instance, ref float __result)
     {
         try
         {
-            if (__instance == null || __instance.Pointer == IntPtr.Zero) return true;
+            if (__instance == null || __instance.Pointer == IntPtr.Zero) { return true; }
 
-            if (SkateboardItemFactory.IsCustomItem(__instance.Equippable?.itemInstance) && Mod.CurrentConfig.DisableTerrainSlowdown)
+            // Cache the Unity instance ID once. GetInstanceID() is a cheap native call.
+            int instId = __instance.GetInstanceID();
+            if (instId == 0 || !SkateboardItemFactory.IsInstanceTuned(instId))
+            {
+                System.Threading.Interlocked.Increment(ref SmoothnessEarlyOuts);
+                return true;
+            }
+
+            System.Threading.Interlocked.Increment(ref SmoothnessTunedHits);
+
+            // Only our custom board gets the terrain-smoothing override — and only if user enabled it.
+            if (Mod.CurrentConfig.DisableTerrainSlowdown)
             {
                 __result = 1.0f;
                 return false;
@@ -102,14 +124,24 @@ public static class SkateboardVisualPatches
 
     /// <summary>
     /// Prevents terrain friction check from flagging the custom board as stuck on rough terrain.
+    /// Same hot-path early-out as GetSurfaceSmoothness.
     /// </summary>
     public static bool OnIsOnTerrainPrefix(Skateboard __instance, ref bool __result)
     {
         try
         {
-            if (__instance == null || __instance.Pointer == IntPtr.Zero) return true;
+            if (__instance == null || __instance.Pointer == IntPtr.Zero) { return true; }
 
-            if (SkateboardItemFactory.IsCustomItem(__instance.Equippable?.itemInstance) && Mod.CurrentConfig.DisableTerrainSlowdown)
+            int instId = __instance.GetInstanceID();
+            if (instId == 0 || !SkateboardItemFactory.IsInstanceTuned(instId))
+            {
+                System.Threading.Interlocked.Increment(ref TerrainEarlyOuts);
+                return true;
+            }
+
+            System.Threading.Interlocked.Increment(ref TerrainTunedHits);
+
+            if (Mod.CurrentConfig.DisableTerrainSlowdown)
             {
                 __result = false;
                 return false;

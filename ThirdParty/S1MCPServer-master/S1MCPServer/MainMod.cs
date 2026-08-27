@@ -28,7 +28,7 @@ public static class BuildInfo
     public const string Name = "S1MCPServer";
     public const string Description = "MCP Server for Schedule I - Enables agentic LLM access to game objects";
     public const string Author = "SirTidez";
-    public const string Version = "1.0.0";
+    public const string Version = "1.0.1";
 }
 
 public class S1MCPServer : MelonMod
@@ -40,7 +40,19 @@ public class S1MCPServer : MelonMod
 
     public override void OnInitializeMelon()
     {
-        ModLogger.Info("S1MCPServer initialized");
+        // Preferences: debug logging is opt-in (off by default to avoid spamming Latest.log)
+        var prefs = MelonPreferences.CreateCategory("S1MCPServer");
+        prefs.SetFilePath("UserData/S1MCPServer.cfg");
+        var debugPref = prefs.CreateEntry(
+            "DebugLogging",
+            false,
+            "Debug Logging",
+            "Enable verbose [DEBUG] log output (includes truncated payload dumps)"
+        );
+        MelonPreferences.Load();
+        ModLogger.DebugEnabled = debugPref.Value;
+
+        ModLogger.Info($"S1MCPServer initialized (debug logging: {(ModLogger.DebugEnabled ? "ON" : "OFF")})");
 
         // Initialize TypeResolver (scans assemblies for Component types)
         TypeResolver.Initialize();

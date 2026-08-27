@@ -204,12 +204,31 @@ public static class AutoPackStore
 
             if (File.Exists(targetSlotPath))
             {
-                File.Delete(legacyPath);
+                try { File.Delete(legacyPath); } catch { }
                 return;
             }
 
-            File.Move(legacyPath, targetSlotPath);
-            Mod.Log.Info($"Migrated legacy autopack.json -> {Path.GetFileName(targetSlotPath)}");
+            var legacyData = SafeStorage.LoadSafe<AutoPackModSaveData>(legacyPath, null, Mod.Log);
+            if (legacyData != null && legacyData.Stations != null && legacyData.Stations.Count > 0)
+            {
+                if (SafeStorage.SaveAtomic(targetSlotPath, legacyData, Mod.Log))
+                {
+                    try { File.Delete(legacyPath); } catch { }
+                    Mod.Log.Info($"Migrated legacy autopack.json -> {Path.GetFileName(targetSlotPath)} ({legacyData.Stations.Count} stations)");
+                    return;
+                }
+            }
+
+            try
+            {
+                File.Copy(legacyPath, targetSlotPath, true);
+                File.Delete(legacyPath);
+                Mod.Log.Info($"Migrated legacy autopack.json -> {Path.GetFileName(targetSlotPath)} (copy fallback)");
+            }
+            catch (Exception copyEx)
+            {
+                Mod.Log.Warn($"Legacy migration copy failed: {copyEx.Message}");
+            }
         }
         catch (Exception ex)
         {
@@ -370,9 +389,8 @@ public static class AutoPackStore
                 savedOut = null;
             }
 
-            rData.InputPackaging = savedPkg;
-            rData.InputProduct = savedProd;
-            rData.OutputProduct = savedOut;
+            // NOTE: Do NOT mutate rData here — CreateSaveData is a pure read for OnSaveComplete.
+            // Mutating live runtime during save caused wipe if native slot empty (H10).
         }
 
         return new AutoPackStationSaveData
@@ -414,7 +432,7 @@ public static class AutoPackStore
         rData.InputPackaging = data.InputPackaging;
         rData.OutputProduct = data.OutputProduct;
         rData.PackagingProgress = data.Progress;
-        if (Enum.TryParse<StationState>(data.State, out var parsed))
+        if (Enum.TryParse<StationState>(data.State, true, out var parsed))
         {
             rData.State = parsed;
         }
@@ -448,6 +466,12 @@ public static class AutoPackStore
     {
         try
         {
+            if (SceneGate.IsChangingScenes || !NetworkGuard.IsInMainScene)
+            {
+                Mod.Log.Debug("OnSaveComplete skipped: scene changing or not in Main.");
+                return;
+            }
+
             string path = GetSaveFilePath();
             Mod.Log.Info($"Saving {_activeStations.Count} AutoPackagingStation(s) to {Path.GetFileName(path)}...");
 

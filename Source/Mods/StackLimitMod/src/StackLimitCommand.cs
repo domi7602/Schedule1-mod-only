@@ -59,7 +59,12 @@ public sealed class StackLimitCommand : BaseConsoleCommand
 
     private static void PrintStats()
     {
-        var cfg = Mod.Config ?? StackLimitConfig.Load();
+        var cfg = Mod.Config;
+        if (cfg == null)
+        {
+            cfg = StackLimitConfig.Load();
+            Mod.Config = cfg;
+        }
         var sb = new StringBuilder();
         sb.AppendLine("<color=#60f080>==================================================</color>");
         sb.AppendLine("<color=#60f080>★ StackLimitMod Status</color>");
@@ -87,11 +92,17 @@ public sealed class StackLimitCommand : BaseConsoleCommand
             return;
         }
 
+        int before = Mod.Config.StackLimit;
         Mod.Config.StackLimit = amount;
+        Mod.Config.Validate();
+        if (Mod.Config.StackLimit != amount)
+        {
+            MelonLogger.Msg($"<color=#e67e22>Clamped {amount} -> {Mod.Config.StackLimit} (1..9999)</color>");
+        }
         Mod.Config.Save();
 
         int modified = StackLimitEngine.ApplyStackLimits(Mod.Config);
-        MelonLogger.Msg($"<color=#60f080>Stack limit set to {amount}. Applied to {modified} items and saved to config.</color>");
+        MelonLogger.Msg($"<color=#60f080>Stack limit set to {Mod.Config.StackLimit} (was {before}). Applied to {modified} items and saved to config.</color>");
     }
 
     private static void ExecuteReload()

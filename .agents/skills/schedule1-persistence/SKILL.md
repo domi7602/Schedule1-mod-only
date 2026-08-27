@@ -7,6 +7,8 @@ description: >-
 
 # Schedule I — Persistence Skill (Save, Config & Slot Isolation)
 
+> **Knowledge guard (mod-only):** `Knowledge/` is absent in this workspace. Before using `Knowledge/...` paths, `Test-Path Knowledge/` — fallback is `D:\Backup\game source` (`bundleVersion 0.4.5f2 Alternate`, ~1 version behind `v0.4.6f13`, 66k files, structure-only). Verify any decompile hit against live `Assembly-CSharp.dll` via `ilspycmd` / S1MCP before patching.
+
 This skill is the **single source for every file write** — configs, player notes, economy history, placed-world state. It codifies atomic I/O (`Shared/SafeStorage.cs`), slot-isolated naming, lifecycle-timed serialization, and TOML workarounds verified across 8/12 active mods.
 
 > **Version check (last verified: 2026-08-21):** `S1Mods.Shared.SafeStorage` (SaveAtomic/SaveTextAtomic + .bak), `S1API.Lifecycle.GameLifecycle`. If the game patched, re-verify `LoadManager.ActiveSaveInfo` and `GameLifecycle` hooks.

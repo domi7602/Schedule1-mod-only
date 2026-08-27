@@ -3,10 +3,12 @@ name: schedule1-s1api
 description: >-
   Author-reference for the S1API framework (ifBars fork, v3.2.0 deployed, 961 .cs files in 114 namespaces) for Schedule I v0.4.6f13 (IL2CPP/Mono).
   Use this skill whenever you need to find the right S1API namespace for a task, write a Saveable, build a PhoneApp, register a Quest, create a custom NPC, register a console command, hook a lifecycle event, or decide whether to use a S1API wrapper vs direct Il2CppScheduleOne interop.
-  Keywords: S1API, Folders, Money, GameTime, Lifecycle, PhoneApp, Quests, NPCs, Saveables, Items, Products, Building, Law, Vehicles, GameLifecycle, OnSaveLoaded, OnSaveLoaded, OnSaveLoaded, Property, Il2CppScheduleOne, MelonLoader.
+  Keywords: S1API, Folders, Money, GameTime, Lifecycle, PhoneApp, Quests, NPCs, Saveables, Items, Products, Building, Law, Vehicles, GameLifecycle, OnSaveLoaded, OnLoadComplete, Property, Il2CppScheduleOne, MelonLoader.
 ---
 
 # Schedule I — S1API Author Reference (ifBars fork, v3.2.0)
+
+> **Knowledge guard (mod-only):** `Knowledge/` is absent in this workspace. Before using `Knowledge/...` paths, `Test-Path Knowledge/` — fallback is `D:\Backup\game source` (`bundleVersion 0.4.5f2 Alternate`, ~1 version behind `v0.4.6f13`, 66k files, structure-only). Verify any decompile hit against live `Assembly-CSharp.dll` via `ilspycmd` / S1MCP before patching.
 
 This skill is the **API-catalog map** for S1API. Use it when you need to know which namespace / class to reach for, what the wired lifecycle hooks are, which patterns are safe via S1API wrapper vs which require direct IL2CPP interop, and how to handle the runtime-neutral contract.
 

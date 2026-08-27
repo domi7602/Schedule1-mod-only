@@ -8,6 +8,8 @@ description: >-
 
 # Schedule I — Knowledge Navigation Skill
 
+> **Knowledge guard (mod-only):** `Knowledge/` is absent in this workspace. Before using `Knowledge/...` paths, `Test-Path Knowledge/` — fallback is `D:\Backup\game source` (`bundleVersion 0.4.5f2 Alternate`, ~1 version behind `v0.4.6f13`, 66k files, structure-only). Verify any decompile hit against live `Assembly-CSharp.dll` via `ilspycmd` / S1MCP before patching.
+
 The workspace ships an extensive knowledge base (**~304 curated analyses + 41 MB vanilla decompile + 962-file S1API decompile + 4804 total files 67 MB**) carefully indexed. Use this guide to find the right file in seconds instead of grepping blind.
 
 ---
@@ -112,6 +114,16 @@ C. **Check an IL2CPP rule.**
 D. **Cross-reference.** Check whether S1API already wraps the API (`Analysis/APIs/S1API.md`). If yes → prefer the wrapper; if no → use direct IL2CPP access via the patterns in `il2cpp-harmony-guide.md`.
 
 E. **Check the testing history.** Search `Analysis/Learnings/ThirdParty/` for similar mods — someone probably already cracked the same problem (see catalog in `references/inventory.md` §3).
+
+F. **Decompile a third-party mod for pattern mining** (when no `ThirdParty/<ModName>.md` exists yet).
+   ```pwsh
+   # Triage first: du -h <mod>.dll. >50 MB = asset-bomb, skip. <1 MB with 5–30 files = high-yield.
+   mkdir -p .scratch/mod-decompile/_decompiled/<ModName>
+   ilspycmd "C:/Users/.../<ModName>.dll" -o ".scratch/mod-decompile/_decompiled/<ModName>" -p
+   # Read the entry-point file first (Core.cs / ModEntry.cs / <Name>Mod.cs), then
+   # follow namespace trails into the utility/integration folders.
+   ```
+   Output lives under `.scratch/mod-decompile/_decompiled/` — local scratch, **not committed**. The "update available" nag at the top of `ilspycmd` output is advertising; ignore. For workflow + triage heuristics see `schedule1-modding` §2.F.
 
 ---
 

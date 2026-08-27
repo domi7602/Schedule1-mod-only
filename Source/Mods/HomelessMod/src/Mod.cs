@@ -6,6 +6,8 @@ using HomelessMod.Items;
 using HomelessMod.Quests;
 using Il2CppInterop.Runtime.Injection;
 using Il2CppScheduleOne.Building;
+using Il2CppScheduleOne.DevUtilities;
+using Il2CppScheduleOne.Persistence;
 using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
@@ -70,7 +72,9 @@ public sealed class Mod : MelonMod
         {
             ClassInjector.RegisterTypeInIl2Cpp<SleepingBagInteractable>();
             ClassInjector.RegisterTypeInIl2Cpp<OutdoorItemInteractable>();
-            Log.Info("Registered SleepingBagInteractable & OutdoorItemInteractable in IL2CPP runtime.");
+            ClassInjector.RegisterTypeInIl2Cpp<HomelessInputFocus>();
+            Log.Info("Registered SleepingBagInteractable, OutdoorItemInteractable & HomelessInputFocus in IL2CPP runtime.");
+            HomelessInputFocus.EnsureAttached(this);
         }
         catch (Exception ex)
         {
@@ -180,14 +184,65 @@ public sealed class Mod : MelonMod
 
     private void OnPreLoad()
     {
-        StreetPropertyManager.ResetState();
+        // Slot-switch detection: read the slot that is about to be loaded BEFORE we reset anything.
+        // OnPreLoad fires both for real save-slot switches (New Game / Continue on different slot)
+        // AND for same-slot scene reloads (Menu -> Game). We must NOT kill placed street items
+        // on a same-slot reload, or the player's progress disappears every time they leave the menu.
+        int oldSlot = StreetPropertyManager.LastKnownSlotNumber;
+        int newSlot = ResolveActiveSaveSlotNumber();
+        int itemsBefore = StreetPropertyManager.ActiveStreetItemCount;
+        bool isFirstLoad = (oldSlot == -2);
+        bool isSlotSwitch = isFirstLoad || (oldSlot != newSlot);
+
+        // Cache the new slot number so subsequent same-slot reloads don't trip isSlotSwitch again.
+        StreetPropertyManager.CacheSlotNumber(newSlot);
+
+        if (isSlotSwitch)
+        {
+            string branch = "ResetState(full-wipe)";
+            Log.Info($"[OnPreLoad] oldSlot={oldSlot} newSlot={newSlot} isSlotSwitch=True isFirstLoad={isFirstLoad} itemsBefore={itemsBefore} branch={branch}");
+            StreetPropertyManager.ResetState();
+        }
+        else
+        {
+            string branch = "ResetForSceneUnload(keep-slot)";
+            Log.Info($"[OnPreLoad] oldSlot={oldSlot} newSlot={newSlot} isSlotSwitch=False itemsBefore={itemsBefore} branch={branch}");
+            StreetPropertyManager.ResetForSceneUnload();
+        }
+
         HomelessQuestManager.ResetState();
         _streetItemsLoaded = false;
+    }
+
+    private static int ResolveActiveSaveSlotNumber()
+    {
+        try
+        {
+            var loadMgr = PersistentSingleton<LoadManager>.Instance;
+            if (loadMgr != null && loadMgr.Pointer != IntPtr.Zero && !loadMgr.WasCollected)
+            {
+                var saveInfo = loadMgr.ActiveSaveInfo;
+                if (saveInfo != null && saveInfo.Pointer != IntPtr.Zero && !saveInfo.WasCollected)
+                {
+                    return saveInfo.SaveSlotNumber; // -1 = no slot / main menu
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Debug($"ResolveActiveSaveSlotNumber fallback: {ex.Message}");
+        }
+        return -1;
     }
 
     private void OnSaveInfoLoaded()
     {
         SleepingBagItemFactory.RegisterItem();
+
+        // Diagnostic: report the active slot at save-info time so we can correlate
+        // this hook with the OnPreLoad branch that just ran.
+        int currentSlot = ResolveActiveSaveSlotNumber();
+        Log.Info($"[OnSaveInfoLoaded] currentSlot={currentSlot}");
     }
 
     private void OnLoadComplete()
@@ -201,6 +256,20 @@ public sealed class Mod : MelonMod
             _streetItemsLoaded = true;
             StreetPropertyManager.LoadAndSpawnStreetItems();
             SleepingBagItemFactory.InjectHardwareStoreListing();
+        }
+
+        // Diagnostic: report which JSON path was actually loaded from and how many items came back.
+        // GetSaveFilePath() logs its own line above; we add the item-count here.
+        try
+        {
+            string savePath = StreetPropertyManager.GetSaveFilePath();
+            int itemsAfter = StreetPropertyManager.ActiveStreetItemCount;
+            bool fileExists = System.IO.File.Exists(savePath);
+            Log.Info($"[OnLoadComplete] resolvedSavePath='{System.IO.Path.GetFileName(savePath)}' jsonExists={fileExists} itemsLoaded={itemsAfter}");
+        }
+        catch (Exception ex)
+        {
+            Log.Debug($"OnLoadComplete diagnostic failed: {ex.Message}");
         }
 
         HomelessQuestManager.InitializeQuests();

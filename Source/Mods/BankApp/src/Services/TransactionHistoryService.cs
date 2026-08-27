@@ -27,10 +27,10 @@ public static class TransactionHistoryService
         try
         {
             var loadMgr = PersistentSingleton<LoadManager>.Instance;
-            if (loadMgr != null && loadMgr.Pointer != IntPtr.Zero)
+            if (loadMgr != null && loadMgr.Pointer != IntPtr.Zero && !loadMgr.WasCollected)
             {
                 var saveInfo = loadMgr.ActiveSaveInfo;
-                if (saveInfo != null && saveInfo.Pointer != IntPtr.Zero)
+                if (saveInfo != null && saveInfo.Pointer != IntPtr.Zero && !saveInfo.WasCollected)
                 {
                     if (saveInfo.SaveSlotNumber >= 0)
                     {
@@ -39,7 +39,16 @@ public static class TransactionHistoryService
                     }
                     else if (!string.IsNullOrEmpty(saveInfo.SavePath))
                     {
-                        slotSuffix = Path.GetFileName(saveInfo.SavePath);
+                        // H4: Normalize fallback — extract slot number from path, don't use "Save.json"
+                        string file = Path.GetFileNameWithoutExtension(saveInfo.SavePath) ?? "";
+                        var m = System.Text.RegularExpressions.Regex.Match(file, @"\d+");
+                        if (m.Success) slotSuffix = $"slot_{m.Value}";
+                        else
+                        {
+                            string dir = Path.GetFileName(Path.GetDirectoryName(saveInfo.SavePath) ?? "");
+                            var m2 = System.Text.RegularExpressions.Regex.Match(dir, @"\d+");
+                            slotSuffix = m2.Success ? $"slot_{m2.Value}" : $"slot_{file}";
+                        }
                         resolved = true;
                     }
                 }
@@ -88,9 +97,26 @@ public static class TransactionHistoryService
                     try { File.Delete(legacy); } catch { }
                     continue;
                 }
-                // Only migrate if legacy file has content
-                try { File.Move(legacy, slotPath); } catch { }
-                break;
+                try
+                {
+                    var legacyState = SafeStorage.LoadSafe<BankState>(legacy, null, Mod.Log);
+                    if (legacyState != null && legacyState.Transactions != null && legacyState.Transactions.Count > 0)
+                    {
+                        if (SafeStorage.SaveAtomic(slotPath, legacyState, Mod.Log))
+                        {
+                            try { File.Delete(legacy); } catch { }
+                            Mod.Log?.Info($"Migrated legacy {Path.GetFileName(legacy)} -> {Path.GetFileName(slotPath)}");
+                            break;
+                        }
+                    }
+                    // Fallback for empty or load failure: copy raw
+                    SafeStorage.EnsureDirectoryForFile(slotPath);
+                    File.Copy(legacy, slotPath, true);
+                    try { File.Delete(legacy); } catch { }
+                    Mod.Log?.Info($"Migrated legacy {Path.GetFileName(legacy)} -> {Path.GetFileName(slotPath)} (copy)");
+                    break;
+                }
+                catch (Exception ex) { Mod.Log?.Warn($"Legacy migrate {Path.GetFileName(legacy)} failed: {ex.Message}"); }
             }
         }
         catch { }
@@ -160,6 +186,13 @@ public static class TransactionHistoryService
             state.WeeklyDepositedAmount = 0f;
         }
         state.WeeklyDepositedAmount += amount;
+        // H3: Do NOT Save here — caller (BankService.DepositCash) will do single SaveAtomic via AddTransaction
+        // This prevents double-write desync where weekly amount persisted but transaction not
+    }
+
+    internal static void RecordWeeklyDepositAndSave(float amount, int currentWeek)
+    {
+        RecordWeeklyDeposit(amount, currentWeek);
         SaveActiveState();
     }
 

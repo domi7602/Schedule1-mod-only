@@ -26,6 +26,7 @@ public static class AutoPackEngine
 
     /// <summary>
     /// Processes an active packaging time step for a station controller.
+    /// Host-only tick; clients only animate via host sync (prevents client desync H7).
     /// </summary>
     public static void ProcessPackagingStep(AutoPackStationController controller, float deltaTime)
     {
@@ -35,10 +36,16 @@ public static class AutoPackEngine
         bool isNativeStation = (station != null && station.Pointer != IntPtr.Zero);
 
         var rData = AutoPackStore.GetRuntimeData(controller.StationGuid);
+
+        if (!IsHostOrSingleplayer())
+        {
+            return;
+        }
+
         float targetDuration = Mathf.Max(0.2f, Mod.CurrentConfig.PackagingDurationSeconds);
         rData.PackagingProgress += deltaTime / targetDuration;
 
-        // Animate conveyor and pneumatic piston
+        // Animate conveyor and pneumatic piston (host-authoritative)
         controller.AnimateCycle(deltaTime, rData.PackagingProgress);
 
         if (rData.PackagingProgress >= 1.0f)
@@ -174,36 +181,62 @@ public static class AutoPackEngine
         string outputItemId = ResolvePackagedItemId(rawItemId, packagingId);
         if (string.IsNullOrEmpty(outputItemId)) return false;
 
-        // Check output slot capacity
-        if (outSlot != null && outSlot.Pointer != IntPtr.Zero && outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero && outSlot.Quantity > 0)
+        // Compute feasible batch size respecting MaxBatchSize (H6)
+        int configuredBatch = Mathf.Clamp(Mod.CurrentConfig.MaxBatchSize, 1, 20);
+        int maxByProductNative = prodSlot!.Quantity / Math.Max(1, requiredProductQty);
+        int maxByPackagingNative = pkgSlot!.Quantity;
+        int currentOutQty = (outSlot != null && outSlot.Pointer != IntPtr.Zero && outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero) ? outSlot.Quantity : 0;
+        string currentOutId = (outSlot != null && outSlot.ItemInstance != null && outSlot.ItemInstance.Definition != null) ? outSlot.ItemInstance.Definition.ID : string.Empty;
+        int outStackLimit = 20;
+        try
         {
+            var outDefProbe = GameRegistry.GetItem(outputItemId);
+            if (outDefProbe != null && outDefProbe.Pointer != IntPtr.Zero) outStackLimit = outDefProbe.StackLimit;
+            else if (!string.IsNullOrEmpty(currentOutId))
+            {
+                var curDef = GameRegistry.GetItem(currentOutId);
+                if (curDef != null && curDef.Pointer != IntPtr.Zero) outStackLimit = curDef.StackLimit;
+            }
+        }
+        catch { }
+        int maxByOutputNative = outStackLimit - currentOutQty;
+        // Validate output slot item match / capacity before batch calc
+        if (currentOutQty > 0)
+        {
+            if (outSlot == null || outSlot.Pointer == IntPtr.Zero || outSlot.ItemInstance == null || outSlot.ItemInstance.Pointer == IntPtr.Zero) return false;
             var curOutDef = outSlot.ItemInstance.Definition;
             if (curOutDef == null || curOutDef.Pointer == IntPtr.Zero || curOutDef.ID != outputItemId)
                 return false;
-
-            int stackLimit = curOutDef.StackLimit;
-            if (outSlot.Quantity >= stackLimit)
+            if (currentOutQty >= outStackLimit)
                 return false;
         }
+        int feasibleNative = Math.Min(Math.Min(maxByProductNative, maxByPackagingNative), maxByOutputNative);
+        if (feasibleNative <= 0) return false;
+        int batchSizeNative = Math.Max(1, Math.Min(configuredBatch, feasibleNative));
+        int deductProductNative = requiredProductQty * batchSizeNative;
 
         try
         {
-            // Quality calculation with freshness bonus
+            // Quality calculation with freshness bonus — unified with fallback path via PackagingMath (H5)
             EQuality upgradedQuality = EQuality.Standard;
-            var qInst = prodInst.TryCast<QualityItemInstance>();
-            if (qInst != null && qInst.Pointer != IntPtr.Zero)
             {
                 float bonusMultiplier = Mathf.Max(0f, Mod.CurrentConfig.FreshnessBonusMultiplier);
-                int baseTier = (int)qInst.Quality;
-                int upgradedTier = Mathf.Clamp(baseTier + (bonusMultiplier > 0f ? 1 : 0), 0, 4);
+                float baseQuality = 0.55f;
+                var qInst = prodInst.TryCast<QualityItemInstance>();
+                if (qInst != null && qInst.Pointer != IntPtr.Zero)
+                {
+                    baseQuality = (int)qInst.Quality switch { 0 => 0.20f, 1 => 0.35f, 2 => 0.55f, 3 => 0.80f, _ => 0.95f };
+                }
+                float upgradedVal = Mathf.Clamp01(baseQuality * (1f + bonusMultiplier));
+                int upgradedTier = PackagingMath.ComputeQualityTier(upgradedVal);
                 upgradedQuality = (EQuality)upgradedTier;
             }
 
-            // Phase 2: Deduct inputs & add output
+            // Phase 2: Deduct inputs & add output — batch-aware (H6)
             // 1. Deduct Product
-            if (prodSlot.Quantity > requiredProductQty)
+            if (prodSlot.Quantity > deductProductNative)
             {
-                prodSlot.ChangeQuantity(-requiredProductQty);
+                prodSlot.ChangeQuantity(-deductProductNative);
             }
             else
             {
@@ -211,9 +244,9 @@ public static class AutoPackEngine
             }
 
             // 2. Deduct Packaging
-            if (pkgSlot.Quantity > 1)
+            if (pkgSlot.Quantity > batchSizeNative)
             {
-                pkgSlot.ChangeQuantity(-1);
+                pkgSlot.ChangeQuantity(-batchSizeNative);
             }
             else
             {
@@ -247,12 +280,16 @@ public static class AutoPackEngine
                             }
                         }
                         outSlot.SetStoredItem(newInst);
+                        if (batchSizeNative > 1)
+                        {
+                            outSlot.ChangeQuantity(batchSizeNative - 1);
+                        }
                     }
                 }
             }
             else
             {
-                outSlot.ChangeQuantity(1);
+                outSlot.ChangeQuantity(batchSizeNative);
             }
 
             // Notify listeners
@@ -270,7 +307,7 @@ public static class AutoPackEngine
             }
             catch { }
 
-            Mod.Log.Info($"[AutoPack Engine] Packaged {requiredProductQty}x '{rawItemId}' + '{packagingId}' -> '{outputItemId}' (Quality: {upgradedQuality}).");
+            Mod.Log.Info($"[AutoPack Engine] Packaged {deductProductNative}x '{rawItemId}' + {batchSizeNative}x '{packagingId}' -> {batchSizeNative}x '{outputItemId}' (Quality: {upgradedQuality}).");
             return true;
         }
         catch (Exception ex)
@@ -280,11 +317,12 @@ public static class AutoPackEngine
         }
     }
 
-    private static bool IsHostOrSingleplayer()
+    internal static bool IsHostOrSingleplayer()
     {
         try
         {
-            if (Il2CppFishNet.InstanceFinder.NetworkManager == null || (UnityEngine.Object)Il2CppFishNet.InstanceFinder.NetworkManager == null)
+            var nm = Il2CppFishNet.InstanceFinder.NetworkManager;
+            if (nm == null || nm.Pointer == IntPtr.Zero || nm.WasCollected || (UnityEngine.Object)nm == null)
                 return true;
 
             return Il2CppFishNet.InstanceFinder.IsServer;
@@ -336,8 +374,22 @@ public static class AutoPackEngine
             return false;
         }
 
-        // Determine units to package this cycle
-        int batchSize = 1; // 1 output unit per cycle (e.g. 1 baggie / 1 jar / 1 brick)
+        // Determine units to package this cycle — respects MaxBatchSize (H6) but clamped to input/output capacity
+        int configuredBatch = Mathf.Clamp(Mod.CurrentConfig.MaxBatchSize, 1, 20);
+        int maxByProduct = inputProd.Quantity / Math.Max(1, requiredProductQty);
+        int maxByPackaging = inputPkg.Quantity;
+        int maxByOutputCap = 20;
+        try
+        {
+            var defProbe = GameRegistry.GetItem(ResolvePackagedItemId(inputProd.ItemId, packagingId));
+            if (defProbe != null && defProbe.Pointer != IntPtr.Zero) maxByOutputCap = defProbe.StackLimit;
+        }
+        catch { }
+        if (outputSlot != null && outputSlot.Quantity > 0)
+            maxByOutputCap = maxByOutputCap - outputSlot.Quantity;
+        int feasible = Math.Min(Math.Min(maxByProduct, maxByPackaging), maxByOutputCap);
+        int batchSize = Math.Max(1, Math.Min(configuredBatch, Math.Max(1, feasible)));
+        if (batchSize > feasible) batchSize = Math.Max(1, feasible);
 
         // Resolve target output item ID
         string outputItemId = ResolvePackagedItemId(inputProd.ItemId, packagingId);
@@ -386,7 +438,7 @@ public static class AutoPackEngine
             float upgradedQuality = Mathf.Clamp01(baseQuality * (1.0f + bonusMultiplier));
 
             // Derive quality tier
-            int upgradedTier = ComputeQualityTier(upgradedQuality);
+            int upgradedTier = PackagingMath.ComputeQualityTier(upgradedQuality);
 
             // 2. Clone mix-effects 1:1
             var clonedEffects = new List<string>();
@@ -398,8 +450,9 @@ public static class AutoPackEngine
                 }
             }
 
-            // 3. Deduct Input Product (Atomic Phase 2A)
-            inputProd.Quantity -= requiredProductQty;
+            // 3. Deduct Input Product (Atomic Phase 2A) — respects batchSize (H6)
+            int deductProduct = requiredProductQty * batchSize;
+            inputProd.Quantity -= deductProduct;
             if (inputProd.Quantity <= 0)
             {
                 rData.InputProduct = null;
@@ -408,7 +461,7 @@ public static class AutoPackEngine
             // 4. Deduct Packaging Material if used (Atomic Phase 2B)
             if (inputPkg != null && inputPkg.Quantity > 0)
             {
-                inputPkg.Quantity -= 1;
+                inputPkg.Quantity -= batchSize;
                 if (inputPkg.Quantity <= 0)
                 {
                     rData.InputPackaging = null;
@@ -421,7 +474,7 @@ public static class AutoPackEngine
                 rData.OutputProduct = new SlotItemData
                 {
                     ItemId = outputItemId,
-                    ItemName = FormatPackagedName(inputProd.ItemName, packagingId),
+                    ItemName = PackagingMath.FormatPackagedName(inputProd.ItemName, packagingId),
                     Quantity = batchSize,
                     QualityValue = upgradedQuality,
                     QualityTier = upgradedTier,
@@ -435,10 +488,10 @@ public static class AutoPackEngine
                 float oldQual = outputSlot.QualityValue;
                 outputSlot.Quantity += batchSize;
                 outputSlot.QualityValue = ((oldQty * oldQual) + (batchSize * upgradedQuality)) / (oldQty + batchSize);
-                outputSlot.QualityTier = ComputeQualityTier(outputSlot.QualityValue);
+                outputSlot.QualityTier = PackagingMath.ComputeQualityTier(outputSlot.QualityValue);
             }
 
-            Mod.Log.Info($"[AutoPack Atomic Commit] Packaged {requiredProductQty}x '{inputProd.ItemId}' -> '{outputItemId}' (Quality: {baseQuality:P0} -> {upgradedQuality:P0} [+5% bonus], Effects: {clonedEffects.Count}).");
+            Mod.Log.Info($"[AutoPack Atomic Commit] Packaged {deductProduct}x '{inputProd.ItemId}' -> {batchSize}x '{outputItemId}' (Quality: {baseQuality:P0} -> {upgradedQuality:P0} [+{Mod.CurrentConfig.FreshnessBonusMultiplier:P0} bonus], Effects: {clonedEffects.Count}).");
             return true;
         }
         catch (Exception ex)
@@ -448,14 +501,7 @@ public static class AutoPackEngine
         }
     }
 
-    private static int ComputeQualityTier(float qualityValue)
-    {
-        if (qualityValue < 0.25f) return 0; // Trash
-        if (qualityValue < 0.40f) return 1; // Poor
-        if (qualityValue < 0.75f) return 2; // Standard
-        if (qualityValue < 0.90f) return 3; // Premium
-        return 4; // Heavenly
-    }
+    // ComputeQualityTier moved to PackagingMath.cs (testable, no S1API deps).
 
     public static string ResolvePackagedItemId(string rawItemId, string packagingId)
     {
@@ -493,16 +539,7 @@ public static class AutoPackEngine
         return rawItemId;
     }
 
-    public static string FormatPackagedName(string baseName, string packagingId)
-    {
-        string name = string.IsNullOrEmpty(baseName) ? "Product" : baseName;
-        string pkg = (packagingId ?? "baggie").ToLowerInvariant();
-        if (pkg.Contains("jar")) return $"{name} (Jar)";
-        if (pkg.Contains("box")) return $"{name} (Box)";
-        if (pkg.Contains("brick")) return $"{name} (Brick)";
-        if (pkg.Contains("vial")) return $"{name} (Vial)";
-        return $"{name} (Packaged)";
-    }
+    // FormatPackagedName moved to PackagingMath.cs (testable, no S1API deps).
 
     #region Audio Synthesis & SFX
 

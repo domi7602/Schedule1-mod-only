@@ -76,12 +76,12 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 | **ProfitTracker**   | ⏸ archived (v1.1.0) | `Archive/ProfitTracker/` | — (removed from MelonLoader) | no (MelonMod + uGUI Screen HUD + TextMeshPro + S1API/Hash Console + SafeStorage) |
 | **TVBrowser**       | ⏸ archived (v0.1.0) | `Archive/TVBrowser/`   | — (removed from MelonLoader) | yes (TVApp + BrowserNavBar + InputFocus + UwbBridge + ModConfig) |
 | **MikuPlayerModel** | ⏸ disabled (discontinued) | `Archive/MikuPlayerModel/` | `MikuPlayerModel.dll.bak` | yes (Player Avatar Injection + Verlet Hair Spring Physics + Console) |
-| **S1MCP**        | ✅ active (v1.0.0, IL2CPP net6, freeze fix, **verified 2026-08-22**) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | yes (MCP Protocol / TCP Server :8765 / Live Game State / Log Inspection) |
+| **S1MCP**        | ✅ active (v1.0.1, IL2CPP net6, freeze fix, debug-logging opt-in, **verified 2026-08-22**) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | yes (MCP Protocol / TCP Server :8765 / Live Game State / Log Inspection) |
 | Construction Site | ⏸ disabled     | —                      | `ConstructionSiteProperty.dll.bak`   | no   |
 | **MoreDrugs 1.0.2** | ✅ active (ifBars rewrite, S1API Save-Provider, **verified 2026-08-04**) | `ThirdParty/MoreDrugs/` | `DrugExpansion_Il2cpp.dll` (10.5 MB) + .bak | yes (S1API 3.1.7+ Save-Provider APIs verified) |
 | **StackLimitMod** | ✅ active (v0.1.0, **verified 2026-08-20 / v0.4.6f13**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` + .json | yes (BaseItemDefinition + Registry + BaseItemInstance Harmony Patches + Console + SafeStorage) |
-| **BackpackMod**   | ✅ active (v1.0.0, **verified 2026-08-21 / v0.4.6f13**) | `Mods/BackpackMod/` | `BackpackMod.dll` + .json + .bundle | yes (3D Wearable Backpacks + Spine Rig Alignment + Realistic Harness & Straps + ObjLoader + Storage + Mannequin 360 Rotation) |
-| **AutoPackagingStation** | ✅ active (v0.2.1, **verified 2026-08-23 / v0.4.6f13**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` + docs | yes (4x4 Industrial Packaging Line + UV Scroll Conveyor + Native Slot Sync + SafeStorage + Shop Injection) |
+| **BackpackMod**   | ✅ active (v1.0.0, **verified 2026-08-21 / v1.0.0f13**) | `Mods/BackpackMod/` | `BackpackMod.dll` + .json + .bundle | yes (3D Wearable Backpacks + Spine Rig Alignment + Realistic Harness & Straps + ObjLoader + Storage + Mannequin 360 Rotation) |
+| **AutoPackagingStation** | ✅ active (v0.2.0, **verified 2026-08-23 / v0.2.0f13**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` + docs | yes (4x4 Industrial Packaging Line + UV Scroll Conveyor + Native Slot Sync + SafeStorage + Shop Injection) |
 | **Shared**       | ✅ active (workspace lib, **verified 2026-08-20**) | `Mods/Shared/` | `Shared.dll` | no (PatchGuard, SafeStorage, GameObjectResolver, SafeInvoker, HotkeyManager, ModConfig, ModLogger, NetworkGuard, SceneGate, TypeResolver, UITheme) |
 | S1API 3.2.0      | ✅ active        | —                      | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | (itself) |
 

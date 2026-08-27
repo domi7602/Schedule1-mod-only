@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using HarmonyLib;
 using Il2CppScheduleOne;
 using Il2CppScheduleOne.Core.Items.Framework;
 using Il2CppScheduleOne.ItemFramework;
@@ -12,7 +11,8 @@ public static class StackLimitEngine
 {
     private static readonly Dictionary<string, int> _originalLimits = new(StringComparer.OrdinalIgnoreCase);
     private static readonly object _lock = new();
-    internal static object _lockProxy => _lock;
+    private static HashSet<string>? _excludedSet;
+    private static int _excludedSetHash = 0;
 
     public static int ModifiedItemCount { get; private set; }
     public static int TrackedItemCount
@@ -35,14 +35,54 @@ public static class StackLimitEngine
         }
     }
 
+    public static bool IsExcluded(string id)
+    {
+        if (string.IsNullOrEmpty(id)) return false;
+        var set = _excludedSet;
+        if (set != null) return set.Contains(id);
+        var cfg = Mod.Config;
+        if (cfg?.ExcludedItemIds == null) return false;
+        return cfg.ExcludedItemIds.Exists(x => string.Equals(x, id, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static void RebuildExcludedCache(StackLimitConfig config)
+    {
+        if (config?.ExcludedItemIds == null || config.ExcludedItemIds.Count == 0)
+        {
+            _excludedSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            _excludedSetHash = 0;
+            return;
+        }
+        int hash = config.ExcludedItemIds.Count;
+        for (int i = 0; i < config.ExcludedItemIds.Count; i++)
+        {
+            var s = config.ExcludedItemIds[i];
+            hash = HashCode.Combine(hash, s != null ? StringComparer.OrdinalIgnoreCase.GetHashCode(s.Trim()) : 0);
+        }
+        if (_excludedSet == null || hash != _excludedSetHash)
+        {
+            var cleaned = new List<string>();
+            for (int i = 0; i < config.ExcludedItemIds.Count; i++)
+            {
+                var s = config.ExcludedItemIds[i];
+                if (string.IsNullOrWhiteSpace(s)) continue;
+                cleaned.Add(s.Trim());
+            }
+            _excludedSet = new HashSet<string>(cleaned, StringComparer.OrdinalIgnoreCase);
+            _excludedSetHash = hash;
+        }
+    }
+
     public static int ApplyStackLimits(StackLimitConfig config)
     {
         if (config == null) return 0;
 
-
+        RebuildExcludedCache(config);
 
         var processedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         int count = 0;
+        int resourcesCount = 0;
+        int registryCount = 0;
 
         // 1. Scan loaded BaseItemDefinitions via Resources
         try
@@ -56,13 +96,14 @@ public static class StackLimitEngine
                     if (ApplyToDefinition(def, config, processedIds))
                     {
                         count++;
+                        resourcesCount++;
                     }
                 }
             }
         }
         catch (Exception ex)
         {
-            Mod.Log?.Warn($"ApplyStackLimits Resources scan encountered exception: {ex.Message}");
+            Mod.Log?.Warn($"ApplyStackLimits Resources scan encountered exception: {ex}");
         }
 
         // 2. Scan Registry items
@@ -80,6 +121,7 @@ public static class StackLimitEngine
                         if (ApplyToDefinition(item, config, processedIds))
                         {
                             count++;
+                            registryCount++;
                         }
                     }
                 }
@@ -87,14 +129,18 @@ public static class StackLimitEngine
         }
         catch (Exception ex)
         {
-            Mod.Log?.Warn($"ApplyStackLimits Registry scan encountered exception: {ex.Message}");
+            Mod.Log?.Warn($"ApplyStackLimits Registry scan encountered exception: {ex}");
         }
 
+        // M-4: Only publish count after both scans; if partial, log warn
         ModifiedItemCount = count;
 
         if (config.LogModifications)
         {
-            Mod.Log?.Info($"StackLimitEngine: Applied stack limit ({config.StackLimit}) to {count} items.");
+            if (count == 0 && (resourcesCount == 0 && registryCount == 0))
+                Mod.Log?.Debug($"StackLimitEngine: No items modified (limit {config.StackLimit}).");
+            else
+                Mod.Log?.Info($"StackLimitEngine: Applied stack limit ({config.StackLimit}) to {count} items (Resources:{resourcesCount} Registry:{registryCount}).");
         }
 
         return count;
@@ -130,7 +176,7 @@ public static class StackLimitEngine
             }
         }
 
-        if (config.ExcludedItemIds != null && config.ExcludedItemIds.Exists(x => string.Equals(x, id, StringComparison.OrdinalIgnoreCase)))
+        if (IsExcluded(id))
             return false;
 
         if (!config.OverrideNonStackable && originalLimit == 1)
@@ -142,7 +188,7 @@ public static class StackLimitEngine
         }
         catch (Exception ex)
         {
-            Mod.Log?.Warn($"ApplyToDefinition failed for '{id}': {ex.GetType().Name}: {ex.Message}");
+            Mod.Log?.Warn($"ApplyToDefinition failed for '{id}': {ex}");
             return false;
         }
 

@@ -6,7 +6,7 @@ using System.IO;
 using UnityEngine;
 using S1API.Lifecycle;
 
-[assembly: MelonInfo(typeof(BackpackMod.Mod), "BackpackMod", "0.1.0", "Dominik")]
+[assembly: MelonInfo(typeof(BackpackMod.Mod), "BackpackMod", "1.0.0", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BackpackMod;
@@ -111,18 +111,30 @@ public class Mod : MelonMod
         BackpackVisualManager.UpdateVisuals(_bundle);
         BackpackStorageManager.OnUpdate();
 
+        bool isTyping = false;
+        try { isTyping = S1Mods.Shared.HotkeyManager.IsInputFieldFocused(); } catch { }
+        if (isTyping) return;
+
         if (Input.GetKeyDown(KeyCode.B))
         {
+            // Focus guard already above; also require in-game save
+            var lm = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.LoadManager>.Instance;
+            if (lm == null || lm.Pointer == IntPtr.Zero || lm.WasCollected || lm.ActiveSaveInfo == null || lm.ActiveSaveInfo.Pointer == IntPtr.Zero || lm.ActiveSaveInfo.WasCollected)
+            {
+                // Allow toggle only in Main scene with active save
+                if (!S1Mods.Shared.NetworkGuard.IsInMainScene) return;
+            }
             BackpackStorageManager.ToggleStorage();
         }
 
+#if DEBUG
         if (Input.GetKeyDown(KeyCode.F8))
         {
             Log.Msg("F8 pressed! Attempting to spawn backpacks...");
             EnsureDefinitions();
 
             var pInv = Il2CppScheduleOne.PlayerScripts.PlayerInventory.Instance;
-            if (pInv == null)
+            if (pInv == null || pInv.Pointer == IntPtr.Zero || pInv.WasCollected)
             {
                 Log.Warning("PlayerInventory.Instance is null (are you in an active save game?)");
                 return;
@@ -132,21 +144,28 @@ public class Mod : MelonMod
             SpawnBackpack(pInv, "backpack_t2");
             SpawnBackpack(pInv, "backpack_t3");
         }
+#endif
     }
 
     private static void SpawnBackpack(Il2CppScheduleOne.PlayerScripts.PlayerInventory pInv, string id)
     {
         var itemDef = Il2CppScheduleOne.Registry.GetItem(id);
-        if (itemDef == null)
+        if (itemDef == null || itemDef.Pointer == IntPtr.Zero)
         {
             Log.Error($"Item '{id}' not found in Registry!");
             return;
         }
 
         var instance = itemDef.GetDefaultInstance(1);
-        if (instance == null)
+        if (instance == null || instance.Pointer == IntPtr.Zero)
         {
             Log.Error($"Could not create ItemInstance for '{id}'!");
+            return;
+        }
+
+        if (!pInv.CanItemFitInInventory(instance, 1))
+        {
+            Log.Warning($"Cannot add '{id}' — inventory full.");
             return;
         }
 

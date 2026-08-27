@@ -13,7 +13,7 @@ using S1API.Lifecycle;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(AutoPackagingStation.Mod), "AutoPackagingStation", "0.1.0", "Dominik")]
+[assembly: MelonInfo(typeof(AutoPackagingStation.Mod), "AutoPackagingStation", "0.2.0", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace AutoPackagingStation;
@@ -63,7 +63,8 @@ public sealed class Mod : MelonMod
             Log.Warn($"Early config init: {ex.Message}");
         }
 
-        Log.Info($"Initializing AutoPackagingStation v0.1.0 (Timer: {CurrentConfig.PackagingDurationSeconds}s, FreshnessBonus: +{CurrentConfig.FreshnessBonusMultiplier:P0})");
+        var asmVer = typeof(Mod).Assembly.GetName().Version?.ToString(3) ?? "0.2.0";
+        Log.Info($"Initializing AutoPackagingStation v{asmVer} (Timer: {CurrentConfig.PackagingDurationSeconds}s, FreshnessBonus: +{CurrentConfig.FreshnessBonusMultiplier:P0})");
 
         // 1. Register IL2CPP Types (Critic Pillar 1: No direct inheritance of IL2CPP classes, pure MonoBehaviour with IntPtr ctor)
         try
@@ -122,7 +123,7 @@ public sealed class Mod : MelonMod
             log: Log
         );
 
-
+        PatchGuard.Report(Log);
     }
 }
 

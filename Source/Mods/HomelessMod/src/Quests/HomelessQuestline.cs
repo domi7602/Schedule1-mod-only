@@ -235,6 +235,7 @@ public static class HomelessQuestManager
     public static void ResetState()
     {
         _initialized = false;
+        _completedQuests.Clear();
     }
 
     // ----- Fresh lookup helpers (save-load safe) -----
@@ -285,9 +286,12 @@ public static class HomelessQuestManager
         }
     }
 
+    private static string _lastKnownQuestSlot = "default";
+
     private static string GetStateFilePath()
     {
         string slotSuffix = "default";
+        bool resolved = false;
         try
         {
             var loadMgr = PersistentSingleton<LoadManager>.Instance;
@@ -299,14 +303,16 @@ public static class HomelessQuestManager
                     if (saveInfo.SaveSlotNumber >= 0)
                     {
                         slotSuffix = $"slot_{saveInfo.SaveSlotNumber}";
+                        resolved = true;
                     }
                     else if (!string.IsNullOrEmpty(saveInfo.SavePath))
                     {
                         slotSuffix = Path.GetFileName(saveInfo.SavePath);
+                        resolved = true;
                     }
                 }
             }
-            else
+            if (!resolved)
             {
                 var legacyMgr = Singleton<LoadManager>.Instance;
                 if (legacyMgr != null && legacyMgr.Pointer != IntPtr.Zero && !legacyMgr.WasCollected)
@@ -317,19 +323,57 @@ public static class HomelessQuestManager
                         if (saveInfo.SaveSlotNumber >= 0)
                         {
                             slotSuffix = $"slot_{saveInfo.SaveSlotNumber}";
+                            resolved = true;
                         }
                         else if (!string.IsNullOrEmpty(saveInfo.SavePath))
                         {
                             slotSuffix = Path.GetFileName(saveInfo.SavePath);
+                            resolved = true;
                         }
                     }
                 }
             }
         }
         catch { }
+        if (resolved) _lastKnownQuestSlot = slotSuffix;
+        else if (!string.IsNullOrEmpty(_lastKnownQuestSlot)) slotSuffix = _lastKnownQuestSlot;
 
         string dir = SafeStorage.GetUserDataPath("HomelessMod");
-        return Path.Combine(dir, $"quest_progress_{slotSuffix}.json");
+        string slotPath = Path.Combine(dir, $"quest_progress_{slotSuffix}.json");
+        string legacyPath = Path.Combine(dir, "quest_progress.json");
+        TryMigrateQuestLegacy(slotPath, legacyPath);
+        return slotPath;
+    }
+
+    private static void TryMigrateQuestLegacy(string slotPath, string legacyPath)
+    {
+        if (!File.Exists(legacyPath)) return;
+        if (File.Exists(slotPath))
+        {
+            try { File.Delete(legacyPath); } catch { }
+            return;
+        }
+        try
+        {
+            var legacy = SafeStorage.LoadSafe<List<string>>(legacyPath, null, Mod.Log);
+            if (legacy != null && legacy.Count > 0)
+            {
+                if (SafeStorage.SaveAtomic(slotPath, legacy, Mod.Log))
+                {
+                    try { File.Delete(legacyPath); } catch { }
+                    Mod.Log.Info($"Migrated legacy quest_progress.json -> {Path.GetFileName(slotPath)}");
+                    return;
+                }
+            }
+            SafeStorage.EnsureDirectoryForFile(slotPath);
+            File.Copy(legacyPath, slotPath, true);
+            try { File.Delete(legacyPath); } catch { }
+            Mod.Log.Info($"Migrated legacy quest_progress.json -> {Path.GetFileName(slotPath)} (copy)");
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"Quest legacy migration failed: {ex.Message}");
+        }
     }
 
     private static void LoadCompletedState()

@@ -111,6 +111,16 @@ public class OutdoorItemInteractable : MonoBehaviour
                 return;
             }
 
+            // Strict input guard — block when cursor unlocked or typing (H6, schedule1-persistence §2)
+            bool isTyping = false;
+            try { isTyping = S1Mods.Shared.HotkeyManager.IsInputFieldFocused(); } catch { }
+            if (isTyping || Cursor.lockState != CursorLockMode.Locked || this.WasCollected || gameObject.WasCollected)
+            {
+                _isHovered = false;
+                _rmbHoldProgress = 0f;
+                return;
+            }
+
             var player = PlayerSingleton<PlayerMovement>.Instance;
             if (player == null || player.Pointer == IntPtr.Zero)
             {
@@ -168,17 +178,18 @@ public class OutdoorItemInteractable : MonoBehaviour
 
             if (_isHovered)
             {
-                // [F] Key: Instant pack up
-                if (Input.GetKeyDown(KeyCode.F))
+                // Focus guard: don't allow RMB-Hold to dismantle while typing in phone/backpack or paused.
+                if (HomelessInputFocus.IsBlockingInput)
                 {
-                    PackUp();
+                    _rmbHoldProgress = 0f;
                     return;
                 }
 
-                // Hold Right Mouse Button (RMB) to Pack Up (Vanilla-style dismantle)
+                // Hold Right Mouse Button (RMB) to Pack Up (Vanilla-style dismantle).
+                // F-key path was removed in v0.1.2 — F is the vanilla flashlight and we must not steal it.
                 if (Input.GetMouseButton(1))
                 {
-                    _rmbHoldProgress += Time.deltaTime / 0.40f; // 0.4s hold duration
+                    _rmbHoldProgress += Time.deltaTime / 0.40f; // 0.4s hold duration (vanilla-style)
                     if (_rmbHoldProgress >= 1.0f)
                     {
                         PackUp();
@@ -250,7 +261,7 @@ public class OutdoorItemInteractable : MonoBehaviour
         }
         else
         {
-            GUI.Label(boxRect, "<color=#b0b0b8>[F]</color> <color=#e0e0e0>Pack Up</color>", style);
+            GUI.Label(boxRect, "<color=#b0b0b8>Hold RMB</color> <color=#e0e0e0>Pack Up</color>", style);
         }
 
         GUI.backgroundColor = prevBg;

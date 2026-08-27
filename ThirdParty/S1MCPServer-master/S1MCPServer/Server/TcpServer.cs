@@ -182,7 +182,7 @@ public class TcpServer
                     }
                     
                     jsonMessage = await ProtocolHandler.ReadMessageAsync(stream);
-                    ModLogger.Debug($"Received raw JSON message ({jsonMessage.Length} chars): {jsonMessage}");
+                    ModLogger.DebugPayload("Received raw JSON message", jsonMessage);
                 }
                 catch (IOException ex) when (ex.Message.Contains("No data available"))
                 {
@@ -207,7 +207,7 @@ public class TcpServer
                 {
                     ModLogger.Debug("Deserializing request...");
                     request = ProtocolHandler.DeserializeRequest(jsonMessage);
-                    ModLogger.Debug($"Deserialized request: ID={request.Id}, Method={request.Method}, Params={System.Text.Json.JsonSerializer.Serialize(request.Params)}");
+                    ModLogger.DebugPayload($"Deserialized request ID={request.Id} Method={request.Method} Params", System.Text.Json.JsonSerializer.Serialize(request.Params));
                 }
                 catch (Exception ex)
                 {
@@ -355,7 +355,7 @@ public class TcpServer
                         {
                             ModLogger.Debug($"Serializing response for ID: {response.Id}...");
                             string jsonResponse = ProtocolHandler.SerializeResponse(response);
-                            ModLogger.Debug($"Serialized response ({jsonResponse.Length} chars): {jsonResponse}");
+                            ModLogger.DebugPayload("Serialized response", jsonResponse);
                             
                             ModLogger.Debug($"Writing response to stream for ID: {response.Id}...");
                             

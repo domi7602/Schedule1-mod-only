@@ -58,6 +58,8 @@ public class AutoPackStationController : MonoBehaviour
     // Canvas & Interaction State
     private bool _wasCanvasOpen = false;
     private float _ledPulseTimer = 0f;
+    private bool _savedBeginButtonActive = false;
+    private string _savedInstructionText = string.Empty;
 
 
     public void EnsureGuid()
@@ -141,7 +143,7 @@ public class AutoPackStationController : MonoBehaviour
             var prodSlot = inputSlots[1];
             var outSlot = outputSlots[0];
 
-            // 1. Input Packaging
+            // 1. Input Packaging — clear if data empty to avoid ghost items (H3)
             if (pkgSlot != null && pkgSlot.Pointer != IntPtr.Zero)
             {
                 if (pkgData != null && pkgData.Quantity > 0 && !string.IsNullOrEmpty(pkgData.ItemId))
@@ -157,6 +159,12 @@ public class AutoPackStationController : MonoBehaviour
                             pkgSlot.onItemInstanceChanged?.Invoke();
                         }
                     }
+                }
+                else
+                {
+                    pkgSlot.ClearStoredInstance();
+                    pkgSlot.onItemDataChanged?.Invoke();
+                    pkgSlot.onItemInstanceChanged?.Invoke();
                 }
             }
 
@@ -181,6 +189,12 @@ public class AutoPackStationController : MonoBehaviour
                             prodSlot.onItemInstanceChanged?.Invoke();
                         }
                     }
+                }
+                else
+                {
+                    prodSlot.ClearStoredInstance();
+                    prodSlot.onItemDataChanged?.Invoke();
+                    prodSlot.onItemInstanceChanged?.Invoke();
                 }
             }
 
@@ -221,6 +235,12 @@ public class AutoPackStationController : MonoBehaviour
                             outSlot.onItemInstanceChanged?.Invoke();
                         }
                     }
+                }
+                else
+                {
+                    outSlot.ClearStoredInstance();
+                    outSlot.onItemDataChanged?.Invoke();
+                    outSlot.onItemInstanceChanged?.Invoke();
                 }
             }
 
@@ -303,6 +323,16 @@ public class AutoPackStationController : MonoBehaviour
 
     private void OnDestroy()
     {
+        // Cleanup instanced materials to prevent leak (H12)
+        try
+        {
+            if (_conveyorMaterial != null && _conveyorMaterial.Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(_conveyorMaterial);
+            if (_ledMaterial != null && _ledMaterial.Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(_ledMaterial);
+        }
+        catch { }
+        _conveyorMaterial = null;
+        _ledMaterial = null;
+
         try
         {
             if (!SceneGate.IsChangingScenes)
@@ -314,8 +344,11 @@ public class AutoPackStationController : MonoBehaviour
                 if (inv != null && inv.Pointer != IntPtr.Zero)
                 {
                     var itemsToRefund = new List<Il2CppScheduleOne.ItemFramework.ItemInstance>();
+                    bool hadNativePackaging = false;
+                    bool hadNativeProduct = false;
+                    bool hadNativeOutput = false;
 
-                    // 1. Native slots refund
+                    // 1. Native slots refund — authoritative if station exists (H2 fix: avoid double refund with rData)
                     if (station != null && station.Pointer != IntPtr.Zero)
                     {
                         if (station.InputSlots != null)
@@ -343,6 +376,8 @@ public class AutoPackStationController : MonoBehaviour
                                             itemsToRefund.Add(inst);
                                         }
                                     }
+                                    if (s == 0) hadNativePackaging = true;
+                                    else if (s == 1) hadNativeProduct = true;
                                     slot.ClearStoredInstance();
                                 }
                             }
@@ -387,14 +422,15 @@ public class AutoPackStationController : MonoBehaviour
                                             itemsToRefund.Add(newInst);
                                         }
                                     }
+                                    hadNativeOutput = true;
                                     slot.ClearStoredInstance();
                                 }
                             }
                         }
                     }
 
-                    // 2. Fallback runtime data (if slots were not native or already cleared)
-                    if (rData.InputProduct != null && rData.InputProduct.Quantity > 0)
+                    // 2. Fallback runtime data — only if no native item of that type was refunded (prevents double H2)
+                    if (!hadNativeProduct && rData.InputProduct != null && rData.InputProduct.Quantity > 0)
                     {
                         var pDef = GameRegistry.GetItem(rData.InputProduct.ItemId);
                         if (pDef != null && pDef.Pointer != IntPtr.Zero)
@@ -415,7 +451,7 @@ public class AutoPackStationController : MonoBehaviour
                         }
                     }
 
-                    if (rData.InputPackaging != null && rData.InputPackaging.Quantity > 0)
+                    if (!hadNativePackaging && rData.InputPackaging != null && rData.InputPackaging.Quantity > 0)
                     {
                         var pkgDef = GameRegistry.GetItem(rData.InputPackaging.ItemId);
                         if (pkgDef != null && pkgDef.Pointer != IntPtr.Zero)
@@ -431,7 +467,7 @@ public class AutoPackStationController : MonoBehaviour
                         }
                     }
 
-                    if (rData.OutputProduct != null && rData.OutputProduct.Quantity > 0)
+                    if (!hadNativeOutput && rData.OutputProduct != null && rData.OutputProduct.Quantity > 0)
                     {
                         var outDef = GameRegistry.GetItem(rData.OutputProduct.ItemId);
                         if (outDef != null && outDef.Pointer != IntPtr.Zero)
@@ -560,42 +596,58 @@ public class AutoPackStationController : MonoBehaviour
                 ? AutoPackEngine.CanStationPackage(station!, out _, out _)
                 : rData.CanStartPackaging();
 
-            // 1. Process Packaging State Machine
-            if (rData.State == StationState.Packaging)
+            // 1. Process Packaging State Machine — host-authoritative only (H7)
+            if (AutoPackEngine.IsHostOrSingleplayer())
             {
-                AutoPackEngine.ProcessPackagingStep(this, dt);
-            }
-            else if (rData.State == StationState.Complete)
-            {
-                if (canStart)
+                if (rData.State == StationState.Packaging)
                 {
-                    rData.State = StationState.Packaging;
-                    UpdateLedVisuals();
-                    AutoPackEngine.PlayCompressorStroke(_audioSource);
+                    AutoPackEngine.ProcessPackagingStep(this, dt);
                 }
-                else
+                else if (rData.State == StationState.Complete)
                 {
-                    rData.State = StationState.Idle;
-                    UpdateLedVisuals();
+                    if (canStart)
+                    {
+                        rData.State = StationState.Packaging;
+                        UpdateLedVisuals();
+                        AutoPackEngine.PlayCompressorStroke(_audioSource);
+                    }
+                    else
+                    {
+                        rData.State = StationState.Idle;
+                        UpdateLedVisuals();
+                    }
                 }
-            }
-            else if (rData.State == StationState.Idle || rData.State == StationState.Blocked || rData.State == StationState.NoPackaging)
-            {
-                // Check if ready to auto-start packaging
-                if (canStart)
+                else if (rData.State == StationState.Idle || rData.State == StationState.Blocked || rData.State == StationState.NoPackaging)
                 {
-                    rData.State = StationState.Packaging;
-                    UpdateLedVisuals();
-                    AutoPackEngine.PlayCompressorStroke(_audioSource);
+                    // Check if ready to auto-start packaging
+                    if (canStart)
+                    {
+                        rData.State = StationState.Packaging;
+                        UpdateLedVisuals();
+                        AutoPackEngine.PlayCompressorStroke(_audioSource);
+                    }
                 }
             }
 
-            // 2. Cursor, UI Override & Escape Handling
+            // 2. Cursor, UI Override & Escape Handling — per-station guard + restore (H9)
             var canvas = PackagingStationCanvas.Instance;
             bool isCanvasOpen = canvas != null && canvas.Pointer != IntPtr.Zero && canvas.gameObject.activeSelf && isNativeStation && canvas.Station == station;
 
             if (isCanvasOpen && canvas != null)
             {
+                if (!_wasCanvasOpen)
+                {
+                    // Save original state on first open frame
+                    try
+                    {
+                        if (canvas.BeginButton != null && canvas.BeginButton.Pointer != IntPtr.Zero)
+                            _savedBeginButtonActive = canvas.BeginButton.gameObject.activeSelf;
+                        if (canvas.InstructionLabel != null && canvas.InstructionLabel.Pointer != IntPtr.Zero)
+                            _savedInstructionText = canvas.InstructionLabel.text ?? string.Empty;
+                    }
+                    catch { }
+                }
+
                 // 1. Ensure Cursor is unlocked & visible inside the station UI
                 if (Cursor.lockState != CursorLockMode.None)
                 {
@@ -613,8 +665,10 @@ public class AutoPackStationController : MonoBehaviour
                     canvas.InstructionLabel.text = "AUTOMATED PACKING STATION - Feeds & packages in background";
                 }
 
-                // 3. Handle Escape key to close the station menu cleanly
-                if (Input.GetKeyDown(KeyCode.Escape))
+                // 3. Handle Escape key to close the station menu cleanly — guard typing & pause (H9/M12)
+                bool isTyping = false;
+                try { isTyping = S1Mods.Shared.HotkeyManager.IsInputFieldFocused(); } catch { }
+                if (!isTyping && Input.GetKeyDown(KeyCode.Escape))
                 {
                     try
                     {
@@ -627,18 +681,92 @@ public class AutoPackStationController : MonoBehaviour
                             station.OnEndUse();
                         }
                     }
-                    Cursor.lockState = CursorLockMode.Locked;
-                    Cursor.visible = false;
+                    // Don't force-lock here — let close branch handle restore
                 }
             }
             else if (_wasCanvasOpen)
             {
-                // Canvas just closed: restore first-person locked cursor state
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
+                // Canvas just closed: restore BeginButton/label and cursor only if no other UI needs it
+                try
+                {
+                    if (canvas != null && canvas.Pointer != IntPtr.Zero)
+                    {
+                        if (canvas.BeginButton != null && canvas.BeginButton.Pointer != IntPtr.Zero)
+                            canvas.BeginButton.gameObject.SetActive(_savedBeginButtonActive);
+                        if (canvas.InstructionLabel != null && canvas.InstructionLabel.Pointer != IntPtr.Zero && !string.IsNullOrEmpty(_savedInstructionText))
+                            canvas.InstructionLabel.text = _savedInstructionText;
+                    }
+                }
+                catch { }
+                // Only relock if no other station canvas or menu is keeping cursor unlocked
+                bool shouldRelock = true;
+                try
+                {
+                    var nextCanvas = PackagingStationCanvas.Instance;
+                    if (nextCanvas != null && nextCanvas.Pointer != IntPtr.Zero && nextCanvas.gameObject.activeSelf)
+                        shouldRelock = false;
+                }
+                catch { }
+                if (shouldRelock)
+                {
+                    Cursor.lockState = CursorLockMode.Locked;
+                    Cursor.visible = false;
+                }
             }
 
             _wasCanvasOpen = isCanvasOpen;
+
+            // 2b. Strict raycast-guarded interactions — PackUp via F (H1)
+            if (!isCanvasOpen && AutoPackEngine.IsHostOrSingleplayer())
+            {
+                // Only when cursor locked (no UI) and not typing
+                bool canInteract = false;
+                try { canInteract = Cursor.lockState == CursorLockMode.Locked && !S1Mods.Shared.HotkeyManager.IsInputFieldFocused(); } catch { canInteract = Cursor.lockState == CursorLockMode.Locked; }
+                if (canInteract)
+                {
+                    var cam = Camera.main;
+                    if (cam != null && cam.Pointer != IntPtr.Zero)
+                    {
+                        float maxDist = Mathf.Clamp(Mod.CurrentConfig.InteractionRange, 1f, 5f);
+                        float distToStation = Vector3.Distance(cam.transform.position, transform.position);
+                        if (distToStation <= maxDist + 0.5f)
+                        {
+                            Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+                            if (Physics.Raycast(ray.origin, ray.direction, out RaycastHit hit, maxDist, Physics.DefaultRaycastLayers))
+                            {
+                                bool isHitThisStation = false;
+                                try
+                                {
+                                    var hitGo = hit.collider != null && hit.collider.Pointer != IntPtr.Zero ? hit.collider.gameObject : null;
+                                    if (hitGo != null && hitGo.Pointer != IntPtr.Zero)
+                                    {
+                                        if (hitGo == gameObject || hitGo.transform.IsChildOf(transform) || transform.IsChildOf(hitGo.transform))
+                                            isHitThisStation = true;
+                                        else
+                                        {
+                                            // Also check parent BuildableItem root
+                                            var hitBuildable = hitGo.GetComponentInParent<Il2CppScheduleOne.EntityFramework.BuildableItem>();
+                                            var myBuildable = gameObject.GetComponentInParent<Il2CppScheduleOne.EntityFramework.BuildableItem>();
+                                            if (hitBuildable != null && hitBuildable.Pointer != IntPtr.Zero && myBuildable != null && myBuildable.Pointer != IntPtr.Zero && hitBuildable.Pointer == myBuildable.Pointer)
+                                                isHitThisStation = true;
+                                        }
+                                    }
+                                }
+                                catch { }
+
+                                if (isHitThisStation)
+                                {
+                                    // PackUp via F (strict)
+                                    if (Input.GetKeyDown(KeyCode.F))
+                                    {
+                                        PackUpStation();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             // 3. Animate LEDs and Idle Visuals
             _ledPulseTimer += dt * 3.5f;
@@ -1425,14 +1553,25 @@ public class AutoPackStationController : MonoBehaviour
         Mod.Log.Info($"Successfully packed up AutoPackagingStation and returned {itemsToAdd.Count} items to inventory.");
         AudioHelper.PlayCashSound();
 
-        // Mitigation 3: Unregister outdoor street item if HomelessMod is active
+        // Mitigation 3: Unregister outdoor street item if HomelessMod is active (M9: log on fail)
         try
         {
             var streetManagerType = TypeResolver.Find("HomelessMod.Building.StreetPropertyManager", "HomelessMod");
-            var unregisterMethod = streetManagerType?.GetMethods().FirstOrDefault(m => m.Name == "UnregisterStreetItem");
-            unregisterMethod?.Invoke(null, new object?[] { gameObject });
+            if (streetManagerType == null)
+            {
+                Mod.Log.Debug("PackUp: HomelessMod not present, skip UnregisterStreetItem.");
+            }
+            else
+            {
+                var unregisterMethod = streetManagerType.GetMethods().FirstOrDefault(m => m.Name == "UnregisterStreetItem");
+                if (unregisterMethod == null) Mod.Log.Warn("PackUp: UnregisterStreetItem method not found on StreetPropertyManager.");
+                else unregisterMethod.Invoke(null, new object?[] { gameObject });
+            }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"PackUp HomelessMod unregister failed: {ex.Message}");
+        }
 
         // Clear native slots
         if (station != null && station.Pointer != IntPtr.Zero)

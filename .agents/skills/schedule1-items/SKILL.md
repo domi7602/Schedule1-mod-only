@@ -7,6 +7,8 @@ description: >-
 
 # Schedule I — Items Skill (ItemFramework / Registry / Inventory)
 
+> **Knowledge guard (mod-only):** `Knowledge/` is absent in this workspace. Before using `Knowledge/...` paths, `Test-Path Knowledge/` — fallback is `D:\Backup\game source` (`bundleVersion 0.4.5f2 Alternate`, ~1 version behind `v0.4.6f13`, 66k files, structure-only). Verify any decompile hit against live `Assembly-CSharp.dll` via `ilspycmd` / S1MCP before patching.
+
 This skill maps **how items exist, register, stack, and fit** — hierarchy, Registry hashing, stack limits (non-patchable accessor), inventory slots vs world storage, and buildable injections verified in `StackLimitMod v0.1.0`, `HomelessMod v0.1.1`, `PocketShop v0.2.1`.
 
 > **Version check (last verified: 2026-08-21):** `Il2CppScheduleOne.ItemFramework`, `Il2CppScheduleOne.Core.Items.Framework`, `Registry` (`PersistentSingleton<Registry>`), `PlayerInventory`. If game patched, verify with `ilspycmd -t BaseItemDefinition`.

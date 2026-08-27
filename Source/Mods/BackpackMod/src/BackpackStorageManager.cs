@@ -159,6 +159,21 @@ namespace BackpackMod
         {
             if (_storageEntityObj == null || _storageEntity == null || _storageEntity.Pointer == IntPtr.Zero || _storageEntity.WasCollected || _currentSlotCount != targetSlotCount)
             {
+                // H2: Capture overflow before shrinking — prevents silent loss of SlotIndex >= targetSlotCount
+                List<(string ItemId, int Quantity)> overflow = new();
+                if (_storageEntity != null && _storageEntity.Pointer != IntPtr.Zero && !_storageEntity.WasCollected && _storageEntity.ItemSlots != null && targetSlotCount < _currentSlotCount)
+                {
+                    for (int i = targetSlotCount; i < _storageEntity.ItemSlots.Count; i++)
+                    {
+                        var s = _storageEntity.ItemSlots[i];
+                        if (s != null && s.Pointer != IntPtr.Zero && !s.WasCollected && s.ItemInstance != null && s.ItemInstance.Pointer != IntPtr.Zero && !s.ItemInstance.WasCollected && s.ItemInstance.Definition != null && s.Quantity > 0)
+                        {
+                            overflow.Add((s.ItemInstance.Definition.ID, s.Quantity));
+                        }
+                    }
+                    if (overflow.Count > 0) Mod.Log?.Warning($"Backpack downgrade {_currentSlotCount}->{targetSlotCount}: {overflow.Count} overflow stacks will be returned to inventory.");
+                }
+
                 if (_storageEntityObj != null || (_storageEntity != null && _storageEntity.Pointer != IntPtr.Zero && !_storageEntity.WasCollected))
                 {
                     SaveStorage();
@@ -189,6 +204,32 @@ namespace BackpackMod
 
                 // Load saved contents
                 LoadStorage();
+
+                // Return overflow to player inventory (or warn if full)
+                if (overflow.Count > 0)
+                {
+                    var inv = PlayerInventory.Instance;
+                    foreach (var entry in overflow)
+                    {
+                        try
+                        {
+                            var def = Il2CppScheduleOne.Registry.GetItem(entry.ItemId);
+                            if (def == null || def.Pointer == IntPtr.Zero) continue;
+                            var inst = def.GetDefaultInstance(entry.Quantity);
+                            if (inst == null || inst.Pointer == IntPtr.Zero) continue;
+                            if (inv != null && inv.Pointer != IntPtr.Zero && !inv.WasCollected && inv.CanItemFitInInventory(inst, entry.Quantity))
+                            {
+                                inv.AddItemToInventory(inst);
+                                Mod.Log?.Msg($"Returned overflow {entry.Quantity}x '{entry.ItemId}' to inventory after downgrade.");
+                            }
+                            else
+                            {
+                                Mod.Log?.Warning($"Overflow {entry.Quantity}x '{entry.ItemId}' could not be returned — inventory full. Item lost! Free space and re-equip backpack.");
+                            }
+                        }
+                        catch (Exception ex) { Mod.Log?.Warning($"Overflow return failed for '{entry.ItemId}': {ex.Message}"); }
+                    }
+                }
             }
         }
 
@@ -305,8 +346,9 @@ namespace BackpackMod
         {
             try
             {
+                if (_storageEntity == null || _storageEntity.ItemSlots == null || _storageEntity.Pointer == IntPtr.Zero || _storageEntity.WasCollected) return;
                 string path = GetSaveFilePath();
-                if (!File.Exists(path) || _storageEntity == null || _storageEntity.ItemSlots == null) return;
+                // Don't early-return on File.Exists — let LoadTextSafe handle .bak recovery (H1)
 
                 string json = SafeStorage.LoadTextSafe(path, "", null);
                 var items = JsonSerializer.Deserialize<List<SavedItemData>>(json);

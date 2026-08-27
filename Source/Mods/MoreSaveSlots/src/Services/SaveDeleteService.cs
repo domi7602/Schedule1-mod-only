@@ -63,8 +63,31 @@ public static class SaveDeleteService
             string orgName = saveInfo.OrganisationName ?? $"Slot {slotIndex + 1}";
             MelonLogger.Msg($"[MoreSaveSlots] Deleting save Slot {slotIndex + 1} ('{orgName}') at '{savePath}'...");
 
-            // Delete folder recursively
-            Directory.Delete(savePath, true);
+            // Safe-delete: move to DeletedSaves instead of permanent delete (recoverable)
+            try
+            {
+                string deletedRoot = Path.Combine(MelonLoader.Utils.MelonEnvironment.UserDataDirectory, "MoreSaveSlots", "DeletedSaves");
+                Directory.CreateDirectory(deletedRoot);
+                string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                string destName = $"{SaveManager.SAVE_GAME_PREFIX}{slotIndex + 1}_{timestamp}";
+                string destPath = Path.Combine(deletedRoot, destName);
+                // Ensure dest not exists
+                int extra = 0;
+                while (Directory.Exists(destPath))
+                {
+                    extra++;
+                    destPath = Path.Combine(deletedRoot, $"{destName}_{extra}");
+                }
+                // Clear hidden flag before move to avoid permission issues
+                try { new DirectoryInfo(savePath).Attributes &= ~FileAttributes.Hidden; } catch { }
+                Directory.Move(savePath, destPath);
+                MelonLogger.Msg($"[MoreSaveSlots] Moved to DeletedSaves: '{destPath}' (recoverable, not permanently deleted).");
+            }
+            catch (Exception moveEx)
+            {
+                MelonLogger.Warning($"[MoreSaveSlots] Move to DeletedSaves failed ({moveEx.Message}), falling back to permanent delete.");
+                Directory.Delete(savePath, true);
+            }
 
             // Also try to delete .bak leftover if exists (e.g., Game.json.bak outside folder — unlikely)
             // Not needed — folder deletion covers it

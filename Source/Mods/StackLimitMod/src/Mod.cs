@@ -3,6 +3,7 @@ using System.Reflection;
 using HarmonyLib;
 using Il2CppScheduleOne;
 using Il2CppScheduleOne.Core.Items.Framework;
+using Il2CppScheduleOne.ItemFramework;
 using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
@@ -57,11 +58,18 @@ public class Mod : MelonMod
     {
         try
         {
+            long now = Environment.TickCount64;
+            if (now - _lastApplyTicks < 1500 && StackLimitEngine.ModifiedItemCount > 0)
+            {
+                Log.Debug("OnSaveInfoLoaded: skip duplicate apply (already applied recently)");
+                return;
+            }
             StackLimitEngine.ApplyStackLimits(Config);
+            _lastApplyTicks = now;
         }
         catch (Exception ex)
         {
-            Log.Error($"Error in OnSaveInfoLoaded handler: {ex.Message}");
+            Log.Error($"Error in OnSaveInfoLoaded handler: {ex}");
         }
     }
 
@@ -69,24 +77,49 @@ public class Mod : MelonMod
     {
         try
         {
+            long now = Environment.TickCount64;
+            if (now - _lastApplyTicks < 1500 && StackLimitEngine.ModifiedItemCount > 0)
+            {
+                Log.Debug("OnLoadComplete: skip duplicate apply (already applied recently)");
+                return;
+            }
             StackLimitEngine.ApplyStackLimits(Config);
+            _lastApplyTicks = now;
         }
         catch (Exception ex)
         {
-            Log.Error($"Error in OnLoadComplete handler: {ex.Message}");
+            Log.Error($"Error in OnLoadComplete handler: {ex}");
         }
     }
+
+    private static long _lastApplyTicks = 0;
 
     private void ApplyHarmonyPatches()
     {
         try
         {
-            PatchGuard.TryPatch(
-                HarmonyInstance,
-                typeof(Registry),
-                nameof(Registry.AddToRegistry),
-                postfix: new HarmonyMethod(typeof(StackLimitPatches), nameof(StackLimitPatches.Registry_AddToRegistry_Postfix)),
-                log: Log);
+            // H-1: Specify overload to avoid AmbiguousMatchException on future game update
+            try
+            {
+                PatchGuard.TryPatch(
+                    HarmonyInstance,
+                    typeof(Registry),
+                    nameof(Registry.AddToRegistry),
+                    postfix: new HarmonyMethod(typeof(StackLimitPatches), nameof(StackLimitPatches.Registry_AddToRegistry_Postfix)),
+                    parameterTypes: new[] { typeof(ItemDefinition) },
+                    log: Log);
+            }
+            catch (Exception ex)
+            {
+                Log.Warn($"AddToRegistry ItemDefinition overload failed: {ex.Message} — trying BaseItemDefinition fallback");
+                PatchGuard.TryPatch(
+                    HarmonyInstance,
+                    typeof(Registry),
+                    nameof(Registry.AddToRegistry),
+                    postfix: new HarmonyMethod(typeof(StackLimitPatches), nameof(StackLimitPatches.Registry_AddToRegistry_Postfix)),
+                    parameterTypes: new[] { typeof(BaseItemDefinition) },
+                    log: Log);
+            }
 
             PatchGuard.TryPatch(
                 HarmonyInstance,

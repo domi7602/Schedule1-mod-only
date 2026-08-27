@@ -20,12 +20,14 @@ public static class IncomeEngine
 {
     /// <summary>
     /// Checks whether the current instance is host/server or running in singleplayer.
+    /// IL2CPP-safe: checks Pointer and WasCollected before Unity Object null.
     /// </summary>
     public static bool IsHostOrSingleplayer()
     {
         try
         {
-            if (InstanceFinder.NetworkManager == null || (UnityEngine.Object)InstanceFinder.NetworkManager == null)
+            var nm = InstanceFinder.NetworkManager;
+            if (nm == null || nm.Pointer == IntPtr.Zero || nm.WasCollected || (UnityEngine.Object)nm == null)
                 return true;
 
             return InstanceFinder.IsServer;
@@ -50,15 +52,22 @@ public static class IncomeEngine
             return (new List<BusinessRevenueLine>(), 0f, 0f, 0f);
         }
 
+        // H2: Derive weekend from elapsedDays, not current day — backfill correctness
         bool isWeekend = false;
         try
         {
-            var dayOfWeek = S1API.GameTime.TimeManager.CurrentDay;
-            isWeekend = dayOfWeek is Day.Saturday or Day.Sunday;
+            int dayIdx = elapsedDays % 7;
+            if (dayIdx < 0) dayIdx += 7;
+            isWeekend = dayIdx == 5 || dayIdx == 6; // Saturday/Sunday per EDay Monday=0
         }
         catch
         {
-            // Fallback
+            try
+            {
+                var cur = S1API.GameTime.TimeManager.CurrentDay;
+                isWeekend = cur is Day.Saturday or Day.Sunday;
+            }
+            catch { }
         }
 
         var lines = RevenueCalculator.CalculateAll(owned, elapsedDays, isWeekend, config);
@@ -106,7 +115,10 @@ public static class IncomeEngine
             Mod.Log.Info($"Total revenue for day {elapsedDays} is $0. No transaction executed.");
             if (commit && !isDryRun)
             {
-                PayoutStateStore.CommitPayout(elapsedDays, lines.Select(l => l.BusinessId));
+                var idsZero = lines.Select(l => l.BusinessId).ToList();
+                PayoutStateStore.MarkInMemoryPaid(elapsedDays, idsZero);
+                bool ok = PayoutStateStore.CommitPayout(elapsedDays, idsZero);
+                if (!ok) PayoutStateStore.RevertInMemoryPaid(elapsedDays, idsZero);
             }
             return false;
         }

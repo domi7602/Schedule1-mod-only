@@ -21,7 +21,6 @@ namespace HomelessMod.Building;
 /// </summary>
 public static class BuildingPatches
 {
-    private static readonly int GroundLayerMask = LayerMask.GetMask("Default", "Terrain", "Building", "Props");
 
     public static bool IsCustomPlacementValid = false;
     public static string LastInvalidReason = string.Empty;
@@ -226,10 +225,20 @@ public static class BuildingPatches
                 }
 
                 var ghost = __instance.GhostModel;
-                if (ghost == null || ghost.Pointer == IntPtr.Zero) return false;
+                if (ghost == null || ghost.Pointer == IntPtr.Zero)
+                {
+                    Mod.Log.Warn("Place prefix: GhostModel null — falling back to vanilla.");
+                    IsCustomPlacementValid = false;
+                    return true;
+                }
 
                 var itemInstance = __instance.ItemInstance;
-                if (itemInstance == null || itemInstance.Definition == null) return false;
+                if (itemInstance == null || itemInstance.Definition == null)
+                {
+                    Mod.Log.Warn("Place prefix: ItemInstance null — falling back to vanilla.");
+                    IsCustomPlacementValid = false;
+                    return true;
+                }
 
                 string itemId = itemInstance.Definition.ID;
                 Vector3 spawnPos = ghost.transform.position;
@@ -394,7 +403,7 @@ public static class BuildingPatches
             {
                 IsCustomPlacementValid = false;
                 Mod.Log.Error($"BuildUpdate_Grid.Place prefix error: {ex}");
-                return false;
+                return true;
             }
         }
     }

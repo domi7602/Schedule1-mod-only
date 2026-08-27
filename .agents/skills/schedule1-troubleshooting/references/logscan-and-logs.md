@@ -1,6 +1,6 @@
 # logscan.py & Latest.log Triage
 
-The canonical tool for parsing `Latest.log` is **`logscan.py`** at `C:\Users\pc\Desktop\Schedule1\External\S1MCPServer\logscan.py`. It predates S1MCP, has no game-freeze risk, and is the default choice for mod-development log triage.
+The canonical tool for parsing `Latest.log` is **`logscan.py`** at `C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\S1MCPServer-master\logscan.py`. It predates S1MCP, has no game-freeze risk, and is the default choice for mod-development log triage.
 
 ---
 
@@ -8,16 +8,16 @@ The canonical tool for parsing `Latest.log` is **`logscan.py`** at `C:\Users\pc\
 
 ```pwsh
 # Default: scan <GameDir>\MelonLoader\Latest.log for errors (last 1000 lines)
-pwsh "C:\Users\pc\Desktop\Schedule1\External\S1MCPServer\logscan.py"
+pwsh "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\S1MCPServer-master\logscan.py"
 
 # Just error summary
-pwsh "C:\Users\pc\Desktop\Schedule1\External\S1MCPServer\logscan.py" --error-summary
+pwsh "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\S1MCPServer-master\logscan.py" --error-summary
 
 # Filter to a single mod
-pwsh "C:\Users\pc\Desktop\Schedule1\External\S1MCPServer\logscan.py" --mod NotesApp
+pwsh "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\S1MCPServer-master\logscan.py" --mod NotesApp
 
 # Filter by time window
-pwsh "C:\Users\pc\Desktop\Schedule1\External\S1MCPServer\logscan.py" --since 14:00
+pwsh "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\S1MCPServer-master\logscan.py" --since 14:00
 ```
 
 ---
@@ -114,7 +114,7 @@ Remove-Item "$env:SCHEDULE1_PATH\MelonLoader\Latest.log"
 # Launch game, reproduce issue, alt-F4
 
 # Step 2: Run logscan and find the FIRST error
-& "C:\Users\pc\Desktop\Schedule1\External\S1MCPServer\logscan.py" `
+& "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\S1MCPServer-master\logscan.py" `
     --level error `
     --json | ConvertFrom-Json | Select-Object -First 1
 ```

@@ -22,12 +22,20 @@ namespace CustomSkateboard.Items;
 public static class SkateboardItemFactory
 {
     private static GameItemDef? _registeredItemDef;
-    private static readonly HashSet<IntPtr> _tunedBoards = new();
     private static readonly HashSet<int> _tunedInstanceIds = new();
 
     public static GameItemDef? CustomSkateboardItem => (_registeredItemDef != null && _registeredItemDef.Pointer != IntPtr.Zero) ? _registeredItemDef : null;
 
-    public static void ClearTuningState() { _tunedBoards.Clear(); _tunedInstanceIds.Clear(); }
+    public static void ClearTuningState() { _tunedInstanceIds.Clear(); }
+
+    /// <summary>
+    /// Hot-path check: is this board instance one of our custom (tuned) boards?
+    /// O(1) HashSet lookup — safe to call every physics step.
+    /// </summary>
+    public static bool IsInstanceTuned(int instanceId)
+    {
+        return instanceId != 0 && _tunedInstanceIds.Contains(instanceId);
+    }
 
     public static bool IsCustomItem(ItemInstance? item)
     {
@@ -145,10 +153,10 @@ public static class SkateboardItemFactory
         if (board == null || board.Pointer == IntPtr.Zero) return;
         int instId = 0;
         try { instId = board.GetInstanceID(); } catch { }
-        if (!forceRetune && (_tunedBoards.Contains(board.Pointer) || (instId != 0 && _tunedInstanceIds.Contains(instId)))) return;
-
-        _tunedBoards.Add(board.Pointer);
-        if (instId != 0) _tunedInstanceIds.Add(instId);
+        // H5: Use only InstanceID (pointer recycled after Destroy). If ID unavailable, don't cache — always retune.
+        if (!forceRetune && instId != 0 && _tunedInstanceIds.Contains(instId)) return;
+        if (instId == 0 && !forceRetune) { /* no cache, proceed */ }
+        else if (instId != 0) _tunedInstanceIds.Add(instId);
 
         // 1. Direct instance fields (only on this specific board instance)
         try
@@ -158,9 +166,9 @@ public static class SkateboardItemFactory
             board.PushForceDuration = config.PushForceDuration;
             board.PushDelay = config.PushCooldown;
 
-            // Floor the jump duration to prevent vanishingly short jumps (configurable via SkateboardConfig.JumpDuration_Min/Max)
-            if (board.JumpDuration_Min < 0.1f) board.JumpDuration_Min = config.JumpDuration_Min;
-            if (board.JumpDuration_Max < 0.1f) board.JumpDuration_Max = config.JumpDuration_Max;
+            board.JumpForce = config.JumpForce;
+            board.JumpDuration_Min = Mathf.Clamp(config.JumpDuration_Min, 0.1f, 1.5f);
+            board.JumpDuration_Max = Mathf.Clamp(Mathf.Max(config.JumpDuration_Max, config.JumpDuration_Min), 0.1f, 1.5f);
             board.JumpForwardBoost = config.JumpForwardBoost;
 
             board.TurnForce = config.TurnForce;
@@ -254,15 +262,15 @@ public static class SkateboardItemFactory
             settings.PushForceDuration = config.PushForceDuration;
             settings.PushDelay = config.PushCooldown;
 
+            settings.JumpForce = config.JumpForce;
+            settings.JumpDuration_Min = Mathf.Clamp(config.JumpDuration_Min, 0.1f, 1.5f);
+            settings.JumpDuration_Max = Mathf.Clamp(Mathf.Max(config.JumpDuration_Max, config.JumpDuration_Min), 0.1f, 1.5f);
+            settings.JumpForwardBoost = config.JumpForwardBoost;
+
             settings.TurnForce = config.TurnForce;
             settings.TurnChangeRate = config.TurnChangeRate;
             settings.TurnReturnToRestRate = config.TurnReturnToRestRate;
             settings.TurnSpeedBoost = config.TurnSpeedBoost;
-
-            // Floor the jump duration to prevent vanishingly short jumps (configurable via SkateboardConfig.JumpDuration_Min/Max)
-            if (settings.JumpDuration_Min < 0.1f) settings.JumpDuration_Min = config.JumpDuration_Min;
-            if (settings.JumpDuration_Max < 0.1f) settings.JumpDuration_Max = config.JumpDuration_Max;
-            settings.JumpForwardBoost = config.JumpForwardBoost;
 
             settings.AirMovementEnabled = false;
             settings.AirMovementForce = 0f;

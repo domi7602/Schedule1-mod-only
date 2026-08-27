@@ -11,6 +11,8 @@ description: >-
 
 # Schedule I — Troubleshooting & Crash Diagnostics
 
+> **Knowledge guard (mod-only):** `Knowledge/` is absent in this workspace. Before using `Knowledge/...` paths, `Test-Path Knowledge/` — fallback is `D:\Backup\game source` (`bundleVersion 0.4.5f2 Alternate`, ~1 version behind `v0.4.6f13`, 66k files, structure-only). Verify any decompile hit against live `Assembly-CSharp.dll` via `ilspycmd` / S1MCP before patching.
+
 When a mod breaks the game, or a game update breaks a mod, work this skill before writing a fix. Three out of five reported issues already have a documented cause in **`AGENTS.md §5`** or **`MEMORY.md`** under one of these category headers — check first.
 
 ---
@@ -46,11 +48,11 @@ Mod / Game misbehaving
 ## 2. Tooling
 
 ### `logscan.py` (DEFAULT — first tool to invoke)
-Path: `C:\Users\pc\Desktop\Schedule1\External\S1MCPServer\logscan.py`. S1MCP-free, no game-freeze risk.
+Path: `C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\S1MCPServer-master\logscan.py`. S1MCP-free, no game-freeze risk.
 ```pwsh
-pwsh "C:\Users\pc\Desktop\Schedule1\External\S1MCPServer\logscan.py" --error-summary
-pwsh "C:\Users\pc\Desktop\Schedule1\External\S1MCPServer\logscan.py" --mod NotesApp
-pwsh "C:\Users\pc\Desktop\Schedule1\External\S1MCPServer\logscan.py" --since 14:00
+pwsh "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\S1MCPServer-master\logscan.py" --error-summary
+pwsh "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\S1MCPServer-master\logscan.py" --mod NotesApp
+pwsh "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\S1MCPServer-master\logscan.py" --since 14:00
 ```
 See **[`references/logscan-and-logs.md`](references/logscan-and-logs.md)** for the full flag set, column layout, common spike patterns, and worked examples.
 

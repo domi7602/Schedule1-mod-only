@@ -60,6 +60,29 @@ public static class SaveDisplay_Patches
                 var slotRt = __instance.Slots[i];
                 if (slotRt != null)
                 {
+                    // Fix invisibility: vanilla may hide empty slots or hide after pagination — force visible
+                    try
+                    {
+                        if (!slotRt.gameObject.activeSelf)
+                            slotRt.gameObject.SetActive(true);
+                        // Ensure RectTransform not culled / zero scale
+                        if (slotRt.localScale == Vector3.zero)
+                            slotRt.localScale = Vector3.one;
+                        // Reset CanvasGroup if present (alpha 0 makes invisible)
+                        var cg = slotRt.GetComponent<CanvasGroup>();
+                        if (cg != null)
+                        {
+                            if (cg.alpha < 0.9f) cg.alpha = 1f;
+                            cg.interactable = true;
+                            cg.blocksRaycasts = true;
+                        }
+                        // Also ensure parent Container canvas group
+                        var parentCg = slotRt.parent?.GetComponent<CanvasGroup>();
+                        if (parentCg != null && parentCg.alpha < 0.9f)
+                            parentCg.alpha = 1f;
+                    }
+                    catch { }
+
                     UpdateSlotNumberText(slotRt, slotNumber);
 
                     // Update Import/Export buttons on ImportScreen

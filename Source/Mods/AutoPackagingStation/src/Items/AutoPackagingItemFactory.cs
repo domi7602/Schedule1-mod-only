@@ -91,7 +91,7 @@ public static class AutoPackagingItemFactory
 
             builder.Build();
             _isRegistered = true;
-            Mod.Log.Info($"Successfully registered 4x4 item '{itemId}' into game Registry.");
+            Mod.Log.Info($"Successfully registered 2x2 item '{itemId}' into game Registry (visual 2m, tile footprint inherits from '{baseId ?? "scratch"}' — 1x1 tile; BoxCollider 2x2 provides overlap prevention; true 4x4 tile footprint requires S1API WithFootprint if exposed).");
         }
         catch (Exception ex)
         {
@@ -163,7 +163,7 @@ public static class AutoPackagingItemFactory
                     OverridePrice = true,
                     OverriddenPrice = Mod.CurrentConfig.StationPurchasePrice,
                     LimitedStock = false,
-                    DefaultStock = 0,
+                    DefaultStock = 10,
                     CanBeDelivered = true
                 };
 
@@ -191,7 +191,7 @@ public static class AutoPackagingItemFactory
     {
         var root = new GameObject("AutoPackagingStation_GhostRoot");
 
-        // 4x4 Footprint Box Collider
+        // 2x2 Footprint Box Collider — matches 2m visual (H4: former 4x4 claim was inaccurate vs cloned 1x1 footprint tiles)
         var box = root.AddComponent(Il2CppType.Of<BoxCollider>()).Cast<BoxCollider>();
         box.center = new Vector3(0f, 0.70f, 0f);
         box.size = new Vector3(2.0f, 1.40f, 2.0f);
@@ -200,6 +200,9 @@ public static class AutoPackagingItemFactory
         var dummyController = root.AddComponent(Il2CppType.Of<AutoPackStationController>()).Cast<AutoPackStationController>();
         AutoPackMeshBuilder.BuildStationVisuals(root, dummyController);
         GameObject.Destroy(dummyController);
+        // Orphan AudioSource added by Awake — remove (M3)
+        var orphanAudio = root.GetComponent<AudioSource>();
+        if (orphanAudio != null && orphanAudio.Pointer != IntPtr.Zero) GameObject.Destroy(orphanAudio);
 
         return root;
     }

@@ -165,7 +165,7 @@ public class NamedPipeServer
                     }
                     
                     jsonMessage = await ProtocolHandler.ReadMessageAsync(pipe);
-                    ModLogger.Debug($"Received raw JSON message ({jsonMessage.Length} chars): {jsonMessage}");
+                    ModLogger.DebugPayload("Received raw JSON message", jsonMessage);
                 }
                 catch (IOException ex) when (ex.Message.Contains("No data available"))
                 {
@@ -187,7 +187,7 @@ public class NamedPipeServer
                 {
                     ModLogger.Debug("Deserializing request...");
                     request = ProtocolHandler.DeserializeRequest(jsonMessage);
-                    ModLogger.Debug($"Deserialized request: ID={request.Id}, Method={request.Method}, Params={System.Text.Json.JsonSerializer.Serialize(request.Params)}");
+                    ModLogger.DebugPayload($"Deserialized request ID={request.Id} Method={request.Method} Params", System.Text.Json.JsonSerializer.Serialize(request.Params));
                 }
                 catch (Exception ex)
                 {
@@ -332,7 +332,7 @@ public class NamedPipeServer
                         {
                             ModLogger.Debug($"Serializing response for ID: {response.Id}...");
                             string jsonResponse = ProtocolHandler.SerializeResponse(response);
-                            ModLogger.Debug($"Serialized response ({jsonResponse.Length} chars): {jsonResponse}");
+                            ModLogger.DebugPayload("Serialized response", jsonResponse);
                             
                             ModLogger.Debug($"Writing response to pipe for ID: {response.Id}...");
                             

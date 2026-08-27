@@ -8,6 +8,8 @@ description: >-
 
 # Schedule I — S1MAPI Author Reference (ifBars, v2.0.0)
 
+> **Knowledge guard (mod-only):** `Knowledge/` is absent in this workspace. Before using `Knowledge/...` paths, `Test-Path Knowledge/` — fallback is `D:\Backup\game source` (`bundleVersion 0.4.5f2 Alternate`, ~1 version behind `v0.4.6f13`, 66k files, structure-only). Verify any decompile hit against live `Assembly-CSharp.dll` via `ilspycmd` / S1MCP before patching.
+
 This skill is the **API catalog** for S1MAPI. S1MAPI is a **mapping and construction library**: generates procedural meshes at runtime, constructs full buildings, loads external 3D models (GLTF/GLB) — **without AssetBundles and without dependency on `Assembly-CSharp`**.
 
 > **Version check (last verified: 2026-08-21):** S1MAPI 2.0.0 deployed in this workspace (`UserLibs\S1MAPI_Il2Cpp.dll`). If the version changed, verify before relying on the API surface here.

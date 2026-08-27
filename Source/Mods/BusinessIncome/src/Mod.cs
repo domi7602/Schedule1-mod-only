@@ -37,10 +37,15 @@ public class Mod : MelonMod
         TryRegisterHashPlugin();
 
         // 3. Subscribe to lifecycle events
+        GameLifecycle.OnPreLoad += OnPreLoad;
         GameLifecycle.OnSaveInfoLoaded += OnSaveLoaded;
         GameLifecycle.OnLoadComplete += OnLoadComplete;
-        S1API.GameTime.TimeManager.OnDayPass += OnDayPass;
-        S1API.GameTime.TimeManager.OnHourPass += OnHourPass;
+        try
+        {
+            S1API.GameTime.TimeManager.OnDayPass += OnDayPass;
+            S1API.GameTime.TimeManager.OnHourPass += OnHourPass;
+        }
+        catch (Exception ex) { Log.Warn($"TimeManager hooks failed (S1API missing?): {ex.Message}"); }
 
         Log.Info("BusinessIncome v0.1.0 initialized.");
     }
@@ -54,12 +59,23 @@ public class Mod : MelonMod
         }
     }
 
+    private void OnPreLoad()
+    {
+        PayoutStateStore.Reset(keepSlot: false);
+        Log.Debug("OnPreLoad: PayoutStateStore reset.");
+    }
+
     public override void OnDeinitializeMelon()
     {
+        GameLifecycle.OnPreLoad -= OnPreLoad;
         GameLifecycle.OnSaveInfoLoaded -= OnSaveLoaded;
         GameLifecycle.OnLoadComplete -= OnLoadComplete;
-        S1API.GameTime.TimeManager.OnDayPass -= OnDayPass;
-        S1API.GameTime.TimeManager.OnHourPass -= OnHourPass;
+        try
+        {
+            S1API.GameTime.TimeManager.OnDayPass -= OnDayPass;
+            S1API.GameTime.TimeManager.OnHourPass -= OnHourPass;
+        }
+        catch { }
     }
 
     private void OnSaveLoaded()
@@ -99,7 +115,7 @@ public class Mod : MelonMod
         if (cfg.PayoutHour > 0)
         {
             // Use the vanilla current-time range check so we don't have to interpret the time encoding ourselves.
-            int payoutStart = cfg.PayoutHour * 100;
+            int payoutStart = cfg.PayoutHour == 0 ? 0 : cfg.PayoutHour * 100;
             int payoutEnd = payoutStart + 59;
 
             try
@@ -111,7 +127,7 @@ public class Mod : MelonMod
                     IncomeEngine.TryExecuteDailyPayout(elapsedDays, cfg);
                 }
             }
-            catch { }
+            catch (Exception ex) { Log.Debug($"OnHourPass error: {ex.Message}"); }
         }
     }
 
@@ -121,17 +137,32 @@ public class Mod : MelonMod
         {
             int elapsedDays = S1API.GameTime.TimeManager.ElapsedDays;
             var cfg = ModConfig<BusinessIncomeConfig>.Instance;
+            var state = PayoutStateStore.GetState();
+            int lastPaid = state.LastPaidElapsedDay;
 
-            // If the payout hour of the current day has already passed and the day was not yet paid,
-            // use the vanilla current-time range check so we don't have to interpret the time encoding ourselves.
-            int payoutStart = cfg.PayoutHour * 100;
-            int payoutEnd = payoutStart + 59;
-            bool withinPayoutWindow = S1API.GameTime.TimeManager.IsCurrentTimeWithinRange(payoutStart, payoutEnd);
-
-            if (withinPayoutWindow && !PayoutStateStore.IsDayPaid(elapsedDays))
+            // H5: Pay all missed days, not just current (mod disabled, sleep skip)
+            for (int d = lastPaid + 1; d <= elapsedDays; d++)
             {
-                Log.Info($"Catch-up payout for day {elapsedDays} (current time in range {payoutStart:D4}-{payoutEnd:D4})...");
-                IncomeEngine.TryExecuteDailyPayout(elapsedDays, cfg);
+                if (PayoutStateStore.IsDayPaid(d)) continue;
+
+                // For past days, ignore payout window — they were missed.
+                // For current day, respect window unless force.
+                bool isPastDay = d < elapsedDays;
+                if (!isPastDay)
+                {
+                    int payoutStart = cfg.PayoutHour == 0 ? 0 : cfg.PayoutHour * 100;
+                    int payoutEnd = payoutStart + 59;
+                    bool withinPayoutWindow = false;
+                    try { withinPayoutWindow = S1API.GameTime.TimeManager.IsCurrentTimeWithinRange(payoutStart, payoutEnd); } catch { withinPayoutWindow = true; }
+                    if (!withinPayoutWindow)
+                    {
+                        Log.Debug($"Catch-up: day {d} not in window {payoutStart:D4}-{payoutEnd:D4}, skip current day");
+                        continue;
+                    }
+                }
+
+                Log.Info($"Catch-up payout for day {d} ({(isPastDay ? "backlog" : $"window {cfg.PayoutHour * 100:D4}")})...");
+                IncomeEngine.TryExecuteDailyPayout(d, cfg);
             }
         }
         catch (Exception ex)

@@ -60,7 +60,65 @@ dotnet build Source/Mods/NotesApp/src/NotesApp.csproj -c Release
 ```
 *Output artifacts are deployed automatically to `<GameDir>\Mods\<ModName>.dll` via `Directory.Build.targets`.*
 
-### C. Testing a Mod In-Game
+### C. Version Bump & Sync (AGENTS.md ↔ Source)
+
+The four source-of-truth files that MUST agree on every version:
+1. `Source/Mods/<Mod>/src/Mod.cs` → `[assembly: MelonInfo(..., "X.Y.Z", "Dominik")]`
+2. `Source/Mods/<Mod>/docs/mod.json` → `"version": "X.Y.Z"`
+3. `Source/Mods/<Mod>/docs/CHANGELOG.md` → top entry `## X.Y.Z (YYYY-MM-DD)`
+4. `AGENTS.md` → mod-matrix row `| **<Mod>** | ✅ active (vX.Y.Z, ...)`
+
+**The script**:
+```pwsh
+pwsh Tools/bump-version.ps1 -Mod <Name> -Version <X.Y.Z> -DryRun   # always preview first
+pwsh Tools/bump-version.ps1 -Mod <Name> -Version <X.Y.Z>           # then apply
+```
+
+**Feature-Diff Gate (MANDATORY before any bump)** — verified 2026-08-24 on BackpackMod + AutoPackagingStation:
+Before running the script, build a feature table that compares AGENTS.md claims against actual source. For each claim, grep for the keyword (e.g. `Mannequin`, `Rotation`, `360`, `ObjLoader`, `Spine`, `Tier`) in `Source/Mods/<Mod>/src/`. If the claim is **real**, the bump is honest. If a claim is **aspirational** (in AGENTS.md but not in source), AGENTS.md is wrong — either fix AGENTS.md, or write the missing feature first. Never bump to a version number whose features you cannot prove exist.
+
+Two valid outcomes from the diff:
+- **Bump + CHANGELOG with real features** → standard release path.
+- **Bump + CHANGELOG that explicitly says "documentation sync, no code changes since 0.X.0"** → honest for mods that drifted. Better than lying about features.
+
+**Three known `bump-version.ps1` pitfalls** (verified 2026-08-24, may already be fixed in newer revisions):
+1. The CHANGELOG header regex `(?m)^# Changelog\s*\r?\n` does NOT match `# Changelog - ModName` (e.g. AutoPackagingStation). When this fails, the script prepends a duplicate `# Changelog` + `## X.Y.Z` block ABOVE the existing file. Always read the CHANGELOG after the bump and clean up duplicates manually.
+2. The version-match regex `## $NewVersion\b` does NOT match `## [X.Y.Z]` (brackets). Mods that use the `[X.Y.Z]` convention get a duplicate entry prepended.
+3. The auto-prepend body `- Version bump.` is dangerous when the prior CHANGELOG was empty or near-empty (e.g. BackpackMod had `## 0.1.0 - Initiale Version.`). It produces a release note that implies a stable prior build. Workaround: pre-populate the CHANGELOG with a real `## X.Y.Z (date) - <real-feature-list>` BEFORE running the script. The script's dedup check then skips prepending.
+
+Mitigation: always read the post-bump CHANGELOG.md immediately after the script run and clean up duplicates/placeholder text.
+
+### D. Spec-First Workflow for Fixes and Changes (mandatory in the Hermes group chat)
+
+**Rule (2026-08-27, group-chat convention with `@gatekeeper` + `@designer`):** Never start a code change just because a user reported a problem. The maker-checker chain (`@coder` writes, `@gatekeeper` reviews) requires an explicit green light after a Spec, BEFORE any `dotnet build`.
+
+**When this applies:**
+- Bug fixes, refactors, new features touching >1 file
+- Any change to a hot path (Harmony prefix/postfix, Update loops, polling)
+- Any change to save/load lifecycle hooks (`OnPreLoad`, `OnSaveInfoLoaded`, `OnLoadComplete`, `OnSaveComplete`)
+
+**Spec template (paste into the chat before any code touches a file):**
+1. **Trigger / problem** — what's broken, where, repro
+2. **Spec items as a numbered checklist** — concrete acceptance criteria, NOT aspirational
+3. **Pitfalls / edge cases** — list each one with the chosen handling (e.g. "What if X happens during a scene reload? — ResetState() before spawn cycle")
+4. **Logging / observability** — what counters or log lines prove the fix fires
+5. **Build order** — "first A (critical), then B/C/D"
+6. **Open questions** — anything ambiguous; ask before coding, not during
+
+**Workflow:**
+1. User reports problem → coder reads code, finds root cause
+2. Coder drafts Spec (template above) in the chat → gatekeeper reviews, pokes holes, suggests edge cases
+3. Spec gets explicit "grün" / "spec ok, bau" → coder builds in the order listed
+4. Build green → coder reports what changed, where, what to test → gatekeeper does the review
+
+**Don't do:**
+- Don't ask "darf ich bauen?" — write the Spec, wait for green light, then build
+- Don't skip the Spec "just because it's a small fix" — small fixes have the biggest hidden regressions
+- Don't list build-order bullets that aren't in the chat (e.g. "I'll also fix X while I'm in there" — out of scope; surface it as a separate Spec if needed)
+
+**Live reference:** CustomSkateboard `IsInstanceTuned` early-out fix (Spec → grün → build green) and HomelessMod F-key + slot-switch fix (Spec → 3 answer round → grün with edge-case list → build green) both ran this way in 2026-08-27 and shipped without a revert.
+
+### E. Testing a Mod In-Game
 1. Build in `Release` and confirm the DLL landed in `<GameDir>\Mods\` (check timestamp).
 2. Launch the game via Steam (MelonLoader console window opens alongside).
 3. Watch the MelonLoader console for `[ModName]` init lines and any red ERROR/exception output.
@@ -68,13 +126,28 @@ dotnet build Source/Mods/NotesApp/src/NotesApp.csproj -c Release
 5. Verify in-game: mod loads without exceptions, UI opens/closes, hotkeys work, config persists across restart (check `UserData\` for the written config/save file).
 6. Test the failure path too: corrupt the mod's JSON save once and confirm the `.bak` recovery via `SafeStorage.TryLoad` kicks in.
 
-**Definition of Done (new mod or feature):**
+### F. Definition of Done (new mod or feature):
+
 - [ ] Builds with 0 warnings/errors in Release
 - [ ] DLL deployed and loaded (visible in `Latest.log`)
 - [ ] Feature verified in-game, including scene transitions (Main Menu → Game → Main Menu)
 - [ ] No exceptions in `Latest.log` during a full play session
 - [ ] Persistence round-trip works (save → restart → load)
 - [ ] `AGENTS.md`, `README.md`, `CHANGELOG.md` updated
+
+### G. Bulk-Decompile Triage (when user drops a folder of Nexus/third-party mods)
+
+When asked to "decompile these N mods and write skills from the learnings" — **decompile nothing first, triage first.** Verified workflow 2026-08-26 with 12 Nexus/DooDesch mods (4 skills extracted, 8 skipped):
+
+1. **Sort into 4 buckets** before any decompile:
+   - **Already in workspace** (e.g. Sideload repo) → skip, just version-compare.
+   - **Asset-bombs** (DLL >50 MB, mostly bundles/textures) → skip, no skill value.
+   - **Single-purpose feature mods** (custom NPC, mini-game, specific shop) → decompile but expect "no new pattern."
+   - **Generic infrastructure mods** (config systems, save engines, reflection, hot-reload, harmony bootstrap) → high-skill-yield; decompile these first.
+2. **Estimate pattern-yield by size:** <50 KB core DLLs with 5–30 files are almost always high-yield. 1–10 MB with 100+ files are usually feature-heavy and low-yield. >50 MB is asset-bomb.
+3. **Triage before extraction** keeps skill count realistic — without triage, 12 mods → 12 skills (8 of which would be empty wrappers around a single feature). With triage, 12 mods → 4–5 class-level skills that actually generalize.
+4. **Ethically-flavored mod?** (cheat menus, duplication exploits, anything that breaks the game for other players in MP) → document as "intentionally skipped" in the session log but do **not** create a skill from it.
+5. **Decompile command:** `ilspycmd <dll> -o <outdir> -p` — silently ignore the "update available" nag at the top of output. Expect 1–30 sec per small DLL, 5–15 min per >10 MB DLL.
 
 ---
 
@@ -104,8 +177,11 @@ Read the sub-guides **before** the matching task — not just "for reference":
    - `Knowledge/Analysis/Learnings/Concepts/` (17 files): IL2CPP pitfalls, save-loads, PhoneApp patterns — **cross-cutting knowledge**.
    - `Knowledge/Analysis/Learnings/ThirdParty/<Mod>.md` (121 mods, 4804 total files 67 MB): How did others solve this? — **mandatory before reinventing**. ⚠️ Own mods not yet mirrored there (see `Knowledge/README.md`).
    - `Knowledge/Frameworks/MelonLoader/`: MelonLoader 0.7.3 internals (lifecycle, patches).
+   - **Guard (mod-only):** `Knowledge/` is absent here — `Test-Path Knowledge/` fails. Fallback `D:\Backup\game source` (`bundleVersion 0.4.5f2 Alternate`, ~1 version behind `v0.4.6f13`, 66k files) is structure-only; verify every patch target against live `Assembly-CSharp.dll` (`ilspycmd` / S1MCP) before shipping.
 13. **Multiplayer Host Authority**: Always guard passive income/state changes with `IncomeEngine.IsHostOrSingleplayer()` to prevent double execution on clients.
 14. **Idempotency**: Use checks like `LastPaidElapsedDay` to ensure scene reloads or save reloads don't trigger duplicate transactions (see `BusinessIncome` snapshot fix above).
+15. **Hot-Path Harmony Early-Out via Cached Set** (2026-08-27, CustomSkateboard fix): When a Harmony prefix/postfix fires every physics step for every instance of a class in the scene (e.g. `GetSurfaceSmoothness`, `IsOnTerrain` for all `Skateboard`s, player + NPCs), the `__instance.SomeProperty.OtherProperty.ID == configId` chain is a per-call allocation/IL2CPP-marshal hotspot. Cache the instances that actually need patching into a `static readonly HashSet<int> _tunedInstanceIds` (Unity `GetInstanceID()` keys) populated in your `Awake`/`Start` patch, and early-out with `if (instanceId == 0 || !_tunedInstanceIds.Contains(instanceId)) return true;` BEFORE reading any property. Counter pairs (`Interlocked.Increment(ref EarlyOuts/TunedHits)`) make the fix observable in logs.
+16. **Save-Slot-Change vs Same-Slot-Scene-Reload Detection** (2026-08-27, HomelessMod fix): `GameLifecycle.OnPreLoad` fires for both real save-slot switches AND same-slot Menu→Game scene reloads. A naive `ResetState()` in `OnPreLoad` wipes placed items on every Menu return. Cache `LoadManager.ActiveSaveInfo.SaveSlotNumber` (`_lastKnownSlotNumber`, `-2` sentinel for "never initialised"). In `OnPreLoad`: resolve new slot → compare with cached → if `old != new || old == -2` (first load), full `ResetState()`; else `ResetForSceneUnload()` (keep slot, only drop destroyed refs). Always log `oldSlot → newSlot` with destroyed-item count so QA can verify the hook fired.
 
 ### Never do (hard guardrails):
 * Never use `foreach` or LINQ on `Il2CppSystem.Collections.Generic.List<T>` — indexed `for` only.
@@ -113,6 +189,8 @@ Read the sub-guides **before** the matching task — not just "for reference":
 * Never access cached IL2CPP objects after scene unload without a null/`WasCollected` check.
 * Never write save/config files with plain `File.WriteAllText` — always `SafeStorage.SaveAtomic`.
 * Never let a Harmony patch throw — wrap risky patches with `PatchGuard` so a game update degrades gracefully instead of crashing.
+* Never run `bump-version.ps1` without first doing the Feature-Diff Gate (§2.C) — bumping to a version whose features you can't prove in source is the documentation drift that Nexus/Release-Notes call out as a lie.
+* Never leave the auto-prepend `- Version bump.` placeholder in a CHANGELOG. Either write real release notes before the script runs, or clean up afterward. See `references/version-sync.md`.
 
 ---
 
@@ -139,6 +217,11 @@ Symptom → likely cause → fix. Log file is always `<GameDir>\MelonLoader\Late
 ### Input conflicts
 * **Character walks while typing in a text field** → missing InputFocus hook → implement per Architecture guide §2.
 
+### Build / namespace errors (verified 2026-08-27)
+* **`PersistentSingleton<LoadManager>` not found** → `PersistentSingleton<T>` lives in `Il2CppScheduleOne.DevUtilities`, but `LoadManager` itself lives in `Il2CppScheduleOne.Persistence`. Both `using`s are needed: `using Il2CppScheduleOne.DevUtilities; using Il2CppScheduleOne.Persistence;`. CS0103 / CS0246 means one of the two is missing.
+* **`MelonLogger` has no `.Debug()`** → use `.Msg(...)` for chatty logs, `.Warning(...)` for fixable issues, `.Error(...)` for blockers. There is no debug-level filter in `MelonLogger`; treat Debug as a synonym for `.Msg` and gate with `if (verbose)` if needed.
+* **`OnPreLoad` fires for both slot switch AND Menu→Game scene reload** → see Key Rule §3.16. A naive `ResetState()` in `OnPreLoad` wipes state on every menu return; always detect slot change vs same-slot reload first.
+
 ---
 
 ## 5. Update Runbook (after a game patch)
@@ -156,7 +239,18 @@ Symptom → likely cause → fix. Log file is always `<GameDir>\MelonLoader\Late
 
 * This skill is a living document: when a recurring mistake or a new convention emerges, add it here (guardrail, checklist item, or troubleshooting row) instead of relying on memory.
 * Keep `SKILL.md` under ~500 lines; move growing detail into the matching file under `references/` and link it with a read-trigger.
-* **Related skills** (load via the `skill` tool):
+
+### Editing skills in this workspace (lessons learned 2026-08-26)
+
+These apply to all 19 `.agents/skills/<name>/SKILL.md` files in this workspace.
+
+* **Skill editing tool choice:** Use `patch` for targeted single-section edits. For multi-section restructures (reordering, splitting, merging sections), `read_file` + `write_file` is safer than chained patches — the patch tool is whitespace-sensitive on `---` separators and §N. headings and will silently miss duplicates of the same anchor text. Verified 2026-08-26: a 3-patch chain on `schedule1-economy/SKILL.md` failed twice on a `---` separator I'd overlooked; rewriting the whole file in one pass avoided the trap.
+* **Section-number verification:** After any reorder, regex-scan the file for `^## \d` and confirm the order matches the document flow. A duplicate `## 7` heading is a strong sign the restructure is incomplete.
+* **`AGENTS.md` is write-protected.** Edits to `AGENTS.md` (workspace root) require explicit user approval and will time out silently if no one is watching. If you need to update mod inventory / skill list, write the change into `.agents/skills/README.md` instead and mention "AGENTS.md sync pending" in the session snapshot — the user will sync manually or unlock the protection.
+* **Repo-skills are NOT in the Hermes skill catalog.** `skills_list` and `skill_view` only see `~/.hermes/skills/`, not `.agents/skills/`. Read repo-skills with `read_file`, not `skill_view`. Patch with `patch` / `write_file`, not `skill_manage`.
+* **Obsidian vault snapshots:** `mcp__obsidian__*` tools are **deferred tools** — they're not in the primary tool list. Call them via `tool_describe(name)` + `tool_call(name, args)` after checking their schema. Verified 2026-08-26: `mcp__obsidian__vault_write` first call returned "tool does not exist"; worked after going through `tool_describe` first.
+
+### Related skills (load via the `skill` tool):
   * `schedule1-phoneapp` — for PhoneApp-focused work (UI, lifecycle, InputFocus)
   * `schedule1-s1api` — for S1API-specific API questions (Saveables, Quests, NPCs, Items, ...)
   * `schedule1-s1mapi` — for procedural geometry, buildings, GLTF, world tools

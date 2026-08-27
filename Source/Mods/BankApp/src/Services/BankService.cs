@@ -5,6 +5,7 @@ using Il2CppScheduleOne.DevUtilities;
 using S1API.GameTime;
 using S1Mods.Shared;
 using UnityEngine;
+using BankApp;
 
 namespace BankApp.Services;
 
@@ -52,9 +53,35 @@ public static class BankService
 
     public static float GetCashInDedicatedCashSlot() => EconomyHelper.GetCashInDedicatedCashSlot();
 
+    private static int GetEffectiveMaxPerSlot()
+    {
+        int configured = ModConfig<BankAppConfig>.Instance.MaxCashPerSlot;
+        try
+        {
+            var cashDef = Il2CppScheduleOne.Registry.GetItem("cash") ?? Il2CppScheduleOne.Registry.GetItem("Cash");
+            if (cashDef != null && cashDef.Pointer != IntPtr.Zero)
+            {
+                int actual = cashDef.StackLimit;
+                if (actual > 0 && actual < configured)
+                {
+                    // Mod like StackLimitMod may lower actual StackLimit — respect authoritative
+                    return Mathf.Clamp(actual, 1, 9999);
+                }
+                if (actual > 0 && configured > actual)
+                {
+                    // Prevent overflow beyond engine limit (H1)
+                    Mod.Log?.Debug($"MaxCashPerSlot {configured} clamped to authoritative StackLimit {actual}");
+                    return actual;
+                }
+            }
+        }
+        catch { }
+        return Mathf.Clamp(configured, 1, 9999);
+    }
+
     public static float GetMaxWithdrawableCash()
     {
-        int maxPerSlot = ModConfig<BankAppConfig>.Instance.MaxCashPerSlot;
+        int maxPerSlot = GetEffectiveMaxPerSlot();
         float capacity = EconomyHelper.GetMaxHoldableCashCapacity(maxPerSlot);
         float onlineBalance = GetOnlineBalance();
 
@@ -134,7 +161,7 @@ public static class BankService
         }
         catch (Exception ex)
         {
-            try { EconomyHelper.ChangeCashBalance(+amount, false, false); } catch { }
+            try { EconomyHelper.ChangeCashBalance(+amount, false, false); } catch (Exception ex2) { MelonLoader.MelonLogger.Error($"CRITICAL Deposit refund failed (money at risk): {ex2}"); }
             errorMessage = "Transaction failed: cash refunded.";
             BankSoundService.PlayError();
             MelonLoader.MelonLogger.Error($"DepositCash rollback: {ex.GetType().Name}: {ex.Message}");
@@ -216,7 +243,7 @@ public static class BankService
         }
         catch (Exception ex)
         {
-            try { EconomyHelper.CreateOnlineTransaction("ATM Withdrawal Refund", +totalDeducted, 1f, "Rollback"); } catch { }
+            try { EconomyHelper.CreateOnlineTransaction("ATM Withdrawal Refund", +totalDeducted, 1f, "Rollback"); } catch (Exception ex2) { MelonLoader.MelonLogger.Error($"CRITICAL Withdraw refund failed (money at risk): {ex2}"); }
             errorMessage = "Transaction failed: bank refunded.";
             BankSoundService.PlayError();
             MelonLoader.MelonLogger.Error($"WithdrawCash rollback: {ex.GetType().Name}: {ex.Message}");
