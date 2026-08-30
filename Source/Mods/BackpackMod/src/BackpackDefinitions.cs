@@ -2,7 +2,9 @@ using Il2CppScheduleOne.ItemFramework;
 using UnityEngine;
 using S1API.Items.Storable;
 using System;
+using System.Collections;
 using MelonLoader;
+using Il2CppScheduleOne.UI.Shop;
 using GameItemDef = Il2CppScheduleOne.ItemFramework.StorableItemDefinition;
 
 namespace BackpackMod
@@ -109,6 +111,90 @@ namespace BackpackMod
                 Mod.Log?.Error($"Error creating backpack definition '{id}': {ex.Message}");
                 return null;
             }
+        }
+
+        private static int _injectRetryCount = 0;
+        private const int MaxInjectRetries = 10;
+
+        /// <summary>
+        /// Injects all 3 backpack tiers into both hardware stores (Handy Hank's + Dan's Hardware).
+        /// Idempotent — skips already-injected listings. Uses same pattern as AutoPackagingStation/HomelessMod.
+        /// </summary>
+        public static void InjectHardwareStoreListing()
+        {
+            try
+            {
+                var shops = ShopInterface.AllShops;
+                if (shops == null || shops.Count == 0)
+                {
+                    if (_injectRetryCount < MaxInjectRetries)
+                    {
+                        _injectRetryCount++;
+                        MelonCoroutines.Start(DelayedShopRetry());
+                    }
+                    return;
+                }
+                _injectRetryCount = 0;
+
+                string[] backpackIds = new[] { "backpack_t1", "backpack_t2", "backpack_t3" };
+                float[] prices = new[] { 100f, 250f, 600f };
+
+                for (int i = 0; i < shops.Count; i++)
+                {
+                    var shop = shops[i];
+                    if (shop == null || shop.Pointer == IntPtr.Zero) continue;
+                    string code = (shop.ShopCode ?? string.Empty).ToLowerInvariant();
+                    string name = (shop.ShopName ?? string.Empty).ToLowerInvariant();
+                    if (!code.Contains("hardware") && !name.Contains("hardware") && !code.Contains("dan") && !name.Contains("dan") && !code.Contains("hank") && !name.Contains("hank")) continue;
+
+                    var listings = shop.Listings;
+                    if (listings == null) continue;
+
+                    for (int b = 0; b < backpackIds.Length; b++)
+                    {
+                        string itemId = backpackIds[b];
+                        var def = Il2CppScheduleOne.Registry.GetItem(itemId);
+                        if (def == null || def.Pointer == IntPtr.Zero) continue;
+                        var storable = def.TryCast<GameItemDef>();
+                        if (storable == null || storable.Pointer == IntPtr.Zero) continue;
+
+                        bool alreadyIn = false;
+                        for (int j = 0; j < listings.Count; j++)
+                        {
+                            var existing = listings[j];
+                            if (existing != null && existing.Item != null && existing.Item.ID == itemId)
+                            {
+                                alreadyIn = true;
+                                break;
+                            }
+                        }
+                        if (alreadyIn) continue;
+
+                        var listing = new ShopListing
+                        {
+                            name = $"Backpack_{itemId}_Listing",
+                            Item = storable,
+                            OverridePrice = true,
+                            OverriddenPrice = prices[b],
+                            LimitedStock = false,
+                            DefaultStock = 10,
+                            CanBeDelivered = true
+                        };
+                        listings.Add(listing);
+                        Mod.Log?.Msg($"Injected '{itemId}' into hardware shop listing ('{shop.ShopName}').");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MelonLoader.MelonLogger.Warning($"[BackpackMod] Failed to inject backpack store listings: {ex.Message}");
+            }
+        }
+
+        private static IEnumerator DelayedShopRetry()
+        {
+            yield return new WaitForSeconds(2.0f);
+            InjectHardwareStoreListing();
         }
     }
 }

@@ -29,6 +29,8 @@ public class Mod : MelonMod
             var harmony = new HarmonyLib.Harmony("com.s1mods.backpackmod");
             var logger = new ModLogger("BackpackMod");
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.PlayerScripts.PlayerClothing), "Awake", postfix: new HarmonyMethod(typeof(Patches.PlayerClothingPatch), nameof(Patches.PlayerClothingPatch.Postfix)), log: logger);
+            // Hotfix 2026-08-30: guard vanilla ClothingItemUI.UpdateUI NRE when backpack clothing item is added via AddItemToInventory (console/MCP)
+            PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.Items.ClothingItemUI), "UpdateUI", finalizer: new HarmonyMethod(typeof(Patches.ClothingItemUIPatch), nameof(Patches.ClothingItemUIPatch.Finalizer)), log: logger);
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.StorageMenu), "Close", prefix: new HarmonyMethod(typeof(Patches.StorageMenuPatch), nameof(Patches.StorageMenuPatch.Close_Prefix)), log: logger);
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.CharacterInterface), "Open", postfix: new HarmonyMethod(typeof(Patches.CharacterUIPatch), nameof(Patches.CharacterUIPatch.Open_Postfix)), log: logger);
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.CharacterInterface), "Close", postfix: new HarmonyMethod(typeof(Patches.CharacterUIPatch), nameof(Patches.CharacterUIPatch.Close_Postfix)), log: logger);
@@ -40,6 +42,7 @@ public class Mod : MelonMod
         GameLifecycle.OnPreLoad += EnsureDefinitions;
         GameLifecycle.OnSaveInfoLoaded += EnsureDefinitions;
         GameLifecycle.OnLoadComplete += EnsureDefinitions;
+        GameLifecycle.OnLoadComplete += BackpackDefinitions.InjectHardwareStoreListing;
         GameLifecycle.OnSaveComplete += OnSaveComplete;
         GameLifecycle.OnPreLoad += OnPreLoadReset;
 
@@ -51,6 +54,7 @@ public class Mod : MelonMod
         GameLifecycle.OnPreLoad -= EnsureDefinitions;
         GameLifecycle.OnSaveInfoLoaded -= EnsureDefinitions;
         GameLifecycle.OnLoadComplete -= EnsureDefinitions;
+        GameLifecycle.OnLoadComplete -= BackpackDefinitions.InjectHardwareStoreListing;
         GameLifecycle.OnSaveComplete -= OnSaveComplete;
         GameLifecycle.OnPreLoad -= OnPreLoadReset;
     }
