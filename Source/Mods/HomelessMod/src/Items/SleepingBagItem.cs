@@ -27,7 +27,11 @@ public class SleepingBagInteractable : MonoBehaviour
     private float _interactionRange = 3.2f;
     private bool _isHovered = false;
     private float _rmbHoldProgress = 0f;
+    private bool _lastHitMatch = false;
     private string _guid = "";
+    // Gatekeeper-fix L1: throttle per-frame Physics.Raycast (see OutdoorItemInteractable — TODO central HoverManager)
+    private float _nextHoverCheckTime = 0f;
+    private const float HoverCheckInterval = 0.15f;
 
     public string Guid
     {
@@ -72,7 +76,12 @@ public class SleepingBagInteractable : MonoBehaviour
                 return;
             }
 
-            // Resolve player camera safely
+            // Gatekeeper-fix L1: throttle expensive raycast to ~6-7 Hz; reuse last _isHovered between ticks (TODO central HoverManager)
+            bool doHoverCheck = Time.time >= _nextHoverCheckTime;
+            if (doHoverCheck) _nextHoverCheckTime = Time.time + HoverCheckInterval;
+            if (doHoverCheck)
+            {
+                // Resolve player camera safely
             Transform? camTransform = null;
             try
             {
@@ -106,13 +115,16 @@ public class SleepingBagInteractable : MonoBehaviour
                     }
                 }
 
+                _lastHitMatch = hitMatch;
                 _isHovered = hitMatch || (dot > 0.45f && distance <= 2.5f);
             }
             else
             {
                 // Fallback purely on proximity
+                _lastHitMatch = false;
                 _isHovered = distance <= 2.2f;
             }
+            } // end doHoverCheck
 
             if (_isHovered)
             {
@@ -123,9 +135,14 @@ public class SleepingBagInteractable : MonoBehaviour
                     return;
                 }
 
-                // [E] Key: Sleep
+                // [E] Key: Sleep — L10: require raycast hitMatch to avoid competing with vanilla interact when hovering overlaps via dot fallback
                 if (Input.GetKeyDown(KeyCode.E))
                 {
+                    if (!_lastHitMatch)
+                    {
+                        Mod.Log.Debug("[L10] [E] Sleep ignored — raycast did not hit this bag (dot fallback only), avoiding vanilla interact conflict.");
+                        return;
+                    }
                     TrySleep();
                 }
 
@@ -214,33 +231,45 @@ public class SleepingBagInteractable : MonoBehaviour
 
     public void TrySleep()
     {
-        var timeMgr = NetworkSingleton<TimeManager>.Instance;
-        if (timeMgr == null || timeMgr.Pointer == IntPtr.Zero)
+        // Gatekeeper-fix M6: wrap native StartSleep in try/catch so exceptions surface as Warn instead of vanishing in Update's Debug catch
+        try
         {
-            Mod.Log.Warn("TimeManager not found. Cannot sleep.");
-            return;
-        }
+            var timeMgr = NetworkSingleton<TimeManager>.Instance;
+            if (timeMgr == null || timeMgr.Pointer == IntPtr.Zero)
+            {
+                Mod.Log.Warn("TimeManager not found. Cannot sleep.");
+                return;
+            }
 
-        if (timeMgr.IsSleepInProgress)
-        {
-            Mod.Log.Info("Sleep already in progress.");
-            return;
-        }
+            if (timeMgr.IsSleepInProgress)
+            {
+                Mod.Log.Info("Sleep already in progress.");
+                return;
+            }
 
-        // Night detection uses the vanilla IsNight flag (18:00 - 05:59) so we
-        // never have to interpret Schedule I's time encoding ourselves.
-        bool isNightTime = timeMgr.IsNight;
-        string timeStr = FormatCurrentTime(timeMgr);
+            // Night detection uses the vanilla IsNight flag (18:00 - 05:59) so we
+            // never have to interpret Schedule I's time encoding ourselves.
+            bool isNightTime = timeMgr.IsNight;
+            string timeStr = FormatCurrentTime(timeMgr);
 
-        if (Mod.CurrentConfig.AllowAnytimeSleep || isNightTime)
-        {
-            Mod.Log.Info($"Sleeping in sleeping bag at {timeStr}...");
-            timeMgr.StartSleep();
-            HomelessQuestManager.NotifyPlayerSlept();
+            if (Mod.CurrentConfig.AllowAnytimeSleep || isNightTime)
+            {
+                Mod.Log.Info($"Sleeping in sleeping bag at {timeStr}...");
+                timeMgr.StartSleep();
+                // Gatekeeper-fix M3: NotifyPlayerSlept is currently fired at sleep START, not wake. If the player aborts
+                // sleep (movement/attack), the quest still counts as completed. Ideal fix is to move this to a wake
+                // hook (TimeManager.onSleepEnd callback or poll IsSleepInProgress falling edge). Kept at START for now
+                // for compatibility; TODO: subscribe to TimeManager wake event when API exposes it and gate completion there.
+                HomelessQuestManager.NotifyPlayerSlept();
+            }
+            else
+            {
+                Mod.Log.Info($"Too early to sleep (current time {timeStr}). Sleeping is available from 6 PM to 6 AM.");
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Mod.Log.Info($"Too early to sleep (current time {timeStr}). Sleeping is available from 6 PM to 6 AM.");
+            Mod.Log.Warn($"TrySleep failed: {ex.Message}");
         }
     }
 

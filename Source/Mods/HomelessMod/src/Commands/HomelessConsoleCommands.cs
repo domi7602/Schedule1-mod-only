@@ -5,6 +5,7 @@ using HomelessMod.Quests;
 using Il2CppScheduleOne.DevUtilities;
 using Il2CppScheduleOne.Money;
 using Il2CppScheduleOne.PlayerScripts;
+using Il2CppScheduleOne;
 using S1API.Console;
 using UnityEngine;
 
@@ -65,6 +66,12 @@ public sealed class HomelessConsoleCommands : BaseConsoleCommand
     private void GiveSleepingBag()
     {
         var cfg = Mod.CurrentConfig;
+        // Gatekeeper-fix 2026-08-30 L2: verify Registry before giving
+        if (!Registry.ItemExists(cfg.SleepingBagItemId))
+        {
+            Mod.Log.Warn($"Cannot give sleeping bag — item '{cfg.SleepingBagItemId}' not registered. Try 'homeless start' or reload.");
+            return;
+        }
         Mod.Log.Info($"Adding Sleeping Bag ('{cfg.SleepingBagItemId}') to inventory...");
         ConsoleHelper.AddItemToInventory(cfg.SleepingBagItemId, 1);
     }
@@ -75,11 +82,22 @@ public sealed class HomelessConsoleCommands : BaseConsoleCommand
         Mod.Log.Info(" STARTING HOMELESS SURVIVAL CHALLENGE!");
         Mod.Log.Info("========================================");
 
-        // 1. Give Sleeping Bag
-        ConsoleHelper.AddItemToInventory(Mod.CurrentConfig.SleepingBagItemId, 1);
+        // 1. Give Sleeping Bag (Gatekeeper-fix 2026-08-30 L2: Registry check)
+        var cfg = Mod.CurrentConfig;
+        if (!Registry.ItemExists(cfg.SleepingBagItemId))
+        {
+            Mod.Log.Warn($"Item '{cfg.SleepingBagItemId}' not yet registered — attempting registration...");
+            try { HomelessMod.Items.SleepingBagItemFactory.RegisterItem(); } catch { }
+            if (!Registry.ItemExists(cfg.SleepingBagItemId))
+            {
+                Mod.Log.Warn($"Cannot start challenge — item '{cfg.SleepingBagItemId}' still unavailable.");
+                return;
+            }
+        }
+        ConsoleHelper.AddItemToInventory(cfg.SleepingBagItemId, 1);
 
-        // 2. Initialize Quests
-        HomelessQuestManager.InitializeQuests();
+        // 2. Initialize Quests (Gatekeeper-fix 2026-08-30 L2: force re-init even if _initialized)
+        HomelessQuestManager.InitializeQuests(force: true);
 
         Mod.Log.Info("Sleeping bag granted. Quests activated. Good luck on the streets!");
     }

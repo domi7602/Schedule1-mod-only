@@ -32,7 +32,24 @@ public static class GroundPlacementAssistant
     };
 
     private static readonly Collider[] OverlapResults = new Collider[32];
-    private static readonly int ObstacleLayerMask = LayerMask.GetMask("Default", "Terrain", "Building", "Props");
+
+    // Gatekeeper-fix 2026-08-30 H2: throw-free mask builder — GetMask throws ArgumentException if any layer missing.
+    private static readonly int ObstacleLayerMask = BuildObstacleMask();
+
+    private static int BuildObstacleMask()
+    {
+        int mask = 0;
+        string[] layers = new[] { "Default", "Terrain", "Building", "Props" };
+        foreach (var layer in layers)
+        {
+            int idx = LayerMask.NameToLayer(layer);
+            if (idx >= 0)
+                mask |= 1 << idx;
+            else
+                MelonLoader.MelonLogger.Warning($"[HomelessMod] Layer '{layer}' not found — skipped from ObstacleLayerMask.");
+        }
+        return mask != 0 ? mask : ~0;
+    }
 
     public static GroundPlacementResult EvaluatePlacement(
         Vector3 rawHitPoint,
@@ -109,6 +126,10 @@ public static class GroundPlacementAssistant
         Vector3 overlapExtents = new Vector3(boxExtents.x * 0.85f, Mathf.Max(0.05f, boxExtents.y * 0.8f), boxExtents.z * 0.85f);
 
         int hits = Physics.OverlapBoxNonAlloc(overlapCenter, overlapExtents, OverlapResults, targetRot, ObstacleLayerMask, QueryTriggerInteraction.Ignore);
+
+        // Gatekeeper-fix 2026-08-30 L8: warn if buffer overflow (silently capped at 32).
+        if (hits == OverlapResults.Length)
+            MelonLoader.MelonLogger.Warning($"[HomelessMod] OverlapBoxNonAlloc buffer full ({hits}/{OverlapResults.Length}) — some colliders may be missed. Placement validity may be inaccurate.");
 
         for (int i = 0; i < hits; i++)
         {

@@ -81,7 +81,8 @@ public static class BuildingPatches
 
                 // We use all layers (~0) and ignore triggers to ensure we hit the street, regardless of its specific layer
                 // We must NOT exclude "Grid" because some street meshes might actually be on the Grid layer!
-                int rayMask = ~LayerMask.GetMask("Ignore Raycast", "Player");
+                // Gatekeeper-fix 2026-08-30 H2: throw-free ray mask builder.
+                int rayMask = BuildRayMask();
                 bool hitSuccess = Physics.Raycast(ray, out RaycastHit hit, maxDist, rayMask, QueryTriggerInteraction.Ignore);
 
                 if (!hitSuccess)
@@ -208,6 +209,23 @@ public static class BuildingPatches
                 Mod.Log.Debug($"CheckIntersections patch debug: {ex.ToString()}");
             }
         }
+
+        // Gatekeeper-fix 2026-08-30 H2: throw-free ray mask — NameToLayer never throws.
+        private static int BuildRayMask()
+        {
+            int ignoreRaycastIdx = LayerMask.NameToLayer("Ignore Raycast");
+            int playerIdx = LayerMask.NameToLayer("Player");
+            int excludeMask = 0;
+            if (ignoreRaycastIdx >= 0)
+                excludeMask |= 1 << ignoreRaycastIdx;
+            else
+                MelonLoader.MelonLogger.Warning("[HomelessMod] Layer 'Ignore Raycast' not found — not excluded from rayMask.");
+            if (playerIdx >= 0)
+                excludeMask |= 1 << playerIdx;
+            else
+                MelonLoader.MelonLogger.Warning("[HomelessMod] Layer 'Player' not found — not excluded from rayMask.");
+            return ~excludeMask;
+        }
     }
 
     public static class BuildUpdate_Grid_Place_Patch
@@ -263,12 +281,17 @@ public static class BuildingPatches
                     var bDef = itemInstance.Definition.TryCast<BuildableItemDefinition>();
                     if (bDef != null && bDef.BuiltItem != null)
                     {
+                        // H4 fix: try/finally guarantees prefab is reactivated even if Instantiate throws
                         bool wasActive = bDef.BuiltItem.gameObject.activeSelf;
-                        if (wasActive) bDef.BuiltItem.gameObject.SetActive(false);
-
-                        placedObj = GameObject.Instantiate(bDef.BuiltItem.gameObject, spawnPos, spawnRot);
-
-                        if (wasActive) bDef.BuiltItem.gameObject.SetActive(true);
+                        try
+                        {
+                            if (wasActive) bDef.BuiltItem.gameObject.SetActive(false);
+                            placedObj = GameObject.Instantiate(bDef.BuiltItem.gameObject, spawnPos, spawnRot);
+                        }
+                        finally
+                        {
+                            if (wasActive) bDef.BuiltItem.gameObject.SetActive(true);
+                        }
 
                         placedObj.transform.SetParent(StreetPropertyManager.StreetRoot.transform, true);
 
@@ -365,7 +388,13 @@ public static class BuildingPatches
                 {
                     StreetPropertyManager.RegisterStreetItem(placedObj, itemId, itemGuid);
                     Mod.Log.Info($"Successfully placed outdoor item '{itemId}' at {spawnPos}");
-                    __result = null; // Prevent vanilla from tracking/destroying it
+                    // L5: returning null GridItem is intentional — we consumed the item ourselves and called Stop().
+                    // The vanilla BuildUpdate.Place caller may hold __result; with our Prefix returning false it will NOT
+                    // dereference the original Place return value (we skip vanilla). If any caller guards for null, it is safe.
+                    // Keep null but log defensively: if future Harmony changes cause Prefix to return true with null,
+                    // the vanilla BuildUpdate loop would NRE when tracking the placed item.
+                    __result = null;
+                    Mod.Log.Debug($"[L5] Place prefix returning null __result for '{itemId}' — vanilla Place skipped (return false), so NRE-safe.");
 
                     if (PlayerInventory.Instance != null && PlayerInventory.Instance.Pointer != IntPtr.Zero)
                     {
@@ -402,20 +431,23 @@ public static class BuildingPatches
             catch (Exception ex)
             {
                 IsCustomPlacementValid = false;
+                try { __instance._validPosition = false; } catch { }
                 Mod.Log.Error($"BuildUpdate_Grid.Place prefix error: {ex}");
-                return true;
+                return false;
             }
         }
     }
 
     public static class GridItem_Destroy_Patch
     {
+        // L9: StreetPropertyManager verifies InstanceID via Guid/ItemId + _activeStreetObjects to avoid recycled-ID false association
         public static bool Prefix(GridItem __instance)
         {
             try
             {
                 if (__instance != null && __instance.Pointer != IntPtr.Zero && !__instance.WasCollected && __instance.gameObject != null && __instance.gameObject.Pointer != IntPtr.Zero)
                 {
+                    // L9 guard: IsOutdoorItem now checks VerifyRecordIdentity (Guid/ItemId) so recycled InstanceIDs do not block vanilla destroys
                     if (StreetPropertyManager.IsOutdoorItem(__instance.gameObject))
                     {
                         Mod.Log.Debug($"Prevented vanilla destruction of outdoor GridItem: {__instance.gameObject.name}");
@@ -433,12 +465,14 @@ public static class BuildingPatches
 
     public static class BuildableItem_Destroy_Patch
     {
+        // L9: verified via StreetPropertyManager.IsOutdoorItem which checks Guid/ItemId against recycled InstanceIDs
         public static bool Prefix(BuildableItem __instance)
         {
             try
             {
                 if (__instance != null && __instance.Pointer != IntPtr.Zero && !__instance.WasCollected && __instance.gameObject != null && __instance.gameObject.Pointer != IntPtr.Zero)
                 {
+                    // L9 guard: recycled InstanceID check inside IsOutdoorItem/VerifyRecordIdentity
                     if (StreetPropertyManager.IsOutdoorItem(__instance.gameObject))
                     {
                         Mod.Log.Debug($"Prevented vanilla destruction of outdoor BuildableItem: {__instance.gameObject.name}");
@@ -498,5 +532,6 @@ public static class BuildingPatches
             }
             return true;
         }
+
     }
 }

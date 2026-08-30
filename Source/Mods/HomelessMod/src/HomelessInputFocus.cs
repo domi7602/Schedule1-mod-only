@@ -60,10 +60,11 @@ public sealed class HomelessInputFocus : MonoBehaviour
 
     private void Update()
     {
-        // Unity's standard pause pattern: the vanilla Pause-menu (and any other
-        // world-freezing modal) sets Time.timeScale to 0. Reading the static
-        // property is essentially free, so we no longer need a 0.25s scan over
-        // every GameObject in the scene — that scan was the 1-FPS-killer.
+        // Gatekeeper-fix L4: Time.timeScale==0f is unreliable in Schedule I (Netcode/Netcode-host does not globally freeze
+        // timeScale on pause; pause is a UI/menu state). Kept as best-effort cheap check, but the real guard is
+        // Cursor.lockState != Locked and Controls.IsTyping in IsBlockingInput / interactables. Consider also checking
+        // an explicit menu-open flag (e.g. PauseMenu.Instance.IsOpen or ESC menu active) if a stable API is available.
+        // Previous 0.25s GameObject scan was removed as the 1-FPS-killer; this static property read is essentially free.
         _cachedPauseOpen = Time.timeScale == 0f;
     }
 

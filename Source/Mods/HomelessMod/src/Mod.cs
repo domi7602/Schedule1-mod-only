@@ -93,6 +93,8 @@ public sealed class Mod : MelonMod
 
     public override void OnDeinitializeMelon()
     {
+        // Gatekeeper-fix 2026-08-30 L8: unpatch Harmony patches on unload.
+        try { HarmonyInstance.UnpatchSelf(); } catch (Exception ex) { Log.Debug($"Harmony unpatch failed: {ex.Message}"); }
         GameLifecycle.OnPreLoad -= OnPreLoad;
         GameLifecycle.OnSaveInfoLoaded -= OnSaveInfoLoaded;
         GameLifecycle.OnLoadComplete -= OnLoadComplete;
@@ -120,6 +122,8 @@ public sealed class Mod : MelonMod
 
     public override void OnUpdate()
     {
+        // Gatekeeper-fix 2026-08-30 L3: skip polling when quests disabled
+        if (!CurrentConfig.EnableHomelessQuests) return;
         // Periodic check for quest cash goals (every 2.5s)
         if (Time.unscaledTime >= _nextCashCheckTime)
         {

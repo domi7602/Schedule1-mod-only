@@ -72,6 +72,11 @@ public static class SleepingBagMeshGenerator
         mesh.RecalculateBounds();
         mesh.RecalculateTangents();
 
+        // Gatekeeper-fix L6: destroy previous native mesh before replacing to avoid native leak on rebuild path (isReadable false)
+        if (_sleepingBagMesh != null)
+        {
+            try { UnityEngine.Object.Destroy(_sleepingBagMesh); } catch { }
+        }
         _sleepingBagMesh = mesh;
         return _sleepingBagMesh;
     }

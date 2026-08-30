@@ -50,8 +50,13 @@ public static class StreetPropertyManager
 {
     private static GameObject? _streetRoot;
     private static readonly List<GameObject> _activeStreetObjects = new();
+    // L9: _objectRecords is keyed by Unity InstanceID which is recycled after Destroy.
+    // A new vanilla object can reuse a freed InstanceID and falsely appear as an outdoor item.
+    // Guards below verify identity via Guid/ItemId and via _activeStreetObjects membership before trusting the key.
     private static readonly Dictionary<int, StreetItemRecord> _objectRecords = new();
     private static readonly HashSet<string> _knownGuids = new(StringComparer.OrdinalIgnoreCase);
+    // Gatekeeper-fix M1: preserve records whose ItemId is not in Registry (mod uninstalled) so they are not deleted on next save
+    private static readonly List<StreetItemRecord> _orphanedRecords = new();
 
     public static GameObject StreetRoot
     {
@@ -73,21 +78,73 @@ public static class StreetPropertyManager
         if (go == null || go.Pointer == IntPtr.Zero) return false;
         try
         {
-            if (_objectRecords.ContainsKey(go.GetInstanceID()))
-                return true;
-
+            // L9: verify InstanceID entry is not a recycled vanilla object — check _activeStreetObjects membership or Guid/ItemId match
+            if (_objectRecords.TryGetValue(go.GetInstanceID(), out var rec) && rec != null)
+            {
+                if (VerifyRecordIdentity(go, rec)) return true;
+                // Stale/recycled entry — clean it so it does not block future vanilla destroys
+                Mod.Log.Debug($"[L9] Stale _objectRecords entry for InstanceID {go.GetInstanceID()} (rec Guid {rec.Guid}, ItemId {rec.ItemId}) — removing.");
+                _objectRecords.Remove(go.GetInstanceID());
+            }
             Transform? curr = go.transform;
             while (curr != null && curr.Pointer != IntPtr.Zero)
             {
-                if (_objectRecords.ContainsKey(curr.gameObject.GetInstanceID()))
-                    return true;
-                if (HasStreetRoot && curr.gameObject == _streetRoot)
+                var currGo = curr.gameObject;
+                if (currGo != null && currGo.Pointer != IntPtr.Zero && _objectRecords.TryGetValue(currGo.GetInstanceID(), out var parentRec) && parentRec != null)
+                {
+                    if (VerifyRecordIdentity(currGo, parentRec)) return true;
+                    Mod.Log.Debug($"[L9] Stale parent _objectRecords entry for '{currGo.name}' InstanceID {currGo.GetInstanceID()} — removing.");
+                    _objectRecords.Remove(currGo.GetInstanceID());
+                }
+                if (HasStreetRoot && currGo == _streetRoot)
                     return true;
                 curr = curr.parent;
             }
         }
         catch { }
         return false;
+    }
+
+    // L9 helper: confirm that the GameObject actually corresponds to the stored record via Guid/ItemId or list membership
+    private static bool VerifyRecordIdentity(GameObject go, StreetItemRecord rec)
+    {
+        try
+        {
+            // If the exact GameObject is still in the live list, identity is confirmed
+            if (_activeStreetObjects.Contains(go)) return true;
+            // Sleeping bag: compare Guid stored on the component
+            var sb = go.GetComponent<SleepingBagInteractable>();
+            if (sb != null && sb.Pointer != IntPtr.Zero && !sb.WasCollected && !string.IsNullOrEmpty(sb.Guid))
+            {
+                return string.Equals(sb.Guid, rec.Guid, StringComparison.OrdinalIgnoreCase);
+            }
+            // Generic outdoor item: compare ItemId
+            var oi = go.GetComponent<OutdoorItemInteractable>();
+            if (oi != null && oi.Pointer != IntPtr.Zero && !oi.WasCollected && !string.IsNullOrEmpty(oi.ItemId))
+            {
+                return string.Equals(oi.ItemId, rec.ItemId, StringComparison.OrdinalIgnoreCase);
+            }
+            // Custom station controller stores GUID via reflection — check if present
+            try
+            {
+                var ctrlType = TypeResolver.Find("AutoPackagingStation.Entities.AutoPackStationController", "AutoPackagingStation");
+                if (ctrlType != null)
+                {
+                    var ctrl = go.GetComponent(Il2CppType.From(ctrlType));
+                    if (ctrl != null && ctrl.Pointer != IntPtr.Zero && !ctrl.WasCollected)
+                    {
+                        var prop = ctrlType.GetProperty("StationGuid");
+                        var val = prop?.GetValue(ctrl) as string;
+                        if (!string.IsNullOrEmpty(val))
+                            return string.Equals(val, rec.Guid, StringComparison.OrdinalIgnoreCase);
+                    }
+                }
+            }
+            catch { }
+            // No verifiable component but GO is not in live list — treat as stale to avoid false association via recycled ID
+            return false;
+        }
+        catch { return false; }
     }
 
     public static bool IsOutdoorItem(GameObject? go)
@@ -212,6 +269,8 @@ public static class StreetPropertyManager
                     SafeStorage.EnsureDirectoryForFile(slotPath);
                     File.Copy(legacyPath, slotPath, true);
                 }
+                // Gatekeeper-fix M5: mark legacy file as migrated so two empty slots do not both copy it -> duplicate items
+                try { File.Move(legacyPath, legacyPath + ".migrated"); } catch { }
             }
             catch (Exception ex)
             {
@@ -331,6 +390,10 @@ public static class StreetPropertyManager
                 }
             }
 
+            // Gatekeeper-fix M1: re-emit orphaned records (unknown ItemId) so they survive saves when mod is uninstalled
+            foreach (var orphan in _orphanedRecords)
+                if (writtenGuids.Add(orphan.Guid)) data.Items.Add(orphan);
+
             SafeStorage.SaveAtomic(saveFilePath, data, Mod.Log);
             Mod.Log.Debug($"Saved {data.Items.Count} street items to {saveFilePath}");
         }
@@ -406,12 +469,18 @@ public static class StreetPropertyManager
                 var bDef = def?.TryCast<Il2CppScheduleOne.ItemFramework.BuildableItemDefinition>();
                 if (bDef != null && bDef.BuiltItem != null)
                 {
+                    // H4 fix: try/finally guarantees prefab is reactivated even if Instantiate throws
                     bool wasActive = bDef.BuiltItem.gameObject.activeSelf;
-                    if (wasActive) bDef.BuiltItem.gameObject.SetActive(false);
-
-                    var obj = GameObject.Instantiate(bDef.BuiltItem.gameObject, pos, rot);
-
-                    if (wasActive) bDef.BuiltItem.gameObject.SetActive(true);
+                    GameObject obj;
+                    try
+                    {
+                        if (wasActive) bDef.BuiltItem.gameObject.SetActive(false);
+                        obj = GameObject.Instantiate(bDef.BuiltItem.gameObject, pos, rot);
+                    }
+                    finally
+                    {
+                        if (wasActive) bDef.BuiltItem.gameObject.SetActive(true);
+                    }
 
                     obj.transform.SetParent(StreetRoot.transform, true);
 
@@ -508,6 +577,12 @@ public static class StreetPropertyManager
                     _objectRecords[obj.GetInstanceID()] = record;
                     Mod.Log.Info($"Restored outdoor item '{record.ItemId}' at {pos}");
                 }
+                else
+                {
+                    // Gatekeeper-fix M1: item not in Registry (mod uninstalled) -> preserve record so it is not deleted on next save
+                    _orphanedRecords.Add(record);
+                    Mod.Log.Warn($"Item '{record.ItemId}' not in Registry — record preserved for future sessions (GUID {record.Guid}).");
+                }
             }
         }
         catch (Exception ex)
@@ -529,6 +604,7 @@ public static class StreetPropertyManager
         _activeStreetObjects.Clear();
         _objectRecords.Clear();
         _knownGuids.Clear();
+        _orphanedRecords.Clear();
         if (!keepSlot) _lastKnownSlot = "default";
     }
 

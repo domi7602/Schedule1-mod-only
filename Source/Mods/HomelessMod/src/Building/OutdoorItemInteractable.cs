@@ -27,6 +27,9 @@ public class OutdoorItemInteractable : MonoBehaviour
     private float _rmbHoldProgress = 0f;
     private string _itemId = "";
     private float _spawnCooldown = 0.6f;
+    // Gatekeeper-fix L1: throttle per-frame Physics.Raycast; central HoverManager would be ideal (single raycast/frame)
+    private float _nextHoverCheckTime = 0f;
+    private const float HoverCheckInterval = 0.15f;
 
     public string ItemId
     {
@@ -121,6 +124,10 @@ public class OutdoorItemInteractable : MonoBehaviour
                 return;
             }
 
+            // Gatekeeper-fix L1: throttle expensive PlayerSingleton + Physics.Raycast to ~6-7 Hz; reuse last _isHovered between ticks
+            bool doHoverCheck = Time.time >= _nextHoverCheckTime;
+            if (doHoverCheck) _nextHoverCheckTime = Time.time + HoverCheckInterval;
+
             var player = PlayerSingleton<PlayerMovement>.Instance;
             if (player == null || player.Pointer == IntPtr.Zero)
             {
@@ -137,7 +144,9 @@ public class OutdoorItemInteractable : MonoBehaviour
                 return;
             }
 
-            // Resolve player camera
+            if (doHoverCheck)
+            {
+                // Resolve player camera
             Transform? camTransform = null;
             try
             {
@@ -175,6 +184,7 @@ public class OutdoorItemInteractable : MonoBehaviour
             {
                 _isHovered = distance <= 1.8f;
             }
+            } // end doHoverCheck — _isHovered reused from previous check when throttled
 
             if (_isHovered)
             {

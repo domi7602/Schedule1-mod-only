@@ -76,15 +76,14 @@ public static class HomelessQuestManager
 
     private static readonly HashSet<string> _completedQuests = new(StringComparer.OrdinalIgnoreCase);
 
-    public static void InitializeQuests()
+    public static void InitializeQuests(bool force = false)
     {
         if (!Mod.CurrentConfig.EnableHomelessQuests) return;
-        if (_initialized) return;
+        if (_initialized && !force) return;
 
         try
         {
             LoadCompletedState();
-
             if (!IsQuestCompleted("Cold Concrete"))
             {
                 if (ResolveQuest1() != null)
@@ -93,11 +92,24 @@ public static class HomelessQuestManager
                 }
                 else
                 {
-                    QuestManager.CreateQuest<Quest_ColdConcrete>("homeless_quest_1");
-                    Mod.Log.Info("Registered new 'Cold Concrete' quest with S1API.");
+                    // Gatekeeper-fix 2026-08-30 H1/L7: S1API CreateQuest takes internal id (homeless_quest_1) while GetQuestByName resolves by Title (Cold Concrete). Verify type before use.
+                    var created = QuestManager.CreateQuest<Quest_ColdConcrete>("homeless_quest_1");
+                    if (created is Quest_ColdConcrete)
+                        Mod.Log.Info("Registered new 'Cold Concrete' quest with S1API.");
+                    else
+                        Mod.Log.Warn($"CreateQuest homeless_quest_1 returned unexpected type {created?.GetType().Name ?? "null"} — S1API semantics mismatch?");
                 }
             }
-
+            else if (!IsQuestCompleted("Alley Operations"))
+            {
+                // Gatekeeper-fix 2026-08-30 H1: restore chain after save-crash where Q1 completed but Q2 never persisted
+                if (ResolveQuest2() == null) GetOrCreateQuest2();
+            }
+            else if (!IsQuestCompleted("Street Sovereign"))
+            {
+                // Gatekeeper-fix 2026-08-30 H1: restore chain where Q2 completed but Q3 never persisted
+                if (ResolveQuest3() == null) GetOrCreateQuest3();
+            }
             _initialized = true;
         }
         catch (Exception ex)
@@ -186,6 +198,8 @@ public static class HomelessQuestManager
 
     public static void CheckCashProgress()
     {
+        // Gatekeeper-fix 2026-08-30 L3: early-out when quests disabled (Mod.OnUpdate also guards, defense in depth)
+        if (!Mod.CurrentConfig.EnableHomelessQuests) return;
         try
         {
             var moneyMgr = NetworkSingleton<MoneyManager>.Instance;
@@ -203,10 +217,13 @@ public static class HomelessQuestManager
                     {
                         earn500.Complete();
                         Mod.Log.Info("Completed: 'Accumulate $500 in cash'!");
-                        MarkQuestCompleted("Alley Operations");
-
-                        // Advance to Quest 3
-                        GetOrCreateQuest3();
+                        // Gatekeeper-fix 2026-08-30 M2: only mark Alley Operations completed when BOTH entries are done
+                        var gear = FindEntry(q2, "Place a workstation or grow container outdoors");
+                        if (gear != null && gear.State == QuestState.Completed)
+                        {
+                            MarkQuestCompleted("Alley Operations");
+                            GetOrCreateQuest3();
+                        }
                     }
                 }
             }
@@ -236,6 +253,7 @@ public static class HomelessQuestManager
     {
         _initialized = false;
         _completedQuests.Clear();
+        _lastKnownQuestSlot = "default"; // Gatekeeper-fix 2026-08-30 M4: mirror StreetPropertyManager.ResetState to avoid cross-slot writes
     }
 
     // ----- Fresh lookup helpers (save-load safe) -----
@@ -246,11 +264,27 @@ public static class HomelessQuestManager
 
     private static Quest_StreetSovereign? ResolveQuest3() => QuestManager.GetQuestByName("Street Sovereign") as Quest_StreetSovereign;
 
-    private static Quest_AlleyOperations GetOrCreateQuest2()
-        => ResolveQuest2() ?? (Quest_AlleyOperations)QuestManager.CreateQuest<Quest_AlleyOperations>("homeless_quest_2");
+    private static Quest_AlleyOperations? GetOrCreateQuest2()
+    {
+        var existing = ResolveQuest2();
+        if (existing != null) return existing;
+        var created = QuestManager.CreateQuest<Quest_AlleyOperations>("homeless_quest_2");
+        // Gatekeeper-fix 2026-08-30 H1/L7: verify S1API returned expected subtype before cast
+        if (created is Quest_AlleyOperations typed) return typed;
+        Mod.Log.Warn($"CreateQuest homeless_quest_2 returned unexpected type {created?.GetType().Name ?? "null"}");
+        return null;
+    }
 
-    private static Quest_StreetSovereign GetOrCreateQuest3()
-        => ResolveQuest3() ?? (Quest_StreetSovereign)QuestManager.CreateQuest<Quest_StreetSovereign>("homeless_quest_3");
+    private static Quest_StreetSovereign? GetOrCreateQuest3()
+    {
+        var existing = ResolveQuest3();
+        if (existing != null) return existing;
+        var created = QuestManager.CreateQuest<Quest_StreetSovereign>("homeless_quest_3");
+        // Gatekeeper-fix 2026-08-30 H1/L7: verify S1API returned expected subtype before cast
+        if (created is Quest_StreetSovereign typed) return typed;
+        Mod.Log.Warn($"CreateQuest homeless_quest_3 returned unexpected type {created?.GetType().Name ?? "null"}");
+        return null;
+    }
 
     private static QuestEntry? FindEntry(Quest quest, string title)
     {
