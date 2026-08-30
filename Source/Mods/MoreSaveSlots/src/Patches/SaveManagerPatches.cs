@@ -48,6 +48,12 @@ public static class LoadManager_RefreshSaveInfo_Patch
     private static bool _hasLoggedFirstScan = false;
     private static int _lastFoundCount = -1;
     private static float _lastLogTime = -1000f;
+    // Gatekeeper-fix 2026-08-29: defend against double-fire of onSaveInfoLoaded.
+    // Scenario A: another mod also patches RefreshSaveInfo and runs vanilla despite our Prefix returning false.
+    // Scenario B: the Invoke() itself throws → current try-block would short-circuit to catch → return true
+    //   → vanilla fires its own Invoke. The user-facing event would fire twice.
+    // We track the last frame we invoked on, and if we see a second Invoke within the same frame we no-op it.
+    private static int _lastInvokeFrame = -1;
 
     [HarmonyPrefix]
     public static bool Prefix(LoadManager __instance)
@@ -217,10 +223,29 @@ public static class LoadManager_RefreshSaveInfo_Patch
             }
             _hasLoggedFirstScan = true;
 
-            // Notify S1API / listeners
+            // Notify S1API / listeners — wrapped in inner try/catch so an exception here
+            // does NOT short-circuit to the outer catch (which would return true and let vanilla
+            // fire its own onSaveInfoLoaded → double-fire). Same-frame guard protects against
+            // external mods also patching RefreshSaveInfo.
             if (__instance != null && __instance.onSaveInfoLoaded != null)
             {
-                __instance.onSaveInfoLoaded.Invoke();
+                int currentFrame = Time.frameCount;
+                if (currentFrame != _lastInvokeFrame)
+                {
+                    _lastInvokeFrame = currentFrame;
+                    try
+                    {
+                        __instance.onSaveInfoLoaded.Invoke();
+                    }
+                    catch (Exception invokeEx)
+                    {
+                        MelonLogger.Warning($"[MoreSaveSlots] onSaveInfoLoaded.Invoke() threw, continuing without double-fire: {invokeEx.Message}");
+                    }
+                }
+                else
+                {
+                    MelonLogger.Msg($"[MoreSaveSlots] Suppressed duplicate onSaveInfoLoaded.Invoke() within frame {currentFrame}.");
+                }
             }
 
             return false; // Skip vanilla 5-slot scan

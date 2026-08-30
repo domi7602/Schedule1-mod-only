@@ -32,11 +32,16 @@ public static class AutoPackagingItemFactory
     /// </summary>
     public static void RegisterItem()
     {
-        if (_isRegistered) return;
+        // Gatekeeper-fix 2026-08-29: was `if (_isRegistered) return;` which left the mod
+        // silently broken after a Registry reset (patch-day, save-slot switch, dynamic reload).
+        // Now we also re-verify the item actually exists in the Registry — if not, we retry.
+        string itemId = Mod.CurrentConfig.StationItemId;
+        if (_isRegistered && GameRegistry.ItemExists(itemId)) return;
+        _isRegistered = false; // re-arm in case previous registration was lost (registry reset)
 
         try
         {
-            string itemId = Mod.CurrentConfig.StationItemId;
+            // itemId hoisted to outer guard (Gatekeeper-fix 2026-08-29); do not redeclare.
             if (GameRegistry.ItemExists(itemId))
             {
                 Mod.Log.Info($"Item '{itemId}' already exists in Registry.");

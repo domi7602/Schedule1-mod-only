@@ -196,8 +196,9 @@ public static class RenameDialog
     {
         if (_dialogRoot != null) return;
 
-        // Find root canvas
-        Canvas canvas = UnityEngine.Object.FindObjectOfType<Canvas>();
+        // Gatekeeper-fix 2026-08-30: FindObjectOfType<T>() is [Obsolete] in Unity 2022.3+ (CS0618).
+        // Migrated to FindObjectsByType with FindObjectsSortMode.None (faster, no sort).
+        Canvas canvas = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None) is { Length: > 0 } arr ? arr[0] : null;
         if (canvas == null) return;
 
         // 1. Overlay Root

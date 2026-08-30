@@ -8,6 +8,10 @@ namespace BackpackMod.Patches
 {
     public static class PlayerClothingPatch
     {
+        // Gatekeeper-fix 2026-08-29: Schedule I's EClothingSlot enum uses index 10 for backpack.
+        // If the game ever adds an explicit backpack-slot enum value, re-check this constant.
+        private const EClothingSlot BackpackSlotId = (EClothingSlot)10;
+
         public static ItemSlot? BackpackSlot { get; private set; }
 
         public static void Prefix(PlayerClothing __instance) { }
@@ -19,15 +23,15 @@ namespace BackpackMod.Patches
             {
                 if (__instance.ClothingSlots != null)
                 {
-                    if (__instance.ClothingSlots.ContainsKey((EClothingSlot)10))
+                    if (__instance.ClothingSlots.ContainsKey(BackpackSlotId))
                     {
-                        BackpackSlot = __instance.ClothingSlots[(EClothingSlot)10];
+                        BackpackSlot = __instance.ClothingSlots[BackpackSlotId];
                         return;
                     }
                     var slot = new ItemSlot(false);
-                    slot.AddFilter(new ItemFilter_ClothingSlot((EClothingSlot)10));
+                    slot.AddFilter(new ItemFilter_ClothingSlot(BackpackSlotId));
 
-                    __instance.ClothingSlots.Add((EClothingSlot)10, slot);
+                    __instance.ClothingSlots.Add(BackpackSlotId, slot);
                     if (__instance.ItemSlots != null)
                     {
                         __instance.ItemSlots.Add(slot);

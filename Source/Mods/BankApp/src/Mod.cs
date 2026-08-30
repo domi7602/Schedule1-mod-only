@@ -55,9 +55,14 @@ public class Mod : MelonMod
         try { TransactionHistoryService.ResetCache(false); } catch { }
     }
 
+    // Gatekeeper-fix 2026-08-29: only OnPreLoad resets the cache. The downstream
+    // OnSaveInfoLoaded / OnLoadComplete hooks are kept as no-op stubs (not removed) so
+    // existing OnDeinitializeMelon unsubscribes stay valid. A future contributor can
+    // hook real rebuild logic into HandleSaveInfoLoaded / HandleLoadComplete without
+    // resetting the cache — see commit message for the canonical lifecycle ordering.
     private static void HandlePreLoad() => TransactionHistoryService.ResetCache(false);
-    private static void HandleSaveInfoLoaded() => TransactionHistoryService.ResetCache(false);
-    private static void HandleLoadComplete() => TransactionHistoryService.ResetCache(false);
+    private static void HandleSaveInfoLoaded() { /* no-op: see lifecycle note above */ }
+    private static void HandleLoadComplete() { /* no-op: see lifecycle note above */ }
 
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {

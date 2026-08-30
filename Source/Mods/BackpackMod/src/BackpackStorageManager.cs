@@ -1,3 +1,4 @@
+using Il2CppScheduleOne.Clothing;
 using Il2CppScheduleOne.DevUtilities;
 using Il2CppScheduleOne.ItemFramework;
 using Il2CppScheduleOne.Persistence;
@@ -15,6 +16,10 @@ namespace BackpackMod
 {
     public static class BackpackStorageManager
     {
+        // Gatekeeper-fix 2026-08-29: Schedule I's EClothingSlot enum uses index 10 for backpack.
+        // If the game ever adds an explicit backpack-slot enum value, re-check this constant.
+        private const EClothingSlot BackpackSlotId = (EClothingSlot)10;
+
         private static StorageEntity? _storageEntity;
         private static GameObject? _storageEntityObj;
         private static int _currentSlotCount = 0;
@@ -134,9 +139,9 @@ namespace BackpackMod
                 var pc = playerMovement != null && playerMovement.Pointer != IntPtr.Zero
                     ? playerMovement.GetComponent<Il2CppScheduleOne.PlayerScripts.PlayerClothing>()
                     : null;
-                if (pc != null && pc.ClothingSlots != null && pc.ClothingSlots.ContainsKey((Il2CppScheduleOne.Clothing.EClothingSlot)10))
+                if (pc != null && pc.ClothingSlots != null && pc.ClothingSlots.ContainsKey(BackpackSlotId))
                 {
-                    wornSlot = pc.ClothingSlots[(Il2CppScheduleOne.Clothing.EClothingSlot)10];
+                    wornSlot = pc.ClothingSlots[BackpackSlotId];
                 }
             }
 

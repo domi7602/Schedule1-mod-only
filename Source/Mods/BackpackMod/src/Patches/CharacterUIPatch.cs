@@ -9,6 +9,10 @@ namespace BackpackMod.Patches
 {
     public static class CharacterUIPatch
     {
+        // Gatekeeper-fix 2026-08-29: Schedule I's EClothingSlot enum uses index 10 for backpack.
+        // If the game ever adds an explicit backpack-slot enum value, re-check this constant.
+        private const EClothingSlot BackpackSlotId = (EClothingSlot)10;
+
         private static GameObject? _backpackSlotObj;
         private static ClothingSlotUI? _backpackSlotUI;
 
@@ -22,9 +26,9 @@ namespace BackpackMod.Patches
                 if (_backpackSlotUI.assignedSlot == null || _backpackSlotUI.assignedSlot.Pointer == IntPtr.Zero || _backpackSlotUI.assignedSlot.WasCollected)
                 {
                     var pc = Il2CppScheduleOne.DevUtilities.PlayerSingleton<Il2CppScheduleOne.PlayerScripts.PlayerMovement>.Instance?.GetComponent<Il2CppScheduleOne.PlayerScripts.PlayerClothing>();
-                    if (pc != null && pc.Pointer != IntPtr.Zero && !pc.WasCollected && pc.ClothingSlots != null && pc.ClothingSlots.ContainsKey((EClothingSlot)10))
+                    if (pc != null && pc.Pointer != IntPtr.Zero && !pc.WasCollected && pc.ClothingSlots != null && pc.ClothingSlots.ContainsKey(BackpackSlotId))
                     {
-                        _backpackSlotUI.AssignSlot(pc.ClothingSlots[(EClothingSlot)10]);
+                        _backpackSlotUI.AssignSlot(pc.ClothingSlots[BackpackSlotId]);
                     }
                     else if (PlayerClothingPatch.BackpackSlot != null && PlayerClothingPatch.BackpackSlot.Pointer != IntPtr.Zero && !PlayerClothingPatch.BackpackSlot.WasCollected)
                     {
@@ -132,7 +136,7 @@ namespace BackpackMod.Patches
                 _backpackSlotUI = _backpackSlotObj.GetComponent<ClothingSlotUI>();
                 if (_backpackSlotUI != null)
                 {
-                    _backpackSlotUI.SlotType = (EClothingSlot)10;
+                    _backpackSlotUI.SlotType = BackpackSlotId;
                     if (_backpackSlotUI.SlotTypeImage != null)
                     {
                         _backpackSlotUI.SlotTypeImage.sprite = BackpackIconGenerator.GetSlotIcon();
@@ -141,9 +145,9 @@ namespace BackpackMod.Patches
                     }
 
                     var pc = Il2CppScheduleOne.DevUtilities.PlayerSingleton<Il2CppScheduleOne.PlayerScripts.PlayerMovement>.Instance?.GetComponent<Il2CppScheduleOne.PlayerScripts.PlayerClothing>();
-                    if (pc != null && pc.ClothingSlots != null && pc.ClothingSlots.ContainsKey((EClothingSlot)10))
+                    if (pc != null && pc.ClothingSlots != null && pc.ClothingSlots.ContainsKey(BackpackSlotId))
                     {
-                        _backpackSlotUI.AssignSlot(pc.ClothingSlots[(EClothingSlot)10]);
+                        _backpackSlotUI.AssignSlot(pc.ClothingSlots[BackpackSlotId]);
                     }
                     else if (PlayerClothingPatch.BackpackSlot != null)
                     {

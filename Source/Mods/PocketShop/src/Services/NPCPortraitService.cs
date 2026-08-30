@@ -45,7 +45,9 @@ public static class NPCPortraitService
             var npcManager = NPCManager.Instance;
             if (npcManager != null)
             {
-                var npcs = UnityEngine.Object.FindObjectsOfType<NPC>();
+                // Gatekeeper-fix 2026-08-29: FindObjectsOfType<T>() is [Obsolete] in Unity 2022.3+ (CS0618).
+                // Migrated to FindObjectsByType with explicit FindObjectsSortMode.None (no allocation, faster).
+                var npcs = UnityEngine.Object.FindObjectsByType<NPC>(FindObjectsSortMode.None);
                 if (npcs != null)
                 {
                     string target = shopName.ToLowerInvariant();

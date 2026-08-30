@@ -10,6 +10,10 @@ namespace BackpackMod
 {
     public static class BackpackVisualManager
     {
+        // Gatekeeper-fix 2026-08-29: Schedule I's EClothingSlot enum uses index 10 for backpack.
+        // If the game ever adds an explicit backpack-slot enum value, re-check this constant.
+        private const EClothingSlot BackpackSlotId = (EClothingSlot)10;
+
         private static GameObject? _currentWorldVisualObj;
         private static GameObject? _currentMenuVisualObj;
         private static string? _currentActiveTier;
@@ -29,9 +33,9 @@ namespace BackpackMod
                 string? activeTier = null;
                 var wornSlot = Patches.PlayerClothingPatch.BackpackSlot;
 
-                if (wornSlot == null && pc != null && pc.ClothingSlots != null && pc.ClothingSlots.ContainsKey((EClothingSlot)10))
+                if (wornSlot == null && pc != null && pc.ClothingSlots != null && pc.ClothingSlots.ContainsKey(BackpackSlotId))
                 {
-                    wornSlot = pc.ClothingSlots[(EClothingSlot)10];
+                    wornSlot = pc.ClothingSlots[BackpackSlotId];
                 }
 
                 if (wornSlot != null && wornSlot.ItemInstance != null && wornSlot.ItemInstance.Definition != null)
@@ -105,7 +109,11 @@ namespace BackpackMod
             if (_cachedWorldAvatar != null && _cachedWorldAvatar.Pointer != IntPtr.Zero && !_cachedWorldAvatar.WasCollected)
                 return _cachedWorldAvatar;
 
-            if (Time.unscaledTime - _lastAvatarSearchTime < 0.5f) return _cachedWorldAvatar;
+            // Gatekeeper-fix 2026-08-29: throttle was 0.5s, raised to 5.0s after audit flagged
+            // Resources.FindObjectsOfTypeAll<Avatar>() (line 134) as the FPS-killer in equip windows.
+            // Early-return on healthy cache at line 105 already prevents most scans; this reduces
+            // the worst-case cadence for cold-cache equip windows from 2/s to 0.2/s.
+            if (Time.unscaledTime - _lastAvatarSearchTime < 5.0f) return _cachedWorldAvatar;
             _lastAvatarSearchTime = Time.unscaledTime;
 
             // 1. Direct child of PlayerMovement (most common)

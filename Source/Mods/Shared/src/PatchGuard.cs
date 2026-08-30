@@ -60,8 +60,10 @@ public static class PatchGuard
         if (harmony == null)
         {
             PatchesFailed++;
+            // Gatekeeper-fix 2026-08-29: only log via the provided `log` to avoid double-logging
+            // (was: log?.Error + MelonLoader.MelonLogger.Error). Consistent with the other
+            // paths in this file (lines 78, 116) which only use log?.Warn.
             log?.Error("PatchGuard: Harmony instance is null — patch übersprungen.");
-            try { MelonLoader.MelonLogger.Error("[PatchGuard] Harmony instance is null — patch übersprungen."); } catch { }
             return false;
         }
 
@@ -91,6 +93,12 @@ public static class PatchGuard
         {
             PatchesFailed++;
             log?.Error($"PatchGuard: Patch für '{targetDesc}' fehlgeschlagen (Feature sicher deaktiviert): {ex.Message}");
+            // Gatekeeper-fix 2026-08-29 (diagnostic fallback only): some ModLogger implementations
+            // swallow errors during very-early Init (before their sink is fully wired). The throw
+            // path is the only place that needs this fallback — other paths (harmony == null,
+            // original == null, no-op) are informational and `log?.Warn/Error` is sufficient.
+            // Removing this would silently hide the one-patch-fail in StackLimitMod (20/21) etc.
+            try { MelonLoader.MelonLogger.Error($"[PatchGuard] Patch für '{targetDesc}' fehlgeschlagen: {ex.GetType().Name}: {ex.Message}"); } catch { }
             return false;
         }
     }

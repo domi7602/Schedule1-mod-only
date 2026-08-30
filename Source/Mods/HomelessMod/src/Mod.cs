@@ -184,6 +184,10 @@ public sealed class Mod : MelonMod
 
     private void OnPreLoad()
     {
+        // Gatekeeper-fix 2026-08-29: cache slot resolution REMOVED from OnPreLoad because
+        // loadMgr.ActiveSaveInfo is NOT yet guaranteed to reflect the new slot here (S1API
+        // GameLifecycle ordering: OnPreLoad fires before the save-info swap in some paths).
+        // Compare-only here, cache-only in OnSaveInfoLoaded where the new slot is authoritative.
         // Slot-switch detection: read the slot that is about to be loaded BEFORE we reset anything.
         // OnPreLoad fires both for real save-slot switches (New Game / Continue on different slot)
         // AND for same-slot scene reloads (Menu -> Game). We must NOT kill placed street items
@@ -192,10 +196,9 @@ public sealed class Mod : MelonMod
         int newSlot = ResolveActiveSaveSlotNumber();
         int itemsBefore = StreetPropertyManager.ActiveStreetItemCount;
         bool isFirstLoad = (oldSlot == -2);
+        // Both oldSlot and newSlot may be -1 here on the very first PreLoad before any save is
+        // ever resolved — that's fine, isFirstLoad (oldSlot == -2) still triggers a clean reset.
         bool isSlotSwitch = isFirstLoad || (oldSlot != newSlot);
-
-        // Cache the new slot number so subsequent same-slot reloads don't trip isSlotSwitch again.
-        StreetPropertyManager.CacheSlotNumber(newSlot);
 
         if (isSlotSwitch)
         {
@@ -243,6 +246,14 @@ public sealed class Mod : MelonMod
         // this hook with the OnPreLoad branch that just ran.
         int currentSlot = ResolveActiveSaveSlotNumber();
         Log.Info($"[OnSaveInfoLoaded] currentSlot={currentSlot}");
+
+        // Gatekeeper-fix 2026-08-29: cache the now-authoritative slot here (OnPreLoad no longer
+        // caches, because loadMgr.ActiveSaveInfo may be stale there). ActiveSaveInfo is
+        // guaranteed to reflect the new slot by the time OnSaveInfoLoaded fires.
+        if (currentSlot != -1)
+        {
+            StreetPropertyManager.CacheSlotNumber(currentSlot);
+        }
     }
 
     private void OnLoadComplete()

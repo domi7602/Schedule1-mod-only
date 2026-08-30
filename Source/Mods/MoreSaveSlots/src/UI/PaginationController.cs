@@ -63,7 +63,9 @@ public static class PaginationController
     {
         try
         {
-            var saveDisplays = UnityEngine.Object.FindObjectsOfType<SaveDisplay>();
+            // Gatekeeper-fix 2026-08-29: FindObjectsOfType<T>() is [Obsolete] in Unity 2022.3+ (CS0618).
+            // Migrated to FindObjectsByType with explicit FindObjectsSortMode.None (no allocation, faster).
+            var saveDisplays = UnityEngine.Object.FindObjectsByType<SaveDisplay>(FindObjectsSortMode.None);
             if (saveDisplays != null)
             {
                 for (int i = 0; i < saveDisplays.Length; i++)

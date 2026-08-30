@@ -66,17 +66,19 @@ public static class SkateboardItemFactory
 
     /// <summary>
     /// Creates and registers the custom Skateboard into the game's item registry.
+    /// Idempotent: returns early on subsequent calls without re-registering (audit 2026-08-29).
     /// </summary>
     public static bool CreateAndRegister(SkateboardConfig config)
     {
         try
         {
+            // Guard 1: in-process cached def is still valid
             if (_registeredItemDef != null && _registeredItemDef.Pointer != IntPtr.Zero)
             {
                 return true;
             }
 
-            // Check if already in Registry
+            // Guard 2: another mod (or earlier lifecycle phase) already registered it via the game's Registry
             try
             {
                 _registeredItemDef = Registry.GetItem(config.SkateboardId);

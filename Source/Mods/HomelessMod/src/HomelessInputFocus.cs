@@ -24,7 +24,6 @@ public sealed class HomelessInputFocus : MonoBehaviour
     public HomelessInputFocus(IntPtr ptr) : base(ptr) { }
 
     private static HomelessInputFocus? _instance;
-    private float _nextScanTime;
     private bool _cachedPauseOpen;
 
     /// <summary>
@@ -61,49 +60,15 @@ public sealed class HomelessInputFocus : MonoBehaviour
 
     private void Update()
     {
-        // Cheap polling for Pause-menu state — only every 0.25s to keep cost ~0.
-        if (Time.unscaledTime < _nextScanTime) return;
-        _nextScanTime = Time.unscaledTime + 0.25f;
-        _cachedPauseOpen = ScanPauseMenuOpen();
+        // Unity's standard pause pattern: the vanilla Pause-menu (and any other
+        // world-freezing modal) sets Time.timeScale to 0. Reading the static
+        // property is essentially free, so we no longer need a 0.25s scan over
+        // every GameObject in the scene — that scan was the 1-FPS-killer.
+        _cachedPauseOpen = Time.timeScale == 0f;
     }
 
     private void OnDestroy()
     {
         if (_instance != null && _instance.Pointer == this.Pointer) _instance = null;
-    }
-
-    /// <summary>
-    /// Looks up the vanilla PauseMenu UI GameObject without taking a hard IL2CPP
-    /// dependency on its type. We use FindObjectsOfTypeAll with a name-based scan
-    /// fallback so the check degrades gracefully if the menu name changes.
-    /// </summary>
-    private static bool ScanPauseMenuOpen()
-    {
-        try
-        {
-            // Approach 1: search for any GameObject named "PauseMenu" / "PauseScreen" that's active.
-            // FindObjectsOfTypeAll returns inactive objects too — filter by activeInHierarchy.
-            var all = Resources.FindObjectsOfTypeAll<GameObject>();
-            for (int i = 0; i < all.Count; i++)
-            {
-                var go = all[i];
-                if (go == null || go.Pointer == IntPtr.Zero || go.WasCollected) continue;
-                if (!go.activeInHierarchy) continue;
-                string n = go.name;
-                if (string.IsNullOrEmpty(n)) continue;
-                if (n.IndexOf("Pause", StringComparison.OrdinalIgnoreCase) >= 0 &&
-                    (n.IndexOf("Menu", StringComparison.OrdinalIgnoreCase) >= 0 ||
-                     n.IndexOf("Screen", StringComparison.OrdinalIgnoreCase) >= 0))
-                {
-                    // Only consider top-level / persistent UI, not deeply nested child panels.
-                    return true;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            MelonLogger.Warning($"PauseMenu scan warning: {ex.Message}");
-        }
-        return false;
     }
 }

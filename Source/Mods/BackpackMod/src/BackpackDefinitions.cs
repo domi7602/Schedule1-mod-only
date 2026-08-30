@@ -9,6 +9,11 @@ namespace BackpackMod
 {
     public static class BackpackDefinitions
     {
+        // Gatekeeper-fix 2026-08-29: S1API's ClothingSlot wrapper enum uses index 10 for backpack.
+        // This is a different type than Il2CppScheduleOne.Clothing.EClothingSlot — do NOT unify.
+        // If S1API renumbers the wrapper enum, re-check this constant.
+        private const S1API.Items.Clothing.ClothingSlot BackpackSlotId = (S1API.Items.Clothing.ClothingSlot)10;
+
         public static GameItemDef Tier1Backpack { get; private set; }
         public static GameItemDef Tier2Backpack { get; private set; }
         public static GameItemDef Tier3Backpack { get; private set; }
@@ -80,7 +85,7 @@ namespace BackpackMod
                 }
 
                 builder.WithBasicInfo(id, displayName, "A wearable backpack that provides extra storage space. Drop it to access its inventory.", S1API.Items.ItemCategory.Clothing)
-                    .WithSlot((S1API.Items.Clothing.ClothingSlot)10)
+                    .WithSlot(BackpackSlotId)
                     .WithPricing(price, 0.5f)
                     .WithIcon(BackpackIconGenerator.GetOrCreateIcon(tier))
                     .WithColorable(false)
