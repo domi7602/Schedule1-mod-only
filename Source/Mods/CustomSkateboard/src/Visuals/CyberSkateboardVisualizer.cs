@@ -248,6 +248,69 @@ public static class CyberSkateboardVisualizer
             || n.Contains("player") || n.Contains("character") || n.Contains("mesh_character");
     }
 
+    // Gatekeeper-fix B7: robust deck mesh heuristic — prefer exact "deck" name with sanity check, fallback to Contains.
+    private static bool IsExactDeckName(string name)
+    {
+        return string.Equals(name, "deck", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(name, "deck_mesh", StringComparison.OrdinalIgnoreCase)
+            || name.EndsWith("_deck", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsDeckMeshSane(MeshFilter mf)
+    {
+        try
+        {
+            var m = mf.sharedMesh;
+            if (m == null) return false;
+            // Sanity: deck must have vertices and non-degenerate bounds; reject Combined/Root mega-meshes.
+            if (m.vertexCount < 20 || m.vertexCount > 50000) return false;
+            var b = m.bounds;
+            float maxExtent = Mathf.Max(b.extents.x, Mathf.Max(b.extents.y, b.extents.z));
+            // Deck is ~2m long, so extents ~1m; Combined root mesh often has >>5m extents.
+            if (maxExtent > 5f || maxExtent < 0.05f) return false;
+            return true;
+        }
+        catch { return false; }
+    }
+
+    private static bool TrySwapDeckMesh(Transform searchRoot, Mesh customMesh)
+    {
+        var meshFilters = searchRoot.GetComponentsInChildren<MeshFilter>(true);
+        if (meshFilters == null) return false;
+
+        // Pass 1: prefer exact "deck" name + sanity check (avoids hitting "Combined" or "Root/board_collision").
+        foreach (var mf in meshFilters)
+        {
+            if (mf == null || mf.gameObject == null) continue;
+            string mfName = mf.gameObject.name.ToLowerInvariant();
+            string sharedMeshName = (mf.sharedMesh != null) ? mf.sharedMesh.name.ToLowerInvariant() : "";
+            bool exact = IsExactDeckName(mf.gameObject.name) || IsExactDeckName(sharedMeshName);
+            bool isAvatarPart = IsPlayerAvatarPart(mfName) || IsPlayerAvatarPart(sharedMeshName);
+            if (exact && !isAvatarPart && IsDeckMeshSane(mf))
+            {
+                if (mf.sharedMesh != customMesh) mf.sharedMesh = customMesh;
+                return true;
+            }
+        }
+        // Pass 2: fallback Contains("deck") / Contains("board") — original heuristic for variants.
+        foreach (var mf in meshFilters)
+        {
+            if (mf == null || mf.gameObject == null) continue;
+            string mfName = mf.gameObject.name.ToLowerInvariant();
+            string sharedMeshName = (mf.sharedMesh != null) ? mf.sharedMesh.name.ToLowerInvariant() : "";
+            bool isDeckCandidate = mfName.Contains("deck", StringComparison.OrdinalIgnoreCase) || mfName.Contains("board", StringComparison.OrdinalIgnoreCase)
+                || sharedMeshName.Contains("deck", StringComparison.OrdinalIgnoreCase) || sharedMeshName.Contains("board", StringComparison.OrdinalIgnoreCase)
+                || mfName.EndsWith("_deck", StringComparison.OrdinalIgnoreCase) || mfName.EndsWith("_board", StringComparison.OrdinalIgnoreCase);
+            bool isAvatarPart = IsPlayerAvatarPart(mfName) || IsPlayerAvatarPart(sharedMeshName);
+            if (isDeckCandidate && !isAvatarPart)
+            {
+                if (mf.sharedMesh != customMesh) mf.sharedMesh = customMesh;
+                return true;
+            }
+        }
+        return false;
+    }
+
     /// <summary>
     /// Applies the custom glowing materials, underglow light, and trails strictly to the skateboard model (never to player avatar).
     /// </summary>
@@ -280,35 +343,12 @@ public static class CyberSkateboardVisualizer
             }
             InitializeAssets(baseTemplate);
 
-            // Try loading custom 3D deck mesh if available - strictly replace ONLY the deck mesh
+            // Gatekeeper-fix B7: robust two-pass heuristic (exact "deck" + sanity, then Contains fallback) to avoid hitting Combined/Root.
             Mesh? customMesh = ObjLoader.TryGetOrLoadDeckMesh();
             if (customMesh != null)
             {
                 Transform searchRoot = boardRoot ?? skateboard.transform;
-                var meshFilters = searchRoot.GetComponentsInChildren<MeshFilter>(true);
-                if (meshFilters != null)
-                {
-                    foreach (var mf in meshFilters)
-                    {
-                        if (mf == null || mf.gameObject == null) continue;
-                        string mfName = mf.gameObject.name.ToLowerInvariant();
-                        string sharedMeshName = (mf.sharedMesh != null) ? mf.sharedMesh.name.ToLowerInvariant() : "";
-
-                        // Strictly swap mesh only on actual deck/board filters — whitelist contains/endsWith, but exclude avatar (H6)
-                        bool isDeckCandidate = mfName.Contains("deck", StringComparison.OrdinalIgnoreCase) || mfName.Contains("board", StringComparison.OrdinalIgnoreCase)
-                            || sharedMeshName.Contains("deck", StringComparison.OrdinalIgnoreCase) || sharedMeshName.Contains("board", StringComparison.OrdinalIgnoreCase)
-                            || mfName.EndsWith("_deck", StringComparison.OrdinalIgnoreCase) || mfName.EndsWith("_board", StringComparison.OrdinalIgnoreCase);
-                        bool isAvatarPart = IsPlayerAvatarPart(mfName) || IsPlayerAvatarPart(sharedMeshName);
-                        if (isDeckCandidate && !isAvatarPart)
-                        {
-                            if (mf.sharedMesh != customMesh)
-                            {
-                                mf.sharedMesh = customMesh;
-                            }
-                            break;
-                        }
-                    }
-                }
+                TrySwapDeckMesh(searchRoot, customMesh);
             }
 
             if (renderers != null && renderers.Length > 0)
@@ -421,6 +461,8 @@ public static class CyberSkateboardVisualizer
 
     /// <summary>
     /// Applies custom materials strictly to the viewmodel held in the player's hands.
+    /// Gatekeeper-fix B17: now also swaps deck mesh (same two-pass heuristic as world board) — previously materials only.
+    /// Viewmodel mesh swap is intentional to keep first-person and world appearance consistent.
     /// </summary>
     public static void ApplyToViewmodel(GameObject viewmodelObj)
     {
@@ -442,6 +484,13 @@ public static class CyberSkateboardVisualizer
                 }
             }
             InitializeAssets(baseTemplate);
+
+            // Gatekeeper-fix B17: swap deck mesh in viewmodel as well (was materials-only before).
+            Mesh? customMesh = ObjLoader.TryGetOrLoadDeckMesh();
+            if (customMesh != null)
+            {
+                TrySwapDeckMesh(viewmodelObj.transform, customMesh);
+            }
 
             if (renderers != null && renderers.Length > 0)
             {

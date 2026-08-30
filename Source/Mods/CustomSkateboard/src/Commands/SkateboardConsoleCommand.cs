@@ -60,6 +60,14 @@ public sealed class SkateboardConsoleCommand : BaseConsoleCommand
             return;
         }
 
+        // Gatekeeper-fix B14: console `skate give` without registration check — verify item exists before inventory add.
+        var def = SkateboardItemFactory.CustomSkateboardItem;
+        if (def == null || def.Pointer == IntPtr.Zero)
+        {
+            Mod.Log.Warn($"Cannot give '{cfg.SkateboardId}': item not registered yet (base prefab not found or lifecycle not reached OnPreLoad). Try again after loading a save, or check logs for registration errors.");
+            return;
+        }
+
         Mod.Log.Info($"Adding '{cfg.SkateboardName}' ({cfg.SkateboardId}) to inventory...");
         ConsoleHelper.AddItemToInventory(cfg.SkateboardId, 1);
     }

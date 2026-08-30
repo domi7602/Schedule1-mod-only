@@ -42,7 +42,8 @@ public static class SkateboardItemFactory
         if (item == null || item.Pointer == IntPtr.Zero) return false;
         try
         {
-            return item.Definition != null && item.Definition.ID == Mod.CurrentConfig.SkateboardId;
+            // Gatekeeper-fix 2026-08-30 B12: unify ID compare to OrdinalIgnoreCase
+            return item.Definition != null && string.Equals(item.Definition.ID, Mod.CurrentConfig.SkateboardId, StringComparison.OrdinalIgnoreCase);
         }
         catch
         {
@@ -137,6 +138,12 @@ public static class SkateboardItemFactory
             if (storableItem != null)
             {
                 _registeredItemDef = Registry.GetItem(config.SkateboardId);
+                // Gatekeeper-fix 2026-08-30 B8: verify Registry actually returned def, fix false-success
+                if (_registeredItemDef == null || _registeredItemDef.Pointer == IntPtr.Zero)
+                {
+                    Mod.Log.Warn($"Build succeeded but Registry.GetItem('{config.SkateboardId}') returned null.");
+                    return false;
+                }
                 Mod.Log.Info($"Registered '{config.SkateboardId}' ({config.SkateboardName}) successfully!");
                 return true;
             }
@@ -153,12 +160,25 @@ public static class SkateboardItemFactory
     public static void TuneSkateboard(Skateboard board, SkateboardConfig config, bool forceRetune = false, bool logStats = true)
     {
         if (board == null || board.Pointer == IntPtr.Zero) return;
+        // Gatekeeper-fix B13: clamp invalid JSON values (TopSpeed 0/negative) before applying.
+        try { config.Validate(); } catch { }
+        // Gatekeeper-fix 2026-08-30 B13: validate/clamp config values before tuning
+        config.TopSpeed_Kmh = Mathf.Clamp(config.TopSpeed_Kmh, 1f, 200f);
+        config.PushCooldown = Mathf.Clamp(config.PushCooldown, 0.05f, 2f);
+        config.PushForceMultiplier = Mathf.Clamp(config.PushForceMultiplier, 0.1f, 20f);
+        config.PushForceDuration = Mathf.Clamp(config.PushForceDuration, 0.05f, 2f);
+        config.JumpForce = Mathf.Clamp(config.JumpForce, 0.1f, 20f);
+        config.TurnForce = Mathf.Clamp(config.TurnForce, 0.1f, 100f);
+        config.BrakeForce = Mathf.Clamp(config.BrakeForce, 0f, 20f);
+        config.AirMovementForce = Mathf.Clamp(config.AirMovementForce, 0f, 50f);
+        // Gatekeeper-fix B10: cache terrain flag for hot-path prefixes (avoids Mod.CurrentConfig try/catch per tick).
+        try { Visuals.SkateboardVisualPatches.SetDisableTerrainSlowdownCached(config.DisableTerrainSlowdown); } catch { }
         int instId = 0;
         try { instId = board.GetInstanceID(); } catch { }
         // H5: Use only InstanceID (pointer recycled after Destroy). If ID unavailable, don't cache — always retune.
         if (!forceRetune && instId != 0 && _tunedInstanceIds.Contains(instId)) return;
-        if (instId == 0 && !forceRetune) { /* no cache, proceed */ }
-        else if (instId != 0) _tunedInstanceIds.Add(instId);
+        // Gatekeeper-fix 2026-08-30 B3: defer cache until tune succeeds
+        bool tuneOk = true;
 
         // 1. Direct instance fields (only on this specific board instance)
         try
@@ -182,32 +202,38 @@ public static class SkateboardItemFactory
             board.LongitudinalFrictionMultiplier = config.LongitudinalFrictionMultiplier;
             board.BrakeForce = config.BrakeForce;
 
-            board.AirMovementEnabled = false;
-            board.AirMovementForce = 0f;
+            // Gatekeeper-fix 2026-08-30 B1: wire AirMovement config
+            board.AirMovementEnabled = config.AirMovementEnabled;
+            board.AirMovementForce = config.AirMovementForce;
 
             board.SlowOnTerrain = !config.DisableTerrainSlowdown;
         }
         catch (Exception ex)
         {
+            tuneOk = false;
             Mod.Log.Warn($"Direct board physics setup notice: {ex.Message}");
         }
 
         // 2. Apply cached high-speed curves (static readonly, allocated once per process)
         try
         {
-            board.TurnForceMap = _cachedTurnCurve;
+            // Gatekeeper-fix 2026-08-30 B4: clone curve to avoid mutating static cache
+            board.TurnForceMap = new AnimationCurve(_cachedTurnCurve.keys);
         }
         catch (Exception ex)
         {
+            tuneOk = false;
             Mod.Log.Warn($"TurnForceMap curve assignment notice: {ex.Message}");
         }
 
         try
         {
-            board.PushForceMultiplierMap = _cachedPushCurve;
+            // Gatekeeper-fix 2026-08-30 B4: clone curve to avoid mutating static cache
+            board.PushForceMultiplierMap = new AnimationCurve(_cachedPushCurve.keys);
         }
         catch (Exception ex)
         {
+            tuneOk = false;
             Mod.Log.Warn($"PushForceMap curve assignment notice: {ex.Message}");
         }
 
@@ -221,6 +247,7 @@ public static class SkateboardItemFactory
         }
         catch (Exception ex)
         {
+            tuneOk = false;
             Mod.Log.Warn($"_settings tune notice: {ex.Message}");
         }
 
@@ -234,7 +261,14 @@ public static class SkateboardItemFactory
         }
         catch (Exception ex)
         {
+            tuneOk = false;
             Mod.Log.Warn($"CurentSettings tune notice: {ex.Message}");
+        }
+
+        // Gatekeeper-fix 2026-08-30 B3: only cache after successful tune
+        if (tuneOk && instId != 0)
+        {
+            _tunedInstanceIds.Add(instId);
         }
 
         if (logStats)
@@ -274,8 +308,9 @@ public static class SkateboardItemFactory
             settings.TurnReturnToRestRate = config.TurnReturnToRestRate;
             settings.TurnSpeedBoost = config.TurnSpeedBoost;
 
-            settings.AirMovementEnabled = false;
-            settings.AirMovementForce = 0f;
+            // Gatekeeper-fix 2026-08-30 B1: wire AirMovement config
+            settings.AirMovementEnabled = config.AirMovementEnabled;
+            settings.AirMovementForce = config.AirMovementForce;
 
             settings.BrakeForce = config.BrakeForce;
             settings.LateralFrictionForceMultiplier = config.LateralFrictionForceMultiplier;
@@ -283,7 +318,8 @@ public static class SkateboardItemFactory
 
             try
             {
-                settings.TurnForceMap = _cachedTurnCurve;
+                // Gatekeeper-fix 2026-08-30 B4: clone curve to avoid mutating static cache
+                settings.TurnForceMap = new AnimationCurve(_cachedTurnCurve.keys);
             }
             catch (Exception ex)
             {
@@ -292,7 +328,8 @@ public static class SkateboardItemFactory
 
             try
             {
-                settings.PushForceMultiplierMap = _cachedPushCurve;
+                // Gatekeeper-fix 2026-08-30 B4: clone curve to avoid mutating static cache
+                settings.PushForceMultiplierMap = new AnimationCurve(_cachedPushCurve.keys);
             }
             catch (Exception ex)
             {
@@ -354,6 +391,17 @@ public static class SkateboardItemFactory
                     Texture2D tex = new Texture2D(128, 128, TextureFormat.RGBA32, false);
                     if (ImageConversion.LoadImage(tex, fileData))
                     {
+                        // Destroy previous cached sprite+texture before replacing (B6 leak fix)
+                        if (_cachedIcon != null)
+                        {
+                            try
+                            {
+                                var oldTex = _cachedIcon.texture;
+                                if (oldTex != null && oldTex.Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(oldTex);
+                            }
+                            catch { }
+                            try { if (_cachedIcon.Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(_cachedIcon); } catch { }
+                        }
                         Sprite sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
                         _cachedIcon = sprite;
                         _cachedIconPath = path;
@@ -375,7 +423,13 @@ public static class SkateboardItemFactory
     {
         if (_cachedIcon != null)
         {
-            UnityEngine.Object.Destroy(_cachedIcon);
+            try
+            {
+                var tex = _cachedIcon.texture;
+                if (tex != null && tex.Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(tex);
+            }
+            catch { }
+            try { if (_cachedIcon.Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(_cachedIcon); } catch { }
             _cachedIcon = null;
             _cachedIconPath = null;
             Mod.Log.Info("Custom icon cache invalidated.");

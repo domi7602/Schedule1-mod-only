@@ -13,13 +13,15 @@ namespace CustomSkateboard.Visuals;
 public static class ObjLoader
 {
     private static Mesh? _cachedCustomMesh;
-    private static bool _checkedForMesh = false;
     private static DateTime _lastLoadedFileTime = DateTime.MinValue;
     private static string? _lastLoadedPath;
 
     public static void InvalidateCache()
     {
-        _checkedForMesh = false;
+        if (_cachedCustomMesh != null)
+        {
+            try { if (_cachedCustomMesh.Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(_cachedCustomMesh); } catch { }
+        }
         _cachedCustomMesh = null;
         _lastLoadedFileTime = DateTime.MinValue;
         _lastLoadedPath = null;
@@ -47,21 +49,23 @@ public static class ObjLoader
                     return _cachedCustomMesh;
                 }
 
-                _cachedCustomMesh = LoadMeshFromObj(p);
-                if (_cachedCustomMesh != null)
+                Mesh? loaded = LoadMeshFromObj(p);
+                if (loaded != null)
                 {
+                    if (_cachedCustomMesh != null && _cachedCustomMesh != loaded)
+                    {
+                        try { if (_cachedCustomMesh.Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(_cachedCustomMesh); } catch { }
+                    }
+                    _cachedCustomMesh = loaded;
                     _lastLoadedPath = p;
                     _lastLoadedFileTime = mtime;
-                    _checkedForMesh = true;
                     Mod.Log.Info($"Loaded custom 3D deck mesh from '{p}'.");
                     return _cachedCustomMesh;
                 }
             }
         }
 
-        if (_checkedForMesh) return _cachedCustomMesh;
-        _checkedForMesh = true;
-        return null;
+        return _cachedCustomMesh;
     }
 
     public static Mesh? LoadMeshFromObj(string objPath)
@@ -135,6 +139,10 @@ public static class ObjLoader
                             // Triangulate n-gons / quads with correct CCW front-facing winding: (parts[1], parts[i-1], parts[i])
                             for (int i = 3; i < parts.Length; i++)
                             {
+                                if (!TryParseVertexIndex(parts[1], rawVertices.Count, out _) ||
+                                    !TryParseVertexIndex(parts[i - 1], rawVertices.Count, out _) ||
+                                    !TryParseVertexIndex(parts[i], rawVertices.Count, out _))
+                                    continue;
                                 AddFaceVertex(parts[1], rawVertices, rawNormals, rawUVs, outVertices, outNormals, outUVs, outTriangles, vertexIndexMap, ref validNormalCount);
                                 AddFaceVertex(parts[i - 1], rawVertices, rawNormals, rawUVs, outVertices, outNormals, outUVs, outTriangles, vertexIndexMap, ref validNormalCount);
                                 AddFaceVertex(parts[i], rawVertices, rawNormals, rawUVs, outVertices, outNormals, outUVs, outTriangles, vertexIndexMap, ref validNormalCount);
@@ -172,6 +180,19 @@ public static class ObjLoader
             Mod.Log.Error($"Failed to load OBJ mesh from '{objPath}': {ex.Message}");
             return null;
         }
+    }
+
+    private static bool TryParseVertexIndex(string token, int vertexCount, out int vIdx)
+    {
+        vIdx = -1;
+        if (string.IsNullOrWhiteSpace(token)) return false;
+        string[] indices = token.Split('/');
+        if (indices.Length == 0 || string.IsNullOrWhiteSpace(indices[0])) return false;
+        if (!int.TryParse(indices[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out int vRaw)) return false;
+        int idx = vRaw > 0 ? vRaw - 1 : (vRaw < 0 ? vertexCount + vRaw : -1);
+        if (idx < 0 || idx >= vertexCount) return false;
+        vIdx = idx;
+        return true;
     }
 
     private static void AddFaceVertex(

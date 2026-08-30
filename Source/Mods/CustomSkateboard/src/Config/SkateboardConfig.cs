@@ -1,7 +1,7 @@
 using System;
+using UnityEngine;
 
 namespace CustomSkateboard.Config;
-
 /// <summary>
 /// Configuration for the Custom Skateboard Mod.
 /// Stored in UserData/CustomSkateboard/config.json.
@@ -44,4 +44,21 @@ public sealed class SkateboardConfig
     // Environment & Gameplay
     public bool DisableTerrainSlowdown { get; set; } = true;
     public bool AutoInjectToJeffGilmore { get; set; } = true;
+
+    // Gatekeeper-fix B13: validate deserialized JSON values (TopSpeed 0/negative would break physics/curves).
+    public void Validate()
+    {
+        if (TopSpeed_Kmh <= 0f)
+            TopSpeed_Kmh = 100f;
+        TopSpeed_Kmh = Mathf.Clamp(TopSpeed_Kmh, 5f, 300f);
+        PushForceMultiplier = Mathf.Clamp(PushForceMultiplier, 0.1f, 20f);
+        PushCooldown = Mathf.Clamp(PushCooldown, 0.05f, 2f);
+        TurnForce = Mathf.Clamp(TurnForce, 0.1f, 50f);
+        TurnChangeRate = Mathf.Clamp(TurnChangeRate, 1f, 200f);
+        TurnReturnToRestRate = Mathf.Clamp(TurnReturnToRestRate, 1f, 200f);
+        JumpForce = Mathf.Clamp(JumpForce, 0.1f, 20f);
+        JumpDuration_Min = Mathf.Clamp(JumpDuration_Min, 0.05f, 2f);
+        JumpDuration_Max = Mathf.Clamp(JumpDuration_Max, JumpDuration_Min, 2f);
+        Price = Mathf.Max(0f, Price);
+    }
 }

@@ -18,7 +18,6 @@ public static class SkateboardVisualPatches
         {
             if (__instance == null || __instance.Pointer == IntPtr.Zero || item == null || item.Pointer == IntPtr.Zero)
                 return;
-
             if (SkateboardItemFactory.IsCustomItem(item))
             {
                 if (__instance.ModelContainer != null)
@@ -81,10 +80,17 @@ public static class SkateboardVisualPatches
     // Hot-path early-out counters (per-physics-step).
     // These Harmony prefix methods fire on EVERY Skateboard in the scene (player + NPCs),
     // EVERY physics step while any board is mounted. For non-custom boards the cost must be ~0.
+    // Gatekeeper-fix B10: Interlocked counters are dead code in hotpath + Mod.CurrentConfig per tick does try/catch.
+    // Cached flag is set at Tune time; counters are debug-only.
+#if DEBUG
     public static long SmoothnessEarlyOuts;
     public static long SmoothnessTunedHits;
     public static long TerrainEarlyOuts;
     public static long TerrainTunedHits;
+#endif
+    // Gatekeeper-fix B10: cache flag at Tune time to avoid Mod.CurrentConfig try/catch per physics tick.
+    private static bool s_disableTerrainSlowdownCached = true;
+    internal static void SetDisableTerrainSlowdownCached(bool v) => s_disableTerrainSlowdownCached = v;
 
     /// <summary>
     /// Prevents gravel, grass, and dirt slowdown by returning 1.0f (maximum smoothness) for the custom skateboard.
@@ -102,14 +108,27 @@ public static class SkateboardVisualPatches
             int instId = __instance.GetInstanceID();
             if (instId == 0 || !SkateboardItemFactory.IsInstanceTuned(instId))
             {
+#if DEBUG
                 System.Threading.Interlocked.Increment(ref SmoothnessEarlyOuts);
+#endif
                 return true;
             }
 
-            System.Threading.Interlocked.Increment(ref SmoothnessTunedHits);
+            // B9: recycled InstanceIDs — verify still a custom board before granting anti-gravel
+            if (!SkateboardItemFactory.IsCustomSkateboard(__instance))
+            {
+#if DEBUG
+                System.Threading.Interlocked.Increment(ref SmoothnessEarlyOuts);
+#endif
+                return true;
+            }
 
-            // Only our custom board gets the terrain-smoothing override — and only if user enabled it.
-            if (Mod.CurrentConfig.DisableTerrainSlowdown)
+#if DEBUG
+            System.Threading.Interlocked.Increment(ref SmoothnessTunedHits);
+#endif
+
+            // Gatekeeper-fix B10: use cached flag (set at Tune time) instead of Mod.CurrentConfig per tick.
+            if (s_disableTerrainSlowdownCached)
             {
                 __result = 1.0f;
                 return false;
@@ -135,13 +154,27 @@ public static class SkateboardVisualPatches
             int instId = __instance.GetInstanceID();
             if (instId == 0 || !SkateboardItemFactory.IsInstanceTuned(instId))
             {
+#if DEBUG
                 System.Threading.Interlocked.Increment(ref TerrainEarlyOuts);
+#endif
                 return true;
             }
 
-            System.Threading.Interlocked.Increment(ref TerrainTunedHits);
+            // B9: recycled InstanceIDs — verify still a custom board before suppressing terrain check
+            if (!SkateboardItemFactory.IsCustomSkateboard(__instance))
+            {
+#if DEBUG
+                System.Threading.Interlocked.Increment(ref TerrainEarlyOuts);
+#endif
+                return true;
+            }
 
-            if (Mod.CurrentConfig.DisableTerrainSlowdown)
+#if DEBUG
+            System.Threading.Interlocked.Increment(ref TerrainTunedHits);
+#endif
+
+            // Gatekeeper-fix B10: use cached flag
+            if (s_disableTerrainSlowdownCached)
             {
                 __result = false;
                 return false;

@@ -64,7 +64,7 @@ public sealed class Mod : MelonMod
             Log.Error($"Early config init failed: {ex.Message}");
         }
 
-        Log.Info($"Initialized v1.0.2 (Board: '{CurrentConfig.SkateboardName}', ${CurrentConfig.Price}, TopSpeed: {CurrentConfig.TopSpeed_Kmh} km/h, Jump: {CurrentConfig.JumpForce}x, Turn: {CurrentConfig.TurnForce}x, AntiGravel: {CurrentConfig.DisableTerrainSlowdown})");
+        Log.Info($"Initialized v{Info.Version} (Board: '{CurrentConfig.SkateboardName}', ${CurrentConfig.Price}, TopSpeed: {CurrentConfig.TopSpeed_Kmh} km/h, Jump: {CurrentConfig.JumpForce}x, Turn: {CurrentConfig.TurnForce}x, AntiGravel: {CurrentConfig.DisableTerrainSlowdown})");
 
         // Apply Harmony patches safely via PatchGuard
         ApplyHarmonyPatches();
@@ -81,6 +81,7 @@ public sealed class Mod : MelonMod
         GameLifecycle.OnPreLoad -= OnPreLoad;
         GameLifecycle.OnSaveInfoLoaded -= OnSaveInfoLoaded;
         GameLifecycle.OnLoadComplete -= OnLoadComplete;
+        try { HarmonyInstance.UnpatchSelf(); } catch (Exception ex) { Log.Warn($"UnpatchSelf failed: {ex.Message}"); }
     }
 
     private void ApplyHarmonyPatches()
@@ -135,29 +136,14 @@ public sealed class Mod : MelonMod
                 prefix: new HarmonyMethod(typeof(SkateboardVisualPatches), nameof(SkateboardVisualPatches.OnIsOnTerrainPrefix)),
                 log: Log);
 
-            // Seller dialogue choice hook — specify overload to avoid AmbiguousMatchException (H4)
-            try
-            {
-                var dialogueChoiceType = typeof(Il2CppScheduleOne.Dialogue.DialogueChoiceData);
-                var listByRef = typeof(System.Collections.Generic.List<>).MakeGenericType(dialogueChoiceType).MakeByRefType();
-                PatchGuard.TryPatch(
-                    HarmonyInstance,
-                    typeof(DialogueController_SkateboardSeller),
-                    nameof(DialogueController_SkateboardSeller.ModifyChoiceList),
-                    prefix: new HarmonyMethod(typeof(SkateboardSellerInjector), nameof(SkateboardSellerInjector.OnModifyChoiceListPrefix)),
-                    parameterTypes: new[] { typeof(string), listByRef },
-                    log: Log);
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"ModifyChoiceList overload patch failed, trying fallback without types: {ex.Message}");
-                PatchGuard.TryPatch(
-                    HarmonyInstance,
-                    typeof(DialogueController_SkateboardSeller),
-                    nameof(DialogueController_SkateboardSeller.ModifyChoiceList),
-                    prefix: new HarmonyMethod(typeof(SkateboardSellerInjector), nameof(SkateboardSellerInjector.OnModifyChoiceListPrefix)),
-                    log: Log);
-            }
+            // Seller dialogue choice hook — IL2CPP original uses Il2CppSystem.Collections.Generic.List,
+            // so binding System.List param fails silently. Patch without parameterTypes and only bind __instance.
+            PatchGuard.TryPatch(
+                HarmonyInstance,
+                typeof(DialogueController_SkateboardSeller),
+                nameof(DialogueController_SkateboardSeller.ModifyChoiceList),
+                prefix: new HarmonyMethod(typeof(SkateboardSellerInjector), nameof(SkateboardSellerInjector.OnModifyChoiceListPrefix)),
+                log: Log);
 
             PatchGuard.Report(Log);
         }
@@ -209,7 +195,7 @@ public sealed class Mod : MelonMod
 
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {
-        SkateboardItemFactory.ClearTuningState();
+        // B9: additive scenes fire this too — don't wipe tuning state on load; only re-register if needed
         if (SkateboardItemFactory.CustomSkateboardItem == null && IsGameplayScene(sceneName))
         {
             SkateboardItemFactory.CreateAndRegister(CurrentConfig);

@@ -61,10 +61,10 @@ public static class SkateboardSellerInjector
     }
 
     /// <summary>
-    /// Safely hook when dialogue choices are requested by the player in-game.
-    /// Supports both System and Il2Cpp list signatures — Harmony will inject matching args.
+    /// Prefix for DialogueController_SkateboardSeller.ModifyChoiceList — IL2CPP uses Il2CppSystem.Collections.Generic.List
+    /// so binding System.List param fails silently via PatchGuard. Only bind __instance.
     /// </summary>
-    public static void OnModifyChoiceListPrefix(DialogueController_SkateboardSeller __instance, string dialogueLabel, ref System.Collections.Generic.List<DialogueChoiceData> existingChoices)
+    public static void OnModifyChoiceListPrefix(DialogueController_SkateboardSeller __instance)
     {
         try
         {
