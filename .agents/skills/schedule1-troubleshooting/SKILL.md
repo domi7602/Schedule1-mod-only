@@ -193,6 +193,37 @@ These **WILL** bite you if you don't read first:
 * **Wholesale API refactor in S1API** → re-run `s1interop analyze` to map new pattern, refactor conservatively.
 * **More than ~3 mods at fault** → roll back to last-known-good state, re-introduce mods one by one with logscan between each.
 
+### Performance bug: which mod is blocking the main thread?
+
+When the symptom is "FPS dropped to 1, but `Latest.log` shows no exceptions, no errors, no warnings", the block is somewhere below the level of normal logging — a hot Harmony prefix, a per-frame `FindObjectOfType`, an unbounded MonoBehaviour Update loop, a save-Load hook that re-registers every frame, or the game engine itself. Use binary search to isolate it.
+
+**Step 1 — Framework-only baseline.** Archive every DLL in `Game/Mods/` *except* `S1API.Il2Cpp.MelonLoader.dll` and `Shared.dll` (the framework loaders — see the `schedule1-modding` "Never archive Shared.dll" rule). Keep `Plugins/S1APILoader.MelonLoader.dll` and `UserLibs/S1MAPI_Il2cpp.dll` as-is. Start the game, load the save, check FPS.
+
+| Baseline FPS | Conclusion |
+|---|---|
+| 100+ in main menu, 100+ in save | Mods are at fault. Go to Step 2. |
+| 100+ in main menu, 1 in save | Save file is corrupt — one mod wrote garbage on last save. Delete the save and start fresh. |
+| 1 in main menu | Not a mod problem. Driver, hardware, Windows, or game. Check GPU driver, VSync, fullscreen mode, Game Bar overlay. |
+
+**Step 2 — Binary-search the mod set.** Restore half of the archived mods into `Game/Mods/`, retest.
+
+| Subset FPS | Where the bug lives |
+|---|---|
+| 100+ | In the *still-archived* half |
+| 1 | In the *now-restored* half |
+
+Each round halves the candidate set. With N mods it takes at most ⌈log₂(N)⌉ rounds (5 rounds for ~30 mods). Always run the binary search, never reintroduce all mods at once — the binary pattern is the entire point.
+
+**Step 3 — When one mod is left, audit its hot paths.** Look in order:
+1. `FindObjectOfType` / `GetComponent` calls inside `OnUpdate` (cache in `Awake` instead).
+2. `Resources.FindObjectsOfTypeAll<T>()` calls inside `OnUpdate` (never do this).
+3. Per-frame Harmony prefixes that touch IL2CPP properties (`__instance.SomeProp.OtherProp.ID` chains marshal on every call).
+4. `OnSceneWasLoaded` or save hooks that re-register every frame instead of using `[HarmonyPrepare]` / lifecycle flags.
+
+**Step 4 — Audit your own diagnostic mods.** A counter/logging MelonMod that iterates GameObject hierarchies per frame *is itself* the bottleneck. See [`../schedule1-modding/references/diag-mods-tick-counter.md`](../schedule1-modding/references/diag-mods-tick-counter.md) for the correct pattern (verified 2026-08-28: the wrong pattern froze the game at 1 FPS; the right pattern ships clean).
+
+**Sandbox path.** Keep archived mods under `<Workspace>/.scratch/archived-mods/<ModName>.dll` (not in a temp folder) so the path round-trips survive and you don't have to re-download.
+
 ---
 
 ## 10. Escalation
