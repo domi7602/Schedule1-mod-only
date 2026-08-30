@@ -73,6 +73,22 @@ public static class StackLimitEngine
         }
     }
 
+    /// <summary>
+    /// Cold-path: applies <see cref="StackLimitConfig.StackLimit"/> to every known item definition.
+    /// Called once on game load / config change — never per-frame. Safe to do heavier scans here.
+    /// </summary>
+    /// <remarks>
+    /// Dual-scan rationale:
+    /// <list type="bullet">
+    /// <item><description><c>Resources.FindObjectsOfTypeAll&lt;BaseItemDefinition&gt;</c> — legacy / pre-Registry fallback.
+    /// Catches definitions that exist as loaded Unity objects before (or without) Registry registration.</description></item>
+    /// <item><description><c>Registry.GetAllItems()</c> — canonical post-load source of truth. After scene load
+    /// this should contain every item; when both scans return the same ID, <c>processedIds</c> dedup ensures
+    /// the Registry entry is not double-counted (Resources entry wins first-write, Registry is skipped).</description></item>
+    /// </list>
+    /// If Registry returns items, the Resources scan is purely a compatibility fallback for pre-registered /
+    /// mod-added definitions that haven't been registered yet. Order matters: Resources first, then Registry.
+    /// </remarks>
     public static int ApplyStackLimits(StackLimitConfig config)
     {
         if (config == null) return 0;
@@ -84,12 +100,21 @@ public static class StackLimitEngine
         int resourcesCount = 0;
         int registryCount = 0;
 
-        // 1. Scan loaded BaseItemDefinitions via Resources
+        // ── Dual scan: Resources (legacy / pre-Registry fallback) → Registry (canonical) ──
+        // Resources catches definitions that exist as loaded objects before Registry registration.
+        // Registry is authoritative post-load; processedIds dedupes so each ID is patched once.
+        // This whole method is cold-path (load / config change only, not per-frame).
+
+        // 1. Scan loaded BaseItemDefinitions via Resources (fallback for pre-Registry defs)
+        bool resourcesExecuted = false;
+        int resourcesFound = 0;
         try
         {
             var foundDefs = Resources.FindObjectsOfTypeAll<BaseItemDefinition>();
             if (foundDefs != null)
             {
+                resourcesExecuted = true;
+                resourcesFound = foundDefs.Length;
                 for (int i = 0; i < foundDefs.Length; i++)
                 {
                     var def = foundDefs[i];
@@ -99,14 +124,28 @@ public static class StackLimitEngine
                         resourcesCount++;
                     }
                 }
+                if (resourcesFound == 0)
+                    Mod.Log?.Debug("StackLimitEngine: Resources scan executed but found 0 BaseItemDefinitions (expected post-load; Registry is canonical).");
+                else if (resourcesCount == 0)
+                    Mod.Log?.Debug($"StackLimitEngine: Resources scan executed — found {resourcesFound} defs, 0 modified (all excluded/empty/already limited or limit={config.StackLimit}).");
+                else
+                    Mod.Log?.Debug($"StackLimitEngine: Resources scan executed — found {resourcesFound} defs, modified {resourcesCount} (pre-Registry / legacy).");
+            }
+            else
+            {
+                Mod.Log?.Debug("StackLimitEngine: Resources scan skipped — FindObjectsOfTypeAll returned null.");
             }
         }
         catch (Exception ex)
         {
             Mod.Log?.Warn($"ApplyStackLimits Resources scan encountered exception: {ex}");
+            if (!resourcesExecuted)
+                Mod.Log?.Debug("StackLimitEngine: Resources scan skipped due to exception (see warn above).");
         }
 
-        // 2. Scan Registry items
+        // 2. Scan Registry items — canonical post-load source (authoritative)
+        // If Registry returns items, Resources above was just the fallback for defs not yet registered.
+        // processedIds dedup ensures we don't double-patch the same ID.
         try
         {
             var registry = Registry.Instance;
@@ -132,9 +171,11 @@ public static class StackLimitEngine
             Mod.Log?.Warn($"ApplyStackLimits Registry scan encountered exception: {ex}");
         }
 
-        // M-4: Only publish count after both scans; if partial, log warn
+        // M-4: Only publish count after both scans complete; config-aware logging below.
+        // Cold-path note: this publish + log runs once per load/config change, not per-frame.
         ModifiedItemCount = count;
 
+        // Config-aware logging: respect config.LogModifications — silent when disabled.
         if (config.LogModifications)
         {
             if (count == 0 && (resourcesCount == 0 && registryCount == 0))

@@ -10,6 +10,7 @@ public static class MinimapFont
 {
     private static TMP_FontAsset? _cachedFont;
     private static Material? _cachedMaterial;
+    private static bool _resourcesFallbackLogged;
 
     private static readonly string[] PreferredFontNames = new[]
     {
@@ -22,6 +23,7 @@ public static class MinimapFont
 
     public static (TMP_FontAsset font, Material? material) ResolveFont()
     {
+        // Cached result prevents repeat scan — including the expensive Resources fallback below.
         if (_cachedFont != null && _cachedFont.Pointer != IntPtr.Zero && !_cachedFont.WasCollected)
             return (_cachedFont, _cachedMaterial);
 
@@ -81,9 +83,15 @@ public static class MinimapFont
         }
         catch { }
 
-        // 3. Fallback from Resources
+        // 3. Fallback from Resources — cold path, one-shot cached; full Resources scan only if HUD/scene lookups fail
         try
         {
+            // One-shot log for the cold Resources path; _cachedFont caching prevents re-scan on subsequent calls.
+            if (!_resourcesFallbackLogged)
+            {
+                _resourcesFallbackLogged = true;
+                MelonLogger.Warning("[MinimapFont] ResolveFont falling back to Resources.FindObjectsOfTypeAll<TMP_FontAsset> (cold path, result will be cached)");
+            }
             var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
             if (fonts != null && fonts.Count > 0)
             {

@@ -77,6 +77,7 @@ public sealed class MinimapHUD
 
     // Cached vanilla sprite
     private Sprite? _vanillaMapSprite;
+    private bool _spriteResourcesSearchDone;
 
     public MinimapHUD(ModLogger log)
     {
@@ -402,7 +403,13 @@ public sealed class MinimapHUD
         }
         catch { }
 
-        // Fallback: search loaded Sprite assets (IL2CPP-safe for loop)
+        // Fallback: search loaded Sprite assets (IL2CPP-safe for loop) — one-shot guard
+        if (_spriteResourcesSearchDone)
+        {
+            _log.Warn("TryResolveMapSprite: skipping Resources.FindObjectsOfTypeAll<Sprite> — previous scan already failed (one-shot guard).");
+            return;
+        }
+        _log.Warn("TryResolveMapSprite: MapApp sprite not available — falling back to Resources.FindObjectsOfTypeAll<Sprite> scan (one-shot).");
         try
         {
             var sprites = Resources.FindObjectsOfTypeAll<Sprite>();
@@ -429,12 +436,15 @@ public sealed class MinimapHUD
                             _mapImageRt.sizeDelta = new Vector2(mapDim, mapDim);
                             _log.Info($"Resolved map sprite from Resources: '{s.name}'. MapDim={mapDim}");
                         }
+                        _spriteResourcesSearchDone = true;
                         return;
                     }
                 }
             }
         }
         catch { }
+        _spriteResourcesSearchDone = true;
+        _log.Warn("TryResolveMapSprite: Resources fallback found no matching sprite — future calls will skip Resources scan (one-shot guard).");
     }
 
     public void ApplyLayout(MinimapConfig config)

@@ -92,7 +92,8 @@ public static class UIHelper
             }
         }
 
-        // 3. Resources fallback
+        // 3. Resources fallback — cold-path one-shot: cached via _cachedFont so subsequent calls hit the early return above and avoid re-scan.
+        MelonLogger.Msg("[MoreSaveSlots] GetFont: entering Resources fallback (cold-path, one-shot cached via _cachedFont)");
         var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
         if (fonts != null && fonts.Length > 0)
         {
