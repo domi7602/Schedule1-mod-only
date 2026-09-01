@@ -1,5 +1,9 @@
 # Changelog
 
+
+## 0.1.1 (2026-09-01)
+- Version bump.
+
 ## 0.1.0 (2026-08-17)
 
 - **Initial version**:
