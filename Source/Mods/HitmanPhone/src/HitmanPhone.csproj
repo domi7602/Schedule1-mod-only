@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>HitmanPhone</AssemblyName>
+    <RootNamespace>HitmanPhone</RootNamespace>
+    <DefineConstants>$(DefineConstants);IL2CPPMELON</DefineConstants>
+  </PropertyGroup>
+
+  <!-- PNG asset: stays next to the csproj so Directory.Build.targets picks it up
+       via its glob <_Pngs Include="$(MSBuildProjectDirectory)\*.png" /> and
+       deploys it next to the DLL into <GameDir>\Mods\. -->
+  <ItemGroup>
+    <None Include="polaroid.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>
