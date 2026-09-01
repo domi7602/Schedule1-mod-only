@@ -24,6 +24,12 @@ public static class CyberSkateboardVisualizer
 
     private static readonly Gradient _cyanTrailGradient = BuildCyanTrailGradient();
 
+    // Log-noise fix 2026-09-01 (v3): per-instance dedup was ineffective (Unity spawns
+    // a fresh board on every mount); a 10s time-cooldown was also ineffective because
+    // typical remounts are >10s apart. Both attempts left the line firing on every
+    // mount. Correct fix: this is purely informational — Debug-only is the right level.
+    internal static void ClearStyledCache() { }
+
     private static Gradient BuildCyanTrailGradient()
     {
         Gradient g = new Gradient();
@@ -451,7 +457,8 @@ public static class CyberSkateboardVisualizer
                 }
             }
 
-            Mod.Log.Info("In-world skateboard cleanly styled (Player avatar strictly untouched).");
+            // Log-noise fix 2026-09-01 (v3): debug-level (silent in Release builds).
+            Mod.Log.Debug("In-world skateboard cleanly styled (Player avatar strictly untouched).");
         }
         catch (Exception ex)
         {

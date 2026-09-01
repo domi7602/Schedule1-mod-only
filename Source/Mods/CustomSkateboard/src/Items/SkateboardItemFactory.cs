@@ -282,7 +282,7 @@ public static class SkateboardItemFactory
         try
         {
             if (board == null || board.Pointer == IntPtr.Zero) return;
-            Mod.Log.Info($"[{context}] TopSpeed={board.TopSpeed_Kmh} km/h, TurnForce={board.TurnForce}, TurnRate={board.TurnChangeRate}, TurnReturn={board.TurnReturnToRestRate}, JumpForce={board.JumpForce}, JumpMin={board.JumpDuration_Min:F2}s, JumpMax={board.JumpDuration_Max:F2}s, Boost={board.JumpForwardBoost}");
+            Mod.Log.Debug($"[{context}] TopSpeed={board.TopSpeed_Kmh} km/h, TurnForce={board.TurnForce}, TurnRate={board.TurnChangeRate}, TurnReturn={board.TurnReturnToRestRate}, JumpForce={board.JumpForce}, JumpMin={board.JumpDuration_Min:F2}s, JumpMax={board.JumpDuration_Max:F2}s, Boost={board.JumpForwardBoost}");
         }
         catch { }
     }
