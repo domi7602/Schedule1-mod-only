@@ -6,7 +6,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(BusinessIncome.Mod), "BusinessIncome", "0.1.0", "Dominik")]
+[assembly: MelonInfo(typeof(BusinessIncome.Mod), "BusinessIncome", "0.1.1", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BusinessIncome;
@@ -22,7 +22,10 @@ public class Mod : MelonMod
         Log = new ModLogger("BusinessIncome");
 
         // 1. Initialize config via SafeStorage / ModConfig
-        ModConfig<BusinessIncomeConfig>.Initialize("BusinessIncome", Log);
+        // Dictionary/List properties are persisted via ConfigJsonStore (JSON sidecar), not TOML —
+        // declaring them here keeps the ModConfig startup log as Info (not Warning).
+        ModConfig<BusinessIncomeConfig>.Initialize("BusinessIncome", Log,
+            sidecarManagedProperties: new[] { "PropertyMultipliers", "DisplayNameOverrides", "WeekendBonusCategories" });
         // JSON-Sidecar für Dictionary/List-Properties (nicht TOML-mappable, siehe ModConfig).
         try
         {
@@ -47,7 +50,7 @@ public class Mod : MelonMod
         }
         catch (Exception ex) { Log.Warn($"TimeManager hooks failed (S1API missing?): {ex.Message}"); }
 
-        Log.Info("BusinessIncome v0.1.0 initialized.");
+        Log.Info("BusinessIncome v0.1.1 initialized.");
     }
 
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
