@@ -1,1 +1,0 @@
-cron sync test - wird gleich wieder entfernt
