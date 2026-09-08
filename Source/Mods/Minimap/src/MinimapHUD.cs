@@ -403,13 +403,15 @@ public sealed class MinimapHUD
         }
         catch { }
 
-        // Fallback: search loaded Sprite assets (IL2CPP-safe for loop) — one-shot guard
+        // Fallback: search loaded Sprite assets (IL2CPP-safe for loop) — one-shot guard.
+        // This is the EXPECTED startup path while the vanilla MapApp is not instantiated yet,
+        // so progression notes are Debug; only a failed scan (below) stays a Warning.
         if (_spriteResourcesSearchDone)
         {
-            _log.Warn("TryResolveMapSprite: skipping Resources.FindObjectsOfTypeAll<Sprite> — previous scan already failed (one-shot guard).");
+            _log.Debug("TryResolveMapSprite: skipping Resources.FindObjectsOfTypeAll<Sprite> — previous scan already failed (one-shot guard).");
             return;
         }
-        _log.Warn("TryResolveMapSprite: MapApp sprite not available — falling back to Resources.FindObjectsOfTypeAll<Sprite> scan (one-shot).");
+        _log.Debug("TryResolveMapSprite: MapApp sprite not available — falling back to Resources.FindObjectsOfTypeAll<Sprite> scan (one-shot).");
         try
         {
             var sprites = Resources.FindObjectsOfTypeAll<Sprite>();

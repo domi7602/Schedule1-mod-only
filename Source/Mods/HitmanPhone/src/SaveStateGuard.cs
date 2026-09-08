@@ -137,6 +137,12 @@ public static class SaveStateGuard
         // Audit M1 (2026-09-01): drop realtimeSinceStartup grace keys old saves
         // still carry — the grace window is in-memory only now.
         Bounty.BountyHeatService.PurgePersistedHeatKeys();
+
+        // Restored journal quests are new objects and BountyQuest._contractId is
+        // runtime-only. Rebind them after the save and journal systems finished
+        // loading so the target name/objective is visible again after restart.
+        if (!Bounty.BountyJournalBridge.RebindActiveQuests())
+            Bounty.BountyJournalBridge.ScheduleRebindRetries();
     }
 
     /// <summary>

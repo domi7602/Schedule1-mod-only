@@ -55,7 +55,7 @@ public sealed class CalculatorEngine
             }
         }
 
-        SaveAndNotify();
+        NotifyOnly();
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ public sealed class CalculatorEngine
             _state.DisplayText += ".";
         }
 
-        SaveAndNotify();
+        NotifyOnly();
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ public sealed class CalculatorEngine
         _state.ExpressionText = $"{FormatNumber(_state.FirstOperand.Value)} {normalizedOp}";
         _state.IsNewEntry = true;
 
-        SaveAndNotify();
+        NotifyOnly();
     }
 
     /// <summary>
@@ -204,7 +204,7 @@ public sealed class CalculatorEngine
 
             _state.DisplayText = FormatNumber(resultVal);
             _state.IsNewEntry = false;
-            SaveAndNotify();
+            NotifyOnly();
         }
     }
 
@@ -224,7 +224,7 @@ public sealed class CalculatorEngine
             _state.DisplayText = "-" + _state.DisplayText;
         }
 
-        SaveAndNotify();
+        NotifyOnly();
     }
 
     /// <summary>
@@ -322,7 +322,7 @@ public sealed class CalculatorEngine
             _state.DisplayText = "0";
         }
 
-        SaveAndNotify();
+        NotifyOnly();
     }
 
     /// <summary>
@@ -342,7 +342,7 @@ public sealed class CalculatorEngine
             ClearAll();
         }
 
-        SaveAndNotify();
+        NotifyOnly();
     }
 
     /// <summary>
@@ -371,7 +371,7 @@ public sealed class CalculatorEngine
             _state.ExpressionText = customExpression;
         }
         _state.IsNewEntry = true;
-        SaveAndNotify();
+        NotifyOnly();
     }
 
     /// <summary>
@@ -425,7 +425,7 @@ public sealed class CalculatorEngine
         _state.LastSecondOperand = null;
         _state.LastOperator = null;
         _state.IsNewEntry = true;
-        SaveAndNotify();
+        NotifyOnly();
     }
 
     /// <summary>
@@ -490,7 +490,7 @@ public sealed class CalculatorEngine
         _state.LastSecondOperand = null;
         _state.LastOperator = null;
         _state.IsNewEntry = true;
-        SaveAndNotify();
+        NotifyOnly();
     }
 
     private bool TryEvaluateCurrent(out decimal result, out string? errorMessage)
@@ -587,6 +587,18 @@ public sealed class CalculatorEngine
         }
 
         return formatted;
+    }
+
+    /// <summary>
+    /// Fix 1.2 (Bug-Audit 2026-09-02): UI-only notification for keystroke-level inputs
+    /// (digits, decimal, operators, editing, paste/insert). Persisting to disk via
+    /// SafeStorage on every keystroke caused micro-stutters during fast typing.
+    /// State is persisted by SaveAndNotify() only on history-mutating operations
+    /// and by CalculatorApp.OnPhoneClosed() / GameLifecycle.OnPreLoad.
+    /// </summary>
+    private void NotifyOnly()
+    {
+        OnStateChanged?.Invoke();
     }
 
     private void SaveAndNotify()

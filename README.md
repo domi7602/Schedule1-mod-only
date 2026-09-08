@@ -34,7 +34,8 @@ This repository contains several active mods, built from the ground up for stabi
 2. Ensure you have the **S1API** (Schedule 1 API) installed in your `Mods` folder.
 3. Download the latest `.dll` files from the [Releases](../../releases) page.
 4. Drop the `.dll` files you want to use into the `Mods` folder of your game directory (`<YourGameDir>\Mods\`).
-5. Launch the game! The mods will automatically generate their configuration files in `UserData/`.
+5. If a release contains `mod.json` or `.pdb` files, place them into `UserData\<ModName>\` (e.g. `UserData\NotesApp\mod.json`) — **never** into `Mods\`.
+6. Launch the game! The mods will automatically generate their configuration files in `UserData/`.
 
 ## 📸 Screenshots
 

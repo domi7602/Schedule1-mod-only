@@ -17,9 +17,9 @@ Source/Mods/                  Mods + shared lib + Directory.Build.props/targets
 Source/Mods/S1Mods.sln        Solution (regeneratable via Tools/gen-sln.ps1)
 Source/Archive/               Archived mods (DayCounter, ProfitTracker, TVBrowser), Tests
 ThirdParty/                   External frameworks & mod sources (Sideload, hash, MoreDrugs, S1MCP)
-Tools/                        Build scripts (build-all, new-mod, gen-sln, bump-version, package-release)
+Tools/                        (empty after 2026-09 migration — scripts recoverable from git history)
 Release/                      Release packages
-.agents/skills/               AI agent skills (14 skills)
+.agents/skills/               (removed during 2026-09 migration — recoverable from git history)
 memory/                       Daily logs `memory/YYYY-MM-DD.md` + `memory-protocol.md`
 AGENTS.md                     Workspace conventions & mod inventory for AI agents
 README.md                     Player-facing mod overview
@@ -29,6 +29,8 @@ DEVELOPERS.md                 This file
 ## AI-Agent Skills
 
 Fourteen skills orchestrate mod work. Load via the `skill` tool (do not open manually):
+
+> **Note:** `.agents/skills/` was intentionally removed during the 2026-09 migration — the table below is kept for reference (recoverable via `git checkout HEAD -- .agents/skills/`).
 
 | Skill | Purpose |
 |---|---|
@@ -62,10 +64,16 @@ dotnet build Source/Mods/S1Mods.sln -c Release
 $env:SCHEDULE1_PATH = "D:\path\to\Schedule I"
 ```
 
-A successful build automatically deploys the DLLs to `<GameDir>\Mods\`
-(via Directory.Build.targets). Default GameDir: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
+A successful build deploys automatically (via `Directory.Build.targets`), with split targets since the 2026-09 reinstall:
+
+- `<GameDir>\Mods\` — DLLs, icons (PNG), bundles (only MelonLoader-loadable files)
+- `<GameDir>\UserData\<ModName>\` — `mod.json` (metadata) + `<ModName>.pdb` (portable debug symbols, `<DebugType>portable</DebugType>`)
+
+**Never place json/pdb files into `Mods\`.** Default GameDir: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
 
 `SkipUnchangedFiles` is set to `false` (since 2026-08-20) — every `dotnet build` force-deploys, eliminating stale-DLL traps.
+
+> **Post-reinstall status (2026-09-04):** The repo now lives **inside the game directory** (`<GameDir>\Schedule1-mod-only-main`). Setup restored: .NET SDK 8.0.424 installed, S1API 3.2.0 rebuilt from `ThirdParty/S1API/` and deployed (`local.build.props` created from `example.build.props`), NotesApp + Shared built as verification. Remaining mods: redeploy via `dotnet build` per mod. `Tools\` and `.agents/skills/` were intentionally removed during the migration (recoverable via `git checkout HEAD -- Tools/ .agents/`).
 
 ## Active Mods (as of 2026-08-23)
 

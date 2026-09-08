@@ -19,6 +19,7 @@ public static class ModConfig<T> where T : class, new()
     private static readonly Dictionary<string, MelonPreferences_Entry> _entryCache = new();
     private static readonly Dictionary<string, PropertyInfo> _propertyCache = new();
     private static PropertyInfo[] _cachedProperties = Array.Empty<PropertyInfo>();
+    private static readonly HashSet<string> _sidecarManagedProperties = new(StringComparer.Ordinal);
 
     public static event Action<string, object?>? OnChanged;
 
@@ -39,9 +40,29 @@ public static class ModConfig<T> where T : class, new()
         }
     }
 
+    /// <summary>
+    /// Two-argument overload. MUST keep the exact signature (string, ModLogger): mod DLLs compiled
+    /// against older Shared.dll bake optional-parameter defaults into their call sites at compile
+    /// time and look up this exact method at runtime — removing it breaks them with
+    /// MissingMethodException even though source code would still compile.
+    /// </summary>
     public static void Initialize(string categoryId = "", ModLogger? log = null)
+        => Initialize(categoryId, log, null);
+
+    /// <param name="sidecarManagedProperties">
+    /// Property names that are not TOML-mappable (Dictionary/List) but are persisted by the
+    /// calling mod via a SafeStorage JSON sidecar (ConfigJsonStore pattern). These log an
+    /// Info note instead of a Warning on startup.
+    /// </param>
+    public static void Initialize(string categoryId, ModLogger? log, string[]? sidecarManagedProperties)
     {
         _logger = log;
+        _sidecarManagedProperties.Clear();
+        if (sidecarManagedProperties != null)
+        {
+            foreach (string name in sidecarManagedProperties)
+                _sidecarManagedProperties.Add(name);
+        }
         _categoryId = string.IsNullOrEmpty(categoryId) ? typeof(T).Name : categoryId;
         _entryCache.Clear();
         _propertyCache.Clear();
@@ -227,7 +248,14 @@ public static class ModConfig<T> where T : class, new()
 
         if (IsNonMappableType(prop.PropertyType))
         {
-            LogWarn($"'{prop.Name}' ({prop.PropertyType.Name}) is not TOML-mappable (Dictionary/List) — skipped, use SafeStorage JSON sidecar (ConfigJsonStore).");
+            if (_sidecarManagedProperties.Contains(prop.Name))
+            {
+                LogInfo($"'{prop.Name}' ({prop.PropertyType.Name}) is managed by a SafeStorage JSON sidecar — intentionally skipped in TOML.");
+            }
+            else
+            {
+                LogWarn($"'{prop.Name}' ({prop.PropertyType.Name}) is not TOML-mappable (Dictionary/List) — skipped and NOT persisted. Persist it via a SafeStorage JSON sidecar (ConfigJsonStore) and declare it via Initialize(..., sidecarManagedProperties).");
+            }
             return null;
         }
 
@@ -284,6 +312,19 @@ public static class ModConfig<T> where T : class, new()
         {
             string cat = string.IsNullOrEmpty(_categoryId) ? typeof(T).Name : _categoryId;
             MelonLogger.Warning($"[ModConfig:{cat}] {msg}");
+        }
+    }
+
+    private static void LogInfo(string msg)
+    {
+        if (_logger != null)
+        {
+            _logger.Info(msg);
+        }
+        else
+        {
+            string cat = string.IsNullOrEmpty(_categoryId) ? typeof(T).Name : _categoryId;
+            MelonLogger.Msg($"[ModConfig:{cat}] {msg}");
         }
     }
 }

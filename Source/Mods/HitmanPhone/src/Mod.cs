@@ -14,7 +14,7 @@ using S1StorageEntity = Il2CppScheduleOne.Storage.StorageEntity;
 using S1StorageEntity = ScheduleOne.Storage.StorageEntity;
 #endif
 
-[assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.2.0", "Dominik")]
+[assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.2.1", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace HitmanPhone;
@@ -91,7 +91,7 @@ public class Mod : MelonMod
 
     /// <summary>
     /// Phase D — fire the bounty-call scheduler (day-gated).
-    /// Phase G — service the heat-grace window (real-time-frame throttled).
+    /// Phase G — immediate Lethal pursuit after a matched kill.
     /// Phase H — Player-Death Watchdog (1Hz throttled).
     /// Phase I — contract auto-expiry (day-gated).
     /// Each subsystem self-throttles; OnUpdate is cheap.
@@ -101,10 +101,10 @@ public class Mod : MelonMod
         try
         {
             BountyCallScheduler.Tick();
-            BountyHeatService.Tick();
             HitmanPhone.Bounty.PlayerDeathWatchdog.Tick();
             BountyExpiryService.Tick();
             BountyTargetWatchdog.Tick();
+            BountyJournalBridge.TickRebind();
         }
         catch (Exception ex)
         {

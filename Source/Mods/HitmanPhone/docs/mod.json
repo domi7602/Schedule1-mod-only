@@ -1,6 +1,6 @@
 {
   "name": "HitmanPhone",
   "author": "Dominik",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Post-cartel bounty workflow: anonymous callers offer contracts via the phone, the player claims the reward by collecting a polaroid into any dead-drop. Heat mechanic integrated with the existing Police system."
 }

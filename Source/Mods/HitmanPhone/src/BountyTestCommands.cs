@@ -62,7 +62,7 @@ internal sealed class HitmanStatusCommand : BaseConsoleCommand
         log.Info($"Offers skipped (cooldown): {BountyCallScheduler.OffersSkippedCooldown}");
         log.Info($"Heat: active={BountyHeatService.ActiveBounties} " +
                  $"set_active={BountyHeatService.PursuitSetActive} " +
-                 $"set_grace={BountyHeatService.PursuitSetGrace} " +
+                 $"set_lethal={BountyHeatService.PursuitSetLethal} " +
                  $"set_fail={BountyHeatService.PursuitSetFail} " +
                  $"cleared={BountyHeatService.PursuitCleared}");
         log.Info($"Expirations dispatched (lifetime): {BountyExpiryService.ExpirationsDispatched}");

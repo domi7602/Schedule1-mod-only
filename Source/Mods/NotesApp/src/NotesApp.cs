@@ -261,8 +261,12 @@ public sealed class NotesApp : PhoneApp
         base.OnCreated();
         MelonEvents.OnUpdate.Unsubscribe(Update);
         MelonEvents.OnUpdate.Subscribe(Update);
-        // Subscribe to slot changes so path stays fresh after save-slot switch without scene reload
+        // Subscribe to slot changes so path stays fresh after save-slot switch without scene reload.
+        // Fix 2.2 (Bug-Audit 2026-09-02): defensive -= before += — the phone gets re-instantiated
+        // on scene changes, and without this, duplicate handlers accumulated per scene reload.
+        try { S1API.Lifecycle.GameLifecycle.OnSaveInfoLoaded -= OnSaveInfoLoaded; } catch { }
         try { S1API.Lifecycle.GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded; } catch { }
+        try { S1API.Lifecycle.GameLifecycle.OnLoadComplete -= OnLoadComplete; } catch { }
         try { S1API.Lifecycle.GameLifecycle.OnLoadComplete += OnLoadComplete; } catch { }
     }
 
@@ -385,6 +389,13 @@ public sealed class NotesApp : PhoneApp
 
         // === Scrollable List ===
         var list = UIFactory.ScrollableVerticalList("NoteList", _listRoot.transform, out var scrollRect);
+        // Fix 2026-09-02: responsive scroll feel — S1API defaults (scrollSensitivity untouched =
+        // Unity default 10 with phone-scale content) felt clunky. Snappier sensitivity, lighter
+        // elasticity, slightly higher deceleration for controlled glide.
+        scrollRect.scrollSensitivity = 35f;
+        scrollRect.elasticity = 0.08f;
+        scrollRect.decelerationRate = 0.16f;
+        scrollRect.inertia = true;
         _listScrollRect = scrollRect;
         scrollRect.vertical = true;
         scrollRect.movementType = ScrollRect.MovementType.Clamped;
@@ -507,7 +518,12 @@ public sealed class NotesApp : PhoneApp
         hlRt.offsetMax = new Vector2(0f, 1.5f);
 
         // === Scrollable Text Area ===
-        var bodyScroll = UIFactory.ScrollableVerticalList("DetailBody", _detailRoot.transform, out _);
+        var bodyScroll = UIFactory.ScrollableVerticalList("DetailBody", _detailRoot.transform, out var bodyScrollRect);
+        // Fix 2026-09-02: same responsive scroll tuning as the note list.
+        bodyScrollRect.scrollSensitivity = 35f;
+        bodyScrollRect.elasticity = 0.08f;
+        bodyScrollRect.decelerationRate = 0.16f;
+        bodyScrollRect.inertia = true;
         var bodyRt = (RectTransform)bodyScroll.parent.parent;
         bodyRt.anchorMin = new Vector2(0.05f, 0.12f);
         bodyRt.anchorMax = new Vector2(0.95f, 0.89f);
@@ -1302,10 +1318,10 @@ public sealed class NotesApp : PhoneApp
         {
             // Ensure path is always slot-fresh (covers slot switch without scene reload)
             _savePath = GetNotesPath();
-            var loaded = SafeStorage.LoadSafe<List<Note>>(_savePath, fallback: null);
+            var loaded = SafeStorage.LoadSafe<List<Note>>(_savePath, fallback: new List<Note>());
+            _notes.Clear();
             if (loaded != null && loaded.Count > 0)
             {
-                _notes.Clear();
                 foreach (var note in loaded)
                 {
                     if (note == null) continue;

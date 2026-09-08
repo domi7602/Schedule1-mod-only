@@ -13,7 +13,7 @@ using S1API.Lifecycle;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(CustomSkateboard.Mod), "CustomSkateboard", "1.0.2", "Dominik")]
+[assembly: MelonInfo(typeof(CustomSkateboard.Mod), "CustomSkateboard", "1.0.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace CustomSkateboard;
@@ -120,21 +120,21 @@ public sealed class Mod : MelonMod
                 postfix: new HarmonyMethod(typeof(SkateboardVisualPatches), nameof(SkateboardVisualPatches.OnWeatherChangePostfix)),
                 log: Log);
 
-            // Anti-gravel / terrain slow: GetSurfaceSmoothness
+            // Fix 2026-09-02 (v3): instant full-charge jump for custom boards.
+            // PREFIX (not postfix) so the snap to 1 happens BEFORE vanilla's charge/jump logic.
+            // FixedUpdate is private on Skateboard — patch by name.
             PatchGuard.TryPatch(
                 HarmonyInstance,
                 typeof(Skateboard),
-                nameof(Skateboard.GetSurfaceSmoothness),
-                prefix: new HarmonyMethod(typeof(SkateboardVisualPatches), nameof(SkateboardVisualPatches.OnGetSurfaceSmoothnessPrefix)),
+                "FixedUpdate",
+                prefix: new HarmonyMethod(typeof(SkateboardVisualPatches), nameof(SkateboardVisualPatches.OnFixedUpdatePrefix)),
                 log: Log);
 
-            // Anti-gravel / terrain slow: IsOnTerrain
-            PatchGuard.TryPatch(
-                HarmonyInstance,
-                typeof(Skateboard),
-                nameof(Skateboard.IsOnTerrain),
-                prefix: new HarmonyMethod(typeof(SkateboardVisualPatches), nameof(SkateboardVisualPatches.OnIsOnTerrainPrefix)),
-                log: Log);
+            // NOTE 2026-08-30: Anti-gravel / terrain-slow patches removed (user option B).
+            // Reason: board.SlowOnTerrain = !config.DisableTerrainSlowdown in TuneSkateboard
+            // already achieves the same effect (vanilla then reports full smoothness on terrain).
+            // The previous prefix patches were no-ops with a per-physics-tick overhead.
+            // See SkateboardVisualPatches.cs for the removal rationale.
 
             // Seller dialogue choice hook — IL2CPP original uses Il2CppSystem.Collections.Generic.List,
             // so binding System.List param fails silently. Patch without parameterTypes and only bind __instance.

@@ -8,23 +8,23 @@ Dead-Drop-Einzug, schmutziges Bargeld, Journal-Quests und Police Heat.
    out via the in-game Messages app. Three styles: cold, threatening,
    desperate. Multiple bounties can be active. Since 0.2.0 the caller is drawn
    randomly from the pool of callers off cooldown.
-2. **Polaroid Evidence** — On killing a generic NPC flagged as a bounty target,
+2. **Polaroid Evidence** — On killing a living customer assigned to one of the player's recruited dealers,
    a polaroid stamped with the target's Unity InstanceID spawns in the player's
    inventory. KO counts as a kill by design (watchdog tolerates OnDie/KnockOut).
 3. **DeadDrop Receipt** — Depositing the polaroid in any dead drop completes the
    contract. Since v0.1.7 the hooks ride `SetStoredInstance_Internal` +
    `SetItemSlotQuantity_Internal` (the dead-drop UI never fires ContentsChanged).
 4. **Dirty-Cash Payout** — Since v0.1.9 the bounty pays physical cash via
-   `ChangeCashBalance` (no bank ledger record — no paper trail). Since 0.2.0
-   the reward is rolled per style (8k–45k) and travels structurally into the
+   `ChangeCashBalance` (no bank ledger record — no paper trail). The reward is
+   a random amount from 200 to 500 cash and travels structurally into the
    contract; a failed payout leaves the contract active and retries.
 5. **Police Heat** — Accepting a contract raises `CrimeData.PursuitLevel` to
-   `Investigating`; completing it drops pursuit to `None`. The grace window is
-   session-local (not persisted).
+   `Investigating`; a matched kill sets it immediately to `Lethal`; completing
+   it drops pursuit to `None`.
 
 ## Console Commands (S1API console)
 
-- `/hitman_force_offer [callerIdx=0..4] [targetNpcId]` — manually fire a call (default: caller 0, target `ludwig_meyer`).
+- `/hitman_force_offer [callerIdx=0..4] [targetNpcId]` — manually fire a call for a currently assigned customer (the old generic-NPC default is rejected).
 - `/hitman_status` — dump all observability counters (matches found, polaroids spawned, payouts issued, etc.).
 - `/hitman_kill <npcId>` — simulate a kill and spawn a polaroid for testing.
 - `/hitman_cleanup` — cancel orphaned generic-titled "Hitman Contract" journal quests (`confirm` required when contracts are active).
@@ -44,5 +44,3 @@ Per-slot JSON in `UserData\HitmanPhone\bounties_slot_{n}.json` (field-aware
   2+ simultaneous awaiting contracts are refused fail-safe.
 - Cross-session receipts rely on that fallback (persisted InstanceIDs are
   invalidated on every load — audit M2).
-- 65 generic NPC IDs hardcoded in `TargetSelector.cs` — must be maintained on
-  game updates.

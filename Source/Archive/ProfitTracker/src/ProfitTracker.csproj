@@ -1,7 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <AssemblyName>ProfitTracker</AssemblyName>
-    <RootNamespace>ProfitTracker</RootNamespace>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-</Project>

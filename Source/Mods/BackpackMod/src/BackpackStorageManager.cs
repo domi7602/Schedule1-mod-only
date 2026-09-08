@@ -328,11 +328,37 @@ namespace BackpackMod
                     var slot = _storageEntity.ItemSlots[i];
                     if (slot != null && slot.Pointer != IntPtr.Zero && !slot.WasCollected && slot.ItemInstance != null && slot.ItemInstance.Pointer != IntPtr.Zero && !slot.ItemInstance.WasCollected && slot.ItemInstance.Definition != null)
                     {
+                        // Fix 3.1: capture quality tier (QualityItemInstance.Quality) and applied
+                        // packaging (ProductItemInstance.AppliedPackaging/PackagingID) so they
+                        // survive save/reload. NOTE: per schedule1-items skill (verified
+                        // 2026-08-22) there is NO 'MixEffects' property on ProductItemInstance —
+                        // mix effects are re-derived by the game from the item id, so they are
+                        // intentionally NOT serialized here.
+                        int tier = 2;
+                        try
+                        {
+                            var qInst = slot.ItemInstance.TryCast<Il2CppScheduleOne.ItemFramework.QualityItemInstance>();
+                            if (qInst != null && qInst.Pointer != IntPtr.Zero && !qInst.WasCollected)
+                                tier = (int)qInst.Quality;
+                        }
+                        catch { }
+
+                        string packagingId = string.Empty;
+                        try
+                        {
+                            var pInst = slot.ItemInstance.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
+                            if (pInst != null && pInst.Pointer != IntPtr.Zero && !pInst.WasCollected)
+                                packagingId = pInst.AppliedPackaging?.ID ?? pInst.PackagingID ?? string.Empty;
+                        }
+                        catch { }
+
                         items.Add(new SavedItemData
                         {
                             SlotIndex = i,
                             ItemId = slot.ItemInstance.Definition.ID,
-                            Quantity = slot.Quantity
+                            Quantity = slot.Quantity,
+                            QualityTier = tier,
+                            PackagingId = packagingId
                         });
                     }
                 }
@@ -369,6 +395,31 @@ namespace BackpackMod
                             var instance = def.GetDefaultInstance(item.Quantity);
                             if (instance != null)
                             {
+                                // Fix 3.1: restore quality tier + applied packaging
+                                // (pattern proven in AutoPackagingStation.RestoreNativeSlots).
+                                try
+                                {
+                                    var qInst = instance.TryCast<Il2CppScheduleOne.ItemFramework.QualityItemInstance>();
+                                    if (qInst != null && qInst.Pointer != IntPtr.Zero && !qInst.WasCollected)
+                                        qInst.Quality = (Il2CppScheduleOne.ItemFramework.EQuality)item.QualityTier;
+                                }
+                                catch { }
+
+                                try
+                                {
+                                    var pInst = instance.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
+                                    if (pInst != null && pInst.Pointer != IntPtr.Zero && !pInst.WasCollected && !string.IsNullOrEmpty(item.PackagingId))
+                                    {
+                                        var pkgDef = Il2CppScheduleOne.Registry.GetItem(item.PackagingId);
+                                        var appliedPkg = pkgDef?.TryCast<Il2CppScheduleOne.Product.Packaging.PackagingDefinition>();
+                                        if (appliedPkg != null && appliedPkg.Pointer != IntPtr.Zero)
+                                            pInst.SetPackaging(appliedPkg);
+                                        else
+                                            pInst.PackagingID = item.PackagingId;
+                                    }
+                                }
+                                catch { }
+
                                 _storageEntity.ItemSlots[item.SlotIndex].SetStoredItem(instance, true);
                             }
                         }
@@ -388,6 +439,11 @@ namespace BackpackMod
             public int SlotIndex { get; set; }
             public string ItemId { get; set; } = string.Empty;
             public int Quantity { get; set; } = 1;
+            // Fix 3.1 (Bug-Audit 2026-09-02): preserve quality & packaging across reloads.
+            // Previously only ItemId+Quantity were saved and GetDefaultInstance() reset every
+            // high-quality/mixed/packaged item to a default 50% instance.
+            public int QualityTier { get; set; } = 2; // 0=Trash,1=Poor,2=Standard,3=Premium,4=Heavenly
+            public string PackagingId { get; set; } = string.Empty;
         }
     }
 }

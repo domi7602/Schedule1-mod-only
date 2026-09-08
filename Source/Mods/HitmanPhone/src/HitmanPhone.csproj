@@ -5,11 +5,10 @@
     <DefineConstants>$(DefineConstants);IL2CPPMELON</DefineConstants>
   </PropertyGroup>
 
-  <!-- PNG asset: stays next to the csproj so Directory.Build.targets picks it up
-       via its glob <_Pngs Include="$(MSBuildProjectDirectory)\*.png" /> and
-       deploys it next to the DLL into <GameDir>\Mods\. -->
+  <!-- PNG asset: lives in ../assets/ (keeps src/ pure .cs); Directory.Build.targets
+       deploys it next to the DLL into <GameDir>\Mods\ via its assets\*.png glob. -->
   <ItemGroup>
-    <None Include="polaroid.png">
+    <None Include="..\assets\polaroid.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

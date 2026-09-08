@@ -1,10 +1,10 @@
 # MEMORY.md — Schedule 1 Modding Knowledge Hub
 
 > **Central Memory Bank for AI Agents & Developers**  
-> Workspace: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding`  
-> Last Synchronized: 2026-08-22 (3D-anchored HUD + Outdoor Pickup bridge, AutoPackagingStation v0.2.x)  
-> Operating System: Windows (PowerShell 7+ / .NET 6.0 SDK)
-> Knowledge Snapshot: 4804 files / 67 MB (verified `Get-ChildItem -Recurse`)
+> Workspace: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule1-mod-only-main` (seit Neuinstallation 2026-09 im Spiel-Ordner)  
+> Last Synchronized: 2026-09-04 (Umzug nach Neuinstallation: Deploy-Konvention json/pdb → `UserData\<Mod>\`, portable PDBs)  
+> Operating System: Windows (PowerShell 7+ / .NET SDK 8.0.424 — seit 2026-09-04 installiert)
+> Knowledge Snapshot: 4804 files / 67 MB (Stand 2026-08-22; der Knowledge-Workspace `...\Schedule I\Schedule 1 Modding` existiert nach der Neuinstallation nicht mehr)
 
 
 
@@ -19,8 +19,8 @@
  **Target Framework (TFM)**  `net6.0`  `LangVersion: 12`, `Nullable: enable` 
  **Branch Policy**  **Strictly IL2CPP** (Default Steam)  Never force users to switch to the `alternate` Mono branch 
  **Solution Layout**  `Source/Mods/S1Mods.sln`  Managed via `Tools/gen-sln.ps1` 
- **Auto-Deploy Target**  `Directory.Build.targets`  Automatically copies output DLLs, icons, and `mod.json` to `<GameDir>\Mods\` 
- **Embedded Debugging**  `<DebugType>embedded</DebugType>`  Embedded PDBs eliminate external `.pdb` management 
+ **Auto-Deploy Target**  `Directory.Build.targets`  DLLs, icons, bundles → `<GameDir>\Mods\`; `mod.json` + `.pdb` → `<GameDir>\UserData\<Mod>\` (seit 2026-09) 
+ **Debug Symbols**  `<DebugType>portable</DebugType>`  Portable PDBs deployen nach `UserData\<Mod>\` — keine json/pdb in `Mods\` (seit 2026-09) 
 
 
 

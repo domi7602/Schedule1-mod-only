@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>_DiagPerfCounter</AssemblyName>
+    <RootNamespace>_DiagPerfCounter</RootNamespace>
+  </PropertyGroup>
+</Project>

@@ -1,6 +1,8 @@
 # AGENTS.md
 
-Workspace: `C:\Users\pc\Desktop\Schedule1-mod-only` — MelonLoader modding workspace for *Schedule I* v0.4.6f13 (TVGS).
+Workspace: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule1-mod-only-main` — MelonLoader modding workspace for *Schedule I* v0.4.6f13 (TVGS).
+
+> **Umzug 2026-09 (Neuinstallation):** Das Repo liegt jetzt **im Spiel-Ordner** (`<GameDir>\Schedule1-mod-only-main`); der alte Pfad `C:\Users\pc\Desktop\Schedule1-mod-only` ist obsolet. Setup 2026-09-04 wiederhergestellt: .NET SDK 8.0.424 installiert, S1API 3.2.0 (Fork-Build aus `ThirdParty/S1API/`) deployed, NotesApp + Shared als Verifikation gebaut. Deploy-Konvention seit 2026-09: DLL/PNG/bundle → `Mods\`; `mod.json` + `.pdb` → `UserData\<Mod>\`.
 
 > **For AI Agents:** This is the bootstrap file. Read it completely before doing anything to the mods. If you make assumptions not stated here, ask first. If you find something here that is *wrong* or outdated, please update it.
 
@@ -8,7 +10,7 @@ Workspace: `C:\Users\pc\Desktop\Schedule1-mod-only` — MelonLoader modding work
 
 ## 0. AI-Agent Skills (`.agents/skills/`)
 
-> **AI-Agent Skills:** This workspace includes 14 skills under `.agents/skills/` for orchestrating mod work. Skills reference the `Knowledge/` folder from the main workspace — see §7 for details.
+> **AI-Agent Skills:** Historisch 14 Skills unter `.agents/skills/`. Der Ordner wurde beim Umzug 2026-09 aus dem Repo entfernt (gewollt) — die folgende Tabelle dient als Referenz; bei Bedarf aus der Git-Historie reaktivieren (`git checkout HEAD -- .agents/skills/`).
 
 Fourteen skills orchestrate mod work (8 + 5 on 2026-08-21 + 1 S1MCP on 2026-08-22). **Load them via the `skill` tool** when the task matches:
 
@@ -44,12 +46,12 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
   Source/Mods/        Mods + Shared lib (inkl. Shared/UITheme) + Directory.Build.props/targets + S1Mods.sln
   Source/Archive/     Archived mods (DayCounter, ProfitTracker, TVBrowser), Tests & reference decompiles
   ThirdParty/         External frameworks & mod sources (Sideload, hash, MoreDrugs, S1MCP)
-  Tools/              PowerShell helpers: build-all.ps1, new-mod.ps1, gen-sln.ps1, bump-version.ps1, package-release.ps1
+  Tools/              (leer nach Umzug 2026-09 — PowerShell-Helper in der Git-Historie)
   Release/            Release packages (.gitkeep)
-  .agents/skills/     AI agent skills (14 skills: modding/phoneapp/grid/s1api/s1mapi/knowledge/troubleshooting/game-systems/economy/persistence/items/interiors/3d-assets/mcp)
+  .agents/skills/     (entfernt beim Umzug 2026-09 — in der Git-Historie)
   .githooks/          Pre-commit hook (dotnet format + gen-sln determinism)
   .github/            CI (workflows/ci.yml, workflows/release.yml) + Issue/PR templates
-   memory/             Daily logs `memory/YYYY-MM-DD.md` + `memory-protocol.md`
+   memory/             MEMORY.md (Daily-Logs + memory-protocol.md in der Git-Historie)
    AGENTS.md           Agent bootstrap & inventory
    CONTRIBUTING.md     Contributor guide
    DEVELOPERS.md       Developer documentation
@@ -58,30 +60,32 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 
 ---
 
-## 2. Mod Inventory (as of 2026-08-23 — 14 Skills)
+## 2. Mod Inventory (Stand 2026-08-23 — Deploy-Status siehe Hinweis)
+
+> **Status nach Neuinstallation (2026-09-04):** Setup wiederhergestellt — .NET SDK 8.0.424 installiert, S1API 3.2.0 aus `ThirdParty/S1API/` gebaut und deployed (`Mods\S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.dll`), NotesApp + Shared als Verifikation gebaut. Die übrigen Mods sind **noch nicht** redeployed (Stand 2026-09-04) — einfach `dotnet build` je Mod laufen lassen. S1API-Rebuild: `local.build.props` (Kopie von `example.build.props`) liegt bereit; der Multi-TFM-Loader-Build wirft einen harmlosen MSB3030-Copy-Fehler beim net6.0-Durchlauf — die korrekte netstandard2.1-DLL wird trotzdem deployt. **Deploy-Konvention seit 2026-09:** DLL + Icons/Bundles → `Mods\`; `mod.json` + `<Mod>.pdb` → `UserData\<Mod>\` — json/pdb gehören **nicht** nach `Mods\`.
 
 | Mod              | Status          | Path in `Source/`      | Path in `<Game>\Mods\`              | S1API? |
 |------------------|-----------------|------------------------|-------------------------------------|--------|
-| **NotesApp**     | ✅ active (v1.0.0, **verified 2026-08-14 / v0.4.6f13**) | `Mods/NotesApp/` | `NotesApp.dll` + .json + Icon | yes (PhoneApp + UIFactory + InputFocus hook + SafeStorage) |
-| **PotScanner**   | ✅ active (v0.5.0, **verified 2026-08-14 / v0.4.6f13**) | `Mods/PotScanner/` | `PotScanner.dll` + .json | yes (PhoneApp + Property + Growing + Money + Lifecycle APIs + ModConfig + Console/BaseConsoleCommand) |
-| **CalculatorApp**| ✅ active (v0.2.0, **verified 2026-08-14 / v0.4.6f13**) | `Mods/CalculatorApp/` | `CalculatorApp.dll` + .json | yes (PhoneApp + Money + UIFactory + InputFocus hook + SafeStorage) |
-| **CustomSkateboard**| ✅ active (v1.0.2, **verified 2026-08-20 / v0.4.6f13**) | `Mods/CustomSkateboard/` | `CustomSkateboard.dll` + .json + Icon | yes (Skating/Skateboard + Ultra Carving + Instant Jump + Anti-Gravel + Jeff Dialogue + Nexus Ready) |
-| **MoreSaveSlots**| ✅ active (v1.0.1, **verified 2026-08-14 / v0.4.6f13**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` + .json | no (MelonMod + Harmony) |
+| **NotesApp**     | ✅ active (v1.0.0, **verified 2026-08-14 / v0.4.6f13**) | `Mods/NotesApp/` | `NotesApp.dll` + Icon | yes (PhoneApp + UIFactory + InputFocus hook + SafeStorage) |
+| **PotScanner**   | ✅ active (v0.5.0, **verified 2026-08-14 / v0.4.6f13**) | `Mods/PotScanner/` | `PotScanner.dll` | yes (PhoneApp + Property + Growing + Money + Lifecycle APIs + ModConfig + Console/BaseConsoleCommand) |
+| **CalculatorApp**| ✅ active (v0.2.0, **verified 2026-08-14 / v0.4.6f13**) | `Mods/CalculatorApp/` | `CalculatorApp.dll` | yes (PhoneApp + Money + UIFactory + InputFocus hook + SafeStorage) |
+| **CustomSkateboard**| ✅ active (v1.0.2, **verified 2026-08-20 / v0.4.6f13**) | `Mods/CustomSkateboard/` | `CustomSkateboard.dll` + Icon | yes (Skating/Skateboard + Ultra Carving + Instant Jump + Anti-Gravel + Jeff Dialogue + Nexus Ready) |
+| **MoreSaveSlots**| ✅ active (v1.0.1, **verified 2026-08-14 / v0.4.6f13**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` | no (MelonMod + Harmony) |
 | **DayCounter**      | ⏸ archived (v1.0.0) | `Archive/DayCounter/` | — (removed from MelonLoader) | no (MelonMod + uGUI Screen HUD + TextMeshPro + S1API/Hash Console + ModConfig) |
-| **PocketShop** | ✅ active (v0.2.1, **verified 2026-08-17 / v0.4.6f13**) | `Mods/PocketShop/` | `PocketShop.dll` + .json | yes (PhoneApp + Multi-Payment (Cash/Bank/Auto) + ItemDetailModal + SFX) |
-| **BankApp**    | ✅ active (v0.1.0, **verified 2026-08-17 / v0.4.6f13**) | `Mods/BankApp/`    | `BankApp.dll` + .json + Icon | yes (PhoneApp + Mobile ATM + Double-Entry Booking + Slot-Awareness + Weekly Limit + Save-Slot Isolation) |
-| **HomelessMod** | ✅ active (v0.1.1, **verified 2026-08-17 / v0.4.6f13**) | `Mods/HomelessMod/` | `HomelessMod.dll` + .json | yes (Street Nomad + Everywhere Building + 3D Procedural Sleeping Bag + Quests + Console + Save-Slot Isolation) |
-| **BusinessIncome** | ✅ active (v0.1.0, **verified 2026-08-17 / v0.4.6f13**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` + .json | yes (Daily Passive Revenue + Multiplayer Host Authority + Slot Idempotency + Deterministic Variance + Console Dashboard) |
-| **Minimap**        | ✅ active (v1.0.1, **verified 2026-08-18 / v0.4.6f13**) | `Mods/Minimap/` | `Minimap.dll` + .json | yes (Minimap & Unified HUD + Dual-Shape Circle/Square + Pooled Blips + DayCounter Merged + Drag-and-Drop) |
+| **PocketShop** | ✅ active (v0.2.1, **verified 2026-08-17 / v0.4.6f13**) | `Mods/PocketShop/` | `PocketShop.dll` | yes (PhoneApp + Multi-Payment (Cash/Bank/Auto) + ItemDetailModal + SFX) |
+| **BankApp**    | ✅ active (v0.1.0, **verified 2026-08-17 / v0.4.6f13**) | `Mods/BankApp/`    | `BankApp.dll` + Icon | yes (PhoneApp + Mobile ATM + Double-Entry Booking + Slot-Awareness + Weekly Limit + Save-Slot Isolation) |
+| **HomelessMod** | ✅ active (v0.1.1, **verified 2026-08-17 / v0.4.6f13**) | `Mods/HomelessMod/` | `HomelessMod.dll` | yes (Street Nomad + Everywhere Building + 3D Procedural Sleeping Bag + Quests + Console + Save-Slot Isolation) |
+| **BusinessIncome** | ✅ active (v0.1.0, **verified 2026-08-17 / v0.4.6f13**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | yes (Daily Passive Revenue + Multiplayer Host Authority + Slot Idempotency + Deterministic Variance + Console Dashboard) |
+| **Minimap**        | ✅ active (v1.0.1, **verified 2026-08-18 / v0.4.6f13**) | `Mods/Minimap/` | `Minimap.dll` | yes (Minimap & Unified HUD + Dual-Shape Circle/Square + Pooled Blips + DayCounter Merged + Drag-and-Drop) |
 | **ProfitTracker**   | ⏸ archived (v1.1.0) | `Archive/ProfitTracker/` | — (removed from MelonLoader) | no (MelonMod + uGUI Screen HUD + TextMeshPro + S1API/Hash Console + SafeStorage) |
 | **TVBrowser**       | ⏸ archived (v0.1.0) | `Archive/TVBrowser/`   | — (removed from MelonLoader) | yes (TVApp + BrowserNavBar + InputFocus + UwbBridge + ModConfig) |
 | **MikuPlayerModel** | ⏸ disabled (discontinued) | `Archive/MikuPlayerModel/` | `MikuPlayerModel.dll.bak` | yes (Player Avatar Injection + Verlet Hair Spring Physics + Console) |
 | **S1MCP**        | ✅ active (v1.0.1, IL2CPP net6, freeze fix, debug-logging opt-in, **verified 2026-08-22**) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | yes (MCP Protocol / TCP Server :8765 / Live Game State / Log Inspection) |
 | Construction Site | ⏸ disabled     | —                      | `ConstructionSiteProperty.dll.bak`   | no   |
 | **MoreDrugs 1.0.2** | ✅ active (ifBars rewrite, S1API Save-Provider, **verified 2026-08-04**) | `ThirdParty/MoreDrugs/` | `DrugExpansion_Il2cpp.dll` (10.5 MB) + .bak | yes (S1API 3.1.7+ Save-Provider APIs verified) |
-| **StackLimitMod** | ✅ active (v0.1.0, **verified 2026-08-20 / v0.4.6f13**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` + .json | yes (BaseItemDefinition + Registry + BaseItemInstance Harmony Patches + Console + SafeStorage) |
-| **BackpackMod**   | ✅ active (v1.0.0, **verified 2026-08-21 / v1.0.0f13**) | `Mods/BackpackMod/` | `BackpackMod.dll` + .json + .bundle | yes (3D Wearable Backpacks + Spine Rig Alignment + Realistic Harness & Straps + ObjLoader + Storage + Mannequin 360 Rotation) |
-| **AutoPackagingStation** | ✅ active (v0.2.0, **verified 2026-08-23 / v0.2.0f13**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` + docs | yes (4x4 Industrial Packaging Line + UV Scroll Conveyor + Native Slot Sync + SafeStorage + Shop Injection) |
+| **StackLimitMod** | ✅ active (v0.1.0, **verified 2026-08-20 / v0.4.6f13**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` | yes (BaseItemDefinition + Registry + BaseItemInstance Harmony Patches + Console + SafeStorage) |
+| **BackpackMod**   | ✅ active (v1.0.0, **verified 2026-08-21 / v1.0.0f13**) | `Mods/BackpackMod/` | `BackpackMod.dll` + .bundle | yes (3D Wearable Backpacks + Spine Rig Alignment + Realistic Harness & Straps + ObjLoader + Storage + Mannequin 360 Rotation) |
+| **AutoPackagingStation** | ✅ active (v0.2.0, **verified 2026-08-23 / v0.2.0f13**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | yes (4x4 Industrial Packaging Line + UV Scroll Conveyor + Native Slot Sync + SafeStorage + Shop Injection) |
 | **Shared**       | ✅ active (workspace lib, **verified 2026-08-20**) | `Mods/Shared/` | `Shared.dll` | no (PatchGuard, SafeStorage, GameObjectResolver, SafeInvoker, HotkeyManager, ModConfig, ModLogger, NetworkGuard, SceneGate, TypeResolver, UITheme) |
 | S1API 3.2.0      | ✅ active        | —                      | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | (itself) |
 
@@ -89,9 +93,9 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 
 | Framework       | Status     | Source                                                                  | Deploy Path (Runtime)                  | Notes |
 |-----------------|------------|-------------------------------------------------------------------------|----------------------------------------|-------|
-| **Sideload 1.8.2** | ✅ active | `ThirdParty/ScheduleOne-Sideload/` (git)                               | `Sideload.dll` → `<Game>\Mods\`, AngleSharp + Jint + Esprima → `<Game>\UserLibs\` | DooDesch phone UI framework (HTML/CSS/JS on uGUI). See §3 for build workarounds. |
-| **hash 1.0.3**  | ✅ active    | `ThirdParty/ScheduleOne-Hash/` (git)                                   | `Hash.dll` → `<Game>\Mods\`            | DooDesch terminal replacement for the dev console: tab-completion, `#` shorthand, history, help, plugin API via `HashCommands.Add(...)`. Build depends on Sideload (source include `Sideload.cs`). |
-| S1API 3.2.0     | ✅ active    | — (deployed binary only)                                               | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | (itself — see §4) |
+| **Sideload 1.7.0** | 📦 lokal vorhanden (undeployed) | `ThirdParty/ScheduleOne-Sideload/` (ZIP + `Sideload_extracted/` inkl. `UserLibs/`) | `Sideload.dll` → `<Game>\Mods\`, AngleSharp + Jint + Esprima → `<Game>\UserLibs\` | DooDesch phone UI framework (HTML/CSS/JS on uGUI). Deploy siehe §3. |
+| **hash 1.0.5**  | 📦 lokal vorhanden (undeployed) | `ThirdParty/ScheduleOne-Hash/` (ZIP + `Hash_extracted/`)              | `Hash.dll` → `<Game>\Mods\`            | DooDesch terminal replacement for the dev console: tab-completion, `#` shorthand, history, help, plugin API via `HashCommands.Add(...)`. Benötigt Sideload. |
+| S1API 3.2.0      | ✅ active (Fork-Build, deployed 2026-09-04) | `ThirdParty/S1API/` (Source + `local.build.props`)               | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.dll` | (itself — see §4) |
 
 ---
 
@@ -252,7 +256,14 @@ pwsh Tools\gen-sln.ps1
 pwsh Tools\new-mod.ps1 -Name <ModName>
 ```
 
-Deployment runs **automatically** via `Directory.Build.targets` → copies DLL + PNGs + `docs/mod.json` to `<GameDir>\Mods\`. Debug symbols are embedded directly into the DLLs via `<DebugType>embedded</DebugType>` (no separate `.pdb` files needed).
+> **Hinweis:** `Tools\` ist nach dem Umzug 2026-09 leer — die PowerShell-Helper (build-all, gen-sln, new-mod, bump-version, package-release) liegen in der Git-Historie (`git checkout HEAD -- Tools/`). Direkt nutzbar bleibt `dotnet build` (siehe oben).
+
+Deployment läuft **automatisch** via `Directory.Build.targets` — mit getrennten Zielen (Konvention seit Reinstall 2026-09):
+
+- `<GameDir>\Mods\`: DLL + PNGs + Bundles (nur von MelonLoader ladbare Dateien)
+- `<GameDir>\UserData\<Mod>\`: `mod.json` (Metadaten) + `<Mod>.pdb` (portable Debug-Symbole via `<DebugType>portable</DebugType>`)
+
+**JSON und PDB gehören niemals nach `Mods\`.**
 
 ### ⚠️ Important Build Caveats
 
@@ -261,17 +272,18 @@ Deployment runs **automatically** via `Directory.Build.targets` → copies DLL +
 - **Solution Determinism:** `Tools/gen-sln.ps1` now uses deterministic MD5-GUIDs (`Get-DeterministicGuid "Project:<rel>"`) — no more random GUID diffs on every regeneration.
 - **Version Bumps:** Use `pwsh Tools/bump-version.ps1 -Mod <Name> -Version x.y.z` to sync `Mod.cs` + `mod.json` + `CHANGELOG.md` + `AGENTS.md` atomically.
 
-### Sideload + hash Build Setup (ThirdParty repos, NOT in the solution)
+### Sideload + hash (ThirdParty, NICHT in der Solution)
 
-Sideload (DooDesch) and hash (DooDesch) are **external repos** under `ThirdParty/`. They do **not** use the workspace `Directory.Build.props` and are **not** included in `S1Mods.sln`. Build per repo with its own property set.
+Sideload (DooDesch) und hash (DooDesch) liegen nach dem Umzug 2026-09 als **fertige Release-Pakete** unter `ThirdParty/` vor (ZIP + extrahiert, kein Source/Build mehr): `ScheduleOne-Sideload/Sideload_extracted/` (Sideload 1.7.0, inkl. `UserLibs/`-Abhängigkeiten) und `ScheduleOne-Hash/Hash_extracted/` (hash 1.0.5). Beide sind **nicht** Teil von `S1Mods.sln`.
 
-**Build commands:**
+**Deploy (manuell, bei Bedarf):**
 ```pwsh
-Set-Location "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\ScheduleOne-Sideload"
-dotnet build Sideload.csproj -c Release   # builds + deploys automatically
+# Sideload: DLL nach Mods\, Abhängigkeiten nach UserLibs\
+Copy-Item "ThirdParty\ScheduleOne-Sideload\Sideload_extracted\Sideload.dll" "..\Mods\"
+Copy-Item "ThirdParty\ScheduleOne-Sideload\Sideload_extracted\UserLibs\*" "..\UserLibs\" -Recurse -Force
 
-Set-Location "C:\Users\pc\Desktop\Schedule1-mod-only\ThirdParty\ScheduleOne-Hash"
-dotnet build Hash.csproj -c Release        # builds + deploys automatically (needs Sideload.dll in Mods/)
+# hash: DLL nach Mods\ (benötigt Sideload)
+Copy-Item "ThirdParty\ScheduleOne-Hash\Hash_extracted\Hash.dll" "..\Mods\"
 ```
 
 ---
@@ -341,7 +353,7 @@ In `OnCreatedUI(GameObject container)` always call `UITheme.Initialize...` first
 
 ```pwsh
 s1interop doctor --mono-game-path $env:SCHEDULE1_PATH --il2cpp-game-path $env:SCHEDULE1_PATH
-s1interop analyze "C:\Users\pc\Desktop\Schedule1-mod-only\Source\Mods\<Name>\src\<Name>.csproj"
+s1interop analyze "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule1-mod-only-main\Source\Mods\<Name>\src\<Name>.csproj"
 ```
 
 ### Mod Update Cycle
@@ -371,7 +383,7 @@ s1interop analyze "C:\Users\pc\Desktop\Schedule1-mod-only\Source\Mods\<Name>\src
 
 ## 7. Reference Material
 
-> **Note:** This mod-only workspace does not include the `Knowledge/` folder (decompiles, analyses, maps, tools). For the full knowledge base (4804 files / 67 MB), refer to the main modding workspace at `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding`. The `schedule1-knowledge` skill (`.agents/skills/schedule1-knowledge/`) contains search recipes and the full inventory index.
+> **Note:** This mod-only workspace does not include the `Knowledge/` folder (decompiles, analyses, maps, tools). Der frühere Haupt-Workspace `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding` existiert nach der Neuinstallation (2026-09) **nicht mehr** — die Knowledge-Base (4804 Dateien / 67 MB) muss bei Bedarf neu generiert (AssetRipper/ilspycmd) oder aus einem Backup wiederhergestellt werden.
 
 Reference decompiles and analysis snippets for archived mods are available in `Source/Archive/`.
 

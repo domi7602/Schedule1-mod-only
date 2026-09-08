@@ -7,7 +7,7 @@ Danke für dein Interesse am `Schedule I Modding Workspace`! Diese Anleitung fas
 - **Game:** Schedule I v0.4.6f13 (IL2CPP, Unity 2022.3) unter `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`)
 - **SDK:** .NET 6 SDK, PowerShell 7+
 - **Loader:** MelonLoader 0.7.3
-- **S1API:** 3.2.0 (deployed als `Mods/S1API.Il2Cpp.MelonLoader.dll`)
+- **S1API:** 3.2.0 (deployed als `Mods/S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.dll`, Fork-Build aus `ThirdParty/S1API/`)
 
 ## Workspace Layout
 
@@ -38,7 +38,7 @@ pwsh Tools/gen-sln.ps1
 dotnet build Source/Mods/MyNewMod/src/MyNewMod.csproj -c Release
 ```
 
-`Directory.Build.props/targets` deployt DLLs automatisch nach `<GameDir>\Mods\`.
+`Directory.Build.props/targets` deployt DLLs/PNGs automatisch nach `<GameDir>\Mods\`; `mod.json` + `.pdb` nach `<GameDir>\UserData\<ModName>\` (seit 2026-09 — json/pdb gehören nie nach `Mods\`).
 
 Siehe `.agents/skills/schedule1-modding/references/architecture-and-shared.md` für Pflicht-Patterns (SafeStorage, UITheme, PatchGuard, InputFocus).
 

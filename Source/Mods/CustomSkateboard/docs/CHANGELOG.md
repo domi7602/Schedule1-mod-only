@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 1.0.3 (2026-09-03)
+- **Fix: Ollie-Flattening (flacher Sprung)**: Custom-Board-Sprünge hoben zuerst die Nase (Vanilla-Ollie-Animation). Root Cause: Die Achsen-Sprungkurven (`FrontAxleJumpCurve`/`RearAxleJumpCurve`) existieren doppelt — auf der Board-Instanz UND im `SkateboardSettings`-ScriptableObject; Vanilla liest nativ die Settings-Kopie. Der Fix vom 02.09. schrieb nur die Board-Kopie. Jetzt klont `TuneSettingsObject` die Front-Kurve zusätzlich auf die Rear-Kurve des Settings-Objekts (`board._settings` + `CurentSettings`) → flacher Sprung wie Standard-Boards (in-game verifiziert 2026-09-03).
+- Hinweis: Ollie-Verhalten ist Vanilla-Design für ALLE Boards — die Kurven-Glättung ist ein bewusster Custom-Board-Stil, kein Bugfix am Spiel.
+
 ## 1.0.2 (2026-08-20)
 
 - **Bugfix Round (20 issues, 6 HIGH / 9 MEDIUM / 5 LOW)**:

@@ -1,22 +1,28 @@
 <Project>
-  <!-- Deploy nach <GameDir>\Mods\: DLL + PNGs + docs/mod.json (als <Mod>.json). -->
+  <!-- Deploy-Konvention (seit Reinstall 2026-09): -->
+  <!--   <GameDir>\Mods\              -> DLL + PNGs + Bundles (nur Ladbares für MelonLoader) -->
+  <!--   <GameDir>\UserData\<Mod>\    -> mod.json (Metadaten) + <Mod>.pdb (Debug-Symbole) -->
   <!-- SkipUnchangedFiles=false erzwingt Deploy bei jedem Build (fix für veraltete DLLs im GameDir). -->
   <Target Name="DeployMod" AfterTargets="Build" Condition="'$(MSBuildProjectName)' != '' And Exists('$(TargetPath)')">
     <PropertyGroup>
       <_DeployDir>$(ModsDir)</_DeployDir>
       <_UserLibsDir>$(GameDir)\UserLibs</_UserLibsDir>
+      <_ModDataDir>$(UserDataDir)\$(MSBuildProjectName)</_ModDataDir>
+      <_PdbPath>$([System.IO.Path]::ChangeExtension('$(TargetPath)', '.pdb'))</_PdbPath>
     </PropertyGroup>
     <MakeDir Directories="$(_DeployDir)" Condition="!Exists('$(_DeployDir)')" />
+    <MakeDir Directories="$(_ModDataDir)" Condition="!Exists('$(_ModDataDir)')" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="$(_PdbPath)" DestinationFolder="$(_ModDataDir)" SkipUnchangedFiles="false" Condition="Exists('$(_PdbPath)')" />
     <ItemGroup>
-      <_Pngs Include="$(MSBuildProjectDirectory)\*.png" />
+      <_Pngs Include="$(MSBuildProjectDirectory)\*.png;$(MSBuildProjectDirectory)\..\assets\*.png" />
       <_Bundles Include="$(MSBuildProjectDirectory)\..\assets\*.bundle" Condition="Exists('$(MSBuildProjectDirectory)\..\assets')" />
       <_Json Include="$(MSBuildProjectDirectory)\..\docs\mod.json" Condition="Exists('$(MSBuildProjectDirectory)\..\docs\mod.json')" />
     </ItemGroup>
     <Copy SourceFiles="@(_Pngs)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="false" Condition="'@(_Pngs)' != ''" />
     <Copy SourceFiles="@(_Bundles)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="false" Condition="'@(_Bundles)' != ''" />
-    <Copy SourceFiles="@(_Json)" DestinationFiles="$(_DeployDir)\$(MSBuildProjectName).json" SkipUnchangedFiles="false" Condition="'@(_Json)' != ''" />
-    <Message Importance="high" Text="Deployed $(MSBuildProjectName) -> $(_DeployDir)" />
+    <Copy SourceFiles="@(_Json)" DestinationFiles="$(_ModDataDir)\mod.json" SkipUnchangedFiles="false" Condition="'@(_Json)' != ''" />
+    <Message Importance="high" Text="Deployed $(MSBuildProjectName) -> $(_DeployDir) (+ json/pdb -> $(_ModDataDir))" />
   </Target>
 
   <!-- Shared.dll wird nicht transitiv propagiert (Private=false) — explizit deployen. -->

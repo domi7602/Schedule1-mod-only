@@ -1,6 +1,45 @@
 # Changelog
 
 
+## Unreleased
+
+- **Hitman-Fix:** neue Angebote zahlen zufällig **200–500** Cash.
+- **Hitman-Ziele:** ein Angebot wird nur noch für einen lebenden Kunden aus
+  `Dealer.AllPlayerDealers → AssignedCustomers` erzeugt; allgemeine Zivilisten
+  aus einer festen ID-Liste sind ausgeschlossen.
+- **Hitman-Heat:** ein bestätigter Kill setzt die Verfolgung sofort auf
+  `PursuitLevel.Lethal`. Die alte Investigating-Grace-Logik wurde entfernt.
+
+- **Journal-Ziel nach Save-Reload:** Aktive Hitman-Verträge werden nach dem
+  Laden wieder an die restaurierte Journal-Quest gebunden. Dadurch erscheinen
+  Zielname und Eliminierungsauftrag nach einem Neustart wieder korrekt.
+- **Neues Spiel im gleichen Slot:** Die Mod speichert jetzt die Identität des
+  Vanilla-Spielstands und verwirft alte Hitman-Verträge, wenn ein neuer
+  Spielstand denselben Slot wiederverwendet.
+- **Späte Quest-Restaurierung:** Der Journal-Rebind wird bis zu achtmal in
+  einem begrenzten Zeitfenster wiederholt, falls S1API die Quest später als
+  `OnLoadComplete` wiederherstellt.
+
+## 0.2.1 (2026-09-07)
+
+Dialog-Fixes für den Bounty-Router (drei Restbefunde aus der 0.2.0-Audit-Runde,
+gefunden bei der Quest-Dialog-Durchsicht am 2026-09-07):
+
+- **Bug 1 — MoreInfo-Deadline hardcodiert:** die Info-Nachricht behauptete
+  immer "Three days window.", selbst wenn `ContractDeadlineDays` anders
+  steht. Jetzt wird die Zahl (wie schon L7 in OnAccept) aus der Konstante
+  abgeleitet — Config und Dialog können nicht mehr auseinanderlaufen.
+- **Bug 2 — MoreInfo zeigte falschen Reward:** statt der echten gewürfelten
+  Summe (`rewardCash`, dieselbe Zahl wie im Angebot und im Contract) zeigte
+  die Info-Nachricht einen statischen Pay-Range pro Caller
+  (`DefaultRewardFor`, z.B. "$18 000 – $45 000") — konnte dem Angebot
+  widersprechen. `DefaultRewardFor` ist komplett entfernt.
+- **Bug 3 — Stilles Verfallen nach Reload:** der H3-Stale-Save-Guard machte
+  Accept/MoreInfo nach einem Reload stumm zunichte (nur Log-Zeile, Buttons
+  blieben sichtbar). Jetzt sendet der Caller die Nachfrage-Nachricht
+  "[Ghost]: Forget it. The deal is off." (`SendOfferExpiredNotice`), damit ein
+  toter Button nie als kaputtes Mod missverstanden wird.
+
 ## 0.2.0 (2026-09-01)
 
 Audit-Runde (OpenCode bug audit, alle 22 Funde gegen den Code verifiziert;

@@ -10,7 +10,7 @@ This directory contains the source code for all active **MelonLoader (IL2CPP)** 
 Source/Mods/
 ├── S1Mods.sln                  # Main Visual Studio Solution (all active mods + Shared)
 ├── Directory.Build.props       # Central MSBuild properties (net6.0, game paths, MelonLoader refs)
-├── Directory.Build.targets     # Auto-deployment targets to <GameDir>\Mods\
+├── Directory.Build.targets     # Auto-deploy: Mods\ (DLL/PNG/bundle) + UserData\<Mod>\ (mod.json/pdb)
 │
 ├── Shared/                     # Core library used by all mods (UITheme, SafeStorage, PatchGuard, etc.)
 │
@@ -50,10 +50,12 @@ dotnet build NotesApp/src/NotesApp.csproj -c Release
 ```
 
 ### 3. Automatic Deployment
-`Directory.Build.targets` automatically copies built DLLs, assets (icons, bundles), and `mod.json` files to:
-`C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Mods`
+`Directory.Build.targets` deploys with split targets (convention since the 2026-09 reinstall):
 
-> **Note:** `SkipUnchangedFiles` is set to `false` to guarantee that every build deploys immediately.
+- DLLs, assets (icons, bundles) → `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Mods`
+- `mod.json` + `<Mod>.pdb` → `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\<ModName>\`
+
+> **Note:** `SkipUnchangedFiles` is set to `false` to guarantee that every build deploys immediately. json/pdb never go into `Mods\`.
 
 ---
 

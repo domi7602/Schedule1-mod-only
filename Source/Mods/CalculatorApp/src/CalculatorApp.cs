@@ -6,6 +6,7 @@ using System.Linq;
 using MelonLoader;
 using MelonLoader.Utils;
 using S1API.Input;
+using S1API.Lifecycle;
 using S1API.Money;
 using S1API.PhoneApp;
 using S1API.UI;
@@ -121,7 +122,41 @@ public sealed class CalculatorApp : PhoneApp
         base.OnCreated();
         MelonEvents.OnUpdate.Unsubscribe(OnUpdate);
         MelonEvents.OnUpdate.Subscribe(OnUpdate);
-        MelonLogger.Msg("Loaded state & initialized (v0.2.0).");
+
+        // Fix 1.1 (Bug-Audit 2026-09-02): defensive subscribe to lifecycle events so the
+        // state reloads on save-slot switch / new-game load. Without this, history from
+        // slot A stayed in RAM and overwrote slot B's file on the next save.
+        GameLifecycle.OnSaveInfoLoaded -= HandleSaveInfoLoaded;
+        GameLifecycle.OnSaveInfoLoaded += HandleSaveInfoLoaded;
+        GameLifecycle.OnPreLoad -= HandlePreLoad;
+        GameLifecycle.OnPreLoad += HandlePreLoad;
+
+        MelonLogger.Msg("Loaded state & initialized (v0.2.1).");
+    }
+
+    private void HandleSaveInfoLoaded()
+    {
+        // Slot changed (or save finished loading info): reload state from the new slot's file.
+        try
+        {
+            _state = CalculatorState.Load();
+            if (_engine != null) _engine.OnStateChanged -= UpdateDisplayUI;
+            _engine = new CalculatorEngine(_state);
+            _engine.OnStateChanged += UpdateDisplayUI;
+            UpdateDisplayUI();
+            RefreshHistoryList();
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Warning($"State reload on save-info load failed: {ex.Message}");
+        }
+    }
+
+    private void HandlePreLoad()
+    {
+        // A new save/scene is about to load: flush the current slot's state before switching.
+        try { _state?.Save(); }
+        catch (Exception ex) { MelonLogger.Warning($"State flush on pre-load failed: {ex.Message}"); }
     }
 
     protected override void OnPhoneClosed()
@@ -465,6 +500,11 @@ public sealed class CalculatorApp : PhoneApp
         // --- Scrollable History List ---
         var list = UIFactory.ScrollableVerticalList("HistoryList", _historyRoot.transform, out var scrollRect);
         _historyScrollRect = scrollRect;
+        // Fix 2026-09-02: responsive scroll feel (same tuning as NotesApp).
+        scrollRect.scrollSensitivity = 35f;
+        scrollRect.elasticity = 0.08f;
+        scrollRect.decelerationRate = 0.16f;
+        scrollRect.inertia = true;
         scrollRect.vertical = true;
         scrollRect.movementType = ScrollRect.MovementType.Clamped;
 

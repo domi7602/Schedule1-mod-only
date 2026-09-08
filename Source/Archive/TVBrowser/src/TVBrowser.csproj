@@ -1,6 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <AssemblyName>TVBrowser</AssemblyName>
-    <RootNamespace>TVBrowser</RootNamespace>
-  </PropertyGroup>
-</Project>
