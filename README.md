@@ -50,4 +50,3 @@ Please refer to the **[Developers Guide](DEVELOPERS.md)** for details on the wor
 - **CI:** GitHub Actions (`.github/workflows/ci.yml`) validates format, build, tests, and SLN determinism on every push/PR.
 - **Tests:** `Source/Archive/Tests/Shared.Tests/` (xUnit) covers `Shared` core (`SafeStorage`, `UITheme`, `PatchGuard`).
 - **License:** [`LICENSE`](LICENSE) — MIT for workspace code, Third-Party notices for S1API/S1MAPI/Sideload.
-Cron-Python-Test 20:03:38
