@@ -135,11 +135,41 @@ public static class BuildingPatches
 
                     ghost.transform.rotation = originalRot;
 
-                    float vOffset = 0f;
-                    try { vOffset = __instance.verticalOffset; } catch { }
+                    // [GroundFix v0.1.2] The sleeping bag definition is cloned from the vanilla 'bed'
+                    // (CloneFrom copies BuiltItem + grid data). Vanilla BuildUpdate_Grid derives
+                    // verticalOffset from that bed geometry (~1.5m of bed-frame height), which lifts
+                    // the flat procedural bag high into the air. For the sleeping bag we ignore the
+                    // vanilla offset entirely and keep only the pivot correction so the ghost sits
+                    // flush on the ground.
+                    bool isSleepingBagItem = false;
+                    try
+                    {
+                        var inst = __instance.ItemInstance;
+                        if (inst != null && inst.Pointer != IntPtr.Zero && !inst.WasCollected && inst.Definition != null && inst.Definition.Pointer != IntPtr.Zero)
+                        {
+                            isSleepingBagItem = string.Equals(inst.Definition.ID, Mod.CurrentConfig.SleepingBagItemId, StringComparison.OrdinalIgnoreCase);
+                        }
+                    }
+                    catch { }
 
-                    // Automatic pivot correction: prevents items from sinking into the ground if their pivot is centered
-                    vOffset += bottomOffset;
+                    float vOffset;
+                    if (isSleepingBagItem)
+                    {
+                        // [GroundFix v0.1.3] bottomOffset is measured from the ghost's colliders — but the
+                        // ghost is still the cloned BED hierarchy (WithGhostVisual only swaps the visual),
+                        // so the bed colliders reach ~1.5m below the pivot and bottomOffset reproduced
+                        // exactly the bed-verticalOffset lift this fix meant to remove. The procedural
+                        // bag's pivot IS its base (mesh spans y 0..0.20, BoxCollider y 0..0.36), so the
+                        // only correct vertical offset for the sleeping bag is zero.
+                        vOffset = 0f;
+                    }
+                    else
+                    {
+                        vOffset = 0f;
+                        try { vOffset = __instance.verticalOffset; } catch { }
+                        // Automatic pivot correction: prevents items from sinking into the ground if their pivot is centered
+                        vOffset += bottomOffset;
+                    }
 
                     bool isFreePlacement = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
 
@@ -269,7 +299,16 @@ public static class BuildingPatches
                 if (itemId.Equals(Mod.CurrentConfig.SleepingBagItemId, StringComparison.OrdinalIgnoreCase))
                 {
                     placedObj = SleepingBagItemFactory.CreateSleepingBagPrefab();
-                    placedObj.transform.position = spawnPos;
+                    // [GroundFix v0.1.3] spawnPos can still carry a leftover vertical lift (cloned-bed ghost
+                    // geometry, or vanilla verticalOffset re-applied between CheckIntersections and Place).
+                    // The bag's pivot is its base, so snap it flush onto the surface directly below —
+                    // same proven logic as the restore path (SnapToGround). No-op when already flush.
+                    Vector3 snappedSpawn = GroundPlacementAssistant.SnapToGround(spawnPos, 0.30f, 2.0f);
+                    if (Mathf.Abs(snappedSpawn.y - spawnPos.y) > 0.001f)
+                    {
+                        Mod.Log.Info($"[GroundFix] Placed sleeping bag snapped flush (y {spawnPos.y:F3} -> {snappedSpawn.y:F3}, delta {snappedSpawn.y - spawnPos.y:F3}).");
+                    }
+                    placedObj.transform.position = snappedSpawn;
                     placedObj.transform.rotation = spawnRot;
                     placedObj.SetActive(true);
                     SleepingBagItemFactory.SetupPlacedSleepingBag(placedObj);

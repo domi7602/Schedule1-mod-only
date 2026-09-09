@@ -451,7 +451,12 @@ public static class StreetPropertyManager
             if (record.ItemId.Equals(Mod.CurrentConfig.SleepingBagItemId, StringComparison.OrdinalIgnoreCase))
             {
                 var bag = SleepingBagItemFactory.CreateSleepingBagPrefab();
-                bag.transform.position = pos;
+                Vector3 snappedPos = GroundPlacementAssistant.SnapToGround(pos);
+                if (snappedPos.y != pos.y)
+                {
+                    Mod.Log.Info($"[GroundFix] Sleeping Bag was saved floating (y {pos.y:F2} -> {snappedPos.y:F2}) — snapped to ground.");
+                }
+                bag.transform.position = snappedPos;
                 bag.transform.rotation = rot;
                 bag.transform.SetParent(StreetRoot.transform, true);
                 SleepingBagItemFactory.SetupPlacedSleepingBag(bag);

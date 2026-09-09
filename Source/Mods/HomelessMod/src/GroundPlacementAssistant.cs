@@ -51,6 +51,40 @@ public static class GroundPlacementAssistant
         return mask != 0 ? mask : ~0;
     }
 
+    // [GroundFix v0.1.2] Ray mask for ground snapping — everything except Ignore Raycast & Player.
+    private static readonly int SnapRayMask = BuildSnapRayMask();
+
+    private static int BuildSnapRayMask()
+    {
+        int excludeMask = 0;
+        string[] layers = new[] { "Ignore Raycast", "Player" };
+        foreach (var layer in layers)
+        {
+            int idx = LayerMask.NameToLayer(layer);
+            if (idx >= 0)
+                excludeMask |= 1 << idx;
+            else
+                MelonLoader.MelonLogger.Warning($"[HomelessMod] Layer '{layer}' not found — not excluded from SnapRayMask.");
+        }
+        return ~excludeMask;
+    }
+
+    /// <summary>
+    /// [GroundFix v0.1.2] Snaps a world position onto the ground surface directly below it.
+    /// A short headroom probe (0.5m above the saved Y) means items resting correctly on a
+    /// roof/bridge stay there, while items saved floating (old bed-verticalOffset bug, ~1.5m)
+    /// drop onto the ground. Returns the original position if no ground is found within range.
+    /// </summary>
+    public static Vector3 SnapToGround(Vector3 pos, float headroom = 0.5f, float maxDrop = 3.0f)
+    {
+        Vector3 probe = new Vector3(pos.x, pos.y + headroom, pos.z);
+        if (Physics.Raycast(probe, Vector3.down, out RaycastHit hit, headroom + maxDrop, SnapRayMask, QueryTriggerInteraction.Ignore))
+        {
+            return new Vector3(pos.x, hit.point.y, pos.z);
+        }
+        return pos;
+    }
+
     public static GroundPlacementResult EvaluatePlacement(
         Vector3 rawHitPoint,
         Vector3 surfaceNormal,

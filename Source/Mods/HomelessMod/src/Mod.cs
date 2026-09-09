@@ -13,7 +13,7 @@ using S1API.Lifecycle;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(HomelessMod.Mod), "HomelessMod", "0.1.1", "Dominik")]
+[assembly: MelonInfo(typeof(HomelessMod.Mod), "HomelessMod", "0.1.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace HomelessMod;
@@ -65,7 +65,7 @@ public sealed class Mod : MelonMod
             Log.Warn($"Early config init: {ex.Message}");
         }
 
-        Log.Info($"Initializing Homeless Mod v0.1.1 (Everywhere Building: {CurrentConfig.EnableEverywhereBuilding}, Snap: {CurrentConfig.OutdoorGridSnapSize}m)");
+        Log.Info($"Initializing Homeless Mod v0.1.3 (Everywhere Building: {CurrentConfig.EnableEverywhereBuilding}, Snap: {CurrentConfig.OutdoorGridSnapSize}m)");
 
         // 1. Register IL2CPP Types
         try
