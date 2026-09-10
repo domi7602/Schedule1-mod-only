@@ -162,7 +162,10 @@ public static class LoadManager_RefreshSaveInfo_Patch
                     string tryPath = Directory.Exists(slotFolderNorm) ? slotFolderNorm : slotFolderPath;
                     try
                     {
-                        bool loaded = LoadManager.TryLoadSaveInfo(tryPath, i, out info, false);
+                        // Pass the 1-based slot number (matches folder SaveGame_{slotNumber}); vanilla stores
+                        // this value verbatim in SaveInfo.SaveSlotNumber, which the rename/delete guards
+                        // compare against ActiveSaveInfo.SaveSlotNumber.
+                        bool loaded = LoadManager.TryLoadSaveInfo(tryPath, slotNumber, out info, false);
                         if (verbose && loaded && info != null)
                             MelonLogger.Msg($"[MoreSaveSlots] Slot {slotNumber}: '{info.OrganisationName}' v{info.SaveVersion} {info.DateLastPlayed:yyyy-MM-dd HH:mm}");
                         else if (!loaded && _hasLoggedFirstScan == false)
@@ -176,7 +179,7 @@ public static class LoadManager_RefreshSaveInfo_Patch
                         }
                         else if (exists && !loaded && !_hasLoggedFirstScan)
                         {
-                            bool loaded2 = LoadManager.TryLoadSaveInfo(tryPath, i, out var info2, true);
+                            bool loaded2 = LoadManager.TryLoadSaveInfo(tryPath, slotNumber, out var info2, true);
                             if (loaded2 && info2 != null)
                             {
                                 info = info2;
