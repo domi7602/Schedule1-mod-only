@@ -17,7 +17,7 @@ Source/Mods/                  Mods + shared lib + Directory.Build.props/targets
 Source/Mods/S1Mods.sln        Solution (regeneratable via Tools/gen-sln.ps1)
 Source/Archive/               Archived mods (DayCounter, ProfitTracker, TVBrowser), Tests
 ThirdParty/                   External frameworks & mod sources (Sideload, hash, MoreDrugs, S1MCP)
-Tools/                        (empty after 2026-09 migration — scripts recoverable from git history)
+Tools/                        (restored 2026-09-10 except fix-knowledge-paths.ps1 — no Knowledge/ workspace)
 Release/                      Release packages
 .agents/skills/               (removed during 2026-09 migration — recoverable from git history)
 memory/                       Daily logs `memory/YYYY-MM-DD.md` + `memory-protocol.md`
@@ -73,7 +73,7 @@ A successful build deploys automatically (via `Directory.Build.targets`), with s
 
 `SkipUnchangedFiles` is set to `false` (since 2026-08-20) — every `dotnet build` force-deploys, eliminating stale-DLL traps.
 
-> **Post-reinstall status (2026-09-04):** The repo now lives **inside the game directory** (`<GameDir>\Schedule1-mod-only-main`). Setup restored: .NET SDK 8.0.424 installed, S1API 3.2.0 rebuilt from `ThirdParty/S1API/` and deployed (`local.build.props` created from `example.build.props`), NotesApp + Shared built as verification. Remaining mods: redeploy via `dotnet build` per mod. `Tools\` and `.agents/skills/` were intentionally removed during the migration (recoverable via `git checkout HEAD -- Tools/ .agents/`).
+> **Post-reinstall status (2026-09-04):** The repo now lives **inside the game directory** (`<GameDir>\Schedule1-mod-only-main`). Setup restored: .NET SDK 8.0.424 installed, S1API 3.2.0 rebuilt from `ThirdParty/S1API/` and deployed (`local.build.props` created from `example.build.props`), NotesApp + Shared built as verification. Remaining mods: redeploy via `dotnet build` per mod. `Tools\` and `.agents/skills/` were intentionally removed during the migration (recoverable via `git checkout HEAD -- Tools/ .agents/`). Update 2026-09-10: `Tools/` reaktiviert (ohne `fix-knowledge-paths.ps1`); Tests unter `Source/Tests/` (82 Tests grün); CI validiert Format + SLN-Determinismus immer, Build/Tests nur mit Spiel-Assemblies.
 
 ## Active Mods (as of 2026-09-10)
 

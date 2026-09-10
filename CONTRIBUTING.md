@@ -14,7 +14,7 @@ Danke für dein Interesse am `Schedule I Modding Workspace`! Diese Anleitung fas
 ```
 Source/Mods/          Mods + Shared lib + S1Mods.sln
 Source/Archive/       Archivierte Mods (nicht in SLN)
-Tools/                build-all.ps1, gen-sln.ps1, bump-version.ps1, package-release.ps1
+Tools/                build-all.ps1, gen-sln.ps1, bump-version.ps1, package-release.ps1, new-mod.ps1, backup-to-d.ps1
 Knowledge/            Decompiles, Analysen, Framework-Referenzen
 .agents/skills/       AI-Skills (schedule1-modding, -phoneapp, -s1api, ...)
 AGENTS.md             Inventar & Konventionen (Single Source of Truth)
@@ -52,14 +52,17 @@ dotnet build Source/Mods/S1Mods.sln -c Release
 # Einzelner Mod
 dotnet build Source/Mods/NotesApp/src/NotesApp.csproj -c Release
 
-# Tests (Shared)
+# Tests (Shared — braucht Spiel-Assemblies)
 dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj -c Release
+
+# Tests (AutoPack — reine Math-Logik, laeuft ueberall)
+dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release
 
 # Format prüfen (CI)
 dotnet format Source/Mods/S1Mods.sln --verify-no-changes
 
-# Knowledge-Links prüfen
-pwsh Tools/fix-knowledge-paths.ps1 -WhatIf -Scope XRef
+# Knowledge-Links (entfernt 2026-09-10 — Knowledge-Workspace existiert nicht mehr;
+# Skript bei Bedarf: git show 891c330^:Tools/fix-knowledge-paths.ps1)
 ```
 
 ## Version Bump (4-File Sync)

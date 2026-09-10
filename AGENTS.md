@@ -46,7 +46,7 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
   Source/Mods/        Mods + Shared lib (inkl. Shared/UITheme) + Directory.Build.props/targets + S1Mods.sln
   Source/Archive/     Archived mods (DayCounter, ProfitTracker, TVBrowser), Tests & reference decompiles
   ThirdParty/         External frameworks & mod sources (Sideload, hash, MoreDrugs, S1MCP)
-  Tools/              (leer nach Umzug 2026-09 — PowerShell-Helper in der Git-Historie)
+  Tools/              (reaktiviert 2026-09-10: build-all, gen-sln, new-mod, bump-version, package-release, backup-to-d; fix-knowledge-paths.ps1 bewusst nicht — Knowledge/ existiert nicht)
   Release/            Release packages (.gitkeep)
   .agents/skills/     (entfernt beim Umzug 2026-09 — in der Git-Historie)
   .githooks/          Pre-commit hook (dotnet format + gen-sln determinism)
@@ -278,7 +278,7 @@ pwsh Tools\gen-sln.ps1
 pwsh Tools\new-mod.ps1 -Name <ModName>
 ```
 
-> **Hinweis:** `Tools\` ist nach dem Umzug 2026-09 leer — die PowerShell-Helper (build-all, gen-sln, new-mod, bump-version, package-release) liegen in der Git-Historie (`git checkout HEAD -- Tools/`). Direkt nutzbar bleibt `dotnet build` (siehe oben).
+> **Hinweis:** `Tools\` wurde am 2026-09-10 aus der Git-Historie reaktiviert (alle Helper ausser `fix-knowledge-paths.ps1` — Knowledge/ existiert nicht mehr; Reaktivierung: `git show 891c330^:Tools/fix-knowledge-paths.ps1`).
 
 Deployment läuft **automatisch** via `Directory.Build.targets` — mit getrennten Zielen (Konvention seit Reinstall 2026-09):
 
@@ -388,8 +388,8 @@ s1interop analyze "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Sche
 
 ### CI & Quality Gates
 
-- **Local:** `dotnet format --verify-no-changes`, `pwsh Tools/gen-sln.ps1` (determinism check), `dotnet test Source/Archive/Tests/Shared.Tests/Shared.Tests.csproj`
-- **CI:** `.github/workflows/ci.yml` runs on push/PR (format + build + tests + gen-sln check + Knowledge path check)
+- **Local:** `dotnet format --verify-no-changes`, `pwsh Tools/gen-sln.ps1` (determinism check), `dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj` + `dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj` (Tests brauchen Spiel-Assemblies)
+- **CI:** `.github/workflows/ci.yml` runs on push/PR (format + game-gated build/tests + gen-sln check; Knowledge-XRef entfernt, Knowledge/ weg)
 - **Pre-commit:** `git config core.hooksPath .githooks` enables `.githooks/pre-commit` (format + gen-sln + XRef)
 - **License:** `LICENSE` (MIT workspace + Third-Party notices), `CONTRIBUTING.md` for contributors
 
