@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using MelonLoader;
+using S1Mods.Shared;
 
 [assembly: MelonInfo(typeof(_DiagPerfCounter.Mod), "_DiagPerfCounter", "0.3.0", "Diag")]
 [assembly: MelonGame("TVGS", "Schedule I")]
@@ -12,12 +13,13 @@ public sealed class Mod : MelonMod
 {
     public override void OnInitializeMelon()
     {
-        var path = Path.Combine(MelonLoader.Utils.MelonEnvironment.UserDataDirectory, "dump.txt");
+        string path = SafeStorage.GetUserDataPath("_DiagPerfCounter", "dump.txt");
+        SafeStorage.EnsureDirectoryForFile(path);
         using var sw = new StreamWriter(path, append: false);
         sw.WriteLine("=== Dumping StorageEntity ===");
         try
         {
-            Type[] typesToDump = new[] { 
+            Type[] typesToDump = new[] {
                 typeof(Il2CppScheduleOne.Storage.StorageEntity)
             };
             foreach (var t in typesToDump)
@@ -26,7 +28,7 @@ public sealed class Mod : MelonMod
                 foreach (var m in t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
                 {
                     sw.WriteLine($"Method: {m.Name}");
-                    foreach(var p in m.GetParameters())
+                    foreach (var p in m.GetParameters())
                     {
                         sw.WriteLine($"  param: {p.ParameterType.Name} {p.Name}");
                     }
@@ -37,6 +39,6 @@ public sealed class Mod : MelonMod
         {
             sw.WriteLine(ex.ToString());
         }
-        MelonLogger.Msg("Dumped methods to UserData/dump.txt");
+        MelonLogger.Msg("Dumped methods to UserData/_DiagPerfCounter/dump.txt");
     }
 }

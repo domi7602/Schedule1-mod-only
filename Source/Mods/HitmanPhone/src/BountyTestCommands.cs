@@ -16,8 +16,9 @@ using S1PlayerInventory = ScheduleOne.PlayerScripts.PlayerInventory;
 namespace HitmanPhone;
 
 /// <summary>
-/// Phase K — Test scaffolding.
+/// Phase K — Test scaffolding (DEBUG builds only — never registered in Release).
 /// </summary>
+#if DEBUG
 
 /// <summary>Force-fire a bounty call now.</summary>
 internal sealed class HitmanForceOfferCommand : BaseConsoleCommand
@@ -233,3 +234,4 @@ public static class BountyTestCommands
         return null;
     }
 }
+#endif

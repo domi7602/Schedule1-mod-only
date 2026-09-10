@@ -145,7 +145,7 @@ public static class BountyReceiptService
         string dropName;
         try { dropName = drop.DeadDropName ?? "?"; }
         catch { dropName = "?"; }
-        Mod.Log.Info($"[Receipt] DeadDrop '{dropName}' contents changed — scanning inventory.");
+        Mod.Log.Debug($"[Receipt] DeadDrop '{dropName}' contents changed — scanning inventory.");
 
         var items = GetAllItemsSafe(entity);
         if (items == null)
@@ -159,7 +159,7 @@ public static class BountyReceiptService
             if (item == null) continue;
             if (TryValidateAndPay(drop, entity, item)) return; // one payout per event is enough
         }
-        Mod.Log.Info($"[Receipt] scan of '{dropName}' found no payable polaroid ({items.Count} items).");
+        Mod.Log.Debug($"[Receipt] scan of '{dropName}' found no payable polaroid ({items.Count} items).");
     }
 
     /// <summary>
@@ -461,7 +461,7 @@ public static class BountyReceiptService
             {
                 if (string.Equals(s, BountyEvidenceItemRegistry.ItemId, StringComparison.OrdinalIgnoreCase))
                     return true;
-                Mod.Log.Info($"[Receipt] Item definition id '{s}' does not match polaroid '{BountyEvidenceItemRegistry.ItemId}'.");
+                Mod.Log.Debug($"[Receipt] Item definition id '{s}' does not match polaroid '{BountyEvidenceItemRegistry.ItemId}'.");
             }
             return false;
         }

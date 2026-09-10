@@ -121,6 +121,22 @@ public static class BountyConversationRouter
         return new[] { accept, decline, info };
     }
 
+    /// <summary>
+    /// IL2CPP-safe liveness check for the captured offer target. The Accept
+    /// closure can fire after a scene change that destroyed the native NPC —
+    /// a managed null check alone misses that and <c>target.ID</c> throws.
+    /// Mirrors the Pointer/WasCollected pattern in
+    /// <see cref="BountyReceiptService"/>.
+    /// </summary>
+    private static bool IsTargetAlive(S1NPC? target)
+    {
+#if (IL2CPPMELON)
+        return target != null && target.Pointer != System.IntPtr.Zero && !target.WasCollected;
+#else
+        return target != null;
+#endif
+    }
+
     private static void OnAccept(BountySaveData capturedSave, int callerIndex, S1NPC target, string body, float rewardCash)
     {
         try
@@ -145,7 +161,12 @@ public static class BountyConversationRouter
                 SendOfferExpiredNotice(callerIndex);
                 return;
             }
-            if (target == null) return;
+            if (!IsTargetAlive(target))
+            {
+                Mod.Log.Warn("OnAccept: bounty target is no longer alive (scene change?) — offer voided.");
+                SendOfferExpiredNotice(callerIndex);
+                return;
+            }
 
             string id = NewContractId();
             int now = HitmanPhoneTime.CurrentDay();

@@ -44,7 +44,22 @@ public static class BountyEvidenceItemRegistry
     /// <summary>The registered definition. Null until <see cref="Register"/> succeeds.</summary>
     public static S1ItemFramework.IntegerItemDefinition? Definition { get; private set; }
 
-    public static bool IsRegistered => Definition != null;
+    public static bool IsRegistered => Definition != null && IsAlive(Definition);
+
+    /// <summary>
+    /// IL2CPP-safe liveness check for the cached Unity objects. A scene change
+    /// can destroy the native Definition/Sprite while the managed static stays
+    /// non-null — using it then throws. Mirrors the Pointer/WasCollected
+    /// pattern in <see cref="Bounty.BountyReceiptService"/>.
+    /// </summary>
+    private static bool IsAlive(UnityEngine.Object? obj)
+    {
+#if (IL2CPPMELON)
+        return obj != null && obj.Pointer != System.IntPtr.Zero && !obj.WasCollected;
+#else
+        return obj != null;
+#endif
+    }
 
     /// <summary>
     /// Registers the polaroid in the game registry if it has not been registered yet.
@@ -53,8 +68,9 @@ public static class BountyEvidenceItemRegistry
     public static void Register()
     {
         if (IsRegistered) return;
+        Definition = null; // drop a scene-destroyed reference so the retry below starts clean
 
-        if (IconSprite == null)
+        if (!IsAlive(IconSprite))
         {
             IconSprite = LoadPolaroidSprite();
             if (IconSprite == null)
@@ -108,16 +124,18 @@ public static class BountyEvidenceItemRegistry
     /// </summary>
     public static S1ItemFramework.IntegerItemInstance? Spawn(int targetInstanceId)
     {
-        if (Definition == null)
+        if (Definition == null || !IsAlive(Definition))
         {
-            // First spawn in this session: register on demand. Expected path, not a failure.
-            Mod.Log.Debug("Polaroid Definition was null during Spawn() — attempting lazy re-registration.");
+            // First spawn in this session, or the cached Definition died with a
+            // scene change: register on demand. Expected path, not a failure.
+            Mod.Log.Debug("Polaroid Definition was null or destroyed during Spawn() — attempting lazy re-registration.");
+            Definition = null;
             Register();
         }
 
-        if (Definition == null)
+        if (Definition == null || !IsAlive(Definition))
         {
-            Mod.Log.Warn("Polaroid Spawn() failed: Definition is still null after re-registration.");
+            Mod.Log.Warn("Polaroid Spawn() failed: Definition is still null or destroyed after re-registration.");
             return null;
         }
         var instance = new S1ItemFramework.IntegerItemInstance(Definition, 1, targetInstanceId);

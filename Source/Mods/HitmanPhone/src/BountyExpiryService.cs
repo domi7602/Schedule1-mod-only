@@ -54,7 +54,7 @@ public static class BountyExpiryService
             if (c.Status != EBountyStatus.Active) continue;
             if (c.DeadlineDay <= 0) continue;
 
-            if (day >= c.DeadlineDay)
+            if (day > c.DeadlineDay)
             {
                 c.Status = EBountyStatus.Expired;
                 save.Active.RemoveAt(i);

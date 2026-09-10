@@ -84,7 +84,9 @@ public class Mod : MelonMod
             postfix: new HarmonyMethod(typeof(DeadDropPatch), nameof(DeadDropPatch.PostfixSetItemSlotQuantity)), log: Log);
 
         SaveStateGuard.TrySubscribeLifecycle();
+#if DEBUG
         BountyTestCommands.Register();
+#endif
     }
 
     public override void OnDeinitializeMelon()

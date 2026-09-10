@@ -1,0 +1,6 @@
+{
+  "name": "_DiagPerfCounter",
+  "author": "Diag",
+  "version": "0.3.0",
+  "description": "Diagnostic helper that dumps StorageEntity method signatures to UserData for mod development."
+}

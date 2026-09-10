@@ -34,6 +34,8 @@ public static class SaveStateGuard
     /// <summary>Cached last-known save slot. <c>-2</c> = "uninitialised".</summary>
     private static int _lastKnownSlot = -2;
 
+    private static bool _subscribed;
+
     /// <summary>Count of times a real slot switch was detected.</summary>
     private static int _slotSwitches;
     /// <summary>Count of times a same-slot menu reload was detected.</summary>
@@ -47,6 +49,8 @@ public static class SaveStateGuard
     /// </summary>
     public static void TrySubscribeLifecycle()
     {
+        if (_subscribed) return;
+        _subscribed = true;
         GameLifecycle.OnPreLoad += OnPreLoad;
         GameLifecycle.OnLoadComplete += OnLoadComplete;
         GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
@@ -61,6 +65,7 @@ public static class SaveStateGuard
         GameLifecycle.OnPreLoad -= OnPreLoad;
         GameLifecycle.OnLoadComplete -= OnLoadComplete;
         GameLifecycle.OnSaveInfoLoaded -= OnSaveInfoLoaded;
+        _subscribed = false;
     }
 
     private static bool _subscribedLogged;
