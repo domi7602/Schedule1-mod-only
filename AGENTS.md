@@ -96,7 +96,7 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 
 | Framework       | Status     | Source                                                                  | Deploy Path (Runtime)                  | Notes |
 |-----------------|------------|-------------------------------------------------------------------------|----------------------------------------|-------|
-| **Sideload 1.7.0** | 📦 lokal vorhanden (undeployed) | `ThirdParty/ScheduleOne-Sideload/` (ZIP + `Sideload_extracted/` inkl. `UserLibs/`) | `Sideload.dll` → `<Game>\Mods\`, AngleSharp + Jint + Esprima → `<Game>\UserLibs\` | DooDesch phone UI framework (HTML/CSS/JS on uGUI). Deploy siehe §3. |
+| **Sideload 1.7.0** | ❌ entfernt 2026-09-10 (deprecated, ungenutzt) | — | — | DooDesch HTML/CSS/JS-UI-Framework; kein Mod im Workspace hatte es je eingebunden. |
 | **hash 1.0.5**  | 📦 lokal vorhanden (undeployed, deprecated 2026-09-10) | `ThirdParty/ScheduleOne-Hash/` (ZIP + `Hash_extracted/`)              | `Hash.dll` → `<Game>\Mods\`            | DooDesch terminal replacement for the dev console. Nicht mehr genutzt — bleibt im Repo als Referenz. |
 | **PhoneScroll 1.4** | ✅ active (auto-deployed 2026-09-10) | `ThirdParty/PhoneScroll/` (DLL + `README.md`) | `PhoneScroll.dll` → `<Game>\Mods\` | V4LEXL auf NexusMods. Closed-Source. Scrollt das vanilla Phone-HomeScreen (Mask-Setup + AppIcons-Scroll). Whitelist via `ThirdParty/.deployignore`. Siehe `ThirdParty/PhoneScroll/README.md` fuer Verhalten + ScrollSpeed-Tuning. |
 | S1API 3.2.0      | ✅ active (Fork-Build, deployed 2026-09-04) | `ThirdParty/S1API/` (Source + `local.build.props`)               | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.dll` | (itself — see §4) |

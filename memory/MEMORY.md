@@ -142,6 +142,7 @@ Kompakte Historie; Details stehen in den Mod-`CHANGELOG.md`-Dateien und der Git-
 | 2026-09-10 | CI-Reparatur: Tools/ (6 Skripte) + Source/Tests/ (82 Tests) aus Historie reaktiviert, Build/Tests game-gated (hosted Runner grün), XRef-Step entfernt, bump-version Regex-Bug (v0.4.6f13-Korruption) + Package-Staging (UserData-Konvention) gefixt |
 | 2026-09-10 | PhoneScroll als 3rd-Party: DLL von NexusMods (V4LEXL v1.4) übernommen, auto-Deploy via `Tools/deploy-thirdparty.ps1` + `.deployignore`-Whitelist, Sideload/Hash/S1API/S1MAPI/S1MCP/MoreDrugs explizit ausgeschlossen, hash als deprecated markiert |
 | 2026-09-10 | Log-Cleanup: pre-existing `S1API.dll` (415 KB) und `Hash.dll` (188 KB) aus `<GameDir>\Mods\` entfernt (Reference Assemblies, lösten BadImageFormatException-Flood aus). S1MAPI in `UserLibs\` bleibt (AutoPackagingStation.GltfLoader aktiv). |
+| 2026-09-10 | Sideload komplett entfernt: `Sideload.dll` + `AngleSharp.dll` + `Esprima.dll` + `Jint.dll` aus `<GameDir>\Mods\` gelöscht, `ThirdParty/ScheduleOne-Sideload/` aus Repo entfernt. Kein Mod referenzierte es; S1APILoader-Race-Warning nun hinfällig. |
 
 ---
 
