@@ -141,6 +141,16 @@ public class Mod : MelonMod
             int elapsedDays = S1API.GameTime.TimeManager.ElapsedDays;
             var cfg = ModConfig<BusinessIncomeConfig>.Instance;
             var state = PayoutStateStore.GetState();
+
+            // Fresh state file (LastPaidElapsedDay = -1): seed it to the current day so installing
+            // the mod on an old save doesn't book every day since day 0 as windfall. Days after the
+            // install date still pay. States with a real last-paid day (>= 0) keep full catch-up.
+            if (state.LastPaidElapsedDay < 0)
+            {
+                state.LastPaidElapsedDay = elapsedDays;
+                Log.Info($"Fresh payout state: seeded last-paid day to current day {elapsedDays} (skipping save history).");
+            }
+
             int lastPaid = state.LastPaidElapsedDay;
 
             // H5: Pay all missed days, not just current (mod disabled, sleep skip)
