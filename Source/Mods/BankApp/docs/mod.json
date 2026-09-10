@@ -1,6 +1,6 @@
 {
   "name": "BankApp",
   "author": "Dominik",
-  "version": "0.1.0",
-  "description": "Mobile Banking Smartphone App for Schedule I with live balances, slot-aware deposits/withdrawals, weekly ATM limits, and save-slot isolated statement history."
+  "version": "0.4.0",
+  "description": "Mobile Banking Smartphone App for Schedule I. Chip-based single-screen UI: weekly ATM limit progress bar, cash & online balances, quick-amount chip grid ($1–$1000, Clear, MAX), deposit/withdraw tabs, one confirm button."
 }

@@ -73,7 +73,7 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 | **MoreSaveSlots**| ✅ active (v1.0.1, **verified 2026-08-14 / v0.4.6f13**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` | no (MelonMod + Harmony) |
 | **DayCounter**      | ⏸ archived (v1.0.0) | `Archive/DayCounter/` | — (removed from MelonLoader) | no (MelonMod + uGUI Screen HUD + TextMeshPro + S1API/Hash Console + ModConfig) |
 | **PocketShop** | ✅ active (v0.2.1, **verified 2026-08-17 / v0.4.6f13**) | `Mods/PocketShop/` | `PocketShop.dll` | yes (PhoneApp + Multi-Payment (Cash/Bank/Auto) + ItemDetailModal + SFX) |
-| **BankApp**    | ✅ active (v0.1.0, **verified 2026-08-17 / v0.4.6f13**) | `Mods/BankApp/`    | `BankApp.dll` + Icon | yes (PhoneApp + Mobile ATM + Double-Entry Booking + Slot-Awareness + Weekly Limit + Save-Slot Isolation) |
+| **BankApp**    | ✅ active (v0.3.0, **verified 2026-09-09 / v0.4.6f13**) | `Mods/BankApp/`    | `BankApp.dll` + Icon | yes (PhoneApp + Chip-Based Single-Screen UI + Weekly Limit Progress + Double-Entry Booking + Slot-Awareness + Save-Slot Isolation) |
 | **HomelessMod** | ✅ active (v0.1.1, **verified 2026-08-17 / v0.4.6f13**) | `Mods/HomelessMod/` | `HomelessMod.dll` | yes (Street Nomad + Everywhere Building + 3D Procedural Sleeping Bag + Quests + Console + Save-Slot Isolation) |
 | **BusinessIncome** | ✅ active (v0.1.0, **verified 2026-08-17 / v0.4.6f13**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | yes (Daily Passive Revenue + Multiplayer Host Authority + Slot Idempotency + Deterministic Variance + Console Dashboard) |
 | **Minimap**        | ✅ active (v1.0.1, **verified 2026-08-18 / v0.4.6f13**) | `Mods/Minimap/` | `Minimap.dll` | yes (Minimap & Unified HUD + Dual-Shape Circle/Square + Pooled Blips + DayCounter Merged + Drag-and-Drop) |
@@ -164,13 +164,11 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 - **Street Nomad Questline:** 3 staged quests (*Cold Concrete*, *Alley Operations*, *Street Sovereign*) via S1API Quests.
 - **Console Integration:** `homeless bag`, `homeless start`, `homeless stats`, `homeless help`.
 
-**BankApp v0.1.0 (2026-08-17, verified):**
-- **Digital Account Dashboard:** Live display of checking account (`onlineBalance`), cash on hand (`cashBalance`), and net worth (`NetWorth`).
-- **Slot-Aware Cash Deposits & Withdrawals:** Accurately calculates available inventory space (dedicated `CashSlot` + free hotbar slots at $1,000 max each) to fully prevent cash loss.
-- **Weekly ATM Limits:** Default-enabled $10,000 weekly limit (`RespectVanillaAtmLimit`) protects the vanilla money-laundering and ATM economy.
-- **Savegame Slot Isolation & SafeStorage:** Slot-specific persistence (`bank_slot_{slotId}.json`) with atomic write and automatic `.bak` backup.
-- **Audio Feedback & Input Focus:** Native cash register chime (`PlayCashSound`), procedural alert/buzzer tones, and IL2CPP focus safety hook (`BankAppInputFocus`) to prevent WASD character movement while typing.
-- **Responsive Method 3 UI:** Dynamic canvas scaling with Fintech dark theme (deep navy, emerald accent & sapphire blue).
+**BankApp v0.3.0 (2026-09-09):**
+- **Mockup-Based Redesign** (`docs/mockup-target-v0.3.0.png`): Weekly progress bar ($10k ATM limit), two-column balances (Cash | Online, teal), chip grid 2×5 ($1–$1000 + ✕ CLEAR + MAX accent), ⬇DEPOSIT/⬆WITHDRAW mode tabs, single full-width confirm button (green/orange by mode).
+- **Chip Interaction:** Chips ADD to the running amount; MAX fills mode-dependent maximum (max depositable cash vs. max withdrawable); CLEAR resets.
+- **Removed:** Free-text amount input + `BankAppInputFocus` (no typing in UI → WASD protection obsolete; IL2Cpp registration removed).
+- **Unchanged Backend:** Double-entry transactions (rollback on failure), slot capacity, weekly limit, slot-isolated persistence, audio.
 
 **BusinessIncome v0.1.0 (2026-08-17, verified):**
 - **Daily Passive Revenue:** Generates daily passive income for all owned businesses (`Business.OwnedBusinesses`) via online bank transfer through `S1API.Money.Money.CreateOnlineTransaction`.

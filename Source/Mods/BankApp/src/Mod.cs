@@ -7,7 +7,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(BankApp.Mod), "BankApp", "0.1.0", "Dominik")]
+[assembly: MelonInfo(typeof(BankApp.Mod), "BankApp", "0.4.0", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BankApp;
@@ -20,15 +20,6 @@ public class Mod : MelonMod
     {
         Log = new ModLogger("BankApp");
         ModConfig<BankAppConfig>.Initialize("BankApp", Log);
-
-        try
-        {
-            ClassInjector.RegisterTypeInIl2Cpp<BankAppInputFocus>();
-        }
-        catch
-        {
-            // Already registered or handled by MelonLoader attribute
-        }
 
         // H4: Slot isolation lifecycle — GameLifecycle is source of truth (OnSceneWasLoaded kept as secondary)
         try
@@ -78,6 +69,7 @@ public class Mod : MelonMod
         base.OnSceneWasUnloaded(buildIndex, sceneName);
         if (sceneName.Equals("Main", StringComparison.OrdinalIgnoreCase))
         {
+            BankApp.TearDownForSceneUnload();
             TransactionHistoryService.ResetForSceneUnload();
         }
     }

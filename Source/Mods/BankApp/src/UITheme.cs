@@ -20,6 +20,7 @@ public static class UITheme
 
     public static readonly Color AccentGreen = new(0.180f, 0.627f, 0.263f, 1f);
     public static readonly Color AccentBlue = new(0.220f, 0.545f, 0.992f, 1f);
+    public static readonly Color AccentTeal = new(0.161f, 0.796f, 0.725f, 1f);
     public static readonly Color AccentOrange = new(0.941f, 0.533f, 0.243f, 1f);
     public static readonly Color AccentRed = new(0.973f, 0.318f, 0.286f, 1f);
 

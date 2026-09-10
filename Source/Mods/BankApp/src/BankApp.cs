@@ -1,8 +1,8 @@
 using System;
 using System.IO;
+using BankApp.Config;
 using BankApp.Services;
 using BankApp.UI;
-using BankApp.UI.Panes;
 using MelonLoader;
 using MelonLoader.Utils;
 using S1API.PhoneApp;
@@ -13,17 +13,18 @@ using UnityEngine.UI;
 
 namespace BankApp;
 
-public enum BankTab
+public enum TransferMode
 {
-    Dashboard,
-    Transfer,
-    History
+    Deposit,
+    Withdraw
 }
 
 /// <summary>
-/// Mobile Banking Smartphone App for Schedule I (v0.1.0).
-/// Provides checking account balances, slot-aware deposits/withdrawals,
-/// weekly ATM limit tracking, and save-slot isolated statement logs.
+/// Mobile Banking Smartphone App for Schedule I (v0.4.0).
+/// Single-screen chip-based UI per target mockup (docs/mockup-target-v0.3.0.png):
+/// weekly progress bar, two-column balances, chip grid ($1..$1000 + Clear/MAX),
+/// deposit/withdraw mode tabs, one confirm button. No text input field.
+/// Uniform 38dp rows / 6dp grid gaps.
 /// </summary>
 public sealed class BankApp : PhoneApp
 {
@@ -37,35 +38,73 @@ public sealed class BankApp : PhoneApp
     protected override Sprite IconSprite => BuildIconSprite();
 
     private GameObject _mainBG = null!;
-    private BankAppInputFocus _focusHook = null!;
 
-    // Panes
-    private DashboardPane _dashboardPane = null!;
-    private TransferPane _transferPane = null!;
-    private HistoryPane _historyPane = null!;
+    // Uniform layout metrics — every interactive row is identical
+    private float RowHeight => UITheme.Dp(38f);
+    private float GridGap => UITheme.Dp(6f);
 
-    // Navigation Tabs
-    private Image _tabDashboardBg = null!;
-    private Text _tabDashboardText = null!;
-    private Image _tabTransferBg = null!;
-    private Text _tabTransferText = null!;
-    private Image _tabHistoryBg = null!;
-    private Text _tabHistoryText = null!;
+    // Weekly progress
+    private Text _weeklyValueText = null!;
+    private RectTransform _weeklyBarFill = null!;
 
-    private BankTab _currentTab = BankTab.Dashboard;
-    private float _lastStatsRefreshTime;
+    // Balances
+    private Text _cashText = null!;
+    private Text _onlineText = null!;
+
+    // Amount display
+    private Text _amountText = null!;
+
+    // Mode tabs
+    private Image _depositTabBg = null!;
+    private Text _depositTabText = null!;
+    private Image _withdrawTabBg = null!;
+    private Text _withdrawTabText = null!;
+
+    // MAX chip
+    private Image _maxChipBg = null!;
+
+    // Confirm button
+    private Image _confirmBtnBg = null!;
+    private Text _confirmBtnText = null!;
+
+    private Text _feedbackText = null!;
+
+    private TransferMode _mode = TransferMode.Deposit;
+    private float _enteredAmount;
+    private float _lastRefreshTime;
+
+    private static readonly (string label, float value)[] AmountChips =
+    {
+        ("$1", 1f), ("$5", 5f),
+        ("$10", 10f), ("$25", 25f),
+        ("$50", 50f), ("$100", 100f),
+        ("$500", 500f), ("$1000", 1000f),
+    };
+
+    // Fix (Bug-Audit 2026-09-10): the phone re-instantiates this app per scene load and the old
+    // per-instance handlers stayed in the static invocation lists forever. Static events now
+    // dispatch through _active, subscribed exactly once; Mod.OnSceneWasUnloaded clears _active
+    // when the gameplay scene tears down.
+    private static BankApp? _active;
+    private static bool _staticSubscribed;
 
     protected override void OnCreated()
     {
         base.OnCreated();
-        MelonEvents.OnUpdate.Unsubscribe(Update);
-        MelonEvents.OnUpdate.Subscribe(Update);
-        S1API.Money.Money.OnBalanceChanged -= OnExternalBalanceChanged;
-        S1API.Money.Money.OnBalanceChanged += OnExternalBalanceChanged;
-        TransactionHistoryService.OnHistoryChanged -= OnExternalBalanceChanged;
-        TransactionHistoryService.OnHistoryChanged += OnExternalBalanceChanged;
-        MelonLogger.Msg("Registered with S1API PhoneApp system (v0.1.0).");
+        _active = this;
+        if (_staticSubscribed) return;
+        _staticSubscribed = true;
+        MelonEvents.OnUpdate.Subscribe(DispatchUpdate);
+        S1API.Money.Money.OnBalanceChanged += DispatchBalanceChanged;
+        TransactionHistoryService.OnHistoryChanged += DispatchBalanceChanged;
+        MelonLogger.Msg("Registered with S1API PhoneApp system (v0.3.0).");
     }
+
+    internal static void TearDownForSceneUnload() => _active = null;
+
+    private static void DispatchUpdate() => _active?.Update();
+
+    private static void DispatchBalanceChanged() => _active?.OnExternalBalanceChanged();
 
     protected override void OnCreatedUI(GameObject container)
     {
@@ -75,166 +114,412 @@ public sealed class BankApp : PhoneApp
             UITheme.Initialize(containerRt);
         }
 
-        _focusHook = container.AddComponent<BankAppInputFocus>();
-
-        // 1. Root Isolated Background Panel
         _mainBG = UIFactory.Panel("BankApp_MainBG", container.transform, UITheme.BgDark, fullAnchor: true);
         _mainBG.SetActive(false);
 
         var vlg = _mainBG.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = 0f;
-        vlg.padding = new RectOffset(0, 0, 0, 0);
+        vlg.spacing = UITheme.Dp(6f);
+        vlg.padding = new RectOffset((int)UITheme.Dp(12f), (int)UITheme.Dp(12f), (int)UITheme.Dp(12f), (int)UITheme.Dp(14f));
         vlg.childControlWidth = true;
         vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true;
         vlg.childForceExpandHeight = false;
 
-        // 2. Top App Header Bar
-        BuildHeader(_mainBG.transform);
+        // 1. Weekly Progress (limit usage + bar)
+        BuildWeeklyCard(_mainBG.transform);
 
-        // 3. Tab Switcher Navigation Bar
-        BuildTabBar(_mainBG.transform);
+        // 2. Two-column balances
+        BuildBalanceCard(_mainBG.transform);
 
-        // 4. Content Area Hosting the 3 Panes
-        var contentArea = UIFactory.Panel("ContentArea", _mainBG.transform, Color.clear);
-        var contentLe = contentArea.GetComponent<LayoutElement>();
-        if (contentLe == null) contentLe = contentArea.AddComponent<LayoutElement>();
-        contentLe.flexibleHeight = 1f;
-        var contentRt = contentArea.GetComponent<RectTransform>();
+        // 3. Amount display row
+        BuildAmountRow(_mainBG.transform);
 
-        _dashboardPane = new DashboardPane(contentRt);
-        _dashboardPane.Build();
-        _dashboardPane.OnDepositClicked += () =>
-        {
-            _transferPane.SetMode(TransferMode.Deposit);
-            SwitchTab(BankTab.Transfer);
-        };
-        _dashboardPane.OnWithdrawClicked += () =>
-        {
-            _transferPane.SetMode(TransferMode.Withdraw);
-            SwitchTab(BankTab.Transfer);
-        };
-        _dashboardPane.OnViewAllHistoryClicked += () => SwitchTab(BankTab.History);
+        // 4. Deposit / Withdraw mode tabs
+        BuildModeTabs(_mainBG.transform);
 
-        _transferPane = new TransferPane(contentRt, _focusHook);
-        _transferPane.Build();
-        _transferPane.OnTransactionCompleted += () =>
-        {
-            _dashboardPane.Refresh();
-            _historyPane.Refresh();
-        };
+        // 5. Chip grid (4 rows of amount chips + Clear/MAX row)
+        BuildChipGrid(_mainBG.transform);
 
-        _historyPane = new HistoryPane(contentRt);
-        _historyPane.Build();
+        // 6. Confirm button
+        BuildConfirmButton(_mainBG.transform);
 
-        SwitchTab(BankTab.Dashboard);
+        // 7. Feedback line (fills remaining space)
+        _feedbackText = UIFactory.Text("FeedbackText", "", _mainBG.transform, UITheme.Sp(12), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _feedbackText.color = UITheme.AccentGreen;
+        _feedbackText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        var fbLe = _feedbackText.gameObject.AddComponent<LayoutElement>();
+        fbLe.minHeight = UITheme.Dp(22f);
+        fbLe.flexibleHeight = 1f;
+
+        UpdateModeVisuals();
+        RefreshAll();
     }
 
-    private void BuildHeader(Transform parent)
+    private void BuildWeeklyCard(Transform parent)
     {
-        var header = UIFactory.Panel("Header", parent, UITheme.HeaderBg);
-        var le = header.GetComponent<LayoutElement>();
-        if (le == null) le = header.AddComponent<LayoutElement>();
-        le.preferredHeight = UITheme.Dp(38f);
-        le.minHeight = UITheme.Dp(38f);
-        le.flexibleHeight = 0f;
+        var card = UIFactory.Panel("WeeklyCard", parent, UITheme.CardBg);
+        var cardLe = card.AddComponent<LayoutElement>();
+        cardLe.flexibleHeight = 0.4f;
+        var vlg = card.AddComponent<VerticalLayoutGroup>();
+        vlg.padding = new RectOffset((int)UITheme.Dp(12f), (int)UITheme.Dp(12f), (int)UITheme.Dp(10f), (int)UITheme.Dp(10f));
+        vlg.spacing = UITheme.Dp(8f);
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
 
-        var hlg = header.AddComponent<HorizontalLayoutGroup>();
-        hlg.padding = new RectOffset((int)UITheme.Dp(12f), (int)UITheme.Dp(12f), 0, 0);
-        hlg.childAlignment = TextAnchor.MiddleCenter;
+        var row = UIFactory.Panel("Row", card.transform, Color.clear);
+        row.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(24f);
+        var hlg = row.AddComponent<HorizontalLayoutGroup>();
         hlg.childControlWidth = true;
         hlg.childControlHeight = true;
         hlg.childForceExpandWidth = true;
         hlg.childForceExpandHeight = false;
 
-        // Left bank icon + title
-        var title = UIFactory.Text("Title", "🏛  PALMETTO BANK", header.transform, UITheme.Sp(12), TextAnchor.MiddleLeft, FontStyle.Bold);
-        title.color = UITheme.TextPrimary;
+        var lbl = UIFactory.Text("Label", "WEEKLY PROGRESS", row.transform, UITheme.Sp(12), TextAnchor.MiddleLeft, FontStyle.Bold);
+        lbl.color = UITheme.TextMuted;
 
-        // Right secure badge
-        var badge = UIFactory.Text("Badge", "🔒 256-BIT SECURE", header.transform, UITheme.Sp(8), TextAnchor.MiddleRight, FontStyle.Bold);
-        badge.color = UITheme.AccentGreen;
+        _weeklyValueText = UIFactory.Text("Value", "$ 0 / $ 10,000", row.transform, UITheme.Sp(12), TextAnchor.MiddleRight, FontStyle.Bold);
+        _weeklyValueText.color = UITheme.TextPrimary;
+
+        // Progress bar: track + anchored fill (track uses CardBorder so the empty
+        // bar stays visible at 0% progress instead of blending into the card)
+        var track = UIFactory.Panel("BarTrack", card.transform, UITheme.CardBorder);
+        track.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(9f);
+        var trackRt = track.GetComponent<RectTransform>();
+
+        var fill = UIFactory.Panel("BarFill", track.transform, UITheme.AccentTeal);
+        _weeklyBarFill = fill.GetComponent<RectTransform>();
+        _weeklyBarFill.anchorMin = Vector2.zero;
+        _weeklyBarFill.anchorMax = new Vector2(0f, 1f);
+        _weeklyBarFill.offsetMin = Vector2.zero;
+        _weeklyBarFill.offsetMax = Vector2.zero;
+        _ = trackRt; // track anchors are controlled by the parent VerticalLayoutGroup
     }
 
-    private void BuildTabBar(Transform parent)
+    private void BuildBalanceCard(Transform parent)
     {
-        var bar = UIFactory.Panel("TabBar", parent, UITheme.HeaderBg);
-        var le = bar.GetComponent<LayoutElement>();
-        if (le == null) le = bar.AddComponent<LayoutElement>();
-        le.preferredHeight = UITheme.Dp(32f);
-        le.minHeight = UITheme.Dp(32f);
-        le.flexibleHeight = 0f;
+        var card = UIFactory.Panel("BalanceCard", parent, UITheme.CardBg);
+        var cardLe = card.AddComponent<LayoutElement>();
+        cardLe.flexibleHeight = 0.6f;
+        var vlg = card.AddComponent<VerticalLayoutGroup>();
+        vlg.padding = new RectOffset((int)UITheme.Dp(12f), (int)UITheme.Dp(12f), (int)UITheme.Dp(10f), (int)UITheme.Dp(10f));
+        vlg.spacing = UITheme.Dp(2f);
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
 
-        var hlg = bar.AddComponent<HorizontalLayoutGroup>();
-        hlg.padding = new RectOffset((int)UITheme.Dp(8f), (int)UITheme.Dp(8f), (int)UITheme.Dp(2f), (int)UITheme.Dp(4f));
-        hlg.spacing = UITheme.Dp(4f);
-        hlg.childAlignment = TextAnchor.MiddleCenter;
+        var row = UIFactory.Panel("Cols", card.transform, Color.clear);
+        row.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(48f);
+        var hlg = row.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = UITheme.Dp(8f);
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = true;
+        hlg.childForceExpandHeight = false;
+
+        _cashText = BuildBalanceColumn(row.transform, "CashCol", "CASH BALANCE");
+        _onlineText = BuildBalanceColumn(row.transform, "OnlineCol", "ONLINE BALANCE");
+    }
+
+    private Text BuildBalanceColumn(Transform parent, string name, string label)
+    {
+        var col = UIFactory.Panel(name, parent, Color.clear);
+        col.AddComponent<LayoutElement>().flexibleWidth = 1f;
+        var vlg = col.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = UITheme.Dp(2f);
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+
+        var lbl = UIFactory.Text("Label", label, col.transform, UITheme.Sp(11), TextAnchor.MiddleLeft, FontStyle.Bold);
+        lbl.color = UITheme.TextMuted;
+
+        var value = UIFactory.Text("Value", "$ 0", col.transform, UITheme.Sp(19), TextAnchor.MiddleLeft, FontStyle.Bold);
+        value.color = UITheme.AccentTeal;
+
+        return value;
+    }
+
+    private void BuildAmountRow(Transform parent)
+    {
+        var card = UIFactory.Panel("AmountRow", parent, UITheme.CardBg);
+        var cardLe = card.AddComponent<LayoutElement>();
+        cardLe.flexibleHeight = 0.4f;
+        var vlg = card.AddComponent<VerticalLayoutGroup>();
+        vlg.padding = new RectOffset((int)UITheme.Dp(12f), (int)UITheme.Dp(12f), (int)UITheme.Dp(8f), (int)UITheme.Dp(8f));
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+
+        var row = UIFactory.Panel("Row", card.transform, Color.clear);
+        row.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(30f);
+        var hlg = row.AddComponent<HorizontalLayoutGroup>();
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = true;
+        hlg.childForceExpandHeight = false;
+
+        var lbl = UIFactory.Text("Label", "AMOUNT", row.transform, UITheme.Sp(12), TextAnchor.MiddleLeft, FontStyle.Bold);
+        lbl.color = UITheme.TextMuted;
+
+        _amountText = UIFactory.Text("Value", "$ 0", row.transform, UITheme.Sp(18), TextAnchor.MiddleRight, FontStyle.Bold);
+        _amountText.color = UITheme.TextPrimary;
+    }
+
+    private void BuildModeTabs(Transform parent)
+    {
+        var row = UIFactory.Panel("ModeTabs", parent, Color.clear);
+        row.AddComponent<LayoutElement>().preferredHeight = RowHeight; // v0.4.0: uniform row height (was 44dp)
+
+        var hlg = row.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = GridGap; // v0.4.0: matches chip grid gap (was 8dp)
         hlg.childControlWidth = true;
         hlg.childControlHeight = true;
         hlg.childForceExpandWidth = true;
         hlg.childForceExpandHeight = true;
 
-        // Tab 1: Dashboard
-        var t1 = UIFactory.Panel("Tab_Dash", bar.transform, UITheme.CardBg);
-        _tabDashboardBg = t1.GetComponent<Image>();
-        var t1Vlg = t1.AddComponent<VerticalLayoutGroup>();
-        t1Vlg.childAlignment = TextAnchor.MiddleCenter;
-        _tabDashboardText = UIFactory.Text("Lbl", "📊 Accounts", t1.transform, UITheme.Sp(9), TextAnchor.MiddleCenter, FontStyle.Bold);
-        var b1 = t1.AddComponent<Button>();
-        b1.transition = Selectable.Transition.None;
-        ButtonUtils.AddListener(b1, () =>
-        {
-            BankSoundService.PlayClick();
-            SwitchTab(BankTab.Dashboard);
-        });
+        // Deposit tab
+        var depTab = UIFactory.Panel("DepositTab", row.transform, UITheme.CardBgSecondary);
+        _depositTabBg = depTab.GetComponent<Image>();
+        var dVlg = depTab.AddComponent<VerticalLayoutGroup>();
+        dVlg.childAlignment = TextAnchor.MiddleCenter;
+        _depositTabText = UIFactory.Text("Label", "⬇  DEPOSIT", depTab.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
+        var depBtn = depTab.AddComponent<Button>();
+        depBtn.transition = Selectable.Transition.None;
+        ButtonUtils.AddListener(depBtn, () => SetMode(TransferMode.Deposit));
 
-        // Tab 2: Transfer
-        var t2 = UIFactory.Panel("Tab_Transfer", bar.transform, UITheme.CardBg);
-        _tabTransferBg = t2.GetComponent<Image>();
-        var t2Vlg = t2.AddComponent<VerticalLayoutGroup>();
-        t2Vlg.childAlignment = TextAnchor.MiddleCenter;
-        _tabTransferText = UIFactory.Text("Lbl", "⇄ Transfer", t2.transform, UITheme.Sp(9), TextAnchor.MiddleCenter, FontStyle.Bold);
-        var b2 = t2.AddComponent<Button>();
-        b2.transition = Selectable.Transition.None;
-        ButtonUtils.AddListener(b2, () =>
-        {
-            BankSoundService.PlayClick();
-            SwitchTab(BankTab.Transfer);
-        });
-
-        // Tab 3: History
-        var t3 = UIFactory.Panel("Tab_Hist", bar.transform, UITheme.CardBg);
-        _tabHistoryBg = t3.GetComponent<Image>();
-        var t3Vlg = t3.AddComponent<VerticalLayoutGroup>();
-        t3Vlg.childAlignment = TextAnchor.MiddleCenter;
-        _tabHistoryText = UIFactory.Text("Lbl", "📜 Statement", t3.transform, UITheme.Sp(9), TextAnchor.MiddleCenter, FontStyle.Bold);
-        var b3 = t3.AddComponent<Button>();
-        b3.transition = Selectable.Transition.None;
-        ButtonUtils.AddListener(b3, () =>
-        {
-            BankSoundService.PlayClick();
-            SwitchTab(BankTab.History);
-        });
+        // Withdraw tab
+        var withTab = UIFactory.Panel("WithdrawTab", row.transform, UITheme.CardBgSecondary);
+        _withdrawTabBg = withTab.GetComponent<Image>();
+        var wVlg = withTab.AddComponent<VerticalLayoutGroup>();
+        wVlg.childAlignment = TextAnchor.MiddleCenter;
+        _withdrawTabText = UIFactory.Text("Label", "⬆  WITHDRAW", withTab.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
+        var withBtn = withTab.AddComponent<Button>();
+        withBtn.transition = Selectable.Transition.None;
+        ButtonUtils.AddListener(withBtn, () => SetMode(TransferMode.Withdraw));
     }
 
-    private void SwitchTab(BankTab tab)
+    private void BuildChipGrid(Transform parent)
     {
-        _currentTab = tab;
+        // v0.4.0: 4 rows with 2 amount chips each (mockup: 2-col grid). The old
+        // fixed MAX slot is gone — MAX is now mode-aware (Withdraw only, accent
+        // chip) and its slot hosts a neutral placeholder in Deposit mode.
+        for (int r = 0; r < AmountChips.Length / 2; r++)
+        {
+            var (labelA, valueA) = AmountChips[r * 2];
+            var (labelB, valueB) = AmountChips[r * 2 + 1];
+            BuildChipRow(parent, (labelA, valueA), (labelB, valueB));
+        }
 
-        _dashboardPane?.SetActive(tab == BankTab.Dashboard);
-        _transferPane?.SetActive(tab == BankTab.Transfer);
-        _historyPane?.SetActive(tab == BankTab.History);
-
-        // Update tab pill highlights
-        if (_tabDashboardBg != null) _tabDashboardBg.color = tab == BankTab.Dashboard ? UITheme.AccentBlue : UITheme.CardBg;
-        if (_tabDashboardText != null) _tabDashboardText.color = tab == BankTab.Dashboard ? Color.white : UITheme.TextMuted;
-
-        if (_tabTransferBg != null) _tabTransferBg.color = tab == BankTab.Transfer ? UITheme.AccentBlue : UITheme.CardBg;
-        if (_tabTransferText != null) _tabTransferText.color = tab == BankTab.Transfer ? Color.white : UITheme.TextMuted;
-
-        if (_tabHistoryBg != null) _tabHistoryBg.color = tab == BankTab.History ? UITheme.AccentBlue : UITheme.CardBg;
-        if (_tabHistoryText != null) _tabHistoryText.color = tab == BankTab.History ? Color.white : UITheme.TextMuted;
+        // Last row: Clear + MAX
+        BuildChipRow(parent, ("✕ CLEAR", null), ("MAX", float.NaN));
     }
+
+    private (GameObject left, GameObject right) BuildChipRow(Transform parent, (string label, float? value) left, (string label, float? value) right)
+    {
+        var row = UIFactory.Panel("ChipRow", parent, Color.clear);
+        var rowLe = row.AddComponent<LayoutElement>();
+        rowLe.preferredHeight = RowHeight; // v0.4.0: fixed height — no flexibleHeight, no uneven rows
+        rowLe.minHeight = RowHeight;
+
+        var hlg = row.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = GridGap;
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = true;
+        hlg.childForceExpandHeight = true;
+
+        var l = BuildChip(row.transform, left.label, left.value);
+        var r = BuildChip(row.transform, right.label, right.value);
+        return (l, r);
+    }
+
+    private GameObject BuildChip(Transform parent, string label, float? value)
+    {
+        bool isAction = value == null;           // Clear
+        bool isAccent = float.IsNaN(value ?? 0f) && value != null; // MAX
+
+        var chipGO = UIFactory.Panel($"Chip_{label.Replace("$", "").Replace("✕ ", "")}",
+            parent, isAccent ? UITheme.AccentBlue : UITheme.CardBgSecondary);
+        if (isAccent)
+        {
+            _maxChipBg = chipGO.GetComponent<Image>();
+        }
+        var chipLe = chipGO.AddComponent<LayoutElement>();
+        chipLe.flexibleWidth = 1f;
+        var chipVlg = chipGO.AddComponent<VerticalLayoutGroup>();
+        chipVlg.childAlignment = TextAnchor.MiddleCenter;
+        chipVlg.childControlWidth = false;
+        chipVlg.childControlHeight = false;
+        chipVlg.childForceExpandWidth = false;
+        chipVlg.childForceExpandHeight = false;
+
+        var txt = UIFactory.Text("Txt", label, chipGO.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
+        txt.color = isAccent ? Color.white : UITheme.TextPrimary;
+
+        var btn = chipGO.AddComponent<Button>();
+        btn.transition = Selectable.Transition.ColorTint;
+        ButtonUtils.AddListener(btn, () =>
+        {
+            BankSoundService.PlayClick();
+            if (value == null)
+            {
+                ClearAmount();
+            }
+            else if (float.IsNaN(value.Value))
+            {
+                ApplyMaxAmount();
+            }
+            else
+            {
+                AddAmount(value.Value);
+            }
+        });
+        return chipGO;
+    }
+
+    private void BuildConfirmButton(Transform parent)
+    {
+        var btnGO = UIFactory.Panel("ConfirmBtn", parent, UITheme.AccentGreen);
+        _confirmBtnBg = btnGO.GetComponent<Image>();
+        btnGO.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(52f);
+
+        var vlg = btnGO.AddComponent<VerticalLayoutGroup>();
+        vlg.childAlignment = TextAnchor.MiddleCenter;
+
+        _confirmBtnText = UIFactory.Text("Label", "DEPOSIT", btnGO.transform, UITheme.Sp(16), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _confirmBtnText.color = Color.white;
+
+        var btn = btnGO.AddComponent<Button>();
+        btn.transition = Selectable.Transition.ColorTint;
+        ButtonUtils.AddListener(btn, ExecuteTransaction);
+    }
+
+    // --- Actions -----------------------------------------------------------
+
+    private void SetMode(TransferMode mode)
+    {
+        if (_mode == mode) return;
+        BankSoundService.PlayClick();
+        _mode = mode;
+        ClearAmount();
+        UpdateModeVisuals();
+    }
+
+    private void AddAmount(float delta)
+    {
+        _enteredAmount += delta;
+        UpdateAmountDisplay();
+    }
+
+    private void ClearAmount()
+    {
+        _enteredAmount = 0f;
+        UpdateAmountDisplay();
+    }
+
+    private void ApplyMaxAmount()
+    {
+        _enteredAmount = _mode == TransferMode.Deposit
+            ? BankService.GetMaxDepositableCash()
+            : BankService.GetMaxWithdrawableCash();
+        UpdateAmountDisplay();
+    }
+
+    private void ExecuteTransaction()
+    {
+        if (_enteredAmount <= 0f)
+        {
+            SetFeedback("Select an amount first.", isError: true);
+            BankSoundService.PlayError();
+            return;
+        }
+
+        bool success = _mode == TransferMode.Deposit
+            ? BankService.DepositCash(_enteredAmount, out string errorMsg)
+            : BankService.WithdrawCash(_enteredAmount, out errorMsg);
+
+        if (success)
+        {
+            SetFeedback($"{(_mode == TransferMode.Deposit ? "Deposited" : "Withdrew")} $ {_enteredAmount:N0}.", isError: false);
+            ClearAmount();
+        }
+        else
+        {
+            SetFeedback(errorMsg, isError: true);
+        }
+
+        RefreshAll();
+    }
+
+    private void UpdateAmountDisplay()
+    {
+        if (_amountText != null) _amountText.text = $"$ {_enteredAmount:N0}";
+    }
+
+    private void UpdateModeVisuals()
+    {
+        bool isDep = _mode == TransferMode.Deposit;
+
+        if (_depositTabBg != null) _depositTabBg.color = isDep ? UITheme.AccentBlue : UITheme.CardBgSecondary;
+        if (_depositTabText != null) _depositTabText.color = isDep ? Color.white : UITheme.TextMuted;
+
+        if (_withdrawTabBg != null) _withdrawTabBg.color = !isDep ? UITheme.AccentBlue : UITheme.CardBgSecondary;
+        if (_withdrawTabText != null) _withdrawTabText.color = !isDep ? Color.white : UITheme.TextMuted;
+
+        if (_maxChipBg != null) _maxChipBg.color = isDep ? UITheme.AccentBlue : UITheme.AccentOrange;
+
+        if (_confirmBtnBg != null) _confirmBtnBg.color = isDep ? UITheme.AccentGreen : UITheme.AccentOrange;
+        if (_confirmBtnText != null) _confirmBtnText.text = isDep ? "⬇  DEPOSIT" : "⬆  WITHDRAW";
+    }
+
+    private void SetFeedback(string text, bool isError)
+    {
+        if (_feedbackText != null)
+        {
+            _feedbackText.text = text;
+            _feedbackText.color = isError ? UITheme.AccentRed : UITheme.AccentGreen;
+        }
+    }
+
+    private void RefreshAll()
+    {
+        float cash = BankService.GetCashBalance();
+        float online = BankService.GetOnlineBalance();
+        if (_cashText != null) _cashText.text = $"$ {cash:N0}";
+        if (_onlineText != null) _onlineText.text = $"$ {online:N0}";
+
+        // Weekly deposit progress against vanilla ATM limit
+        bool limitEnabled = S1Mods.Shared.ModConfig<BankAppConfig>.Instance.RespectVanillaAtmLimit;
+        if (limitEnabled)
+        {
+            float remaining = BankService.GetRemainingWeeklyAtmLimit();
+            float deposited = Mathf.Max(0f, BankService.VanillaWeeklyAtmLimit - remaining);
+            float fraction = Mathf.Clamp01(deposited / BankService.VanillaWeeklyAtmLimit);
+
+            if (_weeklyValueText != null)
+            {
+                _weeklyValueText.text = $"$ {deposited:N0} / $ {BankService.VanillaWeeklyAtmLimit:N0}";
+                _weeklyValueText.color = fraction >= 1f ? UITheme.AccentRed : UITheme.TextPrimary;
+            }
+            if (_weeklyBarFill != null) _weeklyBarFill.anchorMax = new Vector2(fraction, 1f);
+        }
+        else
+        {
+            if (_weeklyValueText != null)
+            {
+                _weeklyValueText.text = "NO LIMIT";
+                _weeklyValueText.color = UITheme.AccentGreen;
+            }
+            if (_weeklyBarFill != null) _weeklyBarFill.anchorMax = new Vector2(0f, 1f);
+        }
+    }
+
+    // --- Lifecycle ---------------------------------------------------------
 
     private void Update()
     {
@@ -242,74 +527,37 @@ public sealed class BankApp : PhoneApp
         if (_mainBG != null && _mainBG.activeSelf != open)
         {
             _mainBG.SetActive(open);
-            if (open)
-            {
-                OnAppOpened();
-            }
+            if (open) RefreshAll();
         }
 
-        if (open)
+        if (!open) return;
+
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                if (_currentTab != BankTab.Dashboard)
-                {
-                    BankSoundService.PlayClick();
-                    SwitchTab(BankTab.Dashboard);
-                }
-                else
-                {
-                    CloseApp();
-                }
-            }
-
-            if (Time.unscaledTime - _lastStatsRefreshTime > 1.5f)
-            {
-                _lastStatsRefreshTime = Time.unscaledTime;
-                RefreshActivePane();
-            }
+            CloseApp();
         }
-    }
 
-    private void OnAppOpened()
-    {
-        _dashboardPane?.Refresh();
-        _transferPane?.Refresh();
-        _historyPane?.Refresh();
+        if (Time.unscaledTime - _lastRefreshTime > 1.5f)
+        {
+            _lastRefreshTime = Time.unscaledTime;
+            RefreshAll();
+        }
     }
 
     private void OnExternalBalanceChanged()
     {
-        if (IsOpen())
-        {
-            RefreshActivePane();
-        }
-    }
-
-    private void RefreshActivePane()
-    {
-        switch (_currentTab)
-        {
-            case BankTab.Dashboard:
-                _dashboardPane?.Refresh();
-                break;
-            case BankTab.Transfer:
-                _transferPane?.Refresh();
-                break;
-            case BankTab.History:
-                _historyPane?.Refresh();
-                break;
-        }
+        if (IsOpen()) RefreshAll();
     }
 
     protected override void OnPhoneClosed()
     {
         base.OnPhoneClosed();
         if (_mainBG != null) _mainBG.SetActive(false);
-        if (_focusHook != null) _focusHook.amountInput = null;
-        _currentTab = BankTab.Dashboard;
+        _enteredAmount = 0f;
+        _mode = TransferMode.Deposit;
+        UpdateAmountDisplay();
+        UpdateModeVisuals();
         // Update bleibt lebenslang subscribed (defensives Unsubscribe-Subscribe in OnCreated).
-        // Balance/History-Handler bleiben ebenfalls subscribed (Events sind statisch, kein Leak-Risiko durch Phone-Cycle).
     }
 
     private static Sprite BuildIconSprite()
@@ -337,7 +585,7 @@ public sealed class BankApp : PhoneApp
             MelonLogger.Warning($"Failed to load icon file: {ex.Message}");
         }
 
-        // 2. Procedural Fallback (Sapphire blue background with bank vault emblem)
+        // 2. Procedural Fallback (Sapphire blue circle)
         try
         {
             var tex = new Texture2D(128, 128, TextureFormat.RGBA32, false);
@@ -354,7 +602,6 @@ public sealed class BankApp : PhoneApp
 
                     if (dist <= radius)
                     {
-                        // Gradient sapphire blue circle
                         float t = (float)y / 128f;
                         pixels[y * 128 + x] = Color.Lerp(new Color(0.12f, 0.35f, 0.85f, 1f), new Color(0.25f, 0.60f, 1.0f, 1f), t);
                     }
