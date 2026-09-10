@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Text.Json;
 
@@ -18,6 +19,10 @@ public static class SafeStorage
         ReadCommentHandling = JsonCommentHandling.Skip,
         AllowTrailingCommas = true
     };
+
+    private static readonly ConcurrentDictionary<string, object> SaveLocks = new();
+
+    private static object GetLock(string filePath) => SaveLocks.GetOrAdd(filePath, _ => new object());
 
     /// <summary>
     /// Liefert den Standard-Pfad unter UserData/<ModName>/<FileName>.
@@ -93,25 +98,28 @@ public static class SafeStorage
         try
         {
             EnsureDirectoryForFile(filePath);
-            string tempPath = filePath + ".tmp";
-            string backupPath = filePath + ".bak";
-
-            File.WriteAllText(tempPath, content);
-
-            if (File.Exists(filePath))
+            lock (GetLock(filePath))
             {
-                try
-                {
-                    File.Copy(filePath, backupPath, true);
-                }
-                catch (Exception ex)
-                {
-                    log?.Warn($"SafeStorage: Backup-Kopie '{Path.GetFileName(backupPath)}' fehlgeschlagen: {ex.Message}");
-                }
-            }
+                string tempPath = filePath + ".tmp";
+                string backupPath = filePath + ".bak";
 
-            File.Move(tempPath, filePath, true);
-            return true;
+                File.WriteAllText(tempPath, content);
+
+                if (File.Exists(filePath))
+                {
+                    try
+                    {
+                        File.Copy(filePath, backupPath, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        log?.Warn($"SafeStorage: Backup-Kopie '{Path.GetFileName(backupPath)}' fehlgeschlagen: {ex.Message}");
+                    }
+                }
+
+                File.Move(tempPath, filePath, true);
+                return true;
+            }
         }
         catch (Exception ex)
         {

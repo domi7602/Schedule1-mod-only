@@ -13,6 +13,8 @@ public static class UITheme
 
     public static void Initialize(RectTransform containerRt, float refHeight = 750f, float minScale = 0.85f, float maxScale = 2.0f)
     {
+        if (refHeight <= 0f)
+            refHeight = RefHeight;
         if (containerRt == null)
         {
             ActualHeight = refHeight;

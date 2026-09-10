@@ -110,6 +110,7 @@ public class Mod : MelonMod
             Log.Debug($"OnDayPass event received (day {elapsedDays}). Executing midnight payout...");
             IncomeEngine.TryExecuteDailyPayout(elapsedDays, cfg);
         }
+        CheckCatchupPayout();
     }
 
     private void OnHourPass()

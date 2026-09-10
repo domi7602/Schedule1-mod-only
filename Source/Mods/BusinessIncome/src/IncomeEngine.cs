@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using BusinessIncome.Config;
 using BusinessIncome.Models;
@@ -125,7 +126,7 @@ public static class IncomeEngine
 
         if (isDryRun)
         {
-            Mod.Log.Info($"[DRY RUN] Day {elapsedDays}: Gross ${totalGross:N2}, Costs ${totalCosts:N2}, Net ${totalNet:N2} ({lines.Count} businesses).");
+            Mod.Log.Info($"[DRY RUN] Day {elapsedDays}: Gross ${totalGross.ToString("N2", CultureInfo.InvariantCulture)}, Costs ${totalCosts.ToString("N2", CultureInfo.InvariantCulture)}, Net ${totalNet.ToString("N2", CultureInfo.InvariantCulture)} ({lines.Count} businesses).");
             return true;
         }
 
@@ -142,9 +143,9 @@ public static class IncomeEngine
 
         try
         {
-            string summaryNote = $"Daily Revenue ({lines.Count} businesses): +${totalNet:N0}";
+            string summaryNote = $"Daily Revenue ({lines.Count} businesses): +${totalNet.ToString("N0", CultureInfo.InvariantCulture)}";
             Money.CreateOnlineTransaction("Business Revenue", totalNet, 1f, summaryNote);
-            Mod.Log.Info($"[Payout] Day {elapsedDays}: +${totalNet:N2} booked ({lines.Count} businesses).");
+            Mod.Log.Info($"[Payout] Day {elapsedDays}: +${totalNet.ToString("N2", CultureInfo.InvariantCulture)} booked ({lines.Count} businesses).");
         }
         catch (Exception ex)
         {
@@ -184,7 +185,7 @@ public static class IncomeEngine
             if (notifMgr != null && (UnityEngine.Object)notifMgr != null)
             {
                 string title = "Business Revenue";
-                string sub = $"+${totalNet:N0} from {businessCount} {(businessCount == 1 ? "business" : "businesses")}";
+                string sub = $"+${totalNet.ToString("N0", CultureInfo.InvariantCulture)} from {businessCount} {(businessCount == 1 ? "business" : "businesses")}";
                 notifMgr.SendNotification(title, sub, null!, 5f, playSound);
             }
         }

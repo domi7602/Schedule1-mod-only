@@ -69,6 +69,7 @@ public static class PatchGuard
 
         if (prefix == null && postfix == null && transpiler == null && finalizer == null)
         {
+            PatchesFailed++;
             string name = original?.Name ?? "unknown";
             log?.Warn($"PatchGuard: Keine HarmonyMethod für '{name}' angegeben — No-Op, übersprungen.");
             return false;

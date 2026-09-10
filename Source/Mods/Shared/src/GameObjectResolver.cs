@@ -72,6 +72,7 @@ public static class GameObjectResolver
 
         string[] segments = path.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
         Transform? current = root.transform;
+        int matched = 0;
 
         foreach (string segment in segments)
         {
@@ -82,8 +83,12 @@ public static class GameObjectResolver
             if (next != null)
             {
                 current = next;
+                matched++;
             }
         }
+
+        if (matched == 0)
+            return null;
 
         return current?.gameObject;
     }

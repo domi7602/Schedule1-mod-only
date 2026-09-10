@@ -101,24 +101,24 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
             {
                 string staffStr = l.EmployeeCount > 0 ? $"+{l.EmployeeBonusPercent * 100:0}%" : "-";
                 string varStr = $"{l.VarianceFactor * 100:0}%";
-                sb.AppendLine(string.Format("{0,-18} {1,5:0.00} {2,6} {3,7} {4,8:C0} {5,8:C0}",
+                sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0,-18} {1,5:0.00} {2,6} {3,7} {4,8} {5,8}",
                     Truncate(l.DisplayName, 18),
                     l.Multiplier,
                     staffStr,
                     varStr,
-                    l.GrossRevenue,
-                    l.NetRevenue));
+                    "$" + l.GrossRevenue.ToString("N0", CultureInfo.InvariantCulture),
+                    "$" + l.NetRevenue.ToString("N0", CultureInfo.InvariantCulture)));
             }
 
             sb.AppendLine("<color=#444444>--------------------------------------------------</color>");
-            sb.AppendLine(string.Format("{0,-18} {1,5} {2,6} {3,7} {4,8:C0} {5,8:C0}",
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0,-18} {1,5} {2,6} {3,7} {4,8} {5,8}",
                 "TOTAL (" + lines.Count + ")",
                 "-",
                 "-",
                 "-",
-                totalGross,
-                totalNet));
-            sb.AppendLine($"<color=#aaaaaa>Operating Costs:</color> -${totalCosts:N2} ({config.OperatingCostRate * 100:0}%)");
+                "$" + totalGross.ToString("N0", CultureInfo.InvariantCulture),
+                "$" + totalNet.ToString("N0", CultureInfo.InvariantCulture)));
+            sb.AppendLine($"<color=#aaaaaa>Operating Costs:</color> -${totalCosts.ToString("N2", CultureInfo.InvariantCulture)} ({config.OperatingCostRate * 100:0}%)");
         }
 
         sb.AppendLine("<color=#60f080>==================================================</color>");
@@ -142,7 +142,7 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
             Print($"<color=#ffaa00>Running simulation (dry-run) for day {elapsedDays}...</color>");
             IncomeEngine.TryExecuteDailyPayout(elapsedDays, config, force: true, commit: false, isDryRun: true);
             var (_, _, _, totalNet) = IncomeEngine.GetDailyRevenuePreview(elapsedDays, config);
-            Print($"<color=#60f080>Simulation complete: net revenue would be +${totalNet:N2}.</color>");
+            Print($"<color=#60f080>Simulation complete: net revenue would be +${totalNet.ToString("N2", CultureInfo.InvariantCulture)}.</color>");
             Print("<color=#888888>Tip: Use 'biz trigger --commit' for a real bank transfer.</color>");
         }
         else
@@ -166,7 +166,7 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
         var sb = new StringBuilder();
         sb.AppendLine("<color=#60f080>[BusinessIncome Configuration]</color>");
         sb.AppendLine($"  PayoutHour:              {cfg.PayoutHour} (0 = Midnight / DayPass)");
-        sb.AppendLine($"  DefaultBaseIncome:       ${cfg.DefaultBaseIncome:N2}");
+        sb.AppendLine($"  DefaultBaseIncome:       ${cfg.DefaultBaseIncome.ToString("N2", CultureInfo.InvariantCulture)}");
         sb.AppendLine($"  OperatingCostRate:       {cfg.OperatingCostRate * 100:0}%");
         sb.AppendLine($"  EmployeeBonusPerWorker:  +{cfg.EmployeeBonusPerWorker * 100:0}% (Max: +{cfg.MaxEmployeeBonus * 100:0}%)");
         sb.AppendLine($"  WeekendBonusRate:        +{cfg.WeekendBonusRate * 100:0}%");
@@ -175,7 +175,7 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
         sb.AppendLine("  Multipliers:");
         foreach (var kvp in cfg.PropertyMultipliers)
         {
-            sb.AppendLine($"    - {kvp.Key}: {kvp.Value:0.00}x");
+            sb.AppendLine($"    - {kvp.Key}: {kvp.Value.ToString("0.00", CultureInfo.InvariantCulture)}x");
         }
         Print(sb.ToString());
     }
@@ -200,7 +200,7 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
                 {
                     ModConfig<BusinessIncomeConfig>.SetAndSave("DefaultBaseIncome", baseVal);
                     ConfigJsonStore.Save(ModConfig<BusinessIncomeConfig>.Instance);
-                    Print($"<color=#60f080>DefaultBaseIncome set to ${baseVal:N2}.</color>");
+                    Print($"<color=#60f080>DefaultBaseIncome set to ${baseVal.ToString("N2", CultureInfo.InvariantCulture)}.</color>");
                 }
                 else Print("<color=#ff6060>Invalid number value.</color>");
                 return;

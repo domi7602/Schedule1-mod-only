@@ -19,9 +19,15 @@ public static class AudioHelper
     private static void EnsureAudioSource()
     {
         if (_audioSource != null && _audioSource.Pointer != IntPtr.Zero && !_audioSource.WasCollected && _audioSource.gameObject != null && _audioSource.gameObject.Pointer != IntPtr.Zero) return;
-        // Clean up stale host if source was destroyed
-        if (_audioHost != null && (_audioHost.Pointer == IntPtr.Zero || _audioHost.WasCollected))
+        // Clean up stale host if source was destroyed (destroy surviving host to avoid orphans)
+        if (_audioHost != null)
         {
+            try
+            {
+                if (_audioHost.Pointer != IntPtr.Zero && !_audioHost.WasCollected)
+                    UnityEngine.Object.Destroy(_audioHost);
+            }
+            catch { }
             _audioHost = null;
             _audioSource = null;
         }

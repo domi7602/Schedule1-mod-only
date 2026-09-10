@@ -128,7 +128,10 @@ public static class ModConfig<T> where T : class, new()
     public static void SetAndSave(string propertyName, object? value)
     {
         if (!_propertyCache.TryGetValue(propertyName, out PropertyInfo? prop) || !prop.CanWrite)
+        {
+            LogWarn($"SetAndSave: unknown or unwritable property '{propertyName}' — ignored.");
             return;
+        }
 
         object? convertedVal = value;
         try
