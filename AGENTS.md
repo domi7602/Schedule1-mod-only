@@ -88,6 +88,7 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 | **AutoPackagingStation** | ✅ active (v0.2.2, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | yes (4x4 Industrial Packaging Line + UV Scroll Conveyor + Native Slot Sync + SafeStorage + Shop Injection) |
 | **HitmanPhone** | ✅ active (v0.2.2, **dok. 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | yes (MessagesApp Contracts + NPC + Items + Quests + SafeStorage) |
 | **_DiagPerfCounter** | ✅ active (v0.3.1, **Dev-Tool, dok. 2026-09-10**) | `Mods/_DiagPerfCounter/` | `_DiagPerfCounter.dll` | no (Reflection-Dump via SafeStorage-Pfad) |
+| **PhoneScroll** | ✅ active (v1.4, **by V4LEXL, 3rd-party Closed-Source, deployed 2026-09-10**) | `ThirdParty/PhoneScroll/` | `PhoneScroll.dll` | no (vanilla Phone-HomeScreen-Hook) |
 | **Shared**       | ✅ active (workspace lib, **verified 2026-08-20**) | `Mods/Shared/` | `Shared.dll` | no (PatchGuard, SafeStorage, GameObjectResolver, SafeInvoker, HotkeyManager, ModConfig, ModLogger, NetworkGuard, SceneGate, TypeResolver, UITheme) |
 | S1API 3.2.0      | ✅ active        | —                      | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | (itself) |
 
@@ -96,7 +97,8 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 | Framework       | Status     | Source                                                                  | Deploy Path (Runtime)                  | Notes |
 |-----------------|------------|-------------------------------------------------------------------------|----------------------------------------|-------|
 | **Sideload 1.7.0** | 📦 lokal vorhanden (undeployed) | `ThirdParty/ScheduleOne-Sideload/` (ZIP + `Sideload_extracted/` inkl. `UserLibs/`) | `Sideload.dll` → `<Game>\Mods\`, AngleSharp + Jint + Esprima → `<Game>\UserLibs\` | DooDesch phone UI framework (HTML/CSS/JS on uGUI). Deploy siehe §3. |
-| **hash 1.0.5**  | 📦 lokal vorhanden (undeployed) | `ThirdParty/ScheduleOne-Hash/` (ZIP + `Hash_extracted/`)              | `Hash.dll` → `<Game>\Mods\`            | DooDesch terminal replacement for the dev console: tab-completion, `#` shorthand, history, help, plugin API via `HashCommands.Add(...)`. Benötigt Sideload. |
+| **hash 1.0.5**  | 📦 lokal vorhanden (undeployed, deprecated 2026-09-10) | `ThirdParty/ScheduleOne-Hash/` (ZIP + `Hash_extracted/`)              | `Hash.dll` → `<Game>\Mods\`            | DooDesch terminal replacement for the dev console. Nicht mehr genutzt — bleibt im Repo als Referenz. |
+| **PhoneScroll 1.4** | ✅ active (auto-deployed 2026-09-10) | `ThirdParty/PhoneScroll/` (DLL + `README.md`) | `PhoneScroll.dll` → `<Game>\Mods\` | V4LEXL auf NexusMods. Closed-Source. Scrollt das vanilla Phone-HomeScreen (Mask-Setup + AppIcons-Scroll). Whitelist via `ThirdParty/.deployignore`. Siehe `ThirdParty/PhoneScroll/README.md` fuer Verhalten + ScrollSpeed-Tuning. |
 | S1API 3.2.0      | ✅ active (Fork-Build, deployed 2026-09-04) | `ThirdParty/S1API/` (Source + `local.build.props`)               | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.dll` | (itself — see §4) |
 
 ---
