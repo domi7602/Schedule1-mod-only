@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HarmonyLib;
 using Il2CppScheduleOne;
 using Il2CppScheduleOne.Core.Items.Framework;
@@ -8,6 +9,18 @@ namespace StackLimitMod;
 
 public static class StackLimitPatches
 {
+    // Hot-path decision cache for get_StackLimit: whether the override applies, keyed by the native
+    // object pointer (BaseItemInstance is an Il2CppSystem.Object — no Unity GetInstanceID()). Avoids
+    // the IL2CPP ID string marshaling + engine lookups on every call. Postfix runs on the main thread,
+    // so a plain Dictionary is sufficient. Pointers are per-session: cleared on scene unload and on
+    // 'stack reload' (config change may flip exclusions / OverrideNonStackable).
+    private static readonly Dictionary<IntPtr, bool> _overrideDecisionCache = new();
+
+    public static void ClearDecisionCache()
+    {
+        _overrideDecisionCache.Clear();
+    }
+
     [HarmonyPostfix]
     public static void Registry_AddToRegistry_Postfix(Registry __instance, ItemDefinition item)
     {
@@ -32,19 +45,29 @@ public static class StackLimitPatches
             if (Mod.Config == null) return;
             if (__instance == null || __instance.Pointer == IntPtr.Zero) return;
 
+            // Hot-path: consult the decision cache before resolving the ID string (no marshaling on hit).
+            IntPtr key = __instance.Pointer;
+            if (_overrideDecisionCache.TryGetValue(key, out bool shouldOverride))
+            {
+                if (shouldOverride) __result = Mod.Config.StackLimit;
+                return;
+            }
+
             string id = __instance.ID;
             if (string.IsNullOrEmpty(id)) return;
 
-            // Hot-path: HashSet O(1) no allocation (M-3)
-            if (StackLimitEngine.IsExcluded(id)) return;
-
-            if (!Mod.Config.OverrideNonStackable)
+            bool excluded = StackLimitEngine.IsExcluded(id);
+            bool keepOriginal = false;
+            if (!excluded && !Mod.Config.OverrideNonStackable)
             {
                 int orig = StackLimitEngine.GetOriginalLimit(id, 1);
-                if (orig == 1) return;
+                keepOriginal = orig == 1;
             }
 
-            __result = Mod.Config.StackLimit;
+            shouldOverride = !excluded && !keepOriginal;
+            _overrideDecisionCache[key] = shouldOverride;
+
+            if (shouldOverride) __result = Mod.Config.StackLimit;
         }
         catch (Exception ex)
         {

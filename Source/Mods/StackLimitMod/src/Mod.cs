@@ -54,6 +54,13 @@ public class Mod : MelonMod
         // We now safely rely on GameLifecycle.OnLoadComplete instead.
     }
 
+    public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
+    {
+        // Cached get_StackLimit decisions are keyed by native object pointers, which are
+        // per-session (and reusable after objects are destroyed) — drop them on scene change.
+        StackLimitPatches.ClearDecisionCache();
+    }
+
     private void OnSaveInfoLoaded()
     {
         try

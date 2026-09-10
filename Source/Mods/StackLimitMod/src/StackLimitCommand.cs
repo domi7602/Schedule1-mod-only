@@ -108,6 +108,7 @@ public sealed class StackLimitCommand : BaseConsoleCommand
     private static void ExecuteReload()
     {
         Mod.Config = StackLimitConfig.Load();
+        StackLimitPatches.ClearDecisionCache();
         int modified = StackLimitEngine.ApplyStackLimits(Mod.Config);
         MelonLogger.Msg($"<color=#60f080>StackLimitMod config reloaded. Applied limit ({Mod.Config.StackLimit}) to {modified} items.</color>");
     }
