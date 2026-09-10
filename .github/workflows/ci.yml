@@ -78,13 +78,16 @@ jobs:
           Write-Host "Schedule I ist auf diesem Runner nicht installiert: Build + Tests uebersprungen."
           Write-Host "Volle Validierung braucht Spiel-Assemblies (lokal bauen oder self-hosted Runner). Siehe AGENTS.md."
 
+      # Vergleich normalisiert Zeilenenden: Der Runner checkt mit LF aus, das
+      # Skript schreibt CRLF — ohne Normalisierung waere der Hash-Check
+      # checkout-abhaengig. Es zaehlt der Inhalt (GUIDs, Projektliste).
       - name: Check S1Mods.sln determinism
         shell: pwsh
         run: |
-          $before = Get-FileHash "Source/Mods/S1Mods.sln" -Algorithm SHA256
+          $before = ((Get-Content -LiteralPath "Source/Mods/S1Mods.sln" -Raw) -replace "`r?`n", "`n")
           pwsh Tools/gen-sln.ps1
-          $after = Get-FileHash "Source/Mods/S1Mods.sln" -Algorithm SHA256
-          if ($before.Hash -ne $after.Hash) {
+          $after = ((Get-Content -LiteralPath "Source/Mods/S1Mods.sln" -Raw) -replace "`r?`n", "`n")
+          if ($before -cne $after) {
             Write-Error "S1Mods.sln is not deterministic! Run pwsh Tools/gen-sln.ps1 and commit."
             git diff -- Source/Mods/S1Mods.sln
             exit 1

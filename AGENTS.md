@@ -291,7 +291,7 @@ Deployment läuft **automatisch** via `Directory.Build.targets` — mit getrennt
 
 - **SkipUnchangedFiles:** Fixed to `false` (2026-08-20) — every `dotnet build` now force-deploys to `<GameDir>\Mods\`, eliminating stale-DLL traps.
 - **GameDir Override:** `$env:SCHEDULE1_PATH` must be set **before** running `dotnet build`, because MSBuild evaluates the property once at startup.
-- **Solution Determinism:** `Tools/gen-sln.ps1` now uses deterministic MD5-GUIDs (`Get-DeterministicGuid "Project:<rel>"`) — no more random GUID diffs on every regeneration.
+- **Solution Determinism:** `Tools/gen-sln.ps1` now uses deterministic MD5-GUIDs (`Get-DeterministicGuid "Project:<rel>"`) — no more random GUID diffs on every regeneration. CI vergleicht Zeilenenden-normalisiert (Checkout-unabhaengig).
 - **Version Bumps:** Use `pwsh Tools/bump-version.ps1 -Mod <Name> -Version x.y.z` to sync `Mod.cs` + `mod.json` + `CHANGELOG.md` + `AGENTS.md` atomically.
 
 ### Sideload + hash (ThirdParty, NICHT in der Solution)
