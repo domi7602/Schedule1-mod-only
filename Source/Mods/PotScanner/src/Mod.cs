@@ -83,7 +83,10 @@ public class Mod : MelonMod
         LoggerInstance.Msg($"Scene unloaded: '{sceneName}' (#{buildIndex})");
         AutoWaterService.ResetCache();
         if (IsGameplayScene(sceneName))
+        {
+            PotScannerApp.TearDownForSceneUnload();
             PotTracker.Instance.OnSceneUnloaded();
+        }
     }
 
     /// <summary>

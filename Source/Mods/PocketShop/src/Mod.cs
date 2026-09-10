@@ -1,3 +1,4 @@
+using System;
 using MelonLoader;
 using PocketShop.Config;
 using S1Mods.Shared;
@@ -16,5 +17,14 @@ public class Mod : MelonMod
         Log = new ModLogger("PocketShop");
         ModConfig<PocketShopConfig>.Initialize("PocketShop", Log);
         MelonLogger.Msg("initialized (v0.2.1).");
+    }
+
+    public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
+    {
+        base.OnSceneWasUnloaded(buildIndex, sceneName);
+        if (sceneName.Equals("Main", StringComparison.OrdinalIgnoreCase))
+        {
+            PocketShopApp.TearDownForSceneUnload();
+        }
     }
 }

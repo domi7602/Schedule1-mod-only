@@ -134,16 +134,32 @@ public sealed class PotScannerApp : PhoneApp
         }
     }
 
+    // Fix (Bug-Audit 2026-09-10): the phone re-instantiates this app per scene load and the old
+    // per-instance handlers stayed in the static invocation lists forever (MelonEvents.OnUpdate,
+    // PotTracker.OnPotsScanned). Both now dispatch through _active, subscribed exactly once;
+    // Mod.OnSceneWasUnloaded clears _active when the gameplay scene tears down.
+    private static PotScannerApp? _active;
+    private static bool _staticSubscribed;
+
     protected override void OnCreated()
     {
         base.OnCreated();
-        MelonEvents.OnUpdate.Unsubscribe(Update);
-        MelonEvents.OnUpdate.Subscribe(Update);
+        _active = this;
+        if (!_staticSubscribed)
+        {
+            _staticSubscribed = true;
+            MelonEvents.OnUpdate.Subscribe(DispatchUpdate);
+            PotTracker.Instance.OnPotsScanned += DispatchPotsScanned;
+        }
         MelonLogger.Msg("PotScanner app created and registered.");
-        PotTracker.Instance.OnPotsScanned -= OnPotsScannedHandler;
-        PotTracker.Instance.OnPotsScanned += OnPotsScannedHandler;
         PotTracker.Instance.RefreshNow();
     }
+
+    internal static void TearDownForSceneUnload() => _active = null;
+
+    private static void DispatchUpdate() => _active?.Update();
+
+    private static void DispatchPotsScanned() => _active?.OnPotsScannedHandler();
 
     protected override void OnCreatedUI(GameObject container)
     {

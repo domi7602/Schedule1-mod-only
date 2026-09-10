@@ -59,13 +59,36 @@ public sealed class PocketShopApp : PhoneApp
     private int _activeShopIndex;
     private float _lastStatsRefreshTime;
 
+    // Fix (Bug-Audit 2026-09-10): the phone re-instantiates this app per scene load and the old
+    // per-instance handler stayed subscribed to MelonEvents.OnUpdate forever, while ItemGridPane's
+    // ShopCatalog.OnCatalogChanged subscription leaked because its Dispose() was never called.
+    // OnUpdate now dispatches through _active (subscribed exactly once); Mod.OnSceneWasUnloaded
+    // clears _active and disposes the grid pane + detail modal when the gameplay scene tears down.
+    private static PocketShopApp? _active;
+    private static bool _staticSubscribed;
+
     protected override void OnCreated()
     {
-        MelonEvents.OnUpdate.Unsubscribe(Update);
-        MelonEvents.OnUpdate.Subscribe(Update);
+        _active = this;
+        if (!_staticSubscribed)
+        {
+            _staticSubscribed = true;
+            MelonEvents.OnUpdate.Subscribe(DispatchUpdate);
+        }
         base.OnCreated();
         MelonLogger.Msg("Registered with S1API PhoneApp system (v0.2.1).");
     }
+
+    internal static void TearDownForSceneUnload()
+    {
+        var app = _active;
+        _active = null;
+        if (app == null) return;
+        try { app._gridPane?.Dispose(); } catch { }
+        try { app._detailModal?.Dispose(); } catch { }
+    }
+
+    private static void DispatchUpdate() => _active?.Update();
 
     protected override void OnPhoneClosed()
     {

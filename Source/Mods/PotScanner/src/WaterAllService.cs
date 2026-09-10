@@ -39,6 +39,7 @@ public static class WaterAllService
 
     /// <summary>
     /// 10-step validate-then-charge flow (v0.2.2 adds skip-when-sufficiently-watered):
+    ///   0. HOST GUARD  — only host/server may mutate moisture + cash in MP (clients: silent no-op)
     ///   1. LOCK        — reject re-entry while a previous call is mid-flight
     ///   2. SNAPSHOT    — freeze the current pot list to avoid races with concurrent Refresh
     ///   3. RESOLVE     — single full scan of GrowContainers, build IntPtr → container dictionary
@@ -52,6 +53,17 @@ public static class WaterAllService
     /// </summary>
     public static WaterAllResult WaterAll()
     {
+        // 0. HOST GUARD (Fix 4.3): networked GrowContainer moisture + cash must only change on
+        // the host. Same guard as AutoWaterService.WaterTick — silent no-op for clients.
+        try
+        {
+            var nm = Il2CppFishNet.InstanceFinder.NetworkManager;
+            if (nm != null && nm.Pointer != IntPtr.Zero && !nm.WasCollected && (UnityEngine.Object)nm != null
+                && !Il2CppFishNet.InstanceFinder.IsServer)
+                return new WaterAllResult(false, 0, 0, 0f, "Client: host only");
+        }
+        catch { /* offline / SP: allowed */ }
+
         // 1. LOCK
         if (_isWatering)
             return new WaterAllResult(false, 0, 0, 0f, "Already active");
@@ -200,6 +212,16 @@ public static class WaterAllService
     /// </summary>
     public static void WaterSinglePot(IntPtr ptr)
     {
+        // Fix 4.3: host guard, same as WaterAll() above — silent no-op for clients.
+        try
+        {
+            var nm = Il2CppFishNet.InstanceFinder.NetworkManager;
+            if (nm != null && nm.Pointer != IntPtr.Zero && !nm.WasCollected && (UnityEngine.Object)nm != null
+                && !Il2CppFishNet.InstanceFinder.IsServer)
+                return;
+        }
+        catch { /* offline / SP: allowed */ }
+
         if (ptr == IntPtr.Zero) return;
         var money = MoneyManager.Instance;
         if (money == null || money.cashBalance < Constants.WaterAllCostPerPot) return;

@@ -219,10 +219,17 @@ public sealed class PotTracker
 
     private void NotifyPotsScanned()
     {
-        try { OnPotsScanned?.Invoke(); }
-        catch (Exception ex)
+        // Fix (Bug-Audit 2026-09-10): a single throwing subscriber starved all later ones —
+        // invoke each handler in its own try/catch instead of one around the multicast call.
+        var handlers = OnPotsScanned?.GetInvocationList();
+        if (handlers == null) return;
+        foreach (var handler in handlers)
         {
-            MelonLogger.Warning($" OnPotsScanned subscriber threw: {ex.Message}");
+            try { ((Action)handler)(); }
+            catch (Exception ex)
+            {
+                MelonLogger.Warning($" OnPotsScanned subscriber threw: {ex.Message}");
+            }
         }
     }
 

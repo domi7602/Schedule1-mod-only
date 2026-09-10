@@ -113,6 +113,13 @@ public sealed class CalculatorApp : PhoneApp
         }
     }
 
+    // Fix (Bug-Audit 2026-09-10): the phone re-instantiates this app per scene load and the old
+    // per-instance handlers stayed in the static invocation lists forever. Static events now
+    // dispatch through _active, subscribed exactly once; Mod.OnSceneWasUnloaded clears _active
+    // when the gameplay scene tears down.
+    private static CalculatorApp? _active;
+    private static bool _staticSubscribed;
+
     protected override void OnCreated()
     {
         _state = CalculatorState.Load();
@@ -120,19 +127,27 @@ public sealed class CalculatorApp : PhoneApp
         _engine.OnStateChanged += UpdateDisplayUI;
 
         base.OnCreated();
-        MelonEvents.OnUpdate.Unsubscribe(OnUpdate);
-        MelonEvents.OnUpdate.Subscribe(OnUpdate);
+        _active = this;
+        if (_staticSubscribed) return;
+        _staticSubscribed = true;
+        MelonEvents.OnUpdate.Subscribe(DispatchUpdate);
 
-        // Fix 1.1 (Bug-Audit 2026-09-02): defensive subscribe to lifecycle events so the
-        // state reloads on save-slot switch / new-game load. Without this, history from
-        // slot A stayed in RAM and overwrote slot B's file on the next save.
-        GameLifecycle.OnSaveInfoLoaded -= HandleSaveInfoLoaded;
-        GameLifecycle.OnSaveInfoLoaded += HandleSaveInfoLoaded;
-        GameLifecycle.OnPreLoad -= HandlePreLoad;
-        GameLifecycle.OnPreLoad += HandlePreLoad;
+        // Fix 1.1 (Bug-Audit 2026-09-02): subscribe to lifecycle events so the state reloads
+        // on save-slot switch / new-game load. Without this, history from slot A stayed in
+        // RAM and overwrote slot B's file on the next save.
+        GameLifecycle.OnSaveInfoLoaded += DispatchSaveInfoLoaded;
+        GameLifecycle.OnPreLoad += DispatchPreLoad;
 
         MelonLogger.Msg("Loaded state & initialized (v0.2.1).");
     }
+
+    internal static void TearDownForSceneUnload() => _active = null;
+
+    private static void DispatchUpdate() => _active?.OnUpdate();
+
+    private static void DispatchSaveInfoLoaded() => _active?.HandleSaveInfoLoaded();
+
+    private static void DispatchPreLoad() => _active?.HandlePreLoad();
 
     private void HandleSaveInfoLoaded()
     {

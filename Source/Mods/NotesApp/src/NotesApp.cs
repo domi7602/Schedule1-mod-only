@@ -254,20 +254,39 @@ public sealed class NotesApp : PhoneApp
         // Update bleibt lebenslang subscribed (defensives Unsubscribe-Subscribe in OnCreated).
     }
 
+    // Fix (Bug-Audit 2026-09-10): the phone re-instantiates this app per scene load and the old
+    // per-instance handlers stayed in the static invocation lists forever (memory retention +
+    // N redundant executions per event). Static events now dispatch through _active, subscribed
+    // exactly once; Mod.OnSceneWasUnloaded clears _active when the gameplay scene tears down.
+    private static NotesApp? _active;
+    private static bool _staticSubscribed;
+
     protected override void OnCreated()
     {
         _savePath = GetNotesPath();
         Load();
         base.OnCreated();
-        MelonEvents.OnUpdate.Unsubscribe(Update);
-        MelonEvents.OnUpdate.Subscribe(Update);
+        _active = this;
+        if (_staticSubscribed) return;
+        _staticSubscribed = true;
+        MelonEvents.OnUpdate.Subscribe(DispatchUpdate);
         // Subscribe to slot changes so path stays fresh after save-slot switch without scene reload.
-        // Fix 2.2 (Bug-Audit 2026-09-02): defensive -= before += — the phone gets re-instantiated
-        // on scene changes, and without this, duplicate handlers accumulated per scene reload.
-        try { S1API.Lifecycle.GameLifecycle.OnSaveInfoLoaded -= OnSaveInfoLoaded; } catch { }
-        try { S1API.Lifecycle.GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded; } catch { }
-        try { S1API.Lifecycle.GameLifecycle.OnLoadComplete -= OnLoadComplete; } catch { }
-        try { S1API.Lifecycle.GameLifecycle.OnLoadComplete += OnLoadComplete; } catch { }
+        try { S1API.Lifecycle.GameLifecycle.OnSaveInfoLoaded += DispatchSaveInfoLoaded; } catch { }
+        try { S1API.Lifecycle.GameLifecycle.OnLoadComplete += DispatchLoadComplete; } catch { }
+    }
+
+    internal static void TearDownForSceneUnload() => _active = null;
+
+    private static void DispatchUpdate() => _active?.Update();
+
+    private static void DispatchSaveInfoLoaded()
+    {
+        try { _active?.OnSaveInfoLoaded(); } catch { }
+    }
+
+    private static void DispatchLoadComplete()
+    {
+        try { _active?.OnLoadComplete(); } catch { }
     }
 
     private void OnSaveInfoLoaded()
