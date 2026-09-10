@@ -53,9 +53,11 @@ internal static class NPCDeathPatch
     /// <summary>
     /// Postfix runs after the engine's OnDie. We do our work in BountyService.OnNpcDied
     /// so the patch body itself stays thin and PatchGuard-friendly.
+    /// Audit (2026-09-10): internal (was private) so Mod.cs can bind it via an
+    /// explicit PatchGuard.TryPatch HarmonyMethod instead of blind PatchAll.
     /// </summary>
     [HarmonyPostfix]
-    private static void Postfix(S1NPC __instance)
+    internal static void Postfix(S1NPC __instance)
     {
         try
         {

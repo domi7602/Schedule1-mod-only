@@ -52,6 +52,43 @@ public static class BountyReceiptService
     private static int _payoutAmountIssuedTotal;
     private static bool _hookAliveLogged;
 
+    /// <summary>
+    /// Audit (2026-09-10, HIGH): host-authority guard for the payout path.
+    /// Storage write hooks fire on host AND clients in multiplayer — without
+    /// this gate both sides ran TryValidateAndPay (double ChangeCashBalance
+    /// rewards), and the client's local ClearStoredInstance never replicated,
+    /// so the same polaroid paid again on the host. Only the host validates,
+    /// pays and consumes. Pattern mirrors
+    /// AutoPackEngine.IsHostOrSingleplayer (IL2CPP-safe Pointer/WasCollected
+    /// checks); S1Mods.Shared.NetworkGuard exposes no host helper, so the
+    /// check lives here.
+    /// </summary>
+    private static bool IsHostOrSingleplayer()
+    {
+        try
+        {
+#if (IL2CPPMELON)
+            var nm = Il2CppFishNet.InstanceFinder.NetworkManager;
+            if (nm == null || nm.Pointer == System.IntPtr.Zero || nm.WasCollected || (UnityEngine.Object)nm == null)
+                return true;
+
+            return Il2CppFishNet.InstanceFinder.IsServer;
+#elif MONOMELON
+            var nm = FishNet.InstanceFinder.NetworkManager;
+            if (nm == null || (UnityEngine.Object)nm == null)
+                return true;
+
+            return FishNet.InstanceFinder.IsServer;
+#else
+            return true;
+#endif
+        }
+        catch
+        {
+            return true;
+        }
+    }
+
     public static int ReceiptsSeen => Volatile.Read(ref _receiptsSeen);
     public static int ReceiptsMatched => Volatile.Read(ref _receiptsMatched);
     public static int ReceiptsMismatched => Volatile.Read(ref _receiptsMismatched);
@@ -70,6 +107,9 @@ public static class BountyReceiptService
     public static void OnStorageContentsChanged(S1StorageEntity entity)
     {
         if (entity == null) return;
+        // Audit (2026-09-10, HIGH): only the host may validate/pay/consume —
+        // client-side payout dupes the reward and its consume never replicates.
+        if (!IsHostOrSingleplayer()) return;
         Interlocked.Increment(ref _receiptsSeen);
 
         // v0.1.7 diagnostic: one-shot proof that the write hooks are wired and
@@ -173,6 +213,10 @@ public static class BountyReceiptService
     public static bool TryValidateAndPay(S1DeadDrop drop, S1StorageEntity entity, S1ItemInstance item)
     {
         if (drop == null || entity == null || item == null) return false;
+        // Audit (2026-09-10, HIGH): defense-in-depth — this entry is public, so
+        // re-check host authority here even though the storage-hook caller
+        // already gated. Non-host must never move money or consume evidence.
+        if (!IsHostOrSingleplayer()) return false;
         if (!IsPolaroid(item)) return false;
 
         if (Mod.Instance?.Save == null) return false;

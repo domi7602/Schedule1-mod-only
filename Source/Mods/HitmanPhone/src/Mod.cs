@@ -10,8 +10,10 @@ using System.Reflection;
 
 #if (IL2CPPMELON)
 using S1StorageEntity = Il2CppScheduleOne.Storage.StorageEntity;
+using S1NPC = Il2CppScheduleOne.NPCs.NPC;
 #elif MONOMELON
 using S1StorageEntity = ScheduleOne.Storage.StorageEntity;
+using S1NPC = ScheduleOne.NPCs.NPC;
 #endif
 
 [assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.2.1", "Dominik")]
@@ -56,15 +58,16 @@ public class Mod : MelonMod
         // Registry.Instance and asset pipelines aren't fully online at OnInitializeMelon
         // time, so eager registration fails; lazy-then-cache works on every spawn thereafter.
 
-        try
-        {
-            HarmonyInstance.PatchAll(System.Reflection.Assembly.GetExecutingAssembly());
-            Log.Info("Harmony PatchAll done (NPCDeathPatch via TargetMethod).");
-        }
-        catch (Exception ex)
-        {
-            Log.Error($"Harmony patch application failed: {ex}");
-        }
+        // Audit (2026-09-10): explicit PatchGuard patch for S1NPC.OnDie — the old
+        // blind PatchAll was all-or-nothing and invisible to PatchGuard stats.
+        // parameterTypes: Type.EmptyTypes pins the parameterless overload, same
+        // resolution as NPCDeathPatch.TargetMethod; a signature drift now logs
+        // a PatchGuard warning instead of silently disabling every patch.
+        PatchGuard.TryPatch(HarmonyInstance, typeof(S1NPC), "OnDie",
+            prefix: null,
+            postfix: new HarmonyMethod(typeof(NPCDeathPatch), nameof(NPCDeathPatch.Postfix)),
+            parameterTypes: Type.EmptyTypes,
+            log: Log);
 
         // v0.1.7: dead-drop storage hooks go through PatchGuard (house standard).
         // v0.1.6 lesson: a hook that silently never fires is indistinguishable from

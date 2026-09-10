@@ -136,6 +136,10 @@ public static class BountyCallScheduler
         string id = $"caller_{BountyDialogTemplates.GetCallerName(callerIndex).ToLowerInvariant()}";
         int day = HitmanPhoneTime.CurrentDay();
         Mod.Instance.Save.CallerCooldowns[id] = day + days;
+        // Audit (2026-09-10): cooldowns must survive a game restart (was RAM-only) —
+        // every other state transition persists; PersistCurrent is null-guarded and
+        // exception-swallowed, so this is safe/reentrant on all caller paths.
+        BountyPersistence.PersistCurrent();
         Mod.Log.Debug($"Caller cooldown applied: {id} until day {day + days}.");
     }
 
