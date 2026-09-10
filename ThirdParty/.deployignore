@@ -1,0 +1,36 @@
+# .deployignore — ThirdParty-DLLs, die NICHT nach <GameDir>\Mods\ deployt werden.
+# Eine Zeile pro Pattern (Pfad-Relativ zu ThirdParty/, Posix-Glob, kein Regex).
+# Kommentare mit #. Leerzeilen ignoriert.
+#
+# Deploy-Reihenfolge (siehe Source/Mods/Directory.Build.targets -> DeployThirdParty,
+# Implementierung in Tools/deploy-thirdparty.ps1):
+#   1. Iteriere ThirdParty/**/*.dll
+#   2. Filtere Pfade, die zu einem Pattern hier matchen
+#   3. Kopiere den Rest force-deploy nach <GameDir>\Mods\
+#
+# Konvention: Alles, was NICHT als MelonLoader-Mod direkt geladen werden soll,
+# hier explizit eintragen (Libs, Builds, Decompiles, Side-Tools).
+
+# Sideload (DooDesch) — manuelles Deploy per AGENTS.md §3.
+# Sideload.dll + UserLibs/*.dll (AngleSharp, Esprima, Jint) gehoeren NICHT
+# automatisch nach <GameDir>\Mods\. Wird per Hand kopiert.
+ScheduleOne-Sideload/**/*.dll
+
+# hash (DooDesch) — seit 2026-09-10 nicht mehr genutzt, nur als Referenz im Repo.
+ScheduleOne-Hash/**/*.dll
+
+# MoreDrugs — ifBars-Rewrite, manuelles Deploy per Workspace-Konvention.
+MoreDrugs/**/*.dll
+
+# S1API / S1MAPI / S1MCP — Game-Assemblies/Libs, NICHT nach Mods\.
+# Diese DLLs gehoeren in MelonLoader/Il2CppAssemblies oder MelonLoader/net6,
+# werden manuell deployed (siehe AGENTS.md §3).
+S1API/**/*.dll
+S1MAPI/**/*.dll
+S1MCPServer-master/**/*.dll
+
+# ScheduleIArcade — reaktiviertes Reference-DLL, manuelles Deploy.
+ScheduleIArcade/**/*.dll
+
+# Workspace — interne Notizen.
+Workspace/**/*.dll

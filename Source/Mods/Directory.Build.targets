@@ -34,4 +34,21 @@
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="false" />
     <Message Importance="high" Text="Deployed Shared (forced) -> $(_DeployDir)" />
   </Target>
+
+  <!--
+    ThirdParty-Deploy (seit 2026-09-10): Iteriere alle *.dll unter ThirdParty/
+    und kopiere sie force-deploy nach <GameDir>\Mods\ (whitelist via
+    ThirdParty/.deployignore: Posix-Glob, Pfad relativ zu ThirdParty/, eine
+    Zeile pro Pattern, # = Kommentar). Die eigentliche Filter-Logik lebt in
+    Tools/deploy-thirdparty.ps1 — MSBuild ruft sie AfterTargets="Build" aus
+    jedem csproj parallel auf; das Script serialisiert sich selbst via
+    Named-Mutex (nur der erste Prozess kopiert, alle anderen ueberspringen).
+  -->
+  <Target Name="DeployThirdParty" AfterTargets="Build" Condition="'$(MSBuildProjectName)' != ''">
+    <PropertyGroup>
+      <_TpScript>$(MSBuildThisFileDirectory)..\..\Tools\deploy-thirdparty.ps1</_TpScript>
+    </PropertyGroup>
+    <Message Importance="low" Text="[DeployThirdParty] running $(_TpScript)..." />
+    <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(_TpScript)&quot;" />
+  </Target>
 </Project>
