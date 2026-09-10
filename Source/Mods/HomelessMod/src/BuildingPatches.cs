@@ -155,13 +155,11 @@ public static class BuildingPatches
                     float vOffset;
                     if (isSleepingBagItem)
                     {
-                        // [GroundFix v0.1.3] bottomOffset is measured from the ghost's colliders — but the
-                        // ghost is still the cloned BED hierarchy (WithGhostVisual only swaps the visual),
-                        // so the bed colliders reach ~1.5m below the pivot and bottomOffset reproduced
-                        // exactly the bed-verticalOffset lift this fix meant to remove. The procedural
-                        // bag's pivot IS its base (mesh spans y 0..0.20, BoxCollider y 0..0.36), so the
-                        // only correct vertical offset for the sleeping bag is zero.
+                        // Sleeping bag pivot is at base (y 0..0.20m, BoxCollider y 0..0.36m, half-extents 0.48, 0.15, 1.05)
+                        boxExtents = new Vector3(0.48f, 0.15f, 1.05f);
+                        bottomOffset = 0f;
                         vOffset = 0f;
+                        try { __instance.verticalOffset = 0f; } catch { }
                     }
                     else
                     {
@@ -452,7 +450,7 @@ public static class BuildingPatches
                     }
 
                     // Notify Quest system
-                    HomelessQuestManager.NotifyItemPlaced(itemId);
+                    HomelessQuestManager.NotifyItemPlaced(itemId, placedObj);
 
                     // Exit/Stop current build mode session
                     __instance.Stop();
@@ -472,6 +470,10 @@ public static class BuildingPatches
                 IsCustomPlacementValid = false;
                 try { __instance._validPosition = false; } catch { }
                 Mod.Log.Error($"BuildUpdate_Grid.Place prefix error: {ex}");
+                // L5b: this path also skips vanilla Place (return false) — __result must be
+                // explicitly assigned or the native caller reads an uninitialized reference
+                // (IL2CPP 0xc0000005). Mirror the success-path null assignment above.
+                __result = null;
                 return false;
             }
         }

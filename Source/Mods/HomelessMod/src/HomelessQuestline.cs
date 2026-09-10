@@ -118,7 +118,7 @@ public static class HomelessQuestManager
         }
     }
 
-    public static void NotifyItemPlaced(string itemId)
+    public static void NotifyItemPlaced(string itemId, GameObject? placedObj = null)
     {
         try
         {
@@ -136,15 +136,29 @@ public static class HomelessQuestManager
             }
 
             // Quest 2: Place gear outdoors
+            // Review-fix 2026-09-09 (v0.1.5, high): only production gear completes this entry.
+            // The sleeping bag (Quest 1 item) must NOT satisfy "workstation or grow container".
             var q2 = ResolveQuest2();
             if (q2 != null)
             {
-                var gear = FindEntry(q2, "Place a workstation or grow container outdoors");
-                if (gear != null && gear.State != QuestState.Completed)
+                if (!IsProductionGear(placedObj, itemId))
                 {
-                    gear.Complete();
-                    FindEntry(q2, "Accumulate $500 in cash")?.Begin();
-                    Mod.Log.Info("Completed: 'Place a workstation or grow container outdoors'!");
+                    Mod.Log.Debug($"[Quest2] '{itemId}' is not production gear — entry not counted.");
+                }
+                else
+                {
+                    var gear = FindEntry(q2, "Place a workstation or grow container outdoors");
+                    if (gear != null && gear.State != QuestState.Completed)
+                    {
+                        gear.Complete();
+                        FindEntry(q2, "Accumulate $500 in cash")?.Begin();
+                        Mod.Log.Info("Completed: 'Place a workstation or grow container outdoors'!");
+                    }
+                    // Fix 2026-09-09 (v0.1.4): finalize on EVERY placement trigger, regardless of
+                    // which entry (gear vs. $500) completed first. Previously the both-done check
+                    // lived only in CheckCashProgress' money branch — if money completed first,
+                    // MarkQuestCompleted never fired and the quest reset on every save reload.
+                    TryFinalizeQuest2(q2);
                 }
             }
 
@@ -162,6 +176,9 @@ public static class HomelessQuestManager
                         Mod.Log.Info("Completed: 'Expand your street camp (3+ outdoor items)'!");
                     }
                 }
+                // Fix 2026-09-09 (v0.1.4): same order-of-completion fix as Quest 2 —
+                // also prevents the old premature completion (money-only) from persisting.
+                TryFinalizeQuest3(q3);
             }
         }
         catch (Exception ex)
@@ -217,15 +234,12 @@ public static class HomelessQuestManager
                     {
                         earn500.Complete();
                         Mod.Log.Info("Completed: 'Accumulate $500 in cash'!");
-                        // Gatekeeper-fix 2026-08-30 M2: only mark Alley Operations completed when BOTH entries are done
-                        var gear = FindEntry(q2, "Place a workstation or grow container outdoors");
-                        if (gear != null && gear.State == QuestState.Completed)
-                        {
-                            MarkQuestCompleted("Alley Operations");
-                            GetOrCreateQuest3();
-                        }
                     }
                 }
+                // Fix 2026-09-09 (v0.1.4): finalize runs on EVERY poll — order-independent
+                // (old code nested the both-done check inside the money branch, so a
+                // gear-late completion never persisted the quest).
+                TryFinalizeQuest2(q2);
             }
 
             var q3 = ResolveQuest3();
@@ -238,9 +252,10 @@ public static class HomelessQuestManager
                     {
                         earn5000.Complete();
                         Mod.Log.Info("Completed: 'Earn $5,000 total cash' - Street Kingpin Achieved!");
-                        MarkQuestCompleted("Street Sovereign");
                     }
                 }
+                // Fix 2026-09-09 (v0.1.4): both-entries check (old code persisted on money alone).
+                TryFinalizeQuest3(q3);
             }
         }
         catch (Exception ex)
@@ -249,11 +264,131 @@ public static class HomelessQuestManager
         }
     }
 
-    public static void ResetState()
+    // ----- Fix 2026-09-09 (v0.1.4): order-independent quest finalization -----
+
+    /// <summary>
+    /// Marks 'Alley Operations' completed (and spawns Quest 3) once BOTH entries are done.
+    /// Called from every trigger path (item placement + cash poll) so completion persists
+    /// regardless of which entry finished first. Idempotent via _completedQuests HashSet.
+    /// </summary>
+    private static void TryFinalizeQuest2(Quest_AlleyOperations? q2)
+    {
+        try
+        {
+            if (q2 == null || IsQuestCompleted("Alley Operations")) return;
+            var gear = FindEntry(q2, "Place a workstation or grow container outdoors");
+            var earn500 = FindEntry(q2, "Accumulate $500 in cash");
+            if (gear != null && gear.State == QuestState.Completed &&
+                earn500 != null && earn500.State == QuestState.Completed)
+            {
+                MarkQuestCompleted("Alley Operations");
+                Mod.Log.Info("Quest 'Alley Operations' fully completed — persists on next save.");
+                GetOrCreateQuest3();
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"TryFinalizeQuest2 notice: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Marks 'Street Sovereign' completed once BOTH entries are done. Fixes the old
+    /// premature path where a $5,000 balance alone persisted the quest while the
+    /// camp-size entry was still open.
+    /// </summary>
+    private static void TryFinalizeQuest3(Quest_StreetSovereign? q3)
+    {
+        try
+        {
+            if (q3 == null || IsQuestCompleted("Street Sovereign")) return;
+            var expand = FindEntry(q3, "Expand your street camp (3+ outdoor items)");
+            var earn5000 = FindEntry(q3, "Earn $5,000 total cash");
+            if (expand != null && expand.State == QuestState.Completed &&
+                earn5000 != null && earn5000.State == QuestState.Completed)
+            {
+                MarkQuestCompleted("Street Sovereign");
+                Mod.Log.Info("Quest 'Street Sovereign' fully completed — persists on next save.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"TryFinalizeQuest3 notice: {ex.Message}");
+        }
+    }
+
+    // ----- Production gear detection (Review-fix 2026-09-09, v0.1.5) -----
+
+    /// <summary>
+    /// Determines whether a placed outdoor item counts as production gear for Quest 2
+    /// ("workstation or grow container"). Component check on the placed object first
+    /// (vanilla Pot/MixingStation/Cauldron/ChemistryStation/PackagingStation/BrickPress/
+    /// DryingRack — all verified in live Assembly-CSharp decompile 2026-09-09), then a
+    /// string fallback for modded gear (e.g. autopackagingstation) that lacks those
+    /// components. The sleeping bag must NOT match.
+    /// </summary>
+    private static bool IsProductionGear(GameObject? placedObj, string itemId)
+    {
+        if (placedObj != null && placedObj.Pointer != IntPtr.Zero && !placedObj.WasCollected)
+        {
+            if (placedObj.GetComponentInChildren<Il2CppScheduleOne.ObjectScripts.Pot>(true) != null) return true;
+            if (placedObj.GetComponentInChildren<Il2CppScheduleOne.ObjectScripts.MixingStation>(true) != null) return true;
+            if (placedObj.GetComponentInChildren<Il2CppScheduleOne.ObjectScripts.MixingStationMk2>(true) != null) return true;
+            if (placedObj.GetComponentInChildren<Il2CppScheduleOne.ObjectScripts.Cauldron>(true) != null) return true;
+            if (placedObj.GetComponentInChildren<Il2CppScheduleOne.ObjectScripts.ChemistryStation>(true) != null) return true;
+            if (placedObj.GetComponentInChildren<Il2CppScheduleOne.ObjectScripts.PackagingStation>(true) != null) return true;
+            if (placedObj.GetComponentInChildren<Il2CppScheduleOne.ObjectScripts.BrickPress>(true) != null) return true;
+            if (placedObj.GetComponentInChildren<Il2CppScheduleOne.ObjectScripts.DryingRack>(true) != null) return true;
+        }
+
+        // String fallback for modded workstations without the known vanilla components.
+        string id = (itemId ?? string.Empty).ToLowerInvariant();
+        return id.Contains("station") || id.Contains("press") || id.Contains("cauldron")
+            || id.Contains("rack") || id.EndsWith("pot");
+    }
+
+    public static void ResetState(bool keepSlot = false)
     {
         _initialized = false;
         _completedQuests.Clear();
-        _lastKnownQuestSlot = "default"; // Gatekeeper-fix 2026-08-30 M4: mirror StreetPropertyManager.ResetState to avoid cross-slot writes
+        _sleepStartedInBag = false;
+        if (!keepSlot) _lastKnownQuestSlot = "default"; // Review-fix 2026-09-09 (v0.1.5): mirror StreetPropertyManager keepSlot semantics
+    }
+
+    public static void ResetForSceneUnload()
+    {
+        ResetState(keepSlot: true);
+    }
+
+    // ----- Sleep-credit gating (Review-fix 2026-09-09, v0.1.5) -----
+
+    private static bool _sleepStartedInBag;
+
+    /// <summary>Called at StartSleep in the sleeping bag — defers quest credit to the wake hook.</summary>
+    public static void NotifySleepStartedInBag()
+    {
+        _sleepStartedInBag = true;
+        Mod.Log.Debug("[Quest1] Sleep started in sleeping bag — quest credit deferred to wake confirmation.");
+    }
+
+    /// <summary>
+    /// Handler for S1API.GameTime.TimeManager.OnSleepEnd (Action&lt;int&gt;). Only credits
+    /// 'Sleep through the night' if the sleep was actually started in the sleeping bag
+    /// AND ran to completion (aborting sleep never fires OnSleepEnd).
+    /// </summary>
+    public static void OnSleepEnded(int _)
+    {
+        try
+        {
+            if (!_sleepStartedInBag) return; // vanilla bed sleep or mod-less sleep — no credit
+            _sleepStartedInBag = false;
+            Mod.Log.Info("Sleep completed (wake confirmed) — applying quest progress.");
+            NotifyPlayerSlept();
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"OnSleepEnded notice: {ex.Message}");
+        }
     }
 
     // ----- Fresh lookup helpers (save-load safe) -----
@@ -314,10 +449,10 @@ public static class HomelessQuestManager
 
     private static void MarkQuestCompleted(string questName)
     {
-        if (_completedQuests.Add(questName))
-        {
-            SaveCompletedState();
-        }
+        // Fix 2026-09-10: completion stays in memory only — flushed to disk on
+        // GameLifecycle.OnSaveComplete (same hook as the street-item store),
+        // not written mid-gameplay on every quest trigger.
+        _completedQuests.Add(questName);
     }
 
     private static string _lastKnownQuestSlot = "default";
@@ -429,7 +564,10 @@ public static class HomelessQuestManager
         }
     }
 
-    private static void SaveCompletedState()
+    // Fix 2026-09-10: called from Mod.OnSaveComplete alongside SaveStreetItems —
+    // quest completions hit disk only when the game actually saves. Load point is
+    // unchanged (LoadCompletedState via InitializeQuests on OnLoadComplete).
+    internal static void FlushCompletedState()
     {
         try
         {

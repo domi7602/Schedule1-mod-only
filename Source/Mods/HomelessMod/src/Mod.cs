@@ -13,7 +13,7 @@ using S1API.Lifecycle;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(HomelessMod.Mod), "HomelessMod", "0.1.3", "Dominik")]
+[assembly: MelonInfo(typeof(HomelessMod.Mod), "HomelessMod", "0.1.5", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace HomelessMod;
@@ -89,6 +89,9 @@ public sealed class Mod : MelonMod
         GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
         GameLifecycle.OnLoadComplete += OnLoadComplete;
         GameLifecycle.OnSaveComplete += OnSaveComplete;
+
+        // Review-fix 2026-09-09 (v0.1.5): wake-confirmed quest credit — subscribe once here.
+        S1API.GameTime.TimeManager.OnSleepEnd += HomelessQuestManager.OnSleepEnded;
     }
 
     public override void OnDeinitializeMelon()
@@ -99,6 +102,7 @@ public sealed class Mod : MelonMod
         GameLifecycle.OnSaveInfoLoaded -= OnSaveInfoLoaded;
         GameLifecycle.OnLoadComplete -= OnLoadComplete;
         GameLifecycle.OnSaveComplete -= OnSaveComplete;
+        S1API.GameTime.TimeManager.OnSleepEnd -= HomelessQuestManager.OnSleepEnded;
         StreetPropertyManager.ResetState();
         HomelessQuestManager.ResetState();
     }
@@ -110,7 +114,7 @@ public sealed class Mod : MelonMod
         if (IsGameplayScene(sceneName))
         {
             StreetPropertyManager.ResetForSceneUnload();
-            HomelessQuestManager.ResetState();
+            HomelessQuestManager.ResetForSceneUnload(); // Review-fix 2026-09-09 (v0.1.5): keep slot on same-slot reload
             _streetItemsLoaded = false;
         }
     }
@@ -294,5 +298,8 @@ public sealed class Mod : MelonMod
     private void OnSaveComplete()
     {
         StreetPropertyManager.SaveStreetItems();
+        // Fix 2026-09-10: flush quest completions on the same save hook as the street-item
+        // store instead of writing quest_progress_{slot}.json mid-gameplay on every trigger.
+        HomelessQuestManager.FlushCompletedState();
     }
 }

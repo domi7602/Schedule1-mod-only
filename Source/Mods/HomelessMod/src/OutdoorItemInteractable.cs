@@ -147,43 +147,43 @@ public class OutdoorItemInteractable : MonoBehaviour
             if (doHoverCheck)
             {
                 // Resolve player camera
-            Transform? camTransform = null;
-            try
-            {
-                var playerCam = PlayerSingleton<PlayerCamera>.Instance;
-                if (playerCam != null && playerCam.Pointer != IntPtr.Zero && playerCam.Camera != null)
+                Transform? camTransform = null;
+                try
                 {
-                    camTransform = playerCam.Camera.transform;
-                }
-            }
-            catch { }
-
-            if (camTransform == null && Camera.main != null)
-            {
-                camTransform = Camera.main.transform;
-            }
-
-            if (camTransform != null)
-            {
-                Vector3 toItem = (transform.position - camTransform.position).normalized;
-                float dot = Vector3.Dot(camTransform.forward, toItem);
-
-                bool hitMatch = false;
-                Ray ray = new Ray(camTransform.position, camTransform.forward);
-                if (Physics.Raycast(ray, out RaycastHit hit, _interactionRange + 1.0f))
-                {
-                    if (hit.collider != null && (hit.collider.gameObject == gameObject || hit.collider.transform.IsChildOf(transform)))
+                    var playerCam = PlayerSingleton<PlayerCamera>.Instance;
+                    if (playerCam != null && playerCam.Pointer != IntPtr.Zero && playerCam.Camera != null)
                     {
-                        hitMatch = true;
+                        camTransform = playerCam.Camera.transform;
                     }
                 }
+                catch { }
 
-                _isHovered = hitMatch || (dot > 0.85f && distance <= 1.8f);
-            }
-            else
-            {
-                _isHovered = distance <= 1.8f;
-            }
+                if (camTransform == null && Camera.main != null)
+                {
+                    camTransform = Camera.main.transform;
+                }
+
+                if (camTransform != null)
+                {
+                    Vector3 toItem = (transform.position - camTransform.position).normalized;
+                    float dot = Vector3.Dot(camTransform.forward, toItem);
+
+                    bool hitMatch = false;
+                    Ray ray = new Ray(camTransform.position, camTransform.forward);
+                    if (Physics.Raycast(ray, out RaycastHit hit, _interactionRange + 1.0f))
+                    {
+                        if (hit.collider != null && (hit.collider.gameObject == gameObject || hit.collider.transform.IsChildOf(transform)))
+                        {
+                            hitMatch = true;
+                        }
+                    }
+
+                    _isHovered = hitMatch || (dot > 0.85f && distance <= 1.8f);
+                }
+                else
+                {
+                    _isHovered = distance <= 1.8f;
+                }
             } // end doHoverCheck — _isHovered reused from previous check when throttled
 
             if (_isHovered)
@@ -292,9 +292,10 @@ public class OutdoorItemInteractable : MonoBehaviour
 
         if (string.IsNullOrEmpty(_itemId))
         {
-            Mod.Log.Warn("Cannot pack up item with empty ItemId.");
-            StreetPropertyManager.UnregisterStreetItem(gameObject);
-            Destroy(gameObject);
+            // Review-fix 2026-09-09 (v0.1.5, critical): NEVER destroy on empty ItemId —
+            // the player would lose the placed object with no item returned. Keep the
+            // object in the world (same early-return pattern as SleepingBagInteractable.PackUp).
+            Mod.Log.Warn("Cannot pack up item with empty ItemId — object kept in world (no item loss).");
             return;
         }
 

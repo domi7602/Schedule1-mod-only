@@ -249,13 +249,22 @@ public static class SleepingBagMeshGenerator
         norms.Add(normal); norms.Add(normal); norms.Add(normal); norms.Add(normal);
         uvs.Add(new Vector2(0, 0)); uvs.Add(new Vector2(1, 0)); uvs.Add(new Vector2(1, 1)); uvs.Add(new Vector2(0, 1));
 
+        // Review-fix 2026-09-09 (v0.1.5, low): dedicated back-face vertices with FLIPPED normal.
+        // The old back-face triangles reused the front vertices, so the underside was shaded
+        // with the front normal (wrong lighting when viewed from below).
+        int back = verts.Count;
+        verts.Add(v0); verts.Add(v1); verts.Add(v2); verts.Add(v3);
+        Vector3 nBack = -normal;
+        norms.Add(nBack); norms.Add(nBack); norms.Add(nBack); norms.Add(nBack);
+        uvs.Add(new Vector2(0, 0)); uvs.Add(new Vector2(1, 0)); uvs.Add(new Vector2(1, 1)); uvs.Add(new Vector2(0, 1));
+
         // Front Face
         tris.Add(idx + 0); tris.Add(idx + 1); tris.Add(idx + 2);
         tris.Add(idx + 0); tris.Add(idx + 2); tris.Add(idx + 3);
 
-        // Double-sided back face for safety
-        tris.Add(idx + 0); tris.Add(idx + 2); tris.Add(idx + 1);
-        tris.Add(idx + 0); tris.Add(idx + 3); tris.Add(idx + 2);
+        // Double-sided back face (own vertices, flipped normal, reversed winding)
+        tris.Add(back + 0); tris.Add(back + 2); tris.Add(back + 1);
+        tris.Add(back + 0); tris.Add(back + 3); tris.Add(back + 2);
     }
 
     private static void AddCurvedDome(List<Vector3> verts, List<Vector3> norms, List<Vector2> uvs, List<int> tris,

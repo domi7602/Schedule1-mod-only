@@ -82,48 +82,48 @@ public class SleepingBagInteractable : MonoBehaviour
             if (doHoverCheck)
             {
                 // Resolve player camera safely
-            Transform? camTransform = null;
-            try
-            {
-                var playerCam = PlayerSingleton<PlayerCamera>.Instance;
-                if (playerCam != null && playerCam.Pointer != IntPtr.Zero && playerCam.Camera != null)
+                Transform? camTransform = null;
+                try
                 {
-                    camTransform = playerCam.Camera.transform;
-                }
-            }
-            catch { }
-
-            if (camTransform == null && Camera.main != null)
-            {
-                camTransform = Camera.main.transform;
-            }
-
-            if (camTransform != null)
-            {
-                // Check if player is facing the sleeping bag
-                Vector3 toBag = (transform.position - camTransform.position).normalized;
-                float dot = Vector3.Dot(camTransform.forward, toBag);
-
-                // Raycast check or directional proximity
-                bool hitMatch = false;
-                Ray ray = new Ray(camTransform.position, camTransform.forward);
-                if (Physics.Raycast(ray, out RaycastHit hit, _interactionRange + 1.0f))
-                {
-                    if (hit.collider != null && (hit.collider.gameObject == gameObject || hit.collider.transform.IsChildOf(transform)))
+                    var playerCam = PlayerSingleton<PlayerCamera>.Instance;
+                    if (playerCam != null && playerCam.Pointer != IntPtr.Zero && playerCam.Camera != null)
                     {
-                        hitMatch = true;
+                        camTransform = playerCam.Camera.transform;
                     }
                 }
+                catch { }
 
-                _lastHitMatch = hitMatch;
-                _isHovered = hitMatch || (dot > 0.45f && distance <= 2.5f);
-            }
-            else
-            {
-                // Fallback purely on proximity
-                _lastHitMatch = false;
-                _isHovered = distance <= 2.2f;
-            }
+                if (camTransform == null && Camera.main != null)
+                {
+                    camTransform = Camera.main.transform;
+                }
+
+                if (camTransform != null)
+                {
+                    // Check if player is facing the sleeping bag
+                    Vector3 toBag = (transform.position - camTransform.position).normalized;
+                    float dot = Vector3.Dot(camTransform.forward, toBag);
+
+                    // Raycast check or directional proximity
+                    bool hitMatch = false;
+                    Ray ray = new Ray(camTransform.position, camTransform.forward);
+                    if (Physics.Raycast(ray, out RaycastHit hit, _interactionRange + 1.0f))
+                    {
+                        if (hit.collider != null && (hit.collider.gameObject == gameObject || hit.collider.transform.IsChildOf(transform)))
+                        {
+                            hitMatch = true;
+                        }
+                    }
+
+                    _lastHitMatch = hitMatch;
+                    _isHovered = hitMatch || (dot > 0.45f && distance <= 2.5f);
+                }
+                else
+                {
+                    // Fallback purely on proximity
+                    _lastHitMatch = false;
+                    _isHovered = distance <= 2.2f;
+                }
             } // end doHoverCheck
 
             if (_isHovered)
@@ -256,11 +256,11 @@ public class SleepingBagInteractable : MonoBehaviour
             {
                 Mod.Log.Info($"Sleeping in sleeping bag at {timeStr}...");
                 timeMgr.StartSleep();
-                // Gatekeeper-fix M3: NotifyPlayerSlept is currently fired at sleep START, not wake. If the player aborts
-                // sleep (movement/attack), the quest still counts as completed. Ideal fix is to move this to a wake
-                // hook (TimeManager.onSleepEnd callback or poll IsSleepInProgress falling edge). Kept at START for now
-                // for compatibility; TODO: subscribe to TimeManager wake event when API exposes it and gate completion there.
-                HomelessQuestManager.NotifyPlayerSlept();
+                // Review-fix 2026-09-09 (v0.1.5, M3 TODO resolved): quest credit is no longer
+                // granted at sleep START. NotifySleepStartedInBag only arms a flag; the actual
+                // NotifyPlayerSlept() runs from S1API.GameTime.TimeManager.OnSleepEnd (wake hook,
+                // verified in live decompile). Aborting sleep never fires OnSleepEnd → no credit.
+                HomelessQuestManager.NotifySleepStartedInBag();
             }
             else
             {
@@ -346,11 +346,17 @@ public static class SleepingBagItemFactory
 
     public static void RegisterItem()
     {
-        if (_isRegistered) return;
+        // Gatekeeper-fix 2026-09-10: was `if (_isRegistered) return;` which left the item
+        // unregistered after a Registry rebuild (menu -> different-save load) — shop injection
+        // no-oped. Re-verify the game Registry; if the item vanished, fall through and
+        // re-register (same pattern AutoPackagingStation uses).
+        string itemId = Mod.CurrentConfig.SleepingBagItemId;
+        if (_isRegistered && Registry.ItemExists(itemId)) return;
+        _isRegistered = false; // re-arm in case previous registration was lost (registry reset)
 
         try
         {
-            string itemId = Mod.CurrentConfig.SleepingBagItemId;
+            // itemId hoisted to outer guard (Gatekeeper-fix 2026-09-10); do not redeclare.
             if (Registry.ItemExists(itemId))
             {
                 Mod.Log.Info($"Item '{itemId}' already exists in Registry.");
@@ -395,13 +401,26 @@ public static class SleepingBagItemFactory
                    .WithIcon(SleepingBagMeshGenerator.GetOrCreateIconSprite())
                    .WithGhostVisual((Transform parent) =>
                    {
+                       // Disable all inherited colliders on the cloned bed ghost root
+                       var parentCols = parent.GetComponentsInChildren<Collider>(true);
+                       foreach (var col in parentCols)
+                       {
+                           if (col != null && col.Pointer != IntPtr.Zero) col.enabled = false;
+                       }
+
                        var ghost = CreateSleepingBagPrefab();
                        ghost.transform.SetParent(parent, false);
                        ghost.name = "SleepingBag_Ghost";
 
-                       // Strip interactable from ghost
+                       // Strip interactable and disable collider on ghost visual
                        var comp = ghost.GetComponent<SleepingBagInteractable>();
                        if (comp != null) GameObject.Destroy(comp);
+
+                       var ghostCols = ghost.GetComponentsInChildren<Collider>(true);
+                       foreach (var col in ghostCols)
+                       {
+                           if (col != null && col.Pointer != IntPtr.Zero) col.enabled = false;
+                       }
 
                        return ghost;
                    }, replaceExistingVisual: true);
