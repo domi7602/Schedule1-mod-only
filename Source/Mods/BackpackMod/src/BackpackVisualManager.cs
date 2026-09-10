@@ -19,21 +19,28 @@ namespace BackpackMod
         private static string? _currentActiveTier;
         private static Avatar? _cachedWorldAvatar;
         private static float _lastAvatarSearchTime = -10f;
+        private static Transform? _cachedWorldBackBone;
+        private static float _lastBackBoneSearchTime = -10f;
 
         public static void UpdateVisuals(AssetBundle? bundle = null)
         {
             try
             {
                 var playerMovement = PlayerSingleton<PlayerMovement>.Instance;
-                var pc = playerMovement != null && playerMovement.Pointer != IntPtr.Zero
+                var pc = playerMovement != null && playerMovement.Pointer != IntPtr.Zero && !playerMovement.WasCollected
                     ? playerMovement.GetComponent<PlayerClothing>()
                     : null;
 
                 // 1. STRICT EQUIPPED CHECK: ONLY show backpack if equipped in Clothing Slot 10
                 string? activeTier = null;
                 var wornSlot = Patches.PlayerClothingPatch.BackpackSlot;
+                if (wornSlot != null && (wornSlot.Pointer == IntPtr.Zero || wornSlot.WasCollected))
+                {
+                    // Stale IL2CPP reference (e.g. from a previous scene) — fall through to the live player check
+                    wornSlot = null;
+                }
 
-                if (wornSlot == null && pc != null && pc.ClothingSlots != null && pc.ClothingSlots.ContainsKey(BackpackSlotId))
+                if (wornSlot == null && pc != null && pc.Pointer != IntPtr.Zero && !pc.WasCollected && pc.ClothingSlots != null && pc.ClothingSlots.ContainsKey(BackpackSlotId))
                 {
                     wornSlot = pc.ClothingSlots[BackpackSlotId];
                 }
@@ -58,25 +65,16 @@ namespace BackpackMod
                 if (activeTier == null) return;
 
                 // A. Update World Player Visual — robust avatar/bone resolution for first-person & V (third-person)
-                if (playerMovement != null && playerMovement.Pointer != IntPtr.Zero)
+                if (playerMovement != null && playerMovement.Pointer != IntPtr.Zero && !playerMovement.WasCollected)
                 {
                     var avatar = FindWorldAvatar(playerMovement);
-                    Transform attachBone = FindBackBone(playerMovement.transform, avatar);
-                    bool isFallbackRoot = attachBone == playerMovement.transform;
+                    Transform? attachBone = ResolveWorldBackBone(playerMovement, avatar);
 
                     if (_currentWorldVisualObj == null && attachBone != null)
                     {
-                        // Don't create if we only have root fallback and avatar still missing — retry next frame instead of spawning at feet
-                        if (isFallbackRoot && avatar == null)
-                        {
-                            Mod.Log?.Msg($"[Backpack] World avatar not yet resolved — retry next frame (tried PlayerMovement children + global scan).");
-                        }
-                        else
-                        {
-                            // For world visuals force Default layer (0) so backpack is visible in both first-person and V third-person
-                            // (inheriting Player layer 8/9 makes it culled by first-person camera)
-                            _currentWorldVisualObj = CreateBackpackVisualInstance(attachBone, playerMovement.transform, activeTier, forceDefaultLayer: true);
-                        }
+                        // For world visuals force Default layer (0) so backpack is visible in both first-person and V third-person
+                        // (inheriting Player layer 8/9 makes it culled by first-person camera)
+                        _currentWorldVisualObj = CreateBackpackVisualInstance(attachBone, playerMovement.transform, activeTier, forceDefaultLayer: true);
                     }
                 }
 
@@ -170,6 +168,37 @@ namespace BackpackMod
             return _cachedWorldAvatar;
         }
 
+        // Gatekeeper-fix 2026-09-10: while the spine bone is unresolved, FindBackBone used to run a full
+        // GetComponentsInChildren<Transform>(true) hierarchy scan + an unthrottled retry log every frame.
+        // The resolved bone is cached so the scan only runs until first success; the retry scan and log
+        // are throttled to once per 2s (same Time.unscaledTime pattern as the 5s avatar-search throttle).
+        // Cache is invalidated in Clear() (scene unload / equip tier change).
+        private static Transform? ResolveWorldBackBone(PlayerMovement pm, Avatar? avatar)
+        {
+            if (_cachedWorldBackBone != null && _cachedWorldBackBone.Pointer != IntPtr.Zero && !_cachedWorldBackBone.WasCollected)
+                return _cachedWorldBackBone;
+
+            if (Time.unscaledTime - _lastBackBoneSearchTime < 2.0f) return null;
+            _lastBackBoneSearchTime = Time.unscaledTime;
+
+            var bone = FindBackBone(pm.transform, avatar);
+            if (bone == null || bone.Pointer == IntPtr.Zero || bone.WasCollected || (bone == pm.transform && avatar == null))
+            {
+                // Don't create if we only have root fallback and avatar still missing — retry later instead of spawning at feet
+                Mod.Log?.Msg("[Backpack] World avatar not yet resolved — retrying in ~2s (tried PlayerMovement children + global scan).");
+                return null;
+            }
+
+            if (bone == pm.transform)
+            {
+                // Root fallback with resolved avatar: use it this frame as last resort, but keep retrying for a real spine.
+                return bone;
+            }
+
+            _cachedWorldBackBone = bone;
+            return bone;
+        }
+
         private static GameObject CreateBackpackVisualInstance(Transform bone, Transform root, string tierName, bool forceDefaultLayer = false)
         {
             var rootVisual = new GameObject($"Backpack_Worn_{tierName}");
@@ -199,7 +228,7 @@ namespace BackpackMod
 
                 int layer = forceDefaultLayer ? 0 : bone.gameObject.layer;
                 SetLayerRecursively(rootVisual, layer);
-                Mod.Log?.Msg($"Successfully mounted custom Blender mesh for '{tierName}' on '{bone.name}' (layer {layer}{(forceDefaultLayer?" forced Default":"")}).");
+                Mod.Log?.Msg($"Successfully mounted custom Blender mesh for '{tierName}' on '{bone.name}' (layer {layer}{(forceDefaultLayer ? " forced Default" : "")}).");
                 return rootVisual;
             }
 
@@ -348,7 +377,7 @@ namespace BackpackMod
             int finalLayer = forceDefaultLayer ? 0 : bone.gameObject.layer;
             SetLayerRecursively(rootVisual, finalLayer);
 
-            Mod.Log?.Msg($"Created realistic 3D backpack harness on '{bone.name}' (layer: {finalLayer}{(forceDefaultLayer?" forced Default":"")}, tier: {tierName})");
+            Mod.Log?.Msg($"Created realistic 3D backpack harness on '{bone.name}' (layer: {finalLayer}{(forceDefaultLayer ? " forced Default" : "")}, tier: {tierName})");
             return rootVisual;
         }
 
@@ -527,7 +556,9 @@ namespace BackpackMod
             }
             _currentActiveTier = null;
             _cachedWorldAvatar = null;
+            _cachedWorldBackBone = null;
             _lastAvatarSearchTime = -10f;
+            _lastBackBoneSearchTime = -10f;
         }
     }
 }

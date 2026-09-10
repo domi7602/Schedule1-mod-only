@@ -27,7 +27,7 @@ public static class ObjLoader
     public static Mesh? TryGetOrLoadBackpackMesh(string tierKey)
     {
         string simpleTier = tierKey.ToLower().Replace("_backpack", "").Replace("backpack_", "");
-        
+
         string[] candidateFileNames = new[]
         {
             $"{tierKey}.obj",

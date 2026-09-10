@@ -14,6 +14,10 @@ namespace BackpackMod.Patches
 
         public static ItemSlot? BackpackSlot { get; private set; }
 
+        // Gatekeeper-fix 2026-09-10: the cached slot is an IL2CPP reference to player-scoped state —
+        // drop it on scene unload so UpdateVisuals can't dereference a dead object from a previous scene.
+        public static void ResetForSceneUnload() => BackpackSlot = null;
+
         public static void Prefix(PlayerClothing __instance) { }
         public static void Postfix(PlayerClothing __instance)
         {

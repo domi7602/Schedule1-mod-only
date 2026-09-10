@@ -107,6 +107,7 @@ public class Mod : MelonMod
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
     {
         BackpackVisualManager.Clear();
+        Patches.PlayerClothingPatch.ResetForSceneUnload();
         if (sceneName == "Main") BackpackStorageManager.ResetForSceneUnload();
     }
 
