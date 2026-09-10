@@ -27,6 +27,24 @@ jobs:
           key: nuget-${{ hashFiles('**/*.csproj') }}
           restore-keys: nuget-
 
+      # Spiel-Assemblies (MelonLoader/Il2CppAssemblies) existieren nur mit
+      # installiertem Schedule I (lokal / self-hosted Runner). Build + Tests
+      # laufen nur dann; Restore, Format und SLN-Determinismus laufen immer.
+      # Aufloesung spiegelt Directory.Build.props (SCHEDULE1_PATH sonst Default).
+      - name: Detect game assemblies
+        id: detect
+        shell: pwsh
+        run: |
+          $gameDir = if ($env:SCHEDULE1_PATH) { $env:SCHEDULE1_PATH } else { 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I' }
+          $probe = Join-Path $gameDir 'MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll'
+          $hasGame = Test-Path -LiteralPath $probe
+          "has-game=$($hasGame.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          if ($hasGame) {
+            Write-Host "Game assemblies found ($gameDir) — full validation."
+          } else {
+            Write-Host "No game assemblies — build/tests will be skipped (see AGENTS.md)."
+          }
+
       - name: Restore
         run: dotnet restore Source/Mods/S1Mods.sln
 
@@ -34,15 +52,31 @@ jobs:
         run: dotnet format Source/Mods/S1Mods.sln --verify-no-changes --verbosity diagnostic
 
       - name: Build (Release)
+        if: steps.detect.outputs.has-game == 'true'
         run: dotnet build Source/Mods/S1Mods.sln -c Release --no-restore --nologo
 
-      - name: Tests (Shared.Tests)
+      - name: Tests
+        if: steps.detect.outputs.has-game == 'true'
+        shell: pwsh
         run: |
-          if (Test-Path "Source/Tests/Shared.Tests/Shared.Tests.csproj") {
-            dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj -c Release --no-build --verbosity normal
-          } else {
-            Write-Host "Shared.Tests not found — skip."
+          if (-not (Test-Path -LiteralPath "Source/Tests")) {
+            Write-Host "Source/Tests not found — skip."
+            exit 0
           }
+          $failed = $false
+          Get-ChildItem -Path "Source/Tests" -Recurse -Filter "*.csproj" | ForEach-Object {
+            dotnet test $_.FullName -c Release --nologo
+            if ($LASTEXITCODE -ne 0) { $failed = $true }
+          }
+          if ($failed) { exit 1 }
+          Write-Host "All test projects passed."
+
+      - name: No game assemblies — limited validation
+        if: steps.detect.outputs.has-game != 'true'
+        shell: pwsh
+        run: |
+          Write-Host "Schedule I ist auf diesem Runner nicht installiert: Build + Tests uebersprungen."
+          Write-Host "Volle Validierung braucht Spiel-Assemblies (lokal bauen oder self-hosted Runner). Siehe AGENTS.md."
 
       - name: Check S1Mods.sln determinism
         shell: pwsh
@@ -57,11 +91,10 @@ jobs:
           }
           Write-Host "S1Mods.sln deterministic OK."
 
-      - name: Knowledge path check (XRef)
-        shell: pwsh
-        run: |
-          pwsh Tools/fix-knowledge-paths.ps1 -WhatIf -Scope XRef
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      # Knowledge-XRef-Check entfernt 2026-09-10: Der Knowledge-Workspace
+      # existiert nach der Neuinstallation nicht mehr (siehe AGENTS.md §7).
+      # Skript bei Bedarf aus der Historie:
+      #   git show 891c330^:Tools/fix-knowledge-paths.ps1
 
       - name: Verify mod versions in sync (bump-version dry-run)
         shell: pwsh
