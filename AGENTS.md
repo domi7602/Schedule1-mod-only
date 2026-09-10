@@ -281,6 +281,8 @@ pwsh Tools\new-mod.ps1 -Name <ModName>
 ```
 
 > **Hinweis:** `Tools\` wurde am 2026-09-10 aus der Git-Historie reaktiviert (alle Helper ausser `fix-knowledge-paths.ps1` — Knowledge/ existiert nicht mehr; Reaktivierung: `git show 891c330^:Tools/fix-knowledge-paths.ps1`).
+>
+> **Cleanup-Hinweis (2026-09-10):** In `<GameDir>\Mods\` lagen pre-existing zwei Reference-Assemblies (`S1API.dll` 415 KB, `Hash.dll` 188 KB) aus frueheren manuellen Deploys. Beide riefen beim Spielstart `BadImageFormatException` (Reference assemblies should not be loaded for execution) und floodeten den Log mit ~50 ERROR-Zeilen, ohne funktional etwas zu brechen. Geloescht — die echten Versionen sind: `S1API.Il2Cpp.MelonLoader.dll` (Mods\), `Plugins\S1APILoader.dll`, `UserLibs\S1MAPI_Il2cpp.dll` (fuer AutoPackagingStation.GltfLoader). Hash.dll bleibt nur noch als Referenz im Repo (`ThirdParty/ScheduleOne-Hash/`), nicht deployed — PotScanner nutzt den S1API-Hash-Bridge ohne DLL via Reflection-Queue.
 
 Deployment läuft **automatisch** via `Directory.Build.targets` — mit getrennten Zielen (Konvention seit Reinstall 2026-09):
 
