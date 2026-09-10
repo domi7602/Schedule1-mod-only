@@ -141,7 +141,7 @@ public static class SafeStorage
         {
             string json = File.ReadAllText(filePath);
             if (string.IsNullOrWhiteSpace(json))
-                return fallback;
+                throw new InvalidDataException("Hauptdatei ist leer.");
 
             T? result = JsonSerializer.Deserialize<T>(json, options ?? DefaultJsonOptions);
             return result ?? fallback;

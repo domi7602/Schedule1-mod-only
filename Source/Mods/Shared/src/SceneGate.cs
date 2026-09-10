@@ -48,12 +48,12 @@ public static class SceneGate
 
             SceneManager.add_sceneLoaded(new Action<Scene, LoadSceneMode>((scene, mode) =>
             {
-                HandleSceneLoaded(scene.name, scene.isLoaded);
+                HandleSceneLoaded(scene, mode);
             }));
 
             SceneManager.add_sceneUnloaded(new Action<Scene>(scene =>
             {
-                HandleSceneUnloaded(scene.name);
+                HandleSceneUnloaded(scene);
             }));
 
             _eventsSubscribed = true;
@@ -102,11 +102,13 @@ public static class SceneGate
         }
     }
 
-    private static void HandleSceneLoaded(string sceneName, bool isLoaded)
+    private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        var active = SceneManager.GetActiveScene();
+
         bool wasMain = IsInMainScene;
-        CurrentSceneName = sceneName ?? "";
-        IsLoaded = isLoaded;
+        CurrentSceneName = active.name ?? "";
+        IsLoaded = active.isLoaded;
         IsChangingScenes = false;
 
         GameObjectResolver.InvalidateCache();
@@ -124,12 +126,14 @@ public static class SceneGate
         }
     }
 
-    private static void HandleSceneUnloaded(string sceneName)
+    private static void HandleSceneUnloaded(Scene scene)
     {
+        var active = SceneManager.GetActiveScene();
+
         bool wasMain = IsInMainScene;
-        CurrentSceneName = sceneName ?? "";
-        IsLoaded = false;
-        IsChangingScenes = true;
+        CurrentSceneName = active.name ?? "";
+        IsLoaded = active.isLoaded;
+        IsChangingScenes = !active.isLoaded;
 
         GameObjectResolver.InvalidateCache();
 
