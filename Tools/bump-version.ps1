@@ -5,7 +5,9 @@
 
 .DESCRIPTION
     Synchronisiert die Version über:
-      1. Source/Mods/<Mod>/src/Mod.cs  -> [assembly: MelonInfo(..., "x.y.z", ...)]
+      1. Source/Mods/<Mod>/src/*.cs (Datei mit MelonInfo-Attribut: Mod.cs,
+         MoreSaveSlotsMod.cs, MinimapMod.cs, ...; PotScanner nutzt
+         Constants.ModVersion und wird bewusst nur gewarnt, nicht geraten)
       2. Source/Mods/<Mod>/docs/mod.json -> "version": "x.y.z"
       3. Source/Mods/<Mod>/docs/CHANGELOG.md -> prepend "## x.y.z - YYYY-MM-DD"
       4. AGENTS.md -> Mod-Matrix Zeile
@@ -44,12 +46,15 @@ function Update-ModVersion {
         return $false
     }
 
-    $modCsCandidates = Get-ChildItem -LiteralPath (Join-Path $modDir "src") -Filter "Mod.cs" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-    if (-not $modCsCandidates) {
-        $modCsCandidates = Get-ChildItem -LiteralPath $modDir -Filter "Mod.cs" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-    }
+    # 2026-09-10: MelonInfo per Inhalt suchen statt per Dateiname "Mod.cs"
+    # (MoreSaveSlotsMod.cs, MinimapMod.cs; PotScanner referenziert nur
+    # Constants.ModVersion und faellt bewusst in die Warnung unten).
     $modCsPath = $null
-    if ($modCsCandidates) { $modCsPath = $modCsCandidates.FullName }
+    $melonFinder = '\[assembly:\s*MelonInfo\('
+    $candidate = Get-ChildItem -LiteralPath (Join-Path $modDir "src") -Filter "*.cs" -Recurse -ErrorAction SilentlyContinue |
+        Where-Object { (Get-Content -LiteralPath $_.FullName -Raw -ErrorAction SilentlyContinue) -match $melonFinder } |
+        Select-Object -First 1
+    if ($candidate) { $modCsPath = $candidate.FullName }
 
     $modJsonPath = Join-Path $modDir "docs/mod.json"
     $changelogPath = Join-Path $modDir "docs/CHANGELOG.md"
@@ -62,8 +67,9 @@ function Update-ModVersion {
         $pattern = '(\[assembly:\s*MelonInfo\(.*?"[^"]*"\s*,\s*")[^"]+("\s*,)'
         if ($content -match $pattern) {
             $newContent = [regex]::Replace($content, $pattern, "`${1}$NewVersion`${2}")
-            # also handle MelonLogger "Initialized (vX.Y.Z)" pattern if present
+            # also handle "Initialized (vX.Y.Z)" log lines (MelonLogger.Msg / Log.Info)
             $newContent = [regex]::Replace($newContent, '(\.Msg\("Initialized \(v)[^\)]+(\)."\))', "`${1}$NewVersion`${2}")
+            $newContent = [regex]::Replace($newContent, '(\.Info\("Initialized \(v)[^\)]+(\)."\))', "`${1}$NewVersion`${2}")
             $newContent = [regex]::Replace($newContent, '(\.Msg\("\[.+?\] initialisiert \(v)[^\)]+(\)."\))', "`${1}$NewVersion`${2}")
             if ($newContent -ne $content) {
                 $changed += "Mod.cs MelonInfo -> $NewVersion"
@@ -99,9 +105,11 @@ function Update-ModVersion {
         $clRaw = [System.IO.File]::ReadAllText($changelogPath, [System.Text.Encoding]::UTF8)
         if ($clRaw -notmatch "##\s+$([regex]::Escape($NewVersion))\b") {
             $header = "## $NewVersion ($today)`n- Version bump.`n`n"
-            # Insert after first "# Changelog" header
+            # Insert after first "# Changelog" header (Instanz-Replace mit Count=1,
+            # siehe AGENTS.md-Fix oben — statisches Replace mit ", 1" waere IgnoreCase).
             if ($clRaw -match "(?m)^# Changelog\s*\r?\n") {
-                $newCl = [regex]::Replace($clRaw, "(?m)(^# Changelog\s*\r?\n)", "`$1`n$header", 1)
+                $clRx = [regex]"(?m)(^# Changelog\s*\r?\n)"
+                $newCl = $clRx.Replace($clRaw, "`$1`n$header", 1)
             } else {
                 $newCl = "# Changelog`n`n$header`n$clRaw"
             }
@@ -121,7 +129,12 @@ function Update-ModVersion {
         $agentsChanged = $false
         foreach ($line in $lines) {
             if ($line -match "\*\*$escapedMod\*\*") {
-                $newLine = [regex]::Replace($line, "v\d+\.\d+\.\d+(-[\w\.]+)?", "v$NewVersion", 1)
+                # 2026-09-10 FIX: [regex]::Replace(.., .., .., 1) bindet die 1 an
+                # RegexOptions (IgnoreCase), NICHT an einen Count — es ersetzte ALLE
+                # Treffer (u.a. die Game-Version v0.4.6f13 -> vX.Y.Zf13). Instanz-Methode
+                # mit Count=1 ersetzt nur die erste (die Mod-Version).
+                $rx = [regex]"v\d+\.\d+\.\d+(-[\w\.]+)?"
+                $newLine = $rx.Replace($line, "v$NewVersion", 1)
                 if ($newLine -ne $line) { $agentsChanged = $true; $changed += "AGENTS.md matrix -> v$NewVersion" }
                 $newLines += $newLine
             } else {

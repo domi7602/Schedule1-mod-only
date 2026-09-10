@@ -14,6 +14,15 @@ $workspaceRoot = Split-Path -Parent $scriptDir
 $modsRoot = Join-Path $workspaceRoot 'Source\Mods'
 $releaseDir = Join-Path $workspaceRoot $OutputDir
 
+# Fail fast ohne Spiel-Assemblies: dotnet build braucht MelonLoader/Il2CppAssemblies
+# (gleiche Aufloesung wie Directory.Build.props: $env:SCHEDULE1_PATH sonst Defaultpfad).
+$gameDir = if ($env:SCHEDULE1_PATH) { $env:SCHEDULE1_PATH } else { 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I' }
+$probeRef = Join-Path $gameDir 'MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll'
+if (-not (Test-Path -LiteralPath $probeRef)) {
+    Write-Error "Spiel-Assemblies nicht gefunden (gesucht: $probeRef). Release-Packaging braucht eine Schedule-I-Installation — `$env:SCHEDULE1_PATH setzen oder lokal/self-hosted bauen. Siehe AGENTS.md."
+    exit 1
+}
+
 if (-not (Test-Path $releaseDir)) {
     New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
 }
@@ -67,25 +76,41 @@ foreach ($modDir in $targetMods) {
     # Prepare temp packaging staging dir
     $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) "S1Release_$modName"
     if (Test-Path $tempDir) { Remove-Item -Path $tempDir -Recurse -Force }
+    # Staging spiegelt die Deploy-Konvention (Directory.Build.targets, seit 2026-09):
+    #   Mods\              -> DLL + PNGs + Bundles (nur von MelonLoader ladbare Dateien)
+    #   UserData\<Mod>\    -> mod.json (Metadaten) + <Mod>.pdb (Debug-Symbole)
+    # JSON/PDB gehoeren NIEMALS nach Mods\.
     $stagingModsDir = Join-Path $tempDir 'Mods'
+    $stagingUserDataDir = Join-Path $tempDir "UserData\$modName"
     New-Item -ItemType Directory -Path $stagingModsDir -Force | Out-Null
+    New-Item -ItemType Directory -Path $stagingUserDataDir -Force | Out-Null
 
-    # Copy DLL
+    # Copy DLL -> Mods\
     Copy-Item -Path $dllPath -Destination $stagingModsDir -Force
 
-    # Copy mod.json as <ModName>.json
+    # Copy mod.json as mod.json -> UserData\<Mod>\
     if (Test-Path $modJsonPath) {
-        Copy-Item -Path $modJsonPath -Destination (Join-Path $stagingModsDir "$modName.json") -Force
+        Copy-Item -Path $modJsonPath -Destination (Join-Path $stagingUserDataDir "mod.json") -Force
     }
 
-    # Copy PNGs from src/
-    $pngs = Get-ChildItem -Path (Join-Path $modDir.FullName 'src') -Filter '*.png' -File
+    # Copy PDB -> UserData\<Mod>\ (wenn vom Build erzeugt)
+    $pdbPath = Join-Path (Split-Path -Parent $dllPath) "$modName.pdb"
+    if (Test-Path $pdbPath) {
+        Copy-Item -Path $pdbPath -Destination $stagingUserDataDir -Force
+    }
+
+    # Copy PNGs (src\*.png + assets\*.png, vgl. Directory.Build.targets) -> Mods\
+    $pngs = @()
+    $pngs += Get-ChildItem -Path (Join-Path $modDir.FullName 'src') -Filter '*.png' -File -ErrorAction SilentlyContinue
+    $assetsDir = Join-Path $modDir.FullName 'assets'
+    if (Test-Path $assetsDir) {
+        $pngs += Get-ChildItem -Path $assetsDir -Filter '*.png' -File -ErrorAction SilentlyContinue
+    }
     foreach ($png in $pngs) {
         Copy-Item -Path $png.FullName -Destination $stagingModsDir -Force
     }
 
-    # Copy AssetBundles from assets/
-    $assetsDir = Join-Path $modDir.FullName 'assets'
+    # Copy AssetBundles from assets/ -> Mods\
     if (Test-Path $assetsDir) {
         $bundles = Get-ChildItem -Path $assetsDir -Filter '*.bundle' -File
         foreach ($b in $bundles) {

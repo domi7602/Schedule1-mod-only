@@ -34,7 +34,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{C4785B
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StackLimitMod", "StackLimitMod", "{16C707E4-717E-E7CE-0EA9-8FAFFA7B49E7}"
 EndProject
-EndProject
 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_DiagPerfCounter", "_DiagPerfCounter\src\_DiagPerfCounter.csproj", "{25C7D322-5E4C-31D5-4476-F28F0106AF00}"
 EndProject
@@ -67,7 +66,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\src\Shared.csproj", "{679094D9-3336-D1CA-AE34-2F7F61E3DC17}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StackLimitMod", "StackLimitMod\src\StackLimitMod.csproj", "{E653973D-7BC5-E035-F1CF-0BC1CEE0C0F8}"
-EndProject
 EndProject
 
 Global
