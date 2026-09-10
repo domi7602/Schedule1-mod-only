@@ -75,30 +75,32 @@ A successful build deploys automatically (via `Directory.Build.targets`), with s
 
 > **Post-reinstall status (2026-09-04):** The repo now lives **inside the game directory** (`<GameDir>\Schedule1-mod-only-main`). Setup restored: .NET SDK 8.0.424 installed, S1API 3.2.0 rebuilt from `ThirdParty/S1API/` and deployed (`local.build.props` created from `example.build.props`), NotesApp + Shared built as verification. Remaining mods: redeploy via `dotnet build` per mod. `Tools\` and `.agents/skills/` were intentionally removed during the migration (recoverable via `git checkout HEAD -- Tools/ .agents/`).
 
-## Active Mods (as of 2026-08-23)
+## Active Mods (as of 2026-09-10)
 
 ### 📱 Phone Apps (S1API PhoneApp)
 
 | Mod | Version | Details |
 |-----|---------|---------|
-| **NotesApp** | v1.0.0 | SafeStorage persistence, real-time search, pinning, quick-stamp, 5 shortcuts |
-| **PotScanner** | v0.5.0 | Quick filter tabs, quality rating, focus mode, auto-water, 0-GC polling |
-| **CalculatorApp** | v0.2.0 | Decimal arithmetic, cash/bank integration, clipboard, searchable history |
-| **BankApp** | v0.1.0 | Digital ATM dashboard, slot-aware deposits/withdrawals, weekly limits |
-| **PocketShop** | v0.2.1 | Multi-payment (Cash/Bank/Auto), ItemDetailModal, 2-level navigation, SFX |
+| **NotesApp** | v1.0.1 | SafeStorage persistence, real-time search, pinning, quick-stamp, 5 shortcuts |
+| **PotScanner** | v0.5.1 | Quick filter tabs, quality rating, focus mode, auto-water, 0-GC polling |
+| **CalculatorApp** | v0.2.1 | Decimal arithmetic, cash/bank integration, clipboard, searchable history |
+| **BankApp** | v0.4.1 | Digital ATM dashboard, slot-aware deposits/withdrawals, weekly limits |
+| **PocketShop** | v0.2.2 | Multi-payment (Cash/Bank/Auto), ItemDetailModal, 2-level navigation, SFX |
 
 ### 🎮 Gameplay & QoL
 
 | Mod | Version | Details |
 |-----|---------|---------|
-| **CustomSkateboard** | v1.0.2 | Ultra-carving, instant-jump, high-speed push, anti-gravel, Nexus ready |
-| **HomelessMod** | v0.1.1 | Everywhere building, procedural sleeping bag, Street Nomad questline |
-| **BusinessIncome** | v0.1.0 | Daily passive revenue, multiplayer host authority, deterministic variance |
-| **Minimap** | v1.0.1 | Dual-shape Radar/Tactical, integrated DayCounter, pooled blips, drag & drop |
-| **MoreSaveSlots** | v1.0.1 | 25+ save slots, paginated navigation, inline renaming, Harmony patches |
-| **StackLimitMod** | v0.1.0 | Configurable stack limits, runtime registry hook, console commands |
-| **BackpackMod** | v1.0.0 | 3D wearable backpacks, spine rig alignment, tier-based storage, .obj loader |
-| **AutoPackagingStation** | v0.2.1 | 4×4 industrial packaging, UV-scroll conveyor, atomic 2-phase engine |
+| **CustomSkateboard** | v1.1.1 | Ultra-carving, instant-jump, high-speed push, anti-gravel, Nexus ready |
+| **HomelessMod** | v0.1.6 | Everywhere building, procedural sleeping bag, Street Nomad questline |
+| **BusinessIncome** | v0.1.1 | Daily passive revenue, multiplayer host authority, deterministic variance |
+| **Minimap** | v1.0.2 | Dual-shape Radar/Tactical, integrated DayCounter, pooled blips, drag & drop |
+| **MoreSaveSlots** | v1.0.2 | 25+ save slots, paginated navigation, inline renaming, Harmony patches |
+| **StackLimitMod** | v0.1.1 | Configurable stack limits, runtime registry hook, console commands |
+| **BackpackMod** | v1.0.1 | 3D wearable backpacks, spine rig alignment, tier-based storage, .obj loader |
+| **AutoPackagingStation** | v0.2.2 | 4×4 industrial packaging, UV-scroll conveyor, atomic 2-phase engine |
+| **HitmanPhone** | v0.2.2 | Bounty contracts via Messages app, Polaroid dead-drops, heat, quests |
+| **_DiagPerfCounter** | v0.3.1 | Dev-tool: StorageEntity hook-target dump to UserData |
 
 ### 📚 Archived (`Source/Archive/`)
 

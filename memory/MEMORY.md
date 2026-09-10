@@ -138,6 +138,7 @@ Kompakte Historie; Details stehen in den Mod-`CHANGELOG.md`-Dateien und der Git-
 | 2026-09-04 | **Neuinstallation/Umzug:** Repo in Spiel-Ordner, .NET SDK 8.0.424, S1API 3.2.0-Fork-Build deployed, NotesApp+Shared als Verifikation; Deploy-Konvention json/pdb → `UserData\<Mod>\` |
 | 2026-09-09 | BankApp 0.3.0 (Mockup-Redesign: Chip-Grid, Weekly-Limit-Progress, Double-Entry, kein Free-Text-Input mehr → InputFocus entfernt) |
 | 2026-09-10 | MEMORY.md-Bereinigung: Duplikate entfernt, Gotchas zusammengeführt, ~94 KB → kompakte Referenz |
+| 2026-09-10 | Audit-Fix-Patches (4 HIGH / 19 MEDIUM / 30 LOW verifiziert + gefixt), Patch-Versionen (Mod.cs + mod.json + CHANGELOG), HitmanPhone/_DiagPerfCounter in AGENTS.md + README + DEVELOPERS.md dokumentiert |
 
 ---
 

@@ -12,21 +12,23 @@
 This repository contains several active mods, built from the ground up for stability and seamless integration into the game:
 
 ### 📱 Phone Apps
-* **NotesApp** (v1.0.0): A fully functional notepad on your in-game phone. Features safe persistence, real-time search, pinning, and quick-stamps for keeping track of your business.
-* **CalculatorApp** (v0.2.0): High-precision decimal calculator integrated into your phone. Features in-game money integration (Cash & Bank) and a searchable history.
-* **PotScanner** (v0.5.0): The ultimate tool for your grow ops. Provides quick-filter tabs (Thirsty, Ready, Empty), plant quality ratings, and single-property focus modes.
-* **BankApp** (v0.1.0): Digital account dashboard for tracking your cash flow and net worth. Features slot-aware cash deposits and weekly ATM limits.
-* **PocketShop** (v0.2.1): An advanced online shopping interface with multi-payment switching (Cash/Bank/Auto), item inspection modals, and zero-overlay clean shopping.
+* **NotesApp** (v1.0.1): A fully functional notepad on your in-game phone. Features safe persistence, real-time search, pinning, and quick-stamps for keeping track of your business.
+* **CalculatorApp** (v0.2.1): High-precision decimal calculator integrated into your phone. Features in-game money integration (Cash & Bank) and a searchable history.
+* **PotScanner** (v0.5.1): The ultimate tool for your grow ops. Provides quick-filter tabs (Thirsty, Ready, Empty), plant quality ratings, and single-property focus modes.
+* **BankApp** (v0.4.1): Digital account dashboard for tracking your cash flow and net worth. Features slot-aware cash deposits and weekly ATM limits.
+* **PocketShop** (v0.2.2): An advanced online shopping interface with multi-payment switching (Cash/Bank/Auto), item inspection modals, and zero-overlay clean shopping.
 
 ### 🎮 Gameplay & QoL
-* **CustomSkateboard** (v1.0.2): Overhauls the skateboarding experience with ultra-responsive carving, instant jumping, high-speed pushes, and anti-gravel suspension. Visually protects your avatar.
-* **HomelessMod** (v0.1.1): Live the street nomad life! Build anywhere, deploy procedural 3D sleeping bags, dismantle outdoor items, and follow the Street Nomad questline.
-* **BusinessIncome** (v0.1.0): Earn daily passive revenue for your owned businesses, complete with multiplayer host authority and deterministic variance.
-* **Minimap** (v1.0.1): A unified dual-shape viewport (Radar vs Tactical GPS) with dynamic rotation, zoom, pooled blips for tracking points of interest, and an integrated day/time HUD.
-* **StackLimitMod** (v0.1.0): Configurable inventory and storage stack limits (1–9999) with runtime registry patching and console commands.
-* **MoreSaveSlots** (v1.0.1): Expands vanilla save slots from 5 to 25+ with paginated navigation and inline save renaming.
-* **BackpackMod** (v1.0.0): 3D wearable backpacks with realistic harness straps, tier-based storage scaling (+4/+8/+16 slots), runtime `.obj` model loading, and 360° mannequin rotation.
-* **AutoPackagingStation** (v0.2.1): 4×4 industrial automated packaging line with UV-scroll conveyor belt, atomic 2-phase engine, weighted quality mixing, and native slot sync.
+* **CustomSkateboard** (v1.1.1): Overhauls the skateboarding experience with ultra-responsive carving, instant jumping, high-speed pushes, and anti-gravel suspension. Visually protects your avatar.
+* **HomelessMod** (v0.1.6): Live the street nomad life! Build anywhere, deploy procedural 3D sleeping bags, dismantle outdoor items, and follow the Street Nomad questline.
+* **BusinessIncome** (v0.1.1): Earn daily passive revenue for your owned businesses, complete with multiplayer host authority and deterministic variance.
+* **Minimap** (v1.0.2): A unified dual-shape viewport (Radar vs Tactical GPS) with dynamic rotation, zoom, pooled blips for tracking points of interest, and an integrated day/time HUD.
+* **StackLimitMod** (v0.1.1): Configurable inventory and storage stack limits (1–9999) with runtime registry patching and console commands.
+* **MoreSaveSlots** (v1.0.2): Expands vanilla save slots from 5 to 25+ with paginated navigation and inline save renaming.
+* **BackpackMod** (v1.0.1): 3D wearable backpacks with realistic harness straps, tier-based storage scaling (+4/+8/+16 slots), runtime `.obj` model loading, and 360° mannequin rotation.
+* **AutoPackagingStation** (v0.2.2): 4×4 industrial automated packaging line with UV-scroll conveyor belt, atomic 2-phase engine, weighted quality mixing, and native slot sync.
+* **HitmanPhone** (v0.2.2): Bounty/contract gameplay via the phone Messages app — anonymous callers, Polaroid evidence dead-drops, police heat, and journal quests.
+* **_DiagPerfCounter** (v0.3.1): Dev-tool that dumps StorageEntity hook targets to UserData for mod development (no gameplay effect).
 
 ## 🛠️ Installation
 

@@ -60,32 +60,34 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 
 ---
 
-## 2. Mod Inventory (Stand 2026-08-23 — Deploy-Status siehe Hinweis)
+## 2. Mod Inventory (Stand 2026-09-10 — Deploy-Status siehe Hinweis)
 
 > **Status nach Neuinstallation (2026-09-04):** Setup wiederhergestellt — .NET SDK 8.0.424 installiert, S1API 3.2.0 aus `ThirdParty/S1API/` gebaut und deployed (`Mods\S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.dll`), NotesApp + Shared als Verifikation gebaut. Die übrigen Mods sind **noch nicht** redeployed (Stand 2026-09-04) — einfach `dotnet build` je Mod laufen lassen. S1API-Rebuild: `local.build.props` (Kopie von `example.build.props`) liegt bereit; der Multi-TFM-Loader-Build wirft einen harmlosen MSB3030-Copy-Fehler beim net6.0-Durchlauf — die korrekte netstandard2.1-DLL wird trotzdem deployt. **Deploy-Konvention seit 2026-09:** DLL + Icons/Bundles → `Mods\`; `mod.json` + `<Mod>.pdb` → `UserData\<Mod>\` — json/pdb gehören **nicht** nach `Mods\`.
 
 | Mod              | Status          | Path in `Source/`      | Path in `<Game>\Mods\`              | S1API? |
 |------------------|-----------------|------------------------|-------------------------------------|--------|
-| **NotesApp**     | ✅ active (v1.0.0, **verified 2026-08-14 / v0.4.6f13**) | `Mods/NotesApp/` | `NotesApp.dll` + Icon | yes (PhoneApp + UIFactory + InputFocus hook + SafeStorage) |
-| **PotScanner**   | ✅ active (v0.5.0, **verified 2026-08-14 / v0.4.6f13**) | `Mods/PotScanner/` | `PotScanner.dll` | yes (PhoneApp + Property + Growing + Money + Lifecycle APIs + ModConfig + Console/BaseConsoleCommand) |
-| **CalculatorApp**| ✅ active (v0.2.0, **verified 2026-08-14 / v0.4.6f13**) | `Mods/CalculatorApp/` | `CalculatorApp.dll` | yes (PhoneApp + Money + UIFactory + InputFocus hook + SafeStorage) |
-| **CustomSkateboard**| ✅ active (v1.0.2, **verified 2026-08-20 / v0.4.6f13**) | `Mods/CustomSkateboard/` | `CustomSkateboard.dll` + Icon | yes (Skating/Skateboard + Ultra Carving + Instant Jump + Anti-Gravel + Jeff Dialogue + Nexus Ready) |
-| **MoreSaveSlots**| ✅ active (v1.0.1, **verified 2026-08-14 / v0.4.6f13**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` | no (MelonMod + Harmony) |
+| **NotesApp**     | ✅ active (v1.0.1, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/NotesApp/` | `NotesApp.dll` + Icon | yes (PhoneApp + UIFactory + InputFocus hook + SafeStorage) |
+| **PotScanner**   | ✅ active (v0.5.1, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/PotScanner/` | `PotScanner.dll` | yes (PhoneApp + Property + Growing + Money + Lifecycle APIs + ModConfig + Console/BaseConsoleCommand) |
+| **CalculatorApp**| ✅ active (v0.2.1, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/CalculatorApp/` | `CalculatorApp.dll` | yes (PhoneApp + Money + UIFactory + InputFocus hook + SafeStorage) |
+| **CustomSkateboard**| ✅ active (v1.1.1, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/CustomSkateboard/` | `CustomSkateboard.dll` + Icon | yes (Skating/Skateboard + Ultra Carving + Instant Jump + Anti-Gravel + Jeff Dialogue + Nexus Ready) |
+| **MoreSaveSlots**| ✅ active (v1.0.2, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` | no (MelonMod + Harmony) |
 | **DayCounter**      | ⏸ archived (v1.0.0) | `Archive/DayCounter/` | — (removed from MelonLoader) | no (MelonMod + uGUI Screen HUD + TextMeshPro + S1API/Hash Console + ModConfig) |
-| **PocketShop** | ✅ active (v0.2.1, **verified 2026-08-17 / v0.4.6f13**) | `Mods/PocketShop/` | `PocketShop.dll` | yes (PhoneApp + Multi-Payment (Cash/Bank/Auto) + ItemDetailModal + SFX) |
-| **BankApp**    | ✅ active (v0.3.0, **verified 2026-09-09 / v0.4.6f13**) | `Mods/BankApp/`    | `BankApp.dll` + Icon | yes (PhoneApp + Chip-Based Single-Screen UI + Weekly Limit Progress + Double-Entry Booking + Slot-Awareness + Save-Slot Isolation) |
-| **HomelessMod** | ✅ active (v0.1.1, **verified 2026-08-17 / v0.4.6f13**) | `Mods/HomelessMod/` | `HomelessMod.dll` | yes (Street Nomad + Everywhere Building + 3D Procedural Sleeping Bag + Quests + Console + Save-Slot Isolation) |
-| **BusinessIncome** | ✅ active (v0.1.0, **verified 2026-08-17 / v0.4.6f13**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | yes (Daily Passive Revenue + Multiplayer Host Authority + Slot Idempotency + Deterministic Variance + Console Dashboard) |
-| **Minimap**        | ✅ active (v1.0.1, **verified 2026-08-18 / v0.4.6f13**) | `Mods/Minimap/` | `Minimap.dll` | yes (Minimap & Unified HUD + Dual-Shape Circle/Square + Pooled Blips + DayCounter Merged + Drag-and-Drop) |
+| **PocketShop** | ✅ active (v0.2.2, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/PocketShop/` | `PocketShop.dll` | yes (PhoneApp + Multi-Payment (Cash/Bank/Auto) + ItemDetailModal + SFX) |
+| **BankApp**    | ✅ active (v0.4.1, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/BankApp/`    | `BankApp.dll` + Icon | yes (PhoneApp + Chip-Based Single-Screen UI + Weekly Limit Progress + Double-Entry Booking + Slot-Awareness + Save-Slot Isolation) |
+| **HomelessMod** | ✅ active (v0.1.6, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/HomelessMod/` | `HomelessMod.dll` | yes (Street Nomad + Everywhere Building + 3D Procedural Sleeping Bag + Quests + Console + Save-Slot Isolation) |
+| **BusinessIncome** | ✅ active (v0.1.1, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | yes (Daily Passive Revenue + Multiplayer Host Authority + Slot Idempotency + Deterministic Variance + Console Dashboard) |
+| **Minimap**        | ✅ active (v1.0.2, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/Minimap/` | `Minimap.dll` | yes (Minimap & Unified HUD + Dual-Shape Circle/Square + Pooled Blips + DayCounter Merged + Drag-and-Drop) |
 | **ProfitTracker**   | ⏸ archived (v1.1.0) | `Archive/ProfitTracker/` | — (removed from MelonLoader) | no (MelonMod + uGUI Screen HUD + TextMeshPro + S1API/Hash Console + SafeStorage) |
 | **TVBrowser**       | ⏸ archived (v0.1.0) | `Archive/TVBrowser/`   | — (removed from MelonLoader) | yes (TVApp + BrowserNavBar + InputFocus + UwbBridge + ModConfig) |
 | **MikuPlayerModel** | ⏸ disabled (discontinued) | `Archive/MikuPlayerModel/` | `MikuPlayerModel.dll.bak` | yes (Player Avatar Injection + Verlet Hair Spring Physics + Console) |
 | **S1MCP**        | ✅ active (v1.0.1, IL2CPP net6, freeze fix, debug-logging opt-in, **verified 2026-08-22**) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | yes (MCP Protocol / TCP Server :8765 / Live Game State / Log Inspection) |
 | Construction Site | ⏸ disabled     | —                      | `ConstructionSiteProperty.dll.bak`   | no   |
 | **MoreDrugs 1.0.2** | ✅ active (ifBars rewrite, S1API Save-Provider, **verified 2026-08-04**) | `ThirdParty/MoreDrugs/` | `DrugExpansion_Il2cpp.dll` (10.5 MB) + .bak | yes (S1API 3.1.7+ Save-Provider APIs verified) |
-| **StackLimitMod** | ✅ active (v0.1.0, **verified 2026-08-20 / v0.4.6f13**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` | yes (BaseItemDefinition + Registry + BaseItemInstance Harmony Patches + Console + SafeStorage) |
-| **BackpackMod**   | ✅ active (v1.0.0, **verified 2026-08-21 / v1.0.0f13**) | `Mods/BackpackMod/` | `BackpackMod.dll` + .bundle | yes (3D Wearable Backpacks + Spine Rig Alignment + Realistic Harness & Straps + ObjLoader + Storage + Mannequin 360 Rotation) |
-| **AutoPackagingStation** | ✅ active (v0.2.0, **verified 2026-08-23 / v0.2.0f13**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | yes (4x4 Industrial Packaging Line + UV Scroll Conveyor + Native Slot Sync + SafeStorage + Shop Injection) |
+| **StackLimitMod** | ✅ active (v0.1.1, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` | yes (BaseItemDefinition + Registry + BaseItemInstance Harmony Patches + Console + SafeStorage) |
+| **BackpackMod**   | ✅ active (v1.0.1, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/BackpackMod/` | `BackpackMod.dll` + .bundle | yes (3D Wearable Backpacks + Spine Rig Alignment + Realistic Harness & Straps + ObjLoader + Storage + Mannequin 360 Rotation) |
+| **AutoPackagingStation** | ✅ active (v0.2.2, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | yes (4x4 Industrial Packaging Line + UV Scroll Conveyor + Native Slot Sync + SafeStorage + Shop Injection) |
+| **HitmanPhone** | ✅ active (v0.2.2, **dok. 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | yes (MessagesApp Contracts + NPC + Items + Quests + SafeStorage) |
+| **_DiagPerfCounter** | ✅ active (v0.3.1, **Dev-Tool, dok. 2026-09-10**) | `Mods/_DiagPerfCounter/` | `_DiagPerfCounter.dll` | no (Reflection-Dump via SafeStorage-Pfad) |
 | **Shared**       | ✅ active (workspace lib, **verified 2026-08-20**) | `Mods/Shared/` | `Shared.dll` | no (PatchGuard, SafeStorage, GameObjectResolver, SafeInvoker, HotkeyManager, ModConfig, ModLogger, NetworkGuard, SceneGate, TypeResolver, UITheme) |
 | S1API 3.2.0      | ✅ active        | —                      | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | (itself) |
 
@@ -101,7 +103,8 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 
 ### Mod Details (current status)
 
-**NotesApp v1.0.0 (2026-08-14, verified):**
+**NotesApp v1.0.1 (2026-09-10, Audit-Patch):**
+- **v1.0.1:** Statischer Event-Dispatcher (kein Subscriber-Leak pro Szeneload); tote `MigrateLegacyGlobalNotes()` entfernt.
 - **SafeStorage Persistence:** Protects `notes.json` via `S1Mods.Shared.SafeStorage.SaveAtomic` (atomic write + `.bak` backup) with automatic crash recovery.
 - **Real-Time Search Bar:** Search field (`🔍 Search notes...`) above the list for fast title and full-text filtering.
 - **Pinning / Favorites (📌):** Notes can be pinned (`IsPinned`), receive a prominent amber accent stripe, and are always sorted to the top.
@@ -110,7 +113,8 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 - **Power-User Shortcuts:** <kbd>Ctrl+S</kbd> (save), <kbd>Escape</kbd> (back), <kbd>Tab</kbd> (title/text focus swap), <kbd>Ctrl+N</kbd> (new note), <kbd>Ctrl+F</kbd> (search).
 - **Method 3 Responsive UI & Input Focus:** Dynamic canvas scaling via `UITheme.Sp/Dp` and the focus hook `NotesAppInputFocus` for typing without character movement.
 
-**PotScanner v0.5.0 (2026-08-14, verified):**
+**PotScanner v0.5.1 (2026-09-10, Audit-Patch):**
+- **v0.5.1:** Statischer Event-Dispatcher + Per-Handler-try/catch; WaterAll/WaterSinglePot host-only (MP-Geldschutz).
 - **Quick Filter Tabs Toolbar:** 4 interactive filter pills (`[All]`, `[💧 Thirsty]`, `[★ Ready]`, `[⬡ Empty]`) above the list for filtering by thirst, ripeness, or emptiness, with dynamic group badges and auto-hide for empty groups.
 - **Plant Quality Rating Display:** Shows the plant quality (`Q:{pct}%`) directly in the pot row header for growing and ready plants.
 - **Single-Property Focus Mode (Accordion/Focus View):** Tapping a property (e.g. "Barn") hides all other properties so only that property's pots occupy the phone screen. Tapping the header again restores the full overview.
@@ -119,7 +123,8 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 - **Dynamic Single-Water Click:** Clicking the water bar triggers `WaterSinglePot` at any time, even for a pot that started wet and later dried out.
 - **Status Indicators & Features:** "All Moist" indicator for watered pots, 2s polling of all `GrowContainer`, "Water All" action button with 30% skip threshold, "Auto-Water" polling service (50g/pot, persisted via `ModConfig<PotScannerConfig>`), `pot` console commands (S1API + hash bridge).
 
-**CalculatorApp v0.2.0 (2026-08-14, verified):**
+**CalculatorApp v0.2.1 (2026-09-10, Audit-Patch):**
+- **v0.2.1:** Statischer Event-Dispatcher; Pointer-/WasCollected-Guards im Slot-Suffix.
 - **Exact Decimal Arithmetic:** High-precision `decimal` math engine eliminates floating-point rounding errors for financial, drug yield, and batch calculations.
 - **In-Game Money Integration:** `[ 💵 Cash ]` & `[ 💳 Bank ]` quick-insert chips pull live player balances into the calculator via `S1API.Money.Money`.
 - **Clipboard Integration:** `[ 📋 Copy ]` chip and <kbd>Ctrl+C</kbd> copy the displayed number to the Windows clipboard; <kbd>Ctrl+V</kbd> parses and pastes numbers into the calculator.
@@ -129,7 +134,8 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 - **SafeStorage Persistence:** Atomic JSON persistence (`UserData/CalculatorApp/calculator_state.json`) with `.bak` backup protection.
 - **Physical Keyboard Support:** Direct numpad/keyboard keys, <kbd>Ctrl+C</kbd>, <kbd>Ctrl+V</kbd>, <kbd>Tab</kbd> / <kbd>Ctrl+H</kbd>.
 
-**CustomSkateboard v1.0.2 (2026-08-20, verified):**
+**CustomSkateboard v1.1.1 (2026-09-10, Audit-Patch):**
+- **v1.1.0/v1.1.1:** Tuning-Release (TopSpeed 140 km/h, Push/Lenkung); `IsGameplayScene` strikt `"Main"`.
 - **Bugfix-Round (20 issues, 6 HIGH / 9 MEDIUM / 5 LOW)**: scene-callback symmetry, per-renderer Material leak (`sharedMaterial`), cached `AnimationCurve`/`Gradient` (no GC churn), `InitializeAssets` re-init fix, candidate-base-ID logging + override config, TOCTOU collapse, exact mesh-name match, light shadows/renderMode fix, `EnableKeyword` gating, log-spam gating via `logStats`, lazy `Mod.Log`, `OrdinalIgnoreCase` dialogue compare, `BoardLeanRate` config-exposed, config-fail → `Log.Error`.
 - **New configs**: `BaseItemIdOverride` (default empty), `BoardLeanRate` (default 60f).
 - **Avatar Protection & Whitelist Visuals:** Strict renderer filtering and targeted MeshFilter swap on the deck prevent any visual impairment of the player avatar (hair, eyes, clothing stay untouched).
@@ -139,7 +145,8 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 - **Store Injection & Console:** Dynamic dialog injection for Jeff Gilmore plus console commands `skate` (give, stats, help).
 - **Strict Vanilla Isolation & Camera:** Pure runtime instance tuning at `OnMount` protects all vanilla boards (Golden Skateboard, Cruiser, etc.) from overwrites and preserves the native `SkateboardCamera` follow.
 
-**MoreSaveSlots v1.0.1 (2026-08-14, verified):**
+**MoreSaveSlots v1.0.2 (2026-09-10, Audit-Patch):**
+- **v1.0.2:** 1-based Slot-Nummern im Scan; toter Dialog-Block + SlotsPerPage-Config entfernt.
 - **Expand Save Slots:** Expands game save slots from vanilla 5 up to 25+ slots (default 25, configurable in `UserData/MoreSaveSlots/config.json`).
 - **Paginated Navigation:** Native `[ ◄ PREV ]` / `[ NEXT ► ]` navigation bar in `ContinueScreen`, `NewGameScreen`, and `ImportScreen`.
 - **Save Game Renaming:** Inline save rename modal dialog with backdrop dismiss, canvas parenting, and `Game.json.bak` auto-backup before writing.
@@ -148,14 +155,16 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 - **Harmony Patches & Scene Return Resilience:** Transparent remapping on `SaveDisplay.Refresh`, `SaveDisplay.Awake`, `SaveDisplay.SetDisplayedSave`, `ContinueScreen.LoadGame`, `NewGameScreen.SlotSelected`, `MenuScreen.OnOpen`/`OnClose`, and `SaveManager.Awake`. Skips native out-of-bounds loops when returning to Main Menu.
 
 
-**PocketShop v0.2.1 (2026-08-17, verified):**
+**PocketShop v0.2.2 (2026-09-10, Audit-Patch):**
+- **v0.2.2:** Statischer Event-Dispatcher + Dispose; toter Mugshot-Scan raus; Partial-Refund nur Rest; Catalog-Refresh guarded.
 - **Multi-Payment Switcher & Bank Integration:** Interactive chips in the sub-header (`[💵 Cash]`, `[💳 Bank Card]`, `[⚡ Auto]`). Supports physical cash (`ChangeCashBalance`) and online bank transfers (`CreateOnlineTransaction`). The `Auto` mode prefers cash and seamlessly falls back to the bank account when cash is insufficient.
 - **Item Detail & Inspection Modal (`ItemDetailModal`):** Click on an item icon or name opens a high-resolution detail view with full price breakdown (base price, service fee, total), merchant source, stock count, and quick-quantity chips (`[+1]`, `[+5]`, `[+10]`, `[MAX]`) for fast bulk purchase.
 - **Clean Shopping (No Disruptive Overlays):** Purchase confirmations complete without blocking banner overlays or fullscreen animations.
 - **Native & Procedural Audio Feedback (`SoundService`):** Plays the game's real cash register chime (`MoneyManager.Instance.PlayCashSound()`) on successful purchases, soft clicks on quantity changes, and alarm tones on rejected transactions. Enable/disable via `PocketShopConfig.EnableSoundEffects`.
 - **2-Level Navigation:** 4×3 grid with themed vector icons and merchant portraits (`StoreCatalogPane`) plus a 5×N item grid (`ItemGridPane`) with synchronized stock count.
 
-**HomelessMod v0.1.1 (2026-08-17, verified):**
+**HomelessMod v0.1.6 (2026-09-10, Audit-Patch):**
+- **v0.1.4–v0.1.6:** Gatekeeper-Fixes (PackUp-ItemID, Quest-2-Gear-Check, Wake-Credit, Mesh-Normalen, ResetState); Place-Prefix `__result=null`; Quest-Flush auf Save; Registry-Re-Verify.
 - **Everywhere Building & Collision Protection:** Unrestricted placement of objects across the entire game area (streets, parks, alleys) via Harmony patches on `BuildUpdate_Grid`. Bounding-box collision check against walls and 4-corner floor stability check. Synchronized ghost rotation.
 - **Procedural 3D Sleeping Bag:** Self-contained procedural mesh & texture/icon without external asset bundles. Interactions: [E] Sleep (18:00–06:00 or anytime per config), [F] / [Hold RMB] Pack-Up back into inventory.
 - **Outdoor Item Dismantling:** Generic outdoor objects (pots, tables, racks) can be dismantled via [F]/Hold RMB using `OutdoorItemInteractable` (IL2CPP-registered).
@@ -164,13 +173,15 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 - **Street Nomad Questline:** 3 staged quests (*Cold Concrete*, *Alley Operations*, *Street Sovereign*) via S1API Quests.
 - **Console Integration:** `homeless bag`, `homeless start`, `homeless stats`, `homeless help`.
 
-**BankApp v0.3.0 (2026-09-09):**
+**BankApp v0.4.1 (2026-09-10, Audit-Patch):**
+- **v0.4.1:** Statischer Event-Dispatcher (OnUpdate/Balance/History) gegen Subscriber-Leaks.
 - **Mockup-Based Redesign** (`docs/mockup-target-v0.3.0.png`): Weekly progress bar ($10k ATM limit), two-column balances (Cash | Online, teal), chip grid 2×5 ($1–$1000 + ✕ CLEAR + MAX accent), ⬇DEPOSIT/⬆WITHDRAW mode tabs, single full-width confirm button (green/orange by mode).
 - **Chip Interaction:** Chips ADD to the running amount; MAX fills mode-dependent maximum (max depositable cash vs. max withdrawable); CLEAR resets.
 - **Removed:** Free-text amount input + `BankAppInputFocus` (no typing in UI → WASD protection obsolete; IL2Cpp registration removed).
 - **Unchanged Backend:** Double-entry transactions (rollback on failure), slot capacity, weekly limit, slot-isolated persistence, audio.
 
-**BusinessIncome v0.1.0 (2026-08-17, verified):**
+**BusinessIncome v0.1.1 (2026-09-10, Audit-Patch):**
+- **v0.1.1:** Windfall-Seed bei Erstinstallation; Catch-up via OnDayPass; invariantes Display-Format.
 - **Daily Passive Revenue:** Generates daily passive income for all owned businesses (`Business.OwnedBusinesses`) via online bank transfer through `S1API.Money.Money.CreateOnlineTransaction`.
 - **Multiplayer Host Authority:** Strict server/host guard (`IncomeEngine.IsHostOrSingleplayer()`) prevents duplicate payouts and money duplication on client instances.
 - **Savegame Slot Idempotency & SafeStorage:** Slot-isolated persistence (`payout_state_slot_{slotId}.json`) with atomic write and `.bak` crash protection. Idempotent `LastPaidElapsedDay` marker guards against double-booking across scene reloads and save reloads.
@@ -178,7 +189,8 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 - **HUD & Audio Feedback:** In-game HUD notification via `NotificationsManager.Instance.SendNotification` with cash register chime.
 - **Console & Terminal Dashboard:** Full dev-console (`~` / `F1`) and DooDesch `hash` terminal (`#`) integration (`biz stats`, `biz trigger [--commit]`, `biz config`, `biz set <key> <val>`, `biz help`).
 
-**Minimap v1.0.0 (2026-08-18, verified):**
+**Minimap v1.0.2 (2026-09-10, Audit-Patch):**
+- **v1.0.2:** Config-Save entprellt (Toggle/Unload statt pro Zoom-Taste).
 - **Dual-Shape Viewport (Radar vs Tactical):** Dynamic uGUI mask switch between **Circular Radar** (with rotating compass ring N/E/S/W) and **Rounded-Square Tactical GPS** via procedural anti-aliasing.
 - **Integrated DayCounter HUD:** Seamless integration of day (`DAY 14`), weekday (`Wednesday`), and clock (`15:30`) as a compact header or footer bar with emerald accent stripe and 0-allocation state caching.
 - **Dynamic Rotation & Zoom:** Two rotation modes (`FollowPlayer` with rotating map vs. `NorthUp` with rotating player arrow) plus smooth live zoom (0.75×–4.0× via <kbd>[</kbd> / <kbd>]</kbd> / numpad).
@@ -188,7 +200,8 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 
 
 
-**StackLimitMod v0.1.0 (2026-08-20, verified):**
+**StackLimitMod v0.1.1 (2026-09-10, Audit-Patch):**
+- **v0.1.1:** Decision-Cache im Hot-Path; Toggle-off stellt Original-Limits wieder her.
 - **Configurable Global Stack Limit:** Dynamically overrides item stack limits (1–9999, default 40) across player inventories, storage, shelves, and trunks.
 - **Dual-Layer Item Discovery:** Automatically scans in-memory `BaseItemDefinition` assets via `Resources.FindObjectsOfTypeAll` and dynamic registry items via `Registry.Instance.GetAllItems()`.
 - **Runtime Hook & Safety Patches:** Harmony postfix on `Registry.AddToRegistry` to automatically apply rules to newly registered items, plus instance-level patch on `BaseItemInstance.get_StackLimit` secured via `PatchGuard`.
@@ -196,7 +209,8 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 - **In-Game Console & Terminal Integration:** Dev console (`~`) and DooDesch `hash` terminal (`#`) commands: `stack stats`, `stack set <amount>`, `stack reload`, `stack help` (with `stacklimit` alias).
 - **SafeStorage Persistence:** Atomic JSON persistence (`UserData/StackLimitMod/config.json`) with automatic `.bak` recovery.
 
-**BackpackMod v1.0.0 (2026-08-21, verified):**
+**BackpackMod v1.0.1 (2026-09-10, Audit-Patch):**
+- **v1.0.1:** Bone-Cache + 2s-Throttle; Slot-Reset mit Validierung; Material-Cache; Index-Loop; Empty-JSON-Guard.
 - **3D Wearable Backpacks & Realistic Harness:** Custom 3D backpack mesh system with main body, front zipper pocket, side utility pockets, top grab handle, shoulder straps over the shoulders, chest sternum cross-strap, and metallic buckles.
 - **Tailored Proportions:** Specifically scaled and fitted to the stylized, slender Schedule I player avatar between the shoulder blades without rising above the hair or clipping arms.
 - **Strict Slot-10 Equipment Binding:** Only renders on the player back and Character menu mannequin when actively equipped in `ClothingSlot 10` (`BackpackSlot`); no inventory leak when items are in hotbar/pockets.
@@ -205,13 +219,23 @@ Skill paths: `.agents/skills/<skill-name>/SKILL.md` (plus `references/` sub-file
 - **360° Mannequin Rotation:** Hold Right Mouse Button and drag (or <kbd>Q</kbd> / <kbd>E</kbd>) in Character menu (<kbd>Tab</kbd>) to freely inspect front straps and rear backpack.
 - **URP Shading & Zero-Collider Safety:** Universal Render Pipeline Lit shader integration with metallic/smoothness parameters; auto-strips colliders to prevent UI click-blocking.
 
-**AutoPackagingStation v0.2.0 (2026-08-22, verified):**
+**AutoPackagingStation v0.2.2 (2026-09-10, Audit-Patch):**
+- **v0.2.1/v0.2.2:** Output-Extraktion + Native-Sync + GUID-Sync (v0.2.1); rData-Dupe-Fix, Snapshot/Revert, PackUp-Fit-Check, Slot--1-Guard (v0.2.2).
 - **4x4 Industrial Automated Packaging:** Instantiates a massive 4x4 animated machine with conveyor belt, pneumatic press, and status LEDs.
 - **Atomic 2-Phase Engine:** Deducts inputs (raw product + packaging material) in the exact same frame as output insertion, preventing TOCTOU duplication exploits.
 - **Weighted Quality Mixing:** Automatically blends input product quality using weighted average based on item quantities.
 - **SafeStorage Slot-Isolation:** Stores station states separately per save slot under `autopack_slot_{slotId}.json` with `.bak` safety backups.
 - **Strict Raycast & Key Guards:** Fixes AOE dismantling using strict raycast target validation and blocks key input whenever cursor is unlocked (UIs open).
 - **Multiplayer & IL2CPP Stability:** Uses `IsServer` checks to prevent client desyncs and implements native `Il2CppType.Of` component setups to avoid crashes.
+
+**HitmanPhone v0.2.2 (2026-09-10, dok. — In-Game-Verify ausstehend):**
+- **Bounty/Contract-Gameplay:** Anonyme Auftraggeber ("Ghost", "Jackal", …) bieten Hits via Phone-Messages-App; Ziele aus dem Dealer-Kundennetzwerk; "Polaroid Evidence"-Item (InstanceID-codiert) wird im Dead Drop gegen Dirty Cash eingelöst.
+- **Systeme:** Police-Heat-Integration, Journal-Quests, 3-Tage-Ablauf, Death-Forfeit, slot-isolierte Persistenz (`slot_{n}` + TryMigrateLegacy).
+- **v0.2.2 Audit-Fixes:** Payout host-only, PatchGuard statt PatchAll, Day-Throttle, Cooldown-Persist, Deadline-Boundary, Test-Commands nur DEBUG.
+
+**_DiagPerfCounter v0.3.1 (2026-09-10, Dev-Tool):**
+- **Zweck:** Diagnose-Tool — dumpt `StorageEntity`-Methodensignaturen per Reflection nach `UserData\_DiagPerfCounter\dump.txt` (Hook-Target-Discovery). Kein Gameplay-Effekt.
+- **v0.3.1:** `docs/mod.json` ergänzt; Dump-Pfad aus UserData-Root verlegt.
 
 ---
 
