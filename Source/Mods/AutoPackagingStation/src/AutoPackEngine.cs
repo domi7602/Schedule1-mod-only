@@ -215,6 +215,14 @@ public static class AutoPackEngine
         int batchSizeNative = Math.Max(1, Math.Min(configuredBatch, feasibleNative));
         int deductProductNative = requiredProductQty * batchSizeNative;
 
+        // Transaction snapshot: restore inputs/output on a mid-commit failure (item-loss fix)
+        int snapProdQty = prodSlot.Quantity;
+        var snapProdInst = prodSlot.ItemInstance;
+        int snapPkgQty = pkgSlot.Quantity;
+        var snapPkgInst = pkgSlot.ItemInstance;
+        var snapOutInst = outSlot!.ItemInstance;
+        int snapOutQty = (snapOutInst != null && snapOutInst.Pointer != IntPtr.Zero) ? outSlot.Quantity : 0;
+
         try
         {
             // Quality calculation with freshness bonus — unified with fallback path via PackagingMath (H5)
@@ -312,6 +320,50 @@ public static class AutoPackEngine
         }
         catch (Exception ex)
         {
+            // Revert to the snapshotted slot state so inputs aren't lost without output
+            try
+            {
+                if (prodSlot != null && prodSlot.Pointer != IntPtr.Zero && snapProdInst != null && snapProdInst.Pointer != IntPtr.Zero)
+                {
+                    if (prodSlot.ItemInstance == null || prodSlot.ItemInstance.Pointer == IntPtr.Zero || prodSlot.ItemInstance.Pointer != snapProdInst.Pointer)
+                        prodSlot.SetStoredItem(snapProdInst);
+                    if (prodSlot.Quantity != snapProdQty)
+                        prodSlot.ChangeQuantity(snapProdQty - prodSlot.Quantity);
+                    prodSlot.onItemDataChanged?.Invoke();
+                    prodSlot.onItemInstanceChanged?.Invoke();
+                }
+                if (pkgSlot != null && pkgSlot.Pointer != IntPtr.Zero && snapPkgInst != null && snapPkgInst.Pointer != IntPtr.Zero)
+                {
+                    if (pkgSlot.ItemInstance == null || pkgSlot.ItemInstance.Pointer == IntPtr.Zero || pkgSlot.ItemInstance.Pointer != snapPkgInst.Pointer)
+                        pkgSlot.SetStoredItem(snapPkgInst);
+                    if (pkgSlot.Quantity != snapPkgQty)
+                        pkgSlot.ChangeQuantity(snapPkgQty - pkgSlot.Quantity);
+                    pkgSlot.onItemDataChanged?.Invoke();
+                    pkgSlot.onItemInstanceChanged?.Invoke();
+                }
+                if (outSlot != null && outSlot.Pointer != IntPtr.Zero)
+                {
+                    if (snapOutInst == null || snapOutInst.Pointer == IntPtr.Zero || snapOutQty <= 0)
+                    {
+                        if (outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero)
+                            outSlot.ClearStoredInstance();
+                    }
+                    else
+                    {
+                        if (outSlot.ItemInstance == null || outSlot.ItemInstance.Pointer == IntPtr.Zero || outSlot.ItemInstance.Pointer != snapOutInst.Pointer)
+                            outSlot.SetStoredItem(snapOutInst);
+                        if (outSlot.Quantity != snapOutQty)
+                            outSlot.ChangeQuantity(snapOutQty - outSlot.Quantity);
+                    }
+                    outSlot.onItemDataChanged?.Invoke();
+                    outSlot.onItemInstanceChanged?.Invoke();
+                    try { station.UpdatePackagingVisuals(); station.UpdateProductVisuals(); } catch { }
+                }
+            }
+            catch (Exception revertEx)
+            {
+                Mod.Log.Warn($"ExecutePackagingTransaction revert failed: {revertEx.Message}");
+            }
             Mod.Log.Error($"ExecutePackagingTransaction on station error: {ex}");
             return false;
         }
@@ -430,6 +482,17 @@ public static class AutoPackEngine
         // =========================================================================
         // PHASE 2: ATOMIC COMMIT (Executed synchronously in exact same frame)
         // =========================================================================
+        // Transaction snapshot: restore buffers on a mid-commit failure (item-loss fix)
+        int snapProdQty = inputProd.Quantity;
+        var snapProdRef = inputProd;
+        int snapPkgQty = inputPkg.Quantity;
+        var snapPkgRef = inputPkg;
+        var snapOutRef = outputSlot;
+        int snapOutQty = outputSlot?.Quantity ?? 0;
+        float snapOutQual = outputSlot?.QualityValue ?? 0f;
+        int snapOutTier = outputSlot?.QualityTier ?? 2;
+        bool snapOutWasEmpty = (outputSlot == null || outputSlot.Quantity <= 0);
+
         try
         {
             // 1. Calculate Quality with +5% Freshness Bonus
@@ -496,6 +559,35 @@ public static class AutoPackEngine
         }
         catch (Exception ex)
         {
+            // Revert to the snapshotted buffer state so inputs aren't lost without output
+            try
+            {
+                if (snapProdRef != null)
+                {
+                    snapProdRef.Quantity = snapProdQty;
+                    rData.InputProduct = snapProdRef;
+                }
+                if (snapPkgRef != null)
+                {
+                    snapPkgRef.Quantity = snapPkgQty;
+                    rData.InputPackaging = snapPkgRef;
+                }
+                if (snapOutWasEmpty)
+                {
+                    rData.OutputProduct = null;
+                }
+                else if (snapOutRef != null)
+                {
+                    snapOutRef.Quantity = snapOutQty;
+                    snapOutRef.QualityValue = snapOutQual;
+                    snapOutRef.QualityTier = snapOutTier;
+                    rData.OutputProduct = snapOutRef;
+                }
+            }
+            catch (Exception revertEx)
+            {
+                Mod.Log.Warn($"Packaging commit revert failed: {revertEx.Message}");
+            }
             Mod.Log.Error($"Fatal exception during packaging atomic commit: {ex}");
             return false;
         }

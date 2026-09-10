@@ -164,6 +164,8 @@ public class AutoPackStationController : MonoBehaviour
                             pkgSlot.SetStoredItem(inst);
                             pkgSlot.onItemDataChanged?.Invoke();
                             pkgSlot.onItemInstanceChanged?.Invoke();
+                            // Duplication fix: native restore succeeded — drop the rData copy so stale runtime data can't pay out twice
+                            rData.InputPackaging = null;
                         }
                     }
                 }
@@ -194,6 +196,8 @@ public class AutoPackStationController : MonoBehaviour
                             prodSlot.SetStoredItem(inst);
                             prodSlot.onItemDataChanged?.Invoke();
                             prodSlot.onItemInstanceChanged?.Invoke();
+                            // Duplication fix: native restore succeeded — drop the rData copy so stale runtime data can't pay out twice
+                            rData.InputProduct = null;
                         }
                     }
                 }
@@ -240,6 +244,8 @@ public class AutoPackStationController : MonoBehaviour
                             outSlot.SetStoredItem(inst);
                             outSlot.onItemDataChanged?.Invoke();
                             outSlot.onItemInstanceChanged?.Invoke();
+                            // Duplication fix: native restore succeeded — drop the rData copy so stale runtime data can't pay out twice
+                            rData.OutputProduct = null;
                         }
                     }
                 }
@@ -437,7 +443,10 @@ public class AutoPackStationController : MonoBehaviour
                     }
 
                     // 2. Fallback runtime data — only if no native item of that type was refunded (prevents double H2)
-                    if (!hadNativeProduct && rData.InputProduct != null && rData.InputProduct.Quantity > 0)
+                    // Duplication fix: with a LIVE native station the slots above are the single source of truth —
+                    // rData can be stale (already consumed via the vanilla UI) and must never pay out a second refund.
+                    bool hasLiveNativeStation = (station != null && station.Pointer != IntPtr.Zero);
+                    if (!hasLiveNativeStation && !hadNativeProduct && rData.InputProduct != null && rData.InputProduct.Quantity > 0)
                     {
                         var pDef = GameRegistry.GetItem(rData.InputProduct.ItemId);
                         if (pDef != null && pDef.Pointer != IntPtr.Zero)
@@ -458,7 +467,7 @@ public class AutoPackStationController : MonoBehaviour
                         }
                     }
 
-                    if (!hadNativePackaging && rData.InputPackaging != null && rData.InputPackaging.Quantity > 0)
+                    if (!hasLiveNativeStation && !hadNativePackaging && rData.InputPackaging != null && rData.InputPackaging.Quantity > 0)
                     {
                         var pkgDef = GameRegistry.GetItem(rData.InputPackaging.ItemId);
                         if (pkgDef != null && pkgDef.Pointer != IntPtr.Zero)
@@ -474,7 +483,7 @@ public class AutoPackStationController : MonoBehaviour
                         }
                     }
 
-                    if (!hadNativeOutput && rData.OutputProduct != null && rData.OutputProduct.Quantity > 0)
+                    if (!hasLiveNativeStation && !hadNativeOutput && rData.OutputProduct != null && rData.OutputProduct.Quantity > 0)
                     {
                         var outDef = GameRegistry.GetItem(rData.OutputProduct.ItemId);
                         if (outDef != null && outDef.Pointer != IntPtr.Zero)
@@ -1367,6 +1376,8 @@ public class AutoPackStationController : MonoBehaviour
 
         var rData = AutoPackStore.GetRuntimeData(_stationGuid);
         var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
+        // Duplication fix: with a LIVE native station the slots are the single source of truth — never fall back to stale rData
+        bool hasLiveNativeStation = (station != null && station.Pointer != IntPtr.Zero);
 
         // 1. Resolve Station item definition and probe
         var stationDef = GameRegistry.GetItem(Mod.CurrentConfig.StationItemId);
@@ -1384,9 +1395,11 @@ public class AutoPackStationController : MonoBehaviour
             return;
         }
 
-        // 2. Pre-create all instances to verify full inventory fit BEFORE modifying state
+        // 2. Pre-create all 1-unit instances BEFORE modifying state (station item last, so a
+        // partial abort below can never duplicate it)
         var itemsToAdd = new List<Il2CppScheduleOne.ItemFramework.ItemInstance>();
-        itemsToAdd.Add(stationProbe);
+        int pkgItemCount = 0, prodItemCount = 0, outItemCount = 0;
+        int countMark = itemsToAdd.Count;
 
         // Input Packaging (InputSlots[0] vs rData.InputPackaging)
         var pkgSlot = (station != null && station.Pointer != IntPtr.Zero && station.InputSlots != null && station.InputSlots.Count > 0)
@@ -1404,7 +1417,7 @@ public class AutoPackStationController : MonoBehaviour
                 }
             }
         }
-        else if (rData.InputPackaging != null && rData.InputPackaging.Quantity > 0)
+        else if (!hasLiveNativeStation && rData.InputPackaging != null && rData.InputPackaging.Quantity > 0)
         {
             var pkgDef = GameRegistry.GetItem(rData.InputPackaging.ItemId);
             if (pkgDef != null && pkgDef.Pointer != IntPtr.Zero)
@@ -1419,6 +1432,8 @@ public class AutoPackStationController : MonoBehaviour
                 }
             }
         }
+
+        pkgItemCount = itemsToAdd.Count - countMark; countMark = itemsToAdd.Count;
 
         // Input Product (InputSlots[1] vs rData.InputProduct)
         var prodSlot = (station != null && station.Pointer != IntPtr.Zero && station.InputSlots != null && station.InputSlots.Count > 1)
@@ -1444,7 +1459,7 @@ public class AutoPackStationController : MonoBehaviour
                 }
             }
         }
-        else if (rData.InputProduct != null && rData.InputProduct.Quantity > 0)
+        else if (!hasLiveNativeStation && rData.InputProduct != null && rData.InputProduct.Quantity > 0)
         {
             var inDef = GameRegistry.GetItem(rData.InputProduct.ItemId);
             if (inDef != null && inDef.Pointer != IntPtr.Zero)
@@ -1464,6 +1479,8 @@ public class AutoPackStationController : MonoBehaviour
                 }
             }
         }
+
+        prodItemCount = itemsToAdd.Count - countMark; countMark = itemsToAdd.Count;
 
         // Output Product (OutputSlots[0] vs rData.OutputProduct)
         var outSlot = (station != null && station.Pointer != IntPtr.Zero && station.OutputSlots != null && station.OutputSlots.Count > 0)
@@ -1503,7 +1520,7 @@ public class AutoPackStationController : MonoBehaviour
                 }
             }
         }
-        else if (rData.OutputProduct != null && rData.OutputProduct.Quantity > 0)
+        else if (!hasLiveNativeStation && rData.OutputProduct != null && rData.OutputProduct.Quantity > 0)
         {
             var outDef = GameRegistry.GetItem(rData.OutputProduct.ItemId);
             if (outDef != null && outDef.Pointer != IntPtr.Zero)
@@ -1540,21 +1557,99 @@ public class AutoPackStationController : MonoBehaviour
             }
         }
 
-        // Verify inventory capacity for all items VORAB
+        outItemCount = itemsToAdd.Count - countMark;
+        // Station item last: a partial abort below can never duplicate it (buffers deduct, station stays)
+        itemsToAdd.Add(stationProbe);
+
+        // Interleaved fit-check + add — each 1-unit probe is validated against the CURRENT inventory
+        // (earlier adds already applied), so a near-full tail can't silently vanish (item-loss fix)
+        int addedCount = 0;
         for (int i = 0; i < itemsToAdd.Count; i++)
         {
-            if (!inv.CanItemFitInInventory(itemsToAdd[i], 1))
+            var item = itemsToAdd[i];
+            if (!inv.CanItemFitInInventory(item, 1))
             {
-                Mod.Log.Warn($"PackUp blocked — inventory full. Free up slots first.");
-                AudioHelper.PlayDenySound();
-                return;
+                Mod.Log.Warn($"PackUp: Inventory full, could not return item '{item.Definition?.ID}'. ({addedCount}/{itemsToAdd.Count} returned)");
+                break;
+            }
+            try
+            {
+                inv.AddItemToInventory(item);
+                addedCount++;
+            }
+            catch (Exception addEx)
+            {
+                Mod.Log.Warn($"PackUp: failed to return item '{item.Definition?.ID}': {addEx.Message}");
+                break;
             }
         }
 
-        // All items fit! Add to inventory
-        for (int i = 0; i < itemsToAdd.Count; i++)
+        if (addedCount < itemsToAdd.Count)
         {
-            inv.AddItemToInventory(itemsToAdd[i]);
+            // Only what was actually added leaves the station buffers — deduct exactly those
+            // quantities so nothing is lost and a retry can't duplicate anything.
+            int remaining = addedCount;
+            int takePkg = Mathf.Min(pkgItemCount, remaining); remaining -= takePkg;
+            int takeProd = Mathf.Min(prodItemCount, remaining); remaining -= takeProd;
+            int takeOut = Mathf.Min(outItemCount, remaining);
+            try
+            {
+                if (takePkg > 0)
+                {
+                    if (pkgSlot != null && pkgSlot.Pointer != IntPtr.Zero && pkgSlot.ItemInstance != null && pkgSlot.ItemInstance.Pointer != IntPtr.Zero)
+                    {
+                        if (takePkg >= pkgSlot.Quantity) { pkgSlot.ClearStoredInstance(); }
+                        else { pkgSlot.ChangeQuantity(-takePkg); }
+                        pkgSlot.onItemDataChanged?.Invoke();
+                        pkgSlot.onItemInstanceChanged?.Invoke();
+                    }
+                    else if (rData.InputPackaging != null)
+                    {
+                        rData.InputPackaging.Quantity -= takePkg;
+                        if (rData.InputPackaging.Quantity <= 0) rData.InputPackaging = null;
+                    }
+                }
+                if (takeProd > 0)
+                {
+                    if (prodSlot != null && prodSlot.Pointer != IntPtr.Zero && prodSlot.ItemInstance != null && prodSlot.ItemInstance.Pointer != IntPtr.Zero)
+                    {
+                        if (takeProd >= prodSlot.Quantity) { prodSlot.ClearStoredInstance(); }
+                        else { prodSlot.ChangeQuantity(-takeProd); }
+                        prodSlot.onItemDataChanged?.Invoke();
+                        prodSlot.onItemInstanceChanged?.Invoke();
+                    }
+                    else if (rData.InputProduct != null)
+                    {
+                        rData.InputProduct.Quantity -= takeProd;
+                        if (rData.InputProduct.Quantity <= 0) rData.InputProduct = null;
+                    }
+                }
+                if (takeOut > 0)
+                {
+                    if (outSlot != null && outSlot.Pointer != IntPtr.Zero && outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero)
+                    {
+                        if (takeOut >= outSlot.Quantity) { outSlot.ClearStoredInstance(); }
+                        else { outSlot.ChangeQuantity(-takeOut); }
+                        outSlot.onItemDataChanged?.Invoke();
+                        outSlot.onItemInstanceChanged?.Invoke();
+                    }
+                    else if (rData.OutputProduct != null)
+                    {
+                        rData.OutputProduct.Quantity -= takeOut;
+                        if (rData.OutputProduct.Quantity <= 0) rData.OutputProduct = null;
+                    }
+                }
+                if (station != null && station.Pointer != IntPtr.Zero)
+                {
+                    try { station.UpdatePackagingVisuals(); station.UpdateProductVisuals(); } catch { }
+                }
+            }
+            catch (Exception deductEx)
+            {
+                Mod.Log.Warn($"PackUp partial deduct failed: {deductEx.Message}");
+            }
+            AudioHelper.PlayDenySound();
+            return;
         }
 
         Mod.Log.Info($"Successfully packed up AutoPackagingStation and returned {itemsToAdd.Count} items to inventory.");
