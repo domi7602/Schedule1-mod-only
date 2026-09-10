@@ -6,7 +6,7 @@ using S1API.Console;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "1.0.1", "Dominik")]
+[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "1.0.2", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace Minimap;
@@ -32,7 +32,7 @@ public sealed class MinimapMod : MelonMod
     public override void OnInitializeMelon()
     {
         Instance = this;
-        _log.Info("Initializing Minimap & Unified HUD Mod v1.0.1...");
+        _log.Info("Initializing Minimap & Unified HUD Mod v1.0.2...");
 
         // Setup SafeStorage config directory
         string userDir = Path.Combine(MelonLoader.Utils.MelonEnvironment.UserDataDirectory, "Minimap");

@@ -7,7 +7,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(BankApp.Mod), "BankApp", "0.4.0", "Dominik")]
+[assembly: MelonInfo(typeof(BankApp.Mod), "BankApp", "0.4.1", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BankApp;
@@ -30,7 +30,7 @@ public class Mod : MelonMod
         }
         catch (Exception ex) { Log.Warn($"GameLifecycle hook failed: {ex.Message}"); }
 
-        Log.Info("Initialized (v0.1.0).");
+        Log.Info("Initialized (v0.4.1).");
     }
 
     public override void OnDeinitializeMelon()

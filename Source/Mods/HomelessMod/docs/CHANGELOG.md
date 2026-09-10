@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.6] - 2026-09-10
+* Place-Prefix-Catch weist __result=null zu (nativer Crash-Vektor geschlossen).
+* Quest-Completion bleibt in RAM, Flush auf OnSaveComplete (kein Save-Rollback-Drift mehr).
+* SleepingBagItemFactory re-verifiziert Registry.ItemExists (Fix stale _isRegistered nach Menue-Reload).
+
 ## [0.1.5] - 2026-09-09
 
 ### Fixed (Gatekeeper-Review-Runde, 5 Befunde)

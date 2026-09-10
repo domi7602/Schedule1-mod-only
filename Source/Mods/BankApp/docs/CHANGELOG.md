@@ -2,6 +2,11 @@
 
 All notable changes to the BankApp mod will be documented in this file.
 
+## [0.4.1] — 2026-09-10
+
+### Fixed
+- Statischer Event-Dispatcher (OnUpdate/Balance/History) gegen Subscriber-Leaks.
+
 ## [0.4.0] — 2026-09-09
 
 ### UI Fixes (user screenshot feedback)

@@ -2,6 +2,12 @@
 
 All notable changes to **CalculatorApp** are documented in this file.
 
+## [0.2.1] - 2026-09-10
+
+### Fixed
+- Statischer Event-Dispatcher gegen Subscriber-Leaks.
+- Pointer-/WasCollected-Guards im Slot-Suffix (GetActiveSlotSuffix).
+
 ## [0.2.0] - 2026-08-14
 
 ### Added

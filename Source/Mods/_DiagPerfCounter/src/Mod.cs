@@ -4,7 +4,7 @@ using System.Reflection;
 using MelonLoader;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(_DiagPerfCounter.Mod), "_DiagPerfCounter", "0.3.0", "Diag")]
+[assembly: MelonInfo(typeof(_DiagPerfCounter.Mod), "_DiagPerfCounter", "0.3.1", "Diag")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace _DiagPerfCounter;

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.2 (2026-09-10)
+- Config-Save entprellt (nur bei Toggle/Scene-Unload statt pro Zoom-Taste).
+
 ## 1.0.1
 - **Bug:** Time-of-day display in the integrated DayCounter now uses vanilla `TimeManager.Get12HourTime(CurrentTime)` for 12-hour mode, fixing the parse logic. 24-hour mode preserves the verified HHMM math.
 - **Bug:** Hash Terminal bridge is now actually wired. `Hash.Api.HashCommands.Add(...)` registers `minimap` and `map` for tab-completion and help. The legacy no-op log was removed.

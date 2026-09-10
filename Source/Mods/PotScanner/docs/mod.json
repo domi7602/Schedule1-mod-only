@@ -1,6 +1,6 @@
 {
   "name": "PotScanner",
   "author": "Dominik",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Phone app and terminal bridge for monitoring and managing plant pots with real-time status, filters, Water-All, Auto-Water, and hash integration."
 }

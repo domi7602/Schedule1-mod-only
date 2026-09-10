@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2 (2026-09-10)
+- Bounty-Payout host-only (Fix Multiplayer-Doppel-Reward).
+- Blindes PatchAll durch PatchGuard.TryPatch ersetzt; CurrentDay() cached mit 1s-Throttle; CooldownCaller persistiert.
+- Deadline-Boundary (volle 3 Tage), Evidence-Cache mit Liveness-Check, Subscribe-Guard, Log-Demote, NPC-Alive-Check, Test-Commands nur noch in DEBUG.
 
 ## Unreleased
 

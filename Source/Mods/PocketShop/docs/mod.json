@@ -1,6 +1,6 @@
 {
   "name": "PocketShop",
   "author": "Dominik",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "In-game phone app for Schedule I with multi-payment (cash/bank/auto), rich item-detail modal, toast notifications and sound effects."
 }

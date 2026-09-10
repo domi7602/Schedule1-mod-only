@@ -13,7 +13,7 @@ using S1API.Lifecycle;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(CustomSkateboard.Mod), "CustomSkateboard", "1.1.0", "Dominik")]
+[assembly: MelonInfo(typeof(CustomSkateboard.Mod), "CustomSkateboard", "1.1.1", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace CustomSkateboard;

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1 (2026-09-10)
+
+- Decision-Cache (IntPtr-Key) im get_StackLimit-Hot-Path (0 Allokationen).
+- OverrideNonStackable=false stellt Original-Limits wieder her.
+
 ## 0.1.0 (2026-08-20)
 
 - **Initial release**: StackLimitMod for *Schedule I* (v0.4.6f13).

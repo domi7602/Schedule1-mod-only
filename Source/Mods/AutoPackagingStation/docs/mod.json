@@ -1,7 +1,7 @@
 {
   "name": "AutoPackagingStation",
   "author": "Dominik",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "Industrial 4x4 automated packaging station with UV-scrolling conveyor, pneumatic press, status LEDs, and +5% freshness quality bonus.",
   "requires": ["S1API"]
 }

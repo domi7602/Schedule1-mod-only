@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1 (2026-09-10)
+- Statischer Event-Dispatcher; PotTracker.NotifyPotsScanned mit Per-Handler-try/catch.
+- WaterAll/WaterSinglePot nur noch als Host (Fix Multiplayer-Geldverlust/Desync).
+
 ## 0.5.0
 - **Modernized Terminal & Console Bridge (`pot` subcommands):**
   - **`pot summary` / `pot status` (NEW):** Outputs a compact 1-line overview per property showing pot count, ready crops, dry pots, growing plants, or moist status (e.g. `Barn: 12 pots (4 ready, 2 dry, 6 growing) | Bungalow: 8 pots (8 moist)`).

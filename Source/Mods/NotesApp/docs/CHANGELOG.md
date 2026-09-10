@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 (2026-09-10)
+- Statischer Event-Dispatcher: keine stale Subscriber mehr pro Szeneload (Memory-Leak).
+- Tote MigrateLegacyGlobalNotes() entfernt.
+
 ## 1.0.0 (2026-08-14)
 - **SafeStorage Persistence Integration**:
   - Migrated save & load mechanisms to `S1Mods.Shared.SafeStorage` (`SaveAtomic` with `.tmp` staging, automatic `.bak` rotation, and fallback restoration).

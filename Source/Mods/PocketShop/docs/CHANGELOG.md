@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2 (2026-09-10)
+
+- Statischer Event-Dispatcher; ItemGridPane.Dispose() wird beim Teardown aufgerufen.
+- Toter NPC-Mugshot-Scan entfernt (direkt Themed-Icon).
+- Partial-Delivery refundet nur den ungelieferten Rest (fee-gerecht, Stock/Menge korrigiert).
+- ShopCatalog.Refresh() guarded plus Reset bei Scene-Unload.
+
 ## 0.2.1 (2026-08-17)
 
 - **Banner & Animation Removal**: Removed `ToastOverlay` and the green purchase-confirmation banner entirely for an interruption-free, clean shopping experience.

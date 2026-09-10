@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 (2026-09-10)
+- Bone-Cache plus 2s-Throttle (Fix Per-Frame-Scan und Log-Spam).
+- BackpackSlot-Reset bei Scene-Unload mit Pointer-Validierung; Material-Cache; Index-Loop ueber ItemDictionary; Empty-JSON-Guard.
+
 ## 1.0.0 (2026-08-24)
 - First public release: 3D Wearable Backpacks with Spine Rig Alignment on the player avatar.
 - ⌨ **B-Hotkey** toggles backpack storage from anywhere in the game.

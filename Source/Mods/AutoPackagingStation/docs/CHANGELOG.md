@@ -1,5 +1,11 @@
 # Changelog - AutoPackagingStation
 
+## [0.2.2] (2026-09-10)
+- RestoreNativeSlots raeumt rData-Buffer auf plus Live-Native-Gate in Refund-Pfaden (Fix Item-Dupe nach Save-Load).
+- Snapshot/Revert in ExecutePackagingTransaction (beide Overloads).
+- PackUpStation: Fit-Check und Add interleaved; Teilerfolg behaelt Restbestand.
+- Slot--1-Guard (kein autopack_slot_-1.json); TryExtractOutputProduct zahlt exakt N.
+
 ## [0.2.0] (2026-08-24)
 - Version sync: bring `MelonInfo`, `mod.json`, AGENTS.md, and CHANGELOG into agreement at 0.2.0.
 - No code changes since 0.1.0; the "0.2.1 verified 2026-08-23" claim in AGENTS.md was a documentation drift, not a release.

@@ -1,8 +1,10 @@
 # Changelog
 
 
-## 0.1.1 (2026-09-01)
-- Version bump.
+## 0.1.1 (2026-09-10)
+- Erstinstallations-Windfall geseedet (keine Historie seit Tag 0).
+- Catch-up laeuft auch via OnDayPass (idempotent); Display-Strings invariant.
+- Vorlauf 2026-09-01: Version bump.
 
 ## 0.1.0 (2026-08-17)
 

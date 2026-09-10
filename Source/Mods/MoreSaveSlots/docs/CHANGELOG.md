@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2 (2026-09-10)
+- 1-based Slot-Nummern im Save-Scan (Active-Save-Schutz bei Rename/Delete greift).
+- Toter _dialogRootMissing-Block und ungenutztes SlotsPerPage-Config entfernt.
+
 ## 1.0.1 (2026-08-14)
 - **UI & Button Fix**: Replaced custom click handlers with standard `UnityEngine.UI.Button` components and solid styling, completely eliminating hollow wireframe ("empty skeleton") button artifacts.
 - **Font & Material Resolution**: Implemented robust `TMP_FontAsset` and `fontSharedMaterial` auto-detection from scene canvas and game resources, ensuring all text labels render clearly.

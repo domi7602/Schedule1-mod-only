@@ -1,6 +1,10 @@
 # Changelog
 
 
+## 1.1.1 (2026-09-10)
+
+- IsGameplayScene strikt 'Main' (kein Tuning-State-Verlust im Menue).
+
 ## 1.1.0 (2026-09-09)
 
 - **Tuning: Höhere Geschwindigkeit + bessere Lenkung** (Benutzerwunsch; Werte gelten für Code-Defaults UND Live-Config `UserData/MelonPreferences.cfg [CustomSkateboard]`, da gespeicherte TOML-Werte Code-Defaults überschreiben):
