@@ -382,6 +382,7 @@ namespace BackpackMod
                 // Don't early-return on File.Exists — let LoadTextSafe handle .bak recovery (H1)
 
                 string json = SafeStorage.LoadTextSafe(path, "", null);
+                if (string.IsNullOrWhiteSpace(json)) return;
                 var items = JsonSerializer.Deserialize<List<SavedItemData>>(json);
                 if (items == null) return;
 

@@ -221,7 +221,18 @@ public static class StackLimitEngine
             return false;
 
         if (!config.OverrideNonStackable && originalLimit == 1)
+        {
+            try
+            {
+                if (def.StackLimit != originalLimit)
+                    def.StackLimit = originalLimit;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log?.Warn($"ApplyToDefinition restore failed for '{id}': {ex}");
+            }
             return false;
+        }
 
         try
         {

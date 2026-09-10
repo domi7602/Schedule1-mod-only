@@ -5,6 +5,7 @@ using Il2CppScheduleOne.PlayerScripts;
 using Il2CppScheduleOne.UI;
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 namespace BackpackMod
 {
@@ -21,6 +22,12 @@ namespace BackpackMod
         private static float _lastAvatarSearchTime = -10f;
         private static Transform? _cachedWorldBackBone;
         private static float _lastBackBoneSearchTime = -10f;
+
+        // FIX 1 (LOW audit): ApplyMaterial used to `new Material()` per sub-part (~11 per visual)
+        // on every equip/unequip/tier-change/scene-change; Destroy(GameObject) does not destroy
+        // materials assigned via sharedMaterial, so instances accumulated. Params are finite
+        // (3 tiers x fabric/metallic + shader), so cache by defining params and reuse.
+        private static readonly Dictionary<(string ShaderName, Color Color, bool IsMetallic), Material> _materialCache = new();
 
         public static void UpdateVisuals(AssetBundle? bundle = null)
         {
@@ -451,19 +458,25 @@ namespace BackpackMod
 
                     if (targetShader != null)
                     {
-                        var mat = new Material(targetShader);
-                        if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
-                        if (mat.HasProperty("_Color")) mat.SetColor("_Color", color);
+                        var cacheKey = (targetShader.name ?? string.Empty, color, isMetallic);
+                        if (!_materialCache.TryGetValue(cacheKey, out var mat) || mat == null || mat.Pointer == IntPtr.Zero || mat.WasCollected)
+                        {
+                            mat = new Material(targetShader);
+                            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
+                            if (mat.HasProperty("_Color")) mat.SetColor("_Color", color);
 
-                        if (isMetallic)
-                        {
-                            if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.75f);
-                            if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", 0.85f);
-                        }
-                        else
-                        {
-                            if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.25f);
-                            if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", 0.05f);
+                            if (isMetallic)
+                            {
+                                if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.75f);
+                                if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", 0.85f);
+                            }
+                            else
+                            {
+                                if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", 0.25f);
+                                if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", 0.05f);
+                            }
+
+                            _materialCache[cacheKey] = mat;
                         }
 
                         r.sharedMaterial = mat;

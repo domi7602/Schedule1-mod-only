@@ -4,6 +4,7 @@ using S1API.Items.Storable;
 using System;
 using System.Collections;
 using MelonLoader;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppScheduleOne.UI.Shop;
 using GameItemDef = Il2CppScheduleOne.ItemFramework.StorableItemDefinition;
 
@@ -37,10 +38,17 @@ namespace BackpackMod
                     return;
                 }
 
-                // Find a real clothing item in the registry to clone from
+                // Find a real clothing item in the registry to clone from.
+                // Indexed loop over a Keys snapshot: foreach over the IL2CPP
+                // dictionary Values view uses a managed/IL2CPP enumerator bridge.
                 string? baseClothingId = null;
-                foreach (var entry in reg.ItemDictionary.Values)
+                var dict = reg.ItemDictionary;
+                int dictCount = dict.Count;
+                var keySnapshot = new Il2CppStructArray<int>(dictCount);
+                dict.Keys.CopyTo(keySnapshot, 0);
+                for (int i = 0; i < keySnapshot.Length; i++)
                 {
+                    var entry = dict[keySnapshot[i]];
                     if (entry != null && entry.Definition != null)
                     {
                         var clothingDef = entry.Definition.TryCast<Il2CppScheduleOne.Clothing.ClothingDefinition>();
