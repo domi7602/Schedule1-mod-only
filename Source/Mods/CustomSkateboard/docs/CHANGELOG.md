@@ -1,6 +1,14 @@
 # Changelog
 
 
+## 1.1.0 (2026-09-09)
+
+- **Tuning: Höhere Geschwindigkeit + bessere Lenkung** (Benutzerwunsch; Werte gelten für Code-Defaults UND Live-Config `UserData/MelonPreferences.cfg [CustomSkateboard]`, da gespeicherte TOML-Werte Code-Defaults überschreiben):
+  - Geschwindigkeit: `TopSpeed_Kmh` 100 → **140**, `PushForceMultiplier` 5.2 → **6.5**, `PushCooldown` 0.22 s → **0.18 s**, `LongitudinalFrictionMultiplier` 0.16 → **0.13** (weniger Rollwiderstand, Speed hält länger).
+  - Lenkung: `TurnForce` 15 → **20**, `TurnChangeRate` 64 → **85**, `TurnReturnToRestRate` 56 → **75**, `LateralFrictionForceMultiplier` 1.60 → **1.85** (Highspeed-Grip), `MaxBoardLean` 28° → **33°**, `BoardLeanRate` 60 → **75**.
+  - Kurven-Abdeckung geprüft: Turn-/Push-Curves sind bis 160/150 km/h definiert — 140 km/h bleibt voll innerhalb der Keyframes.
+  - Unverändert: Sprungphysik (JumpForce 18), Anti-Gravel, Preis, Visuals.
+
 ## 1.0.3 (2026-09-03)
 - **Fix: Ollie-Flattening (flacher Sprung)**: Custom-Board-Sprünge hoben zuerst die Nase (Vanilla-Ollie-Animation). Root Cause: Die Achsen-Sprungkurven (`FrontAxleJumpCurve`/`RearAxleJumpCurve`) existieren doppelt — auf der Board-Instanz UND im `SkateboardSettings`-ScriptableObject; Vanilla liest nativ die Settings-Kopie. Der Fix vom 02.09. schrieb nur die Board-Kopie. Jetzt klont `TuneSettingsObject` die Front-Kurve zusätzlich auf die Rear-Kurve des Settings-Objekts (`board._settings` + `CurentSettings`) → flacher Sprung wie Standard-Boards (in-game verifiziert 2026-09-03).
 - Hinweis: Ollie-Verhalten ist Vanilla-Design für ALLE Boards — die Kurven-Glättung ist ein bewusster Custom-Board-Stil, kein Bugfix am Spiel.

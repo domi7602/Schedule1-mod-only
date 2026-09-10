@@ -16,22 +16,22 @@ public sealed class SkateboardConfig
     public float Price { get; set; } = 1500f;
     public string BaseItemIdOverride { get; set; } = "";
 
-    // Speed & Acceleration
-    public float TopSpeed_Kmh { get; set; } = 100f;
-    public float PushForceMultiplier { get; set; } = 5.2f;
+    // Speed & Acceleration (v1.1.0 tune: higher top speed, stronger push)
+    public float TopSpeed_Kmh { get; set; } = 140f;
+    public float PushForceMultiplier { get; set; } = 6.5f;
     public float PushForceDuration { get; set; } = 0.35f;
-    public float PushCooldown { get; set; } = 0.22f;
-    public float LongitudinalFrictionMultiplier { get; set; } = 0.16f;
+    public float PushCooldown { get; set; } = 0.18f;
+    public float LongitudinalFrictionMultiplier { get; set; } = 0.13f;
     public float BrakeForce { get; set; } = 2.5f;
 
-    // Steering & Handling (Ultra-Responsive Carving & High-Speed Grip)
-    public float TurnForce { get; set; } = 15.0f;
-    public float TurnChangeRate { get; set; } = 64.0f;
-    public float TurnReturnToRestRate { get; set; } = 56.0f;
+    // Steering & Handling (v1.1.0 tune: ultra-responsive carving & high-speed grip)
+    public float TurnForce { get; set; } = 20.0f;
+    public float TurnChangeRate { get; set; } = 85.0f;
+    public float TurnReturnToRestRate { get; set; } = 75.0f;
     public float TurnSpeedBoost { get; set; } = 2.5f;
-    public float LateralFrictionForceMultiplier { get; set; } = 1.60f;
-    public float MaxBoardLean { get; set; } = 28f;
-    public float BoardLeanRate { get; set; } = 60f;
+    public float LateralFrictionForceMultiplier { get; set; } = 1.85f;
+    public float MaxBoardLean { get; set; } = 33f;
+    public float BoardLeanRate { get; set; } = 75f;
 
     // Jump & Air Control — Gatekeeper-hotfix 2026-08-30: vanilla 6.5 = dead. Bumped to 9.5 for lift.
     // Gatekeeper-hotfix 2026-08-30: 9.5 only lifted slightly, player still couldn't actually jump. Bumped to 14.0 for real hop.
