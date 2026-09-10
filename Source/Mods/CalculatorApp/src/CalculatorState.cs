@@ -71,7 +71,7 @@ public sealed class CalculatorState
         try
         {
             var info = LoadManager.Instance?.ActiveSaveInfo;
-            if (info != null)
+            if (info != null && info.Pointer != IntPtr.Zero && !info.WasCollected)
             {
                 string slot = info.SaveSlotNumber.ToString();
                 _lastKnownSlot = slot;

@@ -1,6 +1,7 @@
 using System;
 using MelonLoader;
 using PocketShop.Config;
+using PocketShop.Services;
 using S1Mods.Shared;
 
 [assembly: MelonInfo(typeof(PocketShop.Mod), "PocketShop", "0.2.1", "Dominik")]
@@ -25,6 +26,7 @@ public class Mod : MelonMod
         if (sceneName.Equals("Main", StringComparison.OrdinalIgnoreCase))
         {
             PocketShopApp.TearDownForSceneUnload();
+            ShopCatalog.ResetForSceneReload();
         }
     }
 }

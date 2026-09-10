@@ -311,21 +311,6 @@ public sealed class NotesApp : PhoneApp
         catch { }
     }
 
-    private void MigrateLegacyGlobalNotes()
-    {
-        try
-        {
-            string legacyPath = SafeStorage.GetUserDataPath("NotesApp", SaveFileName);
-            if (!File.Exists(legacyPath)) return;
-            if (File.Exists(_savePath)) { try { File.Delete(legacyPath); } catch { } return; }
-            File.Move(legacyPath, _savePath);
-        }
-        catch (Exception ex)
-        {
-            MelonLogger.Warning($"Legacy notes migration failed: {ex.Message}");
-        }
-    }
-
     protected override void OnCreatedUI(GameObject container)
     {
         var containerRt = container.GetComponent<RectTransform>();

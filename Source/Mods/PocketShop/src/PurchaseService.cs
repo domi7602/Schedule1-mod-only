@@ -157,7 +157,7 @@ public static class PurchaseService
             return result;
         }
 
-        CalculatePricing(item, qty, out float perUnit, out _, out _, out float total);
+        CalculatePricing(item, qty, out float perUnit, out _, out float deliveryFee, out float total);
         result.UnitPriceWithFee = perUnit;
         result.TotalPaid = total;
 
@@ -255,29 +255,53 @@ public static class PurchaseService
             }
 
             // Transfer items to player inventory
+            int deliveredCount = 0;
             try
             {
                 for (int i = 0; i < qty; i++)
                 {
                     inventory.AddItemToInventory(instances[i]);
+                    deliveredCount++;
                 }
             }
             catch (Exception ex)
             {
                 MelonLogger.Error($"Inventory transfer failed for '{item.Name}': {ex.Message}");
+                // Partial delivery: 0..deliveredCount-1 reached the player, the rest did not.
+                // Refund only the undelivered remainder so delivered items stay paid for.
+                // Units: perUnit ($/unit) * undelivered (units) + deliveryFee ($) = $.
+                int undelivered = qty - deliveredCount;
+                float refund = perUnit * undelivered + (deliveredCount == 0 ? deliveryFee : 0f);
                 // Rollback payment so the player is never charged for undelivered items.
                 try
                 {
                     if (effectiveMode == PaymentMode.Cash)
                     {
-                        money.ChangeCashBalance(total, false, false);
+                        money.ChangeCashBalance(refund, false, false);
                     }
                     else
                     {
-                        money.CreateOnlineTransaction("PocketShop Refund", total, 1, "PocketShop Order Rollback");
+                        money.CreateOnlineTransaction("PocketShop Refund", refund, 1, "PocketShop Order Rollback");
                     }
+                    // Decrement vendor stock for the items that were actually delivered.
+                    if (deliveredCount > 0 && availableStock != UnlimitedStockSentinel && item.SourceListing != null)
+                    {
+                        int newStock = System.Math.Max(0, item.SourceListing.CurrentStock - deliveredCount);
+                        item.SourceListing.SetStock(newStock, true);
+                        item.CurrentStock = newStock;
+                        item.IsInStock = newStock > 0;
+                    }
+                    result.TotalPaid = total - refund;
+                    result.Quantity = deliveredCount;
                     result.Result = BuyResult.NoInventorySpace;
-                    result.Message = $"Inventory full! Cannot fit {qty}x '{item.Name}'. Payment refunded.";
+                    if (deliveredCount > 0)
+                    {
+                        result.Message = $"Inventory full! Delivered {deliveredCount}x '{item.Name}', refunded ${refund:F0} for {undelivered}x undelivered.";
+                    }
+                    else
+                    {
+                        result.Message = $"Inventory full! Cannot fit {qty}x '{item.Name}'. Payment refunded.";
+                    }
                     SoundService.PlayPurchaseDenied();
                     return result;
                 }

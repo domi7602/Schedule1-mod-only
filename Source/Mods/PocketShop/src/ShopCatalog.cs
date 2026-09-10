@@ -71,73 +71,83 @@ public static class ShopCatalog
 
     public static void Refresh()
     {
-        _itemCache.Clear();
-        _shopCache.Clear();
-
-        var allShops = ShopInterface.AllShops;
-        if (allShops == null || allShops.Count == 0)
+        try
         {
-            _initialised = false;
-            return;
-        }
+            _itemCache.Clear();
+            _shopCache.Clear();
 
-        var perShopCount = new Dictionary<string, int>();
-
-        for (int s = 0; s < allShops.Count; s++)
-        {
-            var shop = allShops[s];
-            if (shop == null) continue;
-
-            var listings = shop.Listings;
-            if (listings == null) continue;
-
-            // Fallback-Kette: ShopCode → ShopName → GameObject-Name → Slot-Index (nie null).
-            var code = !string.IsNullOrEmpty(shop.ShopCode) ? shop.ShopCode
-                : !string.IsNullOrEmpty(shop.ShopName) ? shop.ShopName
-                : shop.name ?? $"shop_{s}";
-            int availableCount = 0;
-
-            for (int i = 0; i < listings.Count; i++)
+            var allShops = ShopInterface.AllShops;
+            if (allShops == null || allShops.Count == 0)
             {
-                var listing = listings[i];
-                if (listing == null) continue;
-                if (listing.Item == null) continue;
-                if (!listing.IsInStock) continue;
+                _initialised = false;
+                return;
+            }
 
-                availableCount++;
-                var def = listing.Item;
+            var perShopCount = new Dictionary<string, int>();
 
-                _itemCache.Add(new ItemPOCO
+            for (int s = 0; s < allShops.Count; s++)
+            {
+                var shop = allShops[s];
+                if (shop == null) continue;
+
+                var listings = shop.Listings;
+                if (listings == null) continue;
+
+                // Fallback-Kette: ShopCode → ShopName → GameObject-Name → Slot-Index (nie null).
+                var code = !string.IsNullOrEmpty(shop.ShopCode) ? shop.ShopCode
+                    : !string.IsNullOrEmpty(shop.ShopName) ? shop.ShopName
+                    : shop.name ?? $"shop_{s}";
+                int availableCount = 0;
+
+                for (int i = 0; i < listings.Count; i++)
                 {
-                    Name = ResolveCleanItemName(def, listing),
-                    Price = listing.Price,
-                    CurrentStock = listing.CurrentStock,
-                    IsInStock = listing.IsInStock,
-                    ShopName = shop.ShopName,
+                    var listing = listings[i];
+                    if (listing == null) continue;
+                    if (listing.Item == null) continue;
+                    if (!listing.IsInStock) continue;
+
+                    availableCount++;
+                    var def = listing.Item;
+
+                    _itemCache.Add(new ItemPOCO
+                    {
+                        Name = ResolveCleanItemName(def, listing),
+                        Price = listing.Price,
+                        CurrentStock = listing.CurrentStock,
+                        IsInStock = listing.IsInStock,
+                        ShopName = shop.ShopName,
+                        ShopCode = code,
+                        CategoryValue = (int)def.Category,
+                        Definition = def,
+                        SourceListing = listing,
+                        Icon = def.Icon
+                    });
+                }
+
+                // Shop-Tile immer anzeigen — auch bei 0 verfügbaren Items (Empty-State "OUT").
+                // Vorher verschwand der Shop komplett aus dem Katalog, sobald alles ausverkauft war.
+                perShopCount[code] = availableCount;
+                _shopCache.Add(new ShopPOCO
+                {
+                    Name = shop.ShopName,
                     ShopCode = code,
-                    CategoryValue = (int)def.Category,
-                    Definition = def,
-                    SourceListing = listing,
-                    Icon = def.Icon
+                    ItemCount = availableCount
                 });
             }
 
-            // Shop-Tile immer anzeigen — auch bei 0 verfügbaren Items (Empty-State "OUT").
-            // Vorher verschwand der Shop komplett aus dem Katalog, sobald alles ausverkauft war.
-            perShopCount[code] = availableCount;
-            _shopCache.Add(new ShopPOCO
+            _initialised = _itemCache.Count > 0;
+            if (_initialised)
             {
-                Name = shop.ShopName,
-                ShopCode = code,
-                ItemCount = availableCount
-            });
+                _retryCount = 0;
+                OnCatalogChanged?.Invoke();
+            }
         }
-
-        _initialised = _itemCache.Count > 0;
-        if (_initialised)
+        catch (Exception ex)
         {
-            _retryCount = 0;
-            OnCatalogChanged?.Invoke();
+            MelonLogger.Warning($"ShopCatalog refresh failed: {ex.Message}");
+            _initialised = false;
+            StopRetryLoop();
+            return;
         }
     }
 

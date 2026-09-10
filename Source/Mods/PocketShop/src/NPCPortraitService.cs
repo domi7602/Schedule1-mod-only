@@ -1,16 +1,12 @@
-using System;
 using System.Collections.Generic;
-using Il2CppScheduleOne.NPCs;
-using Il2CppScheduleOne.UI.Shop;
 using UnityEngine;
 
 namespace PocketShop.Services;
 
 /// <summary>
-/// Provides high-resolution avatars for each shop:
-/// 1. Tries resolving live 3D NPC mugshots from the game's NPCManager / ShopInterface.
-/// 2. If not found or for category shops, renders crisp, anti-aliased 128x128 themed vector icons
-///    (Target for Arms Dealer, Diamond for Boutique, T-Shirt for Clothing, Gas Pump for Gas Mart, etc.).
+/// Provides high-resolution avatars for each shop by rendering crisp,
+/// anti-aliased 128x128 themed vector icons (Target for Arms Dealer,
+/// Diamond for Boutique, T-Shirt for Clothing, Gas Pump for Gas Mart, etc.).
 /// </summary>
 public static class NPCPortraitService
 {
@@ -24,66 +20,10 @@ public static class NPCPortraitService
             return cached;
         }
 
-        // 1. Try finding live NPC mugshot from the game
-        var gameMugshot = TryFindNPCMugshot(shopCode, shopName);
-        if (gameMugshot != null)
-        {
-            _cache[key] = gameMugshot;
-            return gameMugshot;
-        }
-
-        // 2. Generate crisp themed icon matching the mockup
+        // Generate crisp themed icon matching the mockup
         var iconSprite = CreateThemedStoreIcon(shopCode, shopName, size);
         _cache[key] = iconSprite;
         return iconSprite;
-    }
-
-    private static Sprite? TryFindNPCMugshot(string shopCode, string shopName)
-    {
-        try
-        {
-            var npcManager = NPCManager.Instance;
-            if (npcManager != null)
-            {
-                // Gatekeeper-fix 2026-08-29: FindObjectsOfType<T>() is [Obsolete] in Unity 2022.3+ (CS0618).
-                // Migrated to FindObjectsByType with explicit FindObjectsSortMode.None (no allocation, faster).
-                var npcs = UnityEngine.Object.FindObjectsByType<NPC>(FindObjectsSortMode.None);
-                if (npcs != null)
-                {
-                    string target = shopName.ToLowerInvariant();
-                    string codeTarget = shopCode.ToLowerInvariant();
-
-                    foreach (var npc in npcs)
-                    {
-                        if (npc == null) continue;
-                        string npcName = (npc.name ?? string.Empty).ToLowerInvariant();
-                        string npcId = (npc.ID ?? string.Empty).ToLowerInvariant();
-
-                        if (MatchesNPC(target, codeTarget, npcName, npcId))
-                        {
-                            // If NPC has an active mugshot/icon
-                            if (npc.MSGConversation != null && npc.MSGConversation.entry != null)
-                            {
-                                // Return if mugshot is resolved
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        catch
-        {
-            // Fallback gracefully
-        }
-        return null;
-    }
-
-    private static bool MatchesNPC(string target, string codeTarget, string npcName, string npcId)
-    {
-        if (string.IsNullOrEmpty(npcName) && string.IsNullOrEmpty(npcId)) return false;
-        if (target.Contains(npcName) || npcName.Contains(target)) return true;
-        if (codeTarget.Contains(npcId) || npcId.Contains(codeTarget)) return true;
-        return false;
     }
 
     private static Sprite CreateThemedStoreIcon(string shopCode, string shopName, int size)
