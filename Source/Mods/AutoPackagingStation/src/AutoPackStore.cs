@@ -167,16 +167,32 @@ public static class AutoPackStore
                 var info = pLoadMgr.ActiveSaveInfo;
                 if (info != null && info.Pointer != IntPtr.Zero && !info.WasCollected)
                 {
-                    _lastKnownSlot = info.SaveSlotNumber.ToString();
-                    return _lastKnownSlot;
+                    if (info.SaveSlotNumber >= 0)
+                    {
+                        _lastKnownSlot = info.SaveSlotNumber.ToString();
+                        return _lastKnownSlot;
+                    }
+                    else if (!string.IsNullOrEmpty(info.SavePath))
+                    {
+                        _lastKnownSlot = Path.GetFileName(info.SavePath);
+                        return _lastKnownSlot;
+                    }
                 }
             }
 
             var infoLegacy = LoadManager.Instance?.ActiveSaveInfo;
             if (infoLegacy != null && infoLegacy.Pointer != IntPtr.Zero && !infoLegacy.WasCollected)
             {
-                _lastKnownSlot = infoLegacy.SaveSlotNumber.ToString();
-                return _lastKnownSlot;
+                if (infoLegacy.SaveSlotNumber >= 0)
+                {
+                    _lastKnownSlot = infoLegacy.SaveSlotNumber.ToString();
+                    return _lastKnownSlot;
+                }
+                else if (!string.IsNullOrEmpty(infoLegacy.SavePath))
+                {
+                    _lastKnownSlot = Path.GetFileName(infoLegacy.SavePath);
+                    return _lastKnownSlot;
+                }
             }
         }
         catch

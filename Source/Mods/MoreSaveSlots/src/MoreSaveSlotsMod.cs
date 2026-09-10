@@ -41,18 +41,6 @@ public class MoreSaveSlotsMod : MelonMod
 
     public override void OnUpdate()
     {
-        if (RenameDialog.IsOpen || DeleteDialog.IsOpen)
-        {
-            try
-            {
-                if (_dialogRootMissing)
-                {
-                    _dialogRootMissing = false;
-                }
-            }
-            catch { }
-        }
-
         if (RenameDialog.IsOpen)
         {
             if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
@@ -104,8 +92,6 @@ public class MoreSaveSlotsMod : MelonMod
             DeleteDialog.OpenForHoveredOrSelected();
         }
     }
-
-    private static bool _dialogRootMissing;
 
     private static bool IsInGameplayScene()
     {

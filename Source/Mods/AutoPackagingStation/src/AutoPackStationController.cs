@@ -1039,9 +1039,7 @@ public class AutoPackStationController : MonoBehaviour
                     var pkgDef = prodInst?.AppliedPackaging ?? (!string.IsNullOrEmpty(prodInst?.PackagingID) ? GameRegistry.GetItem(prodInst.PackagingID)?.TryCast<Il2CppScheduleOne.Product.Packaging.PackagingDefinition>() : null);
                     var qual = inst.TryCast<NativeQualityItemInst>()?.Quality ?? EQuality.Standard;
 
-                    inv.AddItemToInventory(inst);
-
-                    for (int i = 1; i < totalQty; i++)
+                    for (int i = 0; i < totalQty; i++)
                     {
                         var newInst = inst.Definition.GetDefaultInstance(1);
                         if (newInst != null && newInst.Pointer != IntPtr.Zero)

@@ -9,7 +9,6 @@ namespace MoreSaveSlots.Config;
 public class MoreSaveSlotsConfig
 {
     public int TotalSlots { get; set; } = 25;
-    public int SlotsPerPage { get; set; } = 5;
     public bool EnableKeyboardNavigation { get; set; } = true;
     public bool EnableRenameFeature { get; set; } = true;
 
@@ -75,6 +74,5 @@ public class MoreSaveSlotsConfig
     {
         if (TotalSlots < 5) TotalSlots = 5;
         if (TotalSlots > 100) TotalSlots = 100;
-        if (SlotsPerPage != 5) SlotsPerPage = 5;
     }
 }

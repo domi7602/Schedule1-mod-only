@@ -210,6 +210,6 @@ public sealed class Mod : MelonMod
 
     private static bool IsGameplayScene(string sceneName)
     {
-        return !string.IsNullOrEmpty(sceneName) && sceneName != "Startup" && sceneName != "Init";
+        return sceneName == "Main";
     }
 }

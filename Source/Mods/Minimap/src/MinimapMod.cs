@@ -61,6 +61,8 @@ public sealed class MinimapMod : MelonMod
     {
         if (IsGameplayScene(sceneName))
         {
+            // Persist debounced transient changes (e.g. zoom level) instead of saving per keypress.
+            SaveConfig();
             _hud.SetHUDActive(false);
             _hud.InvalidateMapSprite();
             MinimapFont.ResetCache();
@@ -83,12 +85,10 @@ public sealed class MinimapMod : MelonMod
             if (Input.GetKeyDown(_zoomInKeyCode) || Input.GetKeyDown(KeyCode.KeypadPlus))
             {
                 _hud.AdjustZoom(Config, 0.25f);
-                SaveConfig();
             }
             else if (Input.GetKeyDown(_zoomOutKeyCode) || Input.GetKeyDown(KeyCode.KeypadMinus))
             {
                 _hud.AdjustZoom(Config, -0.25f);
-                SaveConfig();
             }
         }
 
