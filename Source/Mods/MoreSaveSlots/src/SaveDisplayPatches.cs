@@ -15,6 +15,47 @@ namespace MoreSaveSlots.Patches;
 public static class SaveDisplay_Patches
 {
     [HarmonyPatch(nameof(SaveDisplay.Awake))]
+    [HarmonyPrefix]
+    public static bool Awake_Prefix(SaveDisplay __instance)
+    {
+        // Fix 2026-09-11: Vanilla-Awake loopt 0..SAVE_SLOT_COUNT-1 (25) und ruft
+        // SetDisplayedSave(i) auf. Slots.Length ist aber 5 -> IndexOutOfRange ab i=5.
+        // Darum Vanilla-Awake skippen und paginiert initialisieren (Seite 0).
+        if (__instance == null || __instance.Slots == null || __instance.Slots.Length == 0)
+        {
+            return true;
+        }
+
+        try
+        {
+            int page = PaginationController.CurrentPage;
+            int slotsPerPage = PaginationController.SlotsPerPage;
+
+            for (int i = 0; i < __instance.Slots.Length; i++)
+            {
+                int actualIndex = page * slotsPerPage + i;
+                SaveInfo? info = null;
+
+                if (LoadManager.SaveGames != null && actualIndex >= 0 && actualIndex < LoadManager.SaveGames.Length)
+                {
+                    info = LoadManager.SaveGames[actualIndex];
+                }
+
+                __instance.SetDisplayedSave(i, info);
+            }
+
+            PaginationController.UpdateUILabel();
+            MelonLogger.Msg($"[MoreSaveSlots] SaveDisplay.Awake intercepted: page {page + 1}, {__instance.Slots.Length} slots shown.");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Error($"[MoreSaveSlots] Error in SaveDisplay.Awake prefix: {ex}");
+            return true;
+        }
+    }
+
+    [HarmonyPatch(nameof(SaveDisplay.Awake))]
     [HarmonyPostfix]
     public static void Awake_Postfix(SaveDisplay __instance)
     {
@@ -43,6 +84,21 @@ public static class SaveDisplay_Patches
 
             int page = PaginationController.CurrentPage;
             int slotsPerPage = PaginationController.SlotsPerPage;
+
+            // Diag 2026-09-11: ein Zeile pro Refresh — zeigt ob/wann Refresh läuft und was im Array steht.
+            try
+            {
+                string arrInfo = LoadManager.SaveGames == null ? "null" : LoadManager.SaveGames.Length.ToString();
+                string firstName = "none";
+                int firstIdx = page * slotsPerPage;
+                if (LoadManager.SaveGames != null && firstIdx >= 0 && firstIdx < LoadManager.SaveGames.Length
+                    && LoadManager.SaveGames[firstIdx] != null)
+                {
+                    firstName = LoadManager.SaveGames[firstIdx].OrganisationName ?? "unnamed";
+                }
+                MelonLogger.Msg($"[MoreSaveSlots] Refresh: page {page + 1}, SaveGames={arrInfo}, first='{firstName}'");
+            }
+            catch { }
 
             for (int i = 0; i < __instance.Slots.Length; i++)
             {

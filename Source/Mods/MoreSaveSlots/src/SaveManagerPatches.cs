@@ -251,6 +251,17 @@ public static class LoadManager_RefreshSaveInfo_Patch
                 }
             }
 
+            // Fix 2026-09-11: Awake läuft VOR dem Scan (leere Namen). Nach dem Scan
+            // aktiv refreshen, sonst bleiben die Slot-Namen leer obwohl Saves da sind.
+            try
+            {
+                PaginationController.RefreshActiveScreen();
+            }
+            catch (Exception refreshEx)
+            {
+                MelonLogger.Warning($"[MoreSaveSlots] RefreshActiveScreen after scan threw: {refreshEx.Message}");
+            }
+
             return false; // Skip vanilla 5-slot scan
         }
         catch (Exception ex)

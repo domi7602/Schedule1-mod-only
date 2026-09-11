@@ -1,6 +1,16 @@
 # Changelog
 
 
+## 1.0.6 (2026-09-11)
+- Diagnose-Zeile pro Refresh (Seite, Array-Länge, erster Name) zur leeren-Namen-Fehlersuche.
+
+## 1.0.5 (2026-09-11)
+- Nach Save-Scan aktiv refreshen (RefreshActiveScreen): Awake läuft vor dem Scan und zeigte leere Namen, obwohl Saves da sind.
+
+## 1.0.4 (2026-09-11)
+- SaveDisplay.Awake mit Prefix abgefangen (Vanilla loopt 0..SAVE_SLOT_COUNT-1 bei nur 5 Slot-Karten -> IndexOutOfRange). Paginierte Init, Vanilla wird geskippt.
+- Stale Init-Log v1.0.2 auf v1.0.4 korrigiert.
+
 ## 1.0.3 (2026-09-11)
 - NewGame-SlotSelected mit Bounds-Guard (kein OOB auf unvollstaendiger letzter Seite).
 - Hover-Tracker via EventHelper (IL2CPP-sicher) ohne Vanilla-Trigger-Clear.
