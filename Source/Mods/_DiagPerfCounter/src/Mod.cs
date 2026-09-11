@@ -4,7 +4,7 @@ using System.Reflection;
 using MelonLoader;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(_DiagPerfCounter.Mod), "_DiagPerfCounter", "0.3.1", "Diag")]
+[assembly: MelonInfo(typeof(_DiagPerfCounter.Mod), "_DiagPerfCounter", "0.3.2", "Diag")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace _DiagPerfCounter;
@@ -13,10 +13,14 @@ public sealed class Mod : MelonMod
 {
     public override void OnInitializeMelon()
     {
+#if !DEBUG
+        // Dev-tool: never dump in release builds shipped to players.
+        return;
+#else
         string path = SafeStorage.GetUserDataPath("_DiagPerfCounter", "dump.txt");
         SafeStorage.EnsureDirectoryForFile(path);
-        using var sw = new StreamWriter(path, append: false);
-        sw.WriteLine("=== Dumping StorageEntity ===");
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("=== Dumping StorageEntity ===");
         try
         {
             Type[] typesToDump = new[] {
@@ -24,21 +28,19 @@ public sealed class Mod : MelonMod
             };
             foreach (var t in typesToDump)
             {
-                sw.WriteLine($"=== Type: {t.Name} ===");
-                foreach (var m in t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static))
+                sb.AppendLine($"=== Type: {t.Name} ===");
+                foreach (var m in t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly))
                 {
-                    sw.WriteLine($"Method: {m.Name}");
-                    foreach (var p in m.GetParameters())
-                    {
-                        sw.WriteLine($"  param: {p.ParameterType.Name} {p.Name}");
-                    }
+                    sb.AppendLine($"Method: {m.ReturnType.Name} {m.Name}({string.Join(", ", System.Linq.Enumerable.Select(m.GetParameters(), p => p.ParameterType.Name + " " + p.Name))})");
                 }
             }
         }
         catch (Exception ex)
         {
-            sw.WriteLine(ex.ToString());
+            sb.AppendLine(ex.ToString());
         }
+        SafeStorage.SaveTextAtomic(path, sb.ToString(), null);
         MelonLogger.Msg("Dumped methods to UserData/_DiagPerfCounter/dump.txt");
+#endif
     }
 }

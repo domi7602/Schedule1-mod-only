@@ -7,7 +7,7 @@ using MoreSaveSlots.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-[assembly: MelonInfo(typeof(MoreSaveSlots.MoreSaveSlotsMod), "MoreSaveSlots", "1.0.2", "Dominik")]
+[assembly: MelonInfo(typeof(MoreSaveSlots.MoreSaveSlotsMod), "MoreSaveSlots", "1.0.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 [assembly: MelonGame("TVGS", "Schedule 1")]
 

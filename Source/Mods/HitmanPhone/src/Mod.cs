@@ -16,7 +16,7 @@ using S1StorageEntity = ScheduleOne.Storage.StorageEntity;
 using S1NPC = ScheduleOne.NPCs.NPC;
 #endif
 
-[assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.2.2", "Dominik")]
+[assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.2.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace HitmanPhone;

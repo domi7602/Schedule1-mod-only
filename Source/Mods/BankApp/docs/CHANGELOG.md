@@ -1,5 +1,9 @@
 # Changelog — BankApp
 
+## 0.4.2 (2026-09-11)
+- WasCollected-Guards in RefreshAll/Update/OnPhoneClosed (kein MissingReference nach Unload).
+- PreLoad resettet Slot-Cache nicht mehr (kein bank_default.json mitten in Session).
+
 All notable changes to the BankApp mod will be documented in this file.
 
 ## [0.4.1] — 2026-09-10

@@ -1,6 +1,10 @@
 # Changelog
 
 
+
+## 1.1.2 (2026-09-11)
+- Settings-Sharing-Detektor: warnt per Error-Log, falls ein getuntes Board sein _settings-Objekt mit anderen Boards teilt (Vanilla-Pollution-Nachweis).
+
 ## 1.1.1 (2026-09-10)
 
 - IsGameplayScene strikt 'Main' (kein Tuning-State-Verlust im Menue).

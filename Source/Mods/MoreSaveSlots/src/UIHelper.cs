@@ -34,7 +34,10 @@ public static class UIHelper
 
     public static TMP_FontAsset? GetFont(Transform? context = null)
     {
-        if (_cachedFont != null) return _cachedFont;
+        // Cached fonts die with the scene (IL2CPP wrapper survives) — re-resolve.
+        if (IsAlive(_cachedFont) && IsAlive(_cachedFontMaterial)) return _cachedFont;
+        _cachedFont = null;
+        _cachedFontMaterial = null;
 
         // 1. Search in context hierarchy (IL2CPP-safe indexed for loops)
         if (context != null)
@@ -191,5 +194,12 @@ public static class UIHelper
         textRt.offsetMax = Vector2.zero;
 
         return btn;
+    }
+
+    private static bool IsAlive(UnityEngine.Object? obj)
+    {
+        if (obj == null) return false;
+        try { return obj.Pointer != IntPtr.Zero && !obj.WasCollected && (UnityEngine.Object)obj != null; }
+        catch { return false; }
     }
 }

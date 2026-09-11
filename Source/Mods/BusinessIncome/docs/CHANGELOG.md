@@ -1,6 +1,10 @@
 # Changelog
 
 
+
+## 0.1.2 (2026-09-11)
+- Windfall-Seed wird persistiert (kein Re-Seed + kein biz-stats-Flip nach Restart).
+
 ## 0.1.1 (2026-09-10)
 - Erstinstallations-Windfall geseedet (keine Historie seit Tag 0).
 - Catch-up laeuft auch via OnDayPass (idempotent); Display-Strings invariant.

@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 0.2.3 (2026-09-11)
+- ShopCatalog: Per-Handler-Invoke (ein toter Subscriber killt den Katalog nicht mehr) + CurrentStock-Fallback.
+- ItemGridPane: defensives Re-Subscribe + WasCollected-Guard; TearDown entsorgt DirectoryPane.
+
 ## 0.2.2 (2026-09-10)
 
 - Statischer Event-Dispatcher; ItemGridPane.Dispose() wird beim Teardown aufgerufen.

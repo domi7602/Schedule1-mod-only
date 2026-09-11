@@ -25,10 +25,10 @@ public static class GameObjectResolver
     /// </summary>
     public static T? FindComponentDeep<T>(GameObject? root, string hintName = "", ModLogger? log = null) where T : Component
     {
-        if (root == null)
+        if (!IsAlive(root))
             return null;
 
-        var components = root.GetComponentsInChildren<T>(true);
+        var components = root!.GetComponentsInChildren<T>(true);
         if (components == null || components.Length == 0)
         {
             if (!string.IsNullOrEmpty(hintName))
@@ -41,7 +41,8 @@ public static class GameObjectResolver
 
         foreach (var comp in components)
         {
-            if (comp != null && comp.gameObject.name.IndexOf(hintName, StringComparison.OrdinalIgnoreCase) >= 0)
+            if (!IsAlive(comp)) continue;
+            if (comp.gameObject.name.IndexOf(hintName, StringComparison.OrdinalIgnoreCase) >= 0)
                 return comp;
         }
 
@@ -95,11 +96,12 @@ public static class GameObjectResolver
 
     private static Transform? FindChildRecursive(Transform parent, string name, bool exactMatch)
     {
+        if (!IsAlive(parent)) return null;
         int childCount = parent.childCount;
         for (int i = 0; i < childCount; i++)
         {
             Transform child = parent.GetChild(i);
-            if (child == null)
+            if (!IsAlive(child))
                 continue;
 
             bool matches = exactMatch
@@ -115,5 +117,13 @@ public static class GameObjectResolver
         }
 
         return null;
+    }
+
+    /// <summary>IL2CPP liveness: managed wrappers survive scene unload while native objects are dead.</summary>
+    private static bool IsAlive(UnityEngine.Object? obj)
+    {
+        if (obj == null) return false;
+        try { return obj.Pointer != IntPtr.Zero && !obj.WasCollected && (UnityEngine.Object)obj != null; }
+        catch { return false; }
     }
 }

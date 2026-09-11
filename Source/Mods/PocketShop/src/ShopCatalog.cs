@@ -104,7 +104,12 @@ public static class ShopCatalog
                     var listing = listings[i];
                     if (listing == null) continue;
                     if (listing.Item == null) continue;
-                    if (!listing.IsInStock) continue;
+                    // Unlimited listings (LimitedStock=false, z.B. mod-injiziert) gelten als In-Stock,
+                    // auch wenn IsInStock/CurrentStock nie initialisiert wurden (Vanilla-Semantik).
+                    // CurrentStock-Fallback deckt stale Saves ab (LimitedStock=true, IsInStock nie gesetzt,
+                    // aber Stock > 0 vorhanden) — solche Listings waeren sonst unsichtbar.
+                    bool inStock = listing.IsInStock || !listing.LimitedStock || listing.CurrentStock > 0;
+                    if (!inStock) continue;
 
                     availableCount++;
                     var def = listing.Item;
@@ -139,7 +144,18 @@ public static class ShopCatalog
             if (_initialised)
             {
                 _retryCount = 0;
-                OnCatalogChanged?.Invoke();
+                // Per-Handler-Invoke: ein werfender Subscriber (z.B. tote UI nach
+                // Szenen-Reload) darf weder die restlichen Handler noch Refresh()
+                // abbrechen — sonst _initialised=false + StopRetryLoop = Katalog tot.
+                var handlers = OnCatalogChanged?.GetInvocationList();
+                if (handlers != null)
+                {
+                    foreach (var h in handlers)
+                    {
+                        try { ((Action)h)(); }
+                        catch (Exception ex) { MelonLogger.Warning($"ShopCatalog subscriber failed: {ex.Message}"); }
+                    }
+                }
             }
         }
         catch (Exception ex)

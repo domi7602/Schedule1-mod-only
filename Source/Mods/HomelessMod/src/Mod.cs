@@ -13,7 +13,7 @@ using S1API.Lifecycle;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(HomelessMod.Mod), "HomelessMod", "0.1.6", "Dominik")]
+[assembly: MelonInfo(typeof(HomelessMod.Mod), "HomelessMod", "0.1.7", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace HomelessMod;
@@ -192,34 +192,13 @@ public sealed class Mod : MelonMod
 
     private void OnPreLoad()
     {
-        // Gatekeeper-fix 2026-08-29: cache slot resolution REMOVED from OnPreLoad because
-        // loadMgr.ActiveSaveInfo is NOT yet guaranteed to reflect the new slot here (S1API
-        // GameLifecycle ordering: OnPreLoad fires before the save-info swap in some paths).
-        // Compare-only here, cache-only in OnSaveInfoLoaded where the new slot is authoritative.
-        // Slot-switch detection: read the slot that is about to be loaded BEFORE we reset anything.
-        // OnPreLoad fires both for real save-slot switches (New Game / Continue on different slot)
-        // AND for same-slot scene reloads (Menu -> Game). We must NOT kill placed street items
-        // on a same-slot reload, or the player's progress disappears every time they leave the menu.
-        int oldSlot = StreetPropertyManager.LastKnownSlotNumber;
-        int newSlot = ResolveActiveSaveSlotNumber();
-        int itemsBefore = StreetPropertyManager.ActiveStreetItemCount;
-        bool isFirstLoad = (oldSlot == -2);
-        // Both oldSlot and newSlot may be -1 here on the very first PreLoad before any save is
-        // ever resolved — that's fine, isFirstLoad (oldSlot == -2) still triggers a clean reset.
-        bool isSlotSwitch = isFirstLoad || (oldSlot != newSlot);
-
-        if (isSlotSwitch)
-        {
-            string branch = "ResetState(full-wipe)";
-            Log.Info($"[OnPreLoad] oldSlot={oldSlot} newSlot={newSlot} isSlotSwitch=True isFirstLoad={isFirstLoad} itemsBefore={itemsBefore} branch={branch}");
-            StreetPropertyManager.ResetState();
-        }
-        else
-        {
-            string branch = "ResetForSceneUnload(keep-slot)";
-            Log.Info($"[OnPreLoad] oldSlot={oldSlot} newSlot={newSlot} isSlotSwitch=False itemsBefore={itemsBefore} branch={branch}");
-            StreetPropertyManager.ResetForSceneUnload();
-        }
+        // The slot-switch decision used to live here, but ActiveSaveInfo is NOT
+        // guaranteed to reflect the new slot in OnPreLoad (stale read) — a same-slot
+        // reload misclassified as a switch caused a full wipe and the street items
+        // were then reloaded from the wrong ("default") file, i.e. silently lost.
+        // OnPreLoad now only tears down live objects (keep-slot); the authoritative
+        // wipe-if-switched decision happens in OnSaveInfoLoaded below.
+        StreetPropertyManager.ResetForSceneUnload();
 
         HomelessQuestManager.ResetState();
         _streetItemsLoaded = false;
@@ -249,6 +228,7 @@ public sealed class Mod : MelonMod
     private void OnSaveInfoLoaded()
     {
         SleepingBagItemFactory.RegisterItem();
+        SleepingBagItemFactory.InjectHardwareStoreListing();
 
         // Diagnostic: report the active slot at save-info time so we can correlate
         // this hook with the OnPreLoad branch that just ran.
@@ -258,8 +238,17 @@ public sealed class Mod : MelonMod
         // Gatekeeper-fix 2026-08-29: cache the now-authoritative slot here (OnPreLoad no longer
         // caches, because loadMgr.ActiveSaveInfo may be stale there). ActiveSaveInfo is
         // guaranteed to reflect the new slot by the time OnSaveInfoLoaded fires.
+        // Wipe-if-switched lives here for the same reason: comparing the authoritative
+        // slot against the previously cached one can no longer misfire on same-slot
+        // reloads. Must run BEFORE OnLoadComplete restores street items from JSON.
         if (currentSlot != -1)
         {
+            int oldSlot = StreetPropertyManager.LastKnownSlotNumber;
+            if (oldSlot == -2 || oldSlot != currentSlot)
+            {
+                Log.Info($"[OnSaveInfoLoaded] slot switch oldSlot={oldSlot} -> newSlot={currentSlot} — full wipe before restore.");
+                StreetPropertyManager.ResetState();
+            }
             StreetPropertyManager.CacheSlotNumber(currentSlot);
         }
     }
@@ -267,14 +256,16 @@ public sealed class Mod : MelonMod
     private void OnLoadComplete()
     {
         SleepingBagItemFactory.RegisterItem();
+        // Vanilla-UI braucht die Listing bei jedem LoadComplete (Shop rebuildet dazwischen);
+        // idempotent via Item.ID-Check, daher jedes Mal sicher.
+        SleepingBagItemFactory.InjectHardwareStoreListing();
 
         // OnLoadComplete can fire more than once per save-load cycle; only
-        // restore street items and inject the store listing on the first pass.
+        // restore street items on the first pass.
         if (!_streetItemsLoaded)
         {
             _streetItemsLoaded = true;
             StreetPropertyManager.LoadAndSpawnStreetItems();
-            SleepingBagItemFactory.InjectHardwareStoreListing();
         }
 
         // Diagnostic: report which JSON path was actually loaded from and how many items came back.

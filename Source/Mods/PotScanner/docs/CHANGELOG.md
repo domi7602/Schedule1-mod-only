@@ -1,5 +1,9 @@
 # Changelog
 
+
+## 0.5.2 (2026-09-11)
+- WasCollected-Guards in Update/Handler/PhoneClosed; Row-Caches werden bei Unload geleert.
+
 ## 0.5.1 (2026-09-10)
 - Statischer Event-Dispatcher; PotTracker.NotifyPotsScanned mit Per-Handler-try/catch.
 - WaterAll/WaterSinglePot nur noch als Host (Fix Multiplayer-Geldverlust/Desync).

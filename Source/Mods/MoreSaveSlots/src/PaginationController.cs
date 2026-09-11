@@ -6,6 +6,7 @@ using Il2CppInterop.Runtime;
 using Il2CppScheduleOne.UI.MainMenu;
 using Il2CppTMPro;
 using MelonLoader;
+using S1API.Utils;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -257,37 +258,39 @@ public static class PaginationController
         }
         else
         {
-            trigger.triggers.Clear();
+            // Remove only our hover/click entries (stale localIndex closures from a
+            // previous attach) — never Clear() the whole list, vanilla may own entries
+            // (hover/click handlers) that must survive.
+            for (int i = trigger.triggers.Count - 1; i >= 0; i--)
+            {
+                var existing = trigger.triggers[i];
+                if (existing == null) { trigger.triggers.RemoveAt(i); continue; }
+                if (existing.eventID == EventTriggerType.PointerEnter
+                    || existing.eventID == EventTriggerType.PointerExit
+                    || existing.eventID == EventTriggerType.PointerClick)
+                    trigger.triggers.RemoveAt(i);
+            }
         }
 
-        var entryEnter = new EventTrigger.Entry();
-        entryEnter.eventID = EventTriggerType.PointerEnter;
-        entryEnter.callback.AddListener((UnityEngine.Events.UnityAction<BaseEventData>)(_ =>
+        // IL2CPP-safe subscription via S1API (a direct UnityAction cast faults on
+        // the IntPtr boundary per AGENTS.md §5).
+        EventHelper.AddEventTrigger(trigger, EventTriggerType.PointerEnter, _ =>
         {
             SelectedLocalSlot = localIndex;
             HoveredLocalSlot = localIndex;
-        }));
-        trigger.triggers.Add(entryEnter);
-
-        var entryExit = new EventTrigger.Entry();
-        entryExit.eventID = EventTriggerType.PointerExit;
-        entryExit.callback.AddListener((UnityEngine.Events.UnityAction<BaseEventData>)(_ =>
+        });
+        EventHelper.AddEventTrigger(trigger, EventTriggerType.PointerExit, _ =>
         {
             if (HoveredLocalSlot == localIndex)
             {
                 HoveredLocalSlot = -1;
             }
             // Do NOT reset SelectedLocalSlot so moving down to click Rename preserves the selected slot
-        }));
-        trigger.triggers.Add(entryExit);
-
-        var entryClick = new EventTrigger.Entry();
-        entryClick.eventID = EventTriggerType.PointerClick;
-        entryClick.callback.AddListener((UnityEngine.Events.UnityAction<BaseEventData>)(_ =>
+        });
+        EventHelper.AddEventTrigger(trigger, EventTriggerType.PointerClick, _ =>
         {
             SelectedLocalSlot = localIndex;
-        }));
-        trigger.triggers.Add(entryClick);
+        });
     }
 
     public static void UpdateUILabel()

@@ -90,7 +90,8 @@ public sealed class NotesApp : PhoneApp
             if (loadMgr != null && loadMgr.Pointer != IntPtr.Zero && !loadMgr.WasCollected)
             {
                 var info = loadMgr.ActiveSaveInfo;
-                if (info != null && info.Pointer != IntPtr.Zero && !info.WasCollected)
+                if (info != null && info.Pointer != IntPtr.Zero && !info.WasCollected
+                    && info.SaveSlotNumber >= 0)
                 {
                     string slot = $"slot_{info.SaveSlotNumber}";
                     _lastKnownSlot = slot;
@@ -99,7 +100,8 @@ public sealed class NotesApp : PhoneApp
             }
             // Fallback to legacy LoadManager.Instance (in case PersistentSingleton not ready)
             var legacyInfo = LoadManager.Instance?.ActiveSaveInfo;
-            if (legacyInfo != null && legacyInfo.Pointer != IntPtr.Zero && !legacyInfo.WasCollected)
+            if (legacyInfo != null && legacyInfo.Pointer != IntPtr.Zero && !legacyInfo.WasCollected
+                && legacyInfo.SaveSlotNumber >= 0)
             {
                 string slot = $"slot_{legacyInfo.SaveSlotNumber}";
                 _lastKnownSlot = slot;
@@ -1123,6 +1125,15 @@ public sealed class NotesApp : PhoneApp
 
     private void RefreshList()
     {
+        // Lifecycle hooks (OnSaveInfoLoaded/OnLoadComplete) can fire before
+        // OnCreatedUI built the list — and after scene unload _listContent is a
+        // dead wrapper. Both cases: data is already loaded, UI refresh can wait.
+        if (_listContent == null) return;
+        try
+        {
+            if (_listContent.Pointer == IntPtr.Zero || _listContent.WasCollected) return;
+        }
+        catch { return; }
         for (int i = _listContent.childCount - 1; i >= 0; i--)
         {
             Object.Destroy(_listContent.GetChild(i).gameObject);

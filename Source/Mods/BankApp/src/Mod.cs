@@ -7,7 +7,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(BankApp.Mod), "BankApp", "0.4.1", "Dominik")]
+[assembly: MelonInfo(typeof(BankApp.Mod), "BankApp", "0.4.2", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BankApp;
@@ -30,7 +30,7 @@ public class Mod : MelonMod
         }
         catch (Exception ex) { Log.Warn($"GameLifecycle hook failed: {ex.Message}"); }
 
-        Log.Info("Initialized (v0.4.1).");
+        Log.Info("Initialized (v0.4.2).");
     }
 
     public override void OnDeinitializeMelon()
@@ -51,7 +51,10 @@ public class Mod : MelonMod
     // existing OnDeinitializeMelon unsubscribes stay valid. A future contributor can
     // hook real rebuild logic into HandleSaveInfoLoaded / HandleLoadComplete without
     // resetting the cache — see commit message for the canonical lifecycle ordering.
-    private static void HandlePreLoad() => TransactionHistoryService.ResetCache(false);
+    // OnPreLoad fires before the new save info is parsed — resetting the slot here
+    // would drop to "default" and the next write could land in bank_default.json
+    // mid-session. Keep the slot; the state itself is still cleared above.
+    private static void HandlePreLoad() => TransactionHistoryService.ResetCache(keepSlot: true);
     private static void HandleSaveInfoLoaded() { /* no-op: see lifecycle note above */ }
     private static void HandleLoadComplete() { /* no-op: see lifecycle note above */ }
 

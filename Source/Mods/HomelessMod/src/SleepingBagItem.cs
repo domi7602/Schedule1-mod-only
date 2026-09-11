@@ -480,13 +480,14 @@ public static class SleepingBagItemFactory
                 var listings = shop.Listings;
                 if (listings == null) continue;
 
-                // Already injected?
+                // Already injected? Repair stock + vanilla UI row (idempotent).
                 bool alreadyIn = false;
                 for (int j = 0; j < listings.Count; j++)
                 {
                     var existing = listings[j];
                     if (existing != null && existing.Item != null && existing.Item.ID == itemId)
                     {
+                        S1Mods.Shared.ShopListingSync.OnListingExists(shop, existing, 10, msg => Mod.Log.Warn(msg));
                         alreadyIn = true;
                         break;
                     }
@@ -502,6 +503,8 @@ public static class SleepingBagItemFactory
                 listing.DefaultStock = 10;
                 listing.CanBeDelivered = false;
                 listings.Insert(0, listing);
+                // Raw Add() is invisible to the vanilla UI — Initialize + ListingUI row required.
+                S1Mods.Shared.ShopListingSync.OnListingAdded(shop, listing, 10, msg => Mod.Log.Info(msg), msg => Mod.Log.Warn(msg));
 
                 Mod.Log.Info($"Injected 'sleepingbag' into hardware store listing ('{shop.ShopName}').");
                 continue;

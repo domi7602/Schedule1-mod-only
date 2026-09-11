@@ -148,13 +148,14 @@ public static class AutoPackagingItemFactory
                 var listings = shop.Listings;
                 if (listings == null) continue;
 
-                // Check for existing listing
+                // Check for existing listing — repair stock + vanilla UI row (idempotent).
                 bool alreadyIn = false;
                 for (int j = 0; j < listings.Count; j++)
                 {
                     var existing = listings[j];
                     if (existing != null && existing.Item != null && existing.Item.ID == itemId)
                     {
+                        S1Mods.Shared.ShopListingSync.OnListingExists(shop, existing, 10, msg => Mod.Log.Warn(msg));
                         alreadyIn = true;
                         break;
                     }
@@ -173,6 +174,8 @@ public static class AutoPackagingItemFactory
                 };
 
                 listings.Add(listing);
+                // Raw Add() is invisible to the vanilla UI — Initialize + ListingUI row required.
+                S1Mods.Shared.ShopListingSync.OnListingAdded(shop, listing, 10, msg => Mod.Log.Info(msg), msg => Mod.Log.Warn(msg));
                 Mod.Log.Info($"Injected '{itemId}' into hardware shop listing ('{shop.ShopName}').");
                 continue;
             }

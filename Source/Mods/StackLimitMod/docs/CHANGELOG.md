@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 0.1.2 (2026-09-11)
+- Exclude stellt Original-Limit wieder her (kein Override-Rest nach Nachtrag).
+- Decision-Cache mit 4096-Cap; kein Caching bei noch-unbekannter ID.
+
 ## 0.1.1 (2026-09-10)
 
 - Decision-Cache (IntPtr-Key) im get_StackLimit-Hot-Path (0 Allokationen).

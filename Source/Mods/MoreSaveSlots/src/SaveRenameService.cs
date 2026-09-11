@@ -64,12 +64,16 @@ public static class SaveRenameService
             }
             else
             {
-                newJson = System.Text.RegularExpressions.Regex.Replace(
-                    json,
-                    "(\"OrganisationName\"\\s*:\\s*)\"[^\"]*\"",
-                    m => m.Groups[1].Value + "\"" + newName.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
-                );
+                // No textual regex fallback: hand-rolled escaping misses newlines and
+                // control chars and can corrupt Game.json. A non-object root has no
+                // OrganisationName property to rename anyway — fail loudly instead.
+                MelonLogger.Warning("[MoreSaveSlots] Cannot rename save: unexpected Game.json root (not an object).");
+                return false;
             }
+
+            // Pre-write backup under its own name (SafeStorage's .bak covers the atomic
+            // swap itself; this one survives for manual recovery after a rename).
+            try { File.Copy(gameJsonPath, gameJsonPath + ".pre-rename.bak", true); } catch { }
 
             if (!SafeStorage.SaveTextAtomic(gameJsonPath, newJson))
             {

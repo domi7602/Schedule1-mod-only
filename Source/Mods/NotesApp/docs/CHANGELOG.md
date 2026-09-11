@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 1.0.2 (2026-09-11)
+- RefreshList mit Null-/WasCollected-Guard (kein NRE vor OnCreatedUI/nach Unload).
+- Slot-Suffix mit >=0-Check (kein slot_-1-File).
+
 ## 1.0.1 (2026-09-10)
 - Statischer Event-Dispatcher: keine stale Subscriber mehr pro Szeneload (Memory-Leak).
 - Tote MigrateLegacyGlobalNotes() entfernt.

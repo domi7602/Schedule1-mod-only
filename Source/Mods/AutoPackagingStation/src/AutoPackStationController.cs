@@ -1254,6 +1254,11 @@ public class AutoPackStationController : MonoBehaviour
                                 quality = tier switch { 0 => 0.2f, 1 => 0.35f, 2 => 0.55f, 3 => 0.80f, _ => 0.95f };
                             }
 
+                            // Remove from inventory FIRST, credit the buffer only after the
+                            // removal succeeded. The old order (credit → remove) minted free
+                            // items whenever RemoveAmountOfItem threw or removed less.
+                            inv.RemoveAmountOfItem(id, (uint)takeQty);
+
                             if (rData.InputProduct == null)
                             {
                                 rData.InputProduct = new SlotItemData
@@ -1272,8 +1277,6 @@ public class AutoPackStationController : MonoBehaviour
                                 rData.InputProduct.Quantity += takeQty;
                                 rData.InputProduct.QualityValue = ((oldQty * oldQual) + (takeQty * quality)) / (oldQty + takeQty);
                             }
-
-                            inv.RemoveAmountOfItem(id, (uint)takeQty);
 
                             if (rData.State == StationState.Blocked || rData.State == StationState.NoPackaging)
                             {
@@ -1336,6 +1339,8 @@ public class AutoPackStationController : MonoBehaviour
                         {
                             int availableCapacity = 20 - (rData.InputPackaging?.Quantity ?? 0);
                             int takeQty = Mathf.Min(inst.Quantity, Mathf.Min(10, availableCapacity));
+                            // Same remove-before-credit ordering as TryDepositProduct.
+                            inv.RemoveAmountOfItem(id, (uint)takeQty);
                             if (rData.InputPackaging == null)
                             {
                                 rData.InputPackaging = new SlotItemData { ItemId = id, ItemName = id, Quantity = takeQty };
@@ -1344,7 +1349,6 @@ public class AutoPackStationController : MonoBehaviour
                             {
                                 rData.InputPackaging.Quantity += takeQty;
                             }
-                            inv.RemoveAmountOfItem(id, (uint)takeQty);
 
                             if (rData.State == StationState.Blocked || rData.State == StationState.NoPackaging)
                             {

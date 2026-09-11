@@ -1,5 +1,10 @@
 # Changelog - AutoPackagingStation
 
+## 0.2.3 (2026-09-11)
+- TryDepositProduct/Packaging: Remove-before-Credit (kein Gratis-Item bei Remove-Fehlschlag mehr).
+- Engine: feasible<=0 bricht Batch-Rechnung ab (statt batchSize=1-Coerce).
+- Store: Warnung bei unaufgeloestem Slot-Fallback '0' (statt stiller Fehlleitung).
+
 ## [0.2.2] (2026-09-10)
 - RestoreNativeSlots raeumt rData-Buffer auf plus Live-Native-Gate in Refund-Pfaden (Fix Item-Dupe nach Save-Load).
 - Snapshot/Revert in ExecutePackagingTransaction (beide Overloads).

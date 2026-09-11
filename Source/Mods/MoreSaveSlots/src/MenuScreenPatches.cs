@@ -32,12 +32,21 @@ public static class ContinueScreen_LoadGame_Patch
 public static class NewGameScreen_SlotSelected_Patch
 {
     [HarmonyPrefix]
-    public static void Prefix(ref int slotIndex)
+    public static bool Prefix(ref int slotIndex)
     {
         int original = slotIndex;
         int mapped = PaginationController.CurrentPage * PaginationController.SlotsPerPage + slotIndex;
+        // Same bounds guard as ContinueScreen above: on a partial last page
+        // (TotalSlots % 5 != 0) the trailing local indices map past the array.
+        if (mapped < 0 || mapped >= PaginationController.TotalSlots
+            || LoadManager.SaveGames == null || mapped >= LoadManager.SaveGames.Length)
+        {
+            MelonLogger.Msg($"[MoreSaveSlots] NewGameScreen: Slot {mapped + 1} out of range, ignoring click.");
+            return false;
+        }
         MelonLogger.Msg($"[MoreSaveSlots] NewGameScreen.SlotSelected: mapped slot {original + 1} -> {mapped + 1} (SaveGame_{mapped + 1})");
         slotIndex = mapped;
+        return true;
     }
 }
 

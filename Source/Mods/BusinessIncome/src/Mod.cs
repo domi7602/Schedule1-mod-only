@@ -6,7 +6,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(BusinessIncome.Mod), "BusinessIncome", "0.1.1", "Dominik")]
+[assembly: MelonInfo(typeof(BusinessIncome.Mod), "BusinessIncome", "0.1.2", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BusinessIncome;
@@ -149,6 +149,9 @@ public class Mod : MelonMod
             if (state.LastPaidElapsedDay < 0)
             {
                 state.LastPaidElapsedDay = elapsedDays;
+                // Persist the seed — otherwise no state file is ever written and every
+                // session re-seeds (biz stats flips "Paid Today" after each restart).
+                PayoutStateStore.CommitPayout(elapsedDays, Array.Empty<string>());
                 Log.Info($"Fresh payout state: seeded last-paid day to current day {elapsedDays} (skipping save history).");
             }
 

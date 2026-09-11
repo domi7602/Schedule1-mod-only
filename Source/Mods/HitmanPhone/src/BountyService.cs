@@ -79,7 +79,8 @@ public static class BountyService
             Interlocked.Increment(ref _earlyOuts);
             // v0.1.3: this used to be a silent exit — a kill with no waiting
             // contract left no trace in the log and was undiagnosable.
-            Mod.Log.Info($"[Bounty] NPC '{npc.ID}' died — no active contract targets it " +
+            // Debug level: every unrelated NPC death in a busy city would spam Info.
+            Mod.Log.Debug($"[Bounty] NPC '{npc.ID}' died — no active contract targets it " +
                          $"(active={save.Active.Count}); no polaroid spawned.");
             return;
         }

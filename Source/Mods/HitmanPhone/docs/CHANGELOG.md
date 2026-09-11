@@ -1,5 +1,12 @@
 # Changelog
 
+
+## 0.2.3 (2026-09-11)
+- Deadline-Boundary >= (exakt 3 Tage wie im Journal versprochen).
+- ConsumePolaroids frisst nur noch 1 Slot (zweite Contracts-Evidence ueberlebt).
+- OnDecline mit Stale-Save-Guard (kein Cooldown im falschen Save).
+- NPC-Tod-ohne-Contract auf Debug (kein Log-Spam).
+
 ## 0.2.2 (2026-09-10)
 - Bounty-Payout host-only (Fix Multiplayer-Doppel-Reward).
 - Blindes PatchAll durch PatchGuard.TryPatch ersetzt; CurrentDay() cached mit 1s-Throttle; CooldownCaller persistiert.

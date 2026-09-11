@@ -257,6 +257,9 @@ public static class SkateboardItemFactory
         }
 
         // 3. Tune ONLY the active runtime settings instance on this specific board (NEVER touch _defaultData ScriptableObject!)
+        // NOTE: SkateboardSettings is a plain Il2Cpp object (not a UnityEngine.Object),
+        // so per-instance cloning via Object.Instantiate is not possible. Sharing check
+        // below (VerifySettingsNotShared) proves at runtime whether the tune stayed local.
         try
         {
             if (board._settings != null && board._settings.Pointer != IntPtr.Zero)
@@ -288,6 +291,10 @@ public static class SkateboardItemFactory
         if (tuneOk && instId != 0)
         {
             _tunedInstanceIds.Add(instId);
+            // Sharing proof: if another board in the scene points at the SAME settings
+            // object we just tuned, the tune leaked to it (shared asset). Runs once per
+            // board (tune cache above), so the scene scan cost is negligible.
+            VerifySettingsNotShared(board);
         }
 
         if (logStats)
@@ -304,6 +311,36 @@ public static class SkateboardItemFactory
             Mod.Log.Debug($"[{context}] TopSpeed={board.TopSpeed_Kmh} km/h, TurnForce={board.TurnForce}, TurnRate={board.TurnChangeRate}, TurnReturn={board.TurnReturnToRestRate}, JumpForce={board.JumpForce}, JumpMin={board.JumpDuration_Min:F2}s, JumpMax={board.JumpDuration_Max:F2}s, Boost={board.JumpForwardBoost}");
         }
         catch { }
+    }
+
+    /// <summary>
+    /// Detects settings-object sharing: compares our tuned board's _settings pointer
+    /// against every other Skateboard in the scene. A match means the tune leaked to
+    /// a board we did not intend to tune (shared asset) and must be investigated.
+    /// </summary>
+    private static void VerifySettingsNotShared(Skateboard tunedBoard)
+    {
+        try
+        {
+            var ours = tunedBoard._settings;
+            if (ours == null || ours.Pointer == IntPtr.Zero) return;
+            var boards = UnityEngine.Object.FindObjectsByType<Skateboard>(FindObjectsSortMode.None);
+            if (boards == null) return;
+            for (int i = 0; i < boards.Count; i++)
+            {
+                var other = boards[i];
+                if (other == null || other.Pointer == IntPtr.Zero || other.WasCollected) continue;
+                if (other.Pointer == tunedBoard.Pointer) continue;
+                try
+                {
+                    var theirs = other._settings;
+                    if (theirs != null && theirs.Pointer == ours.Pointer)
+                        Mod.Log.Error($"Settings SHARING detected: tuned board shares _settings with '{other.name}' — vanilla boards may be affected. Report this log line.");
+                }
+                catch { }
+            }
+        }
+        catch (Exception ex) { Mod.Log.Debug($"VerifySettingsNotShared notice: {ex.Message}"); }
     }
 
     private static void TuneSettingsObject(Il2CppScheduleOne.Experimental.SkateboardSettings settings, SkateboardConfig config)

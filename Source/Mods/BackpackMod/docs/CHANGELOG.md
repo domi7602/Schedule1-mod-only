@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 1.0.2 (2026-09-11)
+- slot_-1-Guard: kein slot_-1-File mehr im Menue; Save bei unaufgeloestem Slot geskippt.
+- ClothingItemUIPatch: Message-Fallback nur noch fuer Il2CppException (kein Swallow fremder Bugs).
+
 ## 1.0.1 (2026-09-10)
 - Bone-Cache plus 2s-Throttle (Fix Per-Frame-Scan und Log-Spam).
 - BackpackSlot-Reset bei Scene-Unload mit Pointer-Validierung; Material-Cache; Index-Loop ueber ItemDictionary; Empty-JSON-Guard.

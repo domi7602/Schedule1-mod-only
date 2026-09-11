@@ -14,7 +14,11 @@ public static class StackLimitPatches
     // the IL2CPP ID string marshaling + engine lookups on every call. Postfix runs on the main thread,
     // so a plain Dictionary is sufficient. Pointers are per-session: cleared on scene unload and on
     // 'stack reload' (config change may flip exclusions / OverrideNonStackable).
+    // Residual risk: the IL2CPP GC recycles pointers, so a fresh instance can inherit a stale
+    // decision until the next clear. MaxEntries bounds both the memory growth and that stale
+    // window (worst case a few thousand instances in a long session).
     private static readonly Dictionary<IntPtr, bool> _overrideDecisionCache = new();
+    private const int MaxDecisionCacheEntries = 4096;
 
     public static void ClearDecisionCache()
     {
@@ -58,6 +62,10 @@ public static class StackLimitPatches
 
             bool excluded = StackLimitEngine.IsExcluded(id);
             bool keepOriginal = false;
+            // Unknown ID (instance seen before the first definition scan): decide live
+            // but do NOT cache — the fallback limit (1) may be wrong, and a cached
+            // false would stick until scene unload even after the scan fills in.
+            bool known = StackLimitEngine.IsOriginalKnown(id);
             if (!excluded && !Mod.Config.OverrideNonStackable)
             {
                 int orig = StackLimitEngine.GetOriginalLimit(id, 1);
@@ -65,7 +73,12 @@ public static class StackLimitPatches
             }
 
             shouldOverride = !excluded && !keepOriginal;
-            _overrideDecisionCache[key] = shouldOverride;
+            if (known)
+            {
+                if (_overrideDecisionCache.Count >= MaxDecisionCacheEntries)
+                    _overrideDecisionCache.Clear();
+                _overrideDecisionCache[key] = shouldOverride;
+            }
 
             if (shouldOverride) __result = Mod.Config.StackLimit;
         }

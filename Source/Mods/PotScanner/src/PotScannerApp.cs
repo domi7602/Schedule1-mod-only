@@ -155,7 +155,18 @@ public sealed class PotScannerApp : PhoneApp
         PotTracker.Instance.RefreshNow();
     }
 
-    internal static void TearDownForSceneUnload() => _active = null;
+    internal static void TearDownForSceneUnload()
+    {
+        try
+        {
+            // Drop per-scene row caches: they hold wrappers of destroyed native
+            // objects (retention + stale NativePtr on the next in-place check).
+            _active?._rowCache.Clear();
+            _active?._propertyGroups.Clear();
+        }
+        catch { }
+        _active = null;
+    }
 
     private static void DispatchUpdate() => _active?.Update();
 
@@ -973,6 +984,7 @@ public sealed class PotScannerApp : PhoneApp
 
     private void OnPotsScannedHandler()
     {
+        if (!IsAlive(_mainBG)) return;
         if (IsOpen())
         {
             RefreshList();
@@ -981,16 +993,24 @@ public sealed class PotScannerApp : PhoneApp
         }
     }
 
+    /// <summary>IL2CPP liveness: managed wrappers survive scene unload while native objects are dead.</summary>
+    private static bool IsAlive(UnityEngine.Object? obj)
+    {
+        if (obj == null) return false;
+        try { return obj.Pointer != IntPtr.Zero && !obj.WasCollected && (UnityEngine.Object)obj != null; }
+        catch { return false; }
+    }
+
     protected override void OnPhoneClosed()
     {
-        if (_mainBG != null) _mainBG.SetActive(false);
+        if (IsAlive(_mainBG)) _mainBG.SetActive(false);
         // Update + OnPotsScanned bleiben lebenslang subscribed (defensives Unsubscribe-Subscribe in OnCreated).
     }
 
     private void Update()
     {
         bool open = IsOpen();
-        if (_mainBG != null && _mainBG.activeSelf != open)
+        if (IsAlive(_mainBG) && _mainBG.activeSelf != open)
         {
             _mainBG.SetActive(open);
             if (open)

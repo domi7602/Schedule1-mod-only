@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Threading;
 using HarmonyLib;
 
 namespace S1Mods.Shared;
@@ -11,15 +12,18 @@ namespace S1Mods.Shared;
 /// </summary>
 public static class PatchGuard
 {
-    public static int PatchesApplied { get; private set; }
-    public static int PatchesFailed { get; private set; }
+    private static int _patchesApplied;
+    private static int _patchesFailed;
+
+    public static int PatchesApplied => Volatile.Read(ref _patchesApplied);
+    public static int PatchesFailed => Volatile.Read(ref _patchesFailed);
     public static int TotalPatches => PatchesApplied + PatchesFailed;
 
     /// <summary>Setzt die globalen Patch-Zähler zurück.</summary>
     public static void ResetStats()
     {
-        PatchesApplied = 0;
-        PatchesFailed = 0;
+        Interlocked.Exchange(ref _patchesApplied, 0);
+        Interlocked.Exchange(ref _patchesFailed, 0);
     }
 
     /// <summary>
@@ -59,7 +63,7 @@ public static class PatchGuard
     {
         if (harmony == null)
         {
-            PatchesFailed++;
+            Interlocked.Increment(ref _patchesFailed);
             // Gatekeeper-fix 2026-08-29: only log via the provided `log` to avoid double-logging
             // (was: log?.Error + MelonLoader.MelonLogger.Error). Consistent with the other
             // paths in this file (lines 78, 116) which only use log?.Warn.
@@ -69,7 +73,7 @@ public static class PatchGuard
 
         if (prefix == null && postfix == null && transpiler == null && finalizer == null)
         {
-            PatchesFailed++;
+            Interlocked.Increment(ref _patchesFailed);
             string name = original?.Name ?? "unknown";
             log?.Warn($"PatchGuard: Keine HarmonyMethod für '{name}' angegeben — No-Op, übersprungen.");
             return false;
@@ -77,7 +81,7 @@ public static class PatchGuard
 
         if (original == null)
         {
-            PatchesFailed++;
+            Interlocked.Increment(ref _patchesFailed);
             log?.Warn("PatchGuard: Ziel-Methode ist null (möglicherweise durch Game-Patch entfernt). Patch übersprungen.");
             return false;
         }
@@ -86,13 +90,13 @@ public static class PatchGuard
         try
         {
             harmony.Patch(original, prefix, postfix, transpiler, finalizer, null);
-            PatchesApplied++;
+            Interlocked.Increment(ref _patchesApplied);
             log?.Debug($"PatchGuard: Erfolgreich gepatcht -> {targetDesc}");
             return true;
         }
         catch (Exception ex)
         {
-            PatchesFailed++;
+            Interlocked.Increment(ref _patchesFailed);
             log?.Error($"PatchGuard: Patch für '{targetDesc}' fehlgeschlagen (Feature sicher deaktiviert): {ex.Message}");
             // Gatekeeper-fix 2026-08-29 (diagnostic fallback only): some ModLogger implementations
             // swallow errors during very-early Init (before their sink is fully wired). The throw
@@ -121,7 +125,7 @@ public static class PatchGuard
         MethodInfo? method = FindMethod(targetType, methodName, parameterTypes, log: log);
         if (method == null)
         {
-            PatchesFailed++;
+            Interlocked.Increment(ref _patchesFailed);
             log?.Warn($"PatchGuard: Methode '{targetType?.Name}.{methodName}' nicht gefunden. Signatur nach Game-Patch evtl. geändert.");
             return false;
         }

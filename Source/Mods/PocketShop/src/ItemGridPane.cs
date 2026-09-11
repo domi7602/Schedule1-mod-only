@@ -71,6 +71,10 @@ public class ItemGridPane
         csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         scrollRect.content = _content;
 
+        // Defensively unsubscribe first: Build() can run again for a new scene while
+        // the old handler is still in the static invocation list (leaked subscription
+        // would call RefreshActiveShop on destroyed _content after every Refresh).
+        ShopCatalog.OnCatalogChanged -= OnCatalogChangedHandler;
         ShopCatalog.OnCatalogChanged += OnCatalogChangedHandler;
     }
 
@@ -93,6 +97,11 @@ public class ItemGridPane
     public void RefreshActiveShop()
     {
         if (_content == null) return;
+        try
+        {
+            if (_content.Pointer == IntPtr.Zero || _content.WasCollected) return;
+        }
+        catch { return; }
         Clear();
         var currentShopCode = ActiveShopCode;
         if (string.IsNullOrEmpty(currentShopCode)) return;

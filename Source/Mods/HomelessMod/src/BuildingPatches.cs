@@ -25,6 +25,24 @@ public static class BuildingPatches
     public static bool IsCustomPlacementValid = false;
     public static string LastInvalidReason = string.Empty;
 
+    /// <summary>
+    /// World-state mutations (Instantiate + StreetPropertyManager + slot file) are
+    /// host-authoritative. A client placement would fork a local-only object graph
+    /// that the host never sees → desync + local save divergence. Singleplayer and
+    /// host pass; dedicated/client instances fall back to vanilla handling.
+    /// </summary>
+    internal static bool IsHostOrSingleplayer()
+    {
+        try
+        {
+            var nm = Il2CppFishNet.InstanceFinder.NetworkManager;
+            if (nm == null || nm.Pointer == IntPtr.Zero || nm.WasCollected || (UnityEngine.Object)nm == null)
+                return true;
+            return Il2CppFishNet.InstanceFinder.IsServer;
+        }
+        catch { return true; }
+    }
+
     // Patches are applied explicitly via PatchGuard.TryPatch in Mod.ApplyHarmonyPatches.
     public static class BuildUpdate_Grid_CheckIntersections_Patch
     {
@@ -267,6 +285,15 @@ public static class BuildingPatches
                 // If custom placement is NOT valid, let vanilla handle it (or reject it)
                 if (!IsCustomPlacementValid)
                 {
+                    return true;
+                }
+
+                // Host guard: clients fall back to vanilla (outdoor placement stays
+                // rejected for them, same as without the mod) instead of forking
+                // local-only street objects the host never sees.
+                if (!IsHostOrSingleplayer())
+                {
+                    IsCustomPlacementValid = false;
                     return true;
                 }
 

@@ -1,6 +1,6 @@
 {
   "name": "CalculatorApp",
   "author": "Dominik",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "PhoneApp calculator for Schedule I with decimal precision, game cash/bank quick-insert, clipboard copy/paste, and searchable history."
 }

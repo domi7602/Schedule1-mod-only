@@ -223,10 +223,20 @@ public static class BountyConversationRouter
         }
     }
 
-    private static void OnDecline(BountySaveData save, int callerIndex)
+    private static void OnDecline(BountySaveData capturedSave, int callerIndex)
     {
         try
         {
+            // Same stale-save guard as OnAccept (audit H3): CooldownCaller writes
+            // Mod.Instance.Save, so a decline on a stale offer would cool down the
+            // caller in the WRONG (new) save. Void it like the other responses.
+            var save = Mod.Instance?.Save;
+            if (save == null || !ReferenceEquals(save, capturedSave))
+            {
+                Mod.Log.Warn("OnDecline: save state changed since the offer — stale offer voided.");
+                SendOfferExpiredNotice(callerIndex);
+                return;
+            }
             BountyCallScheduler.CooldownCaller(callerIndex, BountyCallSchedulerConstants.CallerCooldownDaysAfterDecline);
             Mod.Log.Info($"[BountyRouter] Caller {callerIndex} declined; cooldown {BountyCallSchedulerConstants.CallerCooldownDaysAfterDecline}d.");
         }

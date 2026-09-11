@@ -13,7 +13,7 @@ using S1API.Lifecycle;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(AutoPackagingStation.Mod), "AutoPackagingStation", "0.2.2", "Dominik")]
+[assembly: MelonInfo(typeof(AutoPackagingStation.Mod), "AutoPackagingStation", "0.2.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace AutoPackagingStation;
@@ -83,6 +83,7 @@ public sealed class Mod : MelonMod
         // 3. Subscribe to S1API Lifecycle Events (Critic Pillar 3: Persistence exclusively on GameLifecycle.OnSaveComplete)
         GameLifecycle.OnPreLoad += AutoPackStore.OnPreLoad;
         GameLifecycle.OnSaveInfoLoaded += AutoPackagingItemFactory.OnSaveInfoLoaded;
+        GameLifecycle.OnSaveInfoLoaded += AutoPackagingItemFactory.InjectHardwareStoreListing;
         GameLifecycle.OnLoadComplete += AutoPackStore.OnLoadComplete;
         GameLifecycle.OnLoadComplete += AutoPackagingItemFactory.InjectHardwareStoreListing;
         GameLifecycle.OnSaveComplete += AutoPackStore.OnSaveComplete;
@@ -92,6 +93,7 @@ public sealed class Mod : MelonMod
     {
         GameLifecycle.OnPreLoad -= AutoPackStore.OnPreLoad;
         GameLifecycle.OnSaveInfoLoaded -= AutoPackagingItemFactory.OnSaveInfoLoaded;
+        GameLifecycle.OnSaveInfoLoaded -= AutoPackagingItemFactory.InjectHardwareStoreListing;
         GameLifecycle.OnLoadComplete -= AutoPackStore.OnLoadComplete;
         GameLifecycle.OnLoadComplete -= AutoPackagingItemFactory.InjectHardwareStoreListing;
         GameLifecycle.OnSaveComplete -= AutoPackStore.OnSaveComplete;

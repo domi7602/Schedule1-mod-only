@@ -440,8 +440,10 @@ public static class AutoPackEngine
         if (outputSlot != null && outputSlot.Quantity > 0)
             maxByOutputCap = maxByOutputCap - outputSlot.Quantity;
         int feasible = Math.Min(Math.Min(maxByProduct, maxByPackaging), maxByOutputCap);
-        int batchSize = Math.Max(1, Math.Min(configuredBatch, Math.Max(1, feasible)));
-        if (batchSize > feasible) batchSize = Math.Max(1, feasible);
+        // feasible <= 0 means output-full or no input: abort here like the native path
+        // above instead of coercing to batchSize=1 and relying on a later capacity abort.
+        if (feasible <= 0) return false;
+        int batchSize = Math.Max(1, Math.Min(configuredBatch, feasible));
 
         // Resolve target output item ID
         string outputItemId = ResolvePackagedItemId(inputProd.ItemId, packagingId);

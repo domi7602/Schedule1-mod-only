@@ -352,6 +352,7 @@ public static class HomelessQuestManager
         _initialized = false;
         _completedQuests.Clear();
         _sleepStartedInBag = false;
+        _sleepStartedInBagAt = 0f;
         if (!keepSlot) _lastKnownQuestSlot = "default"; // Review-fix 2026-09-09 (v0.1.5): mirror StreetPropertyManager keepSlot semantics
     }
 
@@ -363,11 +364,13 @@ public static class HomelessQuestManager
     // ----- Sleep-credit gating (Review-fix 2026-09-09, v0.1.5) -----
 
     private static bool _sleepStartedInBag;
+    private static float _sleepStartedInBagAt;
 
     /// <summary>Called at StartSleep in the sleeping bag — defers quest credit to the wake hook.</summary>
     public static void NotifySleepStartedInBag()
     {
         _sleepStartedInBag = true;
+        try { _sleepStartedInBagAt = UnityEngine.Time.realtimeSinceStartup; } catch { _sleepStartedInBagAt = 0f; }
         Mod.Log.Debug("[Quest1] Sleep started in sleeping bag — quest credit deferred to wake confirmation.");
     }
 
@@ -375,6 +378,9 @@ public static class HomelessQuestManager
     /// Handler for S1API.GameTime.TimeManager.OnSleepEnd (Action&lt;int&gt;). Only credits
     /// 'Sleep through the night' if the sleep was actually started in the sleeping bag
     /// AND ran to completion (aborting sleep never fires OnSleepEnd).
+    /// Stale-flag guard: an aborted bag sleep leaves the flag set (no OnSleepEnd on
+    /// abort), which would credit the NEXT vanilla-bed sleep. Flags older than the
+    /// window below are treated as aborted and cleared without credit.
     /// </summary>
     public static void OnSleepEnded(int _)
     {
@@ -382,6 +388,14 @@ public static class HomelessQuestManager
         {
             if (!_sleepStartedInBag) return; // vanilla bed sleep or mod-less sleep — no credit
             _sleepStartedInBag = false;
+            bool stale = false;
+            try { stale = _sleepStartedInBagAt > 0f && UnityEngine.Time.realtimeSinceStartup - _sleepStartedInBagAt > 300f; }
+            catch { }
+            if (stale)
+            {
+                Mod.Log.Debug("Stale bag-sleep flag (>5min, likely aborted earlier) — no quest credit.");
+                return;
+            }
             Mod.Log.Info("Sleep completed (wake confirmed) — applying quest progress.");
             NotifyPlayerSlept();
         }

@@ -35,6 +35,13 @@ public static class StackLimitEngine
         }
     }
 
+    /// <summary>True once a scan has memorized this ID's vanilla limit.</summary>
+    public static bool IsOriginalKnown(string id)
+    {
+        if (string.IsNullOrEmpty(id)) return false;
+        lock (_lock) { return _originalLimits.ContainsKey(id); }
+    }
+
     public static bool IsExcluded(string id)
     {
         if (string.IsNullOrEmpty(id)) return false;
@@ -217,8 +224,22 @@ public static class StackLimitEngine
             }
         }
 
+        // Excluded items must behave as if the mod never touched them: restore the
+        // memorized original limit (same as the NonStackable path below). Otherwise an
+        // item excluded AFTER being overridden keeps the override until restart.
         if (IsExcluded(id))
+        {
+            try
+            {
+                if (def.StackLimit != originalLimit)
+                    def.StackLimit = originalLimit;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log?.Warn($"ApplyToDefinition exclude-restore failed for '{id}': {ex}");
+            }
             return false;
+        }
 
         if (!config.OverrideNonStackable && originalLimit == 1)
         {

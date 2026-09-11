@@ -11,6 +11,12 @@ public static class SceneGate
 {
     private static bool _eventsSubscribed;
 
+    // IL2CPP GC safety: delegates passed to the native SceneManager must stay rooted
+    // on the managed side for the process lifetime — an inline `new Action(...)`
+    // could otherwise be collected and scene callbacks would silently stop (or crash).
+    private static readonly Action<Scene, LoadSceneMode> _onSceneLoaded = HandleSceneLoaded;
+    private static readonly Action<Scene> _onSceneUnloaded = HandleSceneUnloaded;
+
     public static string MainSceneName { get; set; } = "Main";
 
     public static string CurrentSceneName { get; private set; } = "";
@@ -46,15 +52,8 @@ public static class SceneGate
         {
             UpdateActiveSceneState();
 
-            SceneManager.add_sceneLoaded(new Action<Scene, LoadSceneMode>((scene, mode) =>
-            {
-                HandleSceneLoaded(scene, mode);
-            }));
-
-            SceneManager.add_sceneUnloaded(new Action<Scene>(scene =>
-            {
-                HandleSceneUnloaded(scene);
-            }));
+            SceneManager.add_sceneLoaded(_onSceneLoaded);
+            SceneManager.add_sceneUnloaded(_onSceneUnloaded);
 
             _eventsSubscribed = true;
         }

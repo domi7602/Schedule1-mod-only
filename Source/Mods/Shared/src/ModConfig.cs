@@ -125,19 +125,42 @@ public static class ModConfig<T> where T : class, new()
         _cat!.SaveToFile(true);
     }
 
+    private static bool _inSetAndSave;
+
     public static void SetAndSave(string propertyName, object? value)
     {
+        // Reentrancy guard: OnChanged handlers that call SetAndSave again (directly or
+        // via Save) would otherwise recurse without bound. A nested set still applies
+        // the value, but its Save + event are deferred to the outermost call.
+        if (_inSetAndSave)
+        {
+            TrySetValue(propertyName, value, out _);
+            return;
+        }
+        _inSetAndSave = true;
+        try
+        {
+            if (!TrySetValue(propertyName, value, out object? convertedVal))
+                return;
+
+            Save();
+            OnChanged?.Invoke(propertyName, convertedVal);
+        }
+        finally { _inSetAndSave = false; }
+    }
+
+    private static bool TrySetValue(string propertyName, object? value, out object? convertedVal)
+    {
+        convertedVal = value;
         if (!_propertyCache.TryGetValue(propertyName, out PropertyInfo? prop) || !prop.CanWrite)
         {
             LogWarn($"SetAndSave: unknown or unwritable property '{propertyName}' — ignored.");
-            return;
+            return false;
         }
 
-        object? convertedVal = value;
         try
         {
             Type targetType = prop.PropertyType;
-            convertedVal = value;
 
             if (value != null && !targetType.IsAssignableFrom(value.GetType()))
             {
@@ -152,15 +175,13 @@ public static class ModConfig<T> where T : class, new()
             }
 
             prop.SetValue(Instance, convertedVal);
+            return true;
         }
         catch (Exception ex)
         {
             LogError($"'{propertyName}' could not be set", ex);
-            return;
+            return false;
         }
-
-        Save();
-        OnChanged?.Invoke(propertyName, convertedVal);
     }
 
     public static void ResetToDefaults()

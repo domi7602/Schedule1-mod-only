@@ -172,6 +172,7 @@ namespace BackpackMod
                             var existing = listings[j];
                             if (existing != null && existing.Item != null && existing.Item.ID == itemId)
                             {
+                                S1Mods.Shared.ShopListingSync.OnListingExists(shop, existing, 10, msg => Mod.Log?.Warning(msg));
                                 alreadyIn = true;
                                 break;
                             }
@@ -189,6 +190,8 @@ namespace BackpackMod
                             CanBeDelivered = true
                         };
                         listings.Insert(0, listing);
+                        // Raw Add() is invisible to the vanilla UI — Initialize + ListingUI row required.
+                        S1Mods.Shared.ShopListingSync.OnListingAdded(shop, listing, 10, msg => Mod.Log?.Msg(msg), msg => Mod.Log?.Warning(msg));
                         Mod.Log?.Msg($"Injected '{itemId}' into hardware shop listing ('{shop.ShopName}') — now {listings.Count} listings.");
                     }
                     // Gatekeeper-hotfix 2026-08-30: dump full listing snapshot for debug (shop shows 0 items? verify vanilla overwrites)

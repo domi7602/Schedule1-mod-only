@@ -86,6 +86,15 @@ public sealed class PocketShopApp : PhoneApp
         if (app == null) return;
         try { app._gridPane?.Dispose(); } catch { }
         try { app._detailModal?.Dispose(); } catch { }
+        // DirectoryPane holds scene GameObjects too — destroy them as well and drop
+        // the instance-level OnShopSelected handler so nothing survives the unload.
+        try
+        {
+            if (app._directoryPane != null)
+                app._directoryPane.OnShopSelected -= app.OnStoreCardSelected;
+        }
+        catch { }
+        try { app._directoryPane?.Dispose(); } catch { }
     }
 
     private static void DispatchUpdate() => _active?.Update();

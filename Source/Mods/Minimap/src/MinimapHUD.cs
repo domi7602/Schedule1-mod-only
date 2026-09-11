@@ -624,6 +624,13 @@ public sealed class MinimapHUD
         ColorUtility.TryParseHtmlString(config.BorderColorHex, out Color accentCol);
         if (_borderImg != null) _borderImg.color = accentCol;
         if (_dayAccentStrip != null) _dayAccentStrip.color = accentCol;
+
+        // Keep raycast behavior in sync with the runtime toggle: EnsureHUD sets this
+        // only at build time, so flipping AllowDragging later had no effect. The mask
+        // only needs to hit-test while dragging is enabled — otherwise it would eat
+        // phone/game clicks beneath the minimap.
+        if (_canvasGroup != null) _canvasGroup.blocksRaycasts = config.AllowDragging;
+        if (_maskImg != null) _maskImg.raycastTarget = config.AllowDragging;
     }
 
     public void Update(MinimapConfig config, float now)

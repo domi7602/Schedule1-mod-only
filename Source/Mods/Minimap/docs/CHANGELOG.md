@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 1.0.3 (2026-09-11)
+- Critical-First-Partition: Quest-/Deal-Blips ueberleben Pool-Overflow (statt umgekehrt).
+- Raycast-Sync in ApplyLayout (Mask frisst keine Klicks mehr bei AllowDragging=false).
+
 ## 1.0.2 (2026-09-10)
 - Config-Save entprellt (nur bei Toggle/Scene-Unload statt pro Zoom-Taste).
 

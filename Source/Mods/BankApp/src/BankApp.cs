@@ -273,7 +273,9 @@ public sealed class BankApp : PhoneApp
     private void BuildModeTabs(Transform parent)
     {
         var row = UIFactory.Panel("ModeTabs", parent, Color.clear);
-        row.AddComponent<LayoutElement>().preferredHeight = RowHeight; // v0.4.0: uniform row height (was 44dp)
+        var rowLe = row.AddComponent<LayoutElement>();
+        rowLe.preferredHeight = RowHeight; // v0.4.2: identisch zu ChipRow (dazu minHeight)
+        rowLe.minHeight = RowHeight;
 
         var hlg = row.AddComponent<HorizontalLayoutGroup>();
         hlg.spacing = GridGap; // v0.4.0: matches chip grid gap (was 8dp)
@@ -285,8 +287,14 @@ public sealed class BankApp : PhoneApp
         // Deposit tab
         var depTab = UIFactory.Panel("DepositTab", row.transform, UITheme.CardBgSecondary);
         _depositTabBg = depTab.GetComponent<Image>();
+        var depLe = depTab.AddComponent<LayoutElement>();
+        depLe.flexibleWidth = 1f; // v0.4.2: wie Chips — erzwingt exakt 50/50, unabhaengig von Textlaenge
         var dVlg = depTab.AddComponent<VerticalLayoutGroup>();
         dVlg.childAlignment = TextAnchor.MiddleCenter;
+        dVlg.childControlWidth = false;
+        dVlg.childControlHeight = false;
+        dVlg.childForceExpandWidth = false;
+        dVlg.childForceExpandHeight = false;
         _depositTabText = UIFactory.Text("Label", "⬇  DEPOSIT", depTab.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
         var depBtn = depTab.AddComponent<Button>();
         depBtn.transition = Selectable.Transition.None;
@@ -295,8 +303,14 @@ public sealed class BankApp : PhoneApp
         // Withdraw tab
         var withTab = UIFactory.Panel("WithdrawTab", row.transform, UITheme.CardBgSecondary);
         _withdrawTabBg = withTab.GetComponent<Image>();
+        var withLe = withTab.AddComponent<LayoutElement>();
+        withLe.flexibleWidth = 1f; // v0.4.2: wie Chips — erzwingt exakt 50/50, unabhaengig von Textlaenge
         var wVlg = withTab.AddComponent<VerticalLayoutGroup>();
         wVlg.childAlignment = TextAnchor.MiddleCenter;
+        wVlg.childControlWidth = false;
+        wVlg.childControlHeight = false;
+        wVlg.childForceExpandWidth = false;
+        wVlg.childForceExpandHeight = false;
         _withdrawTabText = UIFactory.Text("Label", "⬆  WITHDRAW", withTab.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
         var withBtn = withTab.AddComponent<Button>();
         withBtn.transition = Selectable.Transition.None;
@@ -490,8 +504,8 @@ public sealed class BankApp : PhoneApp
     {
         float cash = BankService.GetCashBalance();
         float online = BankService.GetOnlineBalance();
-        if (_cashText != null) _cashText.text = $"$ {cash:N0}";
-        if (_onlineText != null) _onlineText.text = $"$ {online:N0}";
+        if (IsAlive(_cashText)) _cashText.text = $"$ {cash:N0}";
+        if (IsAlive(_onlineText)) _onlineText.text = $"$ {online:N0}";
 
         // Weekly deposit progress against vanilla ATM limit
         bool limitEnabled = S1Mods.Shared.ModConfig<BankAppConfig>.Instance.RespectVanillaAtmLimit;
@@ -501,22 +515,30 @@ public sealed class BankApp : PhoneApp
             float deposited = Mathf.Max(0f, BankService.VanillaWeeklyAtmLimit - remaining);
             float fraction = Mathf.Clamp01(deposited / BankService.VanillaWeeklyAtmLimit);
 
-            if (_weeklyValueText != null)
+            if (IsAlive(_weeklyValueText))
             {
                 _weeklyValueText.text = $"$ {deposited:N0} / $ {BankService.VanillaWeeklyAtmLimit:N0}";
                 _weeklyValueText.color = fraction >= 1f ? UITheme.AccentRed : UITheme.TextPrimary;
             }
-            if (_weeklyBarFill != null) _weeklyBarFill.anchorMax = new Vector2(fraction, 1f);
+            if (IsAlive(_weeklyBarFill)) _weeklyBarFill.anchorMax = new Vector2(fraction, 1f);
         }
         else
         {
-            if (_weeklyValueText != null)
+            if (IsAlive(_weeklyValueText))
             {
                 _weeklyValueText.text = "NO LIMIT";
                 _weeklyValueText.color = UITheme.AccentGreen;
             }
-            if (_weeklyBarFill != null) _weeklyBarFill.anchorMax = new Vector2(0f, 1f);
+            if (IsAlive(_weeklyBarFill)) _weeklyBarFill.anchorMax = new Vector2(0f, 1f);
         }
+    }
+
+    /// <summary>IL2CPP liveness: managed wrappers survive scene unload while native objects are dead.</summary>
+    private static bool IsAlive(UnityEngine.Object? obj)
+    {
+        if (obj == null) return false;
+        try { return obj.Pointer != IntPtr.Zero && !obj.WasCollected && (UnityEngine.Object)obj != null; }
+        catch { return false; }
     }
 
     // --- Lifecycle ---------------------------------------------------------
@@ -524,7 +546,7 @@ public sealed class BankApp : PhoneApp
     private void Update()
     {
         bool open = IsOpen();
-        if (_mainBG != null && _mainBG.activeSelf != open)
+        if (IsAlive(_mainBG) && _mainBG.activeSelf != open)
         {
             _mainBG.SetActive(open);
             if (open) RefreshAll();
@@ -552,7 +574,7 @@ public sealed class BankApp : PhoneApp
     protected override void OnPhoneClosed()
     {
         base.OnPhoneClosed();
-        if (_mainBG != null) _mainBG.SetActive(false);
+        if (IsAlive(_mainBG)) _mainBG.SetActive(false);
         _enteredAmount = 0f;
         _mode = TransferMode.Deposit;
         UpdateAmountDisplay();

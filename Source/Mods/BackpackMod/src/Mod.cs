@@ -6,7 +6,7 @@ using System.IO;
 using UnityEngine;
 using S1API.Lifecycle;
 
-[assembly: MelonInfo(typeof(BackpackMod.Mod), "BackpackMod", "1.0.1", "Dominik")]
+[assembly: MelonInfo(typeof(BackpackMod.Mod), "BackpackMod", "1.0.2", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BackpackMod;
@@ -41,6 +41,7 @@ public class Mod : MelonMod
 
         GameLifecycle.OnPreLoad += EnsureDefinitions;
         GameLifecycle.OnSaveInfoLoaded += EnsureDefinitions;
+        GameLifecycle.OnSaveInfoLoaded += BackpackDefinitions.InjectHardwareStoreListing;
         GameLifecycle.OnLoadComplete += EnsureDefinitions;
         GameLifecycle.OnLoadComplete += BackpackDefinitions.InjectHardwareStoreListing;
         GameLifecycle.OnSaveComplete += OnSaveComplete;
@@ -53,6 +54,7 @@ public class Mod : MelonMod
     {
         GameLifecycle.OnPreLoad -= EnsureDefinitions;
         GameLifecycle.OnSaveInfoLoaded -= EnsureDefinitions;
+        GameLifecycle.OnSaveInfoLoaded -= BackpackDefinitions.InjectHardwareStoreListing;
         GameLifecycle.OnLoadComplete -= EnsureDefinitions;
         GameLifecycle.OnLoadComplete -= BackpackDefinitions.InjectHardwareStoreListing;
         GameLifecycle.OnSaveComplete -= OnSaveComplete;

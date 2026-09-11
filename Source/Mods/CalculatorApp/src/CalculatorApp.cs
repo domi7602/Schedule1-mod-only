@@ -641,7 +641,7 @@ public sealed class CalculatorApp : PhoneApp
 
     private void UpdateDisplayUI()
     {
-        if (_mainDisplayText == null || _subDisplayText == null) return;
+        if (!IsAlive(_mainDisplayText) || !IsAlive(_subDisplayText)) return;
 
         string display = _engine.DisplayText;
         _mainDisplayText.text = display;
@@ -662,15 +662,23 @@ public sealed class CalculatorApp : PhoneApp
         }
 
         // Dynamic C vs AC button label
-        if (_clearBtnLabel != null)
+        if (IsAlive(_clearBtnLabel))
         {
             _clearBtnLabel.text = _engine.IsDirtyEntry ? "C" : "AC";
         }
     }
 
+    /// <summary>IL2CPP liveness: managed wrappers survive scene unload while native objects are dead.</summary>
+    private static bool IsAlive(UnityEngine.Object? obj)
+    {
+        if (obj == null) return false;
+        try { return obj.Pointer != IntPtr.Zero && !obj.WasCollected && (UnityEngine.Object)obj != null; }
+        catch { return false; }
+    }
+
     private void RefreshHistoryList()
     {
-        if (_historyListContent == null) return;
+        if (!IsAlive(_historyListContent)) return;
 
         // Clear previous rows
         for (int i = _historyListContent.childCount - 1; i >= 0; i--)
@@ -680,7 +688,7 @@ public sealed class CalculatorApp : PhoneApp
 
         var items = _engine.GetFilteredHistory(_currentSearchQuery).ToList();
 
-        if (_historyCountText != null)
+        if (IsAlive(_historyCountText))
         {
             if (string.IsNullOrEmpty(_currentSearchQuery))
             {

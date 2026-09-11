@@ -199,7 +199,14 @@ public static class AutoPackStore
         {
             // Fallback to last known slot
         }
-        if (string.IsNullOrEmpty(_lastKnownSlot)) return "0";
+        if (string.IsNullOrEmpty(_lastKnownSlot))
+        {
+            // Unresolved (e.g. main menu): "0" can collide with real slot 0. Callers
+            // guard scene state (OnSaveComplete skips outside Main), but log loudly
+            // so any misrouted read/write is diagnosable instead of silent.
+            Mod.Log.Warn("GetActiveSlotSuffix: no save slot resolved — falling back to '0'.");
+            return "0";
+        }
         return _lastKnownSlot;
     }
 

@@ -444,6 +444,27 @@ public sealed class MinimapBlips
             }
         }
         catch { }
+
+        // Pool is fixed at 64: stable-partition critical blips (quests, deals,
+        // aggro police, owned bases) to the front so overflow drops expendable
+        // dots first instead of quest POIs collected last.
+        StableCriticalFirst(_activeBlips);
+    }
+
+    private static void StableCriticalFirst(List<BlipInfo> blips)
+    {
+        int write = 0;
+        for (int read = 0; read < blips.Count; read++)
+        {
+            if (!blips[read].IsCritical) continue;
+            if (read != write)
+            {
+                var tmp = blips[write];
+                blips[write] = blips[read];
+                blips[read] = tmp;
+            }
+            write++;
+        }
     }
 
     public void RenderBlips(Vector3 playerWorldPos, float playerYaw, Vector2 playerMapPos, MinimapConfig config, float mapRadius, float zoomFactor)

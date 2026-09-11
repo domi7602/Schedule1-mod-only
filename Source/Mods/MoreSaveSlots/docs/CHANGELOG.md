@@ -1,5 +1,11 @@
 # Changelog
 
+
+## 1.0.3 (2026-09-11)
+- NewGame-SlotSelected mit Bounds-Guard (kein OOB auf unvollstaendiger letzter Seite).
+- Hover-Tracker via EventHelper (IL2CPP-sicher) ohne Vanilla-Trigger-Clear.
+- Font-Cache mit Liveness-Check; Rename ohne Regex-Fallback (+ .pre-rename.bak).
+
 ## 1.0.2 (2026-09-10)
 - 1-based Slot-Nummern im Save-Scan (Active-Save-Schutz bei Rename/Delete greift).
 - Toter _dialogRootMissing-Block und ungenutztes SlotsPerPage-Config entfernt.

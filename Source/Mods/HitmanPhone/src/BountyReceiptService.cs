@@ -342,7 +342,7 @@ public static class BountyReceiptService
                      $"(drop={dropGuid}). Reward=${match.RewardCash}.");
 
         // v0.1.8: evidence is single-use — consume the deposited polaroid(s).
-        ConsumePolaroids(entity);
+        ConsumePolaroids(entity, targetInstanceId);
 
         // Phase G: drop the pursuit level now that the contract is closed cleanly.
         BountyHeatService.OnBountyCompleted(match);
@@ -399,32 +399,47 @@ public static class BountyReceiptService
     }
 
     /// <summary>
-    /// v0.1.8: evidence is consumed on payout — clear every polaroid slot in the
-    /// dead drop via <c>ItemSlot.ClearStoredInstance()</c> (the same soft-removal
-    /// path S1API's <c>RemoveAllOfDefinition</c> uses; no world item spawns).
-    /// Before this, the polaroid stayed in the drop forever and every later
-    /// storage write re-scanned it (live log 2026-09-01: repeat scans finding
+    /// v0.1.8: evidence is consumed on payout via <c>ItemSlot.ClearStoredInstance()</c>
+    /// (the same soft-removal path S1API's <c>RemoveAllOfDefinition</c> uses; no world
+    /// item spawns). Before this, the polaroid stayed in the drop forever and every
+    /// later storage write re-scanned it (live log 2026-09-01: repeat scans finding
     /// "no payable polaroid (2 items)").
+    /// Scoped to a SINGLE slot: prefer the polaroid encoding this contract's target
+    /// instance id; fall back to the first polaroid (Value==0 cross-session case).
+    /// Never clears the whole drop — a second awaiting contract's evidence survives.
     /// </summary>
-    private static void ConsumePolaroids(S1StorageEntity entity)
+    private static void ConsumePolaroids(S1StorageEntity entity, int targetInstanceId)
     {
         try
         {
             var slots = entity.ItemSlots;
             if (slots == null) return;
-            int consumed = 0;
+            int matchedIdx = -1;
+            int firstPolaroidIdx = -1;
             for (int i = 0; i < slots.Count; i++)
             {
                 var slot = slots[i];
+                if (slot == null) continue;
                 var inst = slot.ItemInstance;
                 if (inst == null) continue;
                 if (!IsPolaroid(inst)) continue;
-                slot.ClearStoredInstance();
-                consumed++;
+                if (firstPolaroidIdx < 0) firstPolaroidIdx = i;
+                if (targetInstanceId != 0)
+                {
+                    try
+                    {
+                        if (ReadIntValue(inst) == targetInstanceId) { matchedIdx = i; break; }
+                    }
+                    catch { }
+                }
             }
-            if (consumed > 0)
+            int consumeIdx = matchedIdx >= 0 ? matchedIdx : firstPolaroidIdx;
+            if (consumeIdx >= 0)
             {
-                Mod.Log.Info($"[Receipt] Consumed {consumed} polaroid(s) from the dead drop — evidence destroyed.");
+                slots[consumeIdx].ClearStoredInstance();
+                Mod.Log.Info(matchedIdx >= 0
+                    ? $"[Receipt] Consumed polaroid for target instance {targetInstanceId} — evidence destroyed."
+                    : "[Receipt] Consumed 1 polaroid (no encoded id match — cross-session fallback) — evidence destroyed.");
             }
             else
             {

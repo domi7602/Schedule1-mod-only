@@ -248,9 +248,14 @@ namespace BackpackMod
                     var saveInfo = loadMgr.ActiveSaveInfo;
                     if (saveInfo != null && saveInfo.Pointer != IntPtr.Zero && !saveInfo.WasCollected)
                     {
-                        string slot = $"slot_{saveInfo.SaveSlotNumber}";
-                        _lastKnownSlot = slot;
-                        return slot;
+                        // Slot -1 means "no save selected" (main menu): never build or
+                        // cache a slot_-1 path — fall back to the last known good slot.
+                        if (saveInfo.SaveSlotNumber >= 0)
+                        {
+                            string slot = $"slot_{saveInfo.SaveSlotNumber}";
+                            _lastKnownSlot = slot;
+                            return slot;
+                        }
                     }
                 }
             }
@@ -321,6 +326,9 @@ namespace BackpackMod
             try
             {
                 if (_storageEntity == null || _storageEntity.Pointer == IntPtr.Zero || _storageEntity.WasCollected || _storageEntity.ItemSlots == null) return;
+                // Never persist menu-state ("default" suffix) over a real slot file, and
+                // never write a backpack_items_default.json from an unresolved session.
+                if (string.Equals(GetActiveSlotSuffix(), "default", StringComparison.Ordinal)) return;
 
                 var items = new List<SavedItemData>();
                 for (int i = 0; i < _storageEntity.ItemSlots.Count; i++)

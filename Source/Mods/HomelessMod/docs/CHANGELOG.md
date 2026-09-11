@@ -1,5 +1,11 @@
 # Changelog
 
+
+## 0.1.7 (2026-09-11)
+- Place-Prefix mit Host-Guard (Clients fallen auf Vanilla zurueck, kein lokaler Desync-Fork).
+- Wipe-if-Switched nach OnSaveInfoLoaded verlegt (kein Full-Wipe bei Same-Slot-Reload mehr).
+- Sleep-Flag mit 5-Min-Stale-Guard (kein Quest-Credit durchs naechste Vanilla-Bett).
+
 ## [0.1.6] - 2026-09-10
 * Place-Prefix-Catch weist __result=null zu (nativer Crash-Vektor geschlossen).
 * Quest-Completion bleibt in RAM, Flush auf OnSaveComplete (kein Save-Rollback-Drift mehr).

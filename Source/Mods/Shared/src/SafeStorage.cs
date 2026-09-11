@@ -20,9 +20,19 @@ public static class SafeStorage
         AllowTrailingCommas = true
     };
 
-    private static readonly ConcurrentDictionary<string, object> SaveLocks = new();
+    private static readonly ConcurrentDictionary<string, object> SaveLocks = new(StringComparer.OrdinalIgnoreCase);
 
-    private static object GetLock(string filePath) => SaveLocks.GetOrAdd(filePath, _ => new object());
+    /// <summary>
+    /// Lock key normalization: "a/b.json" and "a\b.json" (and casing variants) must
+    /// share one lock, otherwise two writers take different locks for the same file.
+    /// </summary>
+    private static string NormalizeLockKey(string filePath)
+    {
+        try { return Path.GetFullPath(filePath); }
+        catch { return filePath.Replace('/', '\\'); }
+    }
+
+    private static object GetLock(string filePath) => SaveLocks.GetOrAdd(NormalizeLockKey(filePath), _ => new object());
 
     /// <summary>
     /// Liefert den Standard-Pfad unter UserData/<ModName>/<FileName>.
