@@ -1743,7 +1743,7 @@ public class AutoPackStationController : MonoBehaviour
         // GameObject.Destroy leaked a ghost placement and caused item duplication on
         // Save/Load. As a last-resort fallback for environments without a BuildableItem
         // (e.g. dev/editor spawns), keep the raw Destroy so the controller can still clean up.
-        if (vanillaDismantle)
+        if (vanillaDismantle && buildable != null)
         {
             try
             {

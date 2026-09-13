@@ -126,7 +126,6 @@ public static class ModConfig<T> where T : class, new()
     }
 
     private static bool _inSetAndSave;
-    private static bool _deferredSave;
     private static readonly List<(string propertyName, object? value)> _deferredWrites = new();
 
     public static void SetAndSave(string propertyName, object? value)
@@ -140,7 +139,6 @@ public static class ModConfig<T> where T : class, new()
         if (_inSetAndSave)
         {
             _deferredWrites.Add((propertyName, value));
-            _deferredSave = true;
             TrySetValue(propertyName, value, out _);
             return;
         }
@@ -160,7 +158,6 @@ public static class ModConfig<T> where T : class, new()
         finally
         {
             _inSetAndSave = false;
-            _deferredSave = false;
             _deferredWrites.Clear();
         }
     }
