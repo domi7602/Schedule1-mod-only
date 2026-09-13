@@ -1,5 +1,8 @@
 # Changelog - AutoPackagingStation
 
+## 0.2.7 (2026-09-13) — Bug-Report-Runde 6
+Bug-Report-Runde 6 (Audit 2026-09-13): Host-Guards fuer PackUp, OnDestroy-Refund, alle TryExtract*/TryDeposit*-Pfade und OnSaveComplete (9 neue IsHostOrSingleplayer-Guards). MP-Clients koennen Stationen nicht mehr lokal auszahlen/zerstoeren (Dupe/Desync, kritisch) und ueberschreiben die Slot-Datei des Hosts nicht mehr. Supersedes 0.2.4 (Client lief dort bewusst in den Fallback-Destroy).
+
 ## 0.2.6 (2026-09-12) — Bug-Audit-Fixes Runde 4 (Audit 2026-09-12)
 - **F-Taste-PackUp Reentrancy-Schutz:** Neues `_packingUp`-Flag plus `try/finally`-Reset in `PackUpStation` verhindert Doppel-Auszahlung, falls der FishNet-Layer `Destroy_Server` ein zweites Dispatch im selben Frame anstößt.
 

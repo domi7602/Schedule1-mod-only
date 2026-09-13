@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.3 (2026-09-13) — Bug-Report-Runde 6
+Bug-Report-Runde 6: N1 - JSON 'Title'/'Text': null wird beim Laden zu string.Empty normalisiert (RefreshList-Crash bei handeditierten/korrupten notes-Dateien behoben).
+
 
 ## 1.0.2 (2026-09-11)
 - RefreshList mit Null-/WasCollected-Guard (kein NRE vor OnCreatedUI/nach Unload).

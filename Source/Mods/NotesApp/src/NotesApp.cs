@@ -1348,6 +1348,11 @@ public sealed class NotesApp : PhoneApp
                 foreach (var note in loaded)
                 {
                     if (note == null) continue;
+                    // Audit 2026-09-13 (N1): JSON "Title": null / "Text": null deserialisiert zu
+                    // echten null-Strings und crashte RefreshList (AccentColorFor/Image-Text auf
+                    // null). Hier normalisieren — schuetzt alle Konsumenten (Filter, Preview, Editor).
+                    note.Title ??= string.Empty;
+                    note.Text ??= string.Empty;
                     if (note.UpdatedAt == default)
                     {
                         note.UpdatedAt = note.CreatedAt != default ? note.CreatedAt : DateTime.UtcNow;

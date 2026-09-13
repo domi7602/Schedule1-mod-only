@@ -8,7 +8,7 @@ using S1API.Console;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "2.0.1", "Dominik")]
+[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "2.0.2", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace Minimap;

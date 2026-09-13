@@ -499,6 +499,15 @@ public static class AutoPackStore
                 return;
             }
 
+            // Bug-Audit 2026-09-13: Nur die autoritative Seite persistiert Stations-State. Ein
+            // MP-Client wuerde die Slot-Datei des Hosts atomar mit seiner lokalen (ggf. unvoll-
+            // staendigen) Replikations-Sicht ueberschreiben ("Items verschwinden nach Rejoin").
+            if (!AutoPackagingStation.Engine.AutoPackEngine.IsHostOrSingleplayer())
+            {
+                Mod.Log.Info("OnSaveComplete skipped: client instance (host owns station state).");
+                return;
+            }
+
             string path = GetSaveFilePath();
             Mod.Log.Info($"Saving {_activeStations.Count} AutoPackagingStation(s) to {Path.GetFileName(path)}...");
 

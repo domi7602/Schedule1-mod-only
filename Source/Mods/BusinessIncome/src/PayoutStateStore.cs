@@ -156,6 +156,16 @@ public static class PayoutStateStore
 
         PayoutState state = SafeStorage.LoadSafe<PayoutState>(path, fallback, Mod.Log);
 
+        // Audit 2026-09-13 (BIZ-01): a valid JSON with a strongly negative LastPaidElapsedDay
+        // (hand edit, cloud-sync conflict, copied file) would make the catch-up loop iterate
+        // billions of days on the main thread => freeze. Route corrupted states into the
+        // fresh-state seed path instead.
+        if (state.LastPaidElapsedDay < -1)
+        {
+            Mod.Log.Warn($"PayoutState: invalid LastPaidElapsedDay {state.LastPaidElapsedDay} — reset to -1 (fresh, will re-seed to current day).");
+            state.LastPaidElapsedDay = -1;
+        }
+
         _cachedState = state;
         _currentSlotSuffix = slotSuffix;
         return state;

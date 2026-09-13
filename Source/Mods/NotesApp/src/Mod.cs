@@ -2,7 +2,7 @@ using System;
 using MelonLoader;
 using Il2CppInterop.Runtime.Injection;
 
-[assembly: MelonInfo(typeof(NotesApp.Mod), "NotesApp", "1.0.2", "Dominik")]
+[assembly: MelonInfo(typeof(NotesApp.Mod), "NotesApp", "1.0.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace NotesApp;

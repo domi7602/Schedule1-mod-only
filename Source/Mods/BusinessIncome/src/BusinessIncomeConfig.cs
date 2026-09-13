@@ -104,19 +104,27 @@ public sealed class BusinessIncomeConfig
         if (PayoutHour < 0 || PayoutHour > 23)
             PayoutHour = 0;
 
-        if (DefaultBaseIncome < 0f)
+        // Audit 2026-09-13 (BIZ-03): float.IsFinite guards — a TOML 'nan' is valid input and
+        // survives every range check; NaN then poisons the revenue math and finally the online
+        // balance (all comparisons false => economy bricked, save-edit required). Upper bounds
+        // keep config mistakes/edits from minting absurd payouts.
+        if (!float.IsFinite(DefaultBaseIncome) || DefaultBaseIncome < 0f || DefaultBaseIncome > 100000f)
             DefaultBaseIncome = 500f;
 
-        if (OperatingCostRate < 0f || OperatingCostRate > 1f)
+        if (!float.IsFinite(OperatingCostRate) || OperatingCostRate < 0f || OperatingCostRate > 1f)
             OperatingCostRate = 0.10f;
 
-        if (EmployeeBonusPerWorker < 0f)
+        if (!float.IsFinite(EmployeeBonusPerWorker) || EmployeeBonusPerWorker < 0f || EmployeeBonusPerWorker > 1f)
             EmployeeBonusPerWorker = 0.05f;
 
-        if (MaxEmployeeBonus < 0f)
+        if (!float.IsFinite(MaxEmployeeBonus) || MaxEmployeeBonus < 0f || MaxEmployeeBonus > 5f)
             MaxEmployeeBonus = 0.25f;
 
-        if (WeekendBonusRate < 0f)
+        if (!float.IsFinite(WeekendBonusRate) || WeekendBonusRate < 0f || WeekendBonusRate > 5f)
             WeekendBonusRate = 0.25f;
+
+        // Audit 2026-09-13 (BIZ-01/03): clamp to the same 1..365 window the console enforces.
+        if (MaxCatchupDays < 1 || MaxCatchupDays > 365)
+            MaxCatchupDays = 7;
     }
 }

@@ -7,7 +7,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(BusinessIncome.Mod), "BusinessIncome", "0.1.4", "Dominik")]
+[assembly: MelonInfo(typeof(BusinessIncome.Mod), "BusinessIncome", "0.1.5", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BusinessIncome;
@@ -65,8 +65,12 @@ public class Mod : MelonMod
 
     private void OnPreLoad()
     {
-        PayoutStateStore.Reset(keepSlot: false);
-        Log.Debug("OnPreLoad: PayoutStateStore reset.");
+        // Audit 2026-09-13 (BIZ-05): keepSlot:true — OnPreLoad fires BEFORE the new save info is
+        // parsed. With keepSlot:false the store would fall back to the 'default' slot, and every
+        // state access in the PreLoad->SaveInfoLoaded window would read/write *_default.json.
+        // BankApp hardened this the same way (keepSlot:true); the slot is re-resolved on load.
+        PayoutStateStore.Reset(keepSlot: true);
+        Log.Debug("OnPreLoad: PayoutStateStore reset (keepSlot).");
     }
 
     public override void OnDeinitializeMelon()
@@ -177,10 +181,18 @@ public class Mod : MelonMod
             {
                 Log.Warn($"Catch-up backlog of {backlog} days exceeds MaxCatchupDays={cap} — paying only the last {cap} days ({elapsedDays - cap + 1}..{elapsedDays}), rest skipped.");
                 PayoutStateStore.CommitPayout(elapsedDays - cap, Array.Empty<string>());
+                // Audit 2026-09-13 (BIZ-01): re-read after the cap commit — continuing on the
+                // stale value made the loop below iterate the full (potentially billions-wide,
+                // corrupted-state) backlog even though IsDayPaid skips the middle. Re-reading
+                // bounds the loop to MaxCatchupDays iterations.
+                lastPaid = PayoutStateStore.GetState().LastPaidElapsedDay;
             }
 
             // H5: Pay all missed days, not just current (mod disabled, sleep skip)
-            for (int d = lastPaid + 1; d <= elapsedDays; d++)
+            // Audit 2026-09-13 (BIZ-01): belt-and-braces — never iterate more than MaxCatchupDays,
+            // even if the cap commit failed (e.g. read-only disk).
+            int loopStart = Math.Max(lastPaid + 1, elapsedDays - Math.Max(1, cfg.MaxCatchupDays));
+            for (int d = loopStart; d <= elapsedDays; d++)
             {
                 if (PayoutStateStore.IsDayPaid(d)) continue;
 

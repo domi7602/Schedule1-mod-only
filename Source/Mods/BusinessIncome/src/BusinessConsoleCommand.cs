@@ -155,6 +155,14 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
         }
         else
         {
+            // Audit 2026-09-13 (BIZ-02): force:true skips the IsDayPaid gate — without a
+            // confirmation this command was a repeatable money printer on the same day.
+            if (PayoutStateStore.IsDayPaid(elapsedDays) && !args.Exists(a => a.Equals("--force", StringComparison.OrdinalIgnoreCase)))
+            {
+                Print($"<color=#ffaa00>Day {elapsedDays} is already paid. Add --force to book AGAIN (double payout!).</color>");
+                return;
+            }
+
             Print($"<color=#60f080>Executing authoritative bank booking for day {elapsedDays}...</color>");
             bool executed = IncomeEngine.TryExecuteDailyPayout(elapsedDays, config, force: true, commit: true, isDryRun: false);
             if (executed)
@@ -311,9 +319,22 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
         {
             // Money was received (bank app shows the 'Business Revenue' entry): advance the
             // payout state to the pending day so the catch-up does not pay it again.
-            PayoutStateStore.CommitPayout(pending.Day, Array.Empty<string>());
-            PayoutStateStore.ClearPendingMarker();
-            Print($"<color=#60f080>Pending payout for day {pending.Day} (+${pending.Amount.ToString("N2", CultureInfo.InvariantCulture)}) marked as received — day will not be paid again.</color>");
+            // Audit 2026-09-13 (BIZ-04): only commit forward — a stale marker (left over from
+            // zero-net commits) must never drag LastPaidElapsedDay backwards, or the catch-up
+            // re-pays the days the marker was behind.
+            var currentState = PayoutStateStore.GetState();
+            if (pending.Day > currentState.LastPaidElapsedDay)
+            {
+                PayoutStateStore.CommitPayout(pending.Day, Array.Empty<string>());
+                PayoutStateStore.ClearPendingMarker();
+                Print($"<color=#60f080>Pending payout for day {pending.Day} (+${pending.Amount.ToString("N2", CultureInfo.InvariantCulture)}) marked as received — day will not be paid again.</color>");
+            }
+            else
+            {
+                // Stale marker: the day is already covered by the payout state — just drop it.
+                PayoutStateStore.ClearPendingMarker();
+                Print($"<color=#ffaa00>Pending marker for day {pending.Day} is stale (last paid day is {currentState.LastPaidElapsedDay}) — marker cleared, nothing to advance.</color>");
+            }
         }
         else if (args.Exists(a => a.Equals("resolve", StringComparison.OrdinalIgnoreCase)))
         {

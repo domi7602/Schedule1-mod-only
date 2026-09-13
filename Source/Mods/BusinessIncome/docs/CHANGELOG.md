@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.5 (2026-09-13) — Bug-Report-Runde 6
+Bug-Report-Runde 6: BIZ-01 Catch-up-Loop nach Cap neu eingelesen + hart auf MaxCatchupDays gedeckelt + LastPaid-Validierung beim Laden (Freeze bei korruptem State behoben); BIZ-02 'biz trigger --commit' verlangt --force, wenn der Tag bereits bezahlt ist (Money-Printer geschlossen); BIZ-03 float.IsFinite-/Upper-Bound-Guards in Sanitize inkl. MaxCatchupDays-Clamp (NaN-Economy-Brick verhindert); BIZ-04 'biz pending confirm' committet nur vorwaerts (stale Marker keine State-Regression mehr); BIZ-05 OnPreLoad behaelt den Slot (keepSlot:true, kein *_default.json mehr im Lade-Fenster).
+
 
 
 ## 0.1.4 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)

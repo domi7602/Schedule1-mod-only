@@ -1,6 +1,6 @@
 {
   "name": "BusinessIncome",
   "author": "Dominik",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Generates daily passive revenue from owned businesses with multiplayer host-authority, savegame idempotency, and full console dashboard."
 }

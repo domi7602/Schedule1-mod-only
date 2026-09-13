@@ -355,6 +355,15 @@ public class AutoPackStationController : MonoBehaviour
         {
             if (!SceneGate.IsChangingScenes)
             {
+                // Bug-Audit 2026-09-13: Refund schreibt ins LOKALE Inventar, RemoveRuntimeData
+                // loescht den LOKALEN Bucket. Auf einem MP-Client gehoert die Wahrheit dem Host —
+                // lokaler Refund wuerde Items duplizieren, sobald der Host die Station zerstoert.
+                if (!AutoPackEngine.IsHostOrSingleplayer())
+                {
+                    AutoPackStore.RemoveRuntimeData(_stationGuid);
+                    return;
+                }
+
                 var inv = PlayerInventory.Instance;
                 var rData = AutoPackStore.GetRuntimeData(_stationGuid);
                 var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
@@ -875,6 +884,9 @@ public class AutoPackStationController : MonoBehaviour
 
     public bool TryExtractInputProduct()
     {
+        // Host-only (Audit 2026-09-13): lokale rData/Inventar-Mutation desynced MP-Clients.
+        if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
+
         var rData = AutoPackStore.GetRuntimeData(_stationGuid);
         if (rData.InputProduct == null || rData.InputProduct.Quantity <= 0)
         {
@@ -950,6 +962,9 @@ public class AutoPackStationController : MonoBehaviour
 
     public bool TryExtractInputPackaging()
     {
+        // Host-only (Audit 2026-09-13): lokale rData/Inventar-Mutation desynced MP-Clients.
+        if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
+
         var rData = AutoPackStore.GetRuntimeData(_stationGuid);
         if (rData.InputPackaging == null || rData.InputPackaging.Quantity <= 0)
         {
@@ -1019,6 +1034,9 @@ public class AutoPackStationController : MonoBehaviour
 
     public bool TryExtractOutputProduct()
     {
+        // Host-only (Audit 2026-09-13): lokale rData/Inventar-Mutation desynced MP-Clients.
+        if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
+
         var inv = PlayerInventory.Instance;
         if (inv == null || inv.Pointer == IntPtr.Zero) return false;
 
@@ -1187,6 +1205,9 @@ public class AutoPackStationController : MonoBehaviour
 
     public bool TryExtractAll()
     {
+        // Host-only (Audit 2026-09-13): verhindert dreifachen Deny-Sound der Einzel-Extracts.
+        if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
+
         var rData = AutoPackStore.GetRuntimeData(_stationGuid);
         bool extractedAny = false;
 
@@ -1212,6 +1233,9 @@ public class AutoPackStationController : MonoBehaviour
 
     public bool TryDepositProduct()
     {
+        // Host-only (Audit 2026-09-13): lokale rData/Inventar-Mutation desynced MP-Clients.
+        if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
+
         var inv = PlayerInventory.Instance;
         if (inv == null || inv.Pointer == IntPtr.Zero) return false;
 
@@ -1306,6 +1330,9 @@ public class AutoPackStationController : MonoBehaviour
 
     public bool TryDepositPackaging()
     {
+        // Host-only (Audit 2026-09-13): lokale rData/Inventar-Mutation desynced MP-Clients.
+        if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
+
         var inv = PlayerInventory.Instance;
         if (inv == null || inv.Pointer == IntPtr.Zero) return false;
 
@@ -1383,6 +1410,17 @@ public class AutoPackStationController : MonoBehaviour
         _packingUp = true;
         try
         {
+            // Bug-Audit 2026-09-13 (CRITICAL): PackUp zahlt Buffer-Inhalte ins LOKALE Inventar aus
+            // und zerstoert die Station lokal. Auf einem MP-Client existiert die Station auf dem
+            // Host weiter (erneut abbauen = Dupe) und das lokale Grid korruptiert. Clients duerfen
+            // nicht packen (supersedes 0.2.4: "Client faehrt Vanilla-Fallback").
+            if (!AutoPackEngine.IsHostOrSingleplayer())
+            {
+                Mod.Log.Warn("PackUp denied: only the host can dismantle a station in multiplayer.");
+                AudioHelper.PlayDenySound();
+                return;
+            }
+
             var inv = PlayerInventory.Instance;
             if (inv == null || inv.Pointer == IntPtr.Zero) return;
 

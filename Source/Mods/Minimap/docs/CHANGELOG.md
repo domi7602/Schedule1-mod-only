@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.2 (2026-09-13) — Bug-Report-Runde 6
+Bug-Report-Runde 6: M-05 - ContentSizeFitter (PreferredSize) am Settings-Scroll-Content; Save&Apply-Footer ist jetzt bei langem Inhalt erreichbar (Scroll funktionierte vorher nie korrekt).
+
 
 ## 2.0.1 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
 - `ResolveSlotSuffix` → `Save()`-Endlos-Rekursion gefixt (Crash): `_dirty` wird jetzt konsumiert BEVOR `FlushToPath(oldPath)` aufgerufen wird; neue `FlushToPath(string)` schreibt an den expliziten alten Pfad ohne erneut `ResolveSlotSuffix` zu durchlaufen. Verhindert unkatchbaren `StackOverflowException` beim Slot-Switch nach fehlgeschlagenem Save (AV/Readonly).

@@ -202,6 +202,15 @@ public sealed class MinimapSettingsApp : PhoneApp
         contentVlg.padding = new RectOffset((int)UITheme.Dp(8f), (int)UITheme.Dp(8f), (int)UITheme.Dp(6f), (int)UITheme.Dp(20f));
         contentVlg.spacing = UITheme.Dp(4f);
 
+        // Audit 2026-09-13 (M-05): without a ContentSizeFitter the content rect keeps its
+        // anchor height (top-anchors => 0) — the VLG lays children into a zero-height strip,
+        // nothing below the first rows is reachable and the Save&Apply footer is cut off.
+        // PreferredSize feeds the VLG's measured height back into the rect (min 400 preserved
+        // via LayoutElement.minHeight).
+        var contentCsf = content.AddComponent<ContentSizeFitter>();
+        contentCsf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        contentCsf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+
         scroll.content = _scrollContent;
         scroll.viewport = vpRt;
 
