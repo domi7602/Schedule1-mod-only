@@ -119,8 +119,8 @@ public sealed class MinimapWaypoints
     // Persistence — SafeStorage atomic + slot isolation (Rule 1/2)
     // ────────────────────────────────────────────────────────────
 
-        /// <summary>Public for MinimapJson access; not part of the runtime API.</summary>
-        public sealed class WaypointFile
+    /// <summary>Public for MinimapJson access; not part of the runtime API.</summary>
+    public sealed class WaypointFile
     {
         public string Name = "";
         public float X;

@@ -444,7 +444,7 @@ public static class AutoPackEngine
         }
         catch
         {
-            return true;
+            return false;
         }
     }
 

@@ -39,7 +39,7 @@ public static class SkateboardItemFactory
 
     public static bool IsCustomItem(ItemInstance? item)
     {
-        if (item == null || item.Pointer == IntPtr.Zero) return false;
+        if (item == null || item.Pointer == IntPtr.Zero || item.WasCollected) return false;
         try
         {
             // Gatekeeper-fix 2026-08-30 B12: unify ID compare to OrdinalIgnoreCase
@@ -53,11 +53,11 @@ public static class SkateboardItemFactory
 
     public static bool IsCustomSkateboard(Skateboard board)
     {
-        if (board == null || board.Pointer == IntPtr.Zero) return false;
+        if (board == null || board.Pointer == IntPtr.Zero || board.WasCollected) return false;
         try
         {
             var eq = board.Equippable;
-            return eq != null && eq.Pointer != IntPtr.Zero && IsCustomItem(eq.itemInstance);
+            return eq != null && eq.Pointer != IntPtr.Zero && !eq.WasCollected && IsCustomItem(eq.itemInstance);
         }
         catch
         {

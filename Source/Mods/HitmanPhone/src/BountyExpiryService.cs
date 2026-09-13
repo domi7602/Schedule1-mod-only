@@ -40,7 +40,7 @@ public static class BountyExpiryService
 
         int day = HitmanPhoneTime.CurrentDay();
         if (day == _lastCheckedDay) return;
-        if (day <= 0) return;
+        if (day < 0 || !NetworkGuard.IsInMainScene) return;
 
         _lastCheckedDay = day;
 

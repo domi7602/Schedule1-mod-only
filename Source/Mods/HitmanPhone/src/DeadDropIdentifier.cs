@@ -35,7 +35,7 @@ internal static class DeadDropIdentifier
     /// </summary>
     public static S1DeadDrop? FindOwningDeadDrop(S1StorageEntity entity)
     {
-        if (entity == null) return null;
+        if (entity == null || entity.Pointer == IntPtr.Zero || entity.WasCollected) return null;
         try
         {
             var drops = S1DeadDrop.DeadDrops;
@@ -43,11 +43,15 @@ internal static class DeadDropIdentifier
             int instanceId = entity.GetInstanceID();
             for (int i = 0; i < drops.Count; i++)
             {
-                var dd = drops[i];
-                if (dd == null) continue;
-                var st = dd.Storage;
-                if (st == null) continue;
-                if (st.GetInstanceID() == instanceId) return dd;
+                try
+                {
+                    var dd = drops[i];
+                    if (dd == null || dd.Pointer == IntPtr.Zero || dd.WasCollected) continue;
+                    var st = dd.Storage;
+                    if (st == null || st.Pointer == IntPtr.Zero || st.WasCollected) continue;
+                    if (st.GetInstanceID() == instanceId) return dd;
+                }
+                catch { }
             }
         }
         catch (Exception ex)

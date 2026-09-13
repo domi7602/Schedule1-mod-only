@@ -113,9 +113,15 @@ namespace BackpackMod.Patches
             }
         }
 
+        public static void ResetForSceneUnload()
+        {
+            _backpackSlotObj = null;
+            _backpackSlotUI = null;
+        }
+
         private static void EnsureSlotCreated(CharacterInterface __instance)
         {
-            if ((_backpackSlotObj != null && _backpackSlotObj.Pointer != IntPtr.Zero) || __instance == null || __instance.Pointer == IntPtr.Zero) return;
+            if ((_backpackSlotObj != null && _backpackSlotObj.Pointer != IntPtr.Zero && !_backpackSlotObj.WasCollected) || __instance == null || __instance.Pointer == IntPtr.Zero || __instance.WasCollected) return;
 
             try
             {

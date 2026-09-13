@@ -16,15 +16,15 @@ public static class SkateboardVisualPatches
     {
         try
         {
-            if (__instance == null || __instance.Pointer == IntPtr.Zero || item == null || item.Pointer == IntPtr.Zero)
+            if (__instance == null || __instance.Pointer == IntPtr.Zero || __instance.WasCollected || item == null || item.Pointer == IntPtr.Zero || item.WasCollected)
                 return;
             if (SkateboardItemFactory.IsCustomItem(item))
             {
-                if (__instance.ModelContainer != null)
+                if (__instance.ModelContainer != null && __instance.ModelContainer.Pointer != IntPtr.Zero && !__instance.ModelContainer.WasCollected)
                 {
                     CyberSkateboardVisualizer.ApplyToViewmodel(__instance.ModelContainer.gameObject);
                 }
-                else
+                else if (__instance.gameObject != null && __instance.gameObject.Pointer != IntPtr.Zero && !__instance.gameObject.WasCollected)
                 {
                     CyberSkateboardVisualizer.ApplyToViewmodel(__instance.gameObject);
                 }
@@ -40,13 +40,13 @@ public static class SkateboardVisualPatches
     {
         try
         {
-            if (__instance == null || __instance.Pointer == IntPtr.Zero) return;
+            if (__instance == null || __instance.Pointer == IntPtr.Zero || __instance.WasCollected) return;
 
             var itemInst = __instance.itemInstance;
             if (SkateboardItemFactory.IsCustomItem(itemInst))
             {
                 var activeBoard = __instance.ActiveSkateboard;
-                if (activeBoard != null && activeBoard.Pointer != IntPtr.Zero)
+                if (activeBoard != null && activeBoard.Pointer != IntPtr.Zero && !activeBoard.WasCollected)
                 {
                     SkateboardItemFactory.TuneSkateboard(activeBoard, Mod.CurrentConfig);
                     CyberSkateboardVisualizer.ApplyToSkateboard(activeBoard, Mod.CurrentConfig);
@@ -63,7 +63,7 @@ public static class SkateboardVisualPatches
     {
         try
         {
-            if (__instance == null || __instance.Pointer == IntPtr.Zero) return;
+            if (__instance == null || __instance.Pointer == IntPtr.Zero || __instance.WasCollected) return;
 
             if (SkateboardItemFactory.IsCustomItem(__instance.Equippable?.itemInstance))
             {
@@ -127,6 +127,8 @@ public static class SkateboardVisualPatches
     {
         try
         {
+            if (__instance == null || __instance.Pointer == IntPtr.Zero || __instance.WasCollected) return;
+
             if (SkateboardItemFactory.IsCustomSkateboard(__instance))
             {
                 SkateboardItemFactory.TuneSkateboard(__instance, Mod.CurrentConfig, forceRetune: true, logStats: false);

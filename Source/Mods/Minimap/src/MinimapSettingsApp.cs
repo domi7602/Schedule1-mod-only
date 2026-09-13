@@ -32,6 +32,85 @@ public sealed class MinimapSettingsApp : PhoneApp
     protected override string IconFileName => string.Empty;
     protected override EOrientation Orientation => EOrientation.Vertical;
 
+    private Sprite? _cachedIconSprite;
+
+    /// <summary>
+    /// Icon for the "Map" app. Uses the same pattern as PotScannerApp:
+    /// optional <c>minimap_icon.png</c> next to Minimap.dll, otherwise a fully
+    /// procedural mini-map glyph is generated (no shipped asset required).
+    /// Returning a valid sprite here prevents S1API's "Icon file not found"
+    /// fallback (empty IconFileName used to resolve to the Mods folder itself).
+    /// </summary>
+    protected override Sprite IconSprite
+    {
+        get
+        {
+            if (_cachedIconSprite != null) return _cachedIconSprite;
+            _cachedIconSprite = BuildIconSprite();
+            return _cachedIconSprite;
+        }
+    }
+
+    private static Sprite BuildIconSprite()
+    {
+        // Optional external PNG — lets users drop in their own icon.
+        try
+        {
+            string path = System.IO.Path.Combine(MelonLoader.Utils.MelonEnvironment.ModsDirectory, "minimap_icon.png");
+            if (System.IO.File.Exists(path))
+            {
+                byte[] data = System.IO.File.ReadAllBytes(path);
+                var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                if (UnityEngine.ImageConversion.LoadImage(tex, data))
+                {
+                    var s = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+                    s.name = "MinimapSettingsIcon";
+                    return s;
+                }
+                UnityEngine.Object.Destroy(tex);
+            }
+        }
+        catch { }
+
+        // Procedural fallback: dark rounded tile + ring + emerald center blip.
+        try
+        {
+            const int size = 96;
+            const float corner = 18f;
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            var clear = new Color(0f, 0f, 0f, 0f);
+            var center = new Vector2((size - 1) * 0.5f, (size - 1) * 0.5f);
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    bool inside = x >= corner && y >= corner && x < size - corner && y < size - corner;
+                    if (!inside)
+                    {
+                        // Soft rounded-corner rejection (distance to nearest corner).
+                        float nx = Mathf.Max(corner - x, 0f, x - (size - 1 - corner));
+                        float ny = Mathf.Max(corner - y, 0f, y - (size - 1 - corner));
+                        if (nx * nx + ny * ny > corner * corner)
+                        {
+                            tex.SetPixel(x, y, clear);
+                            continue;
+                        }
+                    }
+                    var c = new Color(0.07f, 0.09f, 0.13f, 1f);
+                    float d = Vector2.Distance(new Vector2(x, y), center);
+                    if (d <= 9f) c = new Color(0.42f, 0.88f, 0.46f, 1f);                     // player blip
+                    else if (d <= 20f && Mathf.Abs(x - center.x) > 2f) c = new Color(0.24f, 0.48f, 0.64f, 1f); // compass ring
+                    tex.SetPixel(x, y, c);
+                }
+            }
+            tex.Apply();
+            var sprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+            sprite.name = "MinimapSettingsIconProcedural";
+            return sprite;
+        }
+        catch { return null!; }
+    }
+
     private GameObject _mainBG = null!;
     private RectTransform _scrollContent = null!;
 
@@ -139,20 +218,20 @@ public sealed class MinimapSettingsApp : PhoneApp
     {
         AddSectionLabel(parent, "BLIP FILTERS");
 
-        AddToggle(parent, "Police",        () => Get().ShowPoliceBlips,         v => Get().ShowPoliceBlips = v);
-        AddToggle(parent, "Dealers",       () => Get().ShowDealerBlips,         v => Get().ShowDealerBlips = v);
-        AddToggle(parent, "Active Deals",  () => Get().ShowActiveDeals,         v => Get().ShowActiveDeals = v);
-        AddToggle(parent, "Potential Cust",() => Get().ShowPotentialCustomers,  v => Get().ShowPotentialCustomers = v);
-        AddToggle(parent, "Customers",     () => Get().ShowKnownCustomers,      v => Get().ShowKnownCustomers = v);
-        AddToggle(parent, "Properties",    () => Get().ShowPropertyBlips,       v => Get().ShowPropertyBlips = v);
-        AddToggle(parent, "Shops",         () => Get().ShowShopBlips,           v => Get().ShowShopBlips = v);
-        AddToggle(parent, "Quests",        () => Get().ShowQuestBlips,          v => Get().ShowQuestBlips = v);
-        AddToggle(parent, "Vehicles",      () => Get().ShowVehicleBlips,        v => Get().ShowVehicleBlips = v);
-        AddToggle(parent, "Waypoints",     () => Get().ShowWaypoints,           v => Get().ShowWaypoints = v);
-        AddToggle(parent, "Health Bar",    () => Get().ShowHealthBar,           v => Get().ShowHealthBar = v);
+        AddToggle(parent, "Police", () => Get().ShowPoliceBlips, v => Get().ShowPoliceBlips = v);
+        AddToggle(parent, "Dealers", () => Get().ShowDealerBlips, v => Get().ShowDealerBlips = v);
+        AddToggle(parent, "Active Deals", () => Get().ShowActiveDeals, v => Get().ShowActiveDeals = v);
+        AddToggle(parent, "Potential Cust", () => Get().ShowPotentialCustomers, v => Get().ShowPotentialCustomers = v);
+        AddToggle(parent, "Customers", () => Get().ShowKnownCustomers, v => Get().ShowKnownCustomers = v);
+        AddToggle(parent, "Properties", () => Get().ShowPropertyBlips, v => Get().ShowPropertyBlips = v);
+        AddToggle(parent, "Shops", () => Get().ShowShopBlips, v => Get().ShowShopBlips = v);
+        AddToggle(parent, "Quests", () => Get().ShowQuestBlips, v => Get().ShowQuestBlips = v);
+        AddToggle(parent, "Vehicles", () => Get().ShowVehicleBlips, v => Get().ShowVehicleBlips = v);
+        AddToggle(parent, "Waypoints", () => Get().ShowWaypoints, v => Get().ShowWaypoints = v);
+        AddToggle(parent, "Health Bar", () => Get().ShowHealthBar, v => Get().ShowHealthBar = v);
 
         AddSectionLabel(parent, "HUD");
-        AddToggle(parent, "Minimap Visible", () => Get().MinimapVisible,        v => Get().MinimapVisible = v);
+        AddToggle(parent, "Minimap Visible", () => Get().MinimapVisible, v => Get().MinimapVisible = v);
     }
 
     // ─────────────────────────────────────────────────────────
@@ -394,20 +473,31 @@ public sealed class MinimapSettingsApp : PhoneApp
 
     private void Update()
     {
-        if (_mainBG == null || _mainBG.WasCollected) return;
-
-        bool open = IsOpen();
-        if (_mainBG.activeSelf != open)
+        try
         {
-            _mainBG.SetActive(open);
-            if (open) SyncFromConfig();
+            if (_mainBG == null || _mainBG.WasCollected) return;
+
+            bool open = IsOpen();
+            if (_mainBG.activeSelf != open)
+            {
+                _mainBG.SetActive(open);
+                if (open) SyncFromConfig();
+            }
+
+            if (!open) return;
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                CloseApp();
+            }
         }
-
-        if (!open) return;
-
-        if (Input.GetKeyDown(KeyCode.Escape))
+        catch
         {
-            CloseApp();
+            // Rule 10 / stale-subscription guard: after a scene reload S1API re-registers
+            // the app and the PREVIOUS instance's MelonEvents.OnUpdate subscription keeps
+            // ticking with a destroyed _mainBG. Accessing it can throw — that exception
+            // must never abort the shared Update dispatch chain (breaks other apps' toggles,
+            // symptom: blank app UI on the freshly opened instance).
         }
     }
 

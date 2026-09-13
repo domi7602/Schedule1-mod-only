@@ -224,10 +224,6 @@ public static class BountyReceiptService
     public static bool TryValidateAndPay(S1DeadDrop drop, S1StorageEntity entity, S1ItemInstance item)
     {
         if (drop == null || entity == null || item == null) return false;
-        // Audit (2026-09-10, HIGH): defense-in-depth — this entry is public, so
-        // re-check host authority here even though the storage-hook caller
-        // already gated. Non-host must never move money or consume evidence.
-        if (!IsHostOrSingleplayer()) return false;
         if (!IsPolaroid(item)) return false;
 
         if (Mod.Instance?.Save == null) return false;

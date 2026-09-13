@@ -72,7 +72,7 @@ public static class PurchaseService
     {
         var money = MoneyManager.Instance;
         effectiveMode = mode;
-        if (money == null) return false;
+        if (!NetworkGuard.IsAlive(money)) return false;
 
         float cash = money.cashBalance;
         float bank = money.onlineBalance;
@@ -134,8 +134,15 @@ public static class PurchaseService
             return result;
         }
 
+        if (!NetworkGuard.IsInMainScene)
+        {
+            result.Result = BuyResult.Error;
+            result.Message = "Cannot purchase outside main scene.";
+            return result;
+        }
+
         var money = MoneyManager.Instance;
-        if (money == null)
+        if (!NetworkGuard.IsAlive(money))
         {
             result.Result = BuyResult.DefinitionNull;
             result.Message = "Money system unavailable.";
@@ -218,7 +225,7 @@ public static class PurchaseService
         }
 
         var inventory = PlayerInventory.Instance;
-        if (inventory == null)
+        if (!NetworkGuard.IsAlive(inventory))
         {
             result.Result = BuyResult.NoInventorySpace;
             result.Message = "Player inventory not found.";
@@ -340,13 +347,23 @@ public static class PurchaseService
                 }
             }
 
-            // Decrement vendor stock
+            // Decrement vendor stock (isolated: stock update failure must NEVER trigger a refund for already delivered items)
             if (availableStock != UnlimitedStockSentinel && item.SourceListing != null)
             {
-                int newStock = System.Math.Max(0, item.SourceListing.CurrentStock - qty);
-                item.SourceListing.SetStock(newStock, true);
-                item.CurrentStock = newStock;
-                item.IsInStock = newStock > 0;
+                try
+                {
+                    if (item.SourceListing.Pointer != IntPtr.Zero && !item.SourceListing.WasCollected)
+                    {
+                        int newStock = System.Math.Max(0, item.SourceListing.CurrentStock - qty);
+                        item.SourceListing.SetStock(newStock, true);
+                        item.CurrentStock = newStock;
+                        item.IsInStock = newStock > 0;
+                    }
+                }
+                catch (Exception stockEx)
+                {
+                    MelonLogger.Warning($"Failed to update vendor stock: {stockEx.Message}");
+                }
             }
 
             result.Result = BuyResult.Success;

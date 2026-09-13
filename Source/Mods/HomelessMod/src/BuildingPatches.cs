@@ -157,100 +157,100 @@ public static class BuildingPatches
                     }
                     catch { }
 
-                    // Bug-Audit 2026-09-12 (Round 4): the rotation reset on Z. 160 was only
-                    // reached on the success path. If EvaluatePlacement, ApplyMaterial or
-                    // anything between Z. 162 and Z. 241 throws, the Ghost was left with
-                    // Quaternion.identity — visible as a "spinning reset" ghost. Hoist the
-                    // rotation restore into a finally block so any exception path also
-                    // restores the player-aimed rotation.
+                    // Restore rotation immediately after unrotated bounds measurement
                     try
                     {
-
-                    // [GroundFix v0.1.2] The sleeping bag definition is cloned from the vanilla 'bed'
-                    // (CloneFrom copies BuiltItem + grid data). Vanilla BuildUpdate_Grid derives
-                    // verticalOffset from that bed geometry (~1.5m of bed-frame height), which lifts
-                    // the flat procedural bag high into the air. For the sleeping bag we ignore the
-                    // vanilla offset entirely and keep only the pivot correction so the ghost sits
-                    // flush on the ground.
-                    bool isSleepingBagItem = false;
-                    try
-                    {
-                        var inst = __instance.ItemInstance;
-                        if (inst != null && inst.Pointer != IntPtr.Zero && !inst.WasCollected && inst.Definition != null && inst.Definition.Pointer != IntPtr.Zero)
-                        {
-                            isSleepingBagItem = string.Equals(inst.Definition.ID, Mod.CurrentConfig.SleepingBagItemId, StringComparison.OrdinalIgnoreCase);
-                        }
+                        ghost.transform.rotation = originalRot;
+                        Physics.SyncTransforms();
                     }
                     catch { }
 
-                    float vOffset;
-                    if (isSleepingBagItem)
+                    try
                     {
-                        // Sleeping bag pivot is at base (y 0..0.20m, BoxCollider y 0..0.36m, half-extents 0.48, 0.15, 1.05)
-                        boxExtents = new Vector3(0.48f, 0.15f, 1.05f);
-                        bottomOffset = 0f;
-                        vOffset = 0f;
-                        try { __instance.verticalOffset = 0f; } catch { }
-                    }
-                    else
-                    {
-                        vOffset = 0f;
-                        try { vOffset = __instance.verticalOffset; } catch { }
-                        // Automatic pivot correction: prevents items from sinking into the ground if their pivot is centered
-                        vOffset += bottomOffset;
-                    }
-
-                    bool isFreePlacement = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-
-                    // 5-Point Terrain Sampling & Smart Placement Evaluation
-                    var result = GroundPlacementAssistant.EvaluatePlacement(
-                        hit.point,
-                        hit.normal,
-                        __instance._rotation,
-                        boxExtents,
-                        vOffset,
-                        Mod.CurrentConfig.OutdoorGridSnapSize,
-                        isFreePlacement,
-                        ghost,
-                        camTransform.position,
-                        rayMask);
-
-                    ghost.transform.position = result.Position;
-                    ghost.transform.rotation = result.Rotation;
-                    LastInvalidReason = result.InvalidReason;
-
-                    if (result.IsValid)
-                    {
-                        // VALID -> GREEN / WHITE
-                        IsCustomPlacementValid = true;
-                        __instance._validPosition = true;
-                        if (buildMgr.ghostMaterial_White != null)
+                        // [GroundFix v0.1.2] The sleeping bag definition is cloned from the vanilla 'bed'
+                        // (CloneFrom copies BuiltItem + grid data). Vanilla BuildUpdate_Grid derives
+                        // verticalOffset from that bed geometry (~1.5m of bed-frame height), which lifts
+                        // the flat procedural bag high into the air. For the sleeping bag we ignore the
+                        // vanilla offset entirely and keep only the pivot correction so the ghost sits
+                        // flush on the ground.
+                        bool isSleepingBagItem = false;
+                        try
                         {
-                            __instance._currentGhostMaterial = buildMgr.ghostMaterial_White;
-                            buildMgr.ApplyMaterial(ghost, buildMgr.ghostMaterial_White, true);
+                            var inst = __instance.ItemInstance;
+                            if (inst != null && inst.Pointer != IntPtr.Zero && !inst.WasCollected && inst.Definition != null && inst.Definition.Pointer != IntPtr.Zero)
+                            {
+                                isSleepingBagItem = string.Equals(inst.Definition.ID, Mod.CurrentConfig.SleepingBagItemId, StringComparison.OrdinalIgnoreCase);
+                            }
                         }
-                    }
-                    else
-                    {
-                        // INVALID -> RED
-                        __instance._validPosition = false;
-                        if (buildMgr.ghostMaterial_Red != null)
+                        catch { }
+
+                        float vOffset;
+                        if (isSleepingBagItem)
                         {
-                            __instance._currentGhostMaterial = buildMgr.ghostMaterial_Red;
-                            buildMgr.ApplyMaterial(ghost, buildMgr.ghostMaterial_Red, true);
+                            // Sleeping bag pivot is at base (y 0..0.20m, BoxCollider y 0..0.36m, half-extents 0.48, 0.15, 1.05)
+                            boxExtents = new Vector3(0.48f, 0.15f, 1.05f);
+                            bottomOffset = 0f;
+                            vOffset = 0f;
+                            try { __instance.verticalOffset = 0f; } catch { }
+                        }
+                        else
+                        {
+                            vOffset = 0f;
+                            try { vOffset = __instance.verticalOffset; } catch { }
+                            // Automatic pivot correction: prevents items from sinking into the ground if their pivot is centered
+                            vOffset += bottomOffset;
                         }
 
-                        if (Input.GetMouseButtonDown(0))
+                        bool isFreePlacement = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+
+                        // 5-Point Terrain Sampling & Smart Placement Evaluation
+                        var result = GroundPlacementAssistant.EvaluatePlacement(
+                            hit.point,
+                            hit.normal,
+                            __instance._rotation,
+                            boxExtents,
+                            vOffset,
+                            Mod.CurrentConfig.OutdoorGridSnapSize,
+                            isFreePlacement,
+                            ghost,
+                            camTransform.position,
+                            rayMask);
+
+                        ghost.transform.position = result.Position;
+                        ghost.transform.rotation = result.Rotation;
+                        LastInvalidReason = result.InvalidReason;
+
+                        if (result.IsValid)
                         {
-                            Mod.Log.Info($"[Placement Failed] {LastInvalidReason}");
+                            // VALID -> GREEN / WHITE
+                            IsCustomPlacementValid = true;
+                            __instance._validPosition = true;
+                            if (buildMgr.ghostMaterial_White != null)
+                            {
+                                __instance._currentGhostMaterial = buildMgr.ghostMaterial_White;
+                                buildMgr.ApplyMaterial(ghost, buildMgr.ghostMaterial_White, true);
+                            }
+                        }
+                        else
+                        {
+                            // INVALID -> RED
+                            __instance._validPosition = false;
+                            if (buildMgr.ghostMaterial_Red != null)
+                            {
+                                __instance._currentGhostMaterial = buildMgr.ghostMaterial_Red;
+                                buildMgr.ApplyMaterial(ghost, buildMgr.ghostMaterial_Red, true);
+                            }
+
+                            if (Input.GetMouseButtonDown(0))
+                            {
+                                Mod.Log.Info($"[Placement Failed] {LastInvalidReason}");
+                            }
                         }
                     }
-                    }
-                    finally
+                    catch (Exception ex)
                     {
-                        // Restore player-aimed rotation even on exception so the Ghost
-                        // never stays at Quaternion.identity (vanilla fallback orientation).
                         try { ghost.transform.rotation = originalRot; } catch { }
+                        Mod.Log.Error($"EvaluatePlacement failed: {ex.Message}");
                     }
                 }
                 else

@@ -43,7 +43,13 @@ public class StackLimitConfig
                 {
                     // empty object may be fallback artifact — check if cfg is default and file invalid
                 }
-                var test = System.Text.Json.JsonSerializer.Deserialize<StackLimitConfig>(txt);
+                var options = new System.Text.Json.JsonSerializerOptions
+                {
+                    ReadCommentHandling = System.Text.Json.JsonCommentHandling.Skip,
+                    AllowTrailingCommas = true,
+                    PropertyNameCaseInsensitive = true
+                };
+                var test = System.Text.Json.JsonSerializer.Deserialize<StackLimitConfig>(txt, options);
                 if (test == null) throw new InvalidDataException("deserialized null");
             }
             catch

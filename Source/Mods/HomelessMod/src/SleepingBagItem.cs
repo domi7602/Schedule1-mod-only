@@ -53,7 +53,7 @@ public class SleepingBagInteractable : MonoBehaviour
         {
             bool isTyping = false;
             try { isTyping = S1Mods.Shared.HotkeyManager.IsInputFieldFocused(); } catch { }
-            if (isTyping || Cursor.lockState != CursorLockMode.Locked || this.WasCollected || gameObject.WasCollected)
+            if (isTyping || Cursor.lockState != CursorLockMode.Locked || Pointer == IntPtr.Zero || this.WasCollected || gameObject == null || gameObject.Pointer == IntPtr.Zero || gameObject.WasCollected)
             {
                 _isHovered = false;
                 _rmbHoldProgress = 0f;
@@ -294,6 +294,12 @@ public class SleepingBagInteractable : MonoBehaviour
 
     public void PackUp()
     {
+        if (!BuildingPatches.IsHostOrSingleplayer())
+        {
+            Mod.Log.Warn("Only host can pack up sleeping bag in multiplayer.");
+            return;
+        }
+
         Mod.Log.Info("Packing up sleeping bag...");
         string itemId = Mod.CurrentConfig.SleepingBagItemId;
 

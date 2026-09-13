@@ -5,8 +5,10 @@ using S1Mods.Shared;
 
 #if (IL2CPPMELON)
 using S1NPC = Il2CppScheduleOne.NPCs.NPC;
+using S1NPCHealth = Il2CppScheduleOne.NPCs.NPCHealth;
 #elif MONOMELON
 using S1NPC = ScheduleOne.NPCs.NPC;
+using S1NPCHealth = ScheduleOne.NPCs.NPCHealth;
 #endif
 
 namespace HitmanPhone.Bounty;
@@ -67,6 +69,31 @@ internal static class NPCDeathPatch
         {
             // Skill Rule #3: never let a Harmony patch throw. Log it and continue.
             Mod.Log.Error($"NPCDeathPatch.Postfix swallowed exception: {ex}");
+        }
+    }
+
+    /// <summary>
+    /// Phase C2 postfix on <see cref="S1NPCHealth"/>.Die() — the state transition behind
+    /// the IsDead flag. Covers death paths whose NPC.OnDie event is never raised
+    /// (e.g. finishing a knocked-out target, drowning): if the game marks the health
+    /// component dead, the transition fires here and the bounty resolves.
+    /// BountyService.OnNpcDied is idempotent per contract (EvidenceSpawned latch), so
+    /// this can safely also run for normal deaths (OnDie + Die both fire) without
+    /// producing duplicate polaroids.
+    /// </summary>
+    [HarmonyPostfix]
+    internal static void PostfixHealthDie(S1NPCHealth __instance)
+    {
+        try
+        {
+            if (__instance == null || __instance.Pointer == IntPtr.Zero || __instance.WasCollected) return;
+            var npc = __instance.npc;
+            if (npc == null || npc.Pointer == IntPtr.Zero || npc.WasCollected) return;
+            BountyService.OnNpcDied(npc);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Error($"NPCDeathPatch.PostfixHealthDie swallowed exception: {ex}");
         }
     }
 }

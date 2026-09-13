@@ -106,7 +106,7 @@ public static class WaterAllService
             // 5. VALIDATE (cost is based on target count, not all owned pots)
             var totalCost = targets.Count * Constants.WaterAllCostPerPot;
             var money = MoneyManager.Instance;
-            if (money == null)
+            if (money == null || money.Pointer == IntPtr.Zero || money.WasCollected)
                 return new WaterAllResult(false, targets.Count, 0, 0f, "MoneyManager not available");
 
             // 5a. EMPTY-TARGETS: every owned pot is already sufficiently watered
@@ -235,7 +235,7 @@ public static class WaterAllService
 
         if (ptr == IntPtr.Zero) return;
         var money = MoneyManager.Instance;
-        if (money == null || money.cashBalance < Constants.WaterAllCostPerPot) return;
+        if (money == null || money.Pointer == IntPtr.Zero || money.WasCollected || money.cashBalance < Constants.WaterAllCostPerPot) return;
 
         try
         {
@@ -255,8 +255,8 @@ public static class WaterAllService
                         var info = PotTracker.Instance.FindByPtr(ptr);
                         if (info == null || !info.IsOwnedProperty) return;
 
-                        // Skip-Threshold: bereits ausreichend feuchte Töpfe nicht erneut berechnen.
-                        if (info.WaterPercent >= Constants.WaterAllSkipThreshold) return;
+                        // Skip-Threshold: bereits ausreichend feuchte Töpfe nicht erneut berechnen (live moisture).
+                        if (c.NormalizedMoistureAmount >= Constants.WaterAllSkipThreshold) return;
 
                         c.SetMoistureAmount(capacity);
                         money.ChangeCashBalance(-Constants.WaterAllCostPerPot, visualizeChange: true, playCashSound: false);

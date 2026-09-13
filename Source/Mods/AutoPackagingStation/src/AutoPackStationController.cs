@@ -1383,382 +1383,382 @@ public class AutoPackStationController : MonoBehaviour
         _packingUp = true;
         try
         {
-        var inv = PlayerInventory.Instance;
-        if (inv == null || inv.Pointer == IntPtr.Zero) return;
+            var inv = PlayerInventory.Instance;
+            if (inv == null || inv.Pointer == IntPtr.Zero) return;
 
-        var rData = AutoPackStore.GetRuntimeData(_stationGuid);
-        var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
-        // Duplication fix: with a LIVE native station the slots are the single source of truth — never fall back to stale rData
-        bool hasLiveNativeStation = (station != null && station.Pointer != IntPtr.Zero);
+            var rData = AutoPackStore.GetRuntimeData(_stationGuid);
+            var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
+            // Duplication fix: with a LIVE native station the slots are the single source of truth — never fall back to stale rData
+            bool hasLiveNativeStation = (station != null && station.Pointer != IntPtr.Zero);
 
-        // Bug-Audit 2026-09-12 (CRITICAL): BuildableItem must be deregistered through the
-        // Vanilla dismantle flow, not raw GameObject.Destroy. Otherwise the grid cell stays
-        // occupied, the buildable registry still references a dead object, and after Save/Load
-        // the station respawns in-world while the player already owns the item + contents
-        // (item duplication). Resolve the BuildableItem now so the dismantle call is reachable.
-        var buildable = GetComponent<Il2CppScheduleOne.EntityFramework.BuildableItem>()
-            ?? GetComponentInParent<Il2CppScheduleOne.EntityFramework.BuildableItem>();
-        // Host-only: BuildableItem.Destroy_Server is a FishNet ServerRpc. Calling it on a
-        // client either no-ops or throws; the host must be the one to invoke it.
-        bool isHost = AutoPackEngine.IsHostOrSingleplayer();
-        bool vanillaDismantle = isHost && buildable != null
-            && buildable.Pointer != IntPtr.Zero && !buildable.WasCollected;
+            // Bug-Audit 2026-09-12 (CRITICAL): BuildableItem must be deregistered through the
+            // Vanilla dismantle flow, not raw GameObject.Destroy. Otherwise the grid cell stays
+            // occupied, the buildable registry still references a dead object, and after Save/Load
+            // the station respawns in-world while the player already owns the item + contents
+            // (item duplication). Resolve the BuildableItem now so the dismantle call is reachable.
+            var buildable = GetComponent<Il2CppScheduleOne.EntityFramework.BuildableItem>()
+                ?? GetComponentInParent<Il2CppScheduleOne.EntityFramework.BuildableItem>();
+            // Host-only: BuildableItem.Destroy_Server is a FishNet ServerRpc. Calling it on a
+            // client either no-ops or throws; the host must be the one to invoke it.
+            bool isHost = AutoPackEngine.IsHostOrSingleplayer();
+            bool vanillaDismantle = isHost && buildable != null
+                && buildable.Pointer != IntPtr.Zero && !buildable.WasCollected;
 
-        // 1. Resolve Station item definition and probe
-        var stationDef = GameRegistry.GetItem(Mod.CurrentConfig.StationItemId);
-        if (stationDef == null || stationDef.Pointer == IntPtr.Zero)
-        {
-            Mod.Log.Warn($"Cannot pack up: '{Mod.CurrentConfig.StationItemId}' not found in registry.");
-            AudioHelper.PlayDenySound();
-            return;
-        }
-
-        var stationProbe = stationDef.GetDefaultInstance(1);
-        if (stationProbe == null || stationProbe.Pointer == IntPtr.Zero)
-        {
-            AudioHelper.PlayDenySound();
-            return;
-        }
-
-        // 2. Pre-create all 1-unit instances BEFORE modifying state (station item last, so a
-        // partial abort below can never duplicate it)
-        var itemsToAdd = new List<Il2CppScheduleOne.ItemFramework.ItemInstance>();
-        int pkgItemCount = 0, prodItemCount = 0, outItemCount = 0;
-        int countMark = itemsToAdd.Count;
-
-        // Input Packaging (InputSlots[0] vs rData.InputPackaging)
-        var pkgSlot = (station != null && station.Pointer != IntPtr.Zero && station.InputSlots != null && station.InputSlots.Count > 0)
-            ? station.InputSlots[0] : null;
-        if (pkgSlot != null && pkgSlot.Pointer != IntPtr.Zero && pkgSlot.ItemInstance != null && pkgSlot.ItemInstance.Pointer != IntPtr.Zero && pkgSlot.Quantity > 0 && pkgSlot.ItemInstance.Definition != null)
-        {
-            int qty = pkgSlot.Quantity;
-            var def = pkgSlot.ItemInstance.Definition;
-            for (int i = 0; i < qty; i++)
+            // 1. Resolve Station item definition and probe
+            var stationDef = GameRegistry.GetItem(Mod.CurrentConfig.StationItemId);
+            if (stationDef == null || stationDef.Pointer == IntPtr.Zero)
             {
-                var inst = def.GetDefaultInstance(1);
-                if (inst != null && inst.Pointer != IntPtr.Zero)
-                {
-                    itemsToAdd.Add(inst);
-                }
+                Mod.Log.Warn($"Cannot pack up: '{Mod.CurrentConfig.StationItemId}' not found in registry.");
+                AudioHelper.PlayDenySound();
+                return;
             }
-        }
-        else if (!hasLiveNativeStation && rData.InputPackaging != null && rData.InputPackaging.Quantity > 0)
-        {
-            var pkgDef = GameRegistry.GetItem(rData.InputPackaging.ItemId);
-            if (pkgDef != null && pkgDef.Pointer != IntPtr.Zero)
+
+            var stationProbe = stationDef.GetDefaultInstance(1);
+            if (stationProbe == null || stationProbe.Pointer == IntPtr.Zero)
             {
-                for (int i = 0; i < rData.InputPackaging.Quantity; i++)
+                AudioHelper.PlayDenySound();
+                return;
+            }
+
+            // 2. Pre-create all 1-unit instances BEFORE modifying state (station item last, so a
+            // partial abort below can never duplicate it)
+            var itemsToAdd = new List<Il2CppScheduleOne.ItemFramework.ItemInstance>();
+            int pkgItemCount = 0, prodItemCount = 0, outItemCount = 0;
+            int countMark = itemsToAdd.Count;
+
+            // Input Packaging (InputSlots[0] vs rData.InputPackaging)
+            var pkgSlot = (station != null && station.Pointer != IntPtr.Zero && station.InputSlots != null && station.InputSlots.Count > 0)
+                ? station.InputSlots[0] : null;
+            if (pkgSlot != null && pkgSlot.Pointer != IntPtr.Zero && pkgSlot.ItemInstance != null && pkgSlot.ItemInstance.Pointer != IntPtr.Zero && pkgSlot.Quantity > 0 && pkgSlot.ItemInstance.Definition != null)
+            {
+                int qty = pkgSlot.Quantity;
+                var def = pkgSlot.ItemInstance.Definition;
+                for (int i = 0; i < qty; i++)
                 {
-                    var inst = pkgDef.GetDefaultInstance(1);
+                    var inst = def.GetDefaultInstance(1);
                     if (inst != null && inst.Pointer != IntPtr.Zero)
                     {
                         itemsToAdd.Add(inst);
                     }
                 }
             }
-        }
-
-        pkgItemCount = itemsToAdd.Count - countMark; countMark = itemsToAdd.Count;
-
-        // Input Product (InputSlots[1] vs rData.InputProduct)
-        var prodSlot = (station != null && station.Pointer != IntPtr.Zero && station.InputSlots != null && station.InputSlots.Count > 1)
-            ? station.InputSlots[1] : null;
-        if (prodSlot != null && prodSlot.Pointer != IntPtr.Zero && prodSlot.ItemInstance != null && prodSlot.ItemInstance.Pointer != IntPtr.Zero && prodSlot.Quantity > 0 && prodSlot.ItemInstance.Definition != null)
-        {
-            int qty = prodSlot.Quantity;
-            var def = prodSlot.ItemInstance.Definition;
-            var qInst = prodSlot.ItemInstance.TryCast<NativeQualityItemInst>();
-            var qual = qInst != null && qInst.Pointer != IntPtr.Zero ? qInst.Quality : EQuality.Standard;
-
-            for (int i = 0; i < qty; i++)
+            else if (!hasLiveNativeStation && rData.InputPackaging != null && rData.InputPackaging.Quantity > 0)
             {
-                var inst = def.GetDefaultInstance(1);
-                if (inst != null && inst.Pointer != IntPtr.Zero)
+                var pkgDef = GameRegistry.GetItem(rData.InputPackaging.ItemId);
+                if (pkgDef != null && pkgDef.Pointer != IntPtr.Zero)
                 {
-                    var q = inst.TryCast<NativeQualityItemInst>();
-                    if (q != null && q.Pointer != IntPtr.Zero)
+                    for (int i = 0; i < rData.InputPackaging.Quantity; i++)
                     {
-                        q.Quality = qual;
+                        var inst = pkgDef.GetDefaultInstance(1);
+                        if (inst != null && inst.Pointer != IntPtr.Zero)
+                        {
+                            itemsToAdd.Add(inst);
+                        }
                     }
-                    itemsToAdd.Add(inst);
                 }
             }
-        }
-        else if (!hasLiveNativeStation && rData.InputProduct != null && rData.InputProduct.Quantity > 0)
-        {
-            var inDef = GameRegistry.GetItem(rData.InputProduct.ItemId);
-            if (inDef != null && inDef.Pointer != IntPtr.Zero)
+
+            pkgItemCount = itemsToAdd.Count - countMark; countMark = itemsToAdd.Count;
+
+            // Input Product (InputSlots[1] vs rData.InputProduct)
+            var prodSlot = (station != null && station.Pointer != IntPtr.Zero && station.InputSlots != null && station.InputSlots.Count > 1)
+                ? station.InputSlots[1] : null;
+            if (prodSlot != null && prodSlot.Pointer != IntPtr.Zero && prodSlot.ItemInstance != null && prodSlot.ItemInstance.Pointer != IntPtr.Zero && prodSlot.Quantity > 0 && prodSlot.ItemInstance.Definition != null)
             {
-                for (int i = 0; i < rData.InputProduct.Quantity; i++)
+                int qty = prodSlot.Quantity;
+                var def = prodSlot.ItemInstance.Definition;
+                var qInst = prodSlot.ItemInstance.TryCast<NativeQualityItemInst>();
+                var qual = qInst != null && qInst.Pointer != IntPtr.Zero ? qInst.Quality : EQuality.Standard;
+
+                for (int i = 0; i < qty; i++)
                 {
-                    var inst = inDef.GetDefaultInstance(1);
+                    var inst = def.GetDefaultInstance(1);
                     if (inst != null && inst.Pointer != IntPtr.Zero)
                     {
-                        var qInst = inst.TryCast<NativeQualityItemInst>();
-                        if (qInst != null && qInst.Pointer != IntPtr.Zero)
+                        var q = inst.TryCast<NativeQualityItemInst>();
+                        if (q != null && q.Pointer != IntPtr.Zero)
                         {
-                            qInst.Quality = (EQuality)rData.InputProduct.QualityTier;
+                            q.Quality = qual;
                         }
                         itemsToAdd.Add(inst);
                     }
                 }
             }
-        }
-
-        prodItemCount = itemsToAdd.Count - countMark; countMark = itemsToAdd.Count;
-
-        // Output Product (OutputSlots[0] vs rData.OutputProduct)
-        var outSlot = (station != null && station.Pointer != IntPtr.Zero && station.OutputSlots != null && station.OutputSlots.Count > 0)
-            ? station.OutputSlots[0] : null;
-        if (outSlot != null && outSlot.Pointer != IntPtr.Zero && outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero && outSlot.Quantity > 0 && outSlot.ItemInstance.Definition != null)
-        {
-            int qty = outSlot.Quantity;
-            var inst = outSlot.ItemInstance;
-            var def = inst.Definition;
-            var prodInst = inst.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
-            var pkgDef = prodInst?.AppliedPackaging ?? (!string.IsNullOrEmpty(prodInst?.PackagingID) ? GameRegistry.GetItem(prodInst.PackagingID)?.TryCast<Il2CppScheduleOne.Product.Packaging.PackagingDefinition>() : null);
-            var qual = inst.TryCast<NativeQualityItemInst>()?.Quality ?? EQuality.Standard;
-
-            for (int i = 0; i < qty; i++)
+            else if (!hasLiveNativeStation && rData.InputProduct != null && rData.InputProduct.Quantity > 0)
             {
-                var newInst = def.GetDefaultInstance(1);
-                if (newInst != null && newInst.Pointer != IntPtr.Zero)
+                var inDef = GameRegistry.GetItem(rData.InputProduct.ItemId);
+                if (inDef != null && inDef.Pointer != IntPtr.Zero)
                 {
-                    var p = newInst.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
-                    if (p != null && p.Pointer != IntPtr.Zero)
+                    for (int i = 0; i < rData.InputProduct.Quantity; i++)
                     {
-                        if (pkgDef != null && pkgDef.Pointer != IntPtr.Zero)
+                        var inst = inDef.GetDefaultInstance(1);
+                        if (inst != null && inst.Pointer != IntPtr.Zero)
                         {
-                            p.SetPackaging(pkgDef);
-                        }
-                        else if (!string.IsNullOrEmpty(prodInst?.PackagingID))
-                        {
-                            p.PackagingID = prodInst.PackagingID;
-                        }
-                    }
-                    var q = newInst.TryCast<NativeQualityItemInst>();
-                    if (q != null && q.Pointer != IntPtr.Zero)
-                    {
-                        q.Quality = qual;
-                    }
-                    itemsToAdd.Add(newInst);
-                }
-            }
-        }
-        else if (!hasLiveNativeStation && rData.OutputProduct != null && rData.OutputProduct.Quantity > 0)
-        {
-            var outDef = GameRegistry.GetItem(rData.OutputProduct.ItemId);
-            if (outDef != null && outDef.Pointer != IntPtr.Zero)
-            {
-                var pkgItemDef = !string.IsNullOrEmpty(rData.OutputProduct.PackagingId)
-                    ? GameRegistry.GetItem(rData.OutputProduct.PackagingId)?.TryCast<Il2CppScheduleOne.Product.Packaging.PackagingDefinition>()
-                    : null;
-
-                for (int i = 0; i < rData.OutputProduct.Quantity; i++)
-                {
-                    var inst = outDef.GetDefaultInstance(1);
-                    if (inst != null && inst.Pointer != IntPtr.Zero)
-                    {
-                        var prodInst = inst.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
-                        if (prodInst != null && prodInst.Pointer != IntPtr.Zero)
-                        {
-                            if (!string.IsNullOrEmpty(rData.OutputProduct.PackagingId))
+                            var qInst = inst.TryCast<NativeQualityItemInst>();
+                            if (qInst != null && qInst.Pointer != IntPtr.Zero)
                             {
-                                prodInst.PackagingID = rData.OutputProduct.PackagingId;
+                                qInst.Quality = (EQuality)rData.InputProduct.QualityTier;
                             }
-                            if (pkgItemDef != null && pkgItemDef.Pointer != IntPtr.Zero)
+                            itemsToAdd.Add(inst);
+                        }
+                    }
+                }
+            }
+
+            prodItemCount = itemsToAdd.Count - countMark; countMark = itemsToAdd.Count;
+
+            // Output Product (OutputSlots[0] vs rData.OutputProduct)
+            var outSlot = (station != null && station.Pointer != IntPtr.Zero && station.OutputSlots != null && station.OutputSlots.Count > 0)
+                ? station.OutputSlots[0] : null;
+            if (outSlot != null && outSlot.Pointer != IntPtr.Zero && outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero && outSlot.Quantity > 0 && outSlot.ItemInstance.Definition != null)
+            {
+                int qty = outSlot.Quantity;
+                var inst = outSlot.ItemInstance;
+                var def = inst.Definition;
+                var prodInst = inst.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
+                var pkgDef = prodInst?.AppliedPackaging ?? (!string.IsNullOrEmpty(prodInst?.PackagingID) ? GameRegistry.GetItem(prodInst.PackagingID)?.TryCast<Il2CppScheduleOne.Product.Packaging.PackagingDefinition>() : null);
+                var qual = inst.TryCast<NativeQualityItemInst>()?.Quality ?? EQuality.Standard;
+
+                for (int i = 0; i < qty; i++)
+                {
+                    var newInst = def.GetDefaultInstance(1);
+                    if (newInst != null && newInst.Pointer != IntPtr.Zero)
+                    {
+                        var p = newInst.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
+                        if (p != null && p.Pointer != IntPtr.Zero)
+                        {
+                            if (pkgDef != null && pkgDef.Pointer != IntPtr.Zero)
                             {
-                                prodInst.SetPackaging(pkgItemDef);
+                                p.SetPackaging(pkgDef);
+                            }
+                            else if (!string.IsNullOrEmpty(prodInst?.PackagingID))
+                            {
+                                p.PackagingID = prodInst.PackagingID;
                             }
                         }
-                        var qInst = inst.TryCast<NativeQualityItemInst>();
-                        if (qInst != null && qInst.Pointer != IntPtr.Zero)
+                        var q = newInst.TryCast<NativeQualityItemInst>();
+                        if (q != null && q.Pointer != IntPtr.Zero)
                         {
-                            qInst.Quality = (EQuality)rData.OutputProduct.QualityTier;
+                            q.Quality = qual;
                         }
-                        itemsToAdd.Add(inst);
+                        itemsToAdd.Add(newInst);
                     }
                 }
             }
-        }
-
-        outItemCount = itemsToAdd.Count - countMark;
-        // Station item last: a partial abort below can never duplicate it (buffers deduct, station stays)
-        itemsToAdd.Add(stationProbe);
-
-        // Interleaved fit-check + add — each 1-unit probe is validated against the CURRENT inventory
-        // (earlier adds already applied), so a near-full tail can't silently vanish (item-loss fix)
-        int addedCount = 0;
-        for (int i = 0; i < itemsToAdd.Count; i++)
-        {
-            var item = itemsToAdd[i];
-            if (!inv.CanItemFitInInventory(item, 1))
+            else if (!hasLiveNativeStation && rData.OutputProduct != null && rData.OutputProduct.Quantity > 0)
             {
-                Mod.Log.Warn($"PackUp: Inventory full, could not return item '{item.Definition?.ID}'. ({addedCount}/{itemsToAdd.Count} returned)");
-                break;
+                var outDef = GameRegistry.GetItem(rData.OutputProduct.ItemId);
+                if (outDef != null && outDef.Pointer != IntPtr.Zero)
+                {
+                    var pkgItemDef = !string.IsNullOrEmpty(rData.OutputProduct.PackagingId)
+                        ? GameRegistry.GetItem(rData.OutputProduct.PackagingId)?.TryCast<Il2CppScheduleOne.Product.Packaging.PackagingDefinition>()
+                        : null;
+
+                    for (int i = 0; i < rData.OutputProduct.Quantity; i++)
+                    {
+                        var inst = outDef.GetDefaultInstance(1);
+                        if (inst != null && inst.Pointer != IntPtr.Zero)
+                        {
+                            var prodInst = inst.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
+                            if (prodInst != null && prodInst.Pointer != IntPtr.Zero)
+                            {
+                                if (!string.IsNullOrEmpty(rData.OutputProduct.PackagingId))
+                                {
+                                    prodInst.PackagingID = rData.OutputProduct.PackagingId;
+                                }
+                                if (pkgItemDef != null && pkgItemDef.Pointer != IntPtr.Zero)
+                                {
+                                    prodInst.SetPackaging(pkgItemDef);
+                                }
+                            }
+                            var qInst = inst.TryCast<NativeQualityItemInst>();
+                            if (qInst != null && qInst.Pointer != IntPtr.Zero)
+                            {
+                                qInst.Quality = (EQuality)rData.OutputProduct.QualityTier;
+                            }
+                            itemsToAdd.Add(inst);
+                        }
+                    }
+                }
             }
+
+            outItemCount = itemsToAdd.Count - countMark;
+            // Station item last: a partial abort below can never duplicate it (buffers deduct, station stays)
+            itemsToAdd.Add(stationProbe);
+
+            // Interleaved fit-check + add — each 1-unit probe is validated against the CURRENT inventory
+            // (earlier adds already applied), so a near-full tail can't silently vanish (item-loss fix)
+            int addedCount = 0;
+            for (int i = 0; i < itemsToAdd.Count; i++)
+            {
+                var item = itemsToAdd[i];
+                if (!inv.CanItemFitInInventory(item, 1))
+                {
+                    Mod.Log.Warn($"PackUp: Inventory full, could not return item '{item.Definition?.ID}'. ({addedCount}/{itemsToAdd.Count} returned)");
+                    break;
+                }
+                try
+                {
+                    inv.AddItemToInventory(item);
+                    addedCount++;
+                }
+                catch (Exception addEx)
+                {
+                    Mod.Log.Warn($"PackUp: failed to return item '{item.Definition?.ID}': {addEx.Message}");
+                    break;
+                }
+            }
+
+            if (addedCount < itemsToAdd.Count)
+            {
+                // Only what was actually added leaves the station buffers — deduct exactly those
+                // quantities so nothing is lost and a retry can't duplicate anything.
+                int remaining = addedCount;
+                int takePkg = Mathf.Min(pkgItemCount, remaining); remaining -= takePkg;
+                int takeProd = Mathf.Min(prodItemCount, remaining); remaining -= takeProd;
+                int takeOut = Mathf.Min(outItemCount, remaining);
+                try
+                {
+                    if (takePkg > 0)
+                    {
+                        if (pkgSlot != null && pkgSlot.Pointer != IntPtr.Zero && pkgSlot.ItemInstance != null && pkgSlot.ItemInstance.Pointer != IntPtr.Zero)
+                        {
+                            if (takePkg >= pkgSlot.Quantity) { pkgSlot.ClearStoredInstance(); }
+                            else { pkgSlot.ChangeQuantity(-takePkg); }
+                            pkgSlot.onItemDataChanged?.Invoke();
+                            pkgSlot.onItemInstanceChanged?.Invoke();
+                        }
+                        else if (rData.InputPackaging != null)
+                        {
+                            rData.InputPackaging.Quantity -= takePkg;
+                            if (rData.InputPackaging.Quantity <= 0) rData.InputPackaging = null;
+                        }
+                    }
+                    if (takeProd > 0)
+                    {
+                        if (prodSlot != null && prodSlot.Pointer != IntPtr.Zero && prodSlot.ItemInstance != null && prodSlot.ItemInstance.Pointer != IntPtr.Zero)
+                        {
+                            if (takeProd >= prodSlot.Quantity) { prodSlot.ClearStoredInstance(); }
+                            else { prodSlot.ChangeQuantity(-takeProd); }
+                            prodSlot.onItemDataChanged?.Invoke();
+                            prodSlot.onItemInstanceChanged?.Invoke();
+                        }
+                        else if (rData.InputProduct != null)
+                        {
+                            rData.InputProduct.Quantity -= takeProd;
+                            if (rData.InputProduct.Quantity <= 0) rData.InputProduct = null;
+                        }
+                    }
+                    if (takeOut > 0)
+                    {
+                        if (outSlot != null && outSlot.Pointer != IntPtr.Zero && outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero)
+                        {
+                            if (takeOut >= outSlot.Quantity) { outSlot.ClearStoredInstance(); }
+                            else { outSlot.ChangeQuantity(-takeOut); }
+                            outSlot.onItemDataChanged?.Invoke();
+                            outSlot.onItemInstanceChanged?.Invoke();
+                        }
+                        else if (rData.OutputProduct != null)
+                        {
+                            rData.OutputProduct.Quantity -= takeOut;
+                            if (rData.OutputProduct.Quantity <= 0) rData.OutputProduct = null;
+                        }
+                    }
+                    if (station != null && station.Pointer != IntPtr.Zero)
+                    {
+                        try { station.UpdatePackagingVisuals(); station.UpdateProductVisuals(); } catch { }
+                    }
+                }
+                catch (Exception deductEx)
+                {
+                    Mod.Log.Warn($"PackUp partial deduct failed: {deductEx.Message}");
+                }
+                AudioHelper.PlayDenySound();
+                return;
+            }
+
+            Mod.Log.Info($"Successfully packed up AutoPackagingStation and returned {itemsToAdd.Count} items to inventory.");
+            AudioHelper.PlayCashSound();
+
+            // Mitigation 3: Unregister outdoor street item if HomelessMod is active (M9: log on fail)
             try
             {
-                inv.AddItemToInventory(item);
-                addedCount++;
-            }
-            catch (Exception addEx)
-            {
-                Mod.Log.Warn($"PackUp: failed to return item '{item.Definition?.ID}': {addEx.Message}");
-                break;
-            }
-        }
-
-        if (addedCount < itemsToAdd.Count)
-        {
-            // Only what was actually added leaves the station buffers — deduct exactly those
-            // quantities so nothing is lost and a retry can't duplicate anything.
-            int remaining = addedCount;
-            int takePkg = Mathf.Min(pkgItemCount, remaining); remaining -= takePkg;
-            int takeProd = Mathf.Min(prodItemCount, remaining); remaining -= takeProd;
-            int takeOut = Mathf.Min(outItemCount, remaining);
-            try
-            {
-                if (takePkg > 0)
+                var streetManagerType = TypeResolver.Find("HomelessMod.Building.StreetPropertyManager", "HomelessMod");
+                if (streetManagerType == null)
                 {
-                    if (pkgSlot != null && pkgSlot.Pointer != IntPtr.Zero && pkgSlot.ItemInstance != null && pkgSlot.ItemInstance.Pointer != IntPtr.Zero)
-                    {
-                        if (takePkg >= pkgSlot.Quantity) { pkgSlot.ClearStoredInstance(); }
-                        else { pkgSlot.ChangeQuantity(-takePkg); }
-                        pkgSlot.onItemDataChanged?.Invoke();
-                        pkgSlot.onItemInstanceChanged?.Invoke();
-                    }
-                    else if (rData.InputPackaging != null)
-                    {
-                        rData.InputPackaging.Quantity -= takePkg;
-                        if (rData.InputPackaging.Quantity <= 0) rData.InputPackaging = null;
-                    }
+                    Mod.Log.Debug("PackUp: HomelessMod not present, skip UnregisterStreetItem.");
                 }
-                if (takeProd > 0)
+                else
                 {
-                    if (prodSlot != null && prodSlot.Pointer != IntPtr.Zero && prodSlot.ItemInstance != null && prodSlot.ItemInstance.Pointer != IntPtr.Zero)
-                    {
-                        if (takeProd >= prodSlot.Quantity) { prodSlot.ClearStoredInstance(); }
-                        else { prodSlot.ChangeQuantity(-takeProd); }
-                        prodSlot.onItemDataChanged?.Invoke();
-                        prodSlot.onItemInstanceChanged?.Invoke();
-                    }
-                    else if (rData.InputProduct != null)
-                    {
-                        rData.InputProduct.Quantity -= takeProd;
-                        if (rData.InputProduct.Quantity <= 0) rData.InputProduct = null;
-                    }
+                    var unregisterMethod = streetManagerType.GetMethods().FirstOrDefault(m => m.Name == "UnregisterStreetItem");
+                    if (unregisterMethod == null) Mod.Log.Warn("PackUp: UnregisterStreetItem method not found on StreetPropertyManager.");
+                    else unregisterMethod.Invoke(null, new object?[] { gameObject });
                 }
-                if (takeOut > 0)
-                {
-                    if (outSlot != null && outSlot.Pointer != IntPtr.Zero && outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero)
-                    {
-                        if (takeOut >= outSlot.Quantity) { outSlot.ClearStoredInstance(); }
-                        else { outSlot.ChangeQuantity(-takeOut); }
-                        outSlot.onItemDataChanged?.Invoke();
-                        outSlot.onItemInstanceChanged?.Invoke();
-                    }
-                    else if (rData.OutputProduct != null)
-                    {
-                        rData.OutputProduct.Quantity -= takeOut;
-                        if (rData.OutputProduct.Quantity <= 0) rData.OutputProduct = null;
-                    }
-                }
-                if (station != null && station.Pointer != IntPtr.Zero)
-                {
-                    try { station.UpdatePackagingVisuals(); station.UpdateProductVisuals(); } catch { }
-                }
-            }
-            catch (Exception deductEx)
-            {
-                Mod.Log.Warn($"PackUp partial deduct failed: {deductEx.Message}");
-            }
-            AudioHelper.PlayDenySound();
-            return;
-        }
-
-        Mod.Log.Info($"Successfully packed up AutoPackagingStation and returned {itemsToAdd.Count} items to inventory.");
-        AudioHelper.PlayCashSound();
-
-        // Mitigation 3: Unregister outdoor street item if HomelessMod is active (M9: log on fail)
-        try
-        {
-            var streetManagerType = TypeResolver.Find("HomelessMod.Building.StreetPropertyManager", "HomelessMod");
-            if (streetManagerType == null)
-            {
-                Mod.Log.Debug("PackUp: HomelessMod not present, skip UnregisterStreetItem.");
-            }
-            else
-            {
-                var unregisterMethod = streetManagerType.GetMethods().FirstOrDefault(m => m.Name == "UnregisterStreetItem");
-                if (unregisterMethod == null) Mod.Log.Warn("PackUp: UnregisterStreetItem method not found on StreetPropertyManager.");
-                else unregisterMethod.Invoke(null, new object?[] { gameObject });
-            }
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Warn($"PackUp HomelessMod unregister failed: {ex.Message}");
-        }
-
-        // Clear native slots
-        if (station != null && station.Pointer != IntPtr.Zero)
-        {
-            if (station.InputSlots != null)
-            {
-                for (int s = 0; s < station.InputSlots.Count; s++)
-                {
-                    var slot = station.InputSlots[s];
-                    if (slot != null && slot.Pointer != IntPtr.Zero)
-                    {
-                        slot.ClearStoredInstance();
-                        slot.onItemDataChanged?.Invoke();
-                        slot.onItemInstanceChanged?.Invoke();
-                    }
-                }
-            }
-            if (station.OutputSlots != null)
-            {
-                for (int s = 0; s < station.OutputSlots.Count; s++)
-                {
-                    var slot = station.OutputSlots[s];
-                    if (slot != null && slot.Pointer != IntPtr.Zero)
-                    {
-                        slot.ClearStoredInstance();
-                        slot.onItemDataChanged?.Invoke();
-                        slot.onItemInstanceChanged?.Invoke();
-                    }
-                }
-            }
-        }
-
-        // Clear runtime data BEFORE Destroy so OnDestroy does not duplicate items
-        rData.InputProduct = null;
-        rData.InputPackaging = null;
-        rData.OutputProduct = null;
-        AutoPackStore.RemoveRuntimeData(_stationGuid);
-        AutoPackStore.UnregisterStation(this);
-
-        // Bug-Audit 2026-09-12 (CRITICAL): prefer the Vanilla dismantle RPC so the Buildable
-        // registry, grid placement and network state are torn down cleanly. Raw
-        // GameObject.Destroy leaked a ghost placement and caused item duplication on
-        // Save/Load. As a last-resort fallback for environments without a BuildableItem
-        // (e.g. dev/editor spawns), keep the raw Destroy so the controller can still clean up.
-        if (vanillaDismantle && buildable != null)
-        {
-            try
-            {
-                buildable.Destroy_Server();
             }
             catch (Exception ex)
             {
-                Mod.Log.Warn($"BuildableItem.Destroy_Server failed: {ex.Message}. Falling back to raw Destroy.");
+                Mod.Log.Warn($"PackUp HomelessMod unregister failed: {ex.Message}");
+            }
+
+            // Clear native slots
+            if (station != null && station.Pointer != IntPtr.Zero)
+            {
+                if (station.InputSlots != null)
+                {
+                    for (int s = 0; s < station.InputSlots.Count; s++)
+                    {
+                        var slot = station.InputSlots[s];
+                        if (slot != null && slot.Pointer != IntPtr.Zero)
+                        {
+                            slot.ClearStoredInstance();
+                            slot.onItemDataChanged?.Invoke();
+                            slot.onItemInstanceChanged?.Invoke();
+                        }
+                    }
+                }
+                if (station.OutputSlots != null)
+                {
+                    for (int s = 0; s < station.OutputSlots.Count; s++)
+                    {
+                        var slot = station.OutputSlots[s];
+                        if (slot != null && slot.Pointer != IntPtr.Zero)
+                        {
+                            slot.ClearStoredInstance();
+                            slot.onItemDataChanged?.Invoke();
+                            slot.onItemInstanceChanged?.Invoke();
+                        }
+                    }
+                }
+            }
+
+            // Clear runtime data BEFORE Destroy so OnDestroy does not duplicate items
+            rData.InputProduct = null;
+            rData.InputPackaging = null;
+            rData.OutputProduct = null;
+            AutoPackStore.RemoveRuntimeData(_stationGuid);
+            AutoPackStore.UnregisterStation(this);
+
+            // Bug-Audit 2026-09-12 (CRITICAL): prefer the Vanilla dismantle RPC so the Buildable
+            // registry, grid placement and network state are torn down cleanly. Raw
+            // GameObject.Destroy leaked a ghost placement and caused item duplication on
+            // Save/Load. As a last-resort fallback for environments without a BuildableItem
+            // (e.g. dev/editor spawns), keep the raw Destroy so the controller can still clean up.
+            if (vanillaDismantle && buildable != null)
+            {
+                try
+                {
+                    buildable.Destroy_Server();
+                }
+                catch (Exception ex)
+                {
+                    Mod.Log.Warn($"BuildableItem.Destroy_Server failed: {ex.Message}. Falling back to raw Destroy.");
+                    UnityEngine.Object.Destroy(gameObject);
+                }
+            }
+            else
+            {
                 UnityEngine.Object.Destroy(gameObject);
             }
-        }
-        else
-        {
-            UnityEngine.Object.Destroy(gameObject);
-        }
         }
         finally
         {

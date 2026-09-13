@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text.Json;
 using MelonLoader;
 using S1API.Console;
@@ -72,7 +73,8 @@ public sealed class MinimapMod : MelonMod
     public override void OnInitializeMelon()
     {
         Instance = this;
-        _log.Info("Initializing Minimap & Unified HUD Mod v1.0.2...");
+        string version = GetType().Assembly.GetCustomAttribute<MelonInfoAttribute>()?.Version ?? "?";
+        _log.Info($"Initializing Minimap & Unified HUD Mod v{version}...");
 
         // Setup SafeStorage config directory
         string userDir = Path.Combine(MelonLoader.Utils.MelonEnvironment.UserDataDirectory, "Minimap");
@@ -118,6 +120,18 @@ public sealed class MinimapMod : MelonMod
     {
         if (!_hud.IsCreated)
             return;
+
+        // Self-heal (2026-09-13): the DontDestroyOnLoad canvas gets silently
+        // deactivated when the game does a data-only reload (arrest/bust, save
+        // reload, cutscene) — OnSceneWasUnloaded deactivates it and no matching
+        // OnSceneWasInitialized always follows. Re-activate while we are on Main
+        // and the user wants the minimap visible.
+        try
+        {
+            if (!_hud.IsActive && Config.MinimapVisible && NetworkGuard.IsInMainScene)
+                _hud.SetHUDActive(true);
+        }
+        catch { }
 
         // Hotkey Toggle (respects input field focus)
         if (!HotkeyManager.IsInputFieldFocused())

@@ -93,7 +93,10 @@ public sealed class CalculatorState
     {
         string slotSuffix = GetActiveSlotSuffix();
         string path = SafeStorage.GetUserDataPath("CalculatorApp", $"calculator_state_slot_{slotSuffix}.json");
-        TryMigrateLegacy(path);
+        if (slotSuffix != "default" && !slotSuffix.Contains("-1"))
+        {
+            TryMigrateLegacy(path);
+        }
         return path;
     }
 

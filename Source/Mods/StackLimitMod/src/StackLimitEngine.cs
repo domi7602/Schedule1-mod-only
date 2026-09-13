@@ -13,6 +13,7 @@ public static class StackLimitEngine
     private static readonly object _lock = new();
     private static HashSet<string>? _excludedSet;
     private static int _excludedSetHash = 0;
+    private static bool _restoreWarned;
 
     public static int ModifiedItemCount { get; private set; }
     public static int TrackedItemCount
@@ -285,6 +286,23 @@ public static class StackLimitEngine
             if (_originalLimits.Count == 0) return 0;
             snapshot = new List<string>(_originalLimits.Keys);
         }
+
+        // Audit 2026-09-13: OnDeinitializeMelon runs AFTER the game has torn down the
+        // Registry singleton — Registry.GetItem(id) then throws NullReferenceException
+        // for every tracked item (~150 log lines of noise at quit). Harden:
+        // 1) bail out entirely when the singleton is gone, 2) log only the first failure
+        // of any remaining per-item errors.
+        try
+        {
+            var registry = Registry.Instance;
+            if (registry == null || registry.Pointer == IntPtr.Zero || registry.WasCollected)
+            {
+                Mod.Log?.Debug("RestoreAll: Registry unavailable (shutdown) — skipping restore; limits re-apply next launch.");
+                return 0;
+            }
+        }
+        catch { return 0; }
+
         foreach (var id in snapshot)
         {
             int original;
@@ -301,7 +319,11 @@ public static class StackLimitEngine
             catch (Exception ex)
             {
                 failed++;
-                Mod.Log?.Warn($"RestoreAll: failed to restore '{id}': {ex.Message}");
+                if (!_restoreWarned)
+                {
+                    _restoreWarned = true;
+                    Mod.Log?.Warn($"RestoreAll: failed to restore '{id}' ({failed} total so far): {ex.Message}");
+                }
             }
         }
         return restored;

@@ -100,11 +100,29 @@ public sealed class BankApp : PhoneApp
         MelonLogger.Msg("Registered with S1API PhoneApp system (v0.3.0).");
     }
 
-    internal static void TearDownForSceneUnload() => _active = null;
+    internal static void TearDownForSceneUnload()
+    {
+        _active = null;
+        _cachedIcon = null;
+    }
 
-    private static void DispatchUpdate() => _active?.Update();
+    private static void DispatchUpdate()
+    {
+        var a = _active;
+        if (a != null)
+        {
+            try { a.Update(); } catch { }
+        }
+    }
 
-    private static void DispatchBalanceChanged() => _active?.OnExternalBalanceChanged();
+    private static void DispatchBalanceChanged()
+    {
+        var a = _active;
+        if (a != null)
+        {
+            try { a.OnExternalBalanceChanged(); } catch { }
+        }
+    }
 
     protected override void OnCreatedUI(GameObject container)
     {

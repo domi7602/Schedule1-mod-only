@@ -109,6 +109,7 @@ public class MoreSaveSlotsMod : MelonMod
 
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
     {
+        PaginationController.ResetForSceneReload();
         RenameDialog.ResetForSceneReload();
         DeleteDialog.ResetForSceneReload();
         try { UIHelper.ResetFontCache(); } catch { }

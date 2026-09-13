@@ -44,19 +44,19 @@ public static class BountyPersistence
         IncludeFields = true
     };
 
-    private static string _lastKnownSlot = "-1";
+    private static int _lastKnownSlot = -1;
 
-    /// <summary>Best-effort read of the active save slot. Defaults to "-1" before any save loaded.</summary>
-    public static string ActiveSlotSuffix
+    /// <summary>Active slot number, or -1 if not currently loaded.</summary>
+    public static int ActiveSlotNumber
     {
         get
         {
             try
             {
                 var info = S1Persistence.LoadManager.Instance?.ActiveSaveInfo;
-                if (info != null)
+                if (info != null && info.SaveSlotNumber >= 0)
                 {
-                    _lastKnownSlot = info.SaveSlotNumber.ToString();
+                    _lastKnownSlot = info.SaveSlotNumber;
                     return _lastKnownSlot;
                 }
             }
@@ -65,6 +65,16 @@ public static class BountyPersistence
                 // Save may not be loaded yet (Main Menu); fall through to cached value.
             }
             return _lastKnownSlot;
+        }
+    }
+
+    /// <summary>Best-effort read of the active save slot suffix. Returns null if slot &lt; 0.</summary>
+    public static string? ActiveSlotSuffix
+    {
+        get
+        {
+            int slot = ActiveSlotNumber;
+            return slot >= 0 ? slot.ToString() : null;
         }
     }
 
@@ -98,11 +108,12 @@ public static class BountyPersistence
     /// <summary>Audit L6 (2026-09-01): the legacy migration needs to run exactly once per session.</summary>
     private static bool _migrationChecked;
 
-    public static string GetSaveFilePath()
+    public static string? GetSaveFilePath()
     {
-        string slot = ActiveSlotSuffix;
+        string? slot = ActiveSlotSuffix;
+        if (slot == null) return null;
         string path = SafeStorage.GetUserDataPath(ModFolder, string.Format(SlotFileNamePattern, slot));
-        if (!_migrationChecked)
+        if (!_migrationChecked && int.TryParse(slot, out int s) && s >= 0)
         {
             _migrationChecked = true;
             TryMigrateLegacy(path);
@@ -112,7 +123,12 @@ public static class BountyPersistence
 
     public static BountySaveData Load()
     {
-        string path = GetSaveFilePath();
+        string? path = GetSaveFilePath();
+        if (string.IsNullOrEmpty(path))
+        {
+            Log.Debug("No valid save slot active yet. Returning empty state.");
+            return NewStateForActiveSave();
+        }
         BountySaveData data = SafeStorage.LoadSafe<BountySaveData>(path, null, Log, FieldJsonOptions);
         if (data == null)
         {
@@ -157,7 +173,12 @@ public static class BountyPersistence
         }
         if (string.IsNullOrEmpty(data.SaveIdentity))
             data.SaveIdentity = ActiveSaveIdentity;
-        string path = GetSaveFilePath();
+        string? path = GetSaveFilePath();
+        if (string.IsNullOrEmpty(path))
+        {
+            Log.Warn("Cannot save BountySaveData: no active save slot (slot < 0).");
+            return false;
+        }
         bool ok = SafeStorage.SaveAtomic(path, data, Log, FieldJsonOptions);
         if (ok) Log.Info($"Saved BountySaveData to '{path}'.");
         return ok;

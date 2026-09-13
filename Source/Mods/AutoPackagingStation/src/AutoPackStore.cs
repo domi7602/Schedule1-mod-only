@@ -201,11 +201,8 @@ public static class AutoPackStore
         }
         if (string.IsNullOrEmpty(_lastKnownSlot))
         {
-            // Unresolved (e.g. main menu): "0" can collide with real slot 0. Callers
-            // guard scene state (OnSaveComplete skips outside Main), but log loudly
-            // so any misrouted read/write is diagnosable instead of silent.
-            Mod.Log.Warn("GetActiveSlotSuffix: no save slot resolved — falling back to '0'.");
-            return "0";
+            Mod.Log.Debug("GetActiveSlotSuffix: no save slot resolved — falling back to 'default'.");
+            return "default";
         }
         return _lastKnownSlot;
     }
@@ -222,6 +219,7 @@ public static class AutoPackStore
     {
         try
         {
+            if (targetSlotPath.EndsWith("autopack_slot_default.json", StringComparison.OrdinalIgnoreCase)) return;
             string legacyPath = SafeStorage.GetUserDataPath("AutoPackagingStation", "autopack.json");
             if (!File.Exists(legacyPath)) return;
 
@@ -492,6 +490,12 @@ public static class AutoPackStore
             if (SceneGate.IsChangingScenes || !NetworkGuard.IsInMainScene)
             {
                 Mod.Log.Debug("OnSaveComplete skipped: scene changing or not in Main.");
+                return;
+            }
+
+            if (string.Equals(GetActiveSlotSuffix(), "default", StringComparison.Ordinal))
+            {
+                Mod.Log.Warn("OnSaveComplete skipped: active slot is 'default' (save slot not resolved).");
                 return;
             }
 

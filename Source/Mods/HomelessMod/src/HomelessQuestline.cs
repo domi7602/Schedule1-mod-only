@@ -530,6 +530,7 @@ public static class HomelessQuestManager
 
     private static void TryMigrateQuestLegacy(string slotPath, string legacyPath)
     {
+        if (slotPath.EndsWith("quest_progress_default.json", StringComparison.OrdinalIgnoreCase)) return;
         if (!File.Exists(legacyPath)) return;
         if (File.Exists(slotPath))
         {
@@ -585,8 +586,14 @@ public static class HomelessQuestManager
     {
         try
         {
+            string path = GetStateFilePath();
+            if (path.EndsWith("quest_progress_default.json", StringComparison.OrdinalIgnoreCase))
+            {
+                Mod.Log.Warn("FlushCompletedState skipped: save slot is still 'default' (not loaded into a slot yet).");
+                return;
+            }
             var list = new List<string>(_completedQuests);
-            SafeStorage.SaveAtomic(GetStateFilePath(), list, Mod.Log);
+            SafeStorage.SaveAtomic(path, list, Mod.Log);
         }
         catch (Exception ex)
         {

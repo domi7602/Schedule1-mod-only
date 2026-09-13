@@ -95,9 +95,29 @@ public sealed class PocketShopApp : PhoneApp
         }
         catch { }
         try { app._directoryPane?.Dispose(); } catch { }
+
+        if (_cachedIcon != null)
+        {
+            try
+            {
+                if (_cachedIcon.Pointer != IntPtr.Zero && !_cachedIcon.WasCollected)
+                {
+                    if (_cachedIcon.texture != null && _cachedIcon.texture.Pointer != IntPtr.Zero && !_cachedIcon.texture.WasCollected)
+                        UnityEngine.Object.Destroy(_cachedIcon.texture);
+                    UnityEngine.Object.Destroy(_cachedIcon);
+                }
+            }
+            catch { }
+            _cachedIcon = null;
+        }
     }
 
-    private static void DispatchUpdate() => _active?.Update();
+    private static void DispatchUpdate()
+    {
+        var a = _active;
+        if (a != null)
+            a.Update();
+    }
 
     protected override void OnPhoneClosed()
     {
@@ -105,7 +125,6 @@ public sealed class PocketShopApp : PhoneApp
         if (_mainBG != null) _mainBG.SetActive(false);
         _detailModal?.Hide();
         _viewMode = ViewMode.Directory;
-        ShopCatalog.ResetForSceneReload();
         // Update bleibt lebenslang subscribed (defensives Unsubscribe-Subscribe in OnCreated).
     }
 

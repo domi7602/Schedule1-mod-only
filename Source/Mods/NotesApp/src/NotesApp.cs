@@ -116,12 +116,13 @@ public sealed class NotesApp : PhoneApp
     {
         string suffix = GetSaveSlotSuffix();
         string path = SafeStorage.GetUserDataPath("NotesApp", $"notes_{suffix}.json");
-        TryMigrateLegacyForPath(path);
+        TryMigrateLegacyForPath(path, suffix);
         return path;
     }
 
-    private void TryMigrateLegacyForPath(string slotPath)
+    private void TryMigrateLegacyForPath(string slotPath, string suffix)
     {
+        if (suffix == "default" || suffix.Contains("-1")) return;
         try
         {
             string legacyPath = SafeStorage.GetUserDataPath("NotesApp", SaveFileName);
@@ -164,7 +165,7 @@ public sealed class NotesApp : PhoneApp
     private void Update()
     {
         bool open = IsOpen();
-        if (_mainBG != null && _mainBG.activeSelf != open)
+        if (NetworkGuard.IsAlive(_mainBG) && _mainBG.activeSelf != open)
         {
             _mainBG.SetActive(open);
         }
@@ -175,7 +176,7 @@ public sealed class NotesApp : PhoneApp
         if (_copyResetTimer > 0f)
         {
             _copyResetTimer -= Time.unscaledDeltaTime;
-            if (_copyResetTimer <= 0f && _copyButtonText != null)
+            if (_copyResetTimer <= 0f && NetworkGuard.IsAlive(_copyButtonText))
             {
                 _copyButtonText.text = "Copy";
             }
@@ -279,7 +280,14 @@ public sealed class NotesApp : PhoneApp
 
     internal static void TearDownForSceneUnload() => _active = null;
 
-    private static void DispatchUpdate() => _active?.Update();
+    private static void DispatchUpdate()
+    {
+        var a = _active;
+        if (a != null)
+        {
+            try { a.Update(); } catch { }
+        }
+    }
 
     private static void DispatchSaveInfoLoaded()
     {

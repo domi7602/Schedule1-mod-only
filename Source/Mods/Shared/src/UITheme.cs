@@ -15,7 +15,7 @@ public static class UITheme
     {
         if (refHeight <= 0f)
             refHeight = RefHeight;
-        if (containerRt == null)
+        if (!NetworkGuard.IsAlive(containerRt))
         {
             ActualHeight = refHeight;
             ActualWidth = RefWidth;
@@ -23,6 +23,7 @@ public static class UITheme
             return;
         }
         try { Canvas.ForceUpdateCanvases(); } catch { }
+        if (!NetworkGuard.IsAlive(containerRt)) return;
         var r = containerRt.rect;
         float h = Mathf.Max(r.width, r.height);
         float w = Mathf.Min(r.width, r.height);

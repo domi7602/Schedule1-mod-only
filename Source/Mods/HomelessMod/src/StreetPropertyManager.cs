@@ -75,7 +75,7 @@ public static class StreetPropertyManager
 
     public static bool IsRegisteredStreetObject(GameObject? go)
     {
-        if (go == null || go.Pointer == IntPtr.Zero) return false;
+        if (go == null || go.Pointer == IntPtr.Zero || go.WasCollected) return false;
         try
         {
             // L9: verify InstanceID entry is not a recycled vanilla object — check _activeStreetObjects membership or Guid/ItemId match
@@ -87,10 +87,10 @@ public static class StreetPropertyManager
                 _objectRecords.Remove(go.GetInstanceID());
             }
             Transform? curr = go.transform;
-            while (curr != null && curr.Pointer != IntPtr.Zero)
+            while (curr != null && curr.Pointer != IntPtr.Zero && !curr.WasCollected)
             {
                 var currGo = curr.gameObject;
-                if (currGo != null && currGo.Pointer != IntPtr.Zero && _objectRecords.TryGetValue(currGo.GetInstanceID(), out var parentRec) && parentRec != null)
+                if (currGo != null && currGo.Pointer != IntPtr.Zero && !currGo.WasCollected && _objectRecords.TryGetValue(currGo.GetInstanceID(), out var parentRec) && parentRec != null)
                 {
                     if (VerifyRecordIdentity(currGo, parentRec)) return true;
                     Mod.Log.Debug($"[L9] Stale parent _objectRecords entry for '{currGo.name}' InstanceID {currGo.GetInstanceID()} — removing.");
@@ -149,13 +149,13 @@ public static class StreetPropertyManager
 
     public static bool IsOutdoorItem(GameObject? go)
     {
-        if (go == null || go.Pointer == IntPtr.Zero) return false;
+        if (go == null || go.Pointer == IntPtr.Zero || go.WasCollected) return false;
         try
         {
             if (IsRegisteredStreetObject(go)) return true;
 
             Transform? curr = go.transform;
-            while (curr != null && curr.Pointer != IntPtr.Zero)
+            while (curr != null && curr.Pointer != IntPtr.Zero && !curr.WasCollected)
             {
                 if (HasStreetRoot && curr.gameObject == _streetRoot)
                     return true;
@@ -197,6 +197,10 @@ public static class StreetPropertyManager
     public static void CacheSlotNumber(int slotNumber)
     {
         _lastKnownSlotNumber = slotNumber;
+        if (slotNumber >= 0)
+        {
+            _lastKnownSlot = $"slot_{slotNumber}";
+        }
     }
 
     public static string GetSaveFilePath()
@@ -254,7 +258,7 @@ public static class StreetPropertyManager
         string legacyPath = Path.Combine(dir, "street_items.json");
 
         // Fallback / migration from legacy global save if slot file does not exist yet — atomically
-        if (!File.Exists(slotPath) && File.Exists(legacyPath))
+        if (slotSuffix != "default" && !File.Exists(slotPath) && File.Exists(legacyPath))
         {
             Mod.Log.Info($"Migrating legacy street_items.json to {slotPath}...");
             try
@@ -355,6 +359,11 @@ public static class StreetPropertyManager
         try
         {
             string saveFilePath = GetSaveFilePath();
+            if (saveFilePath.EndsWith("street_items_default.json", StringComparison.OrdinalIgnoreCase))
+            {
+                Mod.Log.Warn("SaveStreetItems skipped: save slot is still 'default' (not loaded into a slot yet).");
+                return;
+            }
             var data = new StreetSaveData();
             var writtenGuids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 

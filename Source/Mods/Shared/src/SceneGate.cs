@@ -130,6 +130,7 @@ public static class SceneGate
         var active = SceneManager.GetActiveScene();
 
         bool wasMain = IsInMainScene;
+        bool isUnloadingMain = string.Equals(scene.name, MainSceneName, StringComparison.Ordinal);
         CurrentSceneName = active.name ?? "";
         IsLoaded = active.isLoaded;
         IsChangingScenes = !active.isLoaded;
@@ -138,7 +139,7 @@ public static class SceneGate
 
         SafeInvoker.Execute(() => OnSceneChanged?.Invoke(CurrentSceneName), null, "SceneGate.OnSceneChanged");
 
-        if (wasMain && !IsInMainScene)
+        if (isUnloadingMain || (wasMain && !IsInMainScene))
         {
             SafeInvoker.Execute(() => OnMainSceneUnloaded?.Invoke(), null, "SceneGate.OnMainSceneUnloaded");
         }

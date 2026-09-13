@@ -99,6 +99,7 @@ public static class PayoutStateStore
             foreach (var legacy in legacyCandidates)
             {
                 if (!File.Exists(legacy)) continue;
+                if (string.Equals(legacy, slotPath, StringComparison.OrdinalIgnoreCase)) continue;
                 if (File.Exists(slotPath))
                 {
                     try { File.Delete(legacy); } catch { }

@@ -32,40 +32,12 @@ public static class PaginationController
     // handlers (saved-game hover highlight etc.) survive.
     private static readonly Dictionary<IntPtr, List<EventTrigger.Entry>> _ownedTriggers = new();
 
-    // Bug-Audit 2026-09-13 (Round 5): destroy-listener to prevent EventTrigger pointer leak.
-    // When a SaveDisplay slot GameObject is destroyed (page change / scene reload),
-    // our owned entries in _ownedTriggers must be cleaned up — otherwise the dictionary
-    // grows unbounded with dead IntPtr keys.
-    private static void CleanupOwnedTriggersForSlot(IntPtr triggerPtr)
+    public static void ResetForSceneReload()
     {
-        if (triggerPtr == IntPtr.Zero) return;
-        if (!_ownedTriggers.TryGetValue(triggerPtr, out var owned)) return;
-        _ownedTriggers.Remove(triggerPtr);
-        try
-        {
-            // Find the EventTrigger component and remove our entries.
-            foreach (var go in UnityEngine.Object.FindObjectsOfType<GameObject>())
-            {
-                var trigger = go.GetComponent<EventTrigger>();
-                if (trigger == null || trigger.Pointer != triggerPtr) continue;
-                for (int i = owned.Count - 1; i >= 0; i--)
-                {
-                    var entry = owned[i];
-                    if (entry == null) { owned.RemoveAt(i); continue; }
-                    var list = trigger.triggers;
-                    if (list == null) { owned.RemoveAt(i); continue; }
-                    for (int j = list.Count - 1; j >= 0; j--)
-                    {
-                        if (list[j] == entry) { list.RemoveAt(j); owned.RemoveAt(i); break; }
-                    }
-                }
-            }
-        }
-        catch
-        {
-            // Best effort — if FindObjectsOfType fails, the dictionary entry is stale
-            // but harmless (the IntPtr is dead and will never match again).
-        }
+        _ownedTriggers.Clear();
+        ActivePageLabels.Clear();
+        ActivePrevButtons.Clear();
+        ActiveNextButtons.Clear();
     }
 
     public static int GetSelectedOrHoveredSlot()
@@ -105,15 +77,6 @@ public static class PaginationController
     {
         try
         {
-            // Bug-Audit 2026-09-13 (Round 5): clean up stale owned triggers on page change.
-            // When navigating pages, old slot cards are destroyed — their EventTrigger entries
-            // in _ownedTriggers become dead keys. Clean them up here.
-            var oldKeys = new List<IntPtr>(_ownedTriggers.Keys);
-            foreach (var key in oldKeys)
-            {
-                CleanupOwnedTriggersForSlot(key);
-            }
-
             // Gatekeeper-fix 2026-08-29: FindObjectsOfType<T>() is [Obsolete] in Unity 2022.3+ (CS0618).
             // Migrated to FindObjectsByType with explicit FindObjectsSortMode.None (no allocation, faster).
             var saveDisplays = UnityEngine.Object.FindObjectsByType<SaveDisplay>(FindObjectsSortMode.None);

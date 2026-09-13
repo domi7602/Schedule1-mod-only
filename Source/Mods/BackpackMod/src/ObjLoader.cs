@@ -175,6 +175,10 @@ public static class ObjLoader
 
             Mesh mesh = new Mesh();
             mesh.name = Path.GetFileNameWithoutExtension(objPath);
+            if (outVertices.Count > 65535)
+            {
+                mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            }
             mesh.vertices = outVertices.ToArray();
             if (outUVs.Count == outVertices.Count)
                 mesh.uv = outUVs.ToArray();
@@ -217,9 +221,12 @@ public static class ObjLoader
         }
 
         string[] indices = token.Split('/');
-        int vIdx = int.Parse(indices[0]) - 1;
-        int vtIdx = (indices.Length > 1 && !string.IsNullOrEmpty(indices[1])) ? int.Parse(indices[1]) - 1 : -1;
-        int vnIdx = (indices.Length > 2 && !string.IsNullOrEmpty(indices[2])) ? int.Parse(indices[2]) - 1 : -1;
+        int parsedV = int.Parse(indices[0]);
+        int vIdx = parsedV < 0 ? rawV.Count + parsedV : parsedV - 1;
+        int parsedVT = (indices.Length > 1 && !string.IsNullOrEmpty(indices[1])) ? int.Parse(indices[1]) : 0;
+        int vtIdx = parsedVT < 0 ? rawVT.Count + parsedVT : parsedVT - 1;
+        int parsedVN = (indices.Length > 2 && !string.IsNullOrEmpty(indices[2])) ? int.Parse(indices[2]) : 0;
+        int vnIdx = parsedVN < 0 ? rawVN.Count + parsedVN : parsedVN - 1;
 
         int newIndex = outV.Count;
         outV.Add(vIdx >= 0 && vIdx < rawV.Count ? rawV[vIdx] : Vector3.zero);

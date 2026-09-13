@@ -11,6 +11,7 @@ using S1API.Money;
 using S1API.PhoneApp;
 using S1API.UI;
 using S1API.Utils;
+using S1Mods.Shared;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -143,7 +144,14 @@ public sealed class CalculatorApp : PhoneApp
 
     internal static void TearDownForSceneUnload() => _active = null;
 
-    private static void DispatchUpdate() => _active?.OnUpdate();
+    private static void DispatchUpdate()
+    {
+        var a = _active;
+        if (a != null)
+        {
+            try { a.OnUpdate(); } catch { }
+        }
+    }
 
     private static void DispatchSaveInfoLoaded() => _active?.HandleSaveInfoLoaded();
 
@@ -177,7 +185,7 @@ public sealed class CalculatorApp : PhoneApp
     protected override void OnPhoneClosed()
     {
         base.OnPhoneClosed();
-        if (_mainBG != null) _mainBG.SetActive(false);
+        if (NetworkGuard.IsAlive(_mainBG)) _mainBG.SetActive(false);
         Controls.IsTyping = false;
         _state?.Save();
     }
@@ -185,7 +193,7 @@ public sealed class CalculatorApp : PhoneApp
     private void OnUpdate()
     {
         bool open = IsOpen();
-        if (_mainBG != null && _mainBG.activeSelf != open)
+        if (NetworkGuard.IsAlive(_mainBG) && _mainBG.activeSelf != open)
         {
             _mainBG.SetActive(open);
             if (open)
@@ -201,7 +209,7 @@ public sealed class CalculatorApp : PhoneApp
         if (!open) return;
 
         // Handle physical keyboard input when Keypad view is active
-        if (_keypadRoot != null && _keypadRoot.activeSelf)
+        if (NetworkGuard.IsAlive(_keypadRoot) && _keypadRoot.activeSelf)
         {
             HandleKeyboardInput();
         }

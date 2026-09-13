@@ -117,7 +117,7 @@ public class OutdoorItemInteractable : MonoBehaviour
             // Strict input guard — block when cursor unlocked or typing (H6, schedule1-persistence §2)
             bool isTyping = false;
             try { isTyping = S1Mods.Shared.HotkeyManager.IsInputFieldFocused(); } catch { }
-            if (isTyping || Cursor.lockState != CursorLockMode.Locked || this.WasCollected || gameObject.WasCollected)
+            if (isTyping || Cursor.lockState != CursorLockMode.Locked || Pointer == IntPtr.Zero || this.WasCollected || gameObject == null || gameObject.Pointer == IntPtr.Zero || gameObject.WasCollected)
             {
                 _isHovered = false;
                 _rmbHoldProgress = 0f;
@@ -280,6 +280,12 @@ public class OutdoorItemInteractable : MonoBehaviour
 
     public void PackUp()
     {
+        if (!BuildingPatches.IsHostOrSingleplayer())
+        {
+            Mod.Log.Warn("Only host can pack up outdoor items in multiplayer.");
+            return;
+        }
+
         if (string.IsNullOrEmpty(_itemId))
         {
             // Try to deduce from object name or BuildableItem if empty

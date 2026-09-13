@@ -314,7 +314,8 @@ public static class ModConfig<T> where T : class, new()
         try
         {
             object? val = prop.GetValue(_instance);
-            MelonPreferences_Entry entry = _cat.CreateEntry(prop.Name, val ?? Activator.CreateInstance(prop.PropertyType)!, null, false);
+            object defaultVal = val ?? (prop.PropertyType == typeof(string) ? string.Empty : Activator.CreateInstance(prop.PropertyType)!);
+            MelonPreferences_Entry entry = _cat.CreateEntry(prop.Name, defaultVal, null, false);
             _entryCache[prop.Name] = entry;
             return entry;
         }

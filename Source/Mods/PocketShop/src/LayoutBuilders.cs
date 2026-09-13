@@ -98,7 +98,7 @@ internal static class FooterBuilder
         hlg.childAlignment = TextAnchor.MiddleCenter;
         hlg.padding = new RectOffset(0, 0, 0, 0);
 
-        var txt = S1API.UI.UIFactory.Text("Version", "PocketShop v0.2.1", footer.transform, UITheme.Sp(9), TextAnchor.MiddleCenter);
+        var txt = S1API.UI.UIFactory.Text("Version", "PocketShop v0.2.5", footer.transform, UITheme.Sp(9), TextAnchor.MiddleCenter);
         txt.color = new Color(0.40f, 0.45f, 0.52f, 1f);
         txt.raycastTarget = false;
         txt.horizontalOverflow = HorizontalWrapMode.Overflow;

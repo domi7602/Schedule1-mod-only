@@ -3,6 +3,7 @@ using System.Threading;
 using HitmanPhone.Persistence;
 using MelonLoader;
 using S1API.Messaging;
+using S1Mods.Shared;
 
 #if (IL2CPPMELON)
 using S1NPC = Il2CppScheduleOne.NPCs.NPC;
@@ -56,7 +57,7 @@ public static class BountyCallScheduler
         if (Mod.Instance == null || Mod.Instance.Save == null) return;
         int day = HitmanPhoneTime.CurrentDay();
         if (day == _lastFiredDay) return; // already fired today
-        if (day <= 0) return; // pre-game
+        if (day < 0 || !NetworkGuard.IsInMainScene) return;
 
         // One roll per in-game day: 60% chance to fire (one roll per day, never
         // re-rolled within the same day).

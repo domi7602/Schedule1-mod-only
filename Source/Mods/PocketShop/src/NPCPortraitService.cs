@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ public static class NPCPortraitService
     public static Sprite GetAvatar(string shopCode, string shopName, int size = 128)
     {
         string key = $"{shopCode}_{shopName}_{size}";
-        if (_cache.TryGetValue(key, out var cached) && cached != null)
+        if (_cache.TryGetValue(key, out var cached) && cached != null && cached.Pointer != IntPtr.Zero && !cached.WasCollected)
         {
             return cached;
         }
@@ -285,10 +286,17 @@ public static class NPCPortraitService
     {
         foreach (var s in _cache.Values)
         {
-            if (s != null)
+            if (s != null && s.Pointer != IntPtr.Zero && !s.WasCollected)
             {
-                if (s.texture != null) UnityEngine.Object.Destroy(s.texture);
-                UnityEngine.Object.Destroy(s);
+                try
+                {
+                    if (s.texture != null && s.texture.Pointer != IntPtr.Zero && !s.texture.WasCollected)
+                    {
+                        UnityEngine.Object.Destroy(s.texture);
+                    }
+                    UnityEngine.Object.Destroy(s);
+                }
+                catch { }
             }
         }
         _cache.Clear();

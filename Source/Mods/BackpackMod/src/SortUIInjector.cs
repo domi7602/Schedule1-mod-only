@@ -65,6 +65,73 @@ namespace BackpackMod.Patches
         // Harmony postfixes on OnOpen/OnClose/SetScreen call the sync below.
         // ─────────────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Builds a Sort button from scratch (no vanilla template required). Used as a
+        /// fallback when the HUD canvas contains no Button to clone. Ships its own
+        /// uGUI Button + Image background + TMP label.
+        /// </summary>
+        private static Button? CreateStandaloneHudButton(Transform parent, out RectTransform? rt)
+        {
+            rt = null;
+            try
+            {
+                TMP_FontAsset? font = null;
+                Color labelColor = new Color(0.92f, 0.95f, 0.98f, 1f);
+                try
+                {
+                    var hud = Il2CppScheduleOne.DevUtilities.Singleton<Il2CppScheduleOne.UI.HUD>.Instance;
+                    if (hud != null && hud.canvas != null && hud.canvas.Pointer != IntPtr.Zero && !hud.canvas.WasCollected)
+                    {
+                        var anyTmp = hud.canvas.GetComponentInChildren<TextMeshProUGUI>(true);
+                        if (anyTmp != null && anyTmp.Pointer != IntPtr.Zero && !anyTmp.WasCollected && anyTmp.font != null)
+                        {
+                            font = anyTmp.font;
+                            labelColor = anyTmp.color;
+                        }
+                    }
+                }
+                catch { }
+
+                var go = new GameObject("BackpackMod_HudSortButton");
+                go.transform.SetParent(parent, false);
+                rt = go.AddComponent<RectTransform>();
+                go.AddComponent<CanvasRenderer>();
+                var img = go.AddComponent<Image>();
+                img.color = new Color(0.10f, 0.16f, 0.24f, 0.95f);
+                img.raycastTarget = true;
+
+                var btn = go.AddComponent<Button>();
+                var colors = btn.colors;
+                colors.highlightedColor = new Color(0.16f, 0.28f, 0.40f, 1f);
+                colors.pressedColor = new Color(0.05f, 0.09f, 0.13f, 1f);
+                btn.colors = colors;
+
+                var labelGo = new GameObject("Label");
+                labelGo.transform.SetParent(go.transform, false);
+                var textRt = labelGo.AddComponent<RectTransform>();
+                textRt.anchorMin = Vector2.zero;
+                textRt.anchorMax = Vector2.one;
+                textRt.offsetMin = Vector2.zero;
+                textRt.offsetMax = Vector2.zero;
+
+                var tmp = labelGo.AddComponent<TextMeshProUGUI>();
+                if (font != null) tmp.font = font;
+                tmp.fontSize = 12f;
+                tmp.fontStyle = FontStyles.Bold;
+                tmp.alignment = TextAlignmentOptions.Center;
+                tmp.color = labelColor;
+                tmp.text = "Sort Inventory";
+                tmp.raycastTarget = false;
+
+                return btn;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log?.Warning($"CreateStandaloneHudButton failed: {ex.Message}");
+                return null;
+            }
+        }
+
         /// <summary>Harmony postfix target — syncs the HUD button after every menu state change.</summary>
         public static void GameplayMenu_Sync_Postfix(Il2CppScheduleOne.UI.GameplayMenu __instance)
         {
@@ -122,7 +189,31 @@ namespace BackpackMod.Patches
                 }
                 if (template == null || template.Pointer == IntPtr.Zero || template.WasCollected)
                 {
-                    Mod.Log?.Warning("HUD sort button: no template Button found under HUD canvas.");
+                    Mod.Log?.Warning("HUD sort button: no template Button found under HUD canvas — building standalone button.");
+                    Transform standaloneParent = slotContainer.parent ?? slotContainer.transform;
+                    var standaloneBtn = CreateStandaloneHudButton(standaloneParent, out var standaloneRt);
+                    if (standaloneBtn == null || standaloneBtn.Pointer == IntPtr.Zero || standaloneBtn.WasCollected)
+                    {
+                        Mod.Log?.Warning("HUD sort button: standalone fallback failed too.");
+                        return;
+                    }
+                    standaloneBtn.onClick.RemoveAllListeners();
+                    standaloneBtn.onClick.AddListener(new Action(() =>
+                    {
+                        try { BackpackInventorySorter.SortPlayerInventory(); }
+                        catch (Exception ex) { Mod.Log?.Error($"Inventory sort button failed: {ex.Message}"); }
+                    }));
+                    _hudSortButton = standaloneBtn.gameObject;
+                    if (standaloneRt != null)
+                    {
+                        standaloneRt.anchorMin = new Vector2(1f, 0f);
+                        standaloneRt.anchorMax = new Vector2(1f, 0f);
+                        standaloneRt.pivot = new Vector2(1f, 0f);
+                        standaloneRt.anchoredPosition = new Vector2(-24f, 150f);
+                        standaloneRt.sizeDelta = new Vector2(150f, 44f);
+                    }
+                    _hudSortButton.SetActive(false);
+                    Mod.Log?.Msg("HUD inventory sort button created (standalone fallback).");
                     return;
                 }
 
@@ -207,22 +298,6 @@ namespace BackpackMod.Patches
                 obj.name = SortButtonName;
                 _storageSortButton = obj;
 
-                // Bug-Audit 2026-09-12 (Round 4): the cloned Button's Image child has
-                // raycastTarget = true by default (inherited from the template). When the
-                // Sort button is anchored at (-24, 150) on the storage canvas it overlaps
-                // the slot grid and swallows drag/click events for those slots. Disable
-                // the Image's raycastTarget — the Button itself still receives clicks
-                // because its RectTransform keeps raycastTarget = true.
-                try
-                {
-                    var img = obj.GetComponentInChildren<Image>(true);
-                    if (img != null && img.Pointer != IntPtr.Zero && !img.WasCollected)
-                    {
-                        img.raycastTarget = false;
-                    }
-                }
-                catch { /* non-fatal */ }
-
                 // Position: nudge left of the close button cluster.
                 var rt = obj.GetComponent<RectTransform>();
                 if (rt != null && rt.Pointer != IntPtr.Zero)
@@ -271,6 +346,7 @@ namespace BackpackMod.Patches
         public static void ResetForSceneUnload()
         {
             _storageSortButton = null;
+            _hudSortButton = null;
         }
     }
 }

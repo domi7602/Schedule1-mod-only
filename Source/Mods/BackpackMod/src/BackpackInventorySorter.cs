@@ -8,6 +8,7 @@ using Il2CppScheduleOne.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using S1Mods.Shared;
 
 namespace BackpackMod
 {
@@ -139,7 +140,29 @@ namespace BackpackMod
                 return SortBackpack();
             }
 
+            if (!IsHostOrSingleplayer())
+            {
+                Mod.Log?.Warning("Sort storage container blocked: only host has authority in multiplayer.");
+                return false;
+            }
+
             return SortSlots(entity.ItemSlots, "storage-container");
+        }
+
+        private static bool IsHostOrSingleplayer()
+        {
+            try
+            {
+                var nm = Il2CppFishNet.InstanceFinder.NetworkManager;
+                if (nm == null || nm.Pointer == IntPtr.Zero || nm.WasCollected || (UnityEngine.Object)nm == null)
+                    return true;
+
+                return Il2CppFishNet.InstanceFinder.IsServer;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         // ────────────────────────────────────────────────────────────────

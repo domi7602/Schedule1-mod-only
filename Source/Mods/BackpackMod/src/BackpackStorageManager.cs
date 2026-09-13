@@ -372,9 +372,6 @@ namespace BackpackMod
 
         public static void ResetForSceneUnload()
         {
-            // Save first (Bug-Audit 2026-09-12: ResetCache no longer saves to avoid the
-            // OnPreLoad cross-save write — the scene-unload path must save explicitly).
-            try { SaveStorage(); } catch { }
             ResetCache(keepSlot: true);
         }
 
@@ -557,6 +554,7 @@ namespace BackpackMod
         /// </summary>
         public static void TryReturnOverflowSidecar()
         {
+            if (string.Equals(GetActiveSlotSuffix(), "default", StringComparison.Ordinal)) return;
             List<SavedItemData>? items = null;
             try
             {

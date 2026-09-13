@@ -27,6 +27,7 @@ public class Mod : MelonMod
         {
             PocketShopApp.TearDownForSceneUnload();
             ShopCatalog.ResetForSceneReload();
+            NPCPortraitService.Reset();
         }
     }
 }

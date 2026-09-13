@@ -54,7 +54,23 @@ public static class SaveDisplay_Patches
                 {
                     var slotRt = __instance.Slots[i];
                     if (slotRt != null)
+                    {
                         ForceSlotVisible(slotRt, page * slotsPerPage + i + 1);
+
+                        // 2026-09-13: DEL/RENAME-Buttons auch im Awake-Pfad (re)builden.
+                        // Nach "Quit" → Hauptmenü → Continue erstellt das Vanilla-Spiel die
+                        // SaveDisplay neu; wenn danach kein Refresh mehr läuft, blieben die
+                        // Buttons unsichtbar, weil sie bisher nur im Refresh_Prefix erzeugt
+                        // wurden. Refresh_Prefix findet die Buttons via container.Find(...)
+                        // und synct sie später weiter.
+                        int awakeActualIndex = page * slotsPerPage + i;
+                        SaveInfo? awakeInfo = null;
+                        if (LoadManager.SaveGames != null && awakeActualIndex >= 0 && awakeActualIndex < LoadManager.SaveGames.Length)
+                        {
+                            try { awakeInfo = LoadManager.SaveGames[awakeActualIndex]; } catch { }
+                        }
+                        EnsureInlineButtons(slotRt, awakeInfo, awakeActualIndex, false);
+                    }
                 }
                 catch { }
             }
@@ -254,109 +270,109 @@ public static class SaveDisplay_Patches
 
     private static void EnsureInlineButtons(RectTransform slotRt, SaveInfo? info, int actualIndex, bool hasExportBtn)
     {
-                    // Inline Rename + Delete buttons on populated slot cards
-                    Transform? container = slotRt.Find("Container") ?? slotRt;
-                    if (container != null)
+        // Inline Rename + Delete buttons on populated slot cards
+        Transform? container = slotRt.Find("Container") ?? slotRt;
+        if (container != null)
+        {
+            // Rename button
+            string inlineBtnName = "MoreSaveSlots_InlineRenameBtn";
+            Transform existingBtn = container.Find(inlineBtnName);
+
+            if (info != null)
+            {
+                int captureSlot = actualIndex;
+                if (existingBtn == null)
+                {
+                    Button slotRenameBtn = UIHelper.CreateButton(
+                        container,
+                        inlineBtnName,
+                        "EDIT",
+                        44f,
+                        32f,
+                        new Color(0.12f, 0.32f, 0.20f, 0.90f),
+                        new Color(0.18f, 0.48f, 0.30f, 1f),
+                        new Color(0.08f, 0.20f, 0.12f, 1f),
+                        new Color(0.1f, 0.1f, 0.1f, 0.4f),
+                        () => RenameDialog.Open(captureSlot),
+                        out _
+                    );
+
+                    RectTransform btnRt = slotRenameBtn.GetComponent<RectTransform>();
+                    btnRt.anchorMin = new Vector2(1f, 0.5f);
+                    btnRt.anchorMax = new Vector2(1f, 0.5f);
+                    btnRt.pivot = new Vector2(1f, 0.5f);
+                    float xOffset = hasExportBtn ? -75f : -12f;
+                    btnRt.anchoredPosition = new Vector2(xOffset, 0f);
+                    slotRenameBtn.transform.SetAsLastSibling();
+                }
+                else
+                {
+                    existingBtn.gameObject.SetActive(true);
+                    existingBtn.SetAsLastSibling();
+                    var btn = existingBtn.GetComponent<Button>();
+                    if (btn != null)
                     {
-                        // Rename button
-                        string inlineBtnName = "MoreSaveSlots_InlineRenameBtn";
-                        Transform existingBtn = container.Find(inlineBtnName);
-
-                        if (info != null)
-                        {
-                            int captureSlot = actualIndex;
-                            if (existingBtn == null)
-                            {
-                                Button slotRenameBtn = UIHelper.CreateButton(
-                                    container,
-                                    inlineBtnName,
-                                    "EDIT",
-                                    44f,
-                                    32f,
-                                    new Color(0.12f, 0.32f, 0.20f, 0.90f),
-                                    new Color(0.18f, 0.48f, 0.30f, 1f),
-                                    new Color(0.08f, 0.20f, 0.12f, 1f),
-                                    new Color(0.1f, 0.1f, 0.1f, 0.4f),
-                                    () => RenameDialog.Open(captureSlot),
-                                    out _
-                                );
-
-                                RectTransform btnRt = slotRenameBtn.GetComponent<RectTransform>();
-                                btnRt.anchorMin = new Vector2(1f, 0.5f);
-                                btnRt.anchorMax = new Vector2(1f, 0.5f);
-                                btnRt.pivot = new Vector2(1f, 0.5f);
-                                float xOffset = hasExportBtn ? -75f : -12f;
-                                btnRt.anchoredPosition = new Vector2(xOffset, 0f);
-                                slotRenameBtn.transform.SetAsLastSibling();
-                            }
-                            else
-                            {
-                                existingBtn.gameObject.SetActive(true);
-                                existingBtn.SetAsLastSibling();
-                                var btn = existingBtn.GetComponent<Button>();
-                                if (btn != null)
-                                {
-                                    btn.onClick.RemoveAllListeners();
-                                    EventHelper.AddListener(() => RenameDialog.Open(captureSlot), btn.onClick);
-                                }
-                            }
-                        }
-                        else if (existingBtn != null)
-                        {
-                            existingBtn.gameObject.SetActive(false);
-                        }
-
-                        // Delete button (DEL) — mirrors rename, left of rename
-                        string inlineDeleteName = "MoreSaveSlots_InlineDeleteBtn";
-                        Transform existingDeleteBtn = container.Find(inlineDeleteName);
-
-                        if (info != null)
-                        {
-                            int captureDeleteSlot = actualIndex;
-                            if (existingDeleteBtn == null)
-                            {
-                                Button slotDeleteBtn = UIHelper.CreateButton(
-                                    container,
-                                    inlineDeleteName,
-                                    "DEL",
-                                    44f,
-                                    32f,
-                                    new Color(0.45f, 0.12f, 0.12f, 0.90f),
-                                    new Color(0.65f, 0.18f, 0.18f, 1f),
-                                    new Color(0.28f, 0.08f, 0.08f, 1f),
-                                    new Color(0.1f, 0.1f, 0.1f, 0.4f),
-                                    () => DeleteDialog.Open(captureDeleteSlot),
-                                    out _
-                                );
-
-                                RectTransform delRt = slotDeleteBtn.GetComponent<RectTransform>();
-                                delRt.anchorMin = new Vector2(1f, 0.5f);
-                                delRt.anchorMax = new Vector2(1f, 0.5f);
-                                delRt.pivot = new Vector2(1f, 0.5f);
-                                float xOffsetDel = hasExportBtn ? -115f : -52f;
-                                delRt.anchoredPosition = new Vector2(xOffsetDel, 0f);
-                                slotDeleteBtn.transform.SetAsLastSibling();
-                                // Keep rename on top — reorder: delete first, rename last
-                                if (existingBtn != null) existingBtn.SetAsLastSibling();
-                            }
-                            else
-                            {
-                                existingDeleteBtn.gameObject.SetActive(true);
-                                existingDeleteBtn.SetAsLastSibling();
-                                if (existingBtn != null) existingBtn.SetAsLastSibling();
-                                var btn = existingDeleteBtn.GetComponent<Button>();
-                                if (btn != null)
-                                {
-                                    btn.onClick.RemoveAllListeners();
-                                    EventHelper.AddListener(() => DeleteDialog.Open(captureDeleteSlot), btn.onClick);
-                                }
-                            }
-                        }
-                        else if (existingDeleteBtn != null)
-                        {
-                            existingDeleteBtn.gameObject.SetActive(false);
-                        }
+                        btn.onClick.RemoveAllListeners();
+                        EventHelper.AddListener(() => RenameDialog.Open(captureSlot), btn.onClick);
                     }
+                }
+            }
+            else if (existingBtn != null)
+            {
+                existingBtn.gameObject.SetActive(false);
+            }
+
+            // Delete button (DEL) — mirrors rename, left of rename
+            string inlineDeleteName = "MoreSaveSlots_InlineDeleteBtn";
+            Transform existingDeleteBtn = container.Find(inlineDeleteName);
+
+            if (info != null)
+            {
+                int captureDeleteSlot = actualIndex;
+                if (existingDeleteBtn == null)
+                {
+                    Button slotDeleteBtn = UIHelper.CreateButton(
+                        container,
+                        inlineDeleteName,
+                        "DEL",
+                        44f,
+                        32f,
+                        new Color(0.45f, 0.12f, 0.12f, 0.90f),
+                        new Color(0.65f, 0.18f, 0.18f, 1f),
+                        new Color(0.28f, 0.08f, 0.08f, 1f),
+                        new Color(0.1f, 0.1f, 0.1f, 0.4f),
+                        () => DeleteDialog.Open(captureDeleteSlot),
+                        out _
+                    );
+
+                    RectTransform delRt = slotDeleteBtn.GetComponent<RectTransform>();
+                    delRt.anchorMin = new Vector2(1f, 0.5f);
+                    delRt.anchorMax = new Vector2(1f, 0.5f);
+                    delRt.pivot = new Vector2(1f, 0.5f);
+                    float xOffsetDel = hasExportBtn ? -115f : -52f;
+                    delRt.anchoredPosition = new Vector2(xOffsetDel, 0f);
+                    slotDeleteBtn.transform.SetAsLastSibling();
+                    // Keep rename on top — reorder: delete first, rename last
+                    if (existingBtn != null) existingBtn.SetAsLastSibling();
+                }
+                else
+                {
+                    existingDeleteBtn.gameObject.SetActive(true);
+                    existingDeleteBtn.SetAsLastSibling();
+                    if (existingBtn != null) existingBtn.SetAsLastSibling();
+                    var btn = existingDeleteBtn.GetComponent<Button>();
+                    if (btn != null)
+                    {
+                        btn.onClick.RemoveAllListeners();
+                        EventHelper.AddListener(() => DeleteDialog.Open(captureDeleteSlot), btn.onClick);
+                    }
+                }
+            }
+            else if (existingDeleteBtn != null)
+            {
+                existingDeleteBtn.gameObject.SetActive(false);
+            }
+        }
     }
 
     internal static void ForceSlotVisible(RectTransform slotRt, int slotNumber, bool? hasSave = null)

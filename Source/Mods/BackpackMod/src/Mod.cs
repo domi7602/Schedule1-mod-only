@@ -1,3 +1,8 @@
+// Il2Cppmscorlib is referenced with the "il2cpp" extern alias (Directory.Build.props) —
+// required to express the exact Il2CppSystem.Action parameter type of StorageMenu.Open.
+// C# requires extern alias declarations before any other element at file scope.
+extern alias il2cpp;
+
 using System;
 using MelonLoader;
 using HarmonyLib;
@@ -33,7 +38,14 @@ public class Mod : MelonMod
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.Items.ClothingItemUI), "UpdateUI", finalizer: new HarmonyMethod(typeof(Patches.ClothingItemUIPatch), nameof(Patches.ClothingItemUIPatch.Finalizer)), log: logger);
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.StorageMenu), "Close", prefix: new HarmonyMethod(typeof(Patches.StorageMenuPatch), nameof(Patches.StorageMenuPatch.Close_Prefix)), log: logger);
             // B1 QoL 2026-09-12: Sort button injection + open tracking for StorageMenu.
-            PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.StorageMenu), "Open", postfix: new HarmonyMethod(typeof(Patches.SortUIInjector), nameof(Patches.SortUIInjector.StorageMenu_Open_Postfix)), log: logger);
+            // Audit 2026-09-13: StorageMenu.Open has THREE overloads — PatchGuard cannot
+            // resolve the name alone ("Mehrere Überladungen"). Pin the exact signature used
+            // by both the game and BackpackStorageManager.ToggleStorage:
+            //   Open(StorageEntity entity, Il2CppSystem.Action onClosedCallback = null)
+            PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.StorageMenu), "Open",
+                postfix: new HarmonyMethod(typeof(Patches.SortUIInjector), nameof(Patches.SortUIInjector.StorageMenu_Open_Postfix)),
+                parameterTypes: new Type[] { typeof(Il2CppScheduleOne.Storage.StorageEntity), typeof(il2cpp::Il2CppSystem.Action) },
+                log: logger);
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.StorageMenu), "Close", postfix: new HarmonyMethod(typeof(Patches.SortUIInjector), nameof(Patches.SortUIInjector.StorageMenu_Close_Postfix)), log: logger);
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.CharacterInterface), "Open", postfix: new HarmonyMethod(typeof(Patches.CharacterUIPatch), nameof(Patches.CharacterUIPatch.Open_Postfix)), log: logger);
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.CharacterInterface), "Close", postfix: new HarmonyMethod(typeof(Patches.CharacterUIPatch), nameof(Patches.CharacterUIPatch.Close_Postfix)), log: logger);
@@ -117,6 +129,7 @@ public class Mod : MelonMod
     {
         BackpackVisualManager.Clear();
         Patches.PlayerClothingPatch.ResetForSceneUnload();
+        Patches.CharacterUIPatch.ResetForSceneUnload();
         Patches.SortUIInjector.ResetForSceneUnload();
         if (sceneName == "Main") BackpackStorageManager.ResetForSceneUnload();
     }

@@ -28,7 +28,7 @@ public sealed class CalculatorEngine
     public string? PendingOperator => _state.PendingOperator;
     public bool HasPendingOperation => _state.FirstOperand.HasValue && !string.IsNullOrEmpty(_state.PendingOperator);
     public bool IsDirtyEntry => _state.DisplayText != "0" && !_state.IsNewEntry;
-    public bool HasError => _state.DisplayText == "Error" || _state.DisplayText == "Overflow" || _state.DisplayText.StartsWith("Cannot") || _state.DisplayText.StartsWith("Invalid");
+    public bool HasError => _state.DisplayText == "Error" || _state.DisplayText == "Overflow" || (_state.DisplayText?.StartsWith("Cannot") == true) || (_state.DisplayText?.StartsWith("Invalid") == true);
     public IReadOnlyList<CalculationRecord> History => _state.History;
 
     /// <summary>

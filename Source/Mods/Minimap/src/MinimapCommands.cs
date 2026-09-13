@@ -309,55 +309,55 @@ public sealed class MinimapConsoleCommand : BaseConsoleCommand
             case "add":
             case "here":
             case "set":
-            {
-                if (args.Count < 3)
                 {
-                    Print("<color=#ff8080> Usage: minimap wp add <name> [hexColor]</color>");
+                    if (args.Count < 3)
+                    {
+                        Print("<color=#ff8080> Usage: minimap wp add <name> [hexColor]</color>");
+                        return;
+                    }
+                    string name = args[2];
+                    string hex = args.Count >= 4 ? args[3] : "#E14BFF";
+
+                    var player = Il2CppScheduleOne.PlayerScripts.Player.Local;
+                    if (player == null || (UnityEngine.Object)player == null)
+                    {
+                        Print("<color=#ff8080> Player not available (load a save first).</color>");
+                        return;
+                    }
+
+                    Vector3 pos = player.transform.position;
+                    if (wps.Add(name, pos, hex))
+                    {
+                        wps.Save();
+                        Print($"<color=#60f080> Waypoint '{name}' set at ({pos.x:0}, {pos.z:0}).</color>");
+                    }
+                    else
+                    {
+                        Print("<color=#ff8080> Could not add waypoint (name empty or limit reached).</color>");
+                    }
                     return;
                 }
-                string name = args[2];
-                string hex = args.Count >= 4 ? args[3] : "#E14BFF";
-
-                var player = Il2CppScheduleOne.PlayerScripts.Player.Local;
-                if (player == null || (UnityEngine.Object)player == null)
-                {
-                    Print("<color=#ff8080> Player not available (load a save first).</color>");
-                    return;
-                }
-
-                Vector3 pos = player.transform.position;
-                if (wps.Add(name, pos, hex))
-                {
-                    wps.Save();
-                    Print($"<color=#60f080> Waypoint '{name}' set at ({pos.x:0}, {pos.z:0}).</color>");
-                }
-                else
-                {
-                    Print("<color=#ff8080> Could not add waypoint (name empty or limit reached).</color>");
-                }
-                return;
-            }
 
             case "del":
             case "remove":
             case "rm":
-            {
-                if (args.Count < 3)
                 {
-                    Print("<color=#ff8080> Usage: minimap wp del <name></color>");
+                    if (args.Count < 3)
+                    {
+                        Print("<color=#ff8080> Usage: minimap wp del <name></color>");
+                        return;
+                    }
+                    if (wps.Remove(args[2]))
+                    {
+                        wps.Save();
+                        Print($"<color=#60f080> Waypoint '{args[2]}' removed.</color>");
+                    }
+                    else
+                    {
+                        Print($"<color=#ff8080> No waypoint named '{args[2]}'.</color>");
+                    }
                     return;
                 }
-                if (wps.Remove(args[2]))
-                {
-                    wps.Save();
-                    Print($"<color=#60f080> Waypoint '{args[2]}' removed.</color>");
-                }
-                else
-                {
-                    Print($"<color=#ff8080> No waypoint named '{args[2]}'.</color>");
-                }
-                return;
-            }
 
             case "clear":
                 wps.Clear();

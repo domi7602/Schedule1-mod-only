@@ -81,11 +81,11 @@ public static class GameObjectResolver
                 return null;
 
             Transform? next = FindChildRecursive(current, segment, false);
-            if (next != null)
-            {
-                current = next;
-                matched++;
-            }
+            if (next == null)
+                return null;
+
+            current = next;
+            matched++;
         }
 
         if (matched == 0)

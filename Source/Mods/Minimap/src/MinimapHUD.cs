@@ -117,6 +117,9 @@ public sealed class MinimapHUD
 
     public bool IsCreated => _rootCanvasObj != null && (UnityEngine.Object)_rootCanvasObj != null;
 
+    /// <summary>True while the HUD canvas exists AND is active in the hierarchy.</summary>
+    public bool IsActive => _rootCanvasObj != null && _rootCanvasObj.activeSelf;
+
     public void InvalidateBlipCache()
     {
         _blips.InvalidateLandmarkCache();
@@ -363,7 +366,7 @@ public sealed class MinimapHUD
         try
         {
             var player = Il2CppScheduleOne.PlayerScripts.Player.Local;
-            if (player == null || (UnityEngine.Object)player == null || player.CrimeData == null)
+            if (!NetworkGuard.IsAlive(player) || player.CrimeData == null || player.CrimeData.Pointer == IntPtr.Zero || player.CrimeData.WasCollected)
             {
                 if (_heatRingObj.activeSelf) _heatRingObj.SetActive(false);
                 _lastPursuitLevel = -1;
@@ -474,7 +477,7 @@ public sealed class MinimapHUD
             _lastHealthPoll = now;
 
             var player = Il2CppScheduleOne.PlayerScripts.Player.Local;
-            if (player == null || (UnityEngine.Object)player == null || player.Health == null)
+            if (!NetworkGuard.IsAlive(player) || player.Health == null || player.Health.Pointer == IntPtr.Zero || player.Health.WasCollected)
             {
                 if (_healthBarObj.activeSelf) _healthBarObj.SetActive(false);
                 return;
@@ -576,17 +579,17 @@ public sealed class MinimapHUD
         // Try extracting from MapApp if instantiated
         try
         {
-            if (MapApp.Instance != null && (UnityEngine.Object)MapApp.Instance != null)
+            if (NetworkGuard.IsAlive(MapApp.Instance))
             {
                 var sprite = MapApp.Instance.MainMapSprite;
-                if (sprite != null && sprite.Pointer != IntPtr.Zero)
+                if (NetworkGuard.IsAlive(sprite))
                 {
                     _vanillaMapSprite = sprite;
                     _mapImg.sprite = _vanillaMapSprite;
                     if (_mapImageRt != null)
                     {
                         float mapDim = sprite.rect.width;
-                        if (MapPositionUtility.Instance != null && (UnityEngine.Object)MapPositionUtility.Instance != null)
+                        if (NetworkGuard.IsAlive(MapPositionUtility.Instance))
                         {
                             if (MapPositionUtility.Instance.MapDimensions > 0)
                             {
@@ -627,7 +630,7 @@ public sealed class MinimapHUD
                         if (_mapImageRt != null)
                         {
                             float mapDim = s.rect.width;
-                            if (MapPositionUtility.Instance != null && (UnityEngine.Object)MapPositionUtility.Instance != null)
+                            if (NetworkGuard.IsAlive(MapPositionUtility.Instance))
                             {
                                 if (MapPositionUtility.Instance.MapDimensions > 0)
                                 {
@@ -859,7 +862,7 @@ public sealed class MinimapHUD
 
         // 2. Resolve Player position & rotation
         Player localPlayer = Player.Local;
-        if (localPlayer == null || (UnityEngine.Object)localPlayer == null)
+        if (!NetworkGuard.IsAlive(localPlayer))
             return;
 
         Vector3 playerPos = localPlayer.transform.position;
@@ -867,7 +870,7 @@ public sealed class MinimapHUD
 
         // 3. Resolve Map coordinate
         Vector2 playerMapPos = Vector2.zero;
-        if (MapPositionUtility.Instance != null && (UnityEngine.Object)MapPositionUtility.Instance != null)
+        if (NetworkGuard.IsAlive(MapPositionUtility.Instance))
         {
             playerMapPos = MapPositionUtility.Instance.GetMapPosition(playerPos);
         }
@@ -877,7 +880,7 @@ public sealed class MinimapHUD
         }
 
         // Lazy sprite check
-        if (_vanillaMapSprite == null || (UnityEngine.Object)_vanillaMapSprite == null)
+        if (!NetworkGuard.IsAlive(_vanillaMapSprite))
         {
             TryResolveMapSprite();
         }
@@ -932,7 +935,7 @@ public sealed class MinimapHUD
         EDay dayEnum = EDay.Monday;
         int currentTime = 0;
 
-        if (TimeManager.Instance != null && (UnityEngine.Object)TimeManager.Instance != null)
+        if (NetworkGuard.IsAlive(TimeManager.Instance))
         {
             try
             {

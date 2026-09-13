@@ -105,9 +105,14 @@ public static class BountyService
         try
         {
             var inv = S1PlayerInventory.Instance;
-            if (inv == null)
+            if (inv == null || inv.Pointer == IntPtr.Zero || inv.WasCollected)
             {
-                Mod.Log.Warn("PlayerInventory.Instance is null; cannot add polaroid.");
+                Mod.Log.Warn("PlayerInventory.Instance is unavailable; cannot add polaroid.");
+                return;
+            }
+            if (!inv.CanItemFitInInventory(polaroid, 1))
+            {
+                Mod.Log.Warn($"PlayerInventory full; cannot fit polaroid for target '{npc.ID}'. Not consuming kill latch.");
                 return;
             }
             inv.AddItemToInventory(polaroid);

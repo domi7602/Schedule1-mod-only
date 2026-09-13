@@ -11,9 +11,11 @@ using System.Reflection;
 #if (IL2CPPMELON)
 using S1StorageEntity = Il2CppScheduleOne.Storage.StorageEntity;
 using S1NPC = Il2CppScheduleOne.NPCs.NPC;
+using S1NPCHealth = Il2CppScheduleOne.NPCs.NPCHealth;
 #elif MONOMELON
 using S1StorageEntity = ScheduleOne.Storage.StorageEntity;
 using S1NPC = ScheduleOne.NPCs.NPC;
+using S1NPCHealth = ScheduleOne.NPCs.NPCHealth;
 #endif
 
 [assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.2.4", "Dominik")]
@@ -69,6 +71,17 @@ public class Mod : MelonMod
             parameterTypes: Type.EmptyTypes,
             log: Log);
 
+        // Phase C2 (2026-09-13): NPCHealth.Die is the actual state transition behind the
+        // dead flag (IsDead = true, onDie emitted). NPC.OnDie (the network/damage event)
+        // does NOT fire for every death path — finishing a knocked-out target or drowning
+        // passes through Health.Die() while NPC.OnDie can be missed. Patching the state
+        // transition makes every genuine kill count, incl. "KO'd then finished".
+        PatchGuard.TryPatch(HarmonyInstance, typeof(S1NPCHealth), "Die",
+            prefix: null,
+            postfix: new HarmonyMethod(typeof(NPCDeathPatch), nameof(NPCDeathPatch.PostfixHealthDie)),
+            parameterTypes: Type.EmptyTypes,
+            log: Log);
+
         // v0.1.7: dead-drop storage hooks go through PatchGuard (house standard).
         // v0.1.6 lesson: a hook that silently never fires is indistinguishable from
         // a patch that was never applied — PatchGuard logs found/missing/applied per
@@ -92,6 +105,15 @@ public class Mod : MelonMod
     public override void OnDeinitializeMelon()
     {
         SaveStateGuard.TryUnsubscribeLifecycle();
+    }
+
+    public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
+    {
+        base.OnSceneWasUnloaded(buildIndex, sceneName);
+        if (string.Equals(sceneName, "Main", StringComparison.OrdinalIgnoreCase))
+        {
+            BountyJournalBridge.ResetSessionCache();
+        }
     }
 
     /// <summary>
