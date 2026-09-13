@@ -110,6 +110,17 @@ public static class BankService
     public static bool DepositCash(float amount, out string errorMessage)
     {
         errorMessage = string.Empty;
+        // Bug-Audit 2026-09-12 (Round 3): gate money mutations behind a scene guard.
+        // The UI is normally only reachable while the player is on Main, but a leftover
+        // hotkey, scene change mid-call, or programmatic invocation could otherwise
+        // move money outside of gameplay state. Defense in depth — refuse early with a
+        // clean error instead of risking a partial transfer.
+        if (!NetworkGuard.IsInMainScene)
+        {
+            errorMessage = "Bank not available outside the game scene.";
+            BankSoundService.PlayError();
+            return false;
+        }
         if (amount <= 0f)
         {
             errorMessage = "Invalid amount.";
@@ -194,6 +205,13 @@ public static class BankService
     public static bool WithdrawCash(float amount, out string errorMessage)
     {
         errorMessage = string.Empty;
+        // Bug-Audit 2026-09-12 (Round 3): see DepositCash — guard against outside-Main calls.
+        if (!NetworkGuard.IsInMainScene)
+        {
+            errorMessage = "Bank not available outside the game scene.";
+            BankSoundService.PlayError();
+            return false;
+        }
         if (amount <= 0f)
         {
             errorMessage = "Invalid amount.";

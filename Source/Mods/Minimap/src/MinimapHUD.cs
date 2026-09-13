@@ -17,6 +17,15 @@ public sealed class MinimapHUD
 {
     private readonly ModLogger _log;
     private readonly MinimapBlips _blips = new();
+    private readonly MinimapWaypoints _waypoints;
+
+    public MinimapWaypoints Waypoints => _waypoints;
+
+    /// <summary>M6: palette hook — set by MinimapMod.ApplyBlipPalette, consulted by the blips renderer.</summary>
+    public void ApplyBlipPalette(System.Collections.Generic.Dictionary<string, string> palette)
+    {
+        _blips.SetPalette(palette);
+    }
 
     // GameObjects & UI Hierarchy
     private GameObject? _rootCanvasObj;
@@ -56,6 +65,27 @@ public sealed class MinimapHUD
     private TextMeshProUGUI? _southLabel;
     private TextMeshProUGUI? _westLabel;
 
+    // M2 Heat Ring — pursuit level visualization (None/Investigating/Arresting/NonLethal/Lethal)
+    private GameObject? _heatRingObj;
+    private Image? _heatRingImg;
+    private int _lastPursuitLevel = -1;
+    private static readonly Color[] HeatColors = new Color[]
+    {
+        new Color(0f, 0f, 0f, 0f),                      // None (invisible)
+        new Color(0.95f, 0.75f, 0.10f, 0.95f),          // Investigating — amber
+        new Color(0.95f, 0.45f, 0.05f, 1f),             // Arresting — orange
+        new Color(0.93f, 0.18f, 0.15f, 1f),             // NonLethal — red
+        new Color(0.85f, 0.05f, 0.20f, 1f),             // Lethal — deep red
+    };
+
+    // M5 Health Bar — slim bar under the minimap card
+    private GameObject? _healthBarObj;
+    private RectTransform? _healthBarFillRt;
+    private Image? _healthBarFillImg;
+    private float _lastHealthPoll;
+    private float _lastHealth = -1f;
+    private const float HealthPollInterval = 0.25f;
+
     // Player Marker
     private GameObject? _playerMarkerObj;
     private RectTransform? _playerMarkerRt;
@@ -82,6 +112,7 @@ public sealed class MinimapHUD
     public MinimapHUD(ModLogger log)
     {
         _log = log;
+        _waypoints = new MinimapWaypoints(log);
     }
 
     public bool IsCreated => _rootCanvasObj != null && (UnityEngine.Object)_rootCanvasObj != null;
@@ -135,6 +166,7 @@ public sealed class MinimapHUD
 
             // 5. Compass Ring & Border
             BuildCompassAndBorder(config);
+            BuildHealthBar(config);
 
             // 6. Center Player Marker
             BuildPlayerMarker();
@@ -285,6 +317,22 @@ public sealed class MinimapHUD
         _borderImg.color = borderCol;
         _borderImg.raycastTarget = false;
 
+        // M2 Heat Ring — second outline above the border, colored by pursuit level.
+        // Starts invisible (None). Layout matches the border so it overlays 1:1.
+        GameObject heatRing = new GameObject("Map_HeatRing", Il2CppType.Of<RectTransform>());
+        heatRing.transform.SetParent(_cardObj.transform, false);
+        RectTransform heatRt = heatRing.GetComponent<RectTransform>();
+        heatRt.anchorMin = new Vector2(0.5f, 0.5f);
+        heatRt.anchorMax = new Vector2(0.5f, 0.5f);
+        heatRt.pivot = new Vector2(0.5f, 0.5f);
+
+        _heatRingImg = heatRing.AddComponent<Image>();
+        _heatRingImg.sprite = GetShapeBorderSprite(config.Shape);
+        _heatRingImg.color = HeatColors[0];
+        _heatRingImg.raycastTarget = false;
+        heatRing.SetActive(false);
+        _heatRingObj = heatRing;
+
         // Compass Ring with Cardinal Points (only active in Circle mode)
         _compassRingObj = new GameObject("Compass_Ring", Il2CppType.Of<RectTransform>());
         _compassRingObj.transform.SetParent(_cardObj.transform, false);
@@ -302,6 +350,157 @@ public sealed class MinimapHUD
 
         _compassRingObj.SetActive(config.ShowCompassRing && config.Shape == MinimapShape.Circle);
     }
+
+    /// <summary>
+    /// M2 Heat Ring: reads Player.CrimeData.CurrentPursuitLevel every frame (cheap
+    /// property read, no allocation) and repaints the outline ring when the level
+    /// changed. Colors: None→hidden, Investigating→amber, Arresting→orange,
+    /// NonLethal→red, Lethal→deep red. Pulsing via sin() on the alpha.
+    /// </summary>
+    public void UpdateHeat(float now)
+    {
+        if (_heatRingImg == null || _heatRingObj == null) return;
+        try
+        {
+            var player = Il2CppScheduleOne.PlayerScripts.Player.Local;
+            if (player == null || (UnityEngine.Object)player == null || player.CrimeData == null)
+            {
+                if (_heatRingObj.activeSelf) _heatRingObj.SetActive(false);
+                _lastPursuitLevel = -1;
+                return;
+            }
+
+            int level = (int)player.CrimeData.CurrentPursuitLevel;
+            if (level < 0 || level >= HeatColors.Length) level = 0;
+
+            if (level != _lastPursuitLevel)
+            {
+                _lastPursuitLevel = level;
+                if (level == 0)
+                {
+                    _heatRingObj.SetActive(false);
+                }
+                else
+                {
+                    _heatRingObj.SetActive(true);
+                    _heatRingImg.color = HeatColors[level];
+                }
+            }
+
+            // Pulse the ring while a pursuit is active (level >= 1).
+            if (level > 0)
+            {
+                float a = 0.70f + 0.30f * Mathf.Sin(now * 6.0f);
+                Color c = HeatColors[level];
+                c.a *= a;
+                _heatRingImg.color = c;
+            }
+        }
+        catch
+        {
+            if (_heatRingObj != null && _heatRingObj.activeSelf) _heatRingObj.SetActive(false);
+            _lastPursuitLevel = -1;
+        }
+    }
+
+    /// <summary>
+    /// M5 Health Bar: builds a slim HP bar as the last child of the card so it sits
+    /// visually under the map viewport. Anchored to the card's bottom, full width.
+    /// </summary>
+    private void BuildHealthBar(MinimapConfig config)
+    {
+        if (_cardObj == null || _healthBarObj != null) return;
+        try
+        {
+            GameObject bar = new GameObject("Health_Bar", Il2CppType.Of<RectTransform>());
+            bar.transform.SetParent(_cardObj.transform, false);
+            var barRt = bar.GetComponent<RectTransform>();
+            barRt.anchorMin = new Vector2(0.5f, 0f);
+            barRt.anchorMax = new Vector2(0.5f, 0f);
+            barRt.pivot = new Vector2(0.5f, 0f);
+            // Bug-Audit 2026-09-12: with anchored parents (0.5, 0)..(0.5, 0) and pivot on
+            // the same anchor, Unity uses sizeDelta directly. Without it the track stays
+            // at the Unity default 100x100 and overlaps the map. Use MapSize from config.
+            float mapSize = Mathf.Max(140f, Mathf.Min(350f, config.MapSize));
+            barRt.sizeDelta = new Vector2(mapSize * 0.92f, 6f);
+            barRt.anchoredPosition = new Vector2(0f, 4f);
+
+            // Background track
+            var trackImg = bar.AddComponent<Image>();
+            trackImg.sprite = MinimapTextures.GetBlipDot(); // rounded sprite reuse
+            trackImg.color = new Color(0f, 0f, 0f, 0.55f);
+            trackImg.raycastTarget = false;
+
+            // Fill (anchored left, width driven by code)
+            GameObject fill = new GameObject("Health_BarFill", Il2CppType.Of<RectTransform>());
+            fill.transform.SetParent(bar.transform, false);
+            _healthBarFillRt = fill.GetComponent<RectTransform>();
+            _healthBarFillRt.anchorMin = new Vector2(0f, 0f);
+            _healthBarFillRt.anchorMax = new Vector2(0f, 1f);
+            _healthBarFillRt.pivot = new Vector2(0f, 0.5f);
+            _healthBarFillRt.anchoredPosition = Vector2.zero;
+
+            _healthBarFillImg = fill.AddComponent<Image>();
+            _healthBarFillImg.sprite = MinimapTextures.GetBlipDot();
+            _healthBarFillImg.color = new Color(0.18f, 0.80f, 0.44f, 1f);
+            _healthBarFillImg.raycastTarget = false;
+
+            _healthBarObj = bar;
+        }
+        catch (Exception ex)
+        {
+            _log.Warn($"BuildHealthBar failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// M5 Health Bar poll: reads PlayerHealth every HealthPollInterval seconds (not
+    /// per frame) and updates fill width + color (green→amber→red). 0 allocations.
+    /// </summary>
+    private void UpdateHealthBar(MinimapConfig config, float now)
+    {
+        if (_healthBarObj == null || _healthBarFillRt == null || _healthBarFillImg == null) return;
+
+        bool show = config.ShowHealthBar;
+        if (!show)
+        {
+            if (_healthBarObj.activeSelf) _healthBarObj.SetActive(false);
+            return;
+        }
+
+        try
+        {
+            if (now - _lastHealthPoll < HealthPollInterval && _lastHealth >= 0f) return;
+            _lastHealthPoll = now;
+
+            var player = Il2CppScheduleOne.PlayerScripts.Player.Local;
+            if (player == null || (UnityEngine.Object)player == null || player.Health == null)
+            {
+                if (_healthBarObj.activeSelf) _healthBarObj.SetActive(false);
+                return;
+            }
+
+            float max = Il2CppScheduleOne.PlayerScripts.Health.PlayerHealth.MaxHealth > 0f
+                ? Il2CppScheduleOne.PlayerScripts.Health.PlayerHealth.MaxHealth
+                : PlayerHealthMaxFallback;
+            float cur = player.Health.CurrentHealth;
+            float frac = Mathf.Clamp01(cur / max);
+
+            _healthBarObj.SetActive(true);
+            _lastHealth = frac;
+
+            float barWidth = _healthBarObj.GetComponent<RectTransform>().rect.width;
+            _healthBarFillRt.sizeDelta = new Vector2(barWidth * frac, 0f);
+
+            // Color ramp: >50% green, 25-50% amber, <25% red
+            if (frac > 0.5f) _healthBarFillImg.color = new Color(0.18f, 0.80f, 0.44f, 1f);
+            else if (frac > 0.25f) _healthBarFillImg.color = new Color(0.95f, 0.75f, 0.10f, 1f);
+            else _healthBarFillImg.color = new Color(0.93f, 0.18f, 0.15f, 1f);
+        }
+        catch { }
+    }
+
+    private const float PlayerHealthMaxFallback = 100f;
 
     private TextMeshProUGUI CreateCardinalLabel(Transform parent, string text, Vector2 anchor, Vector2 offset, Color color, TMP_FontAsset? font, Material? mat)
     {
@@ -578,6 +777,14 @@ public sealed class MinimapHUD
                 _borderImg.rectTransform.offsetMax = _maskRt.offsetMax;
             }
 
+            if (_heatRingImg != null)
+            {
+                _heatRingImg.rectTransform.anchorMin = _maskRt.anchorMin;
+                _heatRingImg.rectTransform.anchorMax = _maskRt.anchorMax;
+                _heatRingImg.rectTransform.offsetMin = _maskRt.offsetMin;
+                _heatRingImg.rectTransform.offsetMax = _maskRt.offsetMax;
+            }
+
             if (_compassRingObj != null) _compassRingObj.SetActive(false);
         }
         else // Circular Mode
@@ -605,6 +812,15 @@ public sealed class MinimapHUD
                 _borderImg.rectTransform.pivot = new Vector2(0.5f, 0.5f);
                 _borderImg.rectTransform.sizeDelta = new Vector2(size, size);
                 _borderImg.rectTransform.anchoredPosition = Vector2.zero;
+            }
+
+            if (_heatRingImg != null)
+            {
+                _heatRingImg.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                _heatRingImg.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                _heatRingImg.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                _heatRingImg.rectTransform.sizeDelta = new Vector2(size, size);
+                _heatRingImg.rectTransform.anchoredPosition = Vector2.zero;
             }
 
             if (_compassRingObj != null)
@@ -698,7 +914,9 @@ public sealed class MinimapHUD
         }
 
         // 5. Update & Render Blips (Optimized Scan)
-        _blips.UpdateEntities(config, now, playerPos);
+        _blips.UpdateEntities(config, now, playerPos, _waypoints);
+        UpdateHeat(now);
+        UpdateHealthBar(config, now);
         _blips.RenderBlips(playerPos, playerYaw, playerMapPos, config, config.MapSize * 0.5f, zoom);
 
         // 6. Handle Drag & Drop

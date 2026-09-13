@@ -2,6 +2,16 @@
 
 
 
+## 1.1.5 (2026-09-13) — Bug-Audit-Fixes Runde 5 (Audit 2026-09-13)
+- Toter State entfernt: `s_disableTerrainSlowdownCached` / `SetDisableTerrainSlowdownCached` in `SkateboardVisualPatches` und `ClearStyledCache()` in `CyberSkateboardVisualizer` — Felder wurden geschrieben, nie gelesen. Call-Site in `SkateboardItemFactory.TuneSkateboard()` entfernt.
+- Speicherverschwendung eliminiert (~2 static bool + 1 static method + 1 call pro Tune).
+
+## 1.1.4 (2026-09-12) — Bug-Audit-Fixes Runde 4 (Audit 2026-09-12)
+- **Validate/Tune-Clamp-Divergenz aufgelöst:** `TuneSkateboard` ruft jetzt zuerst `config.Validate()` und clampt nur die drei zusätzlichen Felder (`PushForceDuration`, `BrakeForce`, `AirMovementForce`). Damit kann der `Validate()`-Aufruf nicht mehr von einem abweichenden `Tune`-Clamp-Paar überschrieben werden, und die zentrale Quelle enthält jetzt alle 11 Felder.
+
+## 1.1.3 (2026-09-12) — Bug-Audit-Fixes Runde 3 (Audit 2026-09-12)
+- Pass-2-Deck-Heuristik (`TrySwapDeckMesh`) wendet jetzt denselben `IsDeckMeshSane` an wie Pass 1. Ohne den Sanity-Check hätte ein Combined-/Root-/Collision-Mesh mit nur `Contains("board")` getroffen und die Custom-Geometrie überschrieben.
+
 ## 1.1.2 (2026-09-11)
 - Settings-Sharing-Detektor: warnt per Error-Log, falls ein getuntes Board sein _settings-Objekt mit anderen Boards teilt (Vanilla-Pollution-Nachweis).
 

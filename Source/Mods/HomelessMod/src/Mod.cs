@@ -13,7 +13,7 @@ using S1API.Lifecycle;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(HomelessMod.Mod), "HomelessMod", "0.1.7", "Dominik")]
+[assembly: MelonInfo(typeof(HomelessMod.Mod), "HomelessMod", "0.1.9", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace HomelessMod;

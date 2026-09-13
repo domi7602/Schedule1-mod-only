@@ -33,15 +33,30 @@ public static class SaveDisplay_Patches
 
             for (int i = 0; i < __instance.Slots.Length; i++)
             {
-                int actualIndex = page * slotsPerPage + i;
-                SaveInfo? info = null;
-
-                if (LoadManager.SaveGames != null && actualIndex >= 0 && actualIndex < LoadManager.SaveGames.Length)
+                try
                 {
-                    info = LoadManager.SaveGames[actualIndex];
+                    int actualIndex = page * slotsPerPage + i;
+                    SaveInfo? info = null;
+
+                    if (LoadManager.SaveGames != null && actualIndex >= 0 && actualIndex < LoadManager.SaveGames.Length)
+                    {
+                        info = LoadManager.SaveGames[actualIndex];
+                    }
+
+                    __instance.SetDisplayedSave(i, info);
+                }
+                catch (Exception ex)
+                {
+                    MelonLogger.Warning($"[MoreSaveSlots] Awake: slot {i} SetDisplayedSave threw, forcing visible anyway: {ex.Message}");
                 }
 
-                __instance.SetDisplayedSave(i, info);
+                try
+                {
+                    var slotRt = __instance.Slots[i];
+                    if (slotRt != null)
+                        ForceSlotVisible(slotRt, page * slotsPerPage + i + 1);
+                }
+                catch { }
             }
 
             PaginationController.UpdateUILabel();
@@ -80,7 +95,14 @@ public static class SaveDisplay_Patches
 
         try
         {
-            PaginationController.EnsurePaginationBar(__instance);
+            try
+            {
+                PaginationController.EnsurePaginationBar(__instance);
+            }
+            catch (Exception exBar)
+            {
+                MelonLogger.Warning("[MoreSaveSlots] Refresh: EnsurePaginationBar threw, continuing with slot refresh: " + exBar.Message);
+            }
 
             int page = PaginationController.CurrentPage;
             int slotsPerPage = PaginationController.SlotsPerPage;
@@ -100,6 +122,8 @@ public static class SaveDisplay_Patches
             }
             catch { }
 
+            int occupied = 0;
+            int empty = 0;
             for (int i = 0; i < __instance.Slots.Length; i++)
             {
                 int actualIndex = page * slotsPerPage + i;
@@ -108,52 +132,128 @@ public static class SaveDisplay_Patches
 
                 if (LoadManager.SaveGames != null && actualIndex >= 0 && actualIndex < LoadManager.SaveGames.Length)
                 {
-                    info = LoadManager.SaveGames[actualIndex];
+                    try { info = LoadManager.SaveGames[actualIndex]; }
+                    catch (Exception exRead)
+                    {
+                        MelonLogger.Warning($"[MoreSaveSlots] Refresh: SaveGames[{actualIndex}] read threw: {exRead.Message}");
+                        info = null;
+                    }
                 }
 
-                __instance.SetDisplayedSave(i, info);
+                if (info != null) occupied++; else empty++;
 
-                var slotRt = __instance.Slots[i];
+                // Index-swap guard: vanilla may render SaveGames[localIndex] instead of the
+                // passed info. Temporarily place the global info at the local index so both
+                // vanilla behaviors (param vs. array lookup) paint the correct save.
+                bool swapped = false;
+                SaveInfo? stashed = null;
+                try
+                {
+                    if (info != null && LoadManager.SaveGames != null
+                        && i >= 0 && i < LoadManager.SaveGames.Length)
+                    {
+                        try
+                        {
+                            stashed = LoadManager.SaveGames[i];
+                            LoadManager.SaveGames[i] = info;
+                            swapped = true;
+                        }
+                        catch { swapped = false; }
+                    }
+                    __instance.SetDisplayedSave(i, info);
+                }
+                catch (Exception exSet)
+                {
+                    MelonLogger.Warning($"[MoreSaveSlots] Refresh: slot {slotNumber} SetDisplayedSave threw, forcing visible anyway: {exSet.Message}");
+                }
+                finally
+                {
+                    if (swapped && LoadManager.SaveGames != null
+                        && i >= 0 && i < LoadManager.SaveGames.Length)
+                    {
+                        try { LoadManager.SaveGames[i] = stashed; } catch { }
+                    }
+                }
+
+                var slotRt = (RectTransform?)null;
+                try { slotRt = __instance.Slots[i]; } catch { }
                 if (slotRt != null)
                 {
-                    // Fix invisibility: vanilla may hide empty slots or hide after pagination — force visible
+                    // Fix invisibility: vanilla may hide empty slots or hide after pagination — force visible.
+                    // Isolated per-slot so one bad card can never blank the remaining slots.
                     try
                     {
-                        if (!slotRt.gameObject.activeSelf)
-                            slotRt.gameObject.SetActive(true);
-                        // Ensure RectTransform not culled / zero scale
-                        if (slotRt.localScale == Vector3.zero)
-                            slotRt.localScale = Vector3.one;
-                        // Reset CanvasGroup if present (alpha 0 makes invisible)
-                        var cg = slotRt.GetComponent<CanvasGroup>();
-                        if (cg != null)
+                        ForceSlotVisible(slotRt, slotNumber, info != null);
+                    }
+                    catch (Exception exVis)
+                    {
+                        MelonLogger.Warning($"[MoreSaveSlots] Refresh: slot {slotNumber} ForceSlotVisible threw: {exVis.Message}");
+                    }
+
+                    // Empty slots: vanilla leaves stale card content behind — hide the
+                    // details block and show our own placeholder instead.
+                    try
+                    {
+                        UpdateEmptyState(slotRt, slotNumber, info != null);
+                    }
+                    catch (Exception exEmpty)
+                    {
+                        MelonLogger.Warning($"[MoreSaveSlots] Refresh: slot {slotNumber} UpdateEmptyState threw: {exEmpty.Message}");
+                    }
+
+                    try { UpdateSlotNumberText(slotRt, slotNumber); } catch { }
+
+                    // Update Import/Export buttons on ImportScreen (isolated — never aborts slot loop)
+                    var exportBtn = (SaveExportButton?)null;
+                    var importBtn = (SaveImportButton?)null;
+                    try
+                    {
+                        exportBtn = slotRt.GetComponentInChildren<SaveExportButton>(true);
+                        if (exportBtn != null)
                         {
-                            if (cg.alpha < 0.9f) cg.alpha = 1f;
-                            cg.interactable = true;
-                            cg.blocksRaycasts = true;
+                            exportBtn.SaveSlotIndex = actualIndex;
                         }
-                        // Also ensure parent Container canvas group
-                        var parentCg = slotRt.parent?.GetComponent<CanvasGroup>();
-                        if (parentCg != null && parentCg.alpha < 0.9f)
-                            parentCg.alpha = 1f;
+
+                        importBtn = slotRt.GetComponentInChildren<SaveImportButton>(true);
+                        if (importBtn != null)
+                        {
+                            importBtn.SaveSlotIndex = actualIndex;
+                        }
                     }
                     catch { }
 
-                    UpdateSlotNumberText(slotRt, slotNumber);
-
-                    // Update Import/Export buttons on ImportScreen
-                    var exportBtn = slotRt.GetComponentInChildren<SaveExportButton>(true);
-                    if (exportBtn != null)
+                    try
                     {
-                        exportBtn.SaveSlotIndex = actualIndex;
+                        EnsureInlineButtons(slotRt, info, actualIndex, exportBtn != null);
                     }
-
-                    var importBtn = slotRt.GetComponentInChildren<SaveImportButton>(true);
-                    if (importBtn != null)
+                    catch (Exception exBtn)
                     {
-                        importBtn.SaveSlotIndex = actualIndex;
+                        MelonLogger.Warning($"[MoreSaveSlots] Refresh: slot {slotNumber} inline buttons threw, card stays visible: {exBtn.Message}");
                     }
+                }
+                else
+                {
+                    try { UpdateSlotNumberText(slotRt, slotNumber); } catch { }
+                }
+            }
 
+            try { PaginationController.UpdateUILabel(); }
+            catch (Exception exLabel)
+            {
+                MelonLogger.Warning("[MoreSaveSlots] Refresh: UpdateUILabel threw: " + exLabel.Message);
+            }
+            MelonLogger.Msg($"[MoreSaveSlots] Refresh done: page {page + 1} occupied={occupied} empty={empty}");
+            return false; // Skip vanilla 0..4 loop
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Error($"[MoreSaveSlots] Error in SaveDisplay.Refresh prefix: {ex}");
+            return true;
+        }
+    }
+
+    private static void EnsureInlineButtons(RectTransform slotRt, SaveInfo? info, int actualIndex, bool hasExportBtn)
+    {
                     // Inline Rename + Delete buttons on populated slot cards
                     Transform? container = slotRt.Find("Container") ?? slotRt;
                     if (container != null)
@@ -170,8 +270,8 @@ public static class SaveDisplay_Patches
                                 Button slotRenameBtn = UIHelper.CreateButton(
                                     container,
                                     inlineBtnName,
-                                    "✏️",
-                                    32f,
+                                    "EDIT",
+                                    44f,
                                     32f,
                                     new Color(0.12f, 0.32f, 0.20f, 0.90f),
                                     new Color(0.18f, 0.48f, 0.30f, 1f),
@@ -185,7 +285,7 @@ public static class SaveDisplay_Patches
                                 btnRt.anchorMin = new Vector2(1f, 0.5f);
                                 btnRt.anchorMax = new Vector2(1f, 0.5f);
                                 btnRt.pivot = new Vector2(1f, 0.5f);
-                                float xOffset = (exportBtn != null) ? -75f : -12f;
+                                float xOffset = hasExportBtn ? -75f : -12f;
                                 btnRt.anchoredPosition = new Vector2(xOffset, 0f);
                                 slotRenameBtn.transform.SetAsLastSibling();
                             }
@@ -206,7 +306,7 @@ public static class SaveDisplay_Patches
                             existingBtn.gameObject.SetActive(false);
                         }
 
-                        // Delete button (🗑️) — mirrors rename, 40px left of rename
+                        // Delete button (DEL) — mirrors rename, left of rename
                         string inlineDeleteName = "MoreSaveSlots_InlineDeleteBtn";
                         Transform existingDeleteBtn = container.Find(inlineDeleteName);
 
@@ -218,8 +318,8 @@ public static class SaveDisplay_Patches
                                 Button slotDeleteBtn = UIHelper.CreateButton(
                                     container,
                                     inlineDeleteName,
-                                    "🗑️",
-                                    32f,
+                                    "DEL",
+                                    44f,
                                     32f,
                                     new Color(0.45f, 0.12f, 0.12f, 0.90f),
                                     new Color(0.65f, 0.18f, 0.18f, 1f),
@@ -233,7 +333,7 @@ public static class SaveDisplay_Patches
                                 delRt.anchorMin = new Vector2(1f, 0.5f);
                                 delRt.anchorMax = new Vector2(1f, 0.5f);
                                 delRt.pivot = new Vector2(1f, 0.5f);
-                                float xOffsetDel = (exportBtn != null) ? -115f : -52f;
+                                float xOffsetDel = hasExportBtn ? -115f : -52f;
                                 delRt.anchoredPosition = new Vector2(xOffsetDel, 0f);
                                 slotDeleteBtn.transform.SetAsLastSibling();
                                 // Keep rename on top — reorder: delete first, rename last
@@ -257,16 +357,193 @@ public static class SaveDisplay_Patches
                             existingDeleteBtn.gameObject.SetActive(false);
                         }
                     }
+    }
+
+    internal static void ForceSlotVisible(RectTransform slotRt, int slotNumber, bool? hasSave = null)
+    {
+        if (slotRt == null) return;
+        try { if (!slotRt.gameObject.activeSelf) slotRt.gameObject.SetActive(true); } catch { }
+        try { if (slotRt.localScale == Vector3.zero) slotRt.localScale = Vector3.one; } catch { }
+        try
+        {
+            var cg = slotRt.GetComponent<CanvasGroup>();
+            if (cg != null)
+            {
+                if (cg.alpha < 0.9f) cg.alpha = 1f;
+                cg.interactable = true;
+                cg.blocksRaycasts = true;
+            }
+        }
+        catch { }
+        try
+        {
+            var parentCg = slotRt.parent?.GetComponent<CanvasGroup>();
+            if (parentCg != null && parentCg.alpha < 0.9f) parentCg.alpha = 1f;
+        }
+        catch { }
+
+        Transform? container = null;
+        try
+        {
+            container = slotRt.Find("Container");
+            if (container != null)
+            {
+                if (!container.gameObject.activeSelf) container.gameObject.SetActive(true);
+                var crt = container.GetComponent<RectTransform>();
+                if (crt != null && crt.localScale == Vector3.zero) crt.localScale = Vector3.one;
+                var ccg = container.GetComponent<CanvasGroup>();
+                if (ccg != null && ccg.alpha < 0.9f) ccg.alpha = 1f;
+            }
+        }
+        catch { }
+        try
+        {
+            var infoT = slotRt.Find("Container/Info") ?? slotRt.Find("Info");
+            if (infoT != null && !infoT.gameObject.activeSelf) infoT.gameObject.SetActive(true);
+        }
+        catch { }
+
+        // All TMP / legacy Text / Image children: re-enable + restore alpha so a
+        // vanilla-hidden empty card becomes visible again (parent button stays clickable).
+        try
+        {
+            var tmps = slotRt.GetComponentsInChildren<TextMeshProUGUI>(true);
+            if (tmps != null)
+            {
+                for (int i = 0; i < tmps.Length; i++)
+                {
+                    TextMeshProUGUI? tmp = null;
+                    try { tmp = tmps[i]; } catch { continue; }
+                    if (tmp == null) continue;
+                    try { if (tmp.Pointer == IntPtr.Zero || tmp.WasCollected) continue; } catch { continue; }
+                    try
+                    {
+                        if (!tmp.gameObject.activeSelf) tmp.gameObject.SetActive(true);
+                        if (!tmp.enabled) tmp.enabled = true;
+                        if (tmp.alpha < 0.9f) tmp.alpha = 1f;
+                        var c = tmp.color;
+                        if (c.a < 0.9f) { c.a = 1f; tmp.color = c; }
+                        tmp.raycastTarget = false;
+                        try { tmp.SetVerticesDirty(); } catch { }
+                    }
+                    catch { }
                 }
             }
-
-            PaginationController.UpdateUILabel();
-            return false; // Skip vanilla 0..4 loop
         }
-        catch (Exception ex)
+        catch { }
+        try
         {
-            MelonLogger.Error($"[MoreSaveSlots] Error in SaveDisplay.Refresh prefix: {ex}");
-            return true;
+            var texts = slotRt.GetComponentsInChildren<Text>(true);
+            if (texts != null)
+            {
+                for (int j = 0; j < texts.Length; j++)
+                {
+                    Text? t = null;
+                    try { t = texts[j]; } catch { continue; }
+                    if (t == null) continue;
+                    try { if (t.Pointer == IntPtr.Zero || t.WasCollected) continue; } catch { continue; }
+                    try
+                    {
+                        if (!t.gameObject.activeSelf) t.gameObject.SetActive(true);
+                        if (!t.enabled) t.enabled = true;
+                        var c2 = t.color;
+                        if (c2.a < 0.9f) { c2.a = 1f; t.color = c2; }
+                    }
+                    catch { }
+                }
+            }
+        }
+        catch { }
+        try
+        {
+            var images = slotRt.GetComponentsInChildren<Image>(true);
+            if (images != null)
+            {
+                for (int k = 0; k < images.Length; k++)
+                {
+                    Image? img = null;
+                    try { img = images[k]; } catch { continue; }
+                    if (img == null) continue;
+                    try { if (img.Pointer == IntPtr.Zero || img.WasCollected) continue; } catch { continue; }
+                    try { if (!img.enabled) img.enabled = true; } catch { }
+                }
+            }
+        }
+        catch { }
+    }
+
+    private const string EmptyLabelName = "MoreSaveSlots_EmptyLabel";
+
+    private static void UpdateEmptyState(RectTransform slotRt, int slotNumber, bool hasSave)
+    {
+        Transform scope = slotRt.Find("Container") ?? (Transform)slotRt;
+        if (scope == null) return;
+        Transform? infoT = slotRt.Find("Container/Info") ?? slotRt.Find("Info");
+        Transform? emptyT = null;
+        try { emptyT = scope.Find(EmptyLabelName); } catch { }
+
+        if (hasSave)
+        {
+            try { if (emptyT != null && emptyT.gameObject.activeSelf) emptyT.gameObject.SetActive(false); } catch { }
+            try { if (infoT != null && !infoT.gameObject.activeSelf) infoT.gameObject.SetActive(true); } catch { }
+            return;
+        }
+
+        try { if (infoT != null && infoT.gameObject.activeSelf) infoT.gameObject.SetActive(false); } catch { }
+
+        TextMeshProUGUI? label = null;
+        if (emptyT == null)
+        {
+            try
+            {
+                label = UIHelper.CreateTextMeshPro(
+                    scope, EmptyLabelName, $"SLOT {slotNumber} — EMPTY",
+                    15f, FontStyles.Bold, TextAlignmentOptions.Center,
+                    new Color(0.55f, 0.58f, 0.62f, 1f));
+                var lrt = label.GetComponent<RectTransform>();
+                lrt.anchorMin = Vector2.zero;
+                lrt.anchorMax = Vector2.one;
+                lrt.offsetMin = Vector2.zero;
+                lrt.offsetMax = Vector2.zero;
+                LayoutElement? le = null;
+                try { le = label.gameObject.GetComponent<LayoutElement>(); } catch { }
+                if (le == null)
+                {
+                    try { le = label.gameObject.AddComponent<LayoutElement>(); } catch { }
+                }
+                if (le != null)
+                {
+                    try { le.preferredHeight = 36f; le.flexibleWidth = 1f; } catch { }
+                }
+            }
+            catch (Exception ex)
+            {
+                MelonLogger.Warning($"[MoreSaveSlots] UpdateEmptyState: slot {slotNumber} label create threw: {ex.Message}");
+                return;
+            }
+        }
+        else
+        {
+            try { label = emptyT.GetComponent<TextMeshProUGUI>(); } catch { }
+            if (label == null) return;
+            try
+            {
+                if (label.Pointer == IntPtr.Zero || label.WasCollected)
+                {
+                    try { UnityEngine.Object.Destroy(emptyT.gameObject); } catch { }
+                    return;
+                }
+            }
+            catch { return; }
+            try
+            {
+                label.text = $"SLOT {slotNumber} — EMPTY";
+                if (!emptyT.gameObject.activeSelf) emptyT.gameObject.SetActive(true);
+                if (!label.enabled) label.enabled = true;
+                if (label.alpha < 0.9f) label.alpha = 1f;
+                emptyT.SetAsLastSibling();
+            }
+            catch { }
         }
     }
 

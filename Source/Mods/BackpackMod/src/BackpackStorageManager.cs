@@ -60,6 +60,7 @@ namespace BackpackMod
                 }
 
                 EnsureStorageEntity(slotCount);
+                TryReturnOverflowSidecar();
                 if (_storageEntity != null && _storageEntity.Pointer != IntPtr.Zero && !_storageEntity.WasCollected)
                 {
                     _isBackpackStorageOpen = true;
@@ -87,6 +88,41 @@ namespace BackpackMod
             {
                 Mod.Log?.Error($"Error in OnStorageMenuClosed: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// B1 Sort: read access to the live backpack StorageEntity (or null if not ready).
+        /// The entity persists across scenes via DontDestroyOnLoad; ensure it exists for
+        /// the currently equipped tier before sorting.
+        /// </summary>
+        public static StorageEntity? GetStorageEntityForSort()
+        {
+            try
+            {
+                int slotCount = GetActiveBackpackSlotCount(out _);
+                if (slotCount <= 0) return null;
+                EnsureStorageEntity(slotCount);
+                if (_storageEntity != null && _storageEntity.Pointer != IntPtr.Zero && !_storageEntity.WasCollected)
+                    return _storageEntity;
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log?.Error($"GetStorageEntityForSort failed: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>B1 Sort: true if the given entity is the mod's own backpack storage.</summary>
+        public static bool IsOwnedStorageEntity(StorageEntity entity)
+        {
+            return entity != null
+                && entity.Pointer != IntPtr.Zero
+                && !entity.WasCollected
+                && _storageEntity != null
+                && _storageEntity.Pointer != IntPtr.Zero
+                && !_storageEntity.WasCollected
+                && entity.Pointer == _storageEntity.Pointer;
         }
 
         public static void OnUpdate()
@@ -164,8 +200,11 @@ namespace BackpackMod
         {
             if (_storageEntityObj == null || _storageEntity == null || _storageEntity.Pointer == IntPtr.Zero || _storageEntity.WasCollected || _currentSlotCount != targetSlotCount)
             {
-                // H2: Capture overflow before shrinking — prevents silent loss of SlotIndex >= targetSlotCount
-                List<(string ItemId, int Quantity)> overflow = new();
+                // H2: Capture overflow before shrinking — prevents silent loss of SlotIndex >= targetSlotCount.
+                // Captures the live instance (not just id/quantity) so quality + packaging survive the
+                // downgrade; anything that cannot be returned is persisted to an overflow sidecar file
+                // instead of being destroyed.
+                List<ItemInstance> overflow = new();
                 if (_storageEntity != null && _storageEntity.Pointer != IntPtr.Zero && !_storageEntity.WasCollected && _storageEntity.ItemSlots != null && targetSlotCount < _currentSlotCount)
                 {
                     for (int i = targetSlotCount; i < _storageEntity.ItemSlots.Count; i++)
@@ -173,7 +212,7 @@ namespace BackpackMod
                         var s = _storageEntity.ItemSlots[i];
                         if (s != null && s.Pointer != IntPtr.Zero && !s.WasCollected && s.ItemInstance != null && s.ItemInstance.Pointer != IntPtr.Zero && !s.ItemInstance.WasCollected && s.ItemInstance.Definition != null && s.Quantity > 0)
                         {
-                            overflow.Add((s.ItemInstance.Definition.ID, s.Quantity));
+                            overflow.Add(s.ItemInstance);
                         }
                     }
                     if (overflow.Count > 0) Mod.Log?.Warning($"Backpack downgrade {_currentSlotCount}->{targetSlotCount}: {overflow.Count} overflow stacks will be returned to inventory.");
@@ -210,30 +249,41 @@ namespace BackpackMod
                 // Load saved contents
                 LoadStorage();
 
-                // Return overflow to player inventory (or warn if full)
+                // Return overflow to player inventory. GetCopy preserves quality/packaging/
+                // instance state; anything that does not fit is persisted to an overflow
+                // sidecar file (returned on next backpack open) instead of being lost.
                 if (overflow.Count > 0)
                 {
+                    var pendingOverflow = new List<(string ItemId, int Quantity, int QualityTier, string PackagingId)>();
                     var inv = PlayerInventory.Instance;
-                    foreach (var entry in overflow)
+                    foreach (var srcInst in overflow)
                     {
                         try
                         {
-                            var def = Il2CppScheduleOne.Registry.GetItem(entry.ItemId);
-                            if (def == null || def.Pointer == IntPtr.Zero) continue;
-                            var inst = def.GetDefaultInstance(entry.Quantity);
-                            if (inst == null || inst.Pointer == IntPtr.Zero) continue;
-                            if (inv != null && inv.Pointer != IntPtr.Zero && !inv.WasCollected && inv.CanItemFitInInventory(inst, entry.Quantity))
+                            int qty = 0;
+                            try { qty = srcInst.Quantity; } catch { }
+                            var def = srcInst.Definition;
+                            if (def == null || def.Pointer == IntPtr.Zero || def.WasCollected || qty <= 0) continue;
+                            var inst = srcInst.GetCopy(qty);
+                            if (inst == null || inst.Pointer == IntPtr.Zero || inst.WasCollected) continue;
+                            if (inv != null && inv.Pointer != IntPtr.Zero && !inv.WasCollected && inv.CanItemFitInInventory(inst, qty))
                             {
                                 inv.AddItemToInventory(inst);
-                                Mod.Log?.Msg($"Returned overflow {entry.Quantity}x '{entry.ItemId}' to inventory after downgrade.");
+                                Mod.Log?.Msg($"Returned overflow {qty}x '{def.ID}' to inventory after downgrade.");
                             }
                             else
                             {
-                                Mod.Log?.Warning($"Overflow {entry.Quantity}x '{entry.ItemId}' could not be returned — inventory full. Item lost! Free space and re-equip backpack.");
+                                // Inventory full: remember (id, qty, quality, packaging) in the
+                                // sidecar so the items survive instead of being destroyed.
+                                int qualityTier = ReadQualityTierForSave(srcInst);
+                                string packagingId = ReadPackagingIdForSave(srcInst);
+                                pendingOverflow.Add((def.ID, qty, qualityTier, packagingId));
+                                Mod.Log?.Warning($"Overflow {qty}x '{def.ID}' did not fit — persisted to overflow sidecar (returned on next backpack open).");
                             }
                         }
-                        catch (Exception ex) { Mod.Log?.Warning($"Overflow return failed for '{entry.ItemId}': {ex.Message}"); }
+                        catch (Exception ex) { Mod.Log?.Warning($"Overflow return failed: {ex.Message}"); }
                     }
+                    if (pendingOverflow.Count > 0) PersistOverflowSidecar(pendingOverflow);
                 }
             }
         }
@@ -304,7 +354,11 @@ namespace BackpackMod
 
         public static void ResetCache(bool keepSlot = false)
         {
-            SaveStorage();
+            // Bug-Audit 2026-09-12 (Cross-Save Vermutung): SaveStorage() was called here, but
+            // GetActiveSlotSuffix() may already point at the NEW slot's SaveInfo when invoked
+            // from OnPreLoad before Main unload — writing the OLD entity's contents into the
+            // NEW slot's file. The Main-unload path (OnSceneWasUnloaded) already saves before
+            // destroy, so this pre-load reset must only destroy.
             if (_storageEntityObj != null)
             {
                 UnityEngine.Object.Destroy(_storageEntityObj);
@@ -318,6 +372,9 @@ namespace BackpackMod
 
         public static void ResetForSceneUnload()
         {
+            // Save first (Bug-Audit 2026-09-12: ResetCache no longer saves to avoid the
+            // OnPreLoad cross-save write — the scene-unload path must save explicitly).
+            try { SaveStorage(); } catch { }
             ResetCache(keepSlot: true);
         }
 
@@ -441,6 +498,126 @@ namespace BackpackMod
             {
                 Mod.Log?.Error($"Error loading backpack storage: {ex}");
             }
+        }
+
+        private static int ReadQualityTierForSave(ItemInstance srcInst)
+        {
+            try
+            {
+                var qInst = srcInst.TryCast<Il2CppScheduleOne.ItemFramework.QualityItemInstance>();
+                if (qInst != null && qInst.Pointer != IntPtr.Zero && !qInst.WasCollected)
+                    return (int)qInst.Quality;
+            }
+            catch { }
+            return 2;
+        }
+
+        private static string ReadPackagingIdForSave(ItemInstance srcInst)
+        {
+            try
+            {
+                var pInst = srcInst.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
+                if (pInst != null && pInst.Pointer != IntPtr.Zero && !pInst.WasCollected)
+                    return pInst.AppliedPackaging?.ID ?? pInst.PackagingID ?? string.Empty;
+            }
+            catch { }
+            return string.Empty;
+        }
+
+        private static string GetOverflowSidecarPath()
+        {
+            string suffix = GetActiveSlotSuffix();
+            return SafeStorage.GetUserDataPath("BackpackMod", $"backpack_overflow_{suffix}.json");
+        }
+
+        private static void PersistOverflowSidecar(List<(string ItemId, int Quantity, int QualityTier, string PackagingId)> pending)
+        {
+            try
+            {
+                if (string.Equals(GetActiveSlotSuffix(), "default", StringComparison.Ordinal)) return;
+                var existing = new List<SavedItemData>();
+                try
+                {
+                    string prevJson = SafeStorage.LoadTextSafe(GetOverflowSidecarPath(), "", null);
+                    var prev = string.IsNullOrWhiteSpace(prevJson) ? null : JsonSerializer.Deserialize<List<SavedItemData>>(prevJson);
+                    if (prev != null) existing.AddRange(prev);
+                }
+                catch { }
+                foreach (var p in pending)
+                    existing.Add(new SavedItemData { SlotIndex = -1, ItemId = p.ItemId, Quantity = p.Quantity, QualityTier = p.QualityTier, PackagingId = p.PackagingId });
+                string json = JsonSerializer.Serialize(existing, new JsonSerializerOptions { WriteIndented = true });
+                SafeStorage.SaveTextAtomic(GetOverflowSidecarPath(), json, null);
+            }
+            catch (Exception ex) { Mod.Log?.Warning($"Overflow sidecar persist failed: {ex.Message}"); }
+        }
+
+        /// <summary>
+        /// Returns previously persisted overflow (full inventory at downgrade time) to the
+        /// player inventory. Called after LoadStorage so a fresh downgrade does not wipe it.
+        /// </summary>
+        public static void TryReturnOverflowSidecar()
+        {
+            List<SavedItemData>? items = null;
+            try
+            {
+                string json = SafeStorage.LoadTextSafe(GetOverflowSidecarPath(), "", null);
+                if (string.IsNullOrWhiteSpace(json)) return;
+                items = JsonSerializer.Deserialize<List<SavedItemData>>(json);
+            }
+            catch { return; }
+            if (items == null || items.Count == 0) return;
+
+            var inv = PlayerInventory.Instance;
+            if (inv == null || inv.Pointer == IntPtr.Zero || inv.WasCollected) return;
+
+            var remaining = new List<SavedItemData>();
+            foreach (var item in items)
+            {
+                bool returned = false;
+                try
+                {
+                    var def = Il2CppScheduleOne.Registry.GetItem(item.ItemId);
+                    if (def == null || def.Pointer == IntPtr.Zero || def.WasCollected) { remaining.Add(item); continue; }
+                    var instance = def.GetDefaultInstance(item.Quantity);
+                    if (instance == null || instance.Pointer == IntPtr.Zero || instance.WasCollected) { remaining.Add(item); continue; }
+                    try
+                    {
+                        var qInst = instance.TryCast<Il2CppScheduleOne.ItemFramework.QualityItemInstance>();
+                        if (qInst != null && qInst.Pointer != IntPtr.Zero && !qInst.WasCollected)
+                            qInst.Quality = (Il2CppScheduleOne.ItemFramework.EQuality)item.QualityTier;
+                    }
+                    catch { }
+                    try
+                    {
+                        var pInst = instance.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
+                        if (pInst != null && pInst.Pointer != IntPtr.Zero && !pInst.WasCollected && !string.IsNullOrEmpty(item.PackagingId))
+                        {
+                            var pkgDef = Il2CppScheduleOne.Registry.GetItem(item.PackagingId);
+                            var appliedPkg = pkgDef?.TryCast<Il2CppScheduleOne.Product.Packaging.PackagingDefinition>();
+                            if (appliedPkg != null && appliedPkg.Pointer != IntPtr.Zero && !appliedPkg.WasCollected)
+                                pInst.SetPackaging(appliedPkg);
+                            else
+                                pInst.PackagingID = item.PackagingId;
+                        }
+                    }
+                    catch { }
+                    if (inv.CanItemFitInInventory(instance, item.Quantity))
+                    {
+                        inv.AddItemToInventory(instance);
+                        returned = true;
+                        Mod.Log?.Msg($"Returned overflow-sidecar {item.Quantity}x '{item.ItemId}'.");
+                    }
+                }
+                catch (Exception ex) { Mod.Log?.Warning($"Overflow sidecar return failed for '{item.ItemId}': {ex.Message}"); }
+                if (!returned) remaining.Add(item);
+            }
+
+            try
+            {
+                string outJson = JsonSerializer.Serialize(remaining, new JsonSerializerOptions { WriteIndented = true });
+                SafeStorage.SaveTextAtomic(GetOverflowSidecarPath(), outJson, null);
+            }
+            catch { }
         }
 
         private class SavedItemData

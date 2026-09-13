@@ -1,6 +1,11 @@
 # Changelog
 
 
+## 0.5.3 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
+- WaterAll Threshold nutzt jetzt den Live-Wert `c.NormalizedMoistureAmount` (vorher: gecachte `info.WaterPercent`, bis 2s alt). Verhindert Skip/Lade-Mismatch wenn der Cache stale ist.
+- WaterAll-Per-Charge-Balance-Guard: vor jeder `ChangeCashBalance`-Abbuchung wird `money.cashBalance` re-geprueft. Bricht sauber ab statt negativ zu werden, wenn parallele Spender (andere Mods/Shop) den Cash zwischendurch senken.
+- Versionskonstante in `Constants.ModVersion` auf „0.5.3“ angehoben (war „0.5.1“).
+
 ## 0.5.2 (2026-09-11)
 - WasCollected-Guards in Update/Handler/PhoneClosed; Row-Caches werden bei Unload geleert.
 

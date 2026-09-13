@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Reflection;
 using BusinessIncome.Config;
 using BusinessIncome.Services;
@@ -6,7 +7,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(BusinessIncome.Mod), "BusinessIncome", "0.1.2", "Dominik")]
+[assembly: MelonInfo(typeof(BusinessIncome.Mod), "BusinessIncome", "0.1.4", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BusinessIncome;
@@ -50,7 +51,7 @@ public class Mod : MelonMod
         }
         catch (Exception ex) { Log.Warn($"TimeManager hooks failed (S1API missing?): {ex.Message}"); }
 
-        Log.Info("BusinessIncome v0.1.1 initialized.");
+        Log.Info("BusinessIncome v0.1.3 initialized. Features: write-ahead pending marker, catch-up cap, visible payout warnings.");
     }
 
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
@@ -88,6 +89,16 @@ public class Mod : MelonMod
             string slot = PayoutStateStore.GetActiveSlotSuffix();
             var state = PayoutStateStore.GetState();
             Log.Info($"Save loaded (Slot: {slot}). Last payout on day {state.LastPaidElapsedDay}.");
+
+            // F1: leftover write-ahead marker = a payout transaction may be booked but its
+            // state commit was never confirmed (crash between booking and save). Warn loudly
+            // instead of silently paying the day again on the next catch-up.
+            var pending = PayoutStateStore.ReadPendingMarker();
+            if (pending != null && pending.Day >= 0)
+            {
+                Log.Warn($"UNCHECKED PAYOUT: day {pending.Day} may already be booked (+${pending.Amount.ToString("N2", CultureInfo.InvariantCulture)}, {pending.BusinessCount} businesses, started {pending.StartedUtc}) but its payout state was never saved. " +
+                         "Check the in-game bank app for a 'Business Revenue' entry of that day, then run 'biz pending confirm' (money received — skip day) or 'biz pending resolve' (money missing — pay again).");
+            }
         }
         catch (Exception ex)
         {
@@ -131,7 +142,7 @@ public class Mod : MelonMod
                     IncomeEngine.TryExecuteDailyPayout(elapsedDays, cfg);
                 }
             }
-            catch (Exception ex) { Log.Debug($"OnHourPass error: {ex.Message}"); }
+            catch (Exception ex) { Log.Warn("OnHourPass failed", ex); }
         }
     }
 
@@ -156,6 +167,17 @@ public class Mod : MelonMod
             }
 
             int lastPaid = state.LastPaidElapsedDay;
+
+            // F2: cap the catch-up. A huge backlog (corrupted/copied state) would otherwise
+            // burst-book every day since day 0. Days beyond the cap are skipped with a
+            // warning; state advances so the storm does not repeat every day-pass.
+            int cap = Math.Max(1, cfg.MaxCatchupDays);
+            int backlog = elapsedDays - lastPaid;
+            if (backlog > cap)
+            {
+                Log.Warn($"Catch-up backlog of {backlog} days exceeds MaxCatchupDays={cap} — paying only the last {cap} days ({elapsedDays - cap + 1}..{elapsedDays}), rest skipped.");
+                PayoutStateStore.CommitPayout(elapsedDays - cap, Array.Empty<string>());
+            }
 
             // H5: Pay all missed days, not just current (mod disabled, sleep skip)
             for (int d = lastPaid + 1; d <= elapsedDays; d++)
@@ -184,7 +206,9 @@ public class Mod : MelonMod
         }
         catch (Exception ex)
         {
-            Log.Debug($"CheckCatchupPayout skipped: {ex.Message}");
+            // F3: Warn (not Debug — Debug is compiled out in release builds) so payout
+            // failures are visible in the MelonLoader log instead of vanishing silently.
+            Log.Warn("CheckCatchupPayout failed", ex);
         }
     }
 

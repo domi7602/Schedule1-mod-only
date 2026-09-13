@@ -223,6 +223,36 @@ public static class AutoPackEngine
         var snapOutInst = outSlot!.ItemInstance;
         int snapOutQty = (snapOutInst != null && snapOutInst.Pointer != IntPtr.Zero) ? outSlot.Quantity : 0;
 
+        // Bug-Audit 2026-09-12 (HIGH): Pre-Flight the output instance before touching inputs.
+        // Phase 2 below can silently swallow output creation when the target definition or
+        // GetDefaultInstance returns null, leaving the inputs deducted with nothing produced.
+        // Resolving the probe here short-circuits that loss path and the catch block can
+        // restore the snapshot cleanly.
+        bool outputWillBeCreatedFresh = snapOutInst == null || snapOutInst.Pointer == IntPtr.Zero || snapOutInst.WasCollected;
+        if (outputWillBeCreatedFresh)
+        {
+            var targetDef = GameRegistry.GetItem(outputItemId);
+            if (targetDef == null || targetDef.Pointer == IntPtr.Zero || targetDef.WasCollected)
+            {
+                Mod.Log?.Warn($"Packaging aborted in pre-flight: output definition '{outputItemId}' not resolvable.");
+                return false;
+            }
+            try
+            {
+                var probe = targetDef.GetDefaultInstance(1);
+                if (probe == null || probe.Pointer == IntPtr.Zero || probe.WasCollected)
+                {
+                    Mod.Log?.Warn($"Packaging aborted in pre-flight: output definition '{outputItemId}' could not build an instance.");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Mod.Log?.Warn($"Packaging pre-flight threw for '{outputItemId}': {ex.Message}");
+                return false;
+            }
+        }
+
         try
         {
             // Quality calculation with freshness bonus — unified with fallback path via PackagingMath (H5)
@@ -297,6 +327,39 @@ public static class AutoPackEngine
             }
             else
             {
+                // Bug-Audit 2026-09-12 (Round 3): the stack-and-stamp path only incremented
+                // the quantity, leaving the existing stack's quality untouched. A cheap
+                // Standard-tier batch added to a Premium-tier stack was sold at Premium
+                // prices (and vice versa), distorting the economy. Apply a weighted
+                // tier-mix using TierToQualityValue so each unit is averaged, then map
+                // back to the closest tier.
+                try
+                {
+                    int oldQty = outSlot.Quantity;
+                    int newQty = batchSizeNative;
+                    if (oldQty > 0 && newQty > 0)
+                    {
+                        var existingQInst = outSlot.ItemInstance as QualityItemInstance;
+                        int oldTier = 2;
+                        float oldValue = 0.55f;
+                        if (existingQInst != null && existingQInst.Pointer != IntPtr.Zero && !existingQInst.WasCollected)
+                        {
+                            try { oldTier = (int)existingQInst.Quality; } catch { oldTier = 2; }
+                            oldValue = PackagingMath.TierToQualityValue(oldTier);
+                        }
+                        float newValue = PackagingMath.TierToQualityValue((int)upgradedQuality);
+                        float blended = (oldQty * oldValue + newQty * newValue) / (oldQty + newQty);
+                        int blendedTier = PackagingMath.ComputeQualityTier(blended);
+                        if (existingQInst != null && existingQInst.Pointer != IntPtr.Zero && !existingQInst.WasCollected)
+                        {
+                            existingQInst.Quality = (EQuality)blendedTier;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MelonLoader.MelonLogger.Warning($"Output quality mix skipped: {ex.Message}");
+                }
                 outSlot.ChangeQuantity(batchSizeNative);
             }
 

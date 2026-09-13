@@ -6,7 +6,7 @@ using System.IO;
 using UnityEngine;
 using S1API.Lifecycle;
 
-[assembly: MelonInfo(typeof(BackpackMod.Mod), "BackpackMod", "1.0.2", "Dominik")]
+[assembly: MelonInfo(typeof(BackpackMod.Mod), "BackpackMod", "1.2.2", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BackpackMod;
@@ -32,9 +32,16 @@ public class Mod : MelonMod
             // Hotfix 2026-08-30: guard vanilla ClothingItemUI.UpdateUI NRE when backpack clothing item is added via AddItemToInventory (console/MCP)
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.Items.ClothingItemUI), "UpdateUI", finalizer: new HarmonyMethod(typeof(Patches.ClothingItemUIPatch), nameof(Patches.ClothingItemUIPatch.Finalizer)), log: logger);
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.StorageMenu), "Close", prefix: new HarmonyMethod(typeof(Patches.StorageMenuPatch), nameof(Patches.StorageMenuPatch.Close_Prefix)), log: logger);
+            // B1 QoL 2026-09-12: Sort button injection + open tracking for StorageMenu.
+            PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.StorageMenu), "Open", postfix: new HarmonyMethod(typeof(Patches.SortUIInjector), nameof(Patches.SortUIInjector.StorageMenu_Open_Postfix)), log: logger);
+            PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.StorageMenu), "Close", postfix: new HarmonyMethod(typeof(Patches.SortUIInjector), nameof(Patches.SortUIInjector.StorageMenu_Close_Postfix)), log: logger);
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.CharacterInterface), "Open", postfix: new HarmonyMethod(typeof(Patches.CharacterUIPatch), nameof(Patches.CharacterUIPatch.Open_Postfix)), log: logger);
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.CharacterInterface), "Close", postfix: new HarmonyMethod(typeof(Patches.CharacterUIPatch), nameof(Patches.CharacterUIPatch.Close_Postfix)), log: logger);
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.CharacterInterface), "LateUpdate", postfix: new HarmonyMethod(typeof(Patches.CharacterUIPatch), nameof(Patches.CharacterUIPatch.LateUpdate_Postfix)), log: logger);
+            // B1 button-only sorting: sync the inventory Sort button on menu state changes.
+            PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.GameplayMenu), "OnOpen", postfix: new HarmonyMethod(typeof(Patches.SortUIInjector), nameof(Patches.SortUIInjector.GameplayMenu_Sync_Postfix)), log: logger);
+            PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.GameplayMenu), "OnClose", postfix: new HarmonyMethod(typeof(Patches.SortUIInjector), nameof(Patches.SortUIInjector.GameplayMenu_Sync_Postfix)), log: logger);
+            PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.GameplayMenu), "SetScreen", postfix: new HarmonyMethod(typeof(Patches.SortUIInjector), nameof(Patches.SortUIInjector.GameplayMenu_Sync_Postfix)), log: logger);
             PatchGuard.Report(logger);
         }
         catch (Exception ex) { Log?.Warning($"Harmony patch failed: {ex.Message}"); }
@@ -110,7 +117,18 @@ public class Mod : MelonMod
     {
         BackpackVisualManager.Clear();
         Patches.PlayerClothingPatch.ResetForSceneUnload();
+        Patches.SortUIInjector.ResetForSceneUnload();
         if (sceneName == "Main") BackpackStorageManager.ResetForSceneUnload();
+    }
+
+    /// <summary>
+    /// B1 button-only sorting: when the player closes the storage menu while the
+    /// GameplayMenu (inventory) is open, the Character screen needs a re-sync so the
+    /// inventory Sort button visibility stays correct.
+    /// </summary>
+    public static void SyncGameplayMenuButton(bool inventoryVisible)
+    {
+        Patches.SortUIInjector.HudInventoryVisibilityChanged(inventoryVisible);
     }
 
     public override void OnUpdate()

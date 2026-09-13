@@ -61,6 +61,11 @@ public class AutoPackStationController : MonoBehaviour
     private float _ledPulseTimer = 0f;
     private bool _savedBeginButtonActive = false;
     private string _savedInstructionText = string.Empty;
+    // Bug-Audit 2026-09-12 (Round 4): reentrancy guard for F-Key PackUp. Input.GetKeyDown
+    // is edge-triggered but PackUpStation triggers Destroy_Server + Destroy which can
+    // schedule a second dispatch within the same frame from the network layer in MP.
+    // Without this flag, two PackUps race on the same station and we double-refund.
+    private bool _packingUp = false;
 
 
     public void EnsureGuid()
@@ -773,7 +778,7 @@ public class AutoPackStationController : MonoBehaviour
                                 if (isHitThisStation)
                                 {
                                     // PackUp via F (strict)
-                                    if (Input.GetKeyDown(KeyCode.F))
+                                    if (Input.GetKeyDown(KeyCode.F) && !_packingUp)
                                     {
                                         PackUpStation();
                                     }
@@ -1373,6 +1378,11 @@ public class AutoPackStationController : MonoBehaviour
 
     private void PackUpStation()
     {
+        // Bug-Audit 2026-09-12 (Round 4): reentrancy guard (see field declaration).
+        if (_packingUp) return;
+        _packingUp = true;
+        try
+        {
         var inv = PlayerInventory.Instance;
         if (inv == null || inv.Pointer == IntPtr.Zero) return;
 
@@ -1380,6 +1390,19 @@ public class AutoPackStationController : MonoBehaviour
         var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
         // Duplication fix: with a LIVE native station the slots are the single source of truth — never fall back to stale rData
         bool hasLiveNativeStation = (station != null && station.Pointer != IntPtr.Zero);
+
+        // Bug-Audit 2026-09-12 (CRITICAL): BuildableItem must be deregistered through the
+        // Vanilla dismantle flow, not raw GameObject.Destroy. Otherwise the grid cell stays
+        // occupied, the buildable registry still references a dead object, and after Save/Load
+        // the station respawns in-world while the player already owns the item + contents
+        // (item duplication). Resolve the BuildableItem now so the dismantle call is reachable.
+        var buildable = GetComponent<Il2CppScheduleOne.EntityFramework.BuildableItem>()
+            ?? GetComponentInParent<Il2CppScheduleOne.EntityFramework.BuildableItem>();
+        // Host-only: BuildableItem.Destroy_Server is a FishNet ServerRpc. Calling it on a
+        // client either no-ops or throws; the host must be the one to invoke it.
+        bool isHost = AutoPackEngine.IsHostOrSingleplayer();
+        bool vanillaDismantle = isHost && buildable != null
+            && buildable.Pointer != IntPtr.Zero && !buildable.WasCollected;
 
         // 1. Resolve Station item definition and probe
         var stationDef = GameRegistry.GetItem(Mod.CurrentConfig.StationItemId);
@@ -1708,13 +1731,38 @@ public class AutoPackStationController : MonoBehaviour
             }
         }
 
-        // Mitigation 2: Clear runtime data BEFORE Destroy() so OnDestroy does not duplicate items
+        // Clear runtime data BEFORE Destroy so OnDestroy does not duplicate items
         rData.InputProduct = null;
         rData.InputPackaging = null;
         rData.OutputProduct = null;
         AutoPackStore.RemoveRuntimeData(_stationGuid);
         AutoPackStore.UnregisterStation(this);
 
-        GameObject.Destroy(gameObject);
+        // Bug-Audit 2026-09-12 (CRITICAL): prefer the Vanilla dismantle RPC so the Buildable
+        // registry, grid placement and network state are torn down cleanly. Raw
+        // GameObject.Destroy leaked a ghost placement and caused item duplication on
+        // Save/Load. As a last-resort fallback for environments without a BuildableItem
+        // (e.g. dev/editor spawns), keep the raw Destroy so the controller can still clean up.
+        if (vanillaDismantle)
+        {
+            try
+            {
+                buildable.Destroy_Server();
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"BuildableItem.Destroy_Server failed: {ex.Message}. Falling back to raw Destroy.");
+                UnityEngine.Object.Destroy(gameObject);
+            }
+        }
+        else
+        {
+            UnityEngine.Object.Destroy(gameObject);
+        }
+        }
+        finally
+        {
+            _packingUp = false;
+        }
     }
 }

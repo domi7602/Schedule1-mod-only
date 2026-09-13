@@ -261,10 +261,58 @@ public static class StackLimitEngine
         }
         catch (Exception ex)
         {
-            Mod.Log?.Warn($"ApplyToDefinition failed for '{id}': {ex}");
+            Mod.Log?.Warn($"ApplyToDefinition failed for '{id}': {ex.Message}");
             return false;
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Bug-Audit 2026-09-12 (Round 3): Restore every previously captured original stack
+    /// limit. Called from Mod.OnDeinitializeMelon (and from the `stack restore` console
+    /// command) so a disabling / unload / explicit-restore leaves the registry clean.
+    /// Without this, mod uninstall / disable would leave overrides on every definition
+    /// and survive reloads — Vanilla's <c>StackLimit</c> would never come back.
+    /// </summary>
+    public static int RestoreAll()
+    {
+        int restored = 0;
+        int failed = 0;
+        List<string>? snapshot = null;
+        lock (_lock)
+        {
+            if (_originalLimits.Count == 0) return 0;
+            snapshot = new List<string>(_originalLimits.Keys);
+        }
+        foreach (var id in snapshot)
+        {
+            int original;
+            lock (_lock) { if (!_originalLimits.TryGetValue(id, out original)) continue; }
+            try
+            {
+                var def = Registry.GetItem(id);
+                if (def != null && def.Pointer != IntPtr.Zero && !def.WasCollected)
+                {
+                    def.StackLimit = original;
+                    restored++;
+                }
+            }
+            catch (Exception ex)
+            {
+                failed++;
+                Mod.Log?.Warn($"RestoreAll: failed to restore '{id}': {ex.Message}");
+            }
+        }
+        return restored;
+    }
+
+    /// <summary>
+    /// Forget every captured original value. After this, a re-Apply will start a fresh
+    /// capture set. Use for test isolation or full reset.
+    /// </summary>
+    public static void ForgetAllOriginals()
+    {
+        lock (_lock) { _originalLimits.Clear(); }
     }
 }

@@ -14,6 +14,13 @@ public sealed class BusinessIncomeConfig
     public int PayoutHour { get; set; } = 0;
 
     /// <summary>
+    /// Maximum number of missed days the catch-up pays in one go (F2). A larger backlog
+    /// (e.g. corrupted state or a copied save) is skipped with a warning instead of
+    /// burst-booking every day since day 0.
+    /// </summary>
+    public int MaxCatchupDays { get; set; } = 7;
+
+    /// <summary>
     /// Base income per business and day in dollars before multipliers.
     /// </summary>
     public float DefaultBaseIncome { get; set; } = 500.0f;

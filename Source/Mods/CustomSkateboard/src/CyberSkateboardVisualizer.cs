@@ -24,11 +24,8 @@ public static class CyberSkateboardVisualizer
 
     private static readonly Gradient _cyanTrailGradient = BuildCyanTrailGradient();
 
-    // Log-noise fix 2026-09-01 (v3): per-instance dedup was ineffective (Unity spawns
-    // a fresh board on every mount); a 10s time-cooldown was also ineffective because
-    // typical remounts are >10s apart. Both attempts left the line firing on every
-    // mount. Correct fix: this is purely informational — Debug-only is the right level.
-    internal static void ClearStyledCache() { }
+    // All cached materials are already static readonly / lazy-initialized.
+    // No cache-clearing needed — materials persist across the session.
 
     private static Gradient BuildCyanTrailGradient()
     {
@@ -308,7 +305,11 @@ public static class CyberSkateboardVisualizer
                 || sharedMeshName.Contains("deck", StringComparison.OrdinalIgnoreCase) || sharedMeshName.Contains("board", StringComparison.OrdinalIgnoreCase)
                 || mfName.EndsWith("_deck", StringComparison.OrdinalIgnoreCase) || mfName.EndsWith("_board", StringComparison.OrdinalIgnoreCase);
             bool isAvatarPart = IsPlayerAvatarPart(mfName) || IsPlayerAvatarPart(sharedMeshName);
-            if (isDeckCandidate && !isAvatarPart)
+            // Bug-Audit 2026-09-12 (Round 3): Pass 2 previously skipped the sanity check
+            // (IsDeckMeshSane) that Pass 1 enforces, so a Combined/Root collision mesh
+            // named only with "board" could be swapped. Apply the same vertexCount +
+            // bounds guard here.
+            if (isDeckCandidate && !isAvatarPart && IsDeckMeshSane(mf))
             {
                 if (mf.sharedMesh != customMesh) mf.sharedMesh = customMesh;
                 return true;

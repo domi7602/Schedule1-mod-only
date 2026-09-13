@@ -115,29 +115,61 @@ public static class UIHelper
         return null;
     }
 
+    public static void ResetFontCache()
+    {
+        _cachedFont = null;
+        _cachedFontMaterial = null;
+    }
+
     public static TextMeshProUGUI CreateTextMeshPro(Transform parent, string name, string text, float fontSize, FontStyles style, TextAlignmentOptions align, Color color)
     {
         GameObject obj = new GameObject(name, Il2CppType.Of<RectTransform>());
         obj.transform.SetParent(parent, false);
+        obj.SetActive(true);
 
         TextMeshProUGUI tmp = obj.AddComponent<TextMeshProUGUI>();
-        var font = GetFont(parent);
-        if (font != null)
+        try
         {
-            tmp.font = font;
-            if (_cachedFontMaterial != null)
+            var font = GetFont(parent);
+            if (font != null && IsAlive(font))
             {
-                tmp.fontSharedMaterial = _cachedFontMaterial;
+                tmp.font = font;
+                try
+                {
+                    if (IsAlive(_cachedFontMaterial) && _cachedFontMaterial != null)
+                        tmp.fontSharedMaterial = _cachedFontMaterial;
+                }
+                catch { }
+            }
+            else
+            {
+                MelonLogger.Warning("[MoreSaveSlots] CreateTextMeshPro '" + name + "': no live font found, using TMP default.");
             }
         }
+        catch (Exception ex)
+        {
+            MelonLogger.Warning("[MoreSaveSlots] CreateTextMeshPro '" + name + "' font assign threw: " + ex.Message);
+        }
 
-        tmp.text = text;
-        tmp.fontSize = fontSize;
-        tmp.fontStyle = style;
-        tmp.alignment = align;
-        tmp.color = color;
-        tmp.raycastTarget = false;
-        tmp.SetVerticesDirty();
+        try
+        {
+            tmp.text = text;
+            tmp.fontSize = fontSize;
+            tmp.fontStyle = style;
+            tmp.alignment = align;
+            Color c = color;
+            if (c.a < 0.9f) c.a = 1f;
+            tmp.color = c;
+            if (tmp.alpha < 0.9f) tmp.alpha = 1f;
+            tmp.enabled = true;
+            tmp.raycastTarget = false;
+            obj.SetActive(true);
+            tmp.SetVerticesDirty();
+        }
+        catch (Exception ex2)
+        {
+            MelonLogger.Warning("[MoreSaveSlots] CreateTextMeshPro '" + name + "' property assign threw: " + ex2.Message);
+        }
         return tmp;
     }
 

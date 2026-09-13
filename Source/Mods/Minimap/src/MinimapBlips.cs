@@ -22,6 +22,8 @@ public enum BlipType
     ActiveDeal,
     PotentialCustomer,
     KnownCustomer,
+    Dealer,
+    Waypoint,
     Property,
     SleepingBag,
     Shop,
@@ -63,6 +65,23 @@ public sealed class MinimapBlips
     private readonly List<PooledBlip> _pool = new(PoolSize);
     private readonly List<BlipInfo> _activeBlips = new(PoolSize);
     private Transform? _blipContainer;
+
+    // ── M6 palette: maps category key → hex; consulted at blip build time ──
+    private static System.Collections.Generic.Dictionary<string, string>? _palette;
+
+    /// <summary>M6: install/refresh the user palette (from MinimapSettingsApp).</summary>
+    public void SetPalette(System.Collections.Generic.Dictionary<string, string>? palette)
+    {
+        _palette = palette;
+    }
+
+    private static Color PaletteColor(string key, Color fallback)
+    {
+        if (_palette != null && _palette.TryGetValue(key, out var hex)
+            && ColorUtility.TryParseHtmlString(hex, out var c))
+            return c;
+        return fallback;
+    }
 
     // Cache static landmarks so we only search them occasionally
     private readonly List<BlipInfo> _staticLandmarks = new(16);
@@ -132,7 +151,7 @@ public sealed class MinimapBlips
                             {
                                 WorldPos = prop.transform.position,
                                 Type = BlipType.Property,
-                                Color = new Color(0.95f, 0.61f, 0.07f, 1f), // Amber
+                                Color = PaletteColor("Property", new Color(0.95f, 0.61f, 0.07f, 1f)), // Amber
                                 Label = prop.PropertyName ?? "Property",
                                 CustomScale = 1.15f,
                                 IsPulsing = false,
@@ -174,7 +193,7 @@ public sealed class MinimapBlips
                         {
                             WorldPos = med.transform.position,
                             Type = BlipType.Shop,
-                            Color = new Color(0.91f, 0.30f, 0.24f, 1f),
+                            Color = PaletteColor("Shop", new Color(0.91f, 0.30f, 0.24f, 1f)),
                             Label = "Medical Centre",
                             CustomScale = 1.10f,
                             IsPulsing = false,
@@ -187,7 +206,7 @@ public sealed class MinimapBlips
         }
     }
 
-    public void UpdateEntities(MinimapConfig config, float now, Vector3 playerWorldPos)
+    public void UpdateEntities(MinimapConfig config, float now, Vector3 playerWorldPos, MinimapWaypoints? waypoints = null)
     {
         UpdateStaticLandmarks(config, now);
 
@@ -234,7 +253,7 @@ public sealed class MinimapBlips
                         if (!config.ShowPoliceBlips) continue;
 
                         bool isAggro = cop.PursuitTarget != null && (UnityEngine.Object)cop.PursuitTarget != null;
-                        Color copColor = isAggro ? new Color(0.95f, 0.20f, 0.20f, 1f) : new Color(0.20f, 0.55f, 0.95f, 1f);
+                        Color copColor = isAggro ? new Color(0.95f, 0.20f, 0.20f, 1f) : PaletteColor("Police", new Color(0.20f, 0.55f, 0.95f, 1f));
 
                         _activeBlips.Add(new BlipInfo
                         {
@@ -268,7 +287,7 @@ public sealed class MinimapBlips
                                 {
                                     WorldPos = pos,
                                     Type = BlipType.ActiveDeal,
-                                    Color = new Color(0.98f, 0.77f, 0.06f, 1f), // Gold
+                                    Color = PaletteColor("Deal", new Color(0.98f, 0.77f, 0.06f, 1f)), // Gold
                                     Label = "Deal Meeting",
                                     CustomScale = 1.30f,
                                     IsPulsing = true,
@@ -285,7 +304,7 @@ public sealed class MinimapBlips
                                 {
                                     WorldPos = pos,
                                     Type = BlipType.PotentialCustomer,
-                                    Color = new Color(0.10f, 0.74f, 0.61f, 1f), // Turquoise
+                                    Color = PaletteColor("Potential", new Color(0.10f, 0.74f, 0.61f, 1f)), // Turquoise
                                     Label = "Potential Customer",
                                     CustomScale = 1.05f,
                                     IsPulsing = false,
@@ -300,7 +319,7 @@ public sealed class MinimapBlips
                             {
                                 WorldPos = pos,
                                 Type = BlipType.KnownCustomer,
-                                Color = new Color(0.18f, 0.80f, 0.44f, 1f), // Emerald Green
+                                Color = PaletteColor("Customer", new Color(0.18f, 0.80f, 0.44f, 1f)), // Emerald Green
                                 Label = "Customer",
                                 CustomScale = 0.95f,
                                 IsPulsing = false,
@@ -312,6 +331,68 @@ public sealed class MinimapBlips
             }
         }
         catch { }
+
+        // 3b. Dealer scan (M1) — recruited dealers are ALWAYS shown, clamped to the
+        // minimap edge regardless of MaxEntityRange. Source: DealerManagementApp.dealers
+        // (the same list the in-game Dealer Management app iterates).
+        if (config.ShowDealerBlips)
+        {
+            try
+            {
+                var dealerApp = Il2CppScheduleOne.UI.Phone.Messages.DealerManagementApp.Instance;
+                if (dealerApp != null && (UnityEngine.Object)dealerApp != null && dealerApp.dealers != null)
+                {
+                    int dCount = dealerApp.dealers.Count;
+                    for (int d = 0; d < dCount; d++)
+                    {
+                        var dealer = dealerApp.dealers[d];
+                        if (dealer == null || (UnityEngine.Object)dealer == null || !dealer.gameObject.activeInHierarchy)
+                            continue;
+                        if (!dealer.IsRecruited)
+                            continue;
+
+                        Vector3 dPos = dealer.transform.position;
+
+                        _activeBlips.Add(new BlipInfo
+                        {
+                            WorldPos = dPos,
+                            Type = BlipType.Dealer,
+                            Color = PaletteColor("Dealer", new Color(0.64f, 0.30f, 0.89f, 1f)), // Purple
+                            Label = dealer.FullName ?? "Dealer",
+                            CustomScale = 1.20f,
+                            IsPulsing = false,
+                            IsCritical = true // always clamp — dealer positions matter at any range
+                        });
+                    }
+                }
+            }
+            catch { }
+        }
+
+        // 3c. User waypoints (M4) — always clamped, never range-culled, drawn as
+        // diamonds. Rendered AFTER all scans so they sit at the tail of the list;
+        // StableCriticalFirst keeps them in front (IsCritical = true).
+        if (waypoints != null && config.ShowWaypoints)
+        {
+            var all = waypoints.All;
+            for (int w = 0; w < all.Count; w++)
+            {
+                var wp = all[w];
+                if (wp == null) continue;
+
+                ColorUtility.TryParseHtmlString(wp.ColorHex, out Color wc);
+                _activeBlips.Add(new BlipInfo
+                {
+                    WorldPos = wp.ToVector(),
+                    Type = BlipType.Waypoint,
+                    Color = wc,
+                    Label = wp.Name,
+                    CustomScale = 1.25f,
+                    IsPulsing = true,
+                    IsCritical = true // always clamp — waypoints exist for far navigation
+                });
+            }
+        }
 
         // 4. Vehicles (cached scan via VehicleManager.AllVehicles)
         if (config.ShowVehicleBlips)
@@ -339,7 +420,7 @@ public sealed class MinimapBlips
                         {
                             WorldPos = vPos,
                             Type = BlipType.Vehicle,
-                            Color = new Color(0.20f, 0.60f, 0.86f, 1f),
+                            Color = PaletteColor("Vehicle", new Color(0.20f, 0.60f, 0.86f, 1f)),
                             Label = "Vehicle",
                             CustomScale = 1.10f,
                             IsPulsing = false,
@@ -395,7 +476,7 @@ public sealed class MinimapBlips
                             {
                                 WorldPos = qPos,
                                 Type = BlipType.Quest,
-                                Color = new Color(0.90f, 0.30f, 0.24f, 1f), // Ruby red
+                                Color = PaletteColor("Quest", new Color(0.90f, 0.30f, 0.24f, 1f)), // Ruby red
                                 Label = quest.Title ?? "Quest",
                                 CustomScale = 1.20f,
                                 IsPulsing = true,

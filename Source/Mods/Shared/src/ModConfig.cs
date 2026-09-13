@@ -126,27 +126,51 @@ public static class ModConfig<T> where T : class, new()
     }
 
     private static bool _inSetAndSave;
+    private static bool _deferredSave;
+    private static readonly List<(string propertyName, object? value)> _deferredWrites = new();
 
     public static void SetAndSave(string propertyName, object? value)
     {
         // Reentrancy guard: OnChanged handlers that call SetAndSave again (directly or
-        // via Save) would otherwise recurse without bound. A nested set still applies
-        // the value, but its Save + event are deferred to the outermost call.
+        // via Save) would otherwise recurse without bound.
+        // Bug-Audit 2026-09-12: previously a nested SetAndSave only set the in-memory value
+        // but lost its Save() + OnChanged event silently. Now: apply the value immediately,
+        // queue a deferred Save() + OnChanged for the OUTERMOST call so all nested writes
+        // are persisted in a single disk-write and each gets its event delivered.
         if (_inSetAndSave)
         {
+            _deferredWrites.Add((propertyName, value));
+            _deferredSave = true;
             TrySetValue(propertyName, value, out _);
             return;
         }
         _inSetAndSave = true;
         try
         {
-            if (!TrySetValue(propertyName, value, out object? convertedVal))
-                return;
+            ApplyAndPersist(propertyName, value);
 
-            Save();
-            OnChanged?.Invoke(propertyName, convertedVal);
+            // Drain any writes that came in while we were running.
+            while (_deferredWrites.Count > 0)
+            {
+                var (deferredProp, deferredValue) = _deferredWrites[0];
+                _deferredWrites.RemoveAt(0);
+                ApplyAndPersist(deferredProp, deferredValue);
+            }
         }
-        finally { _inSetAndSave = false; }
+        finally
+        {
+            _inSetAndSave = false;
+            _deferredSave = false;
+            _deferredWrites.Clear();
+        }
+    }
+
+    private static void ApplyAndPersist(string propertyName, object? value)
+    {
+        if (!TrySetValue(propertyName, value, out object? convertedVal))
+            return;
+        Save();
+        OnChanged?.Invoke(propertyName, convertedVal);
     }
 
     private static bool TrySetValue(string propertyName, object? value, out object? convertedVal)

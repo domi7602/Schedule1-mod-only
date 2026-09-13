@@ -273,9 +273,12 @@ public sealed class HotkeyManager : IDisposable
         try
         {
             var es = EventSystem.current;
-            GameObject? selected = es?.currentSelectedGameObject;
-            if (selected == null)
-                return false;
+            // Bug-Audit 2026-09-12: EventSystem==null happens during scene transitions /
+            // loading screens. Previously returned false (fail-open) so hotkeys would fire
+            // during load and trigger gameplay logic — fail-CLOSED instead.
+            if (es == null) return true;
+            GameObject? selected = es.currentSelectedGameObject;
+            if (selected == null) return false;
             if (selected.TryGetComponent<InputField>(out _))
                 return true;
             if (selected.TryGetComponent<Il2CppTMPro.TMP_InputField>(out _))
@@ -284,7 +287,7 @@ public sealed class HotkeyManager : IDisposable
         }
         catch
         {
-            return false;
+            return true;
         }
     }
 }

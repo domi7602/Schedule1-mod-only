@@ -56,16 +56,25 @@ public static class MenuScreen_OnOpen_Patch
     [HarmonyPostfix]
     public static void Postfix(MenuScreen __instance)
     {
-        if (__instance == null) return;
-
-        if (__instance is ContinueScreen || __instance is NewGameScreen || __instance is ImportScreen)
+        try
         {
-            var saveDisplay = __instance.GetComponentInChildren<SaveDisplay>(true);
-            if (saveDisplay != null)
+            if (__instance == null) return;
+
+            if (__instance is ContinueScreen || __instance is NewGameScreen || __instance is ImportScreen)
             {
-                PaginationController.EnsurePaginationBar(saveDisplay);
-                saveDisplay.Refresh();
+                var saveDisplay = __instance.GetComponentInChildren<SaveDisplay>(true);
+                if (saveDisplay != null)
+                {
+                    try { PaginationController.EnsurePaginationBar(saveDisplay); }
+                    catch (Exception exBar) { MelonLogger.Warning("[MoreSaveSlots] OnOpen: EnsurePaginationBar threw: " + exBar.Message); }
+                    try { saveDisplay.Refresh(); }
+                    catch (Exception exRef) { MelonLogger.Warning("[MoreSaveSlots] OnOpen: SaveDisplay.Refresh threw: " + exRef.Message); }
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Warning("[MoreSaveSlots] OnOpen postfix threw: " + ex.Message);
         }
     }
 }

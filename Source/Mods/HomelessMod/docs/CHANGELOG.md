@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 0.1.9 (2026-09-12) — Bug-Audit-Fixes Runde 4 (Audit 2026-09-12)
+- **Ghost-Rotations-Restore im finally:** Vorher wurde `ghost.transform.rotation = originalRot` nur im Erfolgspfad erreicht — wenn `EvaluatePlacement` oder `ApplyMaterial` warfen, blieb der Ghost auf `Quaternion.identity` (visuell „spinning reset"). Der Restore läuft jetzt in einem `finally`-Block und gilt auch auf jedem Exception-Pfad.
+
+## 0.1.8 (2026-09-12) — Bug-Audit-Fixes Runde 3 (Audit 2026-09-12)
+- `BuildUpdate_Grid_CheckIntersections_Patch` (Postfix) hat jetzt denselben Host-Guard wie der Place-Prefix. Vorher sahen MP-Clients den grünen Ghost, obwohl der Place-Klick abgewiesen wurde (UX-Desync, ggf. Save-Drift).
+- `ObstacleLayerMask` (GroundPlacementAssistant) erweitert um `Vehicle`/`NPC`/`Player`/`Item`/`Interactable`/`Navigation`/`NavigationRegion`. Die ursprüngliche 4-Layer-Maske hat Fahrzeuge und NPCs als „frei“ gewertet — Schlafsack landete auf ihnen. Unbekannte Layer werden mit `Msg` (statt `Warning`) gemeldet, weil Mod-Layer meist fehlen.
+
 ## 0.1.7 (2026-09-11)
 - Place-Prefix mit Host-Guard (Clients fallen auf Vanilla zurueck, kein lokaler Desync-Fork).
 - Wipe-if-Switched nach OnSaveInfoLoaded verlegt (kein Full-Wipe bei Same-Slot-Reload mehr).

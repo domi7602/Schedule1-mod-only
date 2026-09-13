@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using MelonLoader;
@@ -6,7 +7,7 @@ using S1API.Console;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "1.0.3", "Dominik")]
+[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "2.0.1", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace Minimap;
@@ -18,11 +19,50 @@ public sealed class MinimapMod : MelonMod
     private readonly ModLogger _log = new("Minimap");
     private readonly MinimapHUD _hud;
     public MinimapConfig Config { get; private set; } = new();
+    public MinimapWaypoints Waypoints => _hud.Waypoints;
 
     private string _configPath = "";
     private KeyCode _toggleKeyCode = KeyCode.M;
     private KeyCode _zoomInKeyCode = KeyCode.RightBracket;
     private KeyCode _zoomOutKeyCode = KeyCode.LeftBracket;
+
+    // ── M6: per-category blip palette (hex), persisted inside config.json ──
+    private readonly System.Collections.Generic.Dictionary<string, string> _blipColors = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "Police",     "#338CF2" },
+        { "Dealer",     "#A44DE3" },
+        { "Waypoint",   "#E14BFF" },
+        { "Deal",       "#FAC40F" },
+        { "Potential",  "#1ABD9C" },
+        { "Customer",   "#2ECC70" },
+        { "Property",   "#F29C12" },
+        { "Shop",       "#E84D3D" },
+        { "Quest",      "#E64C3C" },
+        { "Vehicle",    "#3399DB" },
+    };
+
+    /// <summary>M6: current hex for a blip category key (falls back to white).</summary>
+    public string GetBlipColorHex(string key)
+        => _blipColors.TryGetValue(key, out var hex) ? hex : "#FFFFFF";
+
+    /// <summary>M6: set a category color from a hex string. Invalid hex is ignored.</summary>
+    public bool SetBlipColor(string key, string hex)
+    {
+        if (string.IsNullOrWhiteSpace(hex)) return false;
+        if (!UnityEngine.ColorUtility.TryParseHtmlString(hex, out _)) return false;
+        if (!_blipColors.ContainsKey(key)) return false;
+        _blipColors[key] = hex;
+        return true;
+    }
+
+    /// <summary>M6: live-apply the palette to the blip renderer.</summary>
+    public void ApplyBlipPalette()
+    {
+        try { _hud.ApplyBlipPalette(_blipColors); } catch { }
+    }
+
+    /// <summary>M6: hex lookup for the settings app (public wrapper).</summary>
+    public string GetBlipColor(string key) => GetBlipColorHex(key);
 
     public MinimapMod()
     {
@@ -40,6 +80,7 @@ public sealed class MinimapMod : MelonMod
         _configPath = Path.Combine(userDir, "config.json");
 
         LoadConfig();
+        LoadBlipPalette();
         ParseKeyCodes();
 
         _log.Info("Minimap initialized. Console commands 'minimap' and 'map' ready.");
@@ -54,6 +95,8 @@ public sealed class MinimapMod : MelonMod
             _hud.ApplyLayout(Config);
             _hud.SetHUDActive(Config.MinimapVisible);
             _hud.InvalidateBlipCache();
+            // M4: load waypoints for the (possibly new) save slot.
+            try { _hud.Waypoints.Load(); } catch { }
         }
     }
 
@@ -63,6 +106,8 @@ public sealed class MinimapMod : MelonMod
         {
             // Persist debounced transient changes (e.g. zoom level) instead of saving per keypress.
             SaveConfig();
+            // M4: flush pending waypoint writes before teardown.
+            try { _hud.Waypoints.FlushIfDirty(); } catch { }
             _hud.SetHUDActive(false);
             _hud.InvalidateMapSprite();
             MinimapFont.ResetCache();
@@ -142,6 +187,39 @@ public sealed class MinimapMod : MelonMod
         }
 
         SaveConfig();
+    }
+
+    /// <summary>M6: persist palette changes into config.json (sidecar of blip colors).</summary>
+    public void SaveBlipPalette()
+    {
+        try
+        {
+            string palettePath = SafeStorage.GetUserDataPath("Minimap", "blip_colors.json");
+            SafeStorage.SaveTextAtomic(palettePath,
+                System.Text.Json.JsonSerializer.Serialize(_blipColors,
+                    new System.Text.Json.JsonSerializerOptions { WriteIndented = true }), _log);
+        }
+        catch (Exception ex)
+        {
+            _log.Warn($"Blip palette save failed: {ex.Message}");
+        }
+    }
+
+    private void LoadBlipPalette()
+    {
+        try
+        {
+            string palettePath = SafeStorage.GetUserDataPath("Minimap", "blip_colors.json");
+            string json = SafeStorage.LoadTextSafe(palettePath, "", null);
+            if (string.IsNullOrWhiteSpace(json)) return;
+            var loaded = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+            if (loaded == null) return;
+            foreach (var kv in loaded)
+            {
+                if (_blipColors.ContainsKey(kv.Key)) _blipColors[kv.Key] = kv.Value;
+            }
+        }
+        catch { }
     }
 
     public void SaveConfig()

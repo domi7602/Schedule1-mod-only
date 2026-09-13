@@ -1,6 +1,13 @@
 # Changelog
 
 
+## 1.0.10 (2026-09-13) — Bug-Audit-Fixes Runde 5 (Audit 2026-09-13)
+- EventTrigger-Pointer-Leak gefixt: `CleanupOwnedTriggersForSlot()` entfernt beim Page-Switch alle eigenen EventTrigger-Entries aus `_ownedTriggers` — vorher wuchs das Dictionary mit toten IntPtrs unbeschränkt.
+- `RefreshActiveScreen()` ruft jetzt vor dem Refresh alle stale Keys über `CleanupOwnedTriggersForSlot` auf (statt erst beim nächsten Page-Switch).
+
+## 1.0.9 (2026-09-12) — Bug-Audit-Fixes Runde 3 (Audit 2026-09-12)
+- EventTrigger-Cleanup (`PaginationController.AttachHoverTracker`) entfernt nur noch **eigene** Entries (per `_ownedTriggers`-Dictionary getrackt) statt alle Pointer-Einträge — vorher wurden Vanilla-Hover/Click-Handler der Save-Slot-Cards mit-entfernt (Hover-Highlight verloren).
+
 ## 1.0.6 (2026-09-11)
 - Diagnose-Zeile pro Refresh (Seite, Array-Länge, erster Name) zur leeren-Namen-Fehlersuche.
 

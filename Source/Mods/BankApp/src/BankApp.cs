@@ -472,28 +472,31 @@ public sealed class BankApp : PhoneApp
 
     private void UpdateAmountDisplay()
     {
-        if (_amountText != null) _amountText.text = $"$ {_enteredAmount:N0}";
+        // Bug-Audit 2026-09-12: v0.4.2 added WasCollected guards to RefreshAll/Update but
+        // missed these three setters; OnPhoneClosed calls all three on the way out, and
+        // the UI may already be torn down. Use the same IsAlive check that RefreshAll uses.
+        if (IsAlive(_amountText)) _amountText.text = $"$ {_enteredAmount:N0}";
     }
 
     private void UpdateModeVisuals()
     {
         bool isDep = _mode == TransferMode.Deposit;
 
-        if (_depositTabBg != null) _depositTabBg.color = isDep ? UITheme.AccentBlue : UITheme.CardBgSecondary;
-        if (_depositTabText != null) _depositTabText.color = isDep ? Color.white : UITheme.TextMuted;
+        if (IsAlive(_depositTabBg)) _depositTabBg.color = isDep ? UITheme.AccentBlue : UITheme.CardBgSecondary;
+        if (IsAlive(_depositTabText)) _depositTabText.color = isDep ? Color.white : UITheme.TextMuted;
 
-        if (_withdrawTabBg != null) _withdrawTabBg.color = !isDep ? UITheme.AccentBlue : UITheme.CardBgSecondary;
-        if (_withdrawTabText != null) _withdrawTabText.color = !isDep ? Color.white : UITheme.TextMuted;
+        if (IsAlive(_withdrawTabBg)) _withdrawTabBg.color = !isDep ? UITheme.AccentBlue : UITheme.CardBgSecondary;
+        if (IsAlive(_withdrawTabText)) _withdrawTabText.color = !isDep ? Color.white : UITheme.TextMuted;
 
-        if (_maxChipBg != null) _maxChipBg.color = isDep ? UITheme.AccentBlue : UITheme.AccentOrange;
+        if (IsAlive(_maxChipBg)) _maxChipBg.color = isDep ? UITheme.AccentBlue : UITheme.AccentOrange;
 
-        if (_confirmBtnBg != null) _confirmBtnBg.color = isDep ? UITheme.AccentGreen : UITheme.AccentOrange;
-        if (_confirmBtnText != null) _confirmBtnText.text = isDep ? "⬇  DEPOSIT" : "⬆  WITHDRAW";
+        if (IsAlive(_confirmBtnBg)) _confirmBtnBg.color = isDep ? UITheme.AccentGreen : UITheme.AccentOrange;
+        if (IsAlive(_confirmBtnText)) _confirmBtnText.text = isDep ? "⬇  DEPOSIT" : "⬆  WITHDRAW";
     }
 
     private void SetFeedback(string text, bool isError)
     {
-        if (_feedbackText != null)
+        if (IsAlive(_feedbackText))
         {
             _feedbackText.text = text;
             _feedbackText.color = isError ? UITheme.AccentRed : UITheme.AccentGreen;

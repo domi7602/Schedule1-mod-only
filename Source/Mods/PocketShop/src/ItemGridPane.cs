@@ -86,7 +86,19 @@ public class ItemGridPane
         }
     }
 
-    private void OnCatalogChangedHandler() => RefreshActiveShop();
+    /// <summary>
+    /// Bug-Audit 2026-09-13 (Round 5): callback to refresh the directory pane
+    /// when the catalog changes (so the store count badge updates).
+    /// </summary>
+    public Action? OnCatalogChanged { get; set; }
+
+    private void OnCatalogChangedHandler()
+    {
+        RefreshActiveShop();
+        // Bug-Audit 2026-09-13 (Round 5): also refresh the store count badge
+        // so the directory pane stays in sync with live catalog changes.
+        try { OnCatalogChanged?.Invoke(); } catch { }
+    }
 
     public void Dispose()
     {
@@ -121,6 +133,30 @@ public class ItemGridPane
     public void RefreshAllBuyStates()
     {
         foreach (var card in _cards) card.RefreshBuyState();
+    }
+
+    /// <summary>
+    /// Bug-Audit 2026-09-12: after a purchase in the ItemDetailModal the visible grid card
+    /// kept showing the old stock badge and an over-sized MAX chip — HandlePurchaseResult
+    /// only re-ran RefreshBuyState. Forward the stock-changed event so each affected card
+    /// can re-derive its badge + clamp the QuantitySelector to the new max.
+    /// </summary>
+    public void NotifyStockChanged(string itemId)
+    {
+        if (string.IsNullOrEmpty(itemId)) return;
+        foreach (var card in _cards)
+        {
+            if (card == null) continue;
+            try
+            {
+                var cardItem = card.GetItemIdPublic();
+                if (!string.IsNullOrEmpty(cardItem) && string.Equals(cardItem, itemId, StringComparison.OrdinalIgnoreCase))
+                {
+                    card.NotifyStockChanged();
+                }
+            }
+            catch { }
+        }
     }
 
     private void Clear()

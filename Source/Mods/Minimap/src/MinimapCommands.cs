@@ -211,6 +211,11 @@ public sealed class MinimapConsoleCommand : BaseConsoleCommand
                     }
                     return;
 
+                case "wp": // M4: waypoint management — wp add <name> [hex], wp del <name>, wp list, wp clear, wp here <name>
+                case "waypoint":
+                    HandleWaypoints(mod, args);
+                    return;
+
                 case "blips":
                     if (args.Count >= 3)
                     {
@@ -275,8 +280,106 @@ public sealed class MinimapConsoleCommand : BaseConsoleCommand
         Print("<color=#ffffff>minimap day <header|footer|off></color> - DayCounter position");
         Print("<color=#ffffff>minimap pos <topright|topleft|bottomright|bottomleft|reset></color> - Anchor position");
         Print("<color=#ffffff>minimap blips <police|dealers|properties|quests|clamp> <on|off></color> - Filter POI blips");
+        Print("<color=#ffffff>minimap wp <add|del|list|clear> [name] [hex]</color> - Manage waypoints (M4)");
         Print("<color=#ffffff>minimap status</color> - Display live settings and state");
         Print("<color=#ffffff>Hotkeys: [M] Toggle HUD, [ / ] Zoom In/Out, Drag & Drop with mouse</color>");
+    }
+
+    /// <summary>
+    /// M4 waypoint subcommands:
+    ///   minimap wp add &lt;name&gt; [hex]   — waypoint at current player position
+    ///   minimap wp here &lt;name&gt; [hex]   — alias of add
+    ///   minimap wp del &lt;name&gt;          — remove waypoint
+    ///   minimap wp list                 — list all waypoints
+    ///   minimap wp clear                — remove all waypoints
+    /// </summary>
+    private void HandleWaypoints(MinimapMod mod, List<string> args)
+    {
+        var wps = mod.Waypoints;
+        if (wps == null)
+        {
+            Print("Waypoints unavailable (HUD not initialized).");
+            return;
+        }
+
+        string op = args.Count >= 2 ? args[1].ToLowerInvariant() : "list";
+
+        switch (op)
+        {
+            case "add":
+            case "here":
+            case "set":
+            {
+                if (args.Count < 3)
+                {
+                    Print("<color=#ff8080> Usage: minimap wp add <name> [hexColor]</color>");
+                    return;
+                }
+                string name = args[2];
+                string hex = args.Count >= 4 ? args[3] : "#E14BFF";
+
+                var player = Il2CppScheduleOne.PlayerScripts.Player.Local;
+                if (player == null || (UnityEngine.Object)player == null)
+                {
+                    Print("<color=#ff8080> Player not available (load a save first).</color>");
+                    return;
+                }
+
+                Vector3 pos = player.transform.position;
+                if (wps.Add(name, pos, hex))
+                {
+                    wps.Save();
+                    Print($"<color=#60f080> Waypoint '{name}' set at ({pos.x:0}, {pos.z:0}).</color>");
+                }
+                else
+                {
+                    Print("<color=#ff8080> Could not add waypoint (name empty or limit reached).</color>");
+                }
+                return;
+            }
+
+            case "del":
+            case "remove":
+            case "rm":
+            {
+                if (args.Count < 3)
+                {
+                    Print("<color=#ff8080> Usage: minimap wp del <name></color>");
+                    return;
+                }
+                if (wps.Remove(args[2]))
+                {
+                    wps.Save();
+                    Print($"<color=#60f080> Waypoint '{args[2]}' removed.</color>");
+                }
+                else
+                {
+                    Print($"<color=#ff8080> No waypoint named '{args[2]}'.</color>");
+                }
+                return;
+            }
+
+            case "clear":
+                wps.Clear();
+                wps.Save();
+                Print("<color=#60f080> All waypoints removed.</color>");
+                return;
+
+            default: // list
+                var all = wps.All;
+                if (all.Count == 0)
+                {
+                    Print("No waypoints set. Use: minimap wp add <name> [hexColor]");
+                    return;
+                }
+                Print($"<color=#60f080> {all.Count} waypoint(s):</color>");
+                for (int i = 0; i < all.Count; i++)
+                {
+                    var w = all[i];
+                    Print($"  {i + 1}. <color={w.ColorHex}>{w.Name}</color>  ({w.X:0}, {w.Z:0})");
+                }
+                return;
+        }
     }
 
     private void Print(string message)

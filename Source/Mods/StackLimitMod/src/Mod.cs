@@ -8,7 +8,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(StackLimitMod.Mod), "StackLimitMod", "0.1.2", "Dominik")]
+[assembly: MelonInfo(typeof(StackLimitMod.Mod), "StackLimitMod", "0.1.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace StackLimitMod;
@@ -44,6 +44,10 @@ public class Mod : MelonMod
     {
         GameLifecycle.OnSaveInfoLoaded -= OnSaveInfoLoaded;
         GameLifecycle.OnLoadComplete -= OnLoadComplete;
+        // Bug-Audit 2026-09-12 (Round 3): restore every captured original StackLimit so
+        // disabling / unloading the mod does not leave overrides on vanilla item
+        // definitions. Without this, vanilla's natural StackLimit never returns.
+        try { StackLimitEngine.RestoreAll(); } catch { }
     }
 
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)

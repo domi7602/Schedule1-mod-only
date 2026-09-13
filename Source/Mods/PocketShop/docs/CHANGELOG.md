@@ -1,6 +1,19 @@
 # Changelog
 
 
+## 0.2.5 (2026-09-13) — Bug-Audit-Fixes Runde 5 (Audit 2026-09-13)
+- UI-Refresh: `StoreCatalogPane.RefreshShopCount()` + `ItemGridPane.OnCatalogChanged`-Callback — Store-Count-Badge im Directory-Header aktualisiert sich live bei Catalog-Refresh.
+- Cache-Invalidation: `ShopCatalog.Refresh()` invalidiert `_itemCache`/`_shopCache` aggressiv vor dem Lesen von `ShopInterface.AllShops` → keine "Ghost-Shops" mehr.
+- QuantitySelector Edge-Case: `ChangeBySafe()` — clamped nach jeder Änderung gegen `EffectiveMax()` um Stock-Drops während +/−-Druck abzufangen.
+- Versionsangabe in Assembly/JSON/UI-Footer auf „0.2.5" aktualisiert.
+
+## 0.2.4 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
+- `PurchaseService.BuyWithQuantity` liest jetzt den Live-Bestand (`item.SourceListing.CurrentStock` + `IsInStock`) statt nur den POCO-Snapshot. Schliesst Koop-Oversell: Mit-Spieler koennen nicht mehr die POCO-Stale-Stock-Luecke ausnutzen.
+- `QuantitySelector.ClampTo` synchronisiert jetzt `_maxStockOrSentinel` (Feld nicht mehr readonly). MAX-Chip und OUT-Zustand folgen echten Bestand. Sentinel (-1) wird zuerst abgefangen (vorher: <=0-First-Branch hat unbegrenzte Items auf qty=1 zurueckgesetzt).
+- `HandlePurchaseResult` ruft jetzt `_gridPane.NotifyStockChanged(itemId)` nach erfolgreichem Kauf — Grid-Karten zeigen neuen Stock-Badge + geclamptes QuantitySelector-Max.
+- Neuer `ItemPOCO.ItemId` + `ItemCard.GetItemIdPublic` fuer den Cross-Card-Dispatch.
+- Versionsangabe in Assembly/JSON/UI-Footer ist jetzt konsistent auf „0.2.4“.
+
 ## 0.2.3 (2026-09-11)
 - ShopCatalog: Per-Handler-Invoke (ein toter Subscriber killt den Katalog nicht mehr) + CurrentStock-Fallback.
 - ItemGridPane: defensives Re-Subscribe + WasCollected-Guard; TearDown entsorgt DirectoryPane.

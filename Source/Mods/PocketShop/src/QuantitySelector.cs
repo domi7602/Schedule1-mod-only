@@ -16,7 +16,7 @@ public class QuantitySelector
 {
     public event Action<int>? OnChanged;
 
-    private readonly int _maxStockOrSentinel;
+    private int _maxStockOrSentinel;
     private int _quantity;
     private Text _valueLabel = null!;
 
@@ -79,14 +79,22 @@ public class QuantitySelector
     /// </summary>
     public void ClampTo(int newMax)
     {
-        if (newMax <= 0)
+        // Bug-Audit 2026-09-12: the sentinel (-1) used to hit the <=0 branch first and
+        // silently snap quantity back to 1 for unlimited items. Handle the sentinel
+        // explicitly, then the bounded ranges.
+        _maxStockOrSentinel = newMax;
+        int sentinel = PurchaseService.UnlimitedStockSentinel;
+        if (newMax == sentinel)
+        {
+            _quantity = Mathf.Clamp(_quantity, 1, 99);
+        }
+        else if (newMax <= 0)
         {
             _quantity = 1;
         }
         else
         {
-            int cap = newMax == PurchaseService.UnlimitedStockSentinel ? 99 : newMax;
-            _quantity = Mathf.Clamp(_quantity, 1, cap);
+            _quantity = Mathf.Clamp(_quantity, 1, newMax);
         }
         if (_valueLabel != null) _valueLabel.text = _quantity.ToString();
     }
@@ -112,6 +120,29 @@ public class QuantitySelector
         if (newQty < 1) newQty = 1;
         int cap = EffectiveMax();
         if (newQty > cap) newQty = cap;
+        if (newQty == _quantity) return;
+        _quantity = newQty;
+        if (_valueLabel != null) _valueLabel.text = _quantity.ToString();
+        SoundService.PlayButtonClick();
+        OnChanged?.Invoke(_quantity);
+    }
+
+    /// <summary>
+    /// Bug-Audit 2026-09-13 (Round 5): guard against rapid stock changes.
+    /// If another thread/app refreshes stock while the user is holding +,
+    /// we might briefly exceed the new max. This method re-clamps after
+    /// each change to stay in sync with live stock.
+    /// </summary>
+    public void ChangeBySafe(int delta)
+    {
+        int newQty = _quantity + delta;
+        if (newQty < 1) newQty = 1;
+        int cap = EffectiveMax();
+        if (newQty > cap)
+        {
+            // Stock dropped — clamp to new max and notify so UI can update badge.
+            newQty = cap > 0 ? cap : 1;
+        }
         if (newQty == _quantity) return;
         _quantity = newQty;
         if (_valueLabel != null) _valueLabel.text = _quantity.ToString();

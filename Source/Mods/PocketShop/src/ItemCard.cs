@@ -205,6 +205,9 @@ public class ItemCard
         RefreshBuyState();
     }
 
+    /// <summary>Bug-Audit 2026-09-12: stable identifier for cross-card stock-change dispatch.</summary>
+    public string GetItemIdPublic() => _item?.ItemId ?? string.Empty;
+
     private static int ResolveMaxStock(ItemPOCO item)
     {
         if (!item.IsInStock) return 0;

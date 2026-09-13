@@ -276,6 +276,74 @@ public static class PayoutStateStore
         }
     }
 
+    // --- F1: Write-ahead pending marker ----------------------------------------------
+    // Lifecycle: WritePendingMarker() BEFORE Money.CreateOnlineTransaction,
+    // ClearPendingMarker() only after the payout state is durably committed.
+    // A leftover marker means "transaction may be booked, state save not confirmed".
+
+    private static string PendingMarkerPath =>
+        Path.Combine(SafeStorage.GetUserDataPath("BusinessIncome"), $"payout_pending_{GetActiveSlotSuffix()}.json");
+
+    /// <summary>
+    /// Writes the pending-payout marker for the active slot (called before the bank
+    /// transaction). Failures are logged but do not block the payout — the marker is a
+    /// safety net, not a gate.
+    /// </summary>
+    public static void WritePendingMarker(int elapsedDay, float amount, int businessCount)
+    {
+        try
+        {
+            var marker = new PendingPayoutState
+            {
+                Day = elapsedDay,
+                Amount = amount,
+                BusinessCount = businessCount,
+                StartedUtc = DateTime.UtcNow.ToString("o")
+            };
+            string path = PendingMarkerPath;
+            SafeStorage.EnsureDirectoryForFile(path);
+            SafeStorage.SaveAtomic(path, marker, Mod.Log);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"Pending payout marker could not be written: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Returns the pending marker of the active slot, or null if there is none.
+    /// </summary>
+    public static PendingPayoutState? ReadPendingMarker()
+    {
+        try
+        {
+            string path = PendingMarkerPath;
+            if (!File.Exists(path)) return null;
+            return SafeStorage.LoadSafe<PendingPayoutState>(path, null, Mod.Log);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Deletes the pending marker — after the payout state is durably committed, or after
+    /// an explicit user decision via 'biz pending confirm|resolve'.
+    /// </summary>
+    public static void ClearPendingMarker()
+    {
+        try
+        {
+            string path = PendingMarkerPath;
+            if (File.Exists(path)) File.Delete(path);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"Pending payout marker could not be cleared: {ex.Message}");
+        }
+    }
+
     /// <summary>
     /// Resets the in-memory cache (e.g. on scene unload).
     /// </summary>

@@ -1,5 +1,17 @@
 # Changelog - AutoPackagingStation
 
+## 0.2.6 (2026-09-12) — Bug-Audit-Fixes Runde 4 (Audit 2026-09-12)
+- **F-Taste-PackUp Reentrancy-Schutz:** Neues `_packingUp`-Flag plus `try/finally`-Reset in `PackUpStation` verhindert Doppel-Auszahlung, falls der FishNet-Layer `Destroy_Server` ein zweites Dispatch im selben Frame anstößt.
+
+## 0.2.5 (2026-09-12) — Bug-Audit-Fixes Runde 3 (Audit 2026-09-12)
+- **Quality-Mixing nativ (HIGH):** Wenn der Output-Slot bereits einen Stack derselben Definition hat und ein neuer Batch dazukommt, mischt der Mod jetzt gewichtet (Tier-Via-Wert via neuer `PackagingMath.TierToQualityValue`-Helper) und mappt zurück auf den nächsten Tier. Vorher erbte der Stack die Qualität des ersten Batchs — Standard-Buds auf Premium-Stack wurden zu Premium verkauft und umgekehrt.
+- **ObjLoader-Datei-Limit (LOW):** `LoadMeshFromObj` prueft jetzt die Dateigroesse vor `File.ReadAllLines` (50 MB Cap) und bricht mit Warnung ab, wenn die Vertex-Anzahl 250 000 ueberschreitet. Verhindert Frame-Spike bei versehentlich riesigen OBJ-Files.
+
+## 0.2.4 (2026-09-12) — Bug-Audit-Fixes Runde 2 (Audit 2026-09-12)
+- **PackUpStation CRITICAL-Fix:** Statt rohem `GameObject.Destroy(gameObject)` ruft der Mod jetzt `BuildableItem.Destroy_Server()` (FishNet ServerRpc, der Vanilla-Dismantle-Flow). Damit wird die Buildable-Registry, Grid-Belegung und der Netzwerk-State sauber abgebaut. Verhindert Ghost-Platzierungen und Item-Duplikation nach Save/Load. Fallback auf `Destroy(gameObject)` bleibt, falls kein `BuildableItem` an dem GameObject haengt (z. B. Editor-Spawn).
+- **Output-Pre-Flight (HIGH):** Vor dem Phase-2-Deduct wird geprueft, ob die Output-Definition + `GetDefaultInstance(1)` tatsaechlich aufloesbar sind. Wenn nein, wird der Cycle vor dem Input-Deduct sauber abgebrochen (kein stiller Item-Verlust mehr).
+- **Host-Guard:** `Destroy_Server()`-Aufruf ist hinter `IsHostOrSingleplayer()` gehaengt — auf einem MP-Client ruft der Mod weiterhin den Vanilla-Fallback auf, weil der Server-RPC sonst stumm no-op't.
+
 ## 0.2.3 (2026-09-11)
 - TryDepositProduct/Packaging: Remove-before-Credit (kein Gratis-Item bei Remove-Fehlschlag mehr).
 - Engine: feasible<=0 bricht Batch-Rechnung ab (statt batchSize=1-Coerce).

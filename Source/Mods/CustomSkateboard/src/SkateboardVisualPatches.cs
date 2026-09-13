@@ -123,9 +123,6 @@ public static class SkateboardVisualPatches
         }
     }
 
-    private static bool s_disableTerrainSlowdownCached = true;
-    internal static void SetDisableTerrainSlowdownCached(bool v) => s_disableTerrainSlowdownCached = v;
-
     public static void OnWeatherChangePostfix(Skateboard __instance)
     {
         try

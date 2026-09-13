@@ -35,7 +35,18 @@ public static class NetworkGuard
     /// <summary>Prüft, ob eine UnityEngine.Object-Referenz noch gültig ist (IL2CPP-sicher).</summary>
     public static bool IsAlive(UnityEngine.Object? obj)
     {
-        return obj != null && obj.Pointer != IntPtr.Zero && !obj.WasCollected;
+        // Bug-Audit 2026-09-12: the overload (UnityEngine.Object) check was missing here,
+        // inconsistent with GameObjectResolver.IsAlive / ShopListingSync / Shared internals.
+        // A native reference whose wrapper is alive but the underlying object was destroyed
+        // (Pointer != Zero but (Object)obj == null) used to slip through.
+        if (obj == null) return false;
+        try
+        {
+            if (obj.Pointer == IntPtr.Zero || obj.WasCollected) return false;
+            if ((UnityEngine.Object)obj == null) return false;
+            return true;
+        }
+        catch { return false; }
     }
 
     public static void LogError(ModLogger log, string context, Exception ex)

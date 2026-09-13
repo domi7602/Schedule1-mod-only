@@ -9,6 +9,13 @@ namespace StackLimitMod;
 public class StackLimitConfig
 {
     public int StackLimit { get; set; } = 40;
+    // Bug-Audit 2026-09-12 (Round 3): when true, even items Vanilla ships as
+    // non-stackable (Limit=1) get the global StackLimit. The default is kept TRUE
+    // for backwards-compatibility with users who already have a config.json, but
+    // documented here so new users understand the trade-off (quest items, unique
+    // weapons become stackable, which can break certain quests and UI assumptions).
+    // Set to false in-game via `stack set overridenonstackable false` if you hit
+    // quest- or UI regressions.
     public bool OverrideNonStackable { get; set; } = true;
     public List<string> ExcludedItemIds { get; set; } = new();
     public bool LogModifications { get; set; } = true;

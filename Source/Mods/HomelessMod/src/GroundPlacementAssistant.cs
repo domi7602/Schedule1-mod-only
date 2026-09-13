@@ -39,14 +39,24 @@ public static class GroundPlacementAssistant
     private static int BuildObstacleMask()
     {
         int mask = 0;
-        string[] layers = new[] { "Default", "Terrain", "Building", "Props" };
+        // Bug-Audit 2026-09-12 (Round 3): the previous mask covered only Default /
+        // Terrain / Building / Props, so vehicles, NPCs and any other modded object
+        // collapsed as "free" and the player could drop a sleeping bag through them.
+        // Mirror the ray-snap mask's exclude-list philosophy (everything except the
+        // player's own ghosts) by adding the layers that the game actually uses for
+        // interactable geometry. Unknown layers are silently skipped (throw-free).
+        string[] layers = new[] {
+            "Default", "Terrain", "Building", "Props",
+            "Vehicle", "NPC", "Player", "Item",
+            "Interactable", "Navigation", "NavigationRegion"
+        };
         foreach (var layer in layers)
         {
             int idx = LayerMask.NameToLayer(layer);
             if (idx >= 0)
                 mask |= 1 << idx;
             else
-                MelonLoader.MelonLogger.Warning($"[HomelessMod] Layer '{layer}' not found — skipped from ObstacleLayerMask.");
+                MelonLoader.MelonLogger.Msg($"[HomelessMod] Layer '{layer}' not found — skipped from ObstacleLayerMask.");
         }
         return mask != 0 ? mask : ~0;
     }

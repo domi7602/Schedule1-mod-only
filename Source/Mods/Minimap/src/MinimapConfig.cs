@@ -58,6 +58,9 @@ public sealed class MinimapConfig
     public bool ShowActiveDeals { get; set; } = true;
     public bool ShowPotentialCustomers { get; set; } = true;
     public bool ShowKnownCustomers { get; set; } = true;
+    public bool ShowDealerBlips { get; set; } = true;
+    public bool ShowWaypoints { get; set; } = true;
+    public bool ShowHealthBar { get; set; } = true;
     public bool ShowPropertyBlips { get; set; } = true;
     public bool ShowShopBlips { get; set; } = true;
     public bool ShowQuestBlips { get; set; } = true;

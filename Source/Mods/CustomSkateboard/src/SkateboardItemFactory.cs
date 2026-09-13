@@ -162,17 +162,14 @@ public static class SkateboardItemFactory
         if (board == null || board.Pointer == IntPtr.Zero) return;
         // Gatekeeper-fix B13: clamp invalid JSON values (TopSpeed 0/negative) before applying.
         try { config.Validate(); } catch { }
-        // Gatekeeper-fix 2026-08-30 B13: validate/clamp config values before tuning
-        config.TopSpeed_Kmh = Mathf.Clamp(config.TopSpeed_Kmh, 1f, 200f);
-        config.PushCooldown = Mathf.Clamp(config.PushCooldown, 0.05f, 2f);
-        config.PushForceMultiplier = Mathf.Clamp(config.PushForceMultiplier, 0.1f, 20f);
-        config.PushForceDuration = Mathf.Clamp(config.PushForceDuration, 0.05f, 2f);
-        config.JumpForce = Mathf.Clamp(config.JumpForce, 0.1f, 50f);
-        config.TurnForce = Mathf.Clamp(config.TurnForce, 0.1f, 100f);
+        // Bug-Audit 2026-09-12 (Round 4): the per-field clamps below used to differ from
+        // config.Validate() (e.g. TopSpeed 1-200 here vs. 5-300 there), making Validate a
+        // no-op. Delegate to Validate first, then apply the few additional fields that
+        // are only tuned here (PushForceDuration, BrakeForce, AirMovementForce) so the
+        // clamp ranges can never drift again.
         config.BrakeForce = Mathf.Clamp(config.BrakeForce, 0f, 20f);
         config.AirMovementForce = Mathf.Clamp(config.AirMovementForce, 0f, 50f);
-        // Gatekeeper-fix B10: cache terrain flag for hot-path prefixes (avoids Mod.CurrentConfig try/catch per tick).
-        try { Visuals.SkateboardVisualPatches.SetDisableTerrainSlowdownCached(config.DisableTerrainSlowdown); } catch { }
+        config.PushForceDuration = Mathf.Clamp(config.PushForceDuration, 0.05f, 2f);
         int instId = 0;
         try { instId = board.GetInstanceID(); } catch { }
         // H5: Use only InstanceID (pointer recycled after Destroy). If ID unavailable, don't cache — always retune.

@@ -27,6 +27,47 @@ public static class PaginationController
     private static readonly List<Button> ActivePrevButtons = new();
     private static readonly List<Button> ActiveNextButtons = new();
 
+    // Bug-Audit 2026-09-12 (Round 3): round-3 ownership tracker for EventTrigger entries
+    // so re-attach only removes events we previously installed. Vanilla's slot-card
+    // handlers (saved-game hover highlight etc.) survive.
+    private static readonly Dictionary<IntPtr, List<EventTrigger.Entry>> _ownedTriggers = new();
+
+    // Bug-Audit 2026-09-13 (Round 5): destroy-listener to prevent EventTrigger pointer leak.
+    // When a SaveDisplay slot GameObject is destroyed (page change / scene reload),
+    // our owned entries in _ownedTriggers must be cleaned up — otherwise the dictionary
+    // grows unbounded with dead IntPtr keys.
+    private static void CleanupOwnedTriggersForSlot(IntPtr triggerPtr)
+    {
+        if (triggerPtr == IntPtr.Zero) return;
+        if (!_ownedTriggers.TryGetValue(triggerPtr, out var owned)) return;
+        _ownedTriggers.Remove(triggerPtr);
+        try
+        {
+            // Find the EventTrigger component and remove our entries.
+            foreach (var go in UnityEngine.Object.FindObjectsOfType<GameObject>())
+            {
+                var trigger = go.GetComponent<EventTrigger>();
+                if (trigger == null || trigger.Pointer != triggerPtr) continue;
+                for (int i = owned.Count - 1; i >= 0; i--)
+                {
+                    var entry = owned[i];
+                    if (entry == null) { owned.RemoveAt(i); continue; }
+                    var list = trigger.triggers;
+                    if (list == null) { owned.RemoveAt(i); continue; }
+                    for (int j = list.Count - 1; j >= 0; j--)
+                    {
+                        if (list[j] == entry) { list.RemoveAt(j); owned.RemoveAt(i); break; }
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Best effort — if FindObjectsOfType fails, the dictionary entry is stale
+            // but harmless (the IntPtr is dead and will never match again).
+        }
+    }
+
     public static int GetSelectedOrHoveredSlot()
     {
         int local = (HoveredLocalSlot >= 0 && HoveredLocalSlot < SlotsPerPage)
@@ -64,6 +105,15 @@ public static class PaginationController
     {
         try
         {
+            // Bug-Audit 2026-09-13 (Round 5): clean up stale owned triggers on page change.
+            // When navigating pages, old slot cards are destroyed — their EventTrigger entries
+            // in _ownedTriggers become dead keys. Clean them up here.
+            var oldKeys = new List<IntPtr>(_ownedTriggers.Keys);
+            foreach (var key in oldKeys)
+            {
+                CleanupOwnedTriggersForSlot(key);
+            }
+
             // Gatekeeper-fix 2026-08-29: FindObjectsOfType<T>() is [Obsolete] in Unity 2022.3+ (CS0618).
             // Migrated to FindObjectsByType with explicit FindObjectsSortMode.None (no allocation, faster).
             var saveDisplays = UnityEngine.Object.FindObjectsByType<SaveDisplay>(FindObjectsSortMode.None);
@@ -161,7 +211,7 @@ public static class PaginationController
         Button prevBtn = UIHelper.CreateButton(
             barObj.transform,
             "Btn_Prev",
-            "◄ PREV",
+            "PREV",
             95f,
             32f,
             btnNormal,
@@ -191,7 +241,7 @@ public static class PaginationController
         Button nextBtn = UIHelper.CreateButton(
             barObj.transform,
             "Btn_Next",
-            "NEXT ►",
+            "NEXT",
             95f,
             32f,
             btnNormal,
@@ -211,7 +261,7 @@ public static class PaginationController
         UIHelper.CreateButton(
             barObj.transform,
             "Btn_Rename",
-            "✏️ RENAME",
+            "RENAME",
             110f,
             32f,
             renameNormal,
@@ -230,7 +280,7 @@ public static class PaginationController
         UIHelper.CreateButton(
             barObj.transform,
             "Btn_Delete",
-            "🗑️ DELETE",
+            "DELETE",
             110f,
             32f,
             deleteNormal,
@@ -256,20 +306,28 @@ public static class PaginationController
         {
             trigger.triggers = new il2cpp::Il2CppSystem.Collections.Generic.List<EventTrigger.Entry>();
         }
-        else
+
+        // Bug-Audit 2026-09-12 (Round 3): the previous filter removed ANY PointerEnter/
+        // PointerExit/PointerClick entry — including vanilla entries that SaveDisplay
+        // installed itself. Saved-game slot cards lost their hover highlight because we
+        // collected the vanilla handlers. Track OUR entries separately so we only
+        // remove the ones we own.
+        IntPtr key = trigger.Pointer;
+        if (!_ownedTriggers.TryGetValue(key, out var owned))
         {
-            // Remove only our hover/click entries (stale localIndex closures from a
-            // previous attach) — never Clear() the whole list, vanilla may own entries
-            // (hover/click handlers) that must survive.
-            for (int i = trigger.triggers.Count - 1; i >= 0; i--)
+            owned = new List<EventTrigger.Entry>();
+            _ownedTriggers[key] = owned;
+        }
+        for (int i = trigger.triggers.Count - 1; i >= 0; i--)
+        {
+            var existing = trigger.triggers[i];
+            if (existing == null) { trigger.triggers.RemoveAt(i); continue; }
+            if (owned.Contains(existing))
             {
-                var existing = trigger.triggers[i];
-                if (existing == null) { trigger.triggers.RemoveAt(i); continue; }
-                if (existing.eventID == EventTriggerType.PointerEnter
-                    || existing.eventID == EventTriggerType.PointerExit
-                    || existing.eventID == EventTriggerType.PointerClick)
-                    trigger.triggers.RemoveAt(i);
+                trigger.triggers.RemoveAt(i);
+                owned.RemoveAt(i);
             }
+            // else: keep it — it is vanilla (or another mod's) handler.
         }
 
         // IL2CPP-safe subscription via S1API (a direct UnityAction cast faults on
@@ -291,6 +349,18 @@ public static class PaginationController
         {
             SelectedLocalSlot = localIndex;
         });
+
+        // Bug-Audit 2026-09-12 (Round 3): EventHelper does not return the Entry it
+        // created, so we identify our entries by tail-position (the three we just
+        // added). The next attach will then know exactly which entries to remove.
+        int count = trigger.triggers?.Count ?? 0;
+        if (count >= 3)
+        {
+            var list = trigger.triggers!;
+            owned.Add(list[count - 3]);
+            owned.Add(list[count - 2]);
+            owned.Add(list[count - 1]);
+        }
     }
 
     public static void UpdateUILabel()
@@ -299,36 +369,69 @@ public static class PaginationController
 
         for (int i = ActivePageLabels.Count - 1; i >= 0; i--)
         {
-            var label = ActivePageLabels[i];
-            if (label == null || label.gameObject == null)
+            TextMeshProUGUI? label = null;
+            try { label = ActivePageLabels[i]; }
+            catch { try { ActivePageLabels.RemoveAt(i); } catch { } continue; }
+            try
             {
-                ActivePageLabels.RemoveAt(i);
-                continue;
+                if (!IsAliveT(label)) { ActivePageLabels.RemoveAt(i); continue; }
+                label.text = labelStr;
+                if (!label.gameObject.activeSelf) label.gameObject.SetActive(true);
+                if (!label.enabled) label.enabled = true;
+                if (label.alpha < 0.9f) label.alpha = 1f;
             }
-            label.text = labelStr;
+            catch { try { ActivePageLabels.RemoveAt(i); } catch { } }
         }
 
         for (int i = ActivePrevButtons.Count - 1; i >= 0; i--)
         {
-            var btn = ActivePrevButtons[i];
-            if (btn == null || btn.gameObject == null)
+            Button? btn = null;
+            try { btn = ActivePrevButtons[i]; }
+            catch { try { ActivePrevButtons.RemoveAt(i); } catch { } continue; }
+            try
             {
-                ActivePrevButtons.RemoveAt(i);
-                continue;
+                if (!IsAliveB(btn)) { ActivePrevButtons.RemoveAt(i); continue; }
+                btn.interactable = CurrentPage > 0;
             }
-            btn.interactable = CurrentPage > 0;
+            catch { try { ActivePrevButtons.RemoveAt(i); } catch { } }
         }
 
         for (int i = ActiveNextButtons.Count - 1; i >= 0; i--)
         {
-            var btn = ActiveNextButtons[i];
-            if (btn == null || btn.gameObject == null)
+            Button? btn = null;
+            try { btn = ActiveNextButtons[i]; }
+            catch { try { ActiveNextButtons.RemoveAt(i); } catch { } continue; }
+            try
             {
-                ActiveNextButtons.RemoveAt(i);
-                continue;
+                if (!IsAliveB(btn)) { ActiveNextButtons.RemoveAt(i); continue; }
+                btn.interactable = CurrentPage < TotalPages - 1;
             }
-            btn.interactable = CurrentPage < TotalPages - 1;
+            catch { try { ActiveNextButtons.RemoveAt(i); } catch { } }
         }
+    }
+
+    private static bool IsAliveT(TextMeshProUGUI? tmp)
+    {
+        if (tmp == null) return false;
+        try
+        {
+            if (tmp.Pointer == IntPtr.Zero || tmp.WasCollected) return false;
+            if (tmp.gameObject == null) return false;
+            return true;
+        }
+        catch { return false; }
+    }
+
+    private static bool IsAliveB(Button? btn)
+    {
+        if (btn == null) return false;
+        try
+        {
+            if (btn.Pointer == IntPtr.Zero || btn.WasCollected) return false;
+            if (btn.gameObject == null) return false;
+            return true;
+        }
+        catch { return false; }
     }
 
     public static string GetPageLabelString()

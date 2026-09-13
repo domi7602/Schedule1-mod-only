@@ -1,5 +1,11 @@
 # Changelog — BankApp
 
+## 0.4.4 (2026-09-12) — Bug-Audit-Fixes Runde 3 (Audit 2026-09-12)
+- `DepositCash`/`WithdrawCash` haben jetzt einen `NetworkGuard.IsInMainScene`-Guard vor jedem Geld-Op. Defense in depth: falls eine Scene-Wechsel-Mid-Call oder Hotkey-Aufruf außerhalb von Main stattfindet, bricht der Service sauber mit Fehlermeldung ab statt eine Teiltransaktion zu riskieren.
+
+## 0.4.3 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
+- `UpdateAmountDisplay`/`UpdateModeVisuals`/`SetFeedback` nutzen jetzt den `IsAlive`-Guard (konsistent zu RefreshAll). Verhindert MissingReference-Spam bei Phone-Close oder Szenenwechsel.
+
 ## 0.4.2 (2026-09-11)
 - WasCollected-Guards in RefreshAll/Update/OnPhoneClosed (kein MissingReference nach Unload).
 - PreLoad resettet Slot-Cache nicht mehr (kein bank_default.json mitten in Session).

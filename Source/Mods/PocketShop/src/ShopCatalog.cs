@@ -26,6 +26,21 @@ public sealed class ItemPOCO
     public StorableItemDefinition Definition { get; set; } = null!;
     public ShopListing SourceListing { get; set; } = null!;
     public Sprite? Icon { get; set; }
+
+    /// <summary>Bug-Audit 2026-09-12: stable identity for stock-change dispatch.</summary>
+    public string ItemId
+    {
+        get
+        {
+            try
+            {
+                if (Definition != null && Definition.Pointer != IntPtr.Zero && !Definition.WasCollected)
+                    return Definition.ID ?? string.Empty;
+            }
+            catch { }
+            return string.Empty;
+        }
+    }
 }
 
 /// <summary>
@@ -73,6 +88,10 @@ public static class ShopCatalog
     {
         try
         {
+            // Bug-Audit 2026-09-13 (Round 5): aggressive cache invalidation.
+            // Clear caches BEFORE reading ShopInterface.AllShops so that any
+            // stale POCO references are fully dropped. This prevents
+            // "ghost shops" when a shop is unregistered between Refresh calls.
             _itemCache.Clear();
             _shopCache.Clear();
 

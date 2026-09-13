@@ -56,12 +56,15 @@ public sealed class SkateboardConfig
         TopSpeed_Kmh = Mathf.Clamp(TopSpeed_Kmh, 5f, 300f);
         PushForceMultiplier = Mathf.Clamp(PushForceMultiplier, 0.1f, 20f);
         PushCooldown = Mathf.Clamp(PushCooldown, 0.05f, 2f);
+        PushForceDuration = Mathf.Clamp(PushForceDuration, 0.05f, 2f);
         TurnForce = Mathf.Clamp(TurnForce, 0.1f, 50f);
         TurnChangeRate = Mathf.Clamp(TurnChangeRate, 1f, 200f);
         TurnReturnToRestRate = Mathf.Clamp(TurnReturnToRestRate, 1f, 200f);
         JumpForce = Mathf.Clamp(JumpForce, 0.1f, 50f);
         JumpDuration_Min = Mathf.Clamp(JumpDuration_Min, 0.05f, 2f);
         JumpDuration_Max = Mathf.Clamp(JumpDuration_Max, JumpDuration_Min, 2f);
+        BrakeForce = Mathf.Clamp(BrakeForce, 0f, 20f);
+        AirMovementForce = Mathf.Clamp(AirMovementForce, 0f, 50f);
         Price = Mathf.Max(0f, Price);
     }
 }

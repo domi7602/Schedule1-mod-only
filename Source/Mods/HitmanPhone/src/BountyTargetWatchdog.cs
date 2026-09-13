@@ -36,8 +36,13 @@ public static class BountyTargetWatchdog
             try
             {
                 var npc = S1NPCManager.GetNPC(c.TargetNpcId);
-                // If the NPC is loaded and has been knocked out or killed
-                if (npc != null && !npc.IsConscious)
+                // Bug-Audit 2026-09-12: `!npc.IsConscious` fired on KO too — awarding a kill
+                // for a non-lethal takedown and escalating to Lethal pursuit. NPCHealth.IsDead
+                // distinguishes the two via the game's own state, and onDieOrKnockedOut is
+                // wired to the same flag.
+                if (npc != null && npc.Health != null
+                    && npc.Health.Pointer != IntPtr.Zero && !npc.Health.WasCollected
+                    && npc.Health.IsDead)
                 {
                     // Trigger the existing polaroid logic
                     BountyService.OnNpcDied(npc);

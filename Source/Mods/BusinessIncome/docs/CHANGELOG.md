@@ -2,6 +2,10 @@
 
 
 
+## 0.1.4 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
+- `IsHostOrSingleplayer`: fail-**closed** bei Exceptions (vorher `return true` erlaubte Doppelbuchungen, wenn der IsServer-Marshalling-Aufruf auf einem MP-Client fehlschlug).
+- Bei `commit && !committed` (Geld gebucht aber Save fehlgeschlagen): eigene Notification „booked — save FAILED, run `biz pending confirm|resolve`“ statt der irrefuehrenden Erfolgsmeldung. Pending-Marker bleibt auf Disk; manueller `biz pending` Konsolen-Resolve-Pfad war bereits vorhanden.
+
 ## 0.1.2 (2026-09-11)
 - Windfall-Seed wird persistiert (kein Re-Seed + kein biz-stats-Flip nach Restart).
 

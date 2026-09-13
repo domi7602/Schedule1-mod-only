@@ -1,7 +1,7 @@
 #Requires -Version 7
 <#
 .SYNOPSIS
-    Bumps version across the 4 source-of-truth files for a mod.
+    Bumps version across the 5 source-of-truth files for a mod.
 
 .DESCRIPTION
     Synchronisiert die Version über:
@@ -11,6 +11,7 @@
       2. Source/Mods/<Mod>/docs/mod.json -> "version": "x.y.z"
       3. Source/Mods/<Mod>/docs/CHANGELOG.md -> prepend "## x.y.z - YYYY-MM-DD"
       4. AGENTS.md -> Mod-Matrix Zeile
+      5. README.md -> Featured-Mods Zeile ("* **<Mod>** (vX.Y.Z): ...")
 
 .EXAMPLE
     pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.1
@@ -142,9 +143,36 @@ function Update-ModVersion {
             }
         }
         if ($agentsChanged -and -not $IsDryRun) {
-            $newAgents = $newLines -join "`r`n"
+            # 2026-09-12: LF statt CRLF (Repo-Policy: .gitattributes eol=lf).
+            $newAgents = $newLines -join "`n"
             [System.IO.File]::WriteAllText($agentsPath, $newAgents, $utf8NoBom)
         }
+    }
+
+    # 5. README.md featured-mods row ("* **<Mod>** (vX.Y.Z): ...")
+    $readmePath = Join-Path $workspaceRoot "README.md"
+    $escapedReadmeMod = [regex]::Escape($ModName)
+    if (Test-Path -LiteralPath $readmePath) {
+        $readmeRaw = [System.IO.File]::ReadAllText($readmePath, [System.Text.Encoding]::UTF8)
+        $readmeLines = $readmeRaw -split "`r?`n"
+        $newReadmeLines = @()
+        $readmeChanged = $false
+        foreach ($line in $readmeLines) {
+            if ($line -match "^\* \*\*$escapedReadmeMod\*\* \(v") {
+                $rxReadme = [regex]"\(v\d+\.\d+\.\d+(-[\w\.]+)?\)"
+                $newLine = $rxReadme.Replace($line, "(v$NewVersion)", 1)
+                if ($newLine -ne $line) { $readmeChanged = $true; $changed += "README.md featured row -> v$NewVersion" }
+                $newReadmeLines += $newLine
+            } else {
+                $newReadmeLines += $line
+            }
+        }
+        if ($readmeChanged -and -not $IsDryRun) {
+            $newReadme = $newReadmeLines -join "`n"
+            [System.IO.File]::WriteAllText($readmePath, $newReadme, $utf8NoBom)
+        }
+    } else {
+        Write-Warning "  [$ModName] README.md nicht gefunden"
     }
 
     if ($changed.Count -gt 0) {

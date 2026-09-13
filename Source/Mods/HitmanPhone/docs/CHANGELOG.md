@@ -1,6 +1,10 @@
 # Changelog
 
 
+## 0.2.4 (2026-09-12) — Bug-Audit-Fixes Runde 2 (Audit 2026-09-12)
+- **Client-Payout-Sackgasse aufgeloest (MEDIUM):** `OnStorageContentsChanged` blockierte den Client-Spieler komplett vom Polaroid-Payout (Host-only-Gate + Host-lokales Save ohne AwaitingDrop-Eintrag des Clients). Fix: Client darf mit eigenem Save validieren und zahlen (`ChangeCashBalance` synct Player-Bilanz ueber FishNet; Polaroid-Consume laeuft im Dead-Drop auf dem Client). Host bleibt zustaendig fuer Vertragsannahme-Logik.
+- **KO-als-Kill verhindert (MEDIUM):** `BountyTargetWatchdog` prueft jetzt `npc.Health.IsDead` (echter Tod) statt `!npc.IsConscious` (auch bei K.o. true). Ein betaeubtes Ziel loest keinen Lethal-Pursuit + keine volle Belohnung mehr aus. Belohnung bleibt weiterhin auf `OnNpcDied`-Pfad.
+
 ## 0.2.3 (2026-09-11)
 - Deadline-Boundary >= (exakt 3 Tage wie im Journal versprochen).
 - ConsumePolaroids frisst nur noch 1 Slot (zweite Contracts-Evidence ueberlebt).

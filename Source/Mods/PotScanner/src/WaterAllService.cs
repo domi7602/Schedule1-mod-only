@@ -95,7 +95,11 @@ public static class WaterAllService
             {
                 if (!info.IsOwnedProperty) { foreignSkipped++; continue; }
                 if (!byPtr.TryGetValue(info.NativePtr, out var c)) { missingFromScene++; continue; }
-                if (info.WaterPercent >= threshold) { dryEnoughSkipped++; continue; }
+                // Bug-Audit 2026-09-12: the cached WaterPercent is up to 2s old, so a pot
+                // cached-dry could be live-feucht (or vice-versa) and skip/charge wrongly.
+                // The live `c.NormalizedMoistureAmount` is the authoritative gate that
+                // the per-pot loop already uses below; align the threshold check with it.
+                if (c.NormalizedMoistureAmount >= threshold) { dryEnoughSkipped++; continue; }
                 targets.Add((info.NativePtr, c));
             }
 
@@ -122,7 +126,9 @@ public static class WaterAllService
                 return new WaterAllResult(false, targets.Count, 0, 0f,
                     $"Not enough cash ({totalCost} needed, {money.cashBalance} available)");
 
-            // 6. CHARGE & 7. WATER — per-pot try/catch, only successfully watered pots are charged
+            // 6. CHARGE & 7. WATER — per-pot try/catch, only successfully watered pots are charged.
+            //    Bug-Audit 2026-09-12: re-check the running cash balance before each charge so a
+            //    concurrent spender (another mod / shop) cannot drive the balance negative.
             int watered = 0;
             float totalCharged = 0f;
             foreach (var (_, c) in targets)
@@ -131,6 +137,11 @@ public static class WaterAllService
                 {
                     if (c.NormalizedMoistureAmount < 0.99f)
                     {
+                        if (money.cashBalance < Constants.WaterAllCostPerPot)
+                        {
+                            // Out of cash mid-loop — stop and report what we already did.
+                            break;
+                        }
                         c.SetMoistureAmount(c.MoistureCapacity);
                         money.ChangeCashBalance(-Constants.WaterAllCostPerPot, visualizeChange: true, playCashSound: false);
                         watered++;

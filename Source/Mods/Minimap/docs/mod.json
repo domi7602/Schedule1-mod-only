@@ -1,6 +1,6 @@
 {
   "name": "Minimap",
   "author": "Dominik",
-  "version": "1.0.3",
-  "description": "High-performance customizable Minimap & Unified DayCounter HUD for Schedule I with circular radar, tactical square, POI blips, and drag-and-drop."
+  "version": "2.0.1",
+  "description": "Minimap & Unified HUD v2: dealer/police/customer markers, pulsing heat ring, health bar, user waypoints, and a phone settings app with per-blip-type toggles and hex colors."
 }

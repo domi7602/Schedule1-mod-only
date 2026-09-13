@@ -83,6 +83,21 @@ public static class ObjLoader
         {
             if (!File.Exists(objPath)) return null;
 
+            // Bug-Audit 2026-09-12 (Round 3): cap raw file size + vertex count before
+            // File.ReadAllLines so a mis-dropped multi-hundred-MB OBJ or a Combined
+            // monster mesh does not block the game thread on first equip.
+            const long MaxBytes = 50L * 1024 * 1024;       // 50 MB
+            try
+            {
+                var fi = new FileInfo(objPath);
+                if (fi.Length > MaxBytes)
+                {
+                    MelonLoader.MelonLogger.Warning($"[BackpackMod][ObjLoader] Skipping '{objPath}': {fi.Length:N0} bytes exceeds {MaxBytes:N0} limit.");
+                    return null;
+                }
+            }
+            catch { /* fileinfo may throw on weird paths — fall through to File.ReadAllLines and let it fail naturally */ }
+
             List<Vector3> rawVertices = new();
             List<Vector3> rawNormals = new();
             List<Vector2> rawUVs = new();
@@ -98,6 +113,11 @@ public static class ObjLoader
             string[] lines = File.ReadAllLines(objPath);
             foreach (string line in lines)
             {
+                if (rawVertices.Count > 250000)
+                {
+                    MelonLoader.MelonLogger.Warning($"[BackpackMod][ObjLoader] '{objPath}' exceeded 250000 vertices — aborting to protect frame time.");
+                    return null;
+                }
                 string trimmed = line.Trim();
                 if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith("#"))
                     continue;

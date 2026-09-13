@@ -7,7 +7,7 @@ using MoreSaveSlots.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-[assembly: MelonInfo(typeof(MoreSaveSlots.MoreSaveSlotsMod), "MoreSaveSlots", "1.0.6", "Dominik")]
+[assembly: MelonInfo(typeof(MoreSaveSlots.MoreSaveSlotsMod), "MoreSaveSlots", "1.0.10", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 [assembly: MelonGame("TVGS", "Schedule 1")]
 
@@ -36,7 +36,7 @@ public class MoreSaveSlotsMod : MelonMod
             // Will be set by Harmony patch once SaveManager class initializes
         }
 
-        MelonLogger.Msg($"Initialized (v1.0.6) with {Config.TotalSlots} slots ({PaginationController.TotalPages} pages).");
+        MelonLogger.Msg($"Initialized (v1.0.10) with {Config.TotalSlots} slots ({PaginationController.TotalPages} pages).");
     }
 
     public override void OnUpdate()
@@ -111,6 +111,7 @@ public class MoreSaveSlotsMod : MelonMod
     {
         RenameDialog.ResetForSceneReload();
         DeleteDialog.ResetForSceneReload();
+        try { UIHelper.ResetFontCache(); } catch { }
     }
 
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)

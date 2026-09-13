@@ -2,7 +2,7 @@ using System;
 using MelonLoader;
 using Il2CppInterop.Runtime.Injection;
 
-[assembly: MelonInfo(typeof(CalculatorApp.Mod), "CalculatorApp", "0.2.2", "Dominik")]
+[assembly: MelonInfo(typeof(CalculatorApp.Mod), "CalculatorApp", "0.2.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace CalculatorApp;

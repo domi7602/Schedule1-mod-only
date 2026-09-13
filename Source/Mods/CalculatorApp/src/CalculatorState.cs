@@ -73,9 +73,16 @@ public sealed class CalculatorState
             var info = LoadManager.Instance?.ActiveSaveInfo;
             if (info != null && info.Pointer != IntPtr.Zero && !info.WasCollected)
             {
-                string slot = info.SaveSlotNumber.ToString();
-                _lastKnownSlot = slot;
-                return slot;
+                // Bug-Audit 2026-09-12: missing the >=0 guard here created a
+                // calculator_state_slot_-1.json on the first menu-state write (NotesApp
+                // already had this guard). Pre-load / main-menu states with slot -1 now
+                // fall back to the last known good slot, just like the storage helper.
+                if (info.SaveSlotNumber >= 0)
+                {
+                    string slot = info.SaveSlotNumber.ToString();
+                    _lastKnownSlot = slot;
+                    return slot;
+                }
             }
         }
         catch { }

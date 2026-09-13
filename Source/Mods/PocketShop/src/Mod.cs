@@ -4,7 +4,7 @@ using PocketShop.Config;
 using PocketShop.Services;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(PocketShop.Mod), "PocketShop", "0.2.3", "Dominik")]
+[assembly: MelonInfo(typeof(PocketShop.Mod), "PocketShop", "0.2.5", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace PocketShop;
@@ -17,7 +17,7 @@ public class Mod : MelonMod
     {
         Log = new ModLogger("PocketShop");
         ModConfig<PocketShopConfig>.Initialize("PocketShop", Log);
-        MelonLogger.Msg("initialized (v0.2.1).");
+        MelonLogger.Msg("initialized (v0.2.5).");
     }
 
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)

@@ -28,7 +28,7 @@ public sealed class CalculatorEngine
     public string? PendingOperator => _state.PendingOperator;
     public bool HasPendingOperation => _state.FirstOperand.HasValue && !string.IsNullOrEmpty(_state.PendingOperator);
     public bool IsDirtyEntry => _state.DisplayText != "0" && !_state.IsNewEntry;
-    public bool HasError => _state.DisplayText == "Error" || _state.DisplayText.StartsWith("Cannot") || _state.DisplayText.StartsWith("Invalid");
+    public bool HasError => _state.DisplayText == "Error" || _state.DisplayText == "Overflow" || _state.DisplayText.StartsWith("Cannot") || _state.DisplayText.StartsWith("Invalid");
     public IReadOnlyList<CalculationRecord> History => _state.History;
 
     /// <summary>
@@ -264,13 +264,24 @@ public sealed class CalculatorEngine
 
         if (decimal.TryParse(_state.DisplayText, NumberStyles.Float, CultureInfo.InvariantCulture, out decimal val))
         {
-            decimal result = val * val;
-            string formatted = FormatNumber(result);
-            _state.ExpressionText = $"sqr({FormatNumber(val)}) =";
-            _state.DisplayText = formatted;
-            _state.IsNewEntry = true;
-            AddHistoryRecord($"sqr({FormatNumber(val)})", formatted);
-            SaveAndNotify();
+            // Bug-Audit 2026-09-12: TryCompute guards against decimal OverflowException, but
+            // Square/Reciprocal do not. Wrapping here closes the uncaught-throw path that
+            // bypasses the UI callback. Pasting a huge number and tapping x² now sets the
+            // error display instead of throwing into the button handler.
+            try
+            {
+                decimal result = val * val;
+                string formatted = FormatNumber(result);
+                _state.ExpressionText = $"sqr({FormatNumber(val)}) =";
+                _state.DisplayText = formatted;
+                _state.IsNewEntry = true;
+                AddHistoryRecord($"sqr({FormatNumber(val)})", formatted);
+                SaveAndNotify();
+            }
+            catch (OverflowException)
+            {
+                SetError("Overflow");
+            }
         }
     }
 
@@ -289,13 +300,20 @@ public sealed class CalculatorEngine
                 return;
             }
 
-            decimal result = 1m / val;
-            string formatted = FormatNumber(result);
-            _state.ExpressionText = $"1/({FormatNumber(val)}) =";
-            _state.DisplayText = formatted;
-            _state.IsNewEntry = true;
-            AddHistoryRecord($"1/({FormatNumber(val)})", formatted);
-            SaveAndNotify();
+            try
+            {
+                decimal result = 1m / val;
+                string formatted = FormatNumber(result);
+                _state.ExpressionText = $"1/({FormatNumber(val)}) =";
+                _state.DisplayText = formatted;
+                _state.IsNewEntry = true;
+                AddHistoryRecord($"1/({FormatNumber(val)})", formatted);
+                SaveAndNotify();
+            }
+            catch (OverflowException)
+            {
+                SetError("Overflow");
+            }
         }
     }
 

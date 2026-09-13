@@ -194,7 +194,11 @@ namespace BackpackMod
                         S1Mods.Shared.ShopListingSync.OnListingAdded(shop, listing, 10, msg => Mod.Log?.Msg(msg), msg => Mod.Log?.Warning(msg));
                         Mod.Log?.Msg($"Injected '{itemId}' into hardware shop listing ('{shop.ShopName}') — now {listings.Count} listings.");
                     }
-                    // Gatekeeper-hotfix 2026-08-30: dump full listing snapshot for debug (shop shows 0 items? verify vanilla overwrites)
+                    // Bug-Audit 2026-09-12 (Round 3): gate the listing-snapshot dump behind
+                    // #if DEBUG — the per-load log spam was filling MelonLoader.log in
+                    // Release and made the legitimate warnings harder to find. The
+                    // investigation it served was completed in the gatekeeper hotfix.
+#if DEBUG
                     try
                     {
                         var ids = new System.Collections.Generic.List<string>();
@@ -202,6 +206,7 @@ namespace BackpackMod
                         MelonLoader.MelonLogger.Msg("[BackpackMod][ShopDump] '" + shop.ShopName + "' (" + shop.ShopCode + ") listings=" + listings.Count + ": " + string.Join(", ", ids.ToArray()));
                     }
                     catch { }
+#endif
                 }
             }
             catch (Exception ex)

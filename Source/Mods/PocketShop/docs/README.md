@@ -4,7 +4,7 @@
 
 ---
 
-## 🌟 Features (v0.2.0)
+## 🌟 Features (v0.2.5)
 
 - **2-Level Navigation**:
   - **Level 1 (Store Directory)**: 4×3 grid with all city merchants, themed vector icons and merchant portraits.

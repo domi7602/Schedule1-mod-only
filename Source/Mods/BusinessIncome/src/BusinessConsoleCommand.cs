@@ -15,7 +15,7 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
     public override string CommandWord => "biz";
 
     public override string CommandDescription =>
-        "BusinessIncome: stats, trigger [--commit], config, set <key> <val>, help";
+        "BusinessIncome: stats, trigger [--commit], config, set <key> <val>, pending, catchup, help";
 
     public override string ExampleUsage => "biz stats";
 
@@ -51,6 +51,14 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
                 case "?":
                 case "h":
                     PrintHelp();
+                    return;
+
+                case "pending":
+                    ExecutePending(args);
+                    return;
+
+                case "catchup":
+                    ExecuteCatchup();
                     return;
 
                 default:
@@ -172,6 +180,7 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
         sb.AppendLine($"  WeekendBonusRate:        +{cfg.WeekendBonusRate * 100:0}%");
         sb.AppendLine($"  EnableNotifications:     {cfg.EnableNotifications}");
         sb.AppendLine($"  PlayCashSound:           {cfg.PlayCashSound}");
+        sb.AppendLine($"  MaxCatchupDays:          {cfg.MaxCatchupDays}");
         sb.AppendLine("  Multipliers:");
         foreach (var kvp in cfg.PropertyMultipliers)
         {
@@ -248,8 +257,19 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
                 else Print("<color=#ff6060>Invalid bool value (true/false).</color>");
                 return;
 
+            case "maxcatchup":
+            case "catchupdays":
+                if (int.TryParse(val, out int catchupVal) && catchupVal >= 1 && catchupVal <= 365)
+                {
+                    ModConfig<BusinessIncomeConfig>.SetAndSave("MaxCatchupDays", catchupVal);
+                    ConfigJsonStore.Save(ModConfig<BusinessIncomeConfig>.Instance);
+                    Print($"<color=#60f080>MaxCatchupDays set to {catchupVal}.</color>");
+                }
+                else Print("<color=#ff6060>Invalid day count (1-365).</color>");
+                return;
+
             default:
-                Print($"<color=#ff6060>Unknown key '{key}'.</color> Allowed: base, hour, costs, notif, sound");
+                Print($"<color=#ff6060>Unknown key '{key}'.</color> Allowed: base, hour, costs, notif, sound, maxcatchup");
                 return;
         }
     }
@@ -263,6 +283,8 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
         sb.AppendLine("  biz trigger --commit       - Executes real payout and saves marker");
         sb.AppendLine("  biz config                 - Shows current configuration");
         sb.AppendLine("  biz set <key> <val>        - Configures settings at runtime");
+        sb.AppendLine("  biz pending [confirm|resolve] - Resolve an unchecked payout after a crash");
+        sb.AppendLine("  biz catchup                - Shows catch-up backlog and MaxCatchupDays cap");
         sb.AppendLine("  biz help                   - Shows this help");
         Print(sb.ToString());
     }
@@ -270,6 +292,74 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
     private static void Print(string message)
     {
         MelonLogger.Msg(message);
+    }
+
+    /// <summary>
+    /// F1 follow-up: resolve a leftover pending-payout marker after a crash between
+    /// transaction booking and state commit.
+    /// </summary>
+    private void ExecutePending(List<string> args)
+    {
+        var pending = PayoutStateStore.ReadPendingMarker();
+        if (pending == null || pending.Day < 0)
+        {
+            Print("<color=#60f080>No pending payout. Everything settled.</color>");
+            return;
+        }
+
+        if (args.Exists(a => a.Equals("confirm", StringComparison.OrdinalIgnoreCase)))
+        {
+            // Money was received (bank app shows the 'Business Revenue' entry): advance the
+            // payout state to the pending day so the catch-up does not pay it again.
+            PayoutStateStore.CommitPayout(pending.Day, Array.Empty<string>());
+            PayoutStateStore.ClearPendingMarker();
+            Print($"<color=#60f080>Pending payout for day {pending.Day} (+${pending.Amount.ToString("N2", CultureInfo.InvariantCulture)}) marked as received — day will not be paid again.</color>");
+        }
+        else if (args.Exists(a => a.Equals("resolve", StringComparison.OrdinalIgnoreCase)))
+        {
+            // Money never arrived: clear the marker so the next day-pass/catch-up pays again.
+            PayoutStateStore.ClearPendingMarker();
+            Print($"<color=#ffaa00>Pending marker for day {pending.Day} cleared. The next catch-up will attempt the payout (+${pending.Amount.ToString("N2", CultureInfo.InvariantCulture)}) again.</color>");
+        }
+        else
+        {
+            Print($"<color=#ffaa00>UNCHECKED PAYOUT:</color> day {pending.Day}, +${pending.Amount.ToString("N2", CultureInfo.InvariantCulture)}, {pending.BusinessCount} businesses, started {pending.StartedUtc}.");
+            Print("Check the in-game bank app for a 'Business Revenue' entry of that day, then run:");
+            Print("  biz pending confirm  - money received, mark day as paid (no second booking)");
+            Print("  biz pending resolve  - money missing, clear marker so it pays again");
+        }
+    }
+
+    /// <summary>
+    /// F2 follow-up: show the current catch-up backlog and the configured cap.
+    /// </summary>
+    private void ExecuteCatchup()
+    {
+        int elapsedDays = 0;
+        try { elapsedDays = S1API.GameTime.TimeManager.ElapsedDays; } catch { }
+
+        var cfg = ModConfig<BusinessIncomeConfig>.Instance;
+        var state = PayoutStateStore.GetState();
+        int backlog = elapsedDays - state.LastPaidElapsedDay;
+        int cap = Math.Max(1, cfg.MaxCatchupDays);
+
+        Print($"<color=#60f080>[Catch-up Status]</color>");
+        Print($"  Current day:          {elapsedDays}");
+        Print($"  Last paid day:        {state.LastPaidElapsedDay}");
+        Print($"  Backlog:              {backlog} day(s)");
+        Print($"  MaxCatchupDays:       {cap}");
+        if (backlog > cap)
+        {
+            Print($"<color=#ffaa00>  Backlog exceeds cap — the next catch-up will pay days {elapsedDays - cap + 1}..{elapsedDays} and skip the rest.</color>");
+        }
+        else if (backlog > 0)
+        {
+            Print($"<color=#60f080>  The next day-pass will pay days {state.LastPaidElapsedDay + 1}..{elapsedDays}.</color>");
+        }
+        else
+        {
+            Print("<color=#60f080>  Nothing to catch up.</color>");
+        }
     }
 
     private static bool Is(List<string> args, int index, params string[] values)

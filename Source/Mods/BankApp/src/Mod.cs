@@ -7,7 +7,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(BankApp.Mod), "BankApp", "0.4.2", "Dominik")]
+[assembly: MelonInfo(typeof(BankApp.Mod), "BankApp", "0.4.4", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BankApp;

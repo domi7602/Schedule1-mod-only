@@ -216,6 +216,9 @@ public sealed class PocketShopApp : PhoneApp
         _gridPane = new ItemGridPane(contentRt);
         _gridPane.OnPurchaseResult += HandlePurchaseResult;
         _gridPane.OnInspectRequested += itm => _detailModal?.Show(itm);
+        // Bug-Audit 2026-09-13 (Round 5): wire the catalog-change callback
+        // so the directory pane's store-count badge updates when the catalog refreshes.
+        _gridPane.OnCatalogChanged += () => _directoryPane?.RefreshShopCount();
 
         // Item Detail Inspection Modal (Overlay)
         _detailModal = new ItemDetailModal((RectTransform)_mainBG.transform);
@@ -330,7 +333,18 @@ public sealed class PocketShopApp : PhoneApp
     private void HandlePurchaseResult(PurchaseResultData result)
     {
         RefreshStats();
-        _gridPane?.RefreshAllBuyStates();
+        if (result.IsSuccess && result.Item != null)
+        {
+            // Bug-Audit 2026-09-12: only refresh BUY-state left the visible card stale
+            // (badge + QuantitySelector max). Notify the matching grid card so it
+            // re-clamps its selector and redraws the stock badge in sync with the
+            // live listing that PurchaseService just decremented.
+            _gridPane?.NotifyStockChanged(result.Item.ItemId);
+        }
+        else
+        {
+            _gridPane?.RefreshAllBuyStates();
+        }
         _detailModal?.RefreshDisplay();
     }
 

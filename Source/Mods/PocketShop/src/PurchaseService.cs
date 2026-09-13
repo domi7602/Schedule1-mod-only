@@ -142,7 +142,32 @@ public static class PurchaseService
             return result;
         }
 
-        int availableStock = !item.IsInStock ? 0 : (item.CurrentStock > 0 ? item.CurrentStock : UnlimitedStockSentinel);
+        // Bug-Audit 2026-09-12: the POCO's CurrentStock is a snapshot from the last
+        // ShopCatalog.Refresh (only fired on App-Open). Reading it here means co-op
+        // clients can oversell — another player has already drained the live listing.
+        // Prefer the live listing's stock when available; fall back to the POCO only
+        // when the native reference is missing/collected.
+        int liveStock = item.CurrentStock;
+        bool useLive = false;
+        try
+        {
+            if (item.SourceListing != null && item.SourceListing.Pointer != IntPtr.Zero && !item.SourceListing.WasCollected)
+            {
+                liveStock = item.SourceListing.CurrentStock;
+                useLive = true;
+            }
+        }
+        catch { }
+        bool liveInStock;
+        try
+        {
+            liveInStock = (useLive && item.SourceListing != null)
+                ? item.SourceListing.IsInStock
+                : item.IsInStock;
+        }
+        catch { liveInStock = item.IsInStock; }
+
+        int availableStock = !liveInStock ? 0 : (liveStock > 0 ? liveStock : UnlimitedStockSentinel);
         if (availableStock == 0)
         {
             result.Result = BuyResult.StockEmpty;

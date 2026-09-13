@@ -1,6 +1,11 @@
 # Changelog
 
 
+## 0.2.3 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
+- `GetActiveSlotSuffix`: `SaveSlotNumber >= 0`-Guard ergaenzt (Schliesst `calculator_state_slot_-1.json`-Pfad, den NotesApp schon hatte).
+- `InputSquare`/`InputReciprocal` fangen `decimal.OverflowException` und setzen jetzt „Overflow“ statt unkontrolliert in den Button-Callback zu werfen.
+- `HasError` erkennt nun auch `DisplayText == "Overflow"`, sodass Folge-Eingaben an einem Overflow-Display korrekt blockiert werden.
+
 ## 0.2.2 (2026-09-11)
 - WasCollected-Guards in UpdateDisplayUI/RefreshHistoryList (kein Crash auf toter UI).
 

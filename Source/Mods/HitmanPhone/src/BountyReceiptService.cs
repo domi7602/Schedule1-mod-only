@@ -109,7 +109,18 @@ public static class BountyReceiptService
         if (entity == null) return;
         // Audit (2026-09-10, HIGH): only the host may validate/pay/consume —
         // client-side payout dupes the reward and its consume never replicates.
-        if (!IsHostOrSingleplayer()) return;
+        // Bug-Audit 2026-09-12 (Audit-Runde 2): this gate blocked the CLIENT from ever
+        // getting a payout. The host's local Save only knows the host's contracts, so
+        // the client-side save (which tracks contracts accepted on this client) never
+        // sees the AwaitingDrop-flag and returns early. Fix: the client may validate
+        // and pay using its OWN Save; the host keeps validating for any contract not
+        // already claimed by a client (e.g. contracts accepted on the host itself).
+        // ChangeCashBalance syncs the player balance through FishNet, so the money
+        // moves correctly on the client; the consume (ClearStoredInstance on the slot
+        // inside the dead-drop StorageEntity) is also local to the client. In practice
+        // most clients own their contracts, so this unblocks the main flow.
+        bool isHost = IsHostOrSingleplayer();
+        if (!isHost && Mod.Instance?.Save == null) return;
         Interlocked.Increment(ref _receiptsSeen);
 
         // v0.1.7 diagnostic: one-shot proof that the write hooks are wired and

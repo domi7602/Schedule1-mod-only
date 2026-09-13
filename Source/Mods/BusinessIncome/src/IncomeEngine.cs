@@ -35,7 +35,11 @@ public static class IncomeEngine
         }
         catch
         {
-            return true;
+            // Bug-Audit 2026-09-12: fail-closed on Authority exceptions. The Singleplayer
+            // case is already covered by the NetworkManager-null branch above; if an
+            // exception is thrown by IsServer marshalling on a real MP client, returning
+            // true would allow parallel payouts on host + client. Refuse instead.
+            return false;
         }
     }
 
@@ -138,6 +142,10 @@ public static class IncomeEngine
         var businessIds = lines.Select(l => l.BusinessId).ToList();
         if (commit)
         {
+            // F1: Write-ahead marker BEFORE the transaction. If the game crashes after the
+            // bank booked but before CommitPayout below, the marker survives on disk and
+            // startup warns instead of silently paying this day again.
+            PayoutStateStore.WritePendingMarker(elapsedDays, totalNet, lines.Count);
             PayoutStateStore.MarkInMemoryPaid(elapsedDays, businessIds);
         }
 
@@ -153,6 +161,7 @@ public static class IncomeEngine
             if (commit)
             {
                 PayoutStateStore.RevertInMemoryPaid(elapsedDays, businessIds);
+                PayoutStateStore.ClearPendingMarker(); // F1: no money moved — safe to clear
             }
             Mod.Log.Error($"Online transaction failed: {ex.Message}");
             return false;
@@ -160,15 +169,46 @@ public static class IncomeEngine
 
         // 5. Persist state (now safe: transaction already succeeded; a disk failure here
         //    only means the marker is missing on disk, but in-memory state stays set).
+        bool committed = true;
         if (commit)
         {
-            PayoutStateStore.CommitPayout(elapsedDays, businessIds);
+            // F1: the commit result is now checked. On failure the pending marker stays on
+            // disk: the money IS booked, but the saved state is not — startup warns and
+            // 'biz pending confirm|resolve' resolves it instead of a silent double payout.
+            committed = PayoutStateStore.CommitPayout(elapsedDays, businessIds);
+            if (committed)
+            {
+                PayoutStateStore.ClearPendingMarker();
+            }
+            else
+            {
+                Mod.Log.Error($"PayoutState for day {elapsedDays} NOT saved (transaction already booked). Pending marker kept — resolve with 'biz pending confirm' (money received) or 'biz pending resolve' (pay again).");
+            }
         }
 
-        // 6. Send in-game HUD notification
+        // 6. Send in-game HUD notification. Only show the success banner when the money is
+        //    actually in the bank (committed=true). On commit-with-failed-persist, show a
+        //    different message so the player is not told "you got paid" when the state
+        //    was not saved. Dry-run (commit=false) keeps the normal revenue preview
+        //    notification since nothing was booked.
         if (config.EnableNotifications)
         {
-            SendNotification(totalNet, lines.Count, config.PlayCashSound);
+            if (commit && !committed)
+            {
+                try
+                {
+                    var notifMgr = NotificationsManager.Instance;
+                    if (notifMgr != null && (UnityEngine.Object)notifMgr != null)
+                        notifMgr.SendNotification("Business Revenue",
+                            $"+${totalNet.ToString("N0", CultureInfo.InvariantCulture)} booked — save FAILED, run 'biz pending confirm|resolve'.",
+                            null!, 5f, false);
+                }
+                catch { }
+            }
+            else
+            {
+                SendNotification(totalNet, lines.Count, config.PlayCashSound);
+            }
         }
 
         return true;

@@ -1,6 +1,10 @@
 # Changelog
 
 
+## 0.1.3 (2026-09-12) — Bug-Audit-Fixes Runde 3 (Audit 2026-09-12)
+- `StackLimitEngine.RestoreAll()` neu: stellt jedes getrackte Original-`StackLimit` wieder her. Wird in `Mod.OnDeinitializeMelon` aufgerufen, sodass Mod-Disable/Unload die Definitionen nicht mit überschriebenen Limits zurücklässt.
+- `OverrideNonStackable`-Default bleibt `true` (Backcompat), aber im Config-Kommentar dokumentiert: kann Quest-/Unique-Items stapelbar machen → bei Regressions via `stack set overridenonstackable false` deaktivieren.
+
 ## 0.1.2 (2026-09-11)
 - Exclude stellt Original-Limit wieder her (kein Override-Rest nach Nachtrag).
 - Decision-Cache mit 4096-Cap; kein Caching bei noch-unbekannter ID.

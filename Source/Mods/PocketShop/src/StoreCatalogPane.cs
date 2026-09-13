@@ -203,6 +203,20 @@ public class StoreCatalogPane
         }
     }
 
+    /// <summary>
+    /// Bug-Audit 2026-09-13 (Round 5): refresh the store count badge whenever the
+    /// catalog changes (stock update, new shop registered, etc.). Without this,
+    /// the "CHOOSE A SHOP · N STORES" header shows stale counts.
+    /// </summary>
+    public void RefreshShopCount()
+    {
+        // Rebuild only if we're currently visible — avoids redundant allocations.
+        if (_rootPanel != null && _rootPanel.activeSelf)
+        {
+            Build();
+        }
+    }
+
     public void Dispose()
     {
         if (_rootPanel != null)

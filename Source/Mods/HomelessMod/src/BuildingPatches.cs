@@ -50,6 +50,12 @@ public static class BuildingPatches
         {
             try
             {
+                // Bug-Audit 2026-09-12 (Round 3): also gate the ghost-colouring postfix on
+                // host authority. Clients see the green ghost even though the click is
+                // rejected by the Place prefix, which is a UX desync; and downstream
+                // save-stamping could fire on a client that does not own the buildable.
+                // Companion to the Place prefix guard at IsHostOrSingleplayer() below.
+                if (!IsHostOrSingleplayer()) { IsCustomPlacementValid = false; return; }
                 IsCustomPlacementValid = false;
                 if (!Mod.CurrentConfig.EnableEverywhereBuilding) return;
                 if (__instance == null || __instance.Pointer == IntPtr.Zero) return;
@@ -151,7 +157,14 @@ public static class BuildingPatches
                     }
                     catch { }
 
-                    ghost.transform.rotation = originalRot;
+                    // Bug-Audit 2026-09-12 (Round 4): the rotation reset on Z. 160 was only
+                    // reached on the success path. If EvaluatePlacement, ApplyMaterial or
+                    // anything between Z. 162 and Z. 241 throws, the Ghost was left with
+                    // Quaternion.identity — visible as a "spinning reset" ghost. Hoist the
+                    // rotation restore into a finally block so any exception path also
+                    // restores the player-aimed rotation.
+                    try
+                    {
 
                     // [GroundFix v0.1.2] The sleeping bag definition is cloned from the vanilla 'bed'
                     // (CloneFrom copies BuiltItem + grid data). Vanilla BuildUpdate_Grid derives
@@ -231,6 +244,13 @@ public static class BuildingPatches
                         {
                             Mod.Log.Info($"[Placement Failed] {LastInvalidReason}");
                         }
+                    }
+                    }
+                    finally
+                    {
+                        // Restore player-aimed rotation even on exception so the Ghost
+                        // never stays at Quaternion.identity (vanilla fallback orientation).
+                        try { ghost.transform.rotation = originalRot; } catch { }
                     }
                 }
                 else

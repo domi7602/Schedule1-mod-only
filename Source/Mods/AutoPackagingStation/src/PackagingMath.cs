@@ -23,6 +23,21 @@ public static class PackagingMath
     }
 
     /// <summary>
+    /// Inverse of ComputeQualityTier: maps a tier (0–4) to the centre value of its
+    /// quality band. Used for weighted averaging when mixing a new batch into an
+    /// existing output stack — otherwise the slot keeps the first batch's quality
+    /// forever and silently mints free Premium-tier units from Standard-tier inputs.
+    /// </summary>
+    public static float TierToQualityValue(int tier) => tier switch
+    {
+        0 => 0.20f,
+        1 => 0.35f,
+        2 => 0.55f,
+        3 => 0.80f,
+        _ => 0.95f,
+    };
+
+    /// <summary>
     /// Formats the display name for a packaged item, e.g. "OG Kush" + "jar" →
     /// "OG Kush (Jar)". Falls back to "Product (Packaged)" when packagingId is
     /// empty or null, and to "Product" when baseName is empty.
