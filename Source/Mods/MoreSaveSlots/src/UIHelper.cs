@@ -1,5 +1,6 @@
 using System;
 using Il2CppInterop.Runtime;
+using Il2CppScheduleOne.UI.MainMenu;
 using Il2CppTMPro;
 using MelonLoader;
 using S1API.Utils;
@@ -119,6 +120,65 @@ public static class UIHelper
     {
         _cachedFont = null;
         _cachedFontMaterial = null;
+    }
+
+    /// <summary>
+    /// Canvas for modal dialogs (S-05 fix): prefer the canvas hosting the SaveDisplay slot cards
+    /// (same UI stack the DEL/EDIT buttons live on), fall back to the highest-sorting root canvas.
+    /// The previous FindObjectsByType(...)[0] picked an arbitrary canvas — modals could spawn
+    /// behind the menu (invisible, but swallowing clicks => "dead buttons").
+    /// </summary>
+    public static Canvas? FindDialogCanvas()
+    {
+        try
+        {
+            var displays = UnityEngine.Object.FindObjectsByType<SaveDisplay>(
+                UnityEngine.FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (displays != null)
+            {
+                for (int i = 0; i < displays.Length; i++)
+                {
+                    SaveDisplay? d = null;
+                    try { d = displays[i]; } catch { continue; }
+                    if (d == null || d.Pointer == IntPtr.Zero || d.WasCollected) continue;
+                    var cv = CanvasOfAncestor(d.transform);
+                    if (cv != null) return cv;
+                }
+            }
+        }
+        catch { }
+
+        try
+        {
+            var canvases = UnityEngine.Object.FindObjectsByType<Canvas>(
+                UnityEngine.FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (canvases == null || canvases.Length == 0) return null;
+
+            Canvas? best = null;
+            for (int i = 0; i < canvases.Length; i++)
+            {
+                Canvas? c = null;
+                try { c = canvases[i]; } catch { continue; }
+                if (c == null || c.Pointer == IntPtr.Zero || c.WasCollected) continue;
+                try { if (!c.isRootCanvas) continue; } catch { continue; }
+                if (best == null || c.sortingOrder > best.sortingOrder) best = c;
+            }
+            return best;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static Canvas? CanvasOfAncestor(Transform? t)
+    {
+        while (t != null)
+        {
+            try { var cv = t.GetComponent<Canvas>(); if (cv != null) return cv; } catch { }
+            try { t = t.parent; } catch { return null; }
+        }
+        return null;
     }
 
     public static TextMeshProUGUI CreateTextMeshPro(Transform parent, string name, string text, float fontSize, FontStyles style, TextAlignmentOptions align, Color color)

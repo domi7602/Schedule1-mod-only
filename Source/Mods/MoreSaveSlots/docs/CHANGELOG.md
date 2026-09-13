@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.12 (2026-09-13) — S-05: tote DEL/EDIT-Buttons (unsichtbare Modals) behoben
+S-05-Fix "tote DEL/EDIT-Buttons": Die Rename-/Delete-Modals waehlten per FindObjectsByType<Canvas>()[0] einen beliebigen, unsortierten Canvas — landeten sie hinter dem Menue-Canvas, oeffneten sie unsichtbar und ihr Vollbild-Dimmer frass alle Klicks (Menue wirkte tot, ESC heilte). Jetzt: (1) UIHelper.FindDialogCanvas() waehlt den Canvas der SaveDisplay-UI-Stacks (Fallback: Root-Canvas mit hoechstem sortingOrder), (2) jedes Modal bekommt ein eigenes Sorting-Overlay (overrideSorting, sortingOrder 1000) + eigenen GraphicRaycaster, (3) beim Re-Open SetAsLastSibling. Klick-Handler waren nie defekt — das Routing dahinter war es.
+
 ## 1.0.11 (2026-09-13) — Savegame-Dupe-Fix (Geisterkarten)
 Bug-Report-Runde 6 / "Savegame-Dupe"-Fix: (1) SaveDisplay.Awake-Path behandelt leere Slots jetzt wie der Refresh-Pfad (UpdateEmptyState + UpdateSlotNumberText) — der Prefab-Platzhaltertext ('Organisation', '$0', 'More than a year ago', 'v0.1.0') bleibt nicht mehr als Geisterkarte stehen, wenn Awake vor dem Registry-Scan laeuft. (2) RefreshActiveScreen refreshed jetzt ALLE SaveDisplays inkl. inaktiver (FindObjectsInactive.Include) — der Post-Scan-Refresh uebersprang das noch geschlossene Continue-Panel, wodurch beim ersten Oeffnen veraltete Karten sichtbar waren. Klicks auf leere Slots waren und sind weiterhin sicher (ContinueScreen-Guard).
 

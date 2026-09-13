@@ -82,6 +82,8 @@ public static class RenameDialog
         if (_dialogRoot != null)
         {
             _dialogRoot.SetActive(true);
+            // Reuse case: bring the modal back to the front of the canvas.
+            try { _dialogRoot.transform.SetAsLastSibling(); } catch { }
         }
     }
 
@@ -196,14 +198,27 @@ public static class RenameDialog
     {
         if (_dialogRoot != null) return;
 
-        // Gatekeeper-fix 2026-08-30: FindObjectOfType<T>() is [Obsolete] in Unity 2022.3+ (CS0618).
-        // Migrated to FindObjectsByType with FindObjectsSortMode.None (faster, no sort).
-        Canvas canvas = UnityEngine.Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None) is { Length: > 0 } arr ? arr[0] : null;
+        // S-05 fix: canvas of the SaveDisplay UI stack (not an arbitrary arr[0] canvas).
+        Canvas? canvas = UIHelper.FindDialogCanvas();
         if (canvas == null) return;
 
         // 1. Overlay Root
         _dialogRoot = new GameObject("MoreSaveSlots_RenameModal", Il2CppType.Of<RectTransform>());
         _dialogRoot.transform.SetParent(canvas.transform, false);
+
+        // Sorting overlay (S-05): guarantee the modal renders above every sibling UI
+        // (menu screens, tooltips, transitions), independent of sibling order.
+        try
+        {
+            var modalCanvas = _dialogRoot.AddComponent<Canvas>();
+            modalCanvas.overrideSorting = true;
+            modalCanvas.sortingOrder = 1000;
+            _dialogRoot.AddComponent<GraphicRaycaster>();
+        }
+        catch (Exception exSort)
+        {
+            MelonLogger.Warning($"[MoreSaveSlots] RenameModal: sorting overlay threw: {exSort.Message}");
+        }
 
         RectTransform rootRt = _dialogRoot.GetComponent<RectTransform>();
         rootRt.anchorMin = Vector2.zero;
