@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.11 (2026-09-13) — Savegame-Dupe-Fix (Geisterkarten)
+Bug-Report-Runde 6 / "Savegame-Dupe"-Fix: (1) SaveDisplay.Awake-Path behandelt leere Slots jetzt wie der Refresh-Pfad (UpdateEmptyState + UpdateSlotNumberText) — der Prefab-Platzhaltertext ('Organisation', '$0', 'More than a year ago', 'v0.1.0') bleibt nicht mehr als Geisterkarte stehen, wenn Awake vor dem Registry-Scan laeuft. (2) RefreshActiveScreen refreshed jetzt ALLE SaveDisplays inkl. inaktiver (FindObjectsInactive.Include) — der Post-Scan-Refresh uebersprang das noch geschlossene Continue-Panel, wodurch beim ersten Oeffnen veraltete Karten sichtbar waren. Klicks auf leere Slots waren und sind weiterhin sicher (ContinueScreen-Guard).
+
 
 ## 1.0.10 (2026-09-13) — Bug-Audit-Fixes Runde 5 (Audit 2026-09-13)
 - EventTrigger-Pointer-Leak gefixt: `CleanupOwnedTriggersForSlot()` entfernt beim Page-Switch alle eigenen EventTrigger-Entries aus `_ownedTriggers` — vorher wuchs das Dictionary mit toten IntPtrs unbeschränkt.

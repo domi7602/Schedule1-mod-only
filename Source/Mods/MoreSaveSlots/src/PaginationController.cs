@@ -79,7 +79,8 @@ public static class PaginationController
         {
             // Gatekeeper-fix 2026-08-29: FindObjectsOfType<T>() is [Obsolete] in Unity 2022.3+ (CS0618).
             // Migrated to FindObjectsByType with explicit FindObjectsSortMode.None (no allocation, faster).
-            var saveDisplays = UnityEngine.Object.FindObjectsByType<SaveDisplay>(FindObjectsSortMode.None);
+            var saveDisplays = UnityEngine.Object.FindObjectsByType<SaveDisplay>(
+                UnityEngine.FindObjectsInactive.Include, FindObjectsSortMode.None);
             if (saveDisplays != null)
             {
                 for (int i = 0; i < saveDisplays.Length; i++)
@@ -87,8 +88,21 @@ public static class PaginationController
                     var sd = saveDisplays[i];
                     if (sd == null || sd.Pointer == IntPtr.Zero || sd.WasCollected) continue;
                     if (sd.gameObject == null || sd.gameObject.Pointer == IntPtr.Zero) continue;
-                    if (!sd.gameObject.activeInHierarchy) continue;
-                    sd.Refresh();
+
+                    // Fix 2026-09-13 ("Savegame-Dupe"): Inaktive SaveDisplays NICHT mehr
+                    // überspringen. Beobachteter Ablauf: Awake malt Page 1 vor dem Scan, der
+                    // Post-Scan-Refresh fand das (noch geschlossene) Continue-Panel inaktiv und
+                    // übersprang es — beim späteren Öffnen blieben die Geisterkarten. Da Refresh
+                    // über den Prefix auch auf inaktiven Objekten sicher ist, werden jetzt alle
+                    // Instanzen mit korrekten Daten befüllt; jedes Display isoliert per try/catch.
+                    try
+                    {
+                        sd.Refresh();
+                    }
+                    catch (Exception exRefresh)
+                    {
+                        MelonLogger.Warning($"[MoreSaveSlots] RefreshActiveScreen: display {i} threw: {exRefresh.Message}");
+                    }
                 }
             }
             UpdateUILabel();

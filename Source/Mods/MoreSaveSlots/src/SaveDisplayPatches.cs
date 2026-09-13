@@ -44,6 +44,26 @@ public static class SaveDisplay_Patches
                     }
 
                     __instance.SetDisplayedSave(i, info);
+
+                    // Fix 2026-09-13 ("Savegame-Dupe"): SetDisplayedSave(i, null) entfernt den
+                    // Prefab-Platzhaltertext ('Organisation', '$0', 'More than a year ago',
+                    // 'v0.1.0') NICHT — Awake läuft beim Menü-Bau vor dem Registry-Scan, und ohne
+                    // diese Bereinigung blieben 5 identische Geisterkarten stehen (Pages 2-5
+                    // waren korrekt, weil dort später ein Refresh lief). Wie im Refresh-Pfad
+                    // Empty-State + Slot-Nummer setzen.
+                    try
+                    {
+                        var awakeSlotRt = __instance.Slots[i];
+                        if (awakeSlotRt != null)
+                        {
+                            UpdateEmptyState(awakeSlotRt, page * slotsPerPage + i + 1, info != null);
+                            UpdateSlotNumberText(awakeSlotRt, page * slotsPerPage + i + 1);
+                        }
+                    }
+                    catch (Exception exEmpty)
+                    {
+                        MelonLogger.Warning($"[MoreSaveSlots] Awake: slot {i} empty-state threw: {exEmpty.Message}");
+                    }
                 }
                 catch (Exception ex)
                 {
