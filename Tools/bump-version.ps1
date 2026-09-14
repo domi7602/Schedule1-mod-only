@@ -138,6 +138,15 @@ function Update-ModVersion {
                 $newLine = $rx.Replace($line, "v$NewVersion", 1)
                 if ($newLine -ne $line) { $agentsChanged = $true; $changed += "AGENTS.md matrix -> v$NewVersion" }
                 $newLines += $newLine
+            } elseif ($line -match "^\*\*$escapedMod v\d") {
+                # 2026-09-14: Detail-Header in der "Mod Details"-Sektion
+                # ("**<Mod> vX.Y.Z (datum):**") mitsynchronisieren. Der Regex ist
+                # am Zeilenanfang verankert und verlangt "<Mod> v" — Matrix-Zeilen
+                # ("| **<Mod>** |") und Game-Versionen werden nicht getroffen.
+                $rxHeader = [regex]("(^\*\*$escapedMod v)\d+(\.\d+)*(-[\w\.]+)?")
+                $newLine = $rxHeader.Replace($line, "`${1}$NewVersion", 1)
+                if ($newLine -ne $line) { $agentsChanged = $true; $changed += "AGENTS.md detail header -> v$NewVersion" }
+                $newLines += $newLine
             } else {
                 $newLines += $line
             }

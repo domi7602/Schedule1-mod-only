@@ -33,3 +33,11 @@ Source/Archive/*.zip
 .scratch/
 **/*.tmp.cs
 **/scratch/
+
+# Agent-/Tooling-Sandboxes (self-ignoring, hier zusaetzlich hart verankert)
+.hermes/
+.opencode/
+
+# Lokale Build-Overrides (maschinen-spezifische Pfade, nie committen).
+# Beispiel/Format: ThirdParty/S1API/local.build.props <- example.build.props
+local.build.props

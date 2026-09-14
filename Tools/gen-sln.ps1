@@ -82,7 +82,11 @@ $($nestedBlocks.ToString())`tEndGlobalSection
 EndGlobal
 "@
 
-# MSBuild (.sln-Parser) toleriert keine gemischten Zeilenenden — alles auf CRLF normalisieren.
-$slnContent = $slnContent -replace "`r?`n", "`r`n"
+# Repo-Policy ist LF (`.gitattributes`: `* text=auto eol=lf`, `*.sln text eol=lf`)
+# und `bump-version.ps1` schreibt ebenfalls LF. CRLF erzeugte nur
+# "CRLF will be replaced by LF"-Warnungen + Working-Tree-Drift.
+# MSBuild/VS parsen LF-only .sln problemlos (verifiziert 2026-09-14 via
+# `-t:ValidateSolutionConfiguration` + Solution-weitem Compile).
+$slnContent = $slnContent -replace "`r`n", "`n"
 Set-Content -LiteralPath $sln -Value $slnContent -Encoding UTF8 -NoNewline
 Write-Host "Solution: $sln ($($projects.Count) projects)" -ForegroundColor Green

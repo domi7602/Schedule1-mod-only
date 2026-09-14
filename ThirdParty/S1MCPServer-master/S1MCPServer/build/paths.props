@@ -1,9 +1,17 @@
 ﻿<Project>
     <PropertyGroup>
-        <!-- Paths and conditions -->
-        <S1MonoDir>C:\Program Files (x86)\Steam\steamapps\common\Schedule I\MelonLoader</S1MonoDir>
-        <S1CPPDir>D:\Schedule 1 Modding\Dev Env\tests\branches\main-branch\manifest_7290691196745256540</S1CPPDir>
-        <CommonDir>D:\Schedule 1 Modding\TestAssemblies</CommonDir>
+        <!-- Paths and conditions
+             PATCHED 2026-09-14 by Hermes: S1CPPDir points at the game ROOT
+             (not at \MelonLoader) so that the vanilla MelonIL2CPP.targets
+             HintPath patterns "$(S1Dir)\MelonLoader\Il2CppAssemblies\*.dll"
+             resolve correctly. The original repo default expected
+             D:\Schedule 1 Modding\Dev Env\… (an alternate test branch setup).
+             Restore to:
+                 S1CPPDir=D:\Schedule 1 Modding\Dev Env\tests\branches\main-branch\manifest_7290691196745256540
+                 CommonDir=D:\Schedule 1 Modding\TestAssemblies -->
+        <S1MonoDir>C:\Program Files (x86)\Steam\steamapps\common\Schedule I</S1MonoDir>
+        <S1CPPDir>C:\Program Files (x86)\Steam\steamapps\common\Schedule I</S1CPPDir>
+        <CommonDir>C:\Program Files (x86)\Steam\steamapps\common\Schedule I</CommonDir>
         <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     </PropertyGroup>
 </Project>

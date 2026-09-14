@@ -12,22 +12,23 @@
 This repository contains several active mods, built from the ground up for stability and seamless integration into the game:
 
 ### 📱 Phone Apps
-* **NotesApp** (v1.0.2): A fully functional notepad on your in-game phone. Features safe persistence, real-time search, pinning, and quick-stamps for keeping track of your business.
+* **NotesApp** (v1.0.3): A fully functional notepad on your in-game phone. Features safe persistence, real-time search, pinning, and quick-stamps for keeping track of your business.
 * **CalculatorApp** (v0.2.3): High-precision decimal calculator integrated into your phone. Features in-game money integration (Cash & Bank) and a searchable history.
 * **PotScanner** (v0.5.3): The ultimate tool for your grow ops. Provides quick-filter tabs (Thirsty, Ready, Empty), plant quality ratings, and single-property focus modes.
 * **BankApp** (v0.4.4): Digital account dashboard for tracking your cash flow and net worth. Features slot-aware cash deposits, weekly ATM limits, and chip-based UI.
-* **PocketShop** (v0.2.4): An advanced online shopping interface with multi-payment switching (Cash/Bank/Auto), item inspection modals, and zero-overlay clean shopping.
+* **PocketShop** (v0.2.5): An advanced online shopping interface with multi-payment switching (Cash/Bank/Auto), item inspection modals, and zero-overlay clean shopping.
 
 ### 🎮 Gameplay & QoL
-* **CustomSkateboard** (v1.1.4): Overhauls the skateboarding experience with ultra-responsive carving, instant jumping, high-speed pushes, and anti-gravel suspension. Visually protects your avatar.
+* **CustomSkateboard** (v1.1.5): Overhauls the skateboarding experience with ultra-responsive carving, instant jumping, high-speed pushes, and anti-gravel suspension. Visually protects your avatar.
 * **HomelessMod** (v0.1.9): Live the street nomad life! Build anywhere, deploy procedural 3D sleeping bags, dismantle outdoor items, and follow the Street Nomad questline.
-* **BusinessIncome** (v0.1.4): Earn daily passive revenue for your owned businesses, complete with multiplayer host authority and deterministic variance.
-* **Minimap** (v2.0.1): A unified dual-shape viewport (Radar vs Tactical GPS) with dynamic rotation, zoom, pooled blips, dealer markers, police-heat ring, slot-isolated waypoints, health bar, and a settings PhoneApp.
+* **BusinessIncome** (v0.1.5): Earn daily passive revenue for your owned businesses, complete with multiplayer host authority and deterministic variance.
+* **Minimap** (v2.0.2): A unified dual-shape viewport (Radar vs Tactical GPS) with dynamic rotation, zoom, pooled blips, dealer markers, police-heat ring, slot-isolated waypoints, health bar, and a settings PhoneApp.
 * **StackLimitMod** (v0.1.3): Configurable inventory and storage stack limits (1–9999) with runtime registry patching and console commands.
-* **MoreSaveSlots** (v1.0.9): Expands vanilla save slots from 5 to 25+ with paginated navigation and inline save renaming.
-* **BackpackMod** (v1.2.2): 3D wearable backpacks with realistic harness straps, tier-based storage scaling (+4/+8/+16 slots), runtime `.obj` model loading, 360° mannequin rotation, and button-only inventory sorting with stack-merge.
-* **AutoPackagingStation** (v0.2.6): 4×4 industrial automated packaging line with UV-scroll conveyor belt, atomic 2-phase engine, weighted quality mixing, and native slot sync.
-* **HitmanPhone** (v0.2.4): Bounty/contract gameplay via the phone Messages app — anonymous callers, Polaroid evidence dead-drops, police heat, and journal quests.
+* **MoreSaveSlots** (v1.0.12): Expands vanilla save slots from 5 to 25+ with paginated navigation and inline save renaming.
+* **BackpackMod** (v1.2.3): 3D wearable backpacks with realistic harness straps, tier-based storage scaling (+4/+8/+16 slots), runtime `.obj` model loading, 360° mannequin rotation, and button-only inventory sorting with stack-merge.
+* **AutoPackagingStation** (v0.2.7): 4×4 industrial automated packaging line with UV-scroll conveyor belt, atomic 2-phase engine, weighted quality mixing, and native slot sync.
+* **HitmanPhone** (v0.2.7): Bounty/contract gameplay via the phone Messages app — anonymous callers, Polaroid evidence dead-drops, police heat, and journal quests.
+* **SnackVendor** (v0.0.2-mvp): Work in progress — player-stocked vending machine that sells gas-market ingredients to NPCs for passive cash (MVP; in-game verification pending).
 * **PhoneScroll** (v1.4): Third-party utility by V4LEXL enabling smooth home-screen scrolling for any number of installed PhoneApps.
 * **_DiagPerfCounter** (v0.3.2): Dev-tool that dumps StorageEntity hook targets to UserData for mod development (no gameplay effect).
 
@@ -57,6 +58,6 @@ Are you a modder looking to contribute, explore the architecture, or use the AI-
 Please refer to the **[Developers Guide](DEVELOPERS.md)** and **[AGENTS.md](AGENTS.md)** for details on the workspace layout, AI skills, and build pipeline.
 
 - **Contributing:** See [`CONTRIBUTING.md`](CONTRIBUTING.md) for setup, `bump-version.ps1`, `dotnet format`, and PR checklist.
-- **CI:** GitHub Actions (`.github/workflows/ci.yml`) validates format, build, tests, and SLN determinism on every push/PR.
-- **Tests:** `Source/Archive/Tests/Shared.Tests/` (xUnit) covers `Shared` core (`SafeStorage`, `UITheme`, `PatchGuard`).
+- **CI:** GitHub Actions (`.github/workflows/ci.yml`) validates format, version sync, build, tests, and SLN determinism on every push/PR.
+- **Tests:** `Source/Tests/` (xUnit) — `Shared.Tests` (SafeStorage, UITheme, PatchGuard, ModLogger, SafeInvoker, TypeResolver), `AutoPackagingStation.Tests` (pure math) and `BackpackMod.Tests` (`SortButtonLayout`). Run them with `dotnet test <csproj>`.
 - **License:** [`LICENSE`](LICENSE) — MIT for workspace code, Third-Party notices for S1API/S1MAPI.

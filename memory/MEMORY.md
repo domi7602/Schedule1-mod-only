@@ -2,10 +2,10 @@
 
 > **Central Memory Bank for AI Agents & Developers**
 > Workspace: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule1-mod-only-main` (seit Neuinstallation 2026-09 im Spiel-Ordner)
-> Last Synchronized: 2026-09-10 (Bereinigung: komplette Datei-Duplikate entfernt, Gotchas zusammengeführt, Versionen an `AGENTS.md` synchronisiert)
+> Last Synchronized: 2026-09-14 (Versionen an `AGENTS.md` §2 / README / DEVELOPERS angeglichen; neuer Versions-Drift-Guard `Tools/check-version-sync.ps1`)
 > Toolchain: .NET SDK 8.0.424 · MelonLoader 0.7.3 · S1API 3.2.0 (Fork-Build aus `ThirdParty/S1API/`)
-> `.agents/skills/` (14 Skills) und `Tools/`-Helper wurden beim Umzug 2026-09 aus dem Repo entfernt — Reaktivierung via Git-Historie (`git checkout HEAD -- .agents/skills/` bzw. `Tools/`).
-> Knowledge-Base (4804 files / 67 MB, Stand 2026-08-22): alter Workspace existiert nicht mehr — bei Bedarf neu generieren (AssetRipper/ilspycmd) oder aus Backup wiederherstellen.
+> `Skills/` (20 Skills, Index `Skills/README.md`) und `Tools/` (9 Helper) sind wieder im Repo; `Tools/check-version-sync.ps1` ist der Versions-Drift-Guard (CI + Pre-Commit, Exit 1 bei Drift). Skill-Pfade: `Skills/<name>/SKILL.md`.
+> Decompiles: `GameReferences/` (Assembly-CSharp, firstpass) liegt wieder in-Repo. Die alte Knowledge-Base (4804 files / 67 MB, Stand 2026-08-22) existiert nicht mehr — bei Bedarf neu generieren (AssetRipper/ilspycmd) oder aus Backup wiederherstellen.
 > **Single Source of Truth für Mod-Inventar & Versionen: `AGENTS.md` §2.** Dieses File hält nur noch artefact-freies Wissen: Architektur-Regeln, Gotchas, Historie.
 
 ---

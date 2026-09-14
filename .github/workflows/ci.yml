@@ -99,11 +99,13 @@ jobs:
       # Skript bei Bedarf aus der Historie:
       #   git show 891c330^:Tools/fix-knowledge-paths.ps1
 
-      - name: Verify mod versions in sync (bump-version dry-run)
+      # Version-Drift-Guard: Der Code (MelonInfo/Constants.ModVersion) ist die
+      # Single Source of Truth. mod.json, README.md und AGENTS.md muessen
+      # mitziehen (bump-version.ps1 schreibt alle vier Orte). Laeuft immer,
+      # unabhaengig von den Spiel-Assemblies — reine Text-/Regex-Pruefung.
+      - name: Version sync check (code <-> mod.json <-> README/AGENTS)
         shell: pwsh
-        run: |
-          Write-Host "Version sync is enforced via bump-version.ps1 — manual check TODO (ensure AGENTS.md matches mod.json)."
-          # Optional: add script to compare AGENTS.md vs mod.json versions
+        run: pwsh Tools/check-version-sync.ps1
 
   s1interop:
     runs-on: windows-latest

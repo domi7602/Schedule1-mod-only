@@ -1,13 +1,19 @@
 * text=auto eol=lf
 
-*.cs text
-*.props text
-*.targets text
-*.csproj text
-*.sln text
-*.json text
-*.ps1 text
-*.md text
+# Wichtig: die spezifischen Patterns MUESSEN eol=lf explizit wiederholen —
+# ein blankes `*.cs text` ueberschreibt das eol=lf des `*`-Patterns, und mit
+# core.autocrlf=true (Windows-Default) landen die Dateien dann als CRLF im
+# Working Tree → `dotnet format --verify-no-changes` (end_of_line=lf) schlaegt
+# fehl und CI/Pre-Commit blockieren. (Fix 2026-09-14)
+*.cs text eol=lf
+*.props text eol=lf
+*.targets text eol=lf
+*.csproj text eol=lf
+*.sln text eol=lf
+*.json text eol=lf
+*.ps1 text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
 *.png binary
 *.jpg binary
 *.zip binary

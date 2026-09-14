@@ -65,23 +65,23 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 
 ---
 
-## 2. Mod Inventory (Stand 2026-09-12 — Deploy-Status siehe Hinweis)
+## 2. Mod Inventory (Stand 2026-09-14 — Deploy-Status siehe Hinweis)
 
 > **Status nach Neuinstallation (2026-09-04):** Setup wiederhergestellt — .NET SDK 8.0.424 installiert, S1API 3.2.0 aus `ThirdParty/S1API/` gebaut und deployed (`Mods\S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.dll`), NotesApp + Shared als Verifikation gebaut. Die übrigen Mods sind **noch nicht** redeployed (Stand 2026-09-04) — einfach `dotnet build` je Mod laufen lassen. S1API-Rebuild: `local.build.props` (Kopie von `example.build.props`) liegt bereit; der Multi-TFM-Loader-Build wirft einen harmlosen MSB3030-Copy-Fehler beim net6.0-Durchlauf — die korrekte netstandard2.1-DLL wird trotzdem deployt. **Deploy-Konvention seit 2026-09:** DLL + Icons/Bundles → `Mods\`; `mod.json` + `<Mod>.pdb` → `UserData\<Mod>\` — json/pdb gehören **nicht** nach `Mods\`.
 
 | Mod              | Status          | Path in `Source/`      | Path in `<Game>\Mods\`              | S1API? |
 |------------------|-----------------|------------------------|-------------------------------------|--------|
-| **NotesApp**     | ✅ active (v1.0.2, **Audit-Patch 2026-09-10 / v0.4.6f13, In-Game-Verify offen**) | `Mods/NotesApp/` | `NotesApp.dll` + Icon | yes (PhoneApp + UIFactory + InputFocus hook + SafeStorage) |
+| **NotesApp**     | ✅ active (v1.0.3, **Bug-Report-Runde 6 2026-09-13 / v0.4.6f13, In-Game-Verify offen**) | `Mods/NotesApp/` | `NotesApp.dll` + Icon | yes (PhoneApp + UIFactory + InputFocus hook + SafeStorage) |
 | **PotScanner**   | ✅ active (v0.5.3, **Audit-Patch 2026-09-12 / v0.4.6f13, In-Game-Verify offen**) | `Mods/PotScanner/` | `PotScanner.dll` | yes (PhoneApp + Property + Growing + Money + Lifecycle APIs + ModConfig + Console/BaseConsoleCommand) |
 | **CalculatorApp**| ✅ active (v0.2.3, **Audit-Patch 2026-09-12 / v0.4.6f13, In-Game-Verify offen**) | `Mods/CalculatorApp/` | `CalculatorApp.dll` | yes (PhoneApp + Money + UIFactory + InputFocus hook + SafeStorage) |
 | **CustomSkateboard**| ✅ active (v1.1.5, **Audit-Patch 2026-09-13 / v0.4.6f13, In-Game-Verify offen**) | `Mods/CustomSkateboard/` | `CustomSkateboard.dll` + Icon | yes (Skating/Skateboard + Ultra Carving + Instant Jump + Anti-Gravel + Jeff Dialogue + Nexus Ready) |
-| **MoreSaveSlots**| ✅ active (v1.0.10, **Audit-Patch 2026-09-13 / v0.4.6f13, In-Game-Verify offen**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` | no (MelonMod + Harmony) |
+| **MoreSaveSlots**| ✅ active (v1.0.12, **Bug-Report-Runde 6 2026-09-13 / v0.4.6f13, In-Game-Verify offen**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` | no (MelonMod + Harmony) |
 | **DayCounter**      | ⏸ archived (v1.0.0) | `Archive/DayCounter/` | — (removed from MelonLoader) | no (MelonMod + uGUI Screen HUD + TextMeshPro + S1API/Hash Console + ModConfig) |
 | **PocketShop** | ✅ active (v0.2.5, **Audit-Patch 2026-09-13 / v0.4.6f13, In-Game-Verify offen**) | `Mods/PocketShop/` | `PocketShop.dll` | yes (PhoneApp + Multi-Payment (Cash/Bank/Auto) + ItemDetailModal + SFX) |
 | **BankApp**    | ✅ active (v0.4.4, **Audit-Patch 2026-09-12 / v0.4.6f13, In-Game-Verify offen**) | `Mods/BankApp/`    | `BankApp.dll` + Icon | yes (PhoneApp + Chip-Based Single-Screen UI + Weekly Limit Progress + Double-Entry Booking + Slot-Awareness + Save-Slot Isolation) |
 | **HomelessMod** | ✅ active (v0.1.9, **Audit-Patch 2026-09-12 / v0.4.6f13, In-Game-Verify offen**) | `Mods/HomelessMod/` | `HomelessMod.dll` | yes (Street Nomad + Everywhere Building + 3D Procedural Sleeping Bag + Quests + Console + Save-Slot Isolation) |
-| **BusinessIncome** | ✅ active (v0.1.4, **Audit-Patch 2026-09-12 / v0.4.6f13, In-Game-Verify offen**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | yes (Daily Passive Revenue + Multiplayer Host Authority + Slot Idempotency + Deterministic Variance + Console Dashboard) |
-| **Minimap**        | ✅ active (v2.0.1, **Marker & Settings Edition 2026-09-12 / v0.4.6f13, In-Game-Verify offen**) | `Mods/Minimap/` | `Minimap.dll` | yes (Minimap & Unified HUD + Dual-Shape Circle/Square + Pooled Blips + DayCounter Merged + Drag-and-Drop + **v2: Dealer-Marker + Heat-Ring (EPursuitLevel) + Waypoints (slot-isoliert, Console `minimap wp`) + Health-Bar + Minimap-Settings-PhoneApp (Toggles + Hex-Farben) + v2.0.1: Waypoint-Save-Rekursion/Crash-Fix + Health-Bar-Layout-Fix**) |
+| **BusinessIncome** | ✅ active (v0.1.5, **Bug-Report-Runde 6 2026-09-13 / v0.4.6f13, In-Game-Verify offen**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | yes (Daily Passive Revenue + Multiplayer Host Authority + Slot Idempotency + Deterministic Variance + Console Dashboard) |
+| **Minimap**        | ✅ active (v2.0.2, **Bug-Report-Runde 6 2026-09-13 / v0.4.6f13, In-Game-Verify offen**) | `Mods/Minimap/` | `Minimap.dll` | yes (Minimap & Unified HUD + Dual-Shape Circle/Square + Pooled Blips + DayCounter Merged + Drag-and-Drop + **v2: Dealer-Marker + Heat-Ring (EPursuitLevel) + Waypoints (slot-isoliert, Console `minimap wp`) + Health-Bar + Minimap-Settings-PhoneApp (Toggles + Hex-Farben) + v2.0.1: Waypoint-Save-Rekursion/Crash-Fix + Health-Bar-Layout-Fix**) |
 | **ProfitTracker**   | ⏸ archived (v1.1.0) | `Archive/ProfitTracker/` | — (removed from MelonLoader) | no (MelonMod + uGUI Screen HUD + TextMeshPro + S1API/Hash Console + SafeStorage) |
 | **TVBrowser**       | ⏸ archived (v0.1.0) | `Archive/TVBrowser/`   | — (removed from MelonLoader) | yes (TVApp + BrowserNavBar + InputFocus + UwbBridge + ModConfig) |
 | **MikuPlayerModel** | ⏸ disabled (discontinued) | `Archive/MikuPlayerModel/` | `MikuPlayerModel.dll.bak` | yes (Player Avatar Injection + Verlet Hair Spring Physics + Console) |
@@ -89,9 +89,10 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 | Construction Site | ⏸ disabled     | —                      | `ConstructionSiteProperty.dll.bak`   | no   |
 | **MoreDrugs 1.0.2** | ✅ active (ifBars rewrite, S1API Save-Provider, **verified 2026-08-04**) | `ThirdParty/MoreDrugs/` | `DrugExpansion_Il2cpp.dll` (10.5 MB) + .bak | yes (S1API 3.1.7+ Save-Provider APIs verified) |
 | **StackLimitMod** | ✅ active (v0.1.3, **Audit-Patch 2026-09-12 / v0.4.6f13, In-Game-Verify offen**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` | yes (BaseItemDefinition + Registry + BaseItemInstance Harmony Patches + Console + SafeStorage) |
-| **BackpackMod**   | ✅ active (v1.2.2, **QoL: B1 Button-Sort + Audit-Patch 2026-09-12 / v0.4.6f13, In-Game-Verify offen**) | `Mods/BackpackMod/` | `BackpackMod.dll` + .bundle | yes (3D Wearable Backpacks + Spine Rig Alignment + Realistic Harness & Straps + ObjLoader + Storage + Mannequin 360 Rotation + **B1 Sort: Button-only Sortierung (Backpack/Inventory/Container) mit Stack-Merge nach ID+Qualität+Packaging, Sort-Button im StorageMenu + „Sort Inventory" im GameplayMenu, atomarer Plan-then-Commit (v1.2.0: GetCopy statt GetDefaultInstance — Quality/Packaging preserved; Clipboard-Slot-Referenz-Filter; Overflow-Sidecar bei vollem Inventar; OnPreLoad-Cross-Save-Protect; v1.2.1: ObjLoader 50MB/250k-Vertex-Cap, ShopDump #if DEBUG; v1.2.2: HUD-Sort-Button Raycast-Schutz gegen Grid-Click-Schlucken)**) |
-| **AutoPackagingStation** | ✅ active (v0.2.6, **Audit-Patch 2026-09-12 / v0.4.6f13, In-Game-Verify offen**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | yes (4x4 Industrial Packaging Line + UV Scroll Conveyor + Native Slot Sync + SafeStorage + Shop Injection) |
-| **HitmanPhone** | ✅ active (v0.2.4, **Audit-Patch 2026-09-12 / v0.4.6f13, In-Game-Verify offen**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | yes (MessagesApp Contracts + NPC + Items + Quests + SafeStorage) |
+| **BackpackMod**   | ✅ active (v1.2.3, **QoL: B1 Button-Sort + Audit-Patch 2026-09-12 / v0.4.6f13, In-Game-Verify offen**) | `Mods/BackpackMod/` | `BackpackMod.dll` + .bundle | yes (3D Wearable Backpacks + Spine Rig Alignment + Realistic Harness & Straps + ObjLoader + Storage + Mannequin 360 Rotation + **B1 Sort: Button-only Sortierung (Backpack/Inventory/Container) mit Stack-Merge nach ID+Qualität+Packaging, Sort-Button im StorageMenu + „Sort Inventory" im GameplayMenu, atomarer Plan-then-Commit (v1.2.0: GetCopy statt GetDefaultInstance — Quality/Packaging preserved; Clipboard-Slot-Referenz-Filter; Overflow-Sidecar bei vollem Inventar; OnPreLoad-Cross-Save-Protect; v1.2.1: ObjLoader 50MB/250k-Vertex-Cap, ShopDump #if DEBUG; v1.2.2: HUD-Sort-Button Raycast-Schutz gegen Grid-Click-Schlucken; v1.2.3: StorageMenu-Sort-Overlay-Fix (kleinstes-Button-Template + erzwungene Geometrie via SortButtonLayout + BackpackMod.Tests)**) |
+| **AutoPackagingStation** | ✅ active (v0.2.7, **Bug-Report-Runde 6 2026-09-13 / v0.4.6f13, In-Game-Verify offen**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | yes (4x4 Industrial Packaging Line + UV Scroll Conveyor + Native Slot Sync + SafeStorage + Shop Injection) |
+| **HitmanPhone** | ✅ active (v0.2.7, **Vanilla-UI-Titel-Sync 2026-09-14 / v0.4.6f13, In-Game-Verify offen**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | yes (MessagesApp Contracts + NPC + Items + Quests + SafeStorage) |
+| **SnackVendor** |  MVP (v0.0.2-mvp, **Spike 2026-09-14, Build OK / In-Game-Verify offen**) | `Mods/SnackVendor/` | `SnackVendor.dll` | yes (S1API Buildable + Vanilla-VendingMachine-Klon + marker-guarded Harmony + Sidecar-Persistenz) |
 | **_DiagPerfCounter** | ✅ active (v0.3.2, **Dev-Tool, dok. 2026-09-10**) | `Mods/_DiagPerfCounter/` | `_DiagPerfCounter.dll` | no (Reflection-Dump via SafeStorage-Pfad) |
 | **PhoneScroll** | ✅ active (v1.4, **by V4LEXL, 3rd-party Closed-Source, deployed 2026-09-10**) | `ThirdParty/PhoneScroll/` | `PhoneScroll.dll` | no (vanilla Phone-HomeScreen-Hook) |
 | **Shared**       | ✅ active (workspace lib, **Audit-Patch 2026-09-12 / v0.4.6f13**) | `Mods/Shared/` | `Shared.dll` | no (PatchGuard, SafeStorage, GameObjectResolver, SafeInvoker, HotkeyManager, ModConfig, ModLogger, NetworkGuard, SceneGate, TypeResolver, UITheme) |
@@ -103,14 +104,15 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 |-----------------|------------|-------------------------------------------------------------------------|----------------------------------------|-------|
 | **Sideload 1.7.0** | ❌ entfernt 2026-09-10 (deprecated, ungenutzt) | — | — | DooDesch HTML/CSS/JS-UI-Framework; kein Mod im Workspace hatte es je eingebunden. |
 | **hash 1.0.5**  | 📦 lokal vorhanden (undeployed, deprecated 2026-09-10) | `ThirdParty/ScheduleOne-Hash/` (ZIP + `Hash_extracted/`)              | `Hash.dll` → `<Game>\Mods\`            | DooDesch terminal replacement for the dev console. Nicht mehr genutzt — bleibt im Repo als Referenz. |
-| **PhoneScroll 1.4** | ✅ active (auto-deployed 2026-09-10) | `ThirdParty/PhoneScroll/` (DLL + `README.md`) | `PhoneScroll.dll` → `<Game>\Mods\` | V4LEXL auf NexusMods. Closed-Source. Scrollt das vanilla Phone-HomeScreen (Mask-Setup + AppIcons-Scroll). Whitelist via `ThirdParty/.deployignore`. Siehe `ThirdParty/PhoneScroll/README.md` fuer Verhalten + ScrollSpeed-Tuning. |
+| **PhoneScroll 1.4** | ✅ active (auto-deployed 2026-09-10) | `ThirdParty/PhoneScroll/` (DLL) | `PhoneScroll.dll` → `<Game>\Mods\` | V4LEXL auf NexusMods. Closed-Source. Scrollt das vanilla Phone-HomeScreen (Mask-Setup + AppIcons-Scroll). Whitelist via `ThirdParty/.deployignore`. Verhalten: Harmony-Postfix auf `HomeScreen.Start`, `ScrollViewport`-`Mask` um `HomeScreen/AppIcons`, Mausrad-Scroll (`ScrollSpeed`-Default 30 → in `UserData\MelonPreferences.cfg`, Sektion `[PhoneScroll]`, auf 5-10 senken); S1API-PhoneApps mit eigenem `ScrollRect` reagieren auf denselben Mausrad-Tick. Details: `ThirdParty/PhoneScroll/README.md`. |
 | S1API 3.2.0      | ✅ active (Fork-Build, deployed 2026-09-04) | `ThirdParty/S1API/` (Source + `local.build.props`)               | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.dll` | (itself — see §4) |
 
 ---
 
 ### Mod Details (current status)
 
-**NotesApp v1.0.2 (2026-09-11, Bugfix-Runde):**
+**NotesApp v1.0.3 (2026-09-13, Bug-Report-Runde 6):**
+- **v1.0.3 (Bug-Report-Runde 6 2026-09-13):** N1 - JSON `Title`/`Text`: `null` wird beim Laden zu `string.Empty` normalisiert (RefreshList-Crash bei hand-editierten/korrupten `notes`-Dateien behoben).
 - **v1.0.2:** RefreshList Null-/WasCollected-Guard; Slot-Suffix >=0-Check (kein slot_-1-File).
 - **v1.0.1:** Statischer Event-Dispatcher (kein Subscriber-Leak pro Szeneload); tote `MigrateLegacyGlobalNotes()` entfernt.
 - **SafeStorage Persistence:** Protects `notes.json` via `S1Mods.Shared.SafeStorage.SaveAtomic` (atomic write + `.bak` backup) with automatic crash recovery.
@@ -161,7 +163,9 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 - **Store Injection & Console:** Dynamic dialog injection for Jeff Gilmore plus console commands `skate` (give, stats, help).
 - **Strict Vanilla Isolation & Camera:** Pure runtime instance tuning at `OnMount` protects all vanilla boards (Golden Skateboard, Cruiser, etc.) from overwrites and preserves the native `SkateboardCamera` follow.
 
-**MoreSaveSlots v1.0.10 (2026-09-13, Audit-Patch Runde 5 2026-09-13):**
+**MoreSaveSlots v1.0.12 (2026-09-13, Bug-Report-Runde 6):**
+- **v1.0.12 (Bug-Report-Runde 6 2026-09-13):** S-05 „tote DEL/EDIT-Buttons" — Rename-/Delete-Modals waehlten per `FindObjectsByType<Canvas>()[0]` einen unsortierten Canvas und landeten hinter dem Menue-Canvas (unsichtbar, Vollbild-Dimmer frass alle Klicks). Fix: `UIHelper.FindDialogCanvas()` (SaveDisplay-UI-Stack, Fallback hoechster `sortingOrder`), eigenes Sorting-Overlay (`overrideSorting`, order 1000) + GraphicRaycaster pro Modal, `SetAsLastSibling` beim Re-Open.
+- **v1.0.11 (2026-09-13):** Savegame-Dupe-Fix (Geisterkarten).
 - **v1.0.10 (Bug-Audit 2026-09-13):** `CleanupOwnedTriggersForSlot(IntPtr)` (PaginationController.cs:39-68) räumt owned EventTrigger-Pointer explizit ab; `RefreshActiveScreen()` (Z. 104-118) entfernt stale Keys pro Slot — schliesst das Rest-Leak aus dem Runde-3-Audit (F18-Verifikation).
 - **v1.0.9 (Bug-Audit 2026-09-12):** EventTrigger-Cleanup (`PaginationController.AttachHoverTracker`) entfernt nur noch **eigene** Entries (per `_ownedTriggers`-Dictionary getrackt) statt alle Pointer-Eintraege. Vorher wurden Vanilla-Hover/Click-Handler der Save-Slot-Cards mit-entfernt, wodurch der Hover-Highlight der Slots verloren ging.
 - **v1.0.3:** NewGame Bounds-Guard; EventHelper-Hover ohne Clear(); Font-Liveness; Rename ohne Regex-Fallback.
@@ -208,7 +212,8 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 - **Removed:** Free-text amount input + `BankAppInputFocus` (no typing in UI → WASD protection obsolete; IL2Cpp registration removed).
 - **Unchanged Backend:** Double-entry transactions (rollback on failure), slot capacity, weekly limit, slot-isolated persistence, audio.
 
-**BusinessIncome v0.1.4 (2026-09-12, Audit-Patch Runde 2026-09-12):**
+**BusinessIncome v0.1.5 (2026-09-13, Bug-Report-Runde 6):**
+- **v0.1.5 (Bug-Report-Runde 6 2026-09-13):** BIZ-01 Catch-up-Loop nach Cap neu eingelesen + hart auf `MaxCatchupDays` gedeckelt + LastPaid-Validierung beim Laden (Freeze bei korruptem State); BIZ-02 `biz trigger --commit` verlangt `--force` bei bereits bezahltem Tag (Money-Printer geschlossen); BIZ-03 `float.IsFinite`-/Upper-Bound-Guards in `Sanitize` inkl. `MaxCatchupDays`-Clamp (NaN-Economy-Brick verhindert); BIZ-04 `biz pending confirm` committet nur vorwaerts; BIZ-05 `OnPreLoad` behaelt den Slot (`keepSlot:true`, kein `*_default.json` im Lade-Fenster).
 - **v0.1.4 (Bug-Audit 2026-09-12):** `IsHostOrSingleplayer` jetzt fail-**closed** bei Exceptions (`return false` statt `return true` — der Singleplayer-Pfad ist bereits ueber den `NetworkManager == null`-Branch abgedeckt; ein Authority-Marshalling-Fehler auf einem MP-Client erlaubt nun nicht mehr Doppelbuchungen). Bei `commit && !committed` (Geld gebucht aber Save fehlgeschlagen) zeigt die HUD-Notification jetzt einen separaten „booked — save FAILED, run `biz pending confirm|resolve`"-Hinweis statt der irrefuehrenden Erfolgsmeldung; Pending-Marker bleibt auf Disk, der `biz pending`-Konsolen-Resolve-Pfad war bereits vorhanden.
 - **v0.1.2:** Windfall-Seed wird persistiert (CommitPayout).
 - **v0.1.1:** Windfall-Seed bei Erstinstallation; Catch-up via OnDayPass; invariantes Display-Format.
@@ -219,7 +224,8 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 - **HUD & Audio Feedback:** In-game HUD notification via `NotificationsManager.Instance.SendNotification` with cash register chime.
 - **Console & Terminal Dashboard:** Full dev-console (`~` / `F1`) and DooDesch `hash` terminal (`#`) integration (`biz stats`, `biz trigger [--commit]`, `biz config`, `biz set <key> <val>`, `biz help`).
 
-**Minimap v2.0.1 (2026-09-12, Audit-Patch Runde 2026-09-12):**
+**Minimap v2.0.2 (2026-09-13, Bug-Report-Runde 6):**
+- **v2.0.2 (Bug-Report-Runde 6 2026-09-13):** M-05 - `ContentSizeFitter` (`PreferredSize`) am Settings-Scroll-Content; Save&Apply-Footer ist jetzt bei langem Inhalt erreichbar (Scroll funktionierte vorher nie korrekt).
 - **v2.0.1 (Bug-Audit 2026-09-12):** `ResolveSlotSuffix → Save()`-Rekursion gefixt (Crash): `_dirty` wird jetzt vor `FlushToPath(oldPath)` konsumiert → keine unkatchbare `StackOverflowException` mehr beim Slot-Switch nach fehlgeschlagenem Waypoint-Save (AV/Readonly); neue `FlushToPath(string)` schreibt an expliziten Pfad ohne erneute `ResolveSlotSuffix`-Auflösung. Health-Bar bekommt `sizeDelta = (mapSize*0.92f, 6f)` (vorher Unity-Default 100x100 → ueberlappte die Karte).
 - **v1.0.3:** Critical-First-Blip-Partition (Pool-Overflow); Raycast-Sync in ApplyLayout.
 - **v1.0.2:** Config-Save entprellt (Toggle/Unload statt pro Zoom-Taste).
@@ -243,7 +249,8 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 - **In-Game Console & Terminal Integration:** Dev console (`~`) and DooDesch `hash` terminal (`#`) commands: `stack stats`, `stack set <amount>`, `stack reload`, `stack help` (with `stacklimit` alias).
 - **SafeStorage Persistence:** Atomic JSON persistence (`UserData/StackLimitMod/config.json`) with automatic `.bak` recovery.
 
-**BackpackMod v1.2.2 (2026-09-12, Audit-Patch Runde 4 2026-09-12):**
+**BackpackMod v1.2.3 (2026-09-13, StorageMenu-Sort-Overlay-Fix):**
+- **v1.2.3 (Echtspiel-Report 2026-09-13):** `SortUIInjector` klonte den ERSTEN Button unter `CloseButtonContainer` und erbte dessen Rect ungeprueft — bei Container-Panels wurde der „Sort"-Button bildschirmfuellend und schluckte Klicks. Template ist jetzt der kleinste Button (`FindSmallestButton`; eigene Klone + Zerstoerte ausgenommen); Groesse via `SortButtonLayout.ClampButtonSize` erzwungen (110-220 x 36-60, Fallback 150x44), Position explizit links neben dem Close-Cluster im selben Anker-Raum. Injektions-Log nennt Template- und Final-Geometrie. Neue pure Datei `SortButtonLayout.cs` + Regressionssuite `BackpackMod.Tests` (xUnit).
 - **v1.2.2:** HUD-Sort-Button Raycast-Schutz (`img.raycastTarget = false` auf der Image-Huelle, Button bleibt klickbar); schluckt keine Drag-/Click-Events des Slot-Grids mehr.
 - **v1.2.1:** ObjLoader 50MB/250k-Vertex-Cap; ShopDump-Listing hinter `#if DEBUG`.
 - **v1.2.0:** Sort-Commit echt atomar via `ItemInstance.GetCopy(quantity)` (erhaelt Quality/Packaging vollstaendig); Player-Inventory-Sort filtert Clipboard/Cash per Referenzvergleich (`inv.clipboardSlot`/`inv.cashSlot`) statt nur Index — Hotbar 0-7 ist die einzige Sortzone; Tier-Downgrade-Overflow-Rueckgabe via `GetCopy` (kein Default-Reset mehr) + `backpack_overflow_slot_{n}.json`-Sidecar (persistiert nicht-passende Items, gibt sie beim naechsten Backpack-Oeffnen automatisch zurueck); `ResetCache` savet nicht mehr vor Destroy (OnPreLoad-Cross-Save-Schutz); expliziter `SaveStorage` in `ResetForSceneUnload`. **v1.1.0:** B1 Button-Sort (QoL v1.1.0).
@@ -257,7 +264,8 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 - **360° Mannequin Rotation:** Hold Right Mouse Button and drag (or <kbd>Q</kbd> / <kbd>E</kbd>) in Character menu (<kbd>Tab</kbd>) to freely inspect front straps and rear backpack.
 - **URP Shading & Zero-Collider Safety:** Universal Render Pipeline Lit shader integration with metallic/smoothness parameters; auto-strips colliders to prevent UI click-blocking.
 
-**AutoPackagingStation v0.2.6 (2026-09-12, Audit-Patch Runde 4 2026-09-12):**
+**AutoPackagingStation v0.2.7 (2026-09-13, Bug-Report-Runde 6):**
+- **v0.2.7 (Bug-Report-Runde 6 2026-09-13):** Host-Guards fuer PackUp, OnDestroy-Refund, alle `TryExtract*`/`TryDeposit*`-Pfade und OnSaveComplete (9 neue `IsHostOrSingleplayer`-Guards). MP-Clients koennen Stationen nicht mehr lokal auszahlen/zerstoeren (Dupe/Desync) und ueberschreiben die Slot-Datei des Hosts nicht mehr. Supersedes 0.2.4.
 - **v0.2.6 (Bug-Audit 2026-09-12):** F-Taste-PackUp Reentrancy-Schutz: `_packingUp`-Flag plus `try/finally`-Reset in `PackUpStation` verhindert Doppel-Auszahlung, falls `Destroy_Server` ein zweites Dispatch im selben Frame ausloest.
 - **v0.2.5:** Quality-Mixing nativ (HIGH) + ObjLoader 50MB/250k-Vertex-Cap.
 - **v0.2.4:** PackUpStation CRITICAL-Fix (BuildableItem.Destroy_Server statt GameObject.Destroy), Output-Pre-Flight.
@@ -269,12 +277,20 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 - **Strict Raycast & Key Guards:** Fixes AOE dismantling using strict raycast target validation and blocks key input whenever cursor is unlocked (UIs open).
 - **Multiplayer & IL2CPP Stability:** Uses `IsServer` checks to prevent client desyncs and implements native `Il2CppType.Of` component setups to avoid crashes.
 
-**HitmanPhone v0.2.4 (2026-09-12, Audit-Patch Runde 2 2026-09-12):**
+**HitmanPhone v0.2.7 (2026-09-14, Vanilla-UI-Titel-Sync + Doppel-Ludwig-Fix):**
+- **v0.2.7 (2026-09-14):** Restore-BountyQuests rendern im Journal als „Hitman Contract" statt „Hitman Contract: <NPC>" — der Vanilla-UI-Snapshot im `QuestComponent` wird im ctor einmalig gesetzt und durch den v0.2.6-Reflection-Setter auf `s1q.title` nicht neu getriggert; v0.2.7 synct den Vanilla-UI-Titel.
+- **v0.2.5 (bug-ludwig-double 2026-09-13):** Cross-Session-Fallback in `TryValidateAndPay` lehnte jeden Polaroid-Drop ab sobald >1 Vertrag `AwaitingDrop=true` war. Crow bietet aber tagelang neue Kopfgelder auf denselben NPC an (ludwig_meyer Day 5+6). Nach Save-Reload war der polaroid `Value=0` (Unity InstanceID futsch) → Refuse. Fix: neue `GroupSameTargetAwaiting`-Helper gruppiert wartende Vertraege nach `TargetNpcId`; bei einheitlichem TargetNpcId wird die ganze Gruppe gemeinsam ausgezahlt (ein Kill = ein Beweisstueck = mehrere Kopfgelder), heterogene NPCs bleiben geschuetzt. `OnStorageContentsChanged` macht Side-Effects (Reward/Journal/Heat/Cooldown) pro Vertrag in der Liste und konsumiert EIN Polaroid fuer die ganze Gruppe. Persist einmal pro Batch, ausser eine Payout schlug fehl (Retry-Pfad).
 - **v0.2.4 (Bug-Audit 2026-09-12):** `OnStorageContentsChanged` laesst jetzt den Client-Spieler mit eigenem Save validieren + zahlen (vorher: Host-only-Gate blockierte Client-Payout komplett, weil das host-lokale Save nie den `AwaitingDrop`-Vertrag des Clients sah); `ChangeCashBalance` synct Player-Bilanz ueber FishNet. `BountyTargetWatchdog` prueft `npc.Health.IsDead` statt `!npc.IsConscious` — verhindert, dass ein K.o. (nicht-tödliche Betaeubung) als Kill mit voller Belohnung + Lethal-Pursuit zaehlt.
 - **v0.2.3:** Deadline >=; Single-Slot-Consume; OnDecline-Guard; Tod-Log auf Debug.
 - **Bounty/Contract-Gameplay:** Anonyme Auftraggeber ("Ghost", "Jackal", …) bieten Hits via Phone-Messages-App; Ziele aus dem Dealer-Kundennetzwerk; "Polaroid Evidence"-Item (InstanceID-codiert) wird im Dead Drop gegen Dirty Cash eingelöst.
 - **Systeme:** Police-Heat-Integration, Journal-Quests, 3-Tage-Ablauf, Death-Forfeit, slot-isolierte Persistenz (`slot_{n}` + TryMigrateLegacy).
 - **v0.2.2 Audit-Fixes:** Payout host-only, PatchGuard statt PatchAll, Day-Throttle, Cooldown-Persist, Deadline-Boundary, Test-Commands nur DEBUG.
+
+**SnackVendor v0.0.2-mvp (2026-09-14, MVP-Spike):**
+- **Status:** Erster integrierter Build (Build OK, **In-Game-Verify offen**). Feature-fuer-Feature-Verifikationsstand steht in `Source/Mods/SnackVendor/README.md`.
+- **Wired:** Buildable 1x1 (`snackvendor`) via S1API `BuildableItemDefinitionBuilder`; Placement via `BuildableItem.Start`-Postfix; Vanilla-Cuke-VendingMachine-Klon pro Station; marker-guarded Harmony-Prefixes (`SendPurchase`, `PurchaseRoutine`, `DropItem`, `DropCash`); Sidecar `snacks_slot_{n}.json` (Sentinel-Guard) via `SnackVendorStore`.
+- **Offen (TODO vor 0.1.0):** Cash-Credit an den Spieler (derzeit nur Log), GLB-Mesh via `S1MAPI.GltfLoader`, Hardware-Shop-Listing (`S1API.Internal.Shops.ShopIntegration`), Deposit/Extract-UI-Panel, Ingredient-Credit in `NPC.Inventory` via `NPCSignal_UseVendingMachine`.
+- **Assets:** `assets/SnackVendor_model.glb` + headless Blender-Build `assets/build_snackvendor_model.py`.
 
 **_DiagPerfCounter v0.3.2 (2026-09-11, Dev-Tool):**
 - **v0.3.2:** Nur noch DEBUG-Builds; Dump via SaveTextAtomic mit Return-Types.
@@ -323,6 +339,8 @@ pwsh Tools\new-mod.ps1 -Name <ModName>
 ```
 
 > **Hinweis:** `Tools\` wurde am 2026-09-10 aus der Git-Historie reaktiviert (alle Helper ausser `fix-knowledge-paths.ps1` — Knowledge/ existiert nicht mehr; Reaktivierung: `git show 891c330^:Tools/fix-knowledge-paths.ps1`).
+>
+> **Drift-Guard (2026-09-14, neu):** `Tools/check-version-sync.ps1` vergleicht die Code-Version (MelonInfo-Attribut bzw. `Constants.ModVersion`) mit `docs/mod.json`, `README.md`, der AGENTS.md-Matrix-Zeile und dem AGENTS.md-Detail-Header. Exit 1 bei Drift; laeuft in `.github/workflows/ci.yml` und im Pre-Commit-Hook. `Tools/bump-version.ps1` schreibt die Detail-Header jetzt ebenfalls mit.
 >
 > **Cleanup-Hinweis (2026-09-10):** In `<GameDir>\Mods\` lagen pre-existing zwei Reference-Assemblies (`S1API.dll` 415 KB, `Hash.dll` 188 KB) aus frueheren manuellen Deploys. Beide riefen beim Spielstart `BadImageFormatException` (Reference assemblies should not be loaded for execution) und floodeten den Log mit ~50 ERROR-Zeilen, ohne funktional etwas zu brechen. Geloescht — die echten Versionen sind: `S1API.Il2Cpp.MelonLoader.dll` (Mods\), `Plugins\S1APILoader.dll`, `UserLibs\S1MAPI_Il2cpp.dll` (fuer AutoPackagingStation.GltfLoader). Hash.dll bleibt nur noch als Referenz im Repo (`ThirdParty/ScheduleOne-Hash/`), nicht deployed — PotScanner nutzt den S1API-Hash-Bridge ohne DLL via Reflection-Queue.
 
@@ -434,9 +452,9 @@ s1interop analyze "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Sche
 
 ### CI & Quality Gates
 
-- **Local:** `dotnet format --verify-no-changes`, `pwsh Tools/gen-sln.ps1` (determinism check), `dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj` + `dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj` (Tests brauchen Spiel-Assemblies)
-- **CI:** `.github/workflows/ci.yml` runs on push/PR (format + game-gated build/tests + gen-sln check; Knowledge-XRef entfernt, Knowledge/ weg)
-- **Pre-commit:** `git config core.hooksPath .githooks` enables `.githooks/pre-commit` (format + gen-sln + XRef)
+- **Local:** `dotnet format --verify-no-changes`, `pwsh Tools/gen-sln.ps1` (determinism check), `pwsh Tools/check-version-sync.ps1` (Versions-Drift-Guard), `dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj` + `dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj` + `dotnet test Source/Tests/BackpackMod.Tests/BackpackMod.Tests.csproj` (Tests brauchen Spiel-Assemblies)
+- **CI:** `.github/workflows/ci.yml` runs on push/PR (format + version-sync check + game-gated build/tests + gen-sln check)
+- **Pre-commit:** `git config core.hooksPath .githooks` enables `.githooks/pre-commit` (format + gen-sln determinism + version-sync)
 - **License:** `LICENSE` (MIT workspace + Third-Party notices), `CONTRIBUTING.md` for contributors
 
 ### Maker-Checker Workflow

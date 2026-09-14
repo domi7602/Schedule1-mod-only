@@ -14,9 +14,12 @@ Danke für dein Interesse am `Schedule I Modding Workspace`! Diese Anleitung fas
 ```
 Source/Mods/          Mods + Shared lib + S1Mods.sln
 Source/Archive/       Archivierte Mods (nicht in SLN)
-Tools/                build-all.ps1, gen-sln.ps1, bump-version.ps1, package-release.ps1, new-mod.ps1, backup-to-d.ps1
-Knowledge/            Decompiles, Analysen, Framework-Referenzen
-.agents/skills/       AI-Skills (schedule1-modding, -phoneapp, -s1api, ...)
+Source/Tests/         xUnit-Tests (Shared.Tests, AutoPackagingStation.Tests, BackpackMod.Tests)
+GameReferences/       In-Repo-Decompiles (Assembly-CSharp, firstpass)
+Skills/               AI-Skills (schedule1-modding, -phoneapp, -s1api, ...; Index: Skills/README.md)
+ThirdParty/           Externe Frameworks/Quellen (S1API, S1MCP, MoreDrugs, PhoneScroll, ...)
+Tools/                build-all.ps1, gen-sln.ps1, bump-version.ps1, check-version-sync.ps1, package-release.ps1, new-mod.ps1, deploy-thirdparty.ps1
+Release/              Release-Pakete (.gitkeep)
 AGENTS.md             Inventar & Konventionen (Single Source of Truth)
 ```
 
@@ -27,8 +30,10 @@ Lade **immer** zuerst den relevanten Skill via `skill`-Tool:
 - `schedule1-modding` — für jeden Mod-Task (Pflicht)
 - `schedule1-phoneapp` — für PhoneApps
 - `schedule1-s1api` / `schedule1-s1mapi` — für Framework-APIs
-- `schedule1-knowledge` — für Recherche in `Knowledge/`
+- `schedule1-knowledge` — für Recherche (`GameReferences/`, `ThirdParty/S1API/`, `Skills/schedule1-game-systems/references/`)
 - `schedule1-troubleshooting` — für Crashes/Logs
+
+Skill-Pfade: `Skills/<skill-name>/SKILL.md` (+ `references/`-Unterdateien). Vollständiger Index: `Skills/README.md`.
 
 ## Neuen Mod erstellen
 
@@ -58,23 +63,31 @@ dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj -c Release
 # Tests (AutoPack — reine Math-Logik, laeuft ueberall)
 dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release
 
+# Tests (BackpackMod — SortButtonLayout, reine Math-Logik, laeuft ueberall)
+dotnet test Source/Tests/BackpackMod.Tests/BackpackMod.Tests.csproj -c Release
+
 # Format prüfen (CI)
 dotnet format Source/Mods/S1Mods.sln --verify-no-changes
 
-# Knowledge-Links (entfernt 2026-09-10 — Knowledge-Workspace existiert nicht mehr;
-# Skript bei Bedarf: git show 891c330^:Tools/fix-knowledge-paths.ps1)
+# Versions-Drift prüfen (CI + Pre-Commit): Code <-> mod.json <-> README/AGENTS (Exit 1 bei Drift)
+pwsh Tools/check-version-sync.ps1
 ```
 
-## Version Bump (4-File Sync)
+## Version Bump (Single Source of Truth = Code)
 
 Niemals manuell — nutze den Bump-Helper:
 
 ```pwsh
-pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.1
-pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.1 -DryRun
+pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.3
+pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.3 -DryRun
+
+# Verifizieren (Exit 1 bei Drift):
+pwsh Tools/check-version-sync.ps1
 ```
 
-Aktualisiert: `Mod.cs` MelonInfo + `docs/mod.json` + `docs/CHANGELOG.md` + `AGENTS.md`.
+Aktualisiert 5 Stellen: MelonInfo im Code (Datei mit `[assembly: MelonInfo(...)]`, sonst `Constants.ModVersion`) + `docs/mod.json` + `docs/CHANGELOG.md` (`## x.y.z`-Header) + `AGENTS.md` (Matrix-Zeile **und** Detail-Header in §2) + `README.md` (Featured-Zeile).
+
+`Tools/check-version-sync.ps1` prüft genau diese Orte gegen den Code; es läuft in CI und im Pre-Commit-Hook.
 
 ## IL2CPP Pflichten
 
@@ -90,15 +103,15 @@ Aktualisiert: `Mod.cs` MelonInfo + `docs/mod.json` + `docs/CHANGELOG.md` + `AGEN
 - [ ] In-Game verifiziert (inkl. Scene-Wechsel Main Menu → Game → Main Menu)
 - [ ] Persistenz Round-Trip OK (Save → Restart → Load)
 - [ ] `s1interop analyze` clean
-- [ ] `AGENTS.md`, `CHANGELOG.md`, `mod.json`, `Mod.cs` synchron (via `bump-version.ps1`)
+- [ ] `AGENTS.md`, `CHANGELOG.md`, `mod.json`, `Mod.cs`/`Constants.ModVersion`, `README.md` synchron (via `bump-version.ps1`) — `pwsh Tools/check-version-sync.ps1` muss grün sein
 
 ## Commit & PR
 
-- Commits: `feat(mod): ...`, `fix(mod): ...`, `chore(knowledge): ...` (siehe `git log`)
+- Commits: `feat(mod): ...`, `fix(mod): ...`, `chore(tools): ...` (siehe `git log`)
 - Solution ist deterministisch (`gen-sln.ps1` nutzt MD5-GUIDs) — keine unnötigen GUID-Diffs
 - `dotnet format` vor jedem Push
 - PR-Template ausfüllen (siehe `.github/pull_request_template.md`)
 
 ## Fragen?
 
-Siehe `AGENTS.md §6` (Workflows), `MEMORY.md` (Gotchas), `Knowledge/README.md` (Index) oder öffne ein Issue.
+Siehe `AGENTS.md §6` (Workflows), `memory/MEMORY.md` (Gotchas), `Skills/README.md` (Skill-Index) oder öffne ein Issue.
