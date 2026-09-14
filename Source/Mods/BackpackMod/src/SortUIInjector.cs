@@ -264,6 +264,39 @@ namespace BackpackMod.Patches
             }
         }
 
+        /// <summary>
+        /// Picks the smallest (by rect area) live Button under the close-button
+        /// container. Our own previously injected clone (matched by name) and
+        /// destroyed objects are skipped so we never clone ourselves or a corpse.
+        /// </summary>
+        private static Button? FindSmallestButton(RectTransform container)
+        {
+            Button? best = null;
+            float bestArea = float.MaxValue;
+            Button[]? candidates = null;
+            try { candidates = container.GetComponentsInChildren<Button>(); }
+            catch { return null; }
+            if (candidates == null) return null;
+            for (int i = 0; i < candidates.Length; i++)
+            {
+                try
+                {
+                    var c = candidates[i];
+                    if (c == null || c.Pointer == IntPtr.Zero || c.WasCollected) continue;
+                    var go = c.gameObject;
+                    if (go == null || go.Pointer == IntPtr.Zero || go.WasCollected) continue;
+                    if (go.name == SortButtonName) continue;
+                    var crt = go.GetComponent<RectTransform>();
+                    if (crt == null || crt.Pointer == IntPtr.Zero || crt.WasCollected) continue;
+                    float area = crt.rect.width * crt.rect.height;
+                    if (!float.IsFinite(area) || area <= 0f) continue;
+                    if (area < bestArea) { bestArea = area; best = c; }
+                }
+                catch { }
+            }
+            return best;
+        }
+
         private static void EnsureSortButton(StorageMenu menu)
         {
             // Idempotent: reuse existing button object if it survived.
@@ -286,23 +319,49 @@ namespace BackpackMod.Patches
                 Transform parent = closeButtonContainer.parent;
                 if (parent == null || parent.Pointer == IntPtr.Zero) return;
 
-                // Find a Button component anywhere in the close-button hierarchy to clone.
-                Button? templateButton = closeButtonContainer.GetComponentInChildren<Button>();
-                if (templateButton == null || templateButton.Pointer == IntPtr.Zero || templateButton.WasCollected)
+                // Template: the SMALLEST Button in the close-button hierarchy — the
+                // actual close button. The first match can be a container-level
+                // Button spanning the whole menu (→ giant overlay clone, 2026-09-13).
+                Button? templateButton = FindSmallestButton(closeButtonContainer);
+                if (templateButton == null)
                 {
                     Mod.Log?.Warning("Sort button: no template Button found in CloseButtonContainer.");
                     return;
                 }
 
+                var templateRt = templateButton.gameObject.GetComponent<RectTransform>();
+                float templateW = templateRt != null && templateRt.Pointer != IntPtr.Zero && !templateRt.WasCollected
+                    ? templateRt.rect.width : SortButtonLayout.DefaultWidth;
+                float templateH = templateRt != null && templateRt.Pointer != IntPtr.Zero && !templateRt.WasCollected
+                    ? templateRt.rect.height : SortButtonLayout.DefaultHeight;
+
                 var obj = UnityEngine.Object.Instantiate(templateButton.gameObject, parent);
                 obj.name = SortButtonName;
                 _storageSortButton = obj;
 
-                // Position: nudge left of the close button cluster.
+                // Explicit geometry (never trust the template rect): inherit the
+                // close cluster's anchor space, enforce a sane button size, and
+                // park left-adjacent to the cluster on the same row.
                 var rt = obj.GetComponent<RectTransform>();
                 if (rt != null && rt.Pointer != IntPtr.Zero)
                 {
-                    rt.anchoredPosition += new Vector2(-190f, 0f);
+                    var (btnW, btnH) = SortButtonLayout.ClampButtonSize(templateW, templateH);
+                    rt.anchorMin = closeButtonContainer.anchorMin;
+                    rt.anchorMax = closeButtonContainer.anchorMax;
+                    rt.pivot = closeButtonContainer.pivot;
+                    rt.sizeDelta = new Vector2(btnW, btnH);
+                    rt.anchoredPosition = new Vector2(
+                        SortButtonLayout.LeftAdjacentX(
+                            closeButtonContainer.anchoredPosition.x,
+                            closeButtonContainer.rect.width,
+                            btnW,
+                            closeButtonContainer.pivot.x),
+                        closeButtonContainer.anchoredPosition.y);
+                    Mod.Log?.Msg($"Sort button injected into StorageMenu (template {templateW:0}x{templateH:0} → {btnW:0}x{btnH:0} at {rt.anchoredPosition.x:0},{rt.anchoredPosition.y:0}).");
+                }
+                else
+                {
+                    Mod.Log?.Msg("Sort button injected into StorageMenu.");
                 }
 
                 // Label (TMP if present).
@@ -329,7 +388,6 @@ namespace BackpackMod.Patches
                     }));
                 }
 
-                Mod.Log?.Msg("Sort button injected into StorageMenu.");
             }
             catch (Exception ex)
             {

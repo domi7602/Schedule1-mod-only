@@ -11,7 +11,7 @@ using System.IO;
 using UnityEngine;
 using S1API.Lifecycle;
 
-[assembly: MelonInfo(typeof(BackpackMod.Mod), "BackpackMod", "1.2.2", "Dominik")]
+[assembly: MelonInfo(typeof(BackpackMod.Mod), "BackpackMod", "1.2.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BackpackMod;

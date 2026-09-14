@@ -1,6 +1,11 @@
 # Changelog
 
 
+## 1.2.3 (2026-09-13) — StorageMenu-Sort-Button Overlay-Fix (Echtspiel-Report 2026-09-13)
+- **Riesen-Overlay behoben (HIGH):** `SortUIInjector` klonte den ERSTEN Button unter `CloseButtonContainer` und erbte dessen Rect ungeprüft — bei Container-Panels wurde der "Sort"-Button bildschirmfüllend, verdeckte die Menü-Inhalte und schluckte Klicks. Template ist jetzt der kleinste Button (n. Fläche; eigene Klone + Zerstoerte ausgenommen); Groesse wird via `SortButtonLayout.ClampButtonSize` erzwungen (110–220 x 36–60, Fallback 150x44), Position explizit links neben dem Close-Cluster im selben Anker-Raum.
+- Neue pure Datei `SortButtonLayout.cs` (Unity-frei, testbar) + Regressionssuite `BackpackMod.Tests` (xUnit).
+- Observability: Injektions-Log nennt jetzt Template- und Final-Geometrie (`template WxH → WxH at x,y`).
+
 ## 1.2.2 (2026-09-12) — Bug-Audit-Fixes Runde 4 (Audit 2026-09-12)
 - **HUD-Sort-Button Raycast-Schutz:** Nach dem Klonen des Vanilla-Close-Buttons setzen wir `img.raycastTarget = false` auf der Image-Hülle (Button selbst bleibt raycast-fähig). Verhindert, dass der Sort-Button bei seiner Anchor-Position (-24, 150) Drag-/Click-Events auf den darunter liegenden Slot-Grid schluckt.
 
