@@ -1,7 +1,15 @@
 # Changelog
 
 
+## 0.2.7 (2026-09-14) — Vanilla UI-Titel-Sync fuer Restore-Quests
+
+- **Bug:** Restore-BountyQuests rendern im Journal hartnäckig als „Hitman Contract" statt „Hitman Contract: <NPC>" — selbst nach v0.2.6 Reflection-Setter auf s1q.title. UI-Snapshot im Vanilla-QuestComponent wurde im ctor einmalig gesetzt und nicht neu getriggert.
+- **Fix:** `BountyQuest.SyncDisplayTitle()` läuft automatisch bei jedem `InitContractId(...)`. Versucht zuerst den public Title-Setter (falls vorhanden — der feuert `_onTitleChanged` Unity-Event), sonst direkter Title-Field-Write plus Re-`Begin()`.
+- **Effekt:** Same-Target-Gruppe (3 Ludwig-Quests im Live-Test) zeigt jetzt alle 3× „Hitman Contract: Ludwig Meyer". Frisch akzeptierte Quests (Sam, Chloe) waren bereits ok.
+- **Bridge:** `BountyJournalBridge.TryRefreshDisplayTitle` ist jetzt ein dünner Wrapper um `BountyQuest.SyncDisplayTitle`.
+
 ## 0.2.6 (2026-09-14) — Journal-Rebind fuer Same-Target-Gruppen (log-Spam nach Restart)
+
 - **Gruppen-bewusstes Quest-Rebind (MEDIUM):** Der Audit-M3-Fail-Safe verweigerte mit 2+ wiederhergestellten Contracts auf denselben NPC JEDE Anbindung — Folge war die 40-Zeilen-Warnschleife (8 Retries x 5 Zeilen) bei jedem Spielstart. Jetzt: wenn ALLE ungebundenen aktiven Contracts denselben `TargetNpcId` teilen, adoptiert der aelteste die wiederhergestellte generische Quest (`GetQuestByName("Hitman Contract")`), weitere Restore-Quests werden per Reflection ueber `QuestManager.Quests` adoptiert (keine Zombie-Journal-Eintraege), und Contracts ohne persistierte Quest bekommen FRISCHE Quests via `RegisterBountyQuest`. Mixed-Target-Gruppen bleiben verweigert (echte Mehrdeutigkeit — Fehl-Binding ist schlimmer als keins).
 - **Occupancy-Guard im Titel-Lookup (Schritt 2):** In einer Same-Target-Gruppe personalisiert sich der Titel der Owner-Quest mit der Adoption — Siblings rekonstruieren denselben Titel und haetten die Quest vorher gestohlen (M3-Bug durch die Hintertuer, latent seit 0.2.5 auch bei dritten Contracts in derselben Session). `IsQuestBoundToOtherContract` blockt das; SessionQuests ist die Belegungs-Quelle, da nur HitmanPhone `InitContractId` ruft.
 - **Display-Titel-Refresh nach Adoption:** `InitContractId` personalisiert nur den managed `Title`-Getter; der Vanilla-Snapshot `S1Quest.title` (Journal-UI) blieb generisch. `TryRefreshDisplayTitle` schreibt den Titel nach der Adoption neu (Reflection, best-effort, kosmetisch).

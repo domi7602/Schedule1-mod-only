@@ -154,18 +154,11 @@ public static class BountyJournalBridge
     /// </summary>
     private static void TryRefreshDisplayTitle(Quest wrapper, BountyContract contract)
     {
-        try
-        {
-            var s1q = typeof(Quest).GetField("S1Quest",
-                System.Reflection.BindingFlags.Instance |
-                System.Reflection.BindingFlags.NonPublic)?.GetValue(wrapper) as S1Quest;
-            if (s1q == null || s1q.Pointer == System.IntPtr.Zero) return;
-            s1q.title = BuildTitle(contract);
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Debug($"[Journal] Display title refresh failed: {ex.Message}");
-        }
+        // v0.2.7: replaced by BountyQuest.SyncDisplayTitle() — calls into the quest
+        // so the public Title setter / InitializeQuest path triggers the UI event.
+        // Kept as a no-op stub because BountyJournalBridge is the single point that
+        // *prompts* a refresh; keeping the call sites explicit avoids future drift.
+        if (wrapper is BountyQuest bq) { try { bq.SyncDisplayTitle(); } catch { /* best-effort */ } }
     }
 
     /// <summary>Called from SaveStateGuard.OnLoadComplete — restored quests are new objects.</summary>
