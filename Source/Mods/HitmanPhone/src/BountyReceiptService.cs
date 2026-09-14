@@ -168,9 +168,97 @@ public static class BountyReceiptService
         {
             var item = items[i];
             if (item == null) continue;
-            if (TryValidateAndPay(drop, entity, item)) return; // one payout per event is enough
+            var matches = TryValidateAndPay(drop, entity, item);
+            if (matches == null || matches.Count == 0) continue;
+
+            // Apply side effects for every matched contract.
+            string dropGuid = DeadDropIdentifier.GetGuidString(drop);
+            int encodedId = ReadIntValue(item); // 0 for cross-session; that's fine for consumers
+            var save = Mod.Instance?.Save;
+            if (save == null) return;
+            bool anyPayoutFailed = false;
+            for (int m = 0; m < matches.Count; m++)
+            {
+                var match = matches[m];
+                if (!string.IsNullOrEmpty(match.RequiredDropId) &&
+                    !string.Equals(dropGuid, match.RequiredDropId, StringComparison.OrdinalIgnoreCase))
+                {
+                    Interlocked.Increment(ref _receiptsMismatched);
+                    Mod.Log.Warn($"Receipt: contract {match.Id} requires drop {match.RequiredDropId}, " +
+                                 $"got {dropGuid}.");
+                    continue;
+                }
+
+                // Audit H4: pay FIRST, transition AFTER. A failed payout leaves the
+                // contract Active so the next storage event retries.
+                if (!IssueReward(match))
+                {
+                    Mod.Log.Warn($"[Bounty#{match.Id}] Payout failed — contract stays Active, " +
+                                 "deposit will be retried on the next storage event.");
+                    anyPayoutFailed = true;
+                    continue;
+                }
+
+                match.Status = EBountyStatus.Completed;
+                match.RequiredDropId ??= dropGuid;
+                save.Active.Remove(match);
+                save.History.Add(match);
+                Interlocked.Increment(ref _receiptsMatched);
+                Mod.Log.Info($"[Bounty#{match.Id}] Receipt matched for target '{match.TargetNpcId}' " +
+                             $"(drop={dropGuid}). Reward=${match.RewardCash}.");
+
+                BountyHeatService.OnBountyCompleted(match);
+                BountyJournalBridge.CompleteQuest(match.Id);
+                int callerIdx = ResolveCallerIndex(match.CallerId);
+                if (callerIdx >= 0)
+                {
+                    BountyCallScheduler.CooldownCaller(callerIdx,
+                        BountyCallSchedulerConstants.CallerCooldownDaysAfterDecline);
+                }
+            }
+
+            // Persist once after the batch (cheaper than per-contract) unless a
+            // payout failed mid-batch — in that case skip persistence so the failed
+            // contract remains visible in Active for the next retry.
+            if (!anyPayoutFailed)
+            {
+                BountyPersistence.PersistCurrent();
+                // One polaroid covers the whole matched group (single kill → single evidence).
+                ConsumePolaroids(entity, encodedId);
+            }
+            return; // one payout-group per storage event
         }
         Mod.Log.Debug($"[Receipt] scan of '{dropName}' found no payable polaroid ({items.Count} items).");
+    }
+
+    /// <summary>
+    /// Group contracts that share the same TargetNpcId while all waiting for a dead-drop.
+    /// Used by the evidence fallback when the polaroid's encoded instance id was lost
+    /// across a save reload: if every waiting contract points at the same NPC, one
+    /// deposited polaroid pays out all of them (the kill produced one body, multiple
+    /// bounties on the same head collapse into a single piece of evidence). Contracts on
+    /// different NPCs stay untouched. Returns null on an ambiguous or empty group.
+    /// </summary>
+    private static System.Collections.Generic.List<BountyContract>? GroupSameTargetAwaiting(
+        HitmanPhone.Persistence.BountySaveData save, int excludeCount)
+    {
+        string? sharedNpcId = null;
+        var group = new System.Collections.Generic.List<BountyContract>();
+        for (int i = 0; i < save.Active.Count; i++)
+        {
+            var c = save.Active[i];
+            if (c.Status != EBountyStatus.Active || !c.AwaitingDrop) continue;
+            if (string.IsNullOrEmpty(c.TargetNpcId)) continue;
+            if (sharedNpcId == null) sharedNpcId = c.TargetNpcId;
+            else if (!string.Equals(sharedNpcId, c.TargetNpcId, StringComparison.OrdinalIgnoreCase))
+            {
+                Mod.Log.Warn($"Receipt: {save.Active.Count} contracts awaiting dead-drop " +
+                             "with mixed TargetNpcId — cross-session polaroid is ambiguous, refused.");
+                return null;
+            }
+            group.Add(c);
+        }
+        return group.Count > 0 ? group : null;
     }
 
     /// <summary>
@@ -218,153 +306,97 @@ public static class BountyReceiptService
 
     /// <summary>
     /// Validate one scanned item against the active contracts and pay out on a
-    /// match. Returns true when the receipt was a successful match (so the
-    /// caller's cooldown can be incremented); false otherwise.
+    /// match. Returns the list of contracts that were paid (empty list = miss).
+    ///
+    /// Match strategy:
+    ///   - exact: polaroid Value matches a contract's TargetNpcInstanceId → that one.
+    ///   - fallback: Value==0 (cross-session loss) → all awaiting contracts on the
+    ///     same TargetNpcId. Mixed NPC ids are refused (ambiguous) and logged.
+    ///
+    /// The caller is responsible for issuing side effects (IssueReward, journal
+    /// completion, heat drop, cooldown) per contract and for consuming ONE polaroid
+    /// for the whole matched group (a single piece of evidence covers all bounties
+    /// on the same head — the kill produced one body).
     /// </summary>
-    public static bool TryValidateAndPay(S1DeadDrop drop, S1StorageEntity entity, S1ItemInstance item)
+    public static System.Collections.Generic.List<BountyContract>? TryValidateAndPay(
+        S1DeadDrop drop, S1StorageEntity entity, S1ItemInstance item)
     {
-        if (drop == null || entity == null || item == null) return false;
-        if (!IsPolaroid(item)) return false;
+        if (drop == null || entity == null || item == null) return null;
+        if (!IsPolaroid(item)) return null;
 
-        if (Mod.Instance?.Save == null) return false;
+        if (Mod.Instance?.Save == null) return null;
         var save = Mod.Instance.Save;
 
         // Read the polaroid's encoded target id (Unity instance id of the NPC).
         // v0.1.2: Value==0 no longer aborts — a save reload can lose the value,
         // and the single-awaiting-contract fallback below is safe to try.
+        // v0.2.5 (bug-ludwig-double-2026-09-13): the old fallback refused when >1
+        // contract was awaiting, but Crow can offer multiple bounties on the same
+        // NPC across days. We collapse them onto the polaroid only if every waiting
+        // contract targets the same NPC id.
         int targetInstanceId = ReadIntValue(item);
         if (targetInstanceId == 0)
         {
             Mod.Log.Warn("Receipt: polaroid Value=0 (lost across save reload?) — relying on evidence fallback.");
         }
 
-        // Find matching active contract. We match against the cached TargetNpcInstanceId
-        // first; if that fails (e.g. save was loaded without an instance id cached), fall
-        // back to resolving the live NPC by id and comparing runtime InstanceID.
         BountyContract? match = null;
-        for (int i = 0; i < save.Active.Count; i++)
-        {
-            var c = save.Active[i];
-            if (c.Status != EBountyStatus.Active) continue;
-            if (c.TargetNpcInstanceId != 0 && c.TargetNpcInstanceId == targetInstanceId)
-            {
-                match = c; break;
-            }
-        }
 
-        // Fallback: resolve by id.
-        if (match == null)
+        // Exact match: encoded instance id still alive.
+        if (targetInstanceId != 0)
         {
             for (int i = 0; i < save.Active.Count; i++)
             {
                 var c = save.Active[i];
                 if (c.Status != EBountyStatus.Active) continue;
-                if (string.IsNullOrEmpty(c.TargetNpcId)) continue;
-                try
+                if (c.TargetNpcInstanceId != 0 && c.TargetNpcInstanceId == targetInstanceId)
                 {
-                    var live = S1NPCManager.GetNPC(c.TargetNpcId);
-                    if (live != null && live.GetInstanceID() == targetInstanceId)
-                    {
-                        match = c; break;
-                    }
+                    match = c; break;
                 }
-                catch { /* ignore */ }
+            }
+
+            // Live resolve by id (instance id cached but live re-roll diverges).
+            if (match == null)
+            {
+                for (int i = 0; i < save.Active.Count; i++)
+                {
+                    var c = save.Active[i];
+                    if (c.Status != EBountyStatus.Active) continue;
+                    if (string.IsNullOrEmpty(c.TargetNpcId)) continue;
+                    try
+                    {
+                        var live = S1NPCManager.GetNPC(c.TargetNpcId);
+                        if (live != null && live.GetInstanceID() == targetInstanceId)
+                        {
+                            match = c; break;
+                        }
+                    }
+                    catch { /* ignore */ }
+                }
             }
         }
 
-        // Session-stable fallback (BUGFIX 2026-08-31): Unity InstanceIDs are
-        // re-rolled on every game start, so a polaroid saved in a previous
-        // session carries a dead ID and both loops above miss it. If exactly
-        // one Active contract is awaiting its dead-drop, the deposited
-        // polaroid can only be its evidence. With several awaiting contracts
-        // the match stays ambiguous and is refused (fail-safe).
-        // Audit H1 (2026-09-01): keyed on AwaitingDrop — EvidenceSpawned is
-        // reset on every load and would brick this fallback after any reload.
+        // Session-stable fallback (BUGFIX 2026-08-31, refined 2026-09-13):
+        // Unity InstanceIDs are re-rolled on every game start, so a polaroid saved
+        // in a previous session carries a dead ID. If every Active contract that's
+        // awaiting its dead-drop targets the same NPC, the polaroid pays out all
+        // of them at once — Crow can stack multiple bounties on one head, but
+        // they collapse onto the single piece of evidence the kill produced.
         if (match == null)
         {
-            BountyContract? awaiting = null;
-            int awaitingCount = 0;
-            for (int i = 0; i < save.Active.Count; i++)
-            {
-                var c = save.Active[i];
-                if (c.Status != EBountyStatus.Active || !c.AwaitingDrop) continue;
-                awaiting = c;
-                awaitingCount++;
-            }
-            if (awaitingCount == 1 && awaiting != null)
-            {
-                match = awaiting;
-                Mod.Log.Info($"Receipt: matched via evidence fallback (cross-session polaroid) " +
-                             $"→ contract {match.Id}.");
-            }
-            else if (awaitingCount > 1)
-            {
-                Mod.Log.Warn($"Receipt: {awaitingCount} contracts awaiting dead-drop — " +
-                             "cross-session polaroid is ambiguous, refused.");
-            }
-        }
-
-        if (match == null)
-        {
-            Interlocked.Increment(ref _receiptsMismatched);
-            Mod.Log.Warn($"Receipt: no active bounty for target instance id {targetInstanceId}.");
-            return false;
-        }
-
-        // Optional: RequiredDropId enforcement (premium contracts may restrict to
-        // a specific dead drop). Default contracts leave RequiredDropId null.
-        string dropGuid = DeadDropIdentifier.GetGuidString(drop);
-        if (!string.IsNullOrEmpty(match.RequiredDropId))
-        {
-            string required = match.RequiredDropId;
-            if (!string.Equals(dropGuid, required, StringComparison.OrdinalIgnoreCase))
+            var group = GroupSameTargetAwaiting(save, excludeCount: 0);
+            if (group == null)
             {
                 Interlocked.Increment(ref _receiptsMismatched);
-                Mod.Log.Warn($"Receipt: contract {match.Id} requires drop {required}, " +
-                             $"got {dropGuid}.");
-                return false;
+                Mod.Log.Warn($"Receipt: no active bounty for target instance id {targetInstanceId}.");
+                return null;
             }
+            Mod.Log.Info($"Receipt: matched via evidence fallback (cross-session polaroid) " +
+                         $"→ {group.Count} contract(s) on '{group[0].TargetNpcId}'.");
+            return group;
         }
 
-        // Audit H4 (2026-09-01): pay FIRST, transition AFTER. The old order
-        // (Completed + History + persist, then payout) permanently lost the
-        // reward whenever ChangeCashBalance failed — no retry, quest completed
-        // anyway. Now a failed payout leaves the contract Active and the next
-        // storage event retries; only a confirmed payout completes the contract.
-        if (!IssueReward(match))
-        {
-            Mod.Log.Warn($"[Bounty#{match.Id}] Payout failed — contract stays Active, " +
-                         "deposit will be retried on the next storage event.");
-            return false;
-        }
-
-        // Mark complete + move to history.
-        match.Status = EBountyStatus.Completed;
-        match.RequiredDropId ??= dropGuid;
-        save.Active.Remove(match);
-        save.History.Add(match);
-        BountyPersistence.PersistCurrent(); // v0.1.3: completion must survive a game restart (was RAM-only)
-        Interlocked.Increment(ref _receiptsMatched);
-        Mod.Log.Info($"[Bounty#{match.Id}] Receipt matched for target '{match.TargetNpcId}' " +
-                     $"(drop={dropGuid}). Reward=${match.RewardCash}.");
-
-        // v0.1.8: evidence is single-use — consume the deposited polaroid(s).
-        ConsumePolaroids(entity, targetInstanceId);
-
-        // Phase G: drop the pursuit level now that the contract is closed cleanly.
-        BountyHeatService.OnBountyCompleted(match);
-
-        // Phase H: mark the journal quest Completed so the player sees the
-        // contract resolved immediately, without having to wait for save-load.
-        BountyJournalBridge.CompleteQuest(match.Id);
-
-        // Cooldown caller so the same ghost doesn't immediately re-target the player.
-        int callerIdx = ResolveCallerIndex(match.CallerId);
-        if (callerIdx >= 0)
-        {
-            BountyCallScheduler.CooldownCaller(callerIdx, BountyCallSchedulerConstants.CallerCooldownDaysAfterDecline);
-        }
-        return true;
+        return new System.Collections.Generic.List<BountyContract> { match };
     }
 
     /// <summary>
