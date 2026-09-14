@@ -1,0 +1,7 @@
+{
+  "name": "SnackVendor",
+  "author": "Dominik",
+  "version": "0.0.2-mvp",
+  "description": "Player-stocked vending machine: fill it with gas-market ingredients, NPCs buy them at vanilla market price, cash goes to the player. MVP build — see README.md for current scope.",
+  "requires": ["S1API"]
+}
