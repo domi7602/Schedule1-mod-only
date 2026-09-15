@@ -207,49 +207,23 @@ public static class StreetPropertyManager
     {
         string slotSuffix = "default";
         bool resolved = false;
-        try
+
+        // Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15) — probiert
+        // PersistentSingleton/LoadManager.Instance/Singleton der Reihe nach (früher
+        // waren das zwei 1:1-duplizierte Blöcke hier). Format unverändert:
+        // slot_{n}, sonst Dateiname des Save-Pfads (mit Extension, historisch so).
+        var info = SaveSlots.TryGetActiveSaveInfo();
+        if (info is { SlotNumber: >= 0 } slot)
         {
-            var loadMgr = PersistentSingleton<LoadManager>.Instance;
-            if (loadMgr != null && loadMgr.Pointer != IntPtr.Zero && !loadMgr.WasCollected)
-            {
-                var saveInfo = loadMgr.ActiveSaveInfo;
-                if (saveInfo != null && saveInfo.Pointer != IntPtr.Zero && !saveInfo.WasCollected)
-                {
-                    if (saveInfo.SaveSlotNumber >= 0)
-                    {
-                        slotSuffix = $"slot_{saveInfo.SaveSlotNumber}";
-                        resolved = true;
-                    }
-                    else if (!string.IsNullOrEmpty(saveInfo.SavePath))
-                    {
-                        slotSuffix = Path.GetFileName(saveInfo.SavePath);
-                        resolved = true;
-                    }
-                }
-            }
-            if (!resolved)
-            {
-                var legacyMgr = Singleton<LoadManager>.Instance;
-                if (legacyMgr != null && legacyMgr.Pointer != IntPtr.Zero && !legacyMgr.WasCollected)
-                {
-                    var saveInfo2 = legacyMgr.ActiveSaveInfo;
-                    if (saveInfo2 != null && saveInfo2.Pointer != IntPtr.Zero && !saveInfo2.WasCollected)
-                    {
-                        if (saveInfo2.SaveSlotNumber >= 0)
-                        {
-                            slotSuffix = $"slot_{saveInfo2.SaveSlotNumber}";
-                            resolved = true;
-                        }
-                        else if (!string.IsNullOrEmpty(saveInfo2.SavePath))
-                        {
-                            slotSuffix = Path.GetFileName(saveInfo2.SavePath);
-                            resolved = true;
-                        }
-                    }
-                }
-            }
+            slotSuffix = $"slot_{slot.SlotNumber}";
+            resolved = true;
         }
-        catch { }
+        else if (info is { SavePath: { Length: > 0 } savePath })
+        {
+            slotSuffix = Path.GetFileName(savePath);
+            resolved = true;
+        }
+
         if (resolved) _lastKnownSlot = slotSuffix;
         else if (!string.IsNullOrEmpty(_lastKnownSlot)) slotSuffix = _lastKnownSlot;
 

@@ -137,41 +137,36 @@ public sealed class MinimapWaypoints
 
     private string ResolveSlotSuffix()
     {
-        try
+        // Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15) — der
+        // Slot-Wechsel-Flush mit _dirty-Konsum (Bug-Audit 2026-09-12, siehe
+        // Kommentar unten) bleibt hier erhalten.
+        int slotNumber = SaveSlots.GetActiveSlotNumber();
+        if (slotNumber >= 0)
         {
-            var loadMgr = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.LoadManager>.Instance;
-            if (loadMgr != null && loadMgr.Pointer != IntPtr.Zero && !loadMgr.WasCollected)
+            string slot = $"slot_{slotNumber}";
+            if (!string.Equals(slot, _lastKnownSlot, StringComparison.Ordinal))
             {
-                var info = loadMgr.ActiveSaveInfo;
-                if (info != null && info.Pointer != IntPtr.Zero && !info.WasCollected && info.SaveSlotNumber >= 0)
+                // Slot switch: flush pending writes to the OLD file first.
+                // Bug-Audit 2026-09-12: Save() calls GetFilePath() → ResolveSlotSuffix()
+                // again; without a guard this recurses forever and ends in
+                // StackOverflowException (uncatchable in .NET 6). Consume _dirty
+                // BEFORE the Save call so the recursive re-entry finds it false.
+                string oldSuffix = _lastKnownSlot;
+                _lastKnownSlot = slot;
+                if (_dirty)
                 {
-                    string slot = $"slot_{info.SaveSlotNumber}";
-                    if (!string.Equals(slot, _lastKnownSlot, StringComparison.Ordinal))
+                    bool wasDirty = _dirty;
+                    _dirty = false;
+                    try
                     {
-                        // Slot switch: flush pending writes to the OLD file first.
-                        // Bug-Audit 2026-09-12: Save() calls GetFilePath() → ResolveSlotSuffix()
-                        // again; without a guard this recurses forever and ends in
-                        // StackOverflowException (uncatchable in .NET 6). Consume _dirty
-                        // BEFORE the Save call so the recursive re-entry finds it false.
-                        string oldSuffix = _lastKnownSlot;
-                        _lastKnownSlot = slot;
-                        if (_dirty)
-                        {
-                            bool wasDirty = _dirty;
-                            _dirty = false;
-                            try
-                            {
-                                string oldPath = SafeStorage.GetUserDataPath("Minimap", $"waypoints_{oldSuffix}.json");
-                                FlushToPath(oldPath);
-                            }
-                            catch { /* fall through — flush best-effort */ }
-                        }
+                        string oldPath = SafeStorage.GetUserDataPath("Minimap", $"waypoints_{oldSuffix}.json");
+                        FlushToPath(oldPath);
                     }
-                    return slot;
+                    catch { /* fall through — flush best-effort */ }
                 }
             }
+            return slot;
         }
-        catch { }
         return _lastKnownSlot;
     }
 

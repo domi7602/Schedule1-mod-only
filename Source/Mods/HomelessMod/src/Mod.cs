@@ -206,23 +206,9 @@ public sealed class Mod : MelonMod
 
     private static int ResolveActiveSaveSlotNumber()
     {
-        try
-        {
-            var loadMgr = PersistentSingleton<LoadManager>.Instance;
-            if (loadMgr != null && loadMgr.Pointer != IntPtr.Zero && !loadMgr.WasCollected)
-            {
-                var saveInfo = loadMgr.ActiveSaveInfo;
-                if (saveInfo != null && saveInfo.Pointer != IntPtr.Zero && !saveInfo.WasCollected)
-                {
-                    return saveInfo.SaveSlotNumber; // -1 = no slot / main menu
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Debug($"ResolveActiveSaveSlotNumber fallback: {ex.Message}");
-        }
-        return -1;
+        // Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15) —
+        // -1 = no slot / main menu; wirft nie.
+        return SaveSlots.GetActiveSlotNumber();
     }
 
     private void OnSaveInfoLoaded()

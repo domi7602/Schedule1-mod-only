@@ -25,41 +25,25 @@ public static class PayoutStateStore
 
     /// <summary>
     /// Determines the save-slot suffix of the active save file.
+    /// Format unverändert ("slot_{n}" / Regex-Token aus dem Save-Pfad) — Sonde:
+    /// S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15).
     /// </summary>
     public static string GetActiveSlotSuffix()
     {
         string slotSuffix = "default";
         bool resolved = false;
-        try
+
+        var info = SaveSlots.TryGetActiveSaveInfo();
+        if (info is { SlotNumber: >= 0 } slot)
         {
-            var loadMgr = PersistentSingleton<LoadManager>.Instance;
-            if (loadMgr != null && loadMgr.Pointer != IntPtr.Zero && !loadMgr.WasCollected)
-            {
-                var saveInfo = loadMgr.ActiveSaveInfo;
-                if (saveInfo != null && saveInfo.Pointer != IntPtr.Zero && !saveInfo.WasCollected)
-                {
-                    if (saveInfo.SaveSlotNumber >= 0)
-                    {
-                        slotSuffix = $"slot_{saveInfo.SaveSlotNumber}";
-                        resolved = true;
-                    }
-                    else if (!string.IsNullOrEmpty(saveInfo.SavePath))
-                    {
-                        string file = Path.GetFileNameWithoutExtension(saveInfo.SavePath) ?? "";
-                        var m = System.Text.RegularExpressions.Regex.Match(file, @"\d+");
-                        if (m.Success) slotSuffix = $"slot_{m.Value}";
-                        else
-                        {
-                            string dir = Path.GetFileName(Path.GetDirectoryName(saveInfo.SavePath) ?? "");
-                            var m2 = System.Text.RegularExpressions.Regex.Match(dir, @"\d+");
-                            slotSuffix = m2.Success ? $"slot_{m2.Value}" : $"slot_{file}";
-                        }
-                        resolved = true;
-                    }
-                }
-            }
+            slotSuffix = $"slot_{slot.SlotNumber}";
+            resolved = true;
         }
-        catch { }
+        else if (SaveSlots.TryExtractSlotTokenFromSavePath(info?.SavePath) is { } token)
+        {
+            slotSuffix = $"slot_{token}";
+            resolved = true;
+        }
 
         if (resolved)
         {

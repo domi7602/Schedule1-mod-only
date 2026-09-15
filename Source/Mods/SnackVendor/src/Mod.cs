@@ -130,31 +130,13 @@ public sealed class Mod : MelonMod
 
     private void ResolveAndStoreSlot()
     {
-        try
+        // Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15) — probiert
+        // PersistentSingleton/LoadManager.Instance/Singleton (früher zwei Blöcke hier).
+        int slot = SaveSlots.GetActiveSlotNumber();
+        if (slot >= 0)
         {
-            var pLoadMgr = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.LoadManager>.Instance;
-            if (pLoadMgr != null && pLoadMgr.Pointer != IntPtr.Zero && !pLoadMgr.WasCollected)
-            {
-                var info = pLoadMgr.ActiveSaveInfo;
-                if (info != null && info.Pointer != IntPtr.Zero && !info.WasCollected && info.SaveSlotNumber >= 0)
-                {
-                    SnackVendor.Persistence.SnackVendorStore.OnSaveSlotResolved(info.SaveSlotNumber);
-                    Log.Info($"Resolved and stored save slot: {info.SaveSlotNumber}");
-                    return;
-                }
-            }
-
-            // Fallback
-            var infoLegacy = Il2CppScheduleOne.Persistence.LoadManager.Instance?.ActiveSaveInfo;
-            if (infoLegacy != null && infoLegacy.Pointer != IntPtr.Zero && !infoLegacy.WasCollected && infoLegacy.SaveSlotNumber >= 0)
-            {
-                SnackVendor.Persistence.SnackVendorStore.OnSaveSlotResolved(infoLegacy.SaveSlotNumber);
-                Log.Info($"Resolved and stored legacy save slot: {infoLegacy.SaveSlotNumber}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Log.Warn("Failed to resolve save slot.", ex);
+            SnackVendor.Persistence.SnackVendorStore.OnSaveSlotResolved(slot);
+            Log.Info($"Resolved and stored save slot: {slot}");
         }
     }
 

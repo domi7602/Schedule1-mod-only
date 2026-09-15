@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
-using Il2CppScheduleOne.Persistence;
 using MelonLoader;
 using MelonLoader.Utils;
 using S1API.GameTime;
@@ -67,34 +66,17 @@ public sealed class NotesApp : PhoneApp
     private string _lastKnownSlot = "default";
     private string _searchQuery = string.Empty;
 
+    /// <summary>
+    /// Slot-Suffix im Format "slot_{n}" mit last-known-Fallback ("default").
+    /// Sonde inkl. >= 0-Guard: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15).
+    /// </summary>
     private string GetSaveSlotSuffix()
     {
-        try
+        int slot = SaveSlots.GetActiveSlotNumber();
+        if (slot >= 0)
         {
-            // Use PersistentSingleton for robustness (matches BankApp/TransactionHistoryService)
-            var loadMgr = Il2CppScheduleOne.DevUtilities.PersistentSingleton<LoadManager>.Instance;
-            if (loadMgr != null && loadMgr.Pointer != IntPtr.Zero && !loadMgr.WasCollected)
-            {
-                var info = loadMgr.ActiveSaveInfo;
-                if (info != null && info.Pointer != IntPtr.Zero && !info.WasCollected
-                    && info.SaveSlotNumber >= 0)
-                {
-                    string slot = $"slot_{info.SaveSlotNumber}";
-                    _lastKnownSlot = slot;
-                    return slot;
-                }
-            }
-            // Fallback to legacy LoadManager.Instance (in case PersistentSingleton not ready)
-            var legacyInfo = LoadManager.Instance?.ActiveSaveInfo;
-            if (legacyInfo != null && legacyInfo.Pointer != IntPtr.Zero && !legacyInfo.WasCollected
-                && legacyInfo.SaveSlotNumber >= 0)
-            {
-                string slot = $"slot_{legacyInfo.SaveSlotNumber}";
-                _lastKnownSlot = slot;
-                return slot;
-            }
+            _lastKnownSlot = $"slot_{slot}";
         }
-        catch { }
         return _lastKnownSlot;
     }
 

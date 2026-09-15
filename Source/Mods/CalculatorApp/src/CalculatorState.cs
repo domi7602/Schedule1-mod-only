@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Il2CppScheduleOne.Persistence;
 using MelonLoader;
 using S1Mods.Shared;
 
@@ -66,26 +65,18 @@ public sealed class CalculatorState
 
     private static string _lastKnownSlot = "default";
 
+    /// <summary>
+    /// Slot-Suffix als reine Zahl ("3"). Format und last-known-Fallback bleiben
+    /// mod-lokal; die Sonde inkl. >= 0-Guard (kein calculator_state_slot_-1.json,
+    /// Bug-Audit 2026-09-12) kommt aus S1Mods.Shared.SaveSlots.
+    /// </summary>
     public static string GetActiveSlotSuffix()
     {
-        try
+        int slot = SaveSlots.GetActiveSlotNumber();
+        if (slot >= 0)
         {
-            var info = LoadManager.Instance?.ActiveSaveInfo;
-            if (info != null && info.Pointer != IntPtr.Zero && !info.WasCollected)
-            {
-                // Bug-Audit 2026-09-12: missing the >=0 guard here created a
-                // calculator_state_slot_-1.json on the first menu-state write (NotesApp
-                // already had this guard). Pre-load / main-menu states with slot -1 now
-                // fall back to the last known good slot, just like the storage helper.
-                if (info.SaveSlotNumber >= 0)
-                {
-                    string slot = info.SaveSlotNumber.ToString();
-                    _lastKnownSlot = slot;
-                    return slot;
-                }
-            }
+            _lastKnownSlot = slot.ToString();
         }
-        catch { }
         return _lastKnownSlot;
     }
 

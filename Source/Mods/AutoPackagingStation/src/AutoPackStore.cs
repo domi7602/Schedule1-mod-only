@@ -157,48 +157,26 @@ public static class AutoPackStore
         return _runtimeData.Remove(guid);
     }
 
+    /// <summary>
+    /// Slot-Suffix als reine Zahl ("3"), sonst Dateiname des Save-Pfads (mit
+    /// Extension), sonst last-known, sonst "default". Format unverändert —
+    /// Sonde inkl. beider historischer Zugänge: S1Mods.Shared.SaveSlots
+    /// (Konsolidierung 2026-09-15; vorher zwei 1:1-duplizierte Blöcke).
+    /// </summary>
     public static string GetActiveSlotSuffix()
     {
-        try
+        var info = SaveSlots.TryGetActiveSaveInfo();
+        if (info is { SlotNumber: >= 0 } slot)
         {
-            var pLoadMgr = Il2CppScheduleOne.DevUtilities.PersistentSingleton<Il2CppScheduleOne.Persistence.LoadManager>.Instance;
-            if (pLoadMgr != null && pLoadMgr.Pointer != IntPtr.Zero && !pLoadMgr.WasCollected)
-            {
-                var info = pLoadMgr.ActiveSaveInfo;
-                if (info != null && info.Pointer != IntPtr.Zero && !info.WasCollected)
-                {
-                    if (info.SaveSlotNumber >= 0)
-                    {
-                        _lastKnownSlot = info.SaveSlotNumber.ToString();
-                        return _lastKnownSlot;
-                    }
-                    else if (!string.IsNullOrEmpty(info.SavePath))
-                    {
-                        _lastKnownSlot = Path.GetFileName(info.SavePath);
-                        return _lastKnownSlot;
-                    }
-                }
-            }
+            _lastKnownSlot = slot.SlotNumber.ToString();
+            return _lastKnownSlot;
+        }
+        if (info is { SavePath: { Length: > 0 } savePath })
+        {
+            _lastKnownSlot = Path.GetFileName(savePath);
+            return _lastKnownSlot;
+        }
 
-            var infoLegacy = LoadManager.Instance?.ActiveSaveInfo;
-            if (infoLegacy != null && infoLegacy.Pointer != IntPtr.Zero && !infoLegacy.WasCollected)
-            {
-                if (infoLegacy.SaveSlotNumber >= 0)
-                {
-                    _lastKnownSlot = infoLegacy.SaveSlotNumber.ToString();
-                    return _lastKnownSlot;
-                }
-                else if (!string.IsNullOrEmpty(infoLegacy.SavePath))
-                {
-                    _lastKnownSlot = Path.GetFileName(infoLegacy.SavePath);
-                    return _lastKnownSlot;
-                }
-            }
-        }
-        catch
-        {
-            // Fallback to last known slot
-        }
         if (string.IsNullOrEmpty(_lastKnownSlot))
         {
             Mod.Log.Debug("GetActiveSlotSuffix: no save slot resolved — falling back to 'default'.");

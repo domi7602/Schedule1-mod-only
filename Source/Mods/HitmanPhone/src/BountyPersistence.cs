@@ -46,23 +46,16 @@ public static class BountyPersistence
 
     private static int _lastKnownSlot = -1;
 
-    /// <summary>Active slot number, or -1 if not currently loaded.</summary>
+    /// <summary>Active slot number, or -1 if not currently loaded.
+    /// Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15).</summary>
     public static int ActiveSlotNumber
     {
         get
         {
-            try
+            int slot = SaveSlots.GetActiveSlotNumber();
+            if (slot >= 0)
             {
-                var info = S1Persistence.LoadManager.Instance?.ActiveSaveInfo;
-                if (info != null && info.SaveSlotNumber >= 0)
-                {
-                    _lastKnownSlot = info.SaveSlotNumber;
-                    return _lastKnownSlot;
-                }
-            }
-            catch
-            {
-                // Save may not be loaded yet (Main Menu); fall through to cached value.
+                _lastKnownSlot = slot;
             }
             return _lastKnownSlot;
         }

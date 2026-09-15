@@ -188,20 +188,10 @@ public static class SaveStateGuard
     /// <summary>
     /// Ask the LoadManager for the active save slot. Returns -1 if it isn't ready yet.
     /// We swallow all exceptions because the load manager is fussy during transitions.
+    /// Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15).
     /// </summary>
     private static int ResolveActiveSlotSafe()
     {
-        try
-        {
-            var lm = S1Persistence.LoadManager.Instance;
-            if (lm == null) return -1;
-            var info = lm.ActiveSaveInfo;
-            if (info == null) return -1;
-            return info.SaveSlotNumber;
-        }
-        catch
-        {
-            return -1;
-        }
+        return SaveSlots.GetActiveSlotNumber();
     }
 }
