@@ -49,6 +49,7 @@ public sealed class SnackVendorController : MonoBehaviour
     // ----- stock (managed, source of truth is the sidecar; this is the runtime cache) -----
     private readonly List<StockSlot> _stock = new();
 
+    [HideFromIl2Cpp]
     public IReadOnlyList<StockSlot> Stock => _stock;
 
     /// <summary>Slot of size 1 — keeps it simple, no merge logic needed for this MVP.</summary>
@@ -267,11 +268,21 @@ public sealed class SnackVendorController : MonoBehaviour
         catch { return null; }
     }
 
+    [HideFromIl2Cpp]
     public bool TryDepositIngredient(int ingredientId, int amount)
     {
         if (amount <= 0) return false;
         // Clamp max-slots + check existing slot for same id.
-        var slot = _stock.FirstOrDefault(s => s.IngredientId == ingredientId);
+        StockSlot? slot = null;
+        for (int i = 0; i < _stock.Count; i++)
+        {
+            if (_stock[i].IngredientId == ingredientId)
+            {
+                slot = _stock[i];
+                break;
+            }
+        }
+
         if (slot != null)
         {
             slot.Quantity += amount;
@@ -282,10 +293,20 @@ public sealed class SnackVendorController : MonoBehaviour
         return true;
     }
 
+    [HideFromIl2Cpp]
     public bool TryExtractIngredient(int ingredientId, int amount)
     {
         if (amount <= 0) return false;
-        var slot = _stock.FirstOrDefault(s => s.IngredientId == ingredientId);
+        StockSlot? slot = null;
+        for (int i = 0; i < _stock.Count; i++)
+        {
+            if (_stock[i].IngredientId == ingredientId)
+            {
+                slot = _stock[i];
+                break;
+            }
+        }
+
         if (slot == null || slot.Quantity < amount) return false;
         slot.Quantity -= amount;
         if (slot.Quantity == 0) _stock.Remove(slot);
@@ -293,6 +314,7 @@ public sealed class SnackVendorController : MonoBehaviour
     }
 
     /// <summary>Try pop one slot for the NPC purchase path. Returns -1 if empty.</summary>
+    [HideFromIl2Cpp]
     public int TryConsumeOne()
     {
         if (_stock.Count == 0) return -1;
@@ -304,13 +326,22 @@ public sealed class SnackVendorController : MonoBehaviour
         return id;
     }
 
+    [HideFromIl2Cpp]
     private void RestoreStockFromDisk()
     {
         // Sidecar is loaded centrally on GameLifecycle events; we look up
         // by InstanceGuid to populate this controller's slots.
         var all = SnackVendor.Persistence.SnackVendorStore.Load();
         if (all?.Stations == null) return;
-        var data = all.Stations.FirstOrDefault(s => s.InstanceGuid == InstanceGuid);
+        SnackVendor.Persistence.SnackStationSaveData? data = null;
+        for (int i = 0; i < all.Stations.Count; i++)
+        {
+            if (all.Stations[i].InstanceGuid == InstanceGuid)
+            {
+                data = all.Stations[i];
+                break;
+            }
+        }
         if (data == null) return;
         _stock.Clear();
         foreach (var s in data.Slots)
@@ -322,11 +353,20 @@ public sealed class SnackVendorController : MonoBehaviour
         }
     }
 
+    [HideFromIl2Cpp]
     public void PersistSlotsToDisk()
     {
         var all = SnackVendor.Persistence.SnackVendorStore.Load();
         if (all == null) return;
-        var data = all.Stations.FirstOrDefault(s => s.InstanceGuid == InstanceGuid);
+        SnackVendor.Persistence.SnackStationSaveData? data = null;
+        for (int i = 0; i < all.Stations.Count; i++)
+        {
+            if (all.Stations[i].InstanceGuid == InstanceGuid)
+            {
+                data = all.Stations[i];
+                break;
+            }
+        }
         if (data == null)
         {
             data = new SnackVendor.Persistence.SnackStationSaveData { InstanceGuid = InstanceGuid };
