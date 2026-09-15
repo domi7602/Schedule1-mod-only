@@ -2,6 +2,8 @@
 
 Workspace: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule1-mod-only-main` — MelonLoader modding workspace for *Schedule I* v0.4.6f13 (TVGS).
 
+Quick links: [`docs/architecture.md`](docs/architecture.md) defines dependency boundaries, [`ThirdParty/README.md`](ThirdParty/README.md) documents pinned dependencies, and [`GameReferences/README.md`](GameReferences/README.md) explains local decompile generation. This file remains the compact operational index and version inventory.
+
 > **Umzug 2026-09 (Neuinstallation):** Das Repo liegt jetzt **im Spiel-Ordner** (`<GameDir>\Schedule1-mod-only-main`); der alte Pfad `C:\Users\pc\Desktop\Schedule1-mod-only` ist obsolet. Setup 2026-09-04 wiederhergestellt: .NET SDK 8.0.424 installiert, S1API 3.2.0 (Fork-Build aus `ThirdParty/S1API/`) deployed, NotesApp + Shared als Verifikation gebaut. Deploy-Konvention seit 2026-09: DLL/PNG/bundle → `Mods\`; `mod.json` + `.pdb` → `UserData\<Mod>\`.
 
 > **For AI Agents:** This is the bootstrap file. Read it completely before doing anything to the mods. If you make assumptions not stated here, ask first. If you find something here that is *wrong* or outdated, please update it.
@@ -19,7 +21,7 @@ Twenty skills orchestrate mod work (located directly in `Skills/<skill-name>/SKI
 | **`schedule1-grid`** | Grid & building: outdoor/unrestricted placement, BuildUpdate_Grid patching, ghost positioning, 7 Golden Rules, custom building. |
 | **`schedule1-s1api`** | S1API framework reference: Saveables, PhoneApp base, Quests, NPCs, Items, Money, GameTime, Lifecycle, cross-branch compatibility. |
 | **`schedule1-s1mapi`** | S1MAPI framework reference: ProceduralMesh, BuildingBuilder, GltfLoader, InteriorBuilder, World tools (Terrain/Nav/Prefab). |
-| `schedule1-knowledge` | Research: in-repo decompiles (`GameReferences/`), S1API source (`ThirdParty/S1API/`), 64 curated systems (`Skills/schedule1-game-systems/references/`). |
+| `schedule1-knowledge` | Research: locally generated decompiles (`GameReferences/`), S1API source (`ThirdParty/S1API/`), 64 curated systems (`Skills/schedule1-game-systems/references/`). |
 | `schedule1-troubleshooting` | Diagnostics: native PowerShell `Latest.log` triage, crash patterns, save-load timing, IL2CPP pitfalls, WasCollected, slot_-1.json recovery. |
 | `schedule1-game-systems` | Game systems: 64 systems (Growing 08, Inventory 09, Property 54, etc.), decision tree, recipes — bypass raw decompile. |
 | **`schedule1-economy`** | Economy: Money (cash/bank), Business revenue, Shop multi-payment (Cash/Bank/Auto), Customers, Laundering — host authority + snapshot revert. |
@@ -49,9 +51,9 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
   ```
   Source/Mods/        Mods + Shared lib (inkl. Shared/UITheme) + Directory.Build.props/targets + S1Mods.sln
   Source/Archive/     Archived mods (DayCounter, ProfitTracker, TVBrowser), Tests & reference decompiles
-  GameReferences/     In-repo decompiled assemblies (Assembly-CSharp, firstpass)
+   GameReferences/     Local generated decompiles (Assembly-CSharp, firstpass)
   Skills/             20 AI-Agent Skills & References (modding, phoneapp, economy, systems, etc.)
-  ThirdParty/         External frameworks & mod sources (hash, MoreDrugs, S1MCP, PhoneScroll, S1API)
+   ThirdParty/         Pinned external frameworks & reference sources; see ThirdParty/README.md
   Tools/              (reaktiviert 2026-09-10: build-all, gen-sln, new-mod, bump-version, package-release, backup-to-d)
   Release/            Release packages (.gitkeep)
   .githooks/          Pre-commit hook (dotnet format + gen-sln determinism)
@@ -465,4 +467,3 @@ s1interop analyze "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Sche
 > **Note:** This mod-only workspace does not include the `Knowledge/` folder (decompiles, analyses, maps, tools). Der frühere Haupt-Workspace `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule 1 Modding` existiert nach der Neuinstallation (2026-09) **nicht mehr** — die Knowledge-Base (4804 Dateien / 67 MB) muss bei Bedarf neu generiert (AssetRipper/ilspycmd) oder aus einem Backup wiederhergestellt werden.
 
 Reference decompiles and analysis snippets for archived mods are available in `Source/Archive/`.
-

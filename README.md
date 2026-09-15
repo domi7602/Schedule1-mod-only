@@ -57,6 +57,9 @@ Are you a modder looking to contribute, explore the architecture, or use the AI-
 Please refer to the **[Developers Guide](DEVELOPERS.md)** and **[AGENTS.md](AGENTS.md)** for details on the workspace layout, AI skills, and build pipeline.
 
 - **Contributing:** See [`CONTRIBUTING.md`](CONTRIBUTING.md) for setup, `bump-version.ps1`, `dotnet format`, and PR checklist.
+- **Architecture:** [`docs/architecture.md`](docs/architecture.md) defines dependency direction, mod layout, and runtime boundaries.
+- **References:** [`GameReferences/README.md`](GameReferences/README.md) explains how to generate local decompiles; [`ThirdParty/README.md`](ThirdParty/README.md) documents pinned external dependencies.
+- **Releases:** [`docs/release-process.md`](docs/release-process.md) documents versioning, packaging, and verification.
 - **CI:** GitHub Actions (`.github/workflows/ci.yml`) validates format, version sync, build, tests, and SLN determinism on every push/PR.
 - **Tests:** `Source/Tests/` (xUnit) — `Shared.Tests` (SafeStorage, UITheme, PatchGuard, ModLogger, SafeInvoker, TypeResolver), `AutoPackagingStation.Tests` (pure math) and `BackpackMod.Tests` (`SortButtonLayout`). Run them with `dotnet test <csproj>`.
 - **License:** [`LICENSE`](LICENSE) — MIT for workspace code, Third-Party notices for S1API/S1MAPI.

@@ -1,4 +1,4 @@
-# Legt ein neues Mod-Gerüst an: Source/Mods/<Name>/src/ + docs/.
+# Legt ein neues Mod-Gerüst an: src/, docs/, assets/ und tests/.
 # Nutzung: pwsh Tools/new-mod.ps1 -Name "MyMod" -Author "Dominik" -Version "0.1.0"
 param(
     [Parameter(Mandatory = $true)][string]$Name,
@@ -12,6 +12,8 @@ $modRoot = Join-Path $workspaceRoot "Source\Mods"
 $modDir = Join-Path $modRoot $Name
 $srcDir = Join-Path $modDir "src"
 $docsDir = Join-Path $modDir "docs"
+$assetsDir = Join-Path $modDir "assets"
+$testsDir = Join-Path $modDir "tests"
 
 if (Test-Path -LiteralPath $modDir) {
     throw "Mod-Ordner existiert bereits: $modDir"
@@ -19,6 +21,8 @@ if (Test-Path -LiteralPath $modDir) {
 
 New-Item -ItemType Directory -Path $srcDir -Force | Out-Null
 New-Item -ItemType Directory -Path $docsDir -Force | Out-Null
+New-Item -ItemType Directory -Path $assetsDir -Force | Out-Null
+New-Item -ItemType Directory -Path $testsDir -Force | Out-Null
 
 $ns = $Name -replace '[^A-Za-z0-9_]', ''
 $csproj = @"
@@ -64,6 +68,8 @@ Set-Content -LiteralPath (Join-Path $srcDir "Mod.cs") -Value $modCs -Encoding UT
 Set-Content -LiteralPath (Join-Path $docsDir "mod.json") -Value $modJson -Encoding UTF8
 Set-Content -LiteralPath (Join-Path $docsDir "README.md") -Value $readme -Encoding UTF8
 Set-Content -LiteralPath (Join-Path $docsDir "CHANGELOG.md") -Value $changelog -Encoding UTF8
+Set-Content -LiteralPath (Join-Path $assetsDir "README.md") -Value "# Assets`n`nRuntime assets copied to Mods/ during build belong here." -Encoding UTF8
+Set-Content -LiteralPath (Join-Path $testsDir "README.md") -Value "# Tests`n`nAdd isolated tests here, or create a dedicated project under Source/Tests/." -Encoding UTF8
 
 Write-Host "Mod '$Name' angelegt unter $modDir" -ForegroundColor Green
 Write-Host "Danach: pwsh Tools/gen-sln.ps1 (Solution regenerieren)"

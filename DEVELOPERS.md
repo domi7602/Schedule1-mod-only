@@ -7,7 +7,7 @@ MelonLoader modding workspace for *Schedule I* v0.4.6f13 (TVGS). Fully built on 
 ## What This Is
 
 - MelonLoader / IL2CPP mods (TFM `net6.0`) targeting Schedule I **v0.4.6f13**
-- Mod source plus in-repo decompiled assemblies under `GameReferences/` (Assembly-CSharp, firstpass)
+- Mod source plus locally generated decompiled assemblies under `GameReferences/` (Assembly-CSharp, firstpass)
 - AI agent skills under `Skills/` (see below)
 
 ## Layout
@@ -17,9 +17,9 @@ Source/Mods/                  Mods + shared lib + Directory.Build.props/targets
 Source/Mods/S1Mods.sln        Solution (regeneratable via Tools/gen-sln.ps1)
 Source/Archive/               Archived mods (DayCounter, ProfitTracker, TVBrowser)
 Source/Tests/                 xUnit tests (Shared, AutoPackagingStation, BackpackMod)
-GameReferences/               In-repo decompiled assemblies (Assembly-CSharp, firstpass)
+GameReferences/               Locally generated decompiles; see GameReferences/README.md
 Skills/                       20 AI-agent skills (`Skills/<name>/SKILL.md` + `references/`; index: Skills/README.md)
-ThirdParty/                   External frameworks & mod sources (S1API, S1MCP, MoreDrugs, PhoneScroll; hash/Sideload reference-only)
+ThirdParty/                   Pinned external dependencies; see ThirdParty/README.md
 Tools/                        build-all, gen-sln, new-mod, bump-version, check-version-sync, package-release, deploy-thirdparty, backup-to-d
 Release/                      Release packages
 .github/                      CI (workflows/ci.yml, workflows/release.yml) + issue/PR templates
@@ -27,6 +27,7 @@ memory/                       Daily logs `memory/YYYY-MM-DD.md` + `memory-protoc
 AGENTS.md                     Workspace conventions & mod inventory for AI agents
 README.md                     Player-facing mod overview
 DEVELOPERS.md                 This file
+docs/                         Architecture and release-process documentation
 ```
 
 ## AI-Agent Skills
@@ -85,6 +86,22 @@ A successful build deploys automatically (via `Directory.Build.targets`), with s
 **Never place json/pdb files into `Mods\`.** Default GameDir: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
 
 `SkipUnchangedFiles` is set to `false` (since 2026-08-20) — every `dotnet build` force-deploys, eliminating stale-DLL traps.
+
+## Dependencies & References
+
+Initialize the pinned API dependencies after cloning:
+
+```pwsh
+git submodule update --init --recursive
+```
+
+Generate local game decompiles only when researching game internals:
+
+```pwsh
+pwsh Tools/bootstrap-game-references.ps1
+```
+
+See [`docs/architecture.md`](docs/architecture.md), [`ThirdParty/README.md`](ThirdParty/README.md), and [`GameReferences/README.md`](GameReferences/README.md) for ownership and dependency rules.
 
 > **Post-reinstall status (2026-09-04):** The repo now lives **inside the game directory** (`<GameDir>\Schedule1-mod-only-main`). Setup restored: .NET SDK 8.0.424 installed, S1API 3.2.0 rebuilt from `ThirdParty/S1API/` and deployed (`local.build.props` created from `example.build.props`), NotesApp + Shared built as verification. Update 2026-09-14: alle Mods gebaut/deployed; `Tools/` reaktiviert (9 Helper, inkl. `check-version-sync.ps1`); 20 AI-Skills unter `Skills/`; In-Repo-Decompiles unter `GameReferences/`; Tests unter `Source/Tests/` (Shared + AutoPackagingStation + BackpackMod); CI validiert Format + SLN-Determinismus + Versions-Sync immer, Build/Tests nur mit Spiel-Assemblies.
 

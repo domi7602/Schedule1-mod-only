@@ -15,12 +15,13 @@ Danke für dein Interesse am `Schedule I Modding Workspace`! Diese Anleitung fas
 Source/Mods/          Mods + Shared lib + S1Mods.sln
 Source/Archive/       Archivierte Mods (nicht in SLN)
 Source/Tests/         xUnit-Tests (Shared.Tests, AutoPackagingStation.Tests, BackpackMod.Tests)
-GameReferences/       In-Repo-Decompiles (Assembly-CSharp, firstpass)
+GameReferences/       Lokal generierte Decompiles; siehe GameReferences/README.md
 Skills/               AI-Skills (schedule1-modding, -phoneapp, -s1api, ...; Index: Skills/README.md)
-ThirdParty/           Externe Frameworks/Quellen (S1API, S1MCP, MoreDrugs, PhoneScroll, ...)
+ThirdParty/           Gepinnte externe Abhaengigkeiten; siehe ThirdParty/README.md
 Tools/                build-all.ps1, gen-sln.ps1, bump-version.ps1, check-version-sync.ps1, package-release.ps1, new-mod.ps1, deploy-thirdparty.ps1
 Release/              Release-Pakete (.gitkeep)
 AGENTS.md             Inventar & Konventionen (Single Source of Truth)
+docs/                 Architektur- und Release-Dokumentation
 ```
 
 ## Skills laden
@@ -34,6 +35,15 @@ Lade **immer** zuerst den relevanten Skill via `skill`-Tool:
 - `schedule1-troubleshooting` — für Crashes/Logs
 
 Skill-Pfade: `Skills/<skill-name>/SKILL.md` (+ `references/`-Unterdateien). Vollständiger Index: `Skills/README.md`.
+
+## Abhaengigkeiten und Referenzen
+
+```pwsh
+git submodule update --init --recursive
+pwsh Tools/bootstrap-game-references.ps1
+```
+
+Die Decompiles sind lokaler Recherche-Output und duerfen nicht committed werden. Die Regeln fuer Abhaengigkeitsrichtung und Mod-Struktur stehen in [`docs/architecture.md`](docs/architecture.md).
 
 ## Neuen Mod erstellen
 

@@ -51,6 +51,9 @@ jobs:
       - name: dotnet format --verify-no-changes
         run: dotnet format Source/Mods/S1Mods.sln --verify-no-changes --verbosity diagnostic
 
+      - name: Pure logic tests
+        run: dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release --nologo
+
       - name: Build (Release)
         if: steps.detect.outputs.has-game == 'true'
         run: dotnet build Source/Mods/S1Mods.sln -c Release --no-restore --nologo

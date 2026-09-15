@@ -1,0 +1,6 @@
+[submodule "ThirdParty/S1API"]
+	path = ThirdParty/S1API
+	url = https://github.com/ifBars/S1API.git
+[submodule "ThirdParty/S1MAPI"]
+	path = ThirdParty/S1MAPI
+	url = https://github.com/domi7602/S1MAPI.git
