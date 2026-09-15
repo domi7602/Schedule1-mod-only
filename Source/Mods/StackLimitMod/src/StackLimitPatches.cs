@@ -60,20 +60,22 @@ public static class StackLimitPatches
             string id = __instance.ID;
             if (string.IsNullOrEmpty(id)) return;
 
-            bool excluded = StackLimitEngine.IsExcluded(id);
+            bool isWeaponOrAmmo = StackLimitEngine.IsWeaponOrAmmoId(id);
+            bool excluded = isWeaponOrAmmo || StackLimitEngine.IsExcluded(id);
+            bool eligible = !isWeaponOrAmmo && StackLimitEngine.IsEligibleForOverride(id, __instance);
             bool keepOriginal = false;
             // Unknown ID (instance seen before the first definition scan): decide live
             // but do NOT cache — the fallback limit (1) may be wrong, and a cached
             // false would stick until scene unload even after the scan fills in.
             bool known = StackLimitEngine.IsOriginalKnown(id);
-            if (!excluded && !Mod.Config.OverrideNonStackable)
+            if (!excluded && eligible && !Mod.Config.OverrideNonStackable)
             {
                 int orig = StackLimitEngine.GetOriginalLimit(id, 1);
                 keepOriginal = orig == 1;
             }
 
-            shouldOverride = !excluded && !keepOriginal;
-            if (known)
+            shouldOverride = !excluded && eligible && !keepOriginal;
+            if (known || isWeaponOrAmmo)
             {
                 if (_overrideDecisionCache.Count >= MaxDecisionCacheEntries)
                     _overrideDecisionCache.Clear();

@@ -1,8 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Il2CppScheduleOne;
+using Il2CppScheduleOne.Clothing;
 using Il2CppScheduleOne.Core.Items.Framework;
+using Il2CppScheduleOne.Equipping;
+using Il2CppScheduleOne.Equipping.Framework;
+using Il2CppScheduleOne.Growing;
 using Il2CppScheduleOne.ItemFramework;
+using Il2CppScheduleOne.Product;
+using Il2CppScheduleOne.Product.Packaging;
 using UnityEngine;
 
 namespace StackLimitMod;
@@ -205,6 +211,157 @@ public static class StackLimitEngine
         ApplyToDefinition(def, config, null);
     }
 
+    /// <summary>
+    /// Checks if the item definition is a weapon, ammunition, clothing, or tool with runtime state.
+    /// Stacking these items causes severe UI corruption (Chinese characters) and ammo reload underflows (-1 ammo).
+    /// These items must NEVER have their stack limits increased above vanilla limits.
+    /// </summary>
+    public static bool IsWeaponOrAmmo(BaseItemDefinition? def)
+    {
+        if (def == null || def.Pointer == IntPtr.Zero) return false;
+        string id = def.ID ?? string.Empty;
+        if (IsWeaponOrAmmoId(id)) return true;
+
+        try
+        {
+            if (def is EquippableItemDefinition) return true;
+            if (def is ClothingDefinition) return true;
+            if (def is CashDefinition) return true;
+
+            if (def is ItemDefinition itemDef && itemDef.Pointer != IntPtr.Zero)
+            {
+                var eq = itemDef.Equippable;
+                if (eq != null && eq.Pointer != IntPtr.Zero)
+                {
+                    if (eq is Equippable_RangedWeapon || eq is Equippable_MeleeWeapon)
+                        return true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Debug($"IsWeaponOrAmmo type check failed for '{id}': {ex.Message}");
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Fast string-based check for weapon and ammo identifiers.
+    /// </summary>
+    public static bool IsWeaponOrAmmoId(string id)
+    {
+        if (string.IsNullOrEmpty(id)) return false;
+        string lower = id.ToLowerInvariant();
+
+        // Direct weapon/ammo keywords
+        if (lower.Contains("ammo") || lower.Contains("bullet") || lower.Contains("shell") || lower.Contains("cartridge"))
+            return true;
+        if (lower.Contains("pistol") || lower.Contains("shotgun") || lower.Contains("rifle") || lower.Contains("smg") ||
+            lower.Contains("revolver") || lower.Contains("sniper") || lower.Contains("weapon") || lower.Contains("firearm"))
+            return true;
+        if (lower.Contains("knife") || lower.Contains("bat") || lower.Contains("crowbar") || lower.Contains("machete") ||
+            lower.Contains("taser") || lower.Contains("grenade") || lower.Contains("molotov") || lower.Contains("c4") ||
+            lower.Contains("rdx") || lower.Contains("bomb"))
+            return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// Checks if an item definition belongs to agriculture and farming:
+    /// soil, seeds, packaging (baggies, jars), additives/fertilizers, mushroom spores/spawns,
+    /// and harvested crop products.
+    /// </summary>
+    public static bool IsAgricultureItem(BaseItemDefinition? def)
+    {
+        if (def == null || def.Pointer == IntPtr.Zero) return false;
+        string id = def.ID ?? string.Empty;
+
+        // Permanent weapon/ammo veto
+        if (IsWeaponOrAmmo(def)) return false;
+
+        try
+        {
+            if (def is SoilDefinition) return true;
+            if (def is SeedDefinition) return true;
+            if (def is PackagingDefinition) return true;
+            if (def is AdditiveDefinition) return true;
+            if (def is ShroomSpawnDefinition) return true;
+            if (def is SporeSyringeDefinition) return true;
+            if (def is ProductDefinition) return true;
+            if (def is QualityItemDefinition) return true;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Debug($"IsAgricultureItem type check failed for '{id}': {ex.Message}");
+        }
+
+        // ID / Name heuristics for modded or dynamically injected agricultural items
+        return IsAgricultureId(id);
+    }
+
+    /// <summary>
+    /// Fast ID-based heuristic for agricultural items.
+    /// </summary>
+    public static bool IsAgricultureId(string id)
+    {
+        if (string.IsNullOrEmpty(id)) return false;
+        if (IsWeaponOrAmmoId(id)) return false;
+
+        string lower = id.ToLowerInvariant();
+        return lower.Contains("seed") ||
+               lower.Contains("soil") ||
+               lower.Contains("baggie") ||
+               lower.Contains("jar") ||
+               lower.Contains("fertilizer") ||
+               lower.Contains("additive") ||
+               lower.Contains("spore") ||
+               lower.Contains("spawn") ||
+               lower.Contains("weed") ||
+               lower.Contains("shroom") ||
+               lower.Contains("mushroom") ||
+               lower.Contains("packaging") ||
+               lower.Contains("bud") ||
+               lower.Contains("plantfood") ||
+               lower.Contains("cocoir") ||
+               lower.Contains("potting");
+    }
+
+    /// <summary>
+    /// Checks whether an item ID is eligible for stack limit overrides given the current configuration.
+    /// </summary>
+    public static bool IsEligibleForOverride(string id, BaseItemInstance? instance = null)
+    {
+        if (string.IsNullOrEmpty(id)) return false;
+        if (IsExcluded(id)) return false;
+        if (IsWeaponOrAmmoId(id)) return false;
+
+        var cfg = Mod.Config;
+        if (cfg == null) return false;
+
+        if (cfg.AgricultureOnly)
+        {
+            // First check fast ID heuristic
+            if (IsAgricultureId(id)) return true;
+
+            // Otherwise resolve definition from Registry if available
+            try
+            {
+                var def = Registry.GetItem(id);
+                if (def != null && def.Pointer != IntPtr.Zero)
+                {
+                    return IsAgricultureItem(def);
+                }
+            }
+            catch { }
+
+            return false;
+        }
+
+        return true;
+    }
+
     private static bool ApplyToDefinition(BaseItemDefinition? def, StackLimitConfig config, HashSet<string>? processedIds)
     {
         if (def == null || def.Pointer == IntPtr.Zero) return false;
@@ -225,9 +382,22 @@ public static class StackLimitEngine
             }
         }
 
-        // Excluded items must behave as if the mod never touched them: restore the
-        // memorized original limit (same as the NonStackable path below). Otherwise an
-        // item excluded AFTER being overridden keeps the override until restart.
+        // 1. Permanent protection: Weapons & Ammo MUST NEVER be stacked!
+        if (IsWeaponOrAmmo(def))
+        {
+            try
+            {
+                if (def.StackLimit != originalLimit)
+                    def.StackLimit = originalLimit;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log?.Warn($"ApplyToDefinition weapon-restore failed for '{id}': {ex}");
+            }
+            return false;
+        }
+
+        // 2. Excluded items must behave as if the mod never touched them: restore original limit
         if (IsExcluded(id))
         {
             try
@@ -242,6 +412,22 @@ public static class StackLimitEngine
             return false;
         }
 
+        // 3. Agriculture Only mode: if enabled, only agricultural items are modified!
+        if (config.AgricultureOnly && !IsAgricultureItem(def))
+        {
+            try
+            {
+                if (def.StackLimit != originalLimit)
+                    def.StackLimit = originalLimit;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log?.Warn($"ApplyToDefinition non-ag-restore failed for '{id}': {ex}");
+            }
+            return false;
+        }
+
+        // 4. NonStackable guard: if OverrideNonStackable is false and original == 1
         if (!config.OverrideNonStackable && originalLimit == 1)
         {
             try

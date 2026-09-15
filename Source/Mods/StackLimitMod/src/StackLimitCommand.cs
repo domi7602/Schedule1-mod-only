@@ -70,6 +70,7 @@ public sealed class StackLimitCommand : BaseConsoleCommand
         sb.AppendLine("<color=#60f080>★ StackLimitMod Status</color>");
         sb.AppendLine("<color=#60f080>--------------------------------------------------</color>");
         sb.AppendLine($"  <color=#aaaaaa>Current Limit:</color>          {cfg.StackLimit}");
+        sb.AppendLine($"  <color=#aaaaaa>Agriculture Only:</color>       {cfg.AgricultureOnly}");
         sb.AppendLine($"  <color=#aaaaaa>Modified Items:</color>         {StackLimitEngine.ModifiedItemCount}");
         sb.AppendLine($"  <color=#aaaaaa>Tracked Items:</color>          {StackLimitEngine.TrackedItemCount}");
         sb.AppendLine($"  <color=#aaaaaa>Override Non-Stackable:</color> {cfg.OverrideNonStackable}");
@@ -82,13 +83,28 @@ public sealed class StackLimitCommand : BaseConsoleCommand
     {
         if (args.Count < 2)
         {
-            MelonLogger.Msg("<color=#ff6060>Usage:</color> stack set <amount> (1 - 9999)");
+            MelonLogger.Msg("<color=#ff6060>Usage:</color> stack set <amount> (1 - 9999) OR stack set ag <true|false>");
+            return;
+        }
+
+        if (args.Count >= 3 && Is(args, 1, "ag", "agriculture", "agricultureonly"))
+        {
+            if (bool.TryParse(args[2], out bool agOnly))
+            {
+                Mod.Config.AgricultureOnly = agOnly;
+                Mod.Config.Save();
+                StackLimitPatches.ClearDecisionCache();
+                int modifiedCount = StackLimitEngine.ApplyStackLimits(Mod.Config);
+                MelonLogger.Msg($"<color=#60f080>AgricultureOnly set to {agOnly}. Reapplied limit to {modifiedCount} items.</color>");
+                return;
+            }
+            MelonLogger.Msg("<color=#ff6060>Usage:</color> stack set ag <true|false>");
             return;
         }
 
         if (!int.TryParse(args[1], out int amount) || amount < 1 || amount > 9999)
         {
-            MelonLogger.Msg("<color=#ff6060>Invalid amount. Must be an integer between 1 and 9999.</color>");
+            MelonLogger.Msg("<color=#ff6060>Invalid amount. Must be an integer between 1 and 9999, or 'stack set ag <true|false>'.</color>");
             return;
         }
 
@@ -120,6 +136,7 @@ public sealed class StackLimitCommand : BaseConsoleCommand
         sb.AppendLine("  stack                     - Shows current stack limit status and modified item count");
         sb.AppendLine("  stack stats               - Shows detailed status and configuration");
         sb.AppendLine("  stack set <1-9999>        - Sets stack limit, saves config, and reapplies immediately");
+        sb.AppendLine("  stack set ag <true|false> - Toggle Agriculture-Only mode (protects weapons & ammo)");
         sb.AppendLine("  stack reload              - Reloads configuration from disk and reapplies");
         sb.AppendLine("  stack help                - Displays this help menu");
         MelonLogger.Msg(sb.ToString());

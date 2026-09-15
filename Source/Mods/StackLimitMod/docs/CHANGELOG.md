@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4 (2026-09-15) — Agriculture-Only Mode & Weapon/Ammo Shield
+- Neuer Standardmodus `AgricultureOnly = true`: Stack-Limits gelten strikt für Landwirtschafts- und Verarbeitungs-Items (Erde `SoilDefinition`, Samen `SeedDefinition`, Verpackungen wie Baggies/Jars `PackagingDefinition`, Dünger/Zusätze `AdditiveDefinition`, Pilzsporen/Spawn `SporeSyringeDefinition`/`ShroomSpawnDefinition` sowie Ernteprodukte `ProductDefinition`/`QualityItemDefinition`).
+- Permanenter Schutz für Waffen, Munition, Kleidung und Geld: Waffen und Munition werden niemals gestackt (`IsWeaponOrAmmo` Guard), bestehende Overrides werden beim Laden sofort auf Vanilla-Limits zurückgesetzt. Behebt den UI-Bug mit chinesischen Schriftzeichen bei gestackten Waffen sowie den `-1 Munition`-Fehler beim Nachladen.
+- Konsole: `stack stats` zeigt den `Agriculture Only`-Status an; neuer Toggle `stack set ag <true|false>`.
 
 ## 0.1.3 (2026-09-12) — Bug-Audit-Fixes Runde 3 (Audit 2026-09-12)
 - `StackLimitEngine.RestoreAll()` neu: stellt jedes getrackte Original-`StackLimit` wieder her. Wird in `Mod.OnDeinitializeMelon` aufgerufen, sodass Mod-Disable/Unload die Definitionen nicht mit überschriebenen Limits zurücklässt.

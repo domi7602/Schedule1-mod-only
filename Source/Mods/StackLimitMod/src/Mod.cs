@@ -8,7 +8,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(StackLimitMod.Mod), "StackLimitMod", "0.1.3", "Dominik")]
+[assembly: MelonInfo(typeof(StackLimitMod.Mod), "StackLimitMod", "0.1.4", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace StackLimitMod;
@@ -37,7 +37,7 @@ public class Mod : MelonMod
         GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
         GameLifecycle.OnLoadComplete += OnLoadComplete;
 
-        Log.Info($"StackLimitMod v0.1.1 initialized with StackLimit={Config.StackLimit}.");
+        Log.Info($"StackLimitMod v0.1.4 initialized with StackLimit={Config.StackLimit} (AgricultureOnly={Config.AgricultureOnly}).");
     }
 
     public override void OnDeinitializeMelon()
