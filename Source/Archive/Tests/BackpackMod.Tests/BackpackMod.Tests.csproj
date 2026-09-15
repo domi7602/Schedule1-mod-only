@@ -24,7 +24,7 @@
     self-contained static class with no external dependencies.
   -->
   <ItemGroup>
-    <Compile Include="..\..\Mods\BackpackMod\src\SortButtonLayout.cs" />
+    <Compile Include="..\..\BackpackMod\src\SortButtonLayout.cs" />
   </ItemGroup>
 
 </Project>
