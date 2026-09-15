@@ -40,9 +40,10 @@ public static class BountyTargetWatchdog
                 // for a non-lethal takedown and escalating to Lethal pursuit. NPCHealth.IsDead
                 // distinguishes the two via the game's own state, and onDieOrKnockedOut is
                 // wired to the same flag.
+                // Knockout, death, or unconsciousness all satisfy elimination.
                 if (npc != null && npc.Health != null
                     && npc.Health.Pointer != IntPtr.Zero && !npc.Health.WasCollected
-                    && npc.Health.IsDead)
+                    && (npc.Health.IsDead || npc.Health.IsKnockedOut || !npc.IsConscious))
                 {
                     // Trigger the existing polaroid logic
                     BountyService.OnNpcDied(npc);

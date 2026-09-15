@@ -36,6 +36,8 @@ public static class BountyService
     private static int _polaroidsSpawned;
     private static int _earlyOuts;
     private static float _lastSpawnFailWarn = -999f;
+    private static readonly System.Collections.Generic.HashSet<string> _recentlyHandledNpcIds = new();
+    private static float _lastClearTime = -999f;
 
     public static int DeathsObserved => Volatile.Read(ref _deathsObserved);
     public static int MatchesFound => Volatile.Read(ref _matchesFound);
@@ -48,6 +50,18 @@ public static class BountyService
 
         if (npc == null) return;
         if (Mod.Instance == null || Mod.Instance.Save == null) return;
+
+        string npcId = npc.ID ?? string.Empty;
+        if (Time.time - _lastClearTime > 5f)
+        {
+            _recentlyHandledNpcIds.Clear();
+            _lastClearTime = Time.time;
+        }
+
+        if (!string.IsNullOrEmpty(npcId) && _recentlyHandledNpcIds.Contains(npcId))
+        {
+            return;
+        }
 
         var save = Mod.Instance.Save;
 
@@ -116,6 +130,10 @@ public static class BountyService
                 return;
             }
             inv.AddItemToInventory(polaroid);
+            if (!string.IsNullOrEmpty(npcId))
+            {
+                _recentlyHandledNpcIds.Add(npcId);
+            }
             match.EvidenceSpawned = true;
             // Audit H1 (2026-09-01): AwaitingDrop survives save loads — the
             // receipt gate and the cross-session fallback key off THIS flag, not

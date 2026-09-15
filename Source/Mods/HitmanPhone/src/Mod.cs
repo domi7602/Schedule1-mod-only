@@ -18,7 +18,7 @@ using S1NPC = ScheduleOne.NPCs.NPC;
 using S1NPCHealth = ScheduleOne.NPCs.NPCHealth;
 #endif
 
-[assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.2.7", "Dominik")]
+[assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.2.8", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace HitmanPhone;
@@ -79,6 +79,13 @@ public class Mod : MelonMod
         PatchGuard.TryPatch(HarmonyInstance, typeof(S1NPCHealth), "Die",
             prefix: null,
             postfix: new HarmonyMethod(typeof(NPCDeathPatch), nameof(NPCDeathPatch.PostfixHealthDie)),
+            parameterTypes: Type.EmptyTypes,
+            log: Log);
+
+        // Phase C3: NPCHealth.KnockOut fires when NPCs lose consciousness from melee/punches.
+        PatchGuard.TryPatch(HarmonyInstance, typeof(S1NPCHealth), "KnockOut",
+            prefix: null,
+            postfix: new HarmonyMethod(typeof(NPCDeathPatch), nameof(NPCDeathPatch.PostfixHealthKnockOut)),
             parameterTypes: Type.EmptyTypes,
             log: Log);
 

@@ -49,7 +49,7 @@ public class BountyQuest : Quest
         SyncDisplayTitle();
     }
 
-    /// <summary>v0.2.7: refresh <c>S1Quest.title</c> via the official InitializeQuest path so the UI re-snapshots.</summary>
+    /// <summary>Refresh S1Quest.title, description, entry title, and HUD UI.</summary>
     public void SyncDisplayTitle()
     {
         try
@@ -61,30 +61,22 @@ public class BountyQuest : Quest
                 System.Reflection.BindingFlags.NonPublic)?.GetValue(this) as S1Quest;
             if (s1q == null || s1q.Pointer == System.IntPtr.Zero) return;
 
-            // Prefer the public setter if present (vanilla fires onTitleChanged there),
-            // else fall back to the InitializeQuest path the ctor used.
-            var titleProp = s1q.GetType().GetProperty("Title",
-                System.Reflection.BindingFlags.Instance |
-                System.Reflection.BindingFlags.Public |
-                System.Reflection.BindingFlags.FlattenHierarchy);
-            if (titleProp?.GetSetMethod(true) != null)
+            s1q.title = newTitle;
+            s1q.Description = newDesc;
+
+            var c = GetContract();
+            if (c != null)
             {
-                titleProp.SetValue(s1q, newTitle);
-            }
-            else
-            {
-                var init = s1q.GetType().GetMethod("InitializeQuest",
-                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
-                if (init != null)
+                string targetName = FormatName(c.TargetNpcName ?? c.TargetNpcId);
+                string entryTitle = $"Eliminate {targetName} and collect the polaroid";
+
+                if (QuestEntries.Count > 0 && QuestEntries[0] != null)
                 {
-                    // InitializeQuest's 3rd param is an Il2CppReferenceArray<QuestEntryData>;
-                    // an empty managed array may or may not marshal. We only reach this branch
-                    // when the Title property has no public setter; in that case assign the
-                    // title field directly + raise the IL2CPP event by re-running Begin().
-                    s1q.title = newTitle;
-                    try { s1q.Begin(true); } catch { /* Begin() may throw if already begun */ }
+                    QuestEntries[0].Title = entryTitle;
                 }
             }
+
+            s1q.UpdateHUDUI();
         }
         catch (Exception ex)
         {
@@ -144,7 +136,9 @@ public class BountyQuest : Quest
     protected override void OnCreated()
     {
         base.OnCreated();
-        AddEntry("Eliminate the target and collect the polaroid");
+        var c = GetContract();
+        string targetName = c != null ? FormatName(c.TargetNpcName ?? c.TargetNpcId) : "the target";
+        AddEntry($"Eliminate {targetName} and collect the polaroid");
         AddEntry("Drop the polaroid at any dead-drop");
     }
 

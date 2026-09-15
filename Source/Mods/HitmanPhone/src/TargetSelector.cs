@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HitmanPhone.Persistence;
 
 #if (IL2CPPMELON)
 using S1NPC = Il2CppScheduleOne.NPCs.NPC;
@@ -145,6 +146,20 @@ public static class TargetSelector
             if (!npc.IsConscious) return false;
             if (string.IsNullOrEmpty(npc.ID)) return false;
             if (ExcludedIds.Contains(npc.ID)) return false;
+
+            var save = Mod.Instance?.Save;
+            if (save != null)
+            {
+                for (int i = 0; i < save.Active.Count; i++)
+                {
+                    if (save.Active[i].Status == EBountyStatus.Active &&
+                        string.Equals(save.Active[i].TargetNpcId, npc.ID, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false;
+                    }
+                }
+            }
+
             return true;
         }
         catch

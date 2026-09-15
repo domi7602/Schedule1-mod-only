@@ -216,8 +216,45 @@ public static class BountyJournalBridge
 
         Mod.Log.Info($"[Journal] Active quest rebind complete: {rebound} of {activeCount} active contract(s).");
         bool complete = rebound == activeCount;
-        if (complete) _rebindAttemptsRemaining = 0;
+        if (complete)
+        {
+            _rebindAttemptsRemaining = 0;
+            CleanupOrphanBountyQuests();
+        }
         return complete;
+    }
+
+    /// <summary>
+    /// Completed or removed contracts leave restored generic quests behind in QuestManager.
+    /// Clean them up so they don't linger on the HUD as duplicate 'Hitman Contract' entries.
+    /// </summary>
+    public static void CleanupOrphanBountyQuests()
+    {
+        try
+        {
+            var liveQuests = EnumerateLiveBountyQuests();
+            for (int i = 0; i < liveQuests.Count; i++)
+            {
+                var q = liveQuests[i];
+                if (q == null) continue;
+                if (!IsQuestBoundToAnyContract(q))
+                {
+                    Mod.Log.Info("[Journal] Cleaning up orphan/stale bounty quest.");
+                    try
+                    {
+                        q.Complete();
+                    }
+                    catch (Exception ex)
+                    {
+                        Mod.Log.Debug($"CleanupOrphanBountyQuests: Complete threw: {ex.Message}");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[Journal] CleanupOrphanBountyQuests failed: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -249,7 +286,8 @@ public static class BountyJournalBridge
         _nextRebindAt = now + RebindRetryIntervalMs;
         if (_rebindAttemptsRemaining == 0)
         {
-            Mod.Log.Warn("[Journal] Deferred quest rebind exhausted; no target binding was changed further.");
+            Mod.Log.Warn("[Journal] Deferred quest rebind exhausted; cleaning up any remaining orphan quests.");
+            CleanupOrphanBountyQuests();
         }
     }
 
@@ -364,129 +402,38 @@ public static class BountyJournalBridge
             Mod.Log.Warn($"[Journal] ResolveQuest(title='{title}') failed: {ex.Message}");
         }
 
-        // 3) Generic title — a restored quest lost its transient contract id and
-        //    renders "Hitman Contract" until re-adopted.
-        //    Audit M3 (2026-09-01): with 2+ restored quests all rendering the
-        //    generic title, GetQuestByName returns ONE instance for EVERY
-        //    contract — completing contract A completed B's journal entry too.
-        //    v0.2.6 (2026-09-14): same-target groups are LEGAL (see v0.2.5 group
-        //    payout) and must not brick the whole rebind. Resolution: when ALL
-        //    unbound active contracts share one TargetNpcId, the OLDEST unbound
-        //    contract adopts the restored generic quest (it is the only persisted
-        //    quest — younger siblings were never saved) and every sibling gets a
-        //    FRESH quest via RegisterBountyQuest. Mixed-target groups stay
-        //    refused — a wrong binding (A completing B's entry) is worse than none.
+        // 3) Re-adopt any available unbound generic restored quest from EnumerateLiveBountyQuests.
         try
         {
-            var unbound = CollectUnboundActiveContracts();
-            if (unbound.Count > 1)
+            var liveQuests = EnumerateLiveBountyQuests();
+            for (int q = 0; q < liveQuests.Count; q++)
             {
-                bool sameTarget = true;
-                for (int i = 1; i < unbound.Count; i++)
+                var candidate = liveQuests[q];
+                if (candidate == null) continue;
+                if (!IsQuestBoundToAnyContract(candidate))
                 {
-                    if (!string.Equals(unbound[i].TargetNpcId, unbound[0].TargetNpcId,
-                            System.StringComparison.OrdinalIgnoreCase))
-                    {
-                        sameTarget = false;
-                        break;
-                    }
+                    candidate.InitContractId(contractId);
+                    SessionQuests[contractId] = candidate;
+                    candidate.SyncDisplayTitle();
+                    Mod.Log.Info($"[Journal] Re-adopted generic quest for '{contractId}' ({contract.TargetNpcName ?? contract.TargetNpcId}).");
+                    return candidate;
                 }
-
-                if (!sameTarget)
-                {
-                    // Genuinely ambiguous: mixed targets, generic titles only.
-                    // Same damping as RebindActiveQuests: initial pass (0) and
-                    // first/last retry only — not every 500 ms tick.
-                    if (_rebindAttemptsRemaining <= 1 || _rebindAttemptsRemaining >= MaxRebindAttempts)
-                    {
-                        Mod.Log.Warn("[Journal] Mixed-target restored contracts without a bound quest — " +
-                                     "generic-title adoption refused (fail-safe, audit M3).");
-                    }
-                    return null;
-                }
-
-                // Same-target group. Only the OLDEST member (the group owner) runs
-                // the adoption below — any other member adopting the shared quest
-                // would re-create the exact M3 wrong-binding bug.
-                bool isGroupOwner = unbound[0].Id == contractId; // unbound[0] = oldest (Active list order)
-                if (!isGroupOwner)
-                {
-                    Mod.Log.Debug($"[Journal] Same-target group on '{unbound[0].TargetNpcId}': '{contractId}' " +
-                                  "is handled by the group owner's rebind pass.");
-                    return null;
-                }
-
-                // Adopt as many restored generic quests as exist (GetQuestByName
-                // returns only the FIRST match — a second restored instance would
-                // otherwise linger as a zombie journal entry forever). Managed
-                // QuestManager.Quests is a plain List<Quest>; reflection is safe.
-                int adopted = 0;
-                var liveQuests = EnumerateLiveBountyQuests();
-                for (int q = 0; q < liveQuests.Count; q++)
-                {
-                    var candidate = liveQuests[q];
-                    if (!IsGenericBountyQuest(candidate)) continue;
-                    if (IsQuestBoundToOtherContract(candidate, contractId)) continue;
-
-                    if (adopted < unbound.Count)
-                    {
-                        candidate.InitContractId(unbound[adopted].Id);
-                        SessionQuests[unbound[adopted].Id] = candidate;
-                        TryRefreshDisplayTitle(candidate, unbound[adopted]);
-                        adopted++;
-                        Mod.Log.Info($"[Journal] Re-adopted generic-titled quest for '{unbound[adopted - 1].Id}' " +
-                                     $"(same-target group, member {adopted}/{unbound.Count}).");
-                    }
-                }
-
-                // Contracts without a restored quest get FRESH journal entries.
-                // CreateQuestForContract deliberately skips the ResolveQuest
-                // dedupe — RegisterBountyQuest would re-enter ResolveQuest for
-                // the still-unbound owner and recurse infinitely when the group
-                // has no restored quest at all (quit-without-save case).
-                for (int s = unbound.Count - 1; s >= 0; s--)
-                {
-                    if (SessionQuests.ContainsKey(unbound[s].Id)) continue;
-                    var fresh = CreateQuestForContract(unbound[s]);
-                    if (fresh != null)
-                    {
-                        Mod.Log.Info($"[Journal] Fresh quest registered for same-target member '{unbound[s].Id}'.");
-                    }
-                }
-
-                return SessionQuests.TryGetValue(contractId, out var own) ? own : null;
             }
-            else
-            {
-                if (QuestManager.GetQuestByName("Hitman Contract") is BountyQuest genericSolo
-                    && !IsQuestBoundToOtherContract(genericSolo, contractId))
-                {
-                    genericSolo.InitContractId(contractId);
-                    SessionQuests[contractId] = genericSolo;
-                    TryRefreshDisplayTitle(genericSolo, contract);
-                    Mod.Log.Info($"[Journal] Re-adopted generic-titled quest for '{contractId}'.");
-                    return genericSolo;
-                }
 
-                // v0.2.6: documented step 4, now actually implemented — a contract
-                // with NO restorable quest (accepted after the last game save)
-                // gets a FRESH journal entry. Gated on the rebind pass so pure
-                // lookups (CompleteQuest etc.) never create quests as a side effect.
-                if (_inRebindPass)
+            // 4) Fresh quest registration if no restored generic quest exists
+            if (_inRebindPass)
+            {
+                var fresh = CreateQuestForContract(contract);
+                if (fresh != null)
                 {
-                    var freshSole = CreateQuestForContract(contract);
-                    if (freshSole != null)
-                    {
-                        Mod.Log.Info($"[Journal] Fresh quest registered for unbound solo contract '{contractId}' " +
-                                     "(no restored quest found).");
-                        return freshSole;
-                    }
+                    Mod.Log.Info($"[Journal] Fresh quest registered for unbound contract '{contractId}'.");
+                    return fresh;
                 }
             }
         }
         catch (Exception ex)
         {
-            Mod.Log.Warn($"[Journal] ResolveQuest(generic) failed: {ex.Message}");
+            Mod.Log.Warn($"[Journal] ResolveQuest(generic/fresh) failed: {ex.Message}");
         }
 
         return null;

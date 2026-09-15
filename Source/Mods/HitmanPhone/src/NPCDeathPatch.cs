@@ -96,4 +96,26 @@ internal static class NPCDeathPatch
             Mod.Log.Error($"NPCDeathPatch.PostfixHealthDie swallowed exception: {ex}");
         }
     }
+
+    /// <summary>
+    /// Phase C3 postfix on <see cref="S1NPCHealth"/>.KnockOut() — in Schedule I, combat
+    /// (punches, melee weapons) knocks the NPC out (IsKnockedOut = true) rather than killing
+    /// them outright. Patching KnockOut allows bounty targets to be eliminated on takedown
+    /// without forcing the player to drag the body into water to trigger Die().
+    /// </summary>
+    [HarmonyPostfix]
+    internal static void PostfixHealthKnockOut(S1NPCHealth __instance)
+    {
+        try
+        {
+            if (__instance == null || __instance.Pointer == IntPtr.Zero || __instance.WasCollected) return;
+            var npc = __instance.npc;
+            if (npc == null || npc.Pointer == IntPtr.Zero || npc.WasCollected) return;
+            BountyService.OnNpcDied(npc);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Error($"NPCDeathPatch.PostfixHealthKnockOut swallowed exception: {ex}");
+        }
+    }
 }
