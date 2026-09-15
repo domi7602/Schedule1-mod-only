@@ -16,7 +16,7 @@ using ConfigInstance = S1Mods.Shared.ModConfig<SnackVendor.Config.SnackVendorCon
 // (MelonInfo/MelonGame attributes intentionally absent — our MelonMod registration is
 // auto-discovered by MelonLoader's [MelonInfo] attribute scanning on the Mod class; we
 // put them inline next to the class so the asmversion travels together with the class.
-[assembly: MelonInfo(typeof(SnackVendor.Mod), "SnackVendor", "0.0.2-mvp", "Dominik")]
+[assembly: MelonInfo(typeof(SnackVendor.Mod), "SnackVendor", "0.0.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace SnackVendor;
@@ -59,15 +59,53 @@ public sealed class Mod : MelonMod
             Log.Error("IL2CPP type registration failed", ex);
         }
 
-        // 2. Apply Harmony patches (Critic Pillar: gate the mutations, not the methods).
+        // 2. Apply Harmony patches (Audit 0.0.3: explicit PatchGuard.TryPatch
+        // calls instead of PatchClassProcessor so signature drift shows up
+        // in PatchGuard.Report instead of silently leaving the station dead).
         try
         {
             var harmony = HarmonyInstance;
-            var pl = new PatchClassProcessor(harmony, typeof(BuildableItem_Start_Patch));
-            pl.Patch();
-            var pl2 = new PatchClassProcessor(harmony, typeof(VendingMachinePatches));
-            pl2.Patch();
-            Log.Info("Harmony patches applied (BuildableItem.Start, VendingMachine.SendPurchase/Routine/DropItem/Cash).");
+
+            // BuildableItem.Start postfix → controller setup on placement
+            PatchGuard.TryPatch(
+                harmony,
+                original: AccessTools.Method(typeof(Il2CppScheduleOne.EntityFramework.BuildableItem), "Start"),
+                postfix: new HarmonyMethod(typeof(BuildableItem_Start_Patch), nameof(BuildableItem_Start_Patch.Postfix)),
+                log: Log);
+
+            // VendingMachine.SendPurchase prefix → marker-gated stock decrement + cash credit
+            PatchGuard.TryPatch(
+                harmony,
+                targetType: typeof(Il2CppScheduleOne.ObjectScripts.VendingMachine),
+                methodName: "SendPurchase",
+                prefix: new HarmonyMethod(typeof(VendingMachinePatches), nameof(VendingMachinePatches.SendPurchase_Prefix)),
+                log: Log);
+
+            // VendingMachine.PurchaseRoutine prefix → suppress the vanilla cuke-dispense anim
+            PatchGuard.TryPatch(
+                harmony,
+                targetType: typeof(Il2CppScheduleOne.ObjectScripts.VendingMachine),
+                methodName: "PurchaseRoutine",
+                prefix: new HarmonyMethod(typeof(VendingMachinePatches), nameof(VendingMachinePatches.PurchaseRoutine_Prefix)),
+                log: Log);
+
+            // VendingMachine.DropItem prefix → no cuke on the floor
+            PatchGuard.TryPatch(
+                harmony,
+                targetType: typeof(Il2CppScheduleOne.ObjectScripts.VendingMachine),
+                methodName: "DropItem",
+                prefix: new HarmonyMethod(typeof(VendingMachinePatches), nameof(VendingMachinePatches.DropItem_Prefix)),
+                log: Log);
+
+            // VendingMachine.DropCash prefix → no prefab cash-spit (we credit directly)
+            PatchGuard.TryPatch(
+                harmony,
+                targetType: typeof(Il2CppScheduleOne.ObjectScripts.VendingMachine),
+                methodName: "DropCash",
+                prefix: new HarmonyMethod(typeof(VendingMachinePatches), nameof(VendingMachinePatches.DropCash_Prefix)),
+                log: Log);
+
+            PatchGuard.Report(Log);
         }
         catch (Exception ex)
         {
@@ -109,6 +147,10 @@ public sealed class Mod : MelonMod
         {
             Log.Warn("lifecycle unsubscribe failed", ex);
         }
+
+        // Audit 0.0.3: free the ghost-prefab Texture/Sprite/GameObject/Material
+        // caches so they don't outlive the mod on hot-reload or app quit.
+        BuildOrLoadGhostPrefab.Dispose();
     }
 
     /// <summary>On scene-load, re-register the item (catch resets from patch-days).</summary>

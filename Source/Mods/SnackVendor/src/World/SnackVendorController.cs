@@ -45,6 +45,18 @@ public sealed class SnackVendorController : MonoBehaviour
 
     // ----- visual / mesh -----
     private bool _meshSwapped = false;
+    // Audit 0.0.3: keep explicit handles for cleanup. The GLB-swapped mesh
+    // (built procedurally in SwapMesh) is parented to the cloned vanilla
+    // machine, and its Renderer was given a brand-new Material(sh). If we
+    // leave these dangling when the station is dismantled, the Material
+    // (and the dynamically-allocated Sprite/texture pair on the ghost icon)
+    // outlive the GameObject and accumulate GPU memory across saves.
+    private GameObject? _glbMeshGo;
+    private readonly List<Material> _ownedMaterials = new();
+
+    // Marked true once OnDestroy has run; guards against double-cleanup in
+    // the rare case Unity invokes the callback twice (scene reload mid-tear).
+    private bool _destroyed;
 
     // ----- stock (managed, source of truth is the sidecar; this is the runtime cache) -----
     private readonly List<StockSlot> _stock = new();
@@ -179,6 +191,7 @@ public sealed class SnackVendorController : MonoBehaviour
             glbGo.transform.SetParent(parentTransform, false);
             glbGo.transform.localPosition = Vector3.zero;
             glbGo.transform.localRotation = Quaternion.identity;
+            _glbMeshGo = glbGo; // Audit 0.0.3: keep handle for OnDestroy.
 
             // Hide the cloned-vanilla renderers so the GLB shows alone.
             if (Clone != null && Clone.Pointer != IntPtr.Zero)
@@ -202,7 +215,9 @@ public sealed class SnackVendorController : MonoBehaviour
                 {
                     try
                     {
-                        r.material = new Material(sh);
+                        var mat = new Material(sh);
+                        _ownedMaterials.Add(mat); // Audit 0.0.3: tracked for OnDestroy.
+                        r.material = mat;
                     }
                     catch
                     {
@@ -226,6 +241,55 @@ public sealed class SnackVendorController : MonoBehaviour
         catch (Exception ex)
         {
             Mod.Log.Error("SwapMesh failed", ex);
+        }
+    }
+
+    // ========== LIFECYCLE / CLEANUP ==========
+
+    /// <summary>
+    /// Audit 0.0.3: explicit cleanup for the dynamically allocated resources
+    /// we own. Without this, every dismantled station leaks the GLB mesh's
+    /// brand-new Material instances (and the GLB GameObject stays in the
+    /// scene under DontDestroyOnLoad semantics on its parent). Mirrors
+    /// AutoPackStationController.OnDestroy.
+    /// </summary>
+    private void OnDestroy()
+    {
+        if (_destroyed) return;
+        _destroyed = true;
+
+        try
+        {
+            // Destroy owned materials first (each one was `new Material(sh)`
+            // in SwapMesh). Try/catch per item so a single bad ref doesn't
+            // starve the rest of the cleanup.
+            for (int i = 0; i < _ownedMaterials.Count; i++)
+            {
+                var m = _ownedMaterials[i];
+                if (m == null) continue;
+                try { UnityEngine.Object.Destroy(m); }
+                catch (Exception ex) { Mod.Log.Warn($"OnDestroy: material {i}", ex); }
+            }
+            _ownedMaterials.Clear();
+
+            // Tear down the GLB mesh GameObject (parented to the clone, but
+            // its lifetime was tied to this controller).
+            if (_glbMeshGo != null && _glbMeshGo.Pointer != IntPtr.Zero)
+            {
+                try { UnityEngine.Object.Destroy(_glbMeshGo); }
+                catch (Exception ex) { Mod.Log.Warn("OnDestroy: glbGo", ex); }
+            }
+            _glbMeshGo = null;
+
+            // The Marker component rides on the clone; Unity destroys it
+            // when the clone GameObject is destroyed. We just null the
+            // managed reference so the GC sees it sooner.
+            Marker = null;
+            Clone = null;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn("SnackVendorController.OnDestroy failed", ex);
         }
     }
 

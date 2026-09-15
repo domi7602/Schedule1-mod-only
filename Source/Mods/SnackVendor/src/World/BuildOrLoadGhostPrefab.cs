@@ -22,6 +22,54 @@ public static class BuildOrLoadGhostPrefab
     private static Sprite? _cachedIconSprite;
     private static byte[]? _cachedGlbBytes;
     private static GameObject? _cachedGhost;
+    private static Material? _cachedGhostMaterial; // Audit 0.0.3: tracked for Dispose.
+
+    /// <summary>
+    /// Audit 0.0.3: explicit cleanup for the icon-sprite Texture, the
+    /// ghost-prefab GameObject and its Material. Called from
+    /// <c>Mod.OnDeinitializeMelon</c>. Safe to invoke multiple times.
+    /// </summary>
+    public static void Dispose()
+    {
+        try
+        {
+            // Icon sprite carries a Texture2D — both must go, otherwise the
+            // Texture outlives the Sprite and accumulates on every hot-reload.
+            if (_cachedIconSprite != null && _cachedIconSprite.Pointer != IntPtr.Zero)
+            {
+                try
+                {
+                    var tex = _cachedIconSprite.texture;
+                    UnityEngine.Object.Destroy(_cachedIconSprite);
+                    if (tex != null && tex.Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(tex);
+                }
+                catch (Exception ex) { Mod.Log.Warn("Dispose: icon sprite", ex); }
+                _cachedIconSprite = null;
+            }
+
+            // Ghost material lives on _cachedGhost's MeshRenderer (assigned in
+            // CreateGhostPrefab). Destroy the Material first, then the GO.
+            if (_cachedGhostMaterial != null && _cachedGhostMaterial.Pointer != IntPtr.Zero)
+            {
+                try { UnityEngine.Object.Destroy(_cachedGhostMaterial); }
+                catch (Exception ex) { Mod.Log.Warn("Dispose: ghost material", ex); }
+                _cachedGhostMaterial = null;
+            }
+            if (_cachedGhost != null && _cachedGhost.Pointer != IntPtr.Zero)
+            {
+                try { UnityEngine.Object.Destroy(_cachedGhost); }
+                catch (Exception ex) { Mod.Log.Warn("Dispose: ghost prefab", ex); }
+                _cachedGhost = null;
+            }
+
+            // _cachedGlbBytes is a managed byte[] — GC handles it.
+            _cachedGlbBytes = null;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn("BuildOrLoadGhostPrefab.Dispose failed", ex);
+        }
+    }
 
     /// <summary>
     /// 1×1 thumbnail sprite used in shop UIs. Built off a procedural rect
@@ -94,10 +142,11 @@ public static class BuildOrLoadGhostPrefab
             var mr = go.GetComponent<MeshRenderer>();
             if (mr != null && mr.Pointer != IntPtr.Zero)
             {
-                mr.material = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"))
+                _cachedGhostMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"))
                 {
                     color = new Color(0.78f, 0.12f, 0.10f, 1f),
                 };
+                mr.material = _cachedGhostMaterial; // Audit 0.0.3: tracked for Dispose.
             }
             _cachedGhost = go;
             go.SetActive(false); // kept as template, instantiated by S1API

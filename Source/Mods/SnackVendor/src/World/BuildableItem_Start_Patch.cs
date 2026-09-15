@@ -12,12 +12,15 @@ namespace SnackVendor.World;
 /// gets placed in the world also receives a SnackVendorController, which
 /// in turn spawns the vanilla VendingMachine-clone + manages stock.
 /// Mirrors AutoPack's BuildableItem_Start_Patch exactly.
+///
+/// Note (Audit 0.0.3): the [HarmonyPatch] class-attribute and the
+/// [HarmonyPatch("Start")] method-attribute are intentionally absent. We
+/// register this patch explicitly through PatchGuard.TryPatch in Mod.cs so
+/// the PatchGuard statistics cover it (graceful-degradation on signature
+/// drift, visible failure-log on game updates).
 /// </summary>
-[HarmonyPatch(typeof(BuildableItem))]
 public static class BuildableItem_Start_Patch
 {
-    [HarmonyPostfix]
-    [HarmonyPatch("Start")]
     public static void Postfix(BuildableItem __instance)
     {
         try

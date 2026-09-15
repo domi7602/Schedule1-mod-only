@@ -18,7 +18,7 @@ they can be called stable:
 | Vanilla Cuke-VendingMachine cloned onto each placed station | ⚠ wired but not yet in-game verified |
 | NPCs can route purchases to our stations | ⚠ patched (marker-guarded prefix), unverified |
 | Stock data persisted in `snacks_slot_{n}.json` sidecar | ✅ loaded on LoadComplete, written on first purchase |
-| Cash credit to player wallet | ⚠ logged-only (vanilla cash API not yet mapped) |
+| Cash credit to player wallet | ⚠ wired (`EconomyHelper.ChangeCashBalance` → `S1API.Money.Money`, same MP-verified path as HitmanPhone since v0.1.9); in-game verify pending |
 | Hardware-shop listing (so player can buy it in-game) | ⚠ skipped (needs S1API ShopIntegration bridge) |
 | Custom 3D mesh via Blender-authored GLB | ⚠ engine wiring left; mesh asset ready in `assets/SnackVendor_model.glb` |
 | Player deposit / extract UI panel | ❌ not yet built |
@@ -56,17 +56,17 @@ the marker-guarded prefix.
 ## Known TODO before the 0.1.0 release
 
 1. **Verify in-game that the cloned VendingMachine actually shows up in
-   `VendingMachine.AllMachines` and NPCs route through our prefix.**
-2. Wire the cash credit (currently logged-only) through the vanilla wallet
-   flow — `Player.Network.AddCash` is not the right call in v0.4.6f13 and we
-   have not yet located the canonical cash-credit API.
-3. Wire the GLB through `S1MAPI.GltfLoader.LoadGlb` to actually replace the
+   `VendingMachine.AllMachines`, NPCs route through our prefix, and the
+   cash credit lands in the wallet** (`EconomyHelper.ChangeCashBalance` →
+   `S1API.Money.Money` — the same payout path HitmanPhone uses, MP-verified
+   since v0.1.9; only the vending context itself is unverified).
+2. Wire the GLB through `S1MAPI.GltfLoader.LoadGlb` to actually replace the
    mesh (currently a placeholder red proxy box).
-4. Wire `S1API.Internal.Shops.ShopIntegration.AddItemToShop` so the player
+3. Wire `S1API.Internal.Shops.ShopIntegration.AddItemToShop` so the player
    can buy the station in-game (currently requires S1MCP-spawn workaround).
-5. Build the UI panel that lets the player deposit / extract ingredients;
+4. Build the UI panel that lets the player deposit / extract ingredients;
    the stock-purchase intercept already works, the user-facing side doesn't.
-6. Capture markers from `NPCSignal_UseVendingMachine` (the NPC reference is
+5. Capture markers from `NPCSignal_UseVendingMachine` (the NPC reference is
    in scope there) to actually credit ingredient items into `NPC.Inventory`
    rather than only crediting cash + decrementing stock.
 

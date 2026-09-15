@@ -24,12 +24,16 @@ namespace SnackVendor.World;
 ///     don't drop a cuke on the ground that the player can mistake for an
 ///     ingredient. We do NOT replace DropItem behaviour (no NPC pickup).
 ///   - Interacted: passthrough — Vanilla still shows the interaction prompt.
+///
+/// Note (Audit 0.0.3): the [HarmonyPatch(typeof(VendingMachine))] class-
+/// attribute and the per-method [HarmonyPatch("…")] attributes are
+/// intentionally absent. We register each patch explicitly through
+/// PatchGuard.TryPatch in Mod.cs so the PatchGuard statistics cover them
+/// (graceful-degradation on signature drift, visible failure-log on game
+/// updates).
 /// </summary>
-[HarmonyPatch(typeof(VendingMachine))]
 public static class VendingMachinePatches
 {
-    [HarmonyPatch("SendPurchase")]
-    [HarmonyPrefix]
     public static bool SendPurchase_Prefix(VendingMachine __instance)
     {
         try
@@ -37,6 +41,17 @@ public static class VendingMachinePatches
             if (!IsOurs(__instance))
             {
                 return true; // vanilla Cuke-machines untouched
+            }
+
+            // Host-Authority (Audit 0.0.3): the cash credit below must NEVER run
+            // on a MP-client, otherwise host + client would each credit their own
+            // wallet for the same NPC purchase. Refuse cleanly → vanilla drops
+            // nothing (we own the marker, so our other prefixes already block
+            // DropItem/DropCash anyway). Singleplayer is covered by the
+            // NetworkManager-null branch in IsHostOrSingleplayer (returns true).
+            if (!S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer())
+            {
+                return false;
             }
 
             var controller = FindController(__instance);
@@ -61,8 +76,10 @@ public static class VendingMachinePatches
                 price = Mathf.Clamp(price, cfg.MinPayoutPerItem, cfg.MaxPayoutPerItem);
             }
 
-            // CASH CREDIT
-            // We use the safe EconomyHelper wrapper to credit the player's cash balance
+            // CASH CREDIT (host-gated above). EconomyHelper routes through the
+            // S1API Money wrapper — the same payout path HitmanPhone uses,
+            // MP-verified since v0.1.9 (syncs the balance over FishNet).
+            // In-game verify for the vending context pending (spike gate).
             S1Mods.Shared.EconomyHelper.ChangeCashBalance(price, true, false);
 
             Mod.Log.Info($"[SnackVendor] purchase: ingredient #{consumedId} for ${price:0.00} (cash credited).");
@@ -92,7 +109,6 @@ public static class VendingMachinePatches
         }
     }
 
-    [HarmonyPatch("PurchaseRoutine")]
     [HarmonyPrefix]
     public static bool PurchaseRoutine_Prefix(VendingMachine __instance)
     {
@@ -109,7 +125,6 @@ public static class VendingMachinePatches
         }
     }
 
-    [HarmonyPatch("DropItem")]
     [HarmonyPrefix]
     public static bool DropItem_Prefix(VendingMachine __instance)
     {
@@ -118,7 +133,6 @@ public static class VendingMachinePatches
         catch { return true; }
     }
 
-    [HarmonyPatch("DropCash")]
     [HarmonyPrefix]
     public static bool DropCash_Prefix(VendingMachine __instance)
     {

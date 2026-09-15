@@ -94,7 +94,7 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 | **BackpackMod**   | ⏸ archived (v1.2.3) | `Archive/BackpackMod/` | — (removed from MelonLoader) | yes (3D Wearable Backpacks + Spine Rig Alignment + Realistic Harness & Straps + ObjLoader + Storage + Mannequin 360 Rotation + **B1 Sort: Button-only Sortierung (Backpack/Inventory/Container) mit Stack-Merge nach ID+Qualität+Packaging, Sort-Button im StorageMenu + „Sort Inventory" im GameplayMenu, atomarer Plan-then-Commit (v1.2.0: GetCopy statt GetDefaultInstance — Quality/Packaging preserved; Clipboard-Slot-Referenz-Filter; Overflow-Sidecar bei vollem Inventar; OnPreLoad-Cross-Save-Protect; v1.2.1: ObjLoader 50MB/250k-Vertex-Cap, ShopDump #if DEBUG; v1.2.2: HUD-Sort-Button Raycast-Schutz gegen Grid-Click-Schlucken; v1.2.3: StorageMenu-Sort-Overlay-Fix (kleinstes-Button-Template + erzwungene Geometrie via SortButtonLayout + BackpackMod.Tests)**) |
 | **AutoPackagingStation** | ✅ active (v0.2.7, **Bug-Report-Runde 6 2026-09-13 / v0.4.6f13, In-Game-Verify offen**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | yes (4x4 Industrial Packaging Line + UV Scroll Conveyor + Native Slot Sync + SafeStorage + Shop Injection) |
 | **HitmanPhone** | ✅ active (v0.2.9, **KnockOut-Hook + Single-Drop-Latch + Orphan-Cleanup, Verified 2026-09-15**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | yes (MessagesApp Contracts + NPC + Items + Quests + SafeStorage) |
-| **SnackVendor** |  MVP (v0.0.2-mvp, **Spike 2026-09-14, Build OK / In-Game-Verify offen**) | `Mods/SnackVendor/` | `SnackVendor.dll` | yes (S1API Buildable + Vanilla-VendingMachine-Klon + marker-guarded Harmony + Sidecar-Persistenz) |
+| **SnackVendor** |  MVP (v0.0.3, **Spike 2026-09-14, Build OK / In-Game-Verify offen**) | `Mods/SnackVendor/` | `SnackVendor.dll` | yes (S1API Buildable + Vanilla-VendingMachine-Klon + marker-guarded Harmony + Sidecar-Persistenz) |
 | **_DiagPerfCounter** | ✅ active (v0.3.2, **Dev-Tool, dok. 2026-09-10**) | `Mods/_DiagPerfCounter/` | `_DiagPerfCounter.dll` | no (Reflection-Dump via SafeStorage-Pfad) |
 | **PhoneScroll** | ✅ active (v1.4, **by V4LEXL, 3rd-party Closed-Source, deployed 2026-09-10**) | `ThirdParty/PhoneScroll/` | `PhoneScroll.dll` | no (vanilla Phone-HomeScreen-Hook) |
 | **Shared**       | ✅ active (workspace lib, **Verified 2026-09-15**) | `Mods/Shared/` | `Shared.dll` | no (PatchGuard, SafeStorage, GameObjectResolver, SafeInvoker, HotkeyManager, ModConfig, ModLogger, NetworkGuard, SceneGate, TypeResolver, UITheme) |
@@ -276,10 +276,10 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 - **Systeme:** Police-Heat-Integration, Journal-Quests, 3-Tage-Ablauf, Death-Forfeit, slot-isolierte Persistenz (`slot_{n}` + TryMigrateLegacy).
 - **v0.2.2 Audit-Fixes:** Payout host-only, PatchGuard statt PatchAll, Day-Throttle, Cooldown-Persist, Deadline-Boundary, Test-Commands nur DEBUG.
 
-**SnackVendor v0.0.2-mvp (2026-09-14, MVP-Spike):**
+**SnackVendor v0.0.3 (2026-09-14, MVP-Spike):**
 - **Status:** Erster integrierter Build (Build OK, **In-Game-Verify offen**). Feature-fuer-Feature-Verifikationsstand steht in `Source/Mods/SnackVendor/README.md`.
 - **Wired:** Buildable 1x1 (`snackvendor`) via S1API `BuildableItemDefinitionBuilder`; Placement via `BuildableItem.Start`-Postfix; Vanilla-Cuke-VendingMachine-Klon pro Station; marker-guarded Harmony-Prefixes (`SendPurchase`, `PurchaseRoutine`, `DropItem`, `DropCash`); Sidecar `snacks_slot_{n}.json` (Sentinel-Guard) via `SnackVendorStore`.
-- **Offen (TODO vor 0.1.0):** Cash-Credit an den Spieler (derzeit nur Log), GLB-Mesh via `S1MAPI.GltfLoader`, Hardware-Shop-Listing (`S1API.Internal.Shops.ShopIntegration`), Deposit/Extract-UI-Panel, Ingredient-Credit in `NPC.Inventory` via `NPCSignal_UseVendingMachine`.
+- **Offen (TODO vor 0.1.0):** In-Game-Verify des Cash-Credits (wired via `EconomyHelper.ChangeCashBalance` → `S1API.Money.Money`, gleicher MP-verified Pfad wie HitmanPhone v0.1.9+), GLB-Mesh via `S1MAPI.GltfLoader`, Hardware-Shop-Listing (`S1API.Internal.Shops.ShopIntegration`), Deposit/Extract-UI-Panel, Ingredient-Credit in `NPC.Inventory` via `NPCSignal_UseVendingMachine`.
 - **Assets:** `assets/SnackVendor_model.glb` + headless Blender-Build `assets/build_snackvendor_model.py`.
 
 **_DiagPerfCounter v0.3.2 (2026-09-11, Dev-Tool):**
