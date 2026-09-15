@@ -6,11 +6,11 @@ using PocketShop.Config;
 using PocketShop.Services;
 using PocketShop.UI;
 using S1Mods.Shared;
-using UITheme = PocketShop.UI.UITheme;
 using S1API.PhoneApp;
 using S1API.Utils;
 using UnityEngine;
 using UnityEngine.UI;
+using UITheme = S1Mods.Shared.UITheme;
 
 namespace PocketShop;
 

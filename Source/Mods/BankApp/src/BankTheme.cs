@@ -1,17 +1,15 @@
 using UnityEngine;
-using S1Mods.Shared;
 
 namespace BankApp.UI;
 
-public static class UITheme
+/// <summary>
+/// BankApp-Farbpalette (Brand-Farben des Chip-Dashboards).
+/// Skalierung/Fonts kommen seit 2026-09-15 direkt von
+/// <c>S1Mods.Shared.UITheme</c> (using-Alias in BankApp.cs) — dieser Typ
+/// enthält nur noch die mod-spezifischen Farben.
+/// </summary>
+public static class BankTheme
 {
-    public const float RefHeight = S1Mods.Shared.UITheme.RefHeight;
-    public const float RefWidth = S1Mods.Shared.UITheme.RefWidth;
-
-    public static float ActualWidth => S1Mods.Shared.UITheme.ActualWidth;
-    public static float ActualHeight => S1Mods.Shared.UITheme.ActualHeight;
-    public static float Scale => S1Mods.Shared.UITheme.Scale;
-
     public static readonly Color BgDark = new(0.043f, 0.055f, 0.078f, 1f);
     public static readonly Color HeaderBg = new(0.067f, 0.086f, 0.133f, 1f);
     public static readonly Color CardBg = new(0.082f, 0.114f, 0.165f, 1f);
@@ -27,10 +25,4 @@ public static class UITheme
     public static readonly Color TextPrimary = new(0.941f, 0.965f, 0.988f, 1f);
     public static readonly Color TextMuted = new(0.545f, 0.580f, 0.620f, 1f);
     public static readonly Color TextDim = new(0.282f, 0.310f, 0.345f, 1f);
-
-    public static void Initialize(RectTransform containerRt) => S1Mods.Shared.UITheme.InitializeForTextApp(containerRt);
-
-    public static int Sp(float pt) => S1Mods.Shared.UITheme.Sp(pt);
-
-    public static float Dp(float px) => S1Mods.Shared.UITheme.Dp(px);
 }

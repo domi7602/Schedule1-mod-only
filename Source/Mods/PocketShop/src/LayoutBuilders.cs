@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using UITheme = S1Mods.Shared.UITheme;
 
 namespace PocketShop.UI;
 

@@ -48,11 +48,4 @@ public static class UITheme
     public static int Sp(float pt) => Mathf.RoundToInt(pt * Scale);
 
     public static float Dp(float px) => px * Scale;
-
-    public static void Reset()
-    {
-        ActualWidth = RefWidth;
-        ActualHeight = RefHeight;
-        Scale = 1.0f;
-    }
 }

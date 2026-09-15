@@ -8,6 +8,7 @@ using MelonLoader.Utils;
 using S1API.PhoneApp;
 using S1API.UI;
 using S1API.Utils;
+using UITheme = S1Mods.Shared.UITheme;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -132,7 +133,7 @@ public sealed class BankApp : PhoneApp
             UITheme.Initialize(containerRt);
         }
 
-        _mainBG = UIFactory.Panel("BankApp_MainBG", container.transform, UITheme.BgDark, fullAnchor: true);
+        _mainBG = UIFactory.Panel("BankApp_MainBG", container.transform, BankTheme.BgDark, fullAnchor: true);
         _mainBG.SetActive(false);
 
         var vlg = _mainBG.AddComponent<VerticalLayoutGroup>();
@@ -163,7 +164,7 @@ public sealed class BankApp : PhoneApp
 
         // 7. Feedback line (fills remaining space)
         _feedbackText = UIFactory.Text("FeedbackText", "", _mainBG.transform, UITheme.Sp(12), TextAnchor.MiddleCenter, FontStyle.Bold);
-        _feedbackText.color = UITheme.AccentGreen;
+        _feedbackText.color = BankTheme.AccentGreen;
         _feedbackText.horizontalOverflow = HorizontalWrapMode.Wrap;
         var fbLe = _feedbackText.gameObject.AddComponent<LayoutElement>();
         fbLe.minHeight = UITheme.Dp(22f);
@@ -175,7 +176,7 @@ public sealed class BankApp : PhoneApp
 
     private void BuildWeeklyCard(Transform parent)
     {
-        var card = UIFactory.Panel("WeeklyCard", parent, UITheme.CardBg);
+        var card = UIFactory.Panel("WeeklyCard", parent, BankTheme.CardBg);
         var cardLe = card.AddComponent<LayoutElement>();
         cardLe.flexibleHeight = 0.4f;
         var vlg = card.AddComponent<VerticalLayoutGroup>();
@@ -195,18 +196,18 @@ public sealed class BankApp : PhoneApp
         hlg.childForceExpandHeight = false;
 
         var lbl = UIFactory.Text("Label", "WEEKLY PROGRESS", row.transform, UITheme.Sp(12), TextAnchor.MiddleLeft, FontStyle.Bold);
-        lbl.color = UITheme.TextMuted;
+        lbl.color = BankTheme.TextMuted;
 
         _weeklyValueText = UIFactory.Text("Value", "$ 0 / $ 10,000", row.transform, UITheme.Sp(12), TextAnchor.MiddleRight, FontStyle.Bold);
-        _weeklyValueText.color = UITheme.TextPrimary;
+        _weeklyValueText.color = BankTheme.TextPrimary;
 
         // Progress bar: track + anchored fill (track uses CardBorder so the empty
         // bar stays visible at 0% progress instead of blending into the card)
-        var track = UIFactory.Panel("BarTrack", card.transform, UITheme.CardBorder);
+        var track = UIFactory.Panel("BarTrack", card.transform, BankTheme.CardBorder);
         track.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(9f);
         var trackRt = track.GetComponent<RectTransform>();
 
-        var fill = UIFactory.Panel("BarFill", track.transform, UITheme.AccentTeal);
+        var fill = UIFactory.Panel("BarFill", track.transform, BankTheme.AccentTeal);
         _weeklyBarFill = fill.GetComponent<RectTransform>();
         _weeklyBarFill.anchorMin = Vector2.zero;
         _weeklyBarFill.anchorMax = new Vector2(0f, 1f);
@@ -217,7 +218,7 @@ public sealed class BankApp : PhoneApp
 
     private void BuildBalanceCard(Transform parent)
     {
-        var card = UIFactory.Panel("BalanceCard", parent, UITheme.CardBg);
+        var card = UIFactory.Panel("BalanceCard", parent, BankTheme.CardBg);
         var cardLe = card.AddComponent<LayoutElement>();
         cardLe.flexibleHeight = 0.6f;
         var vlg = card.AddComponent<VerticalLayoutGroup>();
@@ -253,17 +254,17 @@ public sealed class BankApp : PhoneApp
         vlg.childForceExpandHeight = false;
 
         var lbl = UIFactory.Text("Label", label, col.transform, UITheme.Sp(11), TextAnchor.MiddleLeft, FontStyle.Bold);
-        lbl.color = UITheme.TextMuted;
+        lbl.color = BankTheme.TextMuted;
 
         var value = UIFactory.Text("Value", "$ 0", col.transform, UITheme.Sp(19), TextAnchor.MiddleLeft, FontStyle.Bold);
-        value.color = UITheme.AccentTeal;
+        value.color = BankTheme.AccentTeal;
 
         return value;
     }
 
     private void BuildAmountRow(Transform parent)
     {
-        var card = UIFactory.Panel("AmountRow", parent, UITheme.CardBg);
+        var card = UIFactory.Panel("AmountRow", parent, BankTheme.CardBg);
         var cardLe = card.AddComponent<LayoutElement>();
         cardLe.flexibleHeight = 0.4f;
         var vlg = card.AddComponent<VerticalLayoutGroup>();
@@ -282,10 +283,10 @@ public sealed class BankApp : PhoneApp
         hlg.childForceExpandHeight = false;
 
         var lbl = UIFactory.Text("Label", "AMOUNT", row.transform, UITheme.Sp(12), TextAnchor.MiddleLeft, FontStyle.Bold);
-        lbl.color = UITheme.TextMuted;
+        lbl.color = BankTheme.TextMuted;
 
         _amountText = UIFactory.Text("Value", "$ 0", row.transform, UITheme.Sp(18), TextAnchor.MiddleRight, FontStyle.Bold);
-        _amountText.color = UITheme.TextPrimary;
+        _amountText.color = BankTheme.TextPrimary;
     }
 
     private void BuildModeTabs(Transform parent)
@@ -303,7 +304,7 @@ public sealed class BankApp : PhoneApp
         hlg.childForceExpandHeight = true;
 
         // Deposit tab
-        var depTab = UIFactory.Panel("DepositTab", row.transform, UITheme.CardBgSecondary);
+        var depTab = UIFactory.Panel("DepositTab", row.transform, BankTheme.CardBgSecondary);
         _depositTabBg = depTab.GetComponent<Image>();
         var depLe = depTab.AddComponent<LayoutElement>();
         depLe.flexibleWidth = 1f; // v0.4.2: wie Chips — erzwingt exakt 50/50, unabhaengig von Textlaenge
@@ -319,7 +320,7 @@ public sealed class BankApp : PhoneApp
         ButtonUtils.AddListener(depBtn, () => SetMode(TransferMode.Deposit));
 
         // Withdraw tab
-        var withTab = UIFactory.Panel("WithdrawTab", row.transform, UITheme.CardBgSecondary);
+        var withTab = UIFactory.Panel("WithdrawTab", row.transform, BankTheme.CardBgSecondary);
         _withdrawTabBg = withTab.GetComponent<Image>();
         var withLe = withTab.AddComponent<LayoutElement>();
         withLe.flexibleWidth = 1f; // v0.4.2: wie Chips — erzwingt exakt 50/50, unabhaengig von Textlaenge
@@ -376,7 +377,7 @@ public sealed class BankApp : PhoneApp
         bool isAccent = float.IsNaN(value ?? 0f) && value != null; // MAX
 
         var chipGO = UIFactory.Panel($"Chip_{label.Replace("$", "").Replace("✕ ", "")}",
-            parent, isAccent ? UITheme.AccentBlue : UITheme.CardBgSecondary);
+            parent, isAccent ? BankTheme.AccentBlue : BankTheme.CardBgSecondary);
         if (isAccent)
         {
             _maxChipBg = chipGO.GetComponent<Image>();
@@ -391,7 +392,7 @@ public sealed class BankApp : PhoneApp
         chipVlg.childForceExpandHeight = false;
 
         var txt = UIFactory.Text("Txt", label, chipGO.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
-        txt.color = isAccent ? Color.white : UITheme.TextPrimary;
+        txt.color = isAccent ? Color.white : BankTheme.TextPrimary;
 
         var btn = chipGO.AddComponent<Button>();
         btn.transition = Selectable.Transition.ColorTint;
@@ -416,7 +417,7 @@ public sealed class BankApp : PhoneApp
 
     private void BuildConfirmButton(Transform parent)
     {
-        var btnGO = UIFactory.Panel("ConfirmBtn", parent, UITheme.AccentGreen);
+        var btnGO = UIFactory.Panel("ConfirmBtn", parent, BankTheme.AccentGreen);
         _confirmBtnBg = btnGO.GetComponent<Image>();
         btnGO.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(52f);
 
@@ -500,15 +501,15 @@ public sealed class BankApp : PhoneApp
     {
         bool isDep = _mode == TransferMode.Deposit;
 
-        if (IsAlive(_depositTabBg)) _depositTabBg.color = isDep ? UITheme.AccentBlue : UITheme.CardBgSecondary;
-        if (IsAlive(_depositTabText)) _depositTabText.color = isDep ? Color.white : UITheme.TextMuted;
+        if (IsAlive(_depositTabBg)) _depositTabBg.color = isDep ? BankTheme.AccentBlue : BankTheme.CardBgSecondary;
+        if (IsAlive(_depositTabText)) _depositTabText.color = isDep ? Color.white : BankTheme.TextMuted;
 
-        if (IsAlive(_withdrawTabBg)) _withdrawTabBg.color = !isDep ? UITheme.AccentBlue : UITheme.CardBgSecondary;
-        if (IsAlive(_withdrawTabText)) _withdrawTabText.color = !isDep ? Color.white : UITheme.TextMuted;
+        if (IsAlive(_withdrawTabBg)) _withdrawTabBg.color = !isDep ? BankTheme.AccentBlue : BankTheme.CardBgSecondary;
+        if (IsAlive(_withdrawTabText)) _withdrawTabText.color = !isDep ? Color.white : BankTheme.TextMuted;
 
-        if (IsAlive(_maxChipBg)) _maxChipBg.color = isDep ? UITheme.AccentBlue : UITheme.AccentOrange;
+        if (IsAlive(_maxChipBg)) _maxChipBg.color = isDep ? BankTheme.AccentBlue : BankTheme.AccentOrange;
 
-        if (IsAlive(_confirmBtnBg)) _confirmBtnBg.color = isDep ? UITheme.AccentGreen : UITheme.AccentOrange;
+        if (IsAlive(_confirmBtnBg)) _confirmBtnBg.color = isDep ? BankTheme.AccentGreen : BankTheme.AccentOrange;
         if (IsAlive(_confirmBtnText)) _confirmBtnText.text = isDep ? "⬇  DEPOSIT" : "⬆  WITHDRAW";
     }
 
@@ -517,7 +518,7 @@ public sealed class BankApp : PhoneApp
         if (IsAlive(_feedbackText))
         {
             _feedbackText.text = text;
-            _feedbackText.color = isError ? UITheme.AccentRed : UITheme.AccentGreen;
+            _feedbackText.color = isError ? BankTheme.AccentRed : BankTheme.AccentGreen;
         }
     }
 
@@ -539,7 +540,7 @@ public sealed class BankApp : PhoneApp
             if (IsAlive(_weeklyValueText))
             {
                 _weeklyValueText.text = $"$ {deposited:N0} / $ {BankService.VanillaWeeklyAtmLimit:N0}";
-                _weeklyValueText.color = fraction >= 1f ? UITheme.AccentRed : UITheme.TextPrimary;
+                _weeklyValueText.color = fraction >= 1f ? BankTheme.AccentRed : BankTheme.TextPrimary;
             }
             if (IsAlive(_weeklyBarFill)) _weeklyBarFill.anchorMax = new Vector2(fraction, 1f);
         }
@@ -548,7 +549,7 @@ public sealed class BankApp : PhoneApp
             if (IsAlive(_weeklyValueText))
             {
                 _weeklyValueText.text = "NO LIMIT";
-                _weeklyValueText.color = UITheme.AccentGreen;
+                _weeklyValueText.color = BankTheme.AccentGreen;
             }
             if (IsAlive(_weeklyBarFill)) _weeklyBarFill.anchorMax = new Vector2(0f, 1f);
         }
