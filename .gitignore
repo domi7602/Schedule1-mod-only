@@ -21,8 +21,7 @@ Plugins/
 UserData/
 
 # Local tooling and generated reverse-engineering references
-.tools/*
-!.tools/.gitignore
+.cache/
 .vs/
 TestResults/
 GameReferences/decompiled/

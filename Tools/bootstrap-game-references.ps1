@@ -10,7 +10,7 @@ $ErrorActionPreference = 'Stop'
 $workspaceRoot = Split-Path -Parent $PSScriptRoot
 $assembliesDir = Join-Path $GameDir 'MelonLoader\Il2CppAssemblies'
 $outputRoot = Join-Path $workspaceRoot $OutputDir
-$toolDir = Join-Path $workspaceRoot '.tools'
+$toolDir = Join-Path $workspaceRoot '.cache\tools'
 $ilspycmd = Join-Path $toolDir 'ilspycmd.exe'
 
 if (-not (Test-Path -LiteralPath $assembliesDir)) {
