@@ -432,21 +432,11 @@ public static class AutoPackEngine
         }
     }
 
-    internal static bool IsHostOrSingleplayer()
-    {
-        try
-        {
-            var nm = Il2CppFishNet.InstanceFinder.NetworkManager;
-            if (nm == null || nm.Pointer == IntPtr.Zero || nm.WasCollected || (UnityEngine.Object)nm == null)
-                return true;
-
-            return Il2CppFishNet.InstanceFinder.IsServer;
-        }
-        catch
-        {
-            return false;
-        }
-    }
+    /// <summary>
+    /// Konsolidiert 2026-09-15 in S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
+    /// (IL2CPP-safe Pointer/WasCollected-Checks, fail-closed bei Exceptions).
+    /// </summary>
+    internal static bool IsHostOrSingleplayer() => NetworkGuard.IsHostOrSingleplayer();
 
     /// <summary>
     /// Critic Pillar 2: Atomic 2-Phase Transaction against TOCTOU Duplication.

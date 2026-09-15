@@ -7,8 +7,11 @@ namespace S1Mods.Shared;
 /// <summary>
 /// Kleine Guards für Multiplayer/Scene-Unsicherheiten. Bewusst ohne Game-Type-Referenzen,
 /// damit Shared gegen Framework-Änderungen (v0.4.6) stabil bleibt.
+/// Ausnahme: <see cref="NetworkGuard.IsHostOrSingleplayer"/> (Partial-Datei
+/// NetworkGuard.Host.cs) referenziert Il2CppFishNet — bewusst ausgegliedert, damit
+/// diese Datei game-typ-frei bleibt.
 /// </summary>
-public static class NetworkGuard
+public static partial class NetworkGuard
 {
     /// <summary>Der Name der primären Gameplay-Szene (Standard: "Main").</summary>
     public static string MainSceneName

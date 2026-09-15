@@ -1,6 +1,11 @@
 # Changelog
 
 
+
+## 0.2.9 (2026-09-15)
+- Host-Authority-Check in `S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer` konsolidiert; der bisher lokale fail-open-Zweig (catch => true) ist entfallen. Bei einer Authority-Exception ohne eigenes Save wird der Payout jetzt abgebrochen statt blind fortgezahlt. Der MONOMELON-Totzweig wurde mit entfernt (Workspace baut durchgehend IL2CPP).
+- Version bump.
+
 ## 0.2.7 (2026-09-14) — Vanilla UI-Titel-Sync fuer Restore-Quests
 
 - **Bug:** Restore-BountyQuests rendern im Journal hartnäckig als „Hitman Contract" statt „Hitman Contract: <NPC>" — selbst nach v0.2.6 Reflection-Setter auf s1q.title. UI-Snapshot im Vanilla-QuestComponent wurde im ctor einmalig gesetzt und nicht neu getriggert.

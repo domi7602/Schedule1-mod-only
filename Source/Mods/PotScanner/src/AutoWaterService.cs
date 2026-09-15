@@ -4,6 +4,7 @@ using Il2CppScheduleOne.Growing;
 using Il2CppScheduleOne.Money;
 using MelonLoader;
 using PotScanner.Utils;
+using S1Mods.Shared;
 using UnityEngine;
 
 namespace PotScanner.Services;
@@ -66,16 +67,11 @@ public static class AutoWaterService
         if (pots == null || pots.Count == 0) return;
 
         // Fix 4.2 (Bug-Audit 2026-09-02): only the host/server may mutate pot moisture in MP.
-        // Pattern copied from BusinessIncome.IncomeEngine.IsHostOrSingleplayer (IL2CPP-safe
-        // Pointer/WasCollected checks; no NetworkManager in SP => true).
-        try
-        {
-            var nm = Il2CppFishNet.InstanceFinder.NetworkManager;
-            if (nm != null && nm.Pointer != IntPtr.Zero && !nm.WasCollected && (UnityEngine.Object)nm != null
-                && !Il2CppFishNet.InstanceFinder.IsServer)
-                return;
-        }
-        catch { /* offline / SP: allowed */ }
+        // Konsolidiert 2026-09-15: S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
+        // (IL2CPP-safe Pointer/WasCollected-Checks; kein NetworkManager in SP => true;
+        // fail-closed bei Authority-Exceptions statt fail-open).
+        if (!NetworkGuard.IsHostOrSingleplayer())
+            return;
 
         float now = Time.realtimeSinceStartup;
         const float cost = Constants.WaterAllCostPerPot;

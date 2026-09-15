@@ -3,7 +3,7 @@ namespace PotScanner.Utils;
 public static class Constants
 {
     public const string ModName = "PotScanner";
-    public const string ModVersion = "0.5.3";
+    public const string ModVersion = "0.5.4";
     public const string ModAuthor = "Dominik";
     public const float HudRangeMeters = 30f;
     public const float PotRefreshIntervalSec = 2f;

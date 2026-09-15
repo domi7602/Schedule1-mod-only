@@ -1,6 +1,11 @@
 # Changelog
 
 
+
+## 0.1.10 (2026-09-15)
+- Host-Authority-Check `IsHostOrSingleplayer` in `S1Mods.Shared.NetworkGuard` konsolidiert und dabei von fail-open auf fail-closed korrigiert: Bei einer Exception im Authority-Check faellt die Platzierung jetzt auf Vanilla-Handling zurueck statt eine potenziell client-seitige Welt-Mutation zuzulassen (betraf Place-Prefix, Ghost-Colouring, SleepingBag und OutdoorItem-Dismantle).
+- Version bump.
+
 ## 0.1.9 (2026-09-12) — Bug-Audit-Fixes Runde 4 (Audit 2026-09-12)
 - **Ghost-Rotations-Restore im finally:** Vorher wurde `ghost.transform.rotation = originalRot` nur im Erfolgspfad erreicht — wenn `EvaluatePlacement` oder `ApplyMaterial` warfen, blieb der Ghost auf `Quaternion.identity` (visuell „spinning reset"). Der Restore läuft jetzt in einem `finally`-Block und gilt auch auf jedem Exception-Pfad.
 

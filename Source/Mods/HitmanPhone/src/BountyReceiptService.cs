@@ -3,6 +3,7 @@ using System.Threading;
 using HitmanPhone.Items;
 using HitmanPhone.Persistence;
 using MelonLoader;
+using S1Mods.Shared;
 
 #if (IL2CPPMELON)
 using S1DeadDrop = Il2CppScheduleOne.Economy.DeadDrop;
@@ -58,36 +59,13 @@ public static class BountyReceiptService
     /// this gate both sides ran TryValidateAndPay (double ChangeCashBalance
     /// rewards), and the client's local ClearStoredInstance never replicated,
     /// so the same polaroid paid again on the host. Only the host validates,
-    /// pays and consumes. Pattern mirrors
-    /// AutoPackEngine.IsHostOrSingleplayer (IL2CPP-safe Pointer/WasCollected
-    /// checks); S1Mods.Shared.NetworkGuard exposes no host helper, so the
-    /// check lives here.
+    /// pays and consumes. Konsolidiert 2026-09-15 in
+    /// S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer — dabei auf fail-closed
+    /// vereinheitlicht (vorher hier fail-open): bei einer Authority-Exception
+    /// ohne eigenes Save wird jetzt abgebrochen statt blind fortgezahlt.
+    /// Der MONOMELON-Zweig entfiel — das Workspace-Build ist durchgehend IL2CPP.
     /// </summary>
-    private static bool IsHostOrSingleplayer()
-    {
-        try
-        {
-#if (IL2CPPMELON)
-            var nm = Il2CppFishNet.InstanceFinder.NetworkManager;
-            if (nm == null || nm.Pointer == System.IntPtr.Zero || nm.WasCollected || (UnityEngine.Object)nm == null)
-                return true;
-
-            return Il2CppFishNet.InstanceFinder.IsServer;
-#elif MONOMELON
-            var nm = FishNet.InstanceFinder.NetworkManager;
-            if (nm == null || (UnityEngine.Object)nm == null)
-                return true;
-
-            return FishNet.InstanceFinder.IsServer;
-#else
-            return true;
-#endif
-        }
-        catch
-        {
-            return true;
-        }
-    }
+    private static bool IsHostOrSingleplayer() => NetworkGuard.IsHostOrSingleplayer();
 
     public static int ReceiptsSeen => Volatile.Read(ref _receiptsSeen);
     public static int ReceiptsMatched => Volatile.Read(ref _receiptsMatched);

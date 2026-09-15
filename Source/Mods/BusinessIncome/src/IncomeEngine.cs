@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using BusinessIncome.Config;
 using BusinessIncome.Models;
-using Il2CppFishNet;
 using Il2CppScheduleOne.UI;
 using S1API.GameTime;
 using S1API.Money;
@@ -21,27 +20,10 @@ public static class IncomeEngine
 {
     /// <summary>
     /// Checks whether the current instance is host/server or running in singleplayer.
-    /// IL2CPP-safe: checks Pointer and WasCollected before Unity Object null.
+    /// Konsolidiert 2026-09-15 in S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
+    /// (fail-closed bei Authority-Exceptions).
     /// </summary>
-    public static bool IsHostOrSingleplayer()
-    {
-        try
-        {
-            var nm = InstanceFinder.NetworkManager;
-            if (nm == null || nm.Pointer == IntPtr.Zero || nm.WasCollected || (UnityEngine.Object)nm == null)
-                return true;
-
-            return InstanceFinder.IsServer;
-        }
-        catch
-        {
-            // Bug-Audit 2026-09-12: fail-closed on Authority exceptions. The Singleplayer
-            // case is already covered by the NetworkManager-null branch above; if an
-            // exception is thrown by IsServer marshalling on a real MP client, returning
-            // true would allow parallel payouts on host + client. Refuse instead.
-            return false;
-        }
-    }
+    public static bool IsHostOrSingleplayer() => NetworkGuard.IsHostOrSingleplayer();
 
     /// <summary>
     /// Calculates the revenue preview for the given day.

@@ -30,18 +30,12 @@ public static class BuildingPatches
     /// host-authoritative. A client placement would fork a local-only object graph
     /// that the host never sees → desync + local save divergence. Singleplayer and
     /// host pass; dedicated/client instances fall back to vanilla handling.
+    /// Konsolidiert 2026-09-15 in S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
+    /// — dabei von fail-open auf fail-closed korrigiert: bei einer Exception im
+    /// Authority-Check fällt die Platzierung jetzt auf Vanilla-Handling zurück
+    /// statt eine potenziell client-seitige Welt-Mutation zuzulassen.
     /// </summary>
-    internal static bool IsHostOrSingleplayer()
-    {
-        try
-        {
-            var nm = Il2CppFishNet.InstanceFinder.NetworkManager;
-            if (nm == null || nm.Pointer == IntPtr.Zero || nm.WasCollected || (UnityEngine.Object)nm == null)
-                return true;
-            return Il2CppFishNet.InstanceFinder.IsServer;
-        }
-        catch { return true; }
-    }
+    internal static bool IsHostOrSingleplayer() => NetworkGuard.IsHostOrSingleplayer();
 
     // Patches are applied explicitly via PatchGuard.TryPatch in Mod.ApplyHarmonyPatches.
     public static class BuildUpdate_Grid_CheckIntersections_Patch

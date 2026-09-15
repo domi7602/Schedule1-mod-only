@@ -1,6 +1,11 @@
 # Changelog
 
 
+
+## 0.5.4 (2026-09-15)
+- Auto-Water Host-Gate auf `S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer` umgestellt (zuvor lokale Kopie des BusinessIncome-Musters). Fail-closed vereinheitlicht: Bei einer Exception im Authority-Check wird der Water-Tick uebersprungen statt ausgefuehrt.
+- Version bump.
+
 ## 0.5.3 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
 - WaterAll Threshold nutzt jetzt den Live-Wert `c.NormalizedMoistureAmount` (vorher: gecachte `info.WaterPercent`, bis 2s alt). Verhindert Skip/Lade-Mismatch wenn der Cache stale ist.
 - WaterAll-Per-Charge-Balance-Guard: vor jeder `ChangeCashBalance`-Abbuchung wird `money.cashBalance` re-geprueft. Bricht sauber ab statt negativ zu werden, wenn parallele Spender (andere Mods/Shop) den Cash zwischendurch senken.
