@@ -28,4 +28,14 @@ public sealed class SnackVendorConfig
     public float MaxPayoutPerItem { get; set; } = 200f;
 
     public bool InjectIntoHardwareShop { get; set; } = true;
+
+    /// <summary>
+    /// credit the purchased ingredient into the buying NPC's inventory
+    /// (captured via NPCSignal_UseVendingMachine.Purchase prefix). When false,
+    /// purchases credit cash only and the ingredient vanishes (old MVP behavior).
+    /// </summary>
+    public bool CreditNpcInventory { get; set; } = true;
+
+    /// <summary>Max distance (meters) between player and station for the deposit/extract panel to stay open.</summary>
+    public float PanelRange { get; set; } = 3.5f;
 }

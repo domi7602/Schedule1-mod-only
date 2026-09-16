@@ -164,8 +164,10 @@ public static class BuildOrLoadGhostPrefab
     }
 
     /// <summary>
-    /// Loads the SnackVendor GLB from Mods/SnackVendor/model.glb (path
-    /// matches AutoPack pattern). Lazy-loaded so path-not-found during
+    /// Loads the SnackVendor GLB from Mods/SnackVendor/. Preferred file name is
+    /// the auto-deployed <c>SnackVendor_model.glb</c> (Directory.Build.targets
+    /// copies assets/*.glb to Mods/SnackVendor/); the legacy spike name
+    /// <c>model.glb</c> stays as fallback. Lazy-loaded so path-not-found during
     /// icon-only mode doesn't throw.
     /// </summary>
     public static byte[]? GetGlbBytes()
@@ -173,14 +175,17 @@ public static class BuildOrLoadGhostPrefab
         if (_cachedGlbBytes != null) return _cachedGlbBytes;
         try
         {
-            var path = Path.Combine(MelonLoader.Utils.MelonEnvironment.ModsDirectory, ModName, "model.glb");
-            if (!File.Exists(path))
+            var dir = Path.Combine(MelonLoader.Utils.MelonEnvironment.ModsDirectory, ModName);
+            string[] candidates = { "SnackVendor_model.glb", "model.glb" };
+            for (int i = 0; i < candidates.Length; i++)
             {
-                Mod.Log.Warn($"GLB not found at {path} (skipping custom mesh load)");
-                return null;
+                var path = Path.Combine(dir, candidates[i]);
+                if (!File.Exists(path)) continue;
+                _cachedGlbBytes = File.ReadAllBytes(path);
+                return _cachedGlbBytes;
             }
-            _cachedGlbBytes = File.ReadAllBytes(path);
-            return _cachedGlbBytes;
+            Mod.Log.Warn($"GLB not found in {dir} (skipping custom mesh load)");
+            return null;
         }
         catch (Exception ex)
         {

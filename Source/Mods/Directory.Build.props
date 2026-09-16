@@ -6,7 +6,7 @@
     <!-- Portable PDBs werden separat erzeugt und via Directory.Build.targets nach UserData\<Mod>\ deployt. -->
     <DebugType>portable</DebugType>
     <!-- Unity-IL2CPP injiziert MonoBehaviour-Referenzen zur Laufzeit, nicht via Constructor. -->
-    <NoWarn>CS8618;CS8600;CS8601;CS8603;CS8604;CS8625</NoWarn>
+    <NoWarn>CS8618</NoWarn>
     <LangVersion>12</LangVersion>
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     <GameDir Condition="'$(GameDir)' == '' And '$(SCHEDULE1_PATH)' != ''">$(SCHEDULE1_PATH)</GameDir>

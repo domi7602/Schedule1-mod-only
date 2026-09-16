@@ -34,3 +34,6 @@ ScheduleIArcade/**/*.dll
 
 # Workspace — interne Notizen.
 Workspace/**/*.dll
+
+# Archive-Unterordner (ThirdParty-Archivierung 2026-09) -- ebenfalls nie auto-deployen.
+Archive/**/*.dll

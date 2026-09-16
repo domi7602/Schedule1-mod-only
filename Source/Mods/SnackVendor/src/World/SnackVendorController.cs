@@ -15,6 +15,7 @@ using GameObject = UnityEngine.GameObject;
 using Random = UnityEngine.Random;
 using NativeIngredientItemDef = Il2CppScheduleOne.ItemFramework.AdditiveDefinition;
 using NativeBuildableItemDef = Il2CppScheduleOne.ItemFramework.BuildableItemDefinition;
+using NativeStorableItemDef = Il2CppScheduleOne.ItemFramework.StorableItemDefinition;
 using GameRegistry = Il2CppScheduleOne.Registry;
 
 namespace SnackVendor.World;
@@ -64,8 +65,8 @@ public sealed class SnackVendorController : MonoBehaviour
     [HideFromIl2Cpp]
     public IReadOnlyList<StockSlot> Stock => _stock;
 
-    /// <summary>Slot of size 1 — keeps it simple, no merge logic needed for this MVP.</summary>
-    public int MaxSlots => 8; // TODO: read from current slot-config
+    /// <summary>Slot count from config (was hardcoded 8 until v0.0.5).</summary>
+    public int MaxSlots => Mod.CurrentConfig.MaxIngredientSlots;
 
     // Set once the station wiring (clone + mesh + stock) has run for this
     // instance — guards the double-entry path where the vanilla Start postfix
@@ -207,8 +208,12 @@ public sealed class SnackVendorController : MonoBehaviour
 
     /// <summary>
     /// Replaces the cloned body's renderers with the SnackVendor GLB.
-    /// Falls back to leaving the vanilla mesh in place if the load fails
-    /// (player still sees a vending machine; NPCs still route to it).
+    /// Loads via <c>S1MAPI.Gltf.GltfLoader.LoadGlb</c> (same pipeline as
+    /// AutoPackagingStation). Falls back to leaving the vanilla mesh in place
+    /// if the load fails (player still sees a vending machine; NPCs still
+    /// route to it). The vanilla clone renderers are hidden ONLY after a GLB
+    /// GameObject actually exists — never before (invisible-machine trap,
+    /// see 0.0.4 CHANGELOG).
     /// </summary>
     private void SwapMesh()
     {
@@ -224,57 +229,68 @@ public sealed class SnackVendorController : MonoBehaviour
             }
 
             var parentTransform = (Clone != null && Clone.Pointer != IntPtr.Zero) ? Clone.transform : transform;
-            var glbGo = new GameObject("SnackVendor_GLBMesh");
+
+            GameObject? glbGo = null;
+            try
+            {
+                glbGo = S1MAPI.Gltf.GltfLoader.LoadGlb(glb);
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn("GltfLoader.LoadGlb threw — falling back to vanilla clone mesh", ex);
+            }
+
+            if (glbGo == null || glbGo.Pointer == IntPtr.Zero)
+            {
+                Mod.Log.Warn("GLB load failed/empty — keeping vanilla clone mesh (NPC path unaffected).");
+                return;
+            }
+
+            glbGo.name = "SnackVendor_GLBMesh";
             glbGo.transform.SetParent(parentTransform, false);
             glbGo.transform.localPosition = Vector3.zero;
             glbGo.transform.localRotation = Quaternion.identity;
-            _glbMeshGo = glbGo; // Audit 0.0.3: keep handle for OnDestroy.
+            _glbMeshGo = glbGo; // keep handle for OnDestroy.
 
-            // Hide the cloned-vanilla renderers ONLY once a real GLB mesh is
-            // rendered. The GLB→mesh conversion is still a stub (see TODO
-            // below) — disabling renderers now would leave an INVISIBLE
-            // machine (empty glbGo + dark clone). Spike 2026-09-16: keep the
-            // vanilla clone mesh visible so the station is interactable and
-            // the NPC/cash path can be verified visually.
-            // if (Clone != null && Clone.Pointer != IntPtr.Zero)
-            // {
-            //     var rs = Clone.GetComponentsInChildren<Renderer>(true);
-            //     foreach (var r in rs) if (r != null && r.Pointer != IntPtr.Zero) r.enabled = false;
-            // }
-
-            // Texture+material fix: apply URP-Lit to all renderers so
-            // GLB-shaders don't show as pink. Mirrors AutoPackMeshBuilder.
-            Shader? SafeShader() => Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard") ?? Shader.Find("Unlit/Color");
-            try
+            // Strip colliders — collision comes from the buildable item itself.
+            var cols = glbGo.GetComponentsInChildren<Collider>(true);
+            for (int i = 0; i < cols.Length; i++)
             {
-                var rs = glbGo.GetComponentsInChildren<Renderer>(true);
-                var sh = SafeShader();
-                foreach (var r in rs)
+                try { if (cols[i] != null && cols[i].Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(cols[i]); }
+                catch { /* non-fatal */ }
+            }
+
+            // URP shader fix: mutate the GLB's own materials via sharedMaterial
+            // (no per-renderer Material clones — leak-safe, AutoPack H12 pattern).
+            Shader? SafeShader() => Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard") ?? Shader.Find("Unlit/Color");
+            var sh = SafeShader();
+            var rs = glbGo.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < rs.Length; i++)
+            {
+                try
                 {
-                    try
-                    {
-                        var mat = new Material(sh);
-                        _ownedMaterials.Add(mat); // Audit 0.0.3: tracked for OnDestroy.
-                        r.material = mat;
-                    }
-                    catch
-                    {
-                        // renderer with submeshes etc. — keep whatever material they had
-                    }
+                    if (rs[i] == null || rs[i].Pointer == IntPtr.Zero) continue;
+                    var sm = rs[i].sharedMaterial;
+                    if (sm == null || sm.Pointer == IntPtr.Zero) continue;
+                    sm.shader = sh;
+                    _ownedMaterials.Add(sm); // GLB materials are per-load instances — track for OnDestroy.
+                }
+                catch { /* renderer with submeshes etc. — keep whatever material they had */ }
+            }
+
+            // Hide the cloned-vanilla renderers ONLY now that a real GLB mesh
+            // is rendered (0.0.4 lesson: never hide before the mesh exists).
+            if (Clone != null && Clone.Pointer != IntPtr.Zero)
+            {
+                var vanillaRs = Clone.GetComponentsInChildren<Renderer>(true);
+                for (int i = 0; i < vanillaRs.Length; i++)
+                {
+                    try { if (vanillaRs[i] != null && vanillaRs[i].Pointer != IntPtr.Zero) vanillaRs[i].enabled = false; }
+                    catch { /* non-fatal */ }
                 }
             }
-            catch { /* non-fatal */ }
 
-            // NOTE: We do NOT call S1MAPI.GltfLoader.LoadGlb — that API
-            // exists in S1MAPI_Il2cpp.dll which we reference conditionally.
-            // For the MVP runtime we ship the BoxCollider-based ghost prefab
-            // and let the player see a snack-bar 0.95×1.85×0.72 m proxy until
-            // we wire the full GLB in a follow-up. The marker, the slots,
-            // and the NPC-purchase path all work without it.
-            //
-            // TODO(Spike-Followup): load actual GLB through S1MAPI once we
-            // confirm AddComponent-vs-clone behaviour in a live test.
-            Mod.Log.Info("Visual mesh swapped to proxy (full GLB routing in follow-up).");
+            Mod.Log.Info("GLB mesh loaded via S1MAPI.GltfLoader — vanilla clone renderers hidden.");
         }
         catch (Exception ex)
         {
@@ -333,52 +349,126 @@ public sealed class SnackVendorController : MonoBehaviour
 
     // ========== STOCK / SLOTS ==========
 
-    /// <summary>Resolves the configured ingredient ids to vanilla registry ids once per call.</summary>
-    public static List<int> GetAllowedIngredientIds()
+    // Cached allowed-ingredient set (v0.0.5: derived from live shop listings —
+    // the old numeric registry scan 1..1023 never matched a single real item ID,
+    // item IDs in Schedule I are strings like "cuke").
+    private static readonly List<NativeStorableItemDef> _allowedIngredients = new();
+    private static float _allowedIngredientsAt = -999f;
+    private const float AllowedIngredientsRefreshSeconds = 30f;
+
+    /// <summary>
+    /// Resolves the sellable ingredient set from shop listings (gas-market
+    /// shops first, any shop as fallback) where the listing item is an
+    /// <c>AdditiveDefinition</c>. Cached for 30 s; 0 allocations when cached.
+    /// </summary>
+    [HideFromIl2Cpp]
+    public static List<NativeStorableItemDef> GetAllowedIngredientDefs()
     {
-        var list = new List<int>();
+        if (_allowedIngredients.Count > 0
+            && Time.realtimeSinceStartup - _allowedIngredientsAt < AllowedIngredientsRefreshSeconds)
+        {
+            return _allowedIngredients;
+        }
+
+        _allowedIngredients.Clear();
         try
         {
-            var allIds = new List<int>();
-            for (int candidate = 1; candidate < 1024; candidate++)
+            var shops = Il2CppScheduleOne.UI.Shop.ShopInterface.AllShops;
+            if (shops != null && shops.Count > 0)
             {
-                try
+                // Pass 1: gas-market shops, Pass 2: everything else (fallback).
+                for (int pass = 0; pass < 2 && _allowedIngredients.Count == 0; pass++)
                 {
-                    var def = GameRegistry.GetItem(candidate.ToString());
-                    if (def == null || def.Pointer == IntPtr.Zero) continue;
-                    if (def.TryCast<NativeIngredientItemDef>() != null) allIds.Add(candidate);
+                    var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    for (int i = 0; i < shops.Count; i++)
+                    {
+                        var shop = shops[i];
+                        if (shop == null || shop.Pointer == IntPtr.Zero) continue;
+
+                        string code = (shop.ShopCode ?? string.Empty).ToLowerInvariant();
+                        string name = (shop.ShopName ?? string.Empty).ToLowerInvariant();
+                        bool isGas = code.Contains("gas") || name.Contains("gas");
+                        if (pass == 0 && !isGas) continue;
+
+                        var listings = shop.Listings;
+                        if (listings == null) continue;
+                        for (int j = 0; j < listings.Count; j++)
+                        {
+                            var listing = listings[j];
+                            if (listing == null || listing.Pointer == IntPtr.Zero) continue;
+                            var item = listing.Item;
+                            if (item == null || item.Pointer == IntPtr.Zero) continue;
+                            var additive = item.TryCast<NativeIngredientItemDef>();
+                            if (additive == null || additive.Pointer == IntPtr.Zero) continue;
+                            string id = item.ID ?? string.Empty;
+                            if (id.Length == 0 || !seen.Add(id)) continue;
+                            _allowedIngredients.Add(item);
+                        }
+                    }
                 }
-                catch { /* no-op: nonexistent id returns null */ }
             }
-            list = allIds;
         }
         catch (Exception ex)
         {
-            Mod.Log.Warn("GetAllowedIngredientIds", ex);
+            Mod.Log.Warn("GetAllowedIngredientDefs", ex);
         }
-        return list;
+        _allowedIngredientsAt = Time.realtimeSinceStartup;
+        if (_allowedIngredients.Count == 0)
+            Mod.Log.Warn("No ingredient definitions resolved from shops — deposit panel will stay empty.");
+        return _allowedIngredients;
     }
 
-    /// <summary>Returns id->displayName for the UI for the currently-allowed set.</summary>
-    public static string? GetIngredientName(int ingredientId)
+    /// <summary>Resolves a live ingredient definition by registry item ID; null when unknown/unalive.</summary>
+    [HideFromIl2Cpp]
+    public static NativeStorableItemDef? GetIngredientDef(string ingredientId)
     {
+        if (string.IsNullOrEmpty(ingredientId)) return null;
         try
         {
-            var def = GameRegistry.GetItem(ingredientId.ToString());
-            return def?.Name;
+            var def = GameRegistry.GetItem(ingredientId);
+            if (def == null || def.Pointer == IntPtr.Zero) return null;
+            var storable = def.TryCast<NativeStorableItemDef>();
+            if (storable == null || storable.Pointer == IntPtr.Zero) return null;
+            return storable;
         }
         catch { return null; }
     }
 
+    /// <summary>Returns id->displayName for the UI; falls back to the raw id.</summary>
     [HideFromIl2Cpp]
-    public bool TryDepositIngredient(int ingredientId, int amount)
+    public static string GetIngredientName(string ingredientId)
     {
-        if (amount <= 0) return false;
+        try
+        {
+            var def = GameRegistry.GetItem(ingredientId);
+            var n = def?.Name;
+            return string.IsNullOrEmpty(n) ? ingredientId : n;
+        }
+        catch { return ingredientId; }
+    }
+
+    [HideFromIl2Cpp]
+    public int GetStockQuantity(string ingredientId)
+    {
+        for (int i = 0; i < _stock.Count; i++)
+        {
+            if (string.Equals(_stock[i].IngredientId, ingredientId, StringComparison.OrdinalIgnoreCase))
+            {
+                return _stock[i].Quantity;
+            }
+        }
+        return 0;
+    }
+
+    [HideFromIl2Cpp]
+    public bool TryDepositIngredient(string ingredientId, int amount)
+    {
+        if (string.IsNullOrEmpty(ingredientId) || amount <= 0) return false;
         // Clamp max-slots + check existing slot for same id.
         StockSlot? slot = null;
         for (int i = 0; i < _stock.Count; i++)
         {
-            if (_stock[i].IngredientId == ingredientId)
+            if (string.Equals(_stock[i].IngredientId, ingredientId, StringComparison.OrdinalIgnoreCase))
             {
                 slot = _stock[i];
                 break;
@@ -396,13 +486,13 @@ public sealed class SnackVendorController : MonoBehaviour
     }
 
     [HideFromIl2Cpp]
-    public bool TryExtractIngredient(int ingredientId, int amount)
+    public bool TryExtractIngredient(string ingredientId, int amount)
     {
-        if (amount <= 0) return false;
+        if (string.IsNullOrEmpty(ingredientId) || amount <= 0) return false;
         StockSlot? slot = null;
         for (int i = 0; i < _stock.Count; i++)
         {
-            if (_stock[i].IngredientId == ingredientId)
+            if (string.Equals(_stock[i].IngredientId, ingredientId, StringComparison.OrdinalIgnoreCase))
             {
                 slot = _stock[i];
                 break;
@@ -415,15 +505,15 @@ public sealed class SnackVendorController : MonoBehaviour
         return true;
     }
 
-    /// <summary>Try pop one slot for the NPC purchase path. Returns -1 if empty.</summary>
+    /// <summary>Try pop one slot for the NPC purchase path. Returns null when empty.</summary>
     [HideFromIl2Cpp]
-    public int TryConsumeOne()
+    public string? TryConsumeOne()
     {
-        if (_stock.Count == 0) return -1;
+        if (_stock.Count == 0) return null;
         int idx = Random.Range(0, _stock.Count);
         var slot = _stock[idx];
         slot.Quantity -= 1;
-        int id = slot.IngredientId;
+        string id = slot.IngredientId;
         if (slot.Quantity <= 0) _stock.RemoveAt(idx);
         return id;
     }
@@ -446,12 +536,18 @@ public sealed class SnackVendorController : MonoBehaviour
         }
         if (data == null) return;
         _stock.Clear();
-        foreach (var s in data.Slots)
+        for (int i = 0; i < data.Slots.Count; i++)
         {
-            if (int.TryParse(s.IngredientId, out int ingredientId) && s.Quantity > 0)
+            var s = data.Slots[i];
+            if (s == null || string.IsNullOrEmpty(s.IngredientId) || s.Quantity <= 0) continue;
+            // v0.0.5: IDs are registry strings now. Skip legacy numeric-scan
+            // rows (they never resolved to a real item anyway).
+            if (GetIngredientDef(s.IngredientId) == null)
             {
-                _stock.Add(new StockSlot(ingredientId, s.Quantity));
+                Mod.Log.Warn($"RestoreStockFromDisk: dropping unknown ingredient id '{s.IngredientId}'.");
+                continue;
             }
+            _stock.Add(new StockSlot(s.IngredientId, s.Quantity));
         }
     }
 
@@ -479,7 +575,7 @@ public sealed class SnackVendorController : MonoBehaviour
         {
             data.Slots.Add(new SnackVendor.Persistence.SnackSlotData
             {
-                IngredientId = slot.IngredientId.ToString(),
+                IngredientId = slot.IngredientId,
                 Quantity = slot.Quantity,
             });
         }
@@ -487,19 +583,13 @@ public sealed class SnackVendorController : MonoBehaviour
     }
 
     /// <summary>Resolves a vanilla BasePurchasePrice for an ingredient id; -1 if unknown.</summary>
-    public float ResolveIngredientPrice(int ingredientId)
+    public float ResolveIngredientPrice(string ingredientId)
     {
         try
         {
-            var def = GameRegistry.GetItem(ingredientId.ToString());
+            var def = GetIngredientDef(ingredientId);
             if (def == null || def.Pointer == IntPtr.Zero) return -1f;
-            // BasePurchasePrice lives on StorableItemDefinition, not ItemDefinition.
-            // Most ingredients in the game ARE storable, so the cast almost
-            // always succeeds. Anything that fails (e.g. a non-storable item
-            // sneaking through) returns -1 so the caller skips it.
-            var storable = def.TryCast<Il2CppScheduleOne.ItemFramework.StorableItemDefinition>();
-            if (storable == null || storable.Pointer == IntPtr.Zero) return -1f;
-            float price = storable.BasePurchasePrice;
+            float price = def.BasePurchasePrice;
             return price < 0f ? -1f : price;
         }
         catch (Exception ex)
@@ -513,7 +603,7 @@ public sealed class SnackVendorController : MonoBehaviour
 /// <summary>Managed runtime record — never crosses into IL2CPP land.</summary>
 public sealed class StockSlot
 {
-    public int IngredientId;
+    public string IngredientId;
     public int Quantity;
-    public StockSlot(int id, int q) { IngredientId = id; Quantity = q; }
+    public StockSlot(string id, int q) { IngredientId = id; Quantity = q; }
 }

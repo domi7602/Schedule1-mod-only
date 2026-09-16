@@ -11,6 +11,6 @@
     HintPath here: it would break builds for anyone who renames Hash.dll to .bak.
   -->
   <ItemGroup>
-    <Compile Include="..\..\..\..\ThirdParty\ScheduleOne-Hash\Hash.Api\HashCommands.cs" Link="Hash.Api.cs" />
+    <Compile Include="..\..\..\..\ThirdParty\Archive\ScheduleOne-Hash\Hash.Api\HashCommands.cs" Link="Hash.Api.cs" />
   </ItemGroup>
 </Project>

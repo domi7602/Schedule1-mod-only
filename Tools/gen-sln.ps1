@@ -17,11 +17,32 @@ function Get-DeterministicGuid {
 
 $workspaceRoot = Split-Path $PSScriptRoot -Parent
 $modRoot = Join-Path $workspaceRoot "Source\Mods"
+$testRoot = Join-Path $workspaceRoot "Source\Tests"
 $sln = Join-Path $modRoot "S1Mods.sln"
 
 if (Test-Path -LiteralPath $sln) { Remove-Item -LiteralPath $sln -Force }
 
-$projects = Get-ChildItem -LiteralPath $modRoot -Recurse -Filter "*.csproj" | Sort-Object FullName
+$modProjects = Get-ChildItem -LiteralPath $modRoot -Recurse -Filter "*.csproj" | ForEach-Object {
+    [PSCustomObject]@{
+        BaseName = $_.BaseName
+        FullName = $_.FullName
+        RelPath  = $_.FullName.Substring($modRoot.Length + 1)
+        IsTest   = $false
+    }
+}
+
+$testProjects = if (Test-Path -LiteralPath $testRoot) {
+    Get-ChildItem -LiteralPath $testRoot -Recurse -Filter "*.csproj" | ForEach-Object {
+        [PSCustomObject]@{
+            BaseName = $_.BaseName
+            FullName = $_.FullName
+            RelPath  = "..\Tests\" + $_.FullName.Substring($testRoot.Length + 1)
+            IsTest   = $true
+        }
+    }
+} else { @() }
+
+$projects = @($modProjects) + @($testProjects) | Sort-Object RelPath
 $projectBlocks = New-Object System.Text.StringBuilder
 $configBlocks = New-Object System.Text.StringBuilder
 $folderBlocks = New-Object System.Text.StringBuilder
@@ -30,11 +51,13 @@ $seenFolders = @{}
 $folderGuids = @{}
 
 foreach ($p in $projects) {
-    $rel = $p.FullName.Substring($modRoot.Length + 1)
+    $rel = $p.RelPath
     $relDir = Split-Path $rel -Parent
 
     $folder = "Root"
-    if ($relDir -like "Shared*") {
+    if ($p.IsTest) {
+        $folder = "Tests"
+    } elseif ($relDir -like "Shared*") {
         $folder = "Shared"
     } elseif (-not [string]::IsNullOrEmpty($relDir) -and $relDir -ne "src") {
         $folder = ($relDir -split '[\\/]')[0]

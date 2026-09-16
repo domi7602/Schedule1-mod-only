@@ -1,6 +1,14 @@
 # Changelog
 
 
+## 0.0.5 (2026-09-16) — Spike-Completion (GLB, NPC-Inventory, Panel)
+- **GLB-Mesh via S1MAPI:** `SwapMesh` lädt `S1MAPI.Gltf.GltfLoader.LoadGlb(bytes)` (gleiche Pipeline wie AutoPackagingStation): Kollidatoren entfernt, URP-Shader-Fix via `sharedMaterial` (H12-Muster, keine Material-Klone), Vanilla-Klon-Renderer erst nach erfolgreichem Load deaktiviert. Fallback bei Load-Fehler: Vanilla-Mesh bleibt sichtbar. GLB wird jetzt auto-deployt (`assets/*.glb` → `Mods\SnackVendor\` via `Directory.Build.targets`); Runtime akzeptiert `SnackVendor_model.glb` und Legacy `model.glb`.
+- **NPC-Inventory-Credit:** Neuer `NPCSignalPatches.Purchase_Prefix` (PatchGuard-registriert) captured den kaufenden NPC (`GetComponentInParent<NPC>()`, host-gated) in einer 60-s-Pending-Map; `SendPurchase_Prefix` überträgt `GetDefaultInstance(1)` → `NPC.Inventory.InsertItem`. Fehler blockieren nie den Cash-Pfad. Config: `CreditNpcInventory` (default an).
+- **Deposit/Extract-Panel:** `VendingMachine.Interacted`-Prefix öffnet auf eigenen Maschinen ein IMGUI-Panel (HomelessMod-Pattern: gecachte GUIStyles, gedämpfte Skalierung, cursor-frei solange offen) statt der Vanilla-Pay-UI. Einlagern (+1/+5/All) mit `GetCopy`-Rollback bei vollem Station-Slot; Herausnehmen mit 1-Unit-Kapazitäts-Probe und Stock-Refund bei Add-Fail. Auto-Close bei Distanz/ESC/Szenenwechsel/zerstörter Station. Config: `PanelRange` (3,5 m).
+- **Stock-Identität auf Registry-IDs umgestellt:** Der alte numerische Scan (`GetItem("1".."1023")`) matchte nie echte Item-IDs (IDs sind Strings wie `"cuke"`) — Stock-Slots, Preis-/Namensauflösung und Allowed-Set laufen jetzt über String-IDs; das Allowed-Set wird aus Shop-Listings abgeleitet (Gas-Markt bevorzugt, `AdditiveDefinition`-Filter, 30-s-Cache). Legacy-Sidecar-Zeilen mit numerischen IDs werden beim Restore verworfen (geloggt). `MaxSlots` hängt jetzt an `MaxIngredientSlots` (Config).
+- **Nebenbefund gefixt:** `ThirdParty/Archive/**` fehlte in `ThirdParty/.deployignore` — jeder Build deployte das deprecatete Reference-Assembly `Hash.dll` nach `Mods\` (BadImageFormatException-Quelle, Cleanup 2026-09-10). Ignore-Regel ergänzt, DLL aus `Mods\` entfernt.
+- Hinweis: In-Game-Verify (Spike-Gate + neue Features) steht noch aus — siehe Verifikationstabelle in der README des Mods.
+
 ## 0.0.4 (2026-09-16) — Street-Placement-Integration
 - **`SetupPlacedStation`:** Neuer Einstiegspunkt in `SnackVendorItemFactory` für Platzierungs-Pfade, die das BuiltItem-Prefab direkt instanziieren und am Vanilla `BuildableItem.Start` vorbeilaufen (HomelessMod Street-Placement; gleicher Vertrag wie AutoPacks `SetupPlacedStation`). Hängt den Controller an bzw. nutzt einen bestehenden wieder.
 - **Placement-Split im Controller:** `SetupAfterPlacement` (Vanilla-Pfad) und `SetupAfterPlacementExternal` (Street-Pfad) laufen beide in `RunPlacementSetup` mit `_placementDone`-Guard — Doppel-Setup (Start-Postfix + externe Übergabe) ist ausgeschlossen.

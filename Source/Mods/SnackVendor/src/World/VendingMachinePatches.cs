@@ -58,8 +58,8 @@ public static class VendingMachinePatches
             if (controller == null) return false; // no controller → refuse (no free cukes!)
 
             // Consume ONE stock slot at random; bail out if empty.
-            int consumedId = controller.TryConsumeOne();
-            if (consumedId < 0)
+            string? consumedId = controller.TryConsumeOne();
+            if (string.IsNullOrEmpty(consumedId))
             {
                 // No stock — refuse the purchase cleanly. Original would
                 // spawn the Cuke in this case; we cut the branch to keep
@@ -82,15 +82,16 @@ public static class VendingMachinePatches
             // In-game verify for the vending context pending (spike gate).
             S1Mods.Shared.EconomyHelper.ChangeCashBalance(price, true, false);
 
-            Mod.Log.Info($"[SnackVendor] purchase: ingredient #{consumedId} for ${price:0.00} (cash credited).");
+            // INGREDIENT CREDIT (v0.0.5): the buyer NPC was captured by
+            // NPCSignalPatches.Purchase_Prefix; hand the ingredient over
+            // before it walks off empty-handed. Failures never block the
+            // cash path — worst case the NPC leaves without the item.
+            if (cfg.CreditNpcInventory)
+            {
+                CreditNpcInventory(controller, __instance, consumedId);
+            }
 
-            // TODO: route ingredient into the NPC's inventory. NPC entity is
-            // not in scope here in the vanilla prefix (SendPurchase only sees
-            // the VendingMachine), so we tuck it for the post-purchase hook
-            // (right now the vanilla DropItem path is BLOCKED for our marker
-            // so the item would be lost). Future work: hook the WalkCallback
-            // of NPCSignal_UseVendingMachine to capture the npc reference and
-            // transfer from there.
+            Mod.Log.Info($"[SnackVendor] purchase: ingredient '{consumedId}' for ${price:0.00} (cash credited).");
 
             // Persist new stock state immediately so a host crash mid-purchase
             // does not leave us with phantom items already debited from the
@@ -106,6 +107,62 @@ public static class VendingMachinePatches
         {
             Mod.Log.Error("SendPurchase_Prefix", ex);
             return true; // on unexpected error, fall back to vanilla so we don't freeze the station
+        }
+    }
+
+    private static void CreditNpcInventory(SnackVendorController controller, VendingMachine machine, string ingredientId)
+    {
+        try
+        {
+            var npc = NPCSignalPatches.ConsumePendingNpc(machine);
+            if (npc == null)
+            {
+                Mod.Log.Debug("No pending NPC captured for this purchase — cash-only (player purchase or expired entry).");
+                return;
+            }
+
+            var def = SnackVendorController.GetIngredientDef(ingredientId);
+            if (def == null || def.Pointer == IntPtr.Zero)
+            {
+                Mod.Log.Warn($"Ingredient def '{ingredientId}' not resolvable — NPC credit skipped.");
+                return;
+            }
+
+            var inst = def.GetDefaultInstance(1);
+            if (inst == null || inst.Pointer == IntPtr.Zero)
+            {
+                Mod.Log.Warn($"GetDefaultInstance('{ingredientId}') returned null — NPC credit skipped.");
+                return;
+            }
+
+            npc.Inventory.InsertItem(inst, true);
+            Mod.Log.Info($"[SnackVendor] ingredient '{ingredientId}' credited to NPC '{npc.name}'.");
+        }
+        catch (System.Exception ex)
+        {
+            Mod.Log.Warn("CreditNpcInventory failed (cash already credited)", ex);
+        }
+    }
+
+    /// <summary>
+    /// Our machines open the deposit/extract panel instead of the vanilla
+    /// pay-UI (which would let the player "buy" their own stock back).
+    /// Vanilla machines fall through untouched.
+    /// </summary>
+    [HarmonyPrefix]
+    public static bool Interacted_Prefix(VendingMachine __instance)
+    {
+        try
+        {
+            if (!IsOurs(__instance)) return true;
+            var controller = FindController(__instance);
+            if (controller == null) return false;
+            SnackVendorPanel.Toggle(controller);
+            return false; // vanilla pay UI stays closed for our machines
+        }
+        catch
+        {
+            return true;
         }
     }
 
@@ -144,7 +201,7 @@ public static class VendingMachinePatches
 
     // ----- helpers -----
 
-    private static bool IsOurs(VendingMachine machine)
+    internal static bool IsOurs(VendingMachine machine)
     {
         try
         {

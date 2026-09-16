@@ -17,10 +17,13 @@
     <ItemGroup>
       <_Pngs Include="$(MSBuildProjectDirectory)\*.png;$(MSBuildProjectDirectory)\..\assets\*.png" />
       <_Bundles Include="$(MSBuildProjectDirectory)\..\assets\*.bundle" Condition="Exists('$(MSBuildProjectDirectory)\..\assets')" />
+      <_Glbs Include="$(MSBuildProjectDirectory)\..\assets\*.glb" Condition="Exists('$(MSBuildProjectDirectory)\..\assets')" />
       <_Json Include="$(MSBuildProjectDirectory)\..\docs\mod.json" Condition="Exists('$(MSBuildProjectDirectory)\..\docs\mod.json')" />
     </ItemGroup>
     <Copy SourceFiles="@(_Pngs)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="false" Condition="'@(_Pngs)' != ''" />
     <Copy SourceFiles="@(_Bundles)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="false" Condition="'@(_Bundles)' != ''" />
+    <!-- GLB-Meshes landen NICHT in Mods\ (MelonLoader scannt nur DLLs) — Daten-Subfolder Mods\<Mod>\, Runtime-Pfade resolved dort. -->
+    <Copy SourceFiles="@(_Glbs)" DestinationFolder="$(_DeployDir)\$(MSBuildProjectName)" SkipUnchangedFiles="false" Condition="'@(_Glbs)' != ''" />
     <Copy SourceFiles="@(_Json)" DestinationFiles="$(_ModDataDir)\mod.json" SkipUnchangedFiles="false" Condition="'@(_Json)' != ''" />
     <Message Importance="high" Text="Deployed $(MSBuildProjectName) -> $(_DeployDir) (+ json/pdb -> $(_ModDataDir))" />
   </Target>
@@ -36,15 +39,11 @@
   </Target>
 
   <!--
-    ThirdParty-Deploy (seit 2026-09-10): Iteriere alle *.dll unter ThirdParty/
-    und kopiere sie force-deploy nach <GameDir>\Mods\ (whitelist via
-    ThirdParty/.deployignore: Posix-Glob, Pfad relativ zu ThirdParty/, eine
-    Zeile pro Pattern, # = Kommentar). Die eigentliche Filter-Logik lebt in
-    Tools/deploy-thirdparty.ps1 — MSBuild ruft sie AfterTargets="Build" aus
-    jedem csproj parallel auf; das Script serialisiert sich selbst via
-    Named-Mutex (nur der erste Prozess kopiert, alle anderen ueberspringen).
+    ThirdParty-Deploy: Iteriere alle *.dll unter ThirdParty/ und kopiere
+    sie force-deploy nach <GameDir>\Mods\ (whitelist via ThirdParty/.deployignore).
+    Laeuft nur einmalig bei Shared, da alle Mods von Shared abhaengen.
   -->
-  <Target Name="DeployThirdParty" AfterTargets="Build" Condition="'$(MSBuildProjectName)' != ''">
+  <Target Name="DeployThirdParty" AfterTargets="Build" Condition="'$(MSBuildProjectName)' == 'Shared' And Exists('$(TargetPath)')">
     <PropertyGroup>
       <_TpScript>$(MSBuildThisFileDirectory)..\..\Tools\deploy-thirdparty.ps1</_TpScript>
     </PropertyGroup>

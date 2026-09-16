@@ -16,7 +16,7 @@ using ConfigInstance = S1Mods.Shared.ModConfig<SnackVendor.Config.SnackVendorCon
 // (MelonInfo/MelonGame attributes intentionally absent — our MelonMod registration is
 // auto-discovered by MelonLoader's [MelonInfo] attribute scanning on the Mod class; we
 // put them inline next to the class so the asmversion travels together with the class.
-[assembly: MelonInfo(typeof(SnackVendor.Mod), "SnackVendor", "0.0.4", "Dominik")]
+[assembly: MelonInfo(typeof(SnackVendor.Mod), "SnackVendor", "0.0.5", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace SnackVendor;
@@ -105,6 +105,24 @@ public sealed class Mod : MelonMod
                 prefix: new HarmonyMethod(typeof(VendingMachinePatches), nameof(VendingMachinePatches.DropCash_Prefix)),
                 log: Log);
 
+            // VendingMachine.Interacted prefix → deposit/extract panel instead
+            // of the vanilla pay-UI on OUR machines (vanilla machines untouched).
+            PatchGuard.TryPatch(
+                harmony,
+                targetType: typeof(Il2CppScheduleOne.ObjectScripts.VendingMachine),
+                methodName: "Interacted",
+                prefix: new HarmonyMethod(typeof(VendingMachinePatches), nameof(VendingMachinePatches.Interacted_Prefix)),
+                log: Log);
+
+            // NPCSignal_UseVendingMachine.Purchase prefix → capture the buying
+            // NPC so SendPurchase can credit the ingredient into NPC.Inventory.
+            PatchGuard.TryPatch(
+                harmony,
+                targetType: typeof(Il2CppScheduleOne.NPCs.Schedules.NPCSignal_UseVendingMachine),
+                methodName: "Purchase",
+                prefix: new HarmonyMethod(typeof(NPCSignalPatches), nameof(NPCSignalPatches.Purchase_Prefix)),
+                log: Log);
+
             PatchGuard.Report(Log);
         }
         catch (Exception ex)
@@ -156,6 +174,17 @@ public sealed class Mod : MelonMod
     /// <summary>On scene-load, re-register the item (catch resets from patch-days).</summary>
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {
+        // Scene switch: drop panel state + stale NPC-capture entries.
+        try
+        {
+            World.SnackVendorPanel.Close();
+            World.NPCSignalPatches.ClearPending();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("scene-reset failed", ex);
+        }
+
         if (sceneName == "Main")
         {
             try
@@ -168,6 +197,20 @@ public sealed class Mod : MelonMod
                 Log.Warn("scene-hook OnSceneWasLoaded failed", ex);
             }
         }
+    }
+
+    /// <summary>Panel housekeeping (auto-close on distance/scene/dead station).</summary>
+    public override void OnUpdate()
+    {
+        try { World.SnackVendorPanel.Update(); }
+        catch { /* never let the panel tick break the game loop */ }
+    }
+
+    /// <summary>IMGUI draw for the deposit/extract panel (no-op while closed).</summary>
+    public override void OnGUI()
+    {
+        try { World.SnackVendorPanel.Draw(); }
+        catch { /* a GUI exception must never escape into MelonLoader */ }
     }
 
     private void ResolveAndStoreSlot()

@@ -19,7 +19,7 @@ $ErrorActionPreference = 'Stop'
 # Ohne Lock wuerden 16 Prozesse gleichzeitig dieselbe PhoneScroll.dll loeschen
 # und kopieren -> I/O-Race, exit 1. Wir verwenden ein benanntes Mutex, das alle
 # nachfolgenden Aufrufe ueberspringen laesst (nur der erste kopiert).
-$mutexName = 'Global\Schedule1DeployThirdParty'
+$mutexName = 'Schedule1DeployThirdParty'
 $mutex = New-Object System.Threading.Mutex($false, $mutexName)
 try {
     $acquired = $mutex.WaitOne([TimeSpan]::FromSeconds(1), $false)
