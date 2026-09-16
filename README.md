@@ -28,7 +28,6 @@ This repository contains several active mods, built from the ground up for stabi
 * **AutoPackagingStation** (v0.2.7): 4×4 industrial automated packaging line with UV-scroll conveyor belt, atomic 2-phase engine, weighted quality mixing, and native slot sync.
 * **HitmanPhone** (v0.2.9): Bounty/contract gameplay via the phone Messages app — anonymous callers, Polaroid evidence dead-drops, police heat, and journal quests.
 * **SnackVendor** (v0.0.5): Work in progress — player-stocked vending machine that sells gas-market ingredients to NPCs for passive cash. Spike-complete (GLB mesh, NPC inventory credit, deposit/extract panel); in-game verification pending.
-* **PhoneScroll** (v1.4): Third-party utility by V4LEXL enabling smooth home-screen scrolling for any number of installed PhoneApps.
 * **_DiagPerfCounter** (v0.3.2): Dev-tool that dumps StorageEntity hook targets to UserData for mod development (no gameplay effect).
 
 ## 🧠 AI Agent Skills
@@ -61,5 +60,5 @@ Please refer to the **[Developers Guide](DEVELOPERS.md)** and **[AGENTS.md](AGEN
 - **References:** [`GameReferences/README.md`](GameReferences/README.md) explains how to generate local decompiles; [`ThirdParty/README.md`](ThirdParty/README.md) documents pinned external dependencies.
 - **Releases:** [`docs/release-process.md`](docs/release-process.md) documents versioning, packaging, and verification.
 - **CI:** GitHub Actions (`.github/workflows/ci.yml`) validates format, version sync, build, tests, and SLN determinism on every push/PR.
-- **Tests:** `Source/Tests/` (xUnit) — `Shared.Tests` (SafeStorage, UITheme, PatchGuard, ModLogger, SafeInvoker, TypeResolver), `AutoPackagingStation.Tests` (pure math) and `BackpackMod.Tests` (`SortButtonLayout`). Run them with `dotnet test <csproj>`.
+- **Tests:** `Source/Tests/` (xUnit) — `Shared.Tests` (SafeStorage, UITheme, PatchGuard, ModLogger, SafeInvoker, TypeResolver), `AutoPackagingStation.Tests` (pure math) and `CalculatorApp.Tests` (decimal math, precision, overflow, history). Run all tests via `dotnet test Source/Mods/S1Mods.sln`.
 - **License:** [`LICENSE`](LICENSE) — MIT for workspace code, Third-Party notices for S1API/S1MAPI.

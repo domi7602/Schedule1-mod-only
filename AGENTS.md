@@ -50,10 +50,11 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 - **Layout:**
   ```
   Source/Mods/        Mods + Shared lib (inkl. Shared/UITheme) + Directory.Build.props/targets + S1Mods.sln
-  Source/Archive/     Archived mods (DayCounter, ProfitTracker, TVBrowser), Tests & reference decompiles
-   GameReferences/     Local generated decompiles (Assembly-CSharp, firstpass)
+  Source/Archive/     Archived mods (DayCounter, ProfitTracker, TVBrowser, BackpackMod)
+  Source/Tests/       Unit-Tests (Shared.Tests, AutoPackagingStation.Tests, CalculatorApp.Tests)
+  GameReferences/     Local generated decompiles (Assembly-CSharp, firstpass)
   Skills/             20 AI-Agent Skills & References (modding, phoneapp, economy, systems, etc.)
-   ThirdParty/         Pinned external frameworks & reference sources; see ThirdParty/README.md
+  ThirdParty/         Pinned external frameworks & reference sources; see ThirdParty/README.md
   Tools/              (reaktiviert 2026-09-10: build-all, gen-sln, new-mod, bump-version, package-release, backup-to-d)
   Release/            Release packages (.gitkeep)
   .githooks/          Pre-commit hook (dotnet format + gen-sln determinism)
@@ -327,13 +328,18 @@ pwsh Tools\build-all.ps1
 # or directly via dotnet:
 dotnet build Source\Mods\S1Mods.sln -c Release
 
-# Regenerate the solution (after adding a new mod!)
+# Run all unit tests across the solution (Shared, AutoPackagingStation, CalculatorApp)
+dotnet test Source\Mods\S1Mods.sln -c Release
+
+# Regenerate the solution (after adding a new mod or test project!)
 pwsh Tools\gen-sln.ps1
 
 # Scaffold a new mod
 pwsh Tools\new-mod.ps1 -Name <ModName>
 ```
 
+> **ThirdParty-Deploy (2026-09-16 optimiert):** `Tools/deploy-thirdparty.ps1` läuft nur noch einmalig gebunden an `Shared.dll`, statt redundant bei jedem einzelnen Mod 16x parallel ausgeführt zu werden. Mutex auf lokale Sitzungsebene umgestellt.
+>
 > **Hinweis:** `Tools\` wurde am 2026-09-10 aus der Git-Historie reaktiviert (alle Helper ausser `fix-knowledge-paths.ps1` — Knowledge/ existiert nicht mehr; Reaktivierung: `git show 891c330^:Tools/fix-knowledge-paths.ps1`).
 >
 > **Drift-Guard (2026-09-14, neu):** `Tools/check-version-sync.ps1` vergleicht die Code-Version (MelonInfo-Attribut bzw. `Constants.ModVersion`) mit `docs/mod.json`, `README.md`, der AGENTS.md-Matrix-Zeile und dem AGENTS.md-Detail-Header. Exit 1 bei Drift; laeuft in `.github/workflows/ci.yml` und im Pre-Commit-Hook. `Tools/bump-version.ps1` schreibt die Detail-Header jetzt ebenfalls mit.

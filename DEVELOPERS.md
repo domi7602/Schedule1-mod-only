@@ -15,11 +15,11 @@ MelonLoader modding workspace for *Schedule I* v0.4.6f13 (TVGS). Fully built on 
 ```
 Source/Mods/                  Mods + shared lib + Directory.Build.props/targets
 Source/Mods/S1Mods.sln        Solution (regeneratable via Tools/gen-sln.ps1)
-Source/Archive/               Archived mods (DayCounter, ProfitTracker, TVBrowser)
-Source/Tests/                 xUnit tests (Shared, AutoPackagingStation, BackpackMod)
+Source/Archive/               Archived mods (DayCounter, ProfitTracker, TVBrowser, BackpackMod)
+Source/Tests/                 xUnit tests (Shared.Tests, AutoPackagingStation.Tests, CalculatorApp.Tests)
 GameReferences/               Locally generated decompiles; see GameReferences/README.md
 Skills/                       20 AI-agent skills (`Skills/<name>/SKILL.md` + `references/`; index: Skills/README.md)
-ThirdParty/                   Pinned external dependencies; see ThirdParty/README.md
+ThirdParty/                   Pinned external dependencies & archives; see ThirdParty/README.md
 Tools/                        build-all, gen-sln, new-mod, bump-version, check-version-sync, package-release, deploy-thirdparty, backup-to-d
 Release/                      Release packages
 .github/                      CI (workflows/ci.yml, workflows/release.yml) + issue/PR templates
@@ -75,7 +75,7 @@ $env:SCHEDULE1_PATH = "D:\path\to\Schedule I"
 dotnet format Source/Mods/S1Mods.sln --verify-no-changes   # formatting
 pwsh Tools/gen-sln.ps1                                    # SLN determinism
 pwsh Tools/check-version-sync.ps1                         # code <-> mod.json <-> README/AGENTS
-dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj -c Release   # needs game assemblies
+dotnet test Source/Mods/S1Mods.sln -c Release             # runs all 110 tests across Shared, AutoPack & CalculatorApp
 ```
 
 A successful build deploys automatically (via `Directory.Build.targets`), with split targets since the 2026-09 reinstall:
@@ -112,8 +112,8 @@ See [`docs/architecture.md`](docs/architecture.md), [`ThirdParty/README.md`](Thi
 | Mod | Version | Details |
 |-----|---------|---------|
 | **NotesApp** | v1.0.3 | SafeStorage persistence, real-time search, pinning, quick-stamp, 5 shortcuts |
-| **PotScanner** | v0.5.3 | Quick filter tabs, quality rating, focus mode, auto-water, live-cache water threshold |
-| **CalculatorApp** | v0.2.3 | Decimal arithmetic, cash/bank integration, clipboard, searchable history |
+| **PotScanner** | v0.5.4 | Quick filter tabs, quality rating, focus mode, auto-water, live-cache water threshold |
+| **CalculatorApp** | v0.2.3 | Decimal arithmetic, cash/bank integration, clipboard, searchable history, xUnit test suite |
 | **BankApp** | v0.4.4 | Chip-based single-screen ATM UI, weekly limit progress, double-entry booking, slot-isolated |
 | **PocketShop** | v0.2.5 | Multi-payment (Cash/Bank/Auto), ItemDetailModal, 2-level navigation, SFX |
 
@@ -122,21 +122,20 @@ See [`docs/architecture.md`](docs/architecture.md), [`ThirdParty/README.md`](Thi
 | Mod | Version | Details |
 |-----|---------|---------|
 | **CustomSkateboard** | v1.1.5 | Ultra-carving, instant-jump, high-speed push, anti-gravel, Nexus ready |
-| **HomelessMod** | v0.1.9 | Everywhere building, procedural sleeping bag, Street Nomad questline |
+| **HomelessMod** | v0.1.11 | Everywhere building, procedural sleeping bag, Street Nomad questline |
 | **BusinessIncome** | v0.1.5 | Daily passive revenue, multiplayer host authority, deterministic variance |
 | **Minimap** | v2.0.2 | Dual-shape Radar/Tactical, integrated DayCounter, pooled blips, waypoints, heat ring |
 | **MoreSaveSlots** | v1.0.12 | 25+ save slots, paginated navigation, inline renaming, overlay-safe modals |
-| **StackLimitMod** | v0.1.3 | Configurable stack limits, runtime registry hook, console commands |
-| **BackpackMod** | v1.2.3 | 3D wearable backpacks, tier-based storage, .obj loader, atomic B1 sort |
+| **StackLimitMod** | v0.1.4 | Configurable stack limits, runtime registry hook, agriculture whitelist, weapon protection |
 | **AutoPackagingStation** | v0.2.7 | 4×4 industrial packaging, UV-scroll conveyor, atomic 2-phase engine, host guards |
-| **HitmanPhone** | v0.2.7 | Bounty contracts via Messages app, Polaroid dead-drops, heat, quests |
+| **HitmanPhone** | v0.2.9 | Bounty contracts via Messages app, Polaroid dead-drops, heat, quests |
 | **_DiagPerfCounter** | v0.3.2 | Dev-tool: StorageEntity hook-target dump to UserData (DEBUG builds only) |
 
-###  Work in Progress
+### 🧪 Work in Progress / Spike
 
 | Mod | Version | Details |
 |-----|---------|---------|
-| **SnackVendor** | v0.0.2-mvp | Player-stocked vending machine (MVP). Build + placement wired; NPC purchase routing and payout still need in-game verification — see `Source/Mods/SnackVendor/README.md`. |
+| **SnackVendor** | v0.0.5 | Player-stocked vending machine. Spike-complete (GLB mesh, NPC inventory credit, deposit/extract panel); in-game verification pending. |
 
 ### 📚 Archived (`Source/Archive/`)
 
@@ -145,6 +144,7 @@ See [`docs/architecture.md`](docs/architecture.md), [`ThirdParty/README.md`](Thi
 | **DayCounter** | v1.0.0 | HUD functionality integrated into Minimap → archived |
 | **ProfitTracker** | v1.1.0 | Discontinued |
 | **TVBrowser** | v0.1.0 | Discontinued |
+| **BackpackMod** | v1.2.3 | 3D wearable backpacks, tier storage, .obj loader, atomic B1 sort → archived |
 
 Archived mods are **not** included in `S1Mods.sln` and are not built. MelonLoader does not load `*.dll.bak` files.
 
@@ -154,6 +154,6 @@ Archived mods are **not** included in `S1Mods.sln` and are not built. MelonLoade
 - [x] Phase 1 — Project scaffold + build pipeline
 - [x] Phase 2 — UI framework analysis (v0.4.6)
 - [x] Phase 3 — Mod selection & architecture
-- [x] Phase 4 — Development (active, as of 2026-08-23)
+- [x] Phase 4 — Development & Verification (active)
 
-Currently **17 projects** in `S1Mods.sln` (16 mods incl. `SnackVendor` MVP and the `_DiagPerfCounter` dev-tool, plus the `Shared` library; `MoreDrugs` remains third-party), 3 archived. `AGENTS.md` §2 is the single source of truth for mod inventory, versions and day-to-day status — `Tools/check-version-sync.ps1` enforces that the code version matches `mod.json`, `README.md` and `AGENTS.md`.
+Currently **19 projects** in `S1Mods.sln` (15 active mods + the `Shared` library + 3 xUnit test projects in the `Tests` solution folder), 4 archived. `AGENTS.md` §2 is the single source of truth for mod inventory, versions and day-to-day status — `Tools/check-version-sync.ps1` enforces that the code version matches `mod.json`, `README.md` and `AGENTS.md`.

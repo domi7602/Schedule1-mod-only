@@ -14,10 +14,10 @@ Danke für dein Interesse am `Schedule I Modding Workspace`! Diese Anleitung fas
 ```
 Source/Mods/          Mods + Shared lib + S1Mods.sln
 Source/Archive/       Archivierte Mods (nicht in SLN)
-Source/Tests/         xUnit-Tests (Shared.Tests, AutoPackagingStation.Tests, BackpackMod.Tests)
+Source/Tests/         xUnit-Tests (Shared.Tests, AutoPackagingStation.Tests, CalculatorApp.Tests)
 GameReferences/       Lokal generierte Decompiles; siehe GameReferences/README.md
 Skills/               AI-Skills (schedule1-modding, -phoneapp, -s1api, ...; Index: Skills/README.md)
-ThirdParty/           Gepinnte externe Abhaengigkeiten; siehe ThirdParty/README.md
+ThirdParty/           Gepinnte externe Abhaengigkeiten & Archive; siehe ThirdParty/README.md
 Tools/                build-all.ps1, gen-sln.ps1, bump-version.ps1, check-version-sync.ps1, package-release.ps1, new-mod.ps1, deploy-thirdparty.ps1
 Release/              Release-Pakete (.gitkeep)
 AGENTS.md             Inventar & Konventionen (Single Source of Truth)
@@ -67,14 +67,13 @@ dotnet build Source/Mods/S1Mods.sln -c Release
 # Einzelner Mod
 dotnet build Source/Mods/NotesApp/src/NotesApp.csproj -c Release
 
-# Tests (Shared — braucht Spiel-Assemblies)
-dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj -c Release
+# Alle Tests (110 Tests ueber Solution)
+dotnet test Source/Mods/S1Mods.sln -c Release
 
-# Tests (AutoPack — reine Math-Logik, laeuft ueberall)
-dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release
-
-# Tests (BackpackMod — SortButtonLayout, reine Math-Logik, laeuft ueberall)
-dotnet test Source/Tests/BackpackMod.Tests/BackpackMod.Tests.csproj -c Release
+# Einzelne Test-Suiten
+dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj -c Release               # braucht Spiel-Assemblies
+dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release # reine Math-Logik
+dotnet test Source/Tests/CalculatorApp.Tests/CalculatorApp.Tests.csproj -c Release # reine Decimal-Logik
 
 # Format prüfen (CI)
 dotnet format Source/Mods/S1Mods.sln --verify-no-changes
