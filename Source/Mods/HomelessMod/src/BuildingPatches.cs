@@ -333,7 +333,12 @@ public static class BuildingPatches
 
                 GameObject placedObj = null;
                 string itemGuid = System.Guid.NewGuid().ToString();
-                bool isCustomStation = itemId.Equals("autopackagingstation", StringComparison.OrdinalIgnoreCase);
+                // Custom stations register their own SetupPlacedStation and are
+                // wired externally instead of relying on vanilla BuildableItem.
+                // Start — this path disables BuildableItem after instantiate.
+                bool isCustomStation =
+                    itemId.Equals("autopackagingstation", StringComparison.OrdinalIgnoreCase) ||
+                    itemId.Equals("snackvendor", StringComparison.OrdinalIgnoreCase);
 
                 if (itemId.Equals(Mod.CurrentConfig.SleepingBagItemId, StringComparison.OrdinalIgnoreCase))
                 {
@@ -388,18 +393,30 @@ public static class BuildingPatches
 
                         if (isCustomStation)
                         {
-                            var factoryType = TypeResolver.Find("AutoPackagingStation.Items.AutoPackagingItemFactory", "AutoPackagingStation");
-                            var setupMethod = factoryType?.GetMethods().FirstOrDefault(m => m.Name == "SetupPlacedStation");
-                            setupMethod?.Invoke(null, new object?[] { placedObj, null });
-
-                            var controllerType = TypeResolver.Find("AutoPackagingStation.Entities.AutoPackStationController", "AutoPackagingStation");
-                            if (controllerType != null)
+                            if (itemId.Equals("snackvendor", StringComparison.OrdinalIgnoreCase))
                             {
-                                var ctrlComp = placedObj.GetComponent(Il2CppType.From(controllerType));
-                                if (ctrlComp != null)
+                                // SnackVendor owns its controller attach; the GUID
+                                // travels as the second argument so the sidecar
+                                // persist key matches the street-item record.
+                                var svFactoryType = TypeResolver.Find("SnackVendor.Items.SnackVendorItemFactory", "SnackVendor");
+                                var svSetup = svFactoryType?.GetMethods().FirstOrDefault(m => m.Name == "SetupPlacedStation");
+                                svSetup?.Invoke(null, new object?[] { placedObj, itemGuid });
+                            }
+                            else
+                            {
+                                var factoryType = TypeResolver.Find("AutoPackagingStation.Items.AutoPackagingItemFactory", "AutoPackagingStation");
+                                var setupMethod = factoryType?.GetMethods().FirstOrDefault(m => m.Name == "SetupPlacedStation");
+                                setupMethod?.Invoke(null, new object?[] { placedObj, null });
+
+                                var controllerType = TypeResolver.Find("AutoPackagingStation.Entities.AutoPackStationController", "AutoPackagingStation");
+                                if (controllerType != null)
                                 {
-                                    var prop = controllerType.GetProperty("StationGuid");
-                                    prop?.SetValue(ctrlComp, itemGuid);
+                                    var ctrlComp = placedObj.GetComponent(Il2CppType.From(controllerType));
+                                    if (ctrlComp != null)
+                                    {
+                                        var prop = controllerType.GetProperty("StationGuid");
+                                        prop?.SetValue(ctrlComp, itemGuid);
+                                    }
                                 }
                             }
                         }

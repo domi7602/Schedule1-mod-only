@@ -67,20 +67,57 @@ public sealed class SnackVendorController : MonoBehaviour
     /// <summary>Slot of size 1 — keeps it simple, no merge logic needed for this MVP.</summary>
     public int MaxSlots => 8; // TODO: read from current slot-config
 
+    // Set once the station wiring (clone + mesh + stock) has run for this
+    // instance — guards the double-entry path where the vanilla Start postfix
+    // AND the street-placement external setup could both fire on the same GO.
+    private bool _placementDone = false;
+
     /// <summary>Called by BuildableItem.Start-Postfix after the GameObject lives.</summary>
     public void SetupAfterPlacement(BuildableItem owner)
     {
         try
         {
             EnsureGuid(owner);
-            SpawnVanillaClone(owner.gameObject);
-            SwapMesh();
-            RestoreStockFromDisk();
+            RunPlacementSetup();
         }
         catch (Exception ex)
         {
             Mod.Log.Error($"SnackVendorController.SetupAfterPlacement failed", ex);
         }
+    }
+
+    /// <summary>
+    /// External entry for placement paths that instantiate the BuiltItem
+    /// prefab directly (HomelessMod street placement) and bypass the vanilla
+    /// BuildableItem.Start flow. Called via SnackVendorItemFactory.
+    /// SetupPlacedStation. Safe to call multiple times: the wiring runs at
+    /// most once per controller instance (_placementDone guard).
+    /// </summary>
+    public void SetupAfterPlacementExternal()
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(InstanceGuid)) InstanceGuid = Guid.NewGuid().ToString();
+            RunPlacementSetup();
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Error($"SnackVendorController.SetupAfterPlacementExternal failed", ex);
+        }
+    }
+
+    private void RunPlacementSetup()
+    {
+        if (_placementDone)
+        {
+            Mod.Log.Debug("SnackVendor placement setup already done for this instance — skipping.");
+            return;
+        }
+        _placementDone = true;
+        Mod.Log.Info("SnackVendorController setup starting (vanilla clone + mesh + stock)...");
+        SpawnVanillaClone(gameObject);
+        SwapMesh();
+        RestoreStockFromDisk();
     }
 
     private void EnsureGuid(BuildableItem owner)

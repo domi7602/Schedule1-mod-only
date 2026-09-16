@@ -100,6 +100,45 @@ public static class SnackVendorItemFactory
 
     public static void OnSaveInfoLoaded() => RegisterItem();
 
+    /// <summary>
+    /// Configures an already-placed station GameObject for placement paths
+    /// that instantiate the BuiltItem prefab directly and bypass the vanilla
+    /// BuildableItem.Start flow — currently the HomelessMod street-placement
+    /// path. Mirrors AutoPack's SetupPlacedStation contract: attach the
+    /// controller, run the full setup (vanilla VendingMachine clone + mesh
+    /// swap + stock restore). No-op when a controller already exists.
+    /// Invoked from HomelessMod via reflection (type is resolved by name).
+    /// </summary>
+    public static void SetupPlacedStation(GameObject go, string? guid = null)
+    {
+        if (go == null || go.Pointer == IntPtr.Zero) return;
+
+        try
+        {
+            var existing = go.GetComponent<SnackVendorController>();
+            if (existing != null)
+            {
+                // Restore path / double entry: keep the live controller, only
+                // backfill the GUID when the restore data carries one.
+                if (!string.IsNullOrEmpty(guid) && string.IsNullOrEmpty(existing.InstanceGuid))
+                {
+                    existing.InstanceGuid = guid;
+                }
+                Mod.Log.Info("SetupPlacedStation: controller already present — reusing it.");
+                return;
+            }
+
+            var ctrl = go.AddComponent<SnackVendorController>();
+            if (!string.IsNullOrEmpty(guid)) ctrl.InstanceGuid = guid;
+            ctrl.SetupAfterPlacementExternal();
+            Mod.Log.Info("SetupPlacedStation: controller attached via street placement.");
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Error("SetupPlacedStation failed", ex);
+        }
+    }
+
     private static int _injectRetryCount = 0;
     private const int MaxInjectRetries = 10;
 

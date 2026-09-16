@@ -33,9 +33,15 @@ public static class BuildableItem_Start_Patch
             var def = inst.Definition;
             if (def == null || def.Pointer == IntPtr.Zero) return;
 
-            // Filter to *our* item, so we never run on a drying rack.
+            // Filter to *our* item, so we never run on unrelated buildables.
             string itemId = def.ID ?? string.Empty;
-            if (itemId != Mod.CurrentConfig.StationItemId) return;
+            if (itemId != Mod.CurrentConfig.StationItemId)
+            {
+                // Audit 0.0.4 diagnostics: makes visible WHY the controller did
+                // not attach (wrong item vs. postfix never fired at all).
+                Mod.Log.Debug($"BuildableItem.Start on '{itemId}' — not a SnackVendor, no controller attach.");
+                return;
+            }
 
             var go = __instance.gameObject;
             var existing = go.GetComponent<SnackVendorController>();

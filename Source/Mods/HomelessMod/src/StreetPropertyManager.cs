@@ -295,12 +295,25 @@ public static class StreetPropertyManager
         go.transform.SetParent(StreetRoot.transform, true);
 
         // Attach generic outdoor interactable if not a sleeping bag or custom station
-        bool isCustomStation = itemId.Equals("autopackagingstation", StringComparison.OrdinalIgnoreCase);
+        bool isCustomStation =
+            itemId.Equals("autopackagingstation", StringComparison.OrdinalIgnoreCase) ||
+            itemId.Equals("snackvendor", StringComparison.OrdinalIgnoreCase);
         bool hasCustomController = false;
         try
         {
             var ctrlType = TypeResolver.Find("AutoPackagingStation.Entities.AutoPackStationController", "AutoPackagingStation");
             if (ctrlType != null && go.GetComponent(Il2CppType.From(ctrlType)) != null)
+            {
+                hasCustomController = true;
+            }
+        }
+        catch { }
+        try
+        {
+            // SnackVendor carries its own controller (attached by its factory
+            // during street placement) — never stack a generic interactable on top.
+            var svCtrlType = TypeResolver.Find("SnackVendor.World.SnackVendorController", "SnackVendor");
+            if (svCtrlType != null && go.GetComponent(Il2CppType.From(svCtrlType)) != null)
             {
                 hasCustomController = true;
             }
@@ -479,7 +492,9 @@ public static class StreetPropertyManager
                         buildMgr.DisableNavigation(obj);
                     }
 
-                    bool isCustomStation = record.ItemId.Equals("autopackagingstation", StringComparison.OrdinalIgnoreCase);
+                    bool isCustomStation =
+                        record.ItemId.Equals("autopackagingstation", StringComparison.OrdinalIgnoreCase) ||
+                        record.ItemId.Equals("snackvendor", StringComparison.OrdinalIgnoreCase);
 
                     if (!isCustomStation && obj.GetComponent<OutdoorItemInteractable>() == null)
                     {
@@ -489,18 +504,31 @@ public static class StreetPropertyManager
 
                     if (isCustomStation)
                     {
-                        var factoryType = TypeResolver.Find("AutoPackagingStation.Items.AutoPackagingItemFactory", "AutoPackagingStation");
-                        var setupMethod = factoryType?.GetMethods().FirstOrDefault(m => m.Name == "SetupPlacedStation");
-                        setupMethod?.Invoke(null, new object?[] { obj, null });
-
-                        var controllerType = TypeResolver.Find("AutoPackagingStation.Entities.AutoPackStationController", "AutoPackagingStation");
-                        if (controllerType != null)
+                        if (record.ItemId.Equals("snackvendor", StringComparison.OrdinalIgnoreCase))
                         {
-                            var ctrlComp = obj.GetComponent(Il2CppType.From(controllerType));
-                            if (ctrlComp != null)
+                            // Restore path: SnackVendor factory re-attaches the
+                            // controller (or reuses the existing one) and seeds
+                            // the persisted street-item GUID so the sidecar
+                            // stock file resolves to the same slot entry.
+                            var svFactoryType = TypeResolver.Find("SnackVendor.Items.SnackVendorItemFactory", "SnackVendor");
+                            var svSetup = svFactoryType?.GetMethods().FirstOrDefault(m => m.Name == "SetupPlacedStation");
+                            svSetup?.Invoke(null, new object?[] { obj, record.Guid });
+                        }
+                        else
+                        {
+                            var factoryType = TypeResolver.Find("AutoPackagingStation.Items.AutoPackagingItemFactory", "AutoPackagingStation");
+                            var setupMethod = factoryType?.GetMethods().FirstOrDefault(m => m.Name == "SetupPlacedStation");
+                            setupMethod?.Invoke(null, new object?[] { obj, null });
+
+                            var controllerType = TypeResolver.Find("AutoPackagingStation.Entities.AutoPackStationController", "AutoPackagingStation");
+                            if (controllerType != null)
                             {
-                                var prop = controllerType.GetProperty("StationGuid");
-                                prop?.SetValue(ctrlComp, record.Guid);
+                                var ctrlComp = obj.GetComponent(Il2CppType.From(controllerType));
+                                if (ctrlComp != null)
+                                {
+                                    var prop = controllerType.GetProperty("StationGuid");
+                                    prop?.SetValue(ctrlComp, record.Guid);
+                                }
                             }
                         }
                     }

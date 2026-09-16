@@ -2,6 +2,11 @@
 
 
 
+
+## 0.1.11 (2026-09-16) — SnackVendor als Custom-Station
+- **Street-Placement-Übergabe:** `snackvendor` wird wie `autopackagingstation` als Custom-Station behandelt (Place-Prefix, RegisterStreetItem, Save-Restore). HomelessMod instanziiert das BuiltItem-Prefab direkt und deaktiviert danach `BuildableItem` — dadurch feuerte der SnackVendor-Start-Postfix nie und die Station blieb ein nacktes Rack (Spike 2026-09-15). Der Place-Pfad ruft jetzt `SnackVendor.Items.SnackVendorItemFactory.SetupPlacedStation(go, guid)` per Reflection auf (gleicher Vertrag wie AutoPack), der Restore-Pfad dasselbe mit der persistierten Street-Item-GUID.
+- **Kein doppeltes Interactable:** `RegisterStreetItem` erkennt den `SnackVendorController` (Reflection) und stapelt kein generisches `OutdoorItemInteractable` mehr auf die Station.
+
 ## 0.1.10 (2026-09-15)
 - Host-Authority-Check `IsHostOrSingleplayer` in `S1Mods.Shared.NetworkGuard` konsolidiert und dabei von fail-open auf fail-closed korrigiert: Bei einer Exception im Authority-Check faellt die Platzierung jetzt auf Vanilla-Handling zurueck statt eine potenziell client-seitige Welt-Mutation zuzulassen (betraf Place-Prefix, Ghost-Colouring, SleepingBag und OutdoorItem-Dismantle).
 - Version bump.

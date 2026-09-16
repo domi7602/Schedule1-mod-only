@@ -20,14 +20,14 @@ This repository contains several active mods, built from the ground up for stabi
 
 ### 🎮 Gameplay & QoL
 * **CustomSkateboard** (v1.1.5): Overhauls the skateboarding experience with ultra-responsive carving, instant jumping, high-speed pushes, and anti-gravel suspension. Visually protects your avatar.
-* **HomelessMod** (v0.1.10): Live the street nomad life! Build anywhere, deploy procedural 3D sleeping bags, dismantle outdoor items, and follow the Street Nomad questline.
+* **HomelessMod** (v0.1.11): Live the street nomad life! Build anywhere, deploy procedural 3D sleeping bags, dismantle outdoor items, and follow the Street Nomad questline.
 * **BusinessIncome** (v0.1.5): Earn daily passive revenue for your owned businesses, complete with multiplayer host authority and deterministic variance.
 * **Minimap** (v2.0.2): A unified dual-shape viewport (Radar vs Tactical GPS) with dynamic rotation, zoom, pooled blips, dealer markers, police-heat ring, slot-isolated waypoints, health bar, and a settings PhoneApp.
 * **StackLimitMod** (v0.1.4): Configurable inventory and storage stack limits (1–9999) restricted to agriculture and farming items (soil, seeds, baggies, jars, fertilizers, harvested crops) with permanent weapon and ammo protection.
 * **MoreSaveSlots** (v1.0.12): Expands vanilla save slots from 5 to 25+ with paginated navigation and inline save renaming.
 * **AutoPackagingStation** (v0.2.7): 4×4 industrial automated packaging line with UV-scroll conveyor belt, atomic 2-phase engine, weighted quality mixing, and native slot sync.
 * **HitmanPhone** (v0.2.9): Bounty/contract gameplay via the phone Messages app — anonymous callers, Polaroid evidence dead-drops, police heat, and journal quests.
-* **SnackVendor** (v0.0.3): Work in progress — player-stocked vending machine that sells gas-market ingredients to NPCs for passive cash (MVP; in-game verification pending).
+* **SnackVendor** (v0.0.4): Work in progress — player-stocked vending machine that sells gas-market ingredients to NPCs for passive cash (MVP; in-game verification pending).
 * **PhoneScroll** (v1.4): Third-party utility by V4LEXL enabling smooth home-screen scrolling for any number of installed PhoneApps.
 * **_DiagPerfCounter** (v0.3.2): Dev-tool that dumps StorageEntity hook targets to UserData for mod development (no gameplay effect).
 

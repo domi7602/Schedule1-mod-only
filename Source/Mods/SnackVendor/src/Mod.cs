@@ -16,7 +16,7 @@ using ConfigInstance = S1Mods.Shared.ModConfig<SnackVendor.Config.SnackVendorCon
 // (MelonInfo/MelonGame attributes intentionally absent — our MelonMod registration is
 // auto-discovered by MelonLoader's [MelonInfo] attribute scanning on the Mod class; we
 // put them inline next to the class so the asmversion travels together with the class.
-[assembly: MelonInfo(typeof(SnackVendor.Mod), "SnackVendor", "0.0.3", "Dominik")]
+[assembly: MelonInfo(typeof(SnackVendor.Mod), "SnackVendor", "0.0.4", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace SnackVendor;
@@ -40,7 +40,7 @@ public sealed class Mod : MelonMod
             // First-write default values to disk so the user has a stable
             // starting point.
             ModConfig<SnackVendorConfig>.Save();
-            Log.Info("SnackVendor 0.0.1 initialized (config live).");
+            Log.Info("SnackVendor initialized (config live).");
         }
         catch (Exception ex)
         {
