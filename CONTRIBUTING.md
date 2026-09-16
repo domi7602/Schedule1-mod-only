@@ -123,4 +123,4 @@ Aktualisiert 5 Stellen: MelonInfo im Code (Datei mit `[assembly: MelonInfo(...)]
 
 ## Fragen?
 
-Siehe `AGENTS.md §6` (Workflows), `memory/MEMORY.md` (Gotchas), `Skills/README.md` (Skill-Index) oder öffne ein Issue.
+Siehe `AGENTS.md §6` (Workflows), `docs/pitfalls.md` (Gotchas & IL2CPP-Fallen), `Skills/README.md` (Skill-Index) oder öffne ein Issue.

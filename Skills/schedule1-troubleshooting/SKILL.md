@@ -172,8 +172,8 @@ If a previously-working patch no-ops:
 
 These **WILL** bite you if you don't read first:
 
-* **`Harmony.Patch` on a method with `MissingMethodException` in IL body** → fails at pin time, BEFORE your code runs. (Documented in MEMORY.md, "MelonLoader 0.7.3 + IL2CPP Mod-Suppression Lessons".)
-* **`DialogueHandler.get_activeDialogue()` removed in 0.4.6f11** → any mod touching this crashes at JIT. (See "ThompsonYard" entry in MEMORY.md.)
+* **`Harmony.Patch` on a method with `MissingMethodException` in IL body** → fails at pin time, BEFORE your code runs. (Documented in `docs/pitfalls.md`.)
+* **`DialogueHandler.get_activeDialogue()` removed in 0.4.6f11** → any mod touching this crashes at JIT. (Documented in `docs/pitfalls.md`.)
 * **10.5 MB+ Mod class volume** → IL2CPPInterop `Class::Init signatures exhausted` warning → native AV 0xc0000005 → game dies. (DrugExpansion 1.0.0.)
 * **Static-List Empty at Scene-Load** (see §5).
 * **Reflection-Field-Set in IL2CPP** → unreliable, can write to wrong address — use Harmony-Patch instead.

@@ -58,8 +58,7 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
   Tools/              (reaktiviert 2026-09-10: build-all, gen-sln, new-mod, bump-version, package-release, backup-to-d)
   Release/            Release packages (.gitkeep)
   .githooks/          Pre-commit hook (dotnet format + gen-sln determinism)
-  .github/            CI (workflows/ci.yml, workflows/release.yml) + Issue/PR templates
-  memory/             MEMORY.md (Daily-Logs + memory-protocol.md in der Git-Historie)
+  docs/               Architektur, Release-Prozess & IL2CPP-Fallen (docs/pitfalls.md)
   AGENTS.md           Agent bootstrap & inventory
   CONTRIBUTING.md     Contributor guide
   DEVELOPERS.md       Developer documentation

@@ -23,11 +23,10 @@ ThirdParty/                   Pinned external dependencies & archives; see Third
 Tools/                        build-all, gen-sln, new-mod, bump-version, check-version-sync, package-release, deploy-thirdparty, backup-to-d
 Release/                      Release packages
 .github/                      CI (workflows/ci.yml, workflows/release.yml) + issue/PR templates
-memory/                       Daily logs `memory/YYYY-MM-DD.md` + `memory-protocol.md`
+docs/                         Architecture, release process, and pitfalls (docs/pitfalls.md)
 AGENTS.md                     Workspace conventions & mod inventory for AI agents
 README.md                     Player-facing mod overview
 DEVELOPERS.md                 This file
-docs/                         Architecture and release-process documentation
 ```
 
 ## AI-Agent Skills
