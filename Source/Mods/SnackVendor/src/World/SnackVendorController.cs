@@ -230,16 +230,17 @@ public sealed class SnackVendorController : MonoBehaviour
             glbGo.transform.localRotation = Quaternion.identity;
             _glbMeshGo = glbGo; // Audit 0.0.3: keep handle for OnDestroy.
 
-            // Hide the cloned-vanilla renderers so the GLB shows alone.
-            if (Clone != null && Clone.Pointer != IntPtr.Zero)
-            {
-                try
-                {
-                    var rs = Clone.GetComponentsInChildren<Renderer>(true);
-                    foreach (var r in rs) if (r != null && r.Pointer != IntPtr.Zero) r.enabled = false;
-                }
-                catch { /* swallow, GLB still gets visualised */ }
-            }
+            // Hide the cloned-vanilla renderers ONLY once a real GLB mesh is
+            // rendered. The GLB→mesh conversion is still a stub (see TODO
+            // below) — disabling renderers now would leave an INVISIBLE
+            // machine (empty glbGo + dark clone). Spike 2026-09-16: keep the
+            // vanilla clone mesh visible so the station is interactable and
+            // the NPC/cash path can be verified visually.
+            // if (Clone != null && Clone.Pointer != IntPtr.Zero)
+            // {
+            //     var rs = Clone.GetComponentsInChildren<Renderer>(true);
+            //     foreach (var r in rs) if (r != null && r.Pointer != IntPtr.Zero) r.enabled = false;
+            // }
 
             // Texture+material fix: apply URP-Lit to all renderers so
             // GLB-shaders don't show as pink. Mirrors AutoPackMeshBuilder.

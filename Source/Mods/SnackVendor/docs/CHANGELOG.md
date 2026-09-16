@@ -5,6 +5,7 @@
 - **`SetupPlacedStation`:** Neuer Einstiegspunkt in `SnackVendorItemFactory` für Platzierungs-Pfade, die das BuiltItem-Prefab direkt instanziieren und am Vanilla `BuildableItem.Start` vorbeilaufen (HomelessMod Street-Placement; gleicher Vertrag wie AutoPacks `SetupPlacedStation`). Hängt den Controller an bzw. nutzt einen bestehenden wieder.
 - **Placement-Split im Controller:** `SetupAfterPlacement` (Vanilla-Pfad) und `SetupAfterPlacementExternal` (Street-Pfad) laufen beide in `RunPlacementSetup` mit `_placementDone`-Guard — Doppel-Setup (Start-Postfix + externe Übergabe) ist ausgeschlossen.
 - **Restore-GUID:** Bei der Street-Place-Übergabe wandert die persistierte Street-Item-GUID in den Controller, damit das Sidecar (`snacks_slot_{n}.json`) über Save-Restores hinweg zum selben Slot-Eintrag resolvet.
+- **Klon-Mesh sichtbar lassen:** `SwapMesh` deaktivierte bislang die Klon-Renderer, obwohl die GLB→Mesh-Konvertierung noch ein Stub ist — Ergebnis wäre ein unsichtbarer Automat gewesen. Renderer bleiben an, bis das echte GLB-Routing landet (Follow-up).
 - **Diagnose:** Der Start-Postfix loggt jetzt (Debug) bei Nicht-SnackVendor-Items — "Postfix nie gefeuert" vs. "falsches Item" ist im Log unterscheidbar. Kosmetik: hardcoded "0.0.1" im Init-Log-String entfernt.
 - Hinweis: In-Game-Verify des Spike-Gates (Klon in `VendingMachine.AllMachines`, NPC-Routing, Cash-Credit) steht noch aus.
 
