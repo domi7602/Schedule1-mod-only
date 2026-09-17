@@ -17,7 +17,7 @@ using ConfigInstance = S1Mods.Shared.ModConfig<SnackVendor.Config.SnackVendorCon
 // (MelonInfo/MelonGame attributes intentionally absent — our MelonMod registration is
 // auto-discovered by MelonLoader's [MelonInfo] attribute scanning on the Mod class; we
 // put them inline next to the class so the asmversion travels together with the class.
-[assembly: MelonInfo(typeof(SnackVendor.Mod), "SnackVendor", "0.0.6", "Dominik")]
+[assembly: MelonInfo(typeof(SnackVendor.Mod), "SnackVendor", "0.0.9", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace SnackVendor;
@@ -53,7 +53,8 @@ public sealed class Mod : MelonMod
         {
             ClassInjector.RegisterTypeInIl2Cpp<SnackVendorController>();
             ClassInjector.RegisterTypeInIl2Cpp<SnackVendorMarker>();
-            Log.Info("Registered SnackVendorController + SnackVendorMarker in IL2CPP.");
+            ClassInjector.RegisterTypeInIl2Cpp<World.Outdoor.SnackVendorOutdoorInteractable>();
+            Log.Info("Registered SnackVendorController + SnackVendorMarker + SnackVendorOutdoorInteractable in IL2CPP.");
         }
         catch (Exception ex)
         {
@@ -124,6 +125,40 @@ public sealed class Mod : MelonMod
                 prefix: new HarmonyMethod(typeof(NPCSignalPatches), nameof(NPCSignalPatches.Purchase_Prefix)),
                 log: Log);
 
+            // --- Standalone Outdoor Building Patches ---
+            PatchGuard.TryPatch(
+                harmony,
+                targetType: typeof(Il2CppScheduleOne.Building.BuildUpdate_Grid),
+                methodName: "CheckIntersections",
+                postfix: new HarmonyMethod(typeof(World.Outdoor.SnackVendorBuildPatches.BuildUpdate_Grid_CheckIntersections_Patch), nameof(World.Outdoor.SnackVendorBuildPatches.BuildUpdate_Grid_CheckIntersections_Patch.Postfix)),
+                log: Log);
+
+            PatchGuard.TryPatch(
+                harmony,
+                targetType: typeof(Il2CppScheduleOne.Building.BuildUpdate_Grid),
+                methodName: "Place",
+                prefix: new HarmonyMethod(typeof(World.Outdoor.SnackVendorBuildPatches.BuildUpdate_Grid_Place_Patch), nameof(World.Outdoor.SnackVendorBuildPatches.BuildUpdate_Grid_Place_Patch.Prefix)),
+                log: Log);
+
+            PatchGuard.TryPatch(
+                harmony,
+                original: AccessTools.Method(typeof(Il2CppScheduleOne.EntityFramework.BuildableItem), "Start"),
+                prefix: new HarmonyMethod(typeof(World.Outdoor.SnackVendorGuardPatches.BuildableItem_Start_Guard), nameof(World.Outdoor.SnackVendorGuardPatches.BuildableItem_Start_Guard.Prefix)),
+                log: Log);
+
+            PatchGuard.TryPatch(
+                harmony,
+                original: AccessTools.Method(typeof(Il2CppScheduleOne.EntityFramework.BuildableItem), nameof(Il2CppScheduleOne.EntityFramework.BuildableItem.SetCulled)),
+                prefix: new HarmonyMethod(typeof(World.Outdoor.SnackVendorGuardPatches.BuildableItem_SetCulled_Guard), nameof(World.Outdoor.SnackVendorGuardPatches.BuildableItem_SetCulled_Guard.Prefix)),
+                log: Log);
+
+            PatchGuard.TryPatch(
+                harmony,
+                targetType: typeof(Il2CppScheduleOne.EntityFramework.GridItem),
+                methodName: "Destroy",
+                prefix: new HarmonyMethod(typeof(World.Outdoor.SnackVendorGuardPatches.GridItem_Destroy_Guard), nameof(World.Outdoor.SnackVendorGuardPatches.GridItem_Destroy_Guard.Prefix)),
+                log: Log);
+
             PatchGuard.Report(Log);
         }
         catch (Exception ex)
@@ -142,8 +177,11 @@ public sealed class Mod : MelonMod
             // PlayerData events; if not, our store stays in UnknownSlot and
             // Save/Load become no-ops rather than writing to the wrong file.
             GameLifecycle.OnLoadComplete += ResolveAndStoreSlot;
+            GameLifecycle.OnLoadComplete += World.Outdoor.SnackVendorOutdoorManager.LoadAndSpawnOutdoorStations;
             GameLifecycle.OnSaveComplete += PersistAllStationSlots;
+            GameLifecycle.OnSaveComplete += World.Outdoor.SnackVendorOutdoorManager.SaveOutdoorStations;
             GameLifecycle.OnPreLoad += ResetStoredSlot;
+            GameLifecycle.OnPreLoad += World.Outdoor.SnackVendorOutdoorManager.ResetState;
         }
         catch (Exception ex)
         {
@@ -159,8 +197,11 @@ public sealed class Mod : MelonMod
             GameLifecycle.OnSaveInfoLoaded -= SnackVendorItemFactory.InjectHardwareStoreListing;
             GameLifecycle.OnLoadComplete -= SnackVendorItemFactory.InjectHardwareStoreListing;
             GameLifecycle.OnLoadComplete -= ResolveAndStoreSlot;
+            GameLifecycle.OnLoadComplete -= World.Outdoor.SnackVendorOutdoorManager.LoadAndSpawnOutdoorStations;
             GameLifecycle.OnSaveComplete -= PersistAllStationSlots;
+            GameLifecycle.OnSaveComplete -= World.Outdoor.SnackVendorOutdoorManager.SaveOutdoorStations;
             GameLifecycle.OnPreLoad -= ResetStoredSlot;
+            GameLifecycle.OnPreLoad -= World.Outdoor.SnackVendorOutdoorManager.ResetState;
         }
         catch (Exception ex)
         {
@@ -207,10 +248,14 @@ public sealed class Mod : MelonMod
         catch { /* never let the panel tick break the game loop */ }
     }
 
-    /// <summary>IMGUI draw for the deposit/extract panel (no-op while closed).</summary>
+    /// <summary>IMGUI draw for hover prompt and deposit/extract panel.</summary>
     public override void OnGUI()
     {
-        try { World.SnackVendorPanel.Draw(); }
+        try
+        {
+            World.SnackVendorController.DrawPrompt();
+            World.SnackVendorPanel.Draw();
+        }
         catch { /* a GUI exception must never escape into MelonLoader */ }
     }
 

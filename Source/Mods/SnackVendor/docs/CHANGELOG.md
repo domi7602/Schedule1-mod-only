@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.0.9 (2026-09-17)
+- **Station BoxCollider & [E]-Interaktion gefixt:**
+  - **Physischer Station-BoxCollider:** `SnackVendorController.EnsureStationCollider()` konfiguriert einen `BoxCollider` (`0.95m × 1.85m × 0.72m`, Center `Y = 0.925m`) direkt auf dem Station-GameObject (`gameObject`). Behebt das Problem, dass die Station nach dem Entfernen der GLB-Collider nur den 10cm flachen Boden-Collider des geklonten `dryingrack` besaß und Spieler-Raycasts auf Augenhöhe durch den Automaten hindurch in die Wand gingen.
+  - **Native [E]-Interaktion & Blickfeld-Erkennung:** `SnackVendorController.Update()` prüft bei Blickkontakt im 3m-Radius (Raycast + Blickwinkel-Fallback) auf die Interaktionstaste `[E]` und toggelt das `SnackVendorPanel`.
+  - **HUD-Interaktions-Prompt:** Bei Blickkontakt erscheint zentriert am unteren Bildschirmrand `<color=#f39c12>[E]</color>  <b>Snack-Automat</b>` (perfekt oberhalb des RMB-Abbau-Balkens gestapelt).
+  - **Panel [E]- & [ESC]-Schließen:** Das Panel schließt sich nun wahlweise über die `[ESC]`-Taste oder erneutes Drücken von `[E]`.
+  - **Zentraler Abbau & Rest-Snack-Refund:** `RefundStockToPlayer()` und `RefundStockAndDismantle()` legen verbliebene Zutaten sowie die Station sicher ins Spieler-Inventar zurück, unregistrieren den Automaten aus allen Managern und säubern den Sidecar-Eintrag.
+
+
+
+## 0.0.8 (2026-09-17)
+- **Standalone Outdoor-Placement (unabhängig von HomelessMod):**
+  - **Strikt isoliert auf SnackVendor:** Die Outdoor-Platzierung außerhalb gekaufter Immobilien ist hart auf `snackvendor` gegatet. Andere Möbel/Items bleiben im Vanilla-Bausystem unverändert auf Grundstücke beschränkt.
+  - **Eigenständiges Bau-Subsystem (`SnackVendor.World.Outdoor`):**
+    - `SnackVendorBuildPatches`: Interzeptiert `BuildUpdate_Grid.CheckIntersections` (Postfix) & `Place` (Prefix).
+    - `SnackVendorGroundAssistant`: 0-Allocation Raycast- und Bodenerkennung (Hangneigung ≤ 45°, Reichweite 0,4–6,0 m, Multi-Corner Terrain-Höhe, `OverlapBoxNonAlloc` Hindernisprüfung).
+    - `SnackVendorOutdoorManager`: Eigener Virtual World Root (`SnackVendor_OutdoorRoot`, `DontDestroyOnLoad`) und persistente Save-Slot-Dateien `UserData/SnackVendor/outdoor_stations_slot_{n}.json` via `SafeStorage.SaveAtomic` (.bak-gesichert).
+    - `SnackVendorGuardPatches`: Schützt platzierte Straßen-Automaten vor `BuildableItem.Start`-Property-Abstürzen, Innenraum-Culling (`SetCulled`) und GridManager-Auto-Destruction (`GridItem.Destroy`).
+  - **Pack-Up (Dismantle):**
+    - `SnackVendorOutdoorInteractable`: 0,4 s RMB gedrückt halten mit visuellem HUD-Fortschrittsbalken packt den Automaten ein.
+    - `SnackVendorPanel`: Zusätzlicher `[ 📦 Pack Up Station ]` Button im UI-Panel für bequemen Abbau per Klick.
+    - **Automatischer Stock-Refund:** Verbleibende Snacks im Automaten werden beim Abbau zusammen mit dem Automaten (1x `snackvendor`) automatisch ins Spieler-Inventar zurückgelegt.
+  - **Nahtlose Koexistenz mit HomelessMod:** `HomelessModInterop` prüft zur Laufzeit, ob HomelessMod aktiv ist; es entstehen keine Doppel-Platzierungen oder Datei-Konflikte.
+
+
+## 0.0.7 (2026-09-17)
+- **Blueprint-Ghost Y-Offset & GLB-Vorschau gefixt:** Im Blueprint-/Ghost-Modus versank der Automat um die halbe Höhe (0,925 m) im Boden. Ursache: `PrimitiveType.Cube` zentriert seinen Pivot bei `(0, 0, 0)` (Y reicht von -0,925 m bis +0,925 m), wodurch die untere Hälfte unter die Grid-Ebene geriet.
+  - **GLB-Ghost-Vorschau:** `BuildOrLoadGhostPrefab` lädt nun primär das echte GLB-Modell (`SnackVendor_model.glb`) via `S1MAPI.GltfLoader` (Collider entfernt, Basis bei Y = 0) – im Blueprint ist nun exakt das reale Vending-Machine-Modell bündig auf dem Boden sichtbar.
+  - **Cube-Fallback korrigiert:** Sollte das GLB fehlen/fehlschlagen, wird der Fallback-Proxy-Cube um `+0.925m` nach oben versetzt, sodass die Unterkante plan auf dem Boden aufliegt.
+  - **Frische Instanzen:** Ghost-Factory erzeugt jedes Mal eine frische Instanz, um zerstörte GameObject-Referenzen nach Bauabbruch/Platzierung zu verhindern.
+
+
 ## 0.0.6 (2026-09-16)
 - **Repo-Fix (mit entdeckt):** `NPCSignalPatches.cs` und `SnackVendorPanel.cs` waren durch einen `.gitignore`-Bug (`Mods/` ohne Root-Anker matchte auch `Source/Mods/`) nie committed — ein frischer Clone konnte SnackVendor nicht bauen. Beide Dateien sind jetzt im Repo.
 - **Interacted_Prefix fail-closed:** Der stille `catch { return true; }` ließ bei internem Fehlern die Vanilla-Zahl-UI auf eigenen Maschinen aufgehen (Spieler könnte eigenen Stock "zurückkaufen"). Jetzt: Warn-Log + Vanilla-UI bleibt für unsere Maschinen blockiert; Vanilla-Maschinen unverändert.

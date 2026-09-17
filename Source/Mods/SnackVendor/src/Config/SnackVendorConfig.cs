@@ -38,4 +38,10 @@ public sealed class SnackVendorConfig
 
     /// <summary>Max distance (meters) between player and station for the deposit/extract panel to stay open.</summary>
     public float PanelRange { get; set; } = 3.5f;
+
+    /// <summary>
+    /// When true, allows placing the SnackVendor on the street / outside bought properties
+    /// completely standalone without requiring HomelessMod. Strictly applies ONLY to the SnackVendor.
+    /// </summary>
+    public bool EnableStandaloneOutdoorPlacement { get; set; } = true;
 }

@@ -82,6 +82,8 @@ public static class SnackVendorItemFactory
                    {
                        var ghost = BuildOrLoadGhostPrefab.CreateGhostPrefab();
                        ghost.transform.SetParent(parent, false);
+                       ghost.transform.localPosition = Vector3.zero;
+                       ghost.transform.localRotation = Quaternion.identity;
                        ghost.name = "SnackVendor_Ghost";
                        return ghost;
                    }, replaceExistingVisual: true);

@@ -34,6 +34,9 @@ public static class SnackVendorPanel
 {
     private static SnackVendorController? _open;
 
+    public static bool IsOpen => _open != null;
+    public static bool IsOpenFor(SnackVendorController controller) => _open == controller;
+
     // Fault-throttle: Draw() läuft pro Frame — ein persistierender Fehler darf
     // nur EINMAL pro Panel-Open geloggt werden, sonst flutet er den Log.
     private static bool _drawFaultLogged;
@@ -107,7 +110,7 @@ public static class SnackVendorPanel
                 Close();
                 return;
             }
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.E))
             {
                 Close();
                 return;
@@ -133,10 +136,11 @@ public static class SnackVendorPanel
     /// <summary>IMGUI draw (called from MelonMod.OnGUI). No-op while closed.</summary>
     public static void Draw()
     {
-        if (_open == null) return;
+        var station = _open;
+        if (station == null) return;
         try
         {
-            if (_open.Pointer == IntPtr.Zero || _open.WasCollected)
+            if (station.Pointer == IntPtr.Zero || station.WasCollected)
             {
                 Close();
                 return;
@@ -147,7 +151,7 @@ public static class SnackVendorPanel
 
             const float W = 420f;
             float rowH = 30f * scale;
-            var stock = _open.Stock;
+            var stock = station.Stock;
             var allowed = SnackVendorController.GetAllowedIngredientDefs();
 
             int stockRows = Mathf.Min(stock.Count, 8);
@@ -159,7 +163,9 @@ public static class SnackVendorPanel
 
             float headerH = 34f * scale;
             float sectionH = 26f * scale;
-            float H = headerH + sectionH + stockRows * rowH + sectionH + depositRows * rowH + rowH + 16f * scale;
+            bool isOutdoor = station.GetComponent<Outdoor.SnackVendorOutdoorInteractable>() != null
+                || station.GetComponent("OutdoorItemInteractable") != null;
+            float H = headerH + sectionH + stockRows * rowH + sectionH + depositRows * rowH + rowH + (isOutdoor ? rowH : 0f) + 16f * scale;
             float x = Screen.width - W - 24f;
             float y = Mathf.Max(20f, (Screen.height - H) * 0.5f);
             var rect = new Rect(x, y, W, H);
@@ -181,11 +187,11 @@ public static class SnackVendorPanel
 
                 if (GUI.Button(new Rect(rect.x + 210f * scale, cy + 2f * scale, 70f * scale, rowH - 6f * scale), "Take 1", _buttonStyle))
                 {
-                    Extract(_open, slot.IngredientId, 1);
+                    Extract(station, slot.IngredientId, 1);
                 }
                 if (GUI.Button(new Rect(rect.x + 288f * scale, cy + 2f * scale, 80f * scale, rowH - 6f * scale), "Take All", _buttonStyle))
                 {
-                    Extract(_open, slot.IngredientId, slot.Quantity);
+                    Extract(station, slot.IngredientId, slot.Quantity);
                 }
                 cy += rowH;
             }
@@ -206,21 +212,32 @@ public static class SnackVendorPanel
 
                 if (GUI.Button(new Rect(rect.x + 210f * scale, cy + 2f * scale, 50f * scale, rowH - 6f * scale), "+1", _buttonStyle))
                 {
-                    Deposit(_open, def, 1);
+                    Deposit(station, def, 1);
                 }
                 if (GUI.Button(new Rect(rect.x + 266f * scale, cy + 2f * scale, 50f * scale, rowH - 6f * scale), "+5", _buttonStyle))
                 {
-                    Deposit(_open, def, 5);
+                    Deposit(station, def, 5);
                 }
                 if (GUI.Button(new Rect(rect.x + 322f * scale, cy + 2f * scale, 64f * scale, rowH - 6f * scale), "All", _buttonStyle))
                 {
-                    Deposit(_open, def, have);
+                    Deposit(station, def, have);
                 }
                 cy += rowH;
             }
             if (shown == 0)
             {
                 GUI.Label(new Rect(rect.x + 12f * scale, cy, rect.width - 24f * scale, rowH), "Keine passenden Zutaten im Inventar.", _subStyle);
+                cy += rowH;
+            }
+
+            if (isOutdoor)
+            {
+                if (GUI.Button(new Rect(rect.x + 12f * scale, cy + 2f * scale, rect.width - 24f * scale, rowH - 4f * scale), "📦 Pack Up Station", _buttonStyle))
+                {
+                    Close();
+                    station.RefundStockAndDismantle();
+                    return;
+                }
                 cy += rowH;
             }
 

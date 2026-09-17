@@ -120,46 +120,84 @@ public static class BuildOrLoadGhostPrefab
     }
 
     /// <summary>
-    /// Place-mode ghost: vanilla BoxCollider visual proxy. The real GLB
-    /// is swapped in after placement by the controller; until then the
-    /// ghost looks like a red 0.95×1.85×0.72 m box — close enough for
-    /// grid-snapping visualization and *zero* IL2CPP construction risk
-    /// during the vulnerable Build() window.
+    /// Creates the placement ghost visual for blueprint / grid-build mode.
+    /// Prefers the high-fidelity GLB mesh so blueprint mode accurately matches
+    /// the real vending machine. Falls back to an offset proxy box.
+    /// In both cases, the base of the visual sits flush at Y=0 (the floor),
+    /// preventing the machine from sinking halfway into the ground.
+    /// Always returns a fresh GameObject hierarchy per placement session so
+    /// S1API/Unity lifecycle destruction never invalidates a shared template.
     /// </summary>
     public static GameObject CreateGhostPrefab()
     {
-        if (_cachedGhost != null && _cachedGhost.Pointer != IntPtr.Zero) return _cachedGhost;
         try
         {
-            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.name = "SnackVendor_GhostProxy";
-            // Glb swap-in target size (from Blender model).
-            go.transform.localScale = new Vector3(0.95f, 1.85f, 0.72f);
-            // Remove collider — BuildableItem brings its own.
-            var col = go.GetComponent<Collider>();
-            if (col != null && col.Pointer != IntPtr.Zero) UnityEngine.Object.DestroyImmediate(col);
-            // Snackbar-red material so it pops in place-mode.
-            var mr = go.GetComponent<MeshRenderer>();
+            // 1. Preferred: Real GLB vending machine model
+            var glb = GetGlbBytes();
+            if (glb != null && glb.Length > 0)
+            {
+                try
+                {
+                    var glbGo = S1MAPI.Gltf.GltfLoader.LoadGlb(glb);
+                    if (glbGo != null && glbGo.Pointer != IntPtr.Zero)
+                    {
+                        glbGo.name = "SnackVendor_GhostGlb";
+                        glbGo.transform.localPosition = Vector3.zero;
+                        glbGo.transform.localRotation = Quaternion.identity;
+                        glbGo.transform.localScale = Vector3.one;
+
+                        // Strip colliders from ghost visual — native grid system manages bounds
+                        var colliders = glbGo.GetComponentsInChildren<Collider>(true);
+                        for (int i = 0; i < colliders.Length; i++)
+                        {
+                            var col = colliders[i];
+                            if (col != null && col.Pointer != IntPtr.Zero)
+                                UnityEngine.Object.DestroyImmediate(col);
+                        }
+
+                        return glbGo;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Mod.Log.Warn("Failed to load GLB for ghost preview, falling back to offset proxy box", ex);
+                }
+            }
+
+            // 2. Fallback: Proxy box sitting on the floor (Y=0)
+            // PrimitiveType.Cube pivot is centered at (0,0,0). With total height 1.85m,
+            // we shift the child cube UP by half height (+0.925m) so the base is at Y=0.
+            var root = new GameObject("SnackVendor_GhostProxy");
+            root.transform.localPosition = Vector3.zero;
+            root.transform.localRotation = Quaternion.identity;
+            root.transform.localScale = Vector3.one;
+
+            var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.name = "VisualBox";
+            cube.transform.SetParent(root.transform, false);
+            cube.transform.localPosition = new Vector3(0f, 0.925f, 0f);
+            cube.transform.localScale = new Vector3(0.95f, 1.85f, 0.72f);
+
+            var cubeCol = cube.GetComponent<Collider>();
+            if (cubeCol != null && cubeCol.Pointer != IntPtr.Zero)
+                UnityEngine.Object.DestroyImmediate(cubeCol);
+
+            var mr = cube.GetComponent<MeshRenderer>();
             if (mr != null && mr.Pointer != IntPtr.Zero)
             {
-                _cachedGhostMaterial = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"))
+                var mat = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"))
                 {
                     color = new Color(0.78f, 0.12f, 0.10f, 1f),
                 };
-                mr.material = _cachedGhostMaterial; // Audit 0.0.3: tracked for Dispose.
+                mr.material = mat;
             }
-            _cachedGhost = go;
-            go.SetActive(false); // kept as template, instantiated by S1API
-            UnityEngine.Object.DontDestroyOnLoad(go);
-            return go;
+
+            return root;
         }
         catch (Exception ex)
         {
-            Mod.Log.Warn("ghost prefab failed", ex);
-            // Fallback: empty placeholder so builder still gets *something*.
-            var empty = new GameObject("SnackVendor_GhostFallback");
-            _cachedGhost = empty;
-            return empty;
+            Mod.Log.Warn("CreateGhostPrefab failed", ex);
+            return new GameObject("SnackVendor_GhostFallback");
         }
     }
 

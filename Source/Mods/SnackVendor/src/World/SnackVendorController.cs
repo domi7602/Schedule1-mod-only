@@ -17,6 +17,10 @@ using NativeIngredientItemDef = Il2CppScheduleOne.ItemFramework.AdditiveDefiniti
 using NativeBuildableItemDef = Il2CppScheduleOne.ItemFramework.BuildableItemDefinition;
 using NativeStorableItemDef = Il2CppScheduleOne.ItemFramework.StorableItemDefinition;
 using GameRegistry = Il2CppScheduleOne.Registry;
+using Il2CppScheduleOne.DevUtilities;
+using Il2CppScheduleOne.Interaction;
+using Il2CppScheduleOne.PlayerScripts;
+using SnackVendor.Persistence;
 
 namespace SnackVendor.World;
 
@@ -73,6 +77,50 @@ public sealed class SnackVendorController : MonoBehaviour
     // AND the street-placement external setup could both fire on the same GO.
     private bool _placementDone = false;
 
+    // ----- interaction / hover state -----
+    private bool _isHovered;
+    private float _nextHoverCheck;
+    private const float HoverCheckInterval = 0.10f;
+    private static SnackVendorController? _activeHoveredInstance;
+
+    private static GUIStyle? _promptBoxStyle;
+    private static GUIStyle? _promptTextStyle;
+    private static Texture2D? _promptBgTex;
+
+    private void Start()
+    {
+        EnsureStationCollider();
+    }
+
+    private void OnEnable()
+    {
+        EnsureStationCollider();
+    }
+
+    /// <summary>
+    /// Guarantees a physical BoxCollider on the station root matching the 1.85m tall vending machine.
+    /// Cloned dryingrack base only carries a 10cm ground collider; GLB mesh colliders are stripped.
+    /// Without this, camera raycasts and interaction checks pass straight through the machine body.
+    /// </summary>
+    public void EnsureStationCollider()
+    {
+        try
+        {
+            var box = gameObject.GetComponent<BoxCollider>() ?? gameObject.AddComponent<BoxCollider>();
+            if (box != null && box.Pointer != IntPtr.Zero)
+            {
+                box.size = new Vector3(0.95f, 1.85f, 0.72f);
+                box.center = new Vector3(0f, 0.925f, 0f);
+                box.isTrigger = false;
+                box.enabled = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn("EnsureStationCollider failed", ex);
+        }
+    }
+
     /// <summary>Called by BuildableItem.Start-Postfix after the GameObject lives.</summary>
     public void SetupAfterPlacement(BuildableItem owner)
     {
@@ -116,6 +164,7 @@ public sealed class SnackVendorController : MonoBehaviour
         }
         _placementDone = true;
         Mod.Log.Info("SnackVendorController setup starting (vanilla clone + mesh + stock)...");
+        EnsureStationCollider();
         SpawnVanillaClone(gameObject);
         SwapMesh();
         RestoreStockFromDisk();
@@ -266,13 +315,14 @@ public sealed class SnackVendorController : MonoBehaviour
                 }
             }
 
-            // Strip colliders — collision comes from the buildable item itself.
+            // Strip colliders — collision comes from the station BoxCollider on gameObject.
             var cols = glbGo.GetComponentsInChildren<Collider>(true);
             for (int i = 0; i < cols.Length; i++)
             {
                 try { if (cols[i] != null && cols[i].Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(cols[i]); }
                 catch { /* non-fatal */ }
             }
+            EnsureStationCollider();
 
             // Ensure GLB renderers are active and record materials for OnDestroy.
             // S1MAPI.GltfLoader already configures Universal Render Pipeline/Lit
@@ -372,6 +422,180 @@ public sealed class SnackVendorController : MonoBehaviour
         }
     }
 
+    // ========== INTERACTION & HOVER ==========
+
+    public void Update()
+    {
+        try
+        {
+            if (!SceneGate.IsInMainScene)
+            {
+                _isHovered = false;
+                if (_activeHoveredInstance == this) _activeHoveredInstance = null;
+                return;
+            }
+
+            if (SnackVendorPanel.IsOpen)
+            {
+                _isHovered = false;
+                if (_activeHoveredInstance == this) _activeHoveredInstance = null;
+                return;
+            }
+
+            bool isTyping = false;
+            try { isTyping = HotkeyManager.IsInputFieldFocused(); } catch { }
+            if (isTyping || Cursor.lockState != CursorLockMode.Locked)
+            {
+                _isHovered = false;
+                if (_activeHoveredInstance == this) _activeHoveredInstance = null;
+                return;
+            }
+
+            if (Time.time >= _nextHoverCheck)
+            {
+                _nextHoverCheck = Time.time + HoverCheckInterval;
+                _isHovered = CheckPlayerHover();
+                if (_isHovered) _activeHoveredInstance = this;
+                else if (_activeHoveredInstance == this) _activeHoveredInstance = null;
+            }
+
+            if (_isHovered)
+            {
+                if (Input.GetKeyDown(KeyCode.E))
+                {
+                    Mod.Log.Info($"[SnackVendor] Interacted with station '{InstanceGuid}' via [E].");
+                    SnackVendorPanel.Toggle(this);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Debug($"SnackVendorController.Update: {ex.Message}");
+        }
+    }
+
+    private bool CheckPlayerHover()
+    {
+        try
+        {
+            var player = Player.Local;
+            if (player == null || player.Pointer == IntPtr.Zero || player.WasCollected) return false;
+
+            float maxRange = Mod.CurrentConfig.PanelRange;
+            float dist = Vector3.Distance(transform.position, player.transform.position);
+            if (dist > maxRange) return false;
+
+            Transform? camTransform = null;
+            try
+            {
+                var playerCam = PlayerSingleton<PlayerCamera>.Instance;
+                if (playerCam != null && playerCam.Pointer != IntPtr.Zero && playerCam.Camera != null)
+                {
+                    camTransform = playerCam.Camera.transform;
+                }
+            }
+            catch { }
+
+            if (camTransform == null && Camera.main != null)
+            {
+                camTransform = Camera.main.transform;
+            }
+
+            if (camTransform == null)
+            {
+                return dist <= 2.0f;
+            }
+
+            // Raycast check: camera looking at this station's collider hierarchy
+            Ray ray = new Ray(camTransform.position, camTransform.forward);
+            if (Physics.Raycast(ray, out RaycastHit hit, maxRange + 0.5f))
+            {
+                if (hit.collider != null && (hit.collider.gameObject == gameObject || hit.collider.transform.IsChildOf(transform)))
+                {
+                    return true;
+                }
+            }
+
+            // Gaze dot fallback: eye looking towards machine center (y + 0.925m)
+            Vector3 center = transform.position + new Vector3(0f, 0.925f, 0f);
+            Vector3 toCenter = (center - camTransform.position).normalized;
+            float dot = Vector3.Dot(camTransform.forward, toCenter);
+            return dot > 0.82f && dist <= 2.8f;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private void OnGUI()
+    {
+        if (!_isHovered || SnackVendorPanel.IsOpen) return;
+        DrawPrompt();
+    }
+
+    private static int _lastDrawnFrame = -1;
+
+    public static void DrawPrompt()
+    {
+        if (Time.frameCount == _lastDrawnFrame) return;
+        var active = _activeHoveredInstance;
+        if (active == null || !active._isHovered || SnackVendorPanel.IsOpen) return;
+        _lastDrawnFrame = Time.frameCount;
+
+        try
+        {
+            EnsurePromptStyles();
+
+            float screenW = Screen.width;
+            float screenH = Screen.height;
+            float scale = Mathf.Clamp(screenH / 900f, 0.80f, 1.25f);
+
+            float boxW = 210f * scale;
+            float boxH = 28f * scale;
+            float boxX = (screenW - boxW) * 0.5f;
+            // Positioned at screenH - 125f so it stacks neatly above the Pack Up prompt (at screenH - 90f)
+            float boxY = screenH - boxH - (125f * scale);
+
+            var rect = new Rect(boxX, boxY, boxW, boxH);
+            GUI.Box(rect, GUIContent.none, _promptBoxStyle);
+
+            string keyName = "E";
+            try
+            {
+                var im = InteractionManager.Instance;
+                if (im != null && im.Pointer != IntPtr.Zero && !string.IsNullOrEmpty(im.InteractKeyStr))
+                {
+                    keyName = im.InteractKeyStr;
+                }
+            }
+            catch { }
+
+            GUI.Label(rect, $"<color=#f39c12>[{keyName}]</color>  <b>Snack-Automat</b>", _promptTextStyle);
+        }
+        catch { }
+    }
+
+    private static void EnsurePromptStyles()
+    {
+        if (_promptBoxStyle != null && _promptTextStyle != null) return;
+
+        _promptBgTex = new Texture2D(1, 1);
+        _promptBgTex.SetPixel(0, 0, new Color(0.08f, 0.09f, 0.11f, 0.92f));
+        _promptBgTex.Apply();
+
+        _promptBoxStyle = new GUIStyle(GUI.skin.box);
+        _promptBoxStyle.normal.background = _promptBgTex;
+
+        _promptTextStyle = new GUIStyle(GUI.skin.label)
+        {
+            alignment = TextAnchor.MiddleCenter,
+            fontSize = 13,
+            fontStyle = FontStyle.Bold
+        };
+        _promptTextStyle.normal.textColor = Color.white;
+    }
+
     // ========== LIFECYCLE / CLEANUP ==========
 
     /// <summary>
@@ -385,6 +609,9 @@ public sealed class SnackVendorController : MonoBehaviour
     {
         if (_destroyed) return;
         _destroyed = true;
+
+        if (_activeHoveredInstance == this) _activeHoveredInstance = null;
+        _isHovered = false;
 
         try
         {
@@ -418,6 +645,104 @@ public sealed class SnackVendorController : MonoBehaviour
         catch (Exception ex)
         {
             Mod.Log.Warn("SnackVendorController.OnDestroy failed", ex);
+        }
+    }
+
+    // ========== DISMANTLE / REFUND ==========
+
+    /// <summary>Refunds all stored ingredients back into the local player inventory.</summary>
+    [HideFromIl2Cpp]
+    public void RefundStockToPlayer()
+    {
+        try
+        {
+            var inv = PlayerSingleton<PlayerInventory>.Instance;
+            if (inv == null || inv.Pointer == IntPtr.Zero || inv.WasCollected) return;
+
+            for (int i = 0; i < _stock.Count; i++)
+            {
+                var slot = _stock[i];
+                if (slot == null || slot.Quantity <= 0 || string.IsNullOrEmpty(slot.IngredientId)) continue;
+                var def = GameRegistry.GetItem(slot.IngredientId);
+                if (def == null || def.Pointer == IntPtr.Zero) continue;
+                var inst = def.GetDefaultInstance(slot.Quantity);
+                if (inst != null && inst.Pointer != IntPtr.Zero)
+                {
+                    inv.AddItemToInventory(inst);
+                    Mod.Log.Info($"Refunded {slot.Quantity}x '{slot.IngredientId}' to PlayerInventory.");
+                }
+            }
+            _stock.Clear();
+            PersistSlotsToDisk();
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Error("RefundStockToPlayer failed", ex);
+        }
+    }
+
+    /// <summary>
+    /// Complete dismantle: refunds stocked ingredients, refunds 1x station item,
+    /// unregisters from outdoor managers, removes sidecar entry, and destroys station.
+    /// </summary>
+    [HideFromIl2Cpp]
+    public void RefundStockAndDismantle()
+    {
+        try
+        {
+            if (!NetworkGuard.IsHostOrSingleplayer())
+            {
+                Mod.Log.Warn("Dismantle rejected: not host or singleplayer.");
+                return;
+            }
+
+            var inv = PlayerSingleton<PlayerInventory>.Instance;
+            if (inv != null && inv.Pointer != IntPtr.Zero && !inv.WasCollected)
+            {
+                // 1. Refund stocked ingredients
+                RefundStockToPlayer();
+
+                // 2. Refund 1x station item
+                var def = GameRegistry.GetItem(Mod.CurrentConfig.StationItemId);
+                if (def != null && def.Pointer != IntPtr.Zero)
+                {
+                    var inst = def.GetDefaultInstance(1);
+                    if (inst != null && inst.Pointer != IntPtr.Zero)
+                    {
+                        inv.AddItemToInventory(inst);
+                        Mod.Log.Info($"Refunded 1x '{Mod.CurrentConfig.StationItemId}' to PlayerInventory.");
+                    }
+                }
+            }
+
+            // 3. Unregister from outdoor managers (standalone and HomelessMod)
+            Outdoor.SnackVendorOutdoorManager.UnregisterOutdoorStation(gameObject);
+            try
+            {
+                var spmType = TypeResolver.Find("HomelessMod.Building.StreetPropertyManager", "HomelessMod");
+                var unregisterMethod = spmType?.GetMethod("UnregisterStreetItem", new[] { typeof(GameObject) });
+                unregisterMethod?.Invoke(null, new object?[] { gameObject });
+            }
+            catch { }
+
+            // 4. Clean up sidecar record
+            try
+            {
+                var all = SnackVendorStore.Load();
+                if (all?.Stations != null)
+                {
+                    all.Stations.RemoveAll(s => string.Equals(s.InstanceGuid, InstanceGuid, StringComparison.OrdinalIgnoreCase));
+                    SnackVendorStore.Save(all);
+                }
+            }
+            catch { }
+
+            Mod.Log.Info($"Dismantled SnackVendor station '{InstanceGuid}' ({gameObject.name}).");
+            Destroy(gameObject);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Error("RefundStockAndDismantle failed", ex);
         }
     }
 

@@ -8,7 +8,7 @@ This directory contains dependencies that are not part of the workspace product 
 | `S1MAPI/` | Git submodule, pinned commit | Optional world, mesh, and GLTF API |
 | `S1MCPServer-master/` | Vendored workspace tool | Local MCP bridge; not part of `S1Mods.sln` |
 | `Workspace/` | Vendored build props | Shared `ModVersion.props` for the S1API fork build |
-| `Herer's Minimap/` | External NexusMod #899 | `HererMiniMap.dll` (v2.0.1 by JackHerer1820), deployed to `<Game>\Mods\` |
+| `Herer's Minimap` | External NexusMod #899 | `HererMiniMap.dll` (v2.0.1 by JackHerer1820, retired 2026-09-17, moved to `UserData\_RemovedMods\`) |
 | `Archive/` | Archived releases & retired third-party mods | `ScheduleOne-Hash/` (deprecated terminal shim, reference-only), `PhoneScroll/` (retired 2026-09-16, closed source by V4LEXL), `ScheduleIArcade/` (reference assets) — none part of the product build |
 
 Clone with dependencies:
