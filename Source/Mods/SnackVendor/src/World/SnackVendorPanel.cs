@@ -41,6 +41,11 @@ public static class SnackVendorPanel
     // nur EINMAL pro Panel-Open geloggt werden, sonst flutet er den Log.
     private static bool _drawFaultLogged;
 
+    // Frame-guard: when Close() fires (e.g. via SnackVendorPanel.Update E-key),
+    // the same frame may still run SnackVendorController.Update which calls Toggle()
+    // again and re-opens the panel. We block Toggle() for the remainder of that frame.
+    private static int _closedFrame = -1;
+
     // ----- cached GUI (built once, HomelessMod pattern) -----
     private static GUIStyle? _boxStyle;
     private static GUIStyle? _headerStyle;
@@ -58,6 +63,9 @@ public static class SnackVendorPanel
                 Close();
                 return;
             }
+            // Block same-frame re-open: if Close() was just called this frame
+            // (e.g. by SnackVendorPanel.Update E-key), don't open again.
+            if (Time.frameCount == _closedFrame) return;
             _open = controller;
             _drawFaultLogged = false;
             SetCursorFree(true);
@@ -74,6 +82,7 @@ public static class SnackVendorPanel
     {
         if (_open == null) return;
         _open = null;
+        _closedFrame = Time.frameCount;
         SetCursorFree(false);
     }
 
@@ -166,7 +175,7 @@ public static class SnackVendorPanel
             bool isOutdoor = station.GetComponent<Outdoor.SnackVendorOutdoorInteractable>() != null
                 || station.GetComponent("OutdoorItemInteractable") != null;
             float H = headerH + sectionH + stockRows * rowH + sectionH + depositRows * rowH + rowH + (isOutdoor ? rowH : 0f) + 16f * scale;
-            float x = Screen.width - W - 24f;
+            float x = (Screen.width - W) * 0.5f;
             float y = Mathf.Max(20f, (Screen.height - H) * 0.5f);
             var rect = new Rect(x, y, W, H);
 
