@@ -33,38 +33,52 @@ public static class TypeResolver
 
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
+            Type[]? types = null;
             try
             {
-                var types = assembly.GetTypes();
-                foreach (var type in types)
-                {
-                    try
-                    {
-                        // Check if type is a Component (or can be assigned to Component)
-                        if (typeof(Component).IsAssignableFrom(type) && !type.IsAbstract && !type.IsInterface)
-                        {
-                            _componentTypes.Add(type);
-                            
-                            // Cache by name (without namespace)
-                            var name = type.Name;
-                            if (!_typeNameCache.ContainsKey(name))
-                                _typeNameCache[name] = type;
-                            
-                            // Also cache by full name
-                            var fullName = type.FullName;
-                            if (!string.IsNullOrEmpty(fullName) && !_typeNameCache.ContainsKey(fullName))
-                                _typeNameCache[fullName] = type;
-                        }
-                    }
-                    catch
-                    {
-                        // Skip types that can't be checked
-                    }
-                }
+                // GetExportedTypes() is safer than GetTypes() in IL2CPP:
+                // it skips internal compiler-generated types (lambda closures, state machines)
+                // whose signatures may contain unsupported parameter types, which cause a
+                // fatal CLR error (0x80131506) that bypasses empty catch blocks.
+                types = assembly.GetExportedTypes();
+            }
+            catch (ReflectionTypeLoadException rtle)
+            {
+                // Partial load — use whatever types were resolved before the failure.
+                types = rtle.Types;
             }
             catch
             {
-                // Skip assemblies that can't be queried
+                // Assembly completely unqueryable — skip.
+            }
+
+            if (types == null) continue;
+
+            foreach (var type in types)
+            {
+                if (type == null) continue;
+                try
+                {
+                    // Check if type is a Component (or can be assigned to Component)
+                    if (typeof(Component).IsAssignableFrom(type) && !type.IsAbstract && !type.IsInterface)
+                    {
+                        _componentTypes.Add(type);
+
+                        // Cache by name (without namespace)
+                        var name = type.Name;
+                        if (!_typeNameCache.ContainsKey(name))
+                            _typeNameCache[name] = type;
+
+                        // Also cache by full name
+                        var fullName = type.FullName;
+                        if (!string.IsNullOrEmpty(fullName) && !_typeNameCache.ContainsKey(fullName))
+                            _typeNameCache[fullName] = type;
+                    }
+                }
+                catch
+                {
+                    // Skip types that can't be checked
+                }
             }
         }
 
@@ -161,14 +175,24 @@ public static class TypeResolver
 
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
+            Type[]? types = null;
             try
             {
-                var types = assembly.GetTypes();
-                results.AddRange(types);
+                types = assembly.GetExportedTypes();
+            }
+            catch (ReflectionTypeLoadException rtle)
+            {
+                types = rtle.Types;
             }
             catch
             {
                 // Skip assemblies that can't be queried
+            }
+
+            if (types == null) continue;
+            foreach (var t in types)
+            {
+                if (t != null) results.Add(t);
             }
         }
 
