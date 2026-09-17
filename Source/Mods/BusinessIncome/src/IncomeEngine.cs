@@ -94,6 +94,12 @@ public static class IncomeEngine
         if (lines.Count == 0)
         {
             Mod.Log.Debug($"No owned businesses for day {elapsedDays}.");
+            if (commit && !isDryRun)
+            {
+                PayoutStateStore.MarkInMemoryPaid(elapsedDays, Array.Empty<string>());
+                bool ok = PayoutStateStore.CommitPayout(elapsedDays, Array.Empty<string>());
+                if (!ok) PayoutStateStore.RevertInMemoryPaid(elapsedDays, Array.Empty<string>());
+            }
             return false;
         }
 

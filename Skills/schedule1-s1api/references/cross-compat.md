@@ -163,9 +163,9 @@ For **map/building geometry** (procedural meshes, GLTF loading, terrain), the si
 
 | Concern | Tool |
 |---|---|
-| Where's the S1API namespace for X? | `Knowledge/Analysis/s1api-reference/README.md` |
-| How does S1API X.X.Y work? | `Knowledge/Analysis/s1api-reference/S1API.<Namespace>.md` |
-| What's the actual signature? | `Knowledge/Frameworks/S1API/Decompiles/3.2.0/<Namespace>/` |
-| Is the runtime branch compatible? | `Knowledge/Frameworks/S1API/VERSIONS.md` |
-| Vanilla class signature? | `Knowledge/Game-Reference/Decompiles/Assembly-CSharp/Il2CppScheduleOne/` |
+| Where's the S1API namespace for X? | `ThirdParty/S1API/` (source tree) |
+| How does S1API X.X.Y work? | `ThirdParty/S1API/` (source of the wrapper in question) |
+| What's the actual signature? | `ThirdParty/S1API/` (namespace folder) |
+| Is the runtime branch compatible? | S1API repo README / release notes (Submodule-Pin) |
+| Vanilla class signature? | `GameReferences/` (lokal generierte Decompiles, siehe GameReferences/README.md) |
 | Bridging wrapper from S1API to vanilla? | That's literally what S1API does internally |

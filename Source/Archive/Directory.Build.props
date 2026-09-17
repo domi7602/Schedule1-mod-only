@@ -1,0 +1,6 @@
+<Project>
+  <!-- Archivierte Mods: striktes Deploy-Verbot -->
+  <PropertyGroup>
+    <S1NoDeploy>true</S1NoDeploy>
+  </PropertyGroup>
+</Project>

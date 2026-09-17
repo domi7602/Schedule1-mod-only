@@ -148,6 +148,19 @@ public class StoreCatalogPane
         topLE.flexibleHeight = 1f;
         topLE.minHeight = UITheme.Dp(60f);
 
+        // Circular backdrop vignette matching vanilla framed avatar circles
+        var backdropGO = new GameObject("AvatarBackdrop");
+        backdropGO.transform.SetParent(topSection.transform, false);
+        var bRt = backdropGO.AddComponent<RectTransform>();
+        bRt.anchorMin = new Vector2(0.5f, 0.5f);
+        bRt.anchorMax = new Vector2(0.5f, 0.5f);
+        bRt.pivot = new Vector2(0.5f, 0.5f);
+        bRt.sizeDelta = new Vector2(UITheme.Dp(52f), UITheme.Dp(52f));
+        var bImg = backdropGO.AddComponent<Image>();
+        bImg.sprite = NPCPortraitService.GetCircleSprite(64);
+        bImg.color = new Color(0f, 0f, 0f, 0.30f);
+        bImg.raycastTarget = false;
+
         var avatar = NPCPortraitService.GetAvatar(shop.ShopCode, shop.Name, 128);
         if (avatar != null)
         {
@@ -157,7 +170,7 @@ public class StoreCatalogPane
             aRt.anchorMin = new Vector2(0.5f, 0.5f);
             aRt.anchorMax = new Vector2(0.5f, 0.5f);
             aRt.pivot = new Vector2(0.5f, 0.5f);
-            aRt.sizeDelta = new Vector2(UITheme.Dp(48f), UITheme.Dp(48f));
+            aRt.sizeDelta = new Vector2(UITheme.Dp(50f), UITheme.Dp(50f));
 
             var img = avatarGO.AddComponent<Image>();
             img.sprite = avatar;

@@ -148,6 +148,10 @@ public static class VendingMachinePatches
     /// Our machines open the deposit/extract panel instead of the vanilla
     /// pay-UI (which would let the player "buy" their own stock back).
     /// Vanilla machines fall through untouched.
+    ///
+    /// KNOWN GAP (MP, spike scope): the panel ops are client-local (see
+    /// SnackVendorPanel class doc) — only the NPC purchase path is
+    /// host-gated. In multiplayer, host and client stock can diverge.
     /// </summary>
     [HarmonyPrefix]
     public static bool Interacted_Prefix(VendingMachine __instance)
@@ -156,13 +160,21 @@ public static class VendingMachinePatches
         {
             if (!IsOurs(__instance)) return true;
             var controller = FindController(__instance);
-            if (controller == null) return false;
+            if (controller == null)
+            {
+                Mod.Log.Warn("Interacted on our marker but no controller attached — blocking vanilla pay-UI.");
+                return false;
+            }
             SnackVendorPanel.Toggle(controller);
             return false; // vanilla pay UI stays closed for our machines
         }
-        catch
+        catch (Exception ex)
         {
-            return true;
+            // Vorher: stiller catch -> bei internem Fehler lief unauffällig die
+            // Vanilla-Zahl-UI (Spieler könnte eigenen Stock "zurückkaufen").
+            // Jetzt: loggen UND Vanilla blockieren (fail-closed für unsere Maschinen).
+            Mod.Log.Warn("Interacted_Prefix failed — vanilla pay-UI stays closed.", ex);
+            return IsOurs(__instance) ? false : true;
         }
     }
 

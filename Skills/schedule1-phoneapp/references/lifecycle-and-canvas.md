@@ -170,7 +170,7 @@ private void Update()
 
 ### ⚠️ Subscription Lifetime (empirical, 2026-08-20 / 2026-09-11 audit)
 
-- `OnCreated()` fires **ONCE** per scene (S1API auto-discovery via `HomeScreen_Start_Patch` — see `ThirdParty/S1API/S1API/Internal/Patches/HomeScreen_Start_Patch.cs`).
+- `OnCreated()` fires **ONCE** per scene (S1API auto-discovery via `HomeScreen_Start_Patch` — see `ThirdParty/S1API/S1API/Internal/Patches/HomeScreen.Start.cs`).
 - `OnPhoneClosed()` fires on **every** phone close.
 - **Therefore: NEVER `MelonEvents.OnUpdate.Unsubscribe(Update)` inside `OnPhoneClosed()`** — the Update loop would stay dead until the next scene reload, and `_mainBG` would never re-show → blank app on the 2nd open.
 - Same for **static event handlers** (`OnPotsScanned`, `Money.OnBalanceChanged`, `TransactionHistoryService.OnHistoryChanged`, `_engine.OnStateChanged`): unsubscribing them in `OnPhoneClosed` kills live-refresh after the first close. The `-=`-before-`+=` in `OnCreated` is the correct idempotency pattern.

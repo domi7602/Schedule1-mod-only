@@ -130,6 +130,8 @@ public sealed class MinimapMod : MelonMod
         {
             if (!_hud.IsActive && Config.MinimapVisible && NetworkGuard.IsInMainScene)
                 _hud.SetHUDActive(true);
+            else if (_hud.IsActive && !Config.MinimapVisible)
+                _hud.SetHUDActive(false);
         }
         catch { }
 
@@ -164,6 +166,7 @@ public sealed class MinimapMod : MelonMod
     {
         SaveConfig();
         _hud.ApplyLayout(Config);
+        _hud.SetHUDActive(Config.MinimapVisible);
     }
 
     public void PrintStatusToConsole()

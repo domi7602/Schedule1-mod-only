@@ -16,7 +16,7 @@ binary that ends up in `<GameDir>\Mods\` reflects *this* version — never any
 Version` property (no mod in this workspace uses that pattern). When the four
 files disagree, MelonInfo wins.
 
-`docs/mod.json` is a secondary truth for Nexus/Thunderstore metadata and
+`Source/Mods/<ModName>/docs/mod.json` is a secondary truth for Nexus/Thunderstore metadata and
 must match MelonInfo.
 
 `AGENTS.md` matrix row is the human-facing summary. Drift here is the

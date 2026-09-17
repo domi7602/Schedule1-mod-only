@@ -37,7 +37,7 @@ public enum FurnitureType
 }
 ```
 
-> The exact list varies by S1MAPI version. See `Knowledge/Analysis/Learnings/ThirdParty/S1MAPI_Il2Cpp.md` for the deployed version's list.
+> The exact list varies by S1MAPI version. Verify against the deployed `UserLibs/S1MAPI_Il2cpp.dll` and the pinned `ThirdParty/S1MAPI/` submodule.
 
 ---
 
@@ -136,4 +136,4 @@ See `../schedule1-s1api/references/items-products.md` for the `BuildableItemDefi
 
 `HomelessMod`'s procedural SleepingBag is **not** an `InteriorBuilder.Add(...)` — it uses S1API's `BuildableItemDefinition` because it's a custom (not vanilla) furniture. For vanilla furniture in custom buildings, use `InteriorBuilder`.
 
-For the decompile: `Knowledge/Frameworks/S1API/Decompiles/3.2.0/S1API.Items.Buildable/`.
+For the source: `ThirdParty/S1API/` (S1API.Items.Buildable; Submodule ggf. erst initialisieren).

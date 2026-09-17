@@ -3,6 +3,11 @@
 
 
 
+## 0.1.12 (2026-09-17) — SnackVendor Street-PackUp-Fix
+- **Interaktions-HUD default-off (User-Request 2026-09-17):** Das „Hold RMB — Pack Up"-Tooltip (inkl. orangefarbenem Fortschrittsbalken) beim Hovern über Außen-Items wird nicht mehr angezeigt — `ShowInteractionHud` default `false` (User-Config gesetzt). RMB-PackUp funktioniert unverändert weiter; Schalter wirkt auch auf den Sleep-Hinweis des Schlafsacks.
+- **Bug (In-Game-Report 2026-09-17):** `snackvendor` ließ sich an der Straße nicht mit RMB einpacken — Toast „won't fit in inventory". Ursache: Als Custom-Station bekam sie kein `OutdoorItemInteractable` (0.1.11), dadurch feuerte der Vanilla-PackUp des Drying-Rack-Basis-Präfabs ins Leere (Street-Items haben keine `BuildableItem.ItemInstance`). Fix: `snackvendor` erhält jetzt in Place- (`BuildingPatches`) und Restore-Pfad (`StreetPropertyManager.SpawnSavedStreetItem`) das generische `OutdoorItemInteractable` — gleicher PackUp-Flow wie `dryingrack` (Refund 1x + Unregister + Destroy). `autopackagingstation` bleibt ausgeschlossen (eigenes F-Key-PackUp mit nativem Buffer-Refund). Orphan-Stock im Sidecar räumt SnackVendor v0.0.6 per Save-Complete-Prune auf.
+- **Nebenbefund:** ThirdParty-Archivierung 2026-09-16 brach die `Hash.Api`-Source-Includes von PotScanner/BusinessIncome (Pfad ohne `Archive/`) — csproj-Pfade angepasst, Solution wieder grün.
+
 ## 0.1.11 (2026-09-16) — SnackVendor als Custom-Station
 - **Street-Placement-Übergabe:** `snackvendor` wird wie `autopackagingstation` als Custom-Station behandelt (Place-Prefix, RegisterStreetItem, Save-Restore). HomelessMod instanziiert das BuiltItem-Prefab direkt und deaktiviert danach `BuildableItem` — dadurch feuerte der SnackVendor-Start-Postfix nie und die Station blieb ein nacktes Rack (Spike 2026-09-15). Der Place-Pfad ruft jetzt `SnackVendor.Items.SnackVendorItemFactory.SetupPlacedStation(go, guid)` per Reflection auf (gleicher Vertrag wie AutoPack), der Restore-Pfad dasselbe mit der persistierten Street-Item-GUID.
 - **Kein doppeltes Interactable:** `RegisterStreetItem` erkennt den `SnackVendorController` (Reflection) und stapelt kein generisches `OutdoorItemInteractable` mehr auf die Station.

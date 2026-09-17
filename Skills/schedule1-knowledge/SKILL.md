@@ -42,10 +42,10 @@ Schedule1-mod-only-main/
 ├── ThirdParty/
 │   ├── S1API/S1API/                         (Full C# source code of S1API 3.2.0)
 │   ├── S1MAPI/                              (S1MAPI 2.0.0 mapping framework)
-│   ├── PhoneScroll/                         (Phone scroll hook by V4LEXL)
+│   ├── Archive/PhoneScroll/               (retired 2026-09-16, phone scroll hook by V4LEXL)
 │   └── S1MCPServer-master/                  (S1MCP protocol bridge source)
 │
-└── Source/Mods/                             (13 active mod implementations: NotesApp, BankApp, PotScanner, HomelessMod, etc.)
+└── Source/Mods/                             (15 active mod implementations: NotesApp, BankApp, PotScanner, HomelessMod, SnackVendor, etc.)
 ```
 
 > **Live Inspection:** Always verify method signatures against the live game proxies in `$env:SCHEDULE1_PATH\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll` using `ilspycmd`.
@@ -67,7 +67,7 @@ When you get a question, run this mental check:
 | How does growing work (water/soil/growth)? | `Skills/schedule1-game-systems/references/08-Plant-Growing.md` | `Source/Mods/PotScanner/` |
 | Item stacking / Registry / slots? | `Skills/schedule1-items/SKILL.md` + `references/09-Inventory-ItemFramework.md` | `Source/Mods/StackLimitMod/` |
 | How to handle multi-payment (Cash/Bank) or economy? | `Skills/schedule1-economy/SKILL.md` | `Source/Mods/PocketShop/` + `Source/Mods/BankApp/` |
-| How to build a Minimap / Radar / Blips? | `Source/Mods/Minimap/` | `Skills/schedule1-modding/references/mod-patterns.md` |
+| How to build a Minimap / Radar / Blips? | `Source/Archive/Minimap/` | `Skills/schedule1-modding/references/mod-patterns.md` |
 | How to do Multiplayer Host Authority or passive income? | `Source/Mods/BusinessIncome/` | `Skills/schedule1-economy/references/passive-revenue.md` |
 | How to implement Everywhere Building / Procedural 3D? | `Source/Mods/HomelessMod/` | `Skills/schedule1-grid/` |
 

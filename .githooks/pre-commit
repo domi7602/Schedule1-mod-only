@@ -25,4 +25,11 @@ if ! pwsh -NoProfile -File Tools/check-version-sync.ps1; then
   exit 1
 fi
 
+# Doku-Pfad-Guard: referenzierte Repo-Pfade muessen existieren (vgl. CI-Schritt).
+echo "[pre-commit] doc path check (referenced repo paths exist) ..."
+if ! pwsh -NoProfile -File Tools/check-doc-paths.ps1; then
+  echo "  ✖ Tote Pfad-Referenzen in der Doku — fix: Pfade korrigieren oder entfernen"
+  exit 1
+fi
+
 echo "[pre-commit] OK."

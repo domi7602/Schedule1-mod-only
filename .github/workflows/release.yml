@@ -1,8 +1,11 @@
 name: Release
 
+# Release-Packaging ist NUR manuell und nur mit einem Runner sinnvoll, der
+# Schedule I installiert hat (Game-Assemblies + MelonLoader/Il2CppAssemblies).
+# Auf GitHub-Hosted-Runners existiert das Spiel nie — package-release.ps1
+# bricht dort bewusst fail-fast ab (bugfix 2026-09-16: der frühere
+# tag-push-Trigger lief bei jedem v*-Tag garantiert rot).
 on:
-  push:
-    tags: ["v*"]
   workflow_dispatch:
     inputs:
       mod:
@@ -19,8 +22,24 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "6.0.x"
+
+      # Fail fast mit verständlicher Meldung, statt tief im packaging-Skript.
+      - name: Require game assemblies
+        shell: pwsh
+        run: |
+          $gameDir = if ($env:SCHEDULE1_PATH) { $env:SCHEDULE1_PATH } else { 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I' }
+          $probe = Join-Path $gameDir 'MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll'
+          if (-not (Test-Path -LiteralPath $probe)) {
+            Write-Error "Schedule I nicht installiert auf diesem Runner ($probe). Release-Packaging braucht einen self-hosted Runner mit Spiel + `$env:SCHEDULE1_PATH. Siehe AGENTS.md."
+            exit 1
+          }
+          Write-Host "Game assemblies found ($gameDir)."
+
       - name: Package
         shell: pwsh
+        env:
+          # CI soll die lokale Spiel-Installation (self-hosted) nie mutieren.
+          S1NoDeploy: "true"
         run: |
           $mod = "${{ inputs.mod }}"
           if ([string]::IsNullOrWhiteSpace($mod)) { $mod = "All" }

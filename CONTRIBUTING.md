@@ -18,7 +18,7 @@ Source/Tests/         xUnit-Tests (Shared.Tests, AutoPackagingStation.Tests, Cal
 GameReferences/       Lokal generierte Decompiles; siehe GameReferences/README.md
 Skills/               AI-Skills (schedule1-modding, -phoneapp, -s1api, ...; Index: Skills/README.md)
 ThirdParty/           Gepinnte externe Abhaengigkeiten & Archive; siehe ThirdParty/README.md
-Tools/                build-all.ps1, gen-sln.ps1, bump-version.ps1, check-version-sync.ps1, package-release.ps1, new-mod.ps1, deploy-thirdparty.ps1
+Tools/                build-all.ps1, gen-sln.ps1, new-mod.ps1, bump-version.ps1, package-release.ps1, check-version-sync.ps1, check-doc-paths.ps1, deploy-thirdparty.ps1, backup-to-d.ps1
 Release/              Release-Pakete (.gitkeep)
 AGENTS.md             Inventar & Konventionen (Single Source of Truth)
 docs/                 Architektur- und Release-Dokumentation
@@ -55,7 +55,7 @@ dotnet build Source/Mods/MyNewMod/src/MyNewMod.csproj -c Release
 
 `Directory.Build.props/targets` deployt DLLs/PNGs automatisch nach `<GameDir>\Mods\`; `mod.json` + `.pdb` nach `<GameDir>\UserData\<ModName>\` (seit 2026-09 — json/pdb gehören nie nach `Mods\`).
 
-Siehe `.agents/skills/schedule1-modding/references/architecture-and-shared.md` für Pflicht-Patterns (SafeStorage, UITheme, PatchGuard, InputFocus).
+Siehe `Skills/schedule1-modding/references/architecture-and-shared.md` für Pflicht-Patterns (SafeStorage, UITheme, PatchGuard, InputFocus).
 
 ## Build & Test
 
@@ -80,6 +80,9 @@ dotnet format Source/Mods/S1Mods.sln --verify-no-changes
 
 # Versions-Drift prüfen (CI + Pre-Commit): Code <-> mod.json <-> README/AGENTS (Exit 1 bei Drift)
 pwsh Tools/check-version-sync.ps1
+
+# Doku-Pfade prüfen (CI + Pre-Commit): referenzierte Repo-Pfade müssen existieren
+pwsh Tools/check-doc-paths.ps1
 ```
 
 ## Version Bump (Single Source of Truth = Code)
@@ -94,7 +97,7 @@ pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.3 -DryRun
 pwsh Tools/check-version-sync.ps1
 ```
 
-Aktualisiert 5 Stellen: MelonInfo im Code (Datei mit `[assembly: MelonInfo(...)]`, sonst `Constants.ModVersion`) + `docs/mod.json` + `docs/CHANGELOG.md` (`## x.y.z`-Header) + `AGENTS.md` (Matrix-Zeile **und** Detail-Header in §2) + `README.md` (Featured-Zeile).
+Aktualisiert 5 Stellen: MelonInfo im Code (Datei mit `[assembly: MelonInfo(...)]`, sonst `Constants.ModVersion`) + `Source/Mods/<Mod>/docs/mod.json` + `Source/Mods/<Mod>/docs/CHANGELOG.md` (`## x.y.z`-Header) + `AGENTS.md` (Matrix-Zeile **und** Detail-Header in §2) + `README.md` (Featured-Zeile).
 
 `Tools/check-version-sync.ps1` prüft genau diese Orte gegen den Code; es läuft in CI und im Pre-Commit-Hook.
 
@@ -103,7 +106,7 @@ Aktualisiert 5 Stellen: MelonInfo im Code (Datei mit `[assembly: MelonInfo(...)]
 - Jeder `[RegisterTypeInIl2Cpp]` MonoBehaviour braucht `public Foo(IntPtr ptr) : base(ptr) { }`
 - Keine `foreach`/LINQ auf `Il2CppSystem.Collections.Generic.List<T>` — nur `for`
 - Keine `button.onClick.AddListener(new UnityAction(...))` — nutze `S1API.Utils.EventHelper.AddListener` / `ButtonUtils.AddListener`
-- Vor jedem Build: `s1interop analyze <csproj>` (fängt `missing_intptr_constructor`)
+- Optional, falls installiert: `s1interop analyze <csproj>` (fängt `missing_intptr_constructor`) — `s1interop` ist ein externes Tool ohne Repo-Bezug; ohne Installation sind Build + Tests der verpflichtende Ersatz
 
 ## Definition of Done
 
@@ -111,8 +114,9 @@ Aktualisiert 5 Stellen: MelonInfo im Code (Datei mit `[assembly: MelonInfo(...)]
 - [ ] DLL deployed und im `MelonLoader/Latest.log` ohne Exception
 - [ ] In-Game verifiziert (inkl. Scene-Wechsel Main Menu → Game → Main Menu)
 - [ ] Persistenz Round-Trip OK (Save → Restart → Load)
-- [ ] `s1interop analyze` clean
+- [ ] `s1interop analyze` clean (falls installiert)
 - [ ] `AGENTS.md`, `CHANGELOG.md`, `mod.json`, `Mod.cs`/`Constants.ModVersion`, `README.md` synchron (via `bump-version.ps1`) — `pwsh Tools/check-version-sync.ps1` muss grün sein
+- [ ] `pwsh Tools/check-doc-paths.ps1` grün (keine toten Pfad-Referenzen in der Doku)
 
 ## Commit & PR
 

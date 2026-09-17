@@ -134,7 +134,7 @@ MessageManager.SendSMS(contact, "Hello!");
 ```
 
 For these less-common APIs, the decompile is the source of truth:
-`Knowledge/Frameworks/S1API/Decompiles/3.2.0/<Namespace>/`
+`ThirdParty/S1API/` (S1API-Source, Submodule)
 
 ---
 
@@ -142,7 +142,7 @@ For these less-common APIs, the decompile is the source of truth:
 
 Some vanilla game systems have no S1API wrapper yet (rendering, exotic managers). For those:
 
-1. **Direct `Il2CppScheduleOne.*` access** — IL2CPP-bridge classes, see `Knowledge/Game-Reference/Decompiles/Assembly-CSharp/`
+1. **Direct `Il2CppScheduleOne.*` access** — IL2CPP-bridge classes, see `GameReferences/ (lokal generierte Decompiles, siehe GameReferences/README.md)`
 2. **Isolate in `internal` module** — keep public mod API clean
 3. **Wrap in an `S1API.Internal.*` namespace** if you want to share with other mods
 

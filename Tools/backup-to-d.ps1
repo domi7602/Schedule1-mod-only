@@ -75,21 +75,23 @@ function Run-FastCopy {
     }
 }
 
-# 2. Backup Game Folder (Steam)
-$gameSource = "C:\Program Files (x86)\Steam\steamapps\common\Schedule I"
+# 2. Backup Game Folder (Steam) — Aufloesung wie Directory.Build.props:
+#    $env:SCHEDULE1_PATH sonst Default-Install-Pfad.
+$gameSource = if ($env:SCHEDULE1_PATH) { $env:SCHEDULE1_PATH } else { "C:\Program Files (x86)\Steam\steamapps\common\Schedule I" }
 $gameDest = Join-Path $backupDir "Game"
 Run-FastCopy -Source $gameSource -Destination $gameDest -Label "Game Directory (MelonLoader + Mods + Vanilla)"
 
-# 3. Backup Savegames (AppData)
-$savesSource = "C:\Users\pc\AppData\LocalLow\TVGS\Schedule I"
+# 3. Backup Savegames (AppData) — maschinenunabhaengig via USERPROFILE.
+$savesSource = Join-Path $env:USERPROFILE "AppData\LocalLow\TVGS\Schedule I"
 $savesDest = Join-Path $backupDir "Saves"
 Run-FastCopy -Source $savesSource -Destination $savesDest -Label "Savegames & Settings (AppData)"
 
-# 4. Backup Workspace (Source, Skills, Knowledge, Memory)
-$wsSource = "C:\Users\pc\Desktop\Schedule1-mod-only"
+# 4. Backup Workspace (Source, Skills, docs) — dieses Repo selbst (liegt
+#    seit der Neuinstallation 2026-09 im Spiel-Ordner).
+$wsSource = Split-Path -Parent $PSScriptRoot
 $wsDest = Join-Path $backupDir "Workspace"
-$wsExcludes = @("bin", "obj", ".vs", "Temp", "Library", "Build", "Builds", "objIL2CPP", "binIL2CPP")
-Run-FastCopy -Source $wsSource -Destination $wsDest -Label "Modding Workspace & Knowledge Base" -Excludes $wsExcludes
+$wsExcludes = @("bin", "obj", ".vs", "Temp", "Library", "Build", "Builds", "objIL2CPP", "binIL2CPP", ".git")
+Run-FastCopy -Source $wsSource -Destination $wsDest -Label "Modding Workspace" -Excludes $wsExcludes
 
 # 5. Mirror to Latest
 Write-Host "`n  [*] Updating 'Latest' mirror..." -ForegroundColor White

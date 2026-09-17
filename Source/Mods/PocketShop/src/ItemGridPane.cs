@@ -15,7 +15,6 @@ namespace PocketShop.UI;
 public class ItemGridPane
 {
     public event Action<PurchaseResultData>? OnPurchaseResult;
-    public event Action<ItemPOCO>? OnInspectRequested;
 
     private readonly RectTransform _root;
     private readonly List<ItemCard> _cards = new();
@@ -204,7 +203,6 @@ public class ItemGridPane
                     var card = new ItemCard(item);
                     _cards.Add(card);
                     card.OnPurchaseResult += res => OnPurchaseResult?.Invoke(res);
-                    card.OnInspectRequested += itm => OnInspectRequested?.Invoke(itm);
                     card.Build(rowGO.transform);
                 }
                 else

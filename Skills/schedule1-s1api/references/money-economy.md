@@ -147,4 +147,4 @@ For deeper integration with police behavior, see `S1API.Law` decompile.
 * `Property` — used by `HomelessMod`, `BusinessIncome`, `PotScanner`
 * `Law` — unused by current workspace mods (potential for future police mods)
 
-For the full API surface, see `Knowledge/Analysis/s1api-reference/S1API.Money.md`, `S1API.GameTime.md`, `S1API.Property.md`.
+For the full API surface, see the S1API source in `ThirdParty/S1API/` (S1API.Money / S1API.GameTime / S1API.Property).

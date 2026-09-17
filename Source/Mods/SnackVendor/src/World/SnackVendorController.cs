@@ -228,8 +228,6 @@ public sealed class SnackVendorController : MonoBehaviour
                 return;
             }
 
-            var parentTransform = (Clone != null && Clone.Pointer != IntPtr.Zero) ? Clone.transform : transform;
-
             GameObject? glbGo = null;
             try
             {
@@ -246,11 +244,27 @@ public sealed class SnackVendorController : MonoBehaviour
                 return;
             }
 
-            glbGo.name = "SnackVendor_GLBMesh";
-            glbGo.transform.SetParent(parentTransform, false);
+            // Always parent visual root directly to the station transform (never under Clone.transform)!
+            glbGo.name = "SnackVendor_VisualRoot";
+            glbGo.transform.SetParent(transform, false);
             glbGo.transform.localPosition = Vector3.zero;
             glbGo.transform.localRotation = Quaternion.identity;
+            glbGo.transform.localScale = Vector3.one;
             _glbMeshGo = glbGo; // keep handle for OnDestroy.
+
+            // Tag all GLB nodes with "SnackVendor_" prefix so they can be identified reliably
+            var childTransforms = glbGo.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < childTransforms.Length; i++)
+            {
+                var ct = childTransforms[i];
+                if (ct != null && ct.Pointer != IntPtr.Zero && ct.gameObject != null)
+                {
+                    if (!ct.gameObject.name.StartsWith("SnackVendor"))
+                    {
+                        ct.gameObject.name = "SnackVendor_" + ct.gameObject.name;
+                    }
+                }
+            }
 
             // Strip colliders — collision comes from the buildable item itself.
             var cols = glbGo.GetComponentsInChildren<Collider>(true);
@@ -260,37 +274,97 @@ public sealed class SnackVendorController : MonoBehaviour
                 catch { /* non-fatal */ }
             }
 
-            // URP shader fix: mutate the GLB's own materials via sharedMaterial
-            // (no per-renderer Material clones — leak-safe, AutoPack H12 pattern).
-            Shader? SafeShader() => Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard") ?? Shader.Find("Unlit/Color");
-            var sh = SafeShader();
-            var rs = glbGo.GetComponentsInChildren<Renderer>(true);
-            for (int i = 0; i < rs.Length; i++)
+            // Ensure GLB renderers are active and record materials for OnDestroy.
+            // S1MAPI.GltfLoader already configures Universal Render Pipeline/Lit
+            // with all PBR metallic/roughness and glass alpha — DO NOT mutate sm.shader!
+            var glbRs = glbGo.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < glbRs.Length; i++)
             {
                 try
                 {
-                    if (rs[i] == null || rs[i].Pointer == IntPtr.Zero) continue;
-                    var sm = rs[i].sharedMaterial;
-                    if (sm == null || sm.Pointer == IntPtr.Zero) continue;
-                    sm.shader = sh;
-                    _ownedMaterials.Add(sm); // GLB materials are per-load instances — track for OnDestroy.
+                    var r = glbRs[i];
+                    if (r == null || r.Pointer == IntPtr.Zero) continue;
+                    r.enabled = true;
+                    r.forceRenderingOff = false;
+
+                    var mats = r.sharedMaterials;
+                    if (mats != null)
+                    {
+                        for (int m = 0; m < mats.Length; m++)
+                        {
+                            var mat = mats[m];
+                            if (mat != null && mat.Pointer != IntPtr.Zero && !_ownedMaterials.Contains(mat))
+                            {
+                                _ownedMaterials.Add(mat);
+                            }
+                        }
+                    }
                 }
-                catch { /* renderer with submeshes etc. — keep whatever material they had */ }
+                catch { /* non-fatal */ }
             }
 
-            // Hide the cloned-vanilla renderers ONLY now that a real GLB mesh
-            // is rendered (0.0.4 lesson: never hide before the mesh exists).
-            if (Clone != null && Clone.Pointer != IntPtr.Zero)
+            // Hide the vanilla clone's renderers and LODs directly on the clone
+            if (Clone != null && Clone.Pointer != IntPtr.Zero && Clone.gameObject != null)
             {
-                var vanillaRs = Clone.GetComponentsInChildren<Renderer>(true);
-                for (int i = 0; i < vanillaRs.Length; i++)
+                var cloneRs = Clone.gameObject.GetComponentsInChildren<Renderer>(true);
+                for (int i = 0; i < cloneRs.Length; i++)
                 {
-                    try { if (vanillaRs[i] != null && vanillaRs[i].Pointer != IntPtr.Zero) vanillaRs[i].enabled = false; }
+                    try
+                    {
+                        var cr = cloneRs[i];
+                        if (cr == null || cr.Pointer == IntPtr.Zero) continue;
+                        cr.enabled = false;
+                        cr.forceRenderingOff = true;
+                    }
+                    catch { /* non-fatal */ }
+                }
+
+                var cloneLods = Clone.gameObject.GetComponentsInChildren<LODGroup>(true);
+                for (int i = 0; i < cloneLods.Length; i++)
+                {
+                    try
+                    {
+                        var cl = cloneLods[i];
+                        if (cl == null || cl.Pointer == IntPtr.Zero) continue;
+                        cl.enabled = false;
+                    }
                     catch { /* non-fatal */ }
                 }
             }
 
-            Mod.Log.Info("GLB mesh loaded via S1MAPI.GltfLoader — vanilla clone renderers hidden.");
+            // Hide base buildable renderers (drying rack)
+            // AutoPack HideBaseRenderers pattern: skip ANY renderer starting with SnackVendor or inside glbGo!
+            var rootRs = transform.GetComponentsInChildren<Renderer>(true);
+            for (int i = 0; i < rootRs.Length; i++)
+            {
+                try
+                {
+                    var r = rootRs[i];
+                    if (r == null || r.Pointer == IntPtr.Zero) continue;
+                    if (r.gameObject.name.StartsWith("SnackVendor")) continue;
+                    if (r.transform.IsChildOf(glbGo.transform)) continue;
+
+                    r.enabled = false;
+                    r.forceRenderingOff = true;
+                }
+                catch { /* non-fatal */ }
+            }
+            var lods = transform.GetComponentsInChildren<LODGroup>(true);
+            for (int i = 0; i < lods.Length; i++)
+            {
+                try
+                {
+                    var lod = lods[i];
+                    if (lod == null || lod.Pointer == IntPtr.Zero) continue;
+                    if (lod.gameObject.name.StartsWith("SnackVendor")) continue;
+                    if (lod.transform.IsChildOf(glbGo.transform)) continue;
+
+                    lod.enabled = false;
+                }
+                catch { /* non-fatal */ }
+            }
+
+            Mod.Log.Info("GLB mesh loaded via S1MAPI.GltfLoader — base prefab + clone renderers hidden.");
         }
         catch (Exception ex)
         {

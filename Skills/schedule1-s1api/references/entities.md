@@ -152,4 +152,4 @@ protected override void OnDestroyed()                            // final cleanu
 
 `HomelessMod` does NOT use `S1API.Entities` NPCs (it uses `Il2CppScheduleOne.EntityFramework` directly for its procedural CampingBag). However, `S1API.Entities.NPCs.*` is the recommended path for adding new NPCs that interact with the world's economy.
 
-For the decompile: `Knowledge/Frameworks/S1API/Decompiles/3.2.0/S1API.Entities/` and sub-namespaces.
+For the source: `ThirdParty/S1API/` (S1API.Entities and sub-namespaces; Submodule ggf. erst initialisieren).

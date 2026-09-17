@@ -108,8 +108,12 @@ function Update-ModVersion {
             $header = "## $NewVersion ($today)`n- Version bump.`n`n"
             # Insert after first "# Changelog" header (Instanz-Replace mit Count=1,
             # siehe AGENTS.md-Fix oben — statisches Replace mit ", 1" waere IgnoreCase).
-            if ($clRaw -match "(?m)^# Changelog\s*\r?\n") {
-                $clRx = [regex]"(?m)(^# Changelog\s*\r?\n)"
+            # 2026-09-16 FIX: Header-Titel darf Suffixe tragen ("# Changelog - AutoPackagingStation",
+            # "# Changelog — BankApp"). Der alte Regex "^# Changelog\s*\r?\n" matchte nur den
+            # nackten Titel und fiel in den else-Zweig -> doppelte H1-Überschrift
+            # (dokumentiert im schedule1-modding-Skill, §2.C Pitfall 1).
+            if ($clRaw -match "(?m)^# Changelog[^\r\n]*\r?\n") {
+                $clRx = [regex]"(?m)(^# Changelog[^\r\n]*\r?\n)"
                 $newCl = $clRx.Replace($clRaw, "`$1`n$header", 1)
             } else {
                 $newCl = "# Changelog`n`n$header`n$clRaw"

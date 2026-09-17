@@ -385,7 +385,19 @@ public static class BuildingPatches
                             buildMgrLocal.DisableNavigation(placedObj);
                         }
 
-                        if (!isCustomStation && placedObj.GetComponent<OutdoorItemInteractable>() == null)
+                        // v0.1.12: snackvendor IS packable via the generic
+                        // outdoor flow — it carries no native slots (stock
+                        // lives in its sidecar), so the OutdoorItemInteractable
+                        // PackUp (refund 1x + unregister + destroy) is the
+                        // correct dismantle path. Without it the vanilla
+                        // drying-rack pack-up interactable inherited from the
+                        // clone base fires and fails ("won't fit in inventory").
+                        // autopackagingstation keeps its own F-key PackUp
+                        // (native buffer refund) and stays excluded.
+                        bool wantsOutdoorInteractable =
+                            !isCustomStation ||
+                            itemId.Equals("snackvendor", StringComparison.OrdinalIgnoreCase);
+                        if (wantsOutdoorInteractable && placedObj.GetComponent<OutdoorItemInteractable>() == null)
                         {
                             var interactable = placedObj.AddComponent<OutdoorItemInteractable>();
                             interactable.ItemId = itemId;

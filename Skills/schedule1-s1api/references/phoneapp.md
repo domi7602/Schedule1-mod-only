@@ -167,4 +167,4 @@ public override void OnInitializeMelon()
 }
 ```
 
-For the full hash integration, see `Knowledge/Frameworks/ScheduleOne-Hash/Architecture.md`.
+For the hash terminal integration, see `ThirdParty/Archive/ScheduleOne-Hash/` (reference-only, deprecated) and the PotScanner hash-bridge via reflection.

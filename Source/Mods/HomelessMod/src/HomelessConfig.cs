@@ -34,6 +34,7 @@ public class HomelessConfig
 
     /// <summary>
     /// If true, shows the compact interaction tooltip (Sleep / Pack Up) when hovering street items.
+    /// Default off since v0.1.12 (user request 2026-09-17): RMB pack-up works without the tooltip.
     /// </summary>
-    public bool ShowInteractionHud { get; set; } = true;
+    public bool ShowInteractionHud { get; set; } = false;
 }

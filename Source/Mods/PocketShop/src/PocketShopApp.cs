@@ -44,7 +44,6 @@ public sealed class PocketShopApp : PhoneApp
     private GameObject _mainBG = null!;
     private StoreCatalogPane _directoryPane = null!;
     private ItemGridPane _gridPane = null!;
-    private ItemDetailModal _detailModal = null!;
     private Text _statsLabel = null!;
 
     // Payment Switcher Chips
@@ -85,7 +84,6 @@ public sealed class PocketShopApp : PhoneApp
         _active = null;
         if (app == null) return;
         try { app._gridPane?.Dispose(); } catch { }
-        try { app._detailModal?.Dispose(); } catch { }
         // DirectoryPane holds scene GameObjects too — destroy them as well and drop
         // the instance-level OnShopSelected handler so nothing survives the unload.
         try
@@ -123,7 +121,6 @@ public sealed class PocketShopApp : PhoneApp
     {
         base.OnPhoneClosed();
         if (_mainBG != null) _mainBG.SetActive(false);
-        _detailModal?.Hide();
         _viewMode = ViewMode.Directory;
         // Update bleibt lebenslang subscribed (defensives Unsubscribe-Subscribe in OnCreated).
     }
@@ -234,14 +231,9 @@ public sealed class PocketShopApp : PhoneApp
         // Level 2: Item Grid Pane (5xN Grid)
         _gridPane = new ItemGridPane(contentRt);
         _gridPane.OnPurchaseResult += HandlePurchaseResult;
-        _gridPane.OnInspectRequested += itm => _detailModal?.Show(itm);
         // Bug-Audit 2026-09-13 (Round 5): wire the catalog-change callback
         // so the directory pane's store-count badge updates when the catalog refreshes.
         _gridPane.OnCatalogChanged += () => _directoryPane?.RefreshShopCount();
-
-        // Item Detail Inspection Modal (Overlay)
-        _detailModal = new ItemDetailModal((RectTransform)_mainBG.transform);
-        _detailModal.OnPurchaseResult += HandlePurchaseResult;
 
         // Footer: Version
         FooterBuilder.Build(_mainBG.transform);
@@ -326,7 +318,6 @@ public sealed class PocketShopApp : PhoneApp
         };
 
         _gridPane?.RefreshAllBuyStates();
-        _detailModal?.RefreshDisplay();
     }
 
     private void UpdatePaymentChipVisuals()
@@ -364,7 +355,6 @@ public sealed class PocketShopApp : PhoneApp
         {
             _gridPane?.RefreshAllBuyStates();
         }
-        _detailModal?.RefreshDisplay();
     }
 
     private void SetViewMode(ViewMode mode)
@@ -422,12 +412,6 @@ public sealed class PocketShopApp : PhoneApp
 
     private void OnBackClicked()
     {
-        if (_detailModal != null && _detailModal.IsOpen)
-        {
-            _detailModal.Hide();
-            return;
-        }
-
         if (_viewMode == ViewMode.ShopDetail)
         {
             SetViewMode(ViewMode.Directory);

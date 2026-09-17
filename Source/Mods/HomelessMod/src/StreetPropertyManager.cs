@@ -496,7 +496,13 @@ public static class StreetPropertyManager
                         record.ItemId.Equals("autopackagingstation", StringComparison.OrdinalIgnoreCase) ||
                         record.ItemId.Equals("snackvendor", StringComparison.OrdinalIgnoreCase);
 
-                    if (!isCustomStation && obj.GetComponent<OutdoorItemInteractable>() == null)
+                    // v0.1.12: snackvendor is packable via the generic outdoor
+                    // flow (no native slots — sidecar stock), same rationale as
+                    // the place path in BuildingPatches.
+                    bool wantsOutdoorInteractable =
+                        !isCustomStation ||
+                        record.ItemId.Equals("snackvendor", StringComparison.OrdinalIgnoreCase);
+                    if (wantsOutdoorInteractable && obj.GetComponent<OutdoorItemInteractable>() == null)
                     {
                         var interactable = obj.AddComponent<OutdoorItemInteractable>();
                         interactable.ItemId = record.ItemId;

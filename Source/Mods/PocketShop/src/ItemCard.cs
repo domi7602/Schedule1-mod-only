@@ -17,7 +17,6 @@ namespace PocketShop.UI;
 public class ItemCard
 {
     public event Action<PurchaseResultData>? OnPurchaseResult;
-    public event Action<ItemPOCO>? OnInspectRequested;
 
     private readonly ItemPOCO _item;
     private QuantitySelector _qty = null!;
@@ -82,16 +81,12 @@ public class ItemCard
         badgeTxt.color = new Color(0.30f, 0.85f, 0.95f, 1f);
         badgeTxt.raycastTarget = false;
 
-        // Image area (center, clickable for inspect)
+        // Image area (center, visual only)
         var imgPanel = UIFactory.Panel("Image", _card.transform, new Color(0.05f, 0.06f, 0.08f, 1f));
         var imgLE = imgPanel.AddComponent<LayoutElement>();
         imgLE.flexibleHeight = 1f;
         imgLE.minHeight = UITheme.Dp(52f);
         imgLE.preferredHeight = UITheme.Dp(55f);
-
-        var imgBtn = imgPanel.AddComponent<Button>();
-        imgBtn.transition = Selectable.Transition.None;
-        ButtonUtils.AddListener(imgBtn, OnInspectClicked);
 
         if (_item.Icon != null)
         {
@@ -108,26 +103,14 @@ public class ItemCard
             img.raycastTarget = false;
         }
 
-        // Name (clickable for inspect)
-        var nameBtnGO = UIFactory.Panel("NameBtn", _card.transform, Color.clear);
-        var nameLE = nameBtnGO.AddComponent<LayoutElement>();
+        // Name (visual only)
+        var nameTxt = UIFactory.Text("Name", _item.Name, _card.transform, UITheme.Sp(11), TextAnchor.MiddleCenter, FontStyle.Bold | FontStyle.Italic);
+        nameTxt.color = Color.white;
+        nameTxt.raycastTarget = false;
+        nameTxt.horizontalOverflow = HorizontalWrapMode.Wrap;
+        var nameLE = nameTxt.gameObject.AddComponent<LayoutElement>();
         nameLE.minHeight = UITheme.Dp(16f);
         nameLE.preferredHeight = UITheme.Dp(16f);
-        var nameVlg = nameBtnGO.AddComponent<VerticalLayoutGroup>();
-        nameVlg.childControlWidth = true;
-        nameVlg.childControlHeight = true;
-        nameVlg.childForceExpandWidth = true;
-        nameVlg.childForceExpandHeight = true;
-        nameVlg.childAlignment = TextAnchor.MiddleCenter;
-
-        var name = UIFactory.Text("Name", _item.Name, nameBtnGO.transform, UITheme.Sp(11), TextAnchor.MiddleCenter, FontStyle.Bold | FontStyle.Italic);
-        name.color = Color.white;
-        name.raycastTarget = false;
-        name.horizontalOverflow = HorizontalWrapMode.Wrap;
-
-        var nameBtn = nameBtnGO.AddComponent<Button>();
-        nameBtn.transition = Selectable.Transition.None;
-        ButtonUtils.AddListener(nameBtn, OnInspectClicked);
 
         // Quantity selector
         int maxStock = ResolveMaxStock(_item);
@@ -160,17 +143,31 @@ public class ItemCard
 
     /// <summary>
     /// Refreshes BUY-button enabled state and label. Supports Cash, Bank, and Auto modes.
+    /// Also checks whether the item is locked due to player level requirements.
     /// </summary>
     public void RefreshBuyState()
     {
+        if (!_item.IsAvailableToPlayer)
+        {
+            _buyButton.interactable = false;
+            _buyPanelImage.color = new Color(0.18f, 0.14f, 0.16f, 1f);
+            _buyLabel.text = "🔒 LOCKED";
+            _buyLabel.color = new Color(0.90f, 0.45f, 0.45f, 1f);
+            _qty.SetInteractable(false);
+            return;
+        }
+
         if (_qty.IsStockEmpty)
         {
             _buyButton.interactable = false;
             _buyPanelImage.color = new Color(0.12f, 0.15f, 0.20f, 1f);
             _buyLabel.text = "OUT";
             _buyLabel.color = new Color(0.55f, 0.58f, 0.65f, 1f);
+            _qty.SetInteractable(false);
             return;
         }
+
+        _qty.SetInteractable(true);
 
         PurchaseService.CalculatePricing(_item, _qty.Quantity, out _, out _, out _, out float total);
         var mode = PocketShopConfig.PaymentModeStatic;
@@ -217,15 +214,10 @@ public class ItemCard
 
     private static string StockText(ItemPOCO item)
     {
+        if (!item.IsAvailableToPlayer) return "🔒";
         if (!item.IsInStock) return "OUT";
         if (item.CurrentStock <= 0) return "∞";
         return item.CurrentStock.ToString();
-    }
-
-    private void OnInspectClicked()
-    {
-        SoundService.PlayButtonClick();
-        OnInspectRequested?.Invoke(_item);
     }
 
     private void OnBuyClicked()

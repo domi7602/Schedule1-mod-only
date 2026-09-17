@@ -48,8 +48,8 @@ This skill is the **map to the 64 core game systems** in *Schedule I* v0.4.6f13 
 |---|---|---|
 | How does growing work (water/soil/growth)? | `references/08-Plant-Growing.md` | `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/Growing/` |
 | Item stacking / Registry / slots? | `references/09-Inventory-ItemFramework.md` | `Source/Mods/StackLimitMod/` (live pattern) + `GameReferences/.../ItemFramework/` |
-| Property/Business ownership? | `references/54-Property.md` + `references/11-Business-Laundering.md` | `Source/Mods/BusinessIncome/src/Services/BusinessResolver.cs` |
-| Building / Grid / outdoor placement? | `references/10-Building-Construction.md` + `references/59-TilesGrid.md` | `schedule1-grid` skill + `Source/Mods/HomelessMod/src/Building/` (7 Golden Rules) |
+| Property/Business ownership? | `references/54-Property.md` + `references/11-Business-Laundering.md` | `Source/Mods/BusinessIncome/src/BusinessResolver.cs` |
+| Building / Grid / outdoor placement? | `references/10-Building-Construction.md` + `references/59-TilesGrid.md` | `schedule1-grid` skill + `Source/Mods/HomelessMod/src/` (7 Golden Rules) |
 | NPC daily routine / NavMesh? | `references/14-NPC-Behaviour.md` | `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/NPCs/` |
 | Save/load & slot isolation? | `references/02-Save-Persistence.md` | `schedule1-persistence` + `schedule1-troubleshooting` |
 | Money types & laundering? | `references/23-Economy-Money.md` + `references/11-Business-Laundering.md` | `Source/Mods/BankApp/` + `ThirdParty/S1API/S1API/Money/` |

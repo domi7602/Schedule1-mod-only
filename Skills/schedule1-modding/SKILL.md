@@ -51,8 +51,8 @@ pwsh Tools/new-mod.ps1 -Name "MyNewMod" -Author "Dominik" -Version "0.1.0"
 pwsh Tools/gen-sln.ps1
 ```
 This generates:
-* `Source/Mods/MyNewMod/src/MyNewMod.csproj` & `Mod.cs`
-* `Source/Mods/MyNewMod/docs/mod.json`, `README.md`, `CHANGELOG.md`
+* `Source/Mods/<ModName>/src/<ModName>.csproj` & `Mod.cs`
+* `Source/Mods/<ModName>/docs/mod.json`, `README.md`, `CHANGELOG.md`
 * Updates `Source/Mods/S1Mods.sln`
 
 ### B. Building & Deploying Mods

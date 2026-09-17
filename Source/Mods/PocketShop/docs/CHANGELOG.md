@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.7 (2026-09-17)
+- Version bump.
+
+
+
+## 0.2.6 (2026-09-17) — Level-Lock Enforce & Inline Quantity Input
+- **Vanilla Level & Rank Lock Enforcement**: PocketShop respects `StorableItemDefinition.RequiresLevelToPurchase` and `IsUnlocked`. Items requiring higher player level/rank are displayed with `🔒 LOCKED (REQUIRES [RANK])`, stock indicator shows `🔒 LOCKED ([RANK])`, and buy interactions are disabled both in ItemCard and ItemDetailModal (`BuyResult.LevelLocked`). Configurable via `EnforceLevelRequirements` (default: `true`).
+- **Direct Inline Quantity Input (Dan's Hardware Style)**: Clicking the quantity number directly focuses an inline `InputField` right inside the selector between `[-]` and `[+]`. Players can immediately type any amount (e.g. 20 or 40) directly on the card or detail view without any popup HUD. Supports live pricing recalculation while typing, and automatic clamping to stock limits upon completion (`onEndEdit`).
+- **Input Focus Protection (`PocketShopInputFocus`)**: While editing the inline quantity number, `S1API.Input.Controls.IsTyping` is active to protect against accidental WASD player movement or shortcut triggers. Unfocusing or pressing <kbd>Enter</kbd> restores game controls.
 
 ## 0.2.5 (2026-09-13) — Bug-Audit-Fixes Runde 5 (Audit 2026-09-13)
 - UI-Refresh: `StoreCatalogPane.RefreshShopCount()` + `ItemGridPane.OnCatalogChanged`-Callback — Store-Count-Badge im Directory-Header aktualisiert sich live bei Catalog-Refresh.

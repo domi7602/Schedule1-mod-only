@@ -89,7 +89,9 @@ function Get-FirstMatch {
 }
 
 $mods = Get-ChildItem -LiteralPath $modsRoot -Directory | Where-Object {
-    $_.Name -ne 'Shared' -and (Test-Path -LiteralPath (Join-Path $_.FullName 'src'))
+    # Shared: Library ohne eigenes Release-ZIP. _DiagPerfCounter: Dev-Tool,
+    # seit 2026-09-16 von package-release.ps1 ausgeschlossen (kein README nötig).
+    $_.Name -ne 'Shared' -and $_.Name -ne '_DiagPerfCounter' -and (Test-Path -LiteralPath (Join-Path $_.FullName 'src'))
 } | Sort-Object Name
 
 $rows = @()
@@ -121,16 +123,16 @@ foreach ($mod in $mods) {
     $row = [pscustomobject]@{
         Mod    = $name
         Code   = $codeV
-        Json   = if ($json) { $json } else { '(fehlt)' }
-        Readme = if ($readme) { $readme } else { '(fehlt)' }
-        Agents = if ($agents) { $agents } else { '(fehlt)' }
-        Hdr    = if ($agentsHeader) { $agentsHeader } else { '-' }
+        Json   = $(if ($json) { $json } else { '(fehlt)' })
+        Readme = $(if ($readme) { $readme } else { '(fehlt)' })
+        Agents = $(if ($agents) { $agents } else { '(fehlt)' })
+        Hdr    = $(if ($agentsHeader) { $agentsHeader } else { '-' })
         Sync   = $false
     }
 
     $expected = if ($code) { $code.Version } else { $null }
-    $ok = $null -ne $expected -and $json -eq $expected -and $readme -eq $expected -and
-          $agents -eq $expected -and ($null -eq $agentsHeader -or $agentsHeader -eq $expected)
+    $ok = ($null -ne $expected -and $json -eq $expected -and $readme -eq $expected -and
+           $agents -eq $expected -and ($null -eq $agentsHeader -or $agentsHeader -eq $expected))
     $row.Sync = $ok
     $rows += $row
 
@@ -139,9 +141,9 @@ foreach ($mod in $mods) {
             $problems += "$name : keine Version im Code gefunden (weder MelonInfo noch ModVersion) - Mod gilt als Drift."
         }
         else {
-            if ($json -ne $expected) { $problems += ("{0} : mod.json={1} != code={2}" -f $name, (if ($json) { $json } else { 'fehlt' }), $expected) }
-            if ($readme -ne $expected) { $problems += ("{0} : README.md={1} != code={2}" -f $name, (if ($readme) { $readme } else { 'fehlt' }), $expected) }
-            if ($agents -ne $expected) { $problems += ("{0} : AGENTS.md={1} != code={2}" -f $name, (if ($agents) { $agents } else { 'fehlt' }), $expected) }
+            if ($json -ne $expected) { $problems += ("{0} : mod.json={1} != code={2}" -f $name, $(if ($json) { $json } else { 'fehlt' }), $expected) }
+            if ($readme -ne $expected) { $problems += ("{0} : README.md={1} != code={2}" -f $name, $(if ($readme) { $readme } else { 'fehlt' }), $expected) }
+            if ($agents -ne $expected) { $problems += ("{0} : AGENTS.md={1} != code={2}" -f $name, $(if ($agents) { $agents } else { 'fehlt' }), $expected) }
             if ($agentsHeader -and $agentsHeader -ne $expected) { $problems += ("{0} : AGENTS.md detail header={1} != code={2}" -f $name, $agentsHeader, $expected) }
         }
     }

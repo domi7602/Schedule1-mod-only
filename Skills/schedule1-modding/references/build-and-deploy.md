@@ -26,7 +26,7 @@ Every workspace mod's `.csproj` is implicitly wrapped by `Source/Mods/Directory.
    - `*.png` (app/HUD icons)
    - `*.bundle` (embedded AssetBundles)
 2. **Metadata & Debug Symbols** $\rightarrow$ `<GameDir>\UserData\<ModName>\`:
-   - `docs/mod.json` $\rightarrow$ `<GameDir>\UserData\<ModName>\mod.json`
+   - `Source/Mods/<ModName>/docs/mod.json` $\rightarrow$ `<GameDir>\UserData\<ModName>\mod.json`
    - `<ModName>.pdb` $\rightarrow$ `<GameDir>\UserData\<ModName>\<ModName>.pdb`
 3. **ThirdParty DLLs**:
    - `Directory.Build.targets` invokes `Tools/deploy-thirdparty.ps1`.
@@ -76,7 +76,7 @@ Remove-Item "$env:SCHEDULE1_PATH\Mods\<Name>.dll"
 dotnet build  Source\Mods\<Name>\src\<Name>.csproj -c Release
 ```
 
-**Version-Bump (seit 2026-08-20):** Nie manuell 4 Files ändern — `Tools/bump-version.ps1` synchronisiert `Mod.cs` (MelonInfo) + `docs/mod.json` + `docs/CHANGELOG.md` + `AGENTS.md` atomar:
+**Version-Bump (seit 2026-08-20):** Nie manuell 4 Files ändern — `Tools/bump-version.ps1` synchronisiert `Mod.cs` (MelonInfo) + `Source/Mods/<Mod>/docs/mod.json` + `Source/Mods/<Mod>/docs/CHANGELOG.md` + `AGENTS.md` atomar:
 ```pwsh
 pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.1        # echte Änderung
 pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.1 -DryRun # Vorschau
@@ -89,11 +89,11 @@ pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.1 -DryRun # Vorschau
 | Framework | Status | Origin / Deploy | Notes |
 |---|---|---|---|
 | **S1API 3.2.0** | ✅ active | Fork-build in `ThirdParty/S1API/` $\rightarrow$ `Mods\S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.dll` | Core modding API |
-| **PhoneScroll 1.4** | ✅ active | `ThirdParty/PhoneScroll/` $\rightarrow$ `Mods\PhoneScroll.dll` | Closed-source vanilla phone scroll hook by V4LEXL |
+| **PhoneScroll 1.4** | ❌ retired 2026-09-16 | `ThirdParty/Archive/PhoneScroll/` (nur README, DLL zurückgezogen) $\rightarrow$ `Mods\PhoneScroll.dll` | Closed-source vanilla phone scroll hook by V4LEXL |
 | **S1MAPI 2.0.0** | ✅ active | `ThirdParty/S1MAPI/` | Procedural meshes, GLTF loader, interior tools |
 | **S1MCPServer** | ✅ active | `ThirdParty/S1MCPServer-master/` $\rightarrow$ `Mods\S1MCPServer-IL2CPP.dll` | Live TCP introspection (:8765) |
 | **Sideload** | ❌ removed | Removed on 2026-09-10 (commit `37e7a5d`) | Deprecated, unused |
-| **hash 1.0.5** | 📦 deprecated | `ThirdParty/ScheduleOne-Hash/` (undeployed) | Kept for reference only |
+| **hash 1.0.5** | 📦 deprecated | `ThirdParty/Archive/ScheduleOne-Hash/` (undeployed) | Kept for reference only |
 
 ---
 

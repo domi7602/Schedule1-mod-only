@@ -1,17 +1,54 @@
 using System;
 using System.Collections.Generic;
+using Il2CppScheduleOne.NPCs;
+using Il2CppScheduleOne.UI.Shop;
+using MelonLoader;
 using UnityEngine;
 
 namespace PocketShop.Services;
 
 /// <summary>
-/// Provides high-resolution avatars for each shop by rendering crisp,
-/// anti-aliased 128x128 themed vector icons (Target for Arms Dealer,
-/// Diamond for Boutique, T-Shirt for Clothing, Gas Pump for Gas Mart, etc.).
+/// Provides high-resolution avatars for each shop by prioritizing the real
+/// 3D NPC shopkeeper mugshots (Dan, Hank, Oscar, Manny, etc.) from the game,
+/// falling back to crisp themed vector icons for non-NPC stores (Gas-Mart, etc.).
 /// </summary>
 public static class NPCPortraitService
 {
     private static readonly Dictionary<string, Sprite> _cache = new();
+    private static readonly HashSet<Sprite> _proceduralSprites = new();
+    private static Sprite? _circleSprite;
+
+    public static Sprite GetCircleSprite(int size = 64)
+    {
+        if (_circleSprite != null && _circleSprite.Pointer != IntPtr.Zero && !_circleSprite.WasCollected)
+        {
+            return _circleSprite;
+        }
+
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        tex.filterMode = FilterMode.Bilinear;
+        var pixels = new Color32[size * size];
+        int center = size / 2;
+        float radiusSq = (size * 0.48f) * (size * 0.48f);
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float dx = x - center;
+                float dy = y - center;
+                pixels[y * size + x] = (dx * dx + dy * dy <= radiusSq)
+                    ? new Color32(255, 255, 255, 255)
+                    : new Color32(0, 0, 0, 0);
+            }
+        }
+
+        tex.SetPixels32(pixels);
+        tex.Apply(false, true);
+        _circleSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+        return _circleSprite;
+    }
 
     public static Sprite GetAvatar(string shopCode, string shopName, int size = 128)
     {
@@ -21,10 +58,113 @@ public static class NPCPortraitService
             return cached;
         }
 
-        // Generate crisp themed icon matching the mockup
+        // 1. Try to fetch the real 3D NPC MugshotSprite from the game
+        var npcSprite = TryGetNpcMugshot(shopCode, shopName);
+        if (npcSprite != null && npcSprite.Pointer != IntPtr.Zero && !npcSprite.WasCollected)
+        {
+            _cache[key] = npcSprite;
+            return npcSprite;
+        }
+
+        // 2. Fallback to crisp procedural themed icon (e.g. Gas-Mart, Boutique)
         var iconSprite = CreateThemedStoreIcon(shopCode, shopName, size);
         _cache[key] = iconSprite;
+        _proceduralSprites.Add(iconSprite);
         return iconSprite;
+    }
+
+    private static Sprite? TryGetNpcMugshot(string shopCode, string shopName)
+    {
+        try
+        {
+            if (!NPCManager.InstanceExists || NPCManager.NPCRegistry == null || NPCManager.NPCRegistry.Count == 0)
+            {
+                return null;
+            }
+
+            var registry = NPCManager.NPCRegistry;
+            string sCode = (shopCode ?? string.Empty).ToLowerInvariant();
+            string sName = (shopName ?? string.Empty).ToLowerInvariant();
+
+            // 1. Known shopkeeper ID mapping
+            string? targetNpcId = null;
+            if (sCode.Contains("dan") || sName.Contains("dan")) targetNpcId = "dan_samwell";
+            else if (sCode.Contains("hank") || sName.Contains("hank")) targetNpcId = "hank_stevenson";
+            else if (sCode.Contains("oscar") || sName.Contains("oscar")) targetNpcId = "oscar_holland";
+            else if (sCode.Contains("salvador") || sName.Contains("salvador")) targetNpcId = "salvador_moreno";
+            else if (sCode.Contains("shirley") || sName.Contains("shirley")) targetNpcId = "shirley_watts";
+            else if (sCode.Contains("albert") || sName.Contains("albert")) targetNpcId = "albert_hoover";
+            else if (sCode.Contains("fungal") || sCode.Contains("phil") || sName.Contains("phil")) targetNpcId = "philip_wentworth";
+            else if (sCode.Contains("arm") || sCode.Contains("manny") || sName.Contains("manny")) targetNpcId = "manny_oakfield";
+            else if (sCode.Contains("herbert") || sName.Contains("herbert")) targetNpcId = "herbert_bleuball";
+            else if (sCode.Contains("fiona") || sName.Contains("fiona")) targetNpcId = "fiona_hancock";
+            else if (sCode.Contains("igor") || sName.Contains("igor")) targetNpcId = "igor_romanovich";
+
+            if (!string.IsNullOrEmpty(targetNpcId))
+            {
+                for (int i = 0; i < registry.Count; i++)
+                {
+                    var npc = registry[i];
+                    if (npc == null || npc.Pointer == IntPtr.Zero || npc.WasCollected) continue;
+
+                    if (string.Equals(npc.ID, targetNpcId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var sprite = npc.MugshotSprite;
+                        if (sprite != null && sprite.Pointer != IntPtr.Zero && !sprite.WasCollected)
+                            return sprite;
+                    }
+                }
+            }
+
+            // 2. Component inspection: find NPC with a matching ShopInterface
+            for (int i = 0; i < registry.Count; i++)
+            {
+                var npc = registry[i];
+                if (npc == null || npc.Pointer == IntPtr.Zero || npc.WasCollected) continue;
+
+                var shopInterface = npc.GetComponentInChildren<ShopInterface>();
+                if (shopInterface != null && shopInterface.Pointer != IntPtr.Zero && !shopInterface.WasCollected)
+                {
+                    if (string.Equals(shopInterface.ShopCode, shopCode, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(shopInterface.ShopName, shopName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var sprite = npc.MugshotSprite;
+                        if (sprite != null && sprite.Pointer != IntPtr.Zero && !sprite.WasCollected)
+                            return sprite;
+                    }
+                }
+            }
+
+            // 3. Fuzzy search on ID / FullName
+            for (int i = 0; i < registry.Count; i++)
+            {
+                var npc = registry[i];
+                if (npc == null || npc.Pointer == IntPtr.Zero || npc.WasCollected) continue;
+
+                string npcId = npc.ID?.ToLowerInvariant() ?? string.Empty;
+                string npcName = npc.FullName?.ToLowerInvariant() ?? string.Empty;
+
+                if (!string.IsNullOrEmpty(npcId) && (sCode.Contains(npcId) || sName.Contains(npcId)))
+                {
+                    var sprite = npc.MugshotSprite;
+                    if (sprite != null && sprite.Pointer != IntPtr.Zero && !sprite.WasCollected)
+                        return sprite;
+                }
+
+                if (!string.IsNullOrEmpty(npcName) && sName.Contains(npcName))
+                {
+                    var sprite = npc.MugshotSprite;
+                    if (sprite != null && sprite.Pointer != IntPtr.Zero && !sprite.WasCollected)
+                        return sprite;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Warning($"[PocketShop] Failed to retrieve NPC mugshot for '{shopCode}': {ex.Message}");
+        }
+
+        return null;
     }
 
     private static Sprite CreateThemedStoreIcon(string shopCode, string shopName, int size)
@@ -284,7 +424,7 @@ public static class NPCPortraitService
 
     public static void Reset()
     {
-        foreach (var s in _cache.Values)
+        foreach (var s in _proceduralSprites)
         {
             if (s != null && s.Pointer != IntPtr.Zero && !s.WasCollected)
             {
@@ -299,7 +439,25 @@ public static class NPCPortraitService
                 catch { }
             }
         }
+        _proceduralSprites.Clear();
         _cache.Clear();
+
+        if (_circleSprite != null)
+        {
+            try
+            {
+                if (_circleSprite.Pointer != IntPtr.Zero && !_circleSprite.WasCollected)
+                {
+                    if (_circleSprite.texture != null && _circleSprite.texture.Pointer != IntPtr.Zero && !_circleSprite.texture.WasCollected)
+                    {
+                        UnityEngine.Object.Destroy(_circleSprite.texture);
+                    }
+                    UnityEngine.Object.Destroy(_circleSprite);
+                }
+            }
+            catch { }
+            _circleSprite = null;
+        }
     }
 }
 

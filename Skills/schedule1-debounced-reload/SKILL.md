@@ -40,7 +40,7 @@ description: >-
 
 ## 2. Reusable Implementation
 
-Drop this in `Source/Mods/Shared/src/DebouncedFileWatcher.cs`:
+Drop-in template (not yet part of Shared - copy as `DebouncedFileWatcher.cs` into your mod or into `Source/Mods/Shared/src/`):
 
 ```csharp
 using System;

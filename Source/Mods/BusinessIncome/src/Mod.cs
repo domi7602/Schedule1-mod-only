@@ -7,7 +7,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(BusinessIncome.Mod), "BusinessIncome", "0.1.5", "Dominik")]
+[assembly: MelonInfo(typeof(BusinessIncome.Mod), "BusinessIncome", "0.1.6", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace BusinessIncome;

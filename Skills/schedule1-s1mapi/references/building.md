@@ -189,4 +189,4 @@ public class MotelExtension
 
 S1MAPI's `BuildingBuilder` is **not yet used** by any of the current workspace mods (NotesApp, PotScanner, CalculatorApp, etc.). The skill is forward-looking for content mods that want to extend the game world.
 
-For the decompile: `Knowledge/Frameworks/S1API/Decompiles/3.2.0/S1API.Map.Buildings/` (geometry-related S1API classes that complement S1MAPI).
+For the source: `ThirdParty/S1API/` (S1API.Map.Buildings - geometry-related S1API classes that complement S1MAPI; Submodule ggf. erst initialisieren).

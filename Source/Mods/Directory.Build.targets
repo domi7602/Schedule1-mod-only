@@ -3,7 +3,8 @@
   <!--   <GameDir>\Mods\              -> DLL + PNGs + Bundles (nur Ladbares für MelonLoader) -->
   <!--   <GameDir>\UserData\<Mod>\    -> mod.json (Metadaten) + <Mod>.pdb (Debug-Symbole) -->
   <!-- SkipUnchangedFiles=false erzwingt Deploy bei jedem Build (fix für veraltete DLLs im GameDir). -->
-  <Target Name="DeployMod" AfterTargets="Build" Condition="'$(MSBuildProjectName)' != '' And Exists('$(TargetPath)')">
+  <!-- Ohne Deploy bauen (CI, reine Compile-Checks): -p:S1NoDeploy=true  oder  $env:S1NoDeploy='true'. -->
+  <Target Name="DeployMod" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And Exists('$(TargetPath)')">
     <PropertyGroup>
       <_DeployDir>$(ModsDir)</_DeployDir>
       <_UserLibsDir>$(GameDir)\UserLibs</_UserLibsDir>
@@ -29,7 +30,7 @@
   </Target>
 
   <!-- Shared.dll wird nicht transitiv propagiert (Private=false) — explizit deployen. -->
-  <Target Name="DeployShared" AfterTargets="Build" Condition="'$(MSBuildProjectName)' == 'Shared' And Exists('$(TargetPath)')">
+  <Target Name="DeployShared" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And '$(MSBuildProjectName)' == 'Shared' And Exists('$(TargetPath)')">
     <PropertyGroup>
       <_DeployDir>$(ModsDir)</_DeployDir>
     </PropertyGroup>
@@ -43,7 +44,7 @@
     sie force-deploy nach <GameDir>\Mods\ (whitelist via ThirdParty/.deployignore).
     Laeuft nur einmalig bei Shared, da alle Mods von Shared abhaengen.
   -->
-  <Target Name="DeployThirdParty" AfterTargets="Build" Condition="'$(MSBuildProjectName)' == 'Shared' And Exists('$(TargetPath)')">
+  <Target Name="DeployThirdParty" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And '$(MSBuildProjectName)' == 'Shared' And Exists('$(TargetPath)')">
     <PropertyGroup>
       <_TpScript>$(MSBuildThisFileDirectory)..\..\Tools\deploy-thirdparty.ps1</_TpScript>
     </PropertyGroup>

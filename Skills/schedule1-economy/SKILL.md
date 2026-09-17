@@ -103,7 +103,7 @@ Fee `fee = amount * ServiceFeePercent/100`, `netCredited = amount-fee`.
 
 ## 6. Passive Revenue (BusinessIncome — Reference Pattern)
 
-**Deterministic net:** `gross = BaseIncome * Multiplier(prop)` * `variance ±15% hash(ElapsedDays, BusinessId)` + `employeeBonus 5%/emp cap 25%` + `weekendBonus 25%` * `OperatingCosts 10%` → `net = gross - costs` (see `BusinessIncome/src/Services/RevenueCalculator.cs`).
+**Deterministic net:** `gross = BaseIncome * Multiplier(prop)` * `variance ±15% hash(ElapsedDays, BusinessId)` + `employeeBonus 5%/emp cap 25%` + `weekendBonus 25%` * `OperatingCosts 10%` → `net = gross - costs` (see `Source/Mods/BusinessIncome/src/RevenueCalculator.cs`).
 
 **Ordering + Snapshot (2026-08-21 fix):**
 ```csharp
@@ -210,6 +210,6 @@ Cash first, then bank — preserves physical cash for emergencies, uses the bank
 * In-Repo Architecture: `Skills/schedule1-game-systems/references/23-Economy-Money.md`, `11-Business-Laundering.md`, `19-Customer-Budget.md`, `45-Multiplayer.md`
 * Framework Source: `ThirdParty/S1API/S1API/Money/`
 * Live Mod Implementations:
-  - `Source/Mods/BankApp/src/Services/BankService.cs`
-  - `Source/Mods/PocketShop/src/Services/PurchaseService.cs`
-  - `Source/Mods/BusinessIncome/src/Services/IncomeEngine.cs` + `PayoutStateStore.cs`
+  - `Source/Mods/BankApp/src/BankService.cs`
+  - `Source/Mods/PocketShop/src/PurchaseService.cs`
+  - `Source/Mods/BusinessIncome/src/IncomeEngine.cs` + `PayoutStateStore.cs`

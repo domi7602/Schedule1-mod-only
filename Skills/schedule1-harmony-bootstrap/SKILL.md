@@ -43,7 +43,7 @@ description: >-
 
 ## 2. Drop-in Implementation
 
-Place in `Source/Mods/Shared/src/HarmonyBootstrap.cs`:
+Drop-in template (distilled from LegalProduce; not yet part of Shared - copy as `HarmonyBootstrap.cs` into your mod or into `Source/Mods/Shared/src/`):
 
 ```csharp
 using System;

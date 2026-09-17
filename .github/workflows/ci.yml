@@ -58,6 +58,9 @@ jobs:
 
       - name: Build (Release)
         if: steps.detect.outputs.has-game == 'true'
+        env:
+          # CI darf die lokale Spiel-Installation (self-hosted) nie mutieren.
+          S1NoDeploy: "true"
         run: dotnet build Source/Mods/S1Mods.sln -c Release --no-restore --nologo
 
       - name: Tests
@@ -111,6 +114,13 @@ jobs:
       - name: Version sync check (code <-> mod.json <-> README/AGENTS)
         shell: pwsh
         run: pwsh Tools/check-version-sync.ps1
+
+      # Doku-Pfad-Guard: Alle in Markdown referenzierten Repo-Pfade muessen
+      # existieren (Repo-Audit 2026-09-16: Knowledge/, Archive-Pfade, .agents/
+      # drifteten unbemerkt). Laeuft immer, rein dateisystembasiert.
+      - name: Doc path check (referenced repo paths exist)
+        shell: pwsh
+        run: pwsh Tools/check-doc-paths.ps1
 
   s1interop:
     runs-on: windows-latest

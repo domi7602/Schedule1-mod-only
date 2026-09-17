@@ -31,6 +31,12 @@ public class PocketShopConfig
     /// <summary>Index of the last selected shop, restored on next open (0-based, clamped on load).</summary>
     public int LastShopIndex { get; set; } = 0;
 
+    /// <summary>Whether items that require a higher player rank/level are locked from purchase (matching vanilla shops).</summary>
+    public bool EnforceLevelRequirements { get; set; } = true;
+
+    /// <summary>Static accessor for EnforceLevelRequirements.</summary>
+    public static bool EnforceLevelRequirementsStatic => ModConfig<PocketShopConfig>.Instance?.EnforceLevelRequirements ?? true;
+
     /// <summary>Static accessor for ServiceFeePercent so UI code can read it directly.</summary>
     public static float ServiceFeePercentStatic => ModConfig<PocketShopConfig>.Instance?.ServiceFeePercent ?? 10f;
 

@@ -174,4 +174,4 @@ The UI subscribes to `NotesChanged` and rebuilds.
 * **My collection shows up empty after save-load** → field needs `[SaveableField]`. S1API does NOT automatically serialize public fields.
 * **Reference loops throw** → S1API uses `JsonIgnoreHandling` per cycle. For circular refs, use `[SaveableField]` on the inner objects too.
 
-Deep reference: `Knowledge/Frameworks/S1API/Decompiles/3.2.0/S1API.Saveables/Saveable.cs`
+Deep reference: `ThirdParty/S1API/` (S1API.Saveables -> Saveable.cs; Submodule ggf. erst initialisieren).

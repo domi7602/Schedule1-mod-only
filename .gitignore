@@ -9,16 +9,19 @@
 *.assets
 *.manifest
 
-# Game-side (never commit)
-game source/
-Library/
-Temp/
-Logs/
-UserSettings/
-MelonLoader/
-Mods/
-Plugins/
-UserData/
+# Game-side folders (never commit). These live in the game install dir,
+# i.e. OUTSIDE this worktree — they are root-anchored so they can never
+# shadow repo subpaths (bugfix 2026-09-16: unanchored "Mods/" silently
+# ignored every new file under Source/Mods/).
+/game source/
+/Library/
+/Temp/
+/Logs/
+/UserSettings/
+/MelonLoader/
+/Mods/
+/Plugins/
+/UserData/
 
 # Local tooling and generated reverse-engineering references
 .cache/

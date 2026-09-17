@@ -28,8 +28,10 @@ if (-not (Test-Path $releaseDir)) {
 }
 
 # Determine list of mods to package
+# _DiagPerfCounter ist ein reines Dev-Diagnose-Tool (Reflection-Dump) und
+# gehoert nicht in Spieler-Release-Zips.
 $allMods = Get-ChildItem -Path $modsRoot -Directory | Where-Object {
-    $_.Name -ne 'Shared' -and $_.Name -ne 'Archive' -and (Test-Path (Join-Path $_.FullName "src\$($_.Name).csproj"))
+    $_.Name -ne 'Shared' -and $_.Name -ne 'Archive' -and $_.Name -ne '_DiagPerfCounter' -and (Test-Path (Join-Path $_.FullName "src\$($_.Name).csproj"))
 }
 
 $targetMods = @()
@@ -38,7 +40,12 @@ if ($Mod -eq 'All' -or [string]::IsNullOrWhiteSpace($Mod)) {
 } else {
     $found = $allMods | Where-Object { $_.Name -eq $Mod }
     if (-not $found) {
-        Write-Error "Mod '$Mod' not found in $modsRoot"
+        # Dev-Tools/Shared bewusst anfragen -> klar melden statt hart zu brechen.
+        if ($Mod -eq 'Shared' -or $Mod -eq '_DiagPerfCounter') {
+            Write-Error "Mod '$Mod' wird bewusst nicht gepackt (nicht fuer Release vorgesehen)."
+        } else {
+            Write-Error "Mod '$Mod' not found in $modsRoot"
+        }
         return
     }
     $targetMods = @($found)
@@ -47,12 +54,14 @@ if ($Mod -eq 'All' -or [string]::IsNullOrWhiteSpace($Mod)) {
 Write-Host "=== Packaging Schedule I Mods for Release ===" -ForegroundColor Cyan
 Write-Host "Target Mods count: $($targetMods.Count)" -ForegroundColor Gray
 
+$failedMods = @()
+
 foreach ($modDir in $targetMods) {
     $modName = $modDir.Name
     $csprojPath = Join-Path $modDir.FullName "src\$modName.csproj"
     $docsPath = Join-Path $modDir.FullName 'docs'
     $modJsonPath = Join-Path $docsPath 'mod.json'
-    
+
     # Read version
     $version = '1.0.0'
     if (Test-Path $modJsonPath) {
@@ -61,15 +70,23 @@ foreach ($modDir in $targetMods) {
             if ($jsonContent.version) {
                 $version = $jsonContent.version
             }
-        } catch {}
+        } catch {
+            Write-Warning "[$modName] mod.json nicht parsebar ($($_.Exception.Message)) — fallback $version."
+        }
     }
 
     Write-Host "`n--> Building $modName (v$version)..." -ForegroundColor Yellow
     dotnet build $csprojPath -c Release --nologo | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "[$modName] dotnet build fehlgeschlagen (exit $LASTEXITCODE) — Mod wird uebersprungen."
+        $failedMods += $modName
+        continue
+    }
 
     $dllPath = Join-Path $modDir.FullName "src\bin\Release\net6.0\$modName.dll"
     if (-not (Test-Path $dllPath)) {
         Write-Error "Build output DLL not found at: $dllPath"
+        $failedMods += $modName
         continue
     }
 
@@ -143,3 +160,8 @@ foreach ($modDir in $targetMods) {
 }
 
 Write-Host "`n=== Packaging Complete! ===" -ForegroundColor Cyan
+
+if ($failedMods.Count -gt 0) {
+    Write-Host ("FEHLGESCHLAGEN ({0}): {1} — keine Zips fuer diese Mods." -f $failedMods.Count, ($failedMods -join ', ')) -ForegroundColor Red
+    exit 1
+}

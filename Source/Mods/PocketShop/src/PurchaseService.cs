@@ -21,6 +21,7 @@ public enum BuyResult
     StockEmpty,
     InvalidQuantity,
     DefinitionNull,
+    LevelLocked,
     Error
 }
 
@@ -131,6 +132,14 @@ public static class PurchaseService
         {
             result.Result = BuyResult.InvalidQuantity;
             result.Message = "Invalid quantity.";
+            return result;
+        }
+
+        if (PocketShopConfig.EnforceLevelRequirementsStatic && !item.IsAvailableToPlayer)
+        {
+            result.Result = BuyResult.LevelLocked;
+            string rankNotice = !string.IsNullOrEmpty(item.RequiredRankString) ? $" (Requires {item.RequiredRankString})" : "";
+            result.Message = $"Item is locked{rankNotice}.";
             return result;
         }
 

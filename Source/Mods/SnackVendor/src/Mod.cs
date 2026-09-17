@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using Il2CppInterop.Runtime;
@@ -16,7 +17,7 @@ using ConfigInstance = S1Mods.Shared.ModConfig<SnackVendor.Config.SnackVendorCon
 // (MelonInfo/MelonGame attributes intentionally absent — our MelonMod registration is
 // auto-discovered by MelonLoader's [MelonInfo] attribute scanning on the Mod class; we
 // put them inline next to the class so the asmversion travels together with the class.
-[assembly: MelonInfo(typeof(SnackVendor.Mod), "SnackVendor", "0.0.5", "Dominik")]
+[assembly: MelonInfo(typeof(SnackVendor.Mod), "SnackVendor", "0.0.6", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace SnackVendor;
@@ -228,17 +229,43 @@ public sealed class Mod : MelonMod
     private void ResetStoredSlot() { SnackVendor.Persistence.SnackVendorStore.OnSaveSlotReset(); }
     private void PersistAllStationSlots()
     {
-        // Iterate live controllers and ask each to flush its slots.
+        // Iterate live controllers and ask each to flush its slots, then
+        // prune sidecar entries whose GUID has no live controller anymore
+        // (v0.0.6: stations packed up via the street-item flow leave an
+        // orphan entry behind — on the next save they are dropped, so a
+        // packed-up station cannot "respawn" its stock on a later GUID).
         try
         {
             if (!SnackVendorStore.IsSlotResolved) return;
             var live = UnityEngine.Object.FindObjectsOfType<SnackVendorController>();
+            var liveGuids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var c in live)
             {
                 if (c == null || c.Pointer == IntPtr.Zero) continue;
                 try { c.PersistSlotsToDisk(); }
                 catch (Exception ex) { Log.Warn($"save-flush for {c.InstanceGuid}", ex); }
+                if (!string.IsNullOrEmpty(c.InstanceGuid)) liveGuids.Add(c.InstanceGuid);
             }
+
+            try
+            {
+                var all = SnackVendorStore.Load();
+                if (all?.Stations != null && all.Stations.Count > 0)
+                {
+                    bool removed = false;
+                    for (int i = all.Stations.Count - 1; i >= 0; i--)
+                    {
+                        var guid = all.Stations[i]?.InstanceGuid;
+                        if (string.IsNullOrEmpty(guid) || !liveGuids.Contains(guid))
+                        {
+                            all.Stations.RemoveAt(i);
+                            removed = true;
+                        }
+                    }
+                    if (removed) SnackVendorStore.Save(all);
+                }
+            }
+            catch (Exception ex) { Log.Warn("sidecar orphan-prune failed", ex); }
         }
         catch (Exception ex)
         {

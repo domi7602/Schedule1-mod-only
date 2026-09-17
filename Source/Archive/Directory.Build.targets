@@ -1,0 +1,5 @@
+<Project>
+  <!-- Ueberschreibt eventuelle Deploy-Targets, damit archivierte Mods nie nach <Game>\Mods\ deployt werden -->
+  <Target Name= DeployMod />
+  <Target Name=DeployShared />
+</Project>

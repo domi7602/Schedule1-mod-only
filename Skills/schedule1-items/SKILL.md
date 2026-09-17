@@ -150,7 +150,7 @@ Need to… ?
 * Decompiled Game Reference: `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/ItemFramework/`
 * Live Mod Implementations:
   - `Source/Mods/StackLimitMod/src/StackLimitEngine.cs`
-  - `Source/Mods/BankApp/src/Services/BankService.cs`
-  - `Source/Mods/PocketShop/src/Services/PurchaseService.cs`
-  - `Source/Mods/HomelessMod/src/Building/StreetPropertyManager.cs`
-  - `Source/Mods/BackpackMod/src/Storage/BackpackStorageManager.cs`
+  - `Source/Mods/BankApp/src/BankService.cs`
+  - `Source/Mods/PocketShop/src/PurchaseService.cs`
+  - `Source/Mods/HomelessMod/src/StreetPropertyManager.cs`
+  - `Source/Archive/BackpackMod/src/BackpackStorageManager.cs`

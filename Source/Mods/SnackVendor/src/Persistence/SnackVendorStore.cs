@@ -20,7 +20,6 @@ public static class SnackVendorStore
     private static readonly ModLogger Log = new("SnackVendor");
     private const string DirName = "SnackVendor";
     private const string FilePattern = "snacks_slot_{0}.json";
-    private const string BackupSuffix = ".bak";
     public const int UnknownSlot = -1;
 
     // Mirrors S1API's pattern: a single SafeStorage helper would be nicer,
@@ -57,36 +56,11 @@ public static class SnackVendorStore
         }
 
         var path = Path.Combine(MelonLoader.Utils.MelonEnvironment.UserDataDirectory, DirName, string.Format(FilePattern, _currentSlot));
-        var dir = Path.GetDirectoryName(path);
-        if (dir != null) Directory.CreateDirectory(dir);
-
-        // Backup last good copy (crash-window insurance from game-mod-persistence skill).
-        if (File.Exists(path))
-        {
-            try { File.Copy(path, path + BackupSuffix, overwrite: true); }
-            catch (Exception ex) { Log.Warn($"backup failed for {path}", ex); }
-        }
-
-        var tmp = path + ".tmp";
-        try
-        {
-            // SafeStorage.SaveAtomic writes JSON via its default options
-            // (public properties, no converters needed for our DTOs).
-            var wrote = SafeStorage.SaveAtomic(path, file, Log);
-            if (wrote && File.Exists(tmp))
-            {
-                // Belt + suspenders: clean up half-written tmp if SaveAtomic
-                // left it behind (default impl moves it, but defensive).
-                try { File.Delete(tmp); } catch { /* swallow */ }
-            }
-            return wrote;
-        }
-        catch (Exception ex)
-        {
-            Log.Error($"save failed for {path}", ex);
-            try { if (File.Exists(tmp)) File.Delete(tmp); } catch { /* swallow */ }
-            return false;
-        }
+        // 2026-09-16 FIX: SafeStorage.SaveAtomic (-> SaveTextAtomic) macht den
+        // .bak-Backup und das .tmp-Rename intern. Der frühere eigene
+        // File.Copy-Backup + tmp-Aufräumcode hier war Redundanz: doppelter
+        // Backup-Schreibvorgang pro Save bei jedem NPC-Kauf (Hot Path).
+        return SafeStorage.SaveAtomic(path, file, Log);
     }
 
     /// <summary>Loads the file for the currently-resolved slot. Missing file -> empty payload.</summary>

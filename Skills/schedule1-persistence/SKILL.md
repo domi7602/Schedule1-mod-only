@@ -203,10 +203,10 @@ ModConfig<MyConfig>.Initialize("MyMod", Log,
 * In-Repo Architecture: `Skills/schedule1-game-systems/references/02-Save-Persistence.md`
 * Framework Source: `ThirdParty/S1API/S1API/Lifecycle/`
 * Live Mod Implementations:
-  - `Source/Mods/Shared/SafeStorage.cs`
+  - `Source/Mods/Shared/src/SafeStorage.cs`
   - `Source/Mods/CalculatorApp/src/CalculatorState.cs`
   - `Source/Mods/NotesApp/src/NotesApp.cs`
-  - `Source/Mods/BankApp/src/Services/TransactionHistoryService.cs`
-  - `Source/Mods/BusinessIncome/src/Services/PayoutStateStore.cs`
-  - `Source/Mods/HomelessMod/src/Building/StreetPropertyManager.cs`
-  - `Source/Mods/MoreSaveSlots/src/Services/SaveRenameService.cs`
+  - `Source/Mods/BankApp/src/TransactionHistoryService.cs`
+  - `Source/Mods/BusinessIncome/src/PayoutStateStore.cs`
+  - `Source/Mods/HomelessMod/src/StreetPropertyManager.cs`
+  - `Source/Mods/MoreSaveSlots/src/SaveRenameService.cs`

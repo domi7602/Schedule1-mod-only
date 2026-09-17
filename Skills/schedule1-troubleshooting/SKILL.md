@@ -6,7 +6,7 @@ description: >-
   Latest.log shows error spikes, save-load desyncs, property/owner-lists stay empty,
   an [RegisterTypeInIl2Cpp] crash report appears, S1MCP find_gameobjects freezes the game,
   or any symptom suggests IL2CPP marshalling issues.
-  Tools covered: logscan.py, s1interop analyze, s1interop doctor, ilspycmd, MelonPreferences.cfg.
+  Tools covered: native PowerShell log triage (see references/logscan-and-logs.md), s1interop analyze, s1interop doctor, ilspycmd, MelonPreferences.cfg.
 ---
 <!-- Version anchor: Game v0.4.6f13 / S1API 3.2.0 / MelonLoader 0.7.3 (verified 2026-09-02 against live install: MelonLoader.dll 0.7.3.0, S1API.Il2Cpp.MelonLoader.dll 3.2.0.0, Latest.log game-version line; Steam buildid 24705572). Re-check after game updates. -->
 
@@ -196,7 +196,7 @@ These **WILL** bite you if you don't read first:
 * **Game-version mismatch confirmed** → roll back via `.bak`. Quick, low-risk.
 * **One-method API drift** → refresh the method signature in your patch, verify with `ilspycmd`.
 * **Wholesale API refactor in S1API** → re-run `s1interop analyze` to map new pattern, refactor conservatively.
-* **More than ~3 mods at fault** → roll back to last-known-good state, re-introduce mods one by one with logscan between each.
+* **More than ~3 mods at fault** → roll back to last-known-good state, re-introduce mods one by one with a log check between each.
 
 ### Performance bug: which mod is blocking the main thread?
 

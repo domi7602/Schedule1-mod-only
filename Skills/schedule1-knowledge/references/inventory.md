@@ -9,9 +9,9 @@ The inventory of code references, decompiles, framework sources, and game system
 | Path | Contents | Purpose & Usage |
 |------|----------|-----------------|
 | `ThirdParty/S1API/S1API/` | Full C# Source of S1API 3.2.0 | Reference for PhoneApp, Saveables, Registry, Items, UI, NPCs, Quests, GameTime |
-| `ThirdParty/MoreDrugs/` | C# Source / Plugin files | Reference for Custom Product Save Provider & Item Expansion |
+| — (MoreDrugs: Quelle nicht im Repo) | Deployed DLL only (`DrugExpansion_Il2cpp.dll`) | Reference for Custom Product Save Provider & Item Expansion |
 | `ThirdParty/S1MCPServer-master/` | C# Source of S1MCP | Reference for Live Runtime Introspection & TCP Server :8765 |
-| `ThirdParty/PhoneScroll/` | DLL + Documentation | Reference for Phone Home Screen scrolling (Closed Source, V4LEXL) |
+| `ThirdParty/Archive/PhoneScroll/` | Documentation (DLL retired 2026-09-16) | Reference for Phone Home Screen scrolling (Closed Source, V4LEXL) |
 | `<GameDir>/Mods/` | Runtime deployed DLLs | Live runtime binaries loaded by MelonLoader 0.7.3 |
 | `<GameDir>/Plugins/` | `S1APILoader.dll` | S1API lifecycle bootstrap plugin |
 

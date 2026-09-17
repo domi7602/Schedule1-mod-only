@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Il2CppScheduleOne.ItemFramework;
+using Il2CppScheduleOne.Levelling;
 using Il2CppScheduleOne.UI.Shop;
 using MelonLoader;
+using PocketShop.Config;
 using UnityEngine;
 
 namespace PocketShop.Services;
@@ -41,6 +43,76 @@ public sealed class ItemPOCO
             return string.Empty;
         }
     }
+
+    /// <summary>
+    /// Whether the item is unlocked according to the player's rank/level.
+    /// Evaluated dynamically against the live definition.
+    /// </summary>
+    public bool IsUnlocked
+    {
+        get
+        {
+            try
+            {
+                if (Definition != null && Definition.Pointer != IntPtr.Zero && !Definition.WasCollected)
+                {
+                    if (Definition.RequiresLevelToPurchase)
+                    {
+                        return Definition.IsUnlocked;
+                    }
+                }
+            }
+            catch { }
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Whether this item requires a certain level/rank to purchase.
+    /// </summary>
+    public bool RequiresLevelToPurchase
+    {
+        get
+        {
+            try
+            {
+                if (Definition != null && Definition.Pointer != IntPtr.Zero && !Definition.WasCollected)
+                {
+                    return Definition.RequiresLevelToPurchase;
+                }
+            }
+            catch { }
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Clean display string of the required rank (e.g. "Hoodlum II").
+    /// </summary>
+    public string RequiredRankString
+    {
+        get
+        {
+            try
+            {
+                if (Definition != null && Definition.Pointer != IntPtr.Zero && !Definition.WasCollected)
+                {
+                    if (Definition.RequiresLevelToPurchase)
+                    {
+                        return FullRank.GetString(Definition.RequiredRank);
+                    }
+                }
+            }
+            catch { }
+            return string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Checks whether this item is currently available for purchase by the player,
+    /// considering the EnforceLevelRequirements configuration.
+    /// </summary>
+    public bool IsAvailableToPlayer => !PocketShopConfig.EnforceLevelRequirementsStatic || IsUnlocked;
 }
 
 /// <summary>
@@ -123,6 +195,11 @@ public static class ShopCatalog
                     var listing = listings[i];
                     if (listing == null) continue;
                     if (listing.Item == null) continue;
+                    try
+                    {
+                        if (!listing.ShouldShow()) continue;
+                    }
+                    catch { }
                     // Unlimited listings (LimitedStock=false, z.B. mod-injiziert) gelten als In-Stock,
                     // auch wenn IsInStock/CurrentStock nie initialisiert wurden (Vanilla-Semantik).
                     // CurrentStock-Fallback deckt stale Saves ab (LimitedStock=true, IsInStock nie gesetzt,

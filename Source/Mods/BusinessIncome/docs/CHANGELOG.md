@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.6 (2026-09-17)
+- **Fix: 0-Business Backlog Bug**: Wenn der Spieler noch keine Geschäfte besitzt (`lines.Count == 0`), wird der Tag bei `commit && !isDryRun` nun ordnungsgemäß im `PayoutStateStore` als bezahlt/abgewickelt markiert (`LastPaidElapsedDay = elapsedDays`). Zuvor brach `TryExecuteDailyPayout` ohne State-Commit ab, wodurch `LastPaidElapsedDay` auf dem Seed-Tag (z.B. Tag 3) feststeckte und mit jedem Tag-Wechsel eine wachsende Backlog-Warnung (> 7 Tage) sowie endlose Catchup-Schleifen im Log erzeugte.
+
 ## 0.1.5 (2026-09-13) — Bug-Report-Runde 6
 Bug-Report-Runde 6: BIZ-01 Catch-up-Loop nach Cap neu eingelesen + hart auf MaxCatchupDays gedeckelt + LastPaid-Validierung beim Laden (Freeze bei korruptem State behoben); BIZ-02 'biz trigger --commit' verlangt --force, wenn der Tag bereits bezahlt ist (Money-Printer geschlossen); BIZ-03 float.IsFinite-/Upper-Bound-Guards in Sanitize inkl. MaxCatchupDays-Clamp (NaN-Economy-Brick verhindert); BIZ-04 'biz pending confirm' committet nur vorwaerts (stale Marker keine State-Regression mehr); BIZ-05 OnPreLoad behaelt den Slot (keepSlot:true, kein *_default.json mehr im Lade-Fenster).
 
