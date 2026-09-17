@@ -67,7 +67,7 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 
 ---
 
-## 2. Mod Inventory (Stand 2026-09-16 — Deploy-Status siehe Hinweis)
+## 2. Mod Inventory (Stand 2026-09-17 — Deploy-Status siehe Hinweis)
 
 > **Status-Konvention (2026-09-16):** `Verified <Datum>` = Funktions-Verify in einer Echtspiel-Session, nachvollziehbar über den jeweiligen Fix-/Audit-Commit und CHANGELOG-Eintrag (Assertion, **kein** Artefakt im Repo). `In-Game-Verify offen` = Code vollständig, aber noch nicht im Spiel bestätigt. Beide Stände bewusst getrennt führen.
 
@@ -83,7 +83,7 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 | **DayCounter**      | ⏸ archived (v1.0.0) | `Source/Archive/DayCounter/` | — (removed from MelonLoader) | no (MelonMod + uGUI Screen HUD + TextMeshPro + S1API/Hash Console + ModConfig) |
 | **PocketShop** | ✅ active (v0.2.7, **Level-Lock & Inline-Qty 2026-09-17 / v0.4.6f13, In-Game-Verify offen**) | `Mods/PocketShop/` | `PocketShop.dll` | yes (PhoneApp + Multi-Payment (Cash/Bank/Auto) + ItemDetailModal + Inline-Quantity-Input + Level-Lock + SFX) |
 | **BankApp**    | ✅ active (v0.4.4, **Verified 2026-09-15**) | `Mods/BankApp/`    | `BankApp.dll` + Icon | yes (PhoneApp + Chip-Based Single-Screen UI + Weekly Limit Progress + Double-Entry Booking + Slot-Awareness + Save-Slot Isolation) |
-| **HomelessMod** | ✅ active (v0.1.12, **Verified 2026-09-15**) | `Mods/HomelessMod/` | `HomelessMod.dll` | yes (Street Nomad + Everywhere Building + 3D Procedural Sleeping Bag + Quests + Console + Save-Slot Isolation) |
+| **HomelessMod** | ⏸ archived (v0.1.12) | `Source/Archive/HomelessMod/` | — (removed from MelonLoader) | yes (Street Nomad + Everywhere Building + 3D Procedural Sleeping Bag + Quests + Console + Save-Slot Isolation; archiviert 2026-09-17 auf User-Wunsch) |
 | **BusinessIncome** | ✅ active (v0.1.6, **0-Business Backlog-Fix 2026-09-17 / v0.4.6f13, In-Game-Verify offen**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | yes (Daily Passive Revenue + Multiplayer Host Authority + Slot Idempotency + Deterministic Variance + Console Dashboard) |
 | **Minimap**        | ⏸ archived (v2.0.2) | `Source/Archive/Minimap/` | — (removed from MelonLoader) | yes (Minimap & Unified HUD + Dual-Shape Circle/Square + Pooled Blips + DayCounter Merged + Drag-and-Drop + **v2: Dealer-Marker + Heat-Ring (EPursuitLevel) + Waypoints (slot-isoliert, Console `minimap wp`) + Health-Bar + Minimap-Settings-PhoneApp (Toggles + Hex-Farben)**; archiviert 2026-09-17; User bevorzugt Spiel ohne Minimap) |
 | **ProfitTracker**   | ⏸ archived (v1.1.0) | `Source/Archive/ProfitTracker/` | — (removed from MelonLoader) | no (MelonMod + uGUI Screen HUD + TextMeshPro + S1API/Hash Console + SafeStorage) |
@@ -96,7 +96,7 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 | **BackpackMod**   | ⏸ archived (v1.2.3) | `Source/Archive/BackpackMod/` | — (removed from MelonLoader) | yes (3D Wearable Backpacks + Spine Rig Alignment + Realistic Harness & Straps + ObjLoader + Storage + Mannequin 360 Rotation + **B1 Sort: Button-only Sortierung (Backpack/Inventory/Container) mit Stack-Merge nach ID+Qualität+Packaging, Sort-Button im StorageMenu + „Sort Inventory" im GameplayMenu, atomarer Plan-then-Commit (v1.2.0: GetCopy statt GetDefaultInstance — Quality/Packaging preserved; Clipboard-Slot-Referenz-Filter; Overflow-Sidecar bei vollem Inventar; OnPreLoad-Cross-Save-Protect; v1.2.1: ObjLoader 50MB/250k-Vertex-Cap, ShopDump #if DEBUG; v1.2.2: HUD-Sort-Button Raycast-Schutz gegen Grid-Click-Schlucken; v1.2.3: StorageMenu-Sort-Overlay-Fix (kleinstes-Button-Template + erzwungene Geometrie via SortButtonLayout + BackpackMod.Tests)**) |
 | **AutoPackagingStation** | ✅ active (v0.2.7, **Bug-Report-Runde 6 2026-09-13 / v0.4.6f13, In-Game-Verify offen**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | yes (4x4 Industrial Packaging Line + UV Scroll Conveyor + Native Slot Sync + SafeStorage + Shop Injection) |
 | **HitmanPhone** | ✅ active (v0.2.9, **KnockOut-Hook + Single-Drop-Latch + Orphan-Cleanup, Verified 2026-09-15**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | yes (MessagesApp Contracts + NPC + Items + Quests + SafeStorage) |
-| **SnackVendor** | ⚠️ Spike-Completion (v0.0.9, **GLB + NPC-Inventory + Panel 2026-09-16, Build OK / In-Game-Verify offen**) | `Mods/SnackVendor/` | `SnackVendor.dll` | yes (S1API Buildable + Vanilla-VendingMachine-Klon + marker-guarded Harmony + Sidecar-Persistenz + S1MAPI.GltfLoader-Mesh + NPC-Inventory-Credit + Deposit/Extract-Panel) |
+| **SnackVendor** | ⏸ archived (v0.0.9) | `Source/Archive/SnackVendor/` | — (removed from MelonLoader) | yes (S1API Buildable + Vanilla-VendingMachine-Klon + marker-guarded Harmony + Sidecar-Persistenz + S1MAPI.GltfLoader-Mesh + NPC-Inventory-Credit + Deposit/Extract-Panel; archiviert 2026-09-17 auf User-Wunsch, In-Game-Verify nie erfolgt) |
 | **_DiagPerfCounter** | ✅ active (v0.3.2, **Dev-Tool, dok. 2026-09-10**) | `Mods/_DiagPerfCounter/` | `_DiagPerfCounter.dll` | no (Reflection-Dump via SafeStorage-Pfad) |
 | **PhoneScroll** | ❌ removed (v1.4, **retired 2026-09-16**, DLL in `UserData\_RemovedMods\`) | `ThirdParty/Archive/PhoneScroll/` | — | no (vanilla Phone-HomeScreen-Hook, 3rd-party by V4LEXL) |
 | **Shared**       | ✅ active (workspace lib, **Verified 2026-09-15**) | `Mods/Shared/` | `Shared.dll` | no (PatchGuard, SafeStorage, GameObjectResolver, SafeInvoker, HotkeyManager, ModConfig, ModLogger, NetworkGuard, SceneGate, TypeResolver, UITheme) |
@@ -194,19 +194,6 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 - **Native & Procedural Audio Feedback (`SoundService`):** Plays the game's real cash register chime (`MoneyManager.Instance.PlayCashSound()`) on successful purchases, soft clicks on quantity changes, and alarm tones on rejected transactions. Enable/disable via `PocketShopConfig.EnableSoundEffects`.
 - **2-Level Navigation:** 4×3 grid with themed vector icons and merchant portraits (`StoreCatalogPane`) plus a 5×N item grid (`ItemGridPane`) with synchronized stock count.
 
-**HomelessMod v0.1.12 (2026-09-12, Audit-Patch Runde 4 2026-09-12):**
-- **v0.1.9 (Bug-Audit 2026-09-12):** Ghost-Rotations-Restore in einen `finally`-Block verschoben. Vorher wurde `ghost.transform.rotation = originalRot` nur im Erfolgspfad erreicht — wenn `EvaluatePlacement` oder `ApplyMaterial` warfen, blieb der Ghost auf `Quaternion.identity` und sah aus wie „spinning reset". Jetzt gilt der Restore auf jedem Pfad.
-- **v0.1.8:** Postfix Host-Guard + Layer-Maske um 7 Layer erweitert.
-- **v0.1.7:** Place Host-Guard; Wipe-if-Switched in OnSaveInfoLoaded; Sleep-Flag-Stale-Guard (5 Min).
-- **v0.1.4–v0.1.6:** Gatekeeper-Fixes (PackUp-ItemID, Quest-2-Gear-Check, Wake-Credit, Mesh-Normalen, ResetState); Place-Prefix `__result=null`; Quest-Flush auf Save; Registry-Re-Verify.
-- **Everywhere Building & Collision Protection:** Unrestricted placement of objects across the entire game area (streets, parks, alleys) via Harmony patches on `BuildUpdate_Grid`. Bounding-box collision check against walls and 4-corner floor stability check. Synchronized ghost rotation.
-- **Procedural 3D Sleeping Bag:** Self-contained procedural mesh & texture/icon without external asset bundles. Interactions: [E] Sleep (18:00–06:00 or anytime per config), [F] / [Hold RMB] Pack-Up back into inventory.
-- **Outdoor Item Dismantling:** Generic outdoor objects (pots, tables, racks) can be dismantled via [F]/Hold RMB using `OutdoorItemInteractable` (IL2CPP-registered).
-- **Savegame Slot Isolation & SafeStorage:** Slot-specific persistence (`street_items_slot_{slotId}.json`) with `.bak` crash protection and automatic migration from legacy saves.
-- **Zero-Allocation OnGUI:** Statically cached `GUIStyle` instances and dynamic screen scaling (`scale = Mathf.Clamp(Screen.height / 900f, 0.80f, 1.25f)`) prevent GC allocations in IMGUI.
-- **Street Nomad Questline:** 3 staged quests (*Cold Concrete*, *Alley Operations*, *Street Sovereign*) via S1API Quests.
-- **Console Integration:** `homeless bag`, `homeless start`, `homeless stats`, `homeless help`.
-
 **BankApp v0.4.4 (2026-09-12, Audit-Patch Runde 3 2026-09-12):**
 - **v0.4.4 (Bug-Audit 2026-09-12):** `DepositCash`/`WithdrawCash` haben jetzt einen `NetworkGuard.IsInMainScene`-Guard vor jedem Geld-Op. Defense in depth: bei Scene-Wechsel-Mid-Call oder Hotkey-Aufruf außerhalb von Main bricht der Service sauber mit Fehlermeldung ab, statt eine Teiltransaktion zu riskieren.
 - **v0.4.3 (Bug-Audit 2026-09-12):** `UpdateAmountDisplay`/`UpdateModeVisuals`/`SetFeedback` nutzen jetzt `IsAlive(...)` (vorher nur `!= null`-Check) — konsistent zu v0.4.2-RefreshAll. Verhindert MissingReference-Spam bei Phone-Close oder Szenenwechsel.
@@ -280,14 +267,6 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 - **Systeme:** Police-Heat-Integration, Journal-Quests, 3-Tage-Ablauf, Death-Forfeit, slot-isolierte Persistenz (`slot_{n}` + TryMigrateLegacy).
 - **v0.2.2 Audit-Fixes:** Payout host-only, PatchGuard statt PatchAll, Day-Throttle, Cooldown-Persist, Deadline-Boundary, Test-Commands nur DEBUG.
 
-**SnackVendor v0.0.9 (2026-09-16, Spike-Completion):**
-- **v0.0.6 (Repo-Hygiene-Runde 2026-09-16):** `Interacted_Prefix` fail-closed (stiller Catch liess bei internem Fehler die Vanilla-Zahl-UI auf eigenen Maschinen aufgehen — jetzt Warn-Log + blockiert); Persist-Doppel-Backup in `SnackVendorStore.Save` entfernt (`SafeStorage.SaveAtomic` macht .bak/tmp intern — doppelter Backup-Schreibvorgang pro Kauf); Panel-Log-Flut gedrosselt (max. 1 Warn pro Open); KNOWN GAP (MP) dokumentiert: Deposit/Extract sind client-lokal, NPC-Kauf nur host-seitig → Stock-Desync im MP möglich (Singleplayer unbeeinträchtigt); `NPCSignalPatches.cs` + `SnackVendorPanel.cs` erstmals committed (vorher verschluckte der `.gitignore`-Bug `Mods/` diese Dateien).
-- **v0.0.5 (Spike-Completion 2026-09-16):** GLB-Mesh via `S1MAPI.Gltf.GltfLoader.LoadGlb` (AutoPack-Pipeline, URP-Shader-Fix via sharedMaterial, Vanilla-Renderer erst nach Load-Erfolg aus, Auto-Deploy `assets/*.glb` → `Mods\SnackVendor\`); NPC-Inventory-Credit via neuer `NPCSignalPatches.Purchase_Prefix` (NPC-Capture host-gated, 60-s-Pending-Map, `GetDefaultInstance(1)` → `NPC.Inventory.InsertItem`); Deposit/Extract-IMGUI-Panel via `Interacted`-Prefix (GetCopy-Rollback, 1-Unit-Kapazitäts-Probe, Auto-Close); Stock-Identität von kaputtem numerischem Scan auf Registry-String-IDs umgestellt (Allowed-Set aus Shop-Listings, Gas-Markt-Bevorzugung); `ThirdParty/Archive/**` in `.deployignore` ergänzt (Hash.dll-Auto-Deploy-Fix).
-- **Status:** Build OK, **In-Game-Verify offen** — jetzt für alle Sub-Features (Spike-Gate, GLB-Optik, NPC-Credit, Panel, Shop-Listing, Cash-Credit). Feature-fuer-Feature-Verifikationsstand steht in `Source/Mods/SnackVendor/README.md`.
-- **Wired:** Buildable 1x1 (`snackvendor`) via S1API `BuildableItemDefinitionBuilder`; Placement via `BuildableItem.Start`-Postfix + HomelessMod-Street-Path (`SetupPlacedStation`); Vanilla-Cuke-VendingMachine-Klon pro Station; marker-guarded Harmony-Prefixes (`SendPurchase`, `PurchaseRoutine`, `DropItem`, `DropCash`, `Interacted`, `NPCSignal_UseVendingMachine.Purchase`); Sidecar `snacks_slot_{n}.json` (Sentinel-Guard) via `SnackVendorStore`; Hardware-Shop-Listing via `InjectHardwareStoreListing` + `Shared.ShopListingSync` (Add → Initialize → UI-Row, Äquivalent zu S1API ShopIntegration).
-- **Offen (nur noch Verify, kein Code):** Spike-Gate (Klon in `VendingMachine.AllMachines`, NPC-Routing), Cash-Credit, GLB-Optik im Spiel, NPC-Inventory-Credit, Panel-UX, Shop-Listing sichtbar/kaufbar.
-- **Assets:** `assets/SnackVendor_model.glb` (auto-deployt) + headless Blender-Build `assets/build_snackvendor_model.py`.
-
 **_DiagPerfCounter v0.3.2 (2026-09-11, Dev-Tool):**
 - **v0.3.2:** Nur noch DEBUG-Builds; Dump via SaveTextAtomic mit Return-Types.
 - **Zweck:** Diagnose-Tool — dumpt `StorageEntity`-Methodensignaturen per Reflection nach `UserData\_DiagPerfCounter\dump.txt` (Hook-Target-Discovery). Kein Gameplay-Effekt.
@@ -314,6 +293,15 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 **TVBrowser v0.1.0 (archived):**
 - **Description:** In-game TV web & YouTube app for property TVs with viewport rendering and navigation bar.
 - **Archive path:** `Source/Archive/TVBrowser/`
+
+**HomelessMod v0.1.12 (archived 2026-09-17):**
+- **Description:** Street Nomad lifestyle — Everywhere Building (unrestricted placement via `BuildUpdate_Grid` patches), procedural 3D sleeping bag, outdoor item dismantling, Street Nomad questline (3 quests), slot-isolierte Persistenz (`street_items_slot_{n}.json`). DLL/Deploy nach `Mods\_archived\` (Save-Daten in `UserData\HomelessMod\` bleiben erhalten).
+- **Archive path:** `Source/Archive/HomelessMod/`
+- **History:** v0.1.12, **Verified 2026-09-15**; Detail-Verlauf siehe `Source/Archive/HomelessMod/docs/CHANGELOG.md`.
+
+**SnackVendor v0.0.9 (archived 2026-09-17):**
+- **Description:** Player-stocked vending machine (S1API Buildable + Vanilla-VendingMachine-Klon, GLB-Mesh via `S1MAPI.GltfLoader`, NPC-Inventory-Credit, Deposit/Extract-Panel, Hardware-Shop-Listing). Build OK, In-Game-Verify nie erfolgt. DLL/Assets nach `Mods\_archived\` (incl. `Mods\_archived\SnackVendor\` GLB-Ordner).
+- **Archive path:** `Source/Archive/SnackVendor/`
 
 **Convention Archive & `.bak`:** Archived mods live in `Source/Archive/`, are not part of `S1Mods.sln`, and are not built. MelonLoader does not load `*.dll.bak` files. The source code is fully preserved.
 

@@ -45,7 +45,7 @@ Schedule1-mod-only-main/
 │   ├── Archive/PhoneScroll/               (retired 2026-09-16, phone scroll hook by V4LEXL)
 │   └── S1MCPServer-master/                  (S1MCP protocol bridge source)
 │
-└── Source/Mods/                             (15 active mod implementations: NotesApp, BankApp, PotScanner, HomelessMod, SnackVendor, etc.)
+└── Source/Mods/                             (13 active mod implementations: NotesApp, BankApp, PotScanner, PocketShop, etc.; archivierte Mods in Source/Archive/)
 ```
 
 > **Live Inspection:** Always verify method signatures against the live game proxies in `$env:SCHEDULE1_PATH\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll` using `ilspycmd`.
@@ -69,7 +69,7 @@ When you get a question, run this mental check:
 | How to handle multi-payment (Cash/Bank) or economy? | `Skills/schedule1-economy/SKILL.md` | `Source/Mods/PocketShop/` + `Source/Mods/BankApp/` |
 | How to build a Minimap / Radar / Blips? | `Source/Archive/Minimap/` | `Skills/schedule1-modding/references/mod-patterns.md` |
 | How to do Multiplayer Host Authority or passive income? | `Source/Mods/BusinessIncome/` | `Skills/schedule1-economy/references/passive-revenue.md` |
-| How to implement Everywhere Building / Procedural 3D? | `Source/Mods/HomelessMod/` | `Skills/schedule1-grid/` |
+| How to implement Everywhere Building / Procedural 3D? | `Source/Archive/HomelessMod/` | `Skills/schedule1-grid/` |
 
 ---
 
@@ -125,7 +125,7 @@ D. **Inspect S1API wrappers:**
 * Game Version: `v0.4.6f13` (Unity 2022.3, IL2CPP).
 * S1API: `3.2.0` deployed (`Plugins\S1APILoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`).
 * S1MAPI: `2.0.0` in `ThirdParty/S1MAPI/`.
-* Active Mods: 13 mods in `Source/Mods/` (NotesApp, PotScanner, CalculatorApp, CustomSkateboard, MoreSaveSlots, PocketShop, BankApp, HomelessMod, BusinessIncome, Minimap, StackLimitMod, BackpackMod, AutoPackagingStation, HitmanPhone).
+* Active Mods: 13 mods in `Source/Mods/` (NotesApp, PotScanner, CalculatorApp, CustomSkateboard, MoreSaveSlots, PocketShop, BankApp, BusinessIncome, StackLimitMod, AutoPackagingStation, HitmanPhone, Shared, _DiagPerfCounter); archivierte Mods in `Source/Archive/`.
 * All 64 game systems fully documented in `Skills/schedule1-game-systems/references/`.
 
 ---

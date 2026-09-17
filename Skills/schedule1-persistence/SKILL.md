@@ -208,5 +208,5 @@ ModConfig<MyConfig>.Initialize("MyMod", Log,
   - `Source/Mods/NotesApp/src/NotesApp.cs`
   - `Source/Mods/BankApp/src/TransactionHistoryService.cs`
   - `Source/Mods/BusinessIncome/src/PayoutStateStore.cs`
-  - `Source/Mods/HomelessMod/src/StreetPropertyManager.cs`
+  - `Source/Archive/HomelessMod/src/StreetPropertyManager.cs`
   - `Source/Mods/MoreSaveSlots/src/SaveRenameService.cs`

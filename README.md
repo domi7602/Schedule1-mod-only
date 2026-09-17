@@ -20,14 +20,14 @@ This repository contains several active mods, built from the ground up for stabi
 
 ### 🎮 Gameplay & QoL
 * **CustomSkateboard** (v1.1.5): Overhauls the skateboarding experience with ultra-responsive carving, instant jumping, high-speed pushes, and anti-gravel suspension. Visually protects your avatar.
-* **HomelessMod** (v0.1.12): Live the street nomad life! Build anywhere, deploy procedural 3D sleeping bags, dismantle outdoor items, and follow the Street Nomad questline.
 * **BusinessIncome** (v0.1.6): Earn daily passive revenue for your owned businesses, complete with multiplayer host authority and deterministic variance.
 * **StackLimitMod** (v0.1.4): Configurable inventory and storage stack limits (1–9999) restricted to agriculture and farming items (soil, seeds, baggies, jars, fertilizers, harvested crops) with permanent weapon and ammo protection.
 * **MoreSaveSlots** (v1.0.12): Expands vanilla save slots from 5 to 25+ with paginated navigation and inline save renaming.
 * **AutoPackagingStation** (v0.2.7): 4×4 industrial automated packaging line with UV-scroll conveyor belt, atomic 2-phase engine, weighted quality mixing, and native slot sync.
 * **HitmanPhone** (v0.2.9): Bounty/contract gameplay via the phone Messages app — anonymous callers, Polaroid evidence dead-drops, police heat, and journal quests.
-* **SnackVendor** (v0.0.9): Work in progress — player-stocked vending machine that sells gas-market ingredients to NPCs for passive cash. Spike-complete (GLB mesh, NPC inventory credit, deposit/extract panel); in-game verification pending.
 * **_DiagPerfCounter** (v0.3.2): Dev-tool that dumps StorageEntity hook targets to UserData for mod development (no gameplay effect).
+
+> Archived mods (source preserved, not built/deployed): BackpackMod, DayCounter, HomelessMod, Minimap, ProfitTracker, SnackVendor, TVBrowser — see `Source/Archive/` and [AGENTS.md](AGENTS.md).
 
 ## 🧠 AI Agent Skills
 

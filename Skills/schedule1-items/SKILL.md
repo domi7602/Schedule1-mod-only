@@ -152,5 +152,5 @@ Need to… ?
   - `Source/Mods/StackLimitMod/src/StackLimitEngine.cs`
   - `Source/Mods/BankApp/src/BankService.cs`
   - `Source/Mods/PocketShop/src/PurchaseService.cs`
-  - `Source/Mods/HomelessMod/src/StreetPropertyManager.cs`
+  - `Source/Archive/HomelessMod/src/StreetPropertyManager.cs`
   - `Source/Archive/BackpackMod/src/BackpackStorageManager.cs`
