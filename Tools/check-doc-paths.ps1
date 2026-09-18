@@ -45,7 +45,11 @@ $workspaceRoot = Split-Path $PSScriptRoot -Parent
 # Submodule: Inhalt existiert nur nach `git submodule update --init` — auf
 # frischen Clones/CI ist der Pfad ein leerer Verzeichnisstummel. Referenzen
 # in Submodule hinein sind daher hier nicht verlaesslich pruefbar.
-$defaultAllow = @('^ThirdParty/S1API/', '^ThirdParty/S1MAPI/')
+# GameReferences/decompiled: bootstrap-generierter Output, per Design gitignored
+# (GameReferences/.gitignore:1) — Doku (README.md) referenziert ihn bewusst,
+# der Pfad ist nach `pwsh Tools/bootstrap-game-references.ps1` lokal vorhanden,
+# aber nie Teil des Worktrees.
+$defaultAllow = @('^ThirdParty/S1API/', '^ThirdParty/S1MAPI/', '^GameReferences/decompiled(/|$)')
 $Allow = $defaultAllow + $Allow
 
 # Historische Wurzeln: Layouts, die es im aktuellen Repo (bewusst) nicht
