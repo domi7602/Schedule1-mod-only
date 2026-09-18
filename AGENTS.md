@@ -388,6 +388,8 @@ dotnet build Source/Mods/S1Mods.sln -c Release
 
 Vor jeder Session auf einem anderen PC: `git pull`. Nach jeder Session: `git add && git commit && git push`.
 
+**Laptop-Sandbox-Workspace (Variante A):** Wenn du auf einem zweiten PC (Laptop, Test-Maschine) unabhängig vom Wohnungs-PC arbeiten willst, ohne das stabile Repo zu gefährden: `pwsh Tools/new-laptop-workspace.ps1`. Das Skript klont das Repo, benennt `origin` zu `upstream` um (damit versehentliche Pushes physikalisch ausgeschlossen sind), konfiguriert optional ein privates Backup-Remote als neuen `origin`, und läuft `setup-workspace.ps1` direkt mit. **Kein GitHub-Fork** — eine Code-Wahrheit auf GitHub, lokale Sandbox daneben. Merge vom stabilen Repo: `git fetch upstream && git merge upstream/main`.
+
 ---
 
 ## 4. IL2CPP vs Mono (Alternate Branch) — Architecture Decision
