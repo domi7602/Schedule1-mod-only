@@ -368,6 +368,26 @@ Sideload (DooDesch) und hash (DooDesch) liegen nach dem Umzug 2026-09 als **fert
 # deployment-wuerdig — bei echtem Bedarf Sideload neu beschaffen (DooDesch, Nexus).
 ```
 
+### Multi-PC-Workflow (Laptop ↔ Wohnungs-PC)
+
+Linearer Workflow auf `main`, keine Feature-Branches. Beim ersten Klon auf einem neuen PC:
+
+```pwsh
+# 1. Repo klonen
+git clone https://github.com/domi7602/Schedule1-mod-only.git
+cd Schedule1-mod-only
+
+# 2. Submodule + Build-Props generieren (idempotent, fragt nach Game-Pfad falls nicht Standard)
+pwsh Tools/setup-workspace.ps1
+
+# 3. Bauen
+dotnet build Source/Mods/S1Mods.sln -c Release
+```
+
+`local.build.props` (S1API + S1MAPI) sind gitignored und werden vom Skript pro PC generiert. Spiel-Saves (`<GameDir>\UserData\<Mod>\*.json`) sind ebenfalls PC-lokal — beim Wechsel sieht jeder PC nur seine eigenen Saves.
+
+Vor jeder Session auf einem anderen PC: `git pull`. Nach jeder Session: `git add && git commit && git push`.
+
 ---
 
 ## 4. IL2CPP vs Mono (Alternate Branch) — Architecture Decision

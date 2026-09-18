@@ -161,3 +161,25 @@ pwsh Tools/new-mod.ps1 -Name "MyMod" -Author "Dominik" -Version "0.1.0"
 pwsh Tools/gen-sln.ps1
 dotnet build Source\Mods\MyMod\src\MyMod.csproj -c Release
 ```
+
+---
+
+## 10. Multi-PC-Workflow (Laptop ↔ Desktop)
+
+Linearer Workflow auf `main`, keine Feature-Branches. Spielstände und Save-Daten (`<GameDir>\UserData\<Mod>\*.json`) bleiben PC-lokal — nur Source-Code und Docs werden synchronisiert.
+
+**Erstmaliges Setup auf einem neuen PC** (Repo-Klon, dann):
+```pwsh
+git clone https://github.com/domi7602/Schedule1-mod-only.git
+cd Schedule1-mod-only
+pwsh Tools/setup-workspace.ps1        # generiert local.build.props, fragt ggf. nach Game-Pfad
+dotnet build Source/Mods/S1Mods.sln -c Release
+```
+
+**Täglicher Wechsel:**
+- Session-Start: `git pull`
+- Session-Ende: `git add -A && git commit && git push`
+
+**`local.build.props`** sind gitignored (`ThirdParty/S1API/local.build.props`, `ThirdParty/S1MAPI/local.build.props`) und werden vom `setup-workspace.ps1` aus den `*.example`-Vorlagen generiert. Bei Steam-Standardpfad `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` reicht der Default; bei anderer Library-Lokation interaktiver Prompt oder `-GameDir "<Pfad>"`.
+
+**Was NICHT synchronisiert wird:** `<GameDir>\Mods\*.dll` (Build-Artefakte, nach `dotnet build` lokal erzeugt), `<GameDir>\UserData\*` (Saves), `bin/`/`obj/`.
