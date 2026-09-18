@@ -1,10 +1,13 @@
 # AGENTS.md
 
-Workspace: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule1-mod-only-main` — MelonLoader modding workspace for *Schedule I* v0.4.6f13 (TVGS).
+Workspace: `C:\Users\pc\Schedule1-mod-only` — MelonLoader modding workspace for *Schedule I* v0.4.6f13 (TVGS). The repo lives **outside** the game install dir (under the user profile); build/deploy resolves the game path via the `SCHEDULE1_PATH` env var or the default fallback `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
 
 Quick links: [`docs/architecture.md`](docs/architecture.md) defines dependency boundaries, [`ThirdParty/README.md`](ThirdParty/README.md) documents pinned dependencies, and [`GameReferences/README.md`](GameReferences/README.md) explains local decompile generation. This file remains the compact operational index and version inventory.
 
-> **Umzug 2026-09 (Neuinstallation):** Das Repo liegt jetzt **im Spiel-Ordner** (`<GameDir>\Schedule1-mod-only-main`); der alte Pfad `C:\Users\pc\Desktop\Schedule1-mod-only` ist obsolet. Setup 2026-09-04 wiederhergestellt: .NET SDK 8.0.424 installiert, S1API 3.2.0 (Fork-Build aus `ThirdParty/S1API/`) deployed, NotesApp + Shared als Verifikation gebaut. Deploy-Konvention seit 2026-09: DLL/PNG/bundle → `Mods\`; `mod.json` + `.pdb` → `UserData\<Mod>\`.
+> **Pfad-Historie (3 Umzüge):**
+> - **2026-09 Setup-Wiederherstellung (aktueller Stand):** Repo unter `C:\Users\pc\Schedule1-mod-only`. .NET SDK 8.0.424 installiert, S1API 3.2.0 (Fork-Build aus `ThirdParty/S1API/`) deployed, NotesApp + Shared als Verifikation gebaut. Deploy-Konvention seit 2026-09: DLL/PNG/bundle → `Mods\`; `mod.json` + `.pdb` → `UserData\<Mod>\`.
+> - **Vorheriger Stand (vor Wiederherstellung):** Repo lag im Spiel-Ordner unter `<GameDir>\Schedule1-mod-only-main`. Obsolet durch die Neuinstallation.
+> - **Ältester Stand:** `C:\Users\pc\Desktop\Schedule1-mod-only`. Bereits mit dem Wechsel ins Game-Dir obsolet.
 
 > **For AI Agents:** This is the bootstrap file. Read it completely before doing anything to the mods. If you make assumptions not stated here, ask first. If you find something here that is *wrong* or outdated, please update it.
 
@@ -432,7 +435,9 @@ In `OnCreatedUI(GameObject container)` always call `UITheme.Initialize...` first
 
 ```pwsh
 s1interop doctor --mono-game-path $env:SCHEDULE1_PATH --il2cpp-game-path $env:SCHEDULE1_PATH
-s1interop analyze "C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule1-mod-only-main\Source\Mods\<Name>\src\<Name>.csproj"
+s1interop analyze "$env:SCHEDULE1_PATH\..\..\Users\pc\Schedule1-mod-only\Source\Mods\<Name>\src\<Name>.csproj"
+# or simply, from the workspace root:
+s1interop analyze "Source\Mods\<Name>\src\<Name>.csproj"
 ```
 
 ### Mod Update Cycle

@@ -20,7 +20,7 @@ This skill is the **API catalog** for S1MAPI. S1MAPI is a **mapping and construc
 
 | Item | Location |
 |---|---|
-| **Workspace Root** | `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule1-mod-only-main` |
+| **Workspace Root** | `C:\Users\pc\Schedule1-mod-only` (lives outside the game directory) |
 | **Game Path** | `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`) |
 | **Runtime** | MelonLoader 0.7.3 (IL2CPP, Unity 2022.3) |
 | **S1MAPI DLL (deployed)** | `<GameDir>\UserLibs\S1MAPI_Il2Cpp.dll` |

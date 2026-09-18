@@ -17,7 +17,7 @@ This skill guides you through the curated knowledge resources available directly
 ## 1. Knowledge Map (In-Repo Orientation)
 
 ```text
-Schedule1-mod-only-main/
+Schedule1-mod-only/
 ├── GameReferences/
 │   └── decompiled/Assembly-CSharp/
 │       ├── Assembly-CSharp.csproj           (IDE navigation)
@@ -121,7 +121,7 @@ D. **Inspect S1API wrappers:**
 
 ## 6. Knowledge State & Anchors
 
-* Workspace: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I\Schedule1-mod-only-main`
+* Workspace: `C:\Users\pc\Schedule1-mod-only`
 * Game Version: `v0.4.6f13` (Unity 2022.3, IL2CPP).
 * S1API: `3.2.0` deployed (`Plugins\S1APILoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`).
 * S1MAPI: `2.0.0` in `ThirdParty/S1MAPI/`.
