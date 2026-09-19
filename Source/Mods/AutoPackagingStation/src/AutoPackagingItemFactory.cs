@@ -94,9 +94,18 @@ public static class AutoPackagingItemFactory
                        return ghost;
                    }, replaceExistingVisual: true);
 
-            builder.Build();
+            // Bug 3 Fix: Level-gate — Tier 3 packaging machine requires Hustler rank
+            // (after Tier 1 "packagingstation" StreetRat, Tier 2 "packagingstationmk2" Peddler)
+            builder.WithRequiredRank(new S1API.Leveling.FullRank(S1API.Leveling.Rank.Hustler, 1));
+
+            var built = builder.Build();
+
+            // Bug 1 Fix: Expand GridItem footprint from inherited 1x1 to 2x2 tiles
+            // so the placement system blocks overlapping tiles (prevents clipping into shelves).
+            ExpandFootprintTo2x2(built);
+
             _isRegistered = true;
-            Mod.Log.Info($"Successfully registered 2x2 item '{itemId}' into game Registry (visual 2m, tile footprint inherits from '{baseId ?? "scratch"}' — 1x1 tile; BoxCollider 2x2 provides overlap prevention; true 4x4 tile footprint requires S1API WithFootprint if exposed).");
+            Mod.Log.Info($"Successfully registered '{itemId}' (2x2 footprint, Hustler I rank-gated).");
         }
         catch (Exception ex)
         {
@@ -264,6 +273,54 @@ public static class AutoPackagingItemFactory
                 }
             }
 
+            // 2b. Bug 2 Fix: Ensure InteractableObject exists for E-key storage interaction.
+            // The native PackagingStation expects an InteractableObject component to trigger
+            // its canvas (storage/slot UI). Without it, pressing E on the Kessel does nothing.
+            if (station != null && station.Pointer != IntPtr.Zero)
+            {
+                try
+                {
+                    var interactable = go.GetComponent<Il2CppScheduleOne.Interaction.InteractableObject>();
+                    if (interactable == null || interactable.Pointer == IntPtr.Zero)
+                    {
+                        interactable = go.AddComponent(Il2CppType.Of<Il2CppScheduleOne.Interaction.InteractableObject>()).Cast<Il2CppScheduleOne.Interaction.InteractableObject>();
+                        Mod.Log.Info("Added InteractableObject to AutoPackagingStation for E-key interaction.");
+                    }
+
+                    // Configure the interactable
+                    interactable.SetMessage("Open Packaging Station");
+                    interactable.MaxInteractionRange = Mod.CurrentConfig.InteractionRange;
+                    interactable.Priority = 0;
+                    interactable.LimitInteractionAngle = false;
+
+                    // Wire up E-key interaction — native PackagingStation.Interacted() opens the canvas
+                    S1API.Utils.EventHelper.AddListener(
+                        new Action(() =>
+                        {
+                            try
+                            {
+                                if (station.Pointer != IntPtr.Zero)
+                                {
+                                    var canvas = Il2CppScheduleOne.UI.Stations.PackagingStationCanvas.Instance;
+                                    if (canvas != null && canvas.Pointer != IntPtr.Zero && !canvas.gameObject.activeSelf)
+                                    {
+                                        station.Interacted();
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Mod.Log.Debug($"InteractableObject onInteractStart error: {ex.Message}");
+                            }
+                        }),
+                        interactable.onInteractStart);
+                }
+                catch (Exception ex)
+                {
+                    Mod.Log.Warn($"InteractableObject setup failed (non-fatal): {ex.Message}");
+                }
+            }
+
             // 3. Attach AutoPackStationController
             var controller = go.GetComponent<AutoPackStationController>() ?? go.AddComponent(Il2CppType.Of<AutoPackStationController>()).Cast<AutoPackStationController>();
 
@@ -301,6 +358,99 @@ public static class AutoPackagingItemFactory
         catch (Exception ex)
         {
             Mod.Log.Error($"SetupPlacedStation error: {ex}");
+        }
+    }
+
+    /// <summary>
+    /// Bug 1 Fix: Expands the GridItem footprint from the inherited 1x1 to 2x2 tiles,
+    /// matching the 2x2m physical footprint. This prevents tile overlap (e.g. clipping into shelves).
+    /// Grid tile size is 0.5m per tile — a 2x2m station occupies 4x4 tiles (2x2 in each axis).
+    /// </summary>
+    private static void ExpandFootprintTo2x2(S1API.Items.Buildable.BuildableItemDefinition? built)
+    {
+        try
+        {
+            if (built == null) { Mod.Log.Warn("ExpandFootprint: built definition is null."); return; }
+
+            // Access the native definition directly from the registry (the builder already registered it).
+            string itemId = Mod.CurrentConfig.StationItemId;
+            var nativeDef = GameRegistry.GetItem(itemId)?.TryCast<NativeBuildableItemDef>();
+            if (nativeDef == null || nativeDef.Pointer == IntPtr.Zero)
+            {
+                Mod.Log.Warn("ExpandFootprint: Native definition not found in Registry.");
+                return;
+            }
+
+            var builtItem = nativeDef.BuiltItem;
+            if (builtItem == null || builtItem.Pointer == IntPtr.Zero)
+            {
+                Mod.Log.Warn("ExpandFootprint: BuiltItem is null on native definition.");
+                return;
+            }
+
+            var gridItem = builtItem.GetComponent<Il2CppScheduleOne.EntityFramework.GridItem>();
+            if (gridItem == null || gridItem.Pointer == IntPtr.Zero)
+            {
+                Mod.Log.Warn("ExpandFootprint: No GridItem on BuiltItem — skipping footprint expansion.");
+                return;
+            }
+
+            var pairs = gridItem.CoordinateFootprintTilePairs;
+            if (pairs == null || pairs.Count == 0)
+            {
+                Mod.Log.Warn("ExpandFootprint: CoordinateFootprintTilePairs is empty — cannot expand.");
+                return;
+            }
+
+            // Clone the template tile from the first pair
+            var templateTile = pairs[0].footprintTile;
+            if (templateTile == null || templateTile.Pointer == IntPtr.Zero)
+            {
+                Mod.Log.Warn("ExpandFootprint: Template FootprintTile is null.");
+                return;
+            }
+
+            // Build 2x2 grid: coordinates (0,0), (1,0), (0,1), (1,1) at 0.5m spacing
+            const float tileSpacing = 0.5f;
+            int[,] coords = new int[,] { { 0, 0 }, { 1, 0 }, { 0, 1 }, { 1, 1 } };
+
+            // Keep existing pair for (0,0), add (1,0), (0,1), (1,1)
+            for (int i = 1; i < 4; i++)
+            {
+                int x = coords[i, 0];
+                int y = coords[i, 1];
+
+                // Check if already exists
+                bool exists = false;
+                for (int p = 0; p < pairs.Count; p++)
+                {
+                    if (pairs[p].coord.x == x && pairs[p].coord.y == y) { exists = true; break; }
+                }
+                if (exists) continue;
+
+                // Clone tile under same parent
+                var parent = templateTile.transform.parent;
+                var newTileGo = UnityEngine.Object.Instantiate(templateTile.gameObject, parent);
+                newTileGo.name = $"FootprintTile_{x}_{y}";
+                newTileGo.transform.localPosition = new Vector3(x * tileSpacing, 0f, y * tileSpacing);
+                newTileGo.SetActive(true);
+
+                var newTile = newTileGo.GetComponent<Il2CppScheduleOne.Tiles.FootprintTile>();
+                if (newTile == null || newTile.Pointer == IntPtr.Zero) continue;
+                newTile.X = x;
+                newTile.Y = y;
+
+                var pair = new Il2CppScheduleOne.Tiles.CoordinateFootprintTilePair();
+                pair.coord = new Il2CppScheduleOne.Tiles.Coordinate(x, y);
+                pair.footprintTile = newTile;
+                pairs.Add(pair);
+            }
+
+            Mod.Log.Info($"ExpandFootprint: Expanded to {pairs.Count} footprint tiles (2x2).");
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"ExpandFootprintTo2x2 failed (non-fatal, 1x1 fallback): {ex.Message}");
         }
     }
 

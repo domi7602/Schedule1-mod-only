@@ -1,5 +1,11 @@
 # Changelog - AutoPackagingStation
 
+## 0.2.8 (2026-09-19) — Bugfix-Runde 7: Placement, Interaktion, Level-Gate
+- **Grid-Tile-Überschneidung (HIGH):** `ExpandFootprintTo2x2()` klont die FootprintTile des Basis-Items und erstellt 3 zusätzliche Tiles für ein echtes 2×2-Raster (0.5m-Spacing). Verhindert, dass die Station halb in Regale oder andere Buildables ragt.
+- **E-Interaktion auf Kessel (MEDIUM):** `SetupPlacedStation()` fügt jetzt ein `Il2CppScheduleOne.Interaction.InteractableObject` hinzu (Message, Range, onInteractStart → `station.Interacted()`). Das native `PackagingStationCanvas` öffnet sich zuverlässig beim Hovern auf die Station (Kessel).
+- **Level-Gate (MEDIUM):** `WithRequiredRank(new FullRank(Rank.Hustler, 1))` — die Station ist ab Hustler I kaufbar (nach Tier 1 PackagingStation und Tier 2 PackagingStationMk2). Nicht mehr ab Level 1 verfügbar.
+
+
 ## 0.2.7 (2026-09-13) — Bug-Report-Runde 6
 Bug-Report-Runde 6 (Audit 2026-09-13): Host-Guards fuer PackUp, OnDestroy-Refund, alle TryExtract*/TryDeposit*-Pfade und OnSaveComplete (9 neue IsHostOrSingleplayer-Guards). MP-Clients koennen Stationen nicht mehr lokal auszahlen/zerstoeren (Dupe/Desync, kritisch) und ueberschreiben die Slot-Datei des Hosts nicht mehr. Supersedes 0.2.4 (Client lief dort bewusst in den Fallback-Destroy).
 
