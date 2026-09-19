@@ -3,6 +3,16 @@
 **Stand:** 2026-09-19
 **Branch:** `main` (synchron mit `origin/main`)
 
+**Dateien in dieser Memory Bank:**
+
+| Datei | Zweck |
+|---|---|
+| `activeContext.md` (diese) | Aktueller Arbeitsstand, letzte Session, Pitfalls, Umgebung |
+| `productContext.md` | Repo-Zweck, Struktur, Mod-Inventar-Snapshot, Constraints |
+| `decisionLog.md` | Getroffene Entscheidungen mit Begründung (neueste oben) |
+
+> **Versions-Wahrheit bleibt `AGENTS.md`** — die Snapshots hier sind Session-Orientierung, keine Autorität.
+
 ---
 
 ## Letzte Session (2026-09-19)
@@ -62,7 +72,7 @@
 | Thema | Details |
 |---|---|
 | **s1interop in CONTRIBUTING.md verankern** | CI-Job ist advisory; ob s1interop zusätzlich als dokumentiertes **lokales** Gate in CONTRIBUTING.md "IL2CPP Pflichten" gehört, ist offen (Abwägung: Alpha-Tool mit bekannten False Positives vs. Nutzen als Frühwarnung) |
-| **Memory Bank ausbauen** | `activeContext.md` etabliert; weitere Dateien (`productContext.md`, `decisionLog.md`) bei Bedarf |
+| **Memory Bank** | ✅ etabliert: `activeContext.md`, `productContext.md`, `decisionLog.md`. Pflege-Regel: Session-Ende aktualisiert `activeContext.md`; Entscheidungen wandern nach `decisionLog.md`. |
 
 ## Verifikations-Stand (AGENTS.md)
 
