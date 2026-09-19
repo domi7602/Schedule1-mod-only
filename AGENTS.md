@@ -473,7 +473,7 @@ s1interop analyze "Source\Mods\<Name>\src\<Name>.csproj"
 ### CI & Quality Gates
 
 - **Local:** `dotnet format --verify-no-changes`, `pwsh Tools/gen-sln.ps1` (determinism check), `pwsh Tools/check-version-sync.ps1` (Versions-Drift-Guard), `pwsh Tools/check-doc-paths.ps1` (Doku-Pfad-Guard), `dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj` + `dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj` + `dotnet test Source/Tests/CalculatorApp.Tests/CalculatorApp.Tests.csproj` (Tests brauchen Spiel-Assemblies)
-- **CI:** `.github/workflows/ci.yml` runs on push/PR (format + version-sync check + game-gated build/tests + gen-sln check)
+- **CI:** `.github/workflows/ci.yml` runs on push/PR (format + version-sync check + game-gated build/tests + gen-sln check + s1interop advisory analysis). Der s1interop-Job (aktiviert 2026-09-19) installiert `S1Interop` 0.1.0-alpha.1 (ifBars/S1Interop, dotnet tool) und analysiert alle Mod-csproj — **advisory, niemals blockierend** (Exit immer 0). Bekannte Alpha-False-Positives: TFM/LangVersion aus `Directory.Build.props` werden nicht ausgewertet; akzeptierte Reflection in HitmanPhone; mod-internes `List<T>` in BusinessIncome.
 - **Pre-commit:** `git config core.hooksPath .githooks` enables `.githooks/pre-commit` (format + gen-sln determinism + version-sync)
 - **License:** `LICENSE` (MIT workspace + Third-Party notices), `CONTRIBUTING.md` for contributors
 

@@ -123,20 +123,48 @@ jobs:
         run: pwsh Tools/check-doc-paths.ps1
 
   # s1interop static analysis (IL2CPP pitfall detection, e.g. missing IntPtr
-  # constructors). Activation checklist:
-  #   1. Use a self-hosted Windows runner with Schedule I installed (game
-  #      assemblies are required, same as the build job).
-  #   2. Install s1interop on the runner (external tool, no repo affiliation).
-  #   3. Change `if: false` to `if: steps.detect.outputs.has-game == 'true'`
-  #      (move detection into a shared job output or duplicate the probe).
-  # Until then, local runs (`s1interop analyze <csproj>`) plus Build + Tests
-  # are the mandatory substitute — see CONTRIBUTING.md "IL2CPP Pflichten".
+  # constructors). Activated 2026-09-19 per checklist:
+  #   1. Self-hosted Windows runner with Schedule I installed — same has-game
+  #      gate as the build job (probe duplicated below; job outputs are not
+  #      shared across jobs without explicit wiring).
+  #   2. s1interop installed via dotnet tool (step below) — external tool
+  #      (ifBars/S1Interop), no repo affiliation.
+  #   3. Gate flipped from `if: false` to the has-game probe.
+  # Advisory by design: s1interop 0.1.0-alpha.1 always exits 0 — findings are
+  # reported, never blocking (known false positives: TFM/LangVersion live in
+  # Directory.Build.props, which the alpha does not evaluate; accepted
+  # reflection in HitmanPhone; mod-internal List<T> in BusinessIncome).
   s1interop:
     runs-on: windows-latest
     timeout-minutes: 10
-    if: false # enable per checklist above (self-hosted runner + game assemblies + s1interop installed)
     steps:
       - uses: actions/checkout@v4
-      - name: s1interop analyze
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Install s1interop
+        run: dotnet tool install --global S1Interop --version 0.1.0-alpha.1
+
+      - name: Detect game assemblies
+        id: detect
+        shell: pwsh
         run: |
-          s1interop analyze Source/Mods/Shared/src/Shared.csproj
+          $gameDir = if ($env:SCHEDULE1_PATH) { $env:SCHEDULE1_PATH } else { 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I' }
+          $probe = Join-Path $gameDir 'MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll'
+          $hasGame = Test-Path -LiteralPath $probe
+          "has-game=$($hasGame.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+
+      - name: s1interop analyze (all mods, advisory)
+        if: steps.detect.outputs.has-game == 'true'
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path "Source/Mods" -Directory | ForEach-Object {
+            $csproj = Join-Path $_.FullName "src\$($_.Name).csproj"
+            if (Test-Path -LiteralPath $csproj) {
+              Write-Host "=== $($_.Name) ==="
+              s1interop analyze $csproj
+            }
+          }
