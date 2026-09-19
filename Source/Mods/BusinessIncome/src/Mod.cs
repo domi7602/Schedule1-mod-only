@@ -51,7 +51,7 @@ public class Mod : MelonMod
         }
         catch (Exception ex) { Log.Warn($"TimeManager hooks failed (S1API missing?): {ex.Message}"); }
 
-        Log.Info("BusinessIncome v0.1.3 initialized. Features: write-ahead pending marker, catch-up cap, visible payout warnings.");
+        Log.Info($"BusinessIncome v{Info.Version} initialized. Features: write-ahead pending marker, catch-up cap, visible payout warnings.");
     }
 
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
