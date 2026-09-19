@@ -21,9 +21,39 @@
    - Deploy-Konvention in allen Zips verifiziert (DLL/PNG → `Mods/`, mod.json + pdb → `UserData/<Mod>/`, Docs im Root)
    - Version-Sync vor Lauf geprüft: 11 Mods, 0 Drift
 
+3. **s1interop-CI-Aktivierung** (`0b0c52d`) — Checkliste aus `dc5022d` abgearbeitet:
+   - `S1Interop` 0.1.0-alpha.1 (GitHub `ifBars/S1Interop`) lokal als dotnet Global Tool installiert
+   - CI-Job in `.github/workflows/ci.yml` aktiviert: Detection-Probe dupliziert, `has-game`-Gate, Analyse über alle 12 Mod-csproj
+   - **Advisory by design:** `analyze` liefert immer Exit 0 (auch bei Findings) — der Job kann die Pipeline nie rot machen
+   - AGENTS.md §6 CI-Zeile synchronisiert
+
+### s1interop-Analyse — Findings (2026-09-19)
+
+| Mod | Finding | Bewertung |
+|---|---|---|
+| BusinessIncome | `ManagedCollectionSignatureInterop` (`IncomeEngine.cs:31`, medium) | **False Positive** — mod-interne Berechnungs-API mit mod-eigenem `BusinessRevenueLine`, kein Game-Callback über die Il2Cpp-Grenze |
+| HitmanPhone | `DirectMemberReflectionLookup` ×2, `FieldPropertyReflectionFallback` ×1 (low/medium) | **Akzeptiert** — `S1Quest` ist internal in S1API; Code defensiv (try-catch + Fallback), als "best-effort, cosmetic" dokumentiert |
+| Alle Projekte | `wrong_target_framework`, `global_usings_require_langversion` | **Analyzer-Limitation** — TFM (`net6.0`) + `LangVersion=12` stehen in `Directory.Build.props`, die 0.1.0-alpha.1 nicht auswertet (liest nur die csproj) |
+| AutoPackagingStation, CalculatorApp, NotesApp, PocketShop | IntPtr-Ctor + derived-body erkannt | ✅ sauber, 0 Risks |
+
+**Konsequenz: keine Code-Änderungen** — der Code ist in besserem Zustand als der Alpha-Analyzer darstellen kann.
+
 ### Gelernt / Pitfall
 
 - `package-release.ps1` **nicht parallel** für mehrere Mods ausführen — File-Locks auf geteilten `Shared`-Build-Outputs lassen Builds fehlschlagen. Entweder seriell pro Mod oder `-Mod All` in einem Lauf (intern seriell).
+- `s1interop analyze` gibt **immer Exit 0** — als blockierendes Quality-Gate ungeeignet, nur als Report nutzbar.
+- `s1interop doctor` ohne Pfad-Argument läuft im aktuellen Verzeichnis und meldet `[missing] project`; bei Bedarf `s1interop doctor <csproj|dir>`.
+- PowerShell: `cd` ändert nicht das .NET-Arbeitsverzeichnis — `[System.IO.File]::ReadAllBytes` braucht absolute Pfade.
+
+---
+
+## Umgebung (lokal, Stand 2026-09-19)
+
+| Tool | Version | Installationsweg |
+|---|---|---|
+| .NET SDKs | 6.0.428, 8.0.425, 10.0.401 | System |
+| S1Interop | 0.1.0-alpha.1 | `dotnet tool install --global S1Interop --version 0.1.0-alpha.1` (Quelle: GitHub `ifBars/S1Interop`, GPL-3.0) |
+| Schedule I | v0.4.6f13 | `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` — IL2CPP-Referenzen ready, Mono-Zweig fehlt (für diesen Workspace irrelevant) |
 
 ---
 
@@ -31,8 +61,8 @@
 
 | Thema | Details |
 |---|---|
-| **s1interop CI-Aktivierung** | Checkliste in `dc5022d` angelegt (`.github/workflows/ci.yml`), Umsetzung offen |
-| **Memory Bank aufbauen** | `memory-bank/` war leer; `activeContext.md` mit dieser Session begonnen |
+| **s1interop in CONTRIBUTING.md verankern** | CI-Job ist advisory; ob s1interop zusätzlich als dokumentiertes **lokales** Gate in CONTRIBUTING.md "IL2CPP Pflichten" gehört, ist offen (Abwägung: Alpha-Tool mit bekannten False Positives vs. Nutzen als Frühwarnung) |
+| **Memory Bank ausbauen** | `activeContext.md` etabliert; weitere Dateien (`productContext.md`, `decisionLog.md`) bei Bedarf |
 
 ## Verifikations-Stand (AGENTS.md)
 
