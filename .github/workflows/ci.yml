@@ -122,10 +122,19 @@ jobs:
         shell: pwsh
         run: pwsh Tools/check-doc-paths.ps1
 
+  # s1interop static analysis (IL2CPP pitfall detection, e.g. missing IntPtr
+  # constructors). Activation checklist:
+  #   1. Use a self-hosted Windows runner with Schedule I installed (game
+  #      assemblies are required, same as the build job).
+  #   2. Install s1interop on the runner (external tool, no repo affiliation).
+  #   3. Change `if: false` to `if: steps.detect.outputs.has-game == 'true'`
+  #      (move detection into a shared job output or duplicate the probe).
+  # Until then, local runs (`s1interop analyze <csproj>`) plus Build + Tests
+  # are the mandatory substitute — see CONTRIBUTING.md "IL2CPP Pflichten".
   s1interop:
     runs-on: windows-latest
     timeout-minutes: 10
-    if: false # enable when s1interop is available in CI (requires game assemblies)
+    if: false # enable per checklist above (self-hosted runner + game assemblies + s1interop installed)
     steps:
       - uses: actions/checkout@v4
       - name: s1interop analyze

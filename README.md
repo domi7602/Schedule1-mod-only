@@ -5,6 +5,8 @@
   ![Game Version](https://img.shields.io/badge/Game_Version-v0.4.6f13-blue)
   ![MelonLoader](https://img.shields.io/badge/MelonLoader-0.7.3-red)
   ![S1API](https://img.shields.io/badge/S1API-3.2.0-orange)
+  ![Tests](https://img.shields.io/badge/Tests-110_passing-brightgreen)
+  ![License](https://img.shields.io/badge/License-MIT-yellow)
 </div>
 
 ## ✨ Featured Mods
@@ -47,7 +49,9 @@ The repository includes **20 specialized AI Agent Skills** under `Skills/` (inde
 
 ## 📸 Screenshots
 
-*(Hey there! Add your in-game screenshots to an `assets/` folder and link them here to show off the mods!)*
+In-game screenshots live in [`assets/`](assets/README.md) — naming convention and contribution guidelines are documented there. Drop a PNG into `assets/` and embed it here with a standard Markdown image reference.
+
+*(No screenshots committed yet — the phone-app UIs (NotesApp, PotScanner, BankApp, PocketShop) and the AutoPackagingStation conveyor line are the best showcase candidates.)*
 
 ## 💻 For Developers
 
@@ -60,4 +64,4 @@ Please refer to the **[Developers Guide](DEVELOPERS.md)** and **[AGENTS.md](AGEN
 - **Releases:** [`docs/release-process.md`](docs/release-process.md) documents versioning, packaging, and verification.
 - **CI:** GitHub Actions (`.github/workflows/ci.yml`) validates format, version sync, build, tests, and SLN determinism on every push/PR.
 - **Tests:** `Source/Tests/` (xUnit) — `Shared.Tests` (SafeStorage, UITheme, PatchGuard, ModLogger, SafeInvoker, TypeResolver), `AutoPackagingStation.Tests` (pure math) and `CalculatorApp.Tests` (decimal math, precision, overflow, history). Run all tests via `dotnet test Source/Mods/S1Mods.sln`.
-- **License:** [`LICENSE`](LICENSE) — MIT for workspace code, Third-Party notices for S1API/S1MAPI.
+- **License:** [`LICENSE`](LICENSE) — MIT for workspace code; third-party components (S1API, S1MAPI, MelonLoader, …) are listed in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).

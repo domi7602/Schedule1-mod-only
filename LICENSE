@@ -23,13 +23,13 @@ SOFTWARE.
 ---
 
 Third-Party Notices:
-- S1API (ifBars fork) is licensed under GPL-3.0-or-later.
-- S1MAPI is licensed under GPL-3.0.
-- Sideload / hash (DooDesch) have separate licenses (see ThirdParty/*).
-- MoreDrugs assets (heartpill.glb) are CC BY 4.0.
-- MelonLoader is licensed under Apache-2.0.
+
+See [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) for the full list of
+third-party components and their licenses (S1API GPL-3.0-or-later, S1MAPI
+GPL-3.0, MelonLoader Apache-2.0, archived reference components, asset
+attributions).
 
 This MIT license applies only to the original workspace code (Source/Mods/*,
-Shared, Tools, .agents/skills, Knowledge/Analysis, etc.) created by the
-workspace contributors. Third-party code and game assets remain under their
-respective licenses.
+Source/Tests/*, Shared, Tools, Skills, docs) created by the workspace
+contributors. Third-party code and game assets remain under their respective
+licenses.
