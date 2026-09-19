@@ -24,6 +24,8 @@ Diese Datei ergänzt `AGENTS.md` (operatives Inventar) um das *Warum*.
 **Verworfene Alternative:** Job deaktiviert lassen, bis s1interop stabiler ist — verworfen, weil der Report auch im Alpha-Stadium Nutzen bringt und kein Risiko für die Pipeline besteht.
 **Bewertete, aber nicht behobene Findings:** `ManagedCollectionSignatureInterop` in BusinessIncome (mod-interne API, kein Game-Callback → False Positive); Reflection in HitmanPhone (`S1Quest` ist internal in S1API; defensiv mit try-catch + Fallback → akzeptiert). **Keine Code-Änderungen.**
 
+**Ergänzung (gleicher Tag):** s1interop zusätzlich als **lokales, optionales** Pre-Flight in `CONTRIBUTING.md` („IL2CPP Pflichten") verankert — mit Installationsbefehl, `doctor`-Hinweis und expliziter Warnung, dass `analyze` ein *Report* und kein Gate ist. Die DoD-Checkbox „`analyze` clean" war sachlich falsch (Exit-Code ist immer 0) und wurde auf „Report gelesen, keine unerwarteten Einträge" korrigiert. Damit kein Beitragender ein grünes Exit-Signal als Freigabe fehlinterpretiert.
+
 ---
 
 ## 2026-09 (Reinstall) — Deploy-Konvention: `Mods\` vs. `UserData\<Mod>\`

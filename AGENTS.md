@@ -456,11 +456,16 @@ In `OnCreatedUI(GameObject container)` always call `UITheme.Initialize...` first
 ### Pre-Flight Check with S1Interop
 
 ```pwsh
+# Einmalige Installation (externes Tool, kein Repo-Bezug; braucht .NET SDK 8+):
+dotnet tool install --global S1Interop --version 0.1.0-alpha.1
+
 s1interop doctor --mono-game-path $env:SCHEDULE1_PATH --il2cpp-game-path $env:SCHEDULE1_PATH
 s1interop analyze "$env:SCHEDULE1_PATH\..\..\Users\pc\Schedule1-mod-only\Source\Mods\<Name>\src\<Name>.csproj"
 # or simply, from the workspace root:
 s1interop analyze "Source\Mods\<Name>\src\<Name>.csproj"
 ```
+
+> **s1interop ist advisory (2026-09-19):** `analyze` liefert **immer Exit 0** — auch bei Findings. Es ist ein Report, kein Gate: die Ausgabe muss gelesen werden. Bekannte False Positives der Alpha 0.1.0-alpha.1: `wrong_target_framework`/`global_usings_require_langversion` (TFM + LangVersion stehen in `Directory.Build.props`, die csproj allein kennt sie nicht), `ManagedCollectionSignatureInterop` in BusinessIncome (mod-interne API), Reflection-Findings in HitmanPhone (internal S1API-Typ, defensiv abgesichert). Vollständige Bewertung siehe `memory-bank/decisionLog.md`.
 
 ### Mod Update Cycle
 

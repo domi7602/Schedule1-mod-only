@@ -106,7 +106,12 @@ Aktualisiert 5 Stellen: MelonInfo im Code (Datei mit `[assembly: MelonInfo(...)]
 - Jeder `[RegisterTypeInIl2Cpp]` MonoBehaviour braucht `public Foo(IntPtr ptr) : base(ptr) { }`
 - Keine `foreach`/LINQ auf `Il2CppSystem.Collections.Generic.List<T>` — nur `for`
 - Keine `button.onClick.AddListener(new UnityAction(...))` — nutze `S1API.Utils.EventHelper.AddListener` / `ButtonUtils.AddListener`
-- Optional, falls installiert: `s1interop analyze <csproj>` (fängt `missing_intptr_constructor`) — `s1interop` ist ein externes Tool ohne Repo-Bezug; ohne Installation sind Build + Tests der verpflichtende Ersatz
+- Optional, falls installiert: `s1interop analyze <csproj>` (meldet z. B. fehlende `IntPtr`-Konstruktoren)
+  - Installation: `dotnet tool install --global S1Interop --version 0.1.0-alpha.1` — externes Tool (`ifBars/S1Interop`, GPL-3.0), kein Repo-Bezug, braucht .NET SDK 8+
+  - Vorab-Check der Spiel-Referenzen: `s1interop doctor <csproj>` (read-only; im Repo meldet der Mono-Zweig `[missing]` — erwartet, wir bauen IL2CPP)
+  - **`analyze` ist ein Report, kein Gate:** Das Tool liefert **immer Exit 0**, auch bei Findings. `0 Errors` im Exit-Code bedeutet nichts — die Ausgabe muss gelesen werden.
+  - **Bekannte False Positives (Stand 0.1.0-alpha.1):** `wrong_target_framework` + `global_usings_require_langversion` für alle Projekte, weil TFM (`net6.0`) und `LangVersion` aus `Directory.Build.props` kommen und das Alpha-Tool nur die `.csproj` liest. Ebenfalls erwartet: `ManagedCollectionSignatureInterop` in BusinessIncome (mod-interne Berechnungs-API, kein Game-Callback) und die Reflection-Findings in HitmanPhone (`S1Quest` ist internal in S1API, defensiv mit Fallback abgesichert).
+  - Ohne Installation sind Build + Tests der verpflichtende Ersatz. In CI läuft der Job **advisory** (`.github/workflows/ci.yml`, gated auf Spiel-Assemblies).
 
 ## Definition of Done
 
@@ -114,7 +119,7 @@ Aktualisiert 5 Stellen: MelonInfo im Code (Datei mit `[assembly: MelonInfo(...)]
 - [ ] DLL deployed und im `MelonLoader/Latest.log` ohne Exception
 - [ ] In-Game verifiziert (inkl. Scene-Wechsel Main Menu → Game → Main Menu)
 - [ ] Persistenz Round-Trip OK (Save → Restart → Load)
-- [ ] `s1interop analyze` clean (falls installiert)
+- [ ] `s1interop analyze` Report gelesen, keine **unerwarteten** Einträge (falls installiert; Exit-Code ist immer 0 — siehe „IL2CPP Pflichten")
 - [ ] `AGENTS.md`, `CHANGELOG.md`, `mod.json`, `Mod.cs`/`Constants.ModVersion`, `README.md` synchron (via `bump-version.ps1`) — `pwsh Tools/check-version-sync.ps1` muss grün sein
 - [ ] `pwsh Tools/check-doc-paths.ps1` grün (keine toten Pfad-Referenzen in der Doku)
 

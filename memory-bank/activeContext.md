@@ -71,7 +71,8 @@
 
 | Thema | Details |
 |---|---|
-| **s1interop in CONTRIBUTING.md verankern** | CI-Job ist advisory; ob s1interop zusätzlich als dokumentiertes **lokales** Gate in CONTRIBUTING.md "IL2CPP Pflichten" gehört, ist offen (Abwägung: Alpha-Tool mit bekannten False Positives vs. Nutzen als Frühwarnung) |
+| ~~s1interop in CONTRIBUTING.md verankern~~ | ✅ erledigt 2026-09-19 — Installationsbefehl, `doctor`-Hinweis, Report-statt-Gate-Warnung und bekannte False Positives in `CONTRIBUTING.md` „IL2CPP Pflichten" + DoD-Checkbox korrigiert; `AGENTS.md §6` Pre-Flight synchron |
+| **CI-Verifikation s1interop-Job** | Hosted-Runner: Install + Gate laufen (`success`), Analyze-Step wird ohne Spiel-Assemblies korrekt geskippt — Analyze-Pfad bisher nur lokal verifiziert |
 | **Memory Bank** | ✅ etabliert: `activeContext.md`, `productContext.md`, `decisionLog.md`. Pflege-Regel: Session-Ende aktualisiert `activeContext.md`; Entscheidungen wandern nach `decisionLog.md`. |
 
 ## Verifikations-Stand (AGENTS.md)
