@@ -1,5 +1,40 @@
 # Changelog - AutoPackagingStation
 
+## 0.3.3 (2026-09-20) — Fix: Baggie-Klone über der Maschine beim Unpacken
+- **Root Cause (Live-Befund, User-Report):** Beim Auto-Unpack rendert Vanilla die zurückgegebenen leeren Verpackungen an den nativen `PackagingAlignments`/`ActivePackagingAlignent`-Punkten. Diese Transforms gehören NICHT zu den in `HideBaseRenderers` versteckten SlotPositions — auf unserer Custom-Station (Vanilla-Chassis ausgeblendet) schwebten so bis zu 8 „Baggie-Klone" frei über dem Gehäuse und glitchten beim UI-Öffnen in die Maschine. Nur beim Unpacken sichtbar, da nur dieser Flow Verpackungen zurückgibt.
+- **Fix:** `HideBaseRenderers` parkt jetzt zusätzlich `ActivePackagingAlignent`, alle `PackagingAlignments[]` und `ActiveProductAlignments[]` unsichtbar (Scale 0, unter die Basis verlegt) — gleiche Technik wie bei den SlotPositions. Greift ausschließlich auf AutoPackStationen; Vanilla-Maschinen sind nicht betroffen (deren Anzeige bleibt intakt).
+- Lager-/Inventar-Daten waren zu jeder Zeit korrekt (rein visuelles Problem).
+
+## 0.3.2 (2026-09-20) — Unpack-Batching (Symmetrie zum Pack-Batch)
+- **Unpack im Batch:** v0.3.1 entpackte 1 Einheit pro Zyklus (ein nativer `Unpack()`-Call), während Auto-Pack im 10er-Batch lief. `ExecuteNativeUnpack` führt jetzt bis zu `MaxBatchSize` (Default 10) native Unpack-Calls pro Zyklus aus — mit Vanilla-Readiness-Check (`GetState(EMode.Unpackage) == CanBegin`) vor **jedem** Call, sodass der Loop natürlich stoppt, wenn der Stapel leer oder ein Rückgabe-Slot voll ist.
+- **Baggie-HUD-Popups eingehend erklärt (kein Fix nötig):** Jede entpackte Einheit gibt ihre leere Verpackung zurück (Vanilla-Konservation) — die Pickup-Notification im HUD („1 Baggie", „2 Baggies", …) ist korrektes Vanilla-Verhalten und ein Beweis, dass die Materialien konserviert werden. Beim Packen erscheint kein Popup, weil dort nichts in den Besitz des Spielers fließt.
+- Live-Verifiziert durch User: Unpackage-Modus funktioniert (v0.3.1), E-Prompt funktioniert (v0.2.9).
+
+## 0.3.1 (2026-09-20) — Unpack-Fix: Vanilla-Mode-Mirror statt Slot-Heuristik
+- **Root Cause des "beim Unpacking passiert nichts" (Live-Session 12:36):** v0.3.0 suchte das verpackte Produkt im PRODUCT-Eingangsslot — Vanilla-Unpackage läuft aber **rückwärts**: verpackte Ware liegt im OUTPUT-Slot, Rohprodukt + Verpackung kommen links heraus (der rote UNPACKAGE-Pfeil im Canvas zeigt nach links). Die Heuristik traf nie zu.
+- **Fix — zwei Anleihen beim Vanilla statt eigener Logik:**
+  1. **Mode-Mirror:** Der Canvas-Modus (Package/Unpackage-Umschalter, der rote Pfeil) wird in die Runtime-Data gespiegelt (`UnpackageMode`), solange die Station geöffnet ist. Nach dem Schließen bleibt der zuletzt gewählte Modus maßgeblich — die Automation folgt der Spielerentscheidung.
+  2. **Readiness via `GetState(EMode.Unpackage)`:** Berechtigungscheck ist exakt die Vanilla-Zustandsmaschine (== `CanBegin`), dieselbe Prüfung wie der native Begin-Button — deckt Slot-Layout, Item-Match und Output-Kapazität automatisch ab.
+- **Konsequenz:** Pack und Unpack sind jetzt modus-exklusiv (kein Prioritäts-Raten mehr): Unpackage-Modus → Auto-Unpack, Package-Modus → Auto-Pack.
+- **Bedienung (unverändert einfach):** Station öffnen (E) → mit dem Pfeil auf UNPACKAGE schalten → verpackte Ware in den OUTPUT-Slot legen → schließen → Station entpackt automatisch zyklusweise.
+- Befund der Session: E-Prompt-Fix (v0.2.9) funktioniert — 3× `E-interact: calling PackagingStation.Interacted()` im Log, Canvas öffnete.
+
+## 0.3.0 (2026-09-20) — Auto-UNPACK (native Vanilla-Implementierung)
+- **Unpacking implementiert — per Delegation an TVGS-Code statt Reimplementierung:** Zyklus-Commit erkennt selbstständig: Produkt-Slot hält ein verpacktes `ProductItemInstance` (instanz-Level `PackagingID`/`AppliedPackaging`, exakt das, was die Vanilla-Packmaschine setzt) und Packaging-Slot ist leer → Auto-Unpack. Ausführung ist der native `PackagingStation.Unpack()`-Call (vanilla Slot-Mathematik, kein Duplikat unsererseits).
+- **Prioritäten-Kette im Commit:** 1. Pack (wenn Packaging-Material + Rohprodukt liegt) → 2. Unpack (wenn verpacktes Produkt liegt, kein Material) → 3. Idle. Entscheidung fällt am Zyklus-Ende anhand der Live-Slots — selbstkorrigierend, wenn der Spieler mid-Animation die Slots wechselt.
+- **Kette läuft durch:** `CanStationPackage || CanStationUnpack` steuert jetzt die Fortschaltungs-Logik (State Idle/Blocked/NoPackaging → Packaging) — ein Stapel von 20 Baggies wird also in aufeinanderfolgenden Zyklen komplett entpackt, nicht nur das erste.
+- **Output-Capacity-Guard:** Unpack startet nur, wenn das Rohprodukt in den Output passt (leer oder gleiche Definition mit Stack-Spielraum).
+- **Diagnose:** Jeder Native-Unpack-Commit loggt Vorher/Nachher-Slotstate (`prod[...] out[...] -> [...]`); wenn `Unpack()` gar nichts bewirkt (z. B. Mode-Mismatch), steht eine Warnung mit Report-Hinweis im Log.
+- UI: Canvas-Instruction-Label aktualisiert ("Auto packs & unpacks in background").
+- Basieren auf v0.2.9 (E-Prompt-Canvas-Guard-Fix).
+
+
+## 0.2.9 (2026-09-20) — E-Prompt-Fix (Canvas-Guard)
+- **E-Prompt auf der Station war sichtbar, aber tot:** Der InteractableObject-Listener hatte einen Guard `PackagingStationCanvas.Instance != null && !activeSelf` — solange der Canvas-Singleton noch null war (lazy Init, vor dem ersten Vanilla-Station-UI-Öffnen), wurde `Interacted()` stumm übersprungen. Neuer Guard prüft nur noch „Canvas offen FÜR DIESE Station" (Instance + activeSelf + Station-Pointer-Vergleich), null-Instance blockiert nicht mehr.
+- **Diagnose-Logging aufgebessert:** `E-interact:`-Info bei jedem Interacted()-Call, Warn wenn der Canvas sich nach dem Call nicht öffnet (Instance null / inactive), Error statt Debug bei Exceptions — vorher in Normalsessions unsichtbar.
+- Nebenher: pre-existing CS8625-Warning in `AutoPackStore.cs` Legacy-Migration behoben (`null!` für LoadSafe-Fallback).
+
+
 ## 0.2.8 (2026-09-19) — Bugfix-Runde 7: Placement, Interaktion, Level-Gate
 - **Grid-Tile-Überschneidung (HIGH):** `ExpandFootprintTo2x2()` klont die FootprintTile des Basis-Items und erstellt 3 zusätzliche Tiles für ein echtes 2×2-Raster (0.5m-Spacing). Verhindert, dass die Station halb in Regale oder andere Buildables ragt.
 - **E-Interaktion auf Kessel (MEDIUM):** `SetupPlacedStation()` fügt jetzt ein `Il2CppScheduleOne.Interaction.InteractableObject` hinzu (Message, Range, onInteractStart → `station.Interacted()`). Das native `PackagingStationCanvas` öffnet sich zuverlässig beim Hovern auf die Station (Kessel).

@@ -50,9 +50,15 @@ public static class AutoPackEngine
 
         if (rData.PackagingProgress >= 1.0f)
         {
-            // Execute atomic commit
+            // v0.3.1: the mirrored vanilla canvas mode decides — Unpackage mode auto-unpacks
+            // (native Unpack(), readiness via vanilla GetState), Package mode auto-packs.
+            // No priority guessing: both flows are mutually exclusive by the player's mode.
             bool success;
-            if (isNativeStation)
+            if (isNativeStation && rData.UnpackageMode)
+            {
+                success = CanStationUnpack(station!, rData) && ExecuteNativeUnpack(station!);
+            }
+            else if (isNativeStation)
             {
                 success = ExecutePackagingTransaction(station!);
             }
@@ -136,6 +142,82 @@ public static class AutoPackEngine
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Checks if a native PackagingStation can UNPACKAGE right now.
+    /// v0.3.1: Two conditions —
+    /// 1. MODE: the runtime data mirrors the vanilla canvas mode (player toggles the red
+    ///    UNPACKAGE arrow in the station UI). Auto-unpack runs ONLY in Unpackage mode.
+    /// 2. READINESS: the vanilla's own state machine (GetState(EMode.Unpackage) == CanBegin) —
+    ///    exactly the check the native Begin button performs. Covers slot layout (packaged
+    ///    goods in the OUTPUT slot — the reverse flow), item match and output capacity.
+    /// </summary>
+    public static bool CanStationUnpack(PackagingStation station, AutoPackStationRuntimeData rData)
+    {
+        if (station == null || station.Pointer == IntPtr.Zero) return false;
+        if (rData == null || !rData.UnpackageMode) return false;
+
+        try
+        {
+            return station.GetState(PackagingStation.EMode.Unpackage) == PackagingStation.EState.CanBegin;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Debug($"CanStationUnpack GetState threw: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// v0.3.2: Executes unpack cycles by delegating to the NATIVE vanilla implementation
+    /// (PackagingStation.Unpack) — one native call per unit, batched up to MaxBatchSize per
+    /// auto-cycle (symmetric to auto-pack's batch size). The vanilla readiness state
+    /// (GetState(EMode.Unpackage) == CanBegin) is re-checked before EVERY call, so the loop
+    /// stops naturally when the stack is empty or a return slot fills up.
+    /// Note: each unpacked unit returns its empty packaging (vanilla pickup notification
+    /// shows "N Baggies" in the HUD — materials are conserved, that is vanilla behavior,
+    /// not a dupe).
+    /// </summary>
+    public static bool ExecuteNativeUnpack(PackagingStation station)
+    {
+        if (!IsHostOrSingleplayer()) return false;
+        if (station == null || station.Pointer == IntPtr.Zero) return false;
+
+        int batch = Mathf.Clamp(Mod.CurrentConfig.MaxBatchSize, 1, 20);
+        int executed = 0;
+
+        for (int i = 0; i < batch; i++)
+        {
+            try
+            {
+                if (station.GetState(PackagingStation.EMode.Unpackage) != PackagingStation.EState.CanBegin)
+                    break;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"Native unpack pre-check threw: {ex.Message}");
+                break;
+            }
+
+            try
+            {
+                station.Unpack();
+                executed++;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Error($"[AutoPack Engine] Native Unpack() threw: {ex.Message}");
+                break;
+            }
+        }
+
+        if (executed > 0)
+        {
+            Mod.Log.Info($"[AutoPack Engine] Native Unpack() executed {executed}x this cycle (batch max {batch}).");
+            return true;
+        }
+        return false;
     }
 
     /// <summary>

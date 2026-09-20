@@ -53,6 +53,13 @@ public class AutoPackStationRuntimeData
     public SlotItemData? InputPackaging { get; set; }
     public SlotItemData? OutputProduct { get; set; }
 
+    /// <summary>
+    /// v0.3.1: Mirrors the vanilla canvas mode (EMode.Package / EMode.Unpackage).
+    /// The player sets it via the mode arrow in the station UI (red UNPACKAGE arrow).
+    /// Auto-Unpack runs ONLY in Unpackage mode; auto-pack only in Package mode.
+    /// </summary>
+    public bool UnpackageMode { get; set; } = false;
+
     public bool CanStartPackaging()
     {
         if (InputProduct == null || InputProduct.Quantity <= 0) return false;
@@ -207,7 +214,8 @@ public static class AutoPackStore
                 return;
             }
 
-            var legacyData = SafeStorage.LoadSafe<AutoPackModSaveData>(legacyPath, null, Mod.Log);
+            // null! — LoadSafe treats a null fallback as valid ("no default, return null on parse failure").
+            var legacyData = SafeStorage.LoadSafe<AutoPackModSaveData>(legacyPath, null!, Mod.Log);
             if (legacyData != null && legacyData.Stations != null && legacyData.Stations.Count > 0)
             {
                 if (SafeStorage.SaveAtomic(targetSlotPath, legacyData, Mod.Log))

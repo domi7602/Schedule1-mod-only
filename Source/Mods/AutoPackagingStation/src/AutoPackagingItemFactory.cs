@@ -293,7 +293,11 @@ public static class AutoPackagingItemFactory
                     interactable.Priority = 0;
                     interactable.LimitInteractionAngle = false;
 
-                    // Wire up E-key interaction — native PackagingStation.Interacted() opens the canvas
+                    // Wire up E-key interaction — native PackagingStation.Interacted() opens the canvas.
+                    // v0.2.9 fix: the old guard (`Instance != null && !activeSelf`) silently skipped the
+                    // call while the canvas singleton was still null (lazy scene init — it stays null
+                    // until the first vanilla station UI opens), leaving the E-prompt dead.
+                    // New guard: only skip when THIS station's canvas is already open.
                     S1API.Utils.EventHelper.AddListener(
                         new Action(() =>
                         {
@@ -302,15 +306,33 @@ public static class AutoPackagingItemFactory
                                 if (station.Pointer != IntPtr.Zero)
                                 {
                                     var canvas = Il2CppScheduleOne.UI.Stations.PackagingStationCanvas.Instance;
-                                    if (canvas != null && canvas.Pointer != IntPtr.Zero && !canvas.gameObject.activeSelf)
+                                    bool openForThisStation = canvas != null && canvas.Pointer != IntPtr.Zero
+                                        && canvas.gameObject.activeSelf
+                                        && canvas.Station != null && canvas.Station.Pointer == station.Pointer;
+                                    if (!openForThisStation)
                                     {
+                                        Mod.Log.Info("E-interact: calling PackagingStation.Interacted().");
                                         station.Interacted();
+                                        // Post-check: if the canvas is still not showing, surface why.
+                                        try
+                                        {
+                                            var post = Il2CppScheduleOne.UI.Stations.PackagingStationCanvas.Instance;
+                                            if (post == null || post.Pointer == IntPtr.Zero || !post.gameObject.activeSelf)
+                                            {
+                                                Mod.Log.Warn($"E-interact: canvas did not open after Interacted() (Instance null: {post == null}, active: {post?.gameObject.activeSelf}).");
+                                            }
+                                        }
+                                        catch { }
                                     }
+                                }
+                                else
+                                {
+                                    Mod.Log.Warn("E-interact: station pointer is zero (collected?).");
                                 }
                             }
                             catch (Exception ex)
                             {
-                                Mod.Log.Debug($"InteractableObject onInteractStart error: {ex.Message}");
+                                Mod.Log.Error($"InteractableObject onInteractStart error: {ex.Message}");
                             }
                         }),
                         interactable.onInteractStart);

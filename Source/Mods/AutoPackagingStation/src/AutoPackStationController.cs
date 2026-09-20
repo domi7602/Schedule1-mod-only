@@ -297,6 +297,38 @@ public class AutoPackStationController : MonoBehaviour
                     station.OutputSlotPosition.localScale = Vector3.zero;
                     station.OutputSlotPosition.localPosition = new Vector3(0, -0.5f, 0);
                 }
+
+                // v0.3.3 (Live-Befund 2026-09-20): Beim Auto-Unpack rendert Vanilla die
+                // zurückgegebenen leeren Verpackungen an den PackagingAlignment-Punkten —
+                // bis zu 8 "Baggie-Klone" schwebten über dem Custom-Gehäuse (nur beim
+                // Unpacken, da nur dieser Flow Verpackungen zurückgibt). Diese Transforms
+                // sind KEINE SlotPositions und waren bisher nicht versteckt.
+                try
+                {
+                    void HideTransform(Transform? t)
+                    {
+                        if (t != null && t.Pointer != IntPtr.Zero)
+                        {
+                            t.localScale = Vector3.zero;
+                            t.localPosition = new Vector3(0, -0.5f, 0);
+                        }
+                    }
+                    HideTransform(station.ActivePackagingAlignent);
+                    var pkgAlign = station.PackagingAlignments;
+                    if (pkgAlign != null)
+                    {
+                        for (int i = 0; i < pkgAlign.Length; i++) HideTransform(pkgAlign[i]);
+                    }
+                    var prodAlign = station.ActiveProductAlignments;
+                    if (prodAlign != null)
+                    {
+                        for (int i = 0; i < prodAlign.Length; i++) HideTransform(prodAlign[i]);
+                    }
+                }
+                catch (Exception alignEx)
+                {
+                    Mod.Log.Debug($"HideBaseRenderers alignment hide failed: {alignEx.Message}");
+                }
             }
 
             var lods = gameObject.GetComponentsInChildren<LODGroup>(true);
@@ -623,7 +655,9 @@ public class AutoPackStationController : MonoBehaviour
             bool isNativeStation = (station != null && station.Pointer != IntPtr.Zero);
 
             bool canStart = isNativeStation
-                ? AutoPackEngine.CanStationPackage(station!, out _, out _)
+                ? (rData.UnpackageMode
+                    ? AutoPackEngine.CanStationUnpack(station!, rData)
+                    : AutoPackEngine.CanStationPackage(station!, out _, out _))
                 : rData.CanStartPackaging();
 
             // 1. Process Packaging State Machine — host-authoritative only (H7)
@@ -690,9 +724,28 @@ public class AutoPackStationController : MonoBehaviour
                 {
                     canvas.BeginButton.gameObject.SetActive(false);
                 }
-                if (canvas.InstructionLabel != null && canvas.InstructionLabel.Pointer != IntPtr.Zero && canvas.InstructionLabel.text != "AUTOMATED PACKING STATION - Feeds & packages in background")
+                if (canvas.InstructionLabel != null && canvas.InstructionLabel.Pointer != IntPtr.Zero && canvas.InstructionLabel.text != "AUTOMATED PACKING STATION - Auto packs & unpacks in background")
                 {
-                    canvas.InstructionLabel.text = "AUTOMATED PACKING STATION - Feeds & packages in background";
+                    canvas.InstructionLabel.text = "AUTOMATED PACKING STATION - Auto packs & unpacks in background";
+                }
+
+                // 2c. v0.3.1: Mirror the canvas mode (Package/Unpackage toggle) into runtime data.
+                // The player switches via the arrow button; our automation follows. While the
+                // canvas is CLOSED the last mirrored mode persists — deliberate: the player's
+                // chosen mode stays authoritative for the closed auto-cycle.
+                try
+                {
+                    bool isUnpackage = canvas.CurrentMode == PackagingStation.EMode.Unpackage;
+                    if (rData.UnpackageMode != isUnpackage)
+                    {
+                        rData.UnpackageMode = isUnpackage;
+                        Mod.Log.Info($"[AutoPack] Mode mirrored from canvas: {(isUnpackage ? "UNPACKAGE" : "PACKAGE")}.");
+                        UpdateLedVisuals();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Mod.Log.Debug($"Mode mirror failed: {ex.Message}");
                 }
 
                 // 3. Handle Escape key to close the station menu cleanly — guard typing & pause (H9/M12)
