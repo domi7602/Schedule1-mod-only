@@ -2,8 +2,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.0.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_DiagPerfCounter", "_DiagPerfCounter", "{AF4984C8-3338-94A7-92BD-5FB776449FBE}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{35E8E1A6-809C-4D51-01E6-AB02CB2FA8CA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AutoPackagingStation", "AutoPackagingStation", "{0B5EF0E6-D377-2595-E137-1E2F4FB9F11C}"
@@ -31,8 +29,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StackLimitMod", "StackLimitMod", "{16C707E4-717E-E7CE-0EA9-8FAFFA7B49E7}"
 EndProject
 
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_DiagPerfCounter", "_DiagPerfCounter\src\_DiagPerfCounter.csproj", "{25C7D322-5E4C-31D5-4476-F28F0106AF00}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoPackagingStation.Tests", "..\Tests\AutoPackagingStation.Tests\AutoPackagingStation.Tests.csproj", "{0BEC3C06-B19D-35F0-8049-44FAE8A2C112}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalculatorApp.Tests", "..\Tests\CalculatorApp.Tests\CalculatorApp.Tests.csproj", "{9A75A72B-720F-81ED-FA63-025D439BD4D8}"
@@ -70,10 +66,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{25C7D322-5E4C-31D5-4476-F28F0106AF00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{25C7D322-5E4C-31D5-4476-F28F0106AF00}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{25C7D322-5E4C-31D5-4476-F28F0106AF00}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{25C7D322-5E4C-31D5-4476-F28F0106AF00}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0BEC3C06-B19D-35F0-8049-44FAE8A2C112}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0BEC3C06-B19D-35F0-8049-44FAE8A2C112}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BEC3C06-B19D-35F0-8049-44FAE8A2C112}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -139,7 +131,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{25C7D322-5E4C-31D5-4476-F28F0106AF00} = {AF4984C8-3338-94A7-92BD-5FB776449FBE}
 		{0BEC3C06-B19D-35F0-8049-44FAE8A2C112} = {35E8E1A6-809C-4D51-01E6-AB02CB2FA8CA}
 		{9A75A72B-720F-81ED-FA63-025D439BD4D8} = {35E8E1A6-809C-4D51-01E6-AB02CB2FA8CA}
 		{FCF293DB-5773-5F92-7143-E36D8770A515} = {35E8E1A6-809C-4D51-01E6-AB02CB2FA8CA}

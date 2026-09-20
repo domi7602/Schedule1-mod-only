@@ -5,6 +5,39 @@ Diese Datei ergänzt `AGENTS.md` (operatives Inventar) um das *Warum*.
 
 ---
 
+## 2026-09-19 — IL2CPP-Typ-Checks nur noch über `TryCast<T>()`
+
+**Entscheidung:** In allen Mods werden IL2CPP-Typabfragen über `TryCast<T>()` (echte Il2Cpp-Klassenhierarchie) gestellt — **kein** `is`/`as` auf Interop-Objekten.
+**Begründung:** `is` prüft den **Managed-Wrapper**, nicht die Il2Cpp-Klasse. Nachweis in `apply_report.json` (2026-09-19): `ogkush`/`sourdiesel`/`greencrack`/`granddaddypurple` (`WeedDefinition`), `meth`, `cocaine` liefen als „not-agriculture" und wurden nie angehoben; `cash` (`CashDefinition`) lief ungeschützt durch, `mushroomhat` (`ClothingDefinition`) wurde fälschlich gestackt. Der Fehler war unsichtbar, solange ID-Keyword-Heuristiken zufällig griffen.
+**Konsequenz:** `StackLimitMod v0.1.6` fixt `IsAgricultureItem`/`IsWeaponOrAmmo`; das Pattern ist in `docs/pitfalls.md`-Nähe zu führen (AutoPackagingStation nutzt es bereits identisch).
+
+---
+
+## 2026-09-19 — PocketShop zahlt nach Vanilla-`ShopInterface.PaymentType`, nicht nach Shop-Namen
+
+**Entscheidung:** Die Zahlungsart wird zur Laufzeit aus `ShopInterface.PaymentType` (`EPaymentType`: `Cash` / `Online` / `PreferCash` / `PreferOnline`) gelesen, pro Shop/Item in `ShopCatalog.Refresh` gecacht und in Afford-Check, Zahlung und allen Refund-Pfaden verwendet.
+**Begründung:** Schedule I ist nicht pauschal kartenbasiert — Black-Market-Supplier verlangen Cash, legale Shops Karte. `PaymentType` ist ein **serialized Inspector-Feld** in den Unity-Szenendaten: es existiert keine Code-/Metadata-Tabelle, also ist jede externe „Shop X = Cash"-Liste (Wiki, KI-Antwort) Rekonstruktion und potenziell falsch. Zusätzlich: mod-injizierte Shops erben ihre Regel automatisch.
+**Verworfene Alternative:** Hardcoded Shop-Name-Liste (bricht bei jedem Content-Update und bei mod-injizierten Shops).
+**Konsequenz:** `PocketShop v0.3.0` (pauschal Card-only) ist damit als Fehlannahme abgelöst; Diagnose-Befehl `pshop shops` wurde ergänzt, um die Zuordnung live gegen beliebige externe Quellen zu prüfen.
+
+---
+
+## 2026-09-19 — Hibernation aus + „Neu starten" statt „Herunterfahren" bei hängender MelonLoader-Konsole
+
+**Entscheidung:** `powercfg /h off` ist auf dem Laptop gesetzt; bei einer hängenden MelonLoader-Konsole wird **neu gestartet**, nicht heruntergefahren.
+**Begründung:** Ein IL2CPP-Prozess kann nach Spiel-Quit in einem ununterbrechbaren Kernel-Wait hängen bleiben (nicht killbar durch Taskmanager, `taskkill` oder `Stop-Process`; DLL-Locks bleiben aktiv). Windows 11 „Herunterfahren" mit Fast Startup **hibernatet** den Kernel inklusive dieses Zombies → Bugcheck `0x12B` / `c00002c4` (ZEROED_PAGE_CORRUPTION) beim nächsten Boot. Memtest clean, WHEA 0 Events → kein Hardwaredefekt.
+**Konsequenz (Workaround, weiterhin gültig):** Gelockte Mod-DLLs per Rename-Trick tauschen (`<Mod>.dll` → `<Mod>.dll.zombie`, neue DLL kopieren) — Deploy ist damit ohne Reboot möglich; `.zombie`-Reste nach dem Reboot aufräumen.
+
+---
+
+## 2026-09-19 — Schedule I v0.4.7 Open Beta: auf Default v0.4.6f13 bleiben
+
+**Entscheidung:** Kein Beta-Umstieg, kein vorsorglicher Migrations-Pass. Beta nur zu Testzwecken **nach** Save-Backup und mit `dotnet build -c Release` als API-Drift-Detektor.
+**Begründung:** v0.4.7 ist Open Beta (opt-in). Erwartete Brüche beim Default-Wechsel: Avatar-Refactor (`AvatarObjects`, `NakedAppearance` + `Outfit` ersetzen `AvatarSettings`) → PocketShop, CustomSkateboard; NPC-Ragdoll-Refactor → HitmanPhone. `BankApp` nur Werte-Drift. Die neue Appearance-Save-Konvertierung ist **one-way** — ein in der Beta gespielter Save lädt auf 0.4.6f13 nicht mehr sauber.
+**Konsequenz:** Alle Verifies laufen weiter gegen `v0.4.6f13`. Optional geplant (nicht angelegt): Deploy-Guard-Skript, das die Spielversion gegen die erwartete prüft.
+
+---
+
 ## 2026-09-19 — Release-Zips nur lokal, kein Nexus-Upload
 
 **Entscheidung:** Release-Packaging (`Tools/package-release.ps1`) dient ausschließlich der lokalen Bereitstellung. Kein Upload zu NexusMods.

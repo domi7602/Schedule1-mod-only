@@ -82,7 +82,7 @@ Curated architecture reference documents located in `Skills/schedule1-game-syste
 | **S1MCP Bridge** | `ThirdParty/S1MCPServer-master/` (TCP port 8765) | Live game inspection, scene hierarchy queries, object reflection, log streaming |
 | **ILSpy CLI (`ilspycmd`)** | Global dotnet tool: `ilspycmd` | Decompile live game assemblies in `<GameDir>/MelonLoader/Il2CppAssemblies/` |
 | **MelonLoader Logs** | `<GameDir>/MelonLoader/Latest.log` | Real-time diagnostic log stream with exception backtraces and warning patterns |
-| **DiagPerfCounter** | `Source/Mods/_DiagPerfCounter/` | In-game diagnostic reflection dump |
+| **DiagPerfCounter** | `Source/Archive/_DiagPerfCounter/` | In-game diagnostic reflection dump (archiviert 2026-09-20, obsolet — ilspycmd/S1MCP decken das ab) |
 
 ---
 

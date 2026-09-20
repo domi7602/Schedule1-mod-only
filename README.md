@@ -18,14 +18,14 @@ This repository contains several active mods, built from the ground up for stabi
 * **CalculatorApp** (v0.2.3): High-precision decimal calculator integrated into your phone. Features in-game money integration (Cash & Bank) and a searchable history.
 * **PotScanner** (v0.5.4): The ultimate tool for your grow ops. Provides quick-filter tabs (Thirsty, Ready, Empty), plant quality ratings, and single-property focus modes.
 * **BankApp** (v0.4.4): Digital account dashboard for tracking your cash flow and net worth. Features slot-aware cash deposits, weekly ATM limits, and chip-based UI.
-* **PocketShop** (v0.2.7): An advanced online shopping interface with multi-payment switching (Cash/Bank/Auto), level-lock enforcement, direct quantity picker modal, and item inspection modals.
+* **PocketShop** (v0.3.2): An advanced online shopping interface that follows each shop's own vanilla payment rule (cash at black-market suppliers, card at legal stores), plus level-lock enforcement, direct quantity picker modal, and item inspection modals.
 
 ### 🎮 Gameplay & QoL
 * **CustomSkateboard** (v1.1.5): Overhauls the skateboarding experience with ultra-responsive carving, instant jumping, high-speed pushes, and anti-gravel suspension. Visually protects your avatar.
 * **BusinessIncome** (v0.1.6): Earn daily passive revenue for your owned businesses, complete with multiplayer host authority and deterministic variance.
-* **StackLimitMod** (v0.1.4): Configurable inventory and storage stack limits (1–9999) restricted to agriculture and farming items (soil, seeds, baggies, jars, fertilizers, harvested crops) with permanent weapon and ammo protection.
+* **StackLimitMod** (v0.1.6): Configurable inventory and storage stack limits (1–9999) restricted to agriculture and farming items (soil, seeds, baggies, jars, fertilizers, harvested crops) with permanent weapon and ammo protection.
 * **MoreSaveSlots** (v1.0.12): Expands vanilla save slots from 5 to 25+ with paginated navigation and inline save renaming.
-* **AutoPackagingStation** (v0.2.8): 4×4 industrial automated packaging line with UV-scroll conveyor belt, atomic 2-phase engine, weighted quality mixing, native slot sync, 2×2 grid footprint, E-key interactable, and Hustler-I rank gate.
+* **AutoPackagingStation** (v0.3.3): 4×4 industrial automated packaging line with UV-scroll conveyor belt, atomic 2-phase engine, weighted quality mixing, native slot sync, 2×2 grid footprint, E-key interactable, and Hustler-I rank gate.
 * **HitmanPhone** (v0.2.9): Bounty/contract gameplay via the phone Messages app — anonymous callers, Polaroid evidence dead-drops, police heat, and journal quests.
 * **_DiagPerfCounter** (v0.3.2): Dev-tool that dumps StorageEntity hook targets to UserData for mod development (no gameplay effect).
 
