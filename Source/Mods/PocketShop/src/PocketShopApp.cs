@@ -21,10 +21,10 @@ public enum ViewMode
 }
 
 /// <summary>
-/// PocketShop PhoneApp for Schedule I (v0.2.0).
+/// PocketShop PhoneApp for Schedule I (v0.3.0).
 /// Features:
 ///   - 2-Level Navigation (Store Directory & Item Grid)
-///   - Multi-Payment Switcher (Cash, Bank Card, Auto)
+///   - Card-Only Payment (v0.3.0: Schedule I charges legal shops by card — no Cash/Auto switcher)
 ///   - Rich Item Inspection Modal with Quick Quantity Chips (+1, +5, +10, MAX)
 ///   - In-App Animated Toast Notifications
 ///   - Native & Procedural Audio Feedback
@@ -46,13 +46,10 @@ public sealed class PocketShopApp : PhoneApp
     private ItemGridPane _gridPane = null!;
     private Text _statsLabel = null!;
 
-    // Payment Switcher Chips
-    private Image _cashChipBg = null!;
+    // Balance chips (v0.3.1: Cash + Card — black-market shops charge cash, clean shops charge card)
+    private Image _cardChipBg = null!;
+    private Text _cardChipText = null!;
     private Text _cashChipText = null!;
-    private Image _bankChipBg = null!;
-    private Text _bankChipText = null!;
-    private Image _autoChipBg = null!;
-    private Text _autoChipText = null!;
 
     private ViewMode _viewMode = ViewMode.Directory;
     private int _activeShopIndex;
@@ -158,7 +155,6 @@ public sealed class PocketShopApp : PhoneApp
         ShopCatalog.RetryIfEmpty();
         SetViewMode(ViewMode.Directory);
         RefreshStats();
-        UpdatePaymentChipVisuals();
     }
 
     protected override void OnCreatedUI(GameObject container)
@@ -239,11 +235,14 @@ public sealed class PocketShopApp : PhoneApp
         FooterBuilder.Build(_mainBG.transform);
     }
 
+    /// <summary>
+    /// v0.3.1: two balance chips (non-interactive). Black-market shops charge Cash,
+    /// clean/legal shops charge by card — so both balances are shown side by side.
+    /// </summary>
     private void BuildPaymentChips(Transform parent)
     {
-        // 1. Cash Chip
-        var cashPanel = S1API.UI.UIFactory.Panel("CashChip", parent, new Color(0.12f, 0.16f, 0.22f, 1f));
-        _cashChipBg = cashPanel.GetComponent<Image>() ?? cashPanel.AddComponent<Image>();
+        // Cash chip
+        var cashPanel = S1API.UI.UIFactory.Panel("CashChip", parent, new Color(0.10f, 0.20f, 0.14f, 1f));
         var cashLE = cashPanel.AddComponent<LayoutElement>();
         cashLE.preferredWidth = UITheme.Dp(105f);
         cashLE.minWidth = UITheme.Dp(90f);
@@ -257,87 +256,23 @@ public sealed class PocketShopApp : PhoneApp
         _cashChipText = S1API.UI.UIFactory.Text("Txt", "💵 $—", cashPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
         _cashChipText.color = new Color(0.35f, 0.92f, 0.58f, 1f);
         _cashChipText.raycastTarget = false;
-        var cashBtn = cashPanel.AddComponent<Button>();
-        cashBtn.transition = Selectable.Transition.None;
-        ButtonUtils.AddListener(cashBtn, () => SetPaymentMode(PaymentMode.Cash));
 
-        // 2. Bank Chip
-        var bankPanel = S1API.UI.UIFactory.Panel("BankChip", parent, new Color(0.12f, 0.16f, 0.22f, 1f));
-        _bankChipBg = bankPanel.GetComponent<Image>() ?? bankPanel.AddComponent<Image>();
-        var bankLE = bankPanel.AddComponent<LayoutElement>();
-        bankLE.preferredWidth = UITheme.Dp(110f);
-        bankLE.minWidth = UITheme.Dp(95f);
-        bankLE.preferredHeight = UITheme.Dp(24f);
-        var bankVlg = bankPanel.AddComponent<VerticalLayoutGroup>();
-        bankVlg.childControlWidth = true;
-        bankVlg.childControlHeight = true;
-        bankVlg.childForceExpandWidth = true;
-        bankVlg.childForceExpandHeight = true;
-        bankVlg.childAlignment = TextAnchor.MiddleCenter;
-        _bankChipText = S1API.UI.UIFactory.Text("Txt", "💳 $—", bankPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
-        _bankChipText.color = new Color(0.30f, 0.85f, 0.95f, 1f);
-        _bankChipText.raycastTarget = false;
-        var bankBtn = bankPanel.AddComponent<Button>();
-        bankBtn.transition = Selectable.Transition.None;
-        ButtonUtils.AddListener(bankBtn, () => SetPaymentMode(PaymentMode.Bank));
-
-        // 3. Auto Chip
-        var autoPanel = S1API.UI.UIFactory.Panel("AutoChip", parent, new Color(0.12f, 0.16f, 0.22f, 1f));
-        _autoChipBg = autoPanel.GetComponent<Image>() ?? autoPanel.AddComponent<Image>();
-        var autoLE = autoPanel.AddComponent<LayoutElement>();
-        autoLE.preferredWidth = UITheme.Dp(55f);
-        autoLE.preferredHeight = UITheme.Dp(24f);
-        var autoVlg = autoPanel.AddComponent<VerticalLayoutGroup>();
-        autoVlg.childControlWidth = true;
-        autoVlg.childControlHeight = true;
-        autoVlg.childForceExpandWidth = true;
-        autoVlg.childForceExpandHeight = true;
-        autoVlg.childAlignment = TextAnchor.MiddleCenter;
-        _autoChipText = S1API.UI.UIFactory.Text("Txt", "⚡ AUTO", autoPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
-        _autoChipText.color = new Color(0.96f, 0.77f, 0.26f, 1f);
-        _autoChipText.raycastTarget = false;
-        var autoBtn = autoPanel.AddComponent<Button>();
-        autoBtn.transition = Selectable.Transition.None;
-        ButtonUtils.AddListener(autoBtn, () => SetPaymentMode(PaymentMode.Auto));
-
-        UpdatePaymentChipVisuals();
-    }
-
-    private void SetPaymentMode(PaymentMode mode)
-    {
-        SoundService.PlayButtonClick();
-        PocketShopConfig.PaymentModeStatic = mode;
-        UpdatePaymentChipVisuals();
-
-        string label = mode switch
-        {
-            PaymentMode.Cash => "💵 Cash (Physical)",
-            PaymentMode.Bank => "💳 Bank Card (Online)",
-            PaymentMode.Auto => "⚡ Auto (Cash first, Bank fallback)",
-            _ => mode.ToString()
-        };
-
-        _gridPane?.RefreshAllBuyStates();
-    }
-
-    private void UpdatePaymentChipVisuals()
-    {
-        if (_cashChipBg == null || _bankChipBg == null || _autoChipBg == null) return;
-
-        var activeMode = PocketShopConfig.PaymentModeStatic;
-
-        // Active style: brighter background & vivid text
-        _cashChipBg.color = activeMode == PaymentMode.Cash
-            ? new Color(0.15f, 0.35f, 0.22f, 1f)
-            : new Color(0.10f, 0.12f, 0.16f, 0.85f);
-
-        _bankChipBg.color = activeMode == PaymentMode.Bank
-            ? new Color(0.12f, 0.30f, 0.45f, 1f)
-            : new Color(0.10f, 0.12f, 0.16f, 0.85f);
-
-        _autoChipBg.color = activeMode == PaymentMode.Auto
-            ? new Color(0.38f, 0.28f, 0.10f, 1f)
-            : new Color(0.10f, 0.12f, 0.16f, 0.85f);
+        // Card chip
+        var cardPanel = S1API.UI.UIFactory.Panel("CardChip", parent, new Color(0.10f, 0.16f, 0.24f, 1f));
+        _cardChipBg = cardPanel.GetComponent<Image>() ?? cardPanel.AddComponent<Image>();
+        var cardLE = cardPanel.AddComponent<LayoutElement>();
+        cardLE.preferredWidth = UITheme.Dp(120f);
+        cardLE.minWidth = UITheme.Dp(100f);
+        cardLE.preferredHeight = UITheme.Dp(24f);
+        var cardVlg = cardPanel.AddComponent<VerticalLayoutGroup>();
+        cardVlg.childControlWidth = true;
+        cardVlg.childControlHeight = true;
+        cardVlg.childForceExpandWidth = true;
+        cardVlg.childForceExpandHeight = true;
+        cardVlg.childAlignment = TextAnchor.MiddleCenter;
+        _cardChipText = S1API.UI.UIFactory.Text("Txt", "💳 $—", cardPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _cardChipText.color = new Color(0.30f, 0.85f, 0.95f, 1f);
+        _cardChipText.raycastTarget = false;
     }
 
     private void HandlePurchaseResult(PurchaseResultData result)
@@ -427,8 +362,9 @@ public sealed class PocketShopApp : PhoneApp
         var mm = Il2CppScheduleOne.Money.MoneyManager.Instance;
         if (mm != null)
         {
+            // v0.3.1: both balances — black-market = Cash, clean shops = Card.
             if (_cashChipText != null) _cashChipText.text = $"💵 ${mm.cashBalance:F0}";
-            if (_bankChipText != null) _bankChipText.text = $"💳 ${mm.onlineBalance:F0}";
+            if (_cardChipText != null) _cardChipText.text = $"💳 ${mm.onlineBalance:F0}";
         }
 
         if (_viewMode == ViewMode.Directory && _statsLabel != null)

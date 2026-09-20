@@ -4,7 +4,9 @@ namespace PocketShop.Config;
 
 public enum PaymentMode
 {
+    /// <summary>Legacy v0.2.x mode — removed in v0.3.0 (Schedule I: legal shops are card-only). Kept for config compat.</summary>
     Auto = 0,
+    /// <summary>Legacy v0.2.x mode — removed in v0.3.0 (Schedule I: legal shops are card-only). Kept for config compat.</summary>
     Cash = 1,
     Bank = 2
 }
@@ -22,8 +24,12 @@ public class PocketShopConfig
     /// <summary>Flat delivery surcharge added per order (e.g. 0 = none).</summary>
     public float DeliveryFeeFlat { get; set; } = 0f;
 
-    /// <summary>Active payment mode (Auto, Cash, or Bank).</summary>
-    public PaymentMode SelectedPaymentMode { get; set; } = PaymentMode.Auto;
+    /// <summary>
+    /// Legacy setting from the v0.2.x multi-payment era. v0.3.0 is Bank-card-only
+    /// (Schedule I pays legal shops by card); the value is retained for config
+    /// compatibility but no longer affects payment behavior.
+    /// </summary>
+    public PaymentMode SelectedPaymentMode { get; set; } = PaymentMode.Bank;
 
     /// <summary>Whether audio feedback is enabled for UI clicks, purchases, and alerts.</summary>
     public bool EnableSoundEffects { get; set; } = true;
@@ -43,17 +49,15 @@ public class PocketShopConfig
     /// <summary>Static accessor for DeliveryFeeFlat.</summary>
     public static float DeliveryFeeFlatStatic => ModConfig<PocketShopConfig>.Instance?.DeliveryFeeFlat ?? 0f;
 
-    /// <summary>Static accessor for SelectedPaymentMode.</summary>
+    /// <summary>
+    /// Static accessor for SelectedPaymentMode. v0.3.0: always resolves to Bank —
+    /// PocketShop is a legal storefront, Schedule I charges legal shops by card.
+    /// The setter is a no-op kept for source compatibility.
+    /// </summary>
     public static PaymentMode PaymentModeStatic
     {
-        get => ModConfig<PocketShopConfig>.Instance?.SelectedPaymentMode ?? PaymentMode.Auto;
-        set
-        {
-            if (ModConfig<PocketShopConfig>.Instance != null)
-            {
-                ModConfig<PocketShopConfig>.SetAndSave("SelectedPaymentMode", value);
-            }
-        }
+        get => PaymentMode.Bank;
+        set { /* v0.3.0: Bank-only — legacy setter kept for compile compat */ }
     }
 
     /// <summary>Static accessor for EnableSoundEffects.</summary>

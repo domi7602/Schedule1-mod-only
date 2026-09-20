@@ -7,6 +7,7 @@ using Il2CppScheduleOne.UI.Shop;
 using MelonLoader;
 using PocketShop.Config;
 using UnityEngine;
+using EPaymentType = Il2CppScheduleOne.UI.Shop.ShopInterface.EPaymentType;
 
 namespace PocketShop.Services;
 
@@ -28,6 +29,12 @@ public sealed class ItemPOCO
     public StorableItemDefinition Definition { get; set; } = null!;
     public ShopListing SourceListing { get; set; } = null!;
     public Sprite? Icon { get; set; }
+
+    /// <summary>
+    /// v0.3.1: Payment rule of the shop this item is bought from (vanilla EPaymentType).
+    /// Cached at catalog refresh — PurchaseService charges Cash or Card accordingly.
+    /// </summary>
+    public EPaymentType ShopPaymentType { get; set; } = EPaymentType.Online;
 
     /// <summary>Bug-Audit 2026-09-12: stable identity for stock-change dispatch.</summary>
     public string ItemId
@@ -124,6 +131,11 @@ public sealed class ShopPOCO
     public string Name { get; set; } = string.Empty;
     public string ShopCode { get; set; } = string.Empty;
     public int ItemCount { get; set; }
+    /// <summary>
+    /// v0.3.1: Vanilla payment rule of this shop (EPaymentType: Cash / Online / PreferCash / PreferOnline).
+    /// Black-market shops charge Cash, clean/legal shops charge by card (Online).
+    /// </summary>
+    public EPaymentType PaymentType { get; set; } = EPaymentType.Online;
 }
 
 /// <summary>
@@ -188,6 +200,12 @@ public static class ShopCatalog
                 var code = !string.IsNullOrEmpty(shop.ShopCode) ? shop.ShopCode
                     : !string.IsNullOrEmpty(shop.ShopName) ? shop.ShopName
                     : shop.name ?? $"shop_{s}";
+
+                // v0.3.1: cache the vanilla payment rule (Black Market = Cash, clean shops = Card).
+                // TryCast-guarded: a host app domain mismatch must not kill the whole refresh.
+                var shopPaymentType = EPaymentType.Online;
+                try { shopPaymentType = shop.PaymentType; } catch { }
+
                 int availableCount = 0;
 
                 for (int i = 0; i < listings.Count; i++)
@@ -221,7 +239,8 @@ public static class ShopCatalog
                         CategoryValue = (int)def.Category,
                         Definition = def,
                         SourceListing = listing,
-                        Icon = def.Icon
+                        Icon = def.Icon,
+                        ShopPaymentType = shopPaymentType
                     });
                 }
 
@@ -232,7 +251,8 @@ public static class ShopCatalog
                 {
                     Name = shop.ShopName,
                     ShopCode = code,
-                    ItemCount = availableCount
+                    ItemCount = availableCount,
+                    PaymentType = shopPaymentType
                 });
             }
 

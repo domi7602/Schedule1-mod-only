@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.3.2 (2026-09-20) — Cash-HUD-Feedback
+- **Cash-Zahlungen zeigen jetzt das Vanilla-HUD-Popup:** `ChangeCashBalance` läuft mit `visualizeChange: true` (war `false` — Cash wurde stimmungslos abgezogen). Black-Market-Käufe zeigen jetzt "-$X" im HUD wie In-World-Dealer-Käufe. Alle Cash-Refund-Pfade (Partial-Delivery, Outer-Gap) ebenfalls visualisiert ("+$X").
+- Karte-Zahlungen unverändert (`CreateOnlineTransaction` hat kein Visualize-Flag — Banking-Feed im Phone ist dort das Feedback).
+
+
+## 0.3.1 (2026-09-19) — Shop-Payment-Regeln (Black Market = Cash, Clean = Card)
+- **Korrektur der v0.3.0-Pauschalumstellung (User-Feedback):** Nicht alle Shops sind legal — PocketShop listingt auch Black-Market-Supplier, die vanilla **Cash** verlangen. v0.3.1 folgt jetzt der **Vanilla-Zahlungsregel jedes Shops** via `ShopInterface.PaymentType` (`EPaymentType`): `Cash` → `ChangeCashBalance`, `Online` → `CreateOnlineTransaction`, `PreferCash`/`PreferOnline` → beide Mittel mit entsprechender Präferenz.
+- `ShopCatalog.Refresh` cacht `PaymentType` pro Shop/Item (`ShopPOCO.PaymentType`, `ItemPOCO.ShopPaymentType`), `PurchaseService.CanAfford` + Payment + Refund-Pfade arbeiten damit. Keine hardcoded Shop-Namen — mod-injizierte Shops erben ihre Vanilla-Regel automatisch.
+- UI: Zwei nicht-interaktive Balance-Chips (💵 Cash + 💳 Card) statt einem — beide Konten sind relevant. Buy-Button zeigt 💵-Badge nur bei Cash-Shops (Karte bleibt der stille Default).
+- Success-Toast nennt den Zahlungsweg ("Cash"/"Card"); Not-enough-funds-Meldung matcht den tatsächlich geprüften Kontotyp.
+- **Verifikations-Befehl:** `pshop shops` (In-Game-Konsole) listet jeden registrierten Shop mit seiner Vanilla-Zahlungsregel — damit lässt sich die Cash-vs-Karte-Zuordnung live gegen externe Quellen prüfen. Hinweis: `PaymentType` ist ein serialized Inspector-Feld (TVGS setzt es pro Shop-Instanz in den Szenen-Daten); es existiert keine statische Code-Tabelle, nur der Live-Wert ist verlässlich.
+
+## 0.3.0 (2026-09-19) — Card-Only Payment (Realismus: legale Shops zahlen per Karte)
+- **Payment-Überarbeitung auf User-Wunsch:** PocketShop war als legales Geschäft modelliert, zog aber bisher Cash vom Spieler ab. In Schedule I zahlen legale Shops ausschließlich per Karte (`onlineBalance` / `CreateOnlineTransaction`) — Cash ist nur für illegale Transaktionen. Alle Käufe laufen jetzt über `CreateOnlineTransaction`; `ChangeCashBalance` wird nicht mehr berührt.
+- **Auto-Modus entfernt:** Der Cash-first/Bank-fallback-Switcher (💵/💳/⚡) ist obsolet — Items landen ohnehin sofort im Inventar, ein Zahlungsmodus-Switcher ist ohne Nutzen. Drei interaktive Chips → ein einziger nicht-interaktiver 💳-Kontostand-Chip (schlankeres SubHeader-Layout).
+- `PaymentModeStatic` resolviert immer `PaymentMode.Bank` (Setter = No-Op, Source-kompatibel); `SelectedPaymentMode` bleibt als Legacy-Feld in der Config (Bestand: Bestehende Configs laden weiter, Default jetzt `Bank`).
+- Not-enough-funds-Fehlermeldung auf Kartenkontext verschlankt ("Not enough card funds"); BUY-Badge "[CARD]" entfernt (selbstverständlich). Refund-Pfade (Partial-Delivery, Outer-Gap) auf Online-Transaktionen umgestellt.
+
+
 ## 0.2.7 (2026-09-17)
 - Version bump.
 

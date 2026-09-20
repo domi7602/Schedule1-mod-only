@@ -170,8 +170,8 @@ public class ItemCard
         _qty.SetInteractable(true);
 
         PurchaseService.CalculatePricing(_item, _qty.Quantity, out _, out _, out _, out float total);
-        var mode = PocketShopConfig.PaymentModeStatic;
-        bool canAfford = PurchaseService.CanAfford(total, mode, out PaymentMode effective);
+        // v0.3.1: follow the shop's vanilla payment rule (Black Market = Cash, clean = Card).
+        bool canAfford = PurchaseService.CanAfford(total, _item.ShopPaymentType, out PaymentMode effective);
 
         if (!canAfford)
         {
@@ -184,7 +184,8 @@ public class ItemCard
         {
             _buyButton.interactable = true;
             _buyPanelImage.color = new Color(0.24f, 0.82f, 0.44f, 1f);
-            string payBadge = effective == PaymentMode.Bank ? " [CARD]" : "";
+            // Payment hint only where it differs from the default (card): black-market items say CASH.
+            string payBadge = effective == PaymentMode.Cash ? " 💵" : "";
             _buyLabel.text = $"BUY{payBadge}";
             _buyLabel.color = new Color(0.03f, 0.10f, 0.05f, 1f);
         }
@@ -222,9 +223,8 @@ public class ItemCard
 
     private void OnBuyClicked()
     {
-        var result = PurchaseService.BuyWithQuantity(_item, _qty.Quantity, PocketShopConfig.PaymentModeStatic);
+        var result = PurchaseService.BuyWithQuantity(_item, _qty.Quantity, PaymentMode.Bank);
         OnPurchaseResult?.Invoke(result);
-
         if (result.IsSuccess)
         {
             NotifyStockChanged();

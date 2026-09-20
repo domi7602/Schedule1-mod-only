@@ -2,9 +2,11 @@ using System;
 using Il2CppScheduleOne.ItemFramework;
 using Il2CppScheduleOne.Money;
 using Il2CppScheduleOne.PlayerScripts;
+using Il2CppScheduleOne.UI.Shop;
 using MelonLoader;
 using PocketShop.Config;
 using S1Mods.Shared;
+using EPaymentType = Il2CppScheduleOne.UI.Shop.ShopInterface.EPaymentType;
 
 namespace PocketShop.Services;
 
@@ -67,52 +69,49 @@ public static class PurchaseService
     }
 
     /// <summary>
-    /// Checks whether the player can afford the given total under the active payment mode.
+    /// Checks whether the player can afford the given total under the shop's vanilla payment rule.
+    /// v0.3.1: Black-market shops charge Cash, clean/legal shops charge by card (Online).
+    /// PreferCash/PreferOnline mean the shop accepts both — check in that order of preference.
     /// </summary>
-    public static bool CanAfford(float total, PaymentMode mode, out PaymentMode effectiveMode)
+    public static bool CanAfford(float total, EPaymentType shopPaymentType, out PaymentMode effectiveMode)
     {
         var money = MoneyManager.Instance;
-        effectiveMode = mode;
+        effectiveMode = PaymentMode.Bank;
         if (!NetworkGuard.IsAlive(money)) return false;
 
-        float cash = money.cashBalance;
-        float bank = money.onlineBalance;
-
-        if (mode == PaymentMode.Cash)
+        switch (shopPaymentType)
         {
-            effectiveMode = PaymentMode.Cash;
-            return cash >= total;
-        }
+            case EPaymentType.Cash:
+                effectiveMode = PaymentMode.Cash;
+                return money.cashBalance >= total;
 
-        if (mode == PaymentMode.Bank)
-        {
-            effectiveMode = PaymentMode.Bank;
-            return bank >= total;
-        }
+            case EPaymentType.PreferCash:
+                // Both accepted, cash preferred
+                if (money.cashBalance >= total) { effectiveMode = PaymentMode.Cash; return true; }
+                if (money.onlineBalance >= total) { effectiveMode = PaymentMode.Bank; return true; }
+                effectiveMode = PaymentMode.Cash;
+                return false;
 
-        // Auto mode: prefer Cash, fallback to Bank
-        if (cash >= total)
-        {
-            effectiveMode = PaymentMode.Cash;
-            return true;
-        }
+            case EPaymentType.PreferOnline:
+                // Both accepted, card preferred
+                if (money.onlineBalance >= total) { effectiveMode = PaymentMode.Bank; return true; }
+                if (money.cashBalance >= total) { effectiveMode = PaymentMode.Cash; return true; }
+                effectiveMode = PaymentMode.Bank;
+                return false;
 
-        if (bank >= total)
-        {
-            effectiveMode = PaymentMode.Bank;
-            return true;
+            default: // EPaymentType.Online (legal/card-only)
+                effectiveMode = PaymentMode.Bank;
+                return money.onlineBalance >= total;
         }
-
-        effectiveMode = PaymentMode.Auto;
-        return false;
     }
 
     /// <summary>
-    /// Buys <paramref name="qty"/> units of <paramref name="item"/> using the specified <paramref name="mode"/>.
-    /// Supports Cash, Bank (online transaction), and Auto (Cash first, Bank fallback).
+    /// Buys <paramref name="qty"/> units of <paramref name="item"/>.
+    /// v0.3.0: Bank-card only (Schedule I charges legal shops via card). The
+    /// <paramref name="mode"/> parameter is kept for source compatibility and ignored.
     /// Decrements vanilla stock, adds items to inventory, and triggers audio/logging.
     /// </summary>
-    public static PurchaseResultData BuyWithQuantity(ItemPOCO item, int qty, PaymentMode mode = PaymentMode.Auto)
+    public static PurchaseResultData BuyWithQuantity(ItemPOCO item, int qty, PaymentMode mode = PaymentMode.Bank)
     {
         var result = new PurchaseResultData
         {
@@ -202,22 +201,17 @@ public static class PurchaseService
         result.UnitPriceWithFee = perUnit;
         result.TotalPaid = total;
 
-        if (!CanAfford(total, mode, out PaymentMode effectiveMode))
+        if (!CanAfford(total, item.ShopPaymentType, out PaymentMode effectiveMode))
         {
-            if (mode == PaymentMode.Cash)
+            if (effectiveMode == PaymentMode.Cash)
             {
                 result.Result = BuyResult.NotEnoughCash;
                 result.Message = $"Not enough Cash! Need ${total:F0} (have ${money.cashBalance:F0})";
             }
-            else if (mode == PaymentMode.Bank)
-            {
-                result.Result = BuyResult.NotEnoughBank;
-                result.Message = $"Not enough Bank funds! Need ${total:F0} (have ${money.onlineBalance:F0})";
-            }
             else
             {
-                result.Result = BuyResult.NotEnoughFunds;
-                result.Message = $"Insufficient funds! Need ${total:F0} (Cash ${money.cashBalance:F0}, Bank ${money.onlineBalance:F0})";
+                result.Result = BuyResult.NotEnoughBank;
+                result.Message = $"Not enough card funds! Need ${total:F0} (card balance ${money.onlineBalance:F0})";
             }
             SoundService.PlayPurchaseDenied();
             return result;
@@ -271,12 +265,16 @@ public static class PurchaseService
                 instances.Add(inst);
             }
 
-            // Execute payment (visualizeChange = false to disable large screen cash animation)
+            // Execute payment — v0.3.1: follow the shop's vanilla payment rule
+            // (Black Market = Cash via ChangeCashBalance, clean shops = Card via
+            // CreateOnlineTransaction; Prefer* variants resolved by CanAfford).
+            // v0.3.2: visualizeChange=true so cash payments show the vanilla HUD popup
+            // (matching in-world cash spending — the player sees "-$X" like at a dealer).
             try
             {
                 if (effectiveMode == PaymentMode.Cash)
                 {
-                    money.ChangeCashBalance(-total, false, false);
+                    money.ChangeCashBalance(-total, true, false);
                 }
                 else
                 {
@@ -314,11 +312,12 @@ public static class PurchaseService
                 int undelivered = qty - deliveredCount;
                 float refund = perUnit * undelivered + (deliveredCount == 0 ? deliveryFee : 0f);
                 // Rollback payment so the player is never charged for undelivered items.
+                // Refunds keep visualizeChange=true as well — a visible "+$X" confirms the rollback.
                 try
                 {
                     if (effectiveMode == PaymentMode.Cash)
                     {
-                        money.ChangeCashBalance(refund, false, false);
+                        money.ChangeCashBalance(refund, true, false);
                     }
                     else
                     {
@@ -376,7 +375,7 @@ public static class PurchaseService
             }
 
             result.Result = BuyResult.Success;
-            string payLabel = effectiveMode == PaymentMode.Cash ? "Cash" : "Bank";
+            string payLabel = effectiveMode == PaymentMode.Cash ? "Cash" : "Card";
             result.Message = $"Bought {qty}x '{item.Name}' for ${total:F0} ({payLabel})";
 
             SoundService.PlayPurchaseSuccess();
@@ -390,7 +389,7 @@ public static class PurchaseService
             {
                 try
                 {
-                    if (effectiveMode == PaymentMode.Cash) money.ChangeCashBalance(total, false, false);
+                    if (effectiveMode == PaymentMode.Cash) money.ChangeCashBalance(total, true, false);
                     else money.CreateOnlineTransaction("PocketShop Refund", total, 1, "PocketShop Order Rollback (outer)");
                     MelonLogger.Msg($"Outer purchase exception — payment refunded: {ex.Message}");
                 }
