@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using Il2CppScheduleOne;
 using Il2CppScheduleOne.Clothing;
 using Il2CppScheduleOne.Core.Items.Framework;
@@ -9,9 +11,26 @@ using Il2CppScheduleOne.Growing;
 using Il2CppScheduleOne.ItemFramework;
 using Il2CppScheduleOne.Product;
 using Il2CppScheduleOne.Product.Packaging;
+using S1Mods.Shared;
 using UnityEngine;
 
 namespace StackLimitMod;
+
+/// <summary>
+/// One per-item decision from the last ApplyStackLimits run (or a hot-path postfix decision).
+/// Written to apply_report.json so diagnostics survive MelonLogger's Debug-level gating.
+/// </summary>
+public class StackDecisionRecord
+{
+    public string Id { get; set; } = "";
+    public string TypeName { get; set; } = "";
+    public int OriginalLimit { get; set; }
+    public int NewLimit { get; set; }
+    /// <summary>modified | weapon | excluded | not-agriculture | nonstackable | empty-id | error | ineligible | unknown</summary>
+    public string Decision { get; set; } = "";
+    /// <summary>Resources | Registry | RegistryPostfix | InstancePostfix</summary>
+    public string Source { get; set; } = "";
+}
 
 public static class StackLimitEngine
 {
@@ -21,7 +40,20 @@ public static class StackLimitEngine
     private static int _excludedSetHash = 0;
     private static bool _restoreWarned;
 
+    // v0.1.5 diagnostics: report of the last apply + bounded hot-path decision log.
+    private static readonly List<StackDecisionRecord> _lastReport = new();
+    private static readonly List<StackDecisionRecord> _postfixDecisions = new();
+    private const int MaxPostfixDecisions = 512;
+
     public static int ModifiedItemCount { get; private set; }
+
+    /// <summary>
+    /// Registry-scan modification count of the LAST ApplyStackLimits call.
+    /// 0 means the Registry contributed nothing new (dedupe against Resources) OR the scan
+    /// ran before item registration — check apply_report.json to tell these apart.
+    /// </summary>
+    public static int LastRegistryCount { get; private set; }
+
     public static int TrackedItemCount
     {
         get
@@ -110,6 +142,7 @@ public static class StackLimitEngine
         RebuildExcludedCache(config);
 
         var processedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var report = new List<StackDecisionRecord>();
         int count = 0;
         int resourcesCount = 0;
         int registryCount = 0;
@@ -132,7 +165,7 @@ public static class StackLimitEngine
                 for (int i = 0; i < foundDefs.Length; i++)
                 {
                     var def = foundDefs[i];
-                    if (ApplyToDefinition(def, config, processedIds))
+                    if (ApplyToDefinition(def, config, processedIds, report, "Resources"))
                     {
                         count++;
                         resourcesCount++;
@@ -171,7 +204,7 @@ public static class StackLimitEngine
                     for (int i = 0; i < allItems.Count; i++)
                     {
                         var item = allItems[i];
-                        if (ApplyToDefinition(item, config, processedIds))
+                        if (ApplyToDefinition(item, config, processedIds, report, "Registry"))
                         {
                             count++;
                             registryCount++;
@@ -186,8 +219,18 @@ public static class StackLimitEngine
         }
 
         // M-4: Only publish count after both scans complete; config-aware logging below.
-        // Cold-path note: this publish + log runs once per load/config change, not per-frame.
+        // Cold-path note: this publish + log runs once per load / config change, not per-frame.
         ModifiedItemCount = count;
+        LastRegistryCount = registryCount;
+
+        // v0.1.5: publish the report (scan records + hot-path decisions so far) to disk.
+        lock (_lock)
+        {
+            _lastReport.Clear();
+            _lastReport.AddRange(report);
+        }
+        if (config.LogModifications)
+            WriteReportFile(config);
 
         // Config-aware logging: respect config.LogModifications — silent when disabled.
         if (config.LogModifications)
@@ -203,12 +246,93 @@ public static class StackLimitEngine
 
     public static void ApplyToItem(ItemDefinition def, StackLimitConfig config)
     {
-        ApplyToDefinition(def, config, null);
+        ApplyToDefinition(def, config, null, null, "RegistryPostfix");
     }
 
     public static void ApplyToItem(BaseItemDefinition def, StackLimitConfig config)
     {
-        ApplyToDefinition(def, config, null);
+        ApplyToDefinition(def, config, null, null, "RegistryPostfix");
+    }
+
+    /// <summary>
+    /// Records a hot-path decision from <see cref="StackLimitPatches.BaseItemInstance_GetStackLimit_Postfix"/>
+    /// into the bounded postfix log. Only called for uncached decisions and only when config.LogDecisions
+    /// is enabled — safe for the hot path.
+    /// </summary>
+    public static void RecordPostfixDecision(string id, bool eligible, bool keepOriginal, bool shouldOverride, string source)
+    {
+        lock (_lock)
+        {
+            if (_postfixDecisions.Count >= MaxPostfixDecisions) return;
+            int knownOriginal = !string.IsNullOrEmpty(id) && IsOriginalKnown(id) ? _originalLimits[id] : -1;
+            _postfixDecisions.Add(new StackDecisionRecord
+            {
+                Id = id ?? "",
+                TypeName = "",
+                OriginalLimit = knownOriginal,
+                NewLimit = shouldOverride ? (Mod.Config?.StackLimit ?? -1) : -1,
+                Decision = shouldOverride ? "modified" : (keepOriginal ? "nonstackable" : (eligible ? "unknown" : "ineligible")),
+                Source = source
+            });
+        }
+    }
+
+    /// <summary>
+    /// Writes apply_report.json (last apply scan + buffered postfix decisions) to UserData.
+    /// MelonLogger.Debug output is invisible in normal sessions — this file is the reliable
+    /// diagnostic channel for "why is item X not stack-limited?" reports.
+    /// </summary>
+    public static string WriteReportFile(StackLimitConfig config)
+    {
+        try
+        {
+            List<StackDecisionRecord> snapshot;
+            lock (_lock)
+            {
+                snapshot = new List<StackDecisionRecord>(_lastReport.Count + _postfixDecisions.Count);
+                snapshot.AddRange(_lastReport);
+                snapshot.AddRange(_postfixDecisions);
+            }
+
+            var payload = new ReportPayload
+            {
+                GeneratedUtc = DateTime.UtcNow.ToString("o"),
+                StackLimit = config?.StackLimit ?? -1,
+                AgricultureOnly = config?.AgricultureOnly ?? false,
+                OverrideNonStackable = config?.OverrideNonStackable ?? false,
+                LastRegistryCount = LastRegistryCount,
+                Entries = snapshot
+            };
+
+            string path = SafeStorage.GetUserDataPath("StackLimitMod", "apply_report.json");
+            string json = JsonSerializer.Serialize(payload, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(path, json);
+            return path;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"WriteReportFile failed: {ex.Message}");
+            return "";
+        }
+    }
+
+    private sealed class ReportPayload
+    {
+        public string GeneratedUtc { get; set; } = "";
+        public int StackLimit { get; set; }
+        public bool AgricultureOnly { get; set; }
+        public bool OverrideNonStackable { get; set; }
+        public int LastRegistryCount { get; set; }
+        public List<StackDecisionRecord> Entries { get; set; } = new();
+    }
+
+    /// <summary>Snapshot of the last apply report (for console display).</summary>
+    public static List<StackDecisionRecord> GetReportSnapshot()
+    {
+        lock (_lock)
+        {
+            return new List<StackDecisionRecord>(_lastReport);
+        }
     }
 
     /// <summary>
@@ -224,17 +348,21 @@ public static class StackLimitEngine
 
         try
         {
-            if (def is EquippableItemDefinition) return true;
-            if (def is ClothingDefinition) return true;
-            if (def is CashDefinition) return true;
+            // v0.1.6 CRITICAL FIX: `is` checks fail on IL2CPP proxies (see IsAgricultureItem).
+            // Evidence: apply_report.json 2026-09-19 — cash (CashDefinition) classified
+            // "not-agriculture" instead of protected; mushroomhat (ClothingDefinition) got
+            // stack-limited. Weapon protection previously relied on the ID keyword list only.
+            if (def.TryCast<EquippableItemDefinition>() != null) return true;
+            if (def.TryCast<ClothingDefinition>() != null) return true;
+            if (def.TryCast<CashDefinition>() != null) return true;
 
-            if (def is ItemDefinition itemDef && itemDef.Pointer != IntPtr.Zero)
+            if (def.TryCast<ItemDefinition>() is ItemDefinition itemDef && itemDef.Pointer != IntPtr.Zero)
             {
                 var eq = itemDef.Equippable;
                 if (eq != null && eq.Pointer != IntPtr.Zero)
                 {
-                    if (eq is Equippable_RangedWeapon || eq is Equippable_MeleeWeapon)
-                        return true;
+                    if (eq.TryCast<Equippable_RangedWeapon>() != null) return true;
+                    if (eq.TryCast<Equippable_MeleeWeapon>() != null) return true;
                 }
             }
         }
@@ -283,14 +411,21 @@ public static class StackLimitEngine
 
         try
         {
-            if (def is SoilDefinition) return true;
-            if (def is SeedDefinition) return true;
-            if (def is PackagingDefinition) return true;
-            if (def is AdditiveDefinition) return true;
-            if (def is ShroomSpawnDefinition) return true;
-            if (def is SporeSyringeDefinition) return true;
-            if (def is ProductDefinition) return true;
-            if (def is QualityItemDefinition) return true;
+            // v0.1.6 CRITICAL FIX: plain C# `is` checks do NOT work on IL2CPP proxy objects —
+            // the managed wrapper is always of the declared type (BaseItemDefinition), so `is`
+            // consulted the managed type, never the native IL2CPP class hierarchy. Consequence
+            // (apply_report.json 2026-09-19): ogkush/sourdiesel (WeedDefinition!), meth, cocaine
+            // were misclassified "not-agriculture" and never stack-limited; ONLY items whose ID
+            // matched the keyword heuristic (soil, baggie, jar, defaultweed, ...) were modified.
+            // TryCast<T> consults the real IL2CPP class hierarchy — same pattern as AutoPackagingStation.
+            if (def.TryCast<SoilDefinition>() != null) return true;
+            if (def.TryCast<SeedDefinition>() != null) return true;
+            if (def.TryCast<PackagingDefinition>() != null) return true;
+            if (def.TryCast<AdditiveDefinition>() != null) return true;
+            if (def.TryCast<ShroomSpawnDefinition>() != null) return true;
+            if (def.TryCast<SporeSyringeDefinition>() != null) return true;
+            if (def.TryCast<ProductDefinition>() != null) return true;
+            if (def.TryCast<QualityItemDefinition>() != null) return true;
         }
         catch (Exception ex)
         {
@@ -362,12 +497,23 @@ public static class StackLimitEngine
         return true;
     }
 
-    private static bool ApplyToDefinition(BaseItemDefinition? def, StackLimitConfig config, HashSet<string>? processedIds)
+    private static string SafeTypeName(BaseItemDefinition def)
+    {
+        try { return def.GetIl2CppType().Name; }
+        catch { return "unknown"; }
+    }
+
+    private static bool ApplyToDefinition(BaseItemDefinition? def, StackLimitConfig config, HashSet<string>? processedIds,
+        List<StackDecisionRecord>? report, string source)
     {
         if (def == null || def.Pointer == IntPtr.Zero) return false;
 
         string id = def.ID;
-        if (string.IsNullOrEmpty(id)) return false;
+        if (string.IsNullOrEmpty(id))
+        {
+            report?.Add(new StackDecisionRecord { Id = "(null)", Decision = "empty-id", Source = source });
+            return false;
+        }
 
         if (processedIds != null && !processedIds.Add(id))
             return false;
@@ -394,6 +540,7 @@ public static class StackLimitEngine
             {
                 Mod.Log?.Warn($"ApplyToDefinition weapon-restore failed for '{id}': {ex}");
             }
+            report?.Add(new StackDecisionRecord { Id = id, TypeName = SafeTypeName(def), OriginalLimit = originalLimit, NewLimit = originalLimit, Decision = "weapon", Source = source });
             return false;
         }
 
@@ -409,6 +556,7 @@ public static class StackLimitEngine
             {
                 Mod.Log?.Warn($"ApplyToDefinition exclude-restore failed for '{id}': {ex}");
             }
+            report?.Add(new StackDecisionRecord { Id = id, TypeName = SafeTypeName(def), OriginalLimit = originalLimit, NewLimit = originalLimit, Decision = "excluded", Source = source });
             return false;
         }
 
@@ -424,6 +572,7 @@ public static class StackLimitEngine
             {
                 Mod.Log?.Warn($"ApplyToDefinition non-ag-restore failed for '{id}': {ex}");
             }
+            report?.Add(new StackDecisionRecord { Id = id, TypeName = SafeTypeName(def), OriginalLimit = originalLimit, NewLimit = originalLimit, Decision = "not-agriculture", Source = source });
             return false;
         }
 
@@ -439,6 +588,7 @@ public static class StackLimitEngine
             {
                 Mod.Log?.Warn($"ApplyToDefinition restore failed for '{id}': {ex}");
             }
+            report?.Add(new StackDecisionRecord { Id = id, TypeName = SafeTypeName(def), OriginalLimit = originalLimit, NewLimit = originalLimit, Decision = "nonstackable", Source = source });
             return false;
         }
 
@@ -449,9 +599,11 @@ public static class StackLimitEngine
         catch (Exception ex)
         {
             Mod.Log?.Warn($"ApplyToDefinition failed for '{id}': {ex.Message}");
+            report?.Add(new StackDecisionRecord { Id = id, TypeName = SafeTypeName(def), OriginalLimit = originalLimit, Decision = "error", Source = source });
             return false;
         }
 
+        report?.Add(new StackDecisionRecord { Id = id, TypeName = SafeTypeName(def), OriginalLimit = originalLimit, NewLimit = config.StackLimit, Decision = "modified", Source = source });
         return true;
     }
 

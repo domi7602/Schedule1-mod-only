@@ -82,6 +82,12 @@ public static class StackLimitPatches
                 _overrideDecisionCache[key] = shouldOverride;
             }
 
+            // v0.1.5 diagnostics: record uncached decisions for apply_report.json (opt-in).
+            if (!known && Mod.Config.LogDecisions)
+            {
+                StackLimitEngine.RecordPostfixDecision(id, eligible, keepOriginal, shouldOverride, "InstancePostfix");
+            }
+
             if (shouldOverride) __result = Mod.Config.StackLimit;
         }
         catch (Exception ex)

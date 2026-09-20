@@ -8,7 +8,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(StackLimitMod.Mod), "StackLimitMod", "0.1.4", "Dominik")]
+[assembly: MelonInfo(typeof(StackLimitMod.Mod), "StackLimitMod", "0.1.6", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace StackLimitMod;
@@ -89,7 +89,13 @@ public class Mod : MelonMod
         try
         {
             long now = Environment.TickCount64;
-            if (now - _lastApplyTicks < 1500 && StackLimitEngine.ModifiedItemCount > 0)
+            // v0.1.5 timing fix: a previous apply whose Registry scan contributed 0 modifications
+            // almost certainly ran BEFORE the game registered its items (seen 2026-09-19: a single
+            // apply with Resources:23 Registry:0, then OnLoadComplete silently skipped by the
+            // 1500 ms dedupe — most definitions never received the limit). In that state the
+            // dedupe must not swallow the canonical post-load apply, so re-run it.
+            bool lastApplyWasBlind = StackLimitEngine.LastRegistryCount == 0 && StackLimitEngine.ModifiedItemCount > 0;
+            if (now - _lastApplyTicks < 1500 && StackLimitEngine.ModifiedItemCount > 0 && !lastApplyWasBlind)
             {
                 Log.Debug("OnLoadComplete: skip duplicate apply (already applied recently)");
                 return;

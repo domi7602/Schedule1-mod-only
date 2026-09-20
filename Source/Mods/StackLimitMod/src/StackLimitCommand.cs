@@ -39,6 +39,14 @@ public sealed class StackLimitCommand : BaseConsoleCommand
                     ExecuteReload();
                     return;
 
+                case "check":
+                    ExecuteCheck(args);
+                    return;
+
+                case "report":
+                    ExecuteReport();
+                    return;
+
                 case "help":
                 case "h":
                 case "?":
@@ -129,6 +137,101 @@ public sealed class StackLimitCommand : BaseConsoleCommand
         MelonLogger.Msg($"<color=#60f080>StackLimitMod config reloaded. Applied limit ({Mod.Config.StackLimit}) to {modified} items.</color>");
     }
 
+    /// <summary>
+    /// v0.1.5 live diagnosis: evaluates every filter for one item ID and prints the verdict.
+    /// Usage: stack check ogkush | stack check baggie
+    /// </summary>
+    private static void ExecuteCheck(List<string> args)
+    {
+        if (args.Count < 2 || string.IsNullOrWhiteSpace(args[1]))
+        {
+            MelonLogger.Msg("<color=#ff6060>Usage:</color> stack check <itemId>");
+            return;
+        }
+        string id = args[1].Trim();
+        var cfg = Mod.Config;
+        if (cfg == null)
+        {
+            MelonLogger.Msg("<color=#ff6060>Config not loaded.</color>");
+            return;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine($"<color=#60f080>Diagnosis for '{id}':</color>");
+        sb.AppendLine($"  <color=#aaaaaa>Weapon/Ammo ID match:</color>   {StackLimitEngine.IsWeaponOrAmmoId(id)}");
+
+        // Resolve the definition (live Registry lookup) and evaluate type checks.
+        string typeName = "(not found)";
+        int defStackLimit = -1;
+        bool defIsAgri = false;
+        bool defIsWeapon = false;
+        try
+        {
+            var def = Il2CppScheduleOne.Registry.GetItem(id);
+            if (def != null && def.Pointer != IntPtr.Zero && !def.WasCollected)
+            {
+                typeName = def.GetIl2CppType().Name;
+                defStackLimit = def.StackLimit;
+                defIsAgri = StackLimitEngine.IsAgricultureItem(def);
+                defIsWeapon = StackLimitEngine.IsWeaponOrAmmo(def);
+            }
+        }
+        catch (Exception ex)
+        {
+            typeName = $"error: {ex.Message}";
+        }
+
+        bool idIsAgri = StackLimitEngine.IsAgricultureId(id);
+        sb.AppendLine($"  <color=#aaaaaa>Definition:</color>            {typeName}");
+        sb.AppendLine($"  <color=#aaaaaa>Def StackLimit (live):</color>   {defStackLimit}");
+        sb.AppendLine($"  <color=#aaaaaa>Def Weapon/Ammo (type):</color>  {defIsWeapon}");
+        sb.AppendLine($"  <color=#aaaaaa>Def Agriculture (type):</color>  {defIsAgri}");
+        sb.AppendLine($"  <color=#aaaaaa>ID Agriculture match:</color>    {idIsAgri}");
+        sb.AppendLine($"  <color=#aaaaaa>Excluded:</color>               {StackLimitEngine.IsExcluded(id)}");
+        sb.AppendLine($"  <color=#aaaaaa>Original known (tracked):</color> {StackLimitEngine.IsOriginalKnown(id)} (captured: {StackLimitEngine.GetOriginalLimit(id)})");
+        sb.AppendLine($"  <color=#aaaaaa>Eligible for override:</color>   {StackLimitEngine.IsEligibleForOverride(id)}");
+
+        string verdict;
+        if (defStackLimit < 0)
+            verdict = "<color=#e67e22>Definition NOT FOUND in Registry — item unknown to the game or not yet registered.</color>";
+        else if (defIsWeapon)
+            verdict = "<color=#e67e22>Protected (weapon/ammo) — intentionally never stacked.</color>";
+        else if (StackLimitEngine.IsExcluded(id))
+            verdict = "<color=#e67e22>Excluded via ExcludedItemIds in config.json.</color>";
+        else if (cfg.AgricultureOnly && !defIsAgri && !idIsAgri)
+            verdict = "<color=#e67e22>NOT agriculture (AgricultureOnly=true) — raise would be skipped. If this is wrong, extend IsAgricultureItem/IsAgricultureId.</color>";
+        else if (defStackLimit == cfg.StackLimit)
+            verdict = "<color=#60f080>Definition already carries the target limit — check the INSTANCE path (postfix) if stacking still fails.</color>";
+        else
+            verdict = "<color=#e67e22>Definition limit differs from target — apply did not reach this item (timing or scan gap).</color>";
+        sb.AppendLine($"  <color=#ffffff>Verdict:</color>              {verdict}");
+        MelonLogger.Msg(sb.ToString());
+    }
+
+    /// <summary>
+    /// v0.1.5: prints a summary of the last apply report (per-decision decisions from
+    /// apply_report.json) without leaving the game.
+    /// </summary>
+    private static void ExecuteReport()
+    {
+        var entries = StackLimitEngine.GetReportSnapshot();
+        var sb = new StringBuilder();
+        sb.AppendLine($"<color=#60f080>Last apply report: {entries.Count} decision entries (RegistryCount={StackLimitEngine.LastRegistryCount}, full file: UserData/StackLimitMod/apply_report.json)</color>");
+
+        int shown = 0;
+        foreach (var e in entries)
+        {
+            if (e.Decision == "modified") continue; // summary focus: why NOT modified
+            sb.AppendLine($"  <color=#aaaaaa>{e.Source}:</color> {e.Id} <color=#888888>({e.TypeName})</color> orig={e.OriginalLimit} → {e.Decision}");
+            if (++shown >= 40)
+            {
+                sb.AppendLine($"  <color=#888888>... {entries.Count - shown} more (see apply_report.json)</color>");
+                break;
+            }
+        }
+        MelonLogger.Msg(sb.ToString());
+    }
+
     private static void PrintHelp()
     {
         var sb = new StringBuilder();
@@ -137,6 +240,8 @@ public sealed class StackLimitCommand : BaseConsoleCommand
         sb.AppendLine("  stack stats               - Shows detailed status and configuration");
         sb.AppendLine("  stack set <1-9999>        - Sets stack limit, saves config, and reapplies immediately");
         sb.AppendLine("  stack set ag <true|false> - Toggle Agriculture-Only mode (protects weapons & ammo)");
+        sb.AppendLine("  stack check <itemId>      - Diagnoses why an item is (not) stack-limited");
+        sb.AppendLine("  stack report              - Summarizes the last apply (who was skipped and why)");
         sb.AppendLine("  stack reload              - Reloads configuration from disk and reapplies");
         sb.AppendLine("  stack help                - Displays this help menu");
         MelonLogger.Msg(sb.ToString());

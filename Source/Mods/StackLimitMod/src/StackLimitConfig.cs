@@ -25,6 +25,12 @@ public class StackLimitConfig
     public bool AgricultureOnly { get; set; } = true;
     public List<string> ExcludedItemIds { get; set; } = new();
     public bool LogModifications { get; set; } = true;
+    /// <summary>
+    /// v0.1.5 diagnostics: when true, the hot-path postfix records every uncached eligibility
+    /// decision (bounded to 512 entries) into apply_report.json. Off by default — enable while
+    /// diagnosing a specific item, disable again afterwards (minor hot-path overhead).
+    /// </summary>
+    public bool LogDecisions { get; set; } = false;
 
     private static readonly string ConfigPath = SafeStorage.GetUserDataPath("StackLimitMod", "config.json");
 
