@@ -111,7 +111,7 @@ Aktualisiert 5 Stellen: MelonInfo im Code (Datei mit `[assembly: MelonInfo(...)]
   - Vorab-Check der Spiel-Referenzen: `s1interop doctor <csproj>` (read-only; im Repo meldet der Mono-Zweig `[missing]` — erwartet, wir bauen IL2CPP)
   - **`analyze` ist ein Report, kein Gate:** Das Tool liefert **immer Exit 0**, auch bei Findings. `0 Errors` im Exit-Code bedeutet nichts — die Ausgabe muss gelesen werden.
   - **Bekannte False Positives (Stand 0.1.0-alpha.1):** `wrong_target_framework` + `global_usings_require_langversion` für alle Projekte, weil TFM (`net6.0`) und `LangVersion` aus `Directory.Build.props` kommen und das Alpha-Tool nur die `.csproj` liest. Ebenfalls erwartet: `ManagedCollectionSignatureInterop` in BusinessIncome (mod-interne Berechnungs-API, kein Game-Callback) und die Reflection-Findings in HitmanPhone (`S1Quest` ist internal in S1API, defensiv mit Fallback abgesichert).
-  - Ohne Installation sind Build + Tests der verpflichtende Ersatz. In CI läuft der Job **advisory** (`.github/workflows/ci.yml`, gated auf Spiel-Assemblies).
+  - Ohne Installation sind Build + Tests der verpflichtende Ersatz. **Nur lokal** — der s1interop-CI-Job wurde am 2026-09-20 entfernt (auf GitHub-hosted Runnern nie lauffähig, Analyze permanent geskippt).
 
 ## Definition of Done
 

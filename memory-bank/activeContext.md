@@ -1,7 +1,7 @@
 # Active Context — Schedule1-mod-only
 
-**Stand:** 2026-09-20
-**Branch:** `main` (synchron mit `origin/main`; **Arbeitskopie dirty** — 18 modifizierte + 1 neue Datei aus der Session vom 19.09., nicht committet)
+**Stand:** 2026-09-20 (nachmittags)
+**Branch:** `main` — Basis-HEAD: `8945236 docs: Verified-Status 2026-09-20 + _DiagPerfCounter archiviert`. Arbeitskopie nach diesem Commit **clean** (5 Dateien abgeräumt: `ci.yml`, `AGENTS.md`, `CONTRIBUTING.md`, `activeContext.md`, `decisionLog.md`).
 
 **Dateien in dieser Memory Bank:**
 
@@ -14,8 +14,21 @@
 > **Versions-Wahrheit bleibt `AGENTS.md`** — die Snapshots hier sind Session-Orientierung, keine Autorität.
 
 ---
+## Letzte Session (2026-09-20, Cline Desktop — Dominik)
 
-## Letzte Session (2026-09-19, 12:42–14:49 — Hermes-Session `20260919_124204_512782`)
+1. **Offene Punkte geklärt:** Memory Bank war veraltet — seit Stand 20.09. früh kamen 4 Commits dazu:
+   - `284bb0b` feat(StackLimitMod): v0.1.6 — IL2CPP-TryCast-Fix + Diagnose-Ausbau
+   - `8ec6433` feat(PocketShop): v0.3.2 — Vanilla-PaymentType pro Shop + Cash-HUD-Feedback
+   - `bd64287` feat(AutoPackagingStation): v0.3.3 — E-Prompt-Fix + Auto-UNPACK (Vanilla-Delegation)
+   - `8945236` docs: Verified-Status 2026-09-20 + _DiagPerfCounter archiviert
+2. **In-Game-Verify erledigt (Echtspiel-Session 2026-09-20, 13:42):** StackLimitMod v0.1.6 ✅, PocketShop v0.3.2 ✅, AutoPackagingStation v0.3.3 ✅. Belege: `apply_report.json` 2026-09-20T11:42:59Z (42 Items modified, ogkush/sourdiesel/meth/cocaine korrekt, cash/mushroomhat per Weapon-Guard geschützt), Latest.log 13:42:59, User-Feedback „funktional ohne Fehler".
+3. **s1interop-CI-Job entfernt:** Auf GitHub-hosted Runnern (`windows-latest`) ist Schedule I nie installiert → Analyze-Step wurde permanent geskippt, der Job war ein No-Op, der nur CI-Minuten verbrannte. Entfernt aus `.github/workflows/ci.yml` (dort Hinweis-Kommentar hinterlassen), AGENTS.md §6 CI-Zeile synchronisiert. **s1interop bleibt lokaler Pre-Flight** (AGENTS.md §6, CONTRIBUTING.md) — advisory, Exit immer 0, nie als Gate.
+
+---
+
+
+
+## Session vom 2026-09-19 (12:42–14:49 — Hermes-Session `20260919_124204_512782`)
 
 Titel „Stackgrößen in Mod erhöhen", 543 Messages (17 user / 265 assistant / 261 tool), rekonstruiert aus `%LOCALAPPDATA%\hermes\state.db`. **Aus dieser Session ist nichts committet.**
 
@@ -107,21 +120,21 @@ Empfehlung: auf Default **v0.4.6f13** bleiben. Risiken bei Default-Wechsel: Avat
 
 | Thema | Details |
 |---|---|
-| **WIP nicht committet** | 18 modifizierte Dateien (StackLimitMod 0.1.5/0.1.6, PocketShop 0.3.0/0.3.1, `AGENTS.md`, `README.md`, Skill-Referenz) + untracked `Source/Mods/PocketShop/src/PocketShopCommand.cs`. Letzter Commit bleibt `6a06cc4`. Commits nur auf Zuruf (decisionLog „dauerhaft"). |
-| **In-Game-Verify 0.1.6 + 0.3.1** | Offen. Beleg: `apply_report.json` = `2026-09-19T11:25:53Z` mit `LastRegistryCount: 0` (= v0.1.5-Fehllauf), DLL-Deploy 13:54/14:48 — seither keine Spiel-Session. Testbefehle: `stack check <itemId>`, `stack stats`, `stack report`, `pshop shops`. |
-| **AGENTS-Matrix vs. Realität** | Matrix führte „Verified 2026-09-19" für v0.1.6/v0.3.1, obwohl die CHANGELOGs „In-Game-Verify offen" sagen → am 2026-09-20 korrigiert (Feature-Verify datiert, Build-Verify offen ausgewiesen) + Hinweisblock über der Matrix. |
+| **Uncommittete Dateien** | `.github/workflows/ci.yml` (s1interop-Job entfernt), `AGENTS.md` (§6 CI-Zeile synchron), `memory-bank/activeContext.md` (diese Nachziehung). Commits nur auf Zuruf (decisionLog „dauerhaft"). |
+| ~~WIP nicht committet~~ | ✅ erledigt 2026-09-20 — 19er-WIP committed: `284bb0b` (StackLimitMod v0.1.6), `8ec6433` (PocketShop v0.3.2), `bd64287` (AutoPackagingStation v0.3.3), `8945236` (docs/Verified-Status). |
+| ~~In-Game-Verify 0.1.6 + 0.3.1~~ | ✅ erledigt 2026-09-20, 13:42 — Echtspiel-Session: StackLimitMod v0.1.6 ✅, PocketShop v0.3.2 ✅, AutoPackagingStation v0.3.3 ✅. Belege: `apply_report.json` 2026-09-20T11:42:59Z, Latest.log, User-Feedback. |
+| ~~AGENTS-Matrix vs. Realität~~ | ✅ erledigt 2026-09-20 — Feature-Verify datiert, Build-Verify ausgewiesen, Hinweisblock über der Matrix. |
 | **v0.4.7 Open Beta** | Impact-Analyse steht nur in dieser Memory Bank. Beta-Umstieg erst nach Save-Backup + Drift-Pass. Optional geplant (nicht angelegt): Deploy-Guard-Skript, das die Spielversion vor dem Deploy prüft. |
 | ~~s1interop in CONTRIBUTING.md verankern~~ | ✅ erledigt 2026-09-19 — Installationsbefehl, `doctor`-Hinweis, Report-statt-Gate-Warnung und bekannte False Positives in `CONTRIBUTING.md` „IL2CPP Pflichten" + DoD-Checkbox korrigiert; `AGENTS.md §6` Pre-Flight synchron |
-| **CI-Verifikation s1interop-Job** | Hosted-Runner: Install + Gate laufen (`success`), Analyze-Step wird ohne Spiel-Assemblies korrekt geskippt — Analyze-Pfad bisher nur lokal verifiziert |
+| ~~CI-Verifikation s1interop-Job~~ | ✅ obsolet 2026-09-20 — Job entfernt: auf GitHub-hosted Runnern nie lauffähig (kein Spiel installiert → Analyze permanent geskippt). s1interop bleibt lokaler Pre-Flight (AGENTS.md §6). |
 | **Memory Bank** | ✅ etabliert: `activeContext.md`, `productContext.md`, `decisionLog.md`. Pflege-Regel: Session-Ende aktualisiert `activeContext.md`; Entscheidungen wandern nach `decisionLog.md`. |
 
 ## Verifikations-Stand (AGENTS.md)
 
-Alle 11 aktiven Mods + Shared auf `Verified`-Stand. Zuletzt verifiziert 2026-09-19:
-- AutoPackagingStation v0.2.8 (Bugfix-Runde 7)
-- PocketShop v0.2.7 (Level-Lock & Inline-Qty)
-- BusinessIncome v0.1.6 (0-Business Backlog-Fix)
-- StackLimitMod v0.1.4 (Agriculture-Only & Weapon-Shield)
+Alle 11 aktiven Mods + Shared auf `Verified`-Stand. Zuletzt verifiziert in der Echtspiel-Session 2026-09-20, 13:42:
+- StackLimitMod v0.1.6 (IL2CPP-TryCast-Fix, 42 Items korrekt klassifiziert)
+- PocketShop v0.3.2 (Vanilla-PaymentType pro Shop, Cash-HUD-Feedback)
+- AutoPackagingStation v0.3.3 (E-Prompt, Unpackage-Mode-Mirror, 10er-Unpack-Batching)
 
 ## Entscheidungen
 

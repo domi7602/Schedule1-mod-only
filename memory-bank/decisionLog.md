@@ -5,6 +5,14 @@ Diese Datei ergänzt `AGENTS.md` (operatives Inventar) um das *Warum*.
 
 ---
 
+## 2026-09-20 — s1interop-CI-Job entfernt, lokaler Pre-Flight bleibt
+
+**Entscheidung:** Der `s1interop`-Job wurde aus `.github/workflows/ci.yml` entfernt (einen Tag nach seiner Aktivierung am 2026-09-19). Lokaler Pre-Flight (`s1interop analyze <csproj>`, siehe AGENTS.md §6 + CONTRIBUTING.md) bleibt unverändert.
+**Begründung:** Auf GitHub-hosted Runnern (`windows-latest`) ist Schedule I nie installiert — das `has-game`-Gate skipte den Analyze-Step permanent, der Job war ein No-Op, der nur CI-Minuten verbrannte. Advisory-Natur (Exit immer 0) macht ihn zusätzlich als Gate ungeeignet.
+**Konsequenz:** Kein Analyze-Job in CI. Bei späterem self-hosted Runner mit Spielinstallation kann der Job aus der Historie wiederhergestellt werden (`git show 8945236:.github/workflows/ci.yml`).
+
+---
+
 ## 2026-09-19 — IL2CPP-Typ-Checks nur noch über `TryCast<T>()`
 
 **Entscheidung:** In allen Mods werden IL2CPP-Typabfragen über `TryCast<T>()` (echte Il2Cpp-Klassenhierarchie) gestellt — **kein** `is`/`as` auf Interop-Objekten.
