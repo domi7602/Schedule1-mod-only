@@ -177,7 +177,26 @@ internal sealed class HitmanCleanupCommand : BaseConsoleCommand
 }
 
 /// <summary>
-/// Aggregator that registers all four commands during Mod.OnInitializeMelon.
+/// Wraps another command and exposes it under a slash-prefixed command word.
+/// Needed because the routing uses args[0] verbatim as the registry key: whether
+/// the native console strips the leading '/' before tokenizing is version
+/// dependent, so both spellings are registered and both resolve to one handler.
+/// </summary>
+internal sealed class SlashAliasCommand : BaseConsoleCommand
+{
+    private readonly BaseConsoleCommand _inner;
+
+    public SlashAliasCommand(BaseConsoleCommand inner) => _inner = inner;
+
+    public override string CommandWord => "/" + _inner.CommandWord;
+    public override string CommandDescription => _inner.CommandDescription;
+    public override string ExampleUsage => _inner.ExampleUsage;
+
+    public override void ExecuteCommand(List<string> args) => _inner.ExecuteCommand(args);
+}
+
+/// <summary>
+/// Aggregator that registers all five commands during Mod.OnInitializeMelon.
 /// </summary>
 public static class BountyTestCommands
 {
@@ -206,13 +225,23 @@ public static class BountyTestCommands
             return;
         }
 
-        try { registerMi.Invoke(null, new object[] { new HitmanForceOfferCommand() }); } catch (System.Exception ex) { Mod.Log.Warn(ex.Message); }
-        try { registerMi.Invoke(null, new object[] { new HitmanStatusCommand() }); } catch (System.Exception ex) { Mod.Log.Warn(ex.Message); }
-        try { registerMi.Invoke(null, new object[] { new HitmanKillSimCommand() }); } catch (System.Exception ex) { Mod.Log.Warn(ex.Message); }
-        try { registerMi.Invoke(null, new object[] { new HitmanResetCommand() }); } catch (System.Exception ex) { Mod.Log.Warn(ex.Message); }
-        try { registerMi.Invoke(null, new object[] { new HitmanCleanupCommand() }); } catch (System.Exception ex) { Mod.Log.Warn(ex.Message); }
+        var commands = new BaseConsoleCommand[]
+        {
+            new HitmanForceOfferCommand(),
+            new HitmanStatusCommand(),
+            new HitmanKillSimCommand(),
+            new HitmanResetCommand(),
+            new HitmanCleanupCommand(),
+        };
 
-        Mod.Log.Info("HitmanPhone commands registered: /hitman_force_offer, /hitman_status, /hitman_kill, /hitman_reset, /hitman_cleanup.");
+        foreach (var cmd in commands)
+        {
+            try { registerMi.Invoke(null, new object[] { cmd }); } catch (System.Exception ex) { Mod.Log.Warn(ex.Message); }
+            // Same handler, slash-prefixed word — covers consoles that keep the '/'.
+            try { registerMi.Invoke(null, new object[] { new SlashAliasCommand(cmd) }); } catch (System.Exception ex) { Mod.Log.Warn(ex.Message); }
+        }
+
+        Mod.Log.Info("HitmanPhone commands registered: hitman_force_offer, hitman_status, hitman_kill, hitman_reset, hitman_cleanup (plus '/' aliases).");
     }
 
     /// <summary>

@@ -156,7 +156,15 @@ public static class BountyCallScheduler
         {
             var target = HitmanPhone.Persistence.TargetResolveHelper.FindById(targetNpcId);
             if (target == null) { Mod.Log.Warn($"ForceOffer: target '{targetNpcId}' not found."); return; }
-            if (!TargetSelector.IsOwnCustomer(target))
+#if DEBUG
+            // Test scaffolding (DEBUG-only): the eligibility guard below blocks every
+            // force-offer on early-game saves (no recruited dealers yet), which makes
+            // QA of SendOffer/contract flow impossible. Release builds keep the guard.
+            bool bypassEligibility = true;
+#else
+            bool bypassEligibility = false;
+#endif
+            if (!bypassEligibility && !TargetSelector.IsOwnCustomer(target))
             {
                 Mod.Log.Warn($"ForceOffer: target '{targetNpcId}' is not an assigned customer of one of the player's recruited dealers.");
                 return;

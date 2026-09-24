@@ -54,7 +54,7 @@ public class Mod : MelonMod
         // v0.1.3: read it from MelonInfo — the assembly version is unrelated
         // (defaults to 1.0.0 and is not touched by the bump script).
         string version = GetType().Assembly.GetCustomAttribute<MelonInfoAttribute>()?.Version ?? "?";
-        Log.Info($"initialisiert (v{version}) — Phase J: slot-switch detection enabled.");
+        Log.Info($"initialized (v{version}) — Phase J: slot-switch detection enabled.");
 
         // Polaroid registration is intentionally lazy on first Spawn() — the native
         // Registry.Instance and asset pipelines aren't fully online at OnInitializeMelon

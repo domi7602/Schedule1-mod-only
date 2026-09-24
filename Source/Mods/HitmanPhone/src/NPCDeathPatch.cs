@@ -87,7 +87,10 @@ internal static class NPCDeathPatch
         try
         {
             if (__instance == null || __instance.Pointer == IntPtr.Zero || __instance.WasCollected) return;
-            var npc = __instance.npc;
+            // 0.4.7 drift: NPCHealth.npc field removed (now _npc, private). Resolve the NPC
+            // via GetComponent on the same GameObject — the pattern S1API itself uses for
+            // NPCHealth since 3.2.0/0.4.6, so it compiles and runs on both game versions.
+            var npc = __instance.GetComponent<S1NPC>();
             if (npc == null || npc.Pointer == IntPtr.Zero || npc.WasCollected) return;
             BountyService.OnNpcDied(npc);
         }
@@ -109,7 +112,8 @@ internal static class NPCDeathPatch
         try
         {
             if (__instance == null || __instance.Pointer == IntPtr.Zero || __instance.WasCollected) return;
-            var npc = __instance.npc;
+            // 0.4.7 drift: same as PostfixHealthDie — NPCHealth.npc is gone; GetComponent instead.
+            var npc = __instance.GetComponent<S1NPC>();
             if (npc == null || npc.Pointer == IntPtr.Zero || npc.WasCollected) return;
             BountyService.OnNpcDied(npc);
         }

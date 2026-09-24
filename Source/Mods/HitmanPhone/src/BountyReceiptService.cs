@@ -59,11 +59,11 @@ public static class BountyReceiptService
     /// this gate both sides ran TryValidateAndPay (double ChangeCashBalance
     /// rewards), and the client's local ClearStoredInstance never replicated,
     /// so the same polaroid paid again on the host. Only the host validates,
-    /// pays and consumes. Konsolidiert 2026-09-15 in
-    /// S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer — dabei auf fail-closed
-    /// vereinheitlicht (vorher hier fail-open): bei einer Authority-Exception
-    /// ohne eigenes Save wird jetzt abgebrochen statt blind fortgezahlt.
-    /// Der MONOMELON-Zweig entfiel — das Workspace-Build ist durchgehend IL2CPP.
+    /// pays and consumes. Consolidated 2026-09-15 in
+    /// S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer — unified to fail-closed
+    /// (previously fail-open here): on an authority exception without own save
+    /// the payout is now aborted instead of blindly continuing.
+    /// The MONOMELON branch was removed — the workspace build is exclusively IL2CPP.
     /// </summary>
     private static bool IsHostOrSingleplayer() => NetworkGuard.IsHostOrSingleplayer();
 
@@ -381,8 +381,8 @@ public static class BountyReceiptService
     /// Hand the contract's <c>RewardCash</c> to the player as physical cash via
     /// <see cref="S1API.Money.Money.ChangeCashBalance(float, bool, bool)"/>.
     ///
-    /// v0.1.9: bounty pays DIRTY CASH, not an online transfer (Dominik: "Kopfgeld
-    /// ist im echten Leben dreckiges Geld"). Fitting side effect: cash leaves no
+    /// v0.1.9: bounty pays DIRTY CASH, not an online transfer (Dominik: "Bounty
+    /// is dirty money in real life"). Fitting side effect: cash leaves no
     /// transaction record in the banking ledger — no paper trail. The 0.1.8
     /// CreateOnlineTransaction path (typed S1API call) is kept in git history.
     ///

@@ -1,3 +1,6 @@
+// Il2Cppmscorlib is referenced with the "il2cpp" extern alias (Directory.Build.props) —
+// C# requires extern alias declarations before any other element at file scope.
+extern alias il2cpp;
 using System;
 using System.Collections.Generic;
 using HitmanPhone.Persistence;
@@ -7,8 +10,10 @@ using S1Mods.Shared;
 
 #if (IL2CPPMELON)
 using S1NPC = Il2CppScheduleOne.NPCs.NPC;
+using S1Messaging = Il2CppScheduleOne.Messaging;
 #elif MONOMELON
 using S1NPC = ScheduleOne.NPCs.NPC;
+using S1Messaging = ScheduleOne.Messaging;
 #endif
 
 namespace HitmanPhone.Bounty;
@@ -46,14 +51,41 @@ public static class BountyConversationRouter
     {
         if (target == null) return;
 
+        // Built up-front (pure, no side effects) so both the S1API host path and
+        // the native fallback tier below can reuse the same response set.
+        var responses = BuildResponses(save, callerIndex, target, body, rewardCash);
         var hostWrapper = GetCallerWrapper();
+#if DEBUG
+        // Beta 0.4.7f6 / S1API 3.2.1-beta.2: HitmanCallerNPC never instantiates
+        // ("no framework data object", upstream issue #309), so its wrapper is
+        // absent from NPC.All. DEBUG-only fallback chain; Release stays caller-only:
+        //   tier 1: NPC.Get(target.ID) materializes the LAZY base-game wrapper
+        //           (NPC.All only contains wrappers somebody already requested)
+        //           and hosts the offer on the TARGET's thread — the design the
+        //           class doc above describes.
+        //   tier 2: native MSGConversation on the target, bypassing S1API wrappers.
+        if (hostWrapper == null)
+        {
+            hostWrapper = S1API.Entities.NPC.Get(target.ID);
+            if (hostWrapper != null)
+            {
+                Mod.Log.Warn($"SendOffer[DEBUG]: caller wrapper missing — tier1 hosted on target wrapper '{target.ID}'.");
+            }
+            else if (SendOfferViaNativeConversation(target, body, responses, responseDelay: 1f))
+            {
+                return;
+            }
+            else
+            {
+                Mod.Log.Warn($"SendOffer[DEBUG]: all hosts failed. {DescribeWrapperIds()}");
+            }
+        }
+#endif
         if (hostWrapper == null)
         {
             Mod.Log.Warn($"SendOffer: no S1API wrapper found for HitmanCallerNPC ('{HitmanCallerNPC.NPC_ID}').");
             return;
         }
-
-        var responses = BuildResponses(save, callerIndex, target, body, rewardCash);
 
         try
         {
@@ -85,6 +117,84 @@ public static class BountyConversationRouter
         }
         return null;
     }
+
+#if DEBUG
+    /// <summary>
+    /// Diagnostics for the DEBUG host fallback: what S1API's wrapper registry
+    /// actually holds. Logged on the total-failure path only — the previous
+    /// fallback logged on success only, which is why the 12:39 test runs left no
+    /// evidence of why they failed.
+    /// </summary>
+    private static string DescribeWrapperIds()
+    {
+        try
+        {
+            var ids = new List<string>();
+            foreach (var w in S1API.Entities.NPC.All)
+            {
+                if (w == null) { ids.Add("<null>"); continue; }
+                try { ids.Add(w.ID); } catch (Exception ex) { ids.Add($"<id-threw:{ex.GetType().Name}>"); }
+            }
+            return $"NPC.All count={ids.Count}: [{string.Join(", ", ids)}]";
+        }
+        catch (Exception ex)
+        {
+            return $"NPC.All enumeration failed: {ex.Message}";
+        }
+    }
+
+    /// <summary>
+    /// Tier-2 DEBUG fallback: deliver the offer through the target's NATIVE
+    /// MSGConversation, bypassing the S1API wrapper layer entirely. Mirrors
+    /// S1API's own NPC.SendTextMessage (ThirdParty/S1API/S1API/Entities/NPC.cs:3193)
+    /// so sender type, notify and network flags behave identically.
+    /// </summary>
+    private static bool SendOfferViaNativeConversation(S1NPC target, string body, Response[] responses, float responseDelay)
+    {
+        try
+        {
+            var conv = target.MSGConversation;
+            if (conv == null)
+            {
+                Mod.Log.Warn($"SendOfferNative: '{target.ID}' has no MSGConversation.");
+                return false;
+            }
+
+            conv.SendMessage(
+                new S1Messaging.Message(
+                    body,
+                    S1Messaging.Message.ESenderType.Other,
+                    true,
+                    UnityEngine.Random.Range(int.MinValue, int.MaxValue)),
+                notify: true,
+                network: true);
+
+            if (responses != null && responses.Length > 0)
+            {
+                var nativeResponses = new il2cpp::Il2CppSystem.Collections.Generic.List<S1Messaging.Response>();
+                foreach (var r in responses)
+                {
+                    // 2-arg ctor == explicit (null, false): callback=null, disableDefaultResponseBehaviour=false.
+                    var native = new S1Messaging.Response(r.Text, r.Label);
+                    // Same System.Action -> Il2CppSystem.Action assignment S1API's
+                    // Response.OnTriggered setter performs
+                    // (ThirdParty/S1API/S1API/Messaging/Response.cs:37).
+                    native.callback = r.OnTriggered;
+                    nativeResponses.Add(native);
+                }
+                conv.ShowResponses(nativeResponses, responseDelay, true);
+            }
+
+            Mod.Log.Warn($"SendOfferNative: sent via native conversation of '{target.ID}'.");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"SendOfferNative failed for '{target.ID}': {ex}");
+            return false;
+        }
+    }
+#endif
 
     /// <summary>
     /// Wire three Response buttons: Accept, Decline, MoreInfo.
@@ -201,6 +311,11 @@ public static class BountyConversationRouter
             try
             {
                 var host = GetCallerWrapper();
+#if DEBUG
+                // Same missing-caller workaround as SendOffer (tier 1).
+                if (host == null)
+                    host = S1API.Entities.NPC.Get(target.ID);
+#endif
                 if (host != null)
                 {
                     // Audit L7 (2026-09-01): derive from the deadline constant instead
@@ -274,6 +389,12 @@ public static class BountyConversationRouter
                 $"Photo of the body, any dead-drop. " +
                 $"{BountyCallSchedulerConstants.ContractDeadlineDays} days window.";
             var host = GetCallerWrapper();
+#if DEBUG
+            // Same missing-caller workaround as SendOffer (tier 1): keep the
+            // follow-up on the same thread the offer was hosted on.
+            if (host == null)
+                host = S1API.Entities.NPC.Get(target.ID);
+#endif
             if (host == null)
             {
                 Mod.Log.Warn("OnMoreInfo: no caller wrapper; cannot send follow-up.");

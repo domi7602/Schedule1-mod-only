@@ -1,8 +1,8 @@
-# HitmanPhone 0.2.0 (2026-09-01)
+# HitmanPhone 0.2.9 (2026-09-24)
 
-Lategame bounty mechanic for Schedule I 0.4.6f13 (TVGS).
-Anonyme Kopfgeld-Anrufe über das Nachrichten-System, Polaroid-Beweiskette,
-Dead-Drop-Einzug, schmutziges Bargeld, Journal-Quests und Police Heat.
+Lategame bounty mechanic for Schedule I 0.4.7f6 (TVGS, Open Beta; tested with S1API 3.2.1-beta.5).
+Anonymous bounty calls via the messages system, polaroid evidence chain,
+dead-drop collection, dirty cash, journal quests, and police heat.
 
 1. **Caller System** — Anonymous callers (Ghost/Jackal/Magpie/Viper/Crow) reach
    out via the in-game Messages app. Three styles: cold, threatening,

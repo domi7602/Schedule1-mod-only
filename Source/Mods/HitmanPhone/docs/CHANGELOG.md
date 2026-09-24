@@ -3,137 +3,140 @@
 
 
 ## 0.2.9 (2026-09-15)
-- Host-Authority-Check in `S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer` konsolidiert; der bisher lokale fail-open-Zweig (catch => true) ist entfallen. Bei einer Authority-Exception ohne eigenes Save wird der Payout jetzt abgebrochen statt blind fortgezahlt. Der MONOMELON-Totzweig wurde mit entfernt (Workspace baut durchgehend IL2CPP).
-- Version bump.
+- Host-authority check consolidated into `S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer`; the previously local fail-open branch (catch => true) has been removed. When an authority exception occurs without an owned save, the payout is now aborted instead of blindly continuing. The MONOMELON dead branch was removed along with it (workspace builds exclusively IL2CPP).
+- **Schedule I 0.4.7f6 (Open Beta) compatibility — `NPCDeathPatch`:** vanilla `NPCHealth.npc` no longer exists on the beta game assembly (CS1061 against the live 0.4.7f6). The patch now resolves the owning NPC via `GetComponent<S1NPC>()` on the health component — the same pattern S1API uses. Local decompiles in `GameReferences/` still reflect 0.4.6f13 and show the old field.
+- **DEBUG-only offer host fallback (`BountyConversationRouter`):** while S1API 3.2.1-beta.2 could not instantiate `HitmanCallerNPC` (upstream ifBars/S1API issue #309 — "no framework data object", fixed in 3.2.1-beta.5), `SendOffer`/`OnAccept`/`OnMoreInfo` fall back under `#if DEBUG` to the target's thread (tier 1: `NPC.Get(target.ID)`) or, if that fails too, to the target's native `MSGConversation` (tier 2). Release builds stay caller-only. With S1API 3.2.1-beta.5 deployed the fallback is dormant — verified live 2026-09-24: offer (Unknown Number thread) → accept → receipt → payout, 0 warnings.
+- **Test commands (DEBUG):** `/`-aliases for all five hitman console commands (`hitman_force_offer`, `hitman_status`, `hitman_kill`, `hitman_reset`, `hitman_cleanup`) plus a DEBUG-only eligibility bypass for `hitman_force_offer` (scheduler guard skipped).
+- Documentation (CHANGELOG/README) translated to English.
+- Version bump. Tested dependency: S1API 3.2.1-beta.5 (deployed 2026-09-23).
 
-## 0.2.7 (2026-09-14) — Vanilla UI-Titel-Sync fuer Restore-Quests
+## 0.2.7 (2026-09-14) — Vanilla UI title sync for restore quests
 
-- **Bug:** Restore-BountyQuests rendern im Journal hartnäckig als „Hitman Contract" statt „Hitman Contract: <NPC>" — selbst nach v0.2.6 Reflection-Setter auf s1q.title. UI-Snapshot im Vanilla-QuestComponent wurde im ctor einmalig gesetzt und nicht neu getriggert.
-- **Fix:** `BountyQuest.SyncDisplayTitle()` läuft automatisch bei jedem `InitContractId(...)`. Versucht zuerst den public Title-Setter (falls vorhanden — der feuert `_onTitleChanged` Unity-Event), sonst direkter Title-Field-Write plus Re-`Begin()`.
-- **Effekt:** Same-Target-Gruppe (3 Ludwig-Quests im Live-Test) zeigt jetzt alle 3× „Hitman Contract: Ludwig Meyer". Frisch akzeptierte Quests (Sam, Chloe) waren bereits ok.
-- **Bridge:** `BountyJournalBridge.TryRefreshDisplayTitle` ist jetzt ein dünner Wrapper um `BountyQuest.SyncDisplayTitle`.
+- **Bug:** Restore bounty quests persistently render in the journal as "Hitman Contract" instead of "Hitman Contract: <NPC>" — even after the v0.2.6 reflection setter on `s1q.title`. The UI snapshot in the vanilla QuestComponent was set once in the ctor and never retriggered.
+- **Fix:** `BountyQuest.SyncDisplayTitle()` runs automatically on every `InitContractId(...)`. Tries the public title setter first (if present — it fires the `_onTitleChanged` Unity event), otherwise writes directly to the title field plus re-`Begin()`.
+- **Effect:** The same-target group (3 Ludwig quests in live test) now shows "Hitman Contract: Ludwig Meyer" 3×. Freshly accepted quests (Sam, Chloe) were already OK.
+- **Bridge:** `BountyJournalBridge.TryRefreshDisplayTitle` is now a thin wrapper around `BountyQuest.SyncDisplayTitle`.
 
-## 0.2.6 (2026-09-14) — Journal-Rebind fuer Same-Target-Gruppen (log-Spam nach Restart)
+## 0.2.6 (2026-09-14) — Journal rebind for same-target groups (log spam after restart)
 
-- **Gruppen-bewusstes Quest-Rebind (MEDIUM):** Der Audit-M3-Fail-Safe verweigerte mit 2+ wiederhergestellten Contracts auf denselben NPC JEDE Anbindung — Folge war die 40-Zeilen-Warnschleife (8 Retries x 5 Zeilen) bei jedem Spielstart. Jetzt: wenn ALLE ungebundenen aktiven Contracts denselben `TargetNpcId` teilen, adoptiert der aelteste die wiederhergestellte generische Quest (`GetQuestByName("Hitman Contract")`), weitere Restore-Quests werden per Reflection ueber `QuestManager.Quests` adoptiert (keine Zombie-Journal-Eintraege), und Contracts ohne persistierte Quest bekommen FRISCHE Quests via `RegisterBountyQuest`. Mixed-Target-Gruppen bleiben verweigert (echte Mehrdeutigkeit — Fehl-Binding ist schlimmer als keins).
-- **Occupancy-Guard im Titel-Lookup (Schritt 2):** In einer Same-Target-Gruppe personalisiert sich der Titel der Owner-Quest mit der Adoption — Siblings rekonstruieren denselben Titel und haetten die Quest vorher gestohlen (M3-Bug durch die Hintertuer, latent seit 0.2.5 auch bei dritten Contracts in derselben Session). `IsQuestBoundToOtherContract` blockt das; SessionQuests ist die Belegungs-Quelle, da nur HitmanPhone `InitContractId` ruft.
-- **Display-Titel-Refresh nach Adoption:** `InitContractId` personalisiert nur den managed `Title`-Getter; der Vanilla-Snapshot `S1Quest.title` (Journal-UI) blieb generisch. `TryRefreshDisplayTitle` schreibt den Titel nach der Adoption neu (Reflection, best-effort, kosmetisch).
-- **Log-Daempfung im Retry-Fenster:** `Could not rebind`-Warnungen nur noch im ersten und letzten Versuch (war: volle 5-Zeilen-Bloecke alle 500 ms).
-- **Aufgeraeumt:** toter Helper `CountActiveContractsWithoutSessionQuest` entfernt (ersetzt durch `CollectUnboundActiveContracts`).
+- **Group-aware quest rebind (MEDIUM):** The audit-M3 fail-safe refused any binding with 2+ restored contracts on the same NPC — consequence was the 40-line warning loop (8 retries × 5 lines) on every game start. Now: if ALL unbound active contracts share the same `TargetNpcId`, the oldest adopts the restored generic quest (`GetQuestByName("Hitman Contract")`), further restore quests are adopted via reflection over `QuestManager.Quests` (no zombie journal entries), and contracts without a persisted quest get FRESH quests via `RegisterBountyQuest`. Mixed-target groups stay refused (real ambiguity — wrong binding is worse than none).
+- **Occupancy guard in title lookup (step 2):** In a same-target group, the owner quest's title becomes personalized through adoption — siblings reconstructed the same title and would have stolen the quest (M3 bug through the backdoor, latent since 0.2.5 also for third contracts in the same session). `IsQuestBoundToOtherContract` blocks that; SessionQuests is the occupancy source since only HitmanPhone calls `InitContractId`.
+- **Display title refresh after adoption:** `InitContractId` only personalizes the managed `Title` getter; the vanilla snapshot `S1Quest.title` (journal UI) stayed generic. `TryRefreshDisplayTitle` writes the title again after adoption (reflection, best-effort, cosmetic).
+- **Log dampening in the retry window:** `Could not rebind` warnings only on the first and last attempt (was: full 5-line blocks every 500 ms).
+- **Cleaned up:** dead helper `CountActiveContractsWithoutSessionQuest` removed (replaced by `CollectUnboundActiveContracts`).
 
-## 0.2.5 (2026-09-13) — Doppel-Ludwig-Fix (bug-ludwig-double)
-- **Cross-Session-Doppel-Contract-Refuse aufgeloest (MEDIUM):** `TryValidateAndPay` lehnte jeden Polaroid-Drop ab, wenn >1 Vertrag gleichzeitig `AwaitingDrop=true` war. Crow bietet aber tagelang neue Kopfgelder auf denselben NPC an (z.B. ludwig_meyer Day 5+6). Nach Save-Reload war der polaroid `Value=0` (Unity InstanceID futsch) und der Fallback schlug fail-safe zu. Fix: wenn alle wartenden Vertraege auf denselben `TargetNpcId` zielen, wird die ganze Gruppe gemeinsam ausgezahlt (ein Kill = ein Beweisstueck = mehrere Kopfgelder). Bei heterogenen TargetNpcIds bleibt das alte Refuse-Log aktiv. `OnStorageContentsChanged` fuehrt jetzt die Side-Effects (Reward, Journal, Heat, Cooldown) pro Vertrag aus und konsumiert EIN Polaroid fuer die ganze Gruppe. Persist einmal pro Batch, ausser eine Payout schlug fehl (Retry-Pfad).
-- **Skill-Hinweis ergaenzt:** `schedule1-il2cpp-sorting-patterns` dokumentiert jetzt das `group-on-shared-target`-Match-Pattern als kanonische Loesung fuer Same-NPC-Mehrfachvertraege.
+## 0.2.5 (2026-09-13) — Double-Ludwig fix (bug-ludwig-double)
+- **Cross-session double-contract refuse resolved (MEDIUM):** `TryValidateAndPay` refused every polaroid drop when >1 contract was simultaneously `AwaitingDrop=true`. Crow however offers new bounties on the same NPC for days on end (e.g. ludwig_meyer day 5+6). After save reload the polaroid's `Value=0` (Unity InstanceID gone) and the fallback failed safely. Fix: when all waiting contracts target the same `TargetNpcId`, the whole group is paid out together (one kill = one piece of evidence = multiple bounties). For heterogeneous TargetNpcIds the old refuse log remains active. `OnStorageContentsChanged` now runs the side effects (reward, journal, heat, cooldown) per contract and consumes ONE polaroid for the whole group. Persist once per batch, unless a payout failed (retry path).
+- **Skill note added:** `schedule1-il2cpp-sorting-patterns` now documents the `group-on-shared-target` match pattern as the canonical solution for same-NPC multi-contract cases.
 
-## 0.2.4 (2026-09-12) — Bug-Audit-Fixes Runde 2 (Audit 2026-09-12)
-- **Client-Payout-Sackgasse aufgeloest (MEDIUM):** `OnStorageContentsChanged` blockierte den Client-Spieler komplett vom Polaroid-Payout (Host-only-Gate + Host-lokales Save ohne AwaitingDrop-Eintrag des Clients). Fix: Client darf mit eigenem Save validieren und zahlen (`ChangeCashBalance` synct Player-Bilanz ueber FishNet; Polaroid-Consume laeuft im Dead-Drop auf dem Client). Host bleibt zustaendig fuer Vertragsannahme-Logik.
-- **KO-als-Kill verhindert (MEDIUM):** `BountyTargetWatchdog` prueft jetzt `npc.Health.IsDead` (echter Tod) statt `!npc.IsConscious` (auch bei K.o. true). Ein betaeubtes Ziel loest keinen Lethal-Pursuit + keine volle Belohnung mehr aus. Belohnung bleibt weiterhin auf `OnNpcDied`-Pfad.
+## 0.2.4 (2026-09-12) — Bug-audit fixes round 2 (audit 2026-09-12)
+- **Client payout deadlock resolved (MEDIUM):** `OnStorageContentsChanged` completely blocked the client player from polaroid payout (host-only gate + host-local save without the client's AwaitingDrop entry). Fix: client may validate and pay with its own save (`ChangeCashBalance` syncs player balance via FishNet; polaroid consume runs in the dead drop on the client). Host stays in charge of contract acceptance logic.
+- **KO counted as kill prevented (MEDIUM):** `BountyTargetWatchdog` now checks `npc.Health.IsDead` (real death) instead of `!npc.IsConscious` (also true when KO'd). A stunned target no longer triggers Lethal Pursuit + no full reward. Reward remains on the `OnNpcDied` path.
 
 ## 0.2.3 (2026-09-11)
-- Deadline-Boundary >= (exakt 3 Tage wie im Journal versprochen).
-- ConsumePolaroids frisst nur noch 1 Slot (zweite Contracts-Evidence ueberlebt).
-- OnDecline mit Stale-Save-Guard (kein Cooldown im falschen Save).
-- NPC-Tod-ohne-Contract auf Debug (kein Log-Spam).
+- Deadline boundary >= (exactly 3 days as promised in the journal).
+- ConsumePolaroids now eats only 1 slot (second contract's evidence survives).
+- OnDecline with stale-save guard (no cooldown in the wrong save).
+- NPC death without contract downgraded to debug (no log spam).
 
 ## 0.2.2 (2026-09-10)
-- Bounty-Payout host-only (Fix Multiplayer-Doppel-Reward).
-- Blindes PatchAll durch PatchGuard.TryPatch ersetzt; CurrentDay() cached mit 1s-Throttle; CooldownCaller persistiert.
-- Deadline-Boundary (volle 3 Tage), Evidence-Cache mit Liveness-Check, Subscribe-Guard, Log-Demote, NPC-Alive-Check, Test-Commands nur noch in DEBUG.
+- Bounty payout host-only (fix multiplayer double reward).
+- Blind PatchAll replaced with PatchGuard.TryPatch; CurrentDay() cached with 1s throttle; CooldownCaller persisted.
+- Deadline boundary (full 3 days), evidence cache with liveness check, subscribe guard, log demote, NPC-alive check, test commands only in DEBUG.
 
 ## Unreleased
 
-- **Hitman-Fix:** neue Angebote zahlen zufällig **200–500** Cash.
-- **Hitman-Ziele:** ein Angebot wird nur noch für einen lebenden Kunden aus
-  `Dealer.AllPlayerDealers → AssignedCustomers` erzeugt; allgemeine Zivilisten
-  aus einer festen ID-Liste sind ausgeschlossen.
-- **Hitman-Heat:** ein bestätigter Kill setzt die Verfolgung sofort auf
-  `PursuitLevel.Lethal`. Die alte Investigating-Grace-Logik wurde entfernt.
+- **Hitman fix:** new offers pay randomly **200–500** cash.
+- **Hitman targets:** an offer is now only generated for a living customer from
+  `Dealer.AllPlayerDealers → AssignedCustomers`; generic civilians from a fixed
+  ID list are excluded.
+- **Hitman heat:** a confirmed kill immediately sets pursuit to
+  `PursuitLevel.Lethal`. The old investigating-grace logic was removed.
 
-- **Journal-Ziel nach Save-Reload:** Aktive Hitman-Verträge werden nach dem
-  Laden wieder an die restaurierte Journal-Quest gebunden. Dadurch erscheinen
-  Zielname und Eliminierungsauftrag nach einem Neustart wieder korrekt.
-- **Neues Spiel im gleichen Slot:** Die Mod speichert jetzt die Identität des
-  Vanilla-Spielstands und verwirft alte Hitman-Verträge, wenn ein neuer
-  Spielstand denselben Slot wiederverwendet.
-- **Späte Quest-Restaurierung:** Der Journal-Rebind wird bis zu achtmal in
-  einem begrenzten Zeitfenster wiederholt, falls S1API die Quest später als
-  `OnLoadComplete` wiederherstellt.
+- **Journal target after save reload:** Active hitman contracts are re-bound
+  to the restored journal quest after load. As a result, the target name and
+  elimination order appear correctly again after a restart.
+- **New game in the same slot:** The mod now stores the vanilla save's
+  identity and discards old hitman contracts when a new save reuses the
+  same slot.
+- **Late quest restoration:** The journal rebind is repeated up to eight
+  times within a bounded time window in case S1API restores the quest
+  later than `OnLoadComplete`.
 
 ## 0.2.1 (2026-09-07)
 
-Dialog-Fixes für den Bounty-Router (drei Restbefunde aus der 0.2.0-Audit-Runde,
-gefunden bei der Quest-Dialog-Durchsicht am 2026-09-07):
+Dialog fixes for the bounty router (three remaining findings from the
+0.2.0 audit round, found during the quest-dialog review on 2026-09-07):
 
-- **Bug 1 — MoreInfo-Deadline hardcodiert:** die Info-Nachricht behauptete
-  immer "Three days window.", selbst wenn `ContractDeadlineDays` anders
-  steht. Jetzt wird die Zahl (wie schon L7 in OnAccept) aus der Konstante
-  abgeleitet — Config und Dialog können nicht mehr auseinanderlaufen.
-- **Bug 2 — MoreInfo zeigte falschen Reward:** statt der echten gewürfelten
-  Summe (`rewardCash`, dieselbe Zahl wie im Angebot und im Contract) zeigte
-  die Info-Nachricht einen statischen Pay-Range pro Caller
-  (`DefaultRewardFor`, z.B. "$18 000 – $45 000") — konnte dem Angebot
-  widersprechen. `DefaultRewardFor` ist komplett entfernt.
-- **Bug 3 — Stilles Verfallen nach Reload:** der H3-Stale-Save-Guard machte
-  Accept/MoreInfo nach einem Reload stumm zunichte (nur Log-Zeile, Buttons
-  blieben sichtbar). Jetzt sendet der Caller die Nachfrage-Nachricht
-  "[Ghost]: Forget it. The deal is off." (`SendOfferExpiredNotice`), damit ein
-  toter Button nie als kaputtes Mod missverstanden wird.
+- **Bug 1 — MoreInfo deadline hardcoded:** the info message always claimed
+  "Three days window.", even when `ContractDeadlineDays` was set differently.
+  The number is now derived (as L7 in OnAccept already did) from the
+  constant — config and dialog can no longer drift apart.
+- **Bug 2 — MoreInfo showed the wrong reward:** instead of the real rolled
+  sum (`rewardCash`, the same number as in the offer and contract) the info
+  message showed a static pay range per caller
+  (`DefaultRewardFor`, e.g. "$18,000 – $45,000") — it could contradict the
+  offer. `DefaultRewardFor` has been removed entirely.
+- **Bug 3 — Silent expiry after reload:** the H3 stale-save guard silently
+  voided Accept/MoreInfo after a reload (only a log line, buttons stayed
+  visible). The caller now sends the inquiry message
+  "[Ghost]: Forget it. The deal is off." (`SendOfferExpiredNotice`), so a
+  dead button is never mistaken for a broken mod.
 
 ## 0.2.0 (2026-09-01)
 
-Audit-Runde (OpenCode bug audit, alle 22 Funde gegen den Code verifiziert;
-21 bestätigt und gefixt, 1 als Absicht dokumentiert).
+Audit round (OpenCode bug audit, all 22 findings verified against the code;
+21 confirmed and fixed, 1 documented as intentional).
 
-**Hoch (Datenverlust / Kern-Loop):**
-- **H1:** Neues `AwaitingDrop`-Feld (persistiert, überlebt Reloads) ersetzt
-  `EvidenceSpawned` als Gate und Fallback-Basis des Dead-Drop-Receipts. Vorher
-  brachte jeder Reload (auch Menü→Resume) die Auszahlung zum Schweigen.
-  `EvidenceSpawned` wird weiterhin bei jedem Load resettet — eine verlorene
-  Polaroid-Instanz kann wieder verdient werden.
-- **H2:** Reward wird strukturell an `OnAccept` übergeben statt aus dem
-  Nachrichtentext zurückgeparsert. Der alte Parser konnte NIE matchen (die
-  Style-Templates enthalten kein `$`), jeder Contract zahlte daher den
-  $10k-Fallback — jetzt zahlen die gewürfelten 8k–45k.
-- **H3:** Accept/MoreInfo-Callbacks lösen `Mod.Instance.Save` zur Klickzeit auf
-  und verwerfen das Angebot, wenn das Save-Objekt zwischen Angebot und Klick
-  gewechselt hat (Reload/Slot-Switch) — kein stiller Contract-Verlust mehr.
-- **H4:** Payout VOR State-Transition. `IssueReward` liefert bool; bei
-  Fehlschlag bleibt der Contract Active und der nächste Storage-Event wiederholt
-  den Versuch (vorher war der Reward bei Fehlschlag dauerhaft weg).
+**High (data loss / core loop):**
+- **H1:** New `AwaitingDrop` field (persisted, survives reloads) replaces
+  `EvidenceSpawned` as the gate and fallback basis of the dead-drop receipt.
+  Previously every reload (also menu → resume) silenced the payout.
+  `EvidenceSpawned` is still reset on every load — a lost polaroid instance
+  can be earned again.
+- **H2:** Reward is structurally passed to `OnAccept` instead of being parsed
+  back from the message text. The old parser could NEVER match (the style
+  templates contain no `$`), so every contract paid the $10k fallback — now
+  it pays the rolled 8k–45k.
+- **H3:** Accept/MoreInfo callbacks trigger `Mod.Instance.Save` at click time
+  and discard the offer when the save object has changed between offer and
+  click (reload / slot switch) — no more silent contract loss.
+- **H4:** Payout BEFORE state transition. `IssueReward` returns bool; on
+  failure the contract stays Active and the next storage event retries the
+  attempt (previously the reward was permanently lost on failure).
 
-**Mittel:**
-- **M1:** Heat-Grace nur noch im RAM (in-memory Dictionary), nie persistiert;
-  alte `hitman_grace_until_*`-Keys werden beim Load aus dem Save geputzt.
-- **M2:** Persistierte `TargetNpcInstanceId`s werden bei jedem Load auf 0
-  gesetzt — stale Unity-IDs können nicht mehr zufällig einen fremden NPC
-  treffen.
-- **M3:** Generische Titel-Adoption nur noch bei GENAU einem verwaisten
-  Active-Contract; bei 2+ wird verweigert (kein falsches Cross-Binding mehr).
-- **M4:** Zufälliger Caller aus dem Pool derCooldown-freien Caller (vorher
-  immer Ghost/erster freier, Stil immer "cold").
-- **M5:** Day-Latches (`_lastFiredDay`, `_lastCheckedDay`) werden beim
-  Slot-Switch zurückgesetzt.
-- **M6:** Expired/Forfeited wandern nach History (vorher blieben sie ewig in
-  Active; Liste und Save wuchsen unbegrenzt).
-- **M7:** Angebot zeigt formatierten Namen (`Ludwig Meyer`) statt roher ID.
-- **M8:** Spawn-Fail-Warn auf 30s gedrosselt (Watchdog pollt alle 1,5s).
-  KO-zählt-als-Tod bleibt ABSICHT (Klassenkommentar Phase C Alternative).
-- **M9:** Driftender `_activeBounties`-Zähler entfernt; `ActiveBounties`
-  zählt live aus dem Save.
+**Medium:**
+- **M1:** Heat-grace now only in RAM (in-memory dictionary), never persisted;
+  old `hitman_grace_until_*` keys are cleaned out of the save on load.
+- **M2:** Persisted `TargetNpcInstanceId`s are reset to 0 on every load —
+  stale Unity IDs can no longer randomly hit a foreign NPC.
+- **M3:** Generic title adoption now only with EXACTLY one orphaned active
+  contract; with 2+ it is refused (no more incorrect cross-binding).
+- **M4:** Random caller from the pool of cooldown-free callers (previously
+  always Ghost / first free, style always "cold").
+- **M5:** Day latches (`_lastFiredDay`, `_lastCheckedDay`) are reset on
+  slot switch.
+- **M6:** Expired/forfeited move to history (previously they stayed in active
+  forever; list and save grew without bound).
+- **M7:** Offer shows formatted name (`Ludwig Meyer`) instead of raw ID.
+- **M8:** Spawn-fail warning throttled to 30s (watchdog polls every 1.5s).
+  KO-counts-as-death remains INTENTIONAL (class comment Phase C alternative).
+- **M9:** Drifting `_activeBounties` counter removed; `ActiveBounties`
+  counts live from the save.
 
-**Niedrig:** README aktualisiert (L1), MONOMELON-Guards in
-BountyPersistence/TestCommands (L2), Reflection-Cache in `CurrentDay` (L3),
-Kommentar-Rot korrigiert + toter Defensiv-Restore entfernt (L4), toter Code
-entfernt: `BuildOfferMessage`, `MaxConcurrentOffersPerDay`, private
-Cooldown-Konstanten, `HeatFlagKey`, `is var v ? v : v` (L5),
-`TryMigrateLegacy` läuft einmal pro Session (L6), "Three days." aus der
-Deadline-Konstante (L7), LoadManager-`-1`-Pfad wedged nicht mehr (L8),
-`OnUpdate`-Catch loggt vollen Stacktrace (L9).
+**Low:** README updated (L1), MONOMELON guards in
+BountyPersistence/TestCommands (L2), reflection cache in `CurrentDay` (L3),
+comment-rot corrected + dead defensive restore removed (L4), dead code
+removed: `BuildOfferMessage`, `MaxConcurrentOffersPerDay`, private
+cooldown constants, `HeatFlagKey`, `is var v ? v : v` (L5),
+`TryMigrateLegacy` runs once per session (L6), "Three days." derived from the
+deadline constant (L7), LoadManager `-1` path no longer wedges (L8),
+`OnUpdate`-catch logs full stack trace (L9).
 
 ## 0.1.9 (2026-09-01)
 
-Thematic change — request by Dominik: "Kopfgeld ist im echten Leben dreckiges
-Geld" (bounty money is dirty money in real life).
+Thematic change — request by Dominik: "Bounty is dirty money in real life"
+(bounty money is dirty money in real life).
 
 - **Payout switched from online balance to physical cash:** `IssueReward` now
   calls `S1API.Money.Money.ChangeCashBalance(amount, visualizeChange: true,
