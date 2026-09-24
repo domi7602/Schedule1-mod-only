@@ -4,7 +4,7 @@
 
 MelonLoader modding workspace for *Schedule I* v0.4.6f13 (TVGS). Fully built on IL2CPP + S1API 3.2.0 + MelonLoader 0.7.3.
 
-> **Single Source of Truth:** [`AGENTS.md`](AGENTS.md) §2 ist die verbindliche Mod-Inventar-Liste (Status, Versionen, Pfade). Dieser Guide dupliziert sie bewusst **nicht** mehr (frühere Kopien drifteten — Repo-Audit 2026-09-16). Der Skill-Index lebt ausschließlich in [`Skills/README.md`](Skills/README.md).
+> **Single source of truth:** [`AGENTS.md`](AGENTS.md) §2 is the authoritative mod inventory list (status, versions, paths). This guide intentionally **does not** duplicate it anymore (earlier copies drifted — repo audit 2026-09-16). The skill index lives exclusively in [`Skills/README.md`](Skills/README.md).
 
 ## What This Is
 
@@ -81,9 +81,9 @@ See [`docs/architecture.md`](docs/architecture.md), [`ThirdParty/README.md`](Thi
 
 ## Active Mods
 
-Siehe [`AGENTS.md`](AGENTS.md) §2 (Matrix + Mod-Details) — inklusive archivierter Mods unter `Source/Archive/` und entfernter Third-Party-Tools. Aktuell: **19 Projekte** in `S1Mods.sln` (15 Mods + `Shared` + 3 Testprojekte), archivierte Mods werden nicht gebaut.
+See [`AGENTS.md`](AGENTS.md) §2 (matrix + mod details) — including archived mods under `Source/Archive/` and removed third-party tools. Currently: **19 projects** in `S1Mods.sln` (15 mods + `Shared` + 3 test projects), archived mods are not built.
 
-`Tools/check-version-sync.ps1` erzwingt, dass die Code-Version mit `mod.json`, `README.md` und `AGENTS.md` synchron bleibt; `Tools/check-doc-paths.ps1` bewacht die referenzierten Pfade.
+`Tools/check-version-sync.ps1` enforces that the code version stays in sync with `mod.json`, `README.md`, and `AGENTS.md`; `Tools/check-doc-paths.ps1` guards the referenced paths.
 
 ## Status
 

@@ -1,51 +1,51 @@
 # Contributing Guide
 
-Danke für dein Interesse am `Schedule I Modding Workspace`! Diese Anleitung fasst den effizienten Workflow für Beiträge zusammen.
+Thanks for your interest in the `Schedule I Modding Workspace`! This guide summarizes the efficient workflow for contributions.
 
-## Anforderungen
+## Requirements
 
-- **Game:** Schedule I v0.4.6f13 (IL2CPP, Unity 2022.3) unter `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`)
+- **Game:** Schedule I v0.4.6f13 (IL2CPP, Unity 2022.3) under `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`)
 - **SDK:** .NET 6 SDK, PowerShell 7+
 - **Loader:** MelonLoader 0.7.3
-- **S1API:** 3.2.0 (deployed als `Mods/S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.dll`, Fork-Build aus `ThirdParty/S1API/`)
+- **S1API:** 3.2.0 (deployed as `Mods/S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.dll`, fork build from `ThirdParty/S1API/`)
 
 ## Workspace Layout
 
 ```
 Source/Mods/          Mods + Shared lib + S1Mods.sln
-Source/Archive/       Archivierte Mods (nicht in SLN)
-Source/Tests/         xUnit-Tests (Shared.Tests, AutoPackagingStation.Tests, CalculatorApp.Tests)
-GameReferences/       Lokal generierte Decompiles; siehe GameReferences/README.md
-Skills/               AI-Skills (schedule1-modding, -phoneapp, -s1api, ...; Index: Skills/README.md)
-ThirdParty/           Gepinnte externe Abhaengigkeiten & Archive; siehe ThirdParty/README.md
+Source/Archive/       Archived mods (not in SLN)
+Source/Tests/         xUnit tests (Shared.Tests, AutoPackagingStation.Tests, CalculatorApp.Tests)
+GameReferences/       Locally generated decompiles; see GameReferences/README.md
+Skills/               AI skills (schedule1-modding, -phoneapp, -s1api, ...; index: Skills/README.md)
+ThirdParty/           Pinned external dependencies & archives; see ThirdParty/README.md
 Tools/                build-all.ps1, gen-sln.ps1, new-mod.ps1, bump-version.ps1, package-release.ps1, check-version-sync.ps1, check-doc-paths.ps1, deploy-thirdparty.ps1, backup-to-d.ps1
-Release/              Release-Pakete (.gitkeep)
-AGENTS.md             Inventar & Konventionen (Single Source of Truth)
-docs/                 Architektur- und Release-Dokumentation
+Release/              Release packages (.gitkeep)
+AGENTS.md             Inventory & conventions (single source of truth)
+docs/                 Architecture and release documentation
 ```
 
-## Skills laden
+## Loading Skills
 
-Lade **immer** zuerst den relevanten Skill via `skill`-Tool:
+Always load the relevant skill first via the `skill` tool:
 
-- `schedule1-modding` — für jeden Mod-Task (Pflicht)
-- `schedule1-phoneapp` — für PhoneApps
-- `schedule1-s1api` / `schedule1-s1mapi` — für Framework-APIs
-- `schedule1-knowledge` — für Recherche (`GameReferences/`, `ThirdParty/S1API/`, `Skills/schedule1-game-systems/references/`)
-- `schedule1-troubleshooting` — für Crashes/Logs
+- `schedule1-modding` — for every mod task (mandatory)
+- `schedule1-phoneapp` — for PhoneApps
+- `schedule1-s1api` / `schedule1-s1mapi` — for framework APIs
+- `schedule1-knowledge` — for research (`GameReferences/`, `ThirdParty/S1API/`, `Skills/schedule1-game-systems/references/`)
+- `schedule1-troubleshooting` — for crashes/logs
 
-Skill-Pfade: `Skills/<skill-name>/SKILL.md` (+ `references/`-Unterdateien). Vollständiger Index: `Skills/README.md`.
+Skill paths: `Skills/<skill-name>/SKILL.md` (+ `references/` subfiles). Full index: `Skills/README.md`.
 
-## Abhaengigkeiten und Referenzen
+## Dependencies and References
 
 ```pwsh
 git submodule update --init --recursive
 pwsh Tools/bootstrap-game-references.ps1
 ```
 
-Die Decompiles sind lokaler Recherche-Output und duerfen nicht committed werden. Die Regeln fuer Abhaengigkeitsrichtung und Mod-Struktur stehen in [`docs/architecture.md`](docs/architecture.md).
+The decompiles are local research output and must not be committed. The rules for dependency direction and mod structure are in [`docs/architecture.md`](docs/architecture.md).
 
-## Neuen Mod erstellen
+## Creating a New Mod
 
 ```pwsh
 pwsh Tools/new-mod.ps1 -Name "MyNewMod" -Author "Dominik" -Version "0.1.0"
@@ -53,83 +53,83 @@ pwsh Tools/gen-sln.ps1
 dotnet build Source/Mods/MyNewMod/src/MyNewMod.csproj -c Release
 ```
 
-`Directory.Build.props/targets` deployt DLLs/PNGs automatisch nach `<GameDir>\Mods\`; `mod.json` + `.pdb` nach `<GameDir>\UserData\<ModName>\` (seit 2026-09 — json/pdb gehören nie nach `Mods\`).
+`Directory.Build.props/targets` automatically deploys DLLs/PNGs to `<GameDir>\Mods\`; `mod.json` + `.pdb` to `<GameDir>\UserData\<ModName>\` (since 2026-09 — json/pdb never belong in `Mods\`).
 
-Siehe `Skills/schedule1-modding/references/architecture-and-shared.md` für Pflicht-Patterns (SafeStorage, UITheme, PatchGuard, InputFocus).
+See `Skills/schedule1-modding/references/architecture-and-shared.md` for mandatory patterns (SafeStorage, UITheme, PatchGuard, InputFocus).
 
 ## Build & Test
 
 ```pwsh
-# Alle Mods
+# All mods
 pwsh Tools/build-all.ps1
 dotnet build Source/Mods/S1Mods.sln -c Release
 
-# Einzelner Mod
+# Single mod
 dotnet build Source/Mods/NotesApp/src/NotesApp.csproj -c Release
 
-# Alle Tests (110 Tests ueber Solution)
+# All tests (110 tests across solution)
 dotnet test Source/Mods/S1Mods.sln -c Release
 
-# Einzelne Test-Suiten
-dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj -c Release               # braucht Spiel-Assemblies
-dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release # reine Math-Logik
-dotnet test Source/Tests/CalculatorApp.Tests/CalculatorApp.Tests.csproj -c Release # reine Decimal-Logik
+# Single test suites
+dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj -c Release               # requires game assemblies
+dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release # pure math logic
+dotnet test Source/Tests/CalculatorApp.Tests/CalculatorApp.Tests.csproj -c Release # pure decimal logic
 
-# Format prüfen (CI)
+# Format check (CI)
 dotnet format Source/Mods/S1Mods.sln --verify-no-changes
 
-# Versions-Drift prüfen (CI + Pre-Commit): Code <-> mod.json <-> README/AGENTS (Exit 1 bei Drift)
+# Version drift check (CI + pre-commit): code <-> mod.json <-> README/AGENTS (exit 1 on drift)
 pwsh Tools/check-version-sync.ps1
 
-# Doku-Pfade prüfen (CI + Pre-Commit): referenzierte Repo-Pfade müssen existieren
+# Doc paths check (CI + pre-commit): referenced repo paths must exist
 pwsh Tools/check-doc-paths.ps1
 ```
 
 ## Version Bump (Single Source of Truth = Code)
 
-Niemals manuell — nutze den Bump-Helper:
+Never manually — use the bump helper:
 
 ```pwsh
 pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.3
 pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.3 -DryRun
 
-# Verifizieren (Exit 1 bei Drift):
+# Verify (exit 1 on drift):
 pwsh Tools/check-version-sync.ps1
 ```
 
-Aktualisiert 5 Stellen: MelonInfo im Code (Datei mit `[assembly: MelonInfo(...)]`, sonst `Constants.ModVersion`) + `Source/Mods/<Mod>/docs/mod.json` + `Source/Mods/<Mod>/docs/CHANGELOG.md` (`## x.y.z`-Header) + `AGENTS.md` (Matrix-Zeile **und** Detail-Header in §2) + `README.md` (Featured-Zeile).
+Updates 5 places: MelonInfo in code (file with `[assembly: MelonInfo(...)]`, otherwise `Constants.ModVersion`) + `Source/Mods/<Mod>/docs/mod.json` + `Source/Mods/<Mod>/docs/CHANGELOG.md` (`## x.y.z` header) + `AGENTS.md` (matrix row **and** detail header in §2) + `README.md` (featured row).
 
-`Tools/check-version-sync.ps1` prüft genau diese Orte gegen den Code; es läuft in CI und im Pre-Commit-Hook.
+`Tools/check-version-sync.ps1` checks exactly these locations against the code; it runs in CI and in the pre-commit hook.
 
-## IL2CPP Pflichten
+## IL2CPP Obligations
 
-- Jeder `[RegisterTypeInIl2Cpp]` MonoBehaviour braucht `public Foo(IntPtr ptr) : base(ptr) { }`
-- Keine `foreach`/LINQ auf `Il2CppSystem.Collections.Generic.List<T>` — nur `for`
-- Keine `button.onClick.AddListener(new UnityAction(...))` — nutze `S1API.Utils.EventHelper.AddListener` / `ButtonUtils.AddListener`
-- Optional, falls installiert: `s1interop analyze <csproj>` (meldet z. B. fehlende `IntPtr`-Konstruktoren)
-  - Installation: `dotnet tool install --global S1Interop --version 0.1.0-alpha.1` — externes Tool (`ifBars/S1Interop`, GPL-3.0), kein Repo-Bezug, braucht .NET SDK 8+
-  - Vorab-Check der Spiel-Referenzen: `s1interop doctor <csproj>` (read-only; im Repo meldet der Mono-Zweig `[missing]` — erwartet, wir bauen IL2CPP)
-  - **`analyze` ist ein Report, kein Gate:** Das Tool liefert **immer Exit 0**, auch bei Findings. `0 Errors` im Exit-Code bedeutet nichts — die Ausgabe muss gelesen werden.
-  - **Bekannte False Positives (Stand 0.1.0-alpha.1):** `wrong_target_framework` + `global_usings_require_langversion` für alle Projekte, weil TFM (`net6.0`) und `LangVersion` aus `Directory.Build.props` kommen und das Alpha-Tool nur die `.csproj` liest. Ebenfalls erwartet: `ManagedCollectionSignatureInterop` in BusinessIncome (mod-interne Berechnungs-API, kein Game-Callback) und die Reflection-Findings in HitmanPhone (`S1Quest` ist internal in S1API, defensiv mit Fallback abgesichert).
-  - Ohne Installation sind Build + Tests der verpflichtende Ersatz. **Nur lokal** — der s1interop-CI-Job wurde am 2026-09-20 entfernt (auf GitHub-hosted Runnern nie lauffähig, Analyze permanent geskippt).
+- Every `[RegisterTypeInIl2Cpp]` MonoBehaviour needs `public Foo(IntPtr ptr) : base(ptr) { }`
+- No `foreach`/LINQ on `Il2CppSystem.Collections.Generic.List<T>` — use `for` only
+- No `button.onClick.AddListener(new UnityAction(...))` — use `S1API.Utils.EventHelper.AddListener` / `ButtonUtils.AddListener`
+- Optional, if installed: `s1interop analyze <csproj>` (reports e.g. missing `IntPtr` constructors)
+  - Installation: `dotnet tool install --global S1Interop --version 0.1.0-alpha.1` — external tool (`ifBars/S1Interop`, GPL-3.0), no repo relation, requires .NET SDK 8+
+  - Pre-flight check of game references: `s1interop doctor <csproj>` (read-only; in the repo the Mono branch reports `[missing]` — expected, we build IL2CPP)
+  - **`analyze` is a report, not a gate:** The tool always returns **exit 0**, even with findings. `0 Errors` in the exit code means nothing — the output must be read.
+  - **Known false positives (as of 0.1.0-alpha.1):** `wrong_target_framework` + `global_usings_require_langversion` for all projects, because TFM (`net6.0`) and `LangVersion` come from `Directory.Build.props` and the alpha tool only reads the `.csproj`. Also expected: `ManagedCollectionSignatureInterop` in BusinessIncome (mod-internal calculation API, no game callback) and the reflection findings in HitmanPhone (`S1Quest` is internal in S1API, defensively secured with fallback).
+  - Without installation, build + tests are the mandatory substitute. **Local only** — the s1interop CI job was removed on 2026-09-20 (never runnable on GitHub-hosted runners, analyze permanently skipped).
 
 ## Definition of Done
 
-- [ ] Build 0 Errors / 0 Warnings (`-c Release`)
-- [ ] DLL deployed und im `MelonLoader/Latest.log` ohne Exception
-- [ ] In-Game verifiziert (inkl. Scene-Wechsel Main Menu → Game → Main Menu)
-- [ ] Persistenz Round-Trip OK (Save → Restart → Load)
-- [ ] `s1interop analyze` Report gelesen, keine **unerwarteten** Einträge (falls installiert; Exit-Code ist immer 0 — siehe „IL2CPP Pflichten")
-- [ ] `AGENTS.md`, `CHANGELOG.md`, `mod.json`, `Mod.cs`/`Constants.ModVersion`, `README.md` synchron (via `bump-version.ps1`) — `pwsh Tools/check-version-sync.ps1` muss grün sein
-- [ ] `pwsh Tools/check-doc-paths.ps1` grün (keine toten Pfad-Referenzen in der Doku)
+- [ ] Build 0 errors / 0 warnings (`-c Release`)
+- [ ] DLL deployed and in `MelonLoader/Latest.log` without exception
+- [ ] In-game verified (incl. scene change Main Menu → Game → Main Menu)
+- [ ] Persistence round-trip OK (Save → Restart → Load)
+- [ ] `s1interop analyze` report read, no **unexpected** entries (if installed; exit code is always 0 — see "IL2CPP Obligations")
+- [ ] `AGENTS.md`, `CHANGELOG.md`, `mod.json`, `Mod.cs`/`Constants.ModVersion`, `README.md` synchronized (via `bump-version.ps1`) — `pwsh Tools/check-version-sync.ps1` must be green
+- [ ] `pwsh Tools/check-doc-paths.ps1` green (no dead path references in the docs)
 
 ## Commit & PR
 
-- Commits: `feat(mod): ...`, `fix(mod): ...`, `chore(tools): ...` (siehe `git log`)
-- Solution ist deterministisch (`gen-sln.ps1` nutzt MD5-GUIDs) — keine unnötigen GUID-Diffs
-- `dotnet format` vor jedem Push
-- PR-Template ausfüllen (siehe `.github/pull_request_template.md`)
+- Commits: `feat(mod): ...`, `fix(mod): ...`, `chore(tools): ...` (see `git log`)
+- Solution is deterministic (`gen-sln.ps1` uses MD5 GUIDs) — no unnecessary GUID diffs
+- `dotnet format` before every push
+- Fill out PR template (see `.github/pull_request_template.md`)
 
-## Fragen?
+## Questions?
 
-Siehe `AGENTS.md §6` (Workflows), `docs/pitfalls.md` (Gotchas & IL2CPP-Fallen), `Skills/README.md` (Skill-Index) oder öffne ein Issue.
+See `AGENTS.md §6` (workflows), `docs/pitfalls.md` (gotchas & IL2CPP traps), `Skills/README.md` (skill index) or open an issue.
