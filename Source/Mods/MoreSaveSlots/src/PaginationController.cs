@@ -89,12 +89,12 @@ public static class PaginationController
                     if (sd == null || sd.Pointer == IntPtr.Zero || sd.WasCollected) continue;
                     if (sd.gameObject == null || sd.gameObject.Pointer == IntPtr.Zero) continue;
 
-                    // Fix 2026-09-13 ("Savegame-Dupe"): Inaktive SaveDisplays NICHT mehr
-                    // überspringen. Beobachteter Ablauf: Awake malt Page 1 vor dem Scan, der
-                    // Post-Scan-Refresh fand das (noch geschlossene) Continue-Panel inaktiv und
-                    // übersprang es — beim späteren Öffnen blieben die Geisterkarten. Da Refresh
-                    // über den Prefix auch auf inaktiven Objekten sicher ist, werden jetzt alle
-                    // Instanzen mit korrekten Daten befüllt; jedes Display isoliert per try/catch.
+                    // Fix 2026-09-13 ("Savegame-Dupe"): Do NOT skip inactive SaveDisplays anymore.
+                    // Observed sequence: Awake paints Page 1 before the scan, the
+                    // post-scan refresh found the (still closed) continue panel inactive and
+                    // skipped it — the ghost cards remained on later opening. Since refresh
+                    // via the prefix is safe on inactive objects too, all
+                    // instances are now filled with correct data; each display isolated via try/catch.
                     try
                     {
                         sd.Refresh();

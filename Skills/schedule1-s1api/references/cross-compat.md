@@ -167,5 +167,5 @@ For **map/building geometry** (procedural meshes, GLTF loading, terrain), the si
 | How does S1API X.X.Y work? | `ThirdParty/S1API/` (source of the wrapper in question) |
 | What's the actual signature? | `ThirdParty/S1API/` (namespace folder) |
 | Is the runtime branch compatible? | S1API repo README / release notes (Submodule-Pin) |
-| Vanilla class signature? | `GameReferences/` (lokal generierte Decompiles, siehe GameReferences/README.md) |
+| Vanilla class signature? | `GameReferences/` (locally generated decompiles, see GameReferences/README.md) |
 | Bridging wrapper from S1API to vanilla? | That's literally what S1API does internally |

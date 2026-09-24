@@ -18,9 +18,9 @@ public static class SaveDisplay_Patches
     [HarmonyPrefix]
     public static bool Awake_Prefix(SaveDisplay __instance)
     {
-        // Fix 2026-09-11: Vanilla-Awake loopt 0..SAVE_SLOT_COUNT-1 (25) und ruft
-        // SetDisplayedSave(i) auf. Slots.Length ist aber 5 -> IndexOutOfRange ab i=5.
-        // Darum Vanilla-Awake skippen und paginiert initialisieren (Seite 0).
+        // Fix 2026-09-11: Vanilla Awake loops 0..SAVE_SLOT_COUNT-1 (25) and calls
+        // SetDisplayedSave(i). Slots.Length is however 5 -> IndexOutOfRange from i=5.
+        // Therefore skip vanilla Awake and initialise paginated (page 0).
         if (__instance == null || __instance.Slots == null || __instance.Slots.Length == 0)
         {
             return true;
@@ -45,12 +45,12 @@ public static class SaveDisplay_Patches
 
                     __instance.SetDisplayedSave(i, info);
 
-                    // Fix 2026-09-13 ("Savegame-Dupe"): SetDisplayedSave(i, null) entfernt den
-                    // Prefab-Platzhaltertext ('Organisation', '$0', 'More than a year ago',
-                    // 'v0.1.0') NICHT — Awake läuft beim Menü-Bau vor dem Registry-Scan, und ohne
-                    // diese Bereinigung blieben 5 identische Geisterkarten stehen (Pages 2-5
-                    // waren korrekt, weil dort später ein Refresh lief). Wie im Refresh-Pfad
-                    // Empty-State + Slot-Nummer setzen.
+                    // Fix 2026-09-13 ("Savegame-Dupe"): SetDisplayedSave(i, null) does NOT remove the
+                    // prefab placeholder text ('Organisation', '$0', 'More than a year ago',
+                    // 'v0.1.0') — Awake runs during menu build before the registry scan, and without
+                    // this cleanup, 5 identical ghost cards would remain standing (pages 2-5
+                    // were correct because a refresh ran later there). Like in the refresh path,
+                    // set empty state + slot number.
                     try
                     {
                         var awakeSlotRt = __instance.Slots[i];
@@ -77,12 +77,12 @@ public static class SaveDisplay_Patches
                     {
                         ForceSlotVisible(slotRt, page * slotsPerPage + i + 1);
 
-                        // 2026-09-13: DEL/RENAME-Buttons auch im Awake-Pfad (re)builden.
-                        // Nach "Quit" → Hauptmenü → Continue erstellt das Vanilla-Spiel die
-                        // SaveDisplay neu; wenn danach kein Refresh mehr läuft, blieben die
-                        // Buttons unsichtbar, weil sie bisher nur im Refresh_Prefix erzeugt
-                        // wurden. Refresh_Prefix findet die Buttons via container.Find(...)
-                        // und synct sie später weiter.
+                        // 2026-09-13: (re)build DEL/RENAME buttons also in the Awake path.
+                        // After "Quit" → main menu → Continue, the vanilla game recreates
+                        // the SaveDisplay; if no refresh runs afterwards, the buttons
+                        // would stay invisible because previously they were only created
+                        // in Refresh_Prefix. Refresh_Prefix finds the buttons via container.Find(...)
+                        // and syncs them later.
                         int awakeActualIndex = page * slotsPerPage + i;
                         SaveInfo? awakeInfo = null;
                         if (LoadManager.SaveGames != null && awakeActualIndex >= 0 && awakeActualIndex < LoadManager.SaveGames.Length)
@@ -143,7 +143,7 @@ public static class SaveDisplay_Patches
             int page = PaginationController.CurrentPage;
             int slotsPerPage = PaginationController.SlotsPerPage;
 
-            // Diag 2026-09-11: ein Zeile pro Refresh — zeigt ob/wann Refresh läuft und was im Array steht.
+            // Diag 2026-09-11: one line per refresh — shows whether/when refresh runs and what is in the array.
             try
             {
                 string arrInfo = LoadManager.SaveGames == null ? "null" : LoadManager.SaveGames.Length.ToString();

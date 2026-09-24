@@ -69,8 +69,8 @@ public class MoreSaveSlotsMod : MelonMod
 
         if (!Config.EnableKeyboardNavigation) return;
         if (IsUserTypingInInputField()) return;
-        // Nur im MainMenu (Save-Screens) navigieren — im Gameplay-Scene ("Main")
-        // niemals Tastatur-Shortcuts hijacken (Arrow/Q/E/F2/R sind dort belegt).
+        // Only navigate in the main menu (save screens) — never hijack keyboard shortcuts in the gameplay scene ("Main")
+        // (Arrow/Q/E/F2/R are bound there).
         if (IsInGameplayScene()) return;
 
         if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.PageUp) || Input.GetKeyDown(KeyCode.Q))
@@ -98,7 +98,7 @@ public class MoreSaveSlotsMod : MelonMod
         try
         {
             var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
-            // Workspace-Konvention: Gameplay-Scene heißt exakt "Main".
+            // Workspace convention: gameplay scene is named exactly "Main".
             return scene.name == "Main";
         }
         catch

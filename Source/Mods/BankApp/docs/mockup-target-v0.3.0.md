@@ -1,30 +1,30 @@
-# BankApp — Ziel-Design Mockup (v0.3.0 Referenz)
+# BankApp — Target Design Mockup (v0.3.0 Reference)
 
-**Quelldatei:** `mockup-target-v0.3.0.png`
-**Analyse:** MiniMax VLM via `mmx vision describe`, 2026-09-09
-**Status:** Ziel-Design, noch nicht umgesetzt
+**Source file:** `mockup-target-v0.3.0.png`
+**Analysis:** MiniMax VLM via `mmx vision describe`, 2026-09-09
+**Status:** Target design, not yet implemented
 
-## Beschriebenes Layout (top → bottom)
+## Described Layout (top → bottom)
 
 1. **Weekly Progress Header**
-   - Links: „Weekly Progress" (bold, weiß)
-   - Rechts: „$3870/10000"
-   - Darunter: dünner Teal-Fortschrittsbalken, ca. 1/3 gefüllt
+   - Left: "Weekly Progress" (bold, white)
+   - Right: "$3870/10000"
+   - Below: thin teal progress bar, about 1/3 filled
 
-2. **Balance-Sektion (zwei Spalten)**
-   - Links: „Cash Balance" → `$11,560` (teal/cyan)
-   - Rechts: „Online Balance" → `$3,552` (teal/cyan)
+2. **Balance section (two columns)**
+   - Left: "Cash Balance" → `$11,560` (teal/cyan)
+   - Right: "Online Balance" → `$3,552` (teal/cyan)
 
-3. **Amount-Zeile**
-   - Links: „Amount"-Label
-   - Rechts: `$0` (aktueller Betrag; wird über Chips gesetzt)
+3. **Amount row**
+   - Left: "Amount" label
+   - Right: `$0` (current amount; set via chips)
 
-4. **Modus-Tabs**
-   - „⟳ Deposit" (links, selektiert = blau)
-   - „⟳ Withdraw" (rechts, dunkel, unselektiert)
+4. **Mode tabs**
+   - "⟳ Deposit" (left, selected = blue)
+   - "⟳ Withdraw" (right, dark, unselected)
 
-5. **Chip-Grid (2 Spalten × 5 Reihen)**
-   | Linke Spalte | Rechte Spalte |
+5. **Chip grid (2 columns × 5 rows)**
+   | Left column | Right column |
    |---|---|
    | $1 | $5 |
    | $10 | $25 |
@@ -32,12 +32,12 @@
    | $500 | $1000 |
    | ✕ Clear | MAX |
 
-6. **Primär-Button**
-   - Großer grüner „Deposit"-Button, volle Breite, unten
-   - (Label vermutlich tab-abhängig: Deposit/Withdraw)
+6. **Primary button**
+   - Large green "Deposit" button, full width, at the bottom
+   - (Label likely tab-dependent: Deposit/Withdraw)
 
-## VLM-Nebenbeobachtungen (Design-Hinweise)
+## VLM Side Observations (Design Notes)
 
-- Chips vollständig lesbar, großzügiges Padding — kein Quetschen wie in v0.2.0 (5 Chips in 1 Reihe)
-- Clear/MAX sehen wie Betrags-Chips aus, sind aber Aktionen → mögliches Verwechslungsrisiko
-- Amount wirkt wie Read-Only-Anzeige statt Textfeld — manuelle Eingabe unklar
+- Chips fully readable, generous padding — no squeezing like in v0.2.0 (5 chips in 1 row)
+- Clear/MAX look like amount chips but are actions → possible confusion risk
+- Amount looks like a read-only display instead of a text field — manual input unclear

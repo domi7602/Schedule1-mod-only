@@ -1,29 +1,29 @@
 # Changelog
 
-## 2.0.2 (2026-09-13) — Bug-Report-Runde 6
-Bug-Report-Runde 6: M-05 - ContentSizeFitter (PreferredSize) am Settings-Scroll-Content; Save&Apply-Footer ist jetzt bei langem Inhalt erreichbar (Scroll funktionierte vorher nie korrekt).
+## 2.0.2 (2026-09-13) — Bug Report Round 6
+Bug Report Round 6: M-05 - ContentSizeFitter (PreferredSize) on settings scroll content; Save&Apply footer is now reachable on long content (scroll never worked correctly before).
 
 
-## 2.0.1 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
-- `ResolveSlotSuffix` → `Save()`-Endlos-Rekursion gefixt (Crash): `_dirty` wird jetzt konsumiert BEVOR `FlushToPath(oldPath)` aufgerufen wird; neue `FlushToPath(string)` schreibt an den expliziten alten Pfad ohne erneut `ResolveSlotSuffix` zu durchlaufen. Verhindert unkatchbaren `StackOverflowException` beim Slot-Switch nach fehlgeschlagenem Save (AV/Readonly).
-- Health-Bar bekommt eine `sizeDelta` (`MapSize * 0.92` Breite, 6 Hoehe). Vorher Unity-Default 100x100 — quadratischer Block statt schlanker Leiste unter der Karte.
+## 2.0.1 (2026-09-12) — Bug Audit Fixes (Audit 2026-09-12)
+- `ResolveSlotSuffix` → `Save()` endless recursion fixed (crash): `_dirty` is now consumed BEFORE `FlushToPath(oldPath)` is called; new `FlushToPath(string)` writes to the explicit old path without going through `ResolveSlotSuffix` again. Prevents an uncatchable `StackOverflowException` on slot switch after a failed save (AV/Readonly).
+- Health bar gets a `sizeDelta` (`MapSize * 0.92` width, 6 height). Previously Unity default 100x100 — square block instead of slim bar below the map.
 
 ## 2.0.0 (2026-09-12) — Marker & Settings Edition
-- **M1 Dealer-Marker:** Live-Positionen angeworbener Dealer (lila, mit Name) via DealerManagementApp.dealers; immer am Rand geclamped, unabhaengig von MaxEntityRange.
-- **M2 Heat-Ring:** Pulsierender Ring um die Minimap nach EPursuitLevel (None→aus, Investigating→Bernstein, Arresting→Orange, NonLethal→Rot, Lethal→Dunkelrot).
-- **M3 Customer-Trennung:** Dealer vs. Kunden sauber getrennt (eigene BlipTypes + Filter).
-- **M4 Waypoints:** Eigene Wegpunkte als pulsierende Diamant-Blips — `minimap wp add <name> [hex]`, `wp del`, `wp list`, `wp clear`; slot-isolierte Persistence via SafeStorage (waypoints_slot_{n}.json, slot_-1-Guard), Limit 16.
-- **M5 Health-Bar:** Schlanke HP-Bar unter der Minimap (Polling 0,25s, 0-Allocation), Farbrampe Gruen→Bernstein→Rot, per Config abschaltbar.
-- **M6 Minimap-Settings-PhoneApp:** Toggles fuer alle Blip-Typen + Hex-Farbfelder pro Kategorie (blip_colors.json Sidecar), Save&Apply + Reset-Buttons; lebt im Minimap-Assembly (S1API Auto-Discovery).
-- Neue Dateien: MinimapWaypoints.cs, MinimapSettingsApp.cs.
-- Alle Blip-Farben jetzt ueber zentrale Palette (PaletteColor-Lookup mit Fallback auf Defaults).
+- **M1 Dealer Marker:** Live positions of recruited dealers (purple, with name) via DealerManagementApp.dealers; always clamped to the edge, independent of MaxEntityRange.
+- **M2 Heat Ring:** Pulsating ring around the minimap by EPursuitLevel (None→off, Investigating→amber, Arresting→orange, NonLethal→red, Lethal→dark red).
+- **M3 Customer separation:** Dealer vs. customers cleanly separated (own BlipTypes + filter).
+- **M4 Waypoints:** Own waypoints as pulsating diamond blips — `minimap wp add <name> [hex]`, `wp del`, `wp list`, `wp clear`; slot-isolated persistence via SafeStorage (waypoints_slot_{n}.json, slot_-1 guard), limit 16.
+- **M5 Health Bar:** Slim HP bar below the minimap (polling 0.25s, 0-allocation), colour ramp green→amber→red, switchable via config.
+- **M6 Minimap Settings PhoneApp:** Toggles for all blip types + hex colour fields per category (blip_colors.json sidecar), Save&Apply + Reset buttons; lives in the Minimap assembly (S1API auto-discovery).
+- New files: MinimapWaypoints.cs, MinimapSettingsApp.cs.
+- All blip colours now via central palette (PaletteColor lookup with fallback to defaults).
 
 ## 1.0.3 (2026-09-11)
-- Critical-First-Partition: Quest-/Deal-Blips ueberleben Pool-Overflow (statt umgekehrt).
-- Raycast-Sync in ApplyLayout (Mask frisst keine Klicks mehr bei AllowDragging=false).
+- Critical-First Partition: quest/deal blips survive pool overflow (instead of the other way around).
+- Raycast sync in ApplyLayout (mask eats no more clicks when AllowDragging=false).
 
 ## 1.0.2 (2026-09-10)
-- Config-Save entprellt (nur bei Toggle/Scene-Unload statt pro Zoom-Taste).
+- Config save debounced (only on toggle/scene-unload instead of per zoom key).
 
 ## 1.0.1
 - **Bug:** Time-of-day display in the integrated DayCounter now uses vanilla `TimeManager.Get12HourTime(CurrentTime)` for 12-hour mode, fixing the parse logic. 24-hour mode preserves the verified HHMM math.

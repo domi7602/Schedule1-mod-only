@@ -1,46 +1,46 @@
 # Changelog
 
 
-## 1.2.3 (2026-09-13) — StorageMenu-Sort-Button Overlay-Fix (Echtspiel-Report 2026-09-13)
-- **Riesen-Overlay behoben (HIGH):** `SortUIInjector` klonte den ERSTEN Button unter `CloseButtonContainer` und erbte dessen Rect ungeprüft — bei Container-Panels wurde der "Sort"-Button bildschirmfüllend, verdeckte die Menü-Inhalte und schluckte Klicks. Template ist jetzt der kleinste Button (n. Fläche; eigene Klone + Zerstoerte ausgenommen); Groesse wird via `SortButtonLayout.ClampButtonSize` erzwungen (110–220 x 36–60, Fallback 150x44), Position explizit links neben dem Close-Cluster im selben Anker-Raum.
-- Neue pure Datei `SortButtonLayout.cs` (Unity-frei, testbar) + Regressionssuite `BackpackMod.Tests` (xUnit).
-- Observability: Injektions-Log nennt jetzt Template- und Final-Geometrie (`template WxH → WxH at x,y`).
+## 1.2.3 (2026-09-13) — StorageMenu sort-button overlay fix (live-game report 2026-09-13)
+- **Giant overlay fixed (HIGH):** `SortUIInjector` cloned the FIRST button under `CloseButtonContainer` and inherited its unchecked Rect — on container panels the "Sort" button became fullscreen, covered the menu contents and swallowed clicks. Template is now the smallest button (by area; own clones + destroyed excluded); size is enforced via `SortButtonLayout.ClampButtonSize` (110–220 x 36–60, fallback 150x44), position explicitly to the left of the close cluster in the same anchor space.
+- New pure file `SortButtonLayout.cs` (Unity-free, testable) + regression suite `BackpackMod.Tests` (xUnit).
+- Observability: injection log now names template and final geometry (`template WxH → WxH at x,y`).
 
-## 1.2.2 (2026-09-12) — Bug-Audit-Fixes Runde 4 (Audit 2026-09-12)
-- **HUD-Sort-Button Raycast-Schutz:** Nach dem Klonen des Vanilla-Close-Buttons setzen wir `img.raycastTarget = false` auf der Image-Hülle (Button selbst bleibt raycast-fähig). Verhindert, dass der Sort-Button bei seiner Anchor-Position (-24, 150) Drag-/Click-Events auf den darunter liegenden Slot-Grid schluckt.
+## 1.2.2 (2026-09-12) — Bug-audit fixes round 4 (audit 2026-09-12)
+- **HUD sort-button raycast protection:** After cloning the vanilla close button, we set `img.raycastTarget = false` on the image shell (button itself stays raycast-capable). Prevents the sort button at its anchor position (-24, 150) from swallowing drag/click events onto the underlying slot grid.
 
-## 1.2.1 (2026-09-12) — Bug-Audit-Fixes Runde 3 (Audit 2026-09-12)
-- ObjLoader: `LoadMeshFromObj` prueft jetzt die Dateigroesse (50 MB Cap) vor `File.ReadAllLines` und bricht die Parse-Loop bei >250 000 Vertices ab. Schuetzt vor Frame-Spikes bei versehentlich riesigen oder korrumpierten OBJ-Files im `UserData/BackpackMod/models/`.
-- `BackpackDefinitions` Listing-Snapshot-Dump jetzt hinter `#if DEBUG` (war pro Load aktiv und flutete das MelonLoader-Log in Release).
+## 1.2.1 (2026-09-12) — Bug-audit fixes round 3 (audit 2026-09-12)
+- ObjLoader: `LoadMeshFromObj` now checks the file size (50 MB cap) before `File.ReadAllLines` and aborts the parse loop above 250,000 vertices. Protects against frame spikes on accidentally huge or corrupt OBJ files in `UserData/BackpackMod/models/`.
+- `BackpackDefinitions` listing-snapshot dump now behind `#if DEBUG` (was active per load and flooded the MelonLoader log in release).
 
-## 1.2.0 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
-- **Sort-Commit atomar (HIGH):** Vor dem ersten Write werden alle Instances via `ItemInstance.GetCopy(quantity)` vorbereitet (erhaelt Qualitaet/Packaging/Instanz-State komplett). Schlaegt eine Vorbereitung fehl, wird vor JEDEM Write abgebrochen — kein Verlust, keine Duplikation.
-- **Clipboard-Slot-Schutz (MEDIUM):** Player-Inventory-Sort filtert jetzt per Referenzvergleich gegen `inv.clipboardSlot`/`inv.cashSlot`; Hotbar 0-7 ist die einzige Sortzone. Vanilla-UI-Validierung der Spezialslots wird nicht mehr umgangen.
-- **Overflow-Downgrade-Quality+Packaging (HIGH):** Beim Tier-Downgrade wird die Live-Instanz via `GetCopy` zurueckgegeben (kein Default-Reset mehr). Overflow-Items, die nicht ins Inventar passen, werden in `backpack_overflow_slot_{n}.json` persistiert und beim naechsten Backpack-Oeffnen automatisch zurueckgegeben.
-- **Cross-Save-Protect (MEDIUM):** `ResetCache` savet nicht mehr vor dem Zerstoeren (OnPreLoad-Cross-Save-Vermutung); die Main-Unload-Pfad-Kette `OnSceneWasUnloaded → ResetForSceneUnload → SaveStorage` ist explizit.
-- Doku: Item-Beschreibungs-Text „Drop it to access its inventory" widerspricht dem realen ToggleStorage-Flow (Info-Notiz; keine Aenderung).
+## 1.2.0 (2026-09-12) — Bug-audit fixes (audit 2026-09-12)
+- **Sort commit atomic (HIGH):** Before the first write, all instances are prepared via `ItemInstance.GetCopy(quantity)` (preserves quality/packaging/instance state completely). If a preparation fails, abort before EVERY write — no loss, no duplication.
+- **Clipboard slot protection (MEDIUM):** Player-inventory sort now filters via reference comparison against `inv.clipboardSlot`/`inv.cashSlot`; hotbar 0–7 is the only sort zone. Vanilla UI validation of special slots is no longer bypassed.
+- **Overflow downgrade quality+packaging (HIGH):** On tier downgrade, the live instance is returned via `GetCopy` (no more default reset). Overflow items that don't fit in the inventory are persisted in `backpack_overflow_slot_{n}.json` and automatically returned on the next backpack open.
+- **Cross-save protect (MEDIUM):** `ResetCache` no longer saves before destruction (OnPreLoad cross-save assumption); the main unload-path chain `OnSceneWasUnloaded → ResetForSceneUnload → SaveStorage` is explicit.
+- Docs: the item description text "Drop it to access its inventory" contradicts the real ToggleStorage flow (info note; no change).
 
 ## 1.1.0 (2026-09-12)
-- **B1 Sort (QoL Spec v1.1.0, button-only nach User-Entscheidung):** Ein-Klick-Sortierung fuer Backpack (StorageEntity), Player-Inventory (Hotbar 0-8, Cash-Slot ausgenommen) und geoeffnete Vanilla-Storage-Container. Keine Hotkeys — ausschliesslich Buttons.
-- "Sort"-Button im StorageMenu (geklont vom Vanilla-Close-Button, inheriting Styling) sortiert den geoeffneten Container.
-- "Sort Inventory"-Button im GameplayMenu-Character-Screen (Inventar offen) sortiert das Player-Inventory.
-- Sort-Algorithmus: Merge nach ID+Qualitaet+Packaging bis StackLimit (respektiert StackLimitMod), Ordnung Kategorie → Qualitaet (absteigend) → Name; atomarer Plan-then-Commit (kein Itemverlust bei Kapazitaetsmangel).
-- Neue Klassen: `BackpackInventorySorter` (Sort-Engine, Snapshot-Semantik), `SortUIInjector` (beide Buttons, idempotent, GameplayMenu-Sync via OnOpen/OnClose/SetScreen-Postfixes).
-- StorageMenu.Open/Close + GameplayMenu.OnOpen/OnClose/SetScreen Harmony-Patches via PatchGuard; Scene-Unload-Reset fuer Button-Caches.
-- Fix-3.1-Pattern auf Sort-Instanzen: Qualitaet + Packaging bleiben beim Umsortieren erhalten (GetDefaultInstance + Quality/SetPackaging Restore).
+- **B1 Sort (QoL Spec v1.1.0, button-only per user decision):** one-click sorting for backpack (StorageEntity), player inventory (hotbar 0–8, cash slot excluded) and opened vanilla storage containers. No hotkeys — buttons only.
+- "Sort" button in the StorageMenu (cloned from the vanilla close button, inheriting styling) sorts the opened container.
+- "Sort Inventory" button in the GameplayMenu character screen (inventory open) sorts the player inventory.
+- Sort algorithm: merge by ID+quality+packaging up to StackLimit (respects StackLimitMod), order category → quality (descending) → name; atomic plan-then-commit (no item loss on capacity shortage).
+- New classes: `BackpackInventorySorter` (sort engine, snapshot semantics), `SortUIInjector` (both buttons, idempotent, GameplayMenu sync via OnOpen/OnClose/SetScreen postfixes).
+- StorageMenu.Open/Close + GameplayMenu.OnOpen/OnClose/SetScreen Harmony patches via PatchGuard; scene unload reset for button caches.
+- Fix-3.1 pattern on sort instances: quality + packaging are preserved when reshuffled (GetDefaultInstance + Quality/SetPackaging restore).
 
 ## 1.0.2 (2026-09-11)
-- slot_-1-Guard: kein slot_-1-File mehr im Menue; Save bei unaufgeloestem Slot geskippt.
-- ClothingItemUIPatch: Message-Fallback nur noch fuer Il2CppException (kein Swallow fremder Bugs).
+- slot_-1 guard: no more slot_-1 file in the menu; save skipped when slot is unresolved.
+- ClothingItemUIPatch: message fallback only for Il2CppException (no swallowing foreign bugs).
 
 ## 1.0.1 (2026-09-10)
-- Bone-Cache plus 2s-Throttle (Fix Per-Frame-Scan und Log-Spam).
-- BackpackSlot-Reset bei Scene-Unload mit Pointer-Validierung; Material-Cache; Index-Loop ueber ItemDictionary; Empty-JSON-Guard.
+- Bone cache plus 2s throttle (fix per-frame scan and log spam).
+- BackpackSlot reset on scene unload with pointer validation; material cache; index loop over ItemDictionary; empty-JSON guard.
 
 ## 1.0.0 (2026-08-24)
-- First public release: 3D Wearable Backpacks with Spine Rig Alignment on the player avatar.
+- First public release: 3D wearable backpacks with spine rig alignment on the player avatar.
 - ⌨ **B-Hotkey** toggles backpack storage from anywhere in the game.
-- Realistic Harness system with chest sternum cross-strap, shoulder straps, and metal buckles via `BackpackVisualManager.cs`.
+- Realistic harness system with chest sternum cross-strap, shoulder straps, and metal buckles via `BackpackVisualManager.cs`.
 - Tier system: backpack_t1 / backpack_t2 / backpack_t3 with per-tier color palettes.
 - `ObjLoader` runtime: zero-dependency Wavefront OBJ loader for custom `.obj` files under `UserData/BackpackMod/models/`.
 - `backpacks.bundle` AssetBundle pipeline for prefab-based backpack meshes.
@@ -49,4 +49,4 @@
 - ClothingSlot 10 binding: backpack renders only when actively equipped.
 
 ## 0.1.0 (2026-08-21)
-- Initiale Version — BackpackMod-Grundgerüst, Bundle-Loader, F8-Debug-Spawn.
+- Initial version — BackpackMod skeleton, bundle loader, F8 debug spawn.

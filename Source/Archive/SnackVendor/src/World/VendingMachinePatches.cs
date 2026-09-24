@@ -170,9 +170,9 @@ public static class VendingMachinePatches
         }
         catch (Exception ex)
         {
-            // Vorher: stiller catch -> bei internem Fehler lief unauffällig die
-            // Vanilla-Zahl-UI (Spieler könnte eigenen Stock "zurückkaufen").
-            // Jetzt: loggen UND Vanilla blockieren (fail-closed für unsere Maschinen).
+            // Previously: silent catch -> on internal error the vanilla pay-UI
+            // ran inconspicuously (player could "buy back" their own stock).
+            // Now: log AND block vanilla (fail-closed for our machines).
             Mod.Log.Warn("Interacted_Prefix failed — vanilla pay-UI stays closed.", ex);
             return IsOurs(__instance) ? false : true;
         }

@@ -3,20 +3,20 @@
 
 
 ## 0.5.4 (2026-09-15)
-- Auto-Water Host-Gate auf `S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer` umgestellt (zuvor lokale Kopie des BusinessIncome-Musters). Fail-closed vereinheitlicht: Bei einer Exception im Authority-Check wird der Water-Tick uebersprungen statt ausgefuehrt.
+- Auto-Water host gate switched to `S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer` (previously a local copy of the BusinessIncome pattern). Fail-closed unified: on an exception in the authority check, the water tick is skipped instead of being executed.
 - Version bump.
 
-## 0.5.3 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
-- WaterAll Threshold nutzt jetzt den Live-Wert `c.NormalizedMoistureAmount` (vorher: gecachte `info.WaterPercent`, bis 2s alt). Verhindert Skip/Lade-Mismatch wenn der Cache stale ist.
-- WaterAll-Per-Charge-Balance-Guard: vor jeder `ChangeCashBalance`-Abbuchung wird `money.cashBalance` re-geprueft. Bricht sauber ab statt negativ zu werden, wenn parallele Spender (andere Mods/Shop) den Cash zwischendurch senken.
-- Versionskonstante in `Constants.ModVersion` auf „0.5.3“ angehoben (war „0.5.1“).
+## 0.5.3 (2026-09-12) — Bug-audit fixes (audit 2026-09-12)
+- WaterAll threshold now uses the live value `c.NormalizedMoistureAmount` (previously the cached `info.WaterPercent`, up to 2s old). Prevents skip/load mismatch when the cache is stale.
+- WaterAll per-charge balance guard: before each `ChangeCashBalance` deduction, `money.cashBalance` is re-checked. Aborts cleanly instead of going negative when parallel spenders (other mods/shop) lower the cash in between.
+- Version constant in `Constants.ModVersion` raised to "0.5.3" (was "0.5.1").
 
 ## 0.5.2 (2026-09-11)
-- WasCollected-Guards in Update/Handler/PhoneClosed; Row-Caches werden bei Unload geleert.
+- WasCollected guards in Update/Handler/PhoneClosed; row caches are cleared on unload.
 
 ## 0.5.1 (2026-09-10)
-- Statischer Event-Dispatcher; PotTracker.NotifyPotsScanned mit Per-Handler-try/catch.
-- WaterAll/WaterSinglePot nur noch als Host (Fix Multiplayer-Geldverlust/Desync).
+- Static event dispatcher; PotTracker.NotifyPotsScanned with per-handler try/catch.
+- WaterAll/WaterSinglePot only as host (fix multiplayer money loss/desync).
 
 ## 0.5.0
 - **Modernized Terminal & Console Bridge (`pot` subcommands):**
@@ -28,7 +28,7 @@
 - **Bug Fixes:**
   - **Double-Charge Fix in `WaterAllService`:** Resolved an issue where funds were deducted both upfront as a bulk total and iteratively inside the per-pot watering loop. Charging is now performed strictly once per successfully watered pot.
   - **Auto-Water Loop & Safeguard Hardening:** Ensured `AutoWaterService` strictly observes per-pot cooldowns (5s) and player cash limits, preventing infinite auto-water drain loops or negative balance glitches.
-  - **German String Localization Clean-up:** Eliminated residual German fallback strings across `PotInfo`, `PotTracker`, and `WaterAllService` (`(leer)` → `(empty)`, `(unbenannt)` → `(unnamed)`, `für` → `for`, `bereits bewässert` → `already watered`).
+  - **German String Localization Clean-up:** Eliminated residual German fallback strings across `PotInfo`, `PotTracker`, and `WaterAllService` (replaced the four legacy German placeholders: empty / unnamed / for / already watered).
 
 - **Performance & Architectural Optimizations:**
   - **0-Allocation In-Place UI Updates:** `PotScannerApp.RefreshList` reuses existing `PotRowUIRef` and `PropertyGroupUIRef` structures without teardown allocations when pot counts match.

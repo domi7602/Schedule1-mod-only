@@ -39,7 +39,7 @@ public class Mod : MelonMod
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.StorageMenu), "Close", prefix: new HarmonyMethod(typeof(Patches.StorageMenuPatch), nameof(Patches.StorageMenuPatch.Close_Prefix)), log: logger);
             // B1 QoL 2026-09-12: Sort button injection + open tracking for StorageMenu.
             // Audit 2026-09-13: StorageMenu.Open has THREE overloads — PatchGuard cannot
-            // resolve the name alone ("Mehrere Überladungen"). Pin the exact signature used
+            // resolve the name alone ("Multiple overloads"). Pin the exact signature used
             // by both the game and BackpackStorageManager.ToggleStorage:
             //   Open(StorageEntity entity, Il2CppSystem.Action onClosedCallback = null)
             PatchGuard.TryPatch(harmony, typeof(Il2CppScheduleOne.UI.StorageMenu), "Open",

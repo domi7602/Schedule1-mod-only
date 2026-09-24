@@ -20,8 +20,8 @@ public static class IncomeEngine
 {
     /// <summary>
     /// Checks whether the current instance is host/server or running in singleplayer.
-    /// Konsolidiert 2026-09-15 in S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
-    /// (fail-closed bei Authority-Exceptions).
+    /// Consolidated 2026-09-15 in S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
+    /// (fail-closed on authority exceptions).
     /// </summary>
     public static bool IsHostOrSingleplayer() => NetworkGuard.IsHostOrSingleplayer();
 
@@ -123,10 +123,10 @@ public static class IncomeEngine
         }
 
         // 4. Mark as paid IN MEMORY FIRST, then execute the transaction, then persist.
-        //    Reihenfolge verhindert Geld-Duplikation: Wenn CommitPayout (Disk) nach einer
-        //    erfolgreichen Transaktion fehlschlägt, bleibt der In-Memory-State gesetzt und
-        //    der nächste Day-Pass wird übersprungen (kein doppeltes Auszahlen).
-        //    Schlägt hingegen die Transaktion fehl, wird der Memory-State zurückgesetzt.
+        //    Order prevents money duplication: if CommitPayout (disk) fails after a
+        //    successful transaction, the in-memory state remains set and the
+        //    next day pass is skipped (no double payout).
+        //    If the transaction itself fails, the memory state is reverted.
         var businessIds = lines.Select(l => l.BusinessId).ToList();
         if (commit)
         {

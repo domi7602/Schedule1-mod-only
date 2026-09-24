@@ -4,24 +4,24 @@ using UnityEngine;
 namespace S1Mods.Shared;
 
 /// <summary>
-/// Resiliente Suche und Auflösung von GameObjects und UI-Komponenten.
-/// Verhindert NullReferenceExceptions, wenn Entwickler in Spiel-Updates
-/// GameObject-Hierarchien verschieben, umbenennen oder neu strukturieren.
+/// Resilient search and resolution of GameObjects and UI components.
+/// Prevents NullReferenceExceptions when developers move, rename, or
+/// restructure GameObject hierarchies in game updates.
 /// </summary>
 public static class GameObjectResolver
 {
     /// <summary>
-    /// Wird von SceneGate bei Szenenwechseln aufgerufen, um etwaige gecachte UI-Referenzen zu invalidieren.
+    /// Called by SceneGate on scene changes to invalidate any cached UI references.
     /// </summary>
     public static void InvalidateCache()
     {
-        // Hook für zukünftige UI-Referenzcaches
+        // Hook for future UI reference caches
     }
 
     /// <summary>
-    /// Sucht rekursiv nach einer Komponente vom Typ T unterhalb von root.
-    /// Wenn hintName angegeben ist, wird nur die Komponente mit passendem Namen zurückgegeben (oder null, falls nicht gefunden).
-    /// Wenn hintName leer ist, wird die erste gefundene Komponente zurückgegeben.
+    /// Recursively searches for a component of type T below root.
+    /// When hintName is provided, only the component with a matching name is returned (or null if not found).
+    /// When hintName is empty, the first found component is returned.
     /// </summary>
     public static T? FindComponentDeep<T>(GameObject? root, string hintName = "", ModLogger? log = null) where T : Component
     {
@@ -32,7 +32,7 @@ public static class GameObjectResolver
         if (components == null || components.Length == 0)
         {
             if (!string.IsNullOrEmpty(hintName))
-                log?.Warn($"GameObjectResolver: Keine Komponente '{typeof(T).Name}' unter '{root.name}' gefunden.");
+                log?.Warn($"GameObjectResolver: No component '{typeof(T).Name}' found below '{root.name}'.");
             return null;
         }
 
@@ -46,13 +46,13 @@ public static class GameObjectResolver
                 return comp;
         }
 
-        // Bei explizitem hintName kein blindes Raten des ersten Kindes!
-        log?.Warn($"GameObjectResolver: Keine Komponente '{typeof(T).Name}' mit Namen '{hintName}' unter '{root.name}' gefunden.");
+        // With explicit hintName, do not blindly guess the first child!
+        log?.Warn($"GameObjectResolver: No component '{typeof(T).Name}' with name '{hintName}' found below '{root.name}'.");
         return null;
     }
 
     /// <summary>
-    /// Sucht nach einem Kind-GameObject anhand eines Namens oder Teilnamens (rekursiv).
+    /// Searches for a child GameObject by name or partial name (recursively).
     /// </summary>
     public static GameObject? FindChildDeep(GameObject? root, string childName, bool exactMatch = false)
     {
@@ -63,8 +63,8 @@ public static class GameObjectResolver
     }
 
     /// <summary>
-    /// Sucht über einen flexiblen Pfad (z. B. "Phone/Apps/Canvas") mit Toleranz gegenüber
-    /// fehlenden Zwischenknoten.
+    /// Searches via a flexible path (e.g. "Phone/Apps/Canvas") with tolerance for
+    /// missing intermediate nodes.
     /// </summary>
     public static GameObject? FindByPathFuzzy(GameObject? root, string path)
     {

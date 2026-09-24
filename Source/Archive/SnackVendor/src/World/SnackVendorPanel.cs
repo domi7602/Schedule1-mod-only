@@ -37,8 +37,8 @@ public static class SnackVendorPanel
     public static bool IsOpen => _open != null;
     public static bool IsOpenFor(SnackVendorController controller) => _open == controller;
 
-    // Fault-throttle: Draw() läuft pro Frame — ein persistierender Fehler darf
-    // nur EINMAL pro Panel-Open geloggt werden, sonst flutet er den Log.
+    // Fault throttle: Draw() runs per frame — a persisting error must
+    // only be logged ONCE per panel open, otherwise it floods the log.
     private static bool _drawFaultLogged;
 
     // Frame-guard: when Close() fires (e.g. via SnackVendorPanel.Update E-key),
@@ -257,8 +257,8 @@ public static class SnackVendorPanel
         }
         catch (Exception ex)
         {
-            // Per-Frame-Draw: ohne Throttle würde ein persistierender Fehler
-            // den Log jede Frame fluten — einmal pro Open genügt.
+            // Per-frame draw: without throttling, a persisting error would
+            // flood the log every frame — once per open is enough.
             if (!_drawFaultLogged)
             {
                 _drawFaultLogged = true;

@@ -1,25 +1,25 @@
-# PhoneScroll — ThirdParty-Mod
+# PhoneScroll — ThirdParty Mod
 
 **Version:** 1.4
-**Autor:** V4LEXL (NexusMods)
-**Quelle:** NexusMods — externer Download (Closed-Source)
+**Author:** V4LEXL (NexusMods)
+**Source:** NexusMods — external download (closed source)
 
-## Zweck
+## Purpose
 
-PhoneScroll repariert das vanilla-Phone-HomeScreen, das **nicht für Listen gebaut wurde**: es injiziert eine `ScrollViewport`-`Mask`-Komponente um `HomeScreen/AppIcons` und scrollt die App-Icons per Mausrad.
+PhoneScroll fixes the vanilla Phone HomeScreen, which **was not built for lists**: it injects a `ScrollViewport`/`Mask` component around `HomeScreen/AppIcons` and scrolls the app icons via the mouse wheel.
 
-## Verhalten (Decompile-Highlights, ilspycmd 8.2.0)
+## Behavior (Decompile Highlights, ilspycmd 8.2.0)
 
-- **Hook:** Harmony-Postfix auf `HomeScreen.Start` (Priority 800 / `Priority.First`)
-- **Setup:** baut `ScrollViewport` als Vollbild-RectTransform mit `Mask`, reparentiert `AppIcons` darein, setzt `localPosition.y += 120f`
-- **Hardening:** jeden Frame (gedrosselt auf 1s) setzt `MaskableGraphic.maskable = true` und `Canvas.overrideSorting = false` auf allen Icon-Children — damit die Mask sauber clippt
-- **Scroll:** `OnUpdate` liest `Input.mouseScrollDelta.y * ScrollSpeed` (Default **30**), klemmt auf `[0, maxOffset]`, setzt `AppIcons.localPosition.y = originalY + scrollOffset`
+- **Hook:** Harmony postfix on `HomeScreen.Start` (Priority 800 / `Priority.First`)
+- **Setup:** builds `ScrollViewport` as a full-screen RectTransform with `Mask`, reparents `AppIcons` into it, sets `localPosition.y += 120f`
+- **Hardening:** every frame (throttled to 1s) sets `MaskableGraphic.maskable = true` and `Canvas.overrideSorting = false` on all icon children — so the mask clips cleanly
+- **Scroll:** `OnUpdate` reads `Input.mouseScrollDelta.y * ScrollSpeed` (default **30**), clamps to `[0, maxOffset]`, sets `AppIcons.localPosition.y = originalY + scrollOffset`
 
-## Bekannte Probleme
+## Known Issues
 
-### Vibrierendes Scrollen
+### Vibrating Scroll
 
-`ScrollSpeed = 30` ist zu hoch für ein 30-Pixel-Mausrad-Tick. **Empfohlene Anpassung** in `<GameDir>\UserData\MelonPreferences.cfg` (Sektion `[PhoneScroll]`):
+`ScrollSpeed = 30` is too high for a 30-pixel mouse-wheel tick. **Recommended adjustment** in `<GameDir>\UserData\MelonPreferences.cfg` (section `[PhoneScroll]`):
 
 ```ini
 [PhoneScroll]
@@ -28,20 +28,20 @@ ScrollSpeed = 5
 DebugLog = False
 ```
 
-5–10 ist ein guter Startwert. Niedriger = smootheres Scrollen, höhere Sprungweite pro Tick. Probiere, was sich für dich am besten anfühlt.
+5–10 is a good starting value. Lower = smoother scrolling, larger jump per tick. Try what feels best for you.
 
-### Konkurrenz mit S1API-PhoneApps
+### Conflict with S1API PhoneApps
 
-PhoneScroll hört nur auf `Input.mouseScrollDelta.y` — es filtert nicht nach Fokus. Wenn ein S1API-PhoneApp offen ist (NotesApp, CalculatorApp, PotScanner, PocketShop, BankApp) und einen eigenen `ScrollRect` bedient, **reagieren beide Systeme auf denselben Mausrad-Tick**. Resultat: das S1API-PhoneApp scrollt intern, während PhoneScroll die HomeScreen-App-Icons verschiebt — gefühltes "Vibrieren".
+PhoneScroll only listens to `Input.mouseScrollDelta.y` — it does not filter by focus. When an S1API PhoneApp is open (NotesApp, CalculatorApp, PotScanner, PocketShop, BankApp) and operates its own `ScrollRect`, **both systems react to the same mouse-wheel tick**. Result: the S1API PhoneApp scrolls internally while PhoneScroll moves the HomeScreen app icons — perceived as "vibration".
 
-Workaround: PhoneApp-ScrollSensitivity pro Mod niedrig setzen (siehe In-Game-Befunde aus 2026-09-10).
+Workaround: set each mod's PhoneApp ScrollSensitivity low (see in-game findings from 2026-09-10).
 
 ## Deploy
 
-PhoneScroll wird **automatisch** via `Tools/deploy-thirdparty.ps1` (aufgerufen aus `Source/Mods/Directory.Build.targets` → `DeployThirdParty`) nach `<GameDir>\Mods\PhoneScroll.dll` kopiert. Keine manuellen Schritte nötig — ein `dotnet build` der Solution reicht.
+PhoneScroll is **automatically** copied via `Tools/deploy-thirdparty.ps1` (invoked from `Source/Mods/Directory.Build.targets` → `DeployThirdParty`) to `<GameDir>\Mods\PhoneScroll.dll`. No manual steps required — a `dotnet build` of the solution is enough.
 
-Whitelist via `ThirdParty/.deployignore`: alles in `ThirdParty/S1API/`, `S1MAPI/`, `S1MCPServer-master/`, `ScheduleOne-Sideload/`, `ScheduleOne-Hash/`, `MoreDrugs/` ist explizit vom Deploy ausgenommen.
+Whitelist via `ThirdParty/.deployignore`: everything in `ThirdParty/S1API/`, `S1MAPI/`, `S1MCPServer-master/`, `ScheduleOne-Sideload/`, `ScheduleOne-Hash/`, `MoreDrugs/` is explicitly excluded from deploy.
 
-## Lizenz / Attribution
+## License / Attribution
 
-V4LEXL auf NexusMods. Kein Quellcode im Repo verfügbar; `PhoneScroll.decompiled.cs` (lokal im Temp-Verzeichnis bei Decompile, nicht im Repo) als Referenz für die Verhaltensanalyse. Im Repo liegt nur die `.dll` (Binary Deployment).
+V4LEXL on NexusMods. No source code is available in the repo; `PhoneScroll.decompiled.cs` (locally in the temp directory during decompile, not in the repo) serves as a reference for behavior analysis. The repo only contains the `.dll` (binary deployment).

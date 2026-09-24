@@ -476,8 +476,8 @@ public static class HomelessQuestManager
         string slotSuffix = "default";
         bool resolved = false;
 
-        // Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15). Format
-        // unverändert: slot_{n}, sonst Dateiname des Save-Pfads (mit Extension).
+        // Probe: S1Mods.Shared.SaveSlots (consolidation 2026-09-15). Format
+        // unchanged: slot_{n}, otherwise filename of the save path (with extension).
         var info = SaveSlots.TryGetActiveSaveInfo();
         if (info is { SlotNumber: >= 0 } slot)
         {

@@ -298,11 +298,11 @@ public class AutoPackStationController : MonoBehaviour
                     station.OutputSlotPosition.localPosition = new Vector3(0, -0.5f, 0);
                 }
 
-                // v0.3.3 (Live-Befund 2026-09-20): Beim Auto-Unpack rendert Vanilla die
-                // zurückgegebenen leeren Verpackungen an den PackagingAlignment-Punkten —
-                // bis zu 8 "Baggie-Klone" schwebten über dem Custom-Gehäuse (nur beim
-                // Unpacken, da nur dieser Flow Verpackungen zurückgibt). Diese Transforms
-                // sind KEINE SlotPositions und waren bisher nicht versteckt.
+                // v0.3.3 (live finding 2026-09-20): during auto-unpack, vanilla renders the
+                // returned empty packaging at the PackagingAlignment points —
+                // up to 8 "Baggie clones" hovered above the custom housing (only during
+                // unpacking, since only this flow returns packaging). These transforms
+                // are NOT slot positions and were not hidden previously.
                 try
                 {
                     void HideTransform(Transform? t)
@@ -348,7 +348,7 @@ public class AutoPackStationController : MonoBehaviour
                 var r = renderers[i];
                 if (r == null || r.Pointer == IntPtr.Zero) continue;
 
-                // Wenn der Renderer Teil unserer Mod-Visuals ist -> anlassen
+                // If the renderer is part of our mod visuals -> leave it on
                 if (visualRoot != null && visualRoot.Pointer != IntPtr.Zero && r.transform.IsChildOf(visualRoot))
                     continue;
                 if (r.gameObject.name.StartsWith("AutoPack"))
@@ -356,11 +356,11 @@ public class AutoPackStationController : MonoBehaviour
                 if (r == _conveyorRenderer || r == _ledRenderer)
                     continue;
 
-                // Item-Visualizer / dynamische Produkte der Slots verschonen (wenn child von ProductSlotPosition etc.)
+                // Skip item visualizer / dynamic products of the slots (when child of ProductSlotPosition etc.)
                 if (r.gameObject.name.Contains("ProductVisual") || r.gameObject.name.Contains("PackagingVisual") || r.gameObject.name.Contains("SlotPosition"))
                     continue;
 
-                // Vanilla Base-Renderer deaktivieren (NICHT SetActive(false) auf GameObject, um Collider/Slots nicht zu killen!)
+                // Disable vanilla base renderer (NOT SetActive(false) on GameObject, to avoid killing colliders/slots!)
                 r.enabled = false;
                 r.forceRenderingOff = true;
             }
@@ -387,9 +387,9 @@ public class AutoPackStationController : MonoBehaviour
         {
             if (!SceneGate.IsChangingScenes)
             {
-                // Bug-Audit 2026-09-13: Refund schreibt ins LOKALE Inventar, RemoveRuntimeData
-                // loescht den LOKALEN Bucket. Auf einem MP-Client gehoert die Wahrheit dem Host —
-                // lokaler Refund wuerde Items duplizieren, sobald der Host die Station zerstoert.
+                // Bug-Audit 2026-09-13: Refund writes into the LOCAL inventory, RemoveRuntimeData
+                // deletes the LOCAL bucket. On an MP client the truth belongs to the host —
+                // local refund would duplicate items as soon as the host destroys the station.
                 if (!AutoPackEngine.IsHostOrSingleplayer())
                 {
                     AutoPackStore.RemoveRuntimeData(_stationGuid);
@@ -937,7 +937,7 @@ public class AutoPackStationController : MonoBehaviour
 
     public bool TryExtractInputProduct()
     {
-        // Host-only (Audit 2026-09-13): lokale rData/Inventar-Mutation desynced MP-Clients.
+        // Host-only (Audit 2026-09-13): local rData/inventory mutation desyncs MP clients.
         if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
 
         var rData = AutoPackStore.GetRuntimeData(_stationGuid);
@@ -1015,7 +1015,7 @@ public class AutoPackStationController : MonoBehaviour
 
     public bool TryExtractInputPackaging()
     {
-        // Host-only (Audit 2026-09-13): lokale rData/Inventar-Mutation desynced MP-Clients.
+        // Host-only (Audit 2026-09-13): local rData/inventory mutation desyncs MP clients.
         if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
 
         var rData = AutoPackStore.GetRuntimeData(_stationGuid);
@@ -1087,7 +1087,7 @@ public class AutoPackStationController : MonoBehaviour
 
     public bool TryExtractOutputProduct()
     {
-        // Host-only (Audit 2026-09-13): lokale rData/Inventar-Mutation desynced MP-Clients.
+        // Host-only (Audit 2026-09-13): local rData/inventory mutation desyncs MP clients.
         if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
 
         var inv = PlayerInventory.Instance;
@@ -1258,7 +1258,7 @@ public class AutoPackStationController : MonoBehaviour
 
     public bool TryExtractAll()
     {
-        // Host-only (Audit 2026-09-13): verhindert dreifachen Deny-Sound der Einzel-Extracts.
+        // Host-only (Audit 2026-09-13): prevents the triple deny-sound of the individual extracts.
         if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
 
         var rData = AutoPackStore.GetRuntimeData(_stationGuid);
@@ -1286,7 +1286,7 @@ public class AutoPackStationController : MonoBehaviour
 
     public bool TryDepositProduct()
     {
-        // Host-only (Audit 2026-09-13): lokale rData/Inventar-Mutation desynced MP-Clients.
+        // Host-only (Audit 2026-09-13): local rData/inventory mutation desyncs MP clients.
         if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
 
         var inv = PlayerInventory.Instance;
@@ -1383,7 +1383,7 @@ public class AutoPackStationController : MonoBehaviour
 
     public bool TryDepositPackaging()
     {
-        // Host-only (Audit 2026-09-13): lokale rData/Inventar-Mutation desynced MP-Clients.
+        // Host-only (Audit 2026-09-13): local rData/inventory mutation desyncs MP clients.
         if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
 
         var inv = PlayerInventory.Instance;
@@ -1463,10 +1463,10 @@ public class AutoPackStationController : MonoBehaviour
         _packingUp = true;
         try
         {
-            // Bug-Audit 2026-09-13 (CRITICAL): PackUp zahlt Buffer-Inhalte ins LOKALE Inventar aus
-            // und zerstoert die Station lokal. Auf einem MP-Client existiert die Station auf dem
-            // Host weiter (erneut abbauen = Dupe) und das lokale Grid korruptiert. Clients duerfen
-            // nicht packen (supersedes 0.2.4: "Client faehrt Vanilla-Fallback").
+            // Bug-Audit 2026-09-13 (CRITICAL): PackUp pays out buffer contents into the LOCAL inventory
+            // and destroys the station locally. On an MP client the station continues to exist on the host
+            // (dismantle again = dupe) and the local grid corrupts. Clients must not pack
+            // (supersedes 0.2.4: "Client falls back to vanilla").
             if (!AutoPackEngine.IsHostOrSingleplayer())
             {
                 Mod.Log.Warn("PackUp denied: only the host can dismantle a station in multiplayer.");
@@ -1483,7 +1483,7 @@ public class AutoPackStationController : MonoBehaviour
             bool hasLiveNativeStation = (station != null && station.Pointer != IntPtr.Zero);
 
             // Bug-Audit 2026-09-12 (CRITICAL): BuildableItem must be deregistered through the
-            // Vanilla dismantle flow, not raw GameObject.Destroy. Otherwise the grid cell stays
+            // vanilla dismantle flow, not raw GameObject.Destroy. Otherwise the grid cell stays
             // occupied, the buildable registry still references a dead object, and after Save/Load
             // the station respawns in-world while the player already owns the item + contents
             // (item duplication). Resolve the BuildableItem now so the dismantle call is reachable.

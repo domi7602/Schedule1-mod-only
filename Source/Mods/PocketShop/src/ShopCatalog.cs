@@ -196,7 +196,7 @@ public static class ShopCatalog
                 var listings = shop.Listings;
                 if (listings == null) continue;
 
-                // Fallback-Kette: ShopCode → ShopName → GameObject-Name → Slot-Index (nie null).
+                // Fallback chain: ShopCode → ShopName → GameObject name → Slot index (never null).
                 var code = !string.IsNullOrEmpty(shop.ShopCode) ? shop.ShopCode
                     : !string.IsNullOrEmpty(shop.ShopName) ? shop.ShopName
                     : shop.name ?? $"shop_{s}";
@@ -218,10 +218,10 @@ public static class ShopCatalog
                         if (!listing.ShouldShow()) continue;
                     }
                     catch { }
-                    // Unlimited listings (LimitedStock=false, z.B. mod-injiziert) gelten als In-Stock,
-                    // auch wenn IsInStock/CurrentStock nie initialisiert wurden (Vanilla-Semantik).
-                    // CurrentStock-Fallback deckt stale Saves ab (LimitedStock=true, IsInStock nie gesetzt,
-                    // aber Stock > 0 vorhanden) — solche Listings waeren sonst unsichtbar.
+                    // Unlimited listings (LimitedStock=false, e.g. mod-injected) count as in-stock,
+                    // even when IsInStock/CurrentStock were never initialised (vanilla semantics).
+                    // CurrentStock-fallback covers stale saves (LimitedStock=true, IsInStock never set,
+                    // but Stock > 0 present) — such listings would otherwise be invisible.
                     bool inStock = listing.IsInStock || !listing.LimitedStock || listing.CurrentStock > 0;
                     if (!inStock) continue;
 
@@ -244,8 +244,8 @@ public static class ShopCatalog
                     });
                 }
 
-                // Shop-Tile immer anzeigen — auch bei 0 verfügbaren Items (Empty-State "OUT").
-                // Vorher verschwand der Shop komplett aus dem Katalog, sobald alles ausverkauft war.
+                // Always show shop tile — even with 0 available items (empty state "OUT").
+                // Previously the shop vanished completely from the catalog as soon as everything was sold out.
                 perShopCount[code] = availableCount;
                 _shopCache.Add(new ShopPOCO
                 {
@@ -260,9 +260,9 @@ public static class ShopCatalog
             if (_initialised)
             {
                 _retryCount = 0;
-                // Per-Handler-Invoke: ein werfender Subscriber (z.B. tote UI nach
-                // Szenen-Reload) darf weder die restlichen Handler noch Refresh()
-                // abbrechen — sonst _initialised=false + StopRetryLoop = Katalog tot.
+                // Per-handler invoke: a throwing subscriber (e.g. dead UI after
+                // scene reload) must not abort the other handlers nor Refresh()
+                // — otherwise _initialised=false + StopRetryLoop = catalog dead.
                 var handlers = OnCatalogChanged?.GetInvocationList();
                 if (handlers != null)
                 {

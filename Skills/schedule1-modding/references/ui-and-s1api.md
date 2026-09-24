@@ -35,7 +35,7 @@ public sealed class MyPhoneApp : PhoneApp
 
 ---
 
-## 2. Methode 3 Responsive UI & Scaling Engine
+## 2. Method 3 Responsive UI & Scaling Engine
 
 Schedule I phone screens and HUD overlays must scale gracefully across diverse screen resolutions (1080p, 1440p, 4K, ultrawide).
 

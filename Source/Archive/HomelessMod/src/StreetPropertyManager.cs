@@ -208,10 +208,10 @@ public static class StreetPropertyManager
         string slotSuffix = "default";
         bool resolved = false;
 
-        // Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15) — probiert
-        // PersistentSingleton/LoadManager.Instance/Singleton der Reihe nach (früher
-        // waren das zwei 1:1-duplizierte Blöcke hier). Format unverändert:
-        // slot_{n}, sonst Dateiname des Save-Pfads (mit Extension, historisch so).
+        // Probe: S1Mods.Shared.SaveSlots (consolidation 2026-09-15) — tries
+        // PersistentSingleton/LoadManager.Instance/Singleton in order (previously
+        // these were two 1:1 duplicated blocks here). Format unchanged:
+        // slot_{n}, otherwise filename of the save path (with extension, historically).
         var info = SaveSlots.TryGetActiveSaveInfo();
         if (info is { SlotNumber: >= 0 } slot)
         {

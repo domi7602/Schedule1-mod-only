@@ -3,10 +3,10 @@ using UnityEngine;
 namespace BankApp.UI;
 
 /// <summary>
-/// BankApp-Farbpalette (Brand-Farben des Chip-Dashboards).
-/// Skalierung/Fonts kommen seit 2026-09-15 direkt von
-/// <c>S1Mods.Shared.UITheme</c> (using-Alias in BankApp.cs) — dieser Typ
-/// enthält nur noch die mod-spezifischen Farben.
+/// BankApp color palette (chip dashboard brand colors).
+/// Scaling/fonts come directly from
+/// <c>S1Mods.Shared.UITheme</c> (using alias in BankApp.cs) since 2026-09-15 — this type
+/// only contains the mod-specific colors.
 /// </summary>
 public static class BankTheme
 {

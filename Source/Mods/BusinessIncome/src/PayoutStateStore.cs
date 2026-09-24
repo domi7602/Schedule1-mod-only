@@ -25,8 +25,8 @@ public static class PayoutStateStore
 
     /// <summary>
     /// Determines the save-slot suffix of the active save file.
-    /// Format unverändert ("slot_{n}" / Regex-Token aus dem Save-Pfad) — Sonde:
-    /// S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15).
+    /// Format unchanged ("slot_{n}" / regex token from the save path) — probe:
+    /// S1Mods.Shared.SaveSlots (consolidation 2026-09-15).
     /// </summary>
     public static string GetActiveSlotSuffix()
     {

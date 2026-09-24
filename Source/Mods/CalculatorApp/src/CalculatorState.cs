@@ -66,9 +66,9 @@ public sealed class CalculatorState
     private static string _lastKnownSlot = "default";
 
     /// <summary>
-    /// Slot-Suffix als reine Zahl ("3"). Format und last-known-Fallback bleiben
-    /// mod-lokal; die Sonde inkl. >= 0-Guard (kein calculator_state_slot_-1.json,
-    /// Bug-Audit 2026-09-12) kommt aus S1Mods.Shared.SaveSlots.
+    /// Slot suffix as a pure number ("3"). Format and last-known fallback stay
+    /// mod-local; the probe with >= 0 guard (no calculator_state_slot_-1.json,
+    /// bug-audit 2026-09-12) comes from S1Mods.Shared.SaveSlots.
     /// </summary>
     public static string GetActiveSlotSuffix()
     {

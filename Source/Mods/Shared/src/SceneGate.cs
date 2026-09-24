@@ -4,8 +4,8 @@ using UnityEngine.SceneManagement;
 namespace S1Mods.Shared;
 
 /// <summary>
-/// Zentraler Szenen-Monitor und Cache.
-/// Überwacht Szenenwechsel, cacht den Main-Scene-Status und invalidiert UI-Caches bei Szenenwechseln.
+/// Central scene monitor and cache.
+/// Monitors scene changes, caches the main-scene state and invalidates UI caches on scene changes.
 /// </summary>
 public static class SceneGate
 {
@@ -38,7 +38,7 @@ public static class SceneGate
     }
 
     /// <summary>
-    /// Initialisiert die SceneManager-Listener. Wird beim statischen Konstruktor automatisch aufgerufen.
+    /// Initializes the SceneManager listeners. Called automatically from the static constructor.
     /// </summary>
     public static void EnsureInitialized()
     {

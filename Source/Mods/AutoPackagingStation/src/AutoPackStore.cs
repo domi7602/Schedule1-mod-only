@@ -165,10 +165,10 @@ public static class AutoPackStore
     }
 
     /// <summary>
-    /// Slot-Suffix als reine Zahl ("3"), sonst Dateiname des Save-Pfads (mit
-    /// Extension), sonst last-known, sonst "default". Format unverändert —
-    /// Sonde inkl. beider historischer Zugänge: S1Mods.Shared.SaveSlots
-    /// (Konsolidierung 2026-09-15; vorher zwei 1:1-duplizierte Blöcke).
+    /// Slot suffix as a plain number ("3"), otherwise the filename of the save path (with
+    /// extension), otherwise last-known, otherwise "default". Format unchanged —
+    /// probe includes both historical access paths: S1Mods.Shared.SaveSlots
+    /// (consolidation 2026-09-15; previously two 1:1 duplicated blocks).
     /// </summary>
     public static string GetActiveSlotSuffix()
     {
@@ -485,9 +485,9 @@ public static class AutoPackStore
                 return;
             }
 
-            // Bug-Audit 2026-09-13: Nur die autoritative Seite persistiert Stations-State. Ein
-            // MP-Client wuerde die Slot-Datei des Hosts atomar mit seiner lokalen (ggf. unvoll-
-            // staendigen) Replikations-Sicht ueberschreiben ("Items verschwinden nach Rejoin").
+            // Bug-Audit 2026-09-13: Only the authoritative side persists station state. An
+            // MP client would atomically overwrite the host's slot file with its own (possibly
+            // incomplete) replication view ("items disappear after rejoin").
             if (!AutoPackagingStation.Engine.AutoPackEngine.IsHostOrSingleplayer())
             {
                 Mod.Log.Info("OnSaveComplete skipped: client instance (host owns station state).");

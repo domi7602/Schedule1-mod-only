@@ -6,14 +6,14 @@ using S1Mods.Shared;
 namespace SnackVendor.Persistence;
 
 /// <summary>
-/// Sidecar-Persistenz für SnackVendor-Stationen (Stock pro Maschine).
-/// Pattern: AutoPackStore — slot-spezifische JSON-Datei
-/// (`snacks_slot_{n}.json`), ein Slot-Sentinel (`-1`) für nicht
-/// aufgelöste Saves, atomic write (.tmp + rename) mit optionalem
-/// Backup. Save-Slot muss IMMER vor SaveData-Zugriffen aufgelöst
-/// sein (sonst Slot-Sentinel-Hit, der ein Konsolen-Warn loggt
-/// statt unbemerkt auf _default zu schreiben — siehe
-/// game-mod-persistence Skill, Abschnitt "Save-slot isolation").
+/// Sidecar persistence for SnackVendor stations (stock per machine).
+/// Pattern: AutoPackStore — slot-specific JSON file
+/// (`snacks_slot_{n}.json`), a slot sentinel (`-1`) for unresolved
+/// saves, atomic write (.tmp + rename) with optional
+/// backup. Save slot must ALWAYS be resolved before SaveData accesses
+/// (otherwise slot sentinel hit logs a console warning
+/// instead of silently writing to _default — see
+/// game-mod-persistence skill, section "Save-slot isolation").
 /// </summary>
 public static class SnackVendorStore
 {
@@ -56,10 +56,10 @@ public static class SnackVendorStore
         }
 
         var path = Path.Combine(MelonLoader.Utils.MelonEnvironment.UserDataDirectory, DirName, string.Format(FilePattern, _currentSlot));
-        // 2026-09-16 FIX: SafeStorage.SaveAtomic (-> SaveTextAtomic) macht den
-        // .bak-Backup und das .tmp-Rename intern. Der frühere eigene
-        // File.Copy-Backup + tmp-Aufräumcode hier war Redundanz: doppelter
-        // Backup-Schreibvorgang pro Save bei jedem NPC-Kauf (Hot Path).
+        // 2026-09-16 FIX: SafeStorage.SaveAtomic (-> SaveTextAtomic) handles the
+        // .bak backup and the .tmp rename internally. The previous own
+        // File.Copy backup + tmp cleanup code here was redundancy: a duplicate
+        // backup write per save on every NPC purchase (hot path).
         return SafeStorage.SaveAtomic(path, file, Log);
     }
 

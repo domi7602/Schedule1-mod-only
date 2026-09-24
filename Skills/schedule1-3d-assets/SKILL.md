@@ -18,54 +18,54 @@ This skill is the **complete runbook** for creating, exporting, and rendering 3D
 
 ```mermaid
 flowchart TD
-    Start[3D Asset Needed] --> Type{Welcher Asset-Typ?}
+    Start[3D Asset Needed] --> Type{Which asset type?}
 
-    Type -->|Einfache Geometrie / Primitive| A[Prozeduraler MeshBuilder / S1MAPI]
-    Type -->|Statische Props / Kleidung / Rucksäcke| B{Texturen & Komplexität?}
-    Type -->|Komplexe Rigs / Animierte Modelle / Effekte| C[Unity 2022.3 AssetBundle]
+    Type -->|Simple geometry / primitive| A[Procedural MeshBuilder / S1MAPI]
+    Type -->|Static props / clothing / backpacks| B{Textures & complexity?}
+    Type -->|Complex rigs / animated models / effects| C[Unity 2022.3 AssetBundle]
 
-    B -->|Einfaches Mesh / Palette / Runtime .obj| D[ObjLoader Pipeline .obj]
-    B -->|PBR Texturen / GLTF Standard| E[S1MAPI GltfLoader .glb/.gltf]
+    B -->|Simple mesh / palette / runtime .obj| D[ObjLoader Pipeline .obj]
+    B -->|PBR textures / GLTF standard| E[S1MAPI GltfLoader .glb/.gltf]
 
-    A --> Out1[100% C# Prozedural - 0 externe Dateien]
-    D --> Out2[Zero-Dependency .obj in UserData/Mods]
-    E --> Out3[Full PBR Embed via S1MAPI]
+    A --> Out1[100% C# procedural - 0 external files]
+    D --> Out2[Zero-dependency .obj in UserData/Mods]
+    E --> Out3[Full PBR embed via S1MAPI]
     C --> Out4[Unity Editor 2022.3 LTS Build Pipeline]
 ```
 
-| Pipeline | Dateiformat | Loader / Tool | Wann nutzen? |
+| Pipeline | File format | Loader / Tool | When to use? |
 |---|---|---|---|
-| **1. ObjLoader (Lightweight)** | `.obj` | `ObjLoader.cs` (in `Shared`/Mod) | Rucksäcke, Hüte, Waffen, Hand-Items, Schilder, Deko. Lädt direkt aus `UserData/<Mod>/models/`. |
-| **2. S1MAPI GltfLoader** | `.glb` / `.gltf` | `S1MAPI.ProceduralMesh.GltfLoader` | Vollständige PBR-Modelle mit eingebetteten Texturen, Möbel, Fahrzeuge, Gebäude-Interieurs. |
-| **3. Prozedurale Meshes** | C# Code | `ProceduralMeshBuilder` / `Mesh` | Schlafsäcke, Kisten, UI-Meshes, dynamische geometrische Formen ohne externe Dateien. |
-| **4. Unity AssetBundle** | `.bundle` | `AssetBundle.LoadFromFile` | Animierte Charaktere, komplexe Skelett-Rigs, Partikeleffekte, Custom Shaders. |
+| **1. ObjLoader (Lightweight)** | `.obj` | `ObjLoader.cs` (in `Shared`/Mod) | Backpacks, hats, weapons, hand-items, signs, deco. Loads directly from `UserData/<Mod>/models/`. |
+| **2. S1MAPI GltfLoader** | `.glb` / `.gltf` | `S1MAPI.ProceduralMesh.GltfLoader` | Full PBR models with embedded textures, furniture, vehicles, building interiors. |
+| **3. Procedural Meshes** | C# code | `ProceduralMeshBuilder` / `Mesh` | Sleeping bags, crates, UI meshes, dynamic geometric shapes without external files. |
+| **4. Unity AssetBundle** | `.bundle` | `AssetBundle.LoadFromFile` | Animated characters, complex skeleton rigs, particle effects, custom shaders. |
 
 ---
 
-## 2. Die 7 Goldenen Regeln für 3D-Assets in Schedule I
+## 2. The 7 Golden Rules for 3D Assets in Schedule I
 
-1. **Transformations-Reset in Blender (<kbd>Ctrl+A</kbd>):**  
-   Immer vor dem Export in Blender <kbd>Ctrl+A</kbd> $\rightarrow$ **Apply All Transforms** (Rotation, Scale, Location) ausführen. Niemals unskalierte oder rotierte Objekte exportieren!
-2. **Koordinaten-Standard ($Z$-Up vs. $Y$-Up):**  
-   Blender nutzt $+Z$ als Oben, Unity nutzt $+Y$ als Oben. Export-Einstellung für OBJ/GLTF: **Forward: `-Z Forward` / Up: `Y Up`**.
-3. **Face Orientation & Normalen-Check (<kbd>Shift+N</kbd>):**  
-   Vor dem Export in Blender das Overlay **Face Orientation** einschalten. Blaue Flächen = Außenseite, rote Flächen = Innenseite. Bei roten Außenseiten alle Flächen markieren (<kbd>A</kbd>) und <kbd>Shift+N</kbd> drücken.
-4. **URP-Shader-Kompatibilität (*Pink Shader Fix*):**  
-   *Schedule I* läuft auf der **Universal Render Pipeline (URP)**. Standard Built-in Unity Shader werden grell pink. Immer `Shader.Find("Universal Render Pipeline/Lit")` oder `"Universal Render Pipeline/Unlit"` verwenden.
-5. **Zero-Collider-Regel bei Kleidung & Wearables:**  
-   Kleidungsstücke, Rucksäcke oder getragene Accessoires dürfen **keine aktiven Collider** besitzen (`Destroy(collider)` beim Laden), da sie sonst Raycasts abfangen, das Inventar-Klicken blockieren oder Physik-Glitches verursachen.
-6. **Avatar-Proportionen einhalten:**  
-   Die Spielfigur in *Schedule I* ist schlank und stilisiert. Torsobreite: $\approx 0{,}12\text{--}0{,}14\,\text{m}$, Gesamthöhe: $\approx 1{,}75\,\text{m}$. Niemals mit Standard-1m-Würfeln als Rucksack arbeiten, sondern an den realen Avatar-Maßen ausrichten.
-7. **Material-Speicher-Hygiene (`sharedMaterial` vs `material`):**  
-   Im Code niemals unbedacht `renderer.material` abfragen (erzeugt Memory-Leaks durch dynamische Instanzen), sondern `renderer.sharedMaterial` nutzen oder Materialien in `static readonly` Feldern cachen.
+1. **Transform Reset in Blender (<kbd>Ctrl+A</kbd>):**  
+   Always run <kbd>Ctrl+A</kbd> $\rightarrow$ **Apply All Transforms** (Rotation, Scale, Location) in Blender before export. Never export unscaled or rotated objects!
+2. **Coordinate Standard ($Z$-Up vs. $Y$-Up):**  
+   Blender uses $+Z$ as up, Unity uses $+Y$ as up. Export settings for OBJ/GLTF: **Forward: `-Z Forward` / Up: `Y Up`**.
+3. **Face Orientation & Normals Check (<kbd>Shift+N</kbd>):**  
+   Enable the **Face Orientation** overlay in Blender before export. Blue faces = outside, red faces = inside. If outward-facing faces are red, select all (<kbd>A</kbd>) and press <kbd>Shift+N</kbd>.
+4. **URP Shader Compatibility (*Pink Shader Fix*):**  
+   *Schedule I* runs on the **Universal Render Pipeline (URP)**. Standard Built-in Unity shaders show up as bright pink. Always use `Shader.Find("Universal Render Pipeline/Lit")` or `"Universal Render Pipeline/Unlit"`.
+5. **Zero-Collider Rule for Clothing & Wearables:**  
+   Clothing items, backpacks, or worn accessories must **not have active colliders** (`Destroy(collider)` on load), otherwise they intercept raycasts, block inventory clicks, or cause physics glitches.
+6. **Respect Avatar Proportions:**  
+   The *Schedule I* character is slim and stylized. Torso width: $\approx 0.12\text{--}0.14\,\text{m}$, total height: $\approx 1.75\,\text{m}$. Never use a standard 1m cube as a backpack — align to the real avatar dimensions.
+7. **Material Memory Hygiene (`sharedMaterial` vs `material`):**  
+   Never casually access `renderer.material` in code (creates memory leaks through dynamic instances); use `renderer.sharedMaterial` or cache materials in `static readonly` fields.
 
 ---
 
-## 3. Modul-Übersicht & Referenz-Guides
+## 3. Module Overview & Reference Guides
 
-* **[Blender Export & Geometrie-Vorbereitung](references/blender-export.md):**  
-  Achsen-Konvertierung, Maßstäbe, Normalen-Fixes, UV-Mapping, Mesh-Optimierung.
+* **[Blender Export & Geometry Preparation](references/blender-export.md):**  
+  Axis conversion, scales, normals fixes, UV mapping, mesh optimization.
 * **[URP Rendering & Material Pipeline](references/urp-rendering-materials.md):**  
-  Universal Render Pipeline Shader, PBR-Eigenschaften (Metallic, Smoothness, Normal Maps), Texture-Streaming und Pink-Shader-Vermeidung.
-* **[Rigging & Bone-Attachment](references/rigging-and-attachment.md):**  
-  Anheften von 3D-Meshes an Avatar-Knochen (`Spine2`, `Head`, `Hands`), Zero-Collider-Sicherheit und 360°-Mannequin-Inspektion.
+  Universal Render Pipeline shaders, PBR properties (metallic, smoothness, normal maps), texture streaming, and pink-shader avoidance.
+* **[Rigging & Bone Attachment](references/rigging-and-attachment.md):**  
+  Attaching 3D meshes to avatar bones (`Spine2`, `Head`, `Hands`), zero-collider safety, and 360° mannequin inspection.

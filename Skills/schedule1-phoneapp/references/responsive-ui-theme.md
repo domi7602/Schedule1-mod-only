@@ -1,8 +1,8 @@
-# Methode 3: Responsive UI & Canvas-Scaling (`UITheme`)
+# Method 3: Responsive UI & Canvas-Scaling (`UITheme`)
 
 In *Schedule I*, S1API instantiates phone app containers on high-resolution uGUI Canvases that are often rotated by 90° (`Quaternion.Euler(0, 0, 90)`). Using fixed integer pixel dimensions (e.g. `14pt` font, `40px` button) results in unreadable, microscopic, or overflowing layouts across different resolutions.
 
-**Methode 3 (`UITheme`)** is the standard mathematical engine used across all verified workspace mods (`NotesApp`, `PotScanner`, `CalculatorApp`, `PocketShop`).
+**Method 3 (`UITheme`)** is the standard mathematical engine used across all verified workspace mods (`NotesApp`, `PotScanner`, `CalculatorApp`, `PocketShop`).
 
 ---
 

@@ -206,8 +206,8 @@ public sealed class Mod : MelonMod
 
     private static int ResolveActiveSaveSlotNumber()
     {
-        // Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15) —
-        // -1 = no slot / main menu; wirft nie.
+        // Probe: S1Mods.Shared.SaveSlots (consolidation 2026-09-15) —
+        // -1 = no slot / main menu; never throws.
         return SaveSlots.GetActiveSlotNumber();
     }
 
@@ -242,8 +242,8 @@ public sealed class Mod : MelonMod
     private void OnLoadComplete()
     {
         SleepingBagItemFactory.RegisterItem();
-        // Vanilla-UI braucht die Listing bei jedem LoadComplete (Shop rebuildet dazwischen);
-        // idempotent via Item.ID-Check, daher jedes Mal sicher.
+        // Vanilla UI needs the listing on every LoadComplete (shop rebuilds in between);
+        // idempotent via Item.ID check, therefore safe every time.
         SleepingBagItemFactory.InjectHardwareStoreListing();
 
         // OnLoadComplete can fire more than once per save-load cycle; only

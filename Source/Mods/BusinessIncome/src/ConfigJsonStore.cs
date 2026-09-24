@@ -5,10 +5,10 @@ using S1Mods.Shared;
 namespace BusinessIncome.Services;
 
 /// <summary>
-/// JSON-Sidecar für Config-Felder, die MelonPreferences/TOML nicht mappen kann
+/// JSON sidecar for config fields that MelonPreferences/TOML cannot map
 /// (Dictionary&lt;string,float&gt;, Dictionary&lt;string,string&gt;, List&lt;string&gt;).
-/// ModConfig<T> persistiert nur skalare Properties — diese Datei sichert die
-/// komplexen Collections über SafeStorage (atomar + .bak).
+/// ModConfig<T> only persists scalar properties — this file secures the
+/// complex collections via SafeStorage (atomic + .bak).
 /// </summary>
 public static class ConfigJsonStore
 {

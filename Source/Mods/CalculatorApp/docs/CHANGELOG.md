@@ -2,20 +2,20 @@
 
 
 ## 0.2.3 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
-- `GetActiveSlotSuffix`: `SaveSlotNumber >= 0`-Guard ergaenzt (Schliesst `calculator_state_slot_-1.json`-Pfad, den NotesApp schon hatte).
-- `InputSquare`/`InputReciprocal` fangen `decimal.OverflowException` und setzen jetzt „Overflow“ statt unkontrolliert in den Button-Callback zu werfen.
-- `HasError` erkennt nun auch `DisplayText == "Overflow"`, sodass Folge-Eingaben an einem Overflow-Display korrekt blockiert werden.
+- `GetActiveSlotSuffix`: added `SaveSlotNumber >= 0` guard (closes the `calculator_state_slot_-1.json` path that NotesApp already had).
+- `InputSquare`/`InputReciprocal` catch `decimal.OverflowException` and now set "Overflow" instead of throwing uncontrolled into the button callback.
+- `HasError` now also recognizes `DisplayText == "Overflow"`, so subsequent inputs on an overflow display are correctly blocked.
 
 ## 0.2.2 (2026-09-11)
-- WasCollected-Guards in UpdateDisplayUI/RefreshHistoryList (kein Crash auf toter UI).
+- WasCollected guards in UpdateDisplayUI/RefreshHistoryList (no crash on dead UI).
 
 All notable changes to **CalculatorApp** are documented in this file.
 
 ## [0.2.1] - 2026-09-10
 
 ### Fixed
-- Statischer Event-Dispatcher gegen Subscriber-Leaks.
-- Pointer-/WasCollected-Guards im Slot-Suffix (GetActiveSlotSuffix).
+- Static event dispatcher against subscriber leaks.
+- Pointer/WasCollected guards in the slot suffix (GetActiveSlotSuffix).
 
 ## [0.2.0] - 2026-08-14
 

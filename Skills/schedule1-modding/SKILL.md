@@ -92,7 +92,7 @@ Two valid outcomes from the diff:
 **Three known `bump-version.ps1` pitfalls** (verified 2026-08-24, may already be fixed in newer revisions):
 1. The CHANGELOG header regex `(?m)^# Changelog\s*\r?\n` does NOT match `# Changelog - ModName` (e.g. AutoPackagingStation). When this fails, the script prepends a duplicate `# Changelog` + `## X.Y.Z` block ABOVE the existing file. Always read the CHANGELOG after the bump and clean up duplicates manually.
 2. The version-match regex `## $NewVersion\b` does NOT match `## [X.Y.Z]` (brackets). Mods that use the `[X.Y.Z]` convention get a duplicate entry prepended.
-3. The auto-prepend body `- Version bump.` is dangerous when the prior CHANGELOG was empty or near-empty (e.g. BackpackMod had `## 0.1.0 - Initiale Version.`). It produces a release note that implies a stable prior build. Workaround: pre-populate the CHANGELOG with a real `## X.Y.Z (date) - <real-feature-list>` BEFORE running the script. The script's dedup check then skips prepending.
+3. The auto-prepend body `- Version bump.` is dangerous when the prior CHANGELOG was empty or near-empty (e.g. BackpackMod had `## 0.1.0 - Initial version.`). It produces a release note that implies a stable prior build. Workaround: pre-populate the CHANGELOG with a real `## X.Y.Z (date) - <real-feature-list>` BEFORE running the script. The script's dedup check then skips prepending.
 
 Mitigation: always read the post-bump CHANGELOG.md immediately after the script run and clean up duplicates/placeholder text.
 
@@ -116,15 +116,15 @@ Mitigation: always read the post-bump CHANGELOG.md immediately after the script 
 **Workflow:**
 1. User reports problem → coder reads code, finds root cause
 2. Coder drafts Spec (template above) in the chat → gatekeeper reviews, pokes holes, suggests edge cases
-3. Spec gets explicit "grün" / "spec ok, bau" → coder builds in the order listed
+3. Spec gets explicit "green" / "spec ok, build" → coder builds in the order listed
 4. Build green → coder reports what changed, where, what to test → gatekeeper does the review
 
 **Don't do:**
-- Don't ask "darf ich bauen?" — write the Spec, wait for green light, then build
+- Don't ask "may I build?" — write the Spec, wait for green light, then build
 - Don't skip the Spec "just because it's a small fix" — small fixes have the biggest hidden regressions
 - Don't list build-order bullets that aren't in the chat (e.g. "I'll also fix X while I'm in there" — out of scope; surface it as a separate Spec if needed)
 
-**Live reference:** CustomSkateboard `IsInstanceTuned` early-out fix (Spec → grün → build green) and HomelessMod F-key + slot-switch fix (Spec → 3 answer round → grün with edge-case list → build green) both ran this way in 2026-08-27 and shipped without a revert.
+**Live reference:** CustomSkateboard `IsInstanceTuned` early-out fix (Spec → green → build green) and HomelessMod F-key + slot-switch fix (Spec → 3 answer round → green with edge-case list → build green) both ran this way in 2026-08-27 and shipped without a revert.
 
 ### E. Testing a Mod In-Game
 1. Build in `Release` and confirm the DLL landed in `<GameDir>\Mods\` (check timestamp).

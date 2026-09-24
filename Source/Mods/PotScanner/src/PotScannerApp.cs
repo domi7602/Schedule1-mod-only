@@ -179,7 +179,7 @@ public sealed class PotScannerApp : PhoneApp
         vlg.spacing = UITheme.Dp(4f);
         vlg.padding = new RectOffset((int)UITheme.Dp(6f), (int)UITheme.Dp(6f), (int)UITheme.Dp(6f), (int)UITheme.Dp(6f));
 
-        // --- ActionRow (2 Buttons) - Kompakte Höhe 36px ---
+        // --- ActionRow (2 buttons) - compact height 36px ---
         var actionPanel = UIFactory.Panel("ActionRow", _mainBG.transform, Color.clear);
         var actionLE = actionPanel.AddComponent<LayoutElement>();
         actionLE.minHeight = UITheme.Dp(36f);
@@ -238,7 +238,7 @@ public sealed class PotScannerApp : PhoneApp
         // --- Filter Tabs Toolbar (4 Pills: All, Thirsty, Ready, Empty) ---
         CreateFilterToolbar(_mainBG.transform);
 
-        // --- Pot-Liste (scrollable) ---
+        // --- Pot list (scrollable) ---
         var listPanel = UIFactory.Panel("PotList", _mainBG.transform, new Color(0.08f, 0.08f, 0.08f, 0.95f));
         var listLE = listPanel.AddComponent<LayoutElement>();
         listLE.flexibleHeight = 1f;

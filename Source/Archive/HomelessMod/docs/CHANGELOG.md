@@ -3,58 +3,58 @@
 
 
 
-## 0.1.12 (2026-09-17) — SnackVendor Street-PackUp-Fix
-- **Interaktions-HUD default-off (User-Request 2026-09-17):** Das „Hold RMB — Pack Up"-Tooltip (inkl. orangefarbenem Fortschrittsbalken) beim Hovern über Außen-Items wird nicht mehr angezeigt — `ShowInteractionHud` default `false` (User-Config gesetzt). RMB-PackUp funktioniert unverändert weiter; Schalter wirkt auch auf den Sleep-Hinweis des Schlafsacks.
-- **Bug (In-Game-Report 2026-09-17):** `snackvendor` ließ sich an der Straße nicht mit RMB einpacken — Toast „won't fit in inventory". Ursache: Als Custom-Station bekam sie kein `OutdoorItemInteractable` (0.1.11), dadurch feuerte der Vanilla-PackUp des Drying-Rack-Basis-Präfabs ins Leere (Street-Items haben keine `BuildableItem.ItemInstance`). Fix: `snackvendor` erhält jetzt in Place- (`BuildingPatches`) und Restore-Pfad (`StreetPropertyManager.SpawnSavedStreetItem`) das generische `OutdoorItemInteractable` — gleicher PackUp-Flow wie `dryingrack` (Refund 1x + Unregister + Destroy). `autopackagingstation` bleibt ausgeschlossen (eigenes F-Key-PackUp mit nativem Buffer-Refund). Orphan-Stock im Sidecar räumt SnackVendor v0.0.6 per Save-Complete-Prune auf.
-- **Nebenbefund:** ThirdParty-Archivierung 2026-09-16 brach die `Hash.Api`-Source-Includes von PotScanner/BusinessIncome (Pfad ohne `Archive/`) — csproj-Pfade angepasst, Solution wieder grün.
+## 0.1.12 (2026-09-17) — SnackVendor street pack-up fix
+- **Interaction HUD default off (user request 2026-09-17):** The "Hold RMB — Pack Up" tooltip (including the orange progress bar) when hovering over outdoor items is no longer shown — `ShowInteractionHud` default `false` (user-config set). RMB pack-up still works unchanged; the toggle also affects the sleeping bag's sleep hint.
+- **Bug (in-game report 2026-09-17):** `snackvendor` could not be packed up with RMB on the street — toast "won't fit in inventory". Cause: as a custom station it got no `OutdoorItemInteractable` (0.1.11), so the vanilla pack-up of the drying-rack base prefab fired into the void (street items have no `BuildableItem.ItemInstance`). Fix: `snackvendor` now receives the generic `OutdoorItemInteractable` in the place (`BuildingPatches`) and restore paths (`StreetPropertyManager.SpawnSavedStreetItem`) — same pack-up flow as `dryingrack` (refund 1x + unregister + destroy). `autopackagingstation` stays excluded (own F-key pack-up with native buffer refund). Orphan stock in the sidecar is cleaned up by SnackVendor v0.0.6 via SaveComplete prune.
+- **Side effect:** The ThirdParty archive 2026-09-16 broke the `Hash.Api` source includes of PotScanner/BusinessIncome (path without `Archive/`) — csproj paths adjusted, solution green again.
 
-## 0.1.11 (2026-09-16) — SnackVendor als Custom-Station
-- **Street-Placement-Übergabe:** `snackvendor` wird wie `autopackagingstation` als Custom-Station behandelt (Place-Prefix, RegisterStreetItem, Save-Restore). HomelessMod instanziiert das BuiltItem-Prefab direkt und deaktiviert danach `BuildableItem` — dadurch feuerte der SnackVendor-Start-Postfix nie und die Station blieb ein nacktes Rack (Spike 2026-09-15). Der Place-Pfad ruft jetzt `SnackVendor.Items.SnackVendorItemFactory.SetupPlacedStation(go, guid)` per Reflection auf (gleicher Vertrag wie AutoPack), der Restore-Pfad dasselbe mit der persistierten Street-Item-GUID.
-- **Kein doppeltes Interactable:** `RegisterStreetItem` erkennt den `SnackVendorController` (Reflection) und stapelt kein generisches `OutdoorItemInteractable` mehr auf die Station.
+## 0.1.11 (2026-09-16) — SnackVendor as custom station
+- **Street placement handoff:** `snackvendor` is treated like `autopackagingstation` as a custom station (place prefix, RegisterStreetItem, save restore). HomelessMod instantiates the BuiltItem prefab directly and then disables `BuildableItem` — as a result the SnackVendor start postfix never fired and the station stayed a bare rack (spike 2026-09-15). The place path now calls `SnackVendor.Items.SnackVendorItemFactory.SetupPlacedStation(go, guid)` via reflection (same contract as AutoPack), the restore path does the same with the persisted street-item GUID.
+- **No double interactable:** `RegisterStreetItem` detects the `SnackVendorController` (reflection) and no longer stacks a generic `OutdoorItemInteractable` on the station.
 
 ## 0.1.10 (2026-09-15)
-- Host-Authority-Check `IsHostOrSingleplayer` in `S1Mods.Shared.NetworkGuard` konsolidiert und dabei von fail-open auf fail-closed korrigiert: Bei einer Exception im Authority-Check faellt die Platzierung jetzt auf Vanilla-Handling zurueck statt eine potenziell client-seitige Welt-Mutation zuzulassen (betraf Place-Prefix, Ghost-Colouring, SleepingBag und OutdoorItem-Dismantle).
+- Host-authority check `IsHostOrSingleplayer` consolidated in `S1Mods.Shared.NetworkGuard` and corrected from fail-open to fail-closed: on an exception in the authority check, placement now falls back to vanilla handling instead of allowing a potentially client-side world mutation (affected place prefix, ghost colouring, sleeping bag and outdoor item dismantle).
 - Version bump.
 
-## 0.1.9 (2026-09-12) — Bug-Audit-Fixes Runde 4 (Audit 2026-09-12)
-- **Ghost-Rotations-Restore im finally:** Vorher wurde `ghost.transform.rotation = originalRot` nur im Erfolgspfad erreicht — wenn `EvaluatePlacement` oder `ApplyMaterial` warfen, blieb der Ghost auf `Quaternion.identity` (visuell „spinning reset"). Der Restore läuft jetzt in einem `finally`-Block und gilt auch auf jedem Exception-Pfad.
+## 0.1.9 (2026-09-12) — Bug-audit fixes round 4 (audit 2026-09-12)
+- **Ghost rotation restore in finally:** Previously `ghost.transform.rotation = originalRot` was only reached on the success path — if `EvaluatePlacement` or `ApplyMaterial` threw, the ghost stayed at `Quaternion.identity` (visually "spinning reset"). The restore now runs in a `finally` block and applies on every exception path.
 
-## 0.1.8 (2026-09-12) — Bug-Audit-Fixes Runde 3 (Audit 2026-09-12)
-- `BuildUpdate_Grid_CheckIntersections_Patch` (Postfix) hat jetzt denselben Host-Guard wie der Place-Prefix. Vorher sahen MP-Clients den grünen Ghost, obwohl der Place-Klick abgewiesen wurde (UX-Desync, ggf. Save-Drift).
-- `ObstacleLayerMask` (GroundPlacementAssistant) erweitert um `Vehicle`/`NPC`/`Player`/`Item`/`Interactable`/`Navigation`/`NavigationRegion`. Die ursprüngliche 4-Layer-Maske hat Fahrzeuge und NPCs als „frei“ gewertet — Schlafsack landete auf ihnen. Unbekannte Layer werden mit `Msg` (statt `Warning`) gemeldet, weil Mod-Layer meist fehlen.
+## 0.1.8 (2026-09-12) — Bug-audit fixes round 3 (audit 2026-09-12)
+- `BuildUpdate_Grid_CheckIntersections_Patch` (postfix) now has the same host guard as the place prefix. Previously MP clients saw the green ghost even though the place click was rejected (UX desync, possibly save drift).
+- `ObstacleLayerMask` (GroundPlacementAssistant) extended with `Vehicle`/`NPC`/`Player`/`Item`/`Interactable`/`Navigation`/`NavigationRegion`. The original 4-layer mask treated vehicles and NPCs as "free" — sleeping bags landed on them. Unknown layers are reported with `Msg` (instead of `Warning`), since mod layers are usually missing.
 
 ## 0.1.7 (2026-09-11)
-- Place-Prefix mit Host-Guard (Clients fallen auf Vanilla zurueck, kein lokaler Desync-Fork).
-- Wipe-if-Switched nach OnSaveInfoLoaded verlegt (kein Full-Wipe bei Same-Slot-Reload mehr).
-- Sleep-Flag mit 5-Min-Stale-Guard (kein Quest-Credit durchs naechste Vanilla-Bett).
+- Place prefix with host guard (clients fall back to vanilla, no local desync fork).
+- Wipe-if-switched moved behind OnSaveInfoLoaded (no more full wipe on same-slot reload).
+- Sleep flag with 5-minute stale guard (no quest credit through the next vanilla bed).
 
 ## [0.1.6] - 2026-09-10
-* Place-Prefix-Catch weist __result=null zu (nativer Crash-Vektor geschlossen).
-* Quest-Completion bleibt in RAM, Flush auf OnSaveComplete (kein Save-Rollback-Drift mehr).
-* SleepingBagItemFactory re-verifiziert Registry.ItemExists (Fix stale _isRegistered nach Menue-Reload).
+- Place-prefix catch assigns __result=null (native crash vector closed).
+- Quest completion stays in RAM, flushed on OnSaveComplete (no more save-rollback drift).
+- SleepingBagItemFactory re-verifies Registry.ItemExists (fix stale _isRegistered after menu reload).
 
 ## [0.1.5] - 2026-09-09
 
-### Fixed (Gatekeeper-Review-Runde, 5 Befunde)
-* **Kritisch — Item-Verlust bei PackUp ohne ItemID**: `OutdoorItemInteractable.PackUp()` zerstörte das Objekt und deregistrierte es, wenn `_itemId` leer und nicht rekonstruierbar war — der Spieler verlor das platzierte Objekt ersatzlos. Jetzt: früher `return` **ohne** Destroy/Unregister (gleiches Muster wie `SleepingBagInteractable.PackUp`). Objekt bleibt in der Welt, Log-Warn zeigt den Grund.
-* **Hoch — Quest 2 zählte jedes Outdoor-Item**: „Place a workstation or grow container outdoors" schloss auch beim Platzieren des Sleeping Bags (Quest-1-Item) ab. Neu: `IsProductionGear()` prüft zuerst die Welt-Komponenten des platzierten Objekts (Pot/MixingStation/Mk2/Cauldron/ChemistryStation/PackagingStation/BrickPress/DryingRack — alle im Live-Decompile verifiziert), dann String-Fallback („station"/„press"/„cauldron"/„rack"/„…pot") für modded Gear. Sleeping Bag zählt nicht mehr.
-* **Mittel — Quest-Credit beim Einschlafen statt Aufwachen** (altes M3-TODO): `NotifyPlayerSlept()` feuerte bei `StartSleep()`. Abgebrochener Schlaf zählte trotzdem. Neu: Flag `_sleepStartedInBag` bei Start, Credit erst im `S1API.GameTime.TimeManager.OnSleepEnd`-Wake-Hook (Action&lt;int&gt;, im Live-Decompile verifiziert). Vanilla-Bett-Schlaf zählt weiterhin nicht.
-* **Niedrig — Rückseiten-Beleuchtung des Sleeping-Bag-Mesh**: `AddQuad()` nutzte für die doppelseitigen Rückseiten-Dreiecke die Front-Normalen → falsche Schattierung von unten. Neu: eigene Rückseiten-Vertices mit `-normal` und umgekehrter Wickelreihenfolge.
-* **Niedrig — ResetState-Asymmetrie**: `HomelessQuestManager.ResetState()` hatte keinen `keepSlot`-Parameter (anders als `StreetPropertyManager`) und löschte den Slot-Cache auch bei reinem Menü→Spiel-Reload. Neu: `ResetState(bool keepSlot = false)` + `ResetForSceneUnload()`; `OnSceneWasUnloaded` nutzt jetzt keepSlot:true.
+### Fixed (Gatekeeper review round, 5 findings)
+- **Critical — item loss on PackUp without ItemID**: `OutdoorItemInteractable.PackUp()` destroyed the object and unregistered it when `_itemId` was empty and unreconstructable — the player lost the placed object without replacement. Now: early `return` **without** destroy/unregister (same pattern as `SleepingBagInteractable.PackUp`). Object stays in the world, log warning shows the reason.
+- **High — Quest 2 counted every outdoor item**: "Place a workstation or grow container outdoors" also completed when placing the sleeping bag (Quest 1 item). New: `IsProductionGear()` first checks the world components of the placed object (Pot/MixingStation/Mk2/Cauldron/ChemistryStation/PackagingStation/BrickPress/DryingRack — all verified in live decompile), then string fallback ("station"/"press"/"cauldron"/"rack"/"…pot") for modded gear. Sleeping bag no longer counts.
+- **Medium — quest credit on falling asleep instead of waking up** (old M3 TODO): `NotifyPlayerSlept()` fired on `StartSleep()`. Aborted sleep still counted. New: `_sleepStartedInBag` flag on start, credit only in the `S1API.GameTime.TimeManager.OnSleepEnd` wake hook (Action&lt;int&gt;, verified in live decompile). Vanilla-bed sleep still doesn't count.
+- **Low — back-side lighting of the sleeping-bag mesh**: `AddQuad()` used the front normals for the double-sided back triangles → wrong shading from below. New: dedicated back-side vertices with `-normal` and reversed winding order.
+- **Low — ResetState asymmetry**: `HomelessQuestManager.ResetState()` had no `keepSlot` parameter (unlike `StreetPropertyManager`) and also cleared the slot cache on pure menu→game reload. New: `ResetState(bool keepSlot = false)` + `ResetForSceneUnload()`; `OnSceneWasUnloaded` now uses keepSlot:true.
 
 ## [0.1.4] - 2026-09-09
 
 ### Fixed
-* **Quest 'Alley Operations' sprang nach Save-Reload auf 'offen' zurück** (Root Cause: Reihenfolge-Abhängigkeit). Der Beide-Ziele-Check (`MarkQuestCompleted`) lag ausschließlich im Geld-Zweig von `CheckCashProgress` hinter `if (earn500.State != Completed)`. Schloss das Geld-Ziel VOR dem Gear-Ziel ab (z. B. ≥500 $ auf Konto, Workstation später platziert), lief dieser Pfad nie wieder → Quest wurde nie in `quest_progress_slot_N.json` persistiert → nach Neustart erzeugte `InitializeQuests` sie frisch mit offenen Entries. Neu: `TryFinalizeQuest2()` prüft beide Entries bei **jedem** Trigger (Platzieren + Cash-Poll) — Reihenfolge egal.
-* **Quest 'Street Sovereign' konnte verfrüht abschließen** (umgekehrtes Muster): `MarkQuestCompleted` feuerte beim $5.000-Ziel allein, ohne das Camp-Entry zu prüfen. Neu: `TryFinalizeQuest3()` verlangt beide Entries.
+- **Quest 'Alley Operations' jumped back to 'open' after save reload** (root cause: order dependency). The both-goals check (`MarkQuestCompleted`) was only in the cash branch of `CheckCashProgress` behind `if (earn500.State != Completed)`. If the cash goal was completed BEFORE the gear goal (e.g. ≥500 $ in account, workstation placed later), this path never ran again → quest was never persisted in `quest_progress_slot_N.json` → after restart `InitializeQuests` created it fresh with open entries. New: `TryFinalizeQuest2()` checks both entries on **every** trigger (place + cash poll) — order independent.
+- **Quest 'Street Sovereign' could complete prematurely** (inverse pattern): `MarkQuestCompleted` fired on the $5,000 goal alone, without checking the camp entry. New: `TryFinalizeQuest3()` requires both entries.
 
 ### Notes
-* Bestehende Saves heilen selbstständig: nach dem Update einmalig Gear draußen platzieren → Quest schließt dauerhaft ab.
-* Versions-Drift repariert: `mod.json` hing auf 0.1.2 zurück (Mod.cs war 0.1.3) — beide jetzt 0.1.4.
+- Existing saves self-heal: after the update, place gear outside once → quest permanently completes.
+- Version drift fixed: `mod.json` was stuck at 0.1.2 (Mod.cs was 0.1.3) — both now 0.1.4.
 
 ## [0.1.2] - 2026-09-08
 
 ### Fixed
-* **Sleeping Bag schwebte ~1,5m über dem Boden**: Die Item-Definition wird per `CloneFrom("bed")` vom Bett geklont — Vanilla `BuildUpdate_Grid` leitet daraus einen bett-hohen `verticalOffset` ab, der den flachen prozeduralen Schlafsack in die Luft hob.
-  * Ghost-Fix: Für den Sleeping Bag wird der Vanilla-`verticalOffset` jetzt ignoriert (nur Pivot-Korrektur bleibt) — der Ghost liegt beim Platzieren direkt auf dem Boden (`BuildingPatches.BuildUpdate_Grid_CheckIntersections_Patch`).
-  * Save-Heilung: Beim Restore wird die gespeicherte Position per Boden-Raycast nach unten gesnappt (`GroundPlacementAssistant.SnapToGround`). Alte Saves mit schwebenden Bags werden automatisch korrigiert; Bags auf Dächern/Brücken (≤0,5m über Fläche) bleiben korrekt liegen. Log-Zeile `[GroundFix]` zeigt die Korrektur an.
+- **Sleeping bag floated ~1.5m above the ground**: the item definition is cloned from the bed via `CloneFrom("bed")` — vanilla `BuildUpdate_Grid` derives a bed-high `verticalOffset` from this, which lifted the flat procedural sleeping bag into the air.
+  - Ghost fix: for the sleeping bag the vanilla `verticalOffset` is now ignored (only pivot correction remains) — the ghost lies directly on the ground when placing (`BuildingPatches.BuildUpdate_Grid_CheckIntersections_Patch`).
+  - Save healing: on restore, the saved position is snapped down via ground raycast (`GroundPlacementAssistant.SnapToGround`). Old saves with floating bags are automatically corrected; bags on roofs/bridges (≤0.5m above surface) stay correctly placed. Log line `[GroundFix]` shows the correction.

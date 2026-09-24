@@ -96,6 +96,6 @@ public static class StackLimitPatches
         }
     }
 
-    // Entfernt: BaseItemDefinition_GetDefaultStackLimit ist ein Field-Accessor und IL2CPP-seitig nicht patchbar.
-    // Siehe Mod.ApplyHarmonyPatches — Engine löst das via Scan + Field-Write.
+    // Removed: BaseItemDefinition_GetDefaultStackLimit is a field accessor and not patchable on IL2CPP side.
+    // See Mod.ApplyHarmonyPatches — engine resolves this via scan + field write.
 }

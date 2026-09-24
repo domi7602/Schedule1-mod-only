@@ -30,10 +30,10 @@ public static class BuildingPatches
     /// host-authoritative. A client placement would fork a local-only object graph
     /// that the host never sees → desync + local save divergence. Singleplayer and
     /// host pass; dedicated/client instances fall back to vanilla handling.
-    /// Konsolidiert 2026-09-15 in S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
-    /// — dabei von fail-open auf fail-closed korrigiert: bei einer Exception im
-    /// Authority-Check fällt die Platzierung jetzt auf Vanilla-Handling zurück
-    /// statt eine potenziell client-seitige Welt-Mutation zuzulassen.
+    /// Consolidated 2026-09-15 into S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
+    /// — at the same time corrected from fail-open to fail-closed: on an exception in the
+    /// authority check, placement now falls back to vanilla handling
+    /// instead of allowing a potentially client-side world mutation.
     /// </summary>
     internal static bool IsHostOrSingleplayer() => NetworkGuard.IsHostOrSingleplayer();
 

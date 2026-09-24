@@ -2,7 +2,7 @@
 
 
 ## 0.3.2 (2026-09-11)
-* Laeuft nur noch in DEBUG-Builds (kein Release-Dump); Dump via SaveTextAtomic mit Return-Types.
+* Only runs in DEBUG builds (no release dump); dump via SaveTextAtomic with return types.
 
 ## [0.3.1] - 2026-09-10
-* docs/mod.json ergaenzt; Dump-Pfad nach UserData/_DiagPerfCounter/dump.txt verlegt.
+* Added docs/mod.json; dump path moved to UserData/_DiagPerfCounter/dump.txt.

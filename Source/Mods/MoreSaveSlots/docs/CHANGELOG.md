@@ -1,37 +1,37 @@
 # Changelog
 
-## 1.0.12 (2026-09-13) — S-05: tote DEL/EDIT-Buttons (unsichtbare Modals) behoben
-S-05-Fix "tote DEL/EDIT-Buttons": Die Rename-/Delete-Modals waehlten per FindObjectsByType<Canvas>()[0] einen beliebigen, unsortierten Canvas — landeten sie hinter dem Menue-Canvas, oeffneten sie unsichtbar und ihr Vollbild-Dimmer frass alle Klicks (Menue wirkte tot, ESC heilte). Jetzt: (1) UIHelper.FindDialogCanvas() waehlt den Canvas der SaveDisplay-UI-Stacks (Fallback: Root-Canvas mit hoechstem sortingOrder), (2) jedes Modal bekommt ein eigenes Sorting-Overlay (overrideSorting, sortingOrder 1000) + eigenen GraphicRaycaster, (3) beim Re-Open SetAsLastSibling. Klick-Handler waren nie defekt — das Routing dahinter war es.
+## 1.0.12 (2026-09-13) — S-05: dead DEL/EDIT buttons (invisible modals) fixed
+S-05 fix "dead DEL/EDIT buttons": The rename/delete modals selected an arbitrary, unsorted canvas via `FindObjectsByType<Canvas>()[0]` — if they landed behind the menu canvas they opened invisibly and their fullscreen dimmer swallowed all clicks (menu appeared dead, ESC healed it). Now: (1) `UIHelper.FindDialogCanvas()` selects the canvas of the SaveDisplay UI stack (fallback: root canvas with highest `sortingOrder`), (2) each modal gets its own sorting overlay (`overrideSorting`, `sortingOrder` 1000) + its own `GraphicRaycaster`, (3) `SetAsLastSibling` on re-open. Click handlers were never broken — the routing behind them was.
 
-## 1.0.11 (2026-09-13) — Savegame-Dupe-Fix (Geisterkarten)
-Bug-Report-Runde 6 / "Savegame-Dupe"-Fix: (1) SaveDisplay.Awake-Path behandelt leere Slots jetzt wie der Refresh-Pfad (UpdateEmptyState + UpdateSlotNumberText) — der Prefab-Platzhaltertext ('Organisation', '$0', 'More than a year ago', 'v0.1.0') bleibt nicht mehr als Geisterkarte stehen, wenn Awake vor dem Registry-Scan laeuft. (2) RefreshActiveScreen refreshed jetzt ALLE SaveDisplays inkl. inaktiver (FindObjectsInactive.Include) — der Post-Scan-Refresh uebersprang das noch geschlossene Continue-Panel, wodurch beim ersten Oeffnen veraltete Karten sichtbar waren. Klicks auf leere Slots waren und sind weiterhin sicher (ContinueScreen-Guard).
+## 1.0.11 (2026-09-13) — Savegame dupe fix (ghost cards)
+Bug-report round 6 / "Savegame-Dupe" fix: (1) SaveDisplay.Awake path now treats empty slots like the refresh path (`UpdateEmptyState` + `UpdateSlotNumberText`) — the prefab placeholder text ('Organisation', '$0', 'More than a year ago', 'v0.1.0') no longer lingers as a ghost card when Awake runs before the registry scan. (2) `RefreshActiveScreen` now refreshes ALL SaveDisplays including inactive ones (`FindObjectsInactive.Include`) — the post-scan refresh used to skip the still-closed Continue panel, so outdated cards were visible on first open. Clicks on empty slots were and remain safe (ContinueScreen guard).
 
 
 ## 1.0.10 (2026-09-13) — Bug-Audit-Fixes Runde 5 (Audit 2026-09-13)
-- EventTrigger-Pointer-Leak gefixt: `CleanupOwnedTriggersForSlot()` entfernt beim Page-Switch alle eigenen EventTrigger-Entries aus `_ownedTriggers` — vorher wuchs das Dictionary mit toten IntPtrs unbeschränkt.
-- `RefreshActiveScreen()` ruft jetzt vor dem Refresh alle stale Keys über `CleanupOwnedTriggersForSlot` auf (statt erst beim nächsten Page-Switch).
+- EventTrigger pointer leak fixed: `CleanupOwnedTriggersForSlot()` removes all owned EventTrigger entries from `_ownedTriggers` on page switch — previously the dictionary grew unbounded with dead IntPtrs.
+- `RefreshActiveScreen()` now cleans up all stale keys via `CleanupOwnedTriggersForSlot` before the refresh (instead of waiting until the next page switch).
 
 ## 1.0.9 (2026-09-12) — Bug-Audit-Fixes Runde 3 (Audit 2026-09-12)
-- EventTrigger-Cleanup (`PaginationController.AttachHoverTracker`) entfernt nur noch **eigene** Entries (per `_ownedTriggers`-Dictionary getrackt) statt alle Pointer-Einträge — vorher wurden Vanilla-Hover/Click-Handler der Save-Slot-Cards mit-entfernt (Hover-Highlight verloren).
+- EventTrigger cleanup (`PaginationController.AttachHoverTracker`) now only removes **owned** entries (tracked via the `_ownedTriggers` dictionary) instead of all pointer entries — previously the vanilla hover/click handlers of the save-slot cards were removed along with them (hover highlight lost).
 
 ## 1.0.6 (2026-09-11)
-- Diagnose-Zeile pro Refresh (Seite, Array-Länge, erster Name) zur leeren-Namen-Fehlersuche.
+- Diagnostic line per refresh (page, array length, first name) for empty-name error hunting.
 
 ## 1.0.5 (2026-09-11)
-- Nach Save-Scan aktiv refreshen (RefreshActiveScreen): Awake läuft vor dem Scan und zeigte leere Namen, obwohl Saves da sind.
+- Refresh actively after save scan (RefreshActiveScreen): Awake ran before the scan and showed empty names even though saves existed.
 
 ## 1.0.4 (2026-09-11)
-- SaveDisplay.Awake mit Prefix abgefangen (Vanilla loopt 0..SAVE_SLOT_COUNT-1 bei nur 5 Slot-Karten -> IndexOutOfRange). Paginierte Init, Vanilla wird geskippt.
-- Stale Init-Log v1.0.2 auf v1.0.4 korrigiert.
+- SaveDisplay.Awake intercepted with a prefix (vanilla loops `0..SAVE_SLOT_COUNT-1` for only 5 slot cards → `IndexOutOfRange`). Paginated init, vanilla is skipped.
+- Stale init log corrected from v1.0.2 to v1.0.4.
 
 ## 1.0.3 (2026-09-11)
-- NewGame-SlotSelected mit Bounds-Guard (kein OOB auf unvollstaendiger letzter Seite).
-- Hover-Tracker via EventHelper (IL2CPP-sicher) ohne Vanilla-Trigger-Clear.
-- Font-Cache mit Liveness-Check; Rename ohne Regex-Fallback (+ .pre-rename.bak).
+- NewGame.SlotSelected with bounds guard (no OOB on an incomplete last page).
+- Hover tracker via EventHelper (IL2CPP-safe) without vanilla trigger clear.
+- Font cache with liveness check; rename without regex fallback (+ `.pre-rename.bak`).
 
 ## 1.0.2 (2026-09-10)
-- 1-based Slot-Nummern im Save-Scan (Active-Save-Schutz bei Rename/Delete greift).
-- Toter _dialogRootMissing-Block und ungenutztes SlotsPerPage-Config entfernt.
+- 1-based slot numbers in the save scan (active-save protection on rename/delete takes effect).
+- Dead `_dialogRootMissing` block and unused `SlotsPerPage` config removed.
 
 ## 1.0.1 (2026-08-14)
 - **UI & Button Fix**: Replaced custom click handlers with standard `UnityEngine.UI.Button` components and solid styling, completely eliminating hollow wireframe ("empty skeleton") button artifacts.

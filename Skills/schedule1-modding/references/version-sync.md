@@ -20,7 +20,7 @@ files disagree, MelonInfo wins.
 must match MelonInfo.
 
 `AGENTS.md` matrix row is the human-facing summary. Drift here is the
-"lügen in der Doku" symptom.
+"lying in the docs" symptom.
 
 ## 2. The Feature-Diff Gate (pre-bump checklist)
 
@@ -89,7 +89,7 @@ though the bracketed entry already exists.
 ### 3.3 The `- Version bump.` placeholder is a documentation lie on first release
 
 When the prior CHANGELOG is empty or single-line (e.g.
-`## 0.1.0 - Initiale Version.`), the script's prepended
+`## 0.1.0 - Initial version.`), the script's prepended
 `## X.Y.Z (date) - Version bump.` reads as "we built a stable prior version
 that we are now bumping" — which is the opposite of the truth (the prior
 version was a stub).
@@ -114,7 +114,7 @@ BackpackMod 0.1.0 → 1.0.0 in this session:
 - B hotkey toggles backpack storage.
 
 ## 0.1.0 (2026-08-21)
-- Initiale Version.
+- Initial version.
 ```
 
 Then `pwsh Tools/bump-version.ps1 -Mod BackpackMod -Version 1.0.0` correctly

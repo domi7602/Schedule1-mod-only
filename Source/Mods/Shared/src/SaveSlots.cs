@@ -7,30 +7,30 @@ using Il2CppScheduleOne.Persistence;
 namespace S1Mods.Shared;
 
 /// <summary>
-/// Rohergebnis der Save-Slot-Sonde: Slot-Nummer (>= 0, oder -1 für
-/// „kein Slot / Main Menu") und der Save-Pfad, falls verfügbar.
+/// Raw result of the save-slot probe: slot number (>= 0, or -1 for
+/// "no slot / main menu") and the save path if available.
 /// </summary>
 public readonly record struct SaveSlotInfo(int SlotNumber, string? SavePath);
 
 /// <summary>
-/// Single Source of Truth für „welcher Save-Slot ist gerade aktiv?"
-/// (Konsolidierung 2026-09-15 von ehemals 10+ per-Mod-Kopien desselben
-/// LoadManager-Sonde-Musters). Referenziert wie NetworkGuard.Host.cs
-/// Game-Types (Il2CppScheduleOne) — Signature-Drift fällt zur Compile-Zeit auf.
-/// Die Formate der Dateinamen bleiben Sache der Mods: dieser Typ liefert nur
-/// Nummer/Pfad/Token, nie fertige Suffixe.
+/// Single source of truth for "which save slot is currently active?"
+/// (Consolidated 2026-09-15 from 10+ per-mod copies of the same
+/// LoadManager probe pattern). Like NetworkGuard.Host.cs, references
+/// game types (Il2CppScheduleOne) — signature drift surfaces at compile time.
+/// Filename formats remain the responsibility of each mod: this type only
+/// returns number/path/token, never finished suffixes.
 /// </summary>
 public static class SaveSlots
 {
     private static readonly Regex DigitsRx = new(@"\d+", RegexOptions.Compiled);
 
     /// <summary>
-    /// IL2CPP-sichere Sonde auf <c>LoadManager.ActiveSaveInfo</c>. Probt der
-    /// Reihe nach <c>PersistentSingleton&lt;LoadManager&gt;.Instance</c>,
-    /// <c>LoadManager.Instance</c> und <c>Singleton&lt;LoadManager&gt;.Instance</c>
-    /// (die historisch in verschiedenen Mods genutzten Zugänge) und liefert den
-    /// ersten lebigen Treffer. Null, wenn gerade kein Save geladen ist oder die
-    /// Interop-Schicht wirft (Übergänge/Main Menu).
+    /// IL2CPP-safe probe on <c>LoadManager.ActiveSaveInfo</c>. Probes in
+    /// order <c>PersistentSingleton&lt;LoadManager&gt;.Instance</c>,
+    /// <c>LoadManager.Instance</c>, and <c>Singleton&lt;LoadManager&gt;.Instance</c>
+    /// (the access paths historically used by various mods) and returns the
+    /// first live hit. Returns null when no save is currently loaded or the
+    /// interop layer throws (transitions/main menu).
     /// </summary>
     public static SaveSlotInfo? TryGetActiveSaveInfo()
     {
@@ -53,9 +53,9 @@ public static class SaveSlots
     }
 
     /// <summary>
-    /// Aktive Slot-Nummer, oder -1 wenn kein Save geladen ist. Wirft nie;
-    /// der >= 0-Check verhindert slot_-1-Dateien (Bug-Audit 2026-09-12,
-    /// vorher in 16 Guard-Stellen quer über 9 Mods verteilt).
+    /// Active slot number, or -1 when no save is loaded. Never throws;
+    /// the >= 0 check prevents slot_-1 files (bug audit 2026-09-12,
+    /// previously spread across 16 guard sites in 9 mods).
     /// </summary>
     public static int GetActiveSlotNumber()
     {
@@ -64,10 +64,10 @@ public static class SaveSlots
     }
 
     /// <summary>
-    /// Leitet aus einem Save-Pfad einen Slot-Token ab (Legacy-/dateibasierte
-    /// Saves ohne Slot-Nummer): Ziffern aus dem Dateinamen (ohne Extension),
-    /// sonst Ziffern aus dem Ordnernamen, sonst der Dateiname ohne Extension.
-    /// Null bei leerem Pfad. Präfixe ("slot_{...}") fügt die jeweilige Mod hinzu.
+    /// Derives a slot token from a save path (legacy/file-based saves
+    /// without a slot number): digits from the filename (without extension),
+    /// else digits from the directory name, else the filename without extension.
+    /// Null for an empty path. Prefixes ("slot_{...}") are appended by each mod.
     /// </summary>
     public static string? TryExtractSlotTokenFromSavePath(string? savePath)
     {

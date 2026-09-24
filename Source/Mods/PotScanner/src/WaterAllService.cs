@@ -251,11 +251,11 @@ public static class WaterAllService
                         float capacity = c.MoistureCapacity;
                         if (capacity <= 0f) return;
 
-                        // Ownership guard: nur eigene Töpfe (konsistent zu WaterAll).
+                        // Ownership guard: only own pots (consistent with WaterAll).
                         var info = PotTracker.Instance.FindByPtr(ptr);
                         if (info == null || !info.IsOwnedProperty) return;
 
-                        // Skip-Threshold: bereits ausreichend feuchte Töpfe nicht erneut berechnen (live moisture).
+                        // Skip threshold: already sufficiently moist pots — do not recompute (live moisture).
                         if (c.NormalizedMoistureAmount >= Constants.WaterAllSkipThreshold) return;
 
                         c.SetMoistureAmount(capacity);

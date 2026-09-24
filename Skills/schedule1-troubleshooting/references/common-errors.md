@@ -258,7 +258,7 @@ protected override void OnPhoneClosed()
 
 ---
 
-## 17. PatchGuard-Überdosierung (Harmony.PatchAll scope)
+## 17. PatchGuard Overdose (Harmony.PatchAll scope)
 
 If a mod patches >20 methods via PatchAll and another mod does the same, expect Silent-No-Op from conflicting patches. Use Harmony.PatchAll with explicit HarmonyInstance to scope.
 

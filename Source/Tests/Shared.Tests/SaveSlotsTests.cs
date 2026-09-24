@@ -7,7 +7,7 @@ namespace Shared.Tests;
 /// Tests for S1Mods.Shared.SaveSlots: pure path-token derivation (legacy saves
 /// without slot number). The LoadManager probe itself needs the IL2CPP runtime
 /// and stays out of scope here — its statement sequence is 1:1 the proven
-/// per-mod code it replaced (Konsolidierung 2026-09-15).
+/// per-mod code it replaced (consolidation 2026-09-15).
 /// </summary>
 public class SaveSlotsTests
 {

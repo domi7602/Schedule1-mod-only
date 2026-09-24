@@ -136,4 +136,4 @@ See `../schedule1-s1api/references/items-products.md` for the `BuildableItemDefi
 
 `HomelessMod`'s procedural SleepingBag is **not** an `InteriorBuilder.Add(...)` — it uses S1API's `BuildableItemDefinition` because it's a custom (not vanilla) furniture. For vanilla furniture in custom buildings, use `InteriorBuilder`.
 
-For the source: `ThirdParty/S1API/` (S1API.Items.Buildable; Submodule ggf. erst initialisieren).
+For the source: `ThirdParty/S1API/` (S1API.Items.Buildable; initialize the submodule first if needed).

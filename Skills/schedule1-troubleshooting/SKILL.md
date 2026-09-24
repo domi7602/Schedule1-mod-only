@@ -155,16 +155,16 @@ If a previously-working patch no-ops:
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | PhoneApp icon shows but tap does nothing | Wrong Scene, wrong `container` | Check `OnAppOpen()` order; verify container != null |
-| **PhoneApp blank/leer beim 2. Öffnen (nach 1. Close)** | `MelonEvents.OnUpdate.Unsubscribe(Update)` in `OnPhoneClosed()` — `OnCreated` feuert nur einmal pro Scene | Entfernen; defensives `-=`-before-`+=` nur in `OnCreated` (siehe schedule1-phoneapp Rule 10). Selbes Muster bei `-=` auf static Events (`OnPotsScanned`, `OnBalanceChanged`, `OnStateChanged`) |
-| PhoneApp History/Notes nach Slot-Wechsel falsch | Global `state.json` statt `slot_{n}.json` | Slot-Isolation via `LoadManager.ActiveSaveInfo` + `TryMigrateLegacy` — siehe schedule1-phoneapp Rule 11 (`CalculatorState.cs:65` Fix 2026-08-21) |
-| Local UITheme zeigt falschen Scale auf 4K | Lokaler `UITheme` dupliziert `S1Mods.Shared.UITheme` | Wrapper delegieren lassen (`InitializeForTextApp/Dashboard`), keine lokale Clamp-Math (`NotesApp.cs:33` Fix 2026-08-21) |
-| Layout broken on player's screen but test OK on dev screen | DPI / Screen-Scale mismatch | Use `UITheme.Sp/Dp` (Methode 3) — see `[schedule1-modding/ui-and-s1api.md]` |
+| **PhoneApp blank/empty on 2nd open (after 1st close)** | `MelonEvents.OnUpdate.Unsubscribe(Update)` in `OnPhoneClosed()` — `OnCreated` fires only once per scene | Remove; defensive `-=`-before-`+=` only in `OnCreated` (see schedule1-phoneapp Rule 10). Same pattern for `-=` on static events (`OnPotsScanned`, `OnBalanceChanged`, `OnStateChanged`) |
+| PhoneApp History/Notes wrong after slot switch | Global `state.json` instead of `slot_{n}.json` | Slot isolation via `LoadManager.ActiveSaveInfo` + `TryMigrateLegacy` — see schedule1-phoneapp Rule 11 (`CalculatorState.cs:65` Fix 2026-08-21) |
+| Local UITheme shows wrong scale on 4K | Local `UITheme` duplicates `S1Mods.Shared.UITheme` | Let wrappers delegate (`InitializeForTextApp/Dashboard`), no local clamp math (`NotesApp.cs:33` Fix 2026-08-21) |
+| Layout broken on player's screen but test OK on dev screen | DPI / Screen-Scale mismatch | Use `UITheme.Sp/Dp` (Method 3) — see `[schedule1-modding/ui-and-s1api.md]` |
 | InputField keys trigger WASD movement | InputFocus not hooked | Register `NotesAppInputFocus`-style `MonoBehaviour` per `AGENTS.md §5` |
 | UIButton.onClick silently fails | `new UnityAction(...)` IntPtr issue | Use `S1API.Utils.ButtonUtils.AddListener(...)` |
 | HUD text disappears intermittently | Component destroyed (scene reload) | Re-resolve via `GameObjectResolver.FindComponentDeep<T>()` after `OnSceneWasLoaded` |
 | PhoneApp icon: "Icon file not found" | `IconFileName = ""` or wrong path | Override `IconSprite` (return a Sprite directly, see PotScanner v0.2.0 fix) |
-| Minigame/HUD-Sprite falsch nach Shape-Wechsel | Cache ignoriert Parameter (eine `Sprite?`-Field für 2 Radien) | Cache nach Parametern keyen (`Dictionary<string,Sprite>` `"{size}_{radius}"`) — siehe MinimapTextures Fix `MinimapTextures.cs:9` 2026-08-21 |
-| Circle-Mask/Border falsch bei size-Wechsel | Single `_circleMaskSprite` statt dict | `_circleMaskCache` keyed `"{size}"` / `"{size}_{thickness}"` — siehe Fix 2026-08-21 |
+| Minigame/HUD-Sprite wrong after shape change | Cache ignores parameters (one `Sprite?` field for 2 radii) | Key cache by parameters (`Dictionary<string,Sprite>` `"{size}_{radius}"`) — see MinimapTextures Fix `MinimapTextures.cs:9` 2026-08-21 |
+| Circle-mask/border wrong on size change | Single `_circleMaskSprite` instead of dict | `_circleMaskCache` keyed `"{size}"` / `"{size}_{thickness}"` — see Fix 2026-08-21 |
 
 ---
 
@@ -180,14 +180,14 @@ These **WILL** bite you if you don't read first:
 * **`MelonLogger.Instance.Error` vs `MelonLogger.Error`** — both must be patched for full coverage. (See il2cpp_modding_rules.md rule #3.)
 * **Multiplayer Host Authority** → Mod logic running on both host and client causes double payments/executions. Always wrap with `IncomeEngine.IsHostOrSingleplayer()` or equivalent.
 * **Procedural Audio Crashing** → Native methods like `MoneyManager.Instance.PlayCashSound()` will throw if the `MoneyManager` instance isn't ready or if called off main thread. Always null check `MoneyManager.Instance` or catch exceptions.
-* **PhoneApp-Update-Tod (2026-08-20, 5 Mods)** → `Unsubscribe` in `OnPhoneClosed` killte `MelonEvents.OnUpdate`/Event-Handler permanent (OnCreated feuert nur einmal). Apps blank nach 1. Close. Fix + Diagnose: siehe §7 UI-Debugging.
-* **Sprite-Cache ohne Parameter-Key (2026-08-20)** → `private static Sprite? _x` gecacht, aber Aufrufer mit unterschiedlichen Parametern (Radius/Thickness) → erster Aufrufer gewinnt, falsche Maske/Border. Fix: `Dictionary<string, Sprite>`-Cache (`MinimapTextures.cs:9` circle-mask 2026-08-21 ebenfalls).
-* **ModConfig-Dictionary-Verlust (2026-08-20)** → `ModConfig<T>` persistiert `Dictionary/List`-Properties NICHT (TOML-Limit) → nach Restart Defaults. Fix: SafeStorage-JSON-Sidecar (ConfigJsonStore-Pattern).
-* **Global State-File Leak (2026-08-21)** → `CalculatorState.cs:66` `calculator_state.json` global statt `slot_{n}` → Slot-A leaked nach Slot-B. Fix: `GetActiveSlotSuffix()` + `TryMigrateLegacy` (`CalculatorState.cs:65-93`, Rule 11).
-* **Local UITheme Duplication (2026-08-21)** → `NotesApp.cs:33`/`PotScannerApp.cs:19`/`CalculatorApp.cs:22` lokale `UITheme` mit abweichenden `RefHeight/Clamp` (750/2.5, 900/1.20, 850/1.30) vs Shared `750/2.0` / `900/1.20` → DPI-Drift. Fix: Wrapper delegiert zu `S1Mods.Shared.UITheme`.
-* **MoreSaveSlots Raw File-Write (2026-08-21)** → `MoreSaveSlotsConfig.cs:57` `File.WriteAllText` + `SaveRenameService.cs:71` `Copy/Write/Replace` ohne atomar/.bak-Schutz → Crash korrumpiert `Game.json`. Fix: `SafeStorage.SaveTextAtomic`.
-* **BusinessIncome Snapshot-Loss (2026-08-21)** → `PayoutStateStore.Revert` setzte `LastPaid=-1` statt Snapshot → History Day 5 verloren → Doppel-Payout. Fix: `_pendingPrevLastPaid/_pendingPrevPerBusiness` (`PayoutStateStore.cs:20-21`).
-* **Field-Accessor Not Patchable (2026-08-21)** → `BaseItemDefinition.get_DefaultStackLimit` field accessor → `Il2CppInterop can't be patched` (`Latest.log:17:43:04.438`). Fix: Patch entfernen (`Mod.cs:109`), via Engine-Scan lösen.
+* **PhoneApp-Update-Death (2026-08-20, 5 mods)** → `Unsubscribe` in `OnPhoneClosed` permanently killed `MelonEvents.OnUpdate`/event handler (OnCreated fires only once). Apps blank after 1st close. Fix + diagnosis: see §7 UI debugging.
+* **Sprite cache without parameter key (2026-08-20)** → `private static Sprite? _x` cached, but callers with different parameters (radius/thickness) → first caller wins, wrong mask/border. Fix: `Dictionary<string, Sprite>` cache (`MinimapTextures.cs:9` circle-mask 2026-08-21 likewise).
+* **ModConfig Dictionary loss (2026-08-20)** → `ModConfig<T>` does NOT persist `Dictionary/List` properties (TOML limit) → after restart defaults. Fix: SafeStorage JSON sidecar (ConfigJsonStore pattern).
+* **Global State-File Leak (2026-08-21)** → `CalculatorState.cs:66` `calculator_state.json` global instead of `slot_{n}` → Slot-A leaked into Slot-B. Fix: `GetActiveSlotSuffix()` + `TryMigrateLegacy` (`CalculatorState.cs:65-93`, Rule 11).
+* **Local UITheme Duplication (2026-08-21)** → `NotesApp.cs:33`/`PotScannerApp.cs:19`/`CalculatorApp.cs:22` local `UITheme` with deviating `RefHeight/Clamp` (750/2.5, 900/1.20, 850/1.30) vs Shared `750/2.0` / `900/1.20` → DPI drift. Fix: wrapper delegates to `S1Mods.Shared.UITheme`.
+* **MoreSaveSlots Raw File-Write (2026-08-21)** → `MoreSaveSlotsConfig.cs:57` `File.WriteAllText` + `SaveRenameService.cs:71` `Copy/Write/Replace` without atomic/.bak protection → crash corrupts `Game.json`. Fix: `SafeStorage.SaveTextAtomic`.
+* **BusinessIncome Snapshot-Loss (2026-08-21)** → `PayoutStateStore.Revert` set `LastPaid=-1` instead of snapshot → History Day 5 lost → double-payout. Fix: `_pendingPrevLastPaid/_pendingPrevPerBusiness` (`PayoutStateStore.cs:20-21`).
+* **Field-Accessor Not Patchable (2026-08-21)** → `BaseItemDefinition.get_DefaultStackLimit` field accessor → `Il2CppInterop can't be patched` (`Latest.log:17:43:04.438`). Fix: remove patch (`Mod.cs:109`), resolve via engine scan.
 
 ---
 
@@ -254,4 +254,4 @@ If a diagnostic step exceeds 30 minutes without resolution:
 
 ---
 
-<!-- TODO next-review: Wenn der Open-Question-Eintrag oben aufgelöst ist, diesen Kommentar entfernen. -->
+<!-- TODO next-review: When the open-question entry above is resolved, remove this comment. -->

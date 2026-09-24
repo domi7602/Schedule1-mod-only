@@ -22,7 +22,7 @@
     Link the pure-logic source file directly from the mod. Avoids pulling in
     the mod's S1API/MelonLoader/Unity references — PackagingMath is a
     self-contained static class with no external dependencies.
-    (2026-09-10: Pfad korrigiert — Datei liegt flach in src\, nicht in src\Engine\.)
+    (2026-09-10: path fixed — file sits flat in src\, not in src\Engine\.)
   -->
   <ItemGroup>
     <Compile Include="..\..\Mods\AutoPackagingStation\src\PackagingMath.cs" />

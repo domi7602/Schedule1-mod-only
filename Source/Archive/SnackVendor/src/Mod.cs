@@ -23,9 +23,9 @@ using ConfigInstance = S1Mods.Shared.ModConfig<SnackVendor.Config.SnackVendorCon
 namespace SnackVendor;
 
 /// <summary>
-/// SnackVendor — platzierbare Vending-Maschine, die der Spieler selbst mit
-/// Zutaten (Gas-Markt) befüllt. NPCs kaufen daraus zum Vanilla-Marktpreis,
-/// der Erlös geht als Cash an den Spieler. Siehe docs/SPEC.md.
+/// SnackVendor — placeable vending machine that the player fills themselves
+/// with ingredients (gas station market). NPCs buy from it at vanilla market price,
+/// the proceeds go as cash to the player. See docs/SPEC.md.
 /// </summary>
 public sealed class Mod : MelonMod
 {
@@ -262,7 +262,7 @@ public sealed class Mod : MelonMod
     private void ResolveAndStoreSlot()
     {
         // Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15) — probiert
-        // PersistentSingleton/LoadManager.Instance/Singleton (früher zwei Blöcke hier).
+        // PersistentSingleton/LoadManager.Instance/Singleton (previously two blocks here).
         int slot = SaveSlots.GetActiveSlotNumber();
         if (slot >= 0)
         {

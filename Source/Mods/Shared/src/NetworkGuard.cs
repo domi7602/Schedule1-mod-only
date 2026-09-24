@@ -5,27 +5,27 @@ using UnityEngine.SceneManagement;
 namespace S1Mods.Shared;
 
 /// <summary>
-/// Kleine Guards für Multiplayer/Scene-Unsicherheiten. Bewusst ohne Game-Type-Referenzen,
-/// damit Shared gegen Framework-Änderungen (v0.4.6) stabil bleibt.
-/// Ausnahme: <see cref="NetworkGuard.IsHostOrSingleplayer"/> (Partial-Datei
-/// NetworkGuard.Host.cs) referenziert Il2CppFishNet — bewusst ausgegliedert, damit
-/// diese Datei game-typ-frei bleibt.
+/// Small guards for multiplayer/scene uncertainties. Intentionally without game-type references,
+/// so Shared stays stable against framework changes (v0.4.6).
+/// Exception: <see cref="NetworkGuard.IsHostOrSingleplayer"/> (partial file
+/// NetworkGuard.Host.cs) references Il2CppFishNet — intentionally split out so that
+/// this file stays free of game-type references.
 /// </summary>
 public static partial class NetworkGuard
 {
-    /// <summary>Der Name der primären Gameplay-Szene (Standard: "Main").</summary>
+    /// <summary>The name of the primary gameplay scene (default: "Main").</summary>
     public static string MainSceneName
     {
         get => SceneGate.MainSceneName;
         set => SceneGate.MainSceneName = value;
     }
 
-    /// <summary>True, wenn die Haupt-Gameplay-Scene ("Main") geladen und aktiv ist.</summary>
+    /// <summary>True, when the main gameplay scene ("Main") is loaded and active.</summary>
     public static bool IsInMainScene => SceneGate.IsInMainScene;
 
     /// <summary>
-    /// Führt action gekapselt via SafeInvoker nur in der Main-Scene aus.
-    /// Verhindert Frame-Crashes bei unhandled Exceptions während des Gameplays.
+    /// Executes the action encapsulated via SafeInvoker only in the Main scene.
+    /// Prevents frame crashes from unhandled exceptions during gameplay.
     /// </summary>
     public static bool InGame(Action action, ModLogger? log = null)
     {
@@ -35,7 +35,7 @@ public static partial class NetworkGuard
         return SafeInvoker.Execute(action, log, "NetworkGuard.InGame");
     }
 
-    /// <summary>Prüft, ob eine UnityEngine.Object-Referenz noch gültig ist (IL2CPP-sicher).</summary>
+    /// <summary>Checks whether a UnityEngine.Object reference is still valid (IL2CPP-safe).</summary>
     public static bool IsAlive(UnityEngine.Object? obj)
     {
         // Bug-Audit 2026-09-12: the overload (UnityEngine.Object) check was missing here,

@@ -8,15 +8,15 @@ using UnityEngine.UI;
 namespace S1Mods.Shared;
 
 /// <summary>
-/// Eindeutiges Hotkey-Binding bestehend aus Taste (KeyCode) und Modifier-Tasten (Ctrl/Alt/Shift).
+/// Unique hotkey binding consisting of a key (KeyCode) and modifier keys (Ctrl/Alt/Shift).
 /// </summary>
 public readonly record struct HotkeyBinding(KeyCode Key, HotkeyManager.Modifiers Modifiers = HotkeyManager.Modifiers.None);
 
 /// <summary>
-/// Hotkey-Router auf Basis des Unity-Legacy-Input-Systems (KeyCode).
-/// Register() startet einen Selbst-Update-Loop (MelonCoroutines), optional mit
-/// Modifier-Kombination und Cooldown. Hotkeys feuern nicht, wenn ein Textfeld
-/// fokussiert ist (Chat/Config-Konflikte).
+/// Hotkey router based on the Unity legacy input system (KeyCode).
+/// Register() starts a self-update loop (MelonCoroutines), optionally with
+/// modifier combination and cooldown. Hotkeys do not fire when a text field
+/// is focused (chat/config conflicts).
 /// </summary>
 public sealed class HotkeyManager : IDisposable
 {
@@ -54,26 +54,26 @@ public sealed class HotkeyManager : IDisposable
         => Register(key, Modifiers.None, action, cooldownSeconds, strictModifiers: true);
 
     /// <summary>
-    /// Registriert einen Hotkey mit optionalen Modifiern (Ctrl, Alt, Shift).
+    /// Registers a hotkey with optional modifiers (Ctrl, Alt, Shift).
     /// </summary>
-    /// <param name="key">Die Haupttaste.</param>
-    /// <param name="modifiers">Geforderte Modifier-Tasten.</param>
-    /// <param name="action">Die auszuführende Action.</param>
-    /// <param name="cooldownSeconds">Cooldown in Sekunden zwischen Auslösungen.</param>
-    /// <param name="strictModifiers">Wenn true (Standard), feuert der Hotkey nicht, wenn zusätzliche nicht geforderte Modifier gedrückt sind (z.B. blockiert Shift einen reinen F5-Hotkey).</param>
+    /// <param name="key">The main key.</param>
+    /// <param name="modifiers">Required modifier keys.</param>
+    /// <param name="action">The action to execute.</param>
+    /// <param name="cooldownSeconds">Cooldown in seconds between triggers.</param>
+    /// <param name="strictModifiers">When true (default), the hotkey does not fire if additional non-required modifiers are pressed (e.g. shift blocks a pure F5 hotkey).</param>
     public void Register(KeyCode key, Modifiers modifiers, Action action, float cooldownSeconds = 0f, bool strictModifiers = true)
     {
         if (_disposed)
             throw new ObjectDisposedException(nameof(HotkeyManager));
         if (action == null)
         {
-            _log.Warn($"Register({key}, {modifiers}) mit null-Action ignoriert.");
+            _log.Warn($"Register({key}, {modifiers}) ignored with null action.");
             return;
         }
 
         var binding = new HotkeyBinding(key, modifiers);
         if (_entries.ContainsKey(binding))
-            _log.Warn($"{key} (+{modifiers}) bereits registriert — wird überschrieben.");
+            _log.Warn($"{key} (+{modifiers}) already registered — will be overwritten.");
 
         _entries[binding] = new Entry
         {
@@ -88,7 +88,7 @@ public sealed class HotkeyManager : IDisposable
         EnsureSelfUpdate();
     }
 
-    /// <summary>Entfernt ein spezifisches Key + Modifier Binding.</summary>
+    /// <summary>Removes a specific key + modifier binding.</summary>
     public void Unregister(KeyCode key, Modifiers modifiers)
     {
         var binding = new HotkeyBinding(key, modifiers);
@@ -100,7 +100,7 @@ public sealed class HotkeyManager : IDisposable
         }
     }
 
-    /// <summary>Entfernt alle Bindings für diesen KeyCode (alle Modifier-Varianten).</summary>
+    /// <summary>Removes all bindings for this KeyCode (all modifier variants).</summary>
     public void Unregister(KeyCode key)
     {
         List<HotkeyBinding>? toRemove = null;
@@ -157,8 +157,8 @@ public sealed class HotkeyManager : IDisposable
     }
 
     /// <summary>
-    /// Manueller Entrypoint für Mods, die ihr eigenes OnUpdate treiben.
-    /// 0-Allocation im Frame-Loop.
+    /// Manual entry point for mods that drive their own OnUpdate.
+    /// Zero-allocation in the frame loop.
     /// </summary>
     public void Update()
     {
@@ -189,7 +189,7 @@ public sealed class HotkeyManager : IDisposable
             }
             catch (Exception ex)
             {
-                _log.Error($"Hotkey-Action '{entry.Key}' (+{entry.Modifiers}) fehlgeschlagen", ex);
+                _log.Error($"Hotkey action '{entry.Key}' (+{entry.Modifiers}) failed", ex);
             }
         }
     }
@@ -215,7 +215,7 @@ public sealed class HotkeyManager : IDisposable
         catch (Exception ex)
         {
             _selfUpdating = false;
-            _log.Warn($"Self-Update-Hook fehlgeschlagen: {ex.Message} — Update() manuell aufrufen.");
+            _log.Warn($"Self-update hook failed: {ex.Message} — call Update() manually.");
         }
     }
 
@@ -234,15 +234,15 @@ public sealed class HotkeyManager : IDisposable
             }
             catch (Exception ex)
             {
-                _log.Warn($"Self-Update fehlgeschlagen: {ex.Message}");
+                _log.Warn($"Self-update failed: {ex.Message}");
             }
             yield return null;
         }
     }
 
     /// <summary>
-    /// Prüft, ob die gedrückten Modifiers mit den geforderten übereinstimmen.
-    /// Bei strictModifiers = true (Standard) darf kein zusätzlicher Modifier gedrückt sein (z.B. feuert F5 nicht bei gedrücktem Shift).
+    /// Checks whether the pressed modifiers match the required ones.
+    /// With strictModifiers = true (default), no additional modifier may be pressed (e.g. F5 does not fire while shift is held).
     /// </summary>
     public static bool ModifiersMatch(Modifiers required, bool strictModifiers = true)
     {
@@ -267,7 +267,7 @@ public sealed class HotkeyManager : IDisposable
         }
     }
 
-    /// <summary>True, wenn ein UI-Textfeld fokussiert ist (Hotkeys sollen dann nicht feuern).</summary>
+    /// <summary>True if a UI text field is focused (hotkeys should not fire in that case).</summary>
     public static bool IsInputFieldFocused()
     {
         try

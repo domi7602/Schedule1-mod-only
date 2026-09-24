@@ -137,9 +137,9 @@ public sealed class MinimapWaypoints
 
     private string ResolveSlotSuffix()
     {
-        // Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15) — der
-        // Slot-Wechsel-Flush mit _dirty-Konsum (Bug-Audit 2026-09-12, siehe
-        // Kommentar unten) bleibt hier erhalten.
+        // Probe: S1Mods.Shared.SaveSlots (consolidation 2026-09-15) — the
+        // slot-switch flush with _dirty-consume (Bug-Audit 2026-09-12, see
+        // comment below) is preserved here.
         int slotNumber = SaveSlots.GetActiveSlotNumber();
         if (slotNumber >= 0)
         {

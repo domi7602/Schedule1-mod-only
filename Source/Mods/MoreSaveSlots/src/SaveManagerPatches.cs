@@ -251,8 +251,8 @@ public static class LoadManager_RefreshSaveInfo_Patch
                 }
             }
 
-            // Fix 2026-09-11: Awake läuft VOR dem Scan (leere Namen). Nach dem Scan
-            // aktiv refreshen, sonst bleiben die Slot-Namen leer obwohl Saves da sind.
+            // Fix 2026-09-11: Awake runs BEFORE the scan (empty names). Actively refresh after the scan,
+            // otherwise slot names stay empty even though saves exist.
             try
             {
                 PaginationController.RefreshActiveScreen();

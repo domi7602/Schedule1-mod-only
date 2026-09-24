@@ -5,9 +5,9 @@ using System.Reflection;
 namespace S1Mods.Shared;
 
 /// <summary>
-/// Resiliente Typauflösung über alle geladenen Assemblies.
-/// Verhindert Bindungsbrüche, wenn Entwickler oder Unity-Game-Patches Klassen
-/// zwischen Assemblies verschieben (z.B. Assembly-CSharp vs S1API/Plugins).
+/// Resilient type resolution across all loaded assemblies.
+/// Prevents binding breakage when developers or Unity game patches move classes
+/// between assemblies (e.g. Assembly-CSharp vs S1API/Plugins).
 /// </summary>
 public static class TypeResolver
 {
@@ -15,8 +15,8 @@ public static class TypeResolver
     private static readonly object _lock = new();
 
     /// <summary>
-    /// Sucht einen Typ anhand seines vollen Namens (z. B. "ScheduleOne.Skateboarding.Skateboard")
-    /// oder seines einfachen Klassennamens (z. B. "Skateboard") über alle geladenen Assemblies.
+    /// Finds a type by its full name (e.g. "ScheduleOne.Skateboarding.Skateboard")
+    /// or its simple class name (e.g. "Skateboard") across all loaded assemblies.
     /// </summary>
     public static Type? Find(string typeName, ModLogger? log = null)
     {
@@ -24,7 +24,7 @@ public static class TypeResolver
     }
 
     /// <summary>
-    /// Sucht einen Typ anhand seines Namens mit optionalem Assembly-Namenshinweis (z. B. "Assembly-CSharp").
+    /// Finds a type by its name with an optional assembly name hint (e.g. "Assembly-CSharp").
     /// </summary>
     public static Type? Find(string typeName, string? assemblyHint, ModLogger? log = null)
     {
@@ -48,18 +48,18 @@ public static class TypeResolver
 
         if (resolved == null)
         {
-            log?.Warn($"TypeResolver: Typ '{typeName}' konnte in keiner geladenen Assembly gefunden werden.");
+            log?.Warn($"TypeResolver: Type '{typeName}' could not be found in any loaded assembly.");
         }
         else
         {
-            log?.Debug($"TypeResolver: Typ '{typeName}' aufgelöst in Assembly '{resolved.Assembly.GetName().Name}'.");
+            log?.Debug($"TypeResolver: Type '{typeName}' resolved in assembly '{resolved.Assembly.GetName().Name}'.");
         }
 
         return resolved;
     }
 
     /// <summary>
-    /// Leert den internen Typ-Cache (z. B. nach dynamischem Nachladen von Assemblies).
+    /// Clears the internal type cache (e.g. after dynamic loading of assemblies).
     /// </summary>
     public static void ClearCache()
     {
@@ -73,7 +73,7 @@ public static class TypeResolver
     {
         Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-        // 1. Priorisierte Suche mit Assembly-Hint
+        // 1. Prioritized search with assembly hint
         if (!string.IsNullOrEmpty(assemblyHint))
         {
             foreach (Assembly asm in assemblies)
@@ -87,7 +87,7 @@ public static class TypeResolver
             }
         }
 
-        // 2. Direkte Type.GetType-Prüfung
+        // 2. Direct Type.GetType check
         try
         {
             Type? direct = Type.GetType(typeName, false);
@@ -96,10 +96,10 @@ public static class TypeResolver
         }
         catch
         {
-            // Ignorieren
+            // Ignored
         }
 
-        // 3. Breitensuche über alle geladenen Assemblies
+        // 3. Breadth-first search across all loaded assemblies
         foreach (Assembly asm in assemblies)
         {
             Type? t = FindTypeInAssembly(asm, typeName);
@@ -114,12 +114,12 @@ public static class TypeResolver
     {
         try
         {
-            // Direkter Versuch via Assembly.GetType
+            // Direct attempt via Assembly.GetType
             Type? direct = asm.GetType(typeName, false, true);
             if (direct != null)
                 return direct;
 
-            // Fallback auf getrennten Scan (z.B. bei einfachem Klassennamen ohne Namespace)
+            // Fallback to separate scan (e.g. for simple class names without namespace)
             Type[] types = asm.GetTypes();
             for (int i = 0; i < types.Length; i++)
             {
@@ -133,7 +133,7 @@ public static class TypeResolver
         }
         catch (ReflectionTypeLoadException ex)
         {
-            // Typen abfragen, die geladen werden konnten
+            // Query types that could be loaded
             if (ex.Types != null)
             {
                 foreach (Type? t in ex.Types)
@@ -151,7 +151,7 @@ public static class TypeResolver
         }
         catch
         {
-            // Fehlerhafte/inkompatible Assembly überspringen
+            // Skip faulty/incompatible assembly
         }
 
         return null;

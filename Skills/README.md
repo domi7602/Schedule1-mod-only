@@ -1,66 +1,66 @@
 # Schedule I — AI Agent Skills Index
 
-20 Skills unter `Skills/<skill-name>/SKILL.md` — Runbooks, Framework-Referenzen und
-Diagnose-Anleitungen für die MelonLoader-Mod-Entwicklung (Spiel v0.4.6f13, S1API 3.2.0).
+20 Skills under `Skills/<skill-name>/SKILL.md` — runbooks, framework references, and
+diagnostic guides for MelonLoader mod development (game v0.4.6f13, S1API 3.2.0).
 
-> **Ladereihenfolge:** Immer zuerst [`schedule1-modding`](schedule1-modding/SKILL.md)
-> (primärer Runbook-Skill), danach den passenden Spezial-Skill. Die Pfadangabe
-> `Skills/...` ist relativ zum Workspace-Root.
+> **Loading order:** Always first [`schedule1-modding`](schedule1-modding/SKILL.md)
+> (primary runbook skill), then the matching specialty skill. The path
+> `Skills/...` is relative to the workspace root.
 
-## Kern-Runbooks
+## Core Runbooks
 
-| Skill | Wann laden |
+| Skill | When to load |
 |---|---|
-| [`schedule1-modding`](schedule1-modding/SKILL.md) | Mod-Runbook: Scaffold, Build, Deploy, Architektur, S1API/UI/Harmony. **Primär-Skill, immer zuerst.** |
-| [`schedule1-phoneapp`](schedule1-phoneapp/SKILL.md) | PhoneApp-Entwicklung: Method-3-UI, Input-Focus-Schutz, Lifecycle-Stabilität, WasCollected-Guards. |
-| [`schedule1-troubleshooting`](schedule1-troubleshooting/SKILL.md) | Diagnose: `Latest.log`-Triage, Crash-Patterns, Save-Load-Timing, IL2CPP-Pitfalls, Slot-Recovery. |
-| [`schedule1-knowledge`](schedule1-knowledge/SKILL.md) | Recherche: Decompiles (`GameReferences/`), S1API-Source, 64 kuratierte Systeme finden statt blind suchen. |
+| [`schedule1-modding`](schedule1-modding/SKILL.md) | Mod runbook: scaffold, build, deploy, architecture, S1API/UI/Harmony. **Primary skill, always first.** |
+| [`schedule1-phoneapp`](schedule1-phoneapp/SKILL.md) | PhoneApp development: Method-3 UI, input-focus protection, lifecycle stability, WasCollected guards. |
+| [`schedule1-troubleshooting`](schedule1-troubleshooting/SKILL.md) | Diagnostics: `Latest.log` triage, crash patterns, save-load timing, IL2CPP pitfalls, slot recovery. |
+| [`schedule1-knowledge`](schedule1-knowledge/SKILL.md) | Research: decompiles (`GameReferences/`), S1API source, 64 curated systems instead of blind search. |
 
-## Framework-Referenzen
+## Framework References
 
-| Skill | Wann laden |
+| Skill | When to load |
 |---|---|
-| [`schedule1-s1api`](schedule1-s1api/SKILL.md) | S1API-Katalog: Saveables, PhoneApp-Basis, Quests, NPCs, Items, Money, GameTime, Lifecycle. |
-| [`schedule1-s1mapi`](schedule1-s1mapi/SKILL.md) | S1MAPI-Katalog: ProceduralMesh, BuildingBuilder, GltfLoader, InteriorBuilder, World-Tools. |
-| [`schedule1-game-systems`](schedule1-game-systems/SKILL.md) | 64 Spielsysteme (Growing 08, Inventory 09, Property 54 …): Klassen, Events, Hook-Punkte. |
-| [`schedule1-mcp`](schedule1-mcp/SKILL.md) | S1MCP Live-Debugging: TCP-:8765-Bridge, Spiel-State-Inspektion, Log-Capture, Item-Spawning. |
+| [`schedule1-s1api`](schedule1-s1api/SKILL.md) | S1API catalog: Saveables, PhoneApp base, Quests, NPCs, Items, Money, GameTime, Lifecycle. |
+| [`schedule1-s1mapi`](schedule1-s1mapi/SKILL.md) | S1MAPI catalog: ProceduralMesh, BuildingBuilder, GltfLoader, InteriorBuilder, World tools. |
+| [`schedule1-game-systems`](schedule1-game-systems/SKILL.md) | 64 game systems (Growing 08, Inventory 09, Property 54 …): classes, events, hook points. |
+| [`schedule1-mcp`](schedule1-mcp/SKILL.md) | S1MCP live debugging: TCP :8765 bridge, game state inspection, log capture, item spawning. |
 
-## Domänen-Skills
+## Domain Skills
 
-| Skill | Wann laden |
+| Skill | When to load |
 |---|---|
-| [`schedule1-economy`](schedule1-economy/SKILL.md) | Money (Cash/Bank), Business-Revenue, Shop-Multi-Payment, Customers, Laundering — Host-Authority. |
-| [`schedule1-persistence`](schedule1-persistence/SKILL.md) | SafeStorage atomic+.bak, slot-isolierte Saves, GameLifecycle-Timing, ModConfig-TOML-Sidecar. |
-| [`schedule1-items`](schedule1-items/SKILL.md) | BaseItemDefinition/Registry/StackLimit, Inventory-Slots, Buildable-Injection. |
-| [`schedule1-grid`](schedule1-grid/SKILL.md) | Grid & Bauen: Outdoor-Placement, BuildUpdate_Grid-Patching, Ghost-Positionierung. |
-| [`schedule1-interiors`](schedule1-interiors/SKILL.md) | Interiors & Minigames: Tür-Hooking, prozedurale Raum-Shells, In-World-Screens, 3D-Ambience. |
-| [`schedule1-custom-npcs`](schedule1-custom-npcs/SKILL.md) | Custom-NPCs: NPCPrefabBuilder, Dialogue-Graphen, Tagesabläufe, Custom-Clothing. |
-| [`schedule1-3d-assets`](schedule1-3d-assets/SKILL.md) | 3D-Assets & Blender: Export-Pipeline, URP-Shader-Fix, PBR-Materials, Bone-Rigging. |
+| [`schedule1-economy`](schedule1-economy/SKILL.md) | Money (cash/bank), business revenue, shop multi-payment, customers, laundering — host authority. |
+| [`schedule1-persistence`](schedule1-persistence/SKILL.md) | SafeStorage atomic + .bak, slot-isolated saves, GameLifecycle timing, ModConfig TOML sidecar. |
+| [`schedule1-items`](schedule1-items/SKILL.md) | BaseItemDefinition/Registry/StackLimit, inventory slots, buildable injection. |
+| [`schedule1-grid`](schedule1-grid/SKILL.md) | Grid & building: outdoor placement, BuildUpdate_Grid patching, ghost positioning. |
+| [`schedule1-interiors`](schedule1-interiors/SKILL.md) | Interiors & minigames: door hooking, procedural room shells, in-world screens, 3D ambience. |
+| [`schedule1-custom-npcs`](schedule1-custom-npcs/SKILL.md) | Custom NPCs: NPCPrefabBuilder, dialogue graphs, daily schedules, custom clothing. |
+| [`schedule1-3d-assets`](schedule1-3d-assets/SKILL.md) | 3D assets & Blender: export pipeline, URP shader fix, PBR materials, bone rigging. |
 
-## Wiederverwendbare Patterns
+## Reusable Patterns
 
-| Skill | Wann laden |
+| Skill | When to load |
 |---|---|
-| [`schedule1-harmony-bootstrap`](schedule1-harmony-bootstrap/SKILL.md) | Harmony-Auto-Discovery: Patch-Klassen finden, applied/skipped/failed zählen, sauber unpatchen. |
-| [`schedule1-il2cpp-reflection`](schedule1-il2cpp-reflection/SKILL.md) | IL2CPP-Runtime-Reflection: Array-Bridging, fehlende Overloads, Namespace-Fallback. |
-| [`schedule1-debounced-reload`](schedule1-debounced-reload/SKILL.md) | Debounced Live-Reload: FileSystemWatcher-Entprellung, Main-Thread-Pump, Config-Hot-Reload. |
-| [`schedule1-runtime-unity-cache`](schedule1-runtime-unity-cache/SKILL.md) | Leak-freie Caches für Texture2D/Sprite/AudioClip/Material bei Runtime-Reloads. |
-| [`schedule1-lifecycle-verify`](schedule1-lifecycle-verify/SKILL.md) | Lifecycle-Verifikation: ilspycmd-Runbook für S1API/native Event-Reihenfolge. |
+| [`schedule1-harmony-bootstrap`](schedule1-harmony-bootstrap/SKILL.md) | Harmony auto-discovery: find patch classes, count applied/skipped/failed, clean unpatch. |
+| [`schedule1-il2cpp-reflection`](schedule1-il2cpp-reflection/SKILL.md) | IL2CPP runtime reflection: array bridging, missing overloads, namespace fallback. |
+| [`schedule1-debounced-reload`](schedule1-debounced-reload/SKILL.md) | Debounced live reload: FileSystemWatcher debouncing, main-thread pump, config hot reload. |
+| [`schedule1-runtime-unity-cache`](schedule1-runtime-unity-cache/SKILL.md) | Leak-free caches for Texture2D/Sprite/AudioClip/Material on runtime reloads. |
+| [`schedule1-lifecycle-verify`](schedule1-lifecycle-verify/SKILL.md) | Lifecycle verification: ilspycmd runbook for S1API/native event ordering. |
 
-## Konventionen (für Skill-Autoren)
+## Conventions (for skill authors)
 
-- **Frontmatter:** Jede `SKILL.md` beginnt mit YAML (`name:` = Verzeichnisname, `description:` mit
-  Trigger-Sätzen + `Keywords:`). Keine SKILL.md ohne Frontmatter.
-- **Version-Anker:** Direkt unter dem Frontmatter steht der Verifikations-Stand, z. B.
+- **Frontmatter:** Every `SKILL.md` starts with YAML (`name:` = directory name, `description:` with
+  trigger sentences + `Keywords:`). No SKILL.md without frontmatter.
+- **Version anchor:** Directly below the frontmatter is the verification state, e.g.
   `Game v0.4.6f13 / S1API 3.2.0 / MelonLoader 0.7.3 (verified 2026-09-03)`.
-  Nach Spiel- oder S1API-Updates re-verifizieren, nicht nur das Datum anfassen.
-- **Detailtiefe:** `SKILL.md` = Decision-Tree + Quick-Refs (schlank halten);
-  Details wandern nach `references/*.md` und werden per relativem Link eingebunden.
-- **Link-Stile:**
-  - Eigene Referenzen: `references/datei.md` (aus `SKILL.md`) bzw. `datei.md` (unter Referenzen).
-  - Fremde Skills: `../<skill>/references/datei.md` (relativ, klickbar).
-  - Repo-weite Pfade in Prosa: `Skills/<skill>/...` (relativ zum Workspace-Root).
-  - Verboten: absolute `file:///`-URLs und bare `schedule1-x/...`-Pfade ohne Präfix.
-- **Zeilenenden:** LF (kein CRLF) für alle Skill-Markdown-Dateien.
-- **Skill-Count:** Diese Datei, [`AGENTS.md`](../AGENTS.md) (§0) und [`README.md`](../README.md)
-  (§ AI Agent Skills) nennen alle dieselbe Skill-Liste — bei neuen Skills alle drei pflegen.
+  After game or S1API updates re-verify, don't just touch the date.
+- **Detail depth:** `SKILL.md` = decision tree + quick refs (keep slim);
+  details move to `references/*.md` and are linked via relative link.
+- **Link styles:**
+  - Own references: `references/file.md` (from `SKILL.md`) or `file.md` (under references).
+  - Foreign skills: `../<skill>/references/file.md` (relative, clickable).
+  - Repo-wide paths in prose: `Skills/<skill>/...` (relative to workspace root).
+  - Forbidden: absolute `file:///` URLs and bare `schedule1-x/...` paths without prefix.
+- **Line endings:** LF (no CRLF) for all skill markdown files.
+- **Skill count:** This file, [`AGENTS.md`](../AGENTS.md) (§0), and [`README.md`](../README.md)
+  (§ AI Agent Skills) all name the same skill list — for new skills update all three.

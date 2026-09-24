@@ -15,29 +15,29 @@ bool ApplyToDefinition(BaseItemDefinition def, Config cfg, HashSet processed){
 }
 ```
 
-Instance fallback `BaseItemInstance_GetStackLimit_Postfix:26` enforces limit even if definition missed (e.g. late-registered item) — checks Excluded + orig==1.
+Instance fallback `BaseItemInstance_GetStackLimit_Postfix:26` enforces the limit even if the definition was missed (e.g. late-registered item) — checks Excluded + orig==1.
 
-NOT patched: `BaseItemDefinition.get_DefaultStackLimit` field accessor can't be patched: `Latest.log:17:43:04.438` — removed `Mod.cs:109`.
+NOT patched: `BaseItemDefinition.get_DefaultStackLimit` field accessor cannot be patched: `Latest.log:17:43:04.438` — removed `Mod.cs:109`.
 
-## Apply-Timing-Trap (v0.1.5, 2026-09-19)
+## Apply-Timing Trap (v0.1.5, 2026-09-19)
 
-**Symptom:** einzelne Item-Kategorien (z. B. verpackte Produkte) stapeln nicht, `stack stats` zeigt zu wenig Modified Items.
+**Symptom:** certain item categories (e.g. packaged products) do not stack; `stack stats` shows too few modified items.
 
-**Ursache:** `OnSaveInfoLoaded` kann feuern, BEVOR das Spiel `Registry.AddToRegistry` für alle Items gerufen hat. Ergebnis: Apply mit `Resources:23 Registry:0` (zu wenig Treffer). Der 1500-ms-Dedupe in `OnLoadComplete` verschlang danach den kanonischen Post-Load-Apply — die meisten Definitionen blieben dauerhaft auf Vanilla-Limit.
+**Cause:** `OnSaveInfoLoaded` may fire BEFORE the game has called `Registry.AddToRegistry` for all items. Result: Apply with `Resources:23 Registry:0` (too few hits). The 1500 ms dedupe in `OnLoadComplete` then swallowed the canonical post-load apply — most definitions stayed on the vanilla limit.
 
-**Fix:** OnLoadComplete prüft `StackLimitEngine.LastRegistryCount == 0 && ModifiedItemCount > 0` ("blinder Apply") und wendet trotz Dedupe erneut an.
+**Fix:** `OnLoadComplete` checks `StackLimitEngine.LastRegistryCount == 0 && ModifiedItemCount > 0` ("blind apply") and reapplies even with dedupe.
 
-**Diagnose-Werkzeuge (seit v0.1.5):**
-- `UserData/StackLimitMod/apply_report.json` — je Item Id/Typ/Original-Limit/Entscheidung/Quelle, unabhängig vom Debug-Gating des MelonLoggers.
-- `stack check <itemId>` — Live-Diagnose: Waffen-Guard, Agriculture-Typ/ID-Match, Exclude, Eligibility + Verdict.
-- `stack report` — Zusammenfassung der letzten Apply-Entscheidungen (nicht-modifizierte zuerst).
-- Config `LogDecisions: true` — zeichnet Hot-Path-Postfix-Entscheidungen (max. 512) in den Report.
+**Diagnostic tools (since v0.1.5):**
+- `UserData/StackLimitMod/apply_report.json` — per-item Id/Type/Original-Limit/Decision/Source, independent of the MelonLogger debug gating.
+- `stack check <itemId>` — live diagnosis: weapon guard, agriculture type/ID match, exclude, eligibility + verdict.
+- `stack report` — summary of the most recent apply decisions (unmodified items first).
+- Config `LogDecisions: true` — records hot-path postfix decisions (max 512) in the report.
 
-**Verpackte Produkte (Fakten, verifiziert gegen Interop-Decompiles):**
-- Packaging ist KEIN eigener Item-Typ am Produkt: `ProductItemInstance.PackagingID` (String-Feld) referenziert die `PackagingDefinition` (z. B. `baggie`, `jar`). Die Definition/ID bleibt die des Produkts (`ogkush`).
-- Kein `get_StackLimit`-Override in `ItemInstance`/`QualityItemInstance`/`ProductItemInstance` — ein Harmony-Postfix auf `BaseItemInstance.get_StackLimit` feuert für alle.
-- `BaseItemInstance`/`BaseItemDefinition` liegen NICHT in Assembly-CSharp, sondern in `Il2CppScheduleOne.Core.dll` (Namespace `Core.Items.Framework`) — für Analyse die Interop-Assembly aus `MelonLoader/Il2CppAssemblies/` decompilieren, nicht die GameReferences-Decompiles.
+**Packaged Products (facts, verified against Interop decompiles):**
+- Packaging is NOT a separate item type on the product: `ProductItemInstance.PackagingID` (string field) references the `PackagingDefinition` (e.g. `baggie`, `jar`). The definition/ID stays that of the product (`ogkush`).
+- No `get_StackLimit` override in `ItemInstance`/`QualityItemInstance`/`ProductItemInstance` — a Harmony postfix on `BaseItemInstance.get_StackLimit` fires for all of them.
+- `BaseItemInstance`/`BaseItemDefinition` do NOT live in Assembly-CSharp, but in `Il2CppScheduleOne.Core.dll` (namespace `Core.Items.Framework`) — for analysis, decompile the Interop assembly from `MelonLoader/Il2CppAssemblies/`, not the GameReferences decompiles.
 
-## Update-Zyklus-Lektion (2026-09-19)
+## Update Cycle Lesson (2026-09-19)
 
-Repo-`mod.json` (in `docs/`) wird von `bump-version.ps1` aktualisiert, aber das DEPLOYTE `UserData/<Mod>/mod.json` nur durch den Build-Deploy — nach manuellem json-Kopieren neu bauen. Quality Gates nach jedem Bump: `check-version-sync.ps1`, `check-doc-paths.ps1`, `dotnet format --verify-no-changes`.
+The repo's `mod.json` (in `docs/`) is updated by `bump-version.ps1`, but the DEPLOYED `UserData/<Mod>/mod.json` is only updated by the build deploy — after manually copying the json, rebuild. Quality gates after each bump: `check-version-sync.ps1`, `check-doc-paths.ps1`, `dotnet format --verify-no-changes`.

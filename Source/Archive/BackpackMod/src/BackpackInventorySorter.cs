@@ -30,7 +30,7 @@ namespace BackpackMod
     /// </summary>
     public static class BackpackInventorySorter
     {
-        /// <summary>Configurable via ModConfig (Spec §Konfiguration). Default: Category→Quality→Name.</summary>
+        /// <summary>Configurable via ModConfig (Spec §Configuration). Default: Category→Quality→Name.</summary>
         public static SortOrder ActiveOrder { get; set; } = SortOrder.CategoryQualityName;
 
         public enum SortOrder

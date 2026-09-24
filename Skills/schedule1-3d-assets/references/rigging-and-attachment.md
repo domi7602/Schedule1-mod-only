@@ -1,12 +1,12 @@
-# Rigging & Bone-Attachment in Schedule I
+# Rigging & Bone Attachment in Schedule I
 
-Dieses Dokument beschreibt, wie 3D-Ausrüstung, Kleidung, Rucksäcke und Hand-Objekte an das Skelett des *Schedule I* Spieler-Avatars gebunden werden.
+This document describes how 3D gear, clothing, backpacks, and hand-held objects are bound to the skeleton of the *Schedule I* player avatar.
 
 ---
 
-## 1. Die Skelett-Hierarchie des Schedule I Humanoid Avatars
+## 1. The Skeleton Hierarchy of the Schedule I Humanoid Avatar
 
-Der Spieler-Avatar in *Schedule I* nutzt eine standardisierte Humanoid-Knochenstruktur:
+The player avatar in *Schedule I* uses a standardized humanoid bone structure:
 
 ```text
 PlayerRoot
@@ -14,22 +14,22 @@ PlayerRoot
     └── Hips
         ├── Spine
         │   └── Spine1
-        │       └── Spine2                  <-- Anheftpunkt für Rucksäcke & Westen
+        │       └── Spine2                  <-- Attachment point for backpacks & vests
         │           ├── Neck
-        │           │   └── Head            <-- Anheftpunkt für Hüte, Masken, Brillen
+        │           │   └── Head            <-- Attachment point for hats, masks, glasses
         │           ├── LeftShoulder
         │           │   └── LeftArm -> LeftForeArm -> LeftHand
         │           └── RightShoulder
-        │               └── RightArm -> RightForeArm -> RightHand  <-- Hand-Items & Waffen
+        │               └── RightArm -> RightForeArm -> RightHand  <-- Hand items & weapons
         ├── LeftUpLeg -> LeftLeg -> LeftFoot
         └── RightUpLeg -> RightLeg -> RightFoot
 ```
 
 ---
 
-## 2. Knochen sicher zur Laufzeit finden
+## 2. Safely Finding Bones at Runtime
 
-Da Bone-Pfade im Mesh manchmal variieren (z. B. durch Avatar-Customization), verwendet man eine rekursive Suche:
+Because bone paths in the mesh sometimes vary (e.g. due to avatar customization), use a recursive search:
 
 ```csharp
 public static Transform FindBoneRecursive(Transform current, string boneName)
@@ -46,7 +46,7 @@ public static Transform FindBoneRecursive(Transform current, string boneName)
 }
 ```
 
-### Anheften eines Rucksacks an `Spine2`:
+### Attaching a backpack to `Spine2`:
 
 ```csharp
 Transform spine2 = FindBoneRecursive(playerTransform, "Spine2");
@@ -55,7 +55,7 @@ if (spine2 != null)
     GameObject backpack = GameObject.Instantiate(backpackPrefab);
     backpack.transform.SetParent(spine2, false);
     
-    // Position exakt zwischen den Schulterblättern
+    // Position exactly between the shoulder blades
     backpack.transform.localPosition = new Vector3(0f, -0.020f, -0.095f);
     backpack.transform.localRotation = Quaternion.identity;
     backpack.transform.localScale = Vector3.one;
@@ -64,16 +64,16 @@ if (spine2 != null)
 
 ---
 
-## 3. Die Zero-Collider-Sicherheitsregel (*Kritisch!*)
+## 3. The Zero-Collider Safety Rule (*Critical!*)
 
-### Das Problem:
-Wenn ein an den Spieler geheftetes 3D-Objekt (z. B. ein Rucksack oder ein Hut) noch aktive `BoxCollider`, `MeshCollider` oder `CapsuleCollider` enthält:
-1. Blockiert es die Raycasts der Kamera $\rightarrow$ Der Spieler kann keine Türen mehr öffnen, keine NPCs ansprechen und keine Gegenstände aufheben.
-2. Der Mauszeiger im Charakter- oder Inventar-Menü bleibt am eigenen Rucksack hängen.
-3. Die Physik-Engine (CharacterController) kollidiert mit dem eigenen Rucksack und der Spieler fliegt durch den Boden oder bleibt in Türen stecken.
+### The Problem:
+When a 3D object attached to the player (e.g. a backpack or a hat) still contains active `BoxCollider`, `MeshCollider`, or `CapsuleCollider` components:
+1. It blocks the camera raycasts $\rightarrow$ the player can no longer open doors, talk to NPCs, or pick up items.
+2. The cursor in the character or inventory menu gets stuck on the player's own backpack.
+3. The physics engine (CharacterController) collides with the player's own backpack and the player flies through the floor or gets stuck in doors.
 
-### Die dauerhafte Lösung:
-Beim Instanziieren von Kleidung oder Rucksäcken **sofort alle Collider rekursiv entfernen**:
+### The Permanent Solution:
+When instantiating clothing or backpacks, **immediately remove all colliders recursively**:
 
 ```csharp
 public static void StripAllColliders(GameObject obj)
@@ -88,10 +88,10 @@ public static void StripAllColliders(GameObject obj)
 
 ---
 
-## 4. 360° Mannequin-Inspektion im Charakter-Menü
+## 4. 360° Mannequin Inspection in the Character Menu
 
-Im Charakter-Menü (<kbd>Tab</kbd>) rendert das Spiel eine UI-Puppe (*Mannequin*). Um dem Spieler die Möglichkeit zu geben, neue Ausrüstung von allen Seiten zu betrachten:
+In the character menu (<kbd>Tab</kbd>) the game renders a UI doll (*mannequin*). To give the player the ability to inspect new gear from all sides:
 
-* **Maus-Drag-Rotation:** Bei gedrückter rechter Maustaste (<kbd>Hold RMB</kbd>) die Y-Achse des Mannequin-Transforms anhand von `Input.GetAxis("Mouse X")` rotieren.
-* **Tastatur-Tasten:** Zusätzliche Rotation über <kbd>Q</kbd> (Links) und <kbd>E</kbd> (Rechts).
-* **Automatischer Reset:** Beim Schließen des Charakter-Menüs die Rotation wieder sanft auf `Quaternion.identity` zurücksetzen.
+* **Mouse-drag rotation:** With the right mouse button held (<kbd>Hold RMB</kbd>), rotate the mannequin transform's Y axis based on `Input.GetAxis("Mouse X")`.
+* **Keyboard keys:** Additional rotation via <kbd>Q</kbd> (left) and <kbd>E</kbd> (right).
+* **Automatic reset:** When the character menu is closed, smoothly reset the rotation back to `Quaternion.identity`.

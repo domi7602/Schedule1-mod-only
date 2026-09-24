@@ -3,9 +3,9 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <!-- Portable PDBs werden separat erzeugt und via Directory.Build.targets nach UserData\<Mod>\ deployt. -->
+    <!-- Portable PDBs are generated separately and deployed via Directory.Build.targets to UserData\<Mod>\. -->
     <DebugType>portable</DebugType>
-    <!-- Unity-IL2CPP injiziert MonoBehaviour-Referenzen zur Laufzeit, nicht via Constructor. -->
+    <!-- Unity-IL2CPP injects MonoBehaviour references at runtime, not via constructor. -->
     <NoWarn>CS8618</NoWarn>
     <LangVersion>12</LangVersion>
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
@@ -108,7 +108,7 @@
       <HintPath>$(Il2CppAssemblies)\UnityEngine.AssetBundleModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <!-- S1API 3.1.2: Mod-Wrapper im Game-Mods-Ordner (Assembly-Name "S1API") ODER UserLibs-Fallback. -->
+    <!-- S1API 3.1.2: mod wrapper in the game Mods folder (assembly name "S1API") OR UserLibs fallback. -->
     <Reference Include="S1API" Condition="Exists('$(ModsDir)\S1API.Il2Cpp.MelonLoader.dll')">
       <HintPath>$(ModsDir)\S1API.Il2Cpp.MelonLoader.dll</HintPath>
       <Private>False</Private>

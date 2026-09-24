@@ -9,7 +9,7 @@ The inventory of code references, decompiles, framework sources, and game system
 | Path | Contents | Purpose & Usage |
 |------|----------|-----------------|
 | `ThirdParty/S1API/S1API/` | Full C# Source of S1API 3.2.0 | Reference for PhoneApp, Saveables, Registry, Items, UI, NPCs, Quests, GameTime |
-| — (MoreDrugs: Quelle nicht im Repo) | Deployed DLL only (`DrugExpansion_Il2cpp.dll`) | Reference for Custom Product Save Provider & Item Expansion |
+| — (MoreDrugs: source not in repo) | Deployed DLL only (`DrugExpansion_Il2cpp.dll`) | Reference for Custom Product Save Provider & Item Expansion |
 | `ThirdParty/S1MCPServer-master/` | C# Source of S1MCP | Reference for Live Runtime Introspection & TCP Server :8765 |
 | `ThirdParty/Archive/PhoneScroll/` | Documentation (DLL retired 2026-09-16) | Reference for Phone Home Screen scrolling (Closed Source, V4LEXL) |
 | `<GameDir>/Mods/` | Runtime deployed DLLs | Live runtime binaries loaded by MelonLoader 0.7.3 |
@@ -82,7 +82,7 @@ Curated architecture reference documents located in `Skills/schedule1-game-syste
 | **S1MCP Bridge** | `ThirdParty/S1MCPServer-master/` (TCP port 8765) | Live game inspection, scene hierarchy queries, object reflection, log streaming |
 | **ILSpy CLI (`ilspycmd`)** | Global dotnet tool: `ilspycmd` | Decompile live game assemblies in `<GameDir>/MelonLoader/Il2CppAssemblies/` |
 | **MelonLoader Logs** | `<GameDir>/MelonLoader/Latest.log` | Real-time diagnostic log stream with exception backtraces and warning patterns |
-| **DiagPerfCounter** | `Source/Archive/_DiagPerfCounter/` | In-game diagnostic reflection dump (archiviert 2026-09-20, obsolet — ilspycmd/S1MCP decken das ab) |
+| **DiagPerfCounter** | `Source/Archive/_DiagPerfCounter/` | In-game diagnostic reflection dump (archived 2026-09-20, obsolete — ilspycmd/S1MCP cover this) |
 
 ---
 

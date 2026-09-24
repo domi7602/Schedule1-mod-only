@@ -145,9 +145,9 @@ public class Mod : MelonMod
                 postfix: new HarmonyMethod(typeof(StackLimitPatches), nameof(StackLimitPatches.BaseItemInstance_GetStackLimit_Postfix)),
                 log: Log);
 
-            // NOTE: BaseItemDefinition.get_DefaultStackLimit ist ein IL2CPP Field-Accessor und nicht patchbar
-            // (Il2CppInterop: "field accessor, it can't be patched"). StackLimitEngine behandelt
-            // DefaultStackLimit via direkten Field-Access / Scan; kein Harmony-Patch nötig.
+            // NOTE: BaseItemDefinition.get_DefaultStackLimit is an IL2CPP field accessor and not patchable
+            // (Il2CppInterop: "field accessor, it can't be patched"). StackLimitEngine handles
+            // DefaultStackLimit via direct field access / scan; no Harmony patch needed.
 
             PatchGuard.Report(Log);
         }

@@ -2,40 +2,40 @@
 
 
 
-## 1.1.5 (2026-09-13) — Bug-Audit-Fixes Runde 5 (Audit 2026-09-13)
-- Toter State entfernt: `s_disableTerrainSlowdownCached` / `SetDisableTerrainSlowdownCached` in `SkateboardVisualPatches` und `ClearStyledCache()` in `CyberSkateboardVisualizer` — Felder wurden geschrieben, nie gelesen. Call-Site in `SkateboardItemFactory.TuneSkateboard()` entfernt.
-- Speicherverschwendung eliminiert (~2 static bool + 1 static method + 1 call pro Tune).
+## 1.1.5 (2026-09-13) — Bug-audit fixes round 5 (audit 2026-09-13)
+- Dead state removed: `s_disableTerrainSlowdownCached` / `SetDisableTerrainSlowdownCached` in `SkateboardVisualPatches` and `ClearStyledCache()` in `CyberSkateboardVisualizer` — fields were written, never read. Call site in `SkateboardItemFactory.TuneSkateboard()` removed.
+- Memory waste eliminated (~2 static bool + 1 static method + 1 call per Tune).
 
-## 1.1.4 (2026-09-12) — Bug-Audit-Fixes Runde 4 (Audit 2026-09-12)
-- **Validate/Tune-Clamp-Divergenz aufgelöst:** `TuneSkateboard` ruft jetzt zuerst `config.Validate()` und clampt nur die drei zusätzlichen Felder (`PushForceDuration`, `BrakeForce`, `AirMovementForce`). Damit kann der `Validate()`-Aufruf nicht mehr von einem abweichenden `Tune`-Clamp-Paar überschrieben werden, und die zentrale Quelle enthält jetzt alle 11 Felder.
+## 1.1.4 (2026-09-12) — Bug-audit fixes round 4 (audit 2026-09-12)
+- **Validate/Tune clamp divergence resolved:** `TuneSkateboard` now calls `config.Validate()` first and only clamps the three additional fields (`PushForceDuration`, `BrakeForce`, `AirMovementForce`). The `Validate()` call can no longer be overwritten by a divergent `Tune` clamp pair, and the central source now contains all 11 fields.
 
-## 1.1.3 (2026-09-12) — Bug-Audit-Fixes Runde 3 (Audit 2026-09-12)
-- Pass-2-Deck-Heuristik (`TrySwapDeckMesh`) wendet jetzt denselben `IsDeckMeshSane` an wie Pass 1. Ohne den Sanity-Check hätte ein Combined-/Root-/Collision-Mesh mit nur `Contains("board")` getroffen und die Custom-Geometrie überschrieben.
+## 1.1.3 (2026-09-12) — Bug-audit fixes round 3 (audit 2026-09-12)
+- Pass-2 deck heuristic (`TrySwapDeckMesh`) now applies the same `IsDeckMeshSane` as pass 1. Without the sanity check a combined/root/collision mesh with just `Contains("board")` would have matched and overwritten the custom geometry.
 
 ## 1.1.2 (2026-09-11)
-- Settings-Sharing-Detektor: warnt per Error-Log, falls ein getuntes Board sein _settings-Objekt mit anderen Boards teilt (Vanilla-Pollution-Nachweis).
+- Settings-sharing detector: warns via error log if a tuned board shares its _settings object with other boards (vanilla-pollution proof).
 
 ## 1.1.1 (2026-09-10)
 
-- IsGameplayScene strikt 'Main' (kein Tuning-State-Verlust im Menue).
+- IsGameplayScene strictly 'Main' (no tuning-state loss in the menu).
 
 ## 1.1.0 (2026-09-09)
 
-- **Tuning: Höhere Geschwindigkeit + bessere Lenkung** (Benutzerwunsch; Werte gelten für Code-Defaults UND Live-Config `UserData/MelonPreferences.cfg [CustomSkateboard]`, da gespeicherte TOML-Werte Code-Defaults überschreiben):
-  - Geschwindigkeit: `TopSpeed_Kmh` 100 → **140**, `PushForceMultiplier` 5.2 → **6.5**, `PushCooldown` 0.22 s → **0.18 s**, `LongitudinalFrictionMultiplier` 0.16 → **0.13** (weniger Rollwiderstand, Speed hält länger).
-  - Lenkung: `TurnForce` 15 → **20**, `TurnChangeRate` 64 → **85**, `TurnReturnToRestRate` 56 → **75**, `LateralFrictionForceMultiplier` 1.60 → **1.85** (Highspeed-Grip), `MaxBoardLean` 28° → **33°**, `BoardLeanRate` 60 → **75**.
-  - Kurven-Abdeckung geprüft: Turn-/Push-Curves sind bis 160/150 km/h definiert — 140 km/h bleibt voll innerhalb der Keyframes.
-  - Unverändert: Sprungphysik (JumpForce 18), Anti-Gravel, Preis, Visuals.
+- **Tuning: higher speed + better steering** (user request; values apply to code defaults AND live config `UserData/MelonPreferences.cfg [CustomSkateboard]`, since stored TOML values override code defaults):
+  - Speed: `TopSpeed_Kmh` 100 → **140**, `PushForceMultiplier` 5.2 → **6.5**, `PushCooldown` 0.22 s → **0.18 s**, `LongitudinalFrictionMultiplier` 0.16 → **0.13** (less rolling resistance, speed holds longer).
+  - Steering: `TurnForce` 15 → **20**, `TurnChangeRate` 64 → **85**, `TurnReturnToRestRate` 56 → **75**, `LateralFrictionForceMultiplier` 1.60 → **1.85** (high-speed grip), `MaxBoardLean` 28° → **33°**, `BoardLeanRate` 60 → **75**.
+  - Curve coverage verified: turn/push curves are defined up to 160/150 km/h — 140 km/h stays well within keyframes.
+  - Unchanged: jump physics (JumpForce 18), anti-gravel, price, visuals.
 
 ## 1.0.3 (2026-09-03)
-- **Fix: Ollie-Flattening (flacher Sprung)**: Custom-Board-Sprünge hoben zuerst die Nase (Vanilla-Ollie-Animation). Root Cause: Die Achsen-Sprungkurven (`FrontAxleJumpCurve`/`RearAxleJumpCurve`) existieren doppelt — auf der Board-Instanz UND im `SkateboardSettings`-ScriptableObject; Vanilla liest nativ die Settings-Kopie. Der Fix vom 02.09. schrieb nur die Board-Kopie. Jetzt klont `TuneSettingsObject` die Front-Kurve zusätzlich auf die Rear-Kurve des Settings-Objekts (`board._settings` + `CurentSettings`) → flacher Sprung wie Standard-Boards (in-game verifiziert 2026-09-03).
-- Hinweis: Ollie-Verhalten ist Vanilla-Design für ALLE Boards — die Kurven-Glättung ist ein bewusster Custom-Board-Stil, kein Bugfix am Spiel.
+- **Fix: Ollie flattening (flat jump)**: custom board jumps first raised the nose (vanilla ollie animation). Root cause: the axle jump curves (`FrontAxleJumpCurve`/`RearAxleJumpCurve`) exist twice — on the board instance AND in the `SkateboardSettings` ScriptableObject; vanilla natively reads the settings copy. The 2026-09-02 fix only wrote to the board copy. Now `TuneSettingsObject` additionally clones the front curve to the rear curve of the settings object (`board._settings` + `CurentSettings`) → flat jump like standard boards (in-game verified 2026-09-03).
+- Note: ollie behavior is vanilla design for ALL boards — the curve smoothing is an intentional custom-board style, not a bugfix on the game.
 
 ## 1.0.2 (2026-08-20)
 
-- **Bugfix Round (20 issues, 6 HIGH / 9 MEDIUM / 5 LOW)**:
+- **Bugfix round (20 issues, 6 HIGH / 9 MEDIUM / 5 LOW)**:
   - **HIGH**: Scene-callback symmetry (`OnSceneWasUnloaded` now uses `IsGameplayScene` guard like `OnSceneWasLoaded`).
-  - **HIGH**: Per-renderer Material allocation fixed (`r.material` → `r.sharedMaterial`) preventing material leaks on zero-slot renderers.
+  - **HIGH**: Per-renderer material allocation fixed (`r.material` → `r.sharedMaterial`) preventing material leaks on zero-slot renderers.
   - **HIGH**: `AnimationCurve` allocations cached as `static readonly` instead of per-board re-creation.
   - **HIGH**: `Gradient` allocated on every mount → cached as `static readonly`.
   - **HIGH**: `InitializeAssets` re-init no-op fixed: base template now found BEFORE first init.
@@ -56,32 +56,32 @@
 
 ## 1.0.1 (2026-08-16)
 
-- **Architecture Refactor (Patches)**:
+- **Architecture refactor (Patches)**:
   - Removed dead code: `CaptureVanillaDefaults()`, no-op `RestoreVanillaPhysics()`, no-op `ApplyPhysicsTuning()` (method + 3 internal call sites in `CreateAndRegister`). Eliminated confusing placeholder methods.
   - Added universal custom-board filter: `SkateboardItemFactory.IsCustomItem(ItemInstance?)` and `IsCustomSkateboard(Skateboard)`. All 6 inline `Definition.ID == SkateboardId` checks now use the helper (single source of truth for "is this the custom board?").
   - Local `IsCustomSkateboard` helper in `SkateboardVisualPatches` deleted — moved to factory for unification.
-- **Architecture Refactor (Idempotent Tuning)**:
+- **Architecture refactor (Idempotent tuning)**:
   - Added `_tunedBoards: HashSet<IntPtr>` in `SkateboardItemFactory` to prevent double-tuning. Previously, both `OnSkateboardAwakePostfix` and `OnMountPostfix` could call `TuneSkateboard`, allocating ~2 `AnimationCurve` per call. Now the second call short-circuits.
   - `ClearTuningState()` is called on every `OnSceneWasLoaded` to allow re-tuning across scene transitions.
-- **Architecture Refactor (Save-Recovery Logging)**:
+- **Architecture refactor (Save-recovery logging)**:
   - `OnSaveInfoLoaded` now logs the registration outcome: `[SaveRecovery] Custom board '...' ready` or `[SaveRecovery] Custom board registration deferred — base board prefab not in Registry yet.` Operators no longer need to grep `MelonLoader\Latest.log` blindly.
-- **Architecture Refactor (Default Factory)**:
+- **Architecture refactor (Default factory)**:
   - Added `SkateboardConfig.Default()` static factory as a canonical entry point for defaults (single source of truth for tests / programmatic resets).
 
 ## 0.1.2 (2026-08-14)
-- **Top Speed Boosted**: Increased default top speed to 80 km/h (was 55 km/h) and push force multiplier to x2.8 for rapid acceleration.
-- **Anti-Gravel & Terrain Slowdown Removal**: Fully eliminated gravel, grass, and dirt slowdown (`SlowOnTerrain = false`, `GetSurfaceSmoothness = 1.0f`, `IsOnTerrain = false`).
-- **Enhanced Air Time & Jumping**: Increased jump force multiplier to x2.2 and turn force to x1.8 for sharper carving.
-- **Reduced Friction Glide**: Reduced longitudinal friction multiplier to 0.35 for longer coasting distance after pushes.
+- **Top speed boosted**: Increased default top speed to 80 km/h (was 55 km/h) and push force multiplier to x2.8 for rapid acceleration.
+- **Anti-gravel & terrain slowdown removal**: Fully eliminated gravel, grass, and dirt slowdown (`SlowOnTerrain = false`, `GetSurfaceSmoothness = 1.0f`, `IsOnTerrain = false`).
+- **Enhanced air time & jumping**: Increased jump force multiplier to x2.2 and turn force to x1.8 for sharper carving.
+- **Reduced friction glide**: Reduced longitudinal friction multiplier to 0.35 for longer coasting distance after pushes.
 
 ## 0.1.1 (2026-08-14)
-- **Material Caching & Memory-Leak Fix**: Materials are now properly cached in `CyberSkateboardVisualizer` instead of being reallocated on every equip/mount.
-- **Shader Safe Fallback**: Added multi-tier fallback lookup (`FindSafeShader`) preventing NRE crashes when `Standard` or URP shaders are stripped/missing in IL2CPP.
-- **PatchGuard Integration**: Replaced raw Harmony attributes with resilient `PatchGuard.TryPatch` calls from `S1Mods.Shared`.
-- **Lifecycle Reliability**: Added `GameLifecycle.OnSaveInfoLoaded` subscription and proper unsubscription in `OnDeinitializeMelon`.
-- **Underglow Light Dedup**: Prevents duplicate point lights when repeatedly equipping or remounting boards.
-- **ObjLoader Triangulation & Custom Deck Hook**: Corrected CCW winding order `(0, i-1, i)` for front-facing polygon normals and added `TryGetOrLoadDeckMesh()` hook.
-- **Documentation & Logging**: Unified logging via `ModLogger` and aligned `README.md` physics specifications with config defaults.
+- **Material caching & memory-leak fix**: Materials are now properly cached in `CyberSkateboardVisualizer` instead of being reallocated on every equip/mount.
+- **Shader safe fallback**: Added multi-tier fallback lookup (`FindSafeShader`) preventing NRE crashes when `Standard` or URP shaders are stripped/missing in IL2CPP.
+- **PatchGuard integration**: Replaced raw Harmony attributes with resilient `PatchGuard.TryPatch` calls from `S1Mods.Shared`.
+- **Lifecycle reliability**: Added `GameLifecycle.OnSaveInfoLoaded` subscription and proper unsubscription in `OnDeinitializeMelon`.
+- **Underglow light dedup**: Prevents duplicate point lights when repeatedly equipping or remounting boards.
+- **ObjLoader triangulation & custom deck hook**: Corrected CCW winding order `(0, i-1, i)` for front-facing polygon normals and added `TryGetOrLoadDeckMesh()` hook.
+- **Documentation & logging**: Unified logging via `ModLogger` and aligned `README.md` physics specifications with config defaults.
 
 ## 0.1.0 (2026-08-13)
-- Initiale Version.
+- Initial version.

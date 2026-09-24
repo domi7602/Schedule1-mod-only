@@ -182,4 +182,4 @@ Buildables also need a prefab (or `MeshVault`). If you don't have one, use a van
 
 `MoreDrugs` (ThirdParty/) uses `S1API.Products` with `ICustomProductSaveProvider` for full save integration.
 
-For source: `ThirdParty/S1API/` (S1API.Items / S1API.Products; Submodule ggf. erst `git submodule update --init`).
+For source: `ThirdParty/S1API/` (S1API.Items / S1API.Products; initialize the submodule first with `git submodule update --init` if needed).

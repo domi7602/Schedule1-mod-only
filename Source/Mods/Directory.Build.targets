@@ -1,9 +1,9 @@
 <Project>
-  <!-- Deploy-Konvention (seit Reinstall 2026-09): -->
-  <!--   <GameDir>\Mods\              -> DLL + PNGs + Bundles (nur Ladbares für MelonLoader) -->
-  <!--   <GameDir>\UserData\<Mod>\    -> mod.json (Metadaten) + <Mod>.pdb (Debug-Symbole) -->
-  <!-- SkipUnchangedFiles=false erzwingt Deploy bei jedem Build (fix für veraltete DLLs im GameDir). -->
-  <!-- Ohne Deploy bauen (CI, reine Compile-Checks): -p:S1NoDeploy=true  oder  $env:S1NoDeploy='true'. -->
+  <!-- Deploy convention (since 2026-09 reinstall): -->
+  <!--   <GameDir>\Mods\              -> DLL + PNGs + Bundles (only loadable by MelonLoader) -->
+  <!--   <GameDir>\UserData\<Mod>\    -> mod.json (metadata) + <Mod>.pdb (debug symbols) -->
+  <!-- SkipUnchangedFiles=false forces deploy on every build (fix for stale DLLs in GameDir). -->
+  <!-- Build without deploy (CI, compile-only checks): -p:S1NoDeploy=true  or  $env:S1NoDeploy='true'. -->
   <Target Name="DeployMod" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And Exists('$(TargetPath)')">
     <PropertyGroup>
       <_DeployDir>$(ModsDir)</_DeployDir>
@@ -23,13 +23,13 @@
     </ItemGroup>
     <Copy SourceFiles="@(_Pngs)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="false" Condition="'@(_Pngs)' != ''" />
     <Copy SourceFiles="@(_Bundles)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="false" Condition="'@(_Bundles)' != ''" />
-    <!-- GLB-Meshes landen NICHT in Mods\ (MelonLoader scannt nur DLLs) — Daten-Subfolder Mods\<Mod>\, Runtime-Pfade resolved dort. -->
+    <!-- GLB meshes do NOT land in Mods\ (MelonLoader scans only DLLs) — data subfolder Mods\<Mod>\, runtime paths resolved there. -->
     <Copy SourceFiles="@(_Glbs)" DestinationFolder="$(_DeployDir)\$(MSBuildProjectName)" SkipUnchangedFiles="false" Condition="'@(_Glbs)' != ''" />
     <Copy SourceFiles="@(_Json)" DestinationFiles="$(_ModDataDir)\mod.json" SkipUnchangedFiles="false" Condition="'@(_Json)' != ''" />
     <Message Importance="high" Text="Deployed $(MSBuildProjectName) -> $(_DeployDir) (+ json/pdb -> $(_ModDataDir))" />
   </Target>
 
-  <!-- Shared.dll wird nicht transitiv propagiert (Private=false) — explizit deployen. -->
+  <!-- Shared.dll is not transitively propagated (Private=false) — deploy explicitly. -->
   <Target Name="DeployShared" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And '$(MSBuildProjectName)' == 'Shared' And Exists('$(TargetPath)')">
     <PropertyGroup>
       <_DeployDir>$(ModsDir)</_DeployDir>
@@ -40,9 +40,9 @@
   </Target>
 
   <!--
-    ThirdParty-Deploy: Iteriere alle *.dll unter ThirdParty/ und kopiere
-    sie force-deploy nach <GameDir>\Mods\ (whitelist via ThirdParty/.deployignore).
-    Laeuft nur einmalig bei Shared, da alle Mods von Shared abhaengen.
+    ThirdParty deploy: iterate all *.dll under ThirdParty/ and copy
+    them force-deploy to <GameDir>\Mods\ (whitelist via ThirdParty/.deployignore).
+    Runs only once with Shared, since all mods depend on Shared.
   -->
   <Target Name="DeployThirdParty" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And '$(MSBuildProjectName)' == 'Shared' And Exists('$(TargetPath)')">
     <PropertyGroup>

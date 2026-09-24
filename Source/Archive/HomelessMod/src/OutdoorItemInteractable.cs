@@ -82,8 +82,8 @@ public class OutdoorItemInteractable : MonoBehaviour
         }
     }
 
-    // Log-Spam vermeiden: OnDisable/OnDestroy feuern bei jedem erwarteten Pack-Up,
-    // Scene-Unload oder SetActive(false). Warn+Stacktrace nur bei Debug-Builds sinnvoll.
+    // Avoid log spam: OnDisable/OnDestroy fire on every expected pack-up,
+    // scene-unload or SetActive(false). Warn+stacktrace only useful in debug builds.
     private void OnDisable()
     {
         try

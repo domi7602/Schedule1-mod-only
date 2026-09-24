@@ -1,24 +1,24 @@
 # Changelog
 
 ## 0.1.6 (2026-09-17)
-- **Fix: 0-Business Backlog Bug**: Wenn der Spieler noch keine Geschäfte besitzt (`lines.Count == 0`), wird der Tag bei `commit && !isDryRun` nun ordnungsgemäß im `PayoutStateStore` als bezahlt/abgewickelt markiert (`LastPaidElapsedDay = elapsedDays`). Zuvor brach `TryExecuteDailyPayout` ohne State-Commit ab, wodurch `LastPaidElapsedDay` auf dem Seed-Tag (z.B. Tag 3) feststeckte und mit jedem Tag-Wechsel eine wachsende Backlog-Warnung (> 7 Tage) sowie endlose Catchup-Schleifen im Log erzeugte.
+- **Fix: 0-business backlog bug**: When the player owns no businesses yet (`lines.Count == 0`), the day is now properly marked as paid/settled in the `PayoutStateStore` on `commit && !isDryRun` (`LastPaidElapsedDay = elapsedDays`). Previously `TryExecuteDailyPayout` aborted without a state commit, so `LastPaidElapsedDay` got stuck on the seed day (e.g. day 3) and produced a growing backlog warning (> 7 days) plus endless catch-up loops in the log with every day change.
 
-## 0.1.5 (2026-09-13) — Bug-Report-Runde 6
-Bug-Report-Runde 6: BIZ-01 Catch-up-Loop nach Cap neu eingelesen + hart auf MaxCatchupDays gedeckelt + LastPaid-Validierung beim Laden (Freeze bei korruptem State behoben); BIZ-02 'biz trigger --commit' verlangt --force, wenn der Tag bereits bezahlt ist (Money-Printer geschlossen); BIZ-03 float.IsFinite-/Upper-Bound-Guards in Sanitize inkl. MaxCatchupDays-Clamp (NaN-Economy-Brick verhindert); BIZ-04 'biz pending confirm' committet nur vorwaerts (stale Marker keine State-Regression mehr); BIZ-05 OnPreLoad behaelt den Slot (keepSlot:true, kein *_default.json mehr im Lade-Fenster).
+## 0.1.5 (2026-09-13) — Bug-report round 6
+Bug-report round 6: BIZ-01 catch-up loop after cap re-read + hard-capped at MaxCatchupDays + LastPaid validation on load (freeze on corrupt state fixed); BIZ-02 `biz trigger --commit` requires `--force` when the day is already paid (money printer closed); BIZ-03 `float.IsFinite`/upper-bound guards in Sanitize including MaxCatchupDays clamp (prevents NaN-economy brick); BIZ-04 `biz pending confirm` only commits forward (stale marker no longer causes state regression); BIZ-05 OnPreLoad keeps the slot (`keepSlot:true`, no more `*_default.json` during the load window).
 
 
 
-## 0.1.4 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
-- `IsHostOrSingleplayer`: fail-**closed** bei Exceptions (vorher `return true` erlaubte Doppelbuchungen, wenn der IsServer-Marshalling-Aufruf auf einem MP-Client fehlschlug).
-- Bei `commit && !committed` (Geld gebucht aber Save fehlgeschlagen): eigene Notification „booked — save FAILED, run `biz pending confirm|resolve`“ statt der irrefuehrenden Erfolgsmeldung. Pending-Marker bleibt auf Disk; manueller `biz pending` Konsolen-Resolve-Pfad war bereits vorhanden.
+## 0.1.4 (2026-09-12) — Bug-audit fixes (audit 2026-09-12)
+- `IsHostOrSingleplayer`: fail-**closed** on exceptions (previously `return true` allowed double-bookings when the IsServer marshalling call failed on an MP client).
+- On `commit && !committed` (money booked but save failed): dedicated notification "booked — save FAILED, run `biz pending confirm|resolve`" instead of the misleading success message. Pending marker stays on disk; manual `biz pending` console resolve path already existed.
 
 ## 0.1.2 (2026-09-11)
-- Windfall-Seed wird persistiert (kein Re-Seed + kein biz-stats-Flip nach Restart).
+- Windfall seed persisted (no re-seed + no biz-stats flip after restart).
 
 ## 0.1.1 (2026-09-10)
-- Erstinstallations-Windfall geseedet (keine Historie seit Tag 0).
-- Catch-up laeuft auch via OnDayPass (idempotent); Display-Strings invariant.
-- Vorlauf 2026-09-01: Version bump.
+- First-install windfall seeded (no history since day 0).
+- Catch-up also runs via OnDayPass (idempotent); display strings invariant.
+- Lead 2026-09-01: Version bump.
 
 ## 0.1.0 (2026-08-17)
 

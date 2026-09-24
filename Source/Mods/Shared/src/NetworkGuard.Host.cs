@@ -4,21 +4,21 @@ using Il2CppFishNet;
 namespace S1Mods.Shared;
 
 /// <summary>
-/// Host-Authority-Teil von <see cref="NetworkGuard"/>. Liegt in einer eigenen
-/// Partial-Datei, weil hier als einziger Shared-Bestandteil Il2CppFishNet
-/// (Game-Type) referenziert wird — Signature-Drift fällt zur Compile-Zeit auf,
-/// nicht zur Laufzeit.
+/// Host-authority part of <see cref="NetworkGuard"/>. Lives in its own
+/// partial file because this is the only Shared component that references
+/// Il2CppFishNet (a game type) — signature drift surfaces at compile time,
+/// not at runtime.
 /// </summary>
 public static partial class NetworkGuard
 {
     /// <summary>
-    /// True, wenn diese Instanz Host/Server ist oder Singleplayer läuft (kein
-    /// NetworkManager). IL2CPP-safe: prüft Pointer und WasCollected vor dem
-    /// Unity-Object-null-Vergleich.
-    /// Fail-closed bei Exceptions (Bug-Audit 2026-09-12, Konsolidierung 2026-09-15):
-    /// der Singleplayer-Pfad ist über den NetworkManager-null-Zweig abgedeckt;
-    /// wirft das IsServer-Marshalling auf einem echten MP-Client, würde ein
-    /// fail-open Doppel-Auszahlungen/Desyncs erlauben. Refuse statt riskieren.
+    /// True if this instance is host/server or running singleplayer (no
+    /// NetworkManager). IL2CPP-safe: checks Pointer and WasCollected before
+    /// the Unity-Object null comparison.
+    /// Fail-closed on exceptions (bug audit 2026-09-12, consolidation 2026-09-15):
+    /// the singleplayer path is covered by the NetworkManager-null branch;
+    /// if the IsServer marshalling throws on a real MP client, a fail-open
+    /// would allow double payouts/desyncs. Refuse rather than risk it.
     /// </summary>
     public static bool IsHostOrSingleplayer()
     {

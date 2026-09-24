@@ -6,9 +6,9 @@ using HarmonyLib;
 namespace S1Mods.Shared;
 
 /// <summary>
-/// Resilienter Harmony-Patcher mit Graceful Degradation.
-/// Verhindert Mod-Crashes beim Spielstart, falls sich Methodensignaturen
-/// in Game-Patches (z. B. Schedule I Updates) geändert haben.
+/// Resilient Harmony patcher with graceful degradation.
+/// Prevents mod crashes on game start if method signatures have changed
+/// in game patches (e.g. Schedule I updates).
 /// </summary>
 public static class PatchGuard
 {
@@ -19,7 +19,7 @@ public static class PatchGuard
     public static int PatchesFailed => Volatile.Read(ref _patchesFailed);
     public static int TotalPatches => PatchesApplied + PatchesFailed;
 
-    /// <summary>Setzt die globalen Patch-Zähler zurück.</summary>
+    /// <summary>Resets the global patch counters.</summary>
     public static void ResetStats()
     {
         Interlocked.Exchange(ref _patchesApplied, 0);
@@ -27,8 +27,8 @@ public static class PatchGuard
     }
 
     /// <summary>
-    /// Schreibt eine strukturierte Zusammenfassung der angewendeten Patches in das Log.
-    /// Beispiel: "PatchGuard: 8/8 patches successfully applied."
+    /// Writes a structured summary of the applied patches to the log.
+    /// Example: "PatchGuard: 8/8 patches successfully applied."
     /// </summary>
     public static void Report(ModLogger? log = null)
     {
@@ -49,8 +49,7 @@ public static class PatchGuard
     }
 
     /// <summary>
-    /// Versucht eine Methode sicher mit Harmony zu patchen. Bei Fehlern wird
-    /// geloggt und false zurückgegeben (kein Crash).
+    /// Safely tries to patch a method with Harmony. On failure, logs and returns false (no crash).
     /// </summary>
     public static bool TryPatch(
         HarmonyLib.Harmony harmony,
@@ -67,7 +66,7 @@ public static class PatchGuard
             // Gatekeeper-fix 2026-08-29: only log via the provided `log` to avoid double-logging
             // (was: log?.Error + MelonLoader.MelonLogger.Error). Consistent with the other
             // paths in this file (lines 78, 116) which only use log?.Warn.
-            log?.Error("PatchGuard: Harmony instance is null — patch übersprungen.");
+            log?.Error("PatchGuard: Harmony instance is null — patch skipped.");
             return false;
         }
 
@@ -75,14 +74,14 @@ public static class PatchGuard
         {
             Interlocked.Increment(ref _patchesFailed);
             string name = original?.Name ?? "unknown";
-            log?.Warn($"PatchGuard: Keine HarmonyMethod für '{name}' angegeben — No-Op, übersprungen.");
+            log?.Warn($"PatchGuard: No HarmonyMethod provided for '{name}' — no-op, skipped.");
             return false;
         }
 
         if (original == null)
         {
             Interlocked.Increment(ref _patchesFailed);
-            log?.Warn("PatchGuard: Ziel-Methode ist null (möglicherweise durch Game-Patch entfernt). Patch übersprungen.");
+            log?.Warn("PatchGuard: Target method is null (possibly removed by game patch). Patch skipped.");
             return false;
         }
 
@@ -91,25 +90,25 @@ public static class PatchGuard
         {
             harmony.Patch(original, prefix, postfix, transpiler, finalizer, null);
             Interlocked.Increment(ref _patchesApplied);
-            log?.Debug($"PatchGuard: Erfolgreich gepatcht -> {targetDesc}");
+            log?.Debug($"PatchGuard: Successfully patched -> {targetDesc}");
             return true;
         }
         catch (Exception ex)
         {
             Interlocked.Increment(ref _patchesFailed);
-            log?.Error($"PatchGuard: Patch für '{targetDesc}' fehlgeschlagen (Feature sicher deaktiviert): {ex.Message}");
+            log?.Error($"PatchGuard: Patch for '{targetDesc}' failed (feature safely disabled): {ex.Message}");
             // Gatekeeper-fix 2026-08-29 (diagnostic fallback only): some ModLogger implementations
             // swallow errors during very-early Init (before their sink is fully wired). The throw
             // path is the only place that needs this fallback — other paths (harmony == null,
             // original == null, no-op) are informational and `log?.Warn/Error` is sufficient.
             // Removing this would silently hide the one-patch-fail in StackLimitMod (20/21) etc.
-            try { MelonLoader.MelonLogger.Error($"[PatchGuard] Patch für '{targetDesc}' fehlgeschlagen: {ex.GetType().Name}: {ex.Message}"); } catch { }
+            try { MelonLoader.MelonLogger.Error($"[PatchGuard] Patch for '{targetDesc}' failed: {ex.GetType().Name}: {ex.Message}"); } catch { }
             return false;
         }
     }
 
     /// <summary>
-    /// Sucht eine Methode via Reflection und patcht sie sicher. Unterstützt Prefix, Postfix, Transpiler und Finalizer.
+    /// Finds a method via reflection and patches it safely. Supports prefix, postfix, transpiler, and finalizer.
     /// </summary>
     public static bool TryPatch(
         HarmonyLib.Harmony harmony,
@@ -126,7 +125,7 @@ public static class PatchGuard
         if (method == null)
         {
             Interlocked.Increment(ref _patchesFailed);
-            log?.Warn($"PatchGuard: Methode '{targetType?.Name}.{methodName}' nicht gefunden. Signatur nach Game-Patch evtl. geändert.");
+            log?.Warn($"PatchGuard: Method '{targetType?.Name}.{methodName}' not found. Signature may have changed after a game patch.");
             return false;
         }
 
@@ -134,7 +133,7 @@ public static class PatchGuard
     }
 
     /// <summary>
-    /// Abwärtskompatibler Overload für Aufrufe mit parameterTypes vor log.
+    /// Backwards-compatible overload for calls with parameterTypes before log.
     /// </summary>
     public static bool TryPatch(
         HarmonyLib.Harmony harmony,
@@ -149,8 +148,8 @@ public static class PatchGuard
     }
 
     /// <summary>
-    /// Sucht sicher nach einer Methode mit beliebiger Visibility (Public/NonPublic, Instance/Static).
-    /// Bei mehrdeutigen Überladungen ohne parameterTypes wird null zurückgegeben und eine Warnung geloggt (kein Ratespiel).
+    /// Safely searches for a method with any visibility (public/non-public, instance/static).
+    /// For ambiguous overloads without parameterTypes, returns null and logs a warning (no guessing).
     /// </summary>
     public static MethodInfo? FindMethod(
         Type targetType,
@@ -171,12 +170,12 @@ public static class PatchGuard
         }
         catch (AmbiguousMatchException)
         {
-            log?.Warn($"PatchGuard: Mehrere Überladungen für '{targetType.Name}.{methodName}' gefunden. Bitte explizite 'parameterTypes' angeben statt Ratespiel.");
+            log?.Warn($"PatchGuard: Multiple overloads found for '{targetType.Name}.{methodName}'. Please provide explicit 'parameterTypes' instead of guessing.");
             return null;
         }
         catch (Exception ex)
         {
-            log?.Warn($"PatchGuard: Fehler bei Suche nach '{targetType.Name}.{methodName}': {ex.Message}");
+            log?.Warn($"PatchGuard: Error searching for '{targetType.Name}.{methodName}': {ex.Message}");
             return null;
         }
     }

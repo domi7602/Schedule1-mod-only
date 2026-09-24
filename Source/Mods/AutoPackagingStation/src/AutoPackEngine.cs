@@ -515,8 +515,8 @@ public static class AutoPackEngine
     }
 
     /// <summary>
-    /// Konsolidiert 2026-09-15 in S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
-    /// (IL2CPP-safe Pointer/WasCollected-Checks, fail-closed bei Exceptions).
+    /// Consolidated 2026-09-15 in S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
+    /// (IL2CPP-safe pointer/WasCollected checks, fail-closed on exceptions).
     /// </summary>
     internal static bool IsHostOrSingleplayer() => NetworkGuard.IsHostOrSingleplayer();
 

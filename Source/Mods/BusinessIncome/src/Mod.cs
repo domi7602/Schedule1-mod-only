@@ -27,7 +27,7 @@ public class Mod : MelonMod
         // declaring them here keeps the ModConfig startup log as Info (not Warning).
         ModConfig<BusinessIncomeConfig>.Initialize("BusinessIncome", Log,
             sidecarManagedProperties: new[] { "PropertyMultipliers", "DisplayNameOverrides", "WeekendBonusCategories" });
-        // JSON-Sidecar für Dictionary/List-Properties (nicht TOML-mappable, siehe ModConfig).
+        // JSON sidecar for Dictionary/List properties (not TOML-mappable, see ModConfig).
         try
         {
             ConfigJsonStore.ApplyToConfig(ModConfig<BusinessIncomeConfig>.Instance);

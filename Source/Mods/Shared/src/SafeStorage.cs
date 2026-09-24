@@ -6,9 +6,9 @@ using System.Text.Json;
 namespace S1Mods.Shared;
 
 /// <summary>
-/// Resiliente I/O- und Persistenz-Hilfsklasse.
-/// Schützt Savegames und Konfigurationen durch atomare Schreiboperationen (Temp-File -> Atomic Replace)
-/// und automatisches Backup (.bak) vor Dateikorruption bei Spielabstürzen oder Patch-Änderungen.
+/// Resilient I/O and persistence helper class.
+/// Protects savegames and configurations through atomic write operations (temp file -> atomic replace)
+/// and automatic backup (.bak) against file corruption from game crashes or patch changes.
 /// </summary>
 public static class SafeStorage
 {
@@ -35,7 +35,7 @@ public static class SafeStorage
     private static object GetLock(string filePath) => SaveLocks.GetOrAdd(NormalizeLockKey(filePath), _ => new object());
 
     /// <summary>
-    /// Liefert den Standard-Pfad unter UserData/<ModName>/<FileName>.
+    /// Returns the default path under UserData/<ModName>/<FileName>.
     /// </summary>
     public static string GetUserDataPath(string modName, string fileName = "")
     {
@@ -46,7 +46,7 @@ public static class SafeStorage
     }
 
     /// <summary>
-    /// Stellt sicher, dass das angegebene Verzeichnis existiert.
+    /// Ensures that the specified directory exists.
     /// </summary>
     public static void EnsureDirectory(string dirPath)
     {
@@ -62,7 +62,7 @@ public static class SafeStorage
     }
 
     /// <summary>
-    /// Stellt sicher, dass das übergeordnete Verzeichnis einer Zieldatei existiert.
+    /// Ensures that the parent directory of a target file exists.
     /// </summary>
     public static void EnsureDirectoryForFile(string filePath)
     {
@@ -82,8 +82,8 @@ public static class SafeStorage
     }
 
     /// <summary>
-    /// Speichert ein Objekt als JSON atomar ab: Schreibt erst in eine .tmp-Datei,
-    /// sichert den bestehenden Stand als .bak und ersetzt dann atomar die Zieldatei.
+    /// Atomically saves an object as JSON: first writes to a .tmp file,
+    /// backs up the existing state as .bak, then atomically replaces the target file.
     /// </summary>
     public static bool SaveAtomic<T>(string filePath, T data, ModLogger? log = null, JsonSerializerOptions? options = null)
     {
@@ -95,13 +95,13 @@ public static class SafeStorage
         }
         catch (Exception ex)
         {
-            log?.Error($"SafeStorage: Serialisierungsfehler für '{Path.GetFileName(filePath)}': {ex.Message}");
+            log?.Error($"SafeStorage: Serialization error for '{Path.GetFileName(filePath)}': {ex.Message}");
             return false;
         }
     }
 
     /// <summary>
-    /// Speichert Text atomar ab mit .bak-Sicherung.
+    /// Atomically saves text with .bak backup.
     /// </summary>
     public static bool SaveTextAtomic(string filePath, string content, ModLogger? log = null)
     {
@@ -123,7 +123,7 @@ public static class SafeStorage
                     }
                     catch (Exception ex)
                     {
-                        log?.Warn($"SafeStorage: Backup-Kopie '{Path.GetFileName(backupPath)}' fehlgeschlagen: {ex.Message}");
+                        log?.Warn($"SafeStorage: Backup copy '{Path.GetFileName(backupPath)}' failed: {ex.Message}");
                     }
                 }
 
@@ -133,14 +133,14 @@ public static class SafeStorage
         }
         catch (Exception ex)
         {
-            log?.Error($"SafeStorage: Schreibfehler bei '{Path.GetFileName(filePath)}': {ex.Message}");
+            log?.Error($"SafeStorage: Write error at '{Path.GetFileName(filePath)}': {ex.Message}");
             return false;
         }
     }
 
     /// <summary>
-    /// Lädt ein JSON-Objekt sicher. Falls die Hauptdatei korrupt oder nicht lesbar ist,
-    /// wird versucht, das automatische Backup (.bak) zu laden. Schlägt alles fehl, greift der Fallback.
+    /// Safely loads a JSON object. If the main file is corrupt or unreadable,
+    /// tries to load the automatic backup (.bak). If everything fails, returns the fallback.
     /// </summary>
     public static T LoadSafe<T>(string filePath, T fallback, ModLogger? log = null, JsonSerializerOptions? options = null) where T : class
     {
@@ -149,7 +149,7 @@ public static class SafeStorage
             string backupPath = filePath + ".bak";
             if (File.Exists(backupPath))
             {
-                log?.Warn($"SafeStorage: Hauptdatei '{Path.GetFileName(filePath)}' fehlt, lade Backup '{Path.GetFileName(backupPath)}'.");
+                log?.Warn($"SafeStorage: Main file '{Path.GetFileName(filePath)}' missing, loading backup '{Path.GetFileName(backupPath)}'.");
                 return TryDeserialize(backupPath, fallback, log, options);
             }
             return fallback;
@@ -159,14 +159,14 @@ public static class SafeStorage
         {
             string json = File.ReadAllText(filePath);
             if (string.IsNullOrWhiteSpace(json))
-                throw new InvalidDataException("Hauptdatei ist leer.");
+                throw new InvalidDataException("Main file is empty.");
 
             T? result = JsonSerializer.Deserialize<T>(json, options ?? DefaultJsonOptions);
             return result ?? fallback;
         }
         catch (Exception ex)
         {
-            log?.Warn($"SafeStorage: Fehler beim Laden von '{Path.GetFileName(filePath)}' ({ex.Message}) — Versuche Backup-Wiederherstellung.");
+            log?.Warn($"SafeStorage: Error loading '{Path.GetFileName(filePath)}' ({ex.Message}) — attempting backup recovery.");
             string backupPath = filePath + ".bak";
             if (File.Exists(backupPath))
                 return TryDeserialize(backupPath, fallback, log, options);
@@ -176,7 +176,7 @@ public static class SafeStorage
     }
 
     /// <summary>
-    /// Liest eine Textdatei sicher ein. Falls fehlend oder unlesbar, greift das .bak-Backup bzw. der Fallback.
+    /// Safely reads a text file. If missing or unreadable, the .bak backup or fallback is used.
     /// </summary>
     public static string LoadTextSafe(string filePath, string fallback = "", ModLogger? log = null)
     {
@@ -188,7 +188,7 @@ public static class SafeStorage
                 try { return File.ReadAllText(backupPath); }
                 catch (Exception ex)
                 {
-                    log?.Warn($"SafeStorage: Backup-Lesefehler bei '{Path.GetFileName(backupPath)}': {ex.Message}");
+                    log?.Warn($"SafeStorage: Backup read error at '{Path.GetFileName(backupPath)}': {ex.Message}");
                 }
             }
             return fallback;
@@ -200,14 +200,14 @@ public static class SafeStorage
         }
         catch (Exception ex)
         {
-            log?.Warn($"SafeStorage: Text-Lese-Fehler bei '{Path.GetFileName(filePath)}' ({ex.Message}) — Versuche Backup.");
+            log?.Warn($"SafeStorage: Text read error at '{Path.GetFileName(filePath)}' ({ex.Message}) — attempting backup.");
             string backupPath = filePath + ".bak";
             if (File.Exists(backupPath))
             {
                 try { return File.ReadAllText(backupPath); }
                 catch (Exception exBak)
                 {
-                    log?.Error($"SafeStorage: Auch Backup-Lesefehler bei '{Path.GetFileName(backupPath)}': {exBak.Message}");
+                    log?.Error($"SafeStorage: Backup read error at '{Path.GetFileName(backupPath)}': {exBak.Message}");
                 }
             }
             return fallback;
@@ -224,7 +224,7 @@ public static class SafeStorage
         }
         catch (Exception ex)
         {
-            log?.Error($"SafeStorage: Auch Backup '{Path.GetFileName(path)}' unlesbar: {ex.Message}");
+            log?.Error($"SafeStorage: Backup '{Path.GetFileName(path)}' unreadable: {ex.Message}");
             return fallback;
         }
     }

@@ -3,14 +3,14 @@ using System;
 namespace S1Mods.Shared;
 
 /// <summary>
-/// Isolierte Aktions- und Callback-Ausführung.
-/// Fängt Exceptions in Event-Handlern und Game-Hooks sicher ab, sodass
-/// einzelne Mod-Fehler nach Spiel-Updates niemals die Unity-Hauptschleife oder andere Mods stoppen.
+/// Isolated action and callback execution.
+/// Safely catches exceptions in event handlers and game hooks so that
+/// individual mod errors after game updates never stop the Unity main loop or other mods.
 /// </summary>
 public static class SafeInvoker
 {
     /// <summary>
-    /// Führt eine Action gekapselt in einem Try-Catch-Block aus.
+    /// Executes an action encapsulated in a try-catch block.
     /// </summary>
     public static bool Execute(Action action, ModLogger? log = null, string context = "Action")
     {
@@ -24,14 +24,14 @@ public static class SafeInvoker
         }
         catch (Exception ex)
         {
-            if (log != null) log.Error($"Exception in {context} abgefangen (Game-Loop bleibt stabil)", ex);
+            if (log != null) log.Error($"Exception in {context} caught (game loop stays stable)", ex);
             else try { MelonLoader.MelonLogger.Error($"[SafeInvoker:{context}] {ex}"); } catch { }
             return false;
         }
     }
 
     /// <summary>
-    /// Führt eine Funktion mit Rückgabewert gekapselt aus und gibt bei Fehlern einen Fallback zurück.
+    /// Executes a function with return value encapsulated and returns a fallback on error.
     /// </summary>
     public static TResult Execute<TResult>(Func<TResult> func, TResult fallback, ModLogger? log = null, string context = "Function")
     {
@@ -44,14 +44,14 @@ public static class SafeInvoker
         }
         catch (Exception ex)
         {
-            if (log != null) log.Error($"Exception in {context} abgefangen", ex);
+            if (log != null) log.Error($"Exception in {context} caught", ex);
             else try { MelonLoader.MelonLogger.Error($"[SafeInvoker:{context}] {ex}"); } catch { }
             return fallback;
         }
     }
 
     /// <summary>
-    /// Führt eine parametrisierte Action gekapselt aus.
+    /// Executes a parameterized action encapsulated.
     /// </summary>
     public static bool Execute<T>(Action<T> action, T parameter, ModLogger? log = null, string context = "Action")
     {
@@ -65,7 +65,7 @@ public static class SafeInvoker
         }
         catch (Exception ex)
         {
-            if (log != null) log.Error($"Exception in {context} abgefangen", ex);
+            if (log != null) log.Error($"Exception in {context} caught", ex);
             else try { MelonLoader.MelonLogger.Error($"[SafeInvoker:{context}] {ex}"); } catch { }
             return false;
         }

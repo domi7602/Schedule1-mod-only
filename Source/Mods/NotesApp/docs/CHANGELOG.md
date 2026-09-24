@@ -1,16 +1,16 @@
 # Changelog
 
-## 1.0.3 (2026-09-13) — Bug-Report-Runde 6
-Bug-Report-Runde 6: N1 - JSON 'Title'/'Text': null wird beim Laden zu string.Empty normalisiert (RefreshList-Crash bei handeditierten/korrupten notes-Dateien behoben).
+## 1.0.3 (2026-09-13) — Bug Report Round 6
+Bug Report Round 6: N1 - JSON 'Title'/'Text': null is normalized to string.Empty on load (fixed RefreshList crash on hand-edited/corrupted notes files).
 
 
 ## 1.0.2 (2026-09-11)
-- RefreshList mit Null-/WasCollected-Guard (kein NRE vor OnCreatedUI/nach Unload).
-- Slot-Suffix mit >=0-Check (kein slot_-1-File).
+- RefreshList with Null/WasCollected guard (no NRE before OnCreatedUI/after Unload).
+- Slot-Suffix with >=0 check (no slot_-1 file).
 
 ## 1.0.1 (2026-09-10)
-- Statischer Event-Dispatcher: keine stale Subscriber mehr pro Szeneload (Memory-Leak).
-- Tote MigrateLegacyGlobalNotes() entfernt.
+- Static event dispatcher: no more stale subscribers per scene load (memory leak).
+- Dead MigrateLegacyGlobalNotes() removed.
 
 ## 1.0.0 (2026-08-14)
 - **SafeStorage Persistence Integration**:

@@ -67,9 +67,9 @@ public static class AutoWaterService
         if (pots == null || pots.Count == 0) return;
 
         // Fix 4.2 (Bug-Audit 2026-09-02): only the host/server may mutate pot moisture in MP.
-        // Konsolidiert 2026-09-15: S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
-        // (IL2CPP-safe Pointer/WasCollected-Checks; kein NetworkManager in SP => true;
-        // fail-closed bei Authority-Exceptions statt fail-open).
+        // Consolidated 2026-09-15: S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
+        // (IL2CPP-safe pointer/WasCollected checks; no NetworkManager in SP => true;
+        // fail-closed on authority exceptions instead of fail-open).
         if (!NetworkGuard.IsHostOrSingleplayer())
             return;
 
