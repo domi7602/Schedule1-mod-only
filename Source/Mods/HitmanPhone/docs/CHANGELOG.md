@@ -135,8 +135,8 @@ deadline constant (L7), LoadManager `-1` path no longer wedges (L8),
 
 ## 0.1.9 (2026-09-01)
 
-Thematic change — request by Dominik: "Bounty is dirty money in real life"
-(bounty money is dirty money in real life).
+Thematic change — request by Dominik: "Kopfgeld ist im echten Leben dreckiges
+Geld" (bounty money is dirty money in real life).
 
 - **Payout switched from online balance to physical cash:** `IssueReward` now
   calls `S1API.Money.Money.ChangeCashBalance(amount, visualizeChange: true,

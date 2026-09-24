@@ -381,8 +381,9 @@ public static class BountyReceiptService
     /// Hand the contract's <c>RewardCash</c> to the player as physical cash via
     /// <see cref="S1API.Money.Money.ChangeCashBalance(float, bool, bool)"/>.
     ///
-    /// v0.1.9: bounty pays DIRTY CASH, not an online transfer (Dominik: "Bounty
-    /// is dirty money in real life"). Fitting side effect: cash leaves no
+    /// v0.1.9: bounty pays DIRTY CASH, not an online transfer (Dominik: "Kopfgeld
+    /// ist im echten Leben dreckiges Geld" — bounty money is dirty money in real
+    /// life). Fitting side effect: cash leaves no
     /// transaction record in the banking ledger — no paper trail. The 0.1.8
     /// CreateOnlineTransaction path (typed S1API call) is kept in git history.
     ///

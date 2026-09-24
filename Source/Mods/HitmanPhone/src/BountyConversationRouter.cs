@@ -64,20 +64,30 @@ public static class BountyConversationRouter
         //           and hosts the offer on the TARGET's thread — the design the
         //           class doc above describes.
         //   tier 2: native MSGConversation on the target, bypassing S1API wrappers.
+        // The whole chain is guarded: a throwing tier must never bubble past the
+        // scheduler's OnUpdate catch — fall through to the caller-only warn below.
         if (hostWrapper == null)
         {
-            hostWrapper = S1API.Entities.NPC.Get(target.ID);
-            if (hostWrapper != null)
+            try
             {
-                Mod.Log.Warn($"SendOffer[DEBUG]: caller wrapper missing — tier1 hosted on target wrapper '{target.ID}'.");
+                hostWrapper = S1API.Entities.NPC.Get(target.ID);
+                if (hostWrapper != null)
+                {
+                    Mod.Log.Warn($"SendOffer[DEBUG]: caller wrapper missing — tier1 hosted on target wrapper '{target.ID}'.");
+                }
+                else if (SendOfferViaNativeConversation(target, body, responses, responseDelay: 1f))
+                {
+                    return;
+                }
+                else
+                {
+                    Mod.Log.Warn($"SendOffer[DEBUG]: all hosts failed. {DescribeWrapperIds()}");
+                }
             }
-            else if (SendOfferViaNativeConversation(target, body, responses, responseDelay: 1f))
+            catch (Exception ex)
             {
-                return;
-            }
-            else
-            {
-                Mod.Log.Warn($"SendOffer[DEBUG]: all hosts failed. {DescribeWrapperIds()}");
+                hostWrapper = null;
+                Mod.Log.Warn($"SendOffer[DEBUG]: host fallback failed — {ex.Message}");
             }
         }
 #endif
@@ -421,6 +431,13 @@ public static class BountyConversationRouter
     /// follow-up telling the player the offer is off, so a dead button is
     /// never mistaken for a broken mod. Best-effort: if the wrapper is gone
     /// too (fresh scene), only the log line remains.
+    ///
+    /// Deliberately NO tier-1/tier-2 host fallback here (unlike SendOffer):
+    /// by the time an offer is voided the conversation may be gone with the
+    /// scene, and re-hosting the notice on the TARGET's thread would put a
+    /// "deal is off" message into a conversation that never carried the
+    /// offer in this session. Wrong-thread noise is worse than a skipped
+    /// cosmetic notice — the player already sees the dead buttons.
     /// </summary>
     private static void SendOfferExpiredNotice(int callerIndex)
     {
