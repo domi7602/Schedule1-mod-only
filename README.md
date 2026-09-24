@@ -19,6 +19,7 @@ This repository contains several active mods, built from the ground up for stabi
 * **PotScanner** (v0.5.4): The ultimate tool for your grow ops. Provides quick-filter tabs (Thirsty, Ready, Empty), plant quality ratings, and single-property focus modes.
 * **BankApp** (v0.4.4): Digital account dashboard for tracking your cash flow and net worth. Features slot-aware cash deposits, weekly ATM limits, and chip-based UI.
 * **PocketShop** (v0.3.2): An advanced online shopping interface that follows each shop's own vanilla payment rule (cash at black-market suppliers, card at legal stores), plus level-lock enforcement, direct quantity picker modal, and item inspection modals.
+* **Weather** (v0.1.0): Read-only weather dashboard for your in-game phone. Shows the dominant condition as a hero readout plus all nine weather components (Sunny … Sleet) with live progress bars — pure status display, no persistence or gameplay influence.
 
 ### 🎮 Gameplay & QoL
 * **CustomSkateboard** (v1.1.5): Overhauls the skateboarding experience with ultra-responsive carving, instant jumping, high-speed pushes, and anti-gravel suspension. Visually protects your avatar.
@@ -27,6 +28,7 @@ This repository contains several active mods, built from the ground up for stabi
 * **MoreSaveSlots** (v1.0.12): Expands vanilla save slots from 5 to 25+ with paginated navigation and inline save renaming.
 * **AutoPackagingStation** (v0.3.3): 4×4 industrial automated packaging line with UV-scroll conveyor belt, atomic 2-phase engine, weighted quality mixing, native slot sync, 2×2 grid footprint, E-key interactable, and Hustler-I rank gate.
 * **HitmanPhone** (v0.2.9): Bounty/contract gameplay via the phone Messages app — anonymous callers, Polaroid evidence dead-drops, police heat, and journal quests.
+* **MessagesPlus** (v0.1.0): Clear All + recoverable Trash/Restore for the vanilla Messages app — bulk-move threads to a collapsible Papierkorb, restore per thread, permanently empty the trash behind a second confirmation, slot-isolated persistence.
 * **_DiagPerfCounter** (v0.3.2): Dev-tool that dumps StorageEntity hook targets to UserData for mod development (no gameplay effect).
 
 > Archived mods (source preserved, not built/deployed): BackpackMod, DayCounter, HomelessMod, Minimap, ProfitTracker, SnackVendor, TVBrowser — see `Source/Archive/` and [AGENTS.md](AGENTS.md).

@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Weather</AssemblyName>
+    <RootNamespace>Weather</RootNamespace>
+  </PropertyGroup>
+</Project>

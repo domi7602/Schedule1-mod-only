@@ -1,0 +1,6 @@
+{
+  "name": "MessagesPlus",
+  "author": "Dominik",
+  "version": "0.1.0",
+  "description": "Clear All + Trash/Restore for the vanilla Messages app: bulk-move conversations to a recoverable trash, restore them per thread, and permanently empty the trash — with slot-isolated persistence."
+}

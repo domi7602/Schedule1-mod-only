@@ -270,6 +270,9 @@ Before releasing or testing in-game:
 - [ ] Re-open test: open app → close phone → re-open → app still renders (catches Rule-10 regression).
 - [ ] Slot-switch test: Slot-A → Save → Slot-B → app shows isolated state (catches Rule-11 regression).
 - [ ] Compiles with 0 errors / 0 warnings (`dotnet build Source/Mods/<MyApp>/src/<MyApp>.csproj -c Release`).
+- [ ] Any runtime asset the app loads by filename (app icon, textures, bundles) lives in the mod's `assets/` folder — NOT only in `<GameDir>`. A manual copy into `<GameDir>` works locally but a fresh clone + build deploys no asset, and `IconFileName` then logs "Icon file not found" at runtime. Check `Directory.Build.targets` for what it actually copies.
+- [ ] Newly created `.cs` files ran through `dotnet format` before committing (`.editorconfig` enforces `end_of_line = lf`; a scaffold-generated CRLF file fails the pre-commit hook).
+- [ ] Icon files are real PNGs, not JPEGs renamed to `.png` (Unity's `LoadImage` tolerates it, but the extension lies and other tooling may not).
 
 ---
 
