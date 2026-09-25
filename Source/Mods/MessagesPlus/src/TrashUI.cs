@@ -28,14 +28,15 @@ namespace MessagesPlus;
 public static class TrashUI
 {
     // --- Palette ---
-    private static readonly Color SectionBg = new(0.07f, 0.08f, 0.11f, 0.92f);
-    private static readonly Color HeaderBg = new(0.10f, 0.12f, 0.16f, 0.95f);
-    private static readonly Color RowBg = new(1f, 1f, 1f, 0.06f);
-    private static readonly Color DestructiveBg = new(0.62f, 0.18f, 0.18f, 0.95f);
-    private static readonly Color RestoreBg = new(0.20f, 0.38f, 0.62f, 0.95f);
-    private static readonly Color NeutralBg = new(0.16f, 0.19f, 0.25f, 0.95f);
-    private static readonly Color TextLight = new(0.95f, 0.95f, 0.95f, 1f);
-    private static readonly Color TextDim = new(0.68f, 0.74f, 0.84f, 1f);
+    // NotesApp-matching color scheme
+    private static readonly Color SectionBg = new(0.08f, 0.09f, 0.12f, 0.95f);   // BgColor
+    private static readonly Color HeaderBg = new(0.09f, 0.10f, 0.14f, 1f);       // HeaderBgColor
+    private static readonly Color RowBg = new(0.12f, 0.13f, 0.18f, 1f);          // CardBgColor
+    private static readonly Color DestructiveBg = new(0.85f, 0.25f, 0.25f, 1f);  // DangerBtnColor
+    private static readonly Color RestoreBg = new(0.23f, 0.51f, 0.96f, 1f);      // PrimaryBtnColor
+    private static readonly Color NeutralBg = new(0.20f, 0.23f, 0.30f, 1f);      // SecondaryBtnColor
+    private static readonly Color TextLight = Color.white;
+    private static readonly Color TextDim = new(1f, 1f, 1f, 0.40f);              // NotesApp dim
 
     // --- References ---
     private static MessagesApp? _app;
@@ -193,6 +194,80 @@ public static class TrashUI
     }
 
     // ------------------------------------------------------------------
+    // Per-entry delete button (injected into every vanilla conversation row)
+    // ------------------------------------------------------------------
+
+    /// <summary>
+    /// Injects a small 🗑 delete button into a vanilla conversation entry.
+    /// Clicking it moves just that thread to the trash (same as Clear All but
+    /// for one conversation). Called from CreateConversationUI_Postfix for
+    /// every entry the vanilla app creates.
+    /// </summary>
+    public static void InjectEntryDeleteButton(RectTransform entry, MSGConversation conv, MessagesApp app)
+    {
+        if (entry == null || conv == null) return;
+        if (!NetworkGuard.IsAlive(entry.gameObject)) return;
+
+        // Don't double-inject if the entry is rebuilt
+        if (entry.Find("MessagesPlus_EntryDelete") != null) return;
+
+        bool canMutate = NetworkGuard.IsHostOrSingleplayer();
+
+        // Small 🗑 button anchored to the right edge of the entry
+        GameObject btnGO = new GameObject("MessagesPlus_EntryDelete");
+        btnGO.transform.SetParent(entry, false);
+
+        RectTransform rt = btnGO.AddComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1f, 0.5f);
+        rt.anchorMax = new Vector2(1f, 0.5f);
+        rt.pivot = new Vector2(1f, 0.5f);
+        rt.sizeDelta = new Vector2(S1Mods.Shared.UITheme.Dp(36f), S1Mods.Shared.UITheme.Dp(36f));
+        rt.anchoredPosition = new Vector2(-S1Mods.Shared.UITheme.Dp(4f), 0f);
+
+        var img = btnGO.AddComponent<Image>();
+        img.color = new Color(0.85f, 0.25f, 0.25f, 0.70f); // semi-transparent danger red
+        img.sprite = Resources.GetBuiltinResource<Sprite>("UI/Skin/UISprite.psd");
+        img.type = Image.Type.Sliced;
+        img.raycastTarget = true;
+
+        var btn = btnGO.AddComponent<Button>();
+        btn.targetGraphic = img;
+        btn.interactable = canMutate;
+
+        // Label 🗑
+        GameObject labelGO = new GameObject("Label");
+        labelGO.transform.SetParent(btnGO.transform, false);
+        RectTransform labelRT = labelGO.AddComponent<RectTransform>();
+        labelRT.anchorMin = Vector2.zero;
+        labelRT.anchorMax = Vector2.one;
+        labelRT.offsetMin = Vector2.zero;
+        labelRT.offsetMax = Vector2.zero;
+
+        var txt = labelGO.AddComponent<Text>();
+        txt.text = "\U0001F5D1"; // 🗑
+        txt.alignment = TextAnchor.MiddleCenter;
+        txt.fontSize = (int)S1Mods.Shared.UITheme.Sp(18);
+        txt.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        txt.raycastTarget = false;
+
+        // Capture the conversation for the click handler
+        MSGConversation captured = conv;
+        MessagesApp capturedApp = app;
+        ButtonUtils.AddListener(btn, () =>
+        {
+            TrashService.TrashSingle(captured, capturedApp);
+            // Hide the entry immediately (SetEntryVisibility(false) already ran)
+            // but also hide the UI entry itself for instant feedback
+            try
+            {
+                if (NetworkGuard.IsAlive(entry.gameObject))
+                    entry.gameObject.SetActive(false);
+            }
+            catch { }
+        });
+    }
+
+    // ------------------------------------------------------------------
     // Builders
     // ------------------------------------------------------------------
 
@@ -228,6 +303,7 @@ public static class TrashUI
     {
         float dp8 = S1Mods.Shared.UITheme.Dp(8f);
 
+        // Single "Clear All" button anchored top-right of the MessagesApp.
         GameObject toolbar = UIFactory.Panel("MessagesPlus_Toolbar", parent, Color.clear,
             anchorMin: new Vector2(1f, 1f), anchorMax: new Vector2(1f, 1f));
         _toolbarRoot = toolbar; // keep the ref immediately: a mid-build exception must not orphan the root
@@ -235,36 +311,43 @@ public static class TrashUI
         // W9: the toolbar panel is invisible — let clicks pass through to the
         // vanilla page underneath instead of swallowing them.
         SetRaycastTarget(toolbar, false);
+        toolbar.transform.SetAsLastSibling(); // render on top of vanilla UI
 
         RectTransform rt = (RectTransform)toolbar.transform;
         rt.pivot = new Vector2(1f, 1f);
-        rt.sizeDelta = new Vector2(S1Mods.Shared.UITheme.Dp(180f), S1Mods.Shared.UITheme.Dp(30f));
-        rt.anchoredPosition = new Vector2(-dp8, -dp8);
-
-        var hlg = toolbar.AddComponent<HorizontalLayoutGroup>();
-        hlg.childControlWidth = false;
-        hlg.childControlHeight = true;
-        hlg.childForceExpandWidth = false;
-        hlg.childForceExpandHeight = false;
-        hlg.spacing = S1Mods.Shared.UITheme.Dp(6f);
-        hlg.childAlignment = TextAnchor.MiddleRight;
+        rt.sizeDelta = new Vector2(S1Mods.Shared.UITheme.Dp(160f), S1Mods.Shared.UITheme.Dp(42f));
+        rt.anchoredPosition = new Vector2(-S1Mods.Shared.UITheme.Dp(12f), -S1Mods.Shared.UITheme.Dp(12f));
 
         // W10: mutation buttons are disabled for multiplayer clients
         // (read-only trash — mutations are host-only).
         bool canMutate = NetworkGuard.IsHostOrSingleplayer();
 
-        var (_, trashBtn, trashLabel) = UIFactory.ButtonWithLabel(
-            "MessagesPlus_TrashToggle", "\U0001F5D1", toolbar.transform,
-            HeaderBg, S1Mods.Shared.UITheme.Dp(44f), S1Mods.Shared.UITheme.Dp(28f));
-        ButtonUtils.AddListener(trashBtn, OnTrashToggleClicked);
-        SetRaycastTarget(trashLabel, false);
-
-        var (_, clearBtn, clearLabel) = UIFactory.ButtonWithLabel(
+        // Clear All button — top-right, prominent (NotesApp style)
+        var (clearMask, clearBtn, clearLabel) = UIFactory.RoundedButtonWithLabel(
             "MessagesPlus_ClearAll", "Clear All", toolbar.transform,
-            HeaderBg, S1Mods.Shared.UITheme.Dp(110f), S1Mods.Shared.UITheme.Dp(28f));
+            DestructiveBg, S1Mods.Shared.UITheme.Dp(110f), S1Mods.Shared.UITheme.Dp(38f),
+            (int)S1Mods.Shared.UITheme.Sp(20), Color.white);
+        clearBtn.GetComponent<Image>().raycastTarget = true;
         clearBtn.interactable = canMutate;
         ButtonUtils.AddListener(clearBtn, OnClearAllClicked);
         SetRaycastTarget(clearLabel, false);
+
+        // Trash toggle button — next to Clear All (NotesApp style)
+        var (trashMask, trashBtn, trashLabel) = UIFactory.RoundedButtonWithLabel(
+            "MessagesPlus_TrashToggle", "\U0001F5D1", toolbar.transform,
+            NeutralBg, S1Mods.Shared.UITheme.Dp(44f), S1Mods.Shared.UITheme.Dp(38f),
+            (int)S1Mods.Shared.UITheme.Sp(20), Color.white);
+        trashBtn.GetComponent<Image>().raycastTarget = true;
+        ButtonUtils.AddListener(trashBtn, OnTrashToggleClicked);
+        SetRaycastTarget(trashLabel, false);
+
+        var hlg = toolbar.AddComponent<HorizontalLayoutGroup>();
+        hlg.childControlWidth = false;
+        hlg.childControlHeight = false; // keep explicit button sizes from ButtonWithLabel
+        hlg.childForceExpandWidth = false;
+        hlg.childForceExpandHeight = false;
+        hlg.spacing = S1Mods.Shared.UITheme.Dp(4f);
+        hlg.childAlignment = TextAnchor.MiddleRight;
     }
 
     private static void BuildTrashSection(Transform parent)
@@ -272,6 +355,7 @@ public static class TrashUI
         GameObject section = UIFactory.Panel("MessagesPlus_TrashSection", parent, SectionBg,
             anchorMin: new Vector2(0f, 0f), anchorMax: new Vector2(1f, 0f));
         _sectionRoot = section; // keep the ref immediately (see BuildToolbar)
+        section.transform.SetAsLastSibling(); // render on top of vanilla UI
 
         RectTransform rt = (RectTransform)section.transform;
         rt.pivot = new Vector2(0.5f, 0f);
@@ -292,11 +376,13 @@ public static class TrashUI
         csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
 
-        // 1. Collapsible header "[Trash (N)]"
-        var (headerRoot, headerBtn, headerText) = UIFactory.ButtonWithLabel(
+        // 1. Collapsible header "Trash (N)" (NotesApp style)
+        var (headerMask, headerBtn, headerText) = UIFactory.RoundedButtonWithLabel(
             "MessagesPlus_TrashHeader", "Trash (0)", section.transform,
-            HeaderBg, S1Mods.Shared.UITheme.Dp(360f), S1Mods.Shared.UITheme.Dp(30f));
-        AddPreferredHeight(headerRoot, 30f);
+            HeaderBg, S1Mods.Shared.UITheme.Dp(360f), S1Mods.Shared.UITheme.Dp(38f),
+            (int)S1Mods.Shared.UITheme.Sp(20), Color.white);
+        AddPreferredHeight(headerMask, 38f);
+        headerBtn.GetComponent<Image>().raycastTarget = true;
         ButtonUtils.AddListener(headerBtn, OnTrashToggleClicked);
         SetRaycastTarget(headerText, false);
         _headerLabel = headerText;
@@ -315,15 +401,17 @@ public static class TrashUI
         rowsCsf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
         _rowsContainer = rows;
 
-        // 3. Permanent delete "[Empty trash]"
-        var (emptyRoot, emptyBtn, emptyLabel) = UIFactory.ButtonWithLabel(
+        // 3. Permanent delete "Empty trash" (NotesApp style)
+        var (emptyMask, emptyBtn, emptyLabel) = UIFactory.RoundedButtonWithLabel(
             "MessagesPlus_EmptyTrash", "Empty trash", section.transform,
-            DestructiveBg, S1Mods.Shared.UITheme.Dp(360f), S1Mods.Shared.UITheme.Dp(28f));
-        AddPreferredHeight(emptyRoot, 28f);
+            DestructiveBg, S1Mods.Shared.UITheme.Dp(360f), S1Mods.Shared.UITheme.Dp(38f),
+            (int)S1Mods.Shared.UITheme.Sp(20), Color.white);
+        AddPreferredHeight(emptyMask, 38f);
+        emptyBtn.GetComponent<Image>().raycastTarget = true;
         emptyBtn.interactable = NetworkGuard.IsHostOrSingleplayer(); // W10: read-only trash for MP clients
         ButtonUtils.AddListener(emptyBtn, OnEmptyTrashClicked);
         SetRaycastTarget(emptyLabel, false);
-        _emptyButtonRoot = emptyRoot;
+        _emptyButtonRoot = emptyMask;
     }
 
     private static void BuildConfirmModal(Transform parent)
@@ -341,7 +429,7 @@ public static class TrashUI
         RectTransform cardRt = (RectTransform)card.transform;
         cardRt.anchorMin = new Vector2(0.5f, 0.5f);
         cardRt.anchorMax = new Vector2(0.5f, 0.5f);
-        cardRt.sizeDelta = new Vector2(S1Mods.Shared.UITheme.Dp(320f), S1Mods.Shared.UITheme.Dp(180f));
+        cardRt.sizeDelta = new Vector2(S1Mods.Shared.UITheme.Dp(280f), S1Mods.Shared.UITheme.Dp(140f));
 
         // W8: clicks on the card (background / title / message) bubble up via
         // ExecuteEvents.ExecuteHierarchy and would hit the backdrop Button —
@@ -351,26 +439,31 @@ public static class TrashUI
         cardBtn.transition = Selectable.Transition.None;
         ButtonUtils.AddListener(cardBtn, () => { });
 
+        var csf = card.AddComponent<ContentSizeFitter>();
+        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+
         var vlg = card.AddComponent<VerticalLayoutGroup>();
         vlg.childControlWidth = true;
         vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true;
         vlg.childForceExpandHeight = false;
-        vlg.spacing = S1Mods.Shared.UITheme.Dp(8f);
+        vlg.spacing = S1Mods.Shared.UITheme.Dp(6f);
         vlg.padding = new RectOffset(
-            (int)S1Mods.Shared.UITheme.Dp(14f), (int)S1Mods.Shared.UITheme.Dp(14f),
-            (int)S1Mods.Shared.UITheme.Dp(14f), (int)S1Mods.Shared.UITheme.Dp(14f));
+            (int)S1Mods.Shared.UITheme.Dp(12f), (int)S1Mods.Shared.UITheme.Dp(12f),
+            (int)S1Mods.Shared.UITheme.Dp(12f), (int)S1Mods.Shared.UITheme.Dp(12f));
 
         _modalTitle = UIFactory.Text("MessagesPlus_ConfirmTitle", "Confirm", card.transform,
-            S1Mods.Shared.UITheme.Sp(14), TextAnchor.MiddleCenter, FontStyle.Bold);
+            S1Mods.Shared.UITheme.Sp(32), TextAnchor.MiddleCenter, FontStyle.Bold);
         _modalTitle.color = TextLight;
         SetRaycastTarget(_modalTitle, false); // W8: modal texts must not take/bubble clicks
+        AddPreferredHeight(_modalTitle.gameObject, 42f);
 
         _modalMessage = UIFactory.Text("MessagesPlus_ConfirmMessage", string.Empty, card.transform,
-            S1Mods.Shared.UITheme.Sp(11), TextAnchor.UpperLeft);
+            S1Mods.Shared.UITheme.Sp(26), TextAnchor.MiddleCenter);
         _modalMessage.color = TextDim;
         SetRaycastTarget(_modalMessage, false); // W8
-        AddPreferredHeight(_modalMessage.gameObject, 56f);
+        AddPreferredHeight(_modalMessage.gameObject, 60f);
 
         GameObject buttonRow = UIFactory.Panel("MessagesPlus_ConfirmButtons", card.transform, Color.clear);
         SetRaycastTarget(buttonRow, false); // W9: invisible row must not block the card
@@ -379,18 +472,22 @@ public static class TrashUI
         hlg.childControlHeight = true;
         hlg.childForceExpandWidth = true;
         hlg.childForceExpandHeight = false;
-        hlg.spacing = S1Mods.Shared.UITheme.Dp(10f);
-        AddPreferredHeight(buttonRow, 30f);
+        hlg.spacing = S1Mods.Shared.UITheme.Dp(8f);
+        AddPreferredHeight(buttonRow, 52f);
 
-        var (_, cancelBtn, cancelLabel) = UIFactory.ButtonWithLabel(
+        var (cancelMask, cancelBtn, cancelLabel) = UIFactory.RoundedButtonWithLabel(
             "MessagesPlus_ConfirmCancel", "Cancel", buttonRow.transform,
-            NeutralBg, S1Mods.Shared.UITheme.Dp(120f), S1Mods.Shared.UITheme.Dp(28f));
+            NeutralBg, S1Mods.Shared.UITheme.Dp(130f), S1Mods.Shared.UITheme.Dp(50f),
+            (int)S1Mods.Shared.UITheme.Sp(26), Color.white);
+        cancelBtn.GetComponent<Image>().raycastTarget = true;
         ButtonUtils.AddListener(cancelBtn, HideConfirm);
         SetRaycastTarget(cancelLabel, false);
 
-        var (_, confirmBtn, confirmLabel) = UIFactory.ButtonWithLabel(
+        var (confirmMask, confirmBtn, confirmLabel) = UIFactory.RoundedButtonWithLabel(
             "MessagesPlus_ConfirmOk", "Confirm", buttonRow.transform,
-            DestructiveBg, S1Mods.Shared.UITheme.Dp(120f), S1Mods.Shared.UITheme.Dp(28f));
+            DestructiveBg, S1Mods.Shared.UITheme.Dp(130f), S1Mods.Shared.UITheme.Dp(50f),
+            (int)S1Mods.Shared.UITheme.Sp(26), Color.white);
+        confirmBtn.GetComponent<Image>().raycastTarget = true;
         ButtonUtils.AddListener(confirmBtn, OnConfirmClicked);
         SetRaycastTarget(confirmLabel, false);
         _modalConfirmButton = confirmBtn;
@@ -456,7 +553,7 @@ public static class TrashUI
     {
         GameObject row = UIFactory.Panel("MessagesPlus_TrashRow", _rowsContainer!.transform, RowBg);
         SetRaycastTarget(row, false); // W9: non-interactive row background
-        AddPreferredHeight(row, 34f);
+        AddPreferredHeight(row, 52f);
 
         var hlg = row.AddComponent<HorizontalLayoutGroup>();
         hlg.childControlWidth = true;
@@ -469,22 +566,23 @@ public static class TrashUI
         hlg.childAlignment = TextAnchor.MiddleLeft;
 
         Text label = UIFactory.Text("MessagesPlus_TrashRowLabel", entry.ContactName, row.transform,
-            S1Mods.Shared.UITheme.Sp(11), TextAnchor.MiddleLeft);
+            S1Mods.Shared.UITheme.Sp(20), TextAnchor.MiddleLeft);
         label.color = TextLight;
         SetRaycastTarget(label, false); // W9
         var labelLe = label.gameObject.AddComponent<LayoutElement>();
         labelLe.flexibleWidth = 1f;
         labelLe.minWidth = S1Mods.Shared.UITheme.Dp(40f);
 
-        var (_, restoreBtn, restoreLabel) = UIFactory.ButtonWithLabel(
+        var (restoreMask, restoreBtn, restoreLabel) = UIFactory.RoundedButtonWithLabel(
             "MessagesPlus_TrashRowRestore", "\u21A9", row.transform,
-            RestoreBg, S1Mods.Shared.UITheme.Dp(40f), S1Mods.Shared.UITheme.Dp(24f));
+            RestoreBg, S1Mods.Shared.UITheme.Dp(52f), S1Mods.Shared.UITheme.Dp(42f),
+            (int)S1Mods.Shared.UITheme.Sp(24), Color.white);
         restoreBtn.interactable = canMutate; // W10: read-only trash for MP clients
         SetRaycastTarget(restoreLabel, false);
-        var btnLe = restoreBtn.gameObject.AddComponent<LayoutElement>();
+        var btnLe = restoreMask.AddComponent<LayoutElement>();
         btnLe.flexibleWidth = 0f;
-        btnLe.preferredWidth = S1Mods.Shared.UITheme.Dp(40f);
-        btnLe.preferredHeight = S1Mods.Shared.UITheme.Dp(24f);
+        btnLe.preferredWidth = S1Mods.Shared.UITheme.Dp(52f);
+        btnLe.preferredHeight = S1Mods.Shared.UITheme.Dp(42f);
 
         TrashEntry captured = entry;
         ButtonUtils.AddListener(restoreBtn, () => OnRestoreClicked(captured));
@@ -505,6 +603,10 @@ public static class TrashUI
             graphic.raycastTarget = value;
         }
     }
+
+    /// <summary>W9: GameObject overload — targets the root's background <see cref="Image"/>.</summary>
+    private static void SetRaycastTarget(GameObject? go, bool value) =>
+        SetRaycastTarget(go != null ? go.GetComponent<Image>() : null, value);
 
     // ------------------------------------------------------------------
     // Trash-change subscription (C2)

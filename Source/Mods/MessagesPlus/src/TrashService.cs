@@ -158,6 +158,36 @@ public static class TrashService
     // ------------------------------------------------------------------
 
     /// <summary>
+    /// Moves a single conversation into the trash (hides its entry via
+    /// SetEntryVisibility(false)). Used by the per-entry delete button.
+    /// </summary>
+    public static void TrashSingle(MSGConversation? conv, MessagesApp? app)
+    {
+        if (!CanMutate("TrashSingle")) return;
+        if (conv == null || !IsAlive(conv)) return;
+        try
+        {
+            if (IsPurged(conv) || IsTrashed(conv)) return;
+            if (!conv!.EntryVisible) return;
+
+            conv.SetEntryVisibility(false);
+            _state.Trashed.Add(MakeEntry(conv));
+            Save();
+            OnTrashChanged?.Invoke();
+            _log?.Info($"TrashSingle: '{SafeName(conv)}' moved to trash.");
+        }
+        catch (Exception ex)
+        {
+            _log?.Error($"TrashSingle failed: {ex.Message}");
+        }
+    }
+
+    private static string SafeName(MSGConversation conv)
+    {
+        try { return conv.ContactName ?? "?"; } catch { return "?"; }
+    }
+
+    /// <summary>
     /// Moves every visible conversation into the trash (hides its entry via
     /// SetEntryVisibility(false)). Purged threads are skipped.
     /// </summary>
@@ -166,10 +196,13 @@ public static class TrashService
         if (!CanMutate("ClearAll")) return;
         try
         {
-            var conversations = MessagesApp.Conversations;
+            // Use ActiveConversations (visible inbox subset), NOT Conversations
+            // (which contains ALL conversation objects including background NPCs
+            // like "Sewer Goblin" that never appear in the player's inbox).
+            var conversations = MessagesApp.ActiveConversations;
             if (conversations == null)
             {
-                _log?.Warn("ClearAll: Conversations list unavailable.");
+                _log?.Warn("ClearAll: ActiveConversations list unavailable.");
                 return;
             }
             int moved = 0;
@@ -413,12 +446,16 @@ public static class TrashService
 
     private static TrashEntry MakeEntry(MSGConversation conv)
     {
-        return new TrashEntry
-        {
-            Id = GetConversationId(conv),
-            ContactName = SafeString(conv.ContactName),
-            Index = SafeIndex(conv)
-        };
+        // Each property access is individually guarded: IL2CPP proxy objects can
+        // throw NullReferenceException on member access when collected/uninitialized,
+        // BEFORE the value reaches SafeString/SafeIndex.
+        string id = "";
+        string name = "";
+        int index = -1;
+        try { id = GetConversationId(conv); } catch { }
+        try { name = conv.ContactName ?? string.Empty; } catch { }
+        try { index = conv.Index; } catch { }
+        return new TrashEntry { Id = id, ContactName = name, Index = index };
     }
 
     /// <summary>
@@ -429,19 +466,23 @@ public static class TrashService
     {
         try
         {
-            string id = SafeString(conv.ConversationId);
+            string id = conv.ConversationId ?? string.Empty;
             if (id.Length > 0) return id;
         }
         catch { /* fall through */ }
 
         try
         {
-            string fileName = SafeString(conv.SaveFileName);
+            string fileName = conv.SaveFileName ?? string.Empty;
             if (fileName.Length > 0) return fileName;
         }
         catch { /* fall through */ }
 
-        return $"idx:{SafeIndex(conv)}|{SafeString(conv.ContactName)}";
+        string fallbackName = "";
+        int fallbackIndex = -1;
+        try { fallbackName = conv.ContactName ?? string.Empty; } catch { }
+        try { fallbackIndex = conv.Index; } catch { }
+        return $"idx:{fallbackIndex}|{fallbackName}";
     }
 
     /// <summary>
@@ -455,8 +496,10 @@ public static class TrashService
     {
         if (conv == null || !IsAlive(conv)) return null;
         string id = GetConversationId(conv);
-        string name = SafeString(conv.ContactName);
-        int index = SafeIndex(conv);
+        string name = "";
+        int index = -1;
+        try { name = conv.ContactName ?? string.Empty; } catch { }
+        try { index = conv.Index; } catch { }
 
         TrashEntry? byName = null;
         foreach (TrashEntry entry in list)
@@ -492,12 +535,17 @@ public static class TrashService
             if (entry.Id.Length > 0 && id.Length > 0 && string.Equals(entry.Id, id, StringComparison.Ordinal))
                 return conv;
 
-            if (entry.Index >= 0 && entry.Index == SafeIndex(conv!) &&
-                string.Equals(entry.ContactName, SafeString(conv!.ContactName), StringComparison.OrdinalIgnoreCase))
+            string convName = "";
+            int convIndex = -1;
+            try { convName = conv!.ContactName ?? string.Empty; } catch { }
+            try { convIndex = conv!.Index; } catch { }
+
+            if (entry.Index >= 0 && entry.Index == convIndex &&
+                string.Equals(entry.ContactName, convName, StringComparison.OrdinalIgnoreCase))
                 return conv;
 
             if (byName == null && entry.Index < 0 && entry.ContactName.Length > 0 &&
-                string.Equals(entry.ContactName, SafeString(conv!.ContactName), StringComparison.OrdinalIgnoreCase))
+                string.Equals(entry.ContactName, convName, StringComparison.OrdinalIgnoreCase))
                 byName = conv;
         }
         return byName;

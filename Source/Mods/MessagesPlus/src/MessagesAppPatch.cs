@@ -40,6 +40,13 @@ public static class MessagesAppPatch
             "Loaded",
             postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(Loaded_Postfix)),
             log: log);
+
+        PatchGuard.TryPatch(
+            harmony,
+            typeof(MessagesApp),
+            nameof(MessagesApp.CreateConversationUI),
+            postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(CreateConversationUI_Postfix)),
+            log: log);
     }
 
     /// <summary>
@@ -107,6 +114,25 @@ public static class MessagesAppPatch
         catch (Exception ex)
         {
             Mod.Log?.Warn($"Loaded_Postfix failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Injects a small per-entry delete button (🗑) into every conversation
+    /// row created by the vanilla app. Clicking it moves just that thread
+    /// to the trash (same as Clear All but for one conversation).
+    /// </summary>
+    [HarmonyPostfix]
+    public static void CreateConversationUI_Postfix(MessagesApp __instance, MSGConversation c, ref RectTransform entry)
+    {
+        try
+        {
+            if (entry == null) return;
+            TrashUI.InjectEntryDeleteButton(entry, c, __instance);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"CreateConversationUI_Postfix failed: {ex.Message}");
         }
     }
 }

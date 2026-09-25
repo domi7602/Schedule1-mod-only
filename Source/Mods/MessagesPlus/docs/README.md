@@ -1,15 +1,15 @@
 # MessagesPlus
 
-**Version 0.1.0** — Clear All + Trash/Restore for the vanilla Messages app (SMS) on the in-game phone.
+**Version 0.1.1** — Clear All + Trash/Restore for the vanilla Messages app (SMS) on the in-game phone.
 
 MessagesPlus is a **patch-only mod**: it enhances the *existing* vanilla `MessagesApp` via Harmony patches and injects its UI into the app's own page. It does **not** register a new PhoneApp or add a homescreen icon.
 
 ## Features
 
 - **Clear All** button in the Messages toolbar (top-right) → confirmation popup → every visible conversation moves to the trash (hidden via `MSGConversation.SetEntryVisibility(false)`).
-- **Trash section** ("Papierkorb") as a collapsible panel at the bottom of the conversation list, showing all deleted threads with a per-thread restore button.
+- **Trash section** ("Trash") as a collapsible panel at the bottom of the conversation list, showing all deleted threads with a per-thread restore button.
 - **Restore** per thread → `SetEntryVisibility(true)` + `MoveToTop()` + `RepositionEntries()` — the thread is back at the top of the inbox.
-- **Trash leeren** (empty trash) → permanent removal from the Messages app, behind a **second**, stronger confirmation.
+- **Empty trash** → permanent removal from the Messages app, behind a **second**, stronger confirmation.
 - **Slot-isolated persistence**: the trash is saved via `S1Mods.Shared.SafeStorage.SaveAtomic` to `UserData/MessagesPlus/trash_slot_{n}.json` (atomic write + `.bak` backup, never `slot_-1`).
 
 ## Installation
@@ -23,19 +23,23 @@ MessagesPlus is a **patch-only mod**: it enhances the *existing* vanilla `Messag
 
 1. Open the phone → **Messages** app.
 2. **[Clear All]** (top-right) moves all visible threads to the trash (confirm once).
-3. Open the **[Papierkorb (N)]** section at the bottom (toggle with the trash icon in the toolbar or the section header).
+3. Open the **[Trash (N)]** section at the bottom (toggle with the trash icon in the toolbar or the section header).
 4. **[↩]** restores a thread to the top of the inbox.
-5. **[Trash leeren]** permanently removes all trashed threads (confirm twice — the second dialog warns that this cannot be undone).
+5. **[Empty trash]** permanently removes all trashed threads (confirm twice — the second dialog warns that this cannot be undone).
 
 ## Multiplayer
 
-All trash mutations (Clear All, Restore, Trash leeren) are **host-only**. Multiplayer clients see a read-only trash (mutations are ignored with a log warning) to prevent save desyncs.
+All trash mutations (Clear All, Restore, Empty trash) are **host-only**. Multiplayer clients see a read-only trash: the mutation buttons are disabled and mutations are ignored with a log warning to prevent save desyncs.
 
 ## Persistence details
 
 - File: `UserData/MessagesPlus/trash_slot_{n}.json` (`SafeStorage.SaveAtomic`, `.bak` recovery).
 - Save-load timing: loaded on `GameLifecycle.OnSaveInfoLoaded`, re-applied to the conversation list after the vanilla `MessagesApp.Loaded` hook.
-- Permanently deleted ("purged") threads are recorded in the same file and re-removed after every save load, so they stay gone across sessions. The native conversation object and the game's own save entry are deliberately left intact — destroying vanilla saveables/UI objects causes IL2CPP crashes in vanilla callbacks.
+- Permanently deleted ("purged") threads are recorded in the same file and re-removed after every save load and from a throttled (1 s) re-apply, so they stay gone across sessions — even when the purged thread receives new messages (the native `MSGConversation` object stays alive and vanilla callbacks can otherwise re-show the entry). The native conversation object and the game's own save entry are deliberately left intact — destroying vanilla saveables/UI objects causes IL2CPP crashes in vanilla callbacks.
+
+## In-game test notes
+
+- **Purge resurrection (v0.1.1):** move a thread to the trash, empty the trash, then have that contact send a new message. The thread must NOT reappear in the inbox (the throttled re-apply suppresses it); check the log for the re-apply warnings.
 
 ## Limitations (Phase 1)
 

@@ -13,7 +13,11 @@ S1API provides `S1API.UI.UIFactory` with helper methods for constructing uGUI el
 | `UIFactory.Panel` | `(string name, Transform parent, Color color, bool fullAnchor = false)` | Creates a raw `GameObject` with `Image` and optional full stretch anchors. |
 | `UIFactory.Text` | `(string name, string text, Transform parent, int fontSize, TextAnchor alignment, FontStyle style = FontStyle.Normal)` | Creates a standard uGUI `Text` element. |
 | `UIFactory.Button` | `(string name, Transform parent, Color color)` | Creates a basic clickable button panel. |
-| `UIFactory.RoundedButtonWithLabel` | `(string name, string label, Transform parent, Color btnColor, Color txtColor, int fontSize)` | Creates a pre-styled rounded button with child label. |
+| `UIFactory.ButtonWithLabel` | `(string name, string label, Transform parent, Color bgColor, float width, float height)` | Creates a flat (square) button with centered label. No fontSize/textColor params — uses defaults. |
+| `UIFactory.RoundedButtonWithLabel` | `(string name, string label, Transform parent, Color bgColor, float width, float height, int fontSize, Color textColor)` | **Preferred for all UI.** Rounded-mask button (NotesApp style). Returns `(maskGO, btn, txt)`: maskGO has LayoutElement, btn is the inner Button, txt is the label. |
+
+> [!IMPORTANT]
+> Use `RoundedButtonWithLabel` as the standard — it matches NotesApp visual style (rounded corners, proper font sizing). `ButtonWithLabel` creates flat square buttons that look inconsistent. The return tuple: `AddListener` on `btn`, `AddPreferredHeight` on `maskGO`.
 
 ---
 

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>TaxiDriver</AssemblyName>
+    <RootNamespace>TaxiDriver</RootNamespace>
+    <!-- Same pattern as HitmanPhone: picks up the IL2CPP MelonLoader/S1API code paths. -->
+    <DefineConstants>$(DefineConstants);IL2CPPMELON</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- `taxi probe` reads VehicleAgent.roadSeeker/generalSeeker, whose Seeker type
+         lives in the A*-interop assembly (not referenced by Directory.Build.props). -->
+    <Reference Include="Il2CppAstarPathfindingProject" Condition="Exists('$(Il2CppAssemblies)\Il2CppAstarPathfindingProject.dll')">
+      <HintPath>$(Il2CppAssemblies)\Il2CppAstarPathfindingProject.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
