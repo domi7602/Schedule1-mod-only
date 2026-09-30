@@ -98,7 +98,7 @@ public sealed class BankApp : PhoneApp
         MelonEvents.OnUpdate.Subscribe(DispatchUpdate);
         S1API.Money.Money.OnBalanceChanged += DispatchBalanceChanged;
         TransactionHistoryService.OnHistoryChanged += DispatchBalanceChanged;
-        MelonLogger.Msg("Registered with S1API PhoneApp system (v0.3.0).");
+        MelonLogger.Msg("Registered with S1API PhoneApp system (v0.4.4).");
     }
 
     internal static void TearDownForSceneUnload()

@@ -12,7 +12,7 @@ namespace PocketShop;
 
 public class Mod : MelonMod
 {
-    public const string Version = "0.2.7";
+    public const string Version = "0.3.2";
     public static ModLogger Log { get; private set; } = null!;
 
     public override void OnInitializeMelon()

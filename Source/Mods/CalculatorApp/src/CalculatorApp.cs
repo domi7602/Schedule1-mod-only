@@ -125,7 +125,7 @@ public sealed class CalculatorApp : PhoneApp
         GameLifecycle.OnSaveInfoLoaded += DispatchSaveInfoLoaded;
         GameLifecycle.OnPreLoad += DispatchPreLoad;
 
-        MelonLogger.Msg("Loaded state & initialized (v0.2.1).");
+        MelonLogger.Msg("Loaded state & initialized (v0.2.3).");
     }
 
     internal static void TearDownForSceneUnload() => _active = null;

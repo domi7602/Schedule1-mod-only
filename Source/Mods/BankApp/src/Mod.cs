@@ -30,7 +30,7 @@ public class Mod : MelonMod
         }
         catch (Exception ex) { Log.Warn($"GameLifecycle hook failed: {ex.Message}"); }
 
-        Log.Info("Initialized (v0.4.2).");
+        Log.Info("Initialized (v0.4.4).");
     }
 
     public override void OnDeinitializeMelon()

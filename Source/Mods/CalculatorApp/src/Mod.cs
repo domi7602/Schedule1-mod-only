@@ -12,7 +12,7 @@ public class Mod : MelonMod
     public override void OnInitializeMelon()
     {
         try { ClassInjector.RegisterTypeInIl2Cpp<CalculatorAppInputFocus>(); } catch (Exception ex) { MelonLogger.Warning($"Failed to register CalculatorAppInputFocus: {ex.Message}"); }
-        MelonLogger.Msg("Initialized (v0.2.2).");
+        MelonLogger.Msg("Initialized (v0.2.3).");
     }
 
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
