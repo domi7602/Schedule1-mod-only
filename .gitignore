@@ -57,3 +57,5 @@ local.build.props
 ThirdParty/**/local.build.props
 ThirdParty/**/game_config.json
 ThirdParty/**/config.local.json
+
+.hermes-tmp.*
