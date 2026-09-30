@@ -1,16 +1,16 @@
 ---
 name: schedule1-3d-assets
 description: >-
-  Comprehensive 3D asset, Blender pipeline, and Unity URP rendering runbook for Schedule I modding (v0.4.6f13, Unity 2022.3 LTS, URP).
+  Comprehensive 3D asset, Blender pipeline, and Unity URP rendering runbook for Schedule I modding (v0.4.7f6, Unity 2022.3 LTS, URP).
   Use this skill whenever creating 3D models in Blender, fixing rendering issues (pink shaders, flipped normals, axis rotations), exporting to .obj/.glb/AssetBundles, rigging/attaching to avatar bones (Spine2, Head, Hands), setting up PBR materials, and tuning proportions for Schedule I characters and props.
   Keywords: Blender, 3D, Mesh, URP, Universal Render Pipeline, Shader, Material, Lit, Unlit, Pink Texture, Flipped Normals, Backface Culling, ObjLoader, GLTF, GLB, AssetBundle, Bone Attachment, Spine2, Humanoid, Zero Collider, Scale.
 ---
 
-> Version anchor: Game v0.4.6f13 / S1API 3.2.0 / MelonLoader 0.7.3 (verified 2026-09-03). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — 3D Asset & Blender Rendering Pipeline
 
-This skill is the **complete runbook** for creating, exporting, and rendering 3D assets in *Schedule I* (v0.4.6f13, Unity 2022.3 LTS, Universal Render Pipeline).
+This skill is the **complete runbook** for creating, exporting, and rendering 3D assets in *Schedule I* (v0.4.7f6, Unity 2022.3 LTS, Universal Render Pipeline).
 
 ---
 

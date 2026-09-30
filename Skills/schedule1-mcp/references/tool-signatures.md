@@ -21,7 +21,7 @@ Returns engine status, active scene, multiplayer state, and loaded mods.
   "build_index": 1,
   "is_multiplayer": false,
   "is_host": true,
-  "game_version": "0.4.6f13",
+  "game_version": "0.4.7f6",
   "active_mods": ["NotesApp", "PotScanner", "CustomSkateboard", "S1MCPServer", "Shared"]
 }
 ```

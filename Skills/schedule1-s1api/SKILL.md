@@ -1,12 +1,12 @@
 ---
 name: schedule1-s1api
 description: >-
-  Author-reference for the S1API framework (ifBars fork, v3.2.0 deployed, 961 .cs files in 114 namespaces) for Schedule I v0.4.6f13 (IL2CPP/Mono).
+  Author-reference for the S1API framework (ifBars fork, v3.2.1-beta.7 deployed, 1000 .cs files in 152 namespaces) for Schedule I v0.4.7f6 (IL2CPP/Mono).
   Use this skill whenever you need to find the right S1API namespace for a task, write a Saveable, build a PhoneApp, register a Quest, create a custom NPC, register a console command, hook a lifecycle event, or decide whether to use a S1API wrapper vs direct Il2CppScheduleOne interop.
   Keywords: S1API, Folders, Money, GameTime, Lifecycle, PhoneApp, Quests, NPCs, Saveables, Items, Products, Building, Law, Vehicles, GameLifecycle, OnSaveLoaded, OnLoadComplete, Property, Il2CppScheduleOne, MelonLoader.
 ---
 
-> Version anchor: Game v0.4.6f13 / S1API 3.2.0 / MelonLoader 0.7.3 (verified 2026-09-03). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — S1API Author Reference (ifBars fork, v3.2.0)
 
@@ -23,7 +23,7 @@ This skill is the **API-catalog map** for S1API. Use it when you need to know wh
 | **Workspace Root** | `C:\Users\pc\Schedule1-mod-only` (lives outside the game directory) |
 | **Game Path** | `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`) |
 | **Runtime** | MelonLoader 0.7.3 (IL2CPP, Unity 2022.3) |
-| **S1API DLLs (deployed)** | `<GameDir>\Plugins\S1APILoader.dll` + `<GameDir>\Mods\S1API.Il2Cpp.MelonLoader.dll` |
+| **S1API DLLs (deployed)** | `<GameDir>\Plugins\S1APILoader.MelonLoader.dll` + `<GameDir>\Mods\S1API.Il2Cpp.MelonLoader.dll` |
 | **S1API Source (In-Repo)** | `ThirdParty/S1API/S1API/` (full C# source tree) |
 | **Decompiled Vanilla Code** | `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/` |
 | **Architecture Guides** | `Skills/schedule1-game-systems/references/` (64 curated systems) |

@@ -1,16 +1,16 @@
 ---
 name: schedule1-modding
 description: >-
-  Expert guide and runbook for developing, building, testing, and maintaining MelonLoader IL2CPP C# mods for Schedule I v0.4.6f13 (TVGS) in the Schedule I Modding Workspace.
+  Expert guide and runbook for developing, building, testing, and maintaining MelonLoader IL2CPP C# mods for Schedule I v0.4.7f6 (TVGS) in the Schedule I Modding Workspace.
   Use this skill whenever creating new mods, modifying existing mods, writing Harmony patches, building PhoneApps via S1API, troubleshooting IL2CPP/Unity/MelonLoader issues, building solutions, or implementing UI features for Schedule I.
   Keywords: Schedule I, MelonLoader, IL2CPP, Harmony, HarmonyPatch, PhoneApp, S1API, Unity 2022.3, mod scaffolding, SafeStorage, UITheme.
 ---
 
-> Version anchor: Game v0.4.6f13 / S1API 3.2.0 / MelonLoader 0.7.3 (verified 2026-09-12). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — Modding Skill & Runbook
 
-This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I v0.4.6f13** (TVGS) in the workspace at `C:\Users\pc\Schedule1-mod-only`. The workspace lives outside the game install dir; game path resolves via `$env:SCHEDULE1_PATH` (default: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`).
+This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I v0.4.7f6** (TVGS) in the workspace at `C:\Users\pc\Schedule1-mod-only`. The workspace lives outside the game install dir; game path resolves via `$env:SCHEDULE1_PATH` (default: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`).
 
 > **Version check (last verified: 2026-09-12):** Before writing patches or building, confirm the installed game version and S1API version still match this skill. If the game was updated, follow the Update Runbook (§5) first.
 
@@ -190,6 +190,7 @@ Read the sub-guides **before** the matching task — not just "for reference":
 16. **Idempotency**: Use checks like `LastPaidElapsedDay` to ensure scene reloads or save reloads don't trigger duplicate transactions.
 17. **Hot-Path Harmony Early-Out via Cached Set**: When a Harmony prefix/postfix fires every physics step for every instance in the scene, cache target IDs into a `static readonly HashSet<int> _tunedInstanceIds` in `Awake`/`Start`, and early-out with `if (instanceId == 0 || !_tunedInstanceIds.Contains(instanceId)) return true;`.
 18. **Save-Slot-Change vs Same-Slot-Scene-Reload Detection**: `GameLifecycle.OnPreLoad` fires for both real save-slot switches AND same-slot Menu→Game scene reloads. Distinguish slot switches (`oldSlot != newSlot`) from scene reload to avoid destroying placed objects on menu return.
+19. **S1API EventHelper Dedupe Kills Rebuilt UI — Wire with Defensive Remove-Before-Add**: `S1API.Utils.EventHelper.AddListener` (and `ButtonUtils.AddListener`, which wraps it) dedupes GLOBALLY per listener delegate instance (`SubscribedActions.ContainsKey(listener)`). C# caches static-method-group delegates, so after a UI rebuild (scene reload, re-injection) the same `Action` instance hits the stale dict entry and the NEW UnityEvent silently gets NO listener — every rebuilt control is dead (verified latent bug in MessagesPlus v0.2.0: [Clear All] died after scene reload). Fix pattern: `WireClick`-style helper that calls `ButtonUtils.RemoveListener(btn, handler)` (clears the stale dict entry; harmless on first build) BEFORE `ButtonUtils.AddListener(btn, handler)`; same for `EventHelper.RemoveListener<T>`/`AddListener<T>` on `onValueChanged`. Fresh lambdas per build also work but leak dict entries.
 
 ### Never do (hard guardrails):
 * Never use `foreach` or LINQ on `Il2CppSystem.Collections.Generic.List<T>` — indexed `for` only.

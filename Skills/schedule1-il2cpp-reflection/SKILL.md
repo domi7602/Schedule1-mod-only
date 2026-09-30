@@ -1,11 +1,11 @@
 ---
 name: schedule1-il2cpp-reflection
 description: >-
-  Runtime-reflection recipes for MelonLoader IL2CPP mods in Schedule I v0.4.6f13. Use when IL2CPP bindings are missing or wrong (Il2CppStructArray vs byte[], Sprite[] vs Il2CppReferenceArray), when patching game types that may move namespaces, or when reading/writing private fields across Mono/IL2CPP runtime.
+  Runtime-reflection recipes for MelonLoader IL2CPP mods in Schedule I v0.4.7f6. Use when IL2CPP bindings are missing or wrong (Il2CppStructArray vs byte[], Sprite[] vs Il2CppReferenceArray), when patching game types that may move namespaces, or when reading/writing private fields across Mono/IL2CPP runtime.
   Keywords: Il2CppStructArray, Il2CppReferenceArray, Il2CppInterop, RuntimeReflection, byte[] overload, Texture2D.LoadImage, Sprite array, type cache, namespace fallback.
 ---
 
-> Version anchor: Game v0.4.6f13 / S1API 3.2.0 / MelonLoader 0.7.3 (verified 2026-09-03). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — IL2CPP Runtime-Reflection Recipes
 
@@ -250,5 +250,5 @@ public static List<object> Materialize(object il2cppCollection) {
 
 - `Source/Mods/Shared/src/TypeResolver.cs` — production wrapper (uses §5 + §6)
 - Live source of patterns above: decompiled `CustomLoadingScreens/CustomLoadingScreens.Utils/RuntimeReflection.cs` and `CustomLoadingScreens/CustomLoadingScreens.Integrations.Interop/RuntimeInterop.cs` (decompile kept transiently under `.scratch/mod-decompile/_decompiled/` - NOT part of the repo, regenerate on demand)
-- S1API 3.2.0 already wraps most of this — always check S1API's `Internal/Utils` before rolling your own
+- S1API 3.2.1-beta.7 already wraps most of this — always check S1API's `Internal/Utils` before rolling your own
 - Harmony 2.x docs: `[HarmonyPrepare]` + `[HarmonyTargetMethod]` for runtime target resolution (see `schedule1-modding` §5)

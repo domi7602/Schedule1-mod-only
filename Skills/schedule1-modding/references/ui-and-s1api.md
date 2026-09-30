@@ -2,7 +2,7 @@
 
 ---
 
-## 1. S1API 3.2.0 Architecture
+## 1. S1API 3.2.1-beta.7 Architecture
 
 S1API provides high-level abstractions for Schedule I:
 * **Phone Applications**: `PhoneApp`, `PhoneAppRegistry`

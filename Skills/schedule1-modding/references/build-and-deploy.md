@@ -88,9 +88,9 @@ pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.1 -DryRun # preview
 
 | Framework | Status | Origin / Deploy | Notes |
 |---|---|---|---|
-| **S1API 3.2.0** | ✅ active | Fork-build in `ThirdParty/S1API/` $\rightarrow$ `Mods\S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.dll` | Core modding API |
+| **S1API 3.2.1-beta.7** | ✅ active | Fork-build in `ThirdParty/S1API/` $\rightarrow$ `Mods\S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.MelonLoader.dll` | Core modding API |
 | **PhoneScroll 1.4** | ❌ retired 2026-09-16 | `ThirdParty/Archive/PhoneScroll/` (only README, DLL withdrawn) $\rightarrow$ `Mods\PhoneScroll.dll` | Closed-source vanilla phone scroll hook by V4LEXL |
-| **S1MAPI 2.0.0** | ✅ active | `ThirdParty/S1MAPI/` | Procedural meshes, GLTF loader, interior tools |
+| **S1MAPI 2.0.1** | ✅ active | `ThirdParty/S1MAPI/` | Procedural meshes, GLTF loader, interior tools |
 | **S1MCPServer** | ✅ active | `ThirdParty/S1MCPServer-master/` $\rightarrow$ `Mods\S1MCPServer-IL2CPP.dll` | Live TCP introspection (:8765) |
 | **Sideload** | ❌ removed | Removed on 2026-09-10 (commit `37e7a5d`) | Deprecated, unused |
 | **hash 1.0.5** | 📦 deprecated | `ThirdParty/Archive/ScheduleOne-Hash/` (undeployed) | Kept for reference only |

@@ -24,7 +24,7 @@ Lifecycle event fires:
   - OnSaveInfoLoaded            ← ★ right after parse, before scene build
   - OnLoadComplete              ← ★ after scene build complete
   - OnSceneWasLoaded (general)
-  [UNVERIFIED — verify against live Assembly-CSharp.dll via ilspycmd before relying]
+  [VERIFIED 2026-09-29 (instrumented run): real order is Scene 'Main' loaded -> OnPreLoad -> OnLoadComplete (7.9 s later). **OnSaveInfoLoaded fired 0 times** on game 0.4.7f6 + S1API 3.2.1-beta.7 — neither at save-menu open nor during the load (two subscribed logging handlers, zero log lines). **Do NOT rely on OnSaveInfoLoaded on 0.4.7f6**: the 'refresh there' pattern in this document is the historical <= 0.4.6f13 recipe. Use OnPreLoad + OnSceneWasLoaded + OnLoadComplete instead. Static proof via ilspycmd is impossible (IL2CPP interop proxies are thunk-only, invokes live in GameAssembly.dll). Evidence: schedule1-lifecycle-verify section 7.]
   ↓
 Game loop running
 ```
@@ -52,6 +52,8 @@ vs.
 ---
 
 ## 3. The Solution: Hook `GameLifecycle.OnSaveInfoLoaded`
+
+> **BROKEN on game 0.4.7f6 + S1API 3.2.1-beta.7 (verified 2026-09-29):** `OnSaveInfoLoaded` no longer fires at all (see the marker in section 1). The snippet below is the historical (<= 0.4.6f13) pattern. On 0.4.7f6 subscribe `OnPreLoad` (reset), `OnSceneWasLoaded` (scene in) and `OnLoadComplete` (final refresh) instead.
 
 ```csharp
 // In Mod.cs / Mod class:
@@ -195,6 +197,7 @@ This is **inferior** to the hook but works as a fallback when S1API isn't availa
 2. **Use only the first phase.** `OnLoadComplete` is for UI init; `OnSaveInfoLoaded` is for cache refresh — pick the right one based on need.
 3. **Forget hot-reload.** If your mod supports MelonLoader's hot-reload, subscribe/unsubscribe in `OnInitializeMelon`/`OnDeinitializeMelon` symmetrically.
 4. **Race with FishNet SyncVars.** Multiplayer sync may overwrite your local cache — defer UI updates until `OnLoadComplete`.
+5. **`OnSaveInfoLoaded` is multi-fire (from S1API docs, surfaced 2026-09-28):** it also fires when the save menu opens or save data is re-scanned, not only once per load. Make handlers idempotent and tolerate empty static lists at those firings (validate with the section 10 pattern).
 
 ---
 

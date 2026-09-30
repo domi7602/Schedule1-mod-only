@@ -6,7 +6,7 @@ description: >-
   Keywords: Decompiles, Assembly-CSharp, Il2CppScheduleOne, GameReferences, Game Systems, S1API, S1MAPI, ilspycmd, research.
 ---
 
-> Version anchor: Game v0.4.6f13 / S1API 3.2.0 / MelonLoader 0.7.3 (verified 2026-09-12). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — Knowledge Navigation Skill
 
@@ -40,8 +40,8 @@ Schedule1-mod-only/
 │   └── schedule1-phoneapp/references/       (Method 3 responsive UI, input focus, lifecycle)
 │
 ├── ThirdParty/
-│   ├── S1API/S1API/                         (Full C# source code of S1API 3.2.0)
-│   ├── S1MAPI/                              (S1MAPI 2.0.0 mapping framework)
+│   ├── S1API/S1API/                         (Full C# source code of S1API 3.2.1-beta.7)
+│   ├── S1MAPI/                              (S1MAPI 2.0.1 mapping framework)
 │   ├── Archive/PhoneScroll/               (retired 2026-09-16, phone scroll hook by V4LEXL)
 │   └── S1MCPServer-master/                  (S1MCP protocol bridge source)
 │
@@ -59,7 +59,7 @@ When you get a question, run this mental check:
 | Question | File / Location to open first | Then |
 |---|---|---|
 | What's the API signature of `GrowContainer.SetMoistureAmount`? | `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/Growing/GrowContainer.cs` | Verify live DLL via `ilspycmd` |
-| What does S1API 3.2.0 expose for Phone Apps? | `Skills/schedule1-phoneapp/SKILL.md` + `ThirdParty/S1API/S1API/PhoneApp/` | `Source/Mods/NotesApp/` |
+| What does S1API 3.2.1-beta.7 expose for Phone Apps? | `Skills/schedule1-phoneapp/SKILL.md` + `ThirdParty/S1API/S1API/PhoneApp/` | `Source/Mods/NotesApp/` |
 | How does ModX achieve Y? | `Source/Mods/<ModName>/src/*.cs` (active workspace mods) | `AGENTS.md` (mod inventory) |
 | What are IL2CPP pitfalls? | `Skills/schedule1-il2cpp-reflection/SKILL.md` + `schedule1-troubleshooting` | `Source/Mods/Shared/` |
 | Which class is responsible for Save/Load? | `Skills/schedule1-game-systems/references/02-Save-Persistence.md` | `GameReferences/decompiled/.../Persistence/` |
@@ -122,9 +122,9 @@ D. **Inspect S1API wrappers:**
 ## 6. Knowledge State & Anchors
 
 * Workspace: `C:\Users\pc\Schedule1-mod-only`
-* Game Version: `v0.4.6f13` (Unity 2022.3, IL2CPP).
-* S1API: `3.2.0` deployed (`Plugins\S1APILoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`).
-* S1MAPI: `2.0.0` in `ThirdParty/S1MAPI/`.
+* Game Version: `v0.4.7f6` (Unity 2022.3, IL2CPP).
+* S1API: `3.2.1-beta.7` deployed (`Plugins\S1APILoader.MelonLoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`).
+* S1MAPI: `2.0.1` in `ThirdParty/S1MAPI/`.
 * Active Mods: 13 mods in `Source/Mods/` (NotesApp, PotScanner, CalculatorApp, CustomSkateboard, MoreSaveSlots, PocketShop, BankApp, BusinessIncome, StackLimitMod, AutoPackagingStation, HitmanPhone, Shared, _DiagPerfCounter); archivierte Mods in `Source/Archive/`.
 * All 64 game systems fully documented in `Skills/schedule1-game-systems/references/`.
 

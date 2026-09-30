@@ -1,9 +1,9 @@
 ---
 name: schedule1-phoneapp
-description: Expert runbook and architectural standard for developing in-game smartphone apps (PhoneApps) using S1API and uGUI in Schedule I (v0.4.6f13, IL2CPP, MelonLoader 0.7.3). Use this skill whenever creating a new PhoneApp, designing responsive phone UI layouts, fixing phone lifecycle bugs (such as transparent housing or input freezes), adding keyboard shortcuts, or integrating with S1API Phone systems.
+description: Expert runbook and architectural standard for developing in-game smartphone apps (PhoneApps) using S1API and uGUI in Schedule I (v0.4.7f6, IL2CPP, MelonLoader 0.7.3). Use this skill whenever creating a new PhoneApp, designing responsive phone UI layouts, fixing phone lifecycle bugs (such as transparent housing or input freezes), adding keyboard shortcuts, or integrating with S1API Phone systems.
 ---
 
-> Version anchor: Game v0.4.6f13 / S1API 3.2.0 / MelonLoader 0.7.3 (verified 2026-09-03). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — PhoneApp Development Runbook (S1API & IL2CPP)
 
@@ -101,6 +101,31 @@ protected override void OnPhoneClosed()
 ```
 
 **Corollary:** The same applies to **static event handlers** (`PotTracker.OnPotsScanned`, `Money.OnBalanceChanged`, `TransactionHistoryService.OnHistoryChanged`, `_engine.OnStateChanged`). Unsubscribing them in `OnPhoneClosed` kills live-updates after the first close. The defensive `-=` before `+=` in `OnCreated` is sufficient and correct.
+
+### Rule 12 (empirical, 2026-09-29): Close-Path Experiments Must Not Kill the Open-Direction Sync
+
+**Symptom:** `TaxiApp` canvas permanently transparent ("dauerhaft durchsichtig") — the app never rendered, even on first open.
+
+**Root cause:** a diagnostic Harmony prefix skipped `PhoneApp.SetAppOpen(false)` on close (to measure the 1-frame transparent close frame) and, while "armed", the app's `Update()` skipped the `_mainBG.SetActive(open)` sync in BOTH directions. Since `_mainBG` starts inactive (Rule 3) and that sync is the only thing that ever shows it, the app could never appear.
+
+**Rules:**
+1. Any close-path experiment must keep the OPEN-direction visibility sync: gate only the close branch (`_mainBG.activeSelf != open && (open || !experimentArmed)`).
+2. Skipping `SetAppOpen(false)` leaves `AppsCanvas.SetIsOpen` / `HomeScreen.SetIsOpen` / orientation state stale — mirror the bookkeeping or re-normalize after the animation.
+3. The transparent close frame itself: `SetAppOpen(false)` hides `AppsCanvas` + `_appContainer` SYNCHRONOUSLY while the phone mesh animates away afterwards — the gap IS S1API's synchronous hide. Upstream fix shape: delay the hide until the animation ends.
+
+### Rule 13 (empirical, 2026-09-29): Scroll-Content Lists Need childControlWidth + No Inner Force-Expand
+
+**Symptom:** dynamic list rows lost their first letters on the LEFT and their last letters on the RIGHT (screenshot 2026-09-29), while headers under the app root were perfect.
+
+**Root cause:** `UIFactory.ScrollableVerticalList`'s content `VerticalLayoutGroup` does NOT set `childControlWidth`, so rows kept their PREFERRED width (long names = wide rows) and bled past both mask edges. Inside the row, `childForceExpandWidth = true` also forced the FIXED-width tag to expand (50/50 split instead of "name gets the rest").
+
+**Fix pattern** (directly after `ScrollableVerticalList`):
+```csharp
+var contentLayout = content.GetComponent<VerticalLayoutGroup>();
+contentLayout.childControlWidth = true;
+contentLayout.childForceExpandWidth = true;
+```
+and in each row's `HorizontalLayoutGroup`: `childControlWidth = true; childForceExpandWidth = false;` (the tag keeps `LayoutElement.preferredWidth`, the name gets the rest). The app root VLG already has `childControlWidth = true` - which is exactly why headers never show this bug.
 
 ---
 

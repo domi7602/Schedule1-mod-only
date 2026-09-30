@@ -1,11 +1,11 @@
 ---
 name: schedule1-debounced-reload
 description: >-
-  Debounced live-reload pattern for MelonLoader mods in Schedule I v0.4.6f13. Use when a mod needs to react to file or folder changes (config hot-edit, user asset drop, MelonPreferences.cfg watcher) without thrashing the main thread.
+  Debounced live-reload pattern for MelonLoader mods in Schedule I v0.4.7f6. Use when a mod needs to react to file or folder changes (config hot-edit, user asset drop, MelonPreferences.cfg watcher) without thrashing the main thread.
   Keywords: FileSystemWatcher, debounce, TryConsumeScheduledReload, OnUpdate, main-thread pump, config hot-reload, ImageFolderWatcher, PreferencesFileWatcher.
 ---
 
-> Version anchor: Game v0.4.6f13 / S1API 3.2.0 / MelonLoader 0.7.3 (verified 2026-09-03). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — Debounced Live-Reload Pattern
 

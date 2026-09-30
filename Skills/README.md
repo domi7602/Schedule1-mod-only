@@ -1,7 +1,7 @@
 # Schedule I — AI Agent Skills Index
 
 20 Skills under `Skills/<skill-name>/SKILL.md` — runbooks, framework references, and
-diagnostic guides for MelonLoader mod development (game v0.4.6f13, S1API 3.2.0).
+diagnostic guides for MelonLoader mod development (game v0.4.7f6, S1API 3.2.1-beta.7).
 
 > **Loading order:** Always first [`schedule1-modding`](schedule1-modding/SKILL.md)
 > (primary runbook skill), then the matching specialty skill. The path
@@ -52,7 +52,7 @@ diagnostic guides for MelonLoader mod development (game v0.4.6f13, S1API 3.2.0).
 - **Frontmatter:** Every `SKILL.md` starts with YAML (`name:` = directory name, `description:` with
   trigger sentences + `Keywords:`). No SKILL.md without frontmatter.
 - **Version anchor:** Directly below the frontmatter is the verification state, e.g.
-  `Game v0.4.6f13 / S1API 3.2.0 / MelonLoader 0.7.3 (verified 2026-09-03)`.
+  `Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install)`.
   After game or S1API updates re-verify, don't just touch the date.
 - **Detail depth:** `SKILL.md` = decision tree + quick refs (keep slim);
   details move to `references/*.md` and are linked via relative link.

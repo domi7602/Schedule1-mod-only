@@ -1,6 +1,6 @@
 # Universal Render Pipeline (URP) & Material System in Schedule I
 
-This document describes the shader architecture of *Schedule I* (v0.4.6f13), how to correctly assign textures and materials at runtime, and how to avoid typical rendering mistakes (pink shaders, missing gloss, material leaks).
+This document describes the shader architecture of *Schedule I* (v0.4.7f6), how to correctly assign textures and materials at runtime, and how to avoid typical rendering mistakes (pink shaders, missing gloss, material leaks).
 
 ---
 
