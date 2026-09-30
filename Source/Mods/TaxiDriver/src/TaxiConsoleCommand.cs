@@ -20,7 +20,7 @@ public sealed class TaxiConsoleCommand : BaseConsoleCommand
     public override string CommandDescription =>
         "TaxiDriver spike (Stage 1 drive + Stage 2 visual swap + Stage 3 NPC driver ride + Stage 3b taxi stand / call-taxi): help, codes, spawn, npc, ride, out, go, go2, stop, status, cleanup, probe, trace, visual, lots, stand";
 
-    public override string ExampleUsage => "taxi go 40";
+    public override string ExampleUsage => "taxi to Skatepark";
 
     public override void ExecuteCommand(List<string> args)
     {
@@ -51,6 +51,11 @@ public sealed class TaxiConsoleCommand : BaseConsoleCommand
 
                 case "ride":
                 case "in":
+                    // Stage 3d: `taxi ride <place>` picks the destination first, so a
+                    // single command orders and starts a ride to a named place.
+                    if (args.Count >= 2)
+                        SpikeCommands.To(string.Join(" ", args.GetRange(1, args.Count - 1)), "taxi ride");
+
                     SpikeCommands.Ride();
                     break;
 
@@ -94,6 +99,53 @@ public sealed class TaxiConsoleCommand : BaseConsoleCommand
 
                 case "stand":
                     SpikeCommands.PrepareStand("taxi stand");
+                    break;
+
+                case "ai":
+                case "ki":
+                    // Log-only here (the MelonLoader console takes no input), but the
+                    // same dump fires by itself on the first ride — see TaxiAI.
+                    TaxiAI.DumpConstants("taxi ai");
+                    break;
+
+                case "pois":
+                case "places":
+                case "destinations":
+                    SpikeCommands.Pois();
+                    break;
+
+                case "wp":
+                case "checkpoint":
+                case "checkpoints":
+                    // Custom checkpoints (checkpoints.json): `taxi wp add <name>` at
+                    // the player position, `taxi wp remove <name>`, `taxi wp list`.
+                    CustomCheckpoints.HandleCommand(args);
+                    break;
+
+                case "fare":
+                case "meter":
+                    FareMeter.PrintStatus();
+                    break;
+
+                case "clear":
+                    // Paket D: drop the picked destination + its marker (a waiting ride
+                    // keeps waiting, a running drive keeps its dispatched target).
+                    SpikeState.ClearDestination();
+                    SpikeCommands.Print("[ride] destination cleared — the marker is gone (Paket D).");
+                    break;
+
+                case "to":
+                case "drive":
+                case "destination":
+                    if (args.Count < 2)
+                    {
+                        SpikeCommands.Print("`taxi to` needs a destination — a name or an index (`taxi pois` lists them).");
+                        break;
+                    }
+
+                    // Names contain spaces ("Parking Garage"), so everything after
+                    // the subcommand is the query.
+                    SpikeCommands.To(string.Join(" ", args.GetRange(1, args.Count - 1)), $"taxi {sub}");
                     break;
 
                 case "visual":

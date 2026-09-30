@@ -53,6 +53,16 @@ internal static class TaxiVisual
     private static string? _resolvedPath;
 
     /// <summary>
+    /// GLB world min Y measured right before the auto-alignment moved it (NaN when
+    /// the swap did not run) — one half of the 0.3.0 spawn diagnostic line in
+    /// <see cref="SpikeCommands.SpawnVehicle"/>.
+    /// </summary>
+    internal static float LastGlbMinYBefore = float.NaN;
+
+    /// <summary>GLB world min Y after the auto-alignment (NaN when the swap did not run).</summary>
+    internal static float LastGlbMinYAfter = float.NaN;
+
+    /// <summary>
     /// Vanilla visibility snapshot taken at the start of a swap; non-null while a
     /// swap is in flight. Cleared on success, consumed by
     /// <see cref="RollbackPartialSwap"/> when <see cref="SwapInternal"/> throws
@@ -131,6 +141,10 @@ internal static class TaxiVisual
     /// </summary>
     internal static void SwapAfterSpawn(LandVehicle veh)
     {
+        // 0.3.0 spawn diagnostic: fresh "GLB min Y before/after" per call.
+        LastGlbMinYBefore = float.NaN;
+        LastGlbMinYAfter = float.NaN;
+
         if (!SpikeState.VisualSwapEnabled)
         {
             SpikeCommands.Print("[visual] swap disabled (SpikeState.VisualSwapEnabled=false) — vanilla visuals kept.");
@@ -198,6 +212,21 @@ internal static class TaxiVisual
     }
 
     /// <summary>
+    /// World min Y of the attached GLB right now (NaN when no GLB is attached or
+    /// its bounds cannot be read) — consumed by the 0.3.0 "after settle" diagnostic
+    /// in <see cref="SpikeRunner.TickRide"/>-adjacent logging.
+    /// </summary>
+    internal static float CurrentGlbMinY()
+    {
+        GameObject? root = SpikeState.VisualRoot;
+        if (root == null || root.Pointer == IntPtr.Zero)
+            return float.NaN;
+        return TryGetWorldBounds(root, out Vector3 c, out Vector3 s)
+            ? c.y - s.y * 0.5f
+            : float.NaN;
+    }
+
+    /// <summary>
     /// One visual swap. Order: resolve the GLB → measure the vanilla bounds →
     /// load the GLB → snapshot the vanilla children *and their visibility* →
     /// parent the GLB (registers <see cref="SpikeState.VisualRoot"/> immediately,
@@ -213,18 +242,33 @@ internal static class TaxiVisual
         if (path == null)
             return;
 
-        // ---- 1. capture the vanilla visual BEFORE anything is switched off ----
+        // ---- 1. capture the alignment reference BEFORE anything is switched off ----
         GameObject? vehicleModel = veh.vehicleModel;
         GameObject parentGo = vehicleModel != null && vehicleModel.Pointer != IntPtr.Zero
             ? vehicleModel
             : veh.gameObject;
 
-        bool haveVanillaBounds = TryGetWorldBounds(parentGo, out Vector3 vanillaCenter, out Vector3 vanillaSize);
+        // 0.3.0 float fix: the alignment reference is LandVehicle.boundingBox (the
+        // deterministic prefab BoxCollider — world corners via TransformPoint(center
+        // ± size/2), never culling-stale), NOT the vanilla Renderer.bounds: those
+        // are refreshed only during culling and are STALE on the spawn frame (the
+        // live run measured a −0.63 m y delta and a ~41 m xz offset pointing at the
+        // pre-teleport pool location → "alignment rejected, GLB stays at local
+        // zero" on EVERY spawn, which is what left the taxi floating).
+        bool haveVanillaBounds = SpikeCommands.TryGetVehicleBoxWorldBounds(veh, out Vector3 boxMin, out Vector3 boxMax);
+        Vector3 vanillaCenter = (boxMin + boxMax) * 0.5f;
+        Vector3 vanillaSize = boxMax - boxMin;
+        // Stale-bounds diagnostic only — never used for the alignment itself.
+        bool haveRendererBounds = TryGetWorldBounds(parentGo, out Vector3 staleCenter, out Vector3 staleSize);
         SpikeCommands.Print(
             $"[visual] parent = '{parentGo.name}' (vehicleModel {(vehicleModel == null ? "NULL — falling back to the vehicle root" : "present")}), " +
             (haveVanillaBounds
-                ? $"vanilla bounds center=({Vec(vanillaCenter)}) size=({Vec(vanillaSize)})"
-                : "vanilla bounds unavailable (no renderer)"));
+                ? $"boundingBox min=({Vec(boxMin)}) max=({Vec(boxMax)}) — alignment reference"
+                : "boundingBox unavailable (no BoxCollider) — alignment skipped"));
+        SpikeCommands.Print(
+            haveRendererBounds
+                ? $"[visual] vanilla Renderer.bounds (diagnostic only, culling-stale on the spawn frame) center=({Vec(staleCenter)}) size=({Vec(staleSize)})"
+                : "[visual] vanilla Renderer.bounds unavailable (no renderer)");
 
         // ---- 2. load the GLB through S1MAPI's runtime loader ----
         GameObject? glb;
@@ -402,12 +446,15 @@ internal static class TaxiVisual
         // The GLB subtree is excluded, otherwise we would switch off our own taxi.
         int parentRs = HideRenderers(parentT, glb.transform);
 
-        // ---- 6. auto-align: put the GLB where the vanilla visual used to be ----
-        // Rule: same ground height (bounds MIN y — both cars stand on their wheels)
-        // and the same lateral/longitudinal centre (bounds centre x/z). A plain
+        // ---- 6. auto-align: put the GLB where the SHITBOX BODY sits ----
+        // Rule: same ground height (boundingBox MIN y — both cars stand on the road)
+        // and the same lateral/longitudinal centre (boundingBox centre x/z). A plain
         // centre-minus-centre would sink the taxi whenever the two pivots differ
-        // vertically, because a car's bounding box sits above its pivot.
-        string alignNote = "skipped (vanilla bounds unavailable)";
+        // vertically, because a car's bounding box sits above its pivot. The
+        // reference is the deterministic LandVehicle.boundingBox (see step 1) — with
+        // the pre-0.3.0 Renderer.bounds reference this step rejected every spawn as
+        // stale and left the GLB ~0.55 m in the air after the chassis pop-up.
+        string alignNote = "skipped (boundingBox unavailable)";
         if (haveVanillaBounds && TryGetWorldBounds(glb, out Vector3 glbCenter, out Vector3 glbSize))
         {
             if (vanillaSize.x >= MinBoundsEdgeMeters && vanillaSize.y >= MinBoundsEdgeMeters && vanillaSize.z >= MinBoundsEdgeMeters
@@ -415,23 +462,20 @@ internal static class TaxiVisual
             {
                 Vector3 vanillaMin = vanillaCenter - vanillaSize * 0.5f;
                 Vector3 glbMin = glbCenter - glbSize * 0.5f;
+                LastGlbMinYBefore = glbMin.y;
                 Vector3 delta = new Vector3(
                     vanillaCenter.x - glbCenter.x,
                     vanillaMin.y - glbMin.y,
                     vanillaCenter.z - glbCenter.z);
 
-                // Plausibility guard: right after SpawnAndReturnVehicle the vanilla
-                // Renderer.bounds are still the ones the pooled instance reported
-                // BEFORE the teleport (Unity only refreshes them during culling), so
-                // the union can point tens of metres away from the fresh vehicle.
-                // Run 1 measured (57, -0.6, -33) m — accepting that would strand the
-                // taxi in a field. Auto-alignment therefore only ever corrects a
-                // small pivot offset; a large delta means "stale bounds, keep local zero".
+                // Plausibility guard (kept): the boundingBox is deterministic prefab
+                // data, so a delta beyond the guard means the GLB itself sits
+                // somewhere odd — never move it across the map.
                 float flat = (float)Math.Sqrt(delta.x * delta.x + delta.z * delta.z);
                 if (flat > MaxAlignOffsetMeters || Math.Abs(delta.y) > MaxAlignOffsetMeters)
                 {
-                    alignNote = $"rejected as stale ({Vec(delta)} > {MaxAlignOffsetMeters:F0} m) — GLB stays at local zero";
-                    Mod.Log.Warn($"[visual] {alignNote} (vanilla Renderer.bounds are refreshed only during culling, i.e. stale on the spawn frame).");
+                    alignNote = $"rejected as implausible ({Vec(delta)} > {MaxAlignOffsetMeters:F0} m) — GLB stays at local zero";
+                    Mod.Log.Warn($"[visual] {alignNote}.");
                 }
                 else if (SpikeState.VisualAutoAlign)
                 {
@@ -449,8 +493,19 @@ internal static class TaxiVisual
             else
             {
                 alignNote = "skipped (bounds below the 0.1 m guard)";
-                SpikeCommands.Print($"[visual] bounds too small to align — vanilla size=({Vec(vanillaSize)}) GLB size=({Vec(glbSize)})");
+                SpikeCommands.Print($"[visual] bounds too small to align — boundingBox size=({Vec(vanillaSize)}) GLB size=({Vec(glbSize)})");
             }
+        }
+
+        // GLB min Y before/after for the 0.3.0 spawn diagnostic line: the "before"
+        // half was captured above when the alignment measured it; skipped paths fall
+        // back to the current value (nothing moved the GLB there).
+        if (TryGetWorldBounds(glb, out Vector3 glbFinal, out Vector3 glbFinalSize))
+        {
+            float glbFinalMin = glbFinal.y - glbFinalSize.y * 0.5f;
+            if (float.IsNaN(LastGlbMinYBefore))
+                LastGlbMinYBefore = glbFinalMin;
+            LastGlbMinYAfter = glbFinalMin;
         }
 
         // Success — drop the rollback snapshot (the swap may now be reported).

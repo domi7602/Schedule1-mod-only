@@ -1,4 +1,4 @@
-# TaxiDriver 0.1.0 (2026-09-25)
+# TaxiDriver 0.2.0 (2026-09-26)
 
 Stage 1 **feasibility spike** — extended by the Stage-2 visual swap and the
 Stage-3 driver ride (dev tool) for Schedule I 0.4.7f6 (TVGS, IL2CPP, MelonLoader).
@@ -27,13 +27,28 @@ It proves the primitives the future taxi mod is built on:
    player stays aboard (`F9 ride` → `F9 out`), live-verified with
    `callback result=Complete after 31.6 s`.
 
-Everything is driven by a `taxi` command; **F6–F16 hotkeys** run the sequences
+Everything is driven by a `taxi` command; **F1–F12 hotkeys** run the sequences
 hands-free.
 
 > **The MelonLoader console is log-only (no input field) — all `taxi` commands are
-> output-only; control the spike via hotkeys (F6–F16, table below).** The command
+> output-only; control the spike via hotkeys (F1–F12, table below).** The command
 > table is the reference for *what* each command does and *what it logs*; the keys
 > are the only way to trigger it in-game.
+
+## Ordering from the phone
+
+The user-facing way to order the taxi is the in-game phone: open the phone →
+tap the **Taxi** app → press **CALL TAXI**. The button runs the exact F5 flow
+through the shared `SpikeCommands.CallTaxi` entry point (single source of truth
+for both the F5 hotkey and the phone button): spawn at the fixed taxi stand →
+the nearest NPC boards → navigate to a road point near the player. The **STOP**
+button runs the `taxi stop` path (`SpikeCommands.Stop()`), and the status label
+shows the live spike state — "No taxi" / "Run in progress" / "Taxi active —
+press STOP or ride along" — with button outcomes shown for a few seconds.
+Outside the gameplay scene every button answers "Only available in gameplay."
+
+The F1–F12 hotkeys stay as the **diagnostic** surface — same flows, but with the
+full log-rich spike detail; the phone app is the normal order path.
 
 ## Console Commands (S1API console, output-only)
 
@@ -59,19 +74,27 @@ Answers are written to the MelonLoader console with a `[TaxiDriver]` prefix.
 | `taxi cleanup` | `NPC.ExitVehicle()` → **verified** (`npc.IsInVehicle == false`, otherwise `LandVehicle.RemoveNPCOccupant(npc)` and a refusal) → `LandVehicle.ExitVehicle()` (if the player is in) → `VehicleAgent.StopNavigating()` (if auto-driving) → `LandVehicle.DestroyVehicle()` **only when `OccupantNPCs` is empty**. State is cleared only after a successful destroy, so a failed cleanup stays retryable instead of stranding the vehicle. |
 | `taxi probe` | Dumps the silent-failure preconditions of `taxi go` for the spike vehicle **and every other vehicle** in `VehicleManager.AllVehicles`: `DriveFlags` (null?), `roadSeeker`/`generalSeeker` (null?), `NavigationCalculationInProgress`, `IsOnVehicleGraph()`, `IsPhysicallySimulated`, `IsOwner`/`IsPlayerOwned`, `State`, plus `NavigationUtility.SampleVehicleGraph()` deltas for start **and** target — the differential that shows whether the spike vehicle differs from a vanilla one that drives. |
 | `taxi trace [on\|off\|status]` | `on` patches **four** methods through `S1Mods.Shared.PatchGuard` (a missing/renamed method degrades to a warning): `VehicleAgent.Navigate`, `NavigationUtility.CalculatePath`, `VehicleAgent.NavigationCalculationCallback` and `VehicleAgent.StopNavigating` — one log line per dispatch, per path calculation, per async result and per stop call (with the managed stack). `off` silences the lines; the prefixes stay installed. A third argument (or none) reports `patched=` / `logging=` — `taxi trace status`. |
-| `taxi visual [on\|off]` | Stage 2 switchboard for the GLB visual swap: no argument prints the status (swap/align flags, resolved GLB path, attached visual root), `on`/`off` arms or disarms the swap for the **next** spawn, `taxi visual align [on\|off]` does the same for the bounds auto-alignment. Unknown modes **and unknown align values** answer with a warning and change nothing (an unrecognised `align` value used to be silently coerced to `off`). The swap itself runs inside `taxi spawn`; the `on`/`off` switch is additionally on hotkey **F16**. |
+| `taxi visual [on\|off]` | Stage 2 switchboard for the GLB visual swap: no argument prints the status (swap/align flags, resolved GLB path, attached visual root), `on`/`off` arms or disarms the swap for the **next** spawn, `taxi visual align [on\|off]` does the same for the bounds auto-alignment. Unknown modes **and unknown align values** answer with a warning and change nothing (an unrecognised `align` value used to be silently coerced to `off`). The swap itself runs inside `taxi spawn`; the `on`/`off` switch is additionally on hotkey **F4**. |
 
 **Subcommand aliases:** `taxi list` = `codes`, `taxi driver` = `npc`, `taxi in` = `ride`,
 `taxi out` = `exit`, `taxi reset` = `cleanup`.
 
-### Hotkeys F6–F16 (the only in-game control surface)
+### Hotkeys F1–F12 (the diagnostic control surface)
 
 The MelonLoader console accepts **no input**, so every command above that has to be
-triggered during a session lives on a hotkey. Keys are ignored while a text field
-is focused (`S1API.Input.Controls.IsTyping`).
+triggered during a session lives on a hotkey. Ordering the taxi is the phone
+app's job (see [Ordering from the phone](#ordering-from-the-phone)); the hotkeys
+remain for diagnostics. Keys are ignored while a text field
+is focused (`S1API.Input.Controls.IsTyping`) and outside the gameplay scene (menu
+scenes keep their own keys — e.g. MoreSaveSlots binds F2/R on the save screens).
 
 | Key | What it runs | Purpose |
 | --- | --- | --- |
+| **F1** | `taxi go` → `(-131.4, -4.0, 51.9)` | Dispatch against the first vanilla-proven road target. |
+| **F2** | `taxi go` → `(-17.1, 0.0, 13.4)` | Dispatch against the second vanilla-proven road target. |
+| **F3** | `spawn → npc → go` → `(-131.4, -4.0, 51.9)` | The proven full configuration: NPC at the wheel against a road target. |
+| **F4** | `taxi visual on/off` | Toggles `SpikeState.VisualSwapEnabled` for the **next** spawn (same single-source-of-truth pattern as F8). No `TryBeginGo` gate: the key never starts a run, so it works at any time — an existing vehicle keeps the visuals it spawned with. |
+| **F5** | `spawn → npc → go` to a road point near the player | Stage 3b call-taxi: the taxi spawns at the fixed taxi stand, the nearest NPC boards and drives to the player (`F9` boards afterwards). |
 | **F6** | `spawn → +1 s npc → +1 s go 40` | The full spike run against a blind `forward * 40` target. |
 | **F7** | `taxi probe` | Navigate preconditions for the spike vehicle and every vanilla vehicle. |
 | **F8** | `taxi trace on/off` | Toggles the four Harmony prefixes (state comes from `SpikeTrace.Logging`, so key and command can never drift). |
@@ -79,26 +102,21 @@ is focused (`S1API.Input.Controls.IsTyping`).
 | **F10** | `taxi go2 40` | `Navigate` with `settings=null` (A/B against `taxi go`). |
 | **F11** | `spawn → go` (no npc step) | Occupant hypothesis: the run skips the NPC so `Navigate` can be measured without a driver. |
 | **F12** | `taxi go 40` on a **vanilla** vehicle | Vehicle-vs-caller A/B: `Complete` implicates our spawn, `Failed` implicates the caller context. |
-| **F13** | `taxi go` → `(-131.4, -4.0, 51.9)` | Dispatch against the first vanilla-proven road target. |
-| **F14** | `taxi go` → `(-17.1, 0.0, 13.4)` | Dispatch against the second vanilla-proven road target. |
-| **F15** | `spawn → npc → go` → `(-131.4, -4.0, 51.9)` | The proven full configuration: NPC at the wheel against a road target. |
-| **F16** | `taxi visual on/off` | Toggles `SpikeState.VisualSwapEnabled` for the **next** spawn (same single-source-of-truth pattern as F8). No `TryBeginGo` gate: the key never starts a run, so it works at any time — an existing vehicle keeps the visuals it spawned with. |
 
 While an automatic run is in progress or a deferred respawn is pending, every
-run-starting key (F6, F10–F15) is **ignored with a logged reason**
+run-starting key (F1–F3, F5, F6, F10–F12) is **ignored with a logged reason**
 (`F<n> ignored — run in progress / respawn pending`) instead of interrupting the run.
-F7/F8/F9/F16 are state toggles with no such gate — F16 in particular must stay
+F4/F7/F8/F9 are state toggles with no such gate — F4 in particular must stay
 pressable *during* a run, because it only decides what the next spawn looks like.
 
-> **F13–F16 are only reachable through real key input.** Synthetic key events
-> (SendInput from a test driver) drop the virtual-key codes for F13+, so those four
-> cannot be driven by automation — press them or inject with `SendInput`, e.g.
-> `focus_key.py <VK>` (F13=`0x7C`, F14=`0x7D`, F15=`0x7E`, **F16=`0x7F`**).
+> **Keys remapped 2026-09-26 (F13-F17 -> F1-F5):** the keyboard has only F1-F12,
+> so the physically unreachable F13-F17 keys moved to F1-F5. Historical session
+> records in this file from 2026-09-25 still use the old names.
 
 ### F6 run kernel (details of one key)
 
 While **no text field is focused** (`S1API.Input.Controls.IsTyping` is false),
-**F6** starts the full run (the other nine keys are listed in the hotkey table
+**F6** starts the full run (the other eleven keys are listed in the hotkey table
 above):
 
 ```
@@ -369,11 +387,11 @@ arrival all observed in one session:
   therefore 10 m so the non-callback verdict does not report a complete run as
   STOPPED SHORT.
 * **The MelonLoader console is log-only** (no input field) — every `taxi` command is
-  output-only; the F6–F16 hotkeys are the only control surface.
-* **F13–F16 need real key input (SendInput):** the generic computer-use key path
-  drops those virtual-key codes, so the two proven road targets, the F15 full run
-  to a road target and the F16 visual toggle are only reachable with `SendInput`
-  (`focus_key.py`, F16 = VK `0x7F`).
+  output-only; the F1–F12 hotkeys are the only control surface.
+* **All hotkeys fit F1–F12 and are scene-gated:** the keys were remapped on
+  2026-09-26 (F13-F17 -> F1-F5) because the keyboard has only F1-F12, and the
+  dispatcher ignores keys outside the gameplay scene (menu scenes keep their own
+  keys, e.g. MoreSaveSlots binds F2/R on the save screens).
 
 ## Driver seat semantics (live-verified 2026-09-25)
 
@@ -519,6 +537,31 @@ that prompt) at 9 km/h; the one after `F9 out` shows the player on foot beside t
 taxi on the road at the target (no vehicle prompt). The claims above rest on the
 log lines, not on the captures.
 
+## Taxi stand + F17 order flow (Stage 3b — live-verified 2026-09-25)
+
+Version stays **0.1.0**. No W/S self-drive claim is made here.
+
+* **Taxi stand `ParkingGarage` at `(-3.2, 0.0, 82.0)`** — the parking-lot dump
+  lists 33 lots; `ParkingGarage` is the only garage candidate. Stand resolution
+  logs the rule `configured coordinate within 10m (0.1m)` and spawns at
+  `(-13.0, 0.0, 84.2)` with forward `(0, 0, 1)`. The `Shitbox` spawns at
+  `(-13.0, 0.2, 84.2)` with a Foundation ground snap (2.9 m). Visual swap DONE:
+  21 renderers, 10 deactivated.
+* **F17 flow (live):** NPC `chloe_bowers` (3.6 m) boards — `IsInVehicle`,
+  `OccupantNPCs[0]`, root-to-seat 0.0 m. Road target CHOSEN label `player`,
+  destination `(-122.4, -3.9, 64.6)`, snapDelta 1.8 m, distanceToPlayer 1.8 m,
+  22 candidates, `endAtRoad` / `ensureProximity` / `teleportIfFail`. Polls show
+  `distToTarget` 20.9 → 6.9 m with `onVehicleGraph=True`, `stuck=False`,
+  `reversing=False`, speed 11–20 km/h. Arrival:
+  `taxi arrived at player (callback=Complete after 46.9s, 6.3m from resolved
+  target (-122.4,-3.9,64.6))`.
+* **Timeout 45 s → 90 s** (`SpikeRunner.cs`, `NavigationTimeoutSeconds`):
+  two earlier dispatches stopped at 13.2/13.7 m on the 45 s budget; 90 s
+  covered the run with 46.9 s.
+* **Arrival threshold unchanged at 10 m** — 6.3 m < 10 m, i.e. ARRIVED.
+* **Side finding:** the mod menu did not load on the first beta click and
+  loaded on the second.
+
 ## Known limitations (Stages 1–3)
 
 * Server-authoritative only (`InstanceFinder.IsServer`); in singleplayer the
@@ -549,14 +592,16 @@ log lines, not on the captures.
   after 45.4 s` — **twice: once with the player aboard and once without**, so the
   passenger is not the cause). Re-orienting the player so the spawn lands on the open
   road fixed it (same code, same run sequence, driving normally afterwards).
-* **45 s navigation budget per dispatch** (`SpikeRunner.NavigationTimeoutSeconds`):
+* **90 s navigation budget per dispatch** (`SpikeRunner.NavigationTimeoutSeconds`,
+  raised 45 s → 90 s in Stage 3b: two dispatches stopped at 13.2/13.7 m on the
+  45 s budget, 90 s covered the F17 run with 46.9 s):
   trips longer than roughly 100 m are cut off with `callback result=Stopped` and need
-  another `F13`/`F15` dispatch to finish. Applies with and without a passenger.
+  another `F1`/`F3` dispatch to finish. Applies with and without a passenger.
 * **The driver cannot be seen from outside when the Stage-2 swap is on:**
   `taxi.glb`'s `Glass` material has no `alphaMode` (→ OPAQUE) and
   `baseColorFactor = [0.05, 0.08, 0.10, 1.0]`, so the windows are solid — a
   positioning problem cannot be observed through them. With the vanilla body
-  (`F16` off) the glass is dark-tinted and the unlit cabin at 04:00 in rain is pitch
+  (`F4` off) the glass is dark-tinted and the unlit cabin at 04:00 in rain is pitch
   black; the occupant was only discernible when the door stood open right after
   exiting. The seat proof's numeric distance is therefore the authoritative
   "who sits where" evidence.

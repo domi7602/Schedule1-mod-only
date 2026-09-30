@@ -1,5 +1,407 @@
 # Changelog
 
+## 0.7.0 (2026-09-29) - destination picker gate + road keeper + dressed driver
+
+Three fixes from Dominik's bug report ("Taxi merkt sich die letzten punkte nach
+dem Reload", "fährt in Gruben/Bäume und bleibt stuck", "der Fahrer ist nackt").
+
+### Fixed — stale destination after save reload (Paket A)
+
+- **Root cause:** `SpikeState.RideDestination` (+ goal/drop-off/name) was
+  deliberate "picker state" that survived everything — including save reloads
+  (MelonLoader statics live as long as the process). Boarding without a pick
+  then drove to the *last* destination (`StartRide`'s `?? RideTargetRoadA`
+  fallback masked it as a default).
+- `SpikeState.ResetPicker()` clears the picker at every save-load boundary
+  (`GameLifecycle.OnSaveInfoLoaded`) and when leaving the `Main` scene.
+- **No pick, no drive:** `StartRide` refuses to dispatch without an explicit
+  pick — the ride waits (`RideAwaitingDestination`), the app shows
+  `On board — pick a destination`, and the drive starts the moment a place is
+  tapped (`To`/`SetRideDestination` now re-route a RUNNING/waiting ride instead
+  of "the NEXT ride").
+- The app header is honest: `DESTINATION: none selected — tap a place`.
+- The old silent default (ROAD A) is gone from `StartRide`.
+
+### Added — RoadKeeper, the taxi may not leave the road (Paket B)
+
+- New `RoadKeeper.cs`: supervised from `SpikeRunner.Update`, 5 Hz while a
+  dispatch is in flight. The corridor is the GAME's own live route
+  (`VehicleAgent.path` → `SmoothedPath.vectorPath` polyline) — no guessed roads.
+- **Soft lane assist:** drifting past 3 m lateral → small per-tick nudges back
+  to the route line (skipped while the game's patrol driver owns the wheel).
+- **Hard enforcement:** beyond 5 m lateral, sunk > 2 m below the route line
+  ("Grube" — Y gap against the polyline) or on a > 40° slope (HomelessMod
+  ground-probe technique) → snap back onto the route line, aligned with the road
+  direction, velocities zeroed. Logged as `[road] HARD SNAP`.
+- `SpikeState.NavTarget` is never touched — the arrival verdict stays honest.
+
+### Changed — the driver is dressed (Dominik: "der Fahrer ist komplett nackt")
+
+- `taxi_driver` now wears a proper outfit at prefab time (S1API appearance
+  layers): white button-up (`Shirts.Buttonup`), dark jeans (`Pants.Jeans`),
+  sneakers (`Feet.Sneakers`). Prefab-time layers survive avatar rebuilds.
+- The old render-hide (`HideAvatar`/`HideNow`) is removed — the "invisible"
+  design never held anyway (the game rebuilt the renderers, which is exactly
+  why the underwear driver showed up). The driver is now visible on purpose.
+
+### Added — custom checkpoints + cleaned destination list (Dominik: "wenn 5x Parking gelistet wird, weiß man am Ende nicht wo man rauskommt")
+
+- The destination list now carries only **main checkpoints**: custom checkpoints
+  first (tag `YOU`), then deal locations (tag `DEAL`), then uniquely named places
+  (tag `PARK`). Generic lot names ("Parking" ×7, "Parking lot" ×2) and duplicate
+  names ("Mick's house parking" ×2) are hidden from the LIST — they still serve
+  internally as drop-off entries for the arrival rule.
+- New `CustomCheckpoints.cs`: named waypoints in
+  `UserData/TaxiDriver/checkpoints.json` (SafeStorage, hand-editable,
+  comment-tolerant JSON). In-game management via console:
+  `taxi wp add <name>` (captures the player position), `taxi wp remove <name>`,
+  `taxi wp list`. `taxi to <name>` resolves them and custom names win ties.
+- **Properties are first-class destinations** (Dominik: the taxi is the A→B
+  shuttle — "ich bin im Motel und möchte zur Barn"): every `PropertyManager`
+  property appears with its `ExteriorSpawnPosition` as the drop-off — owned ones
+  as `HOME` rows (list-first), unowned as `PROP`. Tie priority: custom > owned
+  property > property > deal > lot.
+- The first TaxiApp open per session dumps the complete destination table into
+  the log (one-shot `[pois]` dump) so the full list can be read off the log.
+
+### Added — the meter, no free rides (Dominik: "ein kostenloses Taxi ist leider nicht Realität")
+
+- New `FareMeter.cs`: **$1 per FULL moving in-game minute** (= per real second in
+  motion — time base verified: `TimeManager.CycleDuration` = 24 real min/day, so
+  1 real s = 1 in-game min). Whole dollars only ("$1 da es keine Cent-Beträge im
+  Spiel gibt"). **0 km/h is free** (standing, jams, arrival wait).
+- Meter start = the moment the picked destination turns into a drive; ride end
+  (arrival / exit / STOP) reports the total via one HUD notification. The app
+  status shows the running fare (`Riding to Barn — $27`).
+- Payment: cash first (clamped at 0), remainder to the bank account which may go
+  negative (Dominik: "Konto darf ins Minus") via `Money.CreateOnlineTransaction`.
+  Multiplayer: money is only touched host/singleplayer-side (fail-closed).
+- Config `UserData/TaxiDriver/fare.json`: `Enabled`, `DollarsPerInGameMinute`,
+  `MovingSpeedThresholdKmh`. Console: `taxi fare` shows config + live meter.
+
+### Fixed — test round 2026-09-29 (Dominik's in-game findings)
+
+- **Paket E, exit hardening** ("nach E spammen ein/aus beamt sich das Auto ein paar
+  Meter weg … einmal beim Aussteigen unter die Map gefallen"): the navigation now
+  stops BEFORE `ExitVehicle()` (a live `VehicleAgent` can snap the car onto its route
+  at the exit moment — that was the beaming), rapid E in/out is debounced (0.8 s),
+  and `SafeExitGroundSnap()` verifies there is ground under the player after every
+  exit (static-surface probe; anything > 2.5 m below / > 1 m above road level or with
+  no ground at all is snapped to safe ground beside the taxi). One-shot forensics
+  `[exit] forensics: … nav-stop delta / ExitVehicle delta` when the car moves anyway.
+- **Paket G, driver retention** ("der Fahrer ist ohne Grund ausgestiegen und die Fahrt
+  fuhr nicht weiter"): `EnsureDriverSeat` keeps the NPC at the wheel every ride frame
+  and re-boards him instantly if he left (with a forensics snapshot: speed, seat slot,
+  patrol state — crash ejection vs. vanilla AI). The stuck watchdog re-boards the
+  driver FIRST instead of burning navigation recoveries on a driverless car.
+- **Paket C, spawn clearance** ("es bugt manchmal rum wenn es an der Mauer kommt beim
+  Parkplatz"): the spawn point is probed for cabin-zone clearance (two static-surface
+  spheres) — blocked spots move along/sideways to the first clear candidate (11 probes),
+  never worse than before.
+- **Paket D, clear destination** ("nach Checkpoint-Auswahl bleibt immer der letzte
+  markiert"): `✕ Clear selection` row on top of the app's destination list + console
+  `taxi clear`. A waiting ride keeps waiting; a running drive keeps its dispatched
+  target; only the marker/state is cleared.
+- **Paket F**: `Patrol.Deactivate()` only runs on a live behaviour and its NRE noise
+  drops to Debug (was one Warn per ride end).
+
+### Acceptance (in-game, open)
+
+- Reload the save → call the taxi → board WITHOUT picking: the taxi waits,
+  status `On board — pick a destination`; picking a place starts the drive.
+- Reload → the app shows `none selected`, never the previous session's place.
+- Watch a long ride: `[road]` lines only appear near obstacles; the taxi no
+  longer ends up in ditches or wedged on trees (snap-backs are logged).
+- The driver sits at the wheel in shirt + jeans + sneakers.
+
+## 0.6.0 (2026-09-28) - own invisible driver (no more bystanders)
+
+Dominik: random NPC as driver ends, and after dismiss the taxi must be gone.
+
+### Added
+
+- New `TaxiDriverNPC.cs`: dedicated S1API NPC (`taxi_driver`, physical, spawns
+  at the taxi stand, waits there via schedule, no customer/dealer role, no
+  badge). Avatar renderers are switched off after creation — the taxi looks
+  driverless while the game's patrol behaviour drives it.
+- `SpikeCommands.Npc()` boards ours first (`NPC.Get<TaxiDriverNPC>()`); the
+  nearest-bystander search is only the fallback when ours is unavailable.
+- Boarding extracted into `BoardDriver()`: skips `EnterVehicle` when the NPC
+  provably already sits in our vehicle (the repeat pattern behind the 57 s
+  freeze), otherwise EnterVehicle + AddNPCOccupant fallback + seat proof.
+- `Cleanup`: after a successful dismiss-destroy the driver is warped back to
+  the stand (`ReturnToStand`) — dismiss = taxi gone, driver waiting.
+
+### Acceptance (in-game, open)
+
+- Call taxi: log shows "ours is taking the wheel", no bystander disappears.
+- The taxi looks empty, drives, arrives; dismiss despawns it, nothing left to
+  drive yourself.
+
+## 0.5.3 (2026-09-28) - the app's own layout bug (clipped first letters)
+
+Dominik's second screenshot: text now readable, but the first characters of every row are
+missing ("xi-Stand" instead of "Taxi-Stand", "eyway behind Top Tattoo").
+
+### Root cause
+
+The name came from the *app's own* RectTransform hand-math: the text rects were positioned
+with stretch anchors + `sizeDelta` + `anchoredPosition`, which put the name box left of the
+row's left edge; the ScrollRect viewport's `Mask` then clipped the overflow — the ink has
+to start left of the row for the first letters to vanish, and only a mask can cut there.
+(The same symptom existed before the size change: the old screenshot showed rows starting
+with the middle of "DEAL * ".)
+
+### Changed
+
+- Destination rows, the destination header line and the place counter now use
+  **`HorizontalLayoutGroup`** children (BankApp's proven idiom: padding + `childControl*`
+  + `flexibleWidth` on the growing text, fixed `preferredWidth` on the tag/counter) instead
+  of hand-placed rects. The layout engine places the boxes, so nothing can slide out of a
+  row. `SingleLineRect` is gone.
+- Row tag (`STAND`/`DEAL`/`PARK`) switches colour with the selection: pale grey on bright
+  yellow read as "ST…" (the zoom on Dominik's screenshot). Dark olive on the selected row.
+- `[ui]` reporting bug fixed: the theme scale is global and gets re-initialised by whichever
+  app opens last (the log shows 1.60 and 1.20 initialized 67 ms apart), so the report was
+  dividing sizes built at 1.60 by a scale of 1.20. The app now remembers the scale it was
+  **built** with and reports with that; it also prints the name column, both font sizes and
+  how many rows would still be cut at the minimum font size.
+
+### Acceptance
+
+A screenshot of the app: every row shows its name from the first letter, and `[ui]` reports
+`0 still too wide at the minimum font size`.
+
+## 0.5.1 (2026-09-28) - legible app (measured, not guessed)
+
+Dominik: "die taxi app ist noch unleserlich" (with a screenshot of the running app).
+
+### Diagnosis (from the screenshot's pixels, not from taste)
+
+- The log says the app canvas is `655x1201` units and it reaches the screen at ~275x507
+  px, i.e. **0.42 px per unit**. The row text was `Sp(11)` = 18 units = **5 px of ink**.
+- The comparison that settles it: Weather runs on the same phone (295x537 screenshot,
+  same `InitializeForTextApp` scale) and its *smallest* text measures 8 px, its rows
+  13 px — that is the size Dominik accepts.
+- Nothing was truncated: `UIFactory.Text` uses `horizontalOverflow = Wrap` and
+  `verticalOverflow = Overflow`, so the labels were complete — just too small. The
+  `"DEAL * "` / `"PARK * "` prefix additionally ate the readable width.
+- The app also left a quarter of the screen empty (content ended at y=394 of 521).
+
+### Changed
+
+| | before | after |
+|---|---|---|
+| row height | `Dp(30)` | `Dp(48)` |
+| row text | `Sp(11)` normal | `Sp(18)` bold |
+| row layout | `"DEAL * Name"` prefix | name left, small `DEAL`/`PARK`/`STAND` tag right |
+| header | `Sp(16)`, `Dp(46)` | `Sp(22)`, `Dp(56)` |
+| CALL TAXI | `Sp(15)`, `Dp(68)` | `Sp(20)`, `Dp(72)` |
+| destination line | `Sp(11)`, `Dp(28)` | `Sp(15)`, `Dp(42)` + right-aligned "79 places" |
+| list panel | `Dp(236)` | `Dp(370)` (uses the empty lower third) |
+| STOP | `Sp(13)`, `Dp(52)` | `Sp(18)`, `Dp(62)` |
+| status | `Sp(12)`, `Dp(58)` | `Sp(15)`, `Dp(66)` |
+
+- The destination line no longer prints empty parentheses and only shows the drop-off
+  *kind* (`> lot entry`); the full sentence stays in the log.
+- `TaxiDestinations.Destination.Tag` carries the short row tag.
+
+### Acceptance
+
+Measured the same way as the diagnosis: row text ink height >= 9 px (was 5) in a
+screenshot of the same phone size, names not truncated.
+
+## 0.5.0 (2026-09-27) - Stage 4: the game's own driver (the "police AI" clone)
+
+Dominik: "können wir nicht die KI klonen, vom Spiel z.B. die wo das Polizeifahrzeug
+steuert".
+
+### Finding
+
+The taxi already drove with the game's autopilot (`VehicleAgent` is the component every
+police car uses) — what was missing was the **supervision the game puts on top of it**.
+That supervisor is reachable from a mod:
+
+- `VehiclePatrolRoute` is a plain object with a public constructor: `RouteName`, a
+  `Il2CppReferenceArray<Transform>` of `Waypoints`, `StartWaypointIndex`. Buildable at
+  runtime — no scene asset needed.
+- `SetRoute(route)`, `Activate()`, `StartPatrol()` and
+  `IsAsCloseAsPossible(Vector3, out Vector3)` are all public on the IL2CPP proxy.
+- The numbers are readable static properties: patrol `MAX_CONSECUTIVE_PATHING_FAILURES`
+  + `PROGRESSION_THRESHOLD`; pursuit `RECENT_VISIBILITY_THRESHOLD`,
+  `CLOSE_ENOUGH_THRESHOLD`, `EXIT_VEHICLE_MAX_SPEED`, `UPDATE_FREQUENCY`,
+  `STATIONARY_THRESHOLD`, `TIME_STATIONARY_TO_EXIT`.
+- The game's route into it: `PoliceOfficer.StartVehiclePatrol(VehiclePatrolRoute,
+  LandVehicle)` + `VehiclePatrolInstance` (Law manager). The pursuit behaviour is NOT
+  usable for us — it hangs off a `Player` target and vision events.
+
+### Added
+
+- **`TaxiAI`** (`src/TaxiAI.cs`): builds a two-waypoint route at runtime (where the car
+  is, where it should be), attaches `VehiclePatrolBehaviour` to the taxi driver
+  (reusing an existing component when the driver prefab has one), then
+  `Vehicle`/`SetRoute`/`Activate`/`StartPatrol` — the game drives, the mod supervises.
+  Every step is logged *before* it runs, so a hang names its own step.
+- **`TickPatrolSupervision`** in the polling: arrival (at the resolved point or standing
+  on the game route's last waypoint near it) and stall handling. A stall does **not**
+  fight the game's behaviour — it releases it and hands the ride back to the mod's
+  `Navigate()` dispatch, so a broken clone degrades to the proven path.
+- **`taxi ai`** and an automatic dump on the first ride: every readable number of the
+  game's supervision, read live (the console is log-only, hence the automatic dump).
+- The mod's recovery ladder now honours the game's own
+  **`MAX_CONSECUTIVE_PATHING_FAILURES`** as its re-dispatch budget.
+- `IsAsCloseAsPossible` invites the game's own arrival verdict into the log (warning
+  only — an unproven call must not be able to refuse a ride).
+
+### Changed
+
+- Ride dispatch goes through `StartRideDrive` (patrol first, `Navigate()` fallback);
+  `StartRide` and `ReRoute` share it.
+- `EndRide` releases the game's behaviour with the ride — it is attached to the NPC, so
+  `DestroyVehicle` alone would have left it running.
+
+### Open
+
+- **Unproven:** whether `AddComponent<VehiclePatrolBehaviour>` on a plain (non-police)
+  NPC is accepted, and whether the driver NPC's own schedule behaviour fights the
+  patrol. The fallback covers both; the `[patrol]` log names the failing step.
+- The rest of the game's driving numbers are dumped but **not** acted on — their units
+  would have to be guessed (e.g. whether `STATIONARY_THRESHOLD` is km/h or m/s), and
+  guessing is what produced the bad dispatches in the first place.
+- `RepathDistanceThresholdMap` is an instance `AnimationCurve` on the pursuit behaviour
+  (no static read).
+- Still not used from the game's driving model: `StartReverse`/`StopReversing`,
+  `GetForwardObstacle`, `UpdateSpeedReduction`, `RefreshSpeedZone`,
+  `OverrideMaxSteerAngle`.
+
+## 0.4.0 (2026-09-27) - Stage 3d: real destinations + no more "stuck" rides
+
+Dominik's report: "Taxi KI ist sehr unklug, fährt in den skatepark (wird stuck) oder
+fährt gegen lampen etc. nachdem man taxi kündigt und im taxi ist ist das spiel stuck".
+
+### Added
+
+- **`taxi pois` / `taxi to <name|index>`** and a destination catalog
+  (`TaxiDestinations`): every live `DeliveryLocation` (the game's own deal locations —
+  `LocationName`, arrival anchor `TeleportPoint`, fallback `CustomerStandPoint`) plus
+  every `ParkingLot` street-side `EntryPoint`. No hand-read coordinates any more.
+- **Arrival rule** (`TaxiDestinations.ResolveArrival`): goal on the vehicle graph
+  (<= 6 m) → drive it directly; otherwise the nearest lot entry within 60 m → drop off
+  beside it ("a taxi does not have to stop at the doorstep"); otherwise off-graph
+  within 20 m → accept with a warning; otherwise refuse. The ride is never dispatched
+  blindly into geometry.
+- **Taxi app destination list** (replaces the ROAD A / ROAD B / STAND buttons): a
+  scrollable list of the catalog (stand first, then deal locations, then lots), a
+  "DESTINATION: <place> (<drop-off rule>)" header, and the selected row highlighted.
+  Rows are rebuilt on every app open (the catalog walks the scene).
+- **`taxi ride <place>`** — picks the destination and starts the ride in one command.
+- **Progress watchdog** (`SpikeRunner.RecoverStuck`): movement is measured, not flags.
+  Recovery #1 reverses a wedged car 1.5 s then re-dispatches (or re-dispatches
+  immediately when the agent never started / has no path), recovery #2 falls back to
+  another lot entry near the goal, then the navigation gives up with an actionable
+  message instead of 90 s of silence.
+- **Ride heartbeat** (`[hb]`, 1 s) while a ride runs or the player sits in the taxi:
+  a broken heartbeat = the main thread is blocked, a continuing heartbeat = only the
+  state is wrong. This is what today's "the player was frozen but the game ran"
+  report could not be told apart from.
+
+### Changed
+
+- **STOP despawns the taxi** (Dominik: "Kündigen soll das Taxi despawnen lassen").
+  It runs the proven cleanup order — ride state + input/trunk locks off, NPC out
+  (verified), player out (verified), `StopNavigating()`, `DestroyVehicle()`, state
+  cleared. A failed exit refuses the destroy (state stays retryable), and the player
+  exit is now verified with the same freeze guard the NPC path already had.
+  The chosen destination survives the despawn.
+- `Cleanup(reason)` takes the reason so `taxi stop` logs as a stop, not as a cleanup.
+- **No graph teleport** on a failed path calculation
+  (`teleportToGraphIfCalculationFails = false`): the teleport was the only way the car
+  could end up somewhere it never drove to (suspected "suddenly inside the skatepark").
+- **No forced pre-dispatch orientation** — the snapshot turned the car to face the
+  target regardless of the road direction ("fährt gegen Lampen"). The agent picks the
+  heading; reversing now belongs to the watchdog.
+
+### Fixed
+
+- **The 9.6 s standstill**: `if (autoDriving) return;` in the polling swallowed every
+  recovery path. Log proof (2026-09-27, ride to ROAD A): `AutoDriving=True
+  navCalc=False speed=0.0 km/h distToTarget=93.5m callback=-` unchanged for 9.6 s,
+  `stuck=False` throughout — only the 90 s timeout could have ended it.
+- **Version drift**: the deployed assembly still reported 0.2.0 while this file already
+  documented 0.3.0 (passenger mode). `MelonInfo`, `docs/mod.json` and this changelog are
+  now aligned at 0.4.0.
+
+### Open
+
+- Why the game never calculated a path for that ride (`callback=-`, target on the graph
+  with a 0.1 m delta) is still unexplained — that lives inside the game. `taxi trace`
+  (Harmony on `Navigate` / `CalculatePath` / `NavigationCalculationCallback` /
+  `StopNavigating`) is the instrument for a reproduction run.
+- The reverse recovery can only be exercised with a genuinely wedged car (crash into
+  geometry) — not yet observed in a real session.
+- Ebene 3 of the driver work (steering authority / speed reduction in turns) is not
+  implemented yet.
+
+## 0.3.0 (2026-09-26) - Passenger mode
+
+### Added
+
+- Passenger ride flow (Stage 3c): order the taxi (CALL TAXI / `taxi call` / F5) — the NPC
+  boards and drives to a road point near the player, the status flips to
+  "Board to ride (E)" and the game's `E` entry (or F9) starts the ride. The NPC drives to
+  the picked destination — ROAD A `(-131.4, -4.0, 51.9)` / ROAD B `(-17.1, 0.0, 13.4)` /
+  STAND (the fixed taxi stand coordinate) — brakes + handbrake hold on arrival
+  ("Arrived — press E to exit") and the exit re-arms the next board. `taxi stop` aborts a
+  ride anywhere.
+- Shared ride entry points (single source of truth for the ride kernel and the TaxiApp):
+  `SpikeCommands.StartRide` / `EndRide` / `SetRideDestination`, plus `FindSeat` /
+  `EnsurePassengerSeat` and the `Ride()` driver-seat pre-reserve boarding fix.
+- TaxiApp destination picker row (ROAD A / ROAD B / STAND, the selected one highlighted,
+  `ButtonUtils.AddListener` wiring) and the ride-aware live status ("Taxi arriving" →
+  "Board to ride (E)" → "Riding to <destination>" → "Arrived — press E to exit").
+- Ride locks (`RideLocks`, PatchGuard prefixes): during a ride the player's car inputs are
+  gated (`LandVehicle.UpdateThrottle` / `UpdateSteerAngle`, `GameInput.OnVehicleHandbrake`
+  — the NPC drive path is untouched) and the trunk stays shut
+  (`StorageDoorAnimation.Open` / `SetIsOpen(true)` gate + trunk/Storage interactables
+  disabled; the vehicle-entry interactable stays enabled so boarding keeps working).
+
+### Fixed
+
+- Floating taxi at spawn: the ground-snap now places the root via the deterministic
+  `LandVehicle.boundingBox` (`y = hitY + (rootY - boxMinY)` — the model bottom, not the
+  root, touches the road) instead of the culling-stale `Renderer.bounds`; a `[snap]` line
+  per spawn and a one-shot `[settle]` diagnostic ~2 s later report the exact heights.
+
+### Verified
+
+- The TaxiApp visual default (`TaxiVisual.VisualSwapEnabled = true`) is intended — the
+  0.2.0 "default-off" wording came from a stale `TaxiDriver.dll` deploy and is retired.
+
+## 0.2.0 (2026-09-26) - Taxi phone app
+
+- New **"Taxi" phone app** (`TaxiApp.cs`, discovered automatically by S1API): order the taxi from the in-game phone — open the phone, tap **Taxi**, press **CALL TAXI**. No more keyboard needed for the normal order flow.
+- The call-taxi flow is extracted into `SpikeCommands.CallTaxi(caller)` — the **single source of truth** shared by the F5 hotkey and the phone button (same run-start guard, same one-shot stand arm, same automation state block; the two can never drift apart).
+- **STOP** button runs the same code path as the `taxi stop` console command (`SpikeCommands.Stop()`).
+- Live status label ("No taxi" / "Run in progress" / "Taxi active — press STOP or ride along"), derived from `SpikeState` and refreshed with a cheap string compare; button outcomes show for a few seconds, and every button is scene-gated ("Only available in gameplay." outside the main scene).
+- New app icon `assets/taxi_icon.png` (128×128, deployed to `Mods\`), with a procedural fallback sprite so a missing file never logs errors.
+- F1–F12 hotkeys unchanged — they remain the diagnostic control surface.
+
+## 0.1.1 (2026-09-26) - F1-F12 hotkey remap
+
+- **Hotkeys remapped F13-F17 -> F1-F5** (the keyboard only has F1-F12, so the
+  old F13-F17 keys were physically unreachable): F1 = `taxi go` to the proven
+  road target (-131.4, -4.0, 51.9), F2 = `taxi go` to the second proven road
+  target (-17.1, 0.0, 13.4), F3 = full run (spawn -> npc -> go) to the road
+  target (-131.4, -4.0, 51.9), F4 = visual-swap on/off toggle (applies to the
+  next spawn), F5 = call-taxi (spawn at the fixed taxi stand -> npc -> navigate
+  to a road point near the player). F6-F12 keep their old keys and semantics.
+- **Scene gate for the hotkeys:** every taxi hotkey now only fires in the
+  gameplay scene (`S1Mods.Shared.SceneGate.IsInMainScene`) — menu scenes keep
+  their own keys (e.g. MoreSaveSlots binds F2/R on the save screens).
+- **Removed the SendInput/focus_key.py note** from the init log and `taxi help`:
+  it only existed because F13-F17 needed real key input; all hotkeys now fit
+  F1-F12 (VK below 0x7C), which synthetic key events deliver fine.
+
 ## 0.1.0 (2026-09-25) — Stage 1 spike + Stage 2 visual swap
 
 - **Initial version.** Dev tool that proves the three primitives of the future
@@ -287,6 +689,27 @@ extension).
   player on foot beside the car at the target. The full block is quoted in the
   README (*Ride with player*, "Second run").
 - **Build:** Release, 0 warnings / 0 errors. Version stays **0.1.0**.
+
+### Stage 3b — taxi stand + F17 order flow (same version 0.1.0, 2026-09-25)
+
+- **Taxi stand `ParkingGarage` at `(-3.2, 0.0, 82.0)`** — parking-lot dump lists
+  33 lots, `ParkingGarage` is the only garage candidate. Stand resolution logs
+  `configured coordinate within 10m (0.1m)`, spawn `(-13.0, 0.0, 84.2)` forward
+  `(0, 0, 1)`; `Shitbox` spawned at `(-13.0, 0.2, 84.2)` with a Foundation
+  ground snap (2.9 m); visual swap DONE (21 renderers, 10 deactivated).
+- **F17 flow live-verified:** NPC `chloe_bowers` (3.6 m) boards (`IsInVehicle`,
+  `OccupantNPCs[0]`, root-to-seat 0.0 m); road target CHOSEN label `player`,
+  destination `(-122.4, -3.9, 64.6)`, snapDelta 1.8 m, distanceToPlayer 1.8 m,
+  22 candidates, `endAtRoad` / `ensureProximity` / `teleportIfFail`; polls
+  `distToTarget` 20.9 → 6.9 m, `onVehicleGraph=True`, `stuck=False`,
+  `reversing=False`, 11–20 km/h; arrival `taxi arrived at player
+  (callback=Complete after 46.9s, 6.3m from resolved target
+  (-122.4,-3.9,64.6))`.
+- **Timeout 45 s → 90 s** (`SpikeRunner.NavigationTimeoutSeconds`): two earlier
+  dispatches stopped at 13.2/13.7 m on the 45 s budget; 90 s covered the run
+  with 46.9 s. **Arrival threshold unchanged at 10 m** (6.3 m < 10 m).
+- **Side finding:** mod menu did not load on the first beta click, loaded on
+  the second. No W/S self-drive claim is made here.
 
 ### Etappe-3 review fix round (2026-09-25, same version 0.1.0)
 

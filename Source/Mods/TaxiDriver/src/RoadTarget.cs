@@ -7,7 +7,7 @@ using UnityEngine;
 namespace TaxiDriver;
 
 /// <summary>
-/// Stage 3b — finding a DRIVEABLE target near the player (F17: the taxi drives
+/// Stage 3b — finding a DRIVEABLE target near the player (F5: the taxi drives
 /// from the stand to the player).
 ///
 /// The player is not guaranteed to stand on a road, so a raw
@@ -21,7 +21,7 @@ namespace TaxiDriver;
 ///   <item>the nearest node of the ROAD A* graph (<c>AstarPath.GetNearest</c>
 ///         masked to <c>VehicleAgent.RoadNodesGraphName</c>) — the "closest road
 ///         point" the game itself exposes, and</li>
-///   <item>the proven F13/F14 pattern: <c>SampleVehicleGraph</c> on the player
+///   <item>the proven F1/F2 pattern: <c>SampleVehicleGraph</c> on the player
 ///         position plus forward/back/left/right offsets at 3/5/6/10 m.</item>
 /// </list>
 /// Every candidate and the winning rule are logged, so a failed run can be
@@ -64,7 +64,7 @@ internal static class RoadTarget
         else if (roadNode.HasValue)
             Mod.Log.Warn($"[target] road node is {roadDistance:F1} m away from the player (> {MaxRoadNodeDistance:F0} m) — kept only as a logged fallback, not as a candidate.");
 
-        // (2) the proven F13/F14 candidate sweep around the player.
+        // (2) the proven F1/F2 candidate sweep around the player.
         AddOffset(candidates, "player", playerPos);
         foreach (float d in new[] { 3f, 5f, 10f })
         {

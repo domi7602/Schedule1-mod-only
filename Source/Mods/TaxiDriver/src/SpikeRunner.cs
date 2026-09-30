@@ -14,12 +14,26 @@ namespace TaxiDriver;
 internal static class SpikeRunner
 {
     private const float HeartbeatInterval = 0.5f;
-    private const float NavigationTimeoutSeconds = 45f;
+    private const float NavigationTimeoutSeconds = 90f;
     private const float AutoStepDelaySeconds = 1f;
     private const float AutoRideDistance = 40f;
 
     /// <summary>Fresh measurement window granted to the settings=null retry (review M2).</summary>
     private const float RetryGraceSeconds = 6f;
+
+    // ------------------------------------------- Stage 3d progress supervision
+
+    /// <summary>Motion (metres) that counts as progress in the watchdog window.</summary>
+    private const float ProgressEpsilonMeters = 0.5f;
+
+    /// <summary>Seconds without progress before a recovery attempt fires.</summary>
+    private const float StuckWindowSeconds = 1.5f;
+
+    /// <summary>Length of the reverse manoeuvre in recovery #1 (a wedged car backs up).</summary>
+    private const float ReverseSeconds = 1.5f;
+
+    /// <summary>Stage 3d heartbeat interval while a ride runs / the player is seated.</summary>
+    private const float RideHeartbeatSeconds = 1f;
 
     /// <summary>
     /// Distance to the target that counts as "arrived" instead of "stopped short".
@@ -29,6 +43,15 @@ internal static class SpikeRunner
     /// failure.
     /// </summary>
     private const float ArrivalThresholdMeters = 10f;
+
+    /// <summary>Stage 4: speed at or below this counts as "standing" while the game's patrol driver owns the ride.</summary>
+    private const float PatrolStandingKmh = 1f;
+
+    /// <summary>
+    /// Stage 4: arrival is accepted this far out when the game's patrol stands on its
+    /// last waypoint (a patrol route ends on its own tolerance, not on ours).
+    /// </summary>
+    private const float PatrolLooseArrivalMeters = 25f;
 
     private static bool _updateErrorLogged;
 
@@ -55,7 +78,11 @@ internal static class SpikeRunner
             TickLotDump();
             HandleHotkey();
             TickAutoRun();
+            TickRide();
+            RoadKeeper.Tick();
+            TickSettleLog();
             TickNavigationPolling();
+            TickHeartbeat();
 
             // Re-arm the one-shot error report: a healthy pass proves the previous
             // fault is gone, so the next distinct exception is logged again (review M8).
@@ -98,16 +125,21 @@ internal static class SpikeRunner
     // --------------------------------------------------------------- hotkey
 
     /// <summary>
-    /// F6–F16 dispatcher — the only in-game control surface, because the
+    /// F1–F12 dispatcher — the only in-game control surface, because the
     /// MelonLoader console is log-only (it has no input field, so every `taxi`
     /// command is output-only and the spike is driven from here). Keys are
-    /// checked in ascending order and are ignored while a text field is focused
+    /// checked in a fixed order and are ignored while a text field is focused
     /// (<c>S1API.Input.Controls.IsTyping</c>), so typing is never hijacked.
     /// </summary>
     private static void HandleHotkey()
     {
         // A focused text field owns the keystroke — do not hijack typing.
         if (S1API.Input.Controls.IsTyping)
+            return;
+
+        // Menu scenes own their keys (e.g. MoreSaveSlots binds F2/R on the save
+        // screens); every taxi hotkey only makes sense in the gameplay scene.
+        if (!S1Mods.Shared.SceneGate.IsInMainScene)
             return;
 
         if (Input.GetKeyDown(KeyCode.F6))
@@ -173,9 +205,9 @@ internal static class SpikeRunner
             SpikeState.AutoNextAt = Time.unscaledTime;
             SpikeState.AutoCode = SpikeState.LastVehicleCode;
             SpikeState.SkipNpcStep = true;
-            // Review M1-2: never inherit an absolute target from an earlier F15 run.
+            // Review M1-2: never inherit an absolute target from an earlier F3 run.
             SpikeState.AutoTarget = null;
-            // Stage 3b: never inherit the F17 stand spawn either.
+            // Stage 3b: never inherit the F5 stand spawn either.
             SpikeState.StandSpawnPosition = null;
             SpikeState.AutoToPlayer = false;
         }
@@ -207,105 +239,93 @@ internal static class SpikeRunner
             SpikeCommands.Go(40f);
         }
 
-        /// <summary>F13 — `taxi go` to the vanilla-proven road target (-131.4, -4.0, 51.9).</summary>
-        else if (Input.GetKeyDown(KeyCode.F13))
+        /// <summary>F1 — `taxi go` to the vanilla-proven road target (-131.4, -4.0, 51.9).</summary>
+        else if (Input.GetKeyDown(KeyCode.F1))
         {
-            if (!TryBeginGo("F13"))
+            if (!TryBeginGo("F1"))
                 return;
 
             // Round 11: (-131.4,-4,51.9) is a vanilla Navigate LOCATION that
             // returned NavCalc(result=Success) in round 10 — if OUR dispatch
             // succeeds there too, the blind forward*40 target was the culprit.
-            Mod.Log.Info("F13 → Go to vanilla-proven road target (-131.4, -4.0, 51.9).");
-            SpikeCommands.Go(0f, useSettings: true, absoluteTarget: new Vector3(-131.4f, -4.0f, 51.9f));
+            Mod.Log.Info("F1 → Go to vanilla-proven road target (-131.4, -4.0, 51.9).");
+            SpikeCommands.Go(0f, useSettings: true, absoluteTarget: SpikeCommands.RideTargetRoadA);
         }
 
-        /// <summary>F14 — `taxi go` to the second proven road target (-17.1, 0.0, 13.4).</summary>
-        else if (Input.GetKeyDown(KeyCode.F14))
+        /// <summary>F2 — `taxi go` to the second proven road target (-17.1, 0.0, 13.4).</summary>
+        else if (Input.GetKeyDown(KeyCode.F2))
         {
-            if (!TryBeginGo("F14"))
+            if (!TryBeginGo("F2"))
                 return;
 
             // Second proven road point (returned Success twice in round 10).
-            Mod.Log.Info("F14 → Go to vanilla-proven road target (-17.1, 0.0, 13.4).");
-            SpikeCommands.Go(0f, useSettings: true, absoluteTarget: new Vector3(-17.1f, 0.0f, 13.4f));
+            Mod.Log.Info("F2 → Go to second proven road target (-17.1, 0.0, 13.4).");
+            SpikeCommands.Go(0f, useSettings: true, absoluteTarget: SpikeCommands.RideTargetRoadB);
         }
 
-        /// <summary>F15 — full run spawn → npc → go against the proven road target.</summary>
-        else if (Input.GetKeyDown(KeyCode.F15))
+        /// <summary>F3 — full run spawn → npc → go against the proven road target.</summary>
+        else if (Input.GetKeyDown(KeyCode.F3))
         {
-            if (!TryBeginGo("F15"))
+            if (!TryBeginGo("F3"))
                 return;
 
             // Round 12: full spike (spawn + npc) against the proven road target
             // — the only configuration that has never been measured with the
             // heartbeat polls (Success + NPC at the wheel).
-            Mod.Log.Info("F15 pressed — spawn → npc → go to vanilla road target (-131.4, -4.0, 51.9).");
+            Mod.Log.Info("F3 pressed — spawn → npc → go to vanilla road target (-131.4, -4.0, 51.9).");
             SpikeState.AutoRunning = true;
             SpikeState.AutoStep = 1;
             SpikeState.AutoNextAt = Time.unscaledTime;
             SpikeState.AutoCode = SpikeState.LastVehicleCode;
             SpikeState.SkipNpcStep = false;
-            SpikeState.AutoTarget = new Vector3(-131.4f, -4.0f, 51.9f);
-            // Stage 3b: F15 keeps its own road target — no stand, no player target.
+            SpikeState.AutoTarget = SpikeCommands.RideTargetRoadA;
+            // Stage 3b: F3 keeps its own road target — no stand, no player target.
             SpikeState.StandSpawnPosition = null;
             SpikeState.AutoToPlayer = false;
         }
 
         /// <summary>
-        /// F16 — `taxi visual on|off` toggle (review M1-1): the console cannot be
+        /// F4 — `taxi visual on|off` toggle (review M1-1): the console cannot be
         /// typed into, so the Stage-2 switch needs a key next to F8's trace toggle.
         /// Deliberately NOT behind <see cref="TryBeginGo"/>: the key never starts a
         /// run, it only decides what the NEXT spawn looks like, so it may be pressed
         /// at any time (during a run too — an existing vehicle keeps its visuals).
         /// </summary>
-        else if (Input.GetKeyDown(KeyCode.F16))
+        else if (Input.GetKeyDown(KeyCode.F4))
         {
             // Single source of truth: SpikeState.VisualSwapEnabled is exactly what
             // `taxi visual on|off` writes, so key and command can never drift.
             SpikeState.VisualSwapEnabled = !SpikeState.VisualSwapEnabled;
             Mod.Log.Info(
-                $"F16 → visual swap {(SpikeState.VisualSwapEnabled ? "ON" : "OFF")} (applies to next spawn).");
+                $"F4 → visual swap {(SpikeState.VisualSwapEnabled ? "ON" : "OFF")} (applies to next spawn).");
         }
 
         /// <summary>
-        /// F17 — Stage 3b call-taxi flow: the taxi starts at the FIXED taxi stand
+        /// F5 — Stage 3b call-taxi flow: the taxi starts at the FIXED taxi stand
         /// (a vanilla ParkingLot spot, Dominik: "das Auto nur via den Taxi-Fahrer
         /// spawnen … einen fixen Punkt, wo er losfährt — Parkplatz") and drives TO
         /// the player: spawn at the stand → nearest NPC boards → navigate to a road
         /// point near the player (see <see cref="RoadTarget"/>). F9 then puts the
-        /// local player aboard.
+        /// local player aboard. The flow itself lives in
+        /// <see cref="SpikeCommands.CallTaxi"/> — single source of truth shared with
+        /// the Taxi phone app.
         /// </summary>
-        else if (Input.GetKeyDown(KeyCode.F17))
+        else if (Input.GetKeyDown(KeyCode.F5))
         {
-            if (!TryBeginGo("F17"))
-                return;
-
-            // Arms SpikeState.StandSpawnPosition (one-shot) — refuses to start when
-            // no stand can be resolved (see the [stand] log for the reason).
-            if (!SpikeCommands.PrepareStand("F17"))
-                return;
-
-            Mod.Log.Info("F17 pressed — call-taxi: spawn at the taxi stand → +1s npc → +1s navigate to the player.");
-            SpikeState.AutoRunning = true;
-            SpikeState.AutoStep = 1;
-            SpikeState.AutoNextAt = Time.unscaledTime;
-            SpikeState.AutoCode = SpikeState.LastVehicleCode;
-            SpikeState.SkipNpcStep = false;
-            SpikeState.AutoTarget = null;
-            SpikeState.AutoToPlayer = true;
+            SpikeCommands.CallTaxi("F5");
         }
     }
 
     /// <summary>
-    /// Shared gate for every hotkey that starts a run: while an automatic run is
-    /// in progress or a deferred respawn is still pending, the key is ignored
+    /// Shared gate for every caller that starts a run (the run-starting hotkeys
+    /// and <see cref="SpikeCommands.CallTaxi"/>): while an automatic run is
+    /// in progress or a deferred respawn is still pending, the request is ignored
     /// (with a reason) instead of interrupting the run — the same rule the
-    /// F6/F11/F12/F15 blocks used to repeat verbatim.
+    /// F3/F6/F11/F12 blocks used to repeat verbatim.
     /// </summary>
-    /// <param name="key">The pressed key, used verbatim in the ignore message.</param>
+    /// <param name="key">The pressed key / caller name, used verbatim in the ignore message.</param>
     /// <returns><c>true</c> when the caller may start its run.</returns>
-    private static bool TryBeginGo(string key)
+    internal static bool TryBeginGo(string key)
     {
         if (SpikeState.AutoRunning)
         {
@@ -339,7 +359,7 @@ internal static class SpikeRunner
         SpikeState.AutoCode = SpikeState.LastVehicleCode;
         SpikeState.SkipNpcStep = false;
         SpikeState.AutoTarget = null;
-        // Stage 3b: F6 is the player-side debug flow — never inherit the F17 stand.
+        // Stage 3b: F6 is the player-side debug flow — never inherit the F5 stand.
         SpikeState.StandSpawnPosition = null;
         SpikeState.AutoToPlayer = false;
     }
@@ -370,7 +390,7 @@ internal static class SpikeRunner
             {
                 // Spawn's guarded cleanup runs SpikeState.Reset() → ResetAutoRun(),
                 // which flips AutoRunning off mid-run (Run B died exactly here) and —
-                // since review M1-2 — also clears AutoTarget. Keep both: an F15 run
+                // since review M1-2 — also clears AutoTarget. Keep both: an F3 run
                 // that had to clean up an old vehicle must not lose its road target.
                 bool autoTarget = SpikeState.AutoTarget.HasValue;
                 Vector3 roadTarget = SpikeState.AutoTarget.GetValueOrDefault();
@@ -411,7 +431,7 @@ internal static class SpikeRunner
             }
             else if (step == 3)
             {
-                // Stage 3b: the F17 run does not drive to a fixed road target, it
+                // Stage 3b: the F5 run does not drive to a fixed road target, it
                 // drives to a road point resolved around the PLAYER (the central
                 // engineering problem — see RoadTarget for the cascade).
                 bool toPlayer = SpikeState.AutoToPlayer;
@@ -446,6 +466,493 @@ internal static class SpikeRunner
         }
     }
 
+    // ------------------------------------------------------------- ride kernel
+
+    /// <summary>
+    /// Stage 3c ride kernel (per frame, next to <see cref="TickAutoRun"/>): board
+    /// detection (<c>RideAwaitingBoard</c> + the game's own E-enter / F9 →
+    /// <see cref="SpikeCommands.StartRide"/>), the per-frame passenger seat fix, exit
+    /// detection (→ <see cref="SpikeCommands.EndRide"/>, re-armed for the next board) and
+    /// the arrival verdict (navigation finished → brakes + handbrake, "Arrived — press E to
+    /// exit").
+    /// </summary>
+    internal static void TickRide()
+    {
+        LandVehicle? veh = SpikeState.Vehicle;
+
+        // Board detection: the pickup reached the player (or the last ride ended with an
+        // exit) and the player just got in (the game's own E-enter or F9) — start the ride.
+        // Paket E: rapid E in/out churn waits out the debounce before a new ride starts.
+        if (SpikeState.RideAwaitingBoard && veh != null && veh.LocalPlayerIsInVehicle &&
+            Time.unscaledTime - SpikeState.LastExitAt >= SpikeCommands.ExitDebounceSeconds)
+        {
+            SpikeCommands.StartRide("ride-kernel");
+            return;
+        }
+
+        if (!SpikeState.RideActive)
+            return;
+
+        if (veh == null)
+        {
+            SpikeCommands.EndRide("vehicle gone");
+            return;
+        }
+
+        // Exit detection: covers the game's own E-exit and `taxi out` / F9.
+        if (!veh.LocalPlayerIsInVehicle)
+        {
+            SpikeState.LastExitAt = Time.unscaledTime;
+            SpikeCommands.EndRide("player exited", rearm: true);
+            // Paket E: the game placed the player somewhere — verify there is ground
+            // (the "fell under the map on exit" report). Covers the native E path.
+            SpikeCommands.SafeExitGroundSnap(veh);
+            return;
+        }
+
+        // The seat trap can re-assert (a game seat update moves the player back onto the
+        // driver seat) — fix it every frame while riding.
+        SpikeCommands.EnsurePassengerSeat(veh);
+
+        // Paket G (2026-09-29): the driver belongs at the wheel every frame too — a
+        // driverless taxi never reaches its destination ("der Fahrer ist ausgestiegen").
+        SpikeCommands.EnsureDriverSeat(veh);
+
+        // Paket A (2026-09-29): waiting for the first destination pick — no arrival
+        // verdict yet (without this gate "riding but not dispatched" would read as
+        // ARRIVED instantly). The drive starts via ReRoute from the picker/`taxi to`.
+        if (SpikeState.RideAwaitingDestination)
+            return;
+
+        // The meter: whole dollars per moving in-game minute (0 km/h is free).
+        FareMeter.Tick(veh);
+
+        // Arrival: the ride navigation finished (callback or polling terminal) and nothing
+        // is still in flight — hold the taxi in place until the player exits.
+        if (!SpikeState.RideArrived && !SpikeState.PollingActive)
+        {
+            SpikeState.RideArrived = true;
+            try
+            {
+                veh.BrakesApplied = true;
+                veh.HandbrakeApplied = true;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"[ride] brakes/handbrake on arrival failed: {ex.Message}");
+            }
+
+            float dist = Vector3.Distance(veh.transform.position, SpikeState.NavTarget);
+            FareMeter.Stop("arrived");
+            // Honest verdict (bug1, 2026-09-29): the ride used to announce ARRIVED even
+            // 152.9 m off when the callback came back Failed - RideArrived only means
+            // "driving done", but every consumer read it as "arrived". Any end beyond the
+            // threshold (or with a Failed callback) now counts as "cannot get there".
+            if (dist > ArrivalThresholdMeters || SpikeState.NavGaveUp ||
+                string.Equals(SpikeState.NavCallbackResult, "Failed", StringComparison.OrdinalIgnoreCase))
+            {
+                SpikeState.NavGaveUp = true;
+            }
+            bool gaveUp = SpikeState.NavGaveUp;
+            string verdict = dist <= ArrivalThresholdMeters
+                ? $"within the {ArrivalThresholdMeters:F0} m arrival threshold"
+                : $"BEYOND the {ArrivalThresholdMeters:F0} m arrival threshold (navigation ended early)";
+            Mod.Log.Info(
+                $"[ride] {(gaveUp ? "GAVE UP at" : "ARRIVED at")} {SpikeState.RideDestinationName} — {dist:F1} m from the target " +
+                $"{SpikeCommands.Fmt(SpikeState.NavTarget)} ({verdict}, callback={SpikeState.NavCallbackResult ?? "-"}); " +
+                (gaveUp
+                    ? "the driver could not reach it — press E to get out, or STOP to despawn the taxi."
+                    : "brakes + handbrake set — press E to exit."));
+        }
+    }
+
+    // ---------------------------------------------------------- settle check
+
+    /// <summary>
+    /// One-shot [settle] diagnostic ~2 s after a spawn (armed by
+    /// <see cref="SpikeCommands.SpawnVehicle"/>): proves the boundingBox ground-snap fix
+    /// holds (the root Y must not drift — a drift means the physics pop is back) and
+    /// reports the box + GLB ground gaps.
+    /// </summary>
+    internal static void TickSettleLog()
+    {
+        if (SpikeState.SettleCheckAt <= 0f || Time.unscaledTime < SpikeState.SettleCheckAt)
+            return;
+
+        LandVehicle? veh = SpikeState.SettleCheckVehicle;
+        SpikeState.SettleCheckAt = 0f; // one-shot
+        if (veh == null || veh.Pointer == IntPtr.Zero)
+            return;
+
+        float rootY = veh.transform.position.y;
+        float boxMinY = float.NaN;
+        if (SpikeCommands.TryGetVehicleBoxWorldBounds(veh, out Vector3 boxMin, out _))
+            boxMinY = boxMin.y;
+        float glbMinY = TaxiVisual.CurrentGlbMinY();
+
+        Mod.Log.Info(
+            $"[settle] rootY={SpikeCommands.FmtY(rootY)} " +
+            $"(snap placed {SpikeCommands.FmtY(SpikeState.SettleCheckRootY)}, drift {SpikeCommands.FmtY(rootY - SpikeState.SettleCheckRootY)} m; " +
+            $"raw spawn {SpikeCommands.FmtY(SpikeState.SettleCheckSpawnY)}) " +
+            $"boxMinY={SpikeCommands.FmtY(boxMinY)} vs hitY {SpikeCommands.FmtY(SpikeState.SettleCheckHitY)} " +
+            $"(ground gap {SpikeCommands.FmtY(boxMinY - SpikeState.SettleCheckHitY)} m) glbMinY={SpikeCommands.FmtY(glbMinY)}.");
+    }
+
+    // ------------------------------------------- Stage 3d recovery + heartbeat
+
+    /// <summary>
+    /// Recovery #1/#2/terminal for a car that is not making progress. #1 backs a
+    /// wedged car out (it drove and then stopped) or re-dispatches a car that never
+    /// started; #2 drops the player off at a different lot entry near the goal;
+    /// after that the navigation gives up with a clear message instead of 90 s of
+    /// silence.
+    /// </summary>
+    private static void RecoverStuck(VehicleAgent agent, LandVehicle veh, Vector3 position, float distance, float elapsed, bool autoDriving)
+    {
+        SpikeState.StuckRecoveries++;
+
+        // Paket G (2026-09-29): a driverless car never makes progress — re-boarding the
+        // driver beats burning recovery #1/#2 on navigation re-dispatches into the void.
+        if (SpikeCommands.EnsureDriverSeat(veh))
+        {
+            SpikeState.StuckRecoveries--;
+            SpikeState.ProgressFrom = position;
+            SpikeState.ProgressWindowStart = Time.unscaledTime;
+            return;
+        }
+
+        float speed = -1f;
+        try
+        {
+            speed = veh.Speed_Kmh;
+        }
+        catch (Exception)
+        {
+            // cosmetic only
+        }
+
+        if (SpikeState.StuckRecoveries == 1)
+        {
+            bool wedged = SpikeState.NavEverAutoDriving;
+            Mod.Log.Warn(
+                $"[nav] no progress for {TaxiDestinations.Num(StuckWindowSeconds)} s " +
+                $"({TaxiDestinations.Num(distance)} m to the target, AutoDriving={autoDriving} navCalc=false " +
+                $"speed={TaxiDestinations.Num(speed)} km/h, {TaxiDestinations.Num(elapsed)} s into the run) — " +
+                (wedged
+                    ? $"recovery #1: reverse {TaxiDestinations.Num(ReverseSeconds)} s, then re-dispatch"
+                    : "recovery #1: the agent has no path — recalculate + re-dispatch (settings=null)"));
+
+            SpikeState.ProgressFrom = position;
+            SpikeState.ProgressWindowStart = Time.unscaledTime;
+
+            if (wedged)
+            {
+                try
+                {
+                    agent.StartReverse();
+                }
+                catch (Exception ex)
+                {
+                    Mod.Log.Warn($"[nav] StartReverse() failed: {ex.Message}");
+                }
+
+                SpikeState.NavReDispatchAt = Time.unscaledTime + ReverseSeconds;
+                SpikeState.NavReDispatchTarget = SpikeState.NavTarget;
+                return;
+            }
+
+            try
+            {
+                agent.RecalculateNavigation();
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"[nav] RecalculateNavigation() failed: {ex.Message}");
+            }
+
+            ReDispatch(agent, SpikeState.NavTarget, "recovery #1");
+            return;
+        }
+
+        if (SpikeState.StuckRecoveries == 2)
+        {
+            Vector3 goal = SpikeState.RideGoal ?? SpikeState.NavTarget;
+            if (TaxiDestinations.TryFallbackDropOff(goal, SpikeState.NavTarget, out Vector3 fallback, out string lot))
+            {
+                Mod.Log.Warn(
+                    $"[nav] recovery #2: the agent cannot reach {SpikeCommands.Fmt(SpikeState.NavTarget)} — " +
+                    $"dropping off at lot '{lot}' {SpikeCommands.Fmt(fallback)} instead " +
+                    $"({TaxiDestinations.Num(Vector3.Distance(goal, fallback))} m from the goal).");
+                SpikeState.RideDropOff = "lot entry (fallback after a failed approach)";
+                SpikeState.RideDropOffLot = lot;
+                SpikeState.RideDestination = fallback;
+                SpikeState.ProgressFrom = position;
+                SpikeState.ProgressWindowStart = Time.unscaledTime;
+                ReDispatch(agent, fallback, "recovery #2 (fallback drop-off)");
+                return;
+            }
+
+            Mod.Log.Warn("[nav] recovery #2: no alternative lot entry near the goal — one more dispatch.");
+        }
+
+        // Stage 4: the re-dispatch budget is the GAME's own number.
+        // MAX_CONSECUTIVE_PATHING_FAILURES means exactly "how many failed path
+        // calculations in a row before giving up", so the ladder may re-dispatch that
+        // many times before the terminal branch fires.
+        int cap = Math.Max(2, TaxiAI.PathingFailureCap);
+        if (SpikeState.StuckRecoveries <= cap)
+        {
+            Mod.Log.Warn(
+                $"[nav] recovery #{SpikeState.StuckRecoveries}: re-dispatching again — the game's own supervision " +
+                $"tolerates {cap} consecutive pathing failures.");
+            SpikeState.ProgressFrom = position;
+            SpikeState.ProgressWindowStart = Time.unscaledTime;
+            ReDispatch(agent, SpikeState.NavTarget, $"recovery #{SpikeState.StuckRecoveries}");
+            return;
+        }
+
+        GiveUpNavigation(agent, position, distance, elapsed);
+    }
+
+    /// <summary>
+    /// Stage 4 supervision while the GAME's patrol behaviour drives: arrival (at the
+    /// resolved point, or standing on its last waypoint near it) and stall handling.
+    /// A stall does not fight the game's behaviour — it releases it and hands the ride
+    /// back to the mod's own <c>Navigate()</c> dispatch, so a broken clone degrades to
+    /// the proven path instead of freezing the ride.
+    /// </summary>
+    private static void TickPatrolSupervision(LandVehicle veh, Vector3 position, float distance)
+    {
+        float now = Time.unscaledTime;
+        float speed = -1f;
+        try
+        {
+            speed = veh.Speed_Kmh;
+        }
+        catch (Exception)
+        {
+            // cosmetic only
+        }
+
+        int waypoint = TaxiAI.CurrentWaypoint;
+        int waypoints = TaxiAI.WaypointCount;
+        int last = Math.Max(0, waypoints - 1);
+
+        bool atLastWaypoint = waypoints > 0 && waypoint >= last;
+        bool nearTarget = distance <= ArrivalThresholdMeters;
+        bool standingNear = atLastWaypoint && speed <= PatrolStandingKmh && distance <= PatrolLooseArrivalMeters;
+
+        if (nearTarget || standingNear)
+        {
+            Mod.Log.Info(
+                $"[patrol] ARRIVED at {SpikeState.RideDestinationName} — waypoint {waypoint}/{last}, " +
+                $"{TaxiDestinations.Num(distance)} m to the target, speed={TaxiDestinations.Num(speed)} km/h " +
+                $"({(nearTarget ? $"within the {ArrivalThresholdMeters:F0} m threshold" : "standing on the last waypoint")}).");
+            TaxiAI.StopPatrol("arrived");
+            SpikeState.PollingActive = false;
+            return;
+        }
+
+        if (SpikeState.ProgressWindowStart <= 0f)
+        {
+            SpikeState.ProgressFrom = position;
+            SpikeState.ProgressWindowStart = now;
+            return;
+        }
+
+        float moved = Vector3.Distance(position, SpikeState.ProgressFrom);
+        if (moved >= ProgressEpsilonMeters)
+        {
+            if (SpikeState.StuckRecoveries > 0)
+                Mod.Log.Info($"[patrol] progress resumed — {TaxiDestinations.Num(moved)} m after recovery #{SpikeState.StuckRecoveries}.");
+            SpikeState.StuckRecoveries = 0;
+            SpikeState.ProgressFrom = position;
+            SpikeState.ProgressWindowStart = now;
+            return;
+        }
+
+        if (now - SpikeState.ProgressWindowStart < StuckWindowSeconds)
+            return;
+
+        SpikeState.StuckRecoveries++;
+        Mod.Log.Warn(
+            $"[patrol] the game's own driver made no progress for {TaxiDestinations.Num(StuckWindowSeconds)} s " +
+            $"(waypoint {waypoint}/{last}, {TaxiDestinations.Num(distance)} m to the target, " +
+            $"speed={TaxiDestinations.Num(speed)} km/h) — releasing it and handing the ride to the mod's dispatch.");
+        TaxiAI.StopPatrol("stalled");
+        SpikeState.ProgressFrom = position;
+        SpikeState.ProgressWindowStart = Time.unscaledTime;
+        ReDispatch(agent: veh.Agent, target: SpikeState.NavTarget, why: "patrol stall -> mod dispatch");
+    }
+
+    /// <summary>Finishes the reverse manoeuvre and re-dispatches the same route.</summary>
+    private static void TickReDispatch(VehicleAgent agent)
+    {
+        Vector3 target = SpikeState.NavReDispatchTarget;
+        SpikeState.NavReDispatchAt = 0f;
+
+        try
+        {
+            agent.StopReversing();
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[nav] StopReversing() failed: {ex.Message}");
+        }
+
+        Mod.Log.Info("[nav] reverse manoeuvre complete — re-dispatching the route.");
+        ReDispatch(agent, target, "post-reverse");
+    }
+
+    /// <summary>Fresh <c>Navigate</c> dispatch with settings=null and a new measurement window.</summary>
+    internal static void ReDispatch(VehicleAgent agent, Vector3 target, string why)
+    {
+        SpikeState.NavTarget = target;
+        SpikeState.NavStartTime = Time.unscaledTime;
+        SpikeState.NavEverAutoDriving = false;
+        SpikeState.NavCallbackResult = null;
+        SpikeState.NavRetried = true;
+
+        // The watchdog window must REALLY restart here - the log line below has
+        // promised "fresh measurement window" since v0.6.0. Bug evidence (Latest.log
+        // 2026-09-29 06:17): TickReDispatch's post-reverse path left ProgressWindowStart
+        // stale, so recovery #2 ("cannot reach") fired 0.5 s after the re-dispatch and
+        // dumped the player 24 m from the goal.
+        SpikeState.ProgressWindowStart = Time.unscaledTime;
+        try
+        {
+            LandVehicle? v = SpikeState.Vehicle;
+            if (v != null)
+                SpikeState.ProgressFrom = v.transform.position;
+        }
+        catch (Exception)
+        {
+            // the window reset alone already fixes the premature give-up
+        }
+
+        // Spike finding (2026-09-25, verified live): dispatching Navigate while the
+        // car faces away makes the agent burn its first seconds in reverse sweeps
+        // (54/89 reverse polls, no arrival) - the driving that looks "verwirrt".
+        // Aim first, release the brakes, THEN dispatch.
+        try
+        {
+            LandVehicle? av = SpikeState.Vehicle;
+            if (av != null)
+            {
+                Vector3 flat = target - av.transform.position;
+                flat.y = 0f;
+                if (flat.sqrMagnitude > 1f)
+                    av.transform.rotation = Quaternion.LookRotation(flat.normalized);
+                av.BrakesApplied = false;
+                av.HandbrakeApplied = false;
+            }
+        }
+        catch (Exception)
+        {
+            // dispatching unaimed still beats not dispatching
+        }
+
+        try
+        {
+            agent.Navigate(target, null, SpikeState.NavCallback);
+            Mod.Log.Info($"[nav] {why}: Navigate(settings=null) dispatched to {SpikeCommands.Fmt(target)} — fresh measurement window.");
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Error($"[nav] {why}: Navigate(settings=null) failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Terminal of the recovery ladder — never leaves the player in a taxi that
+    /// silently does nothing: polling off, brakes on, and an actionable message.
+    /// </summary>
+    private static void GiveUpNavigation(VehicleAgent agent, Vector3 position, float distance, float elapsed)
+    {
+        SpikeState.PollingActive = false;
+        SpikeState.NavGaveUp = true;
+
+        Mod.Log.Error(
+            $"[nav] GAVE UP after {TaxiDestinations.Num(elapsed)} s since the last re-dispatch and {SpikeState.StuckRecoveries} recovery attempt(s) — " +
+            $"the taxi did not move ({TaxiDestinations.Num(distance)} m left to {SpikeCommands.Fmt(SpikeState.NavTarget)}, " +
+            $"stuck at {SpikeCommands.Fmt(position)}). Press STOP to despawn the taxi, or E/F9 (`taxi out`) to get out.");
+
+        try
+        {
+            agent.StopNavigating();
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[nav] StopNavigating() during give-up failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Stage 3d heartbeat (1 s) while a ride runs or the player sits in the taxi.
+    /// Purpose: the 2026-09-27 report ("after cancelling, the player was frozen
+    /// while the game ran") could not be told apart from a real main-thread hang,
+    /// because a hang and a stuck state both look like "no more log lines". With a
+    /// heartbeat the answer is unambiguous: heartbeat stops = the main thread is
+    /// blocked; heartbeat continues = only the state is wrong.
+    /// </summary>
+    private static void TickHeartbeat()
+    {
+        LandVehicle? veh = SpikeState.Vehicle;
+        bool riding = SpikeState.RideActive || SpikeState.RideBoarded || SpikeState.RidePassengerMode;
+
+        bool seated = false;
+        try
+        {
+            seated = veh != null && veh.Pointer != IntPtr.Zero && veh.LocalPlayerIsInVehicle;
+        }
+        catch (Exception)
+        {
+            // a dead handle counts as "not seated" — the heartbeat is diagnostics only
+        }
+
+        if (!riding && !seated)
+            return;
+
+        if (Time.unscaledTime - SpikeState.RideHeartbeatAt < RideHeartbeatSeconds)
+            return;
+
+        SpikeState.RideHeartbeatAt = Time.unscaledTime;
+
+        string agentState = "-";
+        try
+        {
+            VehicleAgent? agent = veh == null ? null : veh.Agent;
+            if (agent != null)
+                agentState = $"autoDriving={agent.AutoDriving} navCalc={agent.NavigationCalculationInProgress} " +
+                             $"reversing={agent.IsReversing} stuck={agent.GetIsStuck()}";
+        }
+        catch (Exception ex)
+        {
+            agentState = $"<agent read failed: {ex.Message}>";
+        }
+
+        Vector3 position = Vector3.zero;
+        float speed = -1f;
+        try
+        {
+            if (veh != null)
+            {
+                position = veh.transform.position;
+                speed = veh.Speed_Kmh;
+            }
+        }
+        catch (Exception)
+        {
+            // cosmetic only
+        }
+
+        Mod.Log.Info(
+            $"[hb] frame={Time.frameCount} riding={riding} seated={seated} polling={SpikeState.PollingActive} " +
+            $"{agentState} speed={TaxiDestinations.Num(speed)} km/h pos={TaxiDestinations.Fmt(position)} " +
+            $"target={SpikeCommands.Fmt(SpikeState.NavTarget)} dist={TaxiDestinations.Num(Vector3.Distance(position, SpikeState.NavTarget))} m " +
+            $"recoveries={SpikeState.StuckRecoveries} destination='{SpikeState.RideDestinationName}' dropOff='{SpikeState.RideDropOff}'");
+    }
+
     // ---------------------------------------------------------- nav callback
 
     /// <summary>
@@ -465,19 +972,21 @@ internal static class SpikeRunner
             "authoritative completion signal, navigation polling stops.");
         SpikeState.PollingActive = false;
 
-        // Stage 3b: the F17 run ends HERE — the taxi left the stand and reached the
-        // road point next to the player (the local player then boards with F9).
+        // Stage 3b: the F5 run ends HERE — the taxi left the stand and reached the
+        // road point next to the player (the local player then boards with E or F9,
+        // which starts the Stage-3c passenger ride via the ride kernel).
         if (SpikeState.NavToPlayer && result == VehicleAgent.ENavigationResult.Complete)
         {
             LandVehicle? arrivedVeh = SpikeState.Vehicle;
             float dist = arrivedVeh == null ? -1f : Vector3.Distance(arrivedVeh.transform.position, SpikeState.NavTarget);
+            SpikeState.RideAwaitingBoard = true;
             Mod.Log.Info(
-                $"[F17] taxi arrived at player (callback=Complete after {elapsed:F1}s, " +
-                $"{dist:F1} m from the resolved target {SpikeCommands.Fmt(SpikeState.NavTarget)}) — press F9 to board.");
+                $"[F5] taxi arrived at player (callback=Complete after {elapsed:F1}s, " +
+                $"{dist:F1} m from the resolved target {SpikeCommands.Fmt(SpikeState.NavTarget)}) — board with E or F9.");
         }
         else if (SpikeState.NavToPlayer)
         {
-            Mod.Log.Warn($"[F17] call-taxi run ended WITHOUT arriving at the player (callback={text} after {elapsed:F1}s) — see the [target] lines for the candidate that was dispatched.");
+            Mod.Log.Warn($"[F5] call-taxi run ended WITHOUT arriving at the player (callback={text} after {elapsed:F1}s) — see the [target] lines for the candidate that was dispatched.");
         }
     }
 
@@ -486,7 +995,7 @@ internal static class SpikeRunner
     /// <summary>
     /// 0.5 s heartbeat while <see cref="SpikeState.PollingActive"/>: logs
     /// AutoDriving / navCalc / distance / graph / stuck / speed / callback,
-    /// fires the one <c>settings = null</c> retry, applies the 45 s timeout and
+    /// fires the one <c>settings = null</c> retry, applies the 90 s timeout and
     /// prints the terminal verdict (ARRIVED within
     /// <see cref="ArrivalThresholdMeters"/> vs. STOPPED SHORT).
     /// </summary>
@@ -534,6 +1043,16 @@ internal static class SpikeRunner
             if (autoDriving)
                 SpikeState.NavEverAutoDriving = true;
 
+            // A pending post-reverse re-dispatch runs before anything else.
+            if (SpikeState.NavReDispatchAt > 0f)
+            {
+                if (now < SpikeState.NavReDispatchAt)
+                    return;
+
+                TickReDispatch(agent);
+                return;
+            }
+
             Vector3 position = veh.transform.position;
             float distance = Vector3.Distance(position, SpikeState.NavTarget);
             Mod.Log.Info(
@@ -545,11 +1064,12 @@ internal static class SpikeRunner
                 $"speed={veh.Speed_Kmh:F1} km/h callback={SpikeState.NavCallbackResult ?? "-"}");
 
             // One timeout for every shape of hang: AutoDriving still true, but also a
-            // path calculation that never finishes (review: the 45 s limit used to
+            // path calculation that never finishes (review: the 90 s limit used to
             // apply only inside the autoDriving branch).
             if (elapsed >= NavigationTimeoutSeconds)
             {
                 SpikeState.PollingActive = false;
+                TaxiAI.StopPatrol("navigation timeout");
                 Mod.Log.Warn(
                     $"[nav] timeout after {elapsed:F1}s (limit {NavigationTimeoutSeconds:F0}s, AutoDriving={autoDriving} navCalc={navCalc} " +
                     $"everAutoDriving={SpikeState.NavEverAutoDriving} nullRetryFired={SpikeState.NavRetried} callback={SpikeState.NavCallbackResult ?? "-"} ) — " +
@@ -563,6 +1083,46 @@ internal static class SpikeRunner
                     Mod.Log.Warn($"VehicleAgent.StopNavigating() during timeout cleanup failed: {ex.Message}");
                 }
 
+                return;
+            }
+
+            // ---- Stage 4: the GAME's own driver leads (the patrol clone) --------
+            // Dominik: "können wir nicht die KI klonen, vom Spiel z.B. die wo das
+            // Polizeifahrzeug steuert". While the game's VehiclePatrolBehaviour owns
+            // the wheel the mod must NOT fight it with Navigate()/StartReverse() — it
+            // only supervises (arrival, stall → hand the ride back, timeout).
+            if (TaxiAI.Active)
+            {
+                TickPatrolSupervision(veh, position, distance);
+                return;
+            }
+
+            // ---- Stage 3d progress supervision ---------------------------------
+            // "AutoDriving" is NOT proof of motion. Observed 2026-09-27 (ride to
+            // ROAD A): AutoDriving=True, navCalc=False, speed=0.0 km/h, constant
+            // distance for 9.6 s — the old `if (autoDriving) return;` skipped the
+            // retry AND the terminal branch, so only the 90 s timeout could end it.
+            // Measure movement instead of trusting flags.
+            float window = SpikeState.ProgressWindowStart <= 0f ? 0f : now - SpikeState.ProgressWindowStart;
+            float moved = Vector3.Distance(position, SpikeState.ProgressFrom);
+            if (SpikeState.ProgressWindowStart <= 0f)
+            {
+                SpikeState.ProgressFrom = position;
+                SpikeState.ProgressWindowStart = now;
+            }
+            else if (moved >= ProgressEpsilonMeters)
+            {
+                if (SpikeState.StuckRecoveries > 0)
+                    Mod.Log.Info(
+                        $"[nav] progress resumed — the car moved {TaxiDestinations.Num(moved)} m " +
+                        $"after recovery #{SpikeState.StuckRecoveries}.");
+                SpikeState.StuckRecoveries = 0;
+                SpikeState.ProgressFrom = position;
+                SpikeState.ProgressWindowStart = now;
+            }
+            else if (window >= StuckWindowSeconds && !navCalc)
+            {
+                RecoverStuck(agent, veh, position, distance, elapsed, autoDriving);
                 return;
             }
 
@@ -605,7 +1165,14 @@ internal static class SpikeRunner
             // Terminal: either the vehicle arrived/stopped after driving, or it
             // never drove at all (including a failed settings=null retry).
             SpikeState.PollingActive = false;
-            string verdict = distance <= ArrivalThresholdMeters
+            bool arrivedWithin = distance <= ArrivalThresholdMeters;
+            if (arrivedWithin && SpikeState.NavToPlayer)
+            {
+                // Polling-terminal fallback (no callback ever arrived): the pickup is
+                // reached — arm the Stage-3c ride board like OnNavigationResult does.
+                SpikeState.RideAwaitingBoard = true;
+            }
+            string verdict = arrivedWithin
                 ? $"ARRIVED (within the {ArrivalThresholdMeters:F0} m threshold){(SpikeState.NavToPlayer ? " — taxi arrived at player" : string.Empty)}"
                 : $"STOPPED SHORT ({distance:F1} m from the target — mid-route stop, failed path or an early terminal){(SpikeState.NavToPlayer ? " (call-taxi to the player)" : string.Empty)}";
             Mod.Log.Info(
@@ -678,6 +1245,15 @@ internal static class SpikeRunner
         _lotDumpAttempt = 0;
         _lotDumpAt = Time.unscaledTime + LotDumpFirstDelaySeconds;
         Mod.Log.Info($"[lots] ParkingLot dump scheduled {LotDumpFirstDelaySeconds:F1}s after scene '{sceneName}' loaded.");
+
+        // Paket A (2026-09-29): leaving the gameplay scene clears the destination
+        // picker too (belt and braces next to GameLifecycle.OnSaveInfoLoaded — a
+        // reload always passes through a non-Main scene).
+        if (!string.Equals(sceneName, "Main", StringComparison.OrdinalIgnoreCase))
+        {
+            Mod.Log.Info($"[picker] scene '{sceneName}' (left the gameplay scene) — destination selection cleared.");
+            SpikeState.ResetPicker();
+        }
 
         LandVehicle? veh = SpikeState.Vehicle;
         bool vehicleGone = veh == null; // Unity fake-null also covers destroyed objects
