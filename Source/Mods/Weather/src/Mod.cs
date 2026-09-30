@@ -1,7 +1,7 @@
 using System;
 using MelonLoader;
 
-[assembly: MelonInfo(typeof(Weather.Mod), "Weather", "0.1.0", "Dominik")]
+[assembly: MelonInfo(typeof(Weather.Mod), "Weather", "0.3.0", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace Weather;
@@ -10,7 +10,7 @@ public class Mod : MelonMod
 {
     public override void OnInitializeMelon()
     {
-        MelonLogger.Msg("[Weather] Initialized (v0.1.0) - phone app for live in-game weather.");
+        MelonLogger.Msg("[Weather] Initialized - phone app for live in-game weather.");
     }
 
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
