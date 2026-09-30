@@ -12,9 +12,14 @@ namespace MessagesPlus;
 /// update that renames a method degrades gracefully instead of crashing.
 ///
 /// Patched methods:
-///   Start            — inject the toolbar buttons + trash section (once per app instance).
-///   SetOpen(bool)    — re-inject/refresh when the app is opened (covers page rebuilds).
-///   Loaded()         — re-apply trash/purge state after the game loaded conversations.
+///   Start            — inject the MessagesPlus toolbar + confirmation modal (once per app instance).
+///   SetOpen(bool)    — re-inject when the app is opened (covers page rebuilds); on close,
+///                      reset the modal and the search/filter view (W12 analogue).
+///   Loaded()         — one-time legacy restore (idempotent) + re-inject after the game
+///                      loaded the conversations.
+///
+/// The v0.1.x CreateConversationUI patch is gone —
+/// v0.2.0+ has no per-entry UI at all.
 /// </summary>
 public static class MessagesAppPatch
 {
@@ -40,13 +45,6 @@ public static class MessagesAppPatch
             "Loaded",
             postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(Loaded_Postfix)),
             log: log);
-
-        PatchGuard.TryPatch(
-            harmony,
-            typeof(MessagesApp),
-            nameof(MessagesApp.CreateConversationUI),
-            postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(CreateConversationUI_Postfix)),
-            log: log);
     }
 
     /// <summary>
@@ -57,8 +55,7 @@ public static class MessagesAppPatch
     {
         try
         {
-            TrashUI.EnsureBuilt(__instance);
-            TrashService.ApplyToConversations();
+            InboxUI.EnsureBuilt(__instance);
         }
         catch (Exception ex)
         {
@@ -67,9 +64,9 @@ public static class MessagesAppPatch
     }
 
     /// <summary>
-    /// Refresh + re-inject on every app open (cheap: EnsureBuilt is a no-op when
-    /// the injected UI is still alive). On close, reset the confirmation modal so
-    /// a half-finished dialog cannot reappear with a stale pending action.
+    /// Re-inject on every app open (cheap: EnsureBuilt is a no-op when the
+    /// injected UI is still alive). On close, reset the confirmation modal and
+    /// the search/filter view so neither can reappear with stale state (W12).
     /// </summary>
     [HarmonyPostfix]
     public static void SetOpen_Postfix(MessagesApp __instance, bool __0)
@@ -80,7 +77,7 @@ public static class MessagesAppPatch
         {
             try
             {
-                TrashUI.ResetModal(); // W12: modal must not survive an app close.
+                InboxUI.OnAppClosed();
             }
             catch (Exception ex)
             {
@@ -90,7 +87,7 @@ public static class MessagesAppPatch
         }
         try
         {
-            TrashUI.EnsureBuilt(__instance);
+            InboxUI.EnsureBuilt(__instance);
         }
         catch (Exception ex)
         {
@@ -99,40 +96,22 @@ public static class MessagesAppPatch
     }
 
     /// <summary>
-    /// The vanilla app finished loading its conversations from the save —
-    /// re-apply trashed (hidden) and purged (removed) state so the trash
-    /// survives game reloads.
+    /// The vanilla app finished loading its conversations from the save — run
+    /// the (idempotent) legacy restore now that the conversation lists are
+    /// populated (OnSaveInfoLoaded fires earlier and defers), then re-inject
+    /// the UI in case the page was rebuilt.
     /// </summary>
     [HarmonyPostfix]
     public static void Loaded_Postfix(MessagesApp __instance)
     {
         try
         {
-            TrashService.ApplyToConversations();
-            TrashUI.EnsureBuilt(__instance);
+            LegacyRestore.Run();
+            InboxUI.EnsureBuilt(__instance);
         }
         catch (Exception ex)
         {
             Mod.Log?.Warn($"Loaded_Postfix failed: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Injects a small per-entry delete button (🗑) into every conversation
-    /// row created by the vanilla app. Clicking it moves just that thread
-    /// to the trash (same as Clear All but for one conversation).
-    /// </summary>
-    [HarmonyPostfix]
-    public static void CreateConversationUI_Postfix(MessagesApp __instance, MSGConversation c, ref RectTransform entry)
-    {
-        try
-        {
-            if (entry == null) return;
-            TrashUI.InjectEntryDeleteButton(entry, c, __instance);
-        }
-        catch (Exception ex)
-        {
-            Mod.Log?.Warn($"CreateConversationUI_Postfix failed: {ex.Message}");
         }
     }
 }

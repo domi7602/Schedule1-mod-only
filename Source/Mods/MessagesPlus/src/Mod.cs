@@ -1,19 +1,22 @@
 using System;
+using Il2CppInterop.Runtime.Injection;
 using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(MessagesPlus.Mod), "MessagesPlus", "0.1.1", "Dominik")]
+[assembly: MelonInfo(typeof(MessagesPlus.Mod), "MessagesPlus", "0.4.0", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MessagesPlus;
 
 /// <summary>
-/// MessagesPlus — Phase 1: Clear All + Trash/Restore for the vanilla MessagesApp.
+/// MessagesPlus — inbox hygiene for the vanilla MessagesApp: customer-only
+/// Clear All + Clear Read, live name search, category filter chips and an
+/// unread counter, plus the one-time legacy restore.
 ///
 /// Patch-only mod (plain MelonMod + Harmony, like MoreSaveSlots/StackLimitMod):
 /// it enhances the EXISTING in-game Messages app and never registers a new
-/// PhoneApp or homescreen icon. See MessagesAppPatch/TrashUI/TrashService.
+/// PhoneApp or homescreen icon. See MessagesAppPatch/InboxUI/InboxView/LegacyRestore.
 /// </summary>
 public class Mod : MelonMod
 {
@@ -24,34 +27,42 @@ public class Mod : MelonMod
     {
         Log = new ModLogger("MessagesPlus");
 
-        // 1. Config (Phase 3 background colors + Phase 2 toast/sound toggles).
+        // 0. IL2CPP registration for the search field's InputFocus guard (Key Rule 5).
+        try { ClassInjector.RegisterTypeInIl2Cpp<MessagesPlusInputFocus>(); }
+        catch (Exception ex) { Log.Warn($"Failed to register MessagesPlusInputFocus: {ex.Message}"); }
+
+        // 1. Config (Phase 2 toast/sound + Phase 3 background placeholders).
         ModConfig<MessagesPlusConfig>.Initialize("MessagesPlus", Log);
 
-        // 2. Trash service + persistence.
-        TrashService.Initialize(Log);
-
-        // 3. Harmony patches on the vanilla MessagesApp (PatchGuard = graceful
+        // 2. Harmony patches on the vanilla MessagesApp (PatchGuard = graceful
         //    degradation if a game update renames a method).
         MessagesAppPatch.ApplyAll(HarmonyInstance, Log);
         PatchGuard.Report(Log);
 
-        // 4. Save-load timing: OnSaveInfoLoaded fires after save parsing but
+        // 3. Save-load timing: OnSaveInfoLoaded fires after save parsing but
         //    before scene build (OnGameplaySceneLoaded is too early/late — see
-        //    IL2CPP pitfalls, save-load timing).
+        //    IL2CPP pitfalls, save-load timing). The MessagesApp.Loaded postfix
+        //    retries LegacyRestore.Run once the conversation lists are
+        //    populated (Run is idempotent).
         GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
 
-        // 5. Single static update dispatcher (defensive Unsubscribe-before-
-        //    Subscribe; NEVER unsubscribe per phone close — Rule 10 analogue).
-        MelonEvents.OnUpdate.Unsubscribe(OnModUpdate);
-        MelonEvents.OnUpdate.Subscribe(OnModUpdate);
+        Log.Info("MessagesPlus v0.4.0 initialized (search band + category chips + unread counter + ... menu with Clear Read/All + whole-app dark mode + legacy restore).");
+    }
 
-        Log.Info("MessagesPlus v0.1.1 initialized (Clear All + Trash/Restore for MessagesApp).");
+    /// <summary>
+    /// Single throttled dispatcher (1 s, see InboxUI.Tick) for the injected UI:
+    /// re-applies the search/filter view (vanilla can re-show entries on its own
+    /// events — the v0.1.x TrashUI W5 lesson) and refreshes the unread counter.
+    /// Free when the phone is closed or no view is active.
+    /// </summary>
+    public override void OnUpdate()
+    {
+        InboxUI.Tick();
     }
 
     public override void OnDeinitializeMelon()
     {
         GameLifecycle.OnSaveInfoLoaded -= OnSaveInfoLoaded;
-        MelonEvents.OnUpdate.Unsubscribe(OnModUpdate);
     }
 
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
@@ -60,7 +71,8 @@ public class Mod : MelonMod
         if (sceneName.Equals("Main", StringComparison.OrdinalIgnoreCase))
         {
             // UI references die with the scene — drop them (never Destroy here).
-            TrashUI.TearDownForSceneUnload();
+            InboxUI.TearDownForSceneUnload();
+            AppTheme.HandleSceneUnload();
         }
     }
 
@@ -68,19 +80,11 @@ public class Mod : MelonMod
     {
         try
         {
-            TrashService.LoadForCurrentSlot();
-            TrashService.ApplyToConversations();
+            LegacyRestore.Run();
         }
         catch (Exception ex)
         {
             Log.Error($"OnSaveInfoLoaded handler failed: {ex.Message}");
         }
-    }
-
-    private void OnModUpdate()
-    {
-        // Throttled UI sync (1s inside TrashUI.Tick) — counter/rows stay fresh
-        // even when the vanilla app rebuilds its conversation list.
-        TrashUI.Tick();
     }
 }
