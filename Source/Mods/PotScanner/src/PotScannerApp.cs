@@ -28,21 +28,110 @@ public enum PotFilter
 /// <summary>
 /// Phone app that lists all placed pots, grouped by property, with water/soil/growth/quality.
 /// Refreshed by Mod.OnUpdate every 2s when the app is open (cheap when IsOpen() is false).
+/// v0.7.0 view rewrite onto the shared BankApp palette (S1Mods.Shared.GamePalette): flat opaque
+/// surfaces, 1 px outlines, semantic accents and teal value numbers. Pure view change — life
+/// cycle, polling, filtering and all WaterAllService/AutoWaterService behaviour are unchanged.
 /// </summary>
 public sealed class PotScannerApp : PhoneApp
 {
+    // ============================ Design tokens (shared GamePalette) ============================
+    // v0.7.0: every colour now comes from S1Mods.Shared.GamePalette — the screenshot-verified
+    // BankApp v0.3.0 look, promoted to a shared palette so all phone apps read as one product.
+    // The local names below keep the view code readable.
+    //
+    // Opacity (breaking change vs v0.6.0): surfaces are fully opaque. The old hierarchy came
+    // from white-alpha "glass" fills (white 4-14%) over a near-black base; that cannot survive
+    // an opaque palette and is replaced by steps of surface lightness
+    // (Bg < Card < CardAlt < CardHover/Pressed < Border).
+    //
+    // Colour is semantic, never decorative: Blue = interactive/selected, Green = primary action,
+    // Teal = value + progress-bar fill, Orange = ready, TextMuted = empty. Accent fills carry
+    // WHITE ink (BankApp precedent), not dark ink.
+    private const float CardCornerRadius = 8f;
+    private const float ChipCornerRadius = 6f;
+
+    private static readonly Color BgColor = GamePalette.Bg;
+    private static readonly Color CardFill = GamePalette.Card;
+    private static readonly Color CardFillSoft = GamePalette.CardAlt;
+    private static readonly Color CardBorderColor = GamePalette.Border;
+    private static readonly Color CardHover = GamePalette.CardHover;
+    private static readonly Color CardPressed = GamePalette.CardPressed;
+    private static readonly Color ActionStrong = GamePalette.Green;      // Water All, enabled
+    private static readonly Color ActionActive = GamePalette.CardAlt;    // Auto-Water, ON
+    private static readonly Color ActionIdle = GamePalette.Card;         // Auto-Water, OFF
+    private static readonly Color PillActive = GamePalette.Blue;         // active filter chip
+    private static readonly Color CardExpanded = GamePalette.CardAlt;    // expanded property header
+    private static readonly Color ClickRing = GamePalette.Blue;          // water-bar click affordance
+    private static readonly Color BarFill = GamePalette.Teal;            // progress-bar fills
+    private static readonly Color ReadyAccent = GamePalette.Orange;      // status dot: fully grown
+    private static readonly Color GrowthAccent = GamePalette.Green;      // status dot: planted
+    private static readonly Color EmptyAccent = GamePalette.TextMuted;   // status dot: no plant
+    private static readonly Color TextPrimary = GamePalette.TextPrimary;
+    private static readonly Color TextMuted = GamePalette.TextMuted;
+    private static readonly Color TextDim = GamePalette.TextDim;
+    private static readonly Color LabelDim = GamePalette.TextDim;
+    private static readonly Color BarTrack = GamePalette.Border;
+
+    // ============================ Layout bands (overlap-safe) ============================
+    // Main stack: VerticalLayoutGroup (top to bottom, spacing Dp(8), padding Dp(8) all sides):
+    //   [1] Hero summary card   fixed  Dp(96)  - scan summary + donut moisture gauge
+    //   [2] Action row          fixed  Dp(48)  - Water All + Auto-Water glass cards
+    //   [3] Filter toolbar      fixed  Dp(28)  - 4 chips (All/Thirsty/Ready/Empty)
+    //   [4] Pot list            flex 1         - scrollable cards (RectMask2D-clipped)
+    // Fixed total = Dp(96+48+28) + 3x spacing Dp(8) + 2x padding Dp(8) = Dp(220).
+    // (No footer band: the app label + version pill were removed on request, and the pot
+    // list — the only flexible child — absorbs the freed Dp(24) plus one spacing step.)
+    // Worst-case math vs available canvas height H (UITheme: Scale = clamp(H/900, 0.75, 1.2)):
+    //   - Proportional regime (675 <= H <= 1080): fixed = 220 * H/900 = 0.244 * H ->
+    //     the flexible list band always keeps >= 75% of H. Bands stack top-down and can
+    //     never overlap (childForceExpandHeight = false, one flexible child absorbs slack).
+    //   - Clamped-high regime (H > 1080): fixed = 220 * 1.2 = 264 px, shrinking relative
+    //     to H as H grows. No overflow possible.
+    //   - Clamped-low regime (H < 675): Scale clamps at 0.75 -> fixed = 220 * 0.75 = 165 px.
+    //     Requires H >= 165 px; every supported phone canvas is >= 600 px tall (the old
+    //     layout required only H >= 62 px, so this is strictly safer than before).
+    //   The list band is the only flexible child and is RectMask2D-clipped, so long lists
+    //   scroll instead of ever overlapping the bands above.
+    //
+    // Hero card internals (absolute anchors inside the hero card, x fractions of card width):
+    //   overline  x 0.05-0.70  y 0.76-0.94   "SCAN SUMMARY"  (Sp 12, uppercase, white 55%)
+    //   title     x 0.05-0.70  y 0.44-0.76   "N POTS"        (Sp 30, bold, white 85%)
+    //   meta      x 0.05-0.72  y 0.24-0.42   counts line     (Sp 11, white 60%)
+    //   avg label x 0.05-0.72  y 0.06-0.22   "AVG WATER N%"  (Sp 11, bold, white 85%)
+    //   donut     center (0.835, 0.52), D = min(0.78 * cardH, 0.20 * cardW) ->
+    //             x span 0.735-0.935, clear of the text column (right edge 0.72) at any width.
+    // Pot row internals (row height Dp(52), x fractions of row width):
+    //   status dot x 0.02-0.08 (circle sprite, semantic hue); title x 0.085-0.40 y 0.52-0.94;
+    //   quality x 0.085-0.40 y 0.08-0.48; metric label x 0.40-0.455; capsule track x 0.465-0.855
+    //   (Dp(7.5) high, centered in its band); value numbers x 0.87-0.985 RIGHT-ALIGNED.
+    //   Metric bands (y fractions, non-overlapping): water 0.68-0.94, growth 0.36-0.62,
+    //   soil 0.04-0.30. Text column (x <= 0.40) and metric column (x >= 0.40) never overlap.
+    // Property header internals (Dp(32)): chevron x 0.022-0.082 (shape-drawn, rotates on
+    //   expand/collapse), title x 0.10-0.58, badge x 0.58-0.97 right-aligned.
+    // Action card internals: label y 0.46-0.95, sublabel y 0.06-0.42 (both centered).
+    // Every element is anchor-positioned with non-overlapping bands; heights are Dp/Sp
+    // scaled by UITheme.Scale so the composition holds at every supported canvas size.
+
     private GameObject _mainBG = null!;
     private RectTransform _listContent = null!;
     private Button _waterAllButton = null!;
     private Text _waterAllLabel = null!;
     private Text _waterAllSubLabel = null!;
+    private Image _waterAllFill = null!;
     private Button _autoWaterButton = null!;
     private Text _autoWaterLabel = null!;
     private Text _autoWaterSubLabel = null!;
+    private Image _autoWaterFill = null!;
     private float _lastRefreshRealtime;
     private string? _activePropertyKey;
     private PotFilter _activeFilter = PotFilter.All;
     private readonly Dictionary<PotFilter, (Image bg, Text label, Button btn)> _filterButtons = new();
+
+    // Hero summary refs (view only).
+    private Text? _heroTotalText;
+    private Text? _heroMetaText;
+    private Text? _heroAvgText;
+    private Image? _heroRingFill;
 
     private sealed class PotRowEntry
     {
@@ -55,12 +144,16 @@ public sealed class PotScannerApp : PhoneApp
         public PotInfo PotInfo = null!;
         public GameObject RowObject = null!;
         public Text TitleText = null!;
+        public Text? QualityText;
+        public Image? StatusDot;
         public RectTransform WaterFillRt = null!;
+        public Image? WaterFillImage;
         public Text? WaterBadgeText;
         public RectTransform GrowthFillRt = null!;
         public Image? GrowthFillImage;
         public Text? GrowthBadgeText;
         public RectTransform SoilFillRt = null!;
+        public Image? SoilFillImage;
         public Text? SoilBadgeText;
     }
 
@@ -72,6 +165,7 @@ public sealed class PotScannerApp : PhoneApp
         public Text TitleText = null!;
         public Text BadgeText = null!;
         public Button HeaderButton = null!;
+        public RectTransform? ChevronRt;
         public readonly List<PotRowEntry> Rows = new();
     }
 
@@ -168,7 +262,7 @@ public sealed class PotScannerApp : PhoneApp
             MelonLogger.Msg($"Responsive canvas initialized: {UITheme.ActualWidth:F0}x{UITheme.ActualHeight:F0} (Scale={UITheme.Scale:F2})");
         }
 
-        _mainBG = UIFactory.Panel("MainBG", container.transform, new Color(0.08f, 0.09f, 0.12f, 1f), fullAnchor: true);
+        _mainBG = UIFactory.Panel("MainBG", container.transform, BgColor, fullAnchor: true);
         _mainBG.SetActive(false);
 
         var vlg = _mainBG.AddComponent<VerticalLayoutGroup>();
@@ -176,70 +270,69 @@ public sealed class PotScannerApp : PhoneApp
         vlg.childControlWidth = true;
         vlg.childForceExpandHeight = false;
         vlg.childForceExpandWidth = true;
-        vlg.spacing = UITheme.Dp(4f);
-        vlg.padding = new RectOffset((int)UITheme.Dp(6f), (int)UITheme.Dp(6f), (int)UITheme.Dp(6f), (int)UITheme.Dp(6f));
+        vlg.spacing = UITheme.Dp(8f);
+        vlg.padding = new RectOffset((int)UITheme.Dp(8f), (int)UITheme.Dp(8f), (int)UITheme.Dp(8f), (int)UITheme.Dp(8f));
 
-        // --- ActionRow (2 buttons) - compact height 36px ---
+        // --- [1] Hero summary card (scan summary + donut moisture gauge) ---
+        CreateHeroCard(_mainBG.transform);
+
+        // --- [2] ActionRow (2 buttons) ---
         var actionPanel = UIFactory.Panel("ActionRow", _mainBG.transform, Color.clear);
+        var actionImg = actionPanel.GetComponent<Image>();
+        if (actionImg != null) actionImg.raycastTarget = false;
         var actionLE = actionPanel.AddComponent<LayoutElement>();
-        actionLE.minHeight = UITheme.Dp(36f);
-        actionLE.preferredHeight = UITheme.Dp(36f);
+        actionLE.minHeight = UITheme.Dp(48f);
+        actionLE.preferredHeight = UITheme.Dp(48f);
         actionLE.flexibleHeight = 0f;
 
         var actionHlg = actionPanel.AddComponent<HorizontalLayoutGroup>();
-        actionHlg.spacing = UITheme.Dp(6f);
+        actionHlg.spacing = UITheme.Dp(8f);
         actionHlg.childControlWidth = true;
         actionHlg.childControlHeight = true;
         actionHlg.childForceExpandWidth = true;
         actionHlg.childForceExpandHeight = true;
 
-        // --- Water All button ---
-        var waterPanel = UIFactory.Panel("WaterAllPanel", actionPanel.transform, new Color(0.16f, 0.36f, 0.60f));
-        _waterAllButton = waterPanel.AddComponent<Button>();
+        // --- Water All button (dark glass card, white 10% fill when enabled) ---
+        var waterCard = CreateCard("WaterAllPanel", actionPanel.transform, ActionStrong, out _waterAllFill,
+            raycastTarget: true, radius: ChipCornerRadius);
+        _waterAllButton = waterCard.AddComponent<Button>();
         _waterAllButton.transition = Selectable.Transition.None;
 
-        var wVlg = waterPanel.AddComponent<VerticalLayoutGroup>();
-        wVlg.childControlHeight = true; wVlg.childControlWidth = true;
-        wVlg.childForceExpandHeight = false; wVlg.childForceExpandWidth = true;
-        wVlg.childAlignment = TextAnchor.MiddleCenter;
-
-        _waterAllLabel = UIFactory.Text("WaterAllLbl", "Water All", waterPanel.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _waterAllLabel = UIFactory.Text("WaterAllLbl", "Water All", _waterAllFill.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
         _waterAllLabel.color = Color.white;
         _waterAllLabel.raycastTarget = false;
-        _waterAllLabel.gameObject.AddComponent<LayoutElement>().flexibleHeight = 1f;
+        AnchorRect(_waterAllLabel.rectTransform, 0.06f, 0.46f, 0.94f, 0.95f);
 
-        _waterAllSubLabel = UIFactory.Text("WaterAllSubLbl", "\u2014", waterPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _waterAllSubLabel = UIFactory.Text("WaterAllSubLbl", "-", _waterAllFill.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
         _waterAllSubLabel.raycastTarget = false;
-        _waterAllSubLabel.gameObject.AddComponent<LayoutElement>().minHeight = UITheme.Dp(13f);
+        AnchorRect(_waterAllSubLabel.rectTransform, 0.06f, 0.06f, 0.94f, 0.42f);
 
         ButtonUtils.AddListener(_waterAllButton, OnWaterAllClicked);
 
-        // --- Auto-Water toggle button ---
-        var autoPanel = UIFactory.Panel("AutoWaterPanel", actionPanel.transform, new Color(0.21f, 0.33f, 0.27f));
-        _autoWaterButton = autoPanel.AddComponent<Button>();
+        // --- Auto-Water toggle button (dark glass card, hierarchy via fill alpha only) ---
+        var autoCard = CreateCard("AutoWaterPanel", actionPanel.transform, ActionIdle, out _autoWaterFill,
+            raycastTarget: true, radius: ChipCornerRadius);
+        _autoWaterButton = autoCard.AddComponent<Button>();
         _autoWaterButton.transition = Selectable.Transition.None;
 
-        var aVlg = autoPanel.AddComponent<VerticalLayoutGroup>();
-        aVlg.childControlHeight = true; aVlg.childControlWidth = true;
-        aVlg.childForceExpandHeight = false; aVlg.childForceExpandWidth = true;
-        aVlg.childAlignment = TextAnchor.MiddleCenter;
-
-        _autoWaterLabel = UIFactory.Text("AutoWaterLbl", "Auto-Water", autoPanel.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _autoWaterLabel = UIFactory.Text("AutoWaterLbl", "Auto-Water", _autoWaterFill.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
         _autoWaterLabel.color = Color.white;
         _autoWaterLabel.raycastTarget = false;
-        _autoWaterLabel.gameObject.AddComponent<LayoutElement>().flexibleHeight = 1f;
+        AnchorRect(_autoWaterLabel.rectTransform, 0.06f, 0.46f, 0.94f, 0.95f);
 
-        _autoWaterSubLabel = UIFactory.Text("AutoWaterSubLbl", "\u2014", autoPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _autoWaterSubLabel = UIFactory.Text("AutoWaterSubLbl", "-", _autoWaterFill.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
         _autoWaterSubLabel.raycastTarget = false;
-        _autoWaterSubLabel.gameObject.AddComponent<LayoutElement>().minHeight = UITheme.Dp(13f);
+        AnchorRect(_autoWaterSubLabel.rectTransform, 0.06f, 0.06f, 0.94f, 0.42f);
 
         ButtonUtils.AddListener(_autoWaterButton, OnAutoWaterClicked);
 
-        // --- Filter Tabs Toolbar (4 Pills: All, Thirsty, Ready, Empty) ---
+        // --- [3] Filter Tabs Toolbar (4 Pills: All, Thirsty, Ready, Empty) ---
         CreateFilterToolbar(_mainBG.transform);
 
-        // --- Pot list (scrollable) ---
-        var listPanel = UIFactory.Panel("PotList", _mainBG.transform, new Color(0.08f, 0.08f, 0.08f, 0.95f));
+        // --- [4] Pot list (scrollable) ---
+        var listPanel = UIFactory.Panel("PotList", _mainBG.transform, Color.clear);
+        var listImg = listPanel.GetComponent<Image>();
+        if (listImg != null) listImg.raycastTarget = false;
         var listLE = listPanel.AddComponent<LayoutElement>();
         listLE.flexibleHeight = 1f;
 
@@ -251,6 +344,14 @@ public sealed class PotScannerApp : PhoneApp
         _listContent = UIFactory.ScrollableVerticalList("PotListScroll", listPanel.transform, out var potScrollRect);
         UIFactory.FitContentHeight(_listContent);
         _listContent.sizeDelta = new Vector2(0f, _listContent.sizeDelta.y);
+
+        // 4/8/12/16 Dp spacing rhythm: rows are cards separated by Dp(5).
+        var listVlg = _listContent.GetComponent<VerticalLayoutGroup>();
+        if (listVlg != null)
+        {
+            listVlg.spacing = UITheme.Dp(5f);
+            listVlg.padding = new RectOffset(0, 0, (int)UITheme.Dp(2f), (int)UITheme.Dp(6f));
+        }
 
         if (potScrollRect != null)
         {
@@ -266,16 +367,120 @@ public sealed class PotScannerApp : PhoneApp
         RefreshAutoWaterButton();
     }
 
+    /// <summary>
+    /// Hero/focus card: scan summary of data PotScanner already shows (pot counts and the
+    /// average water level) with an anti-aliased donut ring gauge around a shape-drawn pot icon.
+    /// </summary>
+    private void CreateHeroCard(Transform parent)
+    {
+        // Band container for the hero card. The v0.6.0 fake elevation shadow is gone:
+        // the BankApp look is flat (no drop shadows).
+        var heroBand = UIFactory.Panel("HeroBand", parent, Color.clear);
+        var bandImg = heroBand.GetComponent<Image>();
+        if (bandImg != null) bandImg.raycastTarget = false;
+        var bandLE = heroBand.AddComponent<LayoutElement>();
+        bandLE.minHeight = UITheme.Dp(96f);
+        bandLE.preferredHeight = UITheme.Dp(96f);
+        bandLE.flexibleHeight = 0f;
+
+        var card = CreateCard("HeroCard", heroBand.transform, CardFill, out var fillImg);
+
+        var overline = UIFactory.Text("HeroOverline", "SCAN SUMMARY", fillImg.transform, UITheme.Sp(12), TextAnchor.MiddleLeft, FontStyle.Bold);
+        overline.color = TextMuted;
+        overline.raycastTarget = false;
+        AnchorRect(overline.rectTransform, 0.05f, 0.76f, 0.70f, 0.94f);
+
+        _heroTotalText = UIFactory.Text("HeroTotal", "0 POTS", fillImg.transform, UITheme.Sp(30), TextAnchor.MiddleLeft, FontStyle.Bold);
+        _heroTotalText.color = TextPrimary;
+        _heroTotalText.raycastTarget = false;
+        _heroTotalText.horizontalOverflow = HorizontalWrapMode.Overflow;
+        _heroTotalText.verticalOverflow = VerticalWrapMode.Truncate;
+        AnchorRect(_heroTotalText.rectTransform, 0.05f, 0.44f, 0.70f, 0.76f);
+
+        _heroMetaText = UIFactory.Text("HeroMeta", "0 ready \u00b7 0 thirsty \u00b7 0 empty", fillImg.transform, UITheme.Sp(11), TextAnchor.MiddleLeft);
+        _heroMetaText.color = TextMuted;
+        _heroMetaText.raycastTarget = false;
+        AnchorRect(_heroMetaText.rectTransform, 0.05f, 0.24f, 0.72f, 0.42f);
+
+        _heroAvgText = UIFactory.Text("HeroAvg", "AVG WATER 0%", fillImg.transform, UITheme.Sp(11), TextAnchor.MiddleLeft, FontStyle.Bold);
+        _heroAvgText.color = TextPrimary;
+        _heroAvgText.raycastTarget = false;
+        AnchorRect(_heroAvgText.rectTransform, 0.05f, 0.06f, 0.72f, 0.22f);
+
+        // Donut ring gauge (right side): neutral track + green radial fill around a teal pot
+        // icon (green = the app's primary accent, teal = value ink, per GamePalette).
+        float donutSide = Mathf.Min(UITheme.Dp(96f) * 0.78f, (UITheme.ActualWidth - 2f * UITheme.Dp(8f)) * 0.20f);
+
+        var ringTrack = UIFactory.Panel("HeroRingTrack", fillImg.transform, BarTrack);
+        var trackImg = ringTrack.GetComponent<Image>();
+        if (trackImg != null)
+        {
+            trackImg.sprite = UISprites.Donut();
+            trackImg.raycastTarget = false;
+        }
+        var trackRt = ringTrack.GetComponent<RectTransform>();
+        trackRt.anchorMin = new Vector2(0.835f, 0.52f);
+        trackRt.anchorMax = new Vector2(0.835f, 0.52f);
+        trackRt.sizeDelta = new Vector2(donutSide, donutSide);
+
+        var ringFill = UIFactory.Panel("HeroRingFill", fillImg.transform, BarFill);
+        _heroRingFill = ringFill.GetComponent<Image>();
+        if (_heroRingFill != null)
+        {
+            _heroRingFill.sprite = UISprites.Donut();
+            _heroRingFill.type = Image.Type.Filled;
+            _heroRingFill.fillMethod = Image.FillMethod.Radial360;
+            _heroRingFill.fillOrigin = (int)Image.Origin360.Top;
+            _heroRingFill.fillClockwise = true;
+            _heroRingFill.fillAmount = 0f;
+            _heroRingFill.raycastTarget = false;
+        }
+        var fillRingRt = ringFill.GetComponent<RectTransform>();
+        fillRingRt.anchorMin = new Vector2(0.835f, 0.52f);
+        fillRingRt.anchorMax = new Vector2(0.835f, 0.52f);
+        fillRingRt.sizeDelta = new Vector2(donutSide, donutSide);
+
+        // Shape-drawn pot icon in the gauge centre (rim capsule + rounded body).
+        float iconSide = donutSide * 0.34f;
+        var rim = UIFactory.Panel("HeroIconRim", fillImg.transform, BarFill);
+        var rimImg = rim.GetComponent<Image>();
+        if (rimImg != null)
+        {
+            rimImg.sprite = UISprites.Capsule();
+            rimImg.type = Image.Type.Sliced;
+            rimImg.raycastTarget = false;
+        }
+        var rimRt = rim.GetComponent<RectTransform>();
+        rimRt.anchorMin = new Vector2(0.835f, 0.52f + 0.27f * iconSide / donutSide);
+        rimRt.anchorMax = rimRt.anchorMin;
+        rimRt.sizeDelta = new Vector2(iconSide, iconSide * 0.22f);
+
+        var body = UIFactory.Panel("HeroIconBody", fillImg.transform, BarFill);
+        var bodyImg = body.GetComponent<Image>();
+        if (bodyImg != null)
+        {
+            bodyImg.sprite = UISprites.Rounded(2f);
+            bodyImg.type = Image.Type.Sliced;
+            bodyImg.raycastTarget = false;
+        }
+        var bodyRt = body.GetComponent<RectTransform>();
+        bodyRt.anchorMin = new Vector2(0.835f, 0.52f - 0.17f * iconSide / donutSide);
+        bodyRt.anchorMax = bodyRt.anchorMin;
+        bodyRt.sizeDelta = new Vector2(iconSide * 0.78f, iconSide * 0.52f);
+    }
+
     private void CreateFilterToolbar(Transform parent)
     {
         var filterPanel = UIFactory.Panel("FilterToolbar", parent, Color.clear);
+        var filterImg = filterPanel.GetComponent<Image>();
+        if (filterImg != null) filterImg.raycastTarget = false;
         var filterLE = filterPanel.AddComponent<LayoutElement>();
-        filterLE.minHeight = UITheme.Dp(26f);
-        filterLE.preferredHeight = UITheme.Dp(26f);
+        filterLE.minHeight = UITheme.Dp(28f);
+        filterLE.preferredHeight = UITheme.Dp(28f);
         filterLE.flexibleHeight = 0f;
 
         var filterHlg = filterPanel.AddComponent<HorizontalLayoutGroup>();
-        filterHlg.spacing = UITheme.Dp(4f);
+        filterHlg.spacing = UITheme.Dp(8f);
         filterHlg.childControlWidth = true;
         filterHlg.childControlHeight = true;
         filterHlg.childForceExpandWidth = true;
@@ -284,32 +489,28 @@ public sealed class PotScannerApp : PhoneApp
         _filterButtons.Clear();
 
         CreateFilterPill(filterPanel.transform, PotFilter.All, "All");
-        CreateFilterPill(filterPanel.transform, PotFilter.Thirsty, "\U0001F4A7 Thirsty");
-        CreateFilterPill(filterPanel.transform, PotFilter.Ready, "\u2605 Ready");
-        CreateFilterPill(filterPanel.transform, PotFilter.Empty, "\u2B21 Empty");
+        CreateFilterPill(filterPanel.transform, PotFilter.Thirsty, "Thirsty");
+        CreateFilterPill(filterPanel.transform, PotFilter.Ready, "Ready");
+        CreateFilterPill(filterPanel.transform, PotFilter.Empty, "Empty");
 
         UpdateFilterButtonStyles();
     }
 
     private void CreateFilterPill(Transform parent, PotFilter filter, string label)
     {
-        var pillPanel = UIFactory.Panel($"Filter_{filter}", parent, new Color(0.12f, 0.15f, 0.20f, 1f));
-        var btn = pillPanel.AddComponent<Button>();
+        // Chip, not capsule (v0.6.0 used a full-radius capsule). The INNER fill carries the
+        // active colour so the outline stays a constant 1 px frame in both states.
+        var chip = CreateCard($"Filter_{filter}", parent, CardFill, out var fillImg,
+            raycastTarget: true, radius: ChipCornerRadius);
+        var btn = chip.AddComponent<Button>();
         btn.transition = Selectable.Transition.None;
 
-        var vlg = pillPanel.AddComponent<VerticalLayoutGroup>();
-        vlg.childControlHeight = true;
-        vlg.childControlWidth = true;
-        vlg.childForceExpandHeight = true;
-        vlg.childForceExpandWidth = true;
-        vlg.childAlignment = TextAnchor.MiddleCenter;
-
-        var txt = UIFactory.Text($"Lbl_{filter}", label, pillPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
-        txt.color = new Color(0.65f, 0.70f, 0.78f, 1f);
+        var txt = UIFactory.Text($"Lbl_{filter}", label, fillImg.transform, UITheme.Sp(11), TextAnchor.MiddleCenter, FontStyle.Bold);
+        txt.color = TextMuted;
         txt.raycastTarget = false;
+        AnchorRect(txt.rectTransform, 0.06f, 0f, 0.94f, 1f);
 
-        var img = pillPanel.GetComponent<Image>();
-        _filterButtons[filter] = (img, txt, btn);
+        _filterButtons[filter] = (fillImg, txt, btn);
 
         ButtonUtils.AddListener(btn, () => SetFilter(filter));
     }
@@ -330,21 +531,17 @@ public sealed class PotScannerApp : PhoneApp
             var (img, txt, _) = kvp.Value;
             bool isActive = filter == _activeFilter;
 
+            // BankApp precedent: selected = AccentBlue fill with WHITE ink, unselected =
+            // neutral surface with muted ink. No alpha grades any more.
             if (isActive)
             {
                 txt.color = Color.white;
-                img.color = filter switch
-                {
-                    PotFilter.Thirsty => new Color(0.16f, 0.36f, 0.60f, 1f),
-                    PotFilter.Ready => new Color(0.55f, 0.45f, 0.15f, 1f),
-                    PotFilter.Empty => new Color(0.30f, 0.30f, 0.35f, 1f),
-                    _ => new Color(0.20f, 0.30f, 0.45f, 1f)
-                };
+                img.color = PillActive;
             }
             else
             {
-                txt.color = new Color(0.65f, 0.70f, 0.78f, 1f);
-                img.color = new Color(0.12f, 0.15f, 0.20f, 1f);
+                txt.color = TextMuted;
+                img.color = CardFill;
             }
         }
     }
@@ -367,17 +564,15 @@ public sealed class PotScannerApp : PhoneApp
         {
             _waterAllButton.interactable = false;
             _waterAllLabel.text = "Water All";
-            _waterAllSubLabel.text = "\u2026";
-            var wImg = _waterAllButton.GetComponent<Image>();
-            if (wImg != null) wImg.color = new Color(0.12f, 0.20f, 0.32f, 1f);
+            _waterAllSubLabel.text = "...";
+            if (_waterAllFill != null) _waterAllFill.color = CardFillSoft;
         }
         if (_autoWaterButton != null)
         {
             _autoWaterButton.interactable = false;
             _autoWaterLabel.text = "Auto-Water";
-            _autoWaterSubLabel.text = "\u2026";
-            var aImg = _autoWaterButton.GetComponent<Image>();
-            if (aImg != null) aImg.color = new Color(0.16f, 0.22f, 0.20f, 1f);
+            _autoWaterSubLabel.text = "...";
+            if (_autoWaterFill != null) _autoWaterFill.color = CardFillSoft;
         }
     }
 
@@ -403,10 +598,9 @@ public sealed class PotScannerApp : PhoneApp
         {
             _waterAllButton.interactable = false;
             _waterAllLabel.text = "Water All";
-            _waterAllSubLabel.text = "\u2026";
+            _waterAllSubLabel.text = "...";
             _waterAllButton.transition = Selectable.Transition.None;
-            var wImg = _waterAllButton.GetComponent<Image>();
-            if (wImg != null) wImg.color = new Color(0.12f, 0.20f, 0.32f, 1f);
+            if (_waterAllFill != null) _waterAllFill.color = CardFillSoft;
             return;
         }
 
@@ -440,12 +634,13 @@ public sealed class PotScannerApp : PhoneApp
         _waterAllButton.interactable = canEnable;
         _waterAllButton.transition = Selectable.Transition.None;
 
-        var img = _waterAllButton.GetComponent<Image>();
-        if (img != null)
+        // Primary action = solid AccentGreen with white ink (BankApp's DEPOSIT button);
+        // inert = neutral surface with muted ink. Hierarchy is fill COLOUR now, not alpha.
+        _waterAllLabel.color = canEnable ? Color.white : TextMuted;
+        _waterAllSubLabel.color = canEnable ? Color.white : TextDim;
+        if (_waterAllFill != null)
         {
-            img.color = canEnable
-                ? new Color(0.16f, 0.36f, 0.60f, 1f)
-                : new Color(0.12f, 0.20f, 0.32f, 1f);
+            _waterAllFill.color = canEnable ? ActionStrong : CardFillSoft;
         }
     }
 
@@ -457,10 +652,9 @@ public sealed class PotScannerApp : PhoneApp
         {
             _autoWaterButton.interactable = false;
             _autoWaterLabel.text = "Auto-Water";
-            _autoWaterSubLabel.text = "\u2026";
+            _autoWaterSubLabel.text = "...";
             _autoWaterButton.transition = Selectable.Transition.None;
-            var aImg = _autoWaterButton.GetComponent<Image>();
-            if (aImg != null) aImg.color = new Color(0.16f, 0.22f, 0.20f, 1f);
+            if (_autoWaterFill != null) _autoWaterFill.color = CardFillSoft;
             return;
         }
 
@@ -470,12 +664,13 @@ public sealed class PotScannerApp : PhoneApp
         _autoWaterButton.transition = Selectable.Transition.None;
         _autoWaterButton.interactable = true;
 
-        var img = _autoWaterButton.GetComponent<Image>();
-        if (img != null)
+        // Toggle: ON carries the semantic green on the sublabel (the fill stays neutral so the
+        // primary action keeps the only saturated surface in the row).
+        _autoWaterLabel.color = on ? TextPrimary : TextMuted;
+        _autoWaterSubLabel.color = on ? GrowthAccent : TextDim;
+        if (_autoWaterFill != null)
         {
-            img.color = on
-                ? new Color(0.16f, 0.55f, 0.30f, 1f)
-                : new Color(0.20f, 0.30f, 0.26f, 1f);
+            _autoWaterFill.color = on ? ActionActive : ActionIdle;
         }
     }
 
@@ -486,6 +681,7 @@ public sealed class PotScannerApp : PhoneApp
         _initialScanComplete = true;
 
         var pots = PotTracker.Instance.Pots;
+        RefreshHero(pots);
 
         // Non-allocating check for in-place updates (0 GC allocations)
         bool canInPlaceUpdate = _rowCache.Count > 0 && _rowCache.Count == pots.Count;
@@ -509,34 +705,47 @@ public sealed class PotScannerApp : PhoneApp
                 if (!_rowCache.TryGetValue(p.NativePtr, out var refUI)) continue;
                 refUI.PotInfo = p;
 
-                string statusIcon = p.IsFullyGrown ? "\u2605" : !string.IsNullOrEmpty(p.PlantName) ? "\u25b6" : "\u2022";
-                string plantName = string.IsNullOrEmpty(p.PlantName) ? "Pot" : p.PlantName;
-                Color iconColor = p.IsFullyGrown
-                    ? new Color(1f, 0.85f, 0.3f, 1f)
-                    : !string.IsNullOrEmpty(p.PlantName)
-                        ? new Color(0.4f, 0.9f, 0.4f, 1f)
-                        : new Color(0.5f, 0.5f, 0.55f, 1f);
+                bool planted = !string.IsNullOrEmpty(p.PlantName);
+                string plantName = planted ? p.PlantName : "Pot";
 
-                string titleTextStr = !string.IsNullOrEmpty(p.PlantName)
-                    ? $"{statusIcon} {plantName}\nQ: {Mathf.RoundToInt(p.Quality * 100f)}%"
-                    : $"{statusIcon} {plantName}";
+                refUI.TitleText.text = plantName;
+                refUI.TitleText.color = planted ? TextPrimary : TextDim;
 
-                refUI.TitleText.text = titleTextStr;
-                refUI.TitleText.color = iconColor;
+                if (refUI.QualityText != null)
+                {
+                    refUI.QualityText.text = planted ? $"Q: {Mathf.RoundToInt(p.Quality * 100f)}%" : string.Empty;
+                    refUI.QualityText.color = TextMuted;
+                }
+
+                if (refUI.StatusDot != null)
+                {
+                    refUI.StatusDot.color = p.IsFullyGrown
+                        ? ReadyAccent
+                        : planted ? GrowthAccent : EmptyAccent;
+                }
 
                 refUI.WaterFillRt.anchorMax = new Vector2(Mathf.Clamp01(p.WaterPercent), 1f);
                 if (refUI.WaterBadgeText != null)
-                    refUI.WaterBadgeText.text = $"\U0001F4A7 {Mathf.RoundToInt(p.WaterPercent * 100f)}%";
+                {
+                    refUI.WaterBadgeText.text = $"{Mathf.RoundToInt(p.WaterPercent * 100f)}%";
+                    refUI.WaterBadgeText.color = p.WaterPercent > 0.01f ? BarFill : TextDim;
+                }
 
                 refUI.GrowthFillRt.anchorMax = new Vector2(Mathf.Clamp01(p.GrowthPercent), 1f);
                 if (refUI.GrowthFillImage != null)
-                    refUI.GrowthFillImage.color = p.IsFullyGrown ? new Color(0.10f, 0.95f, 0.45f, 1f) : new Color(0.18f, 0.82f, 0.35f, 1f);
+                    refUI.GrowthFillImage.color = BarFill;
                 if (refUI.GrowthBadgeText != null)
+                {
                     refUI.GrowthBadgeText.text = $"{Mathf.RoundToInt(p.GrowthPercent * 100f)}%";
+                    refUI.GrowthBadgeText.color = p.GrowthPercent > 0.01f ? BarFill : TextDim;
+                }
 
                 refUI.SoilFillRt.anchorMax = new Vector2(Mathf.Clamp01(p.SoilPercent), 1f);
                 if (refUI.SoilBadgeText != null)
+                {
                     refUI.SoilBadgeText.text = p.SoilPercent > 0.01f ? $"{Mathf.RoundToInt(p.SoilPercent * 100f)}%" : "No Soil";
+                    refUI.SoilBadgeText.color = p.SoilPercent > 0.01f ? BarFill : TextDim;
+                }
             }
 
             UpdatePropertyVisibilities();
@@ -586,6 +795,55 @@ public sealed class PotScannerApp : PhoneApp
         UpdatePropertyVisibilities();
     }
 
+    /// <summary>
+    /// Hero summary refresh (view only): totals, per-state counts and average water level,
+    /// all derived from the same PotTracker data the list already renders.
+    /// </summary>
+    private void RefreshHero(IReadOnlyList<PotInfo> pots)
+    {
+        int total = 0, ready = 0, thirsty = 0, empty = 0;
+        int planted = 0;
+        float waterSum = 0f;
+
+        for (int i = 0; i < pots.Count; i++)
+        {
+            var p = pots[i];
+            total++;
+            bool hasPlant = !string.IsNullOrEmpty(p.PlantName);
+            if (!hasPlant) empty++;
+            if (p.IsFullyGrown) ready++;
+            if (p.WaterPercent < Constants.WaterAllSkipThreshold && !p.IsFullyGrown && hasPlant) thirsty++;
+            if (hasPlant)
+            {
+                planted++;
+                waterSum += Mathf.Clamp01(p.WaterPercent);
+            }
+        }
+
+        float avgWater = planted > 0 ? waterSum / planted : 0f;
+
+        if (_heroTotalText != null)
+        {
+            _heroTotalText.text = $"{total} POTS";
+            _heroTotalText.color = total > 0 ? TextPrimary : TextDim;
+        }
+        if (_heroMetaText != null)
+        {
+            _heroMetaText.text = $"{ready} ready \u00b7 {thirsty} thirsty \u00b7 {empty} empty";
+            _heroMetaText.color = total > 0 ? TextMuted : TextDim;
+        }
+        if (_heroAvgText != null)
+        {
+            _heroAvgText.text = $"AVG WATER {Mathf.RoundToInt(avgWater * 100f)}%";
+            _heroAvgText.color = planted > 0 ? TextPrimary : TextDim;
+        }
+        if (_heroRingFill != null)
+        {
+            _heroRingFill.fillAmount = Mathf.Clamp01(avgWater);
+            _heroRingFill.color = planted > 0 ? BarFill : TextDim;
+        }
+    }
+
     private int GetUrgency(PotInfo p)
     {
         if (p.WaterPercent < Constants.WaterAllSkipThreshold && !string.IsNullOrEmpty(p.PlantName) && !p.IsFullyGrown) return 1;
@@ -596,70 +854,92 @@ public sealed class PotScannerApp : PhoneApp
 
     private void CreatePropertyHeaderRow(string propKey, List<PotInfo> pots, PropertyGroupUIRef groupRef)
     {
-        Color normalBg = new Color(0.11f, 0.15f, 0.22f, 1f);
-        var row = UIFactory.Panel($"Header_{propKey}", _listContent, normalBg, fullAnchor: true);
-        var rowImg = row.GetComponent<Image>();
-        if (rowImg != null) rowImg.raycastTarget = true;
+        var row = CreateCard($"Header_{propKey}", _listContent, CardFill, out var rowImg, raycastTarget: true);
 
         var le = row.AddComponent<LayoutElement>();
-        le.minHeight = UITheme.Dp(30f);
-        le.preferredHeight = UITheme.Dp(30f);
+        le.minHeight = UITheme.Dp(32f);
+        le.preferredHeight = UITheme.Dp(32f);
         le.flexibleWidth = 1f;
         le.flexibleHeight = 0f;
 
         var btn = row.AddComponent<Button>();
         btn.transition = Selectable.Transition.ColorTint;
-        if (rowImg != null) btn.targetGraphic = rowImg;
+        btn.targetGraphic = rowImg;
 
         var colors = btn.colors;
-        colors.normalColor = normalBg;
-        colors.highlightedColor = new Color(0.18f, 0.26f, 0.38f, 1f);
-        colors.pressedColor = new Color(0.25f, 0.38f, 0.52f, 1f);
-        colors.selectedColor = normalBg;
+        colors.normalColor = CardFill;
+        colors.highlightedColor = CardHover;
+        colors.pressedColor = CardPressed;
+        colors.selectedColor = CardFill;
         btn.colors = colors;
 
-        var content = UIFactory.Panel("Content", row.transform, Color.clear, fullAnchor: true);
-        var contentImg = content.GetComponent<Image>();
-        if (contentImg != null) contentImg.raycastTarget = false;
-        var contentLE = content.AddComponent<LayoutElement>();
-        contentLE.ignoreLayout = true;
+        var content = rowImg.transform;
+
+        // Shape-drawn expand/collapse chevron (two capsule bars; rotates instead of glyph swap).
+        var chevronRoot = UIFactory.Panel("Chevron", content, Color.clear);
+        var chevronRootImg = chevronRoot.GetComponent<Image>();
+        if (chevronRootImg != null) chevronRootImg.raycastTarget = false;
+        var chevronRt = chevronRoot.GetComponent<RectTransform>();
+        chevronRt.anchorMin = new Vector2(0.022f, 0.5f);
+        chevronRt.anchorMax = new Vector2(0.082f, 0.5f);
+        chevronRt.sizeDelta = new Vector2(0f, UITheme.Dp(14f));
+
+        var barL = UIFactory.Panel("ChevL", chevronRoot.transform, TextMuted);
+        var barLImg = barL.GetComponent<Image>();
+        if (barLImg != null)
+        {
+            barLImg.sprite = UISprites.Capsule();
+            barLImg.type = Image.Type.Sliced;
+            barLImg.raycastTarget = false;
+        }
+        var barLRt = barL.GetComponent<RectTransform>();
+        barLRt.anchorMin = new Vector2(0.22f, 0.38f);
+        barLRt.anchorMax = new Vector2(0.56f, 0.38f);
+        barLRt.sizeDelta = new Vector2(0f, UITheme.Dp(2.2f));
+        barLRt.localRotation = Quaternion.Euler(0f, 0f, -45f);
+
+        var barR = UIFactory.Panel("ChevR", chevronRoot.transform, TextMuted);
+        var barRImg = barR.GetComponent<Image>();
+        if (barRImg != null)
+        {
+            barRImg.sprite = UISprites.Capsule();
+            barRImg.type = Image.Type.Sliced;
+            barRImg.raycastTarget = false;
+        }
+        var barRRt = barR.GetComponent<RectTransform>();
+        barRRt.anchorMin = new Vector2(0.44f, 0.38f);
+        barRRt.anchorMax = new Vector2(0.78f, 0.38f);
+        barRRt.sizeDelta = new Vector2(0f, UITheme.Dp(2.2f));
+        barRRt.localRotation = Quaternion.Euler(0f, 0f, 45f);
 
         int total = pots.Count;
         int ready = pots.Count(p => p.IsFullyGrown);
         int dry = pots.Count(p => p.WaterPercent < Constants.WaterAllSkipThreshold && !p.IsFullyGrown && !string.IsNullOrEmpty(p.PlantName));
 
         string badgeText = ready > 0 ? $"{ready} ready" : dry > 0 ? $"{dry} thirsty" : $"{total} pots";
-        Color badgeColor = ready > 0
-            ? new Color(1f, 0.85f, 0.3f, 1f)
-            : dry > 0
-                ? new Color(0.9f, 0.4f, 0.4f, 1f)
-                : new Color(0.7f, 0.7f, 0.7f, 1f);
+        // Badge copy carries the state; the text itself stays monochrome (white 60%).
+        Color badgeColor = TextMuted;
 
-        var titleText = UIFactory.Text($"Header_{propKey}_Title", $"\u25b6  {propKey}",
-            content.transform, UITheme.Sp(13), TextAnchor.MiddleLeft, FontStyle.Bold);
-        titleText.color = Color.white;
+        var titleText = UIFactory.Text($"Header_{propKey}_Title", propKey,
+            content, UITheme.Sp(13), TextAnchor.MiddleLeft, FontStyle.Bold);
+        titleText.color = TextPrimary;
         titleText.raycastTarget = false;
-        var titleRt = titleText.rectTransform;
-        titleRt.anchorMin = new Vector2(0f, 0f);
-        titleRt.anchorMax = new Vector2(0.68f, 1f);
-        titleRt.offsetMin = new Vector2(UITheme.Dp(8f), 0f);
-        titleRt.offsetMax = new Vector2(0f, 0f);
+        titleText.horizontalOverflow = HorizontalWrapMode.Overflow;
+        titleText.verticalOverflow = VerticalWrapMode.Truncate;
+        AnchorRect(titleText.rectTransform, 0.10f, 0f, 0.58f, 1f);
 
         var subText = UIFactory.Text($"Header_{propKey}_Badge", badgeText,
-            content.transform, UITheme.Sp(10), TextAnchor.MiddleRight, FontStyle.Bold);
+            content, UITheme.Sp(11), TextAnchor.MiddleRight, FontStyle.Bold);
         subText.color = badgeColor;
         subText.raycastTarget = false;
-        var subRt = subText.rectTransform;
-        subRt.anchorMin = new Vector2(0.68f, 0f);
-        subRt.anchorMax = new Vector2(1f, 1f);
-        subRt.offsetMin = new Vector2(0f, 0f);
-        subRt.offsetMax = new Vector2(-UITheme.Dp(8f), 0f);
+        AnchorRect(subText.rectTransform, 0.58f, 0f, 0.97f, 1f);
 
         groupRef.HeaderObject = row;
-        groupRef.HeaderImage = rowImg!;
+        groupRef.HeaderImage = rowImg;
         groupRef.TitleText = titleText;
         groupRef.BadgeText = subText;
         groupRef.HeaderButton = btn;
+        groupRef.ChevronRt = chevronRt;
 
         string captureKey = propKey;
         ButtonUtils.AddListener(btn, () => TogglePropertyExpanded(captureKey));
@@ -711,31 +991,31 @@ public sealed class PotScannerApp : PhoneApp
             {
                 case PotFilter.Thirsty:
                     badgeText = $"{matchingCount} thirsty";
-                    badgeColor = new Color(0.9f, 0.4f, 0.4f, 1f);
+                    badgeColor = TextMuted;
                     break;
                 case PotFilter.Ready:
                     badgeText = $"{matchingCount} ready";
-                    badgeColor = new Color(1f, 0.85f, 0.3f, 1f);
+                    badgeColor = TextMuted;
                     break;
                 case PotFilter.Empty:
                     badgeText = $"{matchingCount} empty";
-                    badgeColor = new Color(0.7f, 0.7f, 0.75f, 1f);
+                    badgeColor = TextMuted;
                     break;
                 default: // All
                     if (readyCount > 0)
                     {
                         badgeText = $"{readyCount} ready";
-                        badgeColor = new Color(1f, 0.85f, 0.3f, 1f);
+                        badgeColor = TextMuted;
                     }
                     else if (dryCount > 0)
                     {
                         badgeText = $"{dryCount} thirsty";
-                        badgeColor = new Color(0.9f, 0.4f, 0.4f, 1f);
+                        badgeColor = TextMuted;
                     }
                     else
                     {
                         badgeText = $"{totalCount} pots";
-                        badgeColor = new Color(0.7f, 0.7f, 0.7f, 1f);
+                        badgeColor = TextMuted;
                     }
                     break;
             }
@@ -767,19 +1047,19 @@ public sealed class PotScannerApp : PhoneApp
                     groupRef.HeaderObject.SetActive(true);
 
                 if (groupRef.TitleText != null)
-                    groupRef.TitleText.text = $"\u25b6  {key}";
+                    groupRef.TitleText.text = key;
 
-                Color normalBg = new Color(0.11f, 0.15f, 0.22f, 1f);
-                if (groupRef.HeaderImage != null) groupRef.HeaderImage.color = normalBg;
+                if (groupRef.HeaderImage != null) groupRef.HeaderImage.color = CardFill;
                 if (groupRef.HeaderButton != null)
                 {
                     var colors = groupRef.HeaderButton.colors;
-                    colors.normalColor = normalBg;
-                    colors.highlightedColor = new Color(0.18f, 0.26f, 0.38f, 1f);
-                    colors.pressedColor = new Color(0.25f, 0.38f, 0.52f, 1f);
-                    colors.selectedColor = normalBg;
+                    colors.normalColor = CardFill;
+                    colors.highlightedColor = CardHover;
+                    colors.pressedColor = CardPressed;
+                    colors.selectedColor = CardFill;
                     groupRef.HeaderButton.colors = colors;
                 }
+                SetChevronExpanded(groupRef.ChevronRt, false);
 
                 for (int i = 0; i < groupRef.Rows.Count; i++)
                 {
@@ -793,19 +1073,19 @@ public sealed class PotScannerApp : PhoneApp
                     groupRef.HeaderObject.SetActive(true);
 
                 if (groupRef.TitleText != null)
-                    groupRef.TitleText.text = $"\u25bc  {key}";
+                    groupRef.TitleText.text = key;
 
-                Color activeBg = new Color(0.15f, 0.22f, 0.32f, 1f);
-                if (groupRef.HeaderImage != null) groupRef.HeaderImage.color = activeBg;
+                if (groupRef.HeaderImage != null) groupRef.HeaderImage.color = CardExpanded;
                 if (groupRef.HeaderButton != null)
                 {
                     var colors = groupRef.HeaderButton.colors;
-                    colors.normalColor = activeBg;
-                    colors.highlightedColor = new Color(0.20f, 0.30f, 0.42f, 1f);
-                    colors.pressedColor = new Color(0.25f, 0.38f, 0.52f, 1f);
-                    colors.selectedColor = activeBg;
+                    colors.normalColor = CardExpanded;
+                    colors.highlightedColor = CardHover;
+                    colors.pressedColor = CardPressed;
+                    colors.selectedColor = CardExpanded;
                     groupRef.HeaderButton.colors = colors;
                 }
+                SetChevronExpanded(groupRef.ChevronRt, true);
 
                 for (int i = 0; i < groupRef.Rows.Count; i++)
                 {
@@ -831,52 +1111,61 @@ public sealed class PotScannerApp : PhoneApp
         }
     }
 
+    /// <summary>Chevron points down when expanded, right when collapsed (rotates the drawn shape).</summary>
+    private static void SetChevronExpanded(RectTransform? chevronRt, bool expanded)
+    {
+        if (chevronRt == null) return;
+        chevronRt.localRotation = Quaternion.Euler(0f, 0f, expanded ? 0f : -90f);
+    }
+
     private GameObject CreatePotRow(PotInfo p)
     {
-        var row = UIFactory.Panel($"Pot_{p.NativePtr:X}", _listContent,
-            new Color(0.08f, 0.11f, 0.15f, 1f),
-            fullAnchor: true);
-        var rowImg = row.GetComponent<Image>();
-        if (rowImg != null) rowImg.raycastTarget = false;
+        bool planted = !string.IsNullOrEmpty(p.PlantName);
+        string plantName = planted ? p.PlantName : "Pot";
+
+        var row = CreateCard($"Pot_{p.NativePtr:X}", _listContent, CardFill, out var rowImg, raycastTarget: false);
 
         var le = row.AddComponent<LayoutElement>();
-        le.minHeight = UITheme.Dp(46f);
-        le.preferredHeight = UITheme.Dp(46f);
+        le.minHeight = UITheme.Dp(52f);
+        le.preferredHeight = UITheme.Dp(52f);
         le.flexibleWidth = 1f;
         le.flexibleHeight = 0f;
 
-        var content = UIFactory.Panel("Content", row.transform, Color.clear, fullAnchor: true);
-        var contentImg = content.GetComponent<Image>();
-        if (contentImg != null) contentImg.raycastTarget = false;
-        var contentLE = content.AddComponent<LayoutElement>();
-        contentLE.ignoreLayout = true;
+        var content = rowImg.transform;
 
-        string statusIcon = p.IsFullyGrown ? "\u2605" : !string.IsNullOrEmpty(p.PlantName) ? "\u25b6" : "\u2022";
-        string plantName = string.IsNullOrEmpty(p.PlantName) ? "Pot" : p.PlantName;
+        // Shape-drawn status dot (replaces the old star/arrow/bullet glyphs).
+        var statusDot = UIFactory.Panel("StatusDot", content, EmptyAccent);
+        var dotImg = statusDot.GetComponent<Image>();
+        if (dotImg != null)
+        {
+            dotImg.sprite = UISprites.Circle();
+            dotImg.raycastTarget = false;
+            dotImg.color = p.IsFullyGrown ? ReadyAccent : planted ? GrowthAccent : EmptyAccent;
+        }
+        var dotRt = statusDot.GetComponent<RectTransform>();
+        dotRt.anchorMin = new Vector2(0.045f, 0.5f);
+        dotRt.anchorMax = new Vector2(0.045f, 0.5f);
+        dotRt.sizeDelta = new Vector2(UITheme.Dp(9f), UITheme.Dp(9f));
 
-        Color iconColor = p.IsFullyGrown
-            ? new Color(1f, 0.85f, 0.3f, 1f)
-            : !string.IsNullOrEmpty(p.PlantName)
-                ? new Color(0.4f, 0.9f, 0.4f, 1f)
-                : new Color(0.5f, 0.5f, 0.55f, 1f);
-
-        string titleTextStr = !string.IsNullOrEmpty(p.PlantName)
-            ? $"{statusIcon} {plantName}\nQ: {Mathf.RoundToInt(p.Quality * 100f)}%"
-            : $"{statusIcon} {plantName}";
-
-        var titleText = UIFactory.Text($"Pot_{p.NativePtr:X}_Title", titleTextStr,
-            content.transform, UITheme.Sp(11), TextAnchor.MiddleLeft, FontStyle.Bold);
-        titleText.color = iconColor;
+        var titleText = UIFactory.Text($"Pot_{p.NativePtr:X}_Title", plantName,
+            content, UITheme.Sp(12), TextAnchor.MiddleLeft, FontStyle.Bold);
+        titleText.color = planted ? TextPrimary : TextDim;
         titleText.raycastTarget = false;
         titleText.horizontalOverflow = HorizontalWrapMode.Wrap;
         titleText.verticalOverflow = VerticalWrapMode.Truncate;
-        var titleRt = titleText.rectTransform;
-        titleRt.anchorMin = new Vector2(0f, 0.05f);
-        titleRt.anchorMax = new Vector2(0.40f, 0.95f);
-        titleRt.offsetMin = new Vector2(UITheme.Dp(6f), 0f);
-        titleRt.offsetMax = Vector2.zero;
+        AnchorRect(titleText.rectTransform, 0.085f, 0.52f, 0.40f, 0.94f);
 
-        string waterPctText = $"\U0001F4A7 {Mathf.RoundToInt(p.WaterPercent * 100f)}%";
+        Text? qualityText = null;
+        if (planted)
+        {
+            qualityText = UIFactory.Text($"Pot_{p.NativePtr:X}_Quality", $"Q: {Mathf.RoundToInt(p.Quality * 100f)}%",
+                content, UITheme.Sp(10), TextAnchor.MiddleLeft);
+            qualityText.color = TextMuted;
+            qualityText.raycastTarget = false;
+            AnchorRect(qualityText.rectTransform, 0.085f, 0.08f, 0.40f, 0.48f);
+        }
+
+        string waterPctText = $"{Mathf.RoundToInt(p.WaterPercent * 100f)}%";
         string growthPctText = $"{Mathf.RoundToInt(p.GrowthPercent * 100f)}%";
         string soilPctText = p.SoilPercent > 0.01f ? $"{Mathf.RoundToInt(p.SoilPercent * 100f)}%" : "No Soil";
 
@@ -884,60 +1173,91 @@ public sealed class PotScannerApp : PhoneApp
         IntPtr ptr = p.NativePtr;
         Action onWaterClick = () => WaterAllService.WaterSinglePot(ptr);
 
-        // 1. Water (Top)
-        var (wFillRt, wFillImg, wBadge) = AddProgressBar(content.transform, "W", p.WaterPercent, new Color(0.23f, 0.51f, 0.96f, 1f), 0.68f, 0.26f, onWaterClick, waterPctText);
+        // 1. Water (Top) — white 65% fill (monochrome bars)
+        var (wFillRt, wFillImg, wBadge) = AddProgressBar(content, "W", p.WaterPercent, BarFill, 0.68f, 0.26f, onWaterClick, waterPctText);
         // 2. Growth (Middle)
-        var (gFillRt, gFillImg, gBadge) = AddProgressBar(content.transform, "G", p.GrowthPercent, p.IsFullyGrown ? new Color(0.10f, 0.95f, 0.45f, 1f) : new Color(0.18f, 0.82f, 0.35f, 1f), 0.36f, 0.26f, null, growthPctText);
+        var (gFillRt, gFillImg, gBadge) = AddProgressBar(content, "G", p.GrowthPercent, BarFill, 0.36f, 0.26f, null, growthPctText);
         // 3. Soil (Bottom)
-        var (sFillRt, sFillImg, sBadge) = AddProgressBar(content.transform, "S", p.SoilPercent, new Color(0.62f, 0.42f, 0.22f, 1f), 0.04f, 0.26f, null, soilPctText);
+        var (sFillRt, sFillImg, sBadge) = AddProgressBar(content, "S", p.SoilPercent, BarFill, 0.04f, 0.26f, null, soilPctText);
+
+        if (wBadge != null) wBadge.color = p.WaterPercent > 0.01f ? BarFill : TextDim;
+        if (gBadge != null) gBadge.color = p.GrowthPercent > 0.01f ? BarFill : TextDim;
+        if (sBadge != null) sBadge.color = p.SoilPercent > 0.01f ? BarFill : TextDim;
 
         _rowCache[p.NativePtr] = new PotRowUIRef
         {
             PotInfo = p,
             RowObject = row,
             TitleText = titleText,
+            QualityText = qualityText,
+            StatusDot = dotImg,
             WaterFillRt = wFillRt,
+            WaterFillImage = wFillImg,
             WaterBadgeText = wBadge,
             GrowthFillRt = gFillRt,
             GrowthFillImage = gFillImg,
             GrowthBadgeText = gBadge,
             SoilFillRt = sFillRt,
+            SoilFillImage = sFillImg,
             SoilBadgeText = sBadge
         };
 
         return row;
     }
 
+    /// <summary>
+    /// Capsule progress bar row segment: metric letter, Dp(7.5) capsule track in the border tone
+    /// with a teal fill, and the value number right-aligned in teal (BankApp value ink). The band
+    /// [anchorYOffset, anchorYOffset + barHeight] is a fraction of the row height; the bar is
+    /// centered inside it so adjacent bands can never overlap.
+    /// </summary>
     private (RectTransform fillRt, Image? fillImg, Text? badgeText) AddProgressBar(Transform parent, string label, float percent, Color fillCol, float anchorYOffset, float barHeight = 0.26f, Action? onClick = null, string? badgeText = null)
     {
+        float bandMid = anchorYOffset + barHeight * 0.5f;
+
         var lbl = UIFactory.Text("Lbl", label, parent, UITheme.Sp(9), TextAnchor.MiddleRight, FontStyle.Bold);
-        lbl.color = new Color(0.8f, 0.8f, 0.8f, 1f);
+        lbl.color = LabelDim;
         lbl.raycastTarget = false;
-        var lblRt = lbl.rectTransform;
-        lblRt.anchorMin = new Vector2(0.41f, anchorYOffset);
-        lblRt.anchorMax = new Vector2(0.46f, anchorYOffset + barHeight);
-        lblRt.offsetMin = Vector2.zero; lblRt.offsetMax = Vector2.zero;
+        AnchorRect(lbl.rectTransform, 0.40f, anchorYOffset, 0.455f, anchorYOffset + barHeight);
 
         if (onClick != null)
         {
-            var border = UIFactory.Panel("Border", parent, new Color(0.30f, 0.65f, 0.95f, 0.4f), fullAnchor: true);
-            var borderRt = border.GetComponent<RectTransform>();
-            borderRt.anchorMin = new Vector2(0.465f, anchorYOffset - 0.015f);
-            borderRt.anchorMax = new Vector2(0.985f, anchorYOffset + barHeight + 0.015f);
-            borderRt.offsetMin = Vector2.zero; borderRt.offsetMax = Vector2.zero;
+            // Clickable affordance: blue capsule ring around the water track (blue = interactive).
+            var border = UIFactory.Panel("Border", parent, ClickRing);
             var borderImg = border.GetComponent<Image>();
-            if (borderImg != null) borderImg.raycastTarget = false;
+            if (borderImg != null)
+            {
+                borderImg.sprite = UISprites.Capsule();
+                borderImg.type = Image.Type.Sliced;
+                borderImg.raycastTarget = false;
+            }
+            var borderRt = border.GetComponent<RectTransform>();
+            borderRt.anchorMin = new Vector2(0.458f, bandMid);
+            borderRt.anchorMax = new Vector2(0.862f, bandMid);
+            borderRt.sizeDelta = new Vector2(0f, UITheme.Dp(11f));
         }
 
-        var track = UIFactory.Panel("Track", parent, new Color(0.12f, 0.14f, 0.18f, 1f), fullAnchor: true);
+        var track = UIFactory.Panel("Track", parent, BarTrack);
+        var trackImg = track.GetComponent<Image>();
+        if (trackImg != null)
+        {
+            trackImg.sprite = UISprites.Capsule();
+            trackImg.type = Image.Type.Sliced;
+            trackImg.raycastTarget = false;
+        }
         var trackRt = track.GetComponent<RectTransform>();
-        trackRt.anchorMin = new Vector2(0.47f, anchorYOffset);
-        trackRt.anchorMax = new Vector2(0.98f, anchorYOffset + barHeight);
-        trackRt.offsetMin = Vector2.zero; trackRt.offsetMax = Vector2.zero;
+        trackRt.anchorMin = new Vector2(0.465f, bandMid);
+        trackRt.anchorMax = new Vector2(0.855f, bandMid);
+        trackRt.sizeDelta = new Vector2(0f, UITheme.Dp(7.5f));
 
         var fill = UIFactory.Panel("Fill", track.transform, fillCol, fullAnchor: true);
         var fillImage = fill.GetComponent<Image>();
-        if (fillImage != null) fillImage.raycastTarget = false;
+        if (fillImage != null)
+        {
+            fillImage.sprite = UISprites.Capsule();
+            fillImage.type = Image.Type.Sliced;
+            fillImage.raycastTarget = false;
+        }
 
         var fillRt = fill.GetComponent<RectTransform>();
         fillRt.anchorMin = new Vector2(0, 0);
@@ -947,19 +1267,16 @@ public sealed class PotScannerApp : PhoneApp
         Text? badge = null;
         if (!string.IsNullOrEmpty(badgeText))
         {
-            badge = UIFactory.Text("Badge", badgeText, track.transform, UITheme.Sp(9), TextAnchor.MiddleCenter, FontStyle.Bold);
-            badge.color = Color.white;
+            // Value number right-aligned in its own column (never overlaid on the bar).
+            badge = UIFactory.Text("Badge", badgeText, parent, UITheme.Sp(10), TextAnchor.MiddleRight, FontStyle.Bold);
+            badge.color = BarFill;
             badge.raycastTarget = false;
-            var badgeRt = badge.rectTransform;
-            badgeRt.anchorMin = Vector2.zero;
-            badgeRt.anchorMax = Vector2.one;
-            badgeRt.offsetMin = Vector2.zero; badgeRt.offsetMax = Vector2.zero;
+            AnchorRect(badge.rectTransform, 0.87f, anchorYOffset, 0.985f, anchorYOffset + barHeight);
         }
 
         if (onClick != null)
         {
-            var trackImage = track.GetComponent<Image>();
-            if (trackImage != null) trackImage.raycastTarget = true;
+            if (trackImg != null) trackImg.raycastTarget = true;
 
             var btn = track.AddComponent<Button>();
             btn.transition = Selectable.Transition.None;
@@ -991,7 +1308,7 @@ public sealed class PotScannerApp : PhoneApp
     protected override void OnPhoneClosed()
     {
         if (IsAlive(_mainBG)) _mainBG.SetActive(false);
-        // Update + OnPotsScanned bleiben lebenslang subscribed (defensives Unsubscribe-Subscribe in OnCreated).
+        // Update + OnPotsScanned stay subscribed for the app's lifetime (defensive unsubscribe/subscribe in OnCreated).
     }
 
     private void Update()
@@ -1007,5 +1324,53 @@ public sealed class PotScannerApp : PhoneApp
                 RefreshAutoWaterButton();
             }
         }
+    }
+
+    // ============================ View helpers ============================
+    // Sprite generation lives in the shared kit (S1Mods.Shared.UISprites: Rounded / Capsule /
+    // Circle / Donut). Both PotScannerApp and WeatherApp carried their own near-identical
+    // signed-distance rasteriser; that duplication is gone as of v0.7.0.
+
+    /// <summary>
+    /// Two-layer card: outer rounded rect in <see cref="GamePalette.Border"/> with an inner fill
+    /// inset by 1 Dp — i.e. a 1 px outline around an opaque surface. In v0.6.0 the same helper
+    /// produced the white-alpha "glass" look (white 12% border / white 6% fill); both layers are
+    /// now opaque and the colour comes from the caller.
+    /// Returns the outer card GameObject; content parents to <paramref name="fillImage"/>.transform.
+    /// Non-interactive graphics keep raycastTarget=false unless the card itself is a control.
+    /// </summary>
+    private static GameObject CreateCard(string name, Transform parent, Color fill, out Image fillImage,
+        bool raycastTarget = false, float radius = CardCornerRadius)
+    {
+        var card = UIFactory.Panel(name, parent, CardBorderColor, fullAnchor: true);
+        var borderImg = card.GetComponent<Image>();
+        if (borderImg != null)
+        {
+            borderImg.sprite = UISprites.Rounded(radius);
+            borderImg.type = Image.Type.Sliced;
+            borderImg.raycastTarget = raycastTarget;
+        }
+
+        var fillGo = UIFactory.Panel("Fill", card.transform, fill, fullAnchor: true);
+        var fillRt = fillGo.GetComponent<RectTransform>();
+        float inset = UITheme.Dp(1f);
+        fillRt.offsetMin = new Vector2(inset, inset);
+        fillRt.offsetMax = new Vector2(-inset, -inset);
+
+        fillImage = fillGo.GetComponent<Image>()!;
+        fillImage.sprite = UISprites.Rounded(radius - 1f);
+        fillImage.type = Image.Type.Sliced;
+        fillImage.raycastTarget = false;
+
+        return card;
+    }
+
+    /// <summary>Stretches an anchored rect over an anchor band (fractions of the parent).</summary>
+    private static void AnchorRect(RectTransform rt, float xMin, float yMin, float xMax, float yMax)
+    {
+        rt.anchorMin = new Vector2(xMin, yMin);
+        rt.anchorMax = new Vector2(xMax, yMax);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
     }
 }

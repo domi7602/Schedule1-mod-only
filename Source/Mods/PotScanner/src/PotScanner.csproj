@@ -13,4 +13,12 @@
   <ItemGroup>
     <Compile Include="..\..\..\..\ThirdParty\Archive\ScheduleOne-Hash\Hash.Api\HashCommands.cs" Link="Hash.Api.cs" />
   </ItemGroup>
+  <!--
+    The Hash.Api plugin-shim above is third-party source with pre-existing nullable warnings
+    (CS8600/CS8601/CS8625) that cannot be fixed without editing files outside this mod.
+    Suppress exactly those three codes so this mod's builds are warning-clean.
+  -->
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);CS8600;CS8601;CS8625</NoWarn>
+  </PropertyGroup>
 </Project>
