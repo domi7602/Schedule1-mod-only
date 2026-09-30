@@ -7,3 +7,5 @@
 5. Create and push a version tag only after in-game verification. The release workflow uploads generated ZIPs as workflow artifacts.
 
 GitHub-hosted runners do not contain proprietary game assemblies. Release packaging therefore requires a local or self-hosted Windows runner with Schedule I installed.
+
+Release ZIPs are for **local distribution only** — no upload to NexusMods or other public hosts (Dominik's decision, 2026-09-19).
