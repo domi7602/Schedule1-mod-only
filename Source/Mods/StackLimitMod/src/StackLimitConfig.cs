@@ -18,9 +18,11 @@ public class StackLimitConfig
     // quest- or UI regressions.
     public bool OverrideNonStackable { get; set; } = true;
     /// <summary>
-    /// When true (default), stack limits are applied strictly to agriculture and farming items:
-    /// soil, seeds, packaging (baggies, jars), additives/fertilizers, mushroom spores/spawns,
-    /// and harvested crop products. Weapons, ammunition, clothing, and cash are always protected.
+    /// When true (default), stack limits are applied strictly to agriculture and farming items
+    /// (soil, seeds, packaging (baggies, jars), additives/fertilizers, mushroom spores/spawns,
+    /// and harvested crop products) plus mixing/cooking ingredients (native item category
+    /// 'Ingredient': Acid, Banana, Chili, Cuke, ...). Weapons, ammunition, clothing, and cash
+    /// are always protected.
     /// </summary>
     public bool AgricultureOnly { get; set; } = true;
     public List<string> ExcludedItemIds { get; set; } = new();

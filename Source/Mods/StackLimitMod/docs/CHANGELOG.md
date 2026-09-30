@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.7 (2026-09-26) — Ingredient stacking
+- Mixing/cooking ingredients (native item category `Ingredient`: Acid, Banana, Chili, Cuke, ...) are now eligible for the configurable stack limit (default 40) in Agriculture-Only mode instead of being skipped as "not-agriculture".
+- New `StackLimitEngine.IsIngredientItem`: reads the native `BaseItemDefinition.Category` (blittable `EItemCategory.Ingredient` enum — direct comparison, no IL2CPP `is`/`as`) with the same try/catch + liveness-guard style as the other helpers. Wired into both eligibility paths: the definition-scan gate (`ApplyToDefinition`, "Agriculture Only") and the instance-fallback (`IsEligibleForOverride` for the `BaseItemInstance.get_StackLimit` postfix).
+- Unchanged protections: the weapon/ammo veto and `ExcludedItemIds` remain first and unconditional (weapons, ammo, clothing, cash are never stacked); `OverrideNonStackable` semantics unchanged (original limit 1 stays unless the toggle is on).
+- Console: `stack stats`/`stack help` mention ingredients; `stack check <itemId>` shows a "Def Ingredient (category)" line and the verdict covers ingredients.
+- The "not-agriculture" decision vocabulary in `apply_report.json` is kept as-is (now also used for items that are neither agriculture nor ingredients).
+- **Weapon keyword false-positive fixed:** `IsWeaponOrAmmoId`'s substring check `"bat"` matched the mixing ingredient `battery` and pinned it to the vanilla limit 20 (live apply_report 2026-09-26). `"bat"` now excludes `battery`, so the ingredient stacks to the configured limit like its peers.
+
 ## 0.1.6 (2026-09-19) — IL2CPP type-check fix (TryCast)
 - **CRITICAL FIX — `is`-checks fail on IL2CPP proxies:** `IsAgricultureItem`/`IsWeaponOrAmmo` checked the managed wrapper type (always `BaseItemDefinition`), never the real IL2CPP class hierarchy. Consequence (apply_report.json 2026-09-19): `ogkush`/`sourdiesel`/`greencrack`/`granddaddypurple` (WeedDefinition), `meth`, `cocaine` were classified as "not-agriculture" and NEVER raised to the stack limit — only ID keyword hits (soil, baggie, jar, defaultweed, ...) were modified. Packaged AND unpackaged real products therefore only stacked with the vanilla limit (20).
 - Fix: all type checks switched to `TryCast<T>()` (real IL2CPP class hierarchy; same pattern as AutoPackagingStation). Affects both directions: real products are now stacked; cash/clothing/equippable are now reliably protected (before, `cash` slipped through as "not-agriculture", `mushroomhat` was incorrectly stacked).

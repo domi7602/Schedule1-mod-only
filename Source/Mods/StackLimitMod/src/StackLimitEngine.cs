@@ -388,7 +388,9 @@ public static class StackLimitEngine
         if (lower.Contains("pistol") || lower.Contains("shotgun") || lower.Contains("rifle") || lower.Contains("smg") ||
             lower.Contains("revolver") || lower.Contains("sniper") || lower.Contains("weapon") || lower.Contains("firearm"))
             return true;
-        if (lower.Contains("knife") || lower.Contains("bat") || lower.Contains("crowbar") || lower.Contains("machete") ||
+        // "bat" must not hit the mixing ingredient "battery" (substring false
+        // positive — kept battery at vanilla 20 while all other ingredients got 40).
+        if (lower.Contains("knife") || (lower.Contains("bat") && !lower.Contains("battery")) || lower.Contains("crowbar") || lower.Contains("machete") ||
             lower.Contains("taser") || lower.Contains("grenade") || lower.Contains("molotov") || lower.Contains("c4") ||
             lower.Contains("rdx") || lower.Contains("bomb"))
             return true;
@@ -464,6 +466,33 @@ public static class StackLimitEngine
     }
 
     /// <summary>
+    /// v0.1.7: Checks if an item definition is a mixing/cooking ingredient (Acid, Banana,
+    /// Chili, Cuke, ...) via the native item category <c>EItemCategory.Ingredient</c>.
+    /// Ingredients are eligible for stack-limit overrides alongside agriculture items.
+    /// </summary>
+    public static bool IsIngredientItem(BaseItemDefinition? def)
+    {
+        if (def == null || def.Pointer == IntPtr.Zero) return false;
+        string id = def.ID ?? string.Empty;
+
+        // Permanent weapon/ammo veto stays first and unconditional
+        if (IsWeaponOrAmmo(def)) return false;
+
+        try
+        {
+            // Category is a blittable native enum — direct comparison is safe (no is/as on
+            // IL2CPP proxies, see the v0.1.6 CRITICAL FIX in IsAgricultureItem). Guarded by
+            // try/catch because member access on collected proxies can throw.
+            return def.Category == EItemCategory.Ingredient;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Debug($"IsIngredientItem category check failed for '{id}': {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Checks whether an item ID is eligible for stack limit overrides given the current configuration.
     /// </summary>
     public static bool IsEligibleForOverride(string id, BaseItemInstance? instance = null)
@@ -486,7 +515,8 @@ public static class StackLimitEngine
                 var def = Registry.GetItem(id);
                 if (def != null && def.Pointer != IntPtr.Zero)
                 {
-                    return IsAgricultureItem(def);
+                    // v0.1.7: ingredients (EItemCategory.Ingredient) are eligible too
+                    return IsAgricultureItem(def) || IsIngredientItem(def);
                 }
             }
             catch { }
@@ -560,8 +590,9 @@ public static class StackLimitEngine
             return false;
         }
 
-        // 3. Agriculture Only mode: if enabled, only agricultural items are modified!
-        if (config.AgricultureOnly && !IsAgricultureItem(def))
+        // 3. Agriculture Only mode: if enabled, only agricultural items and mixing/cooking
+        //    ingredients (EItemCategory.Ingredient) are modified!
+        if (config.AgricultureOnly && !IsAgricultureItem(def) && !IsIngredientItem(def))
         {
             try
             {

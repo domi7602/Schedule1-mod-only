@@ -78,7 +78,7 @@ public sealed class StackLimitCommand : BaseConsoleCommand
         sb.AppendLine("<color=#60f080>★ StackLimitMod Status</color>");
         sb.AppendLine("<color=#60f080>--------------------------------------------------</color>");
         sb.AppendLine($"  <color=#aaaaaa>Current Limit:</color>          {cfg.StackLimit}");
-        sb.AppendLine($"  <color=#aaaaaa>Agriculture Only:</color>       {cfg.AgricultureOnly}");
+        sb.AppendLine($"  <color=#aaaaaa>Agriculture Only:</color>       {cfg.AgricultureOnly} (agriculture + ingredients when true)");
         sb.AppendLine($"  <color=#aaaaaa>Modified Items:</color>         {StackLimitEngine.ModifiedItemCount}");
         sb.AppendLine($"  <color=#aaaaaa>Tracked Items:</color>          {StackLimitEngine.TrackedItemCount}");
         sb.AppendLine($"  <color=#aaaaaa>Override Non-Stackable:</color> {cfg.OverrideNonStackable}");
@@ -164,6 +164,7 @@ public sealed class StackLimitCommand : BaseConsoleCommand
         string typeName = "(not found)";
         int defStackLimit = -1;
         bool defIsAgri = false;
+        bool defIsIngredient = false;
         bool defIsWeapon = false;
         try
         {
@@ -173,6 +174,7 @@ public sealed class StackLimitCommand : BaseConsoleCommand
                 typeName = def.GetIl2CppType().Name;
                 defStackLimit = def.StackLimit;
                 defIsAgri = StackLimitEngine.IsAgricultureItem(def);
+                defIsIngredient = StackLimitEngine.IsIngredientItem(def);
                 defIsWeapon = StackLimitEngine.IsWeaponOrAmmo(def);
             }
         }
@@ -186,6 +188,7 @@ public sealed class StackLimitCommand : BaseConsoleCommand
         sb.AppendLine($"  <color=#aaaaaa>Def StackLimit (live):</color>   {defStackLimit}");
         sb.AppendLine($"  <color=#aaaaaa>Def Weapon/Ammo (type):</color>  {defIsWeapon}");
         sb.AppendLine($"  <color=#aaaaaa>Def Agriculture (type):</color>  {defIsAgri}");
+        sb.AppendLine($"  <color=#aaaaaa>Def Ingredient (category):</color> {defIsIngredient}");
         sb.AppendLine($"  <color=#aaaaaa>ID Agriculture match:</color>    {idIsAgri}");
         sb.AppendLine($"  <color=#aaaaaa>Excluded:</color>               {StackLimitEngine.IsExcluded(id)}");
         sb.AppendLine($"  <color=#aaaaaa>Original known (tracked):</color> {StackLimitEngine.IsOriginalKnown(id)} (captured: {StackLimitEngine.GetOriginalLimit(id)})");
@@ -198,8 +201,8 @@ public sealed class StackLimitCommand : BaseConsoleCommand
             verdict = "<color=#e67e22>Protected (weapon/ammo) — intentionally never stacked.</color>";
         else if (StackLimitEngine.IsExcluded(id))
             verdict = "<color=#e67e22>Excluded via ExcludedItemIds in config.json.</color>";
-        else if (cfg.AgricultureOnly && !defIsAgri && !idIsAgri)
-            verdict = "<color=#e67e22>NOT agriculture (AgricultureOnly=true) — raise would be skipped. If this is wrong, extend IsAgricultureItem/IsAgricultureId.</color>";
+        else if (cfg.AgricultureOnly && !defIsAgri && !defIsIngredient && !idIsAgri)
+            verdict = "<color=#e67e22>NOT agriculture/ingredient (AgricultureOnly=true) — raise would be skipped. If this is wrong, extend IsAgricultureItem/IsAgricultureId/IsIngredientItem.</color>";
         else if (defStackLimit == cfg.StackLimit)
             verdict = "<color=#60f080>Definition already carries the target limit — check the INSTANCE path (postfix) if stacking still fails.</color>";
         else
@@ -239,7 +242,7 @@ public sealed class StackLimitCommand : BaseConsoleCommand
         sb.AppendLine("  stack                     - Shows current stack limit status and modified item count");
         sb.AppendLine("  stack stats               - Shows detailed status and configuration");
         sb.AppendLine("  stack set <1-9999>        - Sets stack limit, saves config, and reapplies immediately");
-        sb.AppendLine("  stack set ag <true|false> - Toggle Agriculture-Only mode (protects weapons & ammo)");
+        sb.AppendLine("  stack set ag <true|false> - Toggle Agriculture-Only mode (agriculture + ingredients; protects weapons & ammo)");
         sb.AppendLine("  stack check <itemId>      - Diagnoses why an item is (not) stack-limited");
         sb.AppendLine("  stack report              - Summarizes the last apply (who was skipped and why)");
         sb.AppendLine("  stack reload              - Reloads configuration from disk and reapplies");
