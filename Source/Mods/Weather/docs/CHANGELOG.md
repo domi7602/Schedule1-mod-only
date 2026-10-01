@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.0 (2026-10-01) - design overhaul: rebuilt to the approved mockup
+
+- **Flat canvas, no header chrome:** "WEATHER" (Sp21) top left, a pulsing amber dot plus a muted `LIVE CONDITIONS` (Sp10) on the same line. The header bar, the accent tick and the divider rule are gone.
+- **Hero card = accent-bordered panel:** Dp2 rim (radius 12) with a soft accent halo around the design's 0.052-0.948 / 0.7723-0.9330 band; inside it the giant attention name (Sp32) and percentage (Sp24), a **solid accent pill with dark text** (Sp10, HEAVY/MODERATE/LIGHT) and the `N OF 9 ACTIVE` meta line (Sp10, white 58%). The old overline, glass pill and dark drop shadow are gone.
+- **Ring gauge re-proportioned:** side = 0.757 x card height (centre 0.833/0.496), thicker 10% annulus, fully opaque accent arc, plus a new **round arc cap** that follows the eased fill.
+- **`ALL CONDITIONS` caption** (Sp14, white 68%) without the former rule line.
+- **Rows rebuilt:** uniform Dp6 gaps across the 0.7164-0.0606 band, radius-10 cards with a Dp2 rim; the icon (Dp22) stays left, the name (Sp12) now sits **above its own capsule bar** (Dp7.5), and the percentage (Sp13) is right-aligned and vertically centred on the row.
+- **Active conditions tint as a whole row:** base = accent blended 14% into the canvas, rim = the accent, icon and bar in the accent colour. Inactive rows keep the neutral base, the muted rim, a white-10% bar track and grey icons — the previous per-row `CanvasGroup` dimming is gone.
+- **Palette aligned to the design:** Sunny `#FDD02E`, Cloudy `#8EB5E1`, Foggy `#ACA496`, Windy `#22A6B9` (measured off the reference), canvas `#13171D`, hero base `#191C1D`; the five components that sit inactive in the reference keep the house accents.
+- **Empty state** restyled to the new palette (dark card, muted text).
+- **Kept from the previous unreleased iteration:** eased bars/ring, animated hero icons (sun rotation, gentle bobbing) and MIXED on ties.
+- **Behaviour unchanged:** lifecycle (single `_active` instance, `WeatherManager.OnWeatherChanged` dispatched once, per-frame snapshot poll, nothing destroyed on close), nine-row no-scroll layout and the no-persistence, no-gameplay-impact scope.
+- All anchors are documented as canvas fractions measured off the reference design (400:750 aspect), so the layout maps 1:1 onto the phone canvas at any resolution.
+
 ## 0.3.0 (2026-09-26)
 - **Minimal dark/glass redesign (visual only):** neutral charcoal canvas with no dominant-colour tint anywhere — the hero is a plain two-layer glass card (outer rounded rect in white 14%, base inset 2 Dp in white 6%, radius 12) plus fake elevation (a slightly larger dark rounded shadow rect at 25% alpha) and a thin light rim. The header accent strip, the sky-gradient sprite and the icon glow of the previous iteration are all gone.
 - **Monochrome type hierarchy:** `DOMINANT CONDITION` overline (Sp13, white 48%), hero name Sp38 bold in pure white, big percentage Sp40 in pure white, intensity chip as a dark glass pill (white 10% background, white 90% text) and the `N OF 9 ACTIVE` meta line at white 58%.

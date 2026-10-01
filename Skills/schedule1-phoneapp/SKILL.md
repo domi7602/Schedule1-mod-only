@@ -127,6 +127,18 @@ contentLayout.childForceExpandWidth = true;
 ```
 and in each row's `HorizontalLayoutGroup`: `childControlWidth = true; childForceExpandWidth = false;` (the tag keeps `LayoutElement.preferredWidth`, the name gets the rest). The app root VLG already has `childControlWidth = true` - which is exactly why headers never show this bug.
 
+### Rule 14 (empirical, 2026-10-01): Restyling to a Mockup — Measure the Image, Then Diff a Headless Render
+
+**Trigger:** "make the app look like this mockup" (Weather 0.4.0 restyle). Eyeballing proportions wastes a playtest; measure instead.
+
+1. **Measure the reference image, don't guess.** This host has no PIL: decode the PNG with the stdlib (`zlib.decompress(IDAT)` + per-scanline unfilter, colortype 2/6) and extract exact numbers — card left/right/top/bottom, row band tops/bottoms, bar rect + fill end, text bounding boxes, border colours, ring outer/inner diameter. `vision_analyze` is good for structure ("name above the bar?", "is there a rule line?") but its pixel estimates vary between passes; trust the decoded pixels.
+2. **If the mockup's aspect ratio equals the phone canvas aspect (400:750 = 0.5333), pixel fractions map 1:1 onto `UITheme.ActualWidth/Height`.** Every constant then becomes a canvas fraction (`x/imgW`, `1 - y/imgH`) and the layout is resolution-independent for free. Convert measured sizes with the same factor (`canvasPx = imgPx * 750/imgH`) to derive `Sp`/`Dp` values; sanity-check them against Arial advance widths (Arial caps: M .833, O .778, D .722, C .722, N .722, U .722, S .667, E/A/T .667/.611, L .556, I .278, digits .556, space .278, % .889 em) so labels measurably fit their boxes before the build.
+3. **Verify without the game.** Replicate the same constants in a standalone HTML page at the mockup's pixel size, screenshot it headlessly, and diff the identical metrics against the reference:
+   `chrome.exe --headless=new --no-sandbox --user-data-dir=<scratch>\prof --force-device-scale-factor=1 --hide-scrollbars --window-size=W,H --screenshot=out.png "file:///...html"`
+   (`--user-data-dir` is required on this host — without it the process exits code 2 and writes no PNG; Helium lives at `%LOCALAPPDATA%\imput\Helium\Application\chrome.exe`, and Hermes' own browser backend may be unavailable.) In the HTML, place glyphs like Unity does: `top = centreY - 0.547 * fontSizePx` (Arial cap centre), NOT `- 0.72` — otherwise every text sits ~0.17 em too high and the diff looks like a real layout bug. Matching card edges / row bands / text boxes within a few px means the constants are right; expect font-metric noise of 3-5 px on text widths because the mockup's font is not Arial.
+4. **Legacy `UnityEngine.UI.Text` has NO character spacing.** A tracked label in the mockup (`L I V E  C O N D I T I O N S`) can only be approximated — thin-space padding (U+2009) risks missing-glyph boxes in Arial. Accept the tighter label and record the deviation instead of faking it.
+5. **Only colour/tint surfaces you can derive:** measure the active row base, then solve for the blend (`base = Bg + (accent - Bg) * t`, typically t ≈ 0.14). Hard-coded hexes copied from a JPEG-ish mockup drift; the blend formula keeps every accent consistent.
+
 ---
 
 ## 2. Step-by-Step Runbook: Creating a New PhoneApp
