@@ -1,6 +1,12 @@
 # Changelog
 
+## 0.4.1 (2026-09-30)
+- **Dark mode is permanent:** the in-app toggle is gone — the config defaults to ON and a stale `false` (e.g. left behind by the 0.4.0 menu toggle) is self-healed to ON at startup. The config field itself stays so the schema remains stable.
+- **Instant dark theme for the deal-window popup:** new `DealWindowSelectorPatch` hooks `DealWindowSelector.SetIsOpen` (the Morning/Afternoon/Night/LateNight picker) and force-refreshes the popup's subtree in the same frame — before this, freshly shown surfaces stayed light until the next 1 s theme tick. The force scope never overwrites cached originals.
+- Internal polish after the in-game verify round: one shared postfix for both `SetIsOpen` overloads, removed a redundant text pass in `ApplyToSubtree` (behaviour unchanged).
+
 ## 0.4.0 (2026-09-29)
+- **Verified in-game 2026-09-30:** confirmed functional by Dominik after the round-1 fixes.
 - **Search band redesign ("Variante A — light & native"):** the injected surface is now a light, sticky band directly under the vanilla title instead of a floating toolbar — white search field with a shape-drawn magnifier and clear "x" (Arial renders emoji/icon glyphs as blanks, so every icon is drawn from `S1Mods.Shared.UISprites` shapes), `[All][Customer][Dealer][Supplier]` chips + "N unread" counter in the second row (left/right).
 - **"⋯" overflow menu:** Clear Read / Clear All moved from two permanently visible buttons into a white popup card under a drawn "..." button (full-page backdrop closes it; rows are disabled on a multiplayer client — host-only mutations unchanged).
 - **No overlap with the vanilla list:** `TryMakeRoom` takes the band's height off the top of the vanilla conversation viewport (`ScrollRect.viewport.offsetMax.y -= band`) and parks the band exactly in that slot; `UndoMakeRoom` hands the space back before every rebuild (no cumulative shortening), `ReassertRoom` re-asserts it from the 1 s tick because vanilla re-lays out the list on its own events; fallback fixed offset under the title when no ScrollRect is found (logged).

@@ -14,8 +14,9 @@ namespace MessagesPlus;
 /// Dark mode — recolors the VANILLA Messages surfaces so the WHOLE app (not just
 /// the injected band) goes dark: page backgrounds, inbox rows, chat bubbles, the
 /// dialogue header bar and the response panel. Everything is applied once per
-/// graphic (instance-id tracked) and every original colour is cached, so
-/// switching back to light restores the game's own look exactly.
+/// graphic (instance-id tracked) and every original colour is cached — dormant
+/// since v0.4.1 (dark mode is permanent), but a light restore would still hand
+/// the game's own look back exactly.
 ///
 /// Only colours are touched — never layouts, raycasts or save state. Guards:
 ///  - our own injected UI (band/menu/dialog) is excluded from every sweep;
@@ -36,6 +37,11 @@ internal static class AppTheme
 
     /// <summary>Roots of OUR injected UI — the vanilla sweeps must never touch their subtrees.</summary>
     private static readonly List<Transform> _ownRoots = new();
+
+    /// <summary>Transient force scope: while set, already-themed graphics under this
+    /// root may be re-tinted (a popup that just opened re-set some colours — the
+    /// cached originals stay untouched, so light restore remains exact).</summary>
+    private static Transform? _forceRoot;
 
     // ------------------------------------------------------------------
     // Apply / restore
@@ -93,7 +99,47 @@ internal static class AppTheme
         }
     }
 
-    /// <summary>Restores every vanilla graphic we touched (light mode) and forgets them.</summary>
+    /// <summary>
+    /// Immediate theme pass for a subtree that just became visible (e.g. the deal
+    /// window popup). Runs the generic surface rules scoped to <paramref name="root"/>
+    /// and force-re-applies colours the game re-set while opening/updating —
+    /// without this, freshly shown vanilla surfaces stay light until the 1 s tick.
+    /// </summary>
+    public static void ApplyToSubtree(GameObject root)
+    {
+        if (!NetworkGuard.IsAlive(root)) return;
+
+        Transform? previous = _forceRoot;
+        try
+        {
+            _forceRoot = root.transform;
+            SweepRoot(root); // ends with the dark-text pass over the same subtree
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Debug($"AppTheme subtree failed: {ex.Message}");
+        }
+        finally
+        {
+            _forceRoot = previous;
+        }
+    }
+
+    /// <summary>True while a force scope is active and the transform lives under it.</summary>
+    private static bool IsInForceScope(Transform t)
+    {
+        if (_forceRoot == null) return false;
+        try
+        {
+            if (!NetworkGuard.IsAlive(_forceRoot) || !NetworkGuard.IsAlive(t)) return false;
+            return t.IsChildOf(_forceRoot) || t.Pointer == _forceRoot.Pointer;
+        }
+        catch { return false; }
+    }
+
+    /// <summary>Restores every vanilla graphic we touched and forgets them. Dormant
+    /// since v0.4.1 (dark mode is permanent) — kept so a light mode could be
+    /// re-enabled with one call.</summary>
     public static void RestoreAll()
     {
         for (int i = _originals.Count - 1; i >= 0; i--)
@@ -345,14 +391,20 @@ internal static class AppTheme
     /// </summary>
     private static void SweepAppSurfaces(MessagesApp app)
     {
-        GameObject appRoot = app.gameObject;
-        RectTransform? rootRt = appRoot.GetComponent<RectTransform>();
+        SweepRoot(app.gameObject);
+    }
+
+    /// <summary>Generic sweep over an arbitrary subtree, sized by its own rect —
+    /// the app root and the popup refresh share the same rules.</summary>
+    private static void SweepRoot(GameObject root)
+    {
+        RectTransform? rootRt = root.GetComponent<RectTransform>();
         if (rootRt == null) return;
         float w = Mathf.Abs(rootRt.rect.width);
         float h = Mathf.Abs(rootRt.rect.height);
         if (w <= 1f || h <= 1f) return;
 
-        var images = appRoot.GetComponentsInChildren<Image>(true);
+        var images = root.GetComponentsInChildren<Image>(true);
         if (images != null)
         {
             for (int i = 0; i < images.Length; i++)
@@ -386,7 +438,7 @@ internal static class AppTheme
             }
         }
 
-        TintDarkTextsIn(appRoot);
+        TintDarkTextsIn(root);
     }
 
     /// <summary>Dark, near-neutral texts on the now-dark surfaces turn light.</summary>
@@ -497,7 +549,8 @@ internal static class AppTheme
     /// <summary>
     /// One-time tint per graphic (instance-id tracked); stores the original colour
     /// so light mode can restore it exactly. Alpha is preserved — only RGB swaps.
-    /// Vanilla re-colours after we themed an object (hover, rebuilds) stay.
+    /// Vanilla re-colours after we themed an object (hover, rebuilds) stay — except
+    /// inside a force scope (ApplyToSubtree), where they are re-applied immediately.
     /// </summary>
     private static void TintGraphic(Graphic? graphic, Color dark)
     {
@@ -509,7 +562,17 @@ internal static class AppTheme
         Color original;
         try { original = graphic.color; } catch { return; }
         if (original.a <= 0.02f) return; // invisible hit-area / decor — nothing to tint
-        if (!_themed.Add(id)) return;    // already themed once
+
+        if (!_themed.Add(id))
+        {
+            // Already themed once. Vanilla re-colours stay — EXCEPT inside a force
+            // scope (a popup that just opened re-set some colours): re-apply the
+            // dark target. The cached original is never overwritten, so the
+            // light-mode restore stays exact.
+            if (!IsInForceScope(graphic.transform)) return;
+            try { graphic.color = new Color(dark.r, dark.g, dark.b, original.a); } catch { /* dead */ }
+            return;
+        }
 
         try
         {

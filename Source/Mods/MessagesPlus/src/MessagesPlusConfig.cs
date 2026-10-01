@@ -8,10 +8,11 @@ namespace MessagesPlus;
 /// </summary>
 public sealed class MessagesPlusConfig
 {
-    /// <summary>Dark theme for the injected inbox surface (search band + "..." menu +
-    /// confirm dialog). Toggled in-app via the "..." menu; the vanilla conversation
-    /// list is untouched. (v0.4.0)</summary>
-    public bool DarkMode { get; set; } = false;
+    /// <summary>Dark theme for the whole Messages app (injected surface + vanilla
+    /// pages). PERMANENT since v0.4.1 — always ON, no in-app toggle any more; the
+    /// field is kept so the config schema stays stable and a stale "false" from
+    /// older versions is self-healed to ON at startup.</summary>
+    public bool DarkMode { get; set; } = true;
 
     /// <summary>Top color of the app background gradient (hex, Phase 3).</summary>
     public string BackgroundColor1 { get; set; } = "#101318";

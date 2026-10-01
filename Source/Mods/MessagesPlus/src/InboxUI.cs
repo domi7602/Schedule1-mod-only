@@ -59,10 +59,10 @@ public static class InboxUI
     private static float BandHeightPx =>
         UITheme.Dp(BandPadDp) * 2f + UITheme.Dp(SearchHeightDp) + UITheme.Dp(RowGapDp) + UITheme.Dp(ChipsHeightDp);
 
-    // --- Palette: light (default, native Messages look) and dark. The dark side
-    //     reuses the shared S1Mods.Shared.GamePalette (the BankApp-verified dark
-    //     look) so the app matches its sibling apps. Colors are read at BUILD time —
-    //     toggling DarkMode rebuilds the whole surface (see OnToggleDarkMode). ---
+    // --- Palette: light (native Messages look) and dark. The dark side reuses the
+    //     shared S1Mods.Shared.GamePalette (the BankApp-verified dark look) so the
+    //     app matches its sibling apps. Colors are read at BUILD time; dark mode is
+    //     PERMANENT since v0.4.1 (config defaults to ON, no in-app toggle). ---
     private static bool DarkMode => ModConfig<MessagesPlusConfig>.Instance?.DarkMode ?? false;
 
     private static Color BandBg => DarkMode
@@ -642,11 +642,6 @@ public static class InboxUI
         AddMenuSeparator(card.transform);
         BuildMenuRow(card.transform, "MessagesPlus_MenuClearAll", "Clear All",
             canMutate ? DestructiveInk : InkDim, canMutate ? OnClearAllClicked : null);
-        AddMenuSeparator(card.transform);
-        // Local view setting — available on multiplayer clients too.
-        BuildMenuRow(card.transform, "MessagesPlus_MenuDarkMode",
-            DarkMode ? "Dark mode: On" : "Dark mode: Off", Ink, OnToggleDarkMode);
-
         root.SetActive(false); // opened by the "..." button
     }
 
@@ -727,45 +722,6 @@ public static class InboxUI
         catch (Exception ex)
         {
             Mod.Log?.Debug($"HideMenu failed: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Flips the persisted dark-mode flag and rebuilds the whole surface — the
-    /// palette is read at build time, so a rebuild is the cheapest correct way to
-    /// apply it. The active filter survives, the search text does not (the rebuilt
-    /// field starts empty), so the view is re-applied to match.
-    /// </summary>
-    private static void OnToggleDarkMode()
-    {
-        try
-        {
-            bool newState = !DarkMode;
-            ModConfig<MessagesPlusConfig>.SetAndSave(nameof(MessagesPlusConfig.DarkMode), newState);
-            HideMenu();
-
-            // The vanilla surfaces survive our own UI rebuild — restore them first;
-            // the new state is applied right after the rebuild below.
-            AppTheme.RestoreAll();
-
-            // W4 pattern: destroy our roots, drop the refs, then rebuild on the
-            // SAME app/page (EnsureBuilt re-runs TryMakeRoom + RestyleChips).
-            MessagesApp? app = _app;
-            DestroyManagedRoots();
-            TearDownForSceneUnload();
-            if (app != null && NetworkGuard.IsAlive(app))
-            {
-                EnsureBuilt(app);
-            }
-
-            InboxView.SetSearch(string.Empty);      // rebuilt field is empty — keep view + field in sync
-            InboxView.SetFilter(_currentFilter);    // re-arm the view on the fresh entries
-            if (newState && app != null && NetworkGuard.IsAlive(app)) AppTheme.Apply(app);
-            Mod.Log?.Info($"Dark mode {(newState ? "enabled" : "disabled")} — inbox surface rebuilt.");
-        }
-        catch (Exception ex)
-        {
-            Mod.Log?.Warn($"Toggle dark mode failed: {ex.Message}");
         }
     }
 
