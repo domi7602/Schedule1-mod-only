@@ -72,3 +72,5 @@ Tags do **not** trigger packaging automatically (an earlier tag-push trigger fai
 ## Local-only distribution
 
 Packaging can also be used purely locally (for example to copy a mod to a second PC): run `package-release.ps1` and extract the ZIP into the game directory.
+
+Release ZIPs are for **local distribution only** — no upload to NexusMods or other public hosts (Dominik's decision, 2026-09-19).
