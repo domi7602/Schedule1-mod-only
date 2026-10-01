@@ -1,5 +1,108 @@
 # Changelog
 
+## Unreleased (2026-10-01) - taxi stand spawn faces the street entry
+
+### Fixed
+
+- Live-test fix 2026-10-01 (spawn glitch forward/back under the garage roof):
+  `EntryPoint.forward` (+X, east) points INTO the garage — the taxi drove east
+  into the pillars, then reversed west 8+ s toward the target. Spawn heading is
+  now `-EntryForward` (street/target side, -X west).
+- `SnapToGround` no longer grounds on people: NPC capsules and the player
+  controller carry no rigidbody, so the old filter accepted an NPC 'Capsule'
+  2.1 m up — the taxi fell 1.9 m and bounced. Character colliders are skipped
+  (same rule as `RoadKeeper.IsObstacle`), log shows a `character` skip count.
+- Post-spawn overlap guard (`EnsurePostSpawnFree`): after the vehicle exists, its
+  real position is re-checked with self-ignoring overlap. If it sits inside
+  geometry, it is moved to the first free probe point (same 5-7 m offsets + four
+  headings); if nothing is free, the spawn is cancelled and the vehicle removed
+  instead of leaving a stuck wall-taxi.
+- Stand spawn uses the lot entry's own forward (`EntryForward`) instead of the
+  indoor parking-spot forward: position (entry) and heading finally match, so the
+  taxi no longer spawns facing the garage wall.
+- `FindClearSpawn` probes out to 5-7 m (plus 5/2.5 m diagonals) and tries four
+  headings per point (0 / 180 / +90 / -90 deg). A side wall or a reversed
+  `EntryPoint.forward` polarity still yields a street-facing spawn.
+- Stand resolution log now prints `entryForward` vs `spotForward` plus a note on
+  negating `EntryForward` if the entry transform points into the garage.
+
+## Unreleased (2026-10-01) - patrol reverse, safe spawn and fare clock
+
+Built in an isolated .NET SDK 8.0.425 environment against a snapshot of the installed
+game's IL2CPP/MelonLoader/S1API/S1MAPI assemblies. The live log identifies the game as
+0.4.7f7. Release build: **0 errors, 2 existing CS8604 nullable warnings**.
+**In-game verification remains open.** No version bump, commit or push.
+
+### Fixed
+
+- Patrol stalls now release the behaviour, check rear clearance, reverse for 1.5 s,
+  then dispatch the same target. A blocked rear or failed reverse falls back to
+  redispatch in place. Driver re-boarding runs before reversing if Deactivate
+  ejected the NPC.
+- A short forward sphere probe distinguishes static props from Rigidbody objects
+  and character colliders: stationary recovery after 2.5 s for static obstacles,
+  otherwise 5 s. Pending path calculation is still allowed to finish.
+- Spawn clearance shares RoadKeeper's oriented box (half-extents 1.0/0.6/2.2 m).
+  Candidates also need safe ground. Blocked front/clear rear rotates the heading
+  180 degrees; no safe candidate cancels the spawn instead of using a blocked origin.
+- Initial under-1-km/h, under-0.5-m movement stalls get a one-shot recovery after
+  about 3 s (excluding path-calculation time): reverse first; if unavailable or
+  ineffective, try a collision-free, grounded road point via TryFindFreeSpot.
+- StopPatrol destroys only behaviours added by the mod. Prefab components remain;
+  components scheduled for Unity's deferred Destroy are not reused in that frame.
+- Navigation callbacks during controlled recovery no longer prematurely stop its
+  polling. Pausing also suspends recovery deadlines and RoadKeeper corrections.
+- Fare ticks are guarded against duplicate frames and pause/standing intervals.
+  Whole movement minutes are floored before multiplying the dollar rate.
+  Failed/partial payments are not blindly retried on every frame.
+- Fare time uses TimeManager CycleDuration/TimeSpeedMultiplier rather than a fixed
+  unscaled-time assumption. Sleep, stopped game time and absent/dead clock handles
+  are free; skipped clock minutes are never retrospectively billed.
+- Added `[patrol]` recovery/spawn/ownership logs and `[meter]` configuration, motion,
+  pause, clock-rate and periodic-payment logs.
+
+### Inspection and tests
+
+- Exactly one FareMeter.Tick caller, in SpikeRunner.TickRide. Mod initialization
+  unsubscribes before subscribing the runner.
+- Installed fare.json: Enabled=true, DollarsPerInGameMinute=1,
+  MovingSpeedThresholdKmh=0.5; left unchanged.
+- Previous log: $10 increments around 10 real seconds during continuous driving;
+  no double charge established from that log.
+- Offline syntax/policy/model checks passed (whole units at rates 1/2/5,
+  duplicate frames, pause/resume, standing, time-rate conversion).
+- Real physics, runtime clock-rate behaviour, prefab lifetime and money/UI effects
+  still require the gameplay checklist in tests/README.md.
+
+## Unreleased (2026-10-01) - driving AI review: less "verwirrt", fewer wall hits
+
+Review of the stuck/hits-objects reports (code review + build; **not yet live-verified**).
+
+### Fixed
+
+- **`ReDispatch` no longer rotates the car toward the target.** The forced yaw ignored the
+  road direction and the geometry around the car - the same bug 0.4.0 removed from `Go()`
+  ("faehrt gegen Lampen"), still alive in the recovery path.
+- **Watchdog window 1.5 s -> 5 s** (`StuckWindowSeconds`): a normal pedestrian/traffic wait of
+  the game's own obstacle braking no longer counts as "stuck" (it used to take the wheel from
+  the patrol driver and re-dispatch).
+- **Patrol supervision waits for the path calculation** (`NavigationCalculationInProgress`)
+  instead of releasing the game's driver mid-calculation on long routes.
+- **Recovery #1 only reverses with room behind the car** (sphere-cast 3.5 m); otherwise it
+  re-dispatches in place instead of backing into a lamp/wall.
+- **RoadKeeper hard snap checks the target is free** (box overlap; tries +-4 m / +-8 m along the
+  road) and skips the snap, with a throttled `[road] snap-back skipped` warning, when it is not.
+- `TaxiAI.DumpDriveModel` compiled against member names that do not exist in the installed
+  game assembly (`OBSTACLE_MIN_RANGE`, `OBSTACLE_MAX_RANGE`, `Steer_Rate`,
+  `MAX_STEER_ANGLE_OVERRIDE`) - now `ObstacleMinRange`, `ObstacleMaxRange`,
+  `steerTargetFollowRate`, `MaxSteerAngleOverride`.
+
+### Verify in-game (open)
+
+- Rides through traffic/pedestrians: the taxi waits instead of reversing/re-dispatching early.
+- `[nav] recovery #1: ... not reversing` / `[road] snap-back skipped` lines only near real obstacles.
+- If the taxi still hits objects: send `Latest.log` of that ride.
+
 ## 0.7.0 (2026-09-29) - destination picker gate + road keeper + dressed driver
 
 Three fixes from Dominik's bug report ("Taxi merkt sich die letzten punkte nach

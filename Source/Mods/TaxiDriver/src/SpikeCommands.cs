@@ -302,7 +302,11 @@ internal static class SpikeCommands
         // Paket C (2026-09-29, "es bugt manchmal rum wenn es an der Mauer kommt beim
         // Parkplatz"): validate the spawn point — a point inside/near geometry makes the
         // vehicle pop and glitch while settling. The first clear candidate wins.
-        spawnPos = FindClearSpawn(spawnPos, forward);
+        if (!FindClearSpawn(spawnPos, ref forward, out spawnPos))
+        {
+            Mod.Log.Warn("[patrol] spawn cancelled: no collision-free vehicle-sized box. No vehicle was created.");
+            return false;
+        }
 
         // Review M6: the old ray started at the PLAYER and had no filters, so props,
         // vehicles and the player's own collider could decide the spawn height. It now
@@ -386,6 +390,26 @@ internal static class SpikeCommands
               $"rootY={FmtY(rootY)} -> {FmtY(newY)} (= hitY + (rootY - boxMinY)) " +
               $"glbMinY before={FmtY(TaxiVisual.LastGlbMinYBefore)} after={FmtY(TaxiVisual.LastGlbMinYAfter)} " +
               $"(settle check in {SettleCheckDelaySeconds:F0}s)");
+
+        // Post-spawn overlap guard: FindClearSpawn validated the REQUESTED point,
+        // but the created vehicle (Y-fix, physics settle, a dynamic object moving
+        // in) can still end up inside geometry. Never leave a stuck taxi behind:
+        // relocate to a free point or cancel the spawn (destroy, no wall-taxi).
+        if (!EnsurePostSpawnFree(veh, ref forward))
+        {
+            Mod.Log.Warn("[patrol] spawn overlap guard: no free point after creation — spawn cancelled, vehicle removed.");
+            try
+            {
+                veh.DestroyVehicle();
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Error($"DestroyVehicle after blocked post-spawn check failed: {ex.Message}");
+            }
+            SpikeState.Vehicle = null;
+            SpikeState.SettleCheckVehicle = null;
+            return false;
+        }
         return true;
     }
 
@@ -445,6 +469,7 @@ internal static class SpikeCommands
 
             int skippedTriggers = 0;
             int skippedDynamic = 0;
+            int skippedCharacter = 0;
             foreach (RaycastHit hit in hits)
             {
                 if (hit.collider == null)
@@ -463,13 +488,31 @@ internal static class SpikeCommands
                     continue;
                 }
 
+                // Character colliders (NPC capsules, player controller) carry no
+                // rigidbody — live test 2026-10-01 snapped the spawn onto an NPC
+                // 'Capsule' 2.1 m up, the taxi fell 1.9 m and bounced. Never ground
+                // on people (same rule as RoadKeeper.IsObstacle, staticOnly).
+                try
+                {
+                    if (hit.collider.GetComponentInParent<NPC>() != null ||
+                        hit.collider.GetComponentInParent<Player>() != null)
+                    {
+                        skippedCharacter++;
+                        continue;
+                    }
+                }
+                catch (Exception)
+                {
+                    // Unreadable ancestry: fall through to the old accept path.
+                }
+
                 best = hit;
                 info = $"hit '{hit.collider.name}' layer={LayerMask.LayerToName(hit.collider.gameObject.layer)} " +
-                       $"at {hit.distance:F1} m below the ray origin ({hits.Length} hits, skipped {skippedTriggers} trigger / {skippedDynamic} rigidbody)";
+                       $"at {hit.distance:F1} m below the ray origin ({hits.Length} hits, skipped {skippedTriggers} trigger / {skippedDynamic} rigidbody / {skippedCharacter} character)";
                 return true;
             }
 
-            info = $"all {hits.Length} hits filtered out (skipped {skippedTriggers} trigger / {skippedDynamic} rigidbody)";
+            info = $"all {hits.Length} hits filtered out (skipped {skippedTriggers} trigger / {skippedDynamic} rigidbody / {skippedCharacter} character)";
             return false;
         }
         catch (Exception ex)
@@ -1038,57 +1081,157 @@ internal static class SpikeCommands
     /// <summary>
     /// Paket C: spawn-point clearance probe. The vehicle cabin zone must be free of
     /// static geometry; candidate offsets along the entry axis and sideways get tried
-    /// before falling back to the original point (never worse than before).
+    /// before refusing an unsafe spawn. The entire rotated vehicle footprint is checked.
+    /// Each position is tried with four headings (0 / 180 / +90 / -90 deg) so a wall
+    /// to the side or a wrong EntryForward polarity still yields a street-facing spawn.
     /// </summary>
-    private static Vector3 FindClearSpawn(Vector3 pos, Vector3 forward)
+    private static bool FindClearSpawn(Vector3 pos, ref Vector3 forward, out Vector3 result)
     {
-        Vector3 dir = forward.sqrMagnitude < 1e-4f ? Vector3.forward : forward.normalized;
+        Vector3 dir = new Vector3(forward.x, 0f, forward.z);
+        dir = dir.sqrMagnitude < 1e-4f ? Vector3.forward : dir.normalized;
         Vector3 right = Vector3.Cross(Vector3.up, dir);
+        result = pos;
 
         // (along, side) metres — the wall case is usually a spot parallel to the wall.
+        // Extended to 5-7 m toward the street: the garage entry sits close to the wall
+        // and 3.5 m is not always enough to reach open street space.
         (float Along, float Side)[] probes =
         {
             (0f, 0f), (0f, 2f), (0f, -2f), (2f, 0f), (-2f, 0f),
             (0f, 3.5f), (0f, -3.5f), (3.5f, 1.8f), (-3.5f, 1.8f), (3.5f, -1.8f), (-3.5f, -1.8f),
+            (5f, 0f), (-5f, 0f), (7f, 0f), (-7f, 0f),
+            (5f, 2.5f), (5f, -2.5f), (-5f, 2.5f), (-5f, -2.5f),
         };
+
+        Vector3[] headings = { dir, -dir, right, -right };
+        string[] headingLabels = { "0 deg", "180 deg", "90 deg right", "90 deg left" };
 
         foreach ((float along, float side) in probes)
         {
             Vector3 candidate = pos + dir * along + right * side;
-            if (!IsSpawnClear(candidate))
+            if (!SnapToGround(candidate, out RaycastHit ground, out _) ||
+                Vector3.Angle(ground.normal, Vector3.up) > 40f)
                 continue;
+            candidate.y = ground.point.y;
 
-            if (along != 0f || side != 0f)
+            for (int h = 0; h < headings.Length; h++)
             {
-                Mod.Log.Info(
-                    $"[spawn] the spawn point was blocked — moved {FmtY(along)} m along / {FmtY(side)} m sideways " +
-                    $"to {Fmt(candidate)} (Paket C clearance probe).");
+                Vector3 heading = headings[h];
+                Quaternion rotation = Quaternion.LookRotation(heading, Vector3.up);
+                if (!RoadKeeper.IsFree(null, candidate, rotation))
+                    continue;
+
+                bool frontBlocked = RoadKeeper.HasObstacle(null, candidate, rotation);
+                bool rearBlocked = RoadKeeper.HasObstacle(null, candidate, rotation, rear: true);
+                if (frontBlocked && rearBlocked)
+                    continue;
+
+                forward = heading;
+                if (h > 0)
+                {
+                    Mod.Log.Info($"[patrol] spawn: front blocked on preferred heading, using {headingLabels[h]} instead.");
+                }
+                if (along != 0f || side != 0f)
+                {
+                    Mod.Log.Info(
+                        $"[patrol] the spawn point was blocked — moved {FmtY(along)} m along / {FmtY(side)} m sideways " +
+                        $"to {Fmt(candidate)} (Paket C clearance probe).");
+                }
+                result = candidate;
+                Mod.Log.Info($"[patrol] spawn clearance OK at {Fmt(candidate)} heading={headingLabels[h]}; box half-extents=1.0/0.6/2.2 m.");
+                return true;
             }
-            return candidate;
         }
 
-        Mod.Log.Warn("[spawn] ALL clearance probes are blocked (incl. the original point) — spawning at the original point anyway.");
-        return pos;
+        Mod.Log.Warn("[patrol] ALL spawn clearance probes blocked or without safe ground; refusing original-point fallback.");
+        return false;
     }
 
     /// <summary>
-    /// Cabin-zone clearance: two spheres at cabin/roof height (bottom 0.5 m — curbs and
-    /// slopes must never count as blockers), static non-trigger geometry only.
+    /// Post-spawn overlap guard: the vehicle EXISTS here, so its own colliders
+    /// are ignored (veh-aware checks). When the created taxi sits inside geometry,
+    /// relocate it to the first free probe point (same extended offsets + four
+    /// headings as <see cref="FindClearSpawn"/>) instead of leaving a stuck taxi.
+    /// Returns false when no free point exists (caller destroys the vehicle).
     /// </summary>
-    private static bool IsSpawnClear(Vector3 pos)
+    private static bool EnsurePostSpawnFree(LandVehicle veh, ref Vector3 forward)
     {
+        Vector3 pos;
+        Quaternion rot;
         try
         {
-            if (Physics.CheckSphere(pos + Vector3.up * 1.2f, 0.7f, ~0, QueryTriggerInteraction.Ignore))
-                return false;
-            if (Physics.CheckSphere(pos + Vector3.up * 1.9f, 0.5f, ~0, QueryTriggerInteraction.Ignore))
-                return false;
+            pos = veh.transform.position;
+            rot = veh.transform.rotation;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[patrol] post-spawn overlap check: unreadable transform ({ex.Message}) — assuming blocked.");
+            return false;
+        }
+
+        if (RoadKeeper.IsFree(veh, pos, rot))
             return true;
+
+        Mod.Log.Warn($"[patrol] spawn overlap detected after creation at {Fmt(pos)} — relocating to a free point.");
+
+        Vector3 dir = new Vector3(forward.x, 0f, forward.z);
+        dir = dir.sqrMagnitude < 1e-4f ? Vector3.forward : dir.normalized;
+        Vector3 right = Vector3.Cross(Vector3.up, dir);
+
+        (float Along, float Side)[] probes =
+        {
+            (0f, 0f), (0f, 2f), (0f, -2f), (2f, 0f), (-2f, 0f),
+            (0f, 3.5f), (0f, -3.5f), (3.5f, 1.8f), (-3.5f, 1.8f), (3.5f, -1.8f), (-3.5f, -1.8f),
+            (5f, 0f), (-5f, 0f), (7f, 0f), (-7f, 0f),
+            (5f, 2.5f), (5f, -2.5f), (-5f, 2.5f), (-5f, -2.5f),
+        };
+
+        Vector3[] headings = { dir, -dir, right, -right };
+        string[] headingLabels = { "0 deg", "180 deg", "90 deg right", "90 deg left" };
+
+        float yOffset = 0f;
+        try
+        {
+            if (TryGetVehicleBoxWorldBounds(veh, out Vector3 boxMin, out _))
+                yOffset = pos.y - boxMin.y;
+            else
+                yOffset = 0f;
         }
         catch (Exception)
         {
-            return true; // probe unavailable — never block a spawn
+            yOffset = 0f;
         }
+
+        foreach ((float along, float side) in probes)
+        {
+            Vector3 candidate = pos + dir * along + right * side;
+            if (!SnapToGround(candidate, out RaycastHit ground, out _) ||
+                Vector3.Angle(ground.normal, Vector3.up) > 40f)
+                continue;
+            float baseY = ground.point.y + yOffset + 0.05f;
+
+            for (int h = 0; h < headings.Length; h++)
+            {
+                Vector3 heading = headings[h];
+                Quaternion rotation = Quaternion.LookRotation(heading, Vector3.up);
+                Vector3 placed = new Vector3(candidate.x, baseY, candidate.z);
+                if (!RoadKeeper.IsFree(veh, placed, rotation))
+                    continue;
+                if (RoadKeeper.HasObstacle(veh, placed, rotation) &&
+                    RoadKeeper.HasObstacle(veh, placed, rotation, rear: true))
+                    continue;
+
+                RoadKeeper.ApplyPosition(veh, placed, rotation, zeroVelocity: true);
+                Physics.SyncTransforms();
+                forward = heading;
+                Mod.Log.Warn(
+                    $"[patrol] spawn overlap rescued: moved {FmtY(along)} m along / {FmtY(side)} m sideways " +
+                    $"to {Fmt(placed)} heading={headingLabels[h]} (post-spawn guard).");
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // ------------------------------------------------------ driver retention (Paket G)
@@ -1690,6 +1833,7 @@ internal static class SpikeCommands
         SpikeState.NavReDispatchAt = 0f;
         SpikeState.NavReDispatchTarget = Vector3.zero;
         RoadKeeper.Reset();
+        SpikeRunner.ArmStartupRecovery(veh);
         // Stage 3b: gates the "taxi arrived at player" verdict for the F5 run.
         SpikeState.NavToPlayer = toPlayer;
 
@@ -1815,6 +1959,7 @@ internal static class SpikeCommands
             SpikeState.NavReDispatchAt = 0f;
             SpikeState.PollingActive = true;
             RoadKeeper.Reset();
+            SpikeRunner.ArmStartupRecovery(veh);
             Mod.Log.Info(
                 $"{caller}: the GAME's patrol driver owns the ride to {SpikeState.RideDestinationName} " +
                 $"({SpikeState.RideDropOff}) — the mod only supervises ([patrol]/[hb] lines).");

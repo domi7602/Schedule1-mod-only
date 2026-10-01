@@ -26,8 +26,31 @@ internal static class SpikeRunner
     /// <summary>Motion (metres) that counts as progress in the watchdog window.</summary>
     private const float ProgressEpsilonMeters = 0.5f;
 
-    /// <summary>Seconds without progress before a recovery attempt fires.</summary>
-    private const float StuckWindowSeconds = 1.5f;
+    /// <summary>
+    /// Seconds without progress before a recovery attempt fires. Was 1.5 s, which is
+    /// shorter than a normal red-light/pedestrian wait of the game's own obstacle
+    /// braking - the watchdog then took the wheel from a driver that was just waiting
+    /// (2026-10-01 review: "verwirrte" Fahr-KI). A real wedge is still caught after 5 s.
+    /// </summary>
+    private const float StuckWindowSeconds = 5f;
+    private const float StaticObstacleStuckSeconds = 2.5f;
+    private const float StartupStuckSeconds = 3f;
+    private static bool _startupArmed;
+    private static bool _startupReversePending;
+    private static Vector3 _startupOrigin;
+    private static float _startupAt;
+    private static bool _recoveryOwnsNavigation;
+
+    internal static void ArmStartupRecovery(LandVehicle veh)
+    {
+        _startupArmed = true;
+        _startupReversePending = false;
+        _startupOrigin = veh.transform.position;
+        _startupAt = Time.unscaledTime;
+    }
+
+    /// <summary>Free space (metres) required behind the car before recovery #1 may reverse.</summary>
+    private const float ReverseClearanceMeters = 3.5f;
 
     /// <summary>Length of the reverse manoeuvre in recovery #1 (a wedged car backs up).</summary>
     private const float ReverseSeconds = 1.5f;
@@ -633,44 +656,18 @@ internal static class SpikeRunner
 
         if (SpikeState.StuckRecoveries == 1)
         {
-            bool wedged = SpikeState.NavEverAutoDriving;
             Mod.Log.Warn(
-                $"[nav] no progress for {TaxiDestinations.Num(StuckWindowSeconds)} s " +
+                $"[patrol] navigation made no progress for {TaxiDestinations.Num(Time.unscaledTime - SpikeState.ProgressWindowStart)} s " +
                 $"({TaxiDestinations.Num(distance)} m to the target, AutoDriving={autoDriving} navCalc=false " +
                 $"speed={TaxiDestinations.Num(speed)} km/h, {TaxiDestinations.Num(elapsed)} s into the run) — " +
-                (wedged
-                    ? $"recovery #1: reverse {TaxiDestinations.Num(ReverseSeconds)} s, then re-dispatch"
-                    : "recovery #1: the agent has no path — recalculate + re-dispatch (settings=null)"));
+                $"recovery #1: reverse {TaxiDestinations.Num(ReverseSeconds)} s if rear clear, then re-dispatch.");
 
             SpikeState.ProgressFrom = position;
             SpikeState.ProgressWindowStart = Time.unscaledTime;
 
-            if (wedged)
-            {
-                try
-                {
-                    agent.StartReverse();
-                }
-                catch (Exception ex)
-                {
-                    Mod.Log.Warn($"[nav] StartReverse() failed: {ex.Message}");
-                }
-
-                SpikeState.NavReDispatchAt = Time.unscaledTime + ReverseSeconds;
-                SpikeState.NavReDispatchTarget = SpikeState.NavTarget;
-                return;
-            }
-
-            try
-            {
-                agent.RecalculateNavigation();
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"[nav] RecalculateNavigation() failed: {ex.Message}");
-            }
-
-            ReDispatch(agent, SpikeState.NavTarget, "recovery #1");
+            // AutoDriving is not evidence of motion: a newly spawned car can be wedged too.
+            if (!TryStartReverse(agent, veh, Time.unscaledTime, "navigation recovery"))
+                ReDispatch(agent, SpikeState.NavTarget, "recovery #1 (no reverse)");
             return;
         }
 
@@ -715,13 +712,98 @@ internal static class SpikeRunner
     }
 
     /// <summary>
+    /// True when a short ray behind the car (at bumper height, from the rear axle
+    /// line) hits no solid. Triggers are ignored; the car's own colliders are skipped
+    /// by starting the ray past the rear bumper.
+    /// </summary>
+    private static bool RearIsClear(LandVehicle veh)
+    {
+        return !RoadKeeper.HasObstacle(veh, veh.transform.position, veh.transform.rotation,
+            rear: true, distance: ReverseClearanceMeters);
+    }
+
+    private static bool TryStartReverse(VehicleAgent agent, LandVehicle veh, float now, string reason)
+    {
+        if (!RearIsClear(veh))
+        {
+            Mod.Log.Warn($"[patrol] {reason}: rear blocked; no reverse.");
+            return false;
+        }
+        // Keep the agent's path alive for StartReverse; do not StopNavigating here.
+        _recoveryOwnsNavigation = true;
+        try
+        {
+            // Deactivate can eject the NPC. Re-seat now, not on the next TickRide,
+            // where boarding could interrupt an already running reverse manoeuvre.
+            SpikeCommands.EnsureDriverSeat(veh);
+            veh.BrakesApplied = false;
+            veh.HandbrakeApplied = false;
+            agent.StartReverse();
+            SpikeState.NavReDispatchAt = now + ReverseSeconds;
+            SpikeState.NavReDispatchTarget = SpikeState.NavTarget;
+            SpikeState.PollingActive = true;
+            Mod.Log.Warn($"[patrol] {reason}: reversing {ReverseSeconds:0.0}s, rear clear; then redispatch to {SpikeCommands.Fmt(SpikeState.NavTarget)}.");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[patrol] {reason}: reverse failed: {ex.Message}");
+            return false;
+        }
+        finally
+        {
+            _recoveryOwnsNavigation = false;
+        }
+    }
+
+    private static bool TickStartupRecovery(VehicleAgent agent, LandVehicle veh, Vector3 position, float distance, bool navCalc)
+    {
+        if (!_startupArmed || distance <= ArrivalThresholdMeters)
+            return false;
+        float speed = Mathf.Abs(veh.Speed_Kmh);
+        if (Vector3.Distance(position, _startupOrigin) >= ProgressEpsilonMeters || speed >= PatrolStandingKmh)
+        {
+            _startupArmed = false;
+            return false;
+        }
+        if (navCalc)
+        {
+            _startupAt = Time.unscaledTime; // path calculation is not a startup wedge
+            return false;
+        }
+        if (Time.unscaledTime - _startupAt < StartupStuckSeconds)
+            return false;
+        _startupArmed = false; // one startup rescue per dispatch, not a teleport loop
+        _recoveryOwnsNavigation = true;
+        try { TaxiAI.StopPatrol("startup stuck"); }
+        finally { _recoveryOwnsNavigation = false; }
+        if (SpikeCommands.EnsureDriverSeat(veh))
+        {
+            _startupArmed = true;
+            _startupAt = Time.unscaledTime;
+            return true;
+        }
+        SpikeState.StuckRecoveries++;
+        Mod.Log.Warn("[patrol] startup stuck: under 1 km/h and under 0.5 m motion for 3s; reverse first, free-spot rescue otherwise.");
+        if (TryStartReverse(agent, veh, Time.unscaledTime, "startup stuck"))
+        {
+            _startupOrigin = position;
+            _startupReversePending = true;
+            return true;
+        }
+        RoadKeeper.TryRescueStartup(veh, agent);
+        ReDispatch(agent, SpikeState.NavTarget, "startup free-spot rescue");
+        return true;
+    }
+
+    /// <summary>
     /// Stage 4 supervision while the GAME's patrol behaviour drives: arrival (at the
     /// resolved point, or standing on its last waypoint near it) and stall handling.
     /// A stall does not fight the game's behaviour — it releases it and hands the ride
     /// back to the mod's own <c>Navigate()</c> dispatch, so a broken clone degrades to
     /// the proven path instead of freezing the ride.
     /// </summary>
-    private static void TickPatrolSupervision(LandVehicle veh, Vector3 position, float distance)
+    private static void TickPatrolSupervision(LandVehicle veh, Vector3 position, float distance, bool navCalc)
     {
         float now = Time.unscaledTime;
         float speed = -1f;
@@ -760,6 +842,16 @@ internal static class SpikeRunner
             return;
         }
 
+        // The game is still calculating the route: the car is standing because it has
+        // not been told where to go yet, not because it is stuck (long routes took
+        // longer than the old 1.5 s window and the patrol was killed mid-thought).
+        if (navCalc)
+        {
+            SpikeState.ProgressFrom = position;
+            SpikeState.ProgressWindowStart = now;
+            return;
+        }
+
         float moved = Vector3.Distance(position, SpikeState.ProgressFrom);
         if (moved >= ProgressEpsilonMeters)
         {
@@ -771,18 +863,23 @@ internal static class SpikeRunner
             return;
         }
 
-        if (now - SpikeState.ProgressWindowStart < StuckWindowSeconds)
+        bool staticObstacle = RoadKeeper.HasObstacle(veh, position, veh.transform.rotation, staticOnly: true);
+        float stallWindow = staticObstacle ? StaticObstacleStuckSeconds : StuckWindowSeconds;
+        if (Mathf.Abs(speed) >= PatrolStandingKmh || now - SpikeState.ProgressWindowStart < stallWindow)
             return;
 
         SpikeState.StuckRecoveries++;
         Mod.Log.Warn(
-            $"[patrol] the game's own driver made no progress for {TaxiDestinations.Num(StuckWindowSeconds)} s " +
+            $"[patrol] the game's own driver made no progress for {TaxiDestinations.Num(stallWindow)} s (staticObstacle={staticObstacle}) " +
             $"(waypoint {waypoint}/{last}, {TaxiDestinations.Num(distance)} m to the target, " +
             $"speed={TaxiDestinations.Num(speed)} km/h) — releasing it and handing the ride to the mod's dispatch.");
-        TaxiAI.StopPatrol("stalled");
+        _recoveryOwnsNavigation = true;
+        try { TaxiAI.StopPatrol("stalled"); }
+        finally { _recoveryOwnsNavigation = false; }
         SpikeState.ProgressFrom = position;
         SpikeState.ProgressWindowStart = Time.unscaledTime;
-        ReDispatch(agent: veh.Agent, target: SpikeState.NavTarget, why: "patrol stall -> mod dispatch");
+        if (!TryStartReverse(veh.Agent, veh, now, "patrol stall"))
+            ReDispatch(agent: veh.Agent, target: SpikeState.NavTarget, why: "patrol stall (no reverse) -> mod dispatch");
     }
 
     /// <summary>Finishes the reverse manoeuvre and re-dispatches the same route.</summary>
@@ -800,13 +897,21 @@ internal static class SpikeRunner
             Mod.Log.Warn($"[nav] StopReversing() failed: {ex.Message}");
         }
 
-        Mod.Log.Info("[nav] reverse manoeuvre complete — re-dispatching the route.");
+        if (_startupReversePending)
+        {
+            _startupReversePending = false;
+            LandVehicle? veh = SpikeState.Vehicle;
+            if (veh != null && Vector3.Distance(veh.transform.position, _startupOrigin) < ProgressEpsilonMeters)
+                RoadKeeper.TryRescueStartup(veh, agent);
+        }
+        Mod.Log.Info("[patrol] reverse manoeuvre complete — re-dispatching the route.");
         ReDispatch(agent, target, "post-reverse");
     }
 
     /// <summary>Fresh <c>Navigate</c> dispatch with settings=null and a new measurement window.</summary>
     internal static void ReDispatch(VehicleAgent agent, Vector3 target, string why)
     {
+        SpikeState.PollingActive = true;
         SpikeState.NavTarget = target;
         SpikeState.NavStartTime = Time.unscaledTime;
         SpikeState.NavEverAutoDriving = false;
@@ -830,19 +935,16 @@ internal static class SpikeRunner
             // the window reset alone already fixes the premature give-up
         }
 
-        // Spike finding (2026-09-25, verified live): dispatching Navigate while the
-        // car faces away makes the agent burn its first seconds in reverse sweeps
-        // (54/89 reverse polls, no arrival) - the driving that looks "verwirrt".
-        // Aim first, release the brakes, THEN dispatch.
+        // Release the brakes, THEN dispatch. The car is deliberately NOT rotated toward
+        // the target any more: that forced yaw ignored the road direction and the
+        // collision geometry around the car, so a re-dispatch could turn it nose-first
+        // into a lamp/wall/curb ("fährt gegen Objekte" - the same bug 0.4.0 removed
+        // from Go(); ReDispatch had kept the old snap). The agent picks its own heading.
         try
         {
             LandVehicle? av = SpikeState.Vehicle;
             if (av != null)
             {
-                Vector3 flat = target - av.transform.position;
-                flat.y = 0f;
-                if (flat.sqrMagnitude > 1f)
-                    av.transform.rotation = Quaternion.LookRotation(flat.normalized);
                 av.BrakesApplied = false;
                 av.HandbrakeApplied = false;
             }
@@ -963,6 +1065,11 @@ internal static class SpikeRunner
     /// </summary>
     internal static void OnNavigationResult(VehicleAgent.ENavigationResult result)
     {
+        if (_recoveryOwnsNavigation || SpikeState.NavReDispatchAt > 0f)
+        {
+            Mod.Log.Info($"[patrol] old navigation callback {result} ignored during controlled recovery.");
+            return;
+        }
         string text = result.ToString();
         SpikeState.NavCallbackResult = text;
 
@@ -1004,6 +1111,15 @@ internal static class SpikeRunner
         if (!SpikeState.PollingActive)
             return;
 
+        if (Time.timeScale == 0f)
+        {
+            SpikeState.ProgressWindowStart = Time.unscaledTime;
+            _startupAt = Time.unscaledTime;
+            if (SpikeState.NavReDispatchAt > 0f)
+                SpikeState.NavReDispatchAt += Time.unscaledDeltaTime;
+            SpikeState.NavStartTime += Time.unscaledDeltaTime;
+            return;
+        }
         LandVehicle? veh = SpikeState.Vehicle;
         if (veh == null)
         {
@@ -1055,6 +1171,8 @@ internal static class SpikeRunner
 
             Vector3 position = veh.transform.position;
             float distance = Vector3.Distance(position, SpikeState.NavTarget);
+            if (TickStartupRecovery(agent, veh, position, distance, navCalc))
+                return;
             Mod.Log.Info(
                 $"[nav t={elapsed:F1}s] AutoDriving={autoDriving} navCalc={navCalc} " +
                 $"target={SpikeCommands.Fmt(SpikeState.NavTarget)} " +
@@ -1093,7 +1211,7 @@ internal static class SpikeRunner
             // only supervises (arrival, stall → hand the ride back, timeout).
             if (TaxiAI.Active)
             {
-                TickPatrolSupervision(veh, position, distance);
+                TickPatrolSupervision(veh, position, distance, navCalc);
                 return;
             }
 
@@ -1120,7 +1238,8 @@ internal static class SpikeRunner
                 SpikeState.ProgressFrom = position;
                 SpikeState.ProgressWindowStart = now;
             }
-            else if (window >= StuckWindowSeconds && !navCalc)
+            else if (window >= (RoadKeeper.HasObstacle(veh, position, veh.transform.rotation, staticOnly: true)
+                         ? StaticObstacleStuckSeconds : StuckWindowSeconds) && !navCalc && Mathf.Abs(veh.Speed_Kmh) < PatrolStandingKmh)
             {
                 RecoverStuck(agent, veh, position, distance, elapsed, autoDriving);
                 return;

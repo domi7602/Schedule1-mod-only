@@ -352,7 +352,13 @@ internal static class TaxiStand
         // path calculation fails in 0.1 s from a spot spawn).
         selection.Position = chosen.HasEntry ? chosen.EntryPosition : chosen.SpotPosition;
         selection.SpawnKind = chosen.HasEntry ? "entry" : "spot";
-        selection.Forward = chosen.SpotForward;
+        // Spawn position and heading must match: the entry is street-side open
+        // space, but SpotForward points along the indoor parking slot (often at
+        // a wall). Use the entry's own forward when we spawn on the entry.
+        // Live test 2026-10-01: EntryPoint.forward (+X, east) points INTO the
+        // garage — the taxi drove east into the pillars, then reversed west for
+        // 8+ s toward the target. Negated: street/target side is -X (west).
+        selection.Forward = chosen.HasEntry ? -chosen.EntryForward : chosen.SpotForward;
         selection.SpotIndex = chosen.SpotIndex;
         selection.SpotCount = chosen.SpotCount;
         selection.DistanceToConfiguredCoordinate =
@@ -361,8 +367,12 @@ internal static class TaxiStand
         Mod.Log.Info(
             $"[stand] RESOLVED lot='{selection.LotName}' rule='{selection.Rule}' " +
             $"spawnPosition={Fmt(selection.Position)} ({selection.SpawnKind}) forward={Fmt(selection.Forward)} " +
+            $"entryForward={Fmt(chosen.EntryForward)} spotForward={Fmt(chosen.SpotForward)} " +
             $"spot[{selection.SpotIndex}]/{selection.SpotCount} " +
             $"distanceToConstant={(selection.DistanceToConfiguredCoordinate < 0f ? "n/a" : selection.DistanceToConfiguredCoordinate.ToString("F1") + "m")}");
+        Mod.Log.Info(
+            $"[stand] NOTE entry polarity: EntryPoint.forward points INTO the garage " +
+            $"(live test 2026-10-01), so the spawn heading is negated (-EntryForward, street side).");
         return true;
     }
 
@@ -422,6 +432,7 @@ internal static class TaxiStand
                 if (door != null)
                 {
                     entry.EntryPosition = door.position;
+                    entry.EntryForward = Flat(door.forward);
                     entry.HasEntry = true;
                 }
             }
@@ -521,6 +532,7 @@ internal static class TaxiStand
         internal Vector3 SpotPosition;
         internal Vector3 SpotForward = Vector3.forward;
         internal Vector3 EntryPosition;
+        internal Vector3 EntryForward = Vector3.forward;
         internal bool HasEntry;
     }
 }

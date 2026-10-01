@@ -56,6 +56,17 @@ internal static class RoadKeeper
     /// <summary>Maximum lateral nudge per tick (metres) — small steps, no pops.</summary>
     private const float MaxNudgeMeters = 0.35f;
 
+    /// <summary>Half extents of the box that must be free at a snap target (car footprint, metres).</summary>
+    private static readonly Vector3 SnapClearanceHalfExtents = new Vector3(1.0f, 0.6f, 2.2f);
+
+    /// <summary>Lateral offsets along the road (metres) tried when the exact snap point is occupied.</summary>
+    private static readonly float[] SnapAlongOffsets = { 4f, -4f, 8f, -8f };
+
+    /// <summary>Seconds between "no free spot" warnings, so a blocked snap cannot spam the log.</summary>
+    private const float BlockedLogIntervalSeconds = 5f;
+
+    private static float _nextBlockedLogAt;
+
     private static float _nextTickAt;
 
     /// <summary>True while the car is outside the soft margin (one-shot excursion logs).</summary>
@@ -83,7 +94,7 @@ internal static class RoadKeeper
     /// </summary>
     internal static void Tick()
     {
-        if (!SpikeState.PollingActive || SpikeState.NavReDispatchAt > 0f)
+        if (Time.timeScale == 0f || !SpikeState.PollingActive || SpikeState.NavReDispatchAt > 0f)
             return;
 
         if (Time.unscaledTime < _nextTickAt)
@@ -231,10 +242,26 @@ internal static class RoadKeeper
     /// </summary>
     private static void HardSnap(LandVehicle veh, Vector3 closest, Vector3 direction, float lateral, float drop, bool inDitch)
     {
-        HardSnaps++;
         _excursionActive = true;
 
+        // A snap onto an occupied spot (parked car, lamp, other NPC car) wedges the taxi
+        // INTO that object - the opposite of the job. Look for free road first; with no
+        // free spot, leave the car to the game's own driving (and its stuck recovery).
         Vector3 target = closest;
+        if (!TryFindFreeSpot(veh, closest, direction, out target))
+        {
+            if (Time.unscaledTime >= _nextBlockedLogAt)
+            {
+                _nextBlockedLogAt = Time.unscaledTime + BlockedLogIntervalSeconds;
+                Mod.Log.Warn(
+                    $"[road] snap-back skipped: no free road spot near {SpikeCommands.Fmt(closest)} " +
+                    $"(lateral {TaxiDestinations.Num(lateral)} m) - leaving the car to the AI's own recovery.");
+            }
+
+            return;
+        }
+
+        HardSnaps++;
         Quaternion rotation = direction.sqrMagnitude > 1e-4f
             ? Quaternion.LookRotation(direction, Vector3.up)
             : veh.transform.rotation;
@@ -248,10 +275,66 @@ internal static class RoadKeeper
     }
 
     /// <summary>
+    /// First collision-free spot for the car on the route line: the exact closest
+    /// point, then a few points further along / back along the road direction.
+    /// Static and dynamic colliders count; triggers and the taxi itself do not.
+    /// </summary>
+    internal static bool TryFindFreeSpot(LandVehicle veh, Vector3 closest, Vector3 direction, out Vector3 spot,
+        bool skipOrigin = false)
+    {
+        Vector3 flatDir = new Vector3(direction.x, 0f, direction.z);
+        if (flatDir.sqrMagnitude < 1e-4f)
+            flatDir = Vector3.forward;
+        flatDir.Normalize();
+        Quaternion rot = Quaternion.LookRotation(flatDir, Vector3.up);
+
+        spot = closest;
+        if (!skipOrigin && IsFree(veh, closest, rot))
+            return true;
+
+        foreach (float offset in SnapAlongOffsets)
+        {
+            Vector3 candidate = closest + flatDir * offset;
+            if (IsFree(veh, candidate, rot))
+            {
+                spot = candidate;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    internal static bool IsFree(LandVehicle? veh, Vector3 position, Quaternion rotation)
+    {
+        try
+        {
+            Vector3 center = position + Vector3.up * (SnapClearanceHalfExtents.y + 0.35f);
+            var hits = Physics.OverlapBox(center, SnapClearanceHalfExtents, rotation, ~0, QueryTriggerInteraction.Ignore);
+            foreach (var hit in hits)
+            {
+                if (hit == null)
+                    continue;
+                // Ignore the taxi's own colliders (and its driver's, which live under it).
+                if (veh != null && hit.transform != null && hit.transform.IsChildOf(veh.transform))
+                    continue;
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception)
+        {
+            // Unknown -> treat as occupied (never snap blind).
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Places the vehicle (rigidbody-aware: position/rotation + velocity kill when
     /// a Rigidbody is present, transform fallback otherwise).
     /// </summary>
-    private static void ApplyPosition(LandVehicle veh, Vector3 position, Quaternion rotation, bool zeroVelocity)
+    internal static void ApplyPosition(LandVehicle veh, Vector3 position, Quaternion rotation, bool zeroVelocity)
     {
         try
         {
@@ -293,5 +376,112 @@ internal static class RoadKeeper
 
         float slope = Vector3.Angle(hit.normal, Vector3.up);
         return slope > MaxSlopeDegrees;
+    }
+
+    /// <summary>Bumper probe shared by spawn orientation and stationary supervision.</summary>
+    internal static bool HasObstacle(LandVehicle? veh, Vector3 position, Quaternion rotation,
+        bool rear = false, bool staticOnly = false, float distance = 2f)
+    {
+        try
+        {
+            Vector3 direction = rotation * (rear ? Vector3.back : Vector3.forward);
+            Vector3 origin = position + Vector3.up * 0.8f + direction * 2.4f;
+            // Include initial overlaps: SphereCast alone does not report these.
+            var overlaps = Physics.OverlapSphere(origin, 0.4f, ~0, QueryTriggerInteraction.Ignore);
+            foreach (var collider in overlaps)
+                if (IsObstacle(collider, veh, staticOnly))
+                    return true;
+            var hits = Physics.SphereCastAll(origin, 0.4f, direction, distance, ~0, QueryTriggerInteraction.Ignore);
+            foreach (var hit in hits)
+                if (IsObstacle(hit.collider, veh, staticOnly))
+                    return true;
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[patrol] clearance probe failed: {ex.Message}");
+            // Fail closed for movement; never shorten the watchdog on an unknown hit.
+            return !staticOnly;
+        }
+    }
+
+    private static bool IsObstacle(Collider collider, LandVehicle? veh, bool staticOnly)
+    {
+        if (collider == null || collider.isTrigger)
+            return false;
+        if (veh != null && collider.transform != null && collider.transform.IsChildOf(veh.transform))
+            return false;
+        if (staticOnly)
+        {
+            if (collider.attachedRigidbody != null)
+                return false;
+            // Some character colliders have no Rigidbody; they are not static props.
+            if (collider.GetComponentInParent<Il2CppScheduleOne.NPCs.NPC>() != null ||
+                collider.GetComponentInParent<Il2CppScheduleOne.PlayerScripts.Player>() != null)
+                return false;
+        }
+        return true;
+    }
+
+    /// <summary>Last-resort startup rescue. Prefer the live road corridor, never an occupied point.</summary>
+    internal static bool TryRescueStartup(LandVehicle veh, VehicleAgent agent)
+    {
+        Vector3 position = veh.transform.position;
+        Vector3 closest = position;
+        Vector3 direction = veh.transform.forward;
+        if (TryGetCorridor(agent, position, out Vector3 road, out Vector3 tangent, out _))
+        {
+            // Keep the vehicle's current ground clearance when using a road-surface point.
+            closest = new Vector3(road.x, position.y, road.z);
+            direction = tangent;
+        }
+        if (!TryFindFreeSpot(veh, closest, direction, out Vector3 spot,
+                skipOrigin: Vector3.Distance(closest, position) < 0.5f))
+        {
+            Mod.Log.Warn("[patrol] startup rescue: TryFindFreeSpot found no free point; no blind teleport.");
+            return false;
+        }
+        Vector3 flatDirection = new Vector3(direction.x, 0f, direction.z);
+        if (flatDirection.sqrMagnitude < 1e-4f)
+            flatDirection = Vector3.forward;
+        Quaternion rotation = Quaternion.LookRotation(flatDirection.normalized, Vector3.up);
+        if (HasObstacle(veh, spot, rotation))
+        {
+            if (!HasObstacle(veh, spot, rotation, rear: true))
+                rotation = rotation * Quaternion.Euler(0f, 180f, 0f);
+            else
+            {
+                Mod.Log.Warn("[patrol] startup rescue: free point blocked on both ends; not relocating.");
+                return false;
+            }
+        }
+        // Reject gaps, steep ground and excessive height changes before placement.
+        RaycastHit[] groundHits = Physics.RaycastAll(spot + Vector3.up * 2f, Vector3.down,
+            5f, ~0, QueryTriggerInteraction.Ignore);
+        Array.Sort(groundHits, (a, b) => a.distance.CompareTo(b.distance));
+        bool grounded = false;
+        float groundY = 0f;
+        foreach (var ground in groundHits)
+        {
+            if (ground.collider == null || ground.collider.attachedRigidbody != null ||
+                (ground.transform != null && ground.transform.IsChildOf(veh.transform)) ||
+                Vector3.Angle(ground.normal, Vector3.up) > MaxSlopeDegrees)
+                continue;
+            groundY = ground.point.y;
+            grounded = true;
+            break;
+        }
+        if (!grounded || !SpikeCommands.TryGetVehicleBoxWorldBounds(veh, out Vector3 boxMin, out _))
+        {
+            Mod.Log.Warn("[patrol] startup rescue: no safe ground at free point; not relocating.");
+            return false;
+        }
+        spot.y = groundY + (position.y - boxMin.y) + 0.05f;
+        if (!IsFree(veh, spot, rotation))
+            return false;
+        ApplyPosition(veh, spot, rotation, zeroVelocity: true);
+        Physics.SyncTransforms();
+        Mod.Log.Warn($"[patrol] startup rescue: placed at {SpikeCommands.Fmt(spot)} (TryFindFreeSpot, oriented box clear).");
+        return true;
     }
 }

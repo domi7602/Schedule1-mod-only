@@ -3,6 +3,7 @@ using Il2CppScheduleOne.UI;
 using S1API.Money;
 using S1Mods.Shared;
 using UnityEngine;
+using GameClock = Il2CppScheduleOne.GameTime.TimeManager;
 
 namespace TaxiDriver;
 
@@ -11,10 +12,13 @@ namespace TaxiDriver;
 /// Realität ... wenn das Auto fährt, jede Sekunde −1 cash, wenn 0 km/h wird nichts
 /// abgezogen — der Trigger beginnt wenn die Destination ausgewählt ist".
 ///
-/// Time base (verified against <c>TimeManager</c>): the game day runs on
-/// `CycleDuration` = 24 REAL minutes, so **1 real second = 1 in-game minute**.
+/// Standard time base: at a 24-real-minute game day, 1 real second = 1 in-game minute.
+/// Motion intervals are converted using TimeManager's CycleDuration and
+/// TimeSpeedMultiplier. Pauses, sleep and the end-of-day clock stop are free;
+/// skipped clock minutes are never retroactively charged.
 /// The meter therefore charges whole dollars per FULL moving in-game minute
-/// (= per full real second of motion) — no cents, because the game has none
+/// (= per full real second of motion at normal speed; paused Unity time is free)
+/// — no cents, because the game has none
 /// (Dominik: "$1 da es keine Cent-Beträge gibt").
 ///
 /// Rules:
@@ -54,9 +58,17 @@ internal static class FareMeter
     private static bool _mpWarned;
 
     private static bool _active;
-    private static double _movingSeconds;
+    private static double _movingMinutes;
     private static int _chargedTotal;
     private static float _lastTickAt;
+    private static int _lastTickFrame = -1;
+    private static int _billedMinutes;
+    private static bool _wasMoving;
+    private static bool _paused;
+    private static int _nextChargeLogAt = 10;
+    private static float _lastClockRate = -1f;
+    private static bool _clockUnavailableWarned;
+    private static bool _clockStopped;
 
     /// <summary>Total charged for the current/last ride (dollars, whole).</summary>
     internal static int ChargedTotal => _chargedTotal;
@@ -84,6 +96,12 @@ internal static class FareMeter
                     $"(${_config!.DollarsPerInGameMinute}/In-Game-min moving, {(_config.Enabled ? "enabled" : "disabled")}).");
             }
 
+            if (float.IsNaN(_config.MovingSpeedThresholdKmh) || float.IsInfinity(_config.MovingSpeedThresholdKmh) ||
+                _config.MovingSpeedThresholdKmh < 0.1f)
+                _config.MovingSpeedThresholdKmh = 0.5f;
+            Mod.Log.Info($"[meter] loaded {FilePath}: Enabled={_config.Enabled}, DollarsPerInGameMinute={_config.DollarsPerInGameMinute}, MovingSpeedThresholdKmh={_config.MovingSpeedThresholdKmh:0.###}.");
+            if (_config.DollarsPerInGameMinute != 1)
+                Mod.Log.Warn("[meter] fare.json differs from requested $1 rate; keeping the explicit config. Set DollarsPerInGameMinute=1 for $1 per full moving second at normal speed.");
             return _config;
         }
     }
@@ -105,9 +123,17 @@ internal static class FareMeter
 
         FareConfig cfg = Config;
         _active = true;
-        _movingSeconds = 0;
+        _movingMinutes = 0;
         _chargedTotal = 0;
-        _lastTickAt = Time.unscaledTime;
+        _lastTickAt = Time.time;
+        _lastTickFrame = -1;
+        _billedMinutes = 0;
+        _wasMoving = false;
+        _paused = false;
+        _nextChargeLogAt = 10;
+        _lastClockRate = -1f;
+        _clockUnavailableWarned = false;
+        _clockStopped = false;
 
         if (!cfg.Enabled)
         {
@@ -117,7 +143,8 @@ internal static class FareMeter
 
         Mod.Log.Info(
             $"[meter] meter started: ${cfg.DollarsPerInGameMinute} per FULL moving in-game minute " +
-            $"(= per real second in motion; 0 km/h is free) — cash first, bank may go negative.");
+            $"(= per real second in motion at normal speed; 0 km/h is free) — cash first, bank may go negative.");
+        Mod.Log.Info("[meter] clock=TimeManager CycleDuration/TimeSpeedMultiplier; 24 min/day at speed 1 = 1 game min per real second. Pause/sleep/clock-stop free; no time-skip catch-up; one tick per frame.");
     }
 
     /// <summary>
@@ -131,21 +158,46 @@ internal static class FareMeter
         if (!_active || veh == null)
             return;
 
+        if (_lastTickFrame == Time.frameCount)
+            return; // protect against a second caller/hook within the same frame
+        _lastTickFrame = Time.frameCount;
+        float now = Time.time;
+        float rawDelta = now - _lastTickAt;
+        _lastTickAt = now; // always consume pauses/standing; never catch up on resume
+        if (Time.timeScale == 0f)
+        {
+            if (!_paused)
+                Mod.Log.Info("[meter] paused: no fare accrues.");
+            _paused = true;
+            _wasMoving = false;
+            return;
+        }
+        if (_paused)
+            Mod.Log.Info("[meter] resumed: paused time discarded.");
+        _paused = false;
+
         if (!SpikeState.RideActive || !ReferenceEquals(veh, SpikeState.Vehicle))
         {
-            _lastTickAt = Time.unscaledTime;
+            _wasMoving = false;
             return;
         }
 
-        float now = Time.unscaledTime;
         // Hitch-safe: a 2 s freeze must not bill 2 s of standing around as motion,
         // and never more than one unit per frame pair.
-        float dt = Mathf.Clamp(now - _lastTickAt, 0f, 0.5f);
-        _lastTickAt = now;
+        float dt = Mathf.Clamp(rawDelta, 0f, 0.5f);
+        if (!TryGetGameMinutesPerSecond(out float clockRate))
+        {
+            _wasMoving = false;
+            return;
+        }
+        dt *= clockRate;
 
         FareConfig cfg = Config;
         if (!cfg.Enabled || cfg.DollarsPerInGameMinute <= 0)
+        {
+            _wasMoving = false;
             return;
+        }
 
         float speed;
         try
@@ -154,17 +206,31 @@ internal static class FareMeter
         }
         catch (Exception)
         {
+            _wasMoving = false;
             return; // dead handle — no motion, no charge
         }
 
-        if (speed < cfg.MovingSpeedThresholdKmh)
+        bool moving = !float.IsNaN(speed) && !float.IsInfinity(speed) && speed > 0f && speed >= cfg.MovingSpeedThresholdKmh;
+        if (moving != _wasMoving)
+            Mod.Log.Info($"[meter] {(moving ? "moving" : "standing (FREE)")}: speed={speed:0.###} km/h, accumulated={_movingMinutes:0.###} moving in-game minutes, charged=${_chargedTotal}, frame={Time.frameCount}.");
+        bool countInterval = moving && _wasMoving;
+        _wasMoving = moving;
+        if (!countInterval)
             return; // standing is free
 
-        _movingSeconds += dt;
+        _movingMinutes += dt;
 
-        int due = (int)(_movingSeconds * cfg.DollarsPerInGameMinute) - _chargedTotal;
+        // Floor TIME first. With rate=2 the old formula charged $1 after 0.5s.
+        int wholeMinutes = (int)Math.Floor(_movingMinutes);
+        int units = wholeMinutes - _billedMinutes;
+        int due = units > 0 ? checked(units * cfg.DollarsPerInGameMinute) : 0;
         if (due > 0)
+        {
+            // Mark consumed before touching money: a failed/partially applied payment
+            // must never be retried every subsequent frame.
+            _billedMinutes = wholeMinutes;
             Charge(due);
+        }
     }
 
     /// <summary>Charges whole dollars: cash first (never below 0), the rest to the bank.</summary>
@@ -208,16 +274,60 @@ internal static class FareMeter
             _chargedTotal += dollars;
 
             // One quiet line per $10 — the per-second tick must never spam the log.
-            if (_chargedTotal % 10 == 0)
+            if (_chargedTotal >= _nextChargeLogAt)
             {
+                _nextChargeLogAt = (_chargedTotal / 10 + 1) * 10;
                 Mod.Log.Info(
                     $"[meter] ${_chargedTotal} charged so far " +
-                    $"({(int)_movingSeconds} moving in-game min; last charge: ${fromCash} cash / ${fromBank} bank).");
+                    $"({_movingMinutes:0.###} moving in-game minutes; rate=${Config.DollarsPerInGameMinute}/full minute, clock=TimeManager; last charge: ${fromCash} cash / ${fromBank} bank, frame={Time.frameCount}).");
             }
         }
         catch (Exception ex)
         {
             Mod.Log.Warn($"[meter] charging ${dollars} failed ({ex.GetType().Name}: {ex.Message}) — ride continues, fare skipped.");
+        }
+    }
+
+    private static bool TryGetGameMinutesPerSecond(out float rate)
+    {
+        rate = 0f;
+        try
+        {
+            GameClock? clock = GameClock.Instance;
+            if (clock == null || clock.Pointer == IntPtr.Zero || clock.WasCollected)
+                throw new InvalidOperationException("no live TimeManager");
+            bool stopped = S1API.GameTime.TimeManager.SleepInProgress || clock.IsEndOfDay || clock.TimeSpeedMultiplier <= 0f;
+            if (stopped)
+            {
+                if (!_clockStopped)
+                    Mod.Log.Info("[meter] TimeManager stopped/sleeping: FREE, no skipped-time billing.");
+                _clockStopped = true;
+                return false;
+            }
+            if (_clockStopped)
+                Mod.Log.Info("[meter] TimeManager resumed: skipped time discarded.");
+            _clockStopped = false;
+
+            float cycle = GameClock.CycleDuration; // real minutes per game day
+            float speed = clock.TimeSpeedMultiplier;
+            if (float.IsNaN(cycle) || float.IsInfinity(cycle) || cycle <= 0f ||
+                float.IsNaN(speed) || float.IsInfinity(speed) || speed <= 0f)
+                throw new InvalidOperationException("invalid TimeManager cycle/speed");
+            rate = 1440f / (cycle * 60f) * speed;
+            if (Mathf.Abs(rate - _lastClockRate) > 0.001f)
+            {
+                _lastClockRate = rate;
+                Mod.Log.Info($"[meter] TimeManager: CycleDuration={cycle:0.###} real min/day, TimeSpeedMultiplier={speed:0.###}, rate={rate:0.###} game min/scaled second, HHMM={clock.CurrentTime}.");
+            }
+            _clockUnavailableWarned = false;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            if (!_clockUnavailableWarned)
+                Mod.Log.Warn($"[meter] game clock unavailable ({ex.Message}); FREE until clock recovers.");
+            _clockUnavailableWarned = true;
+            return false;
         }
     }
 
@@ -229,7 +339,7 @@ internal static class FareMeter
 
         _active = false;
         int total = _chargedTotal;
-        int minutes = (int)_movingSeconds;
+        int minutes = (int)_movingMinutes;
         FareConfig cfg = Config;
 
         Mod.Log.Info($"[meter] ride ended ({reason}) — fare ${total} for {minutes} moving in-game minute(s).");
@@ -265,6 +375,6 @@ internal static class FareMeter
             $"(0 km/h free, threshold {cfg.MovingSpeedThresholdKmh:0.#} km/h), payment cash→bank (bank may go negative).");
         SpikeCommands.Print(
             $"[meter] current ride: {(_active ? "RUNNING" : "idle")} — ${_chargedTotal} charged, " +
-            $"{(int)_movingSeconds} moving in-game min. Config: {FilePath}");
+            $"{(int)_movingMinutes} moving in-game min. Config: {FilePath}");
     }
 }

@@ -47,6 +47,9 @@ internal static class TaxiAI
 {
     /// <summary>The GAME's own driver for our taxi, alive only while a ride drives.</summary>
     private static VehiclePatrolBehaviour? Patrol;
+    private static bool PatrolOwned;
+    private static IntPtr LastDestroyedPatrol;
+    private static int LastDestroyedPatrolFrame = -1;
 
     /// <summary>The runtime-built route handed to the game's behaviour.</summary>
     private static VehiclePatrolRoute? Route;
@@ -191,9 +194,9 @@ internal static class TaxiAI
             }
 
             Mod.Log.Info($"[ai] {caller}: VehicleAgent drive model (live values, tunable):");
-            Mod.Log.Info($"[ai]   obstacles  OBSTACLE_MIN_RANGE={Num(VehicleAgent.OBSTACLE_MIN_RANGE)} OBSTACLE_MAX_RANGE={Num(VehicleAgent.OBSTACLE_MAX_RANGE)} (sensors FL/FM/FR/RR/RL)");
+            Mod.Log.Info($"[ai]   obstacles  OBSTACLE_MIN_RANGE={Num(VehicleAgent.ObstacleMinRange)} OBSTACLE_MAX_RANGE={Num(VehicleAgent.ObstacleMaxRange)} (sensors FL/FM/FR/RR/RL)");
             Mod.Log.Info($"[ai]   path       MaxDistanceFromPath={Num(VehicleAgent.MaxDistanceFromPath)} WhenReversing={Num(VehicleAgent.MaxDistanceFromPathWhenReversing)}");
-            Mod.Log.Info($"[ai]   steering   Steer_P={Num(VehicleAgent.Steer_P)} I={Num(VehicleAgent.Steer_I)} D={Num(VehicleAgent.Steer_D)} Rate={Num(VehicleAgent.Steer_Rate)} MaxAngleOverride={Num(VehicleAgent.MAX_STEER_ANGLE_OVERRIDE)}");
+            Mod.Log.Info($"[ai]   steering   Steer_P={Num(VehicleAgent.Steer_P)} I={Num(VehicleAgent.Steer_I)} D={Num(VehicleAgent.Steer_D)} FollowRate={Num(agent.steerTargetFollowRate)} MaxAngleOverride={Num(VehicleAgent.MaxSteerAngleOverride)}");
             Mod.Log.Info($"[ai]   throttle   P={Num(VehicleAgent.Throttle_P)} I={Num(VehicleAgent.Throttle_I)} D={Num(VehicleAgent.Throttle_D)} UnmarkedSpeed={Num(VehicleAgent.UnmarkedSpeed)} ReverseSpeed={Num(VehicleAgent.ReverseSpeed)}");
             Mod.Log.Info($"[ai]   turns      minRange={Num(agent.turnSpeedReductionMinRange)} maxRange={Num(agent.turnSpeedReductionMaxRange)} divisor={Num(agent.turnSpeedReductionDivisor)} minTurningSpeed={Num(agent.minTurningSpeed)}");
             Mod.Log.Info($"[ai]   stuck      StuckTimeThreshold={Num(agent.StuckTimeThreshold)} StuckSamples={agent.StuckSamples} StuckDistanceThreshold={Num(agent.StuckDistanceThreshold)}");
@@ -272,6 +275,12 @@ internal static class TaxiAI
             // driver is a plain NPC. Adding a second behaviour to an NPC that already
             // has one is the kind of thing that fights itself.
             Patrol = driver.GetComponent<VehiclePatrolBehaviour>();
+            // Unity Destroy is deferred until frame end. Never reuse a component
+            // already scheduled for destruction during a same-frame route change.
+            if (Patrol != null && LastDestroyedPatrolFrame == Time.frameCount &&
+                Patrol.Pointer == LastDestroyedPatrol)
+                Patrol = null;
+            PatrolOwned = false;
             if (Patrol != null)
             {
                 Mod.Log.Info("[patrol] the taxi driver already carries a VehiclePatrolBehaviour — reusing it.");
@@ -279,6 +288,7 @@ internal static class TaxiAI
             else
             {
                 Patrol = driver.gameObject.AddComponent<VehiclePatrolBehaviour>();
+                PatrolOwned = true;
                 Mod.Log.Info("[patrol] VehiclePatrolBehaviour attached to the taxi driver (runtime AddComponent) — next: Vehicle, SetRoute, Activate, StartPatrol.");
             }
 
@@ -312,6 +322,7 @@ internal static class TaxiAI
             Patrol.SetRoute(Route);
             Mod.Log.Info($"[patrol] SetRoute done (CurrentWaypoint={Patrol.CurrentWaypoint}).");
 
+            Patrol.enabled = true;
             Patrol.Activate();
             Mod.Log.Info("[patrol] Activate done - StartPatrol next.");
 
@@ -386,18 +397,30 @@ internal static class TaxiAI
                 // Paket F (2026-09-29): Deactivate() NREs on an already-torn-down
                 // behaviour (one Warn per ride end in the log) — only deactivate a live
                 // one, and keep any residual noise at Debug level (Destroy below still
-                // removes the behaviour in every case).
+                // removes only mod-owned behaviours).
                 if (Patrol.enabled || Patrol.isActiveAndEnabled)
                     Patrol.Deactivate();
             }
             catch (Exception ex)
             {
-                Mod.Log.Debug($"[patrol] Deactivate() failed ({ex.Message}) — Destroy below still removes the behaviour.");
+                Mod.Log.Warn($"[patrol] Deactivate() failed ({ex.Message}); disabling the behaviour before releasing it.");
+                try { Patrol.enabled = false; }
+                catch (Exception disableEx) { Mod.Log.Warn($"[patrol] disabling failed: {disableEx.Message}"); }
             }
 
             try
             {
-                UnityEngine.Object.Destroy(Patrol);
+                if (PatrolOwned)
+                {
+                    LastDestroyedPatrol = Patrol.Pointer;
+                    LastDestroyedPatrolFrame = Time.frameCount;
+                    UnityEngine.Object.Destroy(Patrol);
+                    Mod.Log.Info("[patrol] removed mod-owned AddComponent behaviour.");
+                }
+                else
+                {
+                    Mod.Log.Info("[patrol] prefab behaviour preserved (not created by this mod).");
+                }
             }
             catch (Exception ex)
             {
@@ -406,6 +429,7 @@ internal static class TaxiAI
         }
 
         Patrol = null;
+        PatrolOwned = false;
         Route = null;
         RouteLabel = string.Empty;
 
