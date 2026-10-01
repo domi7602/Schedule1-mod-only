@@ -2,6 +2,8 @@
 
 **BankApp** is a full in-game smartphone banking app for **Schedule I** (v0.4.6f13 / IL2CPP), built on the **S1API PhoneApp** architecture with a modern fintech dark theme.
 
+In-game screenshot (v0.3.0 UI): [`assets/bankapp/dashboard-v0.3.0.png`](https://github.com/domi7602/Schedule1-mod-only/blob/main/assets/bankapp/dashboard-v0.3.0.png) · design mock-up: [`mockup-target-v0.3.0.png`](mockup-target-v0.3.0.png).
+
 ---
 
 ## Features

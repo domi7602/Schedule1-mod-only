@@ -1,94 +1,195 @@
-# Schedule I — Modding Workspace (Developers Guide)
+# Developer Guide
 
-*Note: This is the technical documentation for building and contributing to the mods in this repository. For the player-facing mod list and installation guide, please see [README.md](README.md).*
+Technical guide for building, testing and extending the mods in this repository. Players should start with the [README](README.md); contribution rules and the PR checklist are in [CONTRIBUTING.md](CONTRIBUTING.md); AI coding agents start at [AGENTS.md](AGENTS.md).
 
-MelonLoader modding workspace for *Schedule I* v0.4.6f13 (TVGS). Fully built on IL2CPP + S1API 3.2.0 + MelonLoader 0.7.3.
+> **Single source of truth for the mod inventory** (status, versions, verification dates) is [`AGENTS.md`](AGENTS.md) §2. This guide deliberately does not duplicate it. The skill index lives in [`Skills/README.md`](Skills/README.md).
 
-> **Single source of truth:** [`AGENTS.md`](AGENTS.md) §2 is the authoritative mod inventory list (status, versions, paths). This guide intentionally **does not** duplicate it anymore (earlier copies drifted — repo audit 2026-09-16). The skill index lives exclusively in [`Skills/README.md`](Skills/README.md).
+## Contents
 
-## What This Is
+- [Getting Started](#getting-started)
+- [Requirements](#requirements)
+- [Build](#build)
+- [Test](#test)
+- [Formatting and Repository Checks](#formatting-and-repository-checks)
+- [Game References](#game-references)
+- [Mod Development](#mod-development)
+- [Runtime Debugging](#runtime-debugging)
+- [Release Workflow](#release-workflow)
+- [Further Reading](#further-reading)
 
-- MelonLoader / IL2CPP mods (TFM `net6.0`) targeting Schedule I **v0.4.6f13**
-- Mod source plus locally generated decompiled assemblies under `GameReferences/` (Assembly-CSharp, firstpass)
-- AI agent skills under `Skills/` (index: `Skills/README.md`)
-
-## Layout
-
-```
-Source/Mods/                  Mods + shared lib + Directory.Build.props/targets
-Source/Mods/S1Mods.sln        Solution (regeneratable via Tools/gen-sln.ps1)
-Source/Archive/               Archived mods (DayCounter, ProfitTracker, TVBrowser, BackpackMod) — not in SLN
-Source/Tests/                 xUnit tests (Shared.Tests, AutoPackagingStation.Tests, CalculatorApp.Tests)
-GameReferences/               Locally generated decompiles; see GameReferences/README.md
-Skills/                       20 AI-agent skills (`Skills/<name>/SKILL.md` + `references/`; index: Skills/README.md)
-ThirdParty/                   Pinned external dependencies & archives; see ThirdParty/README.md
-Tools/                        11 helper scripts (build-all, gen-sln, new-mod, bump-version, check-version-sync, check-doc-paths, package-release, deploy-thirdparty, backup-to-d, bootstrap-game-references, mods-cleanup-inventory)
-Release/                      Release packages
-.github/                      CI (workflows/ci.yml, workflows/release.yml) + issue/PR templates
-docs/                         Architecture, release process, and pitfalls (docs/pitfalls.md)
-AGENTS.md                     Workspace conventions & mod inventory (single source of truth)
-README.md                     Player-facing mod overview
-DEVELOPERS.md                 This file
-```
-
-## Build & Deploy
+## Getting Started
 
 ```pwsh
-# Build the full solution
-pwsh Tools/build-all.ps1
+# 1. Clone with the pinned S1API / S1MAPI submodules
+git clone --recurse-submodules https://github.com/domi7602/Schedule1-mod-only.git
+cd Schedule1-mod-only
 
-# Or directly via dotnet
+# 2. Generate the machine-local build props (asks for the game path if it is not the Steam default)
+pwsh Tools/setup-workspace.ps1
+
+# 3. Optional: enable the pre-commit hook (format, SLN determinism, version sync, doc paths)
+git config core.hooksPath .githooks
+
+# 4. Build everything (deploys to the game directory, see "Build")
 dotnet build Source/Mods/S1Mods.sln -c Release
-
-# Build WITHOUT touching the game install (CI, pure compile checks):
-$env:S1NoDeploy = "true"        # or: dotnet build ... -p:S1NoDeploy=true
-
-# GameDir override:
-$env:SCHEDULE1_PATH = "D:\path\to\Schedule I"
-
-# Quality gates (identical in CI + pre-commit)
-dotnet format Source/Mods/S1Mods.sln --verify-no-changes   # formatting
-pwsh Tools/gen-sln.ps1                                     # SLN determinism
-pwsh Tools/check-version-sync.ps1                          # code <-> mod.json <-> README/AGENTS
-pwsh Tools/check-doc-paths.ps1                             # referenced repo paths must exist
-dotnet test Source/Mods/S1Mods.sln -c Release              # all three test suites (game assemblies needed)
 ```
 
-A successful build deploys automatically (via `Directory.Build.targets`), with split targets since the 2026-09 reinstall:
+The repository lives **outside** the game directory. Build and deploy resolve the game path from `$env:SCHEDULE1_PATH`, falling back to `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`. Set the variable **before** running `dotnet build`; MSBuild evaluates it once at startup.
 
-- `<GameDir>\Mods\` — DLLs, icons (PNG), bundles (only MelonLoader-loadable files)
-- `<GameDir>\UserData\<ModName>\` — `mod.json` (metadata) + `<ModName>.pdb` (portable debug symbols, `<DebugType>portable</DebugType>`)
+## Requirements
 
-**Never place json/pdb files into `Mods\`.** Default GameDir: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `SCHEDULE1_PATH`). With `S1NoDeploy=true` no copy happens at all.
+| Requirement | Version | Notes |
+|---|---|---|
+| Windows | 10/11 | The build references DLLs from the installed game; PowerShell scripts assume Windows paths. |
+| .NET SDK | 6.0 or newer (8.0 is used on the maintainer's machines) | Mods target `net6.0`; CI pins `6.0.x`. |
+| PowerShell | 7+ | All `Tools/*.ps1` scripts (`#Requires -Version 7` where applicable). |
+| Schedule I | v0.4.6f13 / v0.4.7f6 beta | Provides `MelonLoader\Il2CppAssemblies\*.dll` and `MelonLoader\net6\*.dll` referenced by `Directory.Build.props`. |
+| MelonLoader | 0.7.3 | Must be installed into the game directory. |
+| S1API | 3.2.x | Referenced from `<GameDir>\Mods\S1API.Il2Cpp.MelonLoader.dll` (fallback `UserLibs\S1API.dll`). Source is pinned as submodule under `ThirdParty/S1API/`. |
+| S1MAPI | 2.0.1 | Referenced from `<GameDir>\UserLibs\S1MAPI_Il2Cpp.dll` when present; needed by `AutoPackagingStation` and `TaxiDriver`. |
 
-`SkipUnchangedFiles` is set to `false` (since 2026-08-20) — every `dotnet build` force-deploys, eliminating stale-DLL traps. Release packaging (`Tools/package-release.ps1`) excludes the `Shared` library and the `_DiagPerfCounter` dev tool; the Release workflow is manual-only (`workflow_dispatch`) because it needs a runner with Schedule I installed.
+Without the game assemblies the solution does **not** compile. CI on GitHub-hosted runners therefore only runs restore, formatting, the two pure-logic test projects, solution determinism and the documentation checks (see [CI](#formatting-and-repository-checks)).
 
-## Dependencies & References
-
-Initialize the pinned API dependencies after cloning:
+## Build
 
 ```pwsh
-git submodule update --init --recursive
+# Whole solution (Release) — also deploys into the game directory
+dotnet build Source/Mods/S1Mods.sln -c Release
+pwsh Tools/build-all.ps1                       # same, regenerates the SLN if missing
+
+# Single mod
+dotnet build Source/Mods/NotesApp/src/NotesApp.csproj -c Release
+
+# Compile only, never touch the game directory (CI, drift checks)
+dotnet build Source/Mods/S1Mods.sln -c Release -p:S1NoDeploy=true
 ```
 
-Generate local game decompiles only when researching game internals:
+### What a build deploys
+
+`Source/Mods/Directory.Build.targets` copies build output after every successful build (`SkipUnchangedFiles=false`, so there are no stale DLLs):
+
+| Destination | Files |
+|---|---|
+| `<GameDir>\Mods\` | `<Mod>.dll`, `Shared.dll`, `*.png` icons, `*.bundle` asset bundles |
+| `<GameDir>\Mods\<Mod>\` | `*.glb` models (MelonLoader only scans DLLs in `Mods\`, data lives in a sub-folder) |
+| `<GameDir>\UserData\<Mod>\` | `mod.json`, `<Mod>.pdb` |
+
+`mod.json` and `.pdb` files never go into `Mods\` — MelonLoader would try to load them. The `Shared` project additionally triggers `Tools/deploy-thirdparty.ps1`, which copies whitelisted third-party DLLs (policy: `ThirdParty/.deployignore`).
+
+### Solution file
+
+`Source/Mods/S1Mods.sln` is generated by `Tools/gen-sln.ps1` with deterministic project GUIDs. Re-run it after adding or removing a project and commit the result; CI fails if the committed SLN differs from the generated one.
+
+## Test
+
+Three xUnit projects live in `Source/Tests/`:
+
+| Project | Scope | Needs game assemblies |
+|---|---|---|
+| `AutoPackagingStation.Tests` | `PackagingMath` (pure math, linked source file) | no |
+| `CalculatorApp.Tests` | `CalculatorEngine` / `CalculatorState` (decimal math, overflow, history) | no |
+| `Shared.Tests` | `SafeStorage`, `SaveSlots`, `PatchGuard`, `ModLogger`, `SafeInvoker`, `TypeResolver` | yes (references MelonLoader / Unity DLLs from the installed game) |
 
 ```pwsh
-pwsh Tools/bootstrap-game-references.ps1
+# Everything (requires the game for Shared.Tests)
+dotnet test Source/Mods/S1Mods.sln -c Release
+
+# Pure-logic suites only (run anywhere, also in CI)
+dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release
+dotnet test Source/Tests/CalculatorApp.Tests/CalculatorApp.Tests.csproj -c Release
 ```
 
-See [`docs/architecture.md`](docs/architecture.md), [`ThirdParty/README.md`](ThirdParty/README.md), and [`GameReferences/README.md`](GameReferences/README.md) for ownership and dependency rules.
+Mod folders may contain a `tests/` directory for isolated notes or fixtures; real test projects belong in `Source/Tests/` so `gen-sln.ps1` picks them up.
 
-## Active Mods
+## Formatting and Repository Checks
 
-See [`AGENTS.md`](AGENTS.md) §2 (matrix + mod details) — including archived mods under `Source/Archive/` and removed third-party tools. Currently: **19 projects** in `S1Mods.sln` (15 mods + `Shared` + 3 test projects), archived mods are not built.
+The same gates run locally, in the pre-commit hook and in CI (`.github/workflows/ci.yml`):
 
-`Tools/check-version-sync.ps1` enforces that the code version stays in sync with `mod.json`, `README.md`, and `AGENTS.md`; `Tools/check-doc-paths.ps1` guards the referenced paths.
+```pwsh
+dotnet format Source/Mods/S1Mods.sln --verify-no-changes   # .editorconfig: LF, 4 spaces, final newline
+pwsh Tools/gen-sln.ps1                                     # SLN must be reproducible (no diff)
+pwsh Tools/check-version-sync.ps1                          # code <-> mod.json <-> README.md <-> AGENTS.md
+pwsh Tools/check-doc-paths.ps1                             # every repo path referenced in Markdown must exist
+```
 
-## Status
+Line endings are forced to LF via `.gitattributes`; `dotnet format` fails on CRLF files.
 
-- [x] Phase 0 — Git baseline (empty workspace committed)
-- [x] Phase 1 — Project scaffold + build pipeline
-- [x] Phase 2 — UI framework analysis (v0.4.6)
-- [x] Phase 3 — Mod selection & architecture
-- [x] Phase 4 — Development & Verification (active)
+## Game References
+
+`GameReferences/` holds locally generated C# decompiles of the game assemblies for research (finding hook points, verifying signatures after a game update). The output is git-ignored and is **never** a build input.
+
+```pwsh
+pwsh Tools/bootstrap-game-references.ps1   # installs ilspycmd into .cache/tools/ and decompiles <GameDir>\MelonLoader\Il2CppAssemblies
+```
+
+See [`GameReferences/README.md`](GameReferences/README.md). Curated notes on game systems live in `Skills/schedule1-game-systems/references/`.
+
+## Mod Development
+
+### Create a new mod
+
+```pwsh
+pwsh Tools/new-mod.ps1 -Name "MyMod" -Author "Dominik" -Version "0.1.0"
+pwsh Tools/gen-sln.ps1
+dotnet build Source/Mods/MyMod/src/MyMod.csproj -c Release
+```
+
+`new-mod.ps1` scaffolds the standard layout:
+
+```text
+Source/Mods/MyMod/
+  src/MyMod.csproj      identity only — compiler settings and game references come from Directory.Build.props
+  src/Mod.cs            [assembly: MelonInfo(...)] + MelonMod entry point
+  docs/mod.json         metadata deployed to UserData\MyMod\
+  docs/README.md        player-facing documentation (copied into the release ZIP)
+  docs/CHANGELOG.md     version history (bump-version.ps1 prepends headers here)
+  assets/               icons (*.png), bundles, GLB models — deployed automatically
+  tests/                notes or fixtures; real test projects go to Source/Tests/
+```
+
+### Rules that every mod follows
+
+- A mod references `S1Mods.Shared`, S1API, optionally S1MAPI and the game assemblies — **never another mod**. Reusable code goes into `Source/Mods/Shared/`.
+- Persistence is slot-aware: `SafeStorage.SaveAtomic` + `SaveSlots.GetActiveSlotNumber()` → `<name>_slot_{n}.json` with `.bak` backup.
+- Harmony patches go through `PatchGuard.TryPatch` so signature drift after a game update logs a warning instead of crashing.
+- Multiplayer-relevant mutations check `NetworkGuard.IsHostOrSingleplayer()`.
+- Every `[RegisterTypeInIl2Cpp]` MonoBehaviour declares `public X(IntPtr ptr) : base(ptr) { }`; UI listeners use `S1API.Utils.EventHelper` / `ButtonUtils` instead of `new UnityAction(...)`; no `foreach`/LINQ over `Il2CppSystem.Collections.Generic.List<T>`.
+- Phone apps size everything through `S1Mods.Shared.UITheme` (`Sp`/`Dp`) and never destroy UI in `OnPhoneClosed()`.
+
+The reasoning behind these rules, with examples from the existing mods, is collected in [`docs/pitfalls.md`](docs/pitfalls.md); the dependency rules are in [`docs/architecture.md`](docs/architecture.md); the mod-directory conventions (naming, versioning, assets) are in [`Source/Mods/README.md`](Source/Mods/README.md).
+
+### Version bumps
+
+```pwsh
+pwsh Tools/bump-version.ps1 -Mod MyMod -Version 0.2.0          # add -DryRun to preview
+pwsh Tools/check-version-sync.ps1
+```
+
+The code is the single source of truth; the script synchronises `MelonInfo`, the mod's `mod.json` and `CHANGELOG.md`, `AGENTS.md` and `README.md`.
+
+## Runtime Debugging
+
+- **Log:** `<GameDir>\MelonLoader\Latest.log`. Mods log with a `[<ModName>]` prefix via `S1Mods.Shared.ModLogger`.
+  ```pwsh
+  Get-Content "$env:SCHEDULE1_PATH\MelonLoader\Latest.log" -Tail 200 | Select-String 'ERROR|Exception|\[NotesApp\]'
+  ```
+- **Symbols:** builds produce portable PDBs that are deployed to `UserData\<Mod>\`, so stack traces in the log carry file and line information.
+- **Debug vs. Release:** some diagnostics (for example HitmanPhone test commands) are compiled only in `Debug`. A `-c Release` build overwrites the deployed Debug DLL unless `-p:S1NoDeploy=true` is passed.
+- **Console commands:** several mods register S1API console commands (`pot`, `biz`, `stack`, `skate`, `pshop`, `taxi`); the MelonLoader console itself is output-only.
+- **Live introspection:** the vendored S1MCP server (`ThirdParty/S1MCPServer-master/`, TCP `:8765`) exposes game state to tooling; see the `schedule1-mcp` skill.
+- **Static pre-flight:** `s1interop analyze <csproj>` (external tool, optional) reports IL2CPP interop issues such as missing `IntPtr` constructors. It is advisory and always exits 0 — read the output. Details and known false positives: [CONTRIBUTING.md](CONTRIBUTING.md#il2cpp-obligations).
+- **Diagnostic runbook:** [`Skills/schedule1-troubleshooting/SKILL.md`](Skills/schedule1-troubleshooting/SKILL.md) (decision tree, log decoder, save-load timing).
+
+## Release Workflow
+
+Releases are packaged per mod with `Tools/package-release.ps1` on a machine with the game installed and published manually on GitHub. The full procedure — version bump, gates, ZIP layout, tagging — is in [`docs/release-process.md`](docs/release-process.md).
+
+## Further Reading
+
+- [`docs/README.md`](docs/README.md) — documentation index
+- [`docs/architecture.md`](docs/architecture.md) — dependency direction and runtime boundaries
+- [`docs/pitfalls.md`](docs/pitfalls.md) — IL2CPP gotchas and verified solutions
+- [`docs/compatibility.md`](docs/compatibility.md) — verification matrix per mod
+- [`Tools/README.md`](Tools/README.md) — script reference
+- [`ThirdParty/README.md`](ThirdParty/README.md) — pinned dependencies and deploy policy
+- [`Skills/README.md`](Skills/README.md) — skill index (load `schedule1-modding` first)

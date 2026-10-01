@@ -1,10 +1,12 @@
 name: Release
 
-# Release-Packaging ist NUR manuell und nur mit einem Runner sinnvoll, der
-# Schedule I installiert hat (Game-Assemblies + MelonLoader/Il2CppAssemblies).
-# Auf GitHub-Hosted-Runners existiert das Spiel nie — package-release.ps1
-# bricht dort bewusst fail-fast ab (bugfix 2026-09-16: der frühere
-# tag-push-Trigger lief bei jedem v*-Tag garantiert rot).
+# Release packaging is manual-only and only works on a runner that has
+# Schedule I installed (IL2CPP game assemblies under MelonLoader\Il2CppAssemblies).
+# GitHub-hosted runners never have the game, so package-release.ps1 fails fast
+# there by design. The former tag-push trigger was removed on 2026-09-16 because
+# it failed on every v* tag for exactly that reason. Use "Run workflow" on a
+# self-hosted Windows runner, or run Tools/package-release.ps1 locally
+# (see docs/release-process.md).
 on:
   workflow_dispatch:
     inputs:
@@ -15,36 +17,41 @@ on:
 
 jobs:
   package:
+    name: Package release ZIPs
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 6 SDK
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "6.0.x"
 
-      # Fail fast mit verständlicher Meldung, statt tief im packaging-Skript.
+      # Fail fast with a clear message instead of deep inside the packaging script.
       - name: Require game assemblies
         shell: pwsh
         run: |
           $gameDir = if ($env:SCHEDULE1_PATH) { $env:SCHEDULE1_PATH } else { 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I' }
           $probe = Join-Path $gameDir 'MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll'
           if (-not (Test-Path -LiteralPath $probe)) {
-            Write-Error "Schedule I nicht installiert auf diesem Runner ($probe). Release-Packaging braucht einen self-hosted Runner mit Spiel + `$env:SCHEDULE1_PATH. Siehe AGENTS.md."
+            Write-Error "Schedule I is not installed on this runner ($probe). Release packaging needs a self-hosted runner with the game and `$env:SCHEDULE1_PATH. See docs/release-process.md."
             exit 1
           }
           Write-Host "Game assemblies found ($gameDir)."
 
-      - name: Package
+      - name: Package (Tools/package-release.ps1)
         shell: pwsh
         env:
-          # CI soll die lokale Spiel-Installation (self-hosted) nie mutieren.
+          # CI must never write into the local game installation (self-hosted runner).
           S1NoDeploy: "true"
         run: |
           $mod = "${{ inputs.mod }}"
           if ([string]::IsNullOrWhiteSpace($mod)) { $mod = "All" }
           pwsh Tools/package-release.ps1 -Mod $mod
-      - name: Upload artifacts
+
+      - name: Upload release ZIPs as workflow artifact
         uses: actions/upload-artifact@v4
         with:
           name: release-zips

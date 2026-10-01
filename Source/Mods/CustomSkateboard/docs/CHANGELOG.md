@@ -1,7 +1,5 @@
 # Changelog
 
-
-
 ## 1.1.5 (2026-09-13) — Bug-audit fixes round 5 (audit 2026-09-13)
 - Dead state removed: `s_disableTerrainSlowdownCached` / `SetDisableTerrainSlowdownCached` in `SkateboardVisualPatches` and `ClearStyledCache()` in `CyberSkateboardVisualizer` — fields were written, never read. Call site in `SkateboardItemFactory.TuneSkateboard()` removed.
 - Memory waste eliminated (~2 static bool + 1 static method + 1 call per Tune).

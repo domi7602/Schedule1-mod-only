@@ -1,6 +1,6 @@
-# NotesApp (v1.0.0)
+# NotesApp
 
-A feature-rich in-game Notes application for the smartphone in *Schedule I* (v0.4.6f13+).
+A feature-rich in-game Notes application for the smartphone in *Schedule I* (verified on v0.4.6f13). Current version: see [`CHANGELOG.md`](CHANGELOG.md) / `mod.json`.
 
 ---
 
@@ -55,4 +55,4 @@ dotnet build Source\Mods\NotesApp\src\NotesApp.csproj -c Release
 # Or build entire solution
 pwsh Tools\build-all.ps1
 ```
-The build automatically deploys `NotesApp.dll`, `notiz_app_lowpoly_fancy.png`, and `mod.json` into `<GameDir>\Mods\`.
+The build automatically deploys `NotesApp.dll` and `notiz_app_lowpoly_fancy.png` into `<GameDir>\Mods\`, and `mod.json` + `NotesApp.pdb` into `<GameDir>\UserData\NotesApp\`. Players install from the release ZIP as described in the [repository README](https://github.com/domi7602/Schedule1-mod-only#installation).

@@ -1,5 +1,6 @@
 # Changelog
 
+All notable changes to **CalculatorApp** are documented in this file.
 
 ## 0.2.3 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
 - `GetActiveSlotSuffix`: added `SaveSlotNumber >= 0` guard (closes the `calculator_state_slot_-1.json` path that NotesApp already had).
@@ -9,16 +10,12 @@
 ## 0.2.2 (2026-09-11)
 - WasCollected guards in UpdateDisplayUI/RefreshHistoryList (no crash on dead UI).
 
-All notable changes to **CalculatorApp** are documented in this file.
-
-## [0.2.1] - 2026-09-10
-
+## 0.2.1 (2026-09-10)
 ### Fixed
 - Static event dispatcher against subscriber leaks.
 - Pointer/WasCollected guards in the slot suffix (GetActiveSlotSuffix).
 
-## [0.2.0] - 2026-08-14
-
+## 0.2.0 (2026-08-14)
 ### Added
 - **Exact Decimal Arithmetic:** Upgraded math engine from `double` to `decimal`, eliminating IEEE 754 floating-point inaccuracies (e.g. `0.1 + 0.2` or drug unit batch computations).
 - **In-Game Balance Quick-Insert:**
@@ -44,8 +41,7 @@ All notable changes to **CalculatorApp** are documented in this file.
 - Fixed IL2CPP delegate marshaling crash hazard on `_historySearchInput.onValueChanged` by using S1API `EventHelper.AddListener<string>`.
 - Fixed sign negation `±` creating invalid strings like `"-Cannot divide by 0"` when errors are present.
 
-## [0.1.0] - 2026-08-13
-
+## 0.1.0 (2026-08-13)
 ### Added
 - Initial release of **CalculatorApp** for *Schedule I* using S1API 3.1.9+.
 - 4×5 Keypad grid with addition, subtraction, multiplication, division, percentage, and sign negation.

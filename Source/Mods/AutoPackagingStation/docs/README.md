@@ -1,4 +1,4 @@
-# AutoPackagingStation (v0.1.0)
+# AutoPackagingStation
 
 Automated 4x4 industrial packaging station for *Schedule I*.
 

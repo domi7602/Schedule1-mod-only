@@ -1,4 +1,4 @@
-# BusinessIncome v0.1.0
+# BusinessIncome
 
 Automatic, daily passive income for all owned businesses (`Business.OwnedBusinesses`) in *Schedule I*.
 

@@ -1,70 +1,239 @@
 <div align="center">
-  <h1>🛹 Schedule I Mods Collection</h1>
-  <p>A high-quality collection of QoL, gameplay, and UI mods for <strong>Schedule I</strong>.</p>
-  
-  ![Game Version](https://img.shields.io/badge/Game_Version-v0.4.6f13-blue)
-  ![MelonLoader](https://img.shields.io/badge/MelonLoader-0.7.3-red)
-  ![S1API](https://img.shields.io/badge/S1API-3.2.0-orange)
-  ![Tests](https://img.shields.io/badge/Tests-110_passing-brightgreen)
-  ![License](https://img.shields.io/badge/License-MIT-yellow)
+
+# Schedule I Mods
+
+**A curated collection of phone, gameplay, QoL and utility mods for *Schedule I* (MelonLoader / IL2CPP).**
+
+[![CI](https://github.com/domi7602/Schedule1-mod-only/actions/workflows/ci.yml/badge.svg)](https://github.com/domi7602/Schedule1-mod-only/actions/workflows/ci.yml)
+[![Latest release](https://img.shields.io/github/v/release/domi7602/Schedule1-mod-only?include_prereleases&label=release)](https://github.com/domi7602/Schedule1-mod-only/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Schedule I](https://img.shields.io/badge/Schedule_I-0.4.6f13_·_0.4.7f6_beta-blue)
+![MelonLoader](https://img.shields.io/badge/MelonLoader-0.7.3-red)
+![S1API](https://img.shields.io/badge/S1API-3.2.x-orange)
+
+[Mods](#mods) · [Installation](#installation) · [Download](#download) · [Screenshots](#screenshots) · [Documentation](#documentation) · [Contributing](#contributing)
+
 </div>
 
-## ✨ Featured Mods
+## Overview
 
-This repository contains several active mods, built from the ground up for stability and seamless integration into the game:
+This repository hosts a set of independently installable mods for the game *Schedule I* by TVGS. All mods are written in C# for **MelonLoader 0.7.3** on the game's **IL2CPP** (default Steam) branch and build on the community **S1API** framework.
 
-### 📱 Phone Apps
-* **NotesApp** (v1.0.3): A fully functional notepad on your in-game phone. Features safe persistence, real-time search, pinning, and quick-stamps for keeping track of your business.
-* **CalculatorApp** (v0.2.3): High-precision decimal calculator integrated into your phone. Features in-game money integration (Cash & Bank) and a searchable history.
-* **PotScanner** (v0.7.0): The ultimate tool for your grow ops. Provides quick-filter tabs (Thirsty, Ready, Empty), plant quality ratings, and single-property focus modes — in the shared BankApp-style palette.
-* **BankApp** (v0.4.4): Digital account dashboard for tracking your cash flow and net worth. Features slot-aware cash deposits, weekly ATM limits, and chip-based UI.
-* **PocketShop** (v0.3.2): An advanced online shopping interface that follows each shop's own vanilla payment rule (cash at black-market suppliers, card at legal stores), plus level-lock enforcement, direct quantity picker modal, and item inspection modals.
-* **Weather** (v0.4.0): Read-only weather dashboard for your in-game phone. Shows the dominant condition as a hero readout plus all nine weather components (Sunny … Sleet) with live progress bars — pure status display, no persistence or gameplay influence.
+- **For players:** pick the mods you want, drop the DLLs into your game and play. Each mod ships on its own; there is no "all-in-one" package.
+- **For modders:** every mod lives in its own project, shares a small common library (`S1Mods.Shared`) and is built from one solution with CI, unit tests, version-drift guards and documented IL2CPP conventions.
 
-### 🎮 Gameplay & QoL
-* **CustomSkateboard** (v1.1.5): Overhauls the skateboarding experience with ultra-responsive carving, instant jumping, high-speed pushes, and anti-gravel suspension. Visually protects your avatar.
-* **BusinessIncome** (v0.1.6): Earn daily passive revenue for your owned businesses, complete with multiplayer host authority and deterministic variance.
-* **StackLimitMod** (v0.1.7): Configurable inventory and storage stack limits (1–9999) restricted to agriculture and farming items (soil, seeds, baggies, jars, fertilizers, harvested crops) with permanent weapon and ammo protection.
-* **MoreSaveSlots** (v1.0.12): Expands vanilla save slots from 5 to 25+ with paginated navigation and inline save renaming.
-* **AutoPackagingStation** (v0.3.3): 4×4 industrial automated packaging line with UV-scroll conveyor belt, atomic 2-phase engine, weighted quality mixing, native slot sync, 2×2 grid footprint, E-key interactable, and Hustler-I rank gate.
-* **HitmanPhone** (v0.2.9): Bounty/contract gameplay via the phone Messages app — anonymous callers, Polaroid evidence dead-drops, police heat, and journal quests.
-* **MessagesPlus** (v0.4.1): Inbox hygiene for the vanilla Messages app — a sticky search band under the title (whole-app dark mode, **permanent**; live name search, `[All][Customer][Dealer][Supplier]` chips, "N unread" counter) plus customer-only Clear Read / Clear All behind a confirmation (supplier and dealer threads are kept), and a one-time legacy restore that un-hides threads deleted by v0.1.x (legacy `trash_slot_*.json` files are consumed and renamed to `*.restored`).
-* **TaxiDriver** (v0.7.0): Orderable taxi with an NPC driver — Stage-1 feasibility spike (spawn a vehicle, seat an NPC, autonomous `VehicleAgent.Navigate` A→B, player enter/exit), verified live 2026-09-25 (`callback=Complete after 20.2 s`), plus the Stage-3 **driver ride live-verified 2026-09-25** (the vanilla NPC drives while the player rides along: `callback result=Complete after 31.6 s` — run 2, the log still on disk; run 1 logged 14.5 s and its log has since been pruned — with `LocalPlayerIsInVehicle=true` for the whole trip, i.e. no `ExitVehicle` logged between the ride at 17:32:54 and the out at 17:34:39), plus the Stage-2 visual swap: the vanilla Shitbox pixels are switched off and `Source/Mods/TaxiDriver/assets/taxi.glb` is attached under `LandVehicle.vehicleModel` via `S1MAPI.Gltf.GltfLoader` (physics untouched); controlled via the F1–F12 hotkeys (F4 toggles the visual swap for the next spawn; hotkeys remapped 2026-09-26: F13–F17 → F1–F5) because the MelonLoader console is log-only (`taxi` commands are output-only); Stage-3b taxi stand ParkingGarage live + F17 Complete 46.9s; since 0.2.0 ordered from the in-game phone ("Taxi" app: CALL TAXI + STOP + live status label via the shared `SpikeCommands.CallTaxi`, also used by F5) — F1–F12 hotkeys remain the diagnostic surface.
-* **_DiagPerfCounter** (v0.3.2): Dev-tool that dumps StorageEntity hook targets to UserData for mod development (no gameplay effect).
+The mods are kept in a single repository so they can share the common library, build tooling, tests and documentation while remaining independent at runtime — no mod depends on another mod.
 
-> Archived mods (source preserved, not built/deployed): BackpackMod, DayCounter, HomelessMod, Minimap, ProfitTracker, SnackVendor, TVBrowser — see `Source/Archive/` and [AGENTS.md](AGENTS.md).
+## Compatibility
 
-## 🧠 AI Agent Skills
+| Component | Version | Notes |
+|---|---|---|
+| **Schedule I** | **v0.4.6f13** (Steam default branch) | Most mods were verified in-game on this version (September 2026). |
+| **Schedule I** | v0.4.7f6 (Open Beta) | Current development target. `HitmanPhone`, `TaxiDriver` and `MessagesPlus` (v0.4.0, 2026-09-30) are verified on the beta; the other mods have not been re-verified yet. |
+| **MelonLoader** | 0.7.3 | IL2CPP build, `net6` runtime. |
+| **S1API** | 3.2.1-beta.7 (deployed runtime) | Required by every mod in this repository. Stay on the 3.2.1-beta line for game v0.4.7f6. |
+| **S1MAPI** | 2.0.1 (source pin) | Required only by `AutoPackagingStation` and `TaxiDriver` (GLB model loading). |
+| **.NET** | `net6.0` (mod target framework) | .NET 6 SDK to build; see [DEVELOPERS.md](DEVELOPERS.md). |
 
-The repository includes **20 specialized AI Agent Skills** under `Skills/` (index: [`Skills/README.md`](Skills/README.md)) providing architecture guides, runbooks, and reverse-engineering references:
-* **Core Modding:** `schedule1-modding`, `schedule1-phoneapp`, `schedule1-grid`, `schedule1-economy`, `schedule1-persistence`, `schedule1-items`, `schedule1-troubleshooting`, `schedule1-knowledge`, `schedule1-game-systems`
-* **World & Visuals:** `schedule1-interiors`, `schedule1-3d-assets`, `schedule1-custom-npcs`, `schedule1-s1mapi`
-* **Runtime & Frameworks:** `schedule1-s1api`, `schedule1-mcp`, `schedule1-harmony-bootstrap`, `schedule1-debounced-reload`, `schedule1-il2cpp-reflection`, `schedule1-lifecycle-verify`, `schedule1-runtime-unity-cache`
+The per-mod verification matrix (which mod was verified on which game version, and when) lives in [`docs/compatibility.md`](docs/compatibility.md).
 
-## 🛠️ Installation
+## Mods
 
-1. Install **[MelonLoader](https://melonwiki.xyz/#/?id=readme)** (version `0.7.3` or newer) into your Schedule I game directory.
-2. Ensure you have **S1API** (v3.2.0) installed in your game directory (`Mods\S1API.Il2Cpp.MelonLoader.dll` and `Plugins\S1APILoader.dll`).
-3. Download the latest `.dll` files from the [Releases](../../releases) page.
-4. Drop the `.dll` files you want to use into the `Mods` folder of your game directory (`<YourGameDir>\Mods\`).
-5. If a release contains `mod.json` or `.pdb` files, place them into `UserData\<ModName>\` (e.g. `UserData\NotesApp\mod.json`) — **never** into `Mods\`.
-6. Launch the game! The mods will automatically generate their configuration files in `UserData/`.
+Status legend: **Active** = released and verified in-game · **Active ¹** = code complete, in-game verification still open · **Experimental** = feasibility spike / developer tool.
 
-## 📸 Screenshots
+| Mod | Category | Version | Status | Description |
+|---|---|---|---|---|
+| [**NotesApp**](Source/Mods/NotesApp/) | Phone | 1.0.3 | Active | In-game notepad with real-time search, pinning, quick in-game timestamps and keyboard shortcuts. Notes are saved atomically per save slot. |
+| [**CalculatorApp**](Source/Mods/CalculatorApp/) | Phone | 0.2.3 | Active | Decimal-precision calculator with live cash/bank quick-insert chips, clipboard support and a searchable history. |
+| [**PotScanner**](Source/Mods/PotScanner/) | Phone | 0.7.0 | Active | Monitors every grow pot across your properties: filter tabs (thirsty / ready / empty), quality ratings, Water-All and Auto-Water, plus `pot` console commands — in the shared BankApp-style palette. |
+| [**BankApp**](Source/Mods/BankApp/) | Phone | 0.4.4 | Active | Mobile banking dashboard: deposit and withdraw cash via quick-amount chips, weekly ATM-limit progress and slot-isolated transaction history. |
+| [**PocketShop**](Source/Mods/PocketShop/) | Phone | 0.3.2 | Active | Shop from your phone. Follows each shop's vanilla payment type (cash vs. card), enforces level locks and offers a quantity picker and item detail view. |
+| [**Weather**](Source/Mods/Weather/) | Phone | 0.4.0 | Active ¹ | Read-only weather dashboard: accent-bordered hero card with an intensity pill and ring gauge over nine live condition rows that tint themselves while active. |
+| [**MessagesPlus**](Source/Mods/MessagesPlus/) | Phone / QoL | 0.4.1 | Active ¹ | Sticky search band under the vanilla title (live name search, category chips, unread counter) plus a "⋯" menu with Clear Read / Clear All and a **permanent whole-app dark mode**. |
+| [**HitmanPhone**](Source/Mods/HitmanPhone/) | Gameplay | 0.2.9 | Active | Bounty contracts via the Messages app: anonymous callers, Polaroid evidence dead-drops, police heat and journal quests. |
+| [**CustomSkateboard**](Source/Mods/CustomSkateboard/) | Gameplay | 1.1.5 | Active | Adds the *Pro Cyber Skateboard* with tuned carving and jump physics, anti-gravel suspension and purchase through Jeff Gilmore. |
+| [**BusinessIncome**](Source/Mods/BusinessIncome/) | Gameplay | 0.1.6 | Active | Daily passive income for owned businesses with multiplayer host authority, deterministic variance and a `biz` console dashboard. |
+| [**AutoPackagingStation**](Source/Mods/AutoPackagingStation/) | Gameplay | 0.3.3 | Active | Placeable automated packaging line (conveyor belt, weighted quality mixing, auto-unpack) with a 2×2 footprint, unlocked at Hustler I rank. |
+| [**MoreSaveSlots**](Source/Mods/MoreSaveSlots/) | QoL | 1.0.12 | Active | Raises the save-slot count from 5 to 25 (configurable) with paginated menus and inline save renaming. |
+| [**StackLimitMod**](Source/Mods/StackLimitMod/) | QoL | 0.1.7 | Active | Configurable stack limits (default 40, 1–9999) for agriculture items (soil, seeds, baggies, jars, fertiliser, harvested crops); weapons and ammo always keep their vanilla limits. |
+| [**TaxiDriver**](Source/Mods/TaxiDriver/) | Developer | 0.7.0 | Experimental | Orderable taxi from the in-game phone with its own NPC driver: vehicle spawn, autonomous A→B navigation, player ride, GLB visual swap, road-corridor assistance and an in-game fare meter. Still a spike — the current test round is open. |
 
-In-game screenshots live in [`assets/`](assets/README.md) — naming convention and contribution guidelines are documented there. Drop a PNG into `assets/` and embed it here with a standard Markdown image reference.
+Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not built or shipped): BackpackMod, DayCounter, HomelessMod, Minimap, ProfitTracker, SnackVendor, TVBrowser, `_DiagPerfCounter`. Each mod folder contains its own documentation (`Source/Mods/<Mod>/docs/README.md`) and version history (`Source/Mods/<Mod>/docs/CHANGELOG.md`).
 
-*(No screenshots committed yet — the phone-app UIs (NotesApp, PotScanner, BankApp, PocketShop) and the AutoPackagingStation conveyor line are the best showcase candidates.)*
+## Featured Mods
 
-## 💻 For Developers
+<table>
+  <tr>
+    <td align="center" width="25%">
+      <img src="Source/Mods/NotesApp/assets/notiz_app_lowpoly_fancy.png" width="64" alt="NotesApp icon"><br>
+      <b>NotesApp</b> · v1.0.3<br>
+      <sub>Notepad on your phone with search, pins and in-game timestamps.</sub><br>
+      <a href="Source/Mods/NotesApp/docs/README.md">Docs</a> · <a href="Source/Mods/NotesApp/docs/CHANGELOG.md">Changelog</a>
+    </td>
+    <td align="center" width="25%">
+      <img src="Source/Mods/PotScanner/assets/PotScannerIcon.png" width="64" alt="PotScanner icon"><br>
+      <b>PotScanner</b> · v0.7.0<br>
+      <sub>All grow pots at a glance, Water-All and Auto-Water.</sub><br>
+      <a href="Source/Mods/PotScanner/docs/README.md">Docs</a> · <a href="Source/Mods/PotScanner/docs/CHANGELOG.md">Changelog</a>
+    </td>
+    <td align="center" width="25%">
+      <img src="Source/Mods/BankApp/assets/bank_icon.png" width="64" alt="BankApp icon"><br>
+      <b>BankApp</b> · v0.4.4<br>
+      <sub>Deposit and withdraw from anywhere, weekly limit tracking.</sub><br>
+      <a href="Source/Mods/BankApp/docs/README.md">Docs</a> · <a href="Source/Mods/BankApp/docs/CHANGELOG.md">Changelog</a>
+    </td>
+    <td align="center" width="25%">
+      <img src="Source/Mods/PocketShop/assets/pocketshop_icon.png" width="64" alt="PocketShop icon"><br>
+      <b>PocketShop</b> · v0.3.2<br>
+      <sub>Order from every shop through the phone, vanilla payment rules.</sub><br>
+      <a href="Source/Mods/PocketShop/docs/README.md">Docs</a> · <a href="Source/Mods/PocketShop/docs/CHANGELOG.md">Changelog</a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="25%">
+      <b>AutoPackagingStation</b> · v0.3.3<br>
+      <sub>Automated packaging line with conveyor and quality mixing.</sub><br>
+      <a href="Source/Mods/AutoPackagingStation/docs/README.md">Docs</a> · <a href="Source/Mods/AutoPackagingStation/docs/CHANGELOG.md">Changelog</a>
+    </td>
+    <td align="center" width="25%">
+      <b>HitmanPhone</b> · v0.2.9<br>
+      <sub>Bounty contracts, evidence dead-drops and police heat.</sub><br>
+      <a href="Source/Mods/HitmanPhone/docs/README.md">Docs</a> · <a href="Source/Mods/HitmanPhone/docs/CHANGELOG.md">Changelog</a>
+    </td>
+    <td align="center" width="25%">
+      <img src="Source/Mods/CustomSkateboard/assets/icon.png" width="64" alt="CustomSkateboard icon"><br>
+      <b>CustomSkateboard</b> · v1.1.5<br>
+      <sub>High-performance skateboard sold by Jeff Gilmore.</sub><br>
+      <a href="Source/Mods/CustomSkateboard/docs/README.md">Docs</a> · <a href="Source/Mods/CustomSkateboard/docs/CHANGELOG.md">Changelog</a>
+    </td>
+    <td align="center" width="25%">
+      <b>MoreSaveSlots</b> · v1.0.12<br>
+      <sub>25 save slots with pagination and renaming.</sub><br>
+      <a href="Source/Mods/MoreSaveSlots/docs/README.md">Docs</a> · <a href="Source/Mods/MoreSaveSlots/docs/CHANGELOG.md">Changelog</a>
+    </td>
+  </tr>
+</table>
 
-Are you a modder looking to contribute, explore the architecture, or use the AI-Agent frameworks?
-Please refer to the **[Developers Guide](DEVELOPERS.md)** and **[AGENTS.md](AGENTS.md)** for details on the workspace layout, AI skills, and build pipeline.
+Pre-built packages, when published, are available on the [Releases page](https://github.com/domi7602/Schedule1-mod-only/releases).
 
-- **Contributing:** See [`CONTRIBUTING.md`](CONTRIBUTING.md) for setup, `bump-version.ps1`, `dotnet format`, and PR checklist.
-- **Architecture:** [`docs/architecture.md`](docs/architecture.md) defines dependency direction, mod layout, and runtime boundaries.
-- **References:** [`GameReferences/README.md`](GameReferences/README.md) explains how to generate local decompiles; [`ThirdParty/README.md`](ThirdParty/README.md) documents pinned external dependencies.
-- **Releases:** [`docs/release-process.md`](docs/release-process.md) documents versioning, packaging, and verification.
-- **CI:** GitHub Actions (`.github/workflows/ci.yml`) validates format, version sync, build, tests, and SLN determinism on every push/PR.
-- **Tests:** `Source/Tests/` (xUnit) — `Shared.Tests` (SafeStorage, UITheme, PatchGuard, ModLogger, SafeInvoker, TypeResolver), `AutoPackagingStation.Tests` (pure math) and `CalculatorApp.Tests` (decimal math, precision, overflow, history). Run all tests via `dotnet test Source/Mods/S1Mods.sln`.
-- **License:** [`LICENSE`](LICENSE) — MIT for workspace code; third-party components (S1API, S1MAPI, MelonLoader, …) are listed in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
+## Screenshots
+
+### Phone Apps
+
+| BankApp |
+|:---:|
+| <img src="assets/bankapp/dashboard-v0.3.0.png" width="260" alt="BankApp dashboard: weekly progress, balances, quick-amount chips and deposit button"> |
+| In-game dashboard (UI introduced in v0.3.0; later releases changed guards and lifecycle only). |
+
+Screenshots for the other phone apps (NotesApp, CalculatorApp, PotScanner, PocketShop, Weather) and the gameplay mods (AutoPackagingStation, CustomSkateboard, HitmanPhone, MoreSaveSlots) are still being collected. The folder layout and naming rules for adding them are documented in [`assets/README.md`](assets/README.md) — contributions are welcome.
+
+## Installation
+
+### Requirements
+
+1. **Schedule I** (Steam, IL2CPP default branch) — see [Compatibility](#compatibility).
+2. **[MelonLoader](https://melonwiki.xyz/#/?id=readme) 0.7.3** installed into the game directory.
+3. **[S1API](https://github.com/ifBars/S1API)** 3.2.x — provides `Mods\S1API.Il2Cpp.MelonLoader.dll` and `Plugins\S1APILoader.dll`. Needed by every mod in this repository.
+4. **S1MAPI** (`UserLibs\S1MAPI_Il2Cpp.dll`) — only if you install `AutoPackagingStation` or `TaxiDriver`.
+
+### Install a mod
+
+1. Download the ZIP for the mod you want (see [Download](#download)).
+2. Open the ZIP. It mirrors the game folder layout:
+   ```text
+   <ModName>-vX.Y.Z.zip
+   ├── Mods/
+   │   ├── <ModName>.dll
+   │   ├── Shared.dll            (common library used by all mods here)
+   │   └── <icon>.png            (phone apps only)
+   ├── UserData/<ModName>/
+   │   ├── mod.json
+   │   └── <ModName>.pdb
+   ├── README.md
+   └── CHANGELOG.md
+   ```
+3. Copy the contents of `Mods/` into `<GameDir>\Mods\`.
+4. Copy the `UserData/<ModName>/` folder into `<GameDir>\UserData\`.
+5. Start the game. Mods create their configuration files under `UserData\<ModName>\` on first launch.
+
+`<GameDir>` is normally `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
+
+### Important
+
+- Only `.dll` and `.png` files belong in `Mods\`. **Never** put `mod.json` or `.pdb` files into `Mods\` — MelonLoader will try to load them and log errors.
+- Mods are independent: install only the ones you want. Nothing here requires another mod from this repository.
+- `Shared.dll` is the common library (`S1Mods.Shared`) that every mod here uses. Keep exactly one copy in `Mods\` and do not delete it when removing a single mod.
+- Phone apps add an icon to the in-game phone home screen; `MessagesPlus` and `MoreSaveSlots` patch existing screens and have no icon.
+- Problems? See [`docs/troubleshooting.md`](docs/troubleshooting.md) (log location, common mistakes, how to report a bug).
+
+## Download
+
+Release ZIPs are published per mod on the **[Releases page](https://github.com/domi7602/Schedule1-mod-only/releases)**, named `<ModName>-vX.Y.Z.zip`. The game version each mod was verified against, and the frameworks it needs (MelonLoader, S1API and — where applicable — S1MAPI), are listed in [`docs/compatibility.md`](docs/compatibility.md).
+
+If a mod you want has no published release yet, you can build it from source; see [DEVELOPERS.md](DEVELOPERS.md) and [`docs/release-process.md`](docs/release-process.md). Release packaging requires a Windows machine with Schedule I installed, so releases are produced manually rather than by GitHub-hosted CI.
+
+## Project Structure
+
+```text
+Schedule1-mod-only/
+├── Source/
+│   ├── Mods/              Active mods, one folder each (src/, docs/, assets/)
+│   │   ├── Shared/        S1Mods.Shared library used by all mods
+│   │   ├── NotesApp/
+│   │   ├── PotScanner/
+│   │   └── ...
+│   ├── Tests/             xUnit test projects
+│   └── Archive/           Archived mods (not built)
+├── Skills/                AI-agent skills (runbooks and reference material)
+├── Tools/                 PowerShell build, release and repository-check scripts
+├── GameReferences/        Locally generated game decompiles (ignored by git)
+├── ThirdParty/            Pinned dependencies (S1API, S1MAPI submodules) and archives
+├── docs/                  Architecture, compatibility, release process, troubleshooting
+├── assets/                Screenshots and icon sources for this README
+├── memory-bank/           Working notes for AI coding agents
+└── .github/               CI workflows, issue and PR templates
+```
+
+## Documentation
+
+| Audience | Document |
+|---|---|
+| Players | This README · [`docs/troubleshooting.md`](docs/troubleshooting.md) · [`docs/compatibility.md`](docs/compatibility.md) · per-mod `docs/README.md` |
+| Developers | [`DEVELOPERS.md`](DEVELOPERS.md) · [`CONTRIBUTING.md`](CONTRIBUTING.md) · [`docs/architecture.md`](docs/architecture.md) · [`docs/pitfalls.md`](docs/pitfalls.md) · [`docs/release-process.md`](docs/release-process.md) · [`Source/Mods/README.md`](Source/Mods/README.md) · [`Tools/README.md`](Tools/README.md) |
+| AI coding agents | [`AGENTS.md`](AGENTS.md) · [`Skills/README.md`](Skills/README.md) |
+| Licensing | [`LICENSE`](LICENSE) (MIT) · [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) |
+
+## AI Agent Skills
+
+The repository includes 20 skills under [`Skills/`](Skills/README.md) — structured runbooks and reference notes that AI coding agents (and humans) can load when working on a mod. They document the project's IL2CPP conventions, S1API/S1MAPI usage and game systems, and are kept in sync with the mods.
+
+| Skill | Purpose |
+|---|---|
+| [`schedule1-modding`](Skills/schedule1-modding/SKILL.md) | Core mod development runbook (scaffold, build, deploy, architecture). Load first. |
+| [`schedule1-phoneapp`](Skills/schedule1-phoneapp/SKILL.md) | Phone applications: responsive UI, input focus, lifecycle rules. |
+| [`schedule1-persistence`](Skills/schedule1-persistence/SKILL.md) | Save/data persistence: SafeStorage, slot isolation, lifecycle timing. |
+| [`schedule1-grid`](Skills/schedule1-grid/SKILL.md) | Grid-based building and placement systems. |
+| [`schedule1-economy`](Skills/schedule1-economy/SKILL.md) | Money, business revenue, shop payments, host authority. |
+| [`schedule1-items`](Skills/schedule1-items/SKILL.md) | Item definitions, registry, stack limits, inventory slots. |
+| [`schedule1-s1api`](Skills/schedule1-s1api/SKILL.md) | S1API framework reference. |
+| [`schedule1-s1mapi`](Skills/schedule1-s1mapi/SKILL.md) | S1MAPI framework reference (meshes, GLTF, world tools). |
+| [`schedule1-game-systems`](Skills/schedule1-game-systems/SKILL.md) | Curated notes on 64 game systems and their hook points. |
+| [`schedule1-knowledge`](Skills/schedule1-knowledge/SKILL.md) | Research workflow across decompiles and framework sources. |
+| [`schedule1-troubleshooting`](Skills/schedule1-troubleshooting/SKILL.md) | Log triage, crash patterns, IL2CPP pitfalls. |
+| [`schedule1-mcp`](Skills/schedule1-mcp/SKILL.md) | Live game introspection via the S1MCP bridge. |
+| [`schedule1-interiors`](Skills/schedule1-interiors/SKILL.md) | Interiors, doors, procedural rooms, in-world screens. |
+| [`schedule1-3d-assets`](Skills/schedule1-3d-assets/SKILL.md) | Blender/3D asset pipeline and URP shader fixes. |
+| [`schedule1-custom-npcs`](Skills/schedule1-custom-npcs/SKILL.md) | Custom NPCs, dialogue graphs, schedules. |
+| [`schedule1-harmony-bootstrap`](Skills/schedule1-harmony-bootstrap/SKILL.md) | Harmony patch discovery and guarded patching. |
+| [`schedule1-il2cpp-reflection`](Skills/schedule1-il2cpp-reflection/SKILL.md) | IL2CPP runtime reflection patterns. |
+| [`schedule1-debounced-reload`](Skills/schedule1-debounced-reload/SKILL.md) | Debounced file watching and config hot reload. |
+| [`schedule1-lifecycle-verify`](Skills/schedule1-lifecycle-verify/SKILL.md) | Verifying lifecycle event ordering against game assemblies. |
+| [`schedule1-runtime-unity-cache`](Skills/schedule1-runtime-unity-cache/SKILL.md) | Leak-free caching of runtime Unity objects. |
+
+## Contributing
+
+Bug reports and feature requests are welcome via the [issue templates](https://github.com/domi7602/Schedule1-mod-only/issues/new/choose). For code contributions read [`CONTRIBUTING.md`](CONTRIBUTING.md) (setup, quality gates, version bumps, PR checklist) and [`DEVELOPERS.md`](DEVELOPERS.md) (build, test, debugging). CI runs formatting, pure-logic tests, solution determinism, version-sync and documentation-path checks on every push.
+
+## License
+
+The code in this repository is licensed under the [MIT License](LICENSE). Third-party components (S1API, S1MAPI, MelonLoader and archived reference material) remain under their own licenses — see [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md). This is an unofficial fan project and is not affiliated with TVGS.

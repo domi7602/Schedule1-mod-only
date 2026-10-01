@@ -19,17 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Third-Party Notices:
-
-See [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) for the full list of
-third-party components and their licenses (S1API GPL-3.0-or-later, S1MAPI
-GPL-3.0, MelonLoader Apache-2.0, archived reference components, asset
-attributions).
-
-This MIT license applies only to the original workspace code (Source/Mods/*,
-Source/Tests/*, Shared, Tools, Skills, docs) created by the workspace
-contributors. Third-party code and game assets remain under their respective
-licenses.

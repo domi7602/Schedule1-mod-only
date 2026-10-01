@@ -7,30 +7,39 @@ on:
     branches: ["**"]
   workflow_dispatch:
 
+# Superseded runs on the same branch are cancelled to save runner minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    name: Validate (format, tests, SLN, docs)
     runs-on: windows-latest
     timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET 6
+      - name: Setup .NET 6 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "6.0.x"
 
-      - name: Cache NuGet
+      - name: Cache NuGet packages
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
-          key: nuget-${{ hashFiles('**/*.csproj') }}
-          restore-keys: nuget-
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
 
-      # Spiel-Assemblies (MelonLoader/Il2CppAssemblies) existieren nur mit
-      # installiertem Schedule I (lokal / self-hosted Runner). Build + Tests
-      # laufen nur dann; Restore, Format und SLN-Determinismus laufen immer.
-      # Aufloesung spiegelt Directory.Build.props (SCHEDULE1_PATH sonst Default).
+      # The mods compile against Schedule I's IL2CPP assemblies
+      # (<GameDir>\MelonLoader\Il2CppAssemblies). Those exist only where the game
+      # is installed (developer machine / self-hosted runner), never on
+      # GitHub-hosted runners. Build + Shared.Tests therefore run only when the
+      # assemblies are present; everything else (restore, format, pure-logic
+      # tests, SLN determinism, version sync, doc paths) runs always.
+      # Path resolution mirrors Directory.Build.props: SCHEDULE1_PATH, else default.
       - name: Detect game assemblies
         id: detect
         shell: pwsh
@@ -40,35 +49,36 @@ jobs:
           $hasGame = Test-Path -LiteralPath $probe
           "has-game=$($hasGame.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
           if ($hasGame) {
-            Write-Host "Game assemblies found ($gameDir) — full validation."
+            Write-Host "Game assemblies found ($gameDir) - full validation (build + all tests)."
           } else {
-            Write-Host "No game assemblies — build/tests will be skipped (see AGENTS.md)."
+            Write-Host "No game assemblies on this runner - build and Shared.Tests are skipped; see DEVELOPERS.md."
           }
 
       - name: Restore
         run: dotnet restore Source/Mods/S1Mods.sln
 
-      - name: dotnet format --verify-no-changes
+      - name: Check formatting (dotnet format --verify-no-changes)
         run: dotnet format Source/Mods/S1Mods.sln --verify-no-changes --verbosity diagnostic
 
-      - name: Pure logic tests
+      # These two test projects link pure C# source files and need no game assemblies.
+      - name: Run pure-logic tests (AutoPackagingStation, CalculatorApp)
         run: |
           dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release --nologo
           dotnet test Source/Tests/CalculatorApp.Tests/CalculatorApp.Tests.csproj -c Release --nologo
 
-      - name: Build (Release)
+      - name: Build solution (Release, no deploy)
         if: steps.detect.outputs.has-game == 'true'
         env:
-          # CI darf die lokale Spiel-Installation (self-hosted) nie mutieren.
+          # CI must never write into a local game installation (self-hosted runner).
           S1NoDeploy: "true"
         run: dotnet build Source/Mods/S1Mods.sln -c Release --no-restore --nologo
 
-      - name: Tests
+      - name: Run all test projects
         if: steps.detect.outputs.has-game == 'true'
         shell: pwsh
         run: |
           if (-not (Test-Path -LiteralPath "Source/Tests")) {
-            Write-Host "Source/Tests not found — skip."
+            Write-Host "Source/Tests not found - skip."
             exit 0
           }
           $failed = $false
@@ -79,50 +89,42 @@ jobs:
           if ($failed) { exit 1 }
           Write-Host "All test projects passed."
 
-      - name: No game assemblies — limited validation
+      - name: Note skipped game-dependent steps
         if: steps.detect.outputs.has-game != 'true'
         shell: pwsh
         run: |
-          Write-Host "Schedule I ist auf diesem Runner nicht installiert: Build + Tests uebersprungen."
-          Write-Host "Volle Validierung braucht Spiel-Assemblies (lokal bauen oder self-hosted Runner). Siehe AGENTS.md."
+          Write-Host "Schedule I is not installed on this runner: solution build and Shared.Tests were skipped."
+          Write-Host "Full validation needs the game assemblies (build locally or on a self-hosted runner). See DEVELOPERS.md."
 
-      # Vergleich normalisiert Zeilenenden: Der Runner checkt mit LF aus, das
-      # Skript schreibt CRLF — ohne Normalisierung waere der Hash-Check
-      # checkout-abhaengig. Es zaehlt der Inhalt (GUIDs, Projektliste).
-      - name: Check S1Mods.sln determinism
+      # The runner checks out with LF while gen-sln.ps1 writes CRLF; compare with
+      # normalised line endings so the check is checkout-independent. What matters
+      # is the content (project list, deterministic GUIDs).
+      - name: Check S1Mods.sln determinism (Tools/gen-sln.ps1)
         shell: pwsh
         run: |
           $before = ((Get-Content -LiteralPath "Source/Mods/S1Mods.sln" -Raw) -replace "`r?`n", "`n")
           pwsh Tools/gen-sln.ps1
           $after = ((Get-Content -LiteralPath "Source/Mods/S1Mods.sln" -Raw) -replace "`r?`n", "`n")
           if ($before -cne $after) {
-            Write-Error "S1Mods.sln is not deterministic! Run pwsh Tools/gen-sln.ps1 and commit."
+            Write-Error "S1Mods.sln is not deterministic. Run: pwsh Tools/gen-sln.ps1 and commit the result."
             git diff -- Source/Mods/S1Mods.sln
             exit 1
           }
           Write-Host "S1Mods.sln deterministic OK."
 
-      # Knowledge-XRef-Check entfernt 2026-09-10: Der Knowledge-Workspace
-      # existiert nach der Neuinstallation nicht mehr (siehe AGENTS.md §7).
-      # Skript bei Bedarf aus der Historie:
-      #   git show 891c330^:Tools/fix-knowledge-paths.ps1
-
-      # Version-Drift-Guard: Der Code (MelonInfo/Constants.ModVersion) ist die
-      # Single Source of Truth. mod.json, README.md und AGENTS.md muessen
-      # mitziehen (bump-version.ps1 schreibt alle vier Orte). Laeuft immer,
-      # unabhaengig von den Spiel-Assemblies — reine Text-/Regex-Pruefung.
-      - name: Version sync check (code <-> mod.json <-> README/AGENTS)
+      # Version drift guard: the code (MelonInfo / Constants.ModVersion) is the
+      # single source of truth; mod.json, README.md and AGENTS.md must match
+      # (bump-version.ps1 writes all of them). Pure text check, no game needed.
+      - name: Check version sync (code <-> mod.json <-> README <-> AGENTS)
         shell: pwsh
         run: pwsh Tools/check-version-sync.ps1
 
-      # Doku-Pfad-Guard: Alle in Markdown referenzierten Repo-Pfade muessen
-      # existieren (Repo-Audit 2026-09-16: Knowledge/, Archive-Pfade, .agents/
-      # drifteten unbemerkt). Laeuft immer, rein dateisystembasiert.
-      - name: Doc path check (referenced repo paths exist)
+      # Documentation path guard: every repository path referenced in Markdown
+      # must exist. Pure file-system check, no game needed.
+      - name: Check documentation paths (Tools/check-doc-paths.ps1)
         shell: pwsh
         run: pwsh Tools/check-doc-paths.ps1
 
-  # s1interop CI-Job entfernt 2026-09-20: Auf GitHub-hosted Runnern ist
-  # Schedule I nie installiert — der Analyze-Step wurde permanent geskippt,
-  # der Job war ein No-Op. s1interop bleibt lokaler Pre-Flight (AGENTS.md §6,
-  # CONTRIBUTING.md) — advisory, Exit immer 0, nie als Gate.
+  # Note: a separate s1interop analysis job was removed on 2026-09-20 because it
+  # could never run on GitHub-hosted runners (no game). s1interop remains a local,
+  # advisory pre-flight check (see CONTRIBUTING.md "IL2CPP Obligations").

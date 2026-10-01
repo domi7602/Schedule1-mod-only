@@ -3,7 +3,6 @@
 ## 1.0.3 (2026-09-13) — Bug Report Round 6
 Bug Report Round 6: N1 - JSON 'Title'/'Text': null is normalized to string.Empty on load (fixed RefreshList crash on hand-edited/corrupted notes files).
 
-
 ## 1.0.2 (2026-09-11)
 - RefreshList with Null/WasCollected guard (no NRE before OnCreatedUI/after Unload).
 - Slot-Suffix with >=0 check (no slot_-1 file).

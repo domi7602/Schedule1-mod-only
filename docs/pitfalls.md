@@ -1,7 +1,7 @@
 # Battle-Tested Gotchas & IL2CPP Pitfalls (Cheat Sheet)
 
 > **Single source of truth for Schedule I modding edge cases & architecture guardrails**  
-> Based on practical experience from 15 active mods, hundreds of bugfixes, and IL2CPP crash analyses.
+> Based on practical experience from the active and archived mods in this repository, hundreds of bugfixes, and IL2CPP crash analyses.
 
 ---
 

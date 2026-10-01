@@ -2,7 +2,7 @@
 
 Workspace: `C:\Users\pc\Schedule1-mod-only` — MelonLoader IL2CPP modding workspace for *Schedule I* **v0.4.7f6** (TVGS, Steam Open Beta). The repo lives **outside** the game install; builds and deploys resolve the game via the `SCHEDULE1_PATH` env var or the default `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
 
-Quick links: [`docs/architecture.md`](docs/architecture.md) — dependency boundaries · [`ThirdParty/README.md`](ThirdParty/README.md) — pinned dependencies · [`GameReferences/README.md`](GameReferences/README.md) — local decompiles · [`Skills/README.md`](Skills/README.md) — skill index · [`docs/pitfalls.md`](docs/pitfalls.md) — battle-tested gotchas.
+Quick links: [`DEVELOPERS.md`](DEVELOPERS.md) — human build/test/debug workflow · [`docs/README.md`](docs/README.md) — documentation index · [`docs/architecture.md`](docs/architecture.md) — dependency boundaries · [`docs/pitfalls.md`](docs/pitfalls.md) — battle-tested gotchas · [`docs/compatibility.md`](docs/compatibility.md) — per-mod verification matrix · [`ThirdParty/README.md`](ThirdParty/README.md) — pinned dependencies · [`GameReferences/README.md`](GameReferences/README.md) — local decompiles · [`Skills/README.md`](Skills/README.md) — skill index.
 
 > **For AI agents — read this file completely before touching the mods. Hard rules that have bitten us:**
 > - Launch the game with `Start-Process "steam://rungameid/3164500"` (Steam App ID — keeps the Open Beta branch active and sets the correct working directory). Never start `Schedule I.exe` directly. **Close the game before building** — loaded DLLs are file-locked and the auto-deploy step fails.
@@ -257,7 +257,7 @@ pwsh Tools/check-doc-paths.ps1        # every repo path referenced in docs must 
 1. Edit code in `Source/Mods/<Name>/src/` (load the relevant skills first).
 2. `dotnet build ... -c Release` — deploys automatically (game closed).
 3. Launch via Steam, check `MelonLoader\Latest.log`.
-4. Version bump via `Tools/bump-version.ps1`; run the quality gates above before committing.
+4. Version bump via `Tools/bump-version.ps1`; record the in-game result in the mod's `CHANGELOG.md` **and** in [`docs/compatibility.md`](docs/compatibility.md) (the verification matrix), then run the quality gates above before committing.
 
 ### Pre-flight with S1Interop (advisory, local only)
 

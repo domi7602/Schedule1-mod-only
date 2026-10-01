@@ -1,27 +1,29 @@
 # Contributing Guide
 
-Thanks for your interest in the `Schedule I Modding Workspace`! This guide summarizes the efficient workflow for contributions.
+Thanks for your interest in contributing to the Schedule I mods in this repository. This guide summarizes the workflow and the quality gates; the full build/test/debug reference is [DEVELOPERS.md](DEVELOPERS.md), the documentation index is [`docs/README.md`](docs/README.md).
 
 ## Requirements
 
-- **Game:** Schedule I v0.4.6f13 (IL2CPP, Unity 2022.3) under `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`)
+- **Game:** Schedule I (IL2CPP, Unity 2022.3) — v0.4.6f13 verified baseline, v0.4.7f6 Open Beta current target (see [`docs/compatibility.md`](docs/compatibility.md)); installed under `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`)
 - **SDK:** .NET 6 SDK, PowerShell 7+
 - **Loader:** MelonLoader 0.7.3
-- **S1API:** 3.2.0 (deployed as `Mods/S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.dll`, fork build from `ThirdParty/S1API/`)
+- **S1API:** 3.2.x (deployed as `Mods/S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.dll`; source pinned as submodule `ThirdParty/S1API/`)
+- **S1MAPI:** 2.0.1 (`UserLibs/S1MAPI_Il2Cpp.dll`; submodule `ThirdParty/S1MAPI/`) — needed by AutoPackagingStation and TaxiDriver
 
 ## Workspace Layout
 
 ```
-Source/Mods/          Mods + Shared lib + S1Mods.sln
-Source/Archive/       Archived mods (not in SLN)
+Source/Mods/          Active mods + Shared lib + S1Mods.sln          → Source/Mods/README.md
+Source/Archive/       Archived mods (not in SLN, not built)
 Source/Tests/         xUnit tests (Shared.Tests, AutoPackagingStation.Tests, CalculatorApp.Tests)
-GameReferences/       Locally generated decompiles; see GameReferences/README.md
-Skills/               AI skills (schedule1-modding, -phoneapp, -s1api, ...; index: Skills/README.md)
-ThirdParty/           Pinned external dependencies & archives; see ThirdParty/README.md
-Tools/                build-all.ps1, gen-sln.ps1, new-mod.ps1, bump-version.ps1, package-release.ps1, check-version-sync.ps1, check-doc-paths.ps1, deploy-thirdparty.ps1, backup-to-d.ps1
-Release/              Release packages (.gitkeep)
-AGENTS.md             Inventory & conventions (single source of truth)
-docs/                 Architecture and release documentation
+GameReferences/       Locally generated decompiles (gitignored)      → GameReferences/README.md
+Skills/               AI-agent skills                                → Skills/README.md
+ThirdParty/           Pinned dependencies & archives                 → ThirdParty/README.md
+Tools/                PowerShell helper scripts                      → Tools/README.md
+Release/              Release ZIPs (gitignored, .gitkeep only)
+docs/                 architecture, pitfalls, compatibility, release-process, troubleshooting
+AGENTS.md             Agent bootstrap + authoritative mod inventory
+DEVELOPERS.md         Developer guide (build, test, debug)
 ```
 
 ## Loading Skills
@@ -67,7 +69,7 @@ dotnet build Source/Mods/S1Mods.sln -c Release
 # Single mod
 dotnet build Source/Mods/NotesApp/src/NotesApp.csproj -c Release
 
-# All tests (110 tests across solution)
+# All tests (Shared.Tests needs the game assemblies)
 dotnet test Source/Mods/S1Mods.sln -c Release
 
 # Single test suites
@@ -97,7 +99,7 @@ pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.3 -DryRun
 pwsh Tools/check-version-sync.ps1
 ```
 
-Updates 5 places: MelonInfo in code (file with `[assembly: MelonInfo(...)]`, otherwise `Constants.ModVersion`) + `Source/Mods/<Mod>/docs/mod.json` + `Source/Mods/<Mod>/docs/CHANGELOG.md` (`## x.y.z` header) + `AGENTS.md` (matrix row **and** detail header in §2) + `README.md` (featured row).
+Updates 5 places: MelonInfo in code (file with `[assembly: MelonInfo(...)]`, otherwise `Constants.ModVersion`) + `Source/Mods/<Mod>/docs/mod.json` + `Source/Mods/<Mod>/docs/CHANGELOG.md` (`## x.y.z` header) + `AGENTS.md` (matrix row **and** detail header in §2) + `README.md` (mod table row and featured card). After an in-game verification also update the matrix in `docs/compatibility.md`.
 
 `Tools/check-version-sync.ps1` checks exactly these locations against the code; it runs in CI and in the pre-commit hook.
 
@@ -130,6 +132,12 @@ Updates 5 places: MelonInfo in code (file with `[assembly: MelonInfo(...)]`, oth
 - `dotnet format` before every push
 - Fill out PR template (see `.github/pull_request_template.md`)
 
+## Documentation changes
+
+- Player-facing text belongs in `README.md` or the mod's `docs/README.md`; developer details in `DEVELOPERS.md` / `docs/`; agent rules in `AGENTS.md`. Do not duplicate content across these files — link instead.
+- `pwsh Tools/check-doc-paths.ps1` must stay green: every repository path mentioned in Markdown has to exist.
+- Public naming: *Schedule I* (not "Schedule 1"), mod names exactly as their folder/assembly names.
+
 ## Questions?
 
-See `AGENTS.md §6` (workflows), `docs/pitfalls.md` (gotchas & IL2CPP traps), `Skills/README.md` (skill index) or open an issue.
+See [`DEVELOPERS.md`](DEVELOPERS.md), `AGENTS.md §6` (workflows), [`docs/pitfalls.md`](docs/pitfalls.md) (gotchas & IL2CPP traps), [`Skills/README.md`](Skills/README.md) (skill index) or open an issue.
