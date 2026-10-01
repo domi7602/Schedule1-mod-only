@@ -1,0 +1,31 @@
+# Dependabot: keeps GitHub Actions and the NuGet test packages current.
+#
+# The submodule pins (ThirdParty/S1API, ThirdParty/S1MAPI) are intentionally
+# NOT tracked here — bumping them is a curated event (build + in-game verify),
+# see AGENTS.md.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      actions:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "nuget"
+    directories:
+      - "/Source/Tests/Shared.Tests"
+      - "/Source/Tests/AutoPackagingStation.Tests"
+      - "/Source/Tests/CalculatorApp.Tests"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      nuget-test-packages:
+        patterns: ["*"]
+    open-pull-requests-limit: 5
