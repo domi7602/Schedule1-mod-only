@@ -27,7 +27,8 @@ cd Schedule1-mod-only
 # 2. Generate the machine-local build props (asks for the game path if it is not the Steam default)
 pwsh Tools/setup-workspace.ps1
 
-# 3. Optional: enable the pre-commit hook (format, SLN determinism, version sync, doc paths)
+# 3. Optional: enable the git hooks — pre-commit gates (format, SLN determinism,
+#    version sync, doc paths) and pre-push (full Release build + all tests; skipped without the game)
 git config core.hooksPath .githooks
 
 # 4. Build everything (deploys to the game directory, see "Build")

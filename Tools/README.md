@@ -11,7 +11,7 @@ PowerShell 7 helper scripts for building, checking, releasing and setting up the
 | `new-mod.ps1` | Scaffolds `Source/Mods/<Name>/` with `src/` (csproj + `Mod.cs`), `docs/` (`mod.json`, `README.md`, `CHANGELOG.md`), `assets/` and `tests/`. |
 | `deploy-thirdparty.ps1` | Called by `Directory.Build.targets` when `Shared` builds: copies whitelisted third-party DLLs from `ThirdParty/` into `<GameDir>\Mods\` according to `ThirdParty/.deployignore`. Uses a mutex so parallel MSBuild invocations do not race. |
 
-## Repository checks (CI and pre-commit)
+## Repository checks (CI, pre-commit and pre-push)
 
 | Script | Purpose |
 |---|---|
@@ -24,6 +24,7 @@ PowerShell 7 helper scripts for building, checking, releasing and setting up the
 | Script | Purpose |
 |---|---|
 | `package-release.ps1` | `[-Mod <Name>|All] [-OutputDir Release]` — builds the mod(s) in Release and writes `Release/<Mod>-v<version>.zip` mirroring the game layout (`Mods/` with the mod DLL, `Shared.dll` and icons; `UserData/<Mod>/` with `mod.json` and PDB; README and CHANGELOG at the root). Fails fast without game assemblies. See [`docs/release-process.md`](../docs/release-process.md). |
+| `release-mod.ps1` | `-Mod <Name> [-Draft] [-DryRun]` — automates steps 2–3 of [`docs/release-process.md`](../docs/release-process.md): version-sync gate, clean/up-to-date checks, packages the ZIP if missing, pushes the annotated tag `<Mod>-v<version>`, and creates the GitHub release with the matching CHANGELOG section as notes (requires `gh`). |
 
 ## Workspace setup and maintenance
 
@@ -39,4 +40,4 @@ PowerShell 7 helper scripts for building, checking, releasing and setting up the
 
 - Scripts are UTF-8, LF line endings (enforced by `.gitattributes`), 4-space indentation (`.editorconfig`).
 - Scripts that can break CI (`check-*.ps1`, `gen-sln.ps1`) must be side-effect free apart from their documented output and must exit non-zero on failure.
-- When adding a script, document it here and, if it becomes a gate, in `.github/workflows/ci.yml` and `.githooks/pre-commit`.
+- When adding a script, document it here and, if it becomes a gate, in `.github/workflows/ci.yml` and the git hooks (`.githooks/pre-commit`, `.githooks/pre-push`).

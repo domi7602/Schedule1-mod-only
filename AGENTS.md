@@ -44,13 +44,13 @@ Source/Tests/      xUnit suites: Shared.Tests, AutoPackagingStation.Tests, Calcu
 GameReferences/    Locally generated decompiles (gitignored; Tools/bootstrap-game-references.ps1)
 Skills/            20 AI-agent skills (index: Skills/README.md)
 ThirdParty/        Pinned deps & archives: S1API, S1MAPI, S1MCPServer-master, Archive/
-Tools/             13 helpers: build-all, gen-sln, new-mod, bump-version, package-release,
+Tools/             14 helpers: build-all, gen-sln, new-mod, bump-version, package-release, release-mod,
                    check-version-sync, check-doc-paths, deploy-thirdparty, bootstrap-game-references,
                    setup-workspace, new-laptop-workspace, backup-to-d, mods-cleanup-inventory
 assets/            Screenshot convention (assets/README.md)
 docs/              architecture.md · pitfalls.md · release-process.md
 Release/           Release ZIP output
-.githooks/         Pre-commit hook (opt-in: git config core.hooksPath .githooks)
+.githooks/         Git hooks (opt-in: git config core.hooksPath .githooks): pre-commit + pre-push
 ```
 
 ---

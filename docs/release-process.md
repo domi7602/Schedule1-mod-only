@@ -67,6 +67,8 @@ Verify the archive contains `Mods/<Mod>.dll`, `Mods/Shared.dll` and `UserData/<M
    - the changelog excerpt for this version.
 4. Update `docs/compatibility.md` if the verified game version changed.
 
+> **Automated:** steps 2–3 of this section are implemented by `Tools/release-mod.ps1` — it runs the version-sync gate, verifies a clean, pushed branch, packages the ZIP if missing, pushes the tag and creates the GitHub release with the matching CHANGELOG section as notes. Preview with `-DryRun`, review the notes with `-Draft`.
+
 Tags do **not** trigger packaging automatically (an earlier tag-push trigger failed on every run because the runner has no game). The `Release` workflow (`.github/workflows/release.yml`) can be started manually via *Run workflow* on a self-hosted Windows runner with the game installed; it runs `package-release.ps1` and uploads the ZIPs as workflow artifacts.
 
 ## Local-only distribution

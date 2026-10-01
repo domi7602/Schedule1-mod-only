@@ -1,0 +1,37 @@
+#!/bin/sh
+# Pre-push hook: full local validation (Release build without deploy + all tests).
+#
+# Why here and not in CI: the mods compile against Schedule I's IL2CPP
+# assemblies, which exist only on a machine with the game installed, so
+# GitHub-hosted CI skips the build and the game-dependent tests
+# (see .github/workflows/ci.yml). This hook closes that gap locally.
+#
+# The build runs with S1NoDeploy=true, so it is compile-only and safe while
+# the game is running. Machines without the game skip gracefully.
+#
+# Install via: git config core.hooksPath .githooks
+# Bypass with: git push --no-verify
+
+set -e
+
+# Prefer the user-local .NET SDK (AGENTS.md: agent shells may only see the
+# runtime host); fall back to whatever 'dotnet' resolves to.
+DOTNET="$USERPROFILE/.dotnet/dotnet.exe"
+if [ ! -f "$DOTNET" ]; then
+  DOTNET="dotnet"
+fi
+
+GAME_DIR="${SCHEDULE1_PATH:-C:/Program Files (x86)/Steam/steamapps/common/Schedule I}"
+if [ ! -f "$GAME_DIR/MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll" ]; then
+  echo "[pre-push] Schedule I assemblies not found ($GAME_DIR) - skipping build/tests."
+  echo "[pre-push] Set \$SCHEDULE1_PATH or push from a machine with the game for full validation."
+  exit 0
+fi
+
+echo "[pre-push] Release build (compile only, no game deploy) ..."
+"$DOTNET" build Source/Mods/S1Mods.sln -c Release -p:S1NoDeploy=true --nologo
+
+echo "[pre-push] Tests (all projects in S1Mods.sln) ..."
+"$DOTNET" test Source/Mods/S1Mods.sln -c Release --no-build --nologo
+
+echo "[pre-push] OK."
