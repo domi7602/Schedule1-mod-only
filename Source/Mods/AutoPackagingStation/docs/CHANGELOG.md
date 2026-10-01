@@ -28,18 +28,15 @@
 - UI: Canvas instruction label updated ("Auto packs & unpacks in background").
 - Based on v0.2.9 (E prompt canvas guard fix).
 
-
 ## 0.2.9 (2026-09-20) — E prompt fix (canvas guard)
 - **E prompt on the station was visible but dead:** The InteractableObject listener had a guard `PackagingStationCanvas.Instance != null && !activeSelf` — as long as the canvas singleton was still null (lazy init, before the first vanilla station UI opened), `Interacted()` was silently skipped. The new guard only checks "canvas open FOR THIS station" (Instance + activeSelf + station pointer comparison); null-instance no longer blocks.
 - **Improved diagnostic logging:** `E-interact:` info on every `Interacted()` call, warning when canvas does not open after the call (Instance null / inactive), error instead of debug on exceptions — previously invisible in normal sessions.
 - Side note: pre-existing CS8625 warning in `AutoPackStore.cs` legacy migration fixed (`null!` for LoadSafe fallback).
 
-
 ## 0.2.8 (2026-09-19) — Bugfix round 7: Placement, interaction, level gate
 - **Grid-tile overlap (HIGH):** `ExpandFootprintTo2x2()` clones the footprint tile of the base item and creates 3 additional tiles for a real 2×2 grid (0.5m spacing). Prevents the station from sticking halfway into shelves or other buildables.
 - **E interaction on the kettle (MEDIUM):** `SetupPlacedStation()` now adds an `Il2CppScheduleOne.Interaction.InteractableObject` (message, range, onInteractStart → `station.Interacted()`). The native `PackagingStationCanvas` opens reliably when hovering on the station (kettle).
 - **Level gate (MEDIUM):** `WithRequiredRank(new FullRank(Rank.Hustler, 1))` — the station is purchasable from Hustler I (after Tier 1 PackagingStation and Tier 2 PackagingStationMk2). No longer available from level 1.
-
 
 ## 0.2.7 (2026-09-13) — Bug-report round 6
 Bug-report round 6 (audit 2026-09-13): Host guards for PackUp, OnDestroy refund, all TryExtract*/TryDeposit* paths and OnSaveComplete (9 new IsHostOrSingleplayer guards). MP clients can no longer locally cash out/destroy stations (dupe/desync, critical) and no longer overwrite the host's slot file. Supersedes 0.2.4 (client deliberately fell back to Destroy there).
@@ -61,18 +58,18 @@ Bug-report round 6 (audit 2026-09-13): Host guards for PackUp, OnDestroy refund,
 - Engine: feasible<=0 aborts batch calculation (instead of batchSize=1 coerce).
 - Store: warning on unresolved slot fallback '0' (instead of silent misrouting).
 
-## [0.2.2] (2026-09-10)
+## 0.2.2 (2026-09-10)
 - RestoreNativeSlots cleans up rData buffer plus live-native gate in refund paths (fix item dupe after save/load).
 - Snapshot/revert in ExecutePackagingTransaction (both overloads).
 - PackUpStation: fit-check and add interleaved; partial success retains remaining stock.
 - Slot--1 guard (no autopack_slot_-1.json); TryExtractOutputProduct pays out exactly N.
 
-## [0.2.0] (2026-08-24)
+## 0.2.0 (2026-08-24)
 - Version sync: bring `MelonInfo`, `mod.json`, AGENTS.md, and CHANGELOG into agreement at 0.2.0.
 - No code changes since 0.1.0; the "0.2.1 verified 2026-08-23" claim in AGENTS.md was a documentation drift, not a release.
 - Hardware store listing integration, 2-second packaging cycle, and atomic 2-phase engine remain as documented in 0.1.0.
 
-## [0.1.0] - 2026-08-22
+## 0.1.0 (2026-08-22)
 ### Initial Release
 - Implemented 4x4 industrial Auto-Packaging Station with procedural 3D chassis, overhead arch, and dual pneumatic pistons.
 - Added animated UV-scrolling conveyor belt with configurable speed.

@@ -1,7 +1,5 @@
 # Changelog
 
-
-
 ## 0.2.9 (2026-09-15)
 - Host-authority check consolidated into `S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer`; the previously local fail-open branch (catch => true) has been removed. When an authority exception occurs without an owned save, the payout is now aborted instead of blindly continuing. The MONOMELON dead branch was removed along with it (workspace builds exclusively IL2CPP).
 - **Schedule I 0.4.7f6 (Open Beta) compatibility — `NPCDeathPatch`:** vanilla `NPCHealth.npc` no longer exists on the beta game assembly (CS1061 against the live 0.4.7f6). The patch now resolves the owning NPC via `GetComponent<S1NPC>()` on the health component — the same pattern S1API uses. Local decompiles in `GameReferences/` still reflect 0.4.6f13 and show the old field.

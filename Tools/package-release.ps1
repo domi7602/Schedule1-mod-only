@@ -105,6 +105,16 @@ foreach ($modDir in $targetMods) {
     # Copy DLL -> Mods\
     Copy-Item -Path $dllPath -Destination $stagingModsDir -Force
 
+    # Copy Shared.dll -> Mods\ (runtime dependency of every mod; ProjectReference has
+    # Private=false, so it is neither merged into the mod DLL nor copied by the build).
+    # The mod build compiles Shared as a dependency, so the Release output exists here.
+    $sharedDll = Join-Path $modsRoot 'Shared\src\bin\Release\net6.0\Shared.dll'
+    if (Test-Path $sharedDll) {
+        Copy-Item -Path $sharedDll -Destination $stagingModsDir -Force
+    } else {
+        Write-Warning "[$modName] Shared.dll not found at $sharedDll — the ZIP will not run without it."
+    }
+
     # Copy mod.json as mod.json -> UserData\<Mod>\
     if (Test-Path $modJsonPath) {
         Copy-Item -Path $modJsonPath -Destination (Join-Path $stagingUserDataDir "mod.json") -Force

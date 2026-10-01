@@ -1,4 +1,4 @@
-# CalculatorApp (v0.2.0)
+# CalculatorApp
 
 A feature-rich, tactile **Calculator PhoneApp** for *Schedule I* (v0.4.6f13) powered by the **S1API PhoneApp** framework and **S1Mods.Shared**.
 

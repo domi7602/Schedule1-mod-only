@@ -1,8 +1,8 @@
 # AGENTS.md
 
-Workspace: `C:\Users\pc\Schedule1-mod-only` — MelonLoader modding workspace for *Schedule I* v0.4.6f13 (TVGS). The repo lives **outside** the game install dir (under the user profile); build/deploy resolves the game path via the `SCHEDULE1_PATH` env var or the default fallback `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
+Workspace: `C:\Users\pc\Schedule1-mod-only` — MelonLoader modding workspace for *Schedule I* (TVGS; verified baseline v0.4.6f13, current development target v0.4.7f6 Open Beta — see §1 and `docs/compatibility.md`). The repo lives **outside** the game install dir (under the user profile); build/deploy resolves the game path via the `SCHEDULE1_PATH` env var or the default fallback `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
 
-Quick links: [`docs/architecture.md`](docs/architecture.md) defines dependency boundaries, [`ThirdParty/README.md`](ThirdParty/README.md) documents pinned dependencies, and [`GameReferences/README.md`](GameReferences/README.md) explains local decompile generation. This file remains the compact operational index and version inventory.
+Quick links: [`DEVELOPERS.md`](DEVELOPERS.md) (build/test/debug workflow for humans), [`docs/README.md`](docs/README.md) (documentation index), [`docs/architecture.md`](docs/architecture.md) (dependency boundaries), [`docs/pitfalls.md`](docs/pitfalls.md) (IL2CPP conventions and gotchas), [`docs/compatibility.md`](docs/compatibility.md) (per-mod verification matrix), [`ThirdParty/README.md`](ThirdParty/README.md) (pinned dependencies), [`GameReferences/README.md`](GameReferences/README.md) (local decompiles). This file is the agent bootstrap: environment facts, the **authoritative mod inventory (§2)**, agent-specific workflows, and pointers to the shared documentation — it does not duplicate what those documents already say.
 
 > **Path history (3 moves):**
 > - **2026-09 setup restoration (current state):** Repo at `C:\Users\pc\Schedule1-mod-only`. .NET SDK 8.0.424 installed, S1API 3.2.0 (fork build from `ThirdParty/S1API/`) deployed, NotesApp + Shared built as verification. Deploy convention since 2026-09: DLL/PNG/bundle → `Mods\`; `mod.json` + `.pdb` → `UserData\<Mod>\`.
@@ -15,32 +15,13 @@ Quick links: [`docs/architecture.md`](docs/architecture.md) defines dependency b
 
 ## 0. AI-Agent Skills (`Skills/`)
 
-Twenty skills orchestrate mod work (located directly in `Skills/<skill-name>/SKILL.md`). **Load them via the `skill` tool** when the task matches:
+Twenty skills live in `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). **Load them via the `skill` tool** when the task matches; the full index with "when to load" guidance is [`Skills/README.md`](Skills/README.md) — it is the single list of skills (the root README links to it as well).
 
-| Skill | When to use |
-|---|---|
-| **`schedule1-modding`** | Mod runbook: scaffold, build, deploy, architecture patterns, S1API/UI/Harmony. **Primary skill, always first.** |
-| **`schedule1-phoneapp`** | PhoneApp runbook: S1API PhoneApp development, Method 3 responsive UI, input focus protection, lifecycle stability (Rule 10/11), WasCollected guards. |
-| **`schedule1-grid`** | Grid & building: outdoor/unrestricted placement, BuildUpdate_Grid patching, ghost positioning, 7 Golden Rules, custom building. |
-| **`schedule1-s1api`** | S1API framework reference: Saveables, PhoneApp base, Quests, NPCs, Items, Money, GameTime, Lifecycle, cross-branch compatibility. |
-| **`schedule1-s1mapi`** | S1MAPI framework reference: ProceduralMesh, BuildingBuilder, GltfLoader, InteriorBuilder, World tools (Terrain/Nav/Prefab). |
-| `schedule1-knowledge` | Research: locally generated decompiles (`GameReferences/`), S1API source (`ThirdParty/S1API/`), 64 curated systems (`Skills/schedule1-game-systems/references/`). |
-| `schedule1-troubleshooting` | Diagnostics: native PowerShell `Latest.log` triage, crash patterns, save-load timing, IL2CPP pitfalls, WasCollected, slot_-1.json recovery. |
-| `schedule1-game-systems` | Game systems: 64 systems (Growing 08, Inventory 09, Property 54, etc.), decision tree, recipes — bypass raw decompile. |
-| **`schedule1-economy`** | Economy: Money (cash/bank), Business revenue, Shop multi-payment (Cash/Bank/Auto), Customers, Laundering — host authority + snapshot revert. |
-| **`schedule1-persistence`** | Persistence: SafeStorage atomic .bak, slot_{n}.json (triple-guard + slot >= 0), GameLifecycle timing, ModConfig TOML sidecar, BuildableItem restore rule. |
-| **`schedule1-items`** | Items: BaseItemDefinition/Registry/StackLimit (dual-scan + not patchable accessor), Inventory slots (CashSlot 1k), Buildable injection. |
-| **`schedule1-interiors`** | Interiors & Minigames: Door hooking (StaticDoor/NpcSummonMenu), Procedural room shells (binary/layout mesh reader), In-world screens (Texture2D.SetPixels32), 3D spatial ambience. |
-| **`schedule1-3d-assets`** | 3D Assets & Blender: Blender pipeline (Z-Up to Y-Up, Apply Transforms, Recalculate Normals), URP shader resolution (Lit/Unlit pink shader fix), PBR materials, bone rigging (Spine2/Head/Hands), zero-collider rule. |
-| **`schedule1-mcp`** | S1MCP & Live Debugging: Live game introspection, TCP :8765 bridge, in-game log capturing, player/NPC state inspection, object reflection, item spawning. |
-| **`schedule1-custom-npcs`** | Custom NPCs: NPCPrefabBuilder, appearances, dialogue node graphs, daily schedules, and custom clothing. |
-| **`schedule1-debounced-reload`** | Debounced Live-Reload: FileSystemWatcher debouncer (150–250ms), main-thread pump via OnUpdate, config hot-reloading. |
-| **`schedule1-harmony-bootstrap`** | Harmony Bootstrap: Assembly-wide patch discovery, PatchTargetGuard pre-flight checks, applied/skipped/failed counters, clean unpatching. |
-| **`schedule1-il2cpp-reflection`** | IL2CPP Runtime Reflection: Array bridging (Il2CppStructArray vs T[]), missing overloads, namespace fallback, dynamic member access. |
-| **`schedule1-lifecycle-verify`** | Lifecycle Verification: ILSpycmd runbook for verifying S1API and native lifecycle event ordering against game assemblies. |
-| **`schedule1-runtime-unity-cache`** | Runtime Unity Cache: Memory leak prevention for runtime Texture2D, Sprite, AudioClip, and Material objects. |
+Rules that apply to every task:
 
-Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Index: `Skills/README.md`. Standard content: SKILL.md (YAML frontmatter + decision tree + references), `references/*.md` for sub-topics.
+- **`schedule1-modding` first, always.** It is the primary runbook (scaffold, build, deploy, architecture patterns, S1API/UI/Harmony). Then load the matching specialty skill: `schedule1-phoneapp` for phone apps, `schedule1-s1api` / `schedule1-s1mapi` for framework APIs, `schedule1-persistence` for anything that writes files, `schedule1-economy` for money/shop code, `schedule1-items` for item/stack-limit work, `schedule1-grid` for building/placement, `schedule1-troubleshooting` for crashes and `Latest.log` triage, `schedule1-knowledge` / `schedule1-game-systems` for research in decompiles and curated system notes.
+- Skill content: `SKILL.md` = YAML frontmatter + decision tree + quick refs; details in `references/*.md`. Conventions for skill authors are at the end of `Skills/README.md`.
+- When a task changes a convention documented in a skill, update the skill in the same change (see §6 Maker-Checker).
 
 ---
 
@@ -50,22 +31,24 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 - **Game Version:** v0.4.7f6 (Open Beta, Unity 2022.3, IL2CPP — `GameReferences/` decompiles are still 0.4.6f13 and may drift; verify against the live Il2CppAssemblies)
 - **Mod Loader:** MelonLoader 0.7.3 (net6)
 - **TFM:** `net6.0`, `LangVersion` 12, `Nullable` enabled
-- **Layout:**
+- **Layout** (details per directory: `DEVELOPERS.md`, `Source/Mods/README.md`, `Tools/README.md`):
   ```
-  Source/Mods/        Mods + Shared lib (incl. Shared/UITheme) + Directory.Build.props/targets + S1Mods.sln
-  Source/Archive/     Archived mods (DayCounter, ProfitTracker, TVBrowser, BackpackMod, Minimap)
-  Source/Tests/       Unit tests (Shared.Tests, AutoPackagingStation.Tests, CalculatorApp.Tests)
-  GameReferences/     Locally generated decompiles (Assembly-CSharp, firstpass)
-  Skills/             20 AI-Agent Skills & References (modding, phoneapp, economy, systems, etc.)
-  ThirdParty/         Pinned external frameworks & reference sources; see ThirdParty/README.md
-  Tools/              (reactivated 2026-09-10, 11 scripts: build-all, gen-sln, new-mod, bump-version, package-release, backup-to-d, check-version-sync, check-doc-paths, deploy-thirdparty, bootstrap-game-references, mods-cleanup-inventory)
-  Release/            Release packages (.gitkeep)
-  .githooks/          Pre-commit hook (dotnet format + gen-sln determinism)
-  docs/               Architecture, Release process & IL2CPP pitfalls (docs/pitfalls.md)
-  AGENTS.md           Agent bootstrap & inventory
-  CONTRIBUTING.md     Contributor guide
-  DEVELOPERS.md       Developer documentation
-  LICENSE             MIT (workspace) + Third-Party notices
+  Source/Mods/        14 active mods + Shared lib + Directory.Build.props/targets + S1Mods.sln
+  Source/Archive/     Archived mods (BackpackMod, DayCounter, HomelessMod, Minimap, ProfitTracker, SnackVendor, TVBrowser, _DiagPerfCounter) — not built
+  Source/Tests/       xUnit (Shared.Tests, AutoPackagingStation.Tests, CalculatorApp.Tests)
+  GameReferences/     Locally generated decompiles (gitignored)
+  Skills/             20 AI-agent skills (index: Skills/README.md)
+  ThirdParty/         Pinned S1API/S1MAPI submodules, vendored S1MCP server, archives; see ThirdParty/README.md
+  Tools/              13 PowerShell scripts (build, gen-sln, new-mod, bump-version, check-version-sync, check-doc-paths, package-release, deploy-thirdparty, setup-workspace, new-laptop-workspace, bootstrap-game-references, mods-cleanup-inventory, backup-to-d); see Tools/README.md
+  Release/            Local release ZIPs (gitignored except .gitkeep)
+  assets/             Screenshots + icon sources for the root README
+  docs/               architecture, pitfalls, compatibility, release-process, troubleshooting (index: docs/README.md)
+  memory-bank/        Agent session context (activeContext, decisionLog, productContext) — orientation only, never authoritative
+  .githooks/          Pre-commit hook (format + gen-sln determinism + version-sync + doc-paths)
+  .github/            CI (ci.yml), manual Release workflow (release.yml), issue/PR templates
+  AGENTS.md           This file — agent bootstrap & authoritative inventory
+  README.md           Player-facing overview; DEVELOPERS.md developer guide; CONTRIBUTING.md contributor rules
+  LICENSE             MIT (workspace code); THIRD-PARTY-NOTICES.md for everything else
   ```
 
 ---
@@ -84,7 +67,7 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 | **PotScanner**   | ✅ active (v0.5.4, **Verified 2026-09-15**) | `Mods/PotScanner/` | `PotScanner.dll` | yes (PhoneApp + Property + Growing + Money + Lifecycle APIs + ModConfig + Console/BaseConsoleCommand) |
 | **CalculatorApp**| ✅ active (v0.2.3, **Verified 2026-09-15**) | `Mods/CalculatorApp/` | `CalculatorApp.dll` | yes (PhoneApp + Money + UIFactory + InputFocus hook + SafeStorage) |
 | **CustomSkateboard**| ✅ active (v1.1.5, **Verified 2026-09-15**) | `Mods/CustomSkateboard/` | `CustomSkateboard.dll` + Icon | yes (Skating/Skateboard + Ultra Carving + Instant Jump + Anti-Gravel + Jeff Dialogue + Nexus Ready) |
-| **MoreSaveSlots**| ✅ active (v1.0.12, **Verified 2026-09-15**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` | no (MelonMod + Harmony) |
+| **MoreSaveSlots**| ✅ active (v1.0.12, **Verified 2026-09-15**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` | yes, light (MelonMod + Harmony; `S1API.Utils.EventHelper`/`ButtonUtils` for IL2CPP-safe listeners — S1API must be installed) |
 | **DayCounter**      | ⏸ archived (v1.0.0) | `Source/Archive/DayCounter/` | — (removed from MelonLoader) | no (MelonMod + uGUI Screen HUD + TextMeshPro + S1API/Hash Console + ModConfig) |
 | **PocketShop** | ✅ active (v0.3.2, **Level-Lock & Inline-Qty 2026-09-17 / Vanilla-Shop-PaymentType + Cash-HUD-Feedback 2026-09-20 (Verified 2026-09-20), v0.4.6f13**) | `Mods/PocketShop/` | `PocketShop.dll` | yes (PhoneApp + Vanilla-PaymentType per shop (Cash/Card) + Cash-HUD-Popup (visualizeChange) + ItemDetailModal + Inline-Quantity-Input + Level-Lock + SFX + Console `pshop shops`) |
 | **BankApp**    | ✅ active (v0.4.4, **Verified 2026-09-15**) | `Mods/BankApp/`    | `BankApp.dll` + Icon | yes (PhoneApp + Chip-Based Single-Screen UI + Weekly Limit Progress + Double-Entry Booking + Slot-Awareness + Save-Slot Isolation) |
@@ -102,7 +85,7 @@ Skill paths: `Skills/<skill-name>/SKILL.md` (plus `references/` sub-files). Inde
 | **BackpackMod**   | ⏸ archived (v1.2.3) | `Source/Archive/BackpackMod/` | — (removed from MelonLoader) | yes (3D Wearable Backpacks + Spine Rig Alignment + Realistic Harness & Straps + ObjLoader + Storage + Mannequin 360 Rotation + **B1 Sort: Button-only sorting (backpack/inventory/container) with stack-merge by ID+quality+packaging, sort button in StorageMenu + "Sort Inventory" in GameplayMenu, atomic plan-then-commit (v1.2.0: GetCopy instead of GetDefaultInstance — quality/packaging preserved; clipboard-slot reference filter; overflow sidecar on full inventory; OnPreLoad cross-save protect; v1.2.1: ObjLoader 50MB/250k vertex cap, ShopDump #if DEBUG; v1.2.2: HUD sort button raycast protection against grid click swallowing; v1.2.3: StorageMenu sort overlay fix (smallest button template + enforced geometry via SortButtonLayout + BackpackMod.Tests)**) |
 | **AutoPackagingStation** | ✅ active (v0.3.3, **Bugfix Round 7 2026-09-19 / v0.4.6f13; E-Prompt + Auto-UNPACK + Unpack-Batching + Alignment-Visual-Hide 2026-09-20 (Verified 2026-09-20 through user session: "functional without errors")**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | yes (4x4 Industrial Packaging Line + UV Scroll Conveyor + Native Slot Sync + Auto-Unpack via Canvas-Mode-Mirror + GetState-Gate + Batched Unpack + Alignment-Visual-Hide + SafeStorage + Shop Injection + 2x2 Footprint + InteractableObject + Hustler-I Rank-Gate) |
 | **HitmanPhone** | ✅ active (v0.2.9, **0.4.7f6 NPCDeathPatch + DEBUG offer host fallback, Beta verified 2026-09-24: offer→accept→receipt→payout** | `Mods/HitmanPhone/` | `HitmanPhone.dll` | yes (MessagesApp Contracts + NPC + Items + Quests + SafeStorage) |
-| **MessagesPlus** | ✅ active (v0.1.1, In-Game-Verify open) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | no (MelonMod + Harmony patches on vanilla MessagesApp + SafeStorage) |
+| **MessagesPlus** | ✅ active (v0.1.1, In-Game-Verify open) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | yes (MelonMod + Harmony patches on vanilla MessagesApp + SafeStorage; `S1API.Lifecycle.GameLifecycle`, `S1API.UI`, `S1API.Utils`) |
 | **TaxiDriver** | 🧪 spike (v0.1.0, **Stage-1 spike verified live 2026-09-25: spawn+NPC+path+drive+arrival (callback=Complete after 20.2 s); freeze-guard implemented; Stage-2 visual swap live-verified 2026-09-25: vanilla Shitbox visuals off + `taxi.glb` attached under `LandVehicle.vehicleModel`; Stage-3 **driver ride live-verified** 2026-09-25: vanilla NPC at the wheel while the player rides along (`callback result=Complete after 31.6 s` — run 2, the re-greppable log; run 1 logged 14.5 s, its log since pruned by MelonLoader — `LocalPlayerIsInVehicle=true` throughout, i.e. no `ExitVehicle` between ride 17:32:54 and out 17:34:39, `F9 out` at the destination)) | `Mods/TaxiDriver/` | `TaxiDriver.dll` | yes (VehicleManager.SpawnAndReturnVehicle + VehicleAgent.Navigate + NPC.EnterVehicle + BaseConsoleCommand `taxi` (log-only console, output-only) + F6–F16 hotkeys incl. F16 visual-swap toggle + Stage-2 visual swap via S1MAPI.Gltf.GltfLoader / `Source/Mods/TaxiDriver/assets/taxi.glb`) |
 | **SnackVendor** | ⏸ archived (v0.0.9) | `Source/Archive/SnackVendor/` | — (removed from MelonLoader) | yes (S1API Buildable + Vanilla-VendingMachine-clone + marker-guarded Harmony + Sidecar-persistence + S1MAPI.GltfLoader-mesh + NPC-inventory-credit + Deposit/Extract-panel; archived 2026-09-17 at user's request, in-game-verify never performed) |
 | **_DiagPerfCounter** | ⏸ archived (v0.3.2, **archived 2026-09-20 at user's request — obsolete: reflection dump makes ilspycmd/S1MCP better; release build was a no-op anyway (`#if !DEBUG`)**) | `Source/Archive/_DiagPerfCounter/` | `_DiagPerfCounter.dll.bak` (does not load) | no (MelonMod + reflection dump via SafeStorage path) |
@@ -380,7 +363,7 @@ Deployment runs **automatically** via `Directory.Build.targets` — with split t
 - **SkipUnchangedFiles:** Fixed to `false` (2026-08-20) — every `dotnet build` now force-deploys to `<GameDir>\Mods\`, eliminating stale-DLL traps.
 - **GameDir Override:** `$env:SCHEDULE1_PATH` must be set **before** running `dotnet build`, because MSBuild evaluates the property once at startup.
 - **Solution Determinism:** `Tools/gen-sln.ps1` now uses deterministic MD5-GUIDs (`Get-DeterministicGuid "Project:<rel>"`) — no more random GUID diffs on every regeneration. CI compares line endings normalized (checkout-independent).
-- **Version Bumps:** Use `pwsh Tools/bump-version.ps1 -Mod <Name> -Version x.y.z` to sync `Mod.cs` + `mod.json` + `CHANGELOG.md` + `AGENTS.md` atomically.
+- **Version Bumps:** Use `pwsh Tools/bump-version.ps1 -Mod <Name> -Version x.y.z` to sync `Mod.cs` + `mod.json` + `CHANGELOG.md` + `AGENTS.md` (matrix row + detail header) + `README.md` (mod table row + featured card) atomically. `check-version-sync.ps1` verifies exactly these locations.
 
 ### Sideload + hash (ThirdParty, NOT in the Solution)
 
@@ -432,49 +415,15 @@ Before each session on a different PC: `git pull`. After each session: `git add 
 
 ## 5. Mod Conventions & Best Practices
 
-### Responsive UI Design (Method 3: `UITheme`)
+The conventions are documented once, in [`docs/pitfalls.md`](docs/pitfalls.md) (§1 non-negotiable guardrails, §2 verified gotchas per mod) and [`docs/architecture.md`](docs/architecture.md) (dependency direction, mod layout). The `schedule1-modding` and `schedule1-phoneapp` skills carry the runbook versions. Agents must apply them; the short form:
 
-In Schedule I, S1API instantiates the phone container on a high-DPI uGUI canvas that is often rotated by 90° (`Quaternion.Euler(0, 0, 90)`). Fixed integer font sizes (e.g. 14pt–18pt) appear extremely tiny on some screens.
-
-**Central implementation:** `Source/Mods/Shared/src/UITheme.cs` (`S1Mods.Shared.UITheme`) is the single source of truth. Per-mod pass-through wrappers (e.g. `BankApp.UI.UITheme`) were removed 2026-09 (commit 8c490fc) — every mod uses `S1Mods.Shared.UITheme` directly and keeps only its own color palette constants.
-
-```csharp
-// Text-heavy app:
-S1Mods.Shared.UITheme.InitializeForTextApp(containerRt); // 750f, 0.85-2.0
-// Dense dashboard (PotScanner):
-S1Mods.Shared.UITheme.InitializeForDashboard(containerRt); // 900f, 0.75-1.2
-// Custom:
-S1Mods.Shared.UITheme.Initialize(containerRt, refHeight: 750f, minScale: 0.85f, maxScale: 2.0f);
-```
-
-In `OnCreatedUI(GameObject container)` always call `UITheme.Initialize...` first, then compute all fonts with `UITheme.Sp(...)` and paddings with `UITheme.Dp(...)`.
-
-### Known IL2CPP Pitfalls (Checklist)
-
-- **`[RegisterTypeInIl2Cpp]` MonoBehaviours require a public `IntPtr` constructor:**
-  ```csharp
-  public class NotesAppInputFocus : MonoBehaviour
-  {
-      public NotesAppInputFocus(IntPtr ptr) : base(ptr) { }
-  }
-  ```
-  Without this constructor the IL2CPP bridge crashes during injection.
-- **UnityEvent Listeners:** `button.onClick.AddListener(new UnityEngine.Events.UnityAction(...))` fails because of IntPtr conversion. **Always** use `S1API.Utils.EventHelper.AddListener(...)` or `ButtonUtils.AddListener(...)`.
-- **Multiline InputField Alignment:** For large note fields, uGUI defaults to centered text. Always set `textComponent.alignment = TextAnchor.UpperLeft`, `placeholder.alignment = TextAnchor.UpperLeft` and `lineType = InputField.LineType.MultiLineNewline`, plus clean `offsetMin/Max` margins.
-- **Save-Load Timing:** Static lists (like `Property.OwnedProperties`) are often still empty at `OnGameplaySceneLoaded`. Subscribe to the `S1API.Lifecycle.GameLifecycle.OnSaveInfoLoaded` hook, which fires after save parsing but before scene build.
-- **`UIFactory.CreateTextBlock` vs. Layout:** `UIFactory.Text` sets anchors to `(0.5, 0.5)` by default. For custom rows, always set positions manually via `rectTransform.anchorMin/anchorMax/offsetMin/offsetMax`.
-
-### Patch Resilience & Shared Utilities (`S1Mods.Shared`)
-
-- **`PatchGuard`:** Catches changed method signatures for Harmony patches. Prevents game crashes on updates via graceful degradation (`PatchGuard.TryPatch(...)`), no guessing on overloads, transpiler/finalizer support, and status reporting (`PatchGuard.Report()`).
-- **`SafeStorage`:** Protects against file corruption and load crashes through atomic write operations (`SaveAtomic`), auto-backup (`.bak`), fault-tolerant JSON parsing (`LoadSafe<T>`), and safe directory creation (`EnsureDirectoryForFile`).
-- **`GameObjectResolver`:** Recursive search for UI components (`FindComponentDeep<T>`), cleanly returns `null` when `hintName` is missing instead of blindly taking the first child, and supports cache invalidation (`InvalidateCache()`).
-- **`SafeInvoker`:** Wraps event and lifecycle callbacks in try-catch blocks (`Execute`) so single failures after patches do not stop the Unity main loop.
-- **`HotkeyManager`:** 0-allocation KeyCode router with `(KeyCode, Modifiers)` keys (`HotkeyBinding`), `strictModifiers` filter, cooldowns, and InputField focus protection.
-- **`ModConfig<T>`:** Type-safe MelonPreferences integration with boxing/enum/type casting, auto-save, change events, and `ModLogger` propagation.
-- **`ModLogger`:** Centralized mod logging with auto `[ModName]` prefix for all levels (`Info`, `Warn`, `Error`, `Debug`) and exception overloads.
-- **`NetworkGuard` & `SceneGate`:** Safe execution in game scenes (`InGame(action)` via `SafeInvoker`), configurable main scene, automatic scene tracking, and cache invalidation.
-- **`TypeResolver`:** Resilient type resolution across all loaded assemblies (`TypeResolver.Find(...)`) with internal reflection cache.
+- **IL2CPP:** `[RegisterTypeInIl2Cpp]` MonoBehaviours need `public X(IntPtr ptr) : base(ptr) { }`; listeners via `S1API.Utils.EventHelper.AddListener` / `ButtonUtils.AddListener` (never `new UnityAction(...)`); no `foreach`/LINQ over `Il2CppSystem.Collections.Generic.List<T>`; `obj != null && obj.Pointer != IntPtr.Zero && !obj.WasCollected` before touching native objects; `TryCast<T>()` instead of `is` on proxies.
+- **UI (Method 3):** `S1Mods.Shared.UITheme` is the single scaling implementation (`InitializeForTextApp` 750f/0.85–2.0, `InitializeForDashboard` 900f/0.75–1.2, or `Initialize(rt, refHeight, min, max)`); call it first in `OnCreatedUI`, then size with `Sp`/`Dp`. Per-mod `UITheme` wrappers were removed 2026-09 (commit 8c490fc). Multiline `InputField`: `UpperLeft` alignment + `MultiLineNewline`. `UIFactory.Text` anchors default to center — set anchors manually for rows.
+- **Lifecycle:** never destroy UI or unsubscribe `MelonEvents.OnUpdate` in `OnPhoneClosed()` (Rules 2/3/10); static lists are empty at `OnGameplaySceneLoaded` — use `S1API.Lifecycle.GameLifecycle.OnSaveInfoLoaded`.
+- **Persistence:** `SafeStorage.SaveAtomic` (+ `.bak`), slot-isolated `<name>_slot_{n}.json` via `SaveSlots.GetActiveSlotNumber()` with `>= 0` guard, write on `OnSaveComplete`, culture-invariant number formatting.
+- **Patching:** `PatchGuard.TryPatch` for every Harmony patch; no `ref <Il2CppType> __result` + `return false` prefixes; field accessors are not patchable.
+- **Multiplayer:** economy/world mutations only behind `NetworkGuard.IsHostOrSingleplayer()` (fail-closed).
+- **Shared utilities** (`S1Mods.Shared`): `PatchGuard`, `SafeStorage`, `SaveSlots`, `GameObjectResolver`, `SafeInvoker`, `HotkeyManager`, `ModConfig<T>`, `ModLogger`, `NetworkGuard`, `SceneGate`, `TypeResolver`, `UITheme`, `EconomyHelper`, `AudioHelper`, `ShopListingSync` — reuse instead of re-implementing; component table in `Source/Mods/README.md`.
 
 ---
 
@@ -507,7 +456,8 @@ s1interop analyze "Source\Mods\<Name>\src\<Name>.csproj"
 - **Local:** `dotnet format --verify-no-changes`, `pwsh Tools/gen-sln.ps1` (determinism check), `pwsh Tools/check-version-sync.ps1` (version drift guard), `pwsh Tools/check-doc-paths.ps1` (doc path guard), `dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj` + `dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj` + `dotnet test Source/Tests/CalculatorApp.Tests/CalculatorApp.Tests.csproj` (tests need game assemblies)
 - **CI:** `.github/workflows/ci.yml` runs on push/PR (format + version-sync check + game-gated build/tests + gen-sln check + doc-paths check). The s1interop CI job was removed on 2026-09-20: on GitHub-hosted runners, Schedule I is never installed, the analyze step was permanently skipped (no-op). s1interop stays as **local pre-flight** (see above) — advisory, never blocking (exit always 0).
 - **Pre-commit:** `git config core.hooksPath .githooks` enables `.githooks/pre-commit` (format + gen-sln determinism + version-sync)
-- **License:** `LICENSE` (MIT workspace + Third-Party notices), `CONTRIBUTING.md` for contributors
+- **License:** `LICENSE` (MIT, workspace code only) + `THIRD-PARTY-NOTICES.md`; `CONTRIBUTING.md` for contributors
+- **Release:** per mod, manual, documented in `docs/release-process.md` (`package-release.ps1` ZIPs now include `Shared.dll`)
 
 ### Maker-Checker Workflow
 

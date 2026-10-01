@@ -1,7 +1,5 @@
 # Changelog
 
-
-
 ## 0.5.4 (2026-09-15)
 - Auto-Water host gate switched to `S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer` (previously a local copy of the BusinessIncome pattern). Fail-closed unified: on an exception in the authority check, the water tick is skipped instead of being executed.
 - Version bump.

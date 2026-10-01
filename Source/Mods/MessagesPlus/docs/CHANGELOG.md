@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.1
+## 0.1.1 (2026-09-24) — Review fixes
 - Review fixes (behavior-preserving hardening; no feature changes).
 - Fixed a skip bug in the purge re-apply (`ApplyToConversations`): list removal during forward iteration skipped adjacent purged threads, leaving them visible in the inbox. Both `Conversations` and `ActiveConversations` are now walked backwards.
 - The trash UI now subscribes to `TrashService.OnTrashChanged` (once, static guard): Clear All / Restore / Empty trash / slot load immediately rebuild the "Trash (N)" row list instead of showing stale rows.

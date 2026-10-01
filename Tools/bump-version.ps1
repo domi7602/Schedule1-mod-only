@@ -11,7 +11,9 @@
       2. Source/Mods/<Mod>/docs/mod.json -> "version": "x.y.z"
       3. Source/Mods/<Mod>/docs/CHANGELOG.md -> prepend "## x.y.z - YYYY-MM-DD"
       4. AGENTS.md -> Mod-Matrix Zeile
-      5. README.md -> Featured-Mods Zeile ("* **<Mod>** (vX.Y.Z): ...")
+      5. README.md -> Mod-Tabellenzeile ("| [**<Mod>**](...) | <Kategorie> | X.Y.Z | ...")
+         sowie jede weitere Zeile, die den Mod fett nennt (Featured-Karten
+         "<b><Mod></b> · vX.Y.Z")
 
 .EXAMPLE
     pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.1
@@ -112,7 +114,13 @@ function Update-ModVersion {
             # "# Changelog — BankApp"). Der alte Regex "^# Changelog\s*\r?\n" matchte nur den
             # nackten Titel und fiel in den else-Zweig -> doppelte H1-Überschrift
             # (dokumentiert im schedule1-modding-Skill, §2.C Pitfall 1).
-            if ($clRaw -match "(?m)^# Changelog[^\r\n]*\r?\n") {
+            # 2026-10-01: Insert directly above the first existing "## x.y.z" entry, so an
+            # intro paragraph below the title ("All notable changes ...") stays in place and
+            # the newest version is always the first entry (Keep-a-Changelog order).
+            if ($clRaw -match "(?m)^## ") {
+                $clRx = [regex]"(?m)(^## )"
+                $newCl = $clRx.Replace($clRaw, "$header`$1", 1)
+            } elseif ($clRaw -match "(?m)^# Changelog[^\r\n]*\r?\n") {
                 $clRx = [regex]"(?m)(^# Changelog[^\r\n]*\r?\n)"
                 $newCl = $clRx.Replace($clRaw, "`$1`n$header", 1)
             } else {
@@ -162,7 +170,9 @@ function Update-ModVersion {
         }
     }
 
-    # 5. README.md featured-mods row ("* **<Mod>** (vX.Y.Z): ...")
+    # 5. README.md: mod table row ("| [**<Mod>**](...) | <Category> | X.Y.Z | ...") and
+    #    every other line that names the mod in bold (featured cards "<b><Mod></b> · vX.Y.Z").
+    #    Only the first version token on such a line is replaced; a leading "v" is preserved.
     $readmePath = Join-Path $workspaceRoot "README.md"
     $escapedReadmeMod = [regex]::Escape($ModName)
     if (Test-Path -LiteralPath $readmePath) {
@@ -170,11 +180,12 @@ function Update-ModVersion {
         $readmeLines = $readmeRaw -split "`r?`n"
         $newReadmeLines = @()
         $readmeChanged = $false
+        $rxReadmeBold = [regex]("(\*\*|<b>)$escapedReadmeMod(\*\*|</b>)")
+        $rxReadmeVer = [regex]"\b(v?)\d+\.\d+\.\d+(-[\w\.]+)?\b"
         foreach ($line in $readmeLines) {
-            if ($line -match "^\* \*\*$escapedReadmeMod\*\* \(v") {
-                $rxReadme = [regex]"\(v\d+\.\d+\.\d+(-[\w\.]+)?\)"
-                $newLine = $rxReadme.Replace($line, "(v$NewVersion)", 1)
-                if ($newLine -ne $line) { $readmeChanged = $true; $changed += "README.md featured row -> v$NewVersion" }
+            if ($rxReadmeBold.IsMatch($line)) {
+                $newLine = $rxReadmeVer.Replace($line, "`${1}$NewVersion", 1)
+                if ($newLine -ne $line) { $readmeChanged = $true; $changed += "README.md -> v$NewVersion" }
                 $newReadmeLines += $newLine
             } else {
                 $newReadmeLines += $line

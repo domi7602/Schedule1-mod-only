@@ -6,7 +6,6 @@ S-05 fix "dead DEL/EDIT buttons": The rename/delete modals selected an arbitrary
 ## 1.0.11 (2026-09-13) — Savegame dupe fix (ghost cards)
 Bug-report round 6 / "Savegame-Dupe" fix: (1) SaveDisplay.Awake path now treats empty slots like the refresh path (`UpdateEmptyState` + `UpdateSlotNumberText`) — the prefab placeholder text ('Organisation', '$0', 'More than a year ago', 'v0.1.0') no longer lingers as a ghost card when Awake runs before the registry scan. (2) `RefreshActiveScreen` now refreshes ALL SaveDisplays including inactive ones (`FindObjectsInactive.Include`) — the post-scan refresh used to skip the still-closed Continue panel, so outdated cards were visible on first open. Clicks on empty slots were and remain safe (ContinueScreen guard).
 
-
 ## 1.0.10 (2026-09-13) — Bug-Audit-Fixes Runde 5 (Audit 2026-09-13)
 - EventTrigger pointer leak fixed: `CleanupOwnedTriggersForSlot()` removes all owned EventTrigger entries from `_ownedTriggers` on page switch — previously the dictionary grew unbounded with dead IntPtrs.
 - `RefreshActiveScreen()` now cleans up all stale keys via `CleanupOwnedTriggersForSlot` before the refresh (instead of waiting until the next page switch).

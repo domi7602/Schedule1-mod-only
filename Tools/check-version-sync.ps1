@@ -11,7 +11,10 @@
 
     Dagegen geprueft werden drei Doku-Orte, die bump-version.ps1 mitschreibt:
       1. Source/Mods/<Mod>/docs/mod.json   -> "version"
-      2. README.md                         -> "* **<Mod>** (vX.Y.Z): ..."
+      2. README.md                         -> Mod-Tabelle "| [**<Mod>**](...) | <Kategorie> | X.Y.Z | ..."
+                                              (plus: jede weitere Zeile mit **<Mod>** oder <b><Mod></b>,
+                                              z.B. Featured-Karten "<b><Mod></b> · vX.Y.Z", muss dieselbe
+                                              Version tragen)
       3. AGENTS.md                         -> "| **<Mod>** ... (vX.Y.Z ..."
       4. AGENTS.md                         -> "**<Mod> vX.Y.Z (...):**" (Detail-Header, falls vorhanden)
 
@@ -111,8 +114,21 @@ foreach ($mod in $mods) {
     }
     $json = Get-FirstMatch -Path (Join-Path $mod.FullName 'docs/mod.json') `
                            -Pattern ('"version"\s*:\s*"(' + $rxSemVer + ')"')
+    # README-Tabellenzeile: "| [**<Mod>**](Source/Mods/<Mod>/) | <Kategorie> | X.Y.Z | ...".
+    # Die erste SemVer-Zelle nach dem Namen ist die Versionszelle ("v"-Praefix optional).
     $readme = Get-FirstMatch -Path $readmePath `
-                             -Pattern ('^\*\s+\*\*' + $escaped + '\*\*[^\r\n]*?\(v(' + $rxSemVer + ')\)')
+                             -Pattern ('^\|\s*\[?\*\*' + $escaped + '\*\*[^\r\n|]*\|[^\r\n|]*\|\s*v?(' + $rxSemVer + ')\s*\|')
+    # Zusaetzlich: alle anderen README-Zeilen, die den Mod fett nennen (Featured-Karten
+    # "<b><Mod></b> · vX.Y.Z"), duerfen keine abweichende Version tragen.
+    $readmeExtra = @()
+    if (Test-Path -LiteralPath $readmePath) {
+        $rxBold = [regex]('(\*\*|<b>)' + $escaped + '(\*\*|</b>)')
+        $rxVer = [regex]('\bv?(' + $rxSemVer + ')\b')
+        foreach ($line in [System.IO.File]::ReadAllLines($readmePath, [System.Text.Encoding]::UTF8)) {
+            if (-not $rxBold.IsMatch($line)) { continue }
+            foreach ($vm in $rxVer.Matches($line)) { $readmeExtra += $vm.Groups[1].Value }
+        }
+    }
     $agents = Get-FirstMatch -Path $agentsPath `
                              -Pattern ('^\|\s*\*\*' + $escaped + '\*\*[^\r\n]*?\(v(' + $rxSemVer + ')')
     # Detail-Header ("**<Mod> vX.Y.Z (datum):**") ist optional (nicht jede Mod hat eine Sektion).
@@ -131,8 +147,10 @@ foreach ($mod in $mods) {
     }
 
     $expected = if ($code) { $code.Version } else { $null }
+    $readmeExtraDrift = @($readmeExtra | Where-Object { $_ -ne $expected } | Sort-Object -Unique)
     $ok = ($null -ne $expected -and $json -eq $expected -and $readme -eq $expected -and
-           $agents -eq $expected -and ($null -eq $agentsHeader -or $agentsHeader -eq $expected))
+           $agents -eq $expected -and ($null -eq $agentsHeader -or $agentsHeader -eq $expected) -and
+           $readmeExtraDrift.Count -eq 0)
     $row.Sync = $ok
     $rows += $row
 
@@ -143,6 +161,7 @@ foreach ($mod in $mods) {
         else {
             if ($json -ne $expected) { $problems += ("{0} : mod.json={1} != code={2}" -f $name, $(if ($json) { $json } else { 'fehlt' }), $expected) }
             if ($readme -ne $expected) { $problems += ("{0} : README.md={1} != code={2}" -f $name, $(if ($readme) { $readme } else { 'fehlt' }), $expected) }
+            if ($readmeExtraDrift.Count -gt 0) { $problems += ("{0} : README.md (weitere Nennung)={1} != code={2}" -f $name, ($readmeExtraDrift -join ','), $expected) }
             if ($agents -ne $expected) { $problems += ("{0} : AGENTS.md={1} != code={2}" -f $name, $(if ($agents) { $agents } else { 'fehlt' }), $expected) }
             if ($agentsHeader -and $agentsHeader -ne $expected) { $problems += ("{0} : AGENTS.md detail header={1} != code={2}" -f $name, $agentsHeader, $expected) }
         }

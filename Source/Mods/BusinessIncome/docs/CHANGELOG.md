@@ -6,8 +6,6 @@
 ## 0.1.5 (2026-09-13) — Bug-report round 6
 Bug-report round 6: BIZ-01 catch-up loop after cap re-read + hard-capped at MaxCatchupDays + LastPaid validation on load (freeze on corrupt state fixed); BIZ-02 `biz trigger --commit` requires `--force` when the day is already paid (money printer closed); BIZ-03 `float.IsFinite`/upper-bound guards in Sanitize including MaxCatchupDays clamp (prevents NaN-economy brick); BIZ-04 `biz pending confirm` only commits forward (stale marker no longer causes state regression); BIZ-05 OnPreLoad keeps the slot (`keepSlot:true`, no more `*_default.json` during the load window).
 
-
-
 ## 0.1.4 (2026-09-12) — Bug-audit fixes (audit 2026-09-12)
 - `IsHostOrSingleplayer`: fail-**closed** on exceptions (previously `return true` allowed double-bookings when the IsServer marshalling call failed on an MP client).
 - On `commit && !committed` (money booked but save failed): dedicated notification "booked — save FAILED, run `biz pending confirm|resolve`" instead of the misleading success message. Pending marker stays on disk; manual `biz pending` console resolve path already existed.

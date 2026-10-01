@@ -1,7 +1,13 @@
 # Schedule I — AI Agent Skills Index
 
-20 Skills under `Skills/<skill-name>/SKILL.md` — runbooks, framework references, and
-diagnostic guides for MelonLoader mod development (game v0.4.6f13, S1API 3.2.0).
+20 skills under `Skills/<skill-name>/SKILL.md` — runbooks, framework references, and
+diagnostic guides for MelonLoader mod development. Each skill carries its own version
+anchor (game / S1API / MelonLoader version it was verified against); the repository-wide
+toolchain versions are tracked in [`docs/compatibility.md`](../docs/compatibility.md).
+
+This file is the **single index** of skills. [`AGENTS.md`](../AGENTS.md) §0 and the root
+[`README.md`](../README.md) link here; the root README additionally lists the skills in a
+short table for visitors.
 
 > **Loading order:** Always first [`schedule1-modding`](schedule1-modding/SKILL.md)
 > (primary runbook skill), then the matching specialty skill. The path
@@ -62,5 +68,6 @@ diagnostic guides for MelonLoader mod development (game v0.4.6f13, S1API 3.2.0).
   - Repo-wide paths in prose: `Skills/<skill>/...` (relative to workspace root).
   - Forbidden: absolute `file:///` URLs and bare `schedule1-x/...` paths without prefix.
 - **Line endings:** LF (no CRLF) for all skill markdown files.
-- **Skill count:** This file, [`AGENTS.md`](../AGENTS.md) (§0), and [`README.md`](../README.md)
-  (§ AI Agent Skills) all name the same skill list — for new skills update all three.
+- **Skill count:** This file is the authoritative list. For a new skill add a row here **and**
+  to the skills table in the root [`README.md`](../README.md); [`AGENTS.md`](../AGENTS.md) §0
+  only links to this index and names the loading rules.

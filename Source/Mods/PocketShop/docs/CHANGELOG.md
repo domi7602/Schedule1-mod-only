@@ -4,7 +4,6 @@
 - **Cash payments now show the vanilla HUD popup:** `ChangeCashBalance` runs with `visualizeChange: true` (was `false` — cash was deducted without feedback). Black-market purchases now show "-$X" in the HUD like in-world dealer purchases. All cash refund paths (Partial Delivery, Outer Gap) are also visualized ("+$X").
 - Card payments unchanged (`CreateOnlineTransaction` has no visualize flag — the banking feed in the phone provides feedback there).
 
-
 ## 0.3.1 (2026-09-19) — Shop payment rules (Black Market = Cash, Clean = Card)
 - **Correction of the v0.3.0 blanket switch (user feedback):** Not all shops are legal — PocketShop also lists black-market suppliers that vanilla requires **cash** for. v0.3.1 now follows each shop's **vanilla payment rule** via `ShopInterface.PaymentType` (`EPaymentType`): `Cash` → `ChangeCashBalance`, `Online` → `CreateOnlineTransaction`, `PreferCash`/`PreferOnline` → both means with the corresponding preference.
 - `ShopCatalog.Refresh` caches `PaymentType` per shop/item (`ShopPOCO.PaymentType`, `ItemPOCO.ShopPaymentType`); `PurchaseService.CanAfford` + payment + refund paths use it. No hardcoded shop names — mod-injected shops automatically inherit their vanilla rule.
@@ -18,13 +17,8 @@
 - `PaymentModeStatic` always resolves to `PaymentMode.Bank` (setter = no-op, source-compatible); `SelectedPaymentMode` stays as a legacy field in the config (preserved: existing configs keep loading, default now `Bank`).
 - Not-enough-funds error message slimmed for card context ("Not enough card funds"); BUY badge "[CARD]" removed (self-evident). Refund paths (Partial Delivery, Outer Gap) switched to online transactions.
 
-
 ## 0.2.7 (2026-09-17)
 - Version bump.
-
-
-
-
 
 ## 0.2.6 (2026-09-17) — Level-lock enforce & inline quantity input
 - **Vanilla level & rank lock enforcement**: PocketShop respects `StorableItemDefinition.RequiresLevelToPurchase` and `IsUnlocked`. Items requiring higher player level/rank are displayed with `🔒 LOCKED (REQUIRES [RANK])`, the stock indicator shows `🔒 LOCKED ([RANK])`, and buy interactions are disabled both in ItemCard and ItemDetailModal (`BuyResult.LevelLocked`). Configurable via `EnforceLevelRequirements` (default: `true`).

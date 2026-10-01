@@ -7,15 +7,15 @@ body:
     attributes:
       label: Mod
       description: Which mod is affected?
-      placeholder: NotesApp / PotScanner / HomelessMod / ...
+      placeholder: NotesApp / PotScanner / BankApp / ...
     validations:
       required: true
   - type: input
     id: version
     attributes:
       label: Version
-      description: Mod version + game version (e.g. NotesApp v1.0.0, Schedule I v0.4.6f13)
-      placeholder: v1.0.0 / v0.4.6f13
+      description: Mod version (UserData\<Mod>\mod.json or MelonLoader console) + game version (MelonLoader console at startup)
+      placeholder: NotesApp v1.0.3 / Schedule I v0.4.6f13
     validations:
       required: true
   - type: textarea
@@ -30,10 +30,10 @@ body:
     id: log
     attributes:
       label: Latest.log excerpt
-      description: Relevant lines from MelonLoader/Latest.log (use logscan.py)
+      description: Relevant lines from <GameDir>\MelonLoader\Latest.log — search for the mod name and ERROR/Exception (see docs/troubleshooting.md)
       render: text
   - type: textarea
     id: expected
     attributes:
       label: Expected vs Actual
-      placeholder: Expected: ... Actual: ...
+      placeholder: "Expected: ... Actual: ..."
