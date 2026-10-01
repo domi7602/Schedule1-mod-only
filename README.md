@@ -185,7 +185,6 @@ Schedule1-mod-only/
 ├── ThirdParty/            Pinned dependencies (S1API, S1MAPI submodules) and archives
 ├── docs/                  Architecture, compatibility, release process, troubleshooting
 ├── assets/                Screenshots and icon sources for this README
-├── memory-bank/           Working notes for AI coding agents
 └── .github/               CI workflows, issue and PR templates
 ```
 
