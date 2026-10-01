@@ -57,7 +57,7 @@ Release/           Release ZIP output
 
 ## 2. Mod Inventory
 
-> **Status convention:** `Verified <date>` = confirmed in a real game session (assertion only, no artifact in the repo). `In-Game-Verify open` = code complete, not yet confirmed in-game. Keep the two apart — never claim a verify that did not happen. Latest completed verify round: 2026-09-20.
+> **Status convention:** `Verified <date>` = confirmed in a real game session (assertion only, no artifact in the repo). `In-Game-Verify open` = code complete, not yet confirmed in-game. Keep the two apart — never claim a verify that did not happen. Latest completed verify: 2026-09-30 (MessagesPlus); previous round 2026-09-20.
 
 | Mod | Status | Path in `Source/` | Path in `<Game>\Mods\` | Key bits |
 |---|---|---|---|---|
@@ -68,12 +68,12 @@ Release/           Release ZIP output
 | **MoreSaveSlots** | ✅ active (v1.0.12, **Verified 2026-09-15**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` | no S1API (MelonMod + Harmony) |
 | **PocketShop** | ✅ active (v0.3.2, **Verified 2026-09-20**) | `Mods/PocketShop/` | `PocketShop.dll` | PhoneApp, vanilla PaymentType, level locks |
 | **BankApp** | ✅ active (v0.4.4, **Verified 2026-09-15**) | `Mods/BankApp/` | `BankApp.dll` + icon | PhoneApp, banking, slot isolation |
-| **Weather** | ✅ active (v0.3.0, In-Game-Verify open) | `Mods/Weather/` | `Weather.dll` + icon | PhoneApp, read-only dashboard |
+| **Weather** | ✅ active (v0.4.0, In-Game-Verify open) | `Mods/Weather/` | `Weather.dll` + icon | PhoneApp, read-only dashboard |
 | **BusinessIncome** | ✅ active (v0.1.6, **Verified 2026-09-19**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | host authority, slot isolation, console |
 | **StackLimitMod** | ✅ active (v0.1.7; v0.1.6 **Verified 2026-09-20**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` | Harmony, Registry, agriculture-only |
 | **AutoPackagingStation** | ✅ active (v0.3.3, **Verified 2026-09-20**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable, SafeStorage, GLB |
 | **HitmanPhone** | ✅ active (v0.2.9, beta **Verified 2026-09-24**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Messages/NPC/Items/Quests |
-| **MessagesPlus** | ✅ active (v0.4.0, In-Game-Verify open) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + whole-app dark mode |
+| **MessagesPlus** | ✅ active (v0.4.1, **In-Game-Verify open**; v0.4.0 **Verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
 | **TaxiDriver** | 🧪 spike (v0.7.0; Stages 1–3 live-verified 2026-09-25, Pakete C–G test round open) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | vehicles, own NPC driver, S1MAPI |
 | **S1MCP** | ✅ active (v1.0.1) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | MCP over TCP :8765 |
 | **Shared** | ✅ active (workspace lib) | `Mods/Shared/` | `Shared.dll` | see §5 |
@@ -114,9 +114,9 @@ Release/           Release ZIP output
 - Chip-based deposit/withdraw screen: weekly $10k ATM limit, two-column cash/online balances, double-entry booking with rollback, slot-isolated persistence, `NetworkGuard.IsInMainScene` guards.
 - History: `Source/Mods/BankApp/docs/CHANGELOG.md`.
 
-**Weather v0.3.0 (2026-09-26):**
-- Read-only phone dashboard of the nine weather components: hero condition + ring gauge, nine live rows, empty state; no persistence, no gameplay impact, no input field.
-- **In-Game-Verify open.** History: `Source/Mods/Weather/docs/CHANGELOG.md`.
+**Weather v0.4.0 (2026-10-01):**
+- Read-only phone dashboard of the nine weather components: accent-bordered hero card (name, percentage, intensity pill, meta count, ring gauge with a rounded accent arc) over nine live rows — active conditions tint their row, border, icon and bar, inactive rows stay neutral. Empty state, no persistence, no gameplay impact, no input field.
+- v0.4.0 = rebuilt to the approved mockup (flat canvas without header chrome, name above the bar in each row, accent-tinted active rows). All anchors measured off the reference design as canvas fractions. **In-Game-Verify open.** History: `Source/Mods/Weather/docs/CHANGELOG.md`.
 
 **BusinessIncome v0.1.6 (2026-09-17):**
 - Daily passive revenue for owned businesses: deterministic variance, employee/weekend bonuses; host-authority fail-closed, slot-isolated idempotent payout marker, bounded catch-up; `biz` console dashboard.
@@ -134,10 +134,11 @@ Release/           Release ZIP output
 - Bounty contracts via phone messages (anonymous callers): kill → Polaroid evidence → dead-drop payout; police heat, journal quests, 3-day expiry, slot-isolated save; `KnockOut` patch + double-drop latch + orphan-quest cleanup.
 - Beta verified 2026-09-24 (offer → accept → receipt → payout). History: `Source/Mods/HitmanPhone/docs/CHANGELOG.md`.
 
-**MessagesPlus v0.4.0 (2026-09-29/30):**
+**MessagesPlus v0.4.1 (2026-09-29/30):**
 - Patch-only mod (no PhoneApp icon) on the vanilla `MessagesApp`: sticky search band under the title (live search, `[All][Customer][Dealer][Supplier]` chips, unread counter), "⋯" menu with Clear Read / Clear All — view-only filtering, host-only + customer-only mutations, one-time legacy restore of v0.1.x trashed threads.
-- **Whole-app dark mode** (`AppTheme`): toggle in the "⋯" menu, persisted in `MessagesPlusConfig.DarkMode`. Recolours our band + vanilla surfaces (page backgrounds, inbox rows, chat bubbles + tails, dialogue header + response panel, generic near-white sweep) — one-time per graphic with cached originals, so light restores exactly; avatars, badges and the unread dot stay untouched.
-- Round-1 fixes: `(RectTransform)x.transform` casts → `GetComponent<RectTransform>()` (IL2CPP cast made the "⋯" menu dead), search surface keeps `raycastTarget=true`. **In-Game-Verify open.** History: `Source/Mods/MessagesPlus/docs/CHANGELOG.md`.
+- **Whole-app dark mode** (`AppTheme`): **permanent since v0.4.1** — the "⋯" menu toggle is gone, the config defaults to ON and a stale `false` self-heals at startup (`MessagesPlusConfig.DarkMode` stays for schema stability). Recolours our band + vanilla surfaces (page backgrounds, inbox rows, chat bubbles + tails, dialogue header + response panel, generic near-white sweep) — one-time per graphic with cached originals; avatars, badges and the unread dot stay untouched.
+- **v0.4.1 fix:** the deal-window popup themes **instantly** (`DealWindowSelectorPatch` — same-frame subtree refresh on `SetIsOpen`, forced re-tint for vanilla re-colours); previously freshly shown surfaces stayed light until the 1 s tick. **In-Game-Verify open.**
+- Round-1 fixes: `(RectTransform)x.transform` casts → `GetComponent<RectTransform>()` (IL2CPP cast made the "⋯" menu dead), search surface keeps `raycastTarget=true` (v0.4.0 **Verified 2026-09-30**). History: `Source/Mods/MessagesPlus/docs/CHANGELOG.md`.
 
 **TaxiDriver v0.7.0 (2026-09-29, spike):**
 - Orderable taxi from the in-game phone ("Taxi" app) with an own NPC driver: vehicle spawn + `VehicleAgent.Navigate` A→B + player ride, `taxi.glb` visual swap via S1MAPI GltfLoader, `RoadKeeper` road-corridor assistance, destination picker (properties/custom checkpoints), fare meter (moving in-game minutes; cash → bank; host-only fail-closed), F1–F12 diagnostic hotkeys + output-only `taxi` console.
