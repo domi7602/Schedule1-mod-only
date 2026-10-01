@@ -120,12 +120,7 @@ Pre-built packages, when published, are available on the [Releases page](https:/
 
 ### Phone Apps
 
-| BankApp |
-|:---:|
-| <img src="assets/bankapp/dashboard-v0.3.0.png" width="260" alt="BankApp dashboard: weekly progress, balances, quick-amount chips and deposit button"> |
-| In-game dashboard (UI introduced in v0.3.0; later releases changed guards and lifecycle only). |
-
-Screenshots for the other phone apps (NotesApp, CalculatorApp, PotScanner, PocketShop, Weather) and the gameplay mods (AutoPackagingStation, CustomSkateboard, HitmanPhone, MoreSaveSlots) are still being collected. The folder layout and naming rules for adding them are documented in [`assets/README.md`](assets/README.md) — contributions are welcome.
+Screenshots for the phone apps (NotesApp, CalculatorApp, PotScanner, PocketShop, Weather) and the gameplay mods (AutoPackagingStation, CustomSkateboard, HitmanPhone, MoreSaveSlots) are still being collected. The folder layout and naming rules for adding them are documented in [`assets/README.md`](assets/README.md) — contributions are welcome.
 
 ## Installation
 
