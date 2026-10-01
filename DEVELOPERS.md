@@ -36,6 +36,8 @@ dotnet build Source/Mods/S1Mods.sln -c Release
 
 The repository lives **outside** the game directory. Build and deploy resolve the game path from `$env:SCHEDULE1_PATH`, falling back to `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`. Set the variable **before** running `dotnet build`; MSBuild evaluates it once at startup.
 
+Working from more than one machine? See [`docs/working-across-devices.md`](docs/working-across-devices.md) for what syncs through git, what is intentionally machine-local, and the fresh-clone checklist.
+
 ## Requirements
 
 | Requirement | Version | Notes |
@@ -190,6 +192,7 @@ Releases are packaged per mod with `Tools/package-release.ps1` on a machine with
 - [`docs/architecture.md`](docs/architecture.md) — dependency direction and runtime boundaries
 - [`docs/pitfalls.md`](docs/pitfalls.md) — IL2CPP gotchas and verified solutions
 - [`docs/compatibility.md`](docs/compatibility.md) — verification matrix per mod
+- [`docs/working-across-devices.md`](docs/working-across-devices.md) — multi-machine workflow and fresh-clone checklist
 - [`Tools/README.md`](Tools/README.md) — script reference
 - [`ThirdParty/README.md`](ThirdParty/README.md) — pinned dependencies and deploy policy
 - [`Skills/README.md`](Skills/README.md) — skill index (load `schedule1-modding` first)

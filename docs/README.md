@@ -10,6 +10,7 @@
 | [`architecture.md`](architecture.md) | Developers | Dependency direction, mod layout, runtime boundaries. |
 | [`pitfalls.md`](pitfalls.md) | Developers | IL2CPP and Unity gotchas collected from the mods in this repository. |
 | [`release-process.md`](release-process.md) | Maintainers | Version bump, packaging, ZIP layout, GitHub release workflow. |
+| [`working-across-devices.md`](working-across-devices.md) | Maintainers, developers | Multi-machine workflow: what syncs via git, what is machine-local, fresh-clone checklist. |
 | [`../Source/Mods/README.md`](../Source/Mods/README.md) | Developers | Mod source directory: isolation, shared library, conventions. |
 | [`../Tools/README.md`](../Tools/README.md) | Developers | What each PowerShell helper script does. |
 | [`../Skills/README.md`](../Skills/README.md) | AI agents, developers | Index of the 20 skills (runbooks and reference material). |
