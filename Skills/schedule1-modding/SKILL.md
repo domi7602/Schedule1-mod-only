@@ -10,7 +10,7 @@ description: >-
 
 # Schedule I — Modding Skill & Runbook
 
-This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I v0.4.7f6** (TVGS) in the workspace at `C:\Users\pc\Schedule1-mod-only`. The workspace lives outside the game install dir; game path resolves via `$env:SCHEDULE1_PATH` (default: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`).
+This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I v0.4.7f6** (TVGS) in this workspace (the `Schedule1-mod-only` repository root). The workspace lives outside the game install dir; game path resolves via `$env:SCHEDULE1_PATH` (default: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`).
 
 > **Version check (last verified: 2026-09-12):** Before writing patches or building, confirm the installed game version and S1API version still match this skill. If the game was updated, follow the Update Runbook (§5) first.
 
@@ -18,7 +18,7 @@ This skill provides full procedural knowledge, conventions, and architectural gu
 
 ## 1. Toolchain & Workspace Setup
 
-* **Workspace Root**: `C:\Users\pc\Schedule1-mod-only` (lives outside the game directory, under the user profile)
+* **Workspace Root**: the `Schedule1-mod-only` repository root (lives outside the game directory; any user/drive)
 * **Game Path**: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (Override via `$env:SCHEDULE1_PATH`)
 * **Runtime**: MelonLoader 0.7.3 (IL2CPP, Unity 2022.3)
 * **Target Framework**: `net6.0`, C# 12, `Nullable` enabled

@@ -121,7 +121,7 @@ D. **Inspect S1API wrappers:**
 
 ## 6. Knowledge State & Anchors
 
-* Workspace: `C:\Users\pc\Schedule1-mod-only`
+* Workspace: the `Schedule1-mod-only` repository root (wherever you cloned it)
 * Game Version: `v0.4.7f6` (Unity 2022.3, IL2CPP).
 * S1API: `3.2.1-beta.7` deployed (`Plugins\S1APILoader.MelonLoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`).
 * S1MAPI: `2.0.1` in `ThirdParty/S1MAPI/`.

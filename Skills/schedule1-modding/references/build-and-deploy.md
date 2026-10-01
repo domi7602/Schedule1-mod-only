@@ -143,17 +143,17 @@ Solution-wide packaging: use `pwsh Tools/package-release.ps1 -Mod All` (creates 
 
 **Iterate quickly on one mod:**
 ```pwsh
-$env:WORKSPACE_ROOT = "C:\Users\pc\Schedule1-mod-only"   # set once per session
+$env:WORKSPACE_ROOT = "C:\Users\<you>\Schedule1-mod-only"   # set once per session
 dotnet build "$env:WORKSPACE_ROOT\Source\Mods\NotesApp\src\NotesApp.csproj" -c Release
 ```
 
 **Clean release for all mods:**
 ```pwsh
-$env:WORKSPACE_ROOT = "C:\Users\pc\Schedule1-mod-only"
+$env:WORKSPACE_ROOT = "C:\Users\<you>\Schedule1-mod-only"
 pwsh "$env:WORKSPACE_ROOT\Tools\build-all.ps1"
 ```
 
-> The workspace lives outside the game directory (`C:\Users\pc\Schedule1-mod-only`); only the game path needs `$env:SCHEDULE1_PATH`. Use `$env:WORKSPACE_ROOT` for cross-machine portability.
+> The workspace lives outside the game directory (wherever you cloned the repo); only the game path needs `$env:SCHEDULE1_PATH`. Use `$env:WORKSPACE_ROOT` for cross-machine portability.
 
 **Onboard a new mod:**
 ```pwsh

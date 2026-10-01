@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Workspace: `C:\Users\pc\Schedule1-mod-only` — MelonLoader IL2CPP modding workspace for *Schedule I* **v0.4.7f6** (TVGS, Steam Open Beta). The repo lives **outside** the game install; builds and deploys resolve the game via the `SCHEDULE1_PATH` env var or the default `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
+Workspace: the `Schedule1-mod-only` repository root (any path/user, e.g. `C:\Users\<you>\Schedule1-mod-only`) — MelonLoader IL2CPP modding workspace for *Schedule I* **v0.4.7f6** (TVGS, Steam Open Beta). The repo lives **outside** the game install; builds and deploys resolve the game via the `SCHEDULE1_PATH` env var or the default `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
 
 Quick links: [`DEVELOPERS.md`](DEVELOPERS.md) — human build/test/debug workflow · [`docs/README.md`](docs/README.md) — documentation index · [`docs/architecture.md`](docs/architecture.md) — dependency boundaries · [`docs/pitfalls.md`](docs/pitfalls.md) — battle-tested gotchas · [`docs/compatibility.md`](docs/compatibility.md) — per-mod verification matrix · [`ThirdParty/README.md`](ThirdParty/README.md) — pinned dependencies · [`GameReferences/README.md`](GameReferences/README.md) — local decompiles · [`Skills/README.md`](Skills/README.md) — skill index.
 
@@ -31,7 +31,7 @@ The skill list is anchored in three files (this one, `Skills/README.md`, `README
 
 - **Game:** `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` — override with `$env:SCHEDULE1_PATH` **before** `dotnet build` (MSBuild reads it once at startup).
 - **Versions:** game v0.4.7f6 (Unity 2022.3, IL2CPP) · MelonLoader 0.7.3 (net6) · S1API 3.2.1-beta.7 · TFM `net6.0`, `LangVersion` 12, nullable enabled.
-- **Install state (after the 2026-09-27 Steam reinstall):** .NET 6 runtime global in `C:\Program Files\dotnet`; .NET SDK 8.0.425 user-local in `C:\Users\pc\.dotnet`. Older repo copies (in the game dir / on the Desktop) are obsolete — this path is the only truth.
+- **Install state (after the 2026-09-27 Steam reinstall):** .NET 6 runtime global in `C:\Program Files\dotnet`; .NET SDK 8.0.425 user-local in `$env:USERPROFILE\.dotnet`. Older repo copies (in the game dir / on the Desktop) are obsolete — this path is the only truth.
 - **Runtime dependencies in the game dir:** S1API at `Mods\S1API.Il2Cpp.MelonLoader.dll` — the build probes exactly that filename (a wrong name breaks every mod with `CS0103: The name 'S1API' does not exist`); S1MAPI at `UserLibs\S1MAPI_Il2Cpp.dll`. `MelonLoader\Il2CppAssemblies\` only exists after the game has run once — until then, mods cannot reference Unity/IL2CPP types.
 - **Launch, logs, live debugging:** `Start-Process "steam://rungameid/3164500"`; gameplay log `MelonLoader\Latest.log`; S1MCP bridge at `ThirdParty/S1MCPServer-master/` (TCP `127.0.0.1:8765`) — see `schedule1-mcp`.
 
