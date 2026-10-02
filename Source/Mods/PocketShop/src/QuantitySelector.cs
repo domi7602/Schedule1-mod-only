@@ -25,8 +25,6 @@ public class QuantitySelector
 
     public int Quantity => _quantity;
     public int Max => _maxStockOrSentinel;
-    public bool IsAtMax => _maxStockOrSentinel > 0 && _quantity >= _maxStockOrSentinel;
-    public bool IsAtMin => _quantity <= 1;
 
     public QuantitySelector(int maxStockOrSentinel, int initial = 1)
     {
@@ -99,6 +97,8 @@ public class QuantitySelector
         // [+] Button
         AddButton(bar.transform, "+", () => ChangeBy(+1));
 
+        _buttons = bar.GetComponentsInChildren<Button>(true);
+
         if (IsStockEmpty)
         {
             SetInteractable(false);
@@ -156,43 +156,12 @@ public class QuantitySelector
         if (_inputField != null) _inputField.text = _quantity.ToString();
     }
 
-    public void SetQuantity(int newQty)
-    {
-        int cap = EffectiveMax();
-        int clamped = Mathf.Clamp(newQty, 1, cap);
-        if (_quantity == clamped) return;
-        _quantity = clamped;
-        if (_inputField != null) _inputField.text = _quantity.ToString();
-        OnChanged?.Invoke(_quantity);
-    }
-
-    public void RefreshDisplay()
-    {
-        if (_inputField != null) _inputField.text = _quantity.ToString();
-    }
-
     public void ChangeBy(int delta)
     {
         int newQty = _quantity + delta;
         if (newQty < 1) newQty = 1;
         int cap = EffectiveMax();
         if (newQty > cap) newQty = cap;
-        if (newQty == _quantity) return;
-        _quantity = newQty;
-        if (_inputField != null) _inputField.text = _quantity.ToString();
-        SoundService.PlayButtonClick();
-        OnChanged?.Invoke(_quantity);
-    }
-
-    public void ChangeBySafe(int delta)
-    {
-        int newQty = _quantity + delta;
-        if (newQty < 1) newQty = 1;
-        int cap = EffectiveMax();
-        if (newQty > cap)
-        {
-            newQty = cap > 0 ? cap : 1;
-        }
         if (newQty == _quantity) return;
         _quantity = newQty;
         if (_inputField != null) _inputField.text = _quantity.ToString();
@@ -221,18 +190,22 @@ public class QuantitySelector
         ButtonUtils.AddListener(btn, onClick);
     }
 
+    // Perf (2026-10-02): button refs cached at build time + last applied state so the
+    // 1s buy-state sweep neither walks GetComponentsInChildren nor rewrites buttons.
+    private Button[] _buttons = Array.Empty<Button>();
+    private bool _interactableState = true;
+
     public void SetInteractable(bool interactable)
     {
-        if (_bar != null)
+        if (_bar == null || _interactableState == interactable) return;
+        _interactableState = interactable;
+        for (int i = 0; i < _buttons.Length; i++)
         {
-            foreach (var b in _bar.GetComponentsInChildren<Button>(true))
-            {
-                b.interactable = interactable;
-            }
-            if (_inputField != null)
-            {
-                _inputField.interactable = interactable;
-            }
+            _buttons[i].interactable = interactable;
+        }
+        if (_inputField != null)
+        {
+            _inputField.interactable = interactable;
         }
     }
 }

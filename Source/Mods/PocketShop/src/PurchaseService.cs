@@ -51,11 +51,6 @@ public static class PurchaseService
     /// </summary>
     public const int UnlimitedStockSentinel = -1;
 
-    public static PurchaseResultData Buy(ItemPOCO item)
-    {
-        return BuyWithQuantity(item, 1, PocketShopConfig.PaymentModeStatic);
-    }
-
     /// <summary>
     /// Calculates the full pricing details for an item purchase.
     /// </summary>
@@ -404,5 +399,35 @@ public static class PurchaseService
             SoundService.PlayPurchaseDenied();
             return result;
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Merged from SoundService.cs (2026-10-02) — audio feedback helpers.
+// ---------------------------------------------------------------------------
+
+/// <summary>
+/// Handles native and procedural audio feedback for PocketShop actions
+/// (purchase success, insufficient funds / inventory error, button clicks).
+/// Delegated to S1Mods.Shared.AudioHelper with user config toggle checks.
+/// </summary>
+public static class SoundService
+{
+    public static void PlayPurchaseSuccess()
+    {
+        if (!PocketShopConfig.SoundEffectsEnabled) return;
+        AudioHelper.PlayCashSound();
+    }
+
+    public static void PlayPurchaseDenied()
+    {
+        if (!PocketShopConfig.SoundEffectsEnabled) return;
+        AudioHelper.PlayDenySound();
+    }
+
+    public static void PlayButtonClick()
+    {
+        if (!PocketShopConfig.SoundEffectsEnabled) return;
+        AudioHelper.PlayClickSound();
     }
 }

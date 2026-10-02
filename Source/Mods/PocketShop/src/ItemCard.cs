@@ -10,9 +10,10 @@ using UITheme = S1Mods.Shared.UITheme;
 namespace PocketShop.UI;
 
 /// <summary>
-/// Single item card: Price (top-left) + Stock badge (top-right) + Image (clickable) +
-/// Name (clickable) + QuantitySelector + BUY button.
-/// Supports multi-payment methods (Cash, Bank, Auto) and opens ItemDetailModal on tap.
+/// Single item card: Price (top-left) + Stock badge (top-right) + Image +
+/// Name + QuantitySelector + BUY button.
+/// Payment follows the shop's vanilla rule (Cash/Card); stock/buy state is
+/// refreshed by the app's 1s sweep and on purchase.
 /// </summary>
 public class ItemCard
 {
@@ -26,6 +27,16 @@ public class ItemCard
     private Text _priceLabel = null!;
     private GameObject _stockBadge = null!;
     private GameObject _card = null!;
+
+    // Perf (2026-10-02): last applied buy-state signature — the 1s sweep skips all
+    // writes and label string allocations while nothing changed.
+    private bool _buyStateValid;
+    private bool _lastLocked;
+    private bool _lastOut;
+    private bool _lastAfford;
+    private int _lastQty = -1;
+    private float _lastTotal = -1f;
+    private PaymentMode _lastMode;
 
     public ItemCard(ItemPOCO item) { _item = item; }
 
@@ -147,8 +158,14 @@ public class ItemCard
     /// </summary>
     public void RefreshBuyState()
     {
+        // Perf (2026-10-02): the 1s sweep calls this for every visible card — skip all
+        // writes (and the label string allocations) while the state is unchanged.
         if (!_item.IsAvailableToPlayer)
         {
+            if (_buyStateValid && _lastLocked) return;
+            _buyStateValid = true;
+            _lastLocked = true;
+            _lastOut = false;
             _buyButton.interactable = false;
             _buyPanelImage.color = new Color(0.18f, 0.14f, 0.16f, 1f);
             _buyLabel.text = "🔒 LOCKED";
@@ -159,6 +176,10 @@ public class ItemCard
 
         if (_qty.IsStockEmpty)
         {
+            if (_buyStateValid && !_lastLocked && _lastOut) return;
+            _buyStateValid = true;
+            _lastLocked = false;
+            _lastOut = true;
             _buyButton.interactable = false;
             _buyPanelImage.color = new Color(0.12f, 0.15f, 0.20f, 1f);
             _buyLabel.text = "OUT";
@@ -167,11 +188,26 @@ public class ItemCard
             return;
         }
 
-        _qty.SetInteractable(true);
-
         PurchaseService.CalculatePricing(_item, _qty.Quantity, out _, out _, out _, out float total);
         // v0.3.1: follow the shop's vanilla payment rule (Black Market = Cash, clean = Card).
         bool canAfford = PurchaseService.CanAfford(total, _item.ShopPaymentType, out PaymentMode effective);
+
+        if (_buyStateValid && !_lastLocked && !_lastOut
+            && _lastAfford == canAfford && _lastQty == _qty.Quantity
+            && _lastMode == effective && _lastTotal == total)
+        {
+            return;
+        }
+
+        _buyStateValid = true;
+        _lastLocked = false;
+        _lastOut = false;
+        _lastAfford = canAfford;
+        _lastQty = _qty.Quantity;
+        _lastMode = effective;
+        _lastTotal = total;
+
+        _qty.SetInteractable(true);
 
         if (!canAfford)
         {

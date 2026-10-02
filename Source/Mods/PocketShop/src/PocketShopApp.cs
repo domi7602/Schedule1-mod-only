@@ -72,7 +72,7 @@ public sealed class PocketShopApp : PhoneApp
             MelonEvents.OnUpdate.Subscribe(DispatchUpdate);
         }
         base.OnCreated();
-        MelonLogger.Msg("Registered with S1API PhoneApp system (v0.3.8).");
+        MelonLogger.Msg("Registered with S1API PhoneApp system (v0.3.9).");
     }
 
     internal static void TearDownForSceneUnload()
