@@ -1,5 +1,20 @@
 # TaxiDriver verification
 
+## Unit tests (pure logic)
+
+The extracted Unity-free logic is covered by `Source/Tests/TaxiDriver.Tests`
+(no game assemblies required):
+
+```pwsh
+dotnet test Source/Tests/TaxiDriver.Tests/TaxiDriver.Tests.csproj -c Release
+```
+
+Currently covered: `FareLedger` (fare accrual, motion latch, pause/clock-stop
+handling, hitch cap, billing commit) and the `fare.json` threshold
+validation/migration rules (`FareConfigRules`) plus the game-clock rate formula
+(`FareClock`). The in-game checklist below stays the source of truth for
+everything Unity-bound.
+
 ## Build check, 2026-10-01
 
 - Release build against installed game references: 0 errors, 2 existing CS8604

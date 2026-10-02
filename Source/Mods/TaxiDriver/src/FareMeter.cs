@@ -58,18 +58,16 @@ internal static class FareMeter
     private static bool _mpWarned;
 
     private static bool _active;
-    private static double _movingMinutes;
     private static int _chargedTotal;
     private static float _lastTickAt;
     private static int _lastTickFrame = -1;
-    private static int _billedMinutes;
-    private static bool _wasMoving;
-    private static bool _armed;
-    private static bool _paused;
     private static int _nextChargeLogAt = 10;
     private static float _lastClockRate = -1f;
     private static bool _clockUnavailableWarned;
     private static bool _clockStopped;
+
+    // Pure accrual state machine (Unity-free; unit-tested in Source/Tests/TaxiDriver.Tests).
+    private static readonly FareLedger _ledger = new();
 
     /// <summary>Total charged for the current/last ride (dollars, whole).</summary>
     internal static int ChargedTotal => _chargedTotal;
@@ -97,18 +95,17 @@ internal static class FareMeter
                     $"(${_config!.DollarsPerInGameMinute}/In-Game-min moving, {(_config.Enabled ? "enabled" : "disabled")}).");
             }
 
-            if (float.IsNaN(_config.MovingSpeedThresholdKmh) || float.IsInfinity(_config.MovingSpeedThresholdKmh) ||
-                _config.MovingSpeedThresholdKmh < 0.1f)
-                _config.MovingSpeedThresholdKmh = 3f;
+            if (FareConfigRules.IsInvalidThreshold(_config.MovingSpeedThresholdKmh))
+                _config.MovingSpeedThresholdKmh = FareConfigRules.DefaultThresholdKmh;
 
             // Review 2026-10-02 (point 6): the 0.5 km/h legacy threshold counted the
             // physics creep (parking-speed crawl) as motion — the 2026-10-01 test ride
             // billed $9 for ~2 m of crawl. The migration is REAL (file rewritten) and
             // logs both values, so a later deliberate change is not overwritten again.
-            if (_config.MovingSpeedThresholdKmh <= 0.5f)
+            if (FareConfigRules.IsLegacyThreshold(_config.MovingSpeedThresholdKmh))
             {
                 float old = _config.MovingSpeedThresholdKmh;
-                _config.MovingSpeedThresholdKmh = 3f;
+                _config.MovingSpeedThresholdKmh = FareConfigRules.DefaultThresholdKmh;
                 SafeStorage.SaveAtomic(FilePath, _config, Mod.Log);
                 Mod.Log.Warn(
                     $"[meter] legacy threshold migrated: {old:0.###} -> 3 km/h (creep no longer billed); {FilePath} updated.");
@@ -137,14 +134,10 @@ internal static class FareMeter
 
         FareConfig cfg = Config;
         _active = true;
-        _movingMinutes = 0;
+        _ledger.Reset();
         _chargedTotal = 0;
         _lastTickAt = Time.time;
         _lastTickFrame = -1;
-        _billedMinutes = 0;
-        _wasMoving = false;
-        _armed = false;
-        _paused = false;
         _nextChargeLogAt = 10;
         _lastClockRate = -1f;
         _clockUnavailableWarned = false;
@@ -179,79 +172,58 @@ internal static class FareMeter
         float now = Time.time;
         float rawDelta = now - _lastTickAt;
         _lastTickAt = now; // always consume pauses/standing; never catch up on resume
+
         if (Time.timeScale == 0f)
         {
-            if (!_paused)
+            FareLedger.TickOutcome pausedOutcome = _ledger.Tick(new FareLedger.TickInput { TimePaused = true });
+            if (pausedOutcome.JustPaused)
                 Mod.Log.Info("[meter] paused: no fare accrues.");
-            _paused = true;
-            _wasMoving = false;
-            return;
-        }
-        if (_paused)
-            Mod.Log.Info("[meter] resumed: paused time discarded.");
-        _paused = false;
-
-        if (!SpikeState.RideActive || !ReferenceEquals(veh, SpikeState.Vehicle))
-        {
-            _wasMoving = false;
             return;
         }
 
-        // Hitch-safe: a 2 s freeze must not bill 2 s of standing around as motion,
-        // and never more than one unit per frame pair.
-        float dt = Mathf.Clamp(rawDelta, 0f, 0.5f);
-        if (!TryGetGameMinutesPerSecond(out float clockRate))
-        {
-            _wasMoving = false;
-            return;
-        }
-        dt *= clockRate;
+        bool rideValid = SpikeState.RideActive && ReferenceEquals(veh, SpikeState.Vehicle);
+        bool clockAvailable = false;
+        float clockRate = 0f;
+        if (rideValid)
+            clockAvailable = TryGetGameMinutesPerSecond(out clockRate);
 
         FareConfig cfg = Config;
-        if (!cfg.Enabled || cfg.DollarsPerInGameMinute <= 0)
+        bool speedReadFailed = false;
+        float speed = 0f;
+        if (rideValid && clockAvailable && cfg.Enabled && cfg.DollarsPerInGameMinute > 0)
         {
-            _wasMoving = false;
-            return;
+            try
+            {
+                speed = Mathf.Abs(veh.Speed_Kmh);
+            }
+            catch (Exception)
+            {
+                speedReadFailed = true; // dead handle — no motion, no charge
+            }
         }
 
-        float speed;
-        try
+        FareLedger.TickOutcome outcome = _ledger.Tick(new FareLedger.TickInput
         {
-            speed = Mathf.Abs(veh.Speed_Kmh);
-        }
-        catch (Exception)
-        {
-            _wasMoving = false;
-            return; // dead handle — no motion, no charge
-        }
+            RideValid = rideValid,
+            RawDeltaSeconds = rawDelta,
+            ClockAvailable = clockAvailable,
+            ClockRate = clockRate,
+            ConfigEnabled = cfg.Enabled,
+            DollarsPerMinute = cfg.DollarsPerInGameMinute,
+            SpeedReadFailed = speedReadFailed,
+            SpeedKmh = speed,
+            MovingThresholdKmh = cfg.MovingSpeedThresholdKmh,
+        });
 
-        bool moving = !float.IsNaN(speed) && !float.IsInfinity(speed) && speed > 0f && speed >= cfg.MovingSpeedThresholdKmh;
-        if (moving && !_armed)
-        {
-            _armed = true;
+        if (outcome.JustResumed)
+            Mod.Log.Info("[meter] resumed: paused time discarded.");
+        if (outcome.ArmedNow)
             Mod.Log.Info(
                 $"[meter] armed — first confirmed motion above {cfg.MovingSpeedThresholdKmh:0.###} km/h; the time before this moment is discarded.");
-        }
-        if (moving != _wasMoving)
-            Mod.Log.Info($"[meter] {(moving ? "moving" : "standing (FREE)")}: speed={speed:0.###} km/h, accumulated={_movingMinutes:0.###} moving in-game minutes, charged=${_chargedTotal}, frame={Time.frameCount}.");
-        bool countInterval = moving && _wasMoving;
-        _wasMoving = moving;
-        if (!countInterval)
-            return; // standing is free
-
-        _movingMinutes += dt;
-
-        // Floor TIME first. With rate=2 the old formula charged $1 after 0.5s.
-        int wholeMinutes = (int)Math.Floor(_movingMinutes);
-        int units = wholeMinutes - _billedMinutes;
-        int due = units > 0 ? checked(units * cfg.DollarsPerInGameMinute) : 0;
-        if (due > 0)
-        {
-            // Mark consumed before touching money: a failed/partially applied payment
-            // must never be retried every subsequent frame.
-            _billedMinutes = wholeMinutes;
-            Charge(due);
-        }
+        if (outcome.MovingChangedTo is bool movingNow)
+            Mod.Log.Info($"[meter] {(movingNow ? "moving" : "standing (FREE)")}: speed={speed:0.###} km/h, accumulated={_ledger.MovingMinutes:0.###} moving in-game minutes, charged=${_chargedTotal}, frame={Time.frameCount}.");
+        if (outcome.DueDollars > 0)
+            Charge(outcome.DueDollars);
     }
 
     /// <summary>Charges whole dollars: cash first (never below 0), the rest to the bank.</summary>
@@ -300,7 +272,7 @@ internal static class FareMeter
                 _nextChargeLogAt = (_chargedTotal / 10 + 1) * 10;
                 Mod.Log.Info(
                     $"[meter] ${_chargedTotal} charged so far " +
-                    $"({_movingMinutes:0.###} moving in-game minutes; rate=${Config.DollarsPerInGameMinute}/full minute, clock=TimeManager; last charge: ${fromCash} cash / ${fromBank} bank, frame={Time.frameCount}).");
+                    $"({_ledger.MovingMinutes:0.###} moving in-game minutes; rate=${Config.DollarsPerInGameMinute}/full minute, clock=TimeManager; last charge: ${fromCash} cash / ${fromBank} bank, frame={Time.frameCount}).");
             }
         }
         catch (Exception ex)
@@ -331,10 +303,8 @@ internal static class FareMeter
 
             float cycle = GameClock.CycleDuration; // real minutes per game day
             float speed = clock.TimeSpeedMultiplier;
-            if (float.IsNaN(cycle) || float.IsInfinity(cycle) || cycle <= 0f ||
-                float.IsNaN(speed) || float.IsInfinity(speed) || speed <= 0f)
+            if (!FareClock.TryComputeRate(cycle, speed, out rate))
                 throw new InvalidOperationException("invalid TimeManager cycle/speed");
-            rate = 1440f / (cycle * 60f) * speed;
             if (Mathf.Abs(rate - _lastClockRate) > 0.001f)
             {
                 _lastClockRate = rate;
@@ -360,7 +330,7 @@ internal static class FareMeter
 
         _active = false;
         int total = _chargedTotal;
-        int minutes = (int)_movingMinutes;
+        int minutes = (int)_ledger.MovingMinutes;
         FareConfig cfg = Config;
 
         Mod.Log.Info($"[meter] ride ended ({reason}) — fare ${total} for {minutes} moving in-game minute(s).");
@@ -396,6 +366,6 @@ internal static class FareMeter
             $"(0 km/h free, threshold {cfg.MovingSpeedThresholdKmh:0.#} km/h), payment cash→bank (bank may go negative).");
         SpikeCommands.Print(
             $"[meter] current ride: {(_active ? "RUNNING" : "idle")} — ${_chargedTotal} charged, " +
-            $"{(int)_movingMinutes} moving in-game min. Config: {FilePath}");
+            $"{(int)_ledger.MovingMinutes} moving in-game min. Config: {FilePath}");
     }
 }
