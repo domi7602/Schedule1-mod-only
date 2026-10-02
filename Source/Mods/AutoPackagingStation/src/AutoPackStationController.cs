@@ -645,13 +645,26 @@ public class AutoPackStationController : MonoBehaviour
         catch { }
     }
 
+    // Perf (2026-10-02): the native PackagingStation component is session-stable —
+    // resolve it once and re-resolve only if it goes null/collected.
+    private PackagingStation? _nativeStationCache;
+
+    /// <summary>Cached native station lookup (also used by AutoPackEngine).</summary>
+    public PackagingStation? GetNativeStation()
+    {
+        if (_nativeStationCache != null && _nativeStationCache.Pointer != IntPtr.Zero && !_nativeStationCache.WasCollected)
+            return _nativeStationCache;
+        _nativeStationCache = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
+        return _nativeStationCache;
+    }
+
     private void Update()
     {
         try
         {
             float dt = Time.deltaTime;
             var rData = AutoPackStore.GetRuntimeData(_stationGuid);
-            var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
+            var station = GetNativeStation();
             bool isNativeStation = (station != null && station.Pointer != IntPtr.Zero);
 
             bool canStart = isNativeStation
@@ -749,9 +762,14 @@ public class AutoPackStationController : MonoBehaviour
                 }
 
                 // 3. Handle Escape key to close the station menu cleanly — guard typing & pause (H9/M12)
+                // Perf (2026-10-02): probe the focus state only on Escape frames.
+                bool escapePressed = Input.GetKeyDown(KeyCode.Escape);
                 bool isTyping = false;
-                try { isTyping = S1Mods.Shared.HotkeyManager.IsInputFieldFocused(); } catch { }
-                if (!isTyping && Input.GetKeyDown(KeyCode.Escape))
+                if (escapePressed)
+                {
+                    try { isTyping = S1Mods.Shared.HotkeyManager.IsInputFieldFocused(); } catch { }
+                }
+                if (!isTyping && escapePressed)
                 {
                     try
                     {
@@ -802,9 +820,11 @@ public class AutoPackStationController : MonoBehaviour
             // 2b. Strict raycast-guarded interactions — PackUp via F (H1)
             if (!isCanvasOpen && AutoPackEngine.IsHostOrSingleplayer())
             {
-                // Only when cursor locked (no UI) and not typing
+                // Only when cursor locked (no UI) and not typing.
+                // Perf (2026-10-02): only the F-keydown frame can act here — check the
+                // key first so the raycast + focus probe stay off the per-frame path.
                 bool canInteract = false;
-                try { canInteract = Cursor.lockState == CursorLockMode.Locked && !S1Mods.Shared.HotkeyManager.IsInputFieldFocused(); } catch { canInteract = Cursor.lockState == CursorLockMode.Locked; }
+                try { canInteract = Cursor.lockState == CursorLockMode.Locked && Input.GetKeyDown(KeyCode.F) && !S1Mods.Shared.HotkeyManager.IsInputFieldFocused(); } catch { canInteract = Cursor.lockState == CursorLockMode.Locked && Input.GetKeyDown(KeyCode.F); }
                 if (canInteract)
                 {
                     var cam = Camera.main;
@@ -931,529 +951,6 @@ public class AutoPackStationController : MonoBehaviour
             float pulse = 0.9f + Mathf.Sin(_ledPulseTimer) * 0.5f;
             _ledLight.intensity = pulse;
         }
-    }
-
-
-
-    public bool TryExtractInputProduct()
-    {
-        // Host-only (Audit 2026-09-13): local rData/inventory mutation desyncs MP clients.
-        if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
-
-        var rData = AutoPackStore.GetRuntimeData(_stationGuid);
-        if (rData.InputProduct == null || rData.InputProduct.Quantity <= 0)
-        {
-            AudioHelper.PlayDenySound();
-            return false;
-        }
-
-        var inv = PlayerInventory.Instance;
-        if (inv == null || inv.Pointer == IntPtr.Zero) return false;
-
-        try
-        {
-            var def = GameRegistry.GetItem(rData.InputProduct.ItemId);
-            if (def == null || def.Pointer == IntPtr.Zero)
-            {
-                AudioHelper.PlayDenySound();
-                return false;
-            }
-
-            int qty = rData.InputProduct.Quantity;
-            var probe = def.GetDefaultInstance(1);
-            if (probe == null || probe.Pointer == IntPtr.Zero)
-            {
-                AudioHelper.PlayDenySound();
-                return false;
-            }
-
-            if (!inv.CanItemFitInInventory(probe, qty))
-            {
-                AudioHelper.PlayDenySound();
-                return false;
-            }
-
-            var instances = new List<Il2CppScheduleOne.ItemFramework.ItemInstance>();
-            instances.Add(probe);
-            for (int i = 1; i < qty; i++)
-            {
-                var inst = def.GetDefaultInstance(1);
-                if (inst != null && inst.Pointer != IntPtr.Zero)
-                {
-                    instances.Add(inst);
-                }
-            }
-
-            for (int i = 0; i < instances.Count; i++)
-            {
-                var inst = instances[i];
-                var qInst = inst.TryCast<NativeQualityItemInst>();
-                if (qInst != null && qInst.Pointer != IntPtr.Zero)
-                {
-                    qInst.Quality = (EQuality)rData.InputProduct.QualityTier;
-                }
-                inv.AddItemToInventory(inst);
-            }
-
-            Mod.Log.Info($"Player extracted {instances.Count}x raw '{rData.InputProduct.ItemId}' from AutoPackagingStation.");
-            rData.InputProduct = null;
-            if (rData.State == StationState.Blocked || rData.State == StationState.NoPackaging)
-            {
-                rData.State = StationState.Idle;
-            }
-            UpdateLedVisuals();
-            AudioHelper.PlayClickSound();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Error($"Failed to extract input product: {ex}");
-            AudioHelper.PlayDenySound();
-            return false;
-        }
-    }
-
-    public bool TryExtractInputPackaging()
-    {
-        // Host-only (Audit 2026-09-13): local rData/inventory mutation desyncs MP clients.
-        if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
-
-        var rData = AutoPackStore.GetRuntimeData(_stationGuid);
-        if (rData.InputPackaging == null || rData.InputPackaging.Quantity <= 0)
-        {
-            AudioHelper.PlayDenySound();
-            return false;
-        }
-
-        var inv = PlayerInventory.Instance;
-        if (inv == null || inv.Pointer == IntPtr.Zero) return false;
-
-        try
-        {
-            var def = GameRegistry.GetItem(rData.InputPackaging.ItemId);
-            if (def == null || def.Pointer == IntPtr.Zero)
-            {
-                AudioHelper.PlayDenySound();
-                return false;
-            }
-
-            int qty = rData.InputPackaging.Quantity;
-            var probe = def.GetDefaultInstance(1);
-            if (probe == null || probe.Pointer == IntPtr.Zero)
-            {
-                AudioHelper.PlayDenySound();
-                return false;
-            }
-
-            if (!inv.CanItemFitInInventory(probe, qty))
-            {
-                AudioHelper.PlayDenySound();
-                return false;
-            }
-
-            var instances = new List<Il2CppScheduleOne.ItemFramework.ItemInstance>();
-            instances.Add(probe);
-            for (int i = 1; i < qty; i++)
-            {
-                var inst = def.GetDefaultInstance(1);
-                if (inst != null && inst.Pointer != IntPtr.Zero)
-                {
-                    instances.Add(inst);
-                }
-            }
-
-            for (int i = 0; i < instances.Count; i++)
-            {
-                inv.AddItemToInventory(instances[i]);
-            }
-
-            Mod.Log.Info($"Player extracted {instances.Count}x packaging '{rData.InputPackaging.ItemId}' from AutoPackagingStation.");
-            rData.InputPackaging = null;
-            if (rData.State == StationState.Blocked || rData.State == StationState.NoPackaging)
-            {
-                rData.State = StationState.Idle;
-            }
-            UpdateLedVisuals();
-            AudioHelper.PlayClickSound();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Error($"Failed to extract input packaging: {ex}");
-            AudioHelper.PlayDenySound();
-            return false;
-        }
-    }
-
-    public bool TryExtractOutputProduct()
-    {
-        // Host-only (Audit 2026-09-13): local rData/inventory mutation desyncs MP clients.
-        if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
-
-        var inv = PlayerInventory.Instance;
-        if (inv == null || inv.Pointer == IntPtr.Zero) return false;
-
-        var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
-        if (station != null && station.Pointer != IntPtr.Zero)
-        {
-            var outputSlots = station.OutputSlots;
-            if (outputSlots != null && outputSlots.Count > 0)
-            {
-                var outSlot = outputSlots[0];
-                if (outSlot != null && outSlot.Pointer != IntPtr.Zero && outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero && outSlot.Quantity > 0)
-                {
-                    var inst = outSlot.ItemInstance;
-                    int totalQty = outSlot.Quantity;
-
-                    if (!inv.CanItemFitInInventory(inst, totalQty))
-                    {
-                        AudioHelper.PlayDenySound();
-                        return false;
-                    }
-
-                    var prodInst = inst.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
-                    var pkgDef = prodInst?.AppliedPackaging ?? (!string.IsNullOrEmpty(prodInst?.PackagingID) ? GameRegistry.GetItem(prodInst.PackagingID)?.TryCast<Il2CppScheduleOne.Product.Packaging.PackagingDefinition>() : null);
-                    var qual = inst.TryCast<NativeQualityItemInst>()?.Quality ?? EQuality.Standard;
-
-                    for (int i = 0; i < totalQty; i++)
-                    {
-                        var newInst = inst.Definition.GetDefaultInstance(1);
-                        if (newInst != null && newInst.Pointer != IntPtr.Zero)
-                        {
-                            var q = newInst.TryCast<NativeQualityItemInst>();
-                            if (q != null && q.Pointer != IntPtr.Zero)
-                            {
-                                q.Quality = qual;
-                            }
-                            var p = newInst.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
-                            if (p != null && p.Pointer != IntPtr.Zero)
-                            {
-                                if (pkgDef != null && pkgDef.Pointer != IntPtr.Zero)
-                                {
-                                    p.SetPackaging(pkgDef);
-                                }
-                                else if (!string.IsNullOrEmpty(prodInst?.PackagingID))
-                                {
-                                    p.PackagingID = prodInst.PackagingID;
-                                }
-                            }
-                            inv.AddItemToInventory(newInst);
-                        }
-                    }
-
-                    outSlot.ClearStoredInstance();
-                    outSlot.onItemDataChanged?.Invoke();
-                    outSlot.onItemInstanceChanged?.Invoke();
-                    try { station.UpdatePackagingVisuals(); } catch { }
-                    AudioHelper.PlayCashSound();
-                    return true;
-                }
-            }
-        }
-
-        var rData = AutoPackStore.GetRuntimeData(_stationGuid);
-        if (rData.OutputProduct == null || rData.OutputProduct.Quantity <= 0)
-        {
-            AudioHelper.PlayDenySound();
-            return false;
-        }
-
-        try
-        {
-            var def = GameRegistry.GetItem(rData.OutputProduct.ItemId);
-            if (def == null || def.Pointer == IntPtr.Zero)
-            {
-                Mod.Log.Warn($"[AutoPackagingStation] Output definition '{rData.OutputProduct.ItemId}' not found in registry.");
-                AudioHelper.PlayDenySound();
-                return false;
-            }
-
-            int qty = rData.OutputProduct.Quantity;
-            var probe = def.GetDefaultInstance(1);
-            if (probe == null || probe.Pointer == IntPtr.Zero)
-            {
-                Mod.Log.Warn($"[AutoPackagingStation] Failed to create probe instance for '{rData.OutputProduct.ItemId}'.");
-                AudioHelper.PlayDenySound();
-                return false;
-            }
-
-            // Apply packaging to probe before testing inventory fit!
-            var pkgDef = !string.IsNullOrEmpty(rData.OutputProduct.PackagingId)
-                ? GameRegistry.GetItem(rData.OutputProduct.PackagingId)?.TryCast<Il2CppScheduleOne.Product.Packaging.PackagingDefinition>()
-                : null;
-
-            var probeProd = probe.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
-            if (probeProd != null && probeProd.Pointer != IntPtr.Zero)
-            {
-                if (!string.IsNullOrEmpty(rData.OutputProduct.PackagingId))
-                {
-                    probeProd.PackagingID = rData.OutputProduct.PackagingId;
-                }
-                if (pkgDef != null && pkgDef.Pointer != IntPtr.Zero)
-                {
-                    probeProd.SetPackaging(pkgDef);
-                }
-            }
-
-            var probeQual = probe.TryCast<NativeQualityItemInst>();
-            if (probeQual != null && probeQual.Pointer != IntPtr.Zero)
-            {
-                probeQual.Quality = (EQuality)rData.OutputProduct.QualityTier;
-            }
-
-            if (!inv.CanItemFitInInventory(probe, qty))
-            {
-                AudioHelper.PlayDenySound();
-                return false;
-            }
-
-            // Pre-create all instances before modifying inventory
-            var instances = new List<Il2CppScheduleOne.ItemFramework.ItemInstance>();
-            instances.Add(probe);
-            for (int i = 1; i < qty; i++)
-            {
-                var inst = def.GetDefaultInstance(1);
-                if (inst != null && inst.Pointer != IntPtr.Zero)
-                {
-                    var pInst = inst.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
-                    if (pInst != null && pInst.Pointer != IntPtr.Zero)
-                    {
-                        if (!string.IsNullOrEmpty(rData.OutputProduct.PackagingId))
-                        {
-                            pInst.PackagingID = rData.OutputProduct.PackagingId;
-                        }
-                        if (pkgDef != null && pkgDef.Pointer != IntPtr.Zero)
-                        {
-                            pInst.SetPackaging(pkgDef);
-                        }
-                    }
-                    var qInst = inst.TryCast<NativeQualityItemInst>();
-                    if (qInst != null && qInst.Pointer != IntPtr.Zero)
-                    {
-                        qInst.Quality = (EQuality)rData.OutputProduct.QualityTier;
-                    }
-                    instances.Add(inst);
-                }
-            }
-
-            for (int i = 0; i < instances.Count; i++)
-            {
-                inv.AddItemToInventory(instances[i]);
-            }
-
-            Mod.Log.Info($"Player collected {instances.Count}x '{rData.OutputProduct.ItemId}' from AutoPackagingStation.");
-            rData.OutputProduct = null;
-            rData.State = StationState.Idle;
-            UpdateLedVisuals();
-            AudioHelper.PlayCashSound();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Error($"Failed to transfer output to inventory: {ex}");
-            AudioHelper.PlayDenySound();
-            return false;
-        }
-    }
-
-    public bool TryExtractAll()
-    {
-        // Host-only (Audit 2026-09-13): prevents the triple deny-sound of the individual extracts.
-        if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
-
-        var rData = AutoPackStore.GetRuntimeData(_stationGuid);
-        bool extractedAny = false;
-
-        if (rData.OutputProduct != null && rData.OutputProduct.Quantity > 0)
-        {
-            if (TryExtractOutputProduct()) extractedAny = true;
-        }
-        if (rData.InputProduct != null && rData.InputProduct.Quantity > 0)
-        {
-            if (TryExtractInputProduct()) extractedAny = true;
-        }
-        if (rData.InputPackaging != null && rData.InputPackaging.Quantity > 0)
-        {
-            if (TryExtractInputPackaging()) extractedAny = true;
-        }
-
-        if (!extractedAny)
-        {
-            AudioHelper.PlayDenySound();
-        }
-        return extractedAny;
-    }
-
-    public bool TryDepositProduct()
-    {
-        // Host-only (Audit 2026-09-13): local rData/inventory mutation desyncs MP clients.
-        if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
-
-        var inv = PlayerInventory.Instance;
-        if (inv == null || inv.Pointer == IntPtr.Zero) return false;
-
-        var rData = AutoPackStore.GetRuntimeData(_stationGuid);
-        int currentQty = rData.InputProduct?.Quantity ?? 0;
-        if (currentQty >= 20)
-        {
-            AudioHelper.PlayDenySound();
-            return false;
-        }
-
-        try
-        {
-            var slots = inv.GetAllInventorySlots();
-            if (slots != null)
-            {
-                for (int i = 0; i < slots.Count; i++)
-                {
-                    var slot = slots[i];
-                    if (slot == null || slot.Pointer == IntPtr.Zero) continue;
-                    var inst = slot.ItemInstance;
-                    if (inst == null || inst.Pointer == IntPtr.Zero || inst.Definition == null) continue;
-
-                    string id = inst.Definition.ID ?? string.Empty;
-                    if (string.IsNullOrEmpty(id) || id == Mod.CurrentConfig.StationItemId) continue;
-
-                    var def = GameRegistry.GetItem(id);
-                    if (def == null || def.Pointer == IntPtr.Zero) continue;
-
-                    // Raw product check via Registry
-                    var prodDef = def.TryCast<Il2CppScheduleOne.Product.ProductDefinition>();
-                    if (prodDef != null && prodDef.ValidPackaging != null && prodDef.ValidPackaging.Length > 0)
-                    {
-                        if (rData.InputProduct == null || (rData.InputProduct.ItemId == id && rData.InputProduct.Quantity < 20))
-                        {
-                            int availableCapacity = 20 - (rData.InputProduct?.Quantity ?? 0);
-                            int takeQty = Mathf.Min(inst.Quantity, Mathf.Min(10, availableCapacity));
-                            float quality = 0.55f;
-                            int tier = 2;
-
-                            var qInst = inst.TryCast<NativeQualityItemInst>();
-                            if (qInst != null && qInst.Pointer != IntPtr.Zero)
-                            {
-                                tier = (int)qInst.Quality;
-                                quality = tier switch { 0 => 0.2f, 1 => 0.35f, 2 => 0.55f, 3 => 0.80f, _ => 0.95f };
-                            }
-
-                            // Remove from inventory FIRST, credit the buffer only after the
-                            // removal succeeded. The old order (credit → remove) minted free
-                            // items whenever RemoveAmountOfItem threw or removed less.
-                            inv.RemoveAmountOfItem(id, (uint)takeQty);
-
-                            if (rData.InputProduct == null)
-                            {
-                                rData.InputProduct = new SlotItemData
-                                {
-                                    ItemId = id,
-                                    ItemName = inst.Definition.Name ?? id,
-                                    Quantity = takeQty,
-                                    QualityValue = quality,
-                                    QualityTier = tier,
-                                };
-                            }
-                            else
-                            {
-                                int oldQty = rData.InputProduct.Quantity;
-                                float oldQual = rData.InputProduct.QualityValue;
-                                rData.InputProduct.Quantity += takeQty;
-                                rData.InputProduct.QualityValue = ((oldQty * oldQual) + (takeQty * quality)) / (oldQty + takeQty);
-                            }
-
-                            if (rData.State == StationState.Blocked || rData.State == StationState.NoPackaging)
-                            {
-                                rData.State = StationState.Idle;
-                            }
-                            UpdateLedVisuals();
-                            AudioHelper.PlayClickSound();
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Debug($"TryDepositProduct error: {ex.Message}");
-        }
-
-        AudioHelper.PlayDenySound();
-        return false;
-    }
-
-    public bool TryDepositPackaging()
-    {
-        // Host-only (Audit 2026-09-13): local rData/inventory mutation desyncs MP clients.
-        if (!AutoPackEngine.IsHostOrSingleplayer()) { AudioHelper.PlayDenySound(); return false; }
-
-        var inv = PlayerInventory.Instance;
-        if (inv == null || inv.Pointer == IntPtr.Zero) return false;
-
-        var rData = AutoPackStore.GetRuntimeData(_stationGuid);
-        int currentQty = rData.InputPackaging?.Quantity ?? 0;
-        if (currentQty >= 20)
-        {
-            AudioHelper.PlayDenySound();
-            return false;
-        }
-
-        try
-        {
-            var slots = inv.GetAllInventorySlots();
-            if (slots != null)
-            {
-                for (int i = 0; i < slots.Count; i++)
-                {
-                    var slot = slots[i];
-                    if (slot == null || slot.Pointer == IntPtr.Zero) continue;
-                    var inst = slot.ItemInstance;
-                    if (inst == null || inst.Pointer == IntPtr.Zero || inst.Definition == null) continue;
-
-                    string id = inst.Definition.ID ?? string.Empty;
-                    if (string.IsNullOrEmpty(id) || id == Mod.CurrentConfig.StationItemId) continue;
-
-                    var def = GameRegistry.GetItem(id);
-                    if (def == null || def.Pointer == IntPtr.Zero) continue;
-
-                    // Packaging container check via Registry
-                    bool isPackaging = def.TryCast<Il2CppScheduleOne.Product.Packaging.PackagingDefinition>() != null;
-
-                    if (isPackaging)
-                    {
-                        if (rData.InputPackaging == null || (rData.InputPackaging.ItemId == id && rData.InputPackaging.Quantity < 20))
-                        {
-                            int availableCapacity = 20 - (rData.InputPackaging?.Quantity ?? 0);
-                            int takeQty = Mathf.Min(inst.Quantity, Mathf.Min(10, availableCapacity));
-                            // Same remove-before-credit ordering as TryDepositProduct.
-                            inv.RemoveAmountOfItem(id, (uint)takeQty);
-                            if (rData.InputPackaging == null)
-                            {
-                                rData.InputPackaging = new SlotItemData { ItemId = id, ItemName = id, Quantity = takeQty };
-                            }
-                            else
-                            {
-                                rData.InputPackaging.Quantity += takeQty;
-                            }
-
-                            if (rData.State == StationState.Blocked || rData.State == StationState.NoPackaging)
-                            {
-                                rData.State = StationState.Idle;
-                            }
-                            UpdateLedVisuals();
-                            AudioHelper.PlayClickSound();
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Debug($"TryDepositPackaging error: {ex.Message}");
-        }
-
-        AudioHelper.PlayDenySound();
-        return false;
     }
 
     private void PackUpStation()

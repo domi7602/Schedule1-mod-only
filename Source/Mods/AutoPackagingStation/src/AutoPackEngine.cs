@@ -32,7 +32,7 @@ public static class AutoPackEngine
     {
         if (controller == null || controller.Pointer == IntPtr.Zero) return;
 
-        var station = controller.GetComponent<PackagingStation>() ?? controller.GetComponentInParent<PackagingStation>();
+        var station = controller.GetNativeStation();
         bool isNativeStation = (station != null && station.Pointer != IntPtr.Zero);
 
         var rData = AutoPackStore.GetRuntimeData(controller.StationGuid);
@@ -732,40 +732,67 @@ public static class AutoPackEngine
 
     // ComputeQualityTier moved to PackagingMath.cs (testable, no S1API deps).
 
+    // Perf (2026-10-02): CanStationPackage calls this every frame while a station has
+    // both inputs; the resolution only depends on the two ids + registry contents,
+    // so memoize the last result (invalidated on save load via InvalidateResolveCache).
+    private static string _lastResolveRaw = string.Empty;
+    private static string _lastResolvePkg = string.Empty;
+    private static string _lastResolveResult = string.Empty;
+
+    /// <summary>Drops the memoized (raw,pkg) → packaged-id resolution.</summary>
+    public static void InvalidateResolveCache()
+    {
+        _lastResolveRaw = string.Empty;
+        _lastResolvePkg = string.Empty;
+        _lastResolveResult = string.Empty;
+    }
+
     public static string ResolvePackagedItemId(string rawItemId, string packagingId)
     {
         if (string.IsNullOrEmpty(rawItemId)) return string.Empty;
+        string pkgKey = packagingId ?? string.Empty;
+        if (rawItemId == _lastResolveRaw && pkgKey == _lastResolvePkg)
+            return _lastResolveResult;
+
         string raw = rawItemId.ToLowerInvariant().Trim();
-        string pkg = (packagingId ?? string.Empty).ToLowerInvariant().Trim();
+        string pkg = pkgKey.ToLowerInvariant().Trim();
 
         // 1. Check direct combinations
         string combo = $"{raw}_{pkg}";
-        if (GameRegistry.ItemExists(combo)) return combo;
+        if (GameRegistry.ItemExists(combo)) return CacheResolve(rawItemId, pkgKey, combo);
 
         // 2. Check canonical packaging names
         if (pkg.Contains("jar"))
         {
             string jarId = $"{raw}_jar";
-            if (GameRegistry.ItemExists(jarId)) return jarId;
+            if (GameRegistry.ItemExists(jarId)) return CacheResolve(rawItemId, pkgKey, jarId);
         }
         if (pkg.Contains("brick") || pkg.Contains("box"))
         {
             string brickId = $"{raw}_brick";
-            if (GameRegistry.ItemExists(brickId)) return brickId;
+            if (GameRegistry.ItemExists(brickId)) return CacheResolve(rawItemId, pkgKey, brickId);
         }
         if (pkg.Contains("bag") || pkg.Contains("baggie"))
         {
             string bagId = $"{raw}_baggie";
-            if (GameRegistry.ItemExists(bagId)) return bagId;
+            if (GameRegistry.ItemExists(bagId)) return CacheResolve(rawItemId, pkgKey, bagId);
             string bagId2 = $"{raw}_bag";
-            if (GameRegistry.ItemExists(bagId2)) return bagId2;
+            if (GameRegistry.ItemExists(bagId2)) return CacheResolve(rawItemId, pkgKey, bagId2);
         }
 
         // 3. Fallback: Raw product item definition ID itself
-        if (GameRegistry.ItemExists(rawItemId)) return rawItemId;
-        if (GameRegistry.ItemExists(raw)) return raw;
+        if (GameRegistry.ItemExists(rawItemId)) return CacheResolve(rawItemId, pkgKey, rawItemId);
+        if (GameRegistry.ItemExists(raw)) return CacheResolve(rawItemId, pkgKey, raw);
 
-        return rawItemId;
+        return CacheResolve(rawItemId, pkgKey, rawItemId);
+    }
+
+    private static string CacheResolve(string rawKey, string pkgKey, string result)
+    {
+        _lastResolveRaw = rawKey;
+        _lastResolvePkg = pkgKey;
+        _lastResolveResult = result;
+        return result;
     }
 
     // FormatPackagedName moved to PackagingMath.cs (testable, no S1API deps).

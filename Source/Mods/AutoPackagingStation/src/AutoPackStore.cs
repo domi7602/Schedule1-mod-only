@@ -119,8 +119,6 @@ public static class AutoPackStore
     private static readonly Dictionary<string, AutoPackStationSaveData> _stagedSaveData = new();
     private static string _lastKnownSlot = "";
 
-    public static IReadOnlyList<AutoPackStationController> ActiveStations => _activeStations;
-
     public static AutoPackStationSaveData? GetStagedSaveData(string guid)
     {
         if (string.IsNullOrEmpty(guid)) return null;
@@ -408,22 +406,6 @@ public static class AutoPackStore
             InputProduct = savedProd,
             InputPackaging = savedPkg,
             OutputProduct = savedOut,
-            State = rData.State.ToString(),
-            Progress = rData.PackagingProgress
-        };
-    }
-
-    public static AutoPackStationSaveData CreateSaveData(string guid, Vector3 position, Quaternion rotation)
-    {
-        var rData = GetRuntimeData(guid);
-        return new AutoPackStationSaveData
-        {
-            Guid = guid,
-            Position = new float[] { position.x, position.y, position.z },
-            Rotation = new float[] { rotation.x, rotation.y, rotation.z, rotation.w },
-            InputProduct = rData.InputProduct,
-            InputPackaging = rData.InputPackaging,
-            OutputProduct = rData.OutputProduct,
             State = rData.State.ToString(),
             Progress = rData.PackagingProgress
         };

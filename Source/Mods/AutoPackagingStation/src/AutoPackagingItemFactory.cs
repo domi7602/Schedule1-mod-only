@@ -115,6 +115,9 @@ public static class AutoPackagingItemFactory
 
     public static void OnSaveInfoLoaded()
     {
+        // Perf (2026-10-02): the registry may be re-populated on save load — drop the
+        // memoized packaged-id resolutions so the next scan re-reads it.
+        AutoPackagingStation.Engine.AutoPackEngine.InvalidateResolveCache();
         RegisterItem();
     }
 
@@ -476,24 +479,4 @@ public static class AutoPackagingItemFactory
         }
     }
 
-    /// <summary>
-    /// Spawns a new station in the world at the given position and rotation.
-    /// </summary>
-    public static GameObject? SpawnStationAt(Vector3 position, Quaternion rotation, AutoPackStationSaveData? data = null)
-    {
-        try
-        {
-            var go = new GameObject("AutoPackagingStation_Placed");
-            go.transform.position = position;
-            go.transform.rotation = rotation;
-
-            SetupPlacedStation(go, data);
-            return go;
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Error($"SpawnStationAt error: {ex}");
-            return null;
-        }
-    }
 }
