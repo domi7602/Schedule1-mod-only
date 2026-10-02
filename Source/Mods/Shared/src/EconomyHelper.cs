@@ -140,15 +140,6 @@ public static class EconomyHelper
     }
 
     /// <summary>
-    /// Checks if the player's inventory has enough capacity to receive the specified cash amount.
-    /// </summary>
-    public static bool CanHoldCash(float amount, int maxPerSlot = DefaultMaxCashPerSlot)
-    {
-        if (amount <= 0f) return true;
-        return GetMaxHoldableCashCapacity(maxPerSlot) >= amount;
-    }
-
-    /// <summary>
     /// Modifies cash on hand via S1API Money wrapper.
     /// </summary>
     public static void ChangeCashBalance(float delta, bool visualize = true, bool playSound = false)

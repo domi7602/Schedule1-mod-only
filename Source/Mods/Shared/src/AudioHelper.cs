@@ -12,7 +12,6 @@ public static class AudioHelper
 {
     private static AudioClip? _clickClip;
     private static AudioClip? _denyClip;
-    private static AudioClip? _chimeClip;
     private static GameObject? _audioHost;
     private static AudioSource? _audioSource;
 
@@ -104,29 +103,6 @@ public static class AudioHelper
             if (_audioSource != null && _clickClip != null)
             {
                 _audioSource.PlayOneShot(_clickClip, Mathf.Clamp01(volume));
-            }
-        }
-        catch
-        {
-            // Graceful fallback
-        }
-    }
-
-    /// <summary>
-    /// Plays a pleasant chime tone (e.g. for level-ups, notifications, accomplishments).
-    /// </summary>
-    public static void PlayChimeSound(float volume = 0.35f)
-    {
-        try
-        {
-            EnsureAudioSource();
-            if (_chimeClip == null)
-            {
-                _chimeClip = GenerateChimeTone();
-            }
-            if (_audioSource != null && _chimeClip != null)
-            {
-                _audioSource.PlayOneShot(_chimeClip, Mathf.Clamp01(volume));
             }
         }
         catch
