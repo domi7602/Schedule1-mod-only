@@ -7,11 +7,7 @@ using S1API.Law;
 using S1API.Entities;
 using S1Mods.Shared;
 
-#if (IL2CPPMELON)
 using S1PlayerOfficer = Il2CppScheduleOne.Police.PoliceOfficer;
-#elif MONOMELON
-using S1PlayerOfficer = ScheduleOne.Police.PoliceOfficer;
-#endif
 
 namespace HitmanPhone.Bounty;
 

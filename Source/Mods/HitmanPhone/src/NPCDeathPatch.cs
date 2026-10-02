@@ -3,13 +3,8 @@ using System.Reflection;
 using HarmonyLib;
 using S1Mods.Shared;
 
-#if (IL2CPPMELON)
 using S1NPC = Il2CppScheduleOne.NPCs.NPC;
 using S1NPCHealth = Il2CppScheduleOne.NPCs.NPCHealth;
-#elif MONOMELON
-using S1NPC = ScheduleOne.NPCs.NPC;
-using S1NPCHealth = ScheduleOne.NPCs.NPCHealth;
-#endif
 
 namespace HitmanPhone.Bounty;
 

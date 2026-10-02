@@ -2,13 +2,8 @@ using System;
 using System.Collections.Generic;
 using HitmanPhone.Persistence;
 
-#if (IL2CPPMELON)
 using S1NPC = Il2CppScheduleOne.NPCs.NPC;
 using S1Dealer = Il2CppScheduleOne.Economy.Dealer;
-#elif MONOMELON
-using S1NPC = ScheduleOne.NPCs.NPC;
-using S1Dealer = ScheduleOne.Economy.Dealer;
-#endif
 
 namespace HitmanPhone.Bounty;
 

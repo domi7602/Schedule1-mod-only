@@ -4,11 +4,7 @@ using S1API.Quests;
 using S1API.Quests.Constants;
 using UnityEngine;
 
-#if (IL2CPPMELON)
 using S1Quest = Il2CppScheduleOne.Quests.Quest;
-#elif MONOMELON
-using S1Quest = ScheduleOne.Quests.Quest;
-#endif
 
 namespace HitmanPhone.Bounty;
 

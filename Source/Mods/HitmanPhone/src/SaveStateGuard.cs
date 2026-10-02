@@ -6,11 +6,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-#if (IL2CPPMELON)
 using S1Persistence = Il2CppScheduleOne.Persistence;
-#elif MONOMELON
-using S1Persistence = ScheduleOne.Persistence;
-#endif
 
 namespace HitmanPhone;
 

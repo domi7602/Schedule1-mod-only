@@ -7,11 +7,7 @@ using S1API.Console;
 using S1API.Quests;
 using S1Mods.Shared;
 
-#if (IL2CPPMELON)
 using S1PlayerInventory = Il2CppScheduleOne.PlayerScripts.PlayerInventory;
-#elif MONOMELON
-using S1PlayerInventory = ScheduleOne.PlayerScripts.PlayerInventory;
-#endif
 
 namespace HitmanPhone;
 

@@ -4,13 +4,8 @@ using System.Reflection;
 using S1Mods.Shared;
 using UnityEngine;
 
-#if (IL2CPPMELON)
 using S1ItemFramework = Il2CppScheduleOne.ItemFramework;
 using S1Registry = Il2CppScheduleOne.Registry;
-#elif MONOMELON
-using S1ItemFramework = ScheduleOne.ItemFramework;
-using S1Registry = ScheduleOne.Registry;
-#endif
 
 namespace HitmanPhone.Items;
 

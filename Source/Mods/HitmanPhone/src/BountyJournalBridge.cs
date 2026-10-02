@@ -4,11 +4,7 @@ using HitmanPhone.Persistence;
 using MelonLoader;
 using S1API.Quests;
 
-#if (IL2CPPMELON)
 using S1Quest = Il2CppScheduleOne.Quests.Quest;
-#elif MONOMELON
-using S1Quest = ScheduleOne.Quests.Quest;
-#endif
 
 namespace HitmanPhone.Bounty;
 
