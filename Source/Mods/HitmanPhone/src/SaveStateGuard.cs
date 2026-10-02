@@ -25,8 +25,6 @@ namespace HitmanPhone;
 /// </summary>
 public static class SaveStateGuard
 {
-    private const string ActiveSlotKey = "hitman_active_slot";
-
     /// <summary>Cached last-known save slot. <c>-2</c> = "uninitialised".</summary>
     private static int _lastKnownSlot = -2;
 

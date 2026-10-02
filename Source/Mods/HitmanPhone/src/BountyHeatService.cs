@@ -25,7 +25,7 @@ namespace HitmanPhone.Bounty;
 ///   • On-Kill (BountyService.OnNpcDied matched):
 ///     Set the player's pursuit immediately to Lethal, as requested.
 ///   • On-Timeout / Player-Death:
-///     Set PursuitLevel=NonLethal for <see cref="FailPursuitDays"/> in-game days.
+///     Set PursuitLevel=NonLethal for the grace window.
 ///   • On-Cancel (Player eats the offer decline cooldown):
 ///     Drop pursuit back to None.
 ///
@@ -33,8 +33,6 @@ namespace HitmanPhone.Bounty;
 /// </summary>
 public static class BountyHeatService
 {
-    /// <summary>Days the player stays at NonLethal pursuit after a failed bounty.</summary>
-    public const int FailPursuitDays = 2;
 
     private const string GraceElapsedKey = "hitman_grace_until_";
 

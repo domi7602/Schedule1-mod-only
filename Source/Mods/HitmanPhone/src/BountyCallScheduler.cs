@@ -302,4 +302,24 @@ public static class BountyDialogTemplates
 
     public static string GetCallerName(int index) =>
         CallerPool[((index % CallerPool.Count) + CallerPool.Count) % CallerPool.Count];
+
+    /// <summary>
+    /// Reconstruct a caller index from the CallerId string "caller_ghost" → 0 etc.
+    /// Shared by the expiry service, the receipt service and the death watchdog
+    /// (previously duplicated three times). Returns -1 when the id is unknown.
+    /// </summary>
+    internal static int ResolveCallerIndex(string callerId)
+    {
+        if (string.IsNullOrEmpty(callerId)) return -1;
+        if (!callerId.StartsWith("caller_")) return -1;
+        string name = callerId.Substring("caller_".Length);
+        for (int i = 0; i < CallerPool.Count; i++)
+        {
+            if (string.Equals(name, GetCallerName(i), StringComparison.OrdinalIgnoreCase))
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
 }

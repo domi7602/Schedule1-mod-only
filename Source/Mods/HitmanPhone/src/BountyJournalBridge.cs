@@ -118,17 +118,21 @@ public static class BountyJournalBridge
     /// Returns an empty list on any reflection failure — callers then fall back
     /// to fresh quest registration.
     /// </summary>
+    private static System.Reflection.FieldInfo? _questsField;
+
     private static System.Collections.Generic.List<BountyQuest> EnumerateLiveBountyQuests()
     {
         var result = new System.Collections.Generic.List<BountyQuest>();
         try
         {
-            var field = typeof(QuestManager).GetField("Quests",
+            // Perf (2026-10-02): the static Quests field is session-stable — resolve
+            // it once instead of per call (bounded rebind window, still cheap).
+            _questsField ??= typeof(QuestManager).GetField("Quests",
                 System.Reflection.BindingFlags.Static |
                 System.Reflection.BindingFlags.NonPublic |
                 System.Reflection.BindingFlags.Public);
-            if (field == null) return result;
-            if (field.GetValue(null) is not System.Collections.IEnumerable raw) return result;
+            if (_questsField == null) return result;
+            if (_questsField.GetValue(null) is not System.Collections.IEnumerable raw) return result;
             foreach (var o in raw)
             {
                 if (o is BountyQuest bq) result.Add(bq);
@@ -139,22 +143,6 @@ public static class BountyJournalBridge
             Mod.Log.Warn($"[Journal] EnumerateLiveBountyQuests failed: {ex.Message}");
         }
         return result;
-    }
-
-    /// <summary>
-    /// v0.2.6: the vanilla quest title shown in the journal is a SNAPSHOT taken
-    /// in the S1API Quest constructor — InitContractId only personalises the
-    /// managed Title getter, so an adopted quest would keep rendering the
-    /// generic "Hitman Contract" forever. Rewrite the snapshot after adoption.
-    /// (S1Quest is internal to S1API → reflection; best-effort, cosmetic only.)
-    /// </summary>
-    private static void TryRefreshDisplayTitle(Quest wrapper, BountyContract contract)
-    {
-        // v0.2.7: replaced by BountyQuest.SyncDisplayTitle() — calls into the quest
-        // so the public Title setter / InitializeQuest path triggers the UI event.
-        // Kept as a no-op stub because BountyJournalBridge is the single point that
-        // *prompts* a refresh; keeping the call sites explicit avoids future drift.
-        if (wrapper is BountyQuest bq) { try { bq.SyncDisplayTitle(); } catch { /* best-effort */ } }
     }
 
     /// <summary>Called from SaveStateGuard.OnLoadComplete — restored quests are new objects.</summary>
@@ -477,28 +465,6 @@ public static class BountyJournalBridge
         catch (Exception ex)
         {
             Mod.Log.Warn($"FailQuest '{contractId}' failed: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Cancel a quest — used when a caller drops off cooldown after revocation.
-    /// </summary>
-    public static void CancelQuest(string contractId)
-    {
-        var q = ResolveQuest(contractId);
-        if (q == null)
-        {
-            Mod.Log.Warn($"[Journal] CancelQuest: no live quest for '{contractId}'.");
-            return;
-        }
-        try
-        {
-            q.Cancel();
-            Mod.Log.Info($"[Journal] Bounty '{contractId}' → Cancelled.");
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Warn($"CancelQuest '{contractId}' failed: {ex.Message}");
         }
     }
 

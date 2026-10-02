@@ -95,7 +95,7 @@ public static class PlayerDeathWatchdog
             {
                 Mod.Log.Warn($"OnBountyFailed during death dispatch: {ex.Message}");
             }
-            int callerIdx = ResolveCallerIndex(c.CallerId);
+            int callerIdx = BountyDialogTemplates.ResolveCallerIndex(c.CallerId);
             if (callerIdx >= 0)
             {
                 BountyCallScheduler.CooldownCaller(callerIdx,
@@ -113,25 +113,6 @@ public static class PlayerDeathWatchdog
             Mod.Log.Info($"[DeathWatchdog] Player died with {dispatched} active bounty " +
                          $"contract(s); marked Forfeited with 14d caller cooldown.");
         }
-    }
-
-    /// <summary>
-    /// Reconstruct caller index from "caller_ghost" → 0 etc.
-    /// </summary>
-    private static int ResolveCallerIndex(string callerId)
-    {
-        if (string.IsNullOrEmpty(callerId)) return -1;
-        if (!callerId.StartsWith("caller_")) return -1;
-        string name = callerId.Substring("caller_".Length);
-        for (int i = 0; i < BountyDialogTemplates.CallerPool.Count; i++)
-        {
-            if (string.Equals(name, BountyDialogTemplates.GetCallerName(i),
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                return i;
-            }
-        }
-        return -1;
     }
 
     /// <summary>

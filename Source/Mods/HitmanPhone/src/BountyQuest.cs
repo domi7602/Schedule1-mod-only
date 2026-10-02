@@ -160,28 +160,4 @@ public class BountyQuest : Quest
     }
 
     protected override bool AutoBegin => true;
-
-    /// <summary>
-    /// Push a state change to the wrapper. This is the runtime-equivalent of the
-    /// in-built <c>Complete()</c> / <c>Fail()</c>/ <c>Expire()</c> methods but routed
-    /// through the wrapper so the journal re-renders consistently.
-    /// </summary>
-    public void SetJournalState(QuestState state)
-    {
-        try
-        {
-            switch (state)
-            {
-                case QuestState.Completed: Complete(); break;
-                case QuestState.Failed: Fail(); break;
-                case QuestState.Expired: Expire(); break;
-                case QuestState.Cancelled: Cancel(); break;
-                default: break;
-            }
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Warn($"BountyQuest.SetJournalState({state}) failed: {ex.Message}");
-        }
-    }
 }

@@ -177,7 +177,7 @@ public static class BountyReceiptService
 
                 BountyHeatService.OnBountyCompleted(match);
                 BountyJournalBridge.CompleteQuest(match.Id);
-                int callerIdx = ResolveCallerIndex(match.CallerId);
+                int callerIdx = BountyDialogTemplates.ResolveCallerIndex(match.CallerId);
                 if (callerIdx >= 0)
                 {
                     BountyCallScheduler.CooldownCaller(callerIdx,
@@ -208,7 +208,7 @@ public static class BountyReceiptService
     /// different NPCs stay untouched. Returns null on an ambiguous or empty group.
     /// </summary>
     private static System.Collections.Generic.List<BountyContract>? GroupSameTargetAwaiting(
-        HitmanPhone.Persistence.BountySaveData save, int excludeCount)
+        HitmanPhone.Persistence.BountySaveData save)
     {
         string? sharedNpcId = null;
         var group = new System.Collections.Generic.List<BountyContract>();
@@ -235,6 +235,14 @@ public static class BountyReceiptService
     /// so we duck-type via reflection: Count/Length property + get_Item indexer.
     /// A mismatch logs the real type name instead of crashing the postfix.
     /// </summary>
+    // Perf (2026-10-02): reflection handles for the GetAllItems wrapper type are
+    // session-stable — resolved once per runtime type, plus one shared argument
+    // buffer for the indexer call (no per-item object[] allocation).
+    private static Type? _itemsRawType;
+    private static System.Reflection.PropertyInfo? _itemsCountProp;
+    private static System.Reflection.MethodInfo? _itemsGetItem;
+    private static readonly object[] _itemsIndexerArgs = new object[1];
+
     private static System.Collections.Generic.IList<S1ItemInstance>? GetAllItemsSafe(S1StorageEntity entity)
     {
         try
@@ -242,25 +250,32 @@ public static class BountyReceiptService
             var raw = entity.GetAllItems();
             if (raw == null) return null;
 
-            var countProp = raw.GetType().GetProperty("Count") ?? raw.GetType().GetProperty("Length");
-            if (countProp == null)
+            var rawType = raw.GetType();
+            if (!ReferenceEquals(rawType, _itemsRawType))
             {
-                Mod.Log.Warn($"[Receipt] GetAllItems type exposes no Count/Length: {raw.GetType().FullName}.");
+                _itemsRawType = rawType;
+                _itemsCountProp = rawType.GetProperty("Count") ?? rawType.GetProperty("Length");
+                _itemsGetItem = rawType.GetMethod("get_Item");
+            }
+
+            if (_itemsCountProp == null)
+            {
+                Mod.Log.Warn($"[Receipt] GetAllItems type exposes no Count/Length: {rawType.FullName}.");
                 return null;
             }
-            int count = Convert.ToInt32(countProp.GetValue(raw));
+            int count = Convert.ToInt32(_itemsCountProp.GetValue(raw));
 
-            var getItem = raw.GetType().GetMethod("get_Item");
-            if (getItem == null)
+            if (_itemsGetItem == null)
             {
-                Mod.Log.Warn($"[Receipt] GetAllItems type exposes no indexer: {raw.GetType().FullName}.");
+                Mod.Log.Warn($"[Receipt] GetAllItems type exposes no indexer: {rawType.FullName}.");
                 return null;
             }
 
             var result = new System.Collections.Generic.List<S1ItemInstance>(count);
             for (int i = 0; i < count; i++)
             {
-                var item = getItem.Invoke(raw, new object?[] { i }) as S1ItemInstance;
+                _itemsIndexerArgs[0] = i;
+                var item = _itemsGetItem.Invoke(raw, _itemsIndexerArgs) as S1ItemInstance;
                 result.Add(item);
             }
             return result;
@@ -352,7 +367,7 @@ public static class BountyReceiptService
         // they collapse onto the single piece of evidence the kill produced.
         if (match == null)
         {
-            var group = GroupSameTargetAwaiting(save, excludeCount: 0);
+            var group = GroupSameTargetAwaiting(save);
             if (group == null)
             {
                 Interlocked.Increment(ref _receiptsMismatched);
@@ -465,21 +480,40 @@ public static class BountyReceiptService
     /// matches our polaroid id? ItemInstance does not expose a Definition directly
     /// in the stub, but the property <c>Definition</c> lives on the base class.
     /// </summary>
+    // Perf (2026-10-02): Definition/ID/Value PropertyInfos are session-stable per
+    // runtime type — resolved once instead of per scanned item.
+    private static Type? _polaroidItemType;
+    private static System.Reflection.PropertyInfo? _polaroidDefinitionProp;
+    private static Type? _polaroidDefinitionType;
+    private static System.Reflection.PropertyInfo? _polaroidIdProp;
+    private static Type? _valueItemType;
+    private static System.Reflection.PropertyInfo? _valueProp;
+
     private static bool IsPolaroid(S1ItemInstance item)
     {
         try
         {
-            var def = item.GetType().GetProperty("Definition",
-                System.Reflection.BindingFlags.Instance |
-                System.Reflection.BindingFlags.Public |
-                System.Reflection.BindingFlags.NonPublic);
-            object? definition = def?.GetValue(item);
+            var itemType = item.GetType();
+            if (!ReferenceEquals(itemType, _polaroidItemType))
+            {
+                _polaroidItemType = itemType;
+                _polaroidDefinitionProp = itemType.GetProperty("Definition",
+                    System.Reflection.BindingFlags.Instance |
+                    System.Reflection.BindingFlags.Public |
+                    System.Reflection.BindingFlags.NonPublic);
+            }
+            object? definition = _polaroidDefinitionProp?.GetValue(item);
             if (definition == null) return false;
-            var idProp = definition.GetType().GetProperty("ID",
-                System.Reflection.BindingFlags.Instance |
-                System.Reflection.BindingFlags.Public |
-                System.Reflection.BindingFlags.NonPublic);
-            object? id = idProp?.GetValue(definition);
+            var definitionType = definition.GetType();
+            if (!ReferenceEquals(definitionType, _polaroidDefinitionType))
+            {
+                _polaroidDefinitionType = definitionType;
+                _polaroidIdProp = definitionType.GetProperty("ID",
+                    System.Reflection.BindingFlags.Instance |
+                    System.Reflection.BindingFlags.Public |
+                    System.Reflection.BindingFlags.NonPublic);
+            }
+            object? id = _polaroidIdProp?.GetValue(definition);
             if (id is string s)
             {
                 if (string.Equals(s, BountyEvidenceItemRegistry.ItemId, StringComparison.OrdinalIgnoreCase))
@@ -505,11 +539,16 @@ public static class BountyReceiptService
                 return integer.Value;
             }
             // Fallback: reflection on .Value (less common but safe).
-            var prop = item.GetType().GetProperty("Value",
-                System.Reflection.BindingFlags.Instance |
-                System.Reflection.BindingFlags.Public |
-                System.Reflection.BindingFlags.NonPublic);
-            object? v = prop?.GetValue(item);
+            var itemType = item.GetType();
+            if (!ReferenceEquals(itemType, _valueItemType))
+            {
+                _valueItemType = itemType;
+                _valueProp = itemType.GetProperty("Value",
+                    System.Reflection.BindingFlags.Instance |
+                    System.Reflection.BindingFlags.Public |
+                    System.Reflection.BindingFlags.NonPublic);
+            }
+            object? v = _valueProp?.GetValue(item);
             return v is int i ? i : 0;
         }
         catch (Exception ex)
@@ -519,25 +558,6 @@ public static class BountyReceiptService
         }
     }
 
-    /// <summary>
-    /// Reconstruct a caller index from the CallerId string "caller_ghost" → 0 etc.
-    /// Returns -1 when the id is not one of our known callers.
-    /// </summary>
-    private static int ResolveCallerIndex(string callerId)
-    {
-        if (string.IsNullOrEmpty(callerId)) return -1;
-        if (!callerId.StartsWith("caller_")) return -1;
-        string name = callerId.Substring("caller_".Length);
-        for (int i = 0; i < BountyDialogTemplates.CallerPool.Count; i++)
-        {
-            if (string.Equals(name, BountyDialogTemplates.GetCallerName(i),
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                return i;
-            }
-        }
-        return -1;
-    }
 }
 
 // ---------------------------------------------------------------------------
