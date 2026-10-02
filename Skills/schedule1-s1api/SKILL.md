@@ -1,18 +1,18 @@
 ---
 name: schedule1-s1api
 description: >-
-  Author-reference for the S1API framework (ifBars fork, v3.2.1-beta.7 deployed, 1000 .cs files in 152 namespaces) for Schedule I v0.4.7f6 (IL2CPP/Mono).
+  Author-reference for the S1API framework (ifBars fork, v3.2.1-beta.7 deployed, 1000 .cs files in 152 namespaces) for Schedule I v0.4.7f7 (IL2CPP/Mono).
   Use this skill whenever you need to find the right S1API namespace for a task, write a Saveable, build a PhoneApp, register a Quest, create a custom NPC, register a console command, hook a lifecycle event, or decide whether to use a S1API wrapper vs direct Il2CppScheduleOne interop.
   Keywords: S1API, Folders, Money, GameTime, Lifecycle, PhoneApp, Quests, NPCs, Saveables, Items, Products, Building, Law, Vehicles, GameLifecycle, OnSaveLoaded, OnLoadComplete, Property, Il2CppScheduleOne, MelonLoader.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02: Latest.log "Game Version: 0.4.7f7"; deep-verified against 0.4.7f6 / 2026-09-28, with the Weather/Temperature section of references/game-systems.md re-verified against 0.4.7f7 on 2026-10-01 - check remaining details against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
-# Schedule I — S1API Author Reference (ifBars fork, v3.2.0)
+# Schedule I — S1API Author Reference (ifBars fork, v3.2.1-beta.7)
 
 This skill is the **API-catalog map** for S1API. Use it when you need to know which namespace / class to reach for, what the wired lifecycle hooks are, which patterns are safe via S1API wrapper vs which require direct IL2CPP interop, and how to handle the runtime-neutral contract.
 
-> **Version check (verified 2026-09-04 / 2026-09-11):** S1API 3.2.0 deployed in this workspace (`Plugins\S1APILoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`), built directly from `ThirdParty/S1API/`.
+> **Version check (2026-10-02):** S1API 3.2.1-beta.7 deployed in this workspace (`Plugins\S1APILoader.MelonLoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`), built directly from `ThirdParty/S1API/`. Stay on the 3.2.1-beta line - the 3.2.0 stable build does not know the 0.4.7 renames and spams `MissingMethodException: NPCHealth.set_npc`.
 
 ---
 
@@ -152,7 +152,7 @@ public sealed class MyMod : MelonMod
 }
 ```
 
-> **Why the unsubscribe?** Migrating this skill from the legacy `OnSaveInfoLoaded` namespace to the newer `OnSaveLoaded` — both still exist in 3.2.0. When in doubt, prefer `OnSaveLoaded` for new mods.
+> **Why the unsubscribe?** This skill migrated from the legacy `OnSaveInfoLoaded` hook to `OnSaveLoaded` - both exist in 3.2.1-beta.7, but the instrumented run on 0.4.7f6 (2026-09-29) observed `OnSaveInfoLoaded` firing 0 times. Prefer `OnSaveLoaded` (and `OnPreLoad` / `OnSceneWasLoaded` / `OnLoadComplete`) for new mods.
 
 ---
 
@@ -249,4 +249,4 @@ For map geometry / buildings / terrain / GLTF models, **S1MAPI** is the right to
 * [game-systems.md](references/game-systems.md) — Doors, Vehicles, Growing, Building, Weather, Law, Leveling
 * [cross-compat.md](references/cross-compat.md) — IL2CPP vs Mono, when to bypass wrappers
 * External: [S1API Docs](https://ifbars.github.io/S1API/) · [API Reference](https://ifbars.github.io/S1API/api/S1API.html) · [GitHub](https://github.com/ifBars/S1API)
-* In-Repo Source: `ThirdParty/S1API/S1API/` (v3.2.0 C# project)
+* In-Repo Source: `ThirdParty/S1API/S1API/` (v3.2.1-beta.7 C# project)

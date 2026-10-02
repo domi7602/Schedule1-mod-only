@@ -3,11 +3,11 @@ name: schedule1-grid
 description: "Schedule I: Grid placement system, outdoor/unrestricted building, BuildUpdate_Grid patching, ghost positioning, and IL2CPP lifecycle stability"
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02 against the live Steam Open Beta: Latest.log "Game Version: 0.4.7f7"; content deep-verified against 0.4.7f6 / 2026-09-28 - anything not explicitly marked as re-verified must be checked against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I - Grid & Building System Skill
 
-This skill documents how to work with the building, placement, and grid systems in *Schedule I* (IL2CPP / MelonLoader), particularly when creating outdoor/unrestricted placement systems (such as `HomelessMod`) or extending vanilla building mechanics.
+This skill documents how to work with the building, placement, and grid systems in *Schedule I* (IL2CPP / MelonLoader), particularly when creating outdoor/unrestricted placement systems (such as the archived `HomelessMod` - `Source/Archive/HomelessMod/`) or extending vanilla building mechanics.
 
 > **Reference split (A):** Details moved to `references/` — load on demand. This file is the decision tree + quick refs.
 
@@ -24,9 +24,9 @@ This skill documents how to work with the building, placement, and grid systems 
 | `BuildManager` | Vanilla (`Il2CppScheduleOne.Building`) | Singleton (`NetworkSingleton<BuildManager>.Instance`) providing ghost materials, sound effects, and networking/navigation strippers (`DisableNetworking`, `DisableNavigation`). |
 | `FootprintTile` / `TileAppearance` | Vanilla (`Il2CppScheduleOne.Tiles`) | Visual indicator tiles instantiated below grid objects. Must be suppressed for outdoor placement. |
 | `Property` | Vanilla (`Il2CppScheduleOne.Property`) | Core property entity. **Never attach directly to virtual world roots.** |
-| `GroundPlacementAssistant` | Custom Helper (`HomelessMod.Building`) | Zero-allocation helper for smart 5-point ground sampling, slope checks (≤ 45°), box collision non-alloc checks, and dual-grid snapping. |
-| `StreetPropertyManager` | Custom Manager (`HomelessMod.Building`) | Virtual world root container (`StreetNomad_WorldRoot`), in-memory registration, save-slot isolated persistence, and GUID deduplication. |
-| `OutdoorItemInteractable` | Custom Component (`HomelessMod.Building`) | IL2CPP-registered MonoBehaviour for holding RMB or pressing [F] to dismantle/pack up placed world objects. |
+| `GroundPlacementAssistant` | Custom Helper (`HomelessMod.Building`, archived) | Zero-allocation helper for smart 5-point ground sampling, slope checks (≤ 45°), box collision non-alloc checks, and dual-grid snapping. |
+| `StreetPropertyManager` | Custom Manager (`HomelessMod.Building`, archived) | Virtual world root container (`StreetNomad_WorldRoot`), in-memory registration, save-slot isolated persistence, and GUID deduplication. |
+| `OutdoorItemInteractable` | Custom Component (`HomelessMod.Building`, archived) | IL2CPP-registered MonoBehaviour for holding RMB or pressing [F] to dismantle/pack up placed world objects. |
 
 ---
 
@@ -48,7 +48,7 @@ Full code & rationale in `references/`:
 
 - **Ghost evaluation** (`CheckIntersections` postfix): camera raycast → fallback down ray → 4-corner sampling (slope ≤45°, reach 0.3–7m) → `OverlapBoxNonAlloc` clearance → ghost white/red. Details: `references/collision-and-ghosts.md`
 - **Placement** (`Place` prefix): if `IsCustomPlacementValid` → deactivate source prefab, `Instantiate`, parent to `StreetRoot`, strip networking, attach `OutdoorItemInteractable`, suppress footprints, register, deduct inventory, `Stop()` and `return false`. Details: `references/build-update-patching.md`
-- **Save/Load:** `OnPreLoad→ResetState`, `OnSaveInfoLoaded→register defs`, `OnLoadComplete→LoadAndSpawn`, `OnSaveComplete→SaveStreetItems` (atomic). Diagram in `references/build-update-patching.md`
+- **Save/Load:** `OnPreLoad->ResetState`, `OnSceneWasLoaded("Main")->register defs`, `OnLoadComplete->LoadAndSpawn`, `OnSaveComplete->SaveStreetItems` (atomic; `OnSaveInfoLoaded` is dead on 0.4.7f6). Diagram in `references/build-update-patching.md`
 
 ---
 

@@ -47,16 +47,16 @@ Status legend: **Active** = released and verified in-game · **Active ¹** = cod
 | [**CalculatorApp**](Source/Mods/CalculatorApp/) | Phone | 0.2.3 | Active | Decimal-precision calculator with live cash/bank quick-insert chips, clipboard support and a searchable history. |
 | [**PotScanner**](Source/Mods/PotScanner/) | Phone | 0.7.0 | Active | Monitors every grow pot across your properties: filter tabs (thirsty / ready / empty), quality ratings, Water-All and Auto-Water, plus `pot` console commands — in the shared BankApp-style palette. |
 | [**BankApp**](Source/Mods/BankApp/) | Phone | 0.4.4 | Active | Mobile banking dashboard: deposit and withdraw cash via quick-amount chips, weekly ATM-limit progress and slot-isolated transaction history. |
-| [**PocketShop**](Source/Mods/PocketShop/) | Phone | 0.3.2 | Active | Shop from your phone. Follows each shop's vanilla payment type (cash vs. card), enforces level locks and offers a quantity picker and item detail view. |
-| [**Weather**](Source/Mods/Weather/) | Phone | 0.4.0 | Active ¹ | Read-only weather dashboard: accent-bordered hero card with an intensity pill and ring gauge over nine live condition rows that tint themselves while active. |
+| [**PocketShop**](Source/Mods/PocketShop/) | Phone | 0.3.9 | Active | Shop from your phone. Follows each shop's vanilla payment type (cash vs. card), enforces level locks and offers a quantity picker and item detail view. |
+| [**Weather**](Source/Mods/Weather/) | Phone | 0.4.1 | Active ¹ | Read-only weather dashboard: accent-bordered hero card with an intensity pill and ring gauge over nine live condition rows that tint themselves while active. |
 | [**MessagesPlus**](Source/Mods/MessagesPlus/) | Phone / QoL | 0.4.1 | Active ¹ | Sticky search band under the vanilla title (live name search, category chips, unread counter) plus a "⋯" menu with Clear Read / Clear All and a **permanent whole-app dark mode**. |
 | [**HitmanPhone**](Source/Mods/HitmanPhone/) | Gameplay | 0.2.9 | Active | Bounty contracts via the Messages app: anonymous callers, Polaroid evidence dead-drops, police heat and journal quests. |
 | [**CustomSkateboard**](Source/Mods/CustomSkateboard/) | Gameplay | 1.1.5 | Active | Adds the *Pro Cyber Skateboard* with tuned carving and jump physics, anti-gravel suspension and purchase through Jeff Gilmore. |
-| [**BusinessIncome**](Source/Mods/BusinessIncome/) | Gameplay | 0.1.6 | Active | Daily passive income for owned businesses with multiplayer host authority, deterministic variance and a `biz` console dashboard. |
+| [**BusinessIncome**](Source/Mods/BusinessIncome/) | Gameplay | 0.1.7 | Active | Daily passive income for owned businesses with multiplayer host authority, deterministic variance and a `biz` console dashboard. |
 | [**AutoPackagingStation**](Source/Mods/AutoPackagingStation/) | Gameplay | 0.3.3 | Active | Placeable automated packaging line (conveyor belt, weighted quality mixing, auto-unpack) with a 2×2 footprint, unlocked at Hustler I rank. |
 | [**MoreSaveSlots**](Source/Mods/MoreSaveSlots/) | QoL | 1.0.12 | Active | Raises the save-slot count from 5 to 25 (configurable) with paginated menus and inline save renaming. |
 | [**StackLimitMod**](Source/Mods/StackLimitMod/) | QoL | 0.1.7 | Active | Configurable stack limits (default 40, 1–9999) for agriculture items (soil, seeds, baggies, jars, fertiliser, harvested crops); weapons and ammo always keep their vanilla limits. |
-| [**TaxiDriver**](Source/Mods/TaxiDriver/) | Developer | 0.7.0 | Experimental | Orderable taxi from the in-game phone with its own NPC driver: vehicle spawn, autonomous A→B navigation, player ride, GLB visual swap, road-corridor assistance and an in-game fare meter. Still a spike — the current test round is open. |
+| [**TaxiDriver**](Source/Mods/TaxiDriver/) | Developer | 0.8.0 | Experimental | Orderable taxi from the in-game phone with its own NPC driver: vehicle spawn, autonomous A→B navigation, player ride, GLB visual swap, road-corridor assistance and an in-game fare meter. Still a spike — the current test round is open. |
 
 Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not built or shipped): BackpackMod, DayCounter, HomelessMod, Minimap, ProfitTracker, SnackVendor, TVBrowser, `_DiagPerfCounter`. Each mod folder contains its own documentation (`Source/Mods/<Mod>/docs/README.md`) and version history (`Source/Mods/<Mod>/docs/CHANGELOG.md`).
 
@@ -84,7 +84,7 @@ Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not 
     </td>
     <td align="center" width="25%">
       <img src="Source/Mods/PocketShop/assets/pocketshop_icon.png" width="64" alt="PocketShop icon"><br>
-      <b>PocketShop</b> · v0.3.2<br>
+      <b>PocketShop</b> · v0.3.9<br>
       <sub>Order from every shop through the phone, vanilla payment rules.</sub><br>
       <a href="Source/Mods/PocketShop/docs/README.md">Docs</a> · <a href="Source/Mods/PocketShop/docs/CHANGELOG.md">Changelog</a>
     </td>

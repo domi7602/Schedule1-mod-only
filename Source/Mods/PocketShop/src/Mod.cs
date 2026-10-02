@@ -5,14 +5,14 @@ using PocketShop.Config;
 using PocketShop.Services;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(PocketShop.Mod), "PocketShop", "0.3.2", "Dominik")]
+[assembly: MelonInfo(typeof(PocketShop.Mod), "PocketShop", "0.3.9", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace PocketShop;
 
 public class Mod : MelonMod
 {
-    public const string Version = "0.3.2";
+    public const string Version = "0.3.8";
     public static ModLogger Log { get; private set; } = null!;
 
     public override void OnInitializeMelon()

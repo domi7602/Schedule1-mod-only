@@ -26,14 +26,14 @@ This page records which game and framework versions each mod was built against a
 | BankApp | 0.4.4 | v0.4.6f13 | 2026-09-15 | yes | no | |
 | CustomSkateboard | 1.1.5 | v0.4.6f13 | 2026-09-15 | yes | no | |
 | MoreSaveSlots | 1.0.12 | v0.4.6f13 | 2026-09-15 | yes (`S1API.Utils.EventHelper`) | no | Harmony patches on the save menus. |
-| BusinessIncome | 0.1.6 | v0.4.6f13 | 2026-09-19 | yes | no | |
+| BusinessIncome | 0.1.7 | — | — | yes | no | v0.1.6 verified 2026-09-19; v0.1.7 (payout notification icon) verification open. |
 | PocketShop | 0.3.2 | v0.4.6f13 | 2026-09-20 | yes | no | |
 | StackLimitMod | 0.1.7 | v0.4.6f13 | 2026-09-20 | yes | no | v0.1.6 verified 2026-09-20; v0.1.7 adds ingredient stacking — verification open. |
 | AutoPackagingStation | 0.3.3 | v0.4.6f13 | 2026-09-20 | yes | yes (`S1MAPI.Gltf.GltfLoader`) | |
 | HitmanPhone | 0.2.9 | v0.4.7f6 (beta) | 2026-09-24 | yes | no | v0.2.9 adds a `NPCDeathPatch` for the 0.4.7 `NPCHealth` change; v0.2.8 was verified on v0.4.6f13 (2026-09-15). |
-| Weather | 0.4.0 | — | — | yes | no | In-game verification open (0.4.0 = rebuild to the approved mockup; no version of this mod has been verified in-game yet). |
+| Weather | 0.4.1 | — | — | yes | no | In-game verification open (0.4.1 = row icons permanently themed; 0.4.0 = rebuild to the approved mockup; no version of this mod has been verified in-game yet). |
 | MessagesPlus | 0.4.1 | v0.4.7f6 (beta) | 2026-09-30 | yes (`S1API.Lifecycle`, `S1API.UI`) | no | v0.4.0 verified in-game 2026-09-30; v0.4.1 (permanent whole-app dark mode + instant deal-window theming) verification open. |
-| TaxiDriver | 0.7.0 | v0.4.7f6 (beta) | 2026-09-25 | yes | yes (`S1MAPI.Gltf.GltfLoader`) | Feasibility spike / developer tool. Stages 1-3 live-verified 2026-09-25; the current Pakete C-G test round is open. |
+| TaxiDriver | 0.8.0 | v0.4.7f6 (beta) | 2026-09-25 | yes | yes (`S1MAPI.Gltf.GltfLoader`) | Feasibility spike / developer tool. Stages 1-3 live-verified 2026-09-25; v0.7.1 = Paket-1-v2 roll-up + fare-notification icon + log quieting (`log.json`); v0.8.0 = landscape PotScanner-style redesign + custom checkpoints removed; icon/log/redesign verification open; Pakete C-G round open. |
 
 ## Known version-drift risks
 

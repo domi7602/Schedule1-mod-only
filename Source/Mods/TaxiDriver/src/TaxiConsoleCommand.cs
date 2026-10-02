@@ -114,14 +114,6 @@ public sealed class TaxiConsoleCommand : BaseConsoleCommand
                     SpikeCommands.Pois();
                     break;
 
-                case "wp":
-                case "checkpoint":
-                case "checkpoints":
-                    // Custom checkpoints (checkpoints.json): `taxi wp add <name>` at
-                    // the player position, `taxi wp remove <name>`, `taxi wp list`.
-                    CustomCheckpoints.HandleCommand(args);
-                    break;
-
                 case "fare":
                 case "meter":
                     FareMeter.PrintStatus();

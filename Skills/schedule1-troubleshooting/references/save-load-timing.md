@@ -193,11 +193,11 @@ This is **inferior** to the hook but works as a fallback when S1API isn't availa
 
 ## 8. Common Pitfalls in Save-Load Lifecycle Code
 
-1. **Subscribe unsymmetrically.** If you subscribe `OnSaveInfoLoaded` in init but forget to unsubscribe in `OnApplicationQuit`, you can accumulate handlers across restarts.
-2. **Use only the first phase.** `OnLoadComplete` is for UI init; `OnSaveInfoLoaded` is for cache refresh — pick the right one based on need.
+1. **Subscribe unsymmetrically.** If you subscribe a lifecycle hook in init but forget to unsubscribe in `OnApplicationQuit`, you can accumulate handlers across restarts.
+2. **Use the right phase.** `OnSceneWasLoaded("Main")` / `OnPreLoad` for cache refresh, `OnLoadComplete` for UI init / spawning - `OnSaveInfoLoaded` is dead on 0.4.7f6.
 3. **Forget hot-reload.** If your mod supports MelonLoader's hot-reload, subscribe/unsubscribe in `OnInitializeMelon`/`OnDeinitializeMelon` symmetrically.
 4. **Race with FishNet SyncVars.** Multiplayer sync may overwrite your local cache — defer UI updates until `OnLoadComplete`.
-5. **`OnSaveInfoLoaded` is multi-fire (from S1API docs, surfaced 2026-09-28):** it also fires when the save menu opens or save data is re-scanned, not only once per load. Make handlers idempotent and tolerate empty static lists at those firings (validate with the section 10 pattern).
+5. **`OnSaveInfoLoaded` multi-fire note is historical:** the hook did not fire at all in the 2026-09-29 instrumented run (0.4.7f6) - see the section 1 marker; keep handlers idempotent regardless.
 
 ---
 

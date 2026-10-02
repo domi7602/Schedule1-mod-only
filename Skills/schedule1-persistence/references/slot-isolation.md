@@ -52,5 +52,5 @@ void TryMigrateLegacy(string slotPath)
 `PayoutStateStore.cs` additionally snapshots `_pendingPrevLastPaid` + `_pendingPrevPerBusiness` in `MarkInMemoryPaid` and restores in `Revert` — preventing double-payments or lost state on crash/failure.
 
 ### Placed World Objects
-`HomelessMod`: `street_items_slot_{n}.json` is modified in-memory only and flushed to disk on `GameLifecycle.OnSaveComplete` to prevent Alt+F4 duplication exploits.
+The archived `HomelessMod`: `street_items_slot_{n}.json` is modified in-memory only and flushed to disk on `GameLifecycle.OnSaveComplete` to prevent Alt+F4 duplication exploits.
 

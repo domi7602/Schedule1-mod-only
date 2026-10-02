@@ -144,13 +144,16 @@ internal static class TaxiAI
             float cap = VehiclePatrolBehaviour.MAX_CONSECUTIVE_PATHING_FAILURES;
             int clamped = Mathf.Clamp((int)Math.Round(cap), 1, 4);
             PathingFailureCap = clamped;
-            Mod.Log.Info(
+            TaxiLog.Verbose(
                 $"[ai] {caller}: adopted the game's supervision number — MAX_CONSECUTIVE_PATHING_FAILURES=" +
                 $"{Num(cap)} — the ride's recovery ladder now re-dispatches up to {clamped} times before giving up.");
-            // The MelonLoader console is log-only (no typing), so the numbers have to
-            // arrive on their own: the first ride dumps them once, unasked.
-            DumpConstants(caller);
-            DumpDriveModel(caller);
+            // The MelonLoader console is log-only (no typing): the full dumps only arrive
+            // when log.json enables verbose logging; otherwise the ride stays quiet.
+            if (TaxiLog.VerboseEnabled)
+            {
+                DumpConstants(caller);
+                DumpDriveModel(caller);
+            }
         }
         catch (Exception ex)
         {
@@ -267,13 +270,13 @@ internal static class TaxiAI
             PatrolOwned = false;
             if (Patrol != null)
             {
-                Mod.Log.Info("[patrol] the taxi driver already carries a VehiclePatrolBehaviour — reusing it.");
+                TaxiLog.Verbose("[patrol] the taxi driver already carries a VehiclePatrolBehaviour — reusing it.");
             }
             else
             {
                 Patrol = driver.gameObject.AddComponent<VehiclePatrolBehaviour>();
                 PatrolOwned = true;
-                Mod.Log.Info("[patrol] VehiclePatrolBehaviour attached to the taxi driver (runtime AddComponent) — next: Vehicle, SetRoute, Activate, StartPatrol.");
+                TaxiLog.Verbose("[patrol] VehiclePatrolBehaviour attached to the taxi driver (runtime AddComponent) — next: Vehicle, SetRoute, Activate, StartPatrol.");
             }
 
             // Behaviour-framework wiring (bug3, 2026-09-29): VehiclePatrolBehaviour is an
@@ -323,19 +326,19 @@ internal static class TaxiAI
             Route.Waypoints = new Il2CppReferenceArray<Transform>(new[] { start.transform, goal.transform });
             Route.StartWaypointIndex = 0;
 
-            Mod.Log.Info(
+            TaxiLog.Verbose(
                 $"[patrol] route '{Route.RouteName}': {Route.Waypoints.Length} waypoints " +
                 $"{TaxiDestinations.Fmt(from)} -> {TaxiDestinations.Fmt(resolvedTarget)}.");
 
             Patrol.SetRoute(Route);
-            Mod.Log.Info($"[patrol] SetRoute done (CurrentWaypoint={Patrol.CurrentWaypoint}).");
+            TaxiLog.Verbose($"[patrol] SetRoute done (CurrentWaypoint={Patrol.CurrentWaypoint}).");
 
             Patrol.enabled = true;
             Patrol.Activate();
-            Mod.Log.Info("[patrol] Activate done - StartPatrol next.");
+            TaxiLog.Verbose("[patrol] Activate done - StartPatrol next.");
 
             Patrol.StartPatrol();
-            Mod.Log.Info(
+            TaxiLog.Verbose(
                 $"[patrol] StartPatrol done (CurrentWaypoint={Patrol.CurrentWaypoint}, isDriving={Patrol.isDriving}) " +
                 "— THE GAME DRIVES NOW, the mod only supervises.");
 
@@ -386,7 +389,7 @@ internal static class TaxiAI
                 return arrival;
             }
 
-            Mod.Log.Info(
+            TaxiLog.Verbose(
                 $"[ai] the game's own arrival check for '{label}': reachable (route ends {TaxiDestinations.Num(delta)} m from the wanted point).");
             return arrival;
         }
@@ -407,7 +410,7 @@ internal static class TaxiAI
 
         if (Patrol != null)
         {
-            Mod.Log.Info($"[patrol] releasing the game's patrol driver ({reason}).");
+            TaxiLog.Verbose($"[patrol] releasing the game's patrol driver ({reason}).");
             try
             {
                 // Paket F (2026-09-29): Deactivate() NREs on an already-torn-down
@@ -431,11 +434,11 @@ internal static class TaxiAI
                     LastDestroyedPatrol = Patrol.Pointer;
                     LastDestroyedPatrolFrame = Time.frameCount;
                     UnityEngine.Object.Destroy(Patrol);
-                    Mod.Log.Info("[patrol] removed mod-owned AddComponent behaviour.");
+                    TaxiLog.Verbose("[patrol] removed mod-owned AddComponent behaviour.");
                 }
                 else
                 {
-                    Mod.Log.Info("[patrol] prefab behaviour preserved (not created by this mod).");
+                    TaxiLog.Verbose("[patrol] prefab behaviour preserved (not created by this mod).");
                 }
             }
             catch (Exception ex)
@@ -467,7 +470,7 @@ internal static class TaxiAI
         WaypointObjects.Clear();
 
         if (had && !string.Equals(reason, "restart", StringComparison.Ordinal))
-            Mod.Log.Info($"[patrol] released ({reason}).");
+            TaxiLog.Verbose($"[patrol] released ({reason}).");
     }
 
     /// <summary>

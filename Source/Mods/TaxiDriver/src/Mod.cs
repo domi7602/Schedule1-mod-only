@@ -2,7 +2,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "0.7.0", "Dominik")]
+[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "0.8.0", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace TaxiDriver;
@@ -14,6 +14,7 @@ public class Mod : MelonMod
 
     public override void OnInitializeMelon()
     {
+        TaxiLog.Load();
         Log.Info("initialised — Stage 1 spike (autonomous drive / NPC seat / player enter-exit) + Stage 2 visual swap (taxi.glb via S1MAPI.Gltf.GltfLoader) + Stage 3 driver ride (vanilla NPC drives, player rides along; seat proof = OccupantNPCs slot + root-to-seat distance) + Stage 3b taxi stand (every ParkingLot is dumped on scene load, the taxi spawns on the fixed stand and drives TO the player via F5) + Stage 3c passenger ride (ride locks + destination picker) + Stage 4 (the GAME's own patrol driver cloned onto the taxi: runtime VehiclePatrolRoute + VehiclePatrolBehaviour, with the mod's Navigate dispatch as fallback) + Stage 3d (destination catalog from the game's own deal locations / lot entries, drop-off rule, STOP despawns the taxi, progress watchdog, ride heartbeat).");
 
         // Idempotent: unsubscribe first so a re-initialised mod never double-hooks.

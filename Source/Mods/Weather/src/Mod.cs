@@ -1,7 +1,7 @@
 using System;
 using MelonLoader;
 
-[assembly: MelonInfo(typeof(Weather.Mod), "Weather", "0.4.0", "Dominik")]
+[assembly: MelonInfo(typeof(Weather.Mod), "Weather", "0.4.1", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace Weather;

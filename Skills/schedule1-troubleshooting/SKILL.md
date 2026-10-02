@@ -1,14 +1,14 @@
 ---
 name: schedule1-troubleshooting
 description: >-
-  Diagnostic runbook for Schedule I MelonLoader IL2CPP mods (v0.4.7f6, S1API 3.2.1-beta.7).
+  Diagnostic runbook for Schedule I MelonLoader IL2CPP mods (v0.4.7f7, S1API 3.2.1-beta.7).
   Use this skill whenever: the game crashes on start, a mod throws on first frame, a Harmony patch silently no-ops,
   Latest.log shows error spikes, save-load desyncs, property/owner-lists stay empty,
   an [RegisterTypeInIl2Cpp] crash report appears, S1MCP find_gameobjects freezes the game,
   or any symptom suggests IL2CPP marshalling issues.
   Tools covered: native PowerShell log triage (see references/logscan-and-logs.md), s1interop analyze, s1interop doctor, ilspycmd, MelonPreferences.cfg.
 ---
-<!-- Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install: Latest.log game-version line 0.4.7f6 + MelonLoader v0.7.3 Open-Beta, S1API.Il2Cpp.MelonLoader.dll file 3.2.1.0 / product 3.2.1-beta.7, Steam buildid 25439817; content NOT re-verified after the 0.4.7f6 update). Re-check after game updates. -->
+<!-- Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02: Latest.log game-version line 0.4.7f7 + MelonLoader v0.7.3 Open-Beta, S1API.Il2Cpp.MelonLoader.dll file 3.2.1.0 / product 3.2.1-beta.7; content deep-verified against 0.4.7f6 / 2026-09-28 - most crash patterns are version-agnostic, but re-check against 0.4.7f7 when they trigger). Re-check after game updates. -->
 
 # Schedule I — Troubleshooting & Crash Diagnostics
 
@@ -85,7 +85,7 @@ The classic symptom: `OnInitializeMelon` logs "Ready" but `OnUpdate` work never 
 1. **Method-Inlining in IL2CPP.** Small methods (getters, one-liners) are inlined in the native build — Harmony patch installs but never fires. **Fix: patch the caller, not the inline target.**
 2. **`HarmonyPatch` attribute without explicit target.** `[HarmonyPatch(typeof(X))]` without `(nameof(X.Method))` fails with "Undefined target method". **Fix: `harmony.Patch(methodInfo, new HarmonyMethod(...))` manually without marker attribute**, or supply full target spec.
 3. **Scene is wrong.** The patched object's scene is not active. Verify with `[Mod].Logger.Msg($"Scene: {SceneManager.GetActiveScene().name}")`.
-4. **Static-List empty at scene load.** E.g. `Property.OwnedProperties.Count == 0` even though player owns properties. **Fix: subscribe to `GameLifecycle.OnSaveInfoLoaded` instead of `OnGameplaySceneLoaded`**.
+4. **Static-List empty at scene load.** E.g. `Property.OwnedProperties.Count == 0` even though player owns properties. **Fix: use `GameLifecycle.OnPreLoad` + `OnSceneWasLoaded("Main")` / `OnLoadComplete` instead of `OnGameplaySceneLoaded`** (do NOT subscribe `OnSaveInfoLoaded` - it fired 0 times on 0.4.7f6, see `schedule1-lifecycle-verify`).
 5. **Mod dependency missing.** Optional dep via `[assembly: MelonOptionalDependencies("S1API")]` requires you to try-catch every S1API code path. Otherwise the mod throws before reaching your logic.
 
 ---
@@ -111,24 +111,24 @@ For an expanded reference (18+ error patterns + IL2CPP exception translations) s
 
 ## 5. Save-Load-Timing Failures
 
-The Schedule I save-load pipeline is multi-phase and most static lists (`Property.OwnedProperties`, `NPCManager.Registered`, …) are empty at `OnGameplaySceneLoaded`. The fix is **always** to use the S1API lifecycle hook:
+The Schedule I save-load pipeline is multi-phase and most static lists (`Property.OwnedProperties`, `NPCManager.Registered`, ...) are empty at `OnGameplaySceneLoaded`. The fix is to use the S1API lifecycle hooks (`OnPreLoad` / `OnSceneWasLoaded("Main")` / `OnLoadComplete`):
 
 ```csharp
 // In Mod.cs OnInitializeMelon:
-GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
+GameLifecycle.OnPreLoad            += OnPreLoad;
 GameLifecycle.OnLoadComplete   += OnLoadComplete;
 
 // Lifecycle order:
-//   OnSaveInfoLoaded  → after Save-Info parsing, BEFORE scene build
-//                        (good time to refresh Property / Item caches)
+//   OnPreLoad / OnSceneWasLoaded("Main") -> reset caches / early refresh (verified order: scene 'Main' -> OnPreLoad -> OnLoadComplete).
+//   OnSaveInfoLoaded does NOT fire on 0.4.7f6 - do not subscribe to it (see schedule1-lifecycle-verify).
 //   OnLoadComplete    → after scene build complete
 //                        (good time to attach UI / instantiate managers)
-//   [UNVERIFIED — verify against live Assembly-CSharp.dll via ilspycmd before relying]
+//   [VERIFIED 2026-09-29 (0.4.7f6): Scene 'Main' loaded -> OnPreLoad -> OnLoadComplete; OnSaveInfoLoaded fired 0 times]
 ```
 
 Symptom: HUD looks empty, PhoneApp shows "(unknown)" properties, Owner-count = 0 even though save has 5 owned.
 
-Reference pattern: **PotScanner v0.2.1** (2026-08-04) — used exactly this hook to drop the 25-second retry-mechanism it needed in v0.2.0.
+Historical reference pattern: **PotScanner v0.2.1** (2026-08-04) used the save-info hook to drop the 25-second retry - that hook later stopped firing (0.4.7f6, 2026-09-29); refresh on `OnSceneWasLoaded("Main")` instead.
 
 For deeper analysis (multi-phase lifecycle, all S1API hooks, FishNet SyncVar timing) see **[`references/save-load-timing.md`](references/save-load-timing.md)**.
 
@@ -163,7 +163,7 @@ If a previously-working patch no-ops:
 | UIButton.onClick silently fails | `new UnityAction(...)` IntPtr issue | Use `S1API.Utils.ButtonUtils.AddListener(...)` |
 | HUD text disappears intermittently | Component destroyed (scene reload) | Re-resolve via `GameObjectResolver.FindComponentDeep<T>()` after `OnSceneWasLoaded` |
 | PhoneApp icon: "Icon file not found" | `IconFileName = ""` or wrong path | Override `IconSprite` (return a Sprite directly, see PotScanner v0.2.0 fix) |
-| Minigame/HUD-Sprite wrong after shape change | Cache ignores parameters (one `Sprite?` field for 2 radii) | Key cache by parameters (`Dictionary<string,Sprite>` `"{size}_{radius}"`) — see MinimapTextures Fix `MinimapTextures.cs:9` 2026-08-21 |
+| Minigame/HUD-Sprite wrong after shape change | Cache ignores parameters (one `Sprite?` field for 2 radii) | Key cache by parameters (`Dictionary<string,Sprite>` `"{size}_{radius}"`) - see the parameter-keyed cache rule in `schedule1-modding/references/il2cpp-harmony-guide.md` (archived Minimap fix 2026-08-21) |
 | Circle-mask/border wrong on size change | Single `_circleMaskSprite` instead of dict | `_circleMaskCache` keyed `"{size}"` / `"{size}_{thickness}"` — see Fix 2026-08-21 |
 
 ---
@@ -181,7 +181,7 @@ These **WILL** bite you if you don't read first:
 * **Multiplayer Host Authority** → Mod logic running on both host and client causes double payments/executions. Always wrap with `IncomeEngine.IsHostOrSingleplayer()` or equivalent.
 * **Procedural Audio Crashing** → Native methods like `MoneyManager.Instance.PlayCashSound()` will throw if the `MoneyManager` instance isn't ready or if called off main thread. Always null check `MoneyManager.Instance` or catch exceptions.
 * **PhoneApp-Update-Death (2026-08-20, 5 mods)** → `Unsubscribe` in `OnPhoneClosed` permanently killed `MelonEvents.OnUpdate`/event handler (OnCreated fires only once). Apps blank after 1st close. Fix + diagnosis: see §7 UI debugging.
-* **Sprite cache without parameter key (2026-08-20)** → `private static Sprite? _x` cached, but callers with different parameters (radius/thickness) → first caller wins, wrong mask/border. Fix: `Dictionary<string, Sprite>` cache (`MinimapTextures.cs:9` circle-mask 2026-08-21 likewise).
+* **Sprite cache without parameter key (2026-08-20)** - `private static Sprite? _x` cached, but callers with different parameters (radius/thickness) mean the first caller wins (wrong mask/border). Fix: `Dictionary<string, Sprite>` cache keyed by parameter (archived Minimap `MinimapTextures.cs`, fixed 2026-08-21).
 * **ModConfig Dictionary loss (2026-08-20)** → `ModConfig<T>` does NOT persist `Dictionary/List` properties (TOML limit) → after restart defaults. Fix: SafeStorage JSON sidecar (ConfigJsonStore pattern).
 * **Global State-File Leak (2026-08-21)** → `CalculatorState.cs:66` `calculator_state.json` global instead of `slot_{n}` → Slot-A leaked into Slot-B. Fix: `GetActiveSlotSuffix()` + `TryMigrateLegacy` (`CalculatorState.cs:65-93`, Rule 11).
 * **Local UITheme Duplication (2026-08-21)** → `NotesApp.cs:33`/`PotScannerApp.cs:19`/`CalculatorApp.cs:22` local `UITheme` with deviating `RefHeight/Clamp` (750/2.5, 900/1.20, 850/1.30) vs Shared `750/2.0` / `900/1.20` → DPI drift. Fix: wrapper delegates to `S1Mods.Shared.UITheme`.

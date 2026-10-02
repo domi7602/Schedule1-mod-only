@@ -1,6 +1,6 @@
 # Outdoor Placement — Golden Rules 1, 4, 5
 
-Applies when placing buildables outside purchased properties (e.g. HomelessMod street items). See `SKILL.md` for class map.
+Applies when placing buildables outside purchased properties (e.g. the archived HomelessMod street items). See `SKILL.md` for class map.
 
 ## 1. NEVER Destroy GridItem — disable instead
 

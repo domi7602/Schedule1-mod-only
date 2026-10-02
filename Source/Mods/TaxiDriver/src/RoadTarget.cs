@@ -45,7 +45,7 @@ internal static class RoadTarget
     /// </summary>
     internal static Vector3? FindNearPlayer(Vector3 playerPos, Vector3 playerForward)
     {
-        Mod.Log.Info($"[target] resolving a road point near the player: player={SpikeCommands.Fmt(playerPos)} forward={SpikeCommands.Fmt(playerForward)}");
+        TaxiLog.Verbose($"[target] resolving a road point near the player: player={SpikeCommands.Fmt(playerPos)} forward={SpikeCommands.Fmt(playerForward)}");
 
         if (playerForward.sqrMagnitude < 1e-4f)
             playerForward = Vector3.forward;
@@ -58,7 +58,7 @@ internal static class RoadTarget
         // (1) closest point on the ROAD graph the game exposes.
         Vector3? roadNode = NearestRoadNode(playerPos, out string roadInfo);
         float roadDistance = roadNode.HasValue ? Vector3.Distance(roadNode.Value, playerPos) : -1f;
-        Mod.Log.Info($"[target] road-graph nearest: {(roadNode.HasValue ? SpikeCommands.Fmt(roadNode.Value) : "<none>")} distanceToPlayer={(roadDistance < 0f ? "-" : roadDistance.ToString("F1") + "m")} ({roadInfo})");
+        TaxiLog.Verbose($"[target] road-graph nearest: {(roadNode.HasValue ? SpikeCommands.Fmt(roadNode.Value) : "<none>")} distanceToPlayer={(roadDistance < 0f ? "-" : roadDistance.ToString("F1") + "m")} ({roadInfo})");
         if (roadNode.HasValue && roadDistance <= MaxRoadNodeDistance)
             candidates.Add(new Candidate("roadNode", roadNode.Value, fromRoadGraph: true));
         else if (roadNode.HasValue)
@@ -103,9 +103,9 @@ internal static class RoadTarget
             }
         }
 
-        Mod.Log.Info($"[target] {candidates.Count} candidate(s), {projected} projected onto the vehicle graph (eligible = snap delta ≤ {PreferredSnapDelta:F0} m):");
+        TaxiLog.Verbose($"[target] {candidates.Count} candidate(s), {projected} projected onto the vehicle graph (eligible = snap delta ≤ {PreferredSnapDelta:F0} m):");
         foreach (Candidate c in candidates)
-            Mod.Log.Info($"[target]   {c}");
+            TaxiLog.Verbose($"[target]   {c}");
 
         if (projected == 0)
         {
@@ -148,7 +148,7 @@ internal static class RoadTarget
             return null;
         }
 
-        Mod.Log.Info(
+        TaxiLog.Verbose(
             $"[target] CHOSEN rule='{rule}' label='{best.Label}' fromRoadGraph={best.FromRoadGraph} " +
             $"sample={SpikeCommands.Fmt(best.SamplePoint)} destination={SpikeCommands.Fmt(best.Destination)} " +
             $"snapDelta={best.SnapDelta:F1}m distanceToPlayer={best.DistanceToPlayer:F1}m");

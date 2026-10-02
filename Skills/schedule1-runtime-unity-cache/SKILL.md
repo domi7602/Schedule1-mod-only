@@ -5,7 +5,7 @@ description: >-
   Keywords: Object.Destroy, SpriteCache, dirty flag, MarkDirty, EnsureLoaded, IDisposable, Texture2D cache, AudioClip pool, GC.Alloc-free reload.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02 against the live Steam Open Beta: Latest.log "Game Version: 0.4.7f7"; content deep-verified against 0.4.7f6 / 2026-09-28 - anything not explicitly marked as re-verified must be checked against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — Runtime Unity-Object Cache (Leak-Free Reload)
 

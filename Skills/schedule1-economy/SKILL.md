@@ -1,17 +1,17 @@
 ---
 name: schedule1-economy
 description: >-
-  Economy runbook for Schedule I v0.4.7f6 (Money, Businesses, Shops, Customers, Laundering). Use when implementing purchases, bank transfers, passive income, inventory capacity, weekly ATM limits, or multiplayer-safe economy logic. Covers BankApp double-entry, PocketShop multi-payment + atomic purchase, BusinessIncome host authority + snapshot revert.
+  Economy runbook for Schedule I v0.4.7f7 (Money, Businesses, Shops, Customers, Laundering). Use when implementing purchases, bank transfers, passive income, inventory capacity, weekly ATM limits, or multiplayer-safe economy logic. Covers BankApp double-entry, PocketShop multi-payment + atomic purchase, BusinessIncome host authority + snapshot revert.
   Keywords: Money, MoneyManager, onlineBalance, cashBalance, Business, OwnedBusinesses, ShopInterface, PurchaseService, BankService, TransactionHistory, weekly limit, cash slot, Auto payment, CreateOnlineTransaction, ChangeCashBalance.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02 against the live Steam Open Beta: Latest.log "Game Version: 0.4.7f7"; content deep-verified against 0.4.7f6 / 2026-09-28 - anything not explicitly marked as re-verified must be checked against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — Economy Skill (Money / Business / Shop)
 
 This skill is the **runbook for every economy interaction** in Schedule I — cash vs bank, price + fees, inventory capacity, weekly ATM limits, passive daily payouts, and multiplayer-safe transaction ordering. It codifies the patterns verified across active economy mods (`BankApp`, `PocketShop`, `BusinessIncome`).
 
-> **Version check (verified 2026-09-11):** Game v0.4.6f13, S1API 3.2.0, `S1API.Money` + `Il2CppScheduleOne.Money.MoneyManager`. Incorporates host authority and partial refund rules from 2026-09-11 audit.
+> **Version check (2026-10-02):** Game v0.4.7f7, S1API 3.2.1-beta.7. The money surface (`S1API.Money` + `Il2CppScheduleOne.Money.MoneyManager`) was audited 2026-09-11 against 0.4.6f13 / S1API 3.2.0 and has not been re-audited since - verify against the live assemblies before changing money code. Incorporates host authority and partial refund rules from that audit.
 
 ---
 
@@ -199,6 +199,8 @@ Cash first, then bank — preserves physical cash for emergencies, uses the bank
 | Debt paid N× for one trigger | No re-entry guard | `isAutoPaying` flag around the apply block (§7) |
 | `onlineBalance` reads as 0 | IL2CPP auto-property needs sync method | `sync___get_value_onlineBalance()` instead of direct property (§7) |
 | NullRef on Supplier.Debt | NPC not fully initialized early in scene | Null-check + retry on next poll tick |
+
+**Weather interaction (verified 2026-10-01):** heavy rain adds a "Rainy Weather" bonus to ALL sales — it surfaces as `Contract.BonusPayment{Title, Amount}` through `DealCompletionPopup.PlayPopup(...)`. Treat it as a deal-completion bonus, not a shop price change; do not recompute contract prices around it. (Rain does **not** water plants — see `schedule1-game-systems/references/64-Weather.md`.)
 
 ---
 

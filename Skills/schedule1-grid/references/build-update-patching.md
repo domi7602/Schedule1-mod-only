@@ -71,7 +71,7 @@ Always check `obj == null || obj.Pointer == IntPtr.Zero`. Use iterative `transfo
 
 ```
 OnPreLoad → ResetState()
-OnSaveInfoLoaded → register item defs
+OnSceneWasLoaded("Main") -> register item defs (OnSaveInfoLoaded never fires on 0.4.7f6)
 OnLoadComplete → LoadAndSpawnStreetItems()
 Gameplay → in-memory Register/Unregister
 OnSaveComplete → SaveStreetItems() atomic

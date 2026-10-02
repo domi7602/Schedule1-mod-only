@@ -110,7 +110,7 @@ internal static class FareMeter
                 Mod.Log.Warn(
                     $"[meter] legacy threshold migrated: {old:0.###} -> 3 km/h (creep no longer billed); {FilePath} updated.");
             }
-            Mod.Log.Info($"[meter] loaded {FilePath}: Enabled={_config.Enabled}, DollarsPerInGameMinute={_config.DollarsPerInGameMinute}, MovingSpeedThresholdKmh={_config.MovingSpeedThresholdKmh:0.###}.");
+            TaxiLog.Verbose($"[meter] loaded {FilePath}: Enabled={_config.Enabled}, DollarsPerInGameMinute={_config.DollarsPerInGameMinute}, MovingSpeedThresholdKmh={_config.MovingSpeedThresholdKmh:0.###}.");
             if (_config.DollarsPerInGameMinute != 1)
                 Mod.Log.Warn("[meter] fare.json differs from requested $1 rate; keeping the explicit config. Set DollarsPerInGameMinute=1 for $1 per full moving second at normal speed.");
             return _config;
@@ -152,7 +152,7 @@ internal static class FareMeter
         Mod.Log.Info(
             $"[meter] meter started: ${cfg.DollarsPerInGameMinute} per FULL moving in-game minute " +
             $"(= per real second in motion at normal speed; 0 km/h is free) — cash first, bank may go negative.");
-        Mod.Log.Info("[meter] clock=TimeManager CycleDuration/TimeSpeedMultiplier; 24 min/day at speed 1 = 1 game min per real second. Pause/sleep/clock-stop free; no time-skip catch-up; one tick per frame.");
+        TaxiLog.Verbose("[meter] clock=TimeManager CycleDuration/TimeSpeedMultiplier; 24 min/day at speed 1 = 1 game min per real second. Pause/sleep/clock-stop free; no time-skip catch-up; one tick per frame.");
     }
 
     /// <summary>
@@ -177,7 +177,7 @@ internal static class FareMeter
         {
             FareLedger.TickOutcome pausedOutcome = _ledger.Tick(new FareLedger.TickInput { TimePaused = true });
             if (pausedOutcome.JustPaused)
-                Mod.Log.Info("[meter] paused: no fare accrues.");
+                TaxiLog.Verbose("[meter] paused: no fare accrues.");
             return;
         }
 
@@ -216,12 +216,12 @@ internal static class FareMeter
         });
 
         if (outcome.JustResumed)
-            Mod.Log.Info("[meter] resumed: paused time discarded.");
+            TaxiLog.Verbose("[meter] resumed: paused time discarded.");
         if (outcome.ArmedNow)
-            Mod.Log.Info(
+            TaxiLog.Verbose(
                 $"[meter] armed — first confirmed motion above {cfg.MovingSpeedThresholdKmh:0.###} km/h; the time before this moment is discarded.");
         if (outcome.MovingChangedTo is bool movingNow)
-            Mod.Log.Info($"[meter] {(movingNow ? "moving" : "standing (FREE)")}: speed={speed:0.###} km/h, accumulated={_ledger.MovingMinutes:0.###} moving in-game minutes, charged=${_chargedTotal}, frame={Time.frameCount}.");
+            TaxiLog.Verbose($"[meter] {(movingNow ? "moving" : "standing (FREE)")}: speed={speed:0.###} km/h, accumulated={_ledger.MovingMinutes:0.###} moving in-game minutes, charged=${_chargedTotal}, frame={Time.frameCount}.");
         if (outcome.DueDollars > 0)
             Charge(outcome.DueDollars);
     }
@@ -270,7 +270,7 @@ internal static class FareMeter
             if (_chargedTotal >= _nextChargeLogAt)
             {
                 _nextChargeLogAt = (_chargedTotal / 10 + 1) * 10;
-                Mod.Log.Info(
+                TaxiLog.Verbose(
                     $"[meter] ${_chargedTotal} charged so far " +
                     $"({_ledger.MovingMinutes:0.###} moving in-game minutes; rate=${Config.DollarsPerInGameMinute}/full minute, clock=TimeManager; last charge: ${fromCash} cash / ${fromBank} bank, frame={Time.frameCount}).");
             }
@@ -293,12 +293,12 @@ internal static class FareMeter
             if (stopped)
             {
                 if (!_clockStopped)
-                    Mod.Log.Info("[meter] TimeManager stopped/sleeping: FREE, no skipped-time billing.");
+                    TaxiLog.Verbose("[meter] TimeManager stopped/sleeping: FREE, no skipped-time billing.");
                 _clockStopped = true;
                 return false;
             }
             if (_clockStopped)
-                Mod.Log.Info("[meter] TimeManager resumed: skipped time discarded.");
+                TaxiLog.Verbose("[meter] TimeManager resumed: skipped time discarded.");
             _clockStopped = false;
 
             float cycle = GameClock.CycleDuration; // real minutes per game day
@@ -308,7 +308,7 @@ internal static class FareMeter
             if (Mathf.Abs(rate - _lastClockRate) > 0.001f)
             {
                 _lastClockRate = rate;
-                Mod.Log.Info($"[meter] TimeManager: CycleDuration={cycle:0.###} real min/day, TimeSpeedMultiplier={speed:0.###}, rate={rate:0.###} game min/scaled second, HHMM={clock.CurrentTime}.");
+                TaxiLog.Verbose($"[meter] TimeManager: CycleDuration={cycle:0.###} real min/day, TimeSpeedMultiplier={speed:0.###}, rate={rate:0.###} game min/scaled second, HHMM={clock.CurrentTime}.");
             }
             _clockUnavailableWarned = false;
             return true;
@@ -346,7 +346,7 @@ internal static class FareMeter
                 notifMgr.SendNotification(
                     "Taxi",
                     $"Fare ${total} — {minutes} moving in-game min (${cfg.DollarsPerInGameMinute}/min)",
-                    null!,
+                    TaxiIcon.Get(),
                     5f,
                     true);
             }

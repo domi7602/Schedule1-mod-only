@@ -10,7 +10,7 @@ The most important module for **not chasing ghost bugs**. Static game lists (`Pr
 public static class GameLifecycle
 {
     public static event Action OnPreLoad;            // very early
-    public static event Action OnSaveInfoLoaded;     // save info parsed, lists populated
+    public static event Action OnSaveInfoLoaded;     // WARNING: fired 0 times on 0.4.7f6 - do not rely on it
     public static event Action OnLoadComplete;       // after scene build
     public static event Action OnPreSceneChange;     // before scene change
     public static event Action OnSaveStart;
@@ -20,13 +20,15 @@ public static class GameLifecycle
 
 | Hook | When | Use for |
 |---|---|---|
-| `OnSaveInfoLoaded` | Save-info parsed, BEFORE scene build | Property/NPC/Business cache refresh |
+| `OnSceneWasLoaded("Main")` | gameplay scene just became active | earliest safe refresh point (fires BEFORE OnPreLoad) |
+| `OnPreLoad` | before save data loads | reset caches / destroy clones |
+| `OnSaveInfoLoaded` | **never observed to fire on 0.4.7f6** | do not subscribe - use the hooks above |
 | `OnLoadComplete` | AFTER scene build complete | UI rebuild, attach to runtime, instantiate managers |
 | `OnPreSceneChange` | Before scene change | Cache cleanup, unsubscribe |
 | `OnSaveStart` | When player hits save | Optional pre-save state mutations |
 | `OnSaveComplete` | After save | Diagnostic, post-save UI updates |
 
-> **Naming:** `S1API` 3.2.0 exposes both `OnSaveInfoLoaded` AND `OnSaveLoaded`. The newer `OnSaveLoaded` is the recommended hook for new code; `OnSaveInfoLoaded` is kept for backward compatibility.
+> **Naming:** `S1API` 3.2.1-beta.7 exposes both `OnSaveLoaded` AND `OnSaveInfoLoaded`. Prefer `OnSaveLoaded`; the instrumented run on 0.4.7f6 (2026-09-29) observed `OnSaveInfoLoaded` firing **0 times** - treat it as dead.
 
 ---
 
@@ -160,7 +162,7 @@ Game Launch
   ↓
 OnPreLoad (very early)
   ↓
-OnSaveInfoLoaded (after save-info, lists populated) ← BEST for Property cache
+OnSceneWasLoaded(Main) / OnPreLoad (verified 2026-09-29) <- BEST reset/refresh window   [OnSaveInfoLoaded: DEAD on 0.4.7f6 - fired 0 times]
   ↓
 OnLoadComplete (after scene build) ← BEST for UI init
   ↓
@@ -179,7 +181,7 @@ For deep flow diagrams, see the [`S1API.Lifecycle.GameLifecycle` source](../../.
 
 ## 7. PhoneApp Lifecycle — `OnCreated` Fires ONCE per Scene (empirical, 2026-08-20)
 
-Verified against `S1API.Internal.Patches.HomeScreen_Start_Patch` (decompile 3.2.0):
+Verified against `S1API.Internal.Patches.HomeScreen_Start_Patch` (decompile 3.2.1-beta.7):
 
 - `HomeScreen.Start()` → S1API reflects over all `PhoneApp` subclasses → `Activator.CreateInstance` → `(IRegisterable).CreateInternal()` → **`OnCreated()`**.
 - `OnCreatedUI(container)` is called once per app creation (`SpawnUI` → `CreateAppContainer` → `OnCreatedUI`).

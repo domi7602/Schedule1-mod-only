@@ -100,9 +100,7 @@ internal static class SpikeCommands
         Print("                           (no third argument = `taxi trace status`: prints patched= / logging=)");
         Print("  taxi lots              - Stage 3b: dump every live ParkingLot (name, world position, spots, first spot = spawn position)");
         Print("  taxi stand             - Stage 3b: resolve the fixed taxi stand and arm it for the next spawn (no spawn itself)");
-        Print("  taxi pois              - Stage 3d: dump every destination (custom checkpoints + deal locations + named places) with its goal");
-        Print("  taxi wp add <name>     - custom checkpoints: add/replace a named checkpoint at YOUR position (UserData/TaxiDriver/checkpoints.json)");
-        Print("  taxi wp remove <name>  - delete a custom checkpoint   |   taxi wp list - show all custom checkpoints");
+        Print("  taxi pois              - Stage 3d: dump every destination (properties + deal locations + named places) with its goal");
         Print("  taxi clear             - clear the selected destination (the marker goes away; a waiting ride keeps waiting)");
         Print("  taxi fare              - the meter: $1 per moving in-game minute (0 km/h free), cash first then bank (may go negative)");
         Print("                           (1 real second = 1 in-game minute — TimeManager.CycleDuration = 24 real min/day)");

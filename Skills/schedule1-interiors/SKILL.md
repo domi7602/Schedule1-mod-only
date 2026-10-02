@@ -1,15 +1,23 @@
 ---
 name: schedule1-interiors
 description: >-
-  Architectural runbook for creating procedural 3D interiors, custom buildings, seamless vanilla door transitions, and interactive CRT/minigame displays in Schedule I v0.4.7f6 (IL2CPP / MelonLoader). Use when creating enterable buildings (Arcades, Clubs, Safehouses, Labs), hooking vanilla doors (StaticDoor, DoorKnocker, NpcSummonMenu), building procedural 3D room shells without AssetBundles, streaming spatial audio ambience, or rendering real-time pixel minigames onto in-world 3D screens (Texture2D.SetPixels32).
+  Architectural runbook for creating procedural 3D interiors, custom buildings, seamless vanilla door transitions, and interactive CRT/minigame displays in Schedule I v0.4.7f7 (IL2CPP / MelonLoader). Use when creating enterable buildings (Arcades, Clubs, Safehouses, Labs), hooking vanilla doors (StaticDoor, DoorKnocker, NpcSummonMenu), building procedural 3D room shells without AssetBundles, streaming spatial audio ambience, or rendering real-time pixel minigames onto in-world 3D screens (Texture2D.SetPixels32).
   Keywords: Interior, Building, StaticDoor, DoorKnocker, NpcSummonMenu, RawArcadeSceneService, ArcadeEntranceService, IArcadeGame, Texture2D, SetPixels32, CRT, PacMan, Pinball, CabinetInteraction, AudioSource, Ambience, TeleportPlayerWithController.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02 against the live Steam Open Beta: Latest.log "Game Version: 0.4.7f7"; content deep-verified against 0.4.7f6 / 2026-09-28 - anything not explicitly marked as re-verified must be checked against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — Interiors & Minigame Systems Skill
 
-This skill documents **how to inject custom enterable buildings, procedural 3D rooms, seamless vanilla door transitions, and interactive in-world screens/minigames** into *Schedule I* (v0.4.7f6, IL2CPP), derived and verified from `ScheduleIArcade` and `HomelessMod`.
+This skill documents **how to inject custom enterable buildings, procedural 3D rooms, seamless vanilla door transitions, and interactive in-world screens/minigames** into *Schedule I* (v0.4.7f7, IL2CPP), derived and verified from `ScheduleIArcade` and the archived `HomelessMod` (`Source/Archive/HomelessMod/`).
+
+## 0. Deep-Dive References
+
+| Reference | Content |
+|---|---|
+| [`references/door-hooking.md`](references/door-hooking.md) | Full `StaticDoor` / `DoorKnocker` hooking recipe, `NpcSummonMenu` choice injection, teleport & return-position safety. |
+| [`references/procedural-room.md`](references/procedural-room.md) | Binary mesh construction (`runtime_meshes.bin`), collision shells, checkerboard floors, trim and interior lighting without AssetBundles. |
+| [`references/minigame-screens.md`](references/minigame-screens.md) | 60 FPS pixel-buffer minigames and CRT/terminal screens (`Texture2D.SetPixels32`, unlit URP material). |
 
 ---
 

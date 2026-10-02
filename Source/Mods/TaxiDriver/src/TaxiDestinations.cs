@@ -48,9 +48,6 @@ internal static class TaxiDestinations
     internal const string KindDeal = "deal";
     internal const string KindLot = "lot";
 
-    /// <summary>Dominik's own named waypoints (`checkpoints.json`) — list-first, tie-winner.</summary>
-    internal const string KindCustom = "custom";
-
     /// <summary>
     /// Properties (Motel, Barn, ...) — Dominik's actual A→B travel targets ("ich bin
     /// im Motel und möchte zur Barn"). Owned ones are the `HOME` rows.
@@ -67,17 +64,15 @@ internal static class TaxiDestinations
         internal bool IsOwned;
         internal int Index = -1;
 
-        internal string Label => Kind == KindCustom
-            ? $"YOU * {Name}"
-            : Kind == KindProperty ? $"{(IsOwned ? "HOME" : "PROP")} * {Name}" : Kind == KindDeal ? $"DEAL * {Name}" : $"PARK * {Name}";
+        internal string Label => Kind == KindProperty
+            ? $"{(IsOwned ? "HOME" : "PROP")} * {Name}"
+            : Kind == KindDeal ? $"DEAL * {Name}" : $"PARK * {Name}";
 
         /// <summary>
         /// Short right-aligned tag for the app row (the row carries the name as its
         /// primary text now — a "DEAL * " prefix used to eat the readable width).
         /// </summary>
-        internal string Tag => Kind == KindCustom
-            ? "YOU"
-            : Kind == KindProperty ? (IsOwned ? "HOME" : "PROP") : Kind == KindDeal ? "DEAL" : "PARK";
+        internal string Tag => Kind == KindProperty ? (IsOwned ? "HOME" : "PROP") : Kind == KindDeal ? "DEAL" : "PARK";
     }
 
     /// <summary>Where the taxi should actually stop, and why.</summary>
@@ -102,23 +97,6 @@ internal static class TaxiDestinations
     internal static bool BuildCatalog(out List<Destination> catalog, string reason)
     {
         catalog = new List<Destination>();
-
-        // Custom checkpoints come first (Dominik's own named waypoints).
-        var custom = new List<Destination>();
-        foreach (CustomCheckpoints.Checkpoint checkpoint in CustomCheckpoints.All)
-        {
-            if (string.IsNullOrWhiteSpace(checkpoint.Name))
-                continue;
-
-            custom.Add(new Destination
-            {
-                Kind = KindCustom,
-                Name = checkpoint.Name,
-                Goal = new Vector3(checkpoint.X, checkpoint.Y, checkpoint.Z),
-            });
-        }
-
-        custom.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
 
         // Properties = the actual A→B travel targets (Dominik: "ich bin im Motel und
         // möchte zur Barn"). Owned properties first (HOME rows), then the rest
@@ -220,21 +198,12 @@ internal static class TaxiDestinations
 
         // Cleanup pass (Dominik 2026-09-29: "wenn 5x Parking gelistet wird, weiß man
         // am Ende nicht wo man rauskommt"): the list carries only MAIN checkpoints —
-        // custom checkpoints first, then deal locations, then uniquely named places.
+        // properties, then deal locations, then uniquely named places.
         // Generically named lots ("Parking", "Parking lot") and duplicate names are
         // hidden (they still serve internally as drop-off entries — only the LIST
         // is filtered).
         var final = new List<Destination>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        int customCount = 0;
-        foreach (Destination d in custom)
-        {
-            d.Name = d.Name.Trim();
-            if (d.Name.Length == 0 || !seen.Add(d.Name))
-                continue;
-            final.Add(d);
-            customCount++;
-        }
 
         int propKept = 0;
         foreach (Destination d in props)
@@ -276,7 +245,7 @@ internal static class TaxiDestinations
             catalog[i].Index = i;
 
         Mod.Log.Info(
-            $"[pois] {reason}: {customCount} custom + {propKept} property(ies) + {dealKept} deal location(s) + {lotKept} named place(s) = " +
+            $"[pois] {reason}: {propKept} property(ies) + {dealKept} deal location(s) + {lotKept} named place(s) = " +
             $"{catalog.Count} destination(s) ({lotHidden} generic/duplicate lot(s) hidden).");
         return catalog.Count > 0;
     }
@@ -306,10 +275,9 @@ internal static class TaxiDestinations
         {
             string detail = d.Kind == KindDeal
                 ? $" teleportAnchor={(d.HasTeleportAnchor ? "yes" : "no (fallback)")}"
-                : d.Kind == KindCustom ? " (custom checkpoint)"
                 : d.Kind == KindProperty ? $" (property exterior{(d.IsOwned ? ", owned" : string.Empty)})"
                 : " (lot entry)";
-            Mod.Log.Info($"[pois]  [{d.Index,2}] {d.Tag,-4} '{d.Name}' goal={Fmt(d.Goal)}{detail}");
+            TaxiLog.Verbose($"[pois]  [{d.Index,2}] {d.Tag,-4} '{d.Name}' goal={Fmt(d.Goal)}{detail}");
         }
 
         Mod.Log.Info($"[pois] {catalog.Count} destination(s) listed — `taxi to <name|index>` picks one.");
@@ -373,11 +341,9 @@ internal static class TaxiDestinations
 
         if (hits.Count > 1)
         {
-            // Tie priority: a custom checkpoint beats a property beats a deal beats
-            // a lot (the custom name is the one Dominik typed on purpose; properties
-            // are the A→B travel targets).
-            Destination? pick = hits.Find(h => h.Kind == KindCustom)
-                                ?? hits.Find(h => h.Kind == KindProperty && h.IsOwned)
+            // Tie priority: an owned property beats a property beats a deal beats a
+            // lot (properties are the A→B travel targets).
+            Destination? pick = hits.Find(h => h.Kind == KindProperty && h.IsOwned)
                                 ?? hits.Find(h => h.Kind == KindProperty)
                                 ?? hits.Find(h => h.Kind == KindDeal);
             if (pick != null)

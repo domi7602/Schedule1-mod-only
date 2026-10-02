@@ -1,9 +1,9 @@
 ---
 name: schedule1-phoneapp
-description: Expert runbook and architectural standard for developing in-game smartphone apps (PhoneApps) using S1API and uGUI in Schedule I (v0.4.7f6, IL2CPP, MelonLoader 0.7.3). Use this skill whenever creating a new PhoneApp, designing responsive phone UI layouts, fixing phone lifecycle bugs (such as transparent housing or input freezes), adding keyboard shortcuts, or integrating with S1API Phone systems.
+description: Expert runbook and architectural standard for developing in-game smartphone apps (PhoneApps) using S1API and uGUI in Schedule I (v0.4.7f7, IL2CPP, MelonLoader 0.7.3). Use this skill whenever creating a new PhoneApp, designing responsive phone UI layouts, fixing phone lifecycle bugs (such as transparent housing or input freezes), adding keyboard shortcuts, or integrating with S1API Phone systems.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02 against the live Steam Open Beta: Latest.log "Game Version: 0.4.7f7"; content deep-verified against 0.4.7f6 / 2026-09-28 - anything not explicitly marked as re-verified must be checked against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — PhoneApp Development Runbook (S1API & IL2CPP)
 
@@ -19,6 +19,7 @@ This skill is the authoritative engineering standard for building, styling, and 
 | [`references/responsive-ui-theme.md`](references/responsive-ui-theme.md) | Method 3: Responsive canvas scaling (`UITheme.Sp` for fonts, `UITheme.Dp` for pixels), DPI clamping curves. |
 | [`references/input-focus-and-controls.md`](references/input-focus-and-controls.md) | WASD input protection (`MyAppInputFocus`), IL2CPP `IntPtr` constructor, desktop navigation (<kbd>Escape</kbd>, <kbd>Tab</kbd>, <kbd>Ctrl+S</kbd>). |
 | [`references/components-and-ugui.md`](references/components-and-ugui.md) | `UIFactory` widgets, safe IL2CPP button listeners, 0-allocation list scrolling, modal backdrops. |
+| [`references/vanilla-ui-patching.md`](references/vanilla-ui-patching.md) | Patch-only mods: same-frame refresh on popup open, whole-app theming (`AppTheme`), making room in vanilla `ScrollRect` layouts, rebuild safety, config self-heal. |
 
 ---
 
@@ -27,7 +28,7 @@ This skill is the authoritative engineering standard for building, styling, and 
 1. **Explicit Orientation:** Always override `protected override EOrientation Orientation => EOrientation.Vertical;` (or `Horizontal` for wide tablet dashboards). Never leave it unassigned.
 2. **Never Destroy GameObjects on Close:** Never call `Object.Destroy()` or clear UI hierarchies in `OnPhoneClosed()`. Only hide modals or reset navigation. Destroying UI objects on close causes the **"Transparent Phone" (empty housing)** bug when the phone is raised again.
 3. **Isolated Background Panel (`_mainBG`):** Build your UI inside a dedicated root panel parented to `container.transform` with `fullAnchor: true`, and start with `_mainBG.SetActive(false)`.
-4. **Use Method 3 (`S1Mods.Shared.UITheme`):** Calculate all fonts with `UITheme.Sp(...)` and dimensions with `UITheme.Dp(...)`. The game's phone canvas is high-resolution and rotated by 90°. Single source of truth: `S1Mods.Shared.UITheme` (Shared/UITheme.cs) — never duplicate the math in a local class.
+4. **Use Method 3 (`S1Mods.Shared.UITheme`):** Calculate all fonts with `UITheme.Sp(...)` and dimensions with `UITheme.Dp(...)`. The game's phone canvas is high-resolution and rotated by 90°. Single source of truth: `S1Mods.Shared.UITheme` (Shared/UITheme.cs) — never duplicate the math in a local class. For colours and generated shapes use the shared kit: `S1Mods.Shared.GamePalette` (opaque surface steps Bg < Card < CardAlt < Hover/Pressed < Border, semantic accents — AccentBlue = selection, AccentGreen = primary action) and `S1Mods.Shared.UISprites` (`Rounded(radius)`, `Capsule`, `Circle`, `Donut`) — no per-mod palette or sprite-rasteriser copies (verified across BankApp, PotScanner v0.7.0, MessagesPlus v0.4.0).
 5. **Protect Input Focus:** Every text `InputField` must be guarded by an `[RegisterTypeInIl2Cpp]` `MonoBehaviour` with a public `IntPtr` constructor that toggles `S1API.Input.Controls.IsTyping` to prevent WASD player movement while typing.
 6. **Safe Button Wiring:** Never call `button.onClick.AddListener(...)` directly in IL2CPP. Always use `ButtonUtils.AddListener(btn, ...)` or `EventHelper.AddListener(...)`.
 7. **Atomic Persistence:** Save app state via `S1Mods.Shared.SafeStorage.SaveAtomic(...)` with `.bak` backups to prevent save file corruption during sudden crashes.
@@ -38,7 +39,7 @@ This skill is the authoritative engineering standard for building, styling, and 
 
 **Symptom:** `CalculatorApp` `calculator_state.json` was global → Slot-A history leaked into Slot-B. In-game menu/transition also caused `slot_-1.json` when `SaveSlotNumber` is `-1`.
 
-**Root cause:** `CalculatorState.GetStateFilePath()` returned a global path, or didn't guard against `SaveSlotNumber < 0`. All slot-aware mods (`NotesApp`, `CalculatorApp`, `BankApp`, `HomelessMod`, `BusinessIncome`) must use the triple-guarded slot suffix + `TryMigrateLegacy`.
+**Root cause:** `CalculatorState.GetStateFilePath()` returned a global path, or didn't guard against `SaveSlotNumber < 0`. All slot-aware mods (`NotesApp`, `CalculatorApp`, `BankApp`, `BusinessIncome`, `MoreSaveSlots`) must use the triple-guarded slot suffix + `TryMigrateLegacy`.
 
 **Fix pattern (`NotesApp.cs` / `CalculatorState.cs`):**
 ```csharp
@@ -135,9 +136,41 @@ and in each row's `HorizontalLayoutGroup`: `childControlWidth = true; childForce
 2. **If the mockup's aspect ratio equals the phone canvas aspect (400:750 = 0.5333), pixel fractions map 1:1 onto `UITheme.ActualWidth/Height`.** Every constant then becomes a canvas fraction (`x/imgW`, `1 - y/imgH`) and the layout is resolution-independent for free. Convert measured sizes with the same factor (`canvasPx = imgPx * 750/imgH`) to derive `Sp`/`Dp` values; sanity-check them against Arial advance widths (Arial caps: M .833, O .778, D .722, C .722, N .722, U .722, S .667, E/A/T .667/.611, L .556, I .278, digits .556, space .278, % .889 em) so labels measurably fit their boxes before the build.
 3. **Verify without the game.** Replicate the same constants in a standalone HTML page at the mockup's pixel size, screenshot it headlessly, and diff the identical metrics against the reference:
    `chrome.exe --headless=new --no-sandbox --user-data-dir=<scratch>\prof --force-device-scale-factor=1 --hide-scrollbars --window-size=W,H --screenshot=out.png "file:///...html"`
-   (`--user-data-dir` is required on this host — without it the process exits code 2 and writes no PNG; Helium lives at `%LOCALAPPDATA%\imput\Helium\Application\chrome.exe`, and Hermes' own browser backend may be unavailable.) In the HTML, place glyphs like Unity does: `top = centreY - 0.547 * fontSizePx` (Arial cap centre), NOT `- 0.72` — otherwise every text sits ~0.17 em too high and the diff looks like a real layout bug. Matching card edges / row bands / text boxes within a few px means the constants are right; expect font-metric noise of 3-5 px on text widths because the mockup's font is not Arial.
+   (`--user-data-dir` is required on this host — without it the process exits code 2 and writes no PNG; Helium lives at `%LOCALAPPDATA%\imput\Helium\Application\chrome.exe`.) In the HTML, place glyphs like Unity does: `top = centreY - 0.547 * fontSizePx` (Arial cap centre), NOT `- 0.72` — otherwise every text sits ~0.17 em too high and the diff looks like a real layout bug. Matching card edges / row bands / text boxes within a few px means the constants are right; expect font-metric noise of 3-5 px on text widths because the mockup's font is not Arial.
 4. **Legacy `UnityEngine.UI.Text` has NO character spacing.** A tracked label in the mockup (`L I V E  C O N D I T I O N S`) can only be approximated — thin-space padding (U+2009) risks missing-glyph boxes in Arial. Accept the tighter label and record the deviation instead of faking it.
 5. **Only colour/tint surfaces you can derive:** measure the active row base, then solve for the blend (`base = Bg + (accent - Bg) * t`, typically t ≈ 0.14). Hard-coded hexes copied from a JPEG-ish mockup drift; the blend formula keeps every accent consistent.
+
+### Rule 15 (empirical, 2026-10-02): First-Open Viewport — Force From the Topmost Rect, Retry Exactly Once
+
+**Symptom:** the first directory/list build of a session measures a stale viewport (~100 units instead of the real ~546 after activation) → rows fall to the minimum height and cards/avatars look wrong until the app is reopened (PocketShop v0.3.8/v0.3.9, live log 2026-10-02).
+
+**Root cause:** a rect measured in the same frame a container is first activated has never been laid out; rebuilding only a mid-level rect is not enough.
+
+**Fix pattern** (`StoreCatalogPane.ComputeFittedRowHeight`):
+1. Force the layout from the TOPMOST rect under the canvas (app container → main vertical layout → content area) with `Canvas.ForceUpdateCanvases()` + `LayoutRebuilder.ForceRebuildLayoutImmediate`.
+2. Treat a viewport below a plausibility floor (~300 units, `MinPlausibleViewportUnits`) as stale: build immediately from a canvas-derived estimate (log `directory viewport stale …`) and rebuild exactly once on the next frame (`TickRetry`, bounded) — log `directory rebuilt with the live viewport (546px) - no reopen needed`.
+3. Canvas fallback for the landscape phone: use the short side (`UITheme.ActualWidth`).
+4. Log one line per build (`directory rows=N rowH=Xpx viewport=Ypx`, `(estimated)` while stale) so a playtest log proves the fit without reopening.
+
+### Rule 16 (empirical, 2026-09-30): Never Cast a `Transform` Wrapper to `RectTransform`
+
+**Symptom:** an injected button is dead; log `ShowMenu failed: Unable to cast object of type 'UnityEngine.Transform' to type 'UnityEngine.RectTransform'` (MessagesPlus v0.4.0).
+
+**Fix:** `x.GetComponent<RectTransform>()` (or `TryCast<RectTransform>()`). Never `(RectTransform)x.transform` — under IL2CPP the cast throws even when the native object is a RectTransform. Same class as the AGENTS.md guardrail "never cast a proxy Transform".
+
+### Rule 17 (empirical, 2026-09-30): `raycastTarget` Is Load-Bearing for Input
+
+* Decorative graphics (bars, fills, icons, row backgrounds) should set `raycastTarget = false` — fewer hits, and nothing blocks the controls above them.
+* Any graphic that must receive clicks — above all the visible surface of an `InputField`/search field — must keep `raycastTarget = true`. A generic decor helper that blanket-disables it makes the field silently dead (MessagesPlus v0.4.0: clicks never reached the search InputField).
+* Modal cards need a no-op click catcher on the card background so clicks don't fall through to the backdrop.
+
+### Rule 18 (empirical, 2026-09-29/30): Patching & Theming Vanilla Phone UI
+
+Short map — full patterns in [`references/vanilla-ui-patching.md`](references/vanilla-ui-patching.md):
+* Refresh freshly shown vanilla popups in the SAME frame by postfixing their `SetIsOpen` (one shared postfix for both overloads → force-refresh the subtree); otherwise they appear in the old theme until the next tick (`DealWindowSelectorPatch`, MessagesPlus v0.4.1).
+* Recolour the mod's injected **and** vanilla surfaces with one theme applier: colours only (never layout/raycast), one-time per graphic with cached originals so a restore is exact; avatars, badges and the unread dot stay untouched (`AppTheme`).
+* Reserve space for an injected band by taking its height off `ScrollRect.viewport.offsetMax.y` (`TryMakeRoom`) and hand it back before every rebuild (`UndoMakeRoom`); re-assert from a throttled tick because vanilla re-lays out on its own events; fall back to a fixed offset under the title when no ScrollRect exists (logged).
+* Wire rebuilt controls with defensive Remove-before-Add (`EventHelper` dedupes globally per delegate instance) — details in `schedule1-modding` Key Rule 19.
 
 ---
 

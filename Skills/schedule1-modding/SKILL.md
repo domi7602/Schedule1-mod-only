@@ -1,18 +1,18 @@
 ---
 name: schedule1-modding
 description: >-
-  Expert guide and runbook for developing, building, testing, and maintaining MelonLoader IL2CPP C# mods for Schedule I v0.4.7f6 (TVGS) in the Schedule I Modding Workspace.
+  Expert guide and runbook for developing, building, testing, and maintaining MelonLoader IL2CPP C# mods for Schedule I v0.4.7f7 (TVGS) in the Schedule I Modding Workspace.
   Use this skill whenever creating new mods, modifying existing mods, writing Harmony patches, building PhoneApps via S1API, troubleshooting IL2CPP/Unity/MelonLoader issues, building solutions, or implementing UI features for Schedule I.
   Keywords: Schedule I, MelonLoader, IL2CPP, Harmony, HarmonyPatch, PhoneApp, S1API, Unity 2022.3, mod scaffolding, SafeStorage, UITheme.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02 against the live Steam Open Beta: Latest.log "Game Version: 0.4.7f7"; content deep-verified against 0.4.7f6 / 2026-09-28 - anything not explicitly marked as re-verified must be checked against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — Modding Skill & Runbook
 
-This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I v0.4.7f6** (TVGS) in this workspace (the `Schedule1-mod-only` repository root). The workspace lives outside the game install dir; game path resolves via `$env:SCHEDULE1_PATH` (default: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`).
+This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I v0.4.7f7** (TVGS) in this workspace (the `Schedule1-mod-only` repository root). The workspace lives outside the game install dir; game path resolves via `$env:SCHEDULE1_PATH` (default: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`).
 
-> **Version check (last verified: 2026-09-12):** Before writing patches or building, confirm the installed game version and S1API version still match this skill. If the game was updated, follow the Update Runbook (§5) first.
+> **Version check (last verified: 2026-10-02, Game v0.4.7f7):** Before writing patches or building, confirm the installed game version and S1API version still match this skill. If the game was updated, follow the Update Runbook (§5) first.
 
 ---
 
@@ -27,7 +27,7 @@ This skill provides full procedural knowledge, conventions, and architectural gu
 ```text
 Source/Mods/        Mod projects + Shared lib + Directory.Build.props/targets + S1Mods.sln
 GameReferences/     Local decompiles: decompiled/Assembly-CSharp/ (Il2CppScheduleOne.*)
-ThirdParty/         External frameworks & sources (S1API, S1MAPI, PhoneScroll, S1MCPServer)
+ThirdParty/         External frameworks & sources (S1API, S1MAPI, S1MCPServer) + Archive/
 Tools/              PowerShell automation: build-all.ps1, new-mod.ps1, gen-sln.ps1, deploy-thirdparty.ps1, bump-version.ps1
 Skills/             20 modular modding & game system skills (including all 64 system analyses)
 AGENTS.md           Single source of truth for mod inventory & current status
@@ -68,6 +68,8 @@ dotnet build Source/Mods/NotesApp/src/NotesApp.csproj -c Release
 ```
 *Output artifacts are deployed automatically to `<GameDir>\Mods\<ModName>.dll` via `Directory.Build.targets`.*
 
+Full pipeline (what lands where, ThirdParty whitelist, failure modes): [Build & Deploy runbook](./references/build-and-deploy.md).
+
 ### C. Version Bump & Sync (AGENTS.md ↔ Source)
 
 The four source-of-truth files that MUST agree on every version:
@@ -81,6 +83,8 @@ The four source-of-truth files that MUST agree on every version:
 pwsh Tools/bump-version.ps1 -Mod <Name> -Version <X.Y.Z> -DryRun   # always preview first
 pwsh Tools/bump-version.ps1 -Mod <Name> -Version <X.Y.Z>           # then apply
 ```
+
+Session-tested source-of-truth precedence and drift fixes: [Version Sync reference](./references/version-sync.md).
 
 **Feature-Diff Gate (MANDATORY before any bump)** — verified 2026-08-24 on BackpackMod + AutoPackagingStation:
 Before running the script, build a feature table that compares AGENTS.md claims against actual source. For each claim, grep for the keyword (e.g. `Mannequin`, `Rotation`, `360`, `ObjLoader`, `Spine`, `Tier`) in `Source/Mods/<Mod>/src/`. If the claim is **real**, the bump is honest. If a claim is **aspirational** (in AGENTS.md but not in source), AGENTS.md is wrong — either fix AGENTS.md, or write the missing feature first. Never bump to a version number whose features you cannot prove exist.
@@ -96,14 +100,14 @@ Two valid outcomes from the diff:
 
 Mitigation: always read the post-bump CHANGELOG.md immediately after the script run and clean up duplicates/placeholder text.
 
-### D. Spec-First Workflow for Fixes and Changes (mandatory in the Hermes group chat)
+### D. Spec-First Workflow for Fixes and Changes (team convention)
 
-**Rule (2026-08-27, group-chat convention with `@gatekeeper` + `@designer`):** Never start a code change just because a user reported a problem. The maker-checker chain (`@coder` writes, `@gatekeeper` reviews) requires an explicit green light after a Spec, BEFORE any `dotnet build`.
+**Rule (2026-08-27, maker-checker convention):** Never start a code change just because a user reported a problem. The maker-checker chain (`@coder` writes, `@gatekeeper` reviews) requires an explicit green light after a Spec, BEFORE any `dotnet build`.
 
 **When this applies:**
 - Bug fixes, refactors, new features touching >1 file
 - Any change to a hot path (Harmony prefix/postfix, Update loops, polling)
-- Any change to save/load lifecycle hooks (`OnPreLoad`, `OnSaveInfoLoaded`, `OnLoadComplete`, `OnSaveComplete`)
+- Any change to save/load lifecycle hooks (`OnPreLoad`, `OnSaveInfoLoaded` [dead on 0.4.7f6], `OnLoadComplete`, `OnSaveComplete`)
 
 **Spec template (paste into the chat before any code touches a file):**
 1. **Trigger / problem** — what's broken, where, repro
@@ -124,7 +128,7 @@ Mitigation: always read the post-bump CHANGELOG.md immediately after the script 
 - Don't skip the Spec "just because it's a small fix" — small fixes have the biggest hidden regressions
 - Don't list build-order bullets that aren't in the chat (e.g. "I'll also fix X while I'm in there" — out of scope; surface it as a separate Spec if needed)
 
-**Live reference:** CustomSkateboard `IsInstanceTuned` early-out fix (Spec → green → build green) and HomelessMod F-key + slot-switch fix (Spec → 3 answer round → green with edge-case list → build green) both ran this way in 2026-08-27 and shipped without a revert.
+**Live reference:** CustomSkateboard `IsInstanceTuned` early-out fix (Spec → green → build green) and the archived HomelessMod F-key + slot-switch fix (Spec → 3 answer round → green with edge-case list → build green) both ran this way in 2026-08-27 and shipped without a revert.
 
 ### E. Testing a Mod In-Game
 1. Build in `Release` and confirm the DLL landed in `<GameDir>\Mods\` (check timestamp).
@@ -148,7 +152,7 @@ Mitigation: always read the post-bump CHANGELOG.md immediately after the script 
 When asked to "decompile these N mods and write skills from the learnings" — **decompile nothing first, triage first.** Verified workflow 2026-08-26 with 12 Nexus/DooDesch mods (4 skills extracted, 8 skipped):
 
 1. **Sort into 4 buckets** before any decompile:
-   - **Already in workspace** (e.g. Sideload repo) → skip, just version-compare.
+   - **Already in workspace** (e.g. a third-party source already under `ThirdParty/Archive/`) → skip, just version-compare.
    - **Asset-bombs** (DLL >50 MB, mostly bundles/textures) → skip, no skill value.
    - **Single-purpose feature mods** (custom NPC, mini-game, specific shop) → decompile but expect "no new pattern."
    - **Generic infrastructure mods** (config systems, save engines, reflection, hot-reload, harmony bootstrap) → high-skill-yield; decompile these first.
@@ -172,8 +176,8 @@ Read the sub-guides **before** the matching task — not just "for reference":
 3. **IL2CPP Native Lifecycle & WasCollected Safety (2026-09-11)**: When checking Unity IL2CPP objects, standard C# `!= null` can evaluate to true even when the native C++ object is destroyed. Always check `obj != null && obj.Pointer != IntPtr.Zero && !obj.WasCollected`. In UI loops or event handlers, return early if collected.
 4. **Static Event Dispatchers & Leak Prevention (2026-09-11)**: Never subscribe instance methods of ephemeral UI components (like PhoneApp panels or screen rows) directly to static events (`Money.OnBalanceChanged`, `GameLifecycle.*`, `PotTracker.OnPotsScanned`) without a clean unsubscribe. Prefer static dispatchers or unhook on unload/dispose to prevent subscriber leaks and `WasCollected` exceptions across scene transitions.
 5. **InputFocus Hook**: When creating UI text inputs, register an `InputFocus` hook (canonical API: `HotkeyManager.IsInputFieldFocused()`; `NotesAppInputFocus` is the reference implementation) to disable game WASD / movement controls while typing.
-6. **0-Allocation Polling**: In periodic update/polling routines (e.g. 2s container scan), avoid heap allocations inside loops to prevent IL2CPP GC spikes. Use pre-allocated pools for dynamic UI elements (e.g. Minimap blips 64-pool).
-7. **Responsive UI ("Method 3")**: The workspace's established scaling approach — dynamic `UITheme.Sp/Dp` scaling with a clamped screen height factor (`Mathf.Clamp(ActualHeight / 900f, 0.75f, 1.20f)`). Details in the UI guide. **Single source of truth: `S1Mods.Shared.UITheme` (Shared/UITheme.cs)** — mod wrappers delegate; never duplicate.
+6. **0-Allocation Polling**: In periodic update/polling routines (e.g. 2s container scan), avoid heap allocations inside loops to prevent IL2CPP GC spikes. Use pre-allocated pools for dynamic UI elements instead of per-frame Instantiate/Destroy (the archived Minimap 64-blip pool is the reference).
+7. **Responsive UI ("Method 3")**: The workspace's established scaling approach — dynamic `UITheme.Sp/Dp` scaling with a clamped screen height factor (`Mathf.Clamp(ActualHeight / 900f, 0.75f, 1.20f)`). Details in the UI guide. **Single source of truth: `S1Mods.Shared.UITheme` (Shared/UITheme.cs)** — mod wrappers delegate; never duplicate. For colours and generated shapes use the shared `GamePalette` (surface steps + semantic accents) and `UISprites` (`Rounded`/`Capsule`/`Circle`/`Donut`) kits instead of per-mod palette/rasteriser copies (PotScanner v0.7.0, MessagesPlus v0.4.0).
 8. **PhoneApp Subscription Lifetime**: `OnCreated()` fires ONCE per scene (S1API auto-discovery). **Never** `Unsubscribe(MelonEvents.OnUpdate)` inside `OnPhoneClosed()` — the app goes blank after the first close. Defensive `-=`-before-`+=` in `OnCreated` only. See `schedule1-phoneapp` Rule 10.
 9. **Money/Transaction Ordering + Snapshot Revert**: Mark paid **in memory BEFORE** the bank transaction, revert on **tx failure** restoring the **snapshot** (not `-1`), persist AFTER success. For purchases: pre-create item instances, pay, transfer with refund-rollback. Never refund if payment never executed. See `architecture-and-shared.md` §5.
 10. **ModConfig TOML Limit**: `ModConfig<T>` cannot persist `Dictionary<K,V>`/`List<T>` properties — use a SafeStorage JSON sidecar (`ConfigJsonStore` pattern). See `architecture-and-shared.md` §3.
@@ -184,13 +188,15 @@ Read the sub-guides **before** the matching task — not just "for reference":
     - `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/`: Vanilla symbols & exact method signatures — **mandatory before every patch**.
     - `Skills/schedule1-game-systems/references/`: All 64 system analyses (01–64 + `_index.md`) with core classes, events, hook points.
     - `ThirdParty/S1API/S1API/`: S1API full C# source & wrapper methods — **always check before accessing vanilla directly** (prefer the wrapper).
-    - `Source/Mods/`: Live mod implementations (NotesApp, BankApp, PotScanner, HomelessMod, etc.).
+    - `Source/Mods/`: Live mod implementations (NotesApp, BankApp, PotScanner, PocketShop, MessagesPlus, TaxiDriver, etc.).
     - Live game verification: `$env:SCHEDULE1_PATH\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll` via `ilspycmd`.
 15. **Multiplayer Host Authority**: Always guard passive income, financial balance updates, and world object placement with `NetworkGuard.IsHostOrSingleplayer()` to prevent duplicate client execution and desyncs in co-op.
 16. **Idempotency**: Use checks like `LastPaidElapsedDay` to ensure scene reloads or save reloads don't trigger duplicate transactions.
 17. **Hot-Path Harmony Early-Out via Cached Set**: When a Harmony prefix/postfix fires every physics step for every instance in the scene, cache target IDs into a `static readonly HashSet<int> _tunedInstanceIds` in `Awake`/`Start`, and early-out with `if (instanceId == 0 || !_tunedInstanceIds.Contains(instanceId)) return true;`.
 18. **Save-Slot-Change vs Same-Slot-Scene-Reload Detection**: `GameLifecycle.OnPreLoad` fires for both real save-slot switches AND same-slot Menu→Game scene reloads. Distinguish slot switches (`oldSlot != newSlot`) from scene reload to avoid destroying placed objects on menu return.
 19. **S1API EventHelper Dedupe Kills Rebuilt UI — Wire with Defensive Remove-Before-Add**: `S1API.Utils.EventHelper.AddListener` (and `ButtonUtils.AddListener`, which wraps it) dedupes GLOBALLY per listener delegate instance (`SubscribedActions.ContainsKey(listener)`). C# caches static-method-group delegates, so after a UI rebuild (scene reload, re-injection) the same `Action` instance hits the stale dict entry and the NEW UnityEvent silently gets NO listener — every rebuilt control is dead (verified latent bug in MessagesPlus v0.2.0: [Clear All] died after scene reload). Fix pattern: `WireClick`-style helper that calls `ButtonUtils.RemoveListener(btn, handler)` (clears the stale dict entry; harmless on first build) BEFORE `ButtonUtils.AddListener(btn, handler)`; same for `EventHelper.RemoveListener<T>`/`AddListener<T>` on `onValueChanged`. Fresh lambdas per build also work but leak dict entries.
+20. **Naming IL2CPP Collection Types in Signatures (2026-10-01)**: To name `Il2CppSystem.Collections.Generic.List<T>` (or other Il2Cpp* core types) in a method signature you MUST declare `extern alias il2cpp;` as the first file-scope line and fully qualify — `il2cpp::Il2CppSystem.Collections.Generic.List<NPC>`. Without it: CS0234 (`List<> does not exist in the namespace ... (are you missing an assembly reference?)`), because `Directory.Build.props` references Il2Cppmscorlib under the `il2cpp` alias only. See `HitmanPhone/BountyConversationRouter.cs` for the reference pattern. **Nullable quirk:** with such aliased-typed parameters, Roslyn's nullable analysis flags string arguments at the call site as maybe-null (CS8604, one warning per call) — declare the helper's string parameters as `string?` and guard internally (`x ?? string.Empty`, `string.IsNullOrEmpty`), which matches the existing file idiom; guarding the call site with `?? string.Empty` also works. Verified on PocketShop `NPCPortraitService` v0.3.3.
+21. **IL2CPP Class Checks via `TryCast<T>()` (2026-09-19)**: `is`/`as` evaluate the managed proxy — always the generic wrapper — never the real IL2CPP class (StackLimitMod v0.1.6 misclassified Weed/meth/cocaine as "not agriculture" and let `cash` through the weapon veto). Use `TryCast<T>()`; blittable enums like `EItemCategory` compare directly. Full recipe: `schedule1-il2cpp-reflection` §9.
 
 ### Never do (hard guardrails):
 * Never use `foreach` or LINQ on `Il2CppSystem.Collections.Generic.List<T>` — indexed `for` only.

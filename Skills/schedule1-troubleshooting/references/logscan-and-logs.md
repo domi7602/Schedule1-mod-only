@@ -89,7 +89,7 @@ Get-Content $log | Select-String -Pattern '\[ERROR\]|Exception' | Select-Object 
 [<time>] [ModName] Error: Property.OwnedProperties.Count == 0
 [<time>] Exception: NullReferenceException at …
 ```
-**Cause:** Hooked the wrong lifecycle. Use `GameLifecycle.OnSaveInfoLoaded` instead of `OnGameplaySceneLoaded`.
+**Cause:** Hooked the wrong lifecycle. Use `GameLifecycle.OnPreLoad` / `OnSceneWasLoaded("Main")` / `OnLoadComplete` instead of `OnGameplaySceneLoaded` (do NOT use `OnSaveInfoLoaded` - it fired 0 times on 0.4.7f6).
 
 ### 4.4. Native AV Crash (0xc0000005)
 ```

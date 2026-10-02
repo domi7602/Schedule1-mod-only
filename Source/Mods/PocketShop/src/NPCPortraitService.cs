@@ -1,5 +1,8 @@
+extern alias il2cpp;
+
 using System;
 using System.Collections.Generic;
+using Il2CppInterop.Runtime;
 using Il2CppScheduleOne.NPCs;
 using Il2CppScheduleOne.UI.Shop;
 using MelonLoader;
@@ -9,8 +12,13 @@ namespace PocketShop.Services;
 
 /// <summary>
 /// Provides high-resolution avatars for each shop by prioritizing the real
-/// 3D NPC shopkeeper mugshots (Dan, Hank, Oscar, Manny, etc.) from the game,
+/// 3D NPC shopkeeper mugshots (Dan, Hank, Oscar, etc.) from the game,
 /// falling back to crisp themed vector icons for non-NPC stores (Gas-Mart, etc.).
+/// Known vanilla gap (verified 2026-10-01 via log diagnostics): Stan Carney carries
+/// no MugshotSprite in the game data although his ShopInterface correctly points at
+/// 'armsdealer'. Per user decision (v0.3.7) the arms card shows Manny the Fixer's
+/// portrait until TVGS ships a mugshot — Stan stays first in line and wins
+/// automatically once his mugshot exists.
 /// </summary>
 public static class NPCPortraitService
 {
@@ -52,7 +60,10 @@ public static class NPCPortraitService
 
     public static Sprite GetAvatar(string shopCode, string shopName, int size = 128)
     {
-        string key = $"{shopCode}_{shopName}_{size}";
+        // Gas-Marts swap clerks at 6:00/18:00 — keep the day and night portraits in
+        // separate cache entries so a still-open store list picks the right face (v0.3.3).
+        string shiftToken = IsGasMart(shopCode) ? (IsDayShiftNow() ? "_d" : "_n") : string.Empty;
+        string key = $"{shopCode}_{shopName}_{size}{shiftToken}";
         if (_cache.TryGetValue(key, out var cached) && cached != null && cached.Pointer != IntPtr.Zero && !cached.WasCollected)
         {
             return cached;
@@ -86,8 +97,24 @@ public static class NPCPortraitService
             string sCode = (shopCode ?? string.Empty).ToLowerInvariant();
             string sName = (shopName ?? string.Empty).ToLowerInvariant();
 
+            // 0a. Ground truth (v0.3.3): the shopkeeper classes carry their shop as a
+            // direct ShopInterface reference — binding via that field beats name guessing.
+            var shopkeeperSprite = TryGetShopkeeperMugshot(shopCode, shopName, registry);
+            if (shopkeeperSprite != null)
+            {
+                return shopkeeperSprite;
+            }
+
+            // 0b. Gas-Marts are staffed by shift clerks — pick the one on duty (v0.3.3).
+            var gasClerkSprite = TryGetGasMartMugshot(shopCode, registry);
+            if (gasClerkSprite != null)
+            {
+                return gasClerkSprite;
+            }
+
             // 1. Known shopkeeper ID mapping
             string? targetNpcId = null;
+            string? fallbackNpcId = null;
             if (sCode.Contains("dan") || sName.Contains("dan")) targetNpcId = "dan_samwell";
             else if (sCode.Contains("hank") || sName.Contains("hank")) targetNpcId = "hank_stevenson";
             else if (sCode.Contains("oscar") || sName.Contains("oscar")) targetNpcId = "oscar_holland";
@@ -95,9 +122,17 @@ public static class NPCPortraitService
             else if (sCode.Contains("shirley") || sName.Contains("shirley")) targetNpcId = "shirley_watts";
             else if (sCode.Contains("albert") || sName.Contains("albert")) targetNpcId = "albert_hoover";
             else if (sCode.Contains("fungal") || sCode.Contains("phil") || sName.Contains("phil")) targetNpcId = "philip_wentworth";
-            else if (sCode.Contains("arm") || sCode.Contains("manny") || sName.Contains("manny")) targetNpcId = "manny_oakfield";
-            else if (sCode.Contains("herbert") || sName.Contains("herbert")) targetNpcId = "herbert_bleuball";
-            else if (sCode.Contains("fiona") || sName.Contains("fiona")) targetNpcId = "fiona_hancock";
+            else if (sCode.Contains("arm") || sCode.Contains("weapon") || sName.Contains("arm") || sName.Contains("weapon"))
+            {
+                // v0.3.7: Stan is the correct dealer but ships no mugshot in vanilla
+                // data — Manny the Fixer's portrait is the visible fallback (wrong
+                // person, real face) per user decision. Stan wins automatically once
+                // TVGS ships his mugshot (shopkeeper-field path runs first).
+                targetNpcId = "stan_carney";
+                fallbackNpcId = "manny_oakfield";
+            }
+            else if (sCode.Contains("herbert") || sName.Contains("herbert") || sCode.Contains("bleuball") || sName.Contains("bleuball")) targetNpcId = "herbert_bleuball";
+            else if (sCode.Contains("fiona") || sName.Contains("fiona") || sCode.Contains("thrifty") || sName.Contains("thrifty")) targetNpcId = "fiona_hancock";
             else if (sCode.Contains("igor") || sName.Contains("igor")) targetNpcId = "igor_romanovich";
 
             if (!string.IsNullOrEmpty(targetNpcId))
@@ -111,7 +146,29 @@ public static class NPCPortraitService
                     {
                         var sprite = npc.MugshotSprite;
                         if (sprite != null && sprite.Pointer != IntPtr.Zero && !sprite.WasCollected)
+                        {
+                            MelonLogger.Msg($"[PocketShop] portrait {shopCode} -> {targetNpcId} (keyword)");
                             return sprite;
+                        }
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(fallbackNpcId))
+            {
+                for (int i = 0; i < registry.Count; i++)
+                {
+                    var npc = registry[i];
+                    if (npc == null || npc.Pointer == IntPtr.Zero || npc.WasCollected) continue;
+
+                    if (string.Equals(npc.ID, fallbackNpcId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        var sprite = npc.MugshotSprite;
+                        if (sprite != null && sprite.Pointer != IntPtr.Zero && !sprite.WasCollected)
+                        {
+                            MelonLogger.Msg($"[PocketShop] portrait {shopCode} -> {fallbackNpcId} (keyword-fallback)");
+                            return sprite;
+                        }
                     }
                 }
             }
@@ -130,7 +187,10 @@ public static class NPCPortraitService
                     {
                         var sprite = npc.MugshotSprite;
                         if (sprite != null && sprite.Pointer != IntPtr.Zero && !sprite.WasCollected)
+                        {
+                            MelonLogger.Msg($"[PocketShop] portrait {shopCode} -> {npc.ID} (component-scan)");
                             return sprite;
+                        }
                     }
                 }
             }
@@ -148,20 +208,196 @@ public static class NPCPortraitService
                 {
                     var sprite = npc.MugshotSprite;
                     if (sprite != null && sprite.Pointer != IntPtr.Zero && !sprite.WasCollected)
+                    {
+                        MelonLogger.Msg($"[PocketShop] portrait {shopCode} -> {npc.ID} (name-match)");
                         return sprite;
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(npcName) && sName.Contains(npcName))
                 {
                     var sprite = npc.MugshotSprite;
                     if (sprite != null && sprite.Pointer != IntPtr.Zero && !sprite.WasCollected)
+                    {
+                        MelonLogger.Msg($"[PocketShop] portrait {shopCode} -> {npc.ID} (name-match)");
                         return sprite;
+                    }
                 }
             }
         }
         catch (Exception ex)
         {
             MelonLogger.Warning($"[PocketShop] Failed to retrieve NPC mugshot for '{shopCode}': {ex.Message}");
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Ground-truth binding (v0.3.3): the six shopkeeper classes in the game carry a
+    /// direct <see cref="ShopInterface"/> reference to the shop they run. Match that
+    /// reference against the catalog's shop code/name and use the shopkeeper's mugshot.
+    /// Covers Dan's Hardware, Thrifty Threads (Fiona), Bleuball's Boutique (Herbert),
+    /// Oscar, the Warehouse Arms Dealer (Stan) and Handy Hank's (Steve class).
+    /// </summary>
+    private static Sprite? TryGetShopkeeperMugshot(string? shopCode, string? shopName, il2cpp::Il2CppSystem.Collections.Generic.List<NPC> registry)
+    {
+        try
+        {
+            for (int i = 0; i < registry.Count; i++)
+            {
+                var npc = registry[i];
+                if (npc == null || npc.Pointer == IntPtr.Zero || npc.WasCollected) continue;
+
+                var si = GetShopInterfaceRef(npc);
+                if (si == null || si.Pointer == IntPtr.Zero || si.WasCollected) continue;
+
+                string siCode = si.ShopCode ?? string.Empty;
+                string siName = si.ShopName ?? string.Empty;
+                bool codeMatch = !string.IsNullOrEmpty(shopCode) && !string.IsNullOrEmpty(siCode) &&
+                                 string.Equals(siCode, shopCode, StringComparison.OrdinalIgnoreCase);
+                bool nameMatch = !string.IsNullOrEmpty(shopName) && !string.IsNullOrEmpty(siName) &&
+                                 string.Equals(siName, shopName, StringComparison.OrdinalIgnoreCase);
+                if (!codeMatch && !nameMatch) continue;
+
+                var sprite = npc.MugshotSprite;
+                if (sprite != null && sprite.Pointer != IntPtr.Zero && !sprite.WasCollected)
+                {
+                    MelonLogger.Msg($"[PocketShop] portrait {shopCode} -> {npc.ID} (shopkeeper-field)");
+                    return sprite;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Warning($"[PocketShop] shopkeeper-field binding failed for '{shopCode}': {ex.Message}");
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Returns the shop reference a shopkeeper NPC carries, or null for every other NPC.
+    /// Only these six classes hold the field (verified against the game's CharacterClasses).
+    /// </summary>
+    private static ShopInterface? GetShopInterfaceRef(NPC npc)
+    {
+        try
+        {
+            var dan = npc.TryCast<Il2CppScheduleOne.NPCs.CharacterClasses.Dan>();
+            if (dan != null && dan.Pointer != IntPtr.Zero && !dan.WasCollected) return dan.ShopInterface;
+
+            var fiona = npc.TryCast<Il2CppScheduleOne.NPCs.CharacterClasses.Fiona>();
+            if (fiona != null && fiona.Pointer != IntPtr.Zero && !fiona.WasCollected) return fiona.ShopInterface;
+
+            var herbert = npc.TryCast<Il2CppScheduleOne.NPCs.CharacterClasses.Herbert>();
+            if (herbert != null && herbert.Pointer != IntPtr.Zero && !herbert.WasCollected) return herbert.ShopInterface;
+
+            var oscar = npc.TryCast<Il2CppScheduleOne.NPCs.CharacterClasses.Oscar>();
+            if (oscar != null && oscar.Pointer != IntPtr.Zero && !oscar.WasCollected) return oscar.ShopInterface;
+
+            var steve = npc.TryCast<Il2CppScheduleOne.NPCs.CharacterClasses.Steve>();
+            if (steve != null && steve.Pointer != IntPtr.Zero && !steve.WasCollected) return steve.ShopInterface;
+
+            var stan = npc.TryCast<Il2CppScheduleOne.NPCs.Stan>();
+            if (stan != null && stan.Pointer != IntPtr.Zero && !stan.WasCollected) return stan.ShopInterface;
+        }
+        catch { }
+
+        return null;
+    }
+
+    private static bool IsGasMart(string shopCode)
+    {
+        string code = (shopCode ?? string.Empty).ToLowerInvariant();
+        return code.Contains("gas_mart_west") || code.Contains("gas_mart_central");
+    }
+
+    /// <summary>
+    /// True while the gas clerks' day shift (06:00-18:00 in-game time) is running.
+    /// Defaults to day when no TimeManager instance exists (menus, scene loads).
+    /// </summary>
+    private static bool IsDayShiftNow()
+    {
+        try
+        {
+            int t = S1API.GameTime.TimeManager.CurrentTime; // 24-hour, e.g. 1330
+            return t >= 600 && t < 1800;
+        }
+        catch
+        {
+            return true;
+        }
+    }
+
+    private static Sprite? TryGetMugshotById(string? npcId, il2cpp::Il2CppSystem.Collections.Generic.List<NPC> registry)
+    {
+        for (int i = 0; i < registry.Count; i++)
+        {
+            var npc = registry[i];
+            if (npc == null || npc.Pointer == IntPtr.Zero || npc.WasCollected) continue;
+            if (!string.Equals(npc.ID, npcId, StringComparison.OrdinalIgnoreCase)) continue;
+
+            var sprite = npc.MugshotSprite;
+            if (sprite != null && sprite.Pointer != IntPtr.Zero && !sprite.WasCollected)
+                return sprite;
+
+            return null; // NPC exists but has no usable mugshot
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Gas-Marts run two clerks per location on a shift rotation (v0.3.3):
+    /// West = Chloe Bowers day / Charles Rowland night, Central = Meg Cooley day /
+    /// Javier Pérez night. Day = 06:00-18:00 in-game time; the other clerk is the
+    /// fallback when the on-duty one cannot be resolved.
+    /// </summary>
+    private static Sprite? TryGetGasMartMugshot(string? shopCode, il2cpp::Il2CppSystem.Collections.Generic.List<NPC> registry)
+    {
+        try
+        {
+            string code = (shopCode ?? string.Empty).ToLowerInvariant();
+            string dayId;
+            string nightId;
+            if (code.Contains("gas_mart_west"))
+            {
+                dayId = "chloe_bowers";
+                nightId = "charles_rowland";
+            }
+            else if (code.Contains("gas_mart_central"))
+            {
+                dayId = "meg_cooley";
+                nightId = "javier_perez";
+            }
+            else
+            {
+                return null;
+            }
+
+            bool day = IsDayShiftNow();
+            string primary = day ? dayId : nightId;
+            string secondary = day ? nightId : dayId;
+            string shift = day ? "gas-day" : "gas-night";
+
+            var sprite = TryGetMugshotById(primary, registry);
+            if (sprite != null)
+            {
+                MelonLogger.Msg($"[PocketShop] portrait {shopCode} -> {primary} ({shift})");
+                return sprite;
+            }
+
+            sprite = TryGetMugshotById(secondary, registry);
+            if (sprite != null)
+            {
+                MelonLogger.Msg($"[PocketShop] portrait {shopCode} -> {secondary} ({shift}, other-shift fallback)");
+                return sprite;
+            }
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Warning($"[PocketShop] gas-mart portrait failed for '{shopCode}': {ex.Message}");
         }
 
         return null;

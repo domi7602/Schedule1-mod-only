@@ -180,7 +180,7 @@ internal static class SpikeRunner
         _freeSpotRescues = 0;
         _idleMovingSince = 0f;
         _idleStopAttempts = 0;
-        Mod.Log.Info($"[drive] stopped ({reason}) — order invalidated, patrol released, navigation off, car parked.");
+        TaxiLog.Verbose($"[drive] stopped ({reason}) — order invalidated, patrol released, navigation off, car parked.");
     }
 
     /// <summary>Free space (metres) required behind the car before recovery #1 may reverse.</summary>
@@ -328,7 +328,7 @@ internal static class SpikeRunner
             else if (now - _proofSpeedSince >= DriveStartSustainSeconds)
             {
                 _driveStartConfirmed = true;
-                Mod.Log.Info(
+                TaxiLog.Verbose(
                     $"[drive] start confirmed by speed ({TaxiDestinations.Num(speed)} km/h held {DriveStartSustainSeconds:0.0} s, order {SpikeState.NavOrder}).");
                 return;
             }
@@ -343,7 +343,7 @@ internal static class SpikeRunner
         if (_proofStartDistance - _proofBestDistance >= DriveStartApproachMeters)
         {
             _driveStartConfirmed = true;
-            Mod.Log.Info(
+            TaxiLog.Verbose(
                 $"[drive] start confirmed by approach ({TaxiDestinations.Num(_proofStartDistance - _proofBestDistance)} m net toward the target, order {SpikeState.NavOrder}).");
         }
     }
@@ -1088,7 +1088,7 @@ internal static class SpikeRunner
             boxMinY = boxMin.y;
         float glbMinY = TaxiVisual.CurrentGlbMinY();
 
-        Mod.Log.Info(
+        TaxiLog.Verbose(
             $"[settle] rootY={SpikeCommands.FmtY(rootY)} " +
             $"(snap placed {SpikeCommands.FmtY(SpikeState.SettleCheckRootY)}, drift {SpikeCommands.FmtY(rootY - SpikeState.SettleCheckRootY)} m; " +
             $"raw spawn {SpikeCommands.FmtY(SpikeState.SettleCheckSpawnY)}) " +
@@ -1365,7 +1365,7 @@ internal static class SpikeRunner
         if (EvaluateProgress(position, distance, now))
         {
             if (SpikeState.StuckRecoveries > 0)
-                Mod.Log.Info($"[patrol] progress resumed — the car is moving again after recovery #{SpikeState.StuckRecoveries}.");
+                TaxiLog.Verbose($"[patrol] progress resumed — the car is moving again after recovery #{SpikeState.StuckRecoveries}.");
             SpikeState.StuckRecoveries = 0;
             _reverseAttempt = 0;
             return;
@@ -1433,7 +1433,7 @@ internal static class SpikeRunner
         }
 
         _reverseAttempt = 0;
-        Mod.Log.Info("[patrol] reverse manoeuvre complete — re-dispatching the route.");
+        TaxiLog.Verbose("[patrol] reverse manoeuvre complete — re-dispatching the route.");
         ReDispatch(agent, target, "post-reverse");
     }
 
@@ -1490,7 +1490,7 @@ internal static class SpikeRunner
         try
         {
             agent.Navigate(target, null, NavigationCallbackFor(order));
-            Mod.Log.Info($"[nav] {why}: Navigate(settings=null) dispatched (order {order}) to {SpikeCommands.Fmt(target)} — fresh measurement window.");
+            TaxiLog.Verbose($"[nav] {why}: Navigate(settings=null) dispatched (order {order}) to {SpikeCommands.Fmt(target)} — fresh measurement window.");
         }
         catch (Exception ex)
         {
@@ -1582,7 +1582,7 @@ internal static class SpikeRunner
             // cosmetic only
         }
 
-        Mod.Log.Info(
+        TaxiLog.Verbose(
             $"[hb] frame={Time.frameCount} riding={riding} seated={seated} polling={SpikeState.PollingActive} " +
             $"{agentState} speed={TaxiDestinations.Num(speed)} km/h pos={TaxiDestinations.Fmt(position)} " +
             $"target={SpikeCommands.Fmt(SpikeState.NavTarget)} dist={TaxiDestinations.Num(Vector3.Distance(position, SpikeState.NavTarget))} m " +
@@ -1602,20 +1602,20 @@ internal static class SpikeRunner
     {
         if (order != SpikeState.NavOrder)
         {
-            Mod.Log.Info($"[nav] stale callback order={order} (current={SpikeState.NavOrder}) ignored — no state changed.");
+            TaxiLog.Verbose($"[nav] stale callback order={order} (current={SpikeState.NavOrder}) ignored — no state changed.");
             return;
         }
 
         if (_recoveryOwnsNavigation || SpikeState.NavReDispatchAt > 0f)
         {
-            Mod.Log.Info($"[patrol] old navigation callback {result} ignored during controlled recovery.");
+            TaxiLog.Verbose($"[patrol] old navigation callback {result} ignored during controlled recovery.");
             return;
         }
         string text = result.ToString();
         SpikeState.NavCallbackResult = text;
 
         float elapsed = SpikeState.NavStartTime > 0f ? Time.unscaledTime - SpikeState.NavStartTime : -1f;
-        Mod.Log.Info(
+        TaxiLog.Verbose(
             $"[nav] callback result={text} after {elapsed:F1}s (frame={Time.frameCount}, order={order}) — " +
             "authoritative completion signal, navigation polling stops.");
         SpikeState.PollingActive = false;
@@ -1728,7 +1728,7 @@ internal static class SpikeRunner
 
             if (TickStartupRecovery(agent, veh, position, distance, navCalc))
                 return;
-            Mod.Log.Info(
+            TaxiLog.Verbose(
                 $"[nav t={elapsed:F1}s] order={SpikeState.NavOrder} AutoDriving={autoDriving} navCalc={navCalc} " +
                 $"target={SpikeCommands.Fmt(SpikeState.NavTarget)} " +
                 $"vehicle={SpikeCommands.Fmt(position)} distToTarget={distance:F1}m " +
@@ -1781,7 +1781,7 @@ internal static class SpikeRunner
             if (EvaluateProgress(position, distance, now))
             {
                 if (SpikeState.StuckRecoveries > 0)
-                    Mod.Log.Info($"[nav] progress resumed — the car is moving again after recovery #{SpikeState.StuckRecoveries}.");
+                    TaxiLog.Verbose($"[nav] progress resumed — the car is moving again after recovery #{SpikeState.StuckRecoveries}.");
                 SpikeState.StuckRecoveries = 0;
                 _reverseAttempt = 0;
             }
@@ -1807,7 +1807,7 @@ internal static class SpikeRunner
                 SpikeState.NavRetried = true;
                 SpikeState.NavRetryAt = now;
                 int retryOrder = SpikeState.NextNavOrder();
-                Mod.Log.Info(
+                TaxiLog.Verbose(
                     $"[nav] retry #1: Navigate(target, settings=null, callback) at t={elapsed:F1}s " +
                     $"(order {retryOrder}) (nothing drove with NavigationSettings, no calculation pending) — grace window {RetryGraceSeconds:F0}s starts now.");
                 try
@@ -1843,7 +1843,7 @@ internal static class SpikeRunner
             string verdict = arrivedWithin
                 ? $"ARRIVED (within the {ArrivalThresholdMeters:F0} m threshold){(SpikeState.NavToPlayer ? " — taxi arrived at player" : string.Empty)}"
                 : $"STOPPED SHORT ({distance:F1} m from the target — mid-route stop, failed path or an early terminal){(SpikeState.NavToPlayer ? " (call-taxi to the player)" : string.Empty)}";
-            Mod.Log.Info(
+            TaxiLog.Verbose(
                 $"[nav] AutoDriving false and no calculation pending after {elapsed:F1}s — {verdict}; " +
                 $"target={SpikeCommands.Fmt(SpikeState.NavTarget)} " +
                 $"vehicle={SpikeCommands.Fmt(position)} " +
@@ -1914,7 +1914,7 @@ internal static class SpikeRunner
         _lotDumpPending = true;
         _lotDumpAttempt = 0;
         _lotDumpAt = Time.unscaledTime + LotDumpFirstDelaySeconds;
-        Mod.Log.Info($"[lots] ParkingLot dump scheduled {LotDumpFirstDelaySeconds:F1}s after scene '{sceneName}' loaded.");
+        TaxiLog.Verbose($"[lots] ParkingLot dump scheduled {LotDumpFirstDelaySeconds:F1}s after scene '{sceneName}' loaded.");
 
         // Paket A (2026-09-29): leaving the gameplay scene clears the destination
         // picker too (belt and braces next to GameLifecycle.OnSaveInfoLoaded — a

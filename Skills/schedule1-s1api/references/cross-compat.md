@@ -149,7 +149,7 @@ dotnet build Source/Mods/MyMod/src/MyMod.csproj -c MonoRelease
 # Verify deployment, launch game, test
 ```
 
-Most workspace mods (NotesApp, PotScanner, CalculatorApp, BankApp, PocketShop, BusinessIncome, MoreSaveSlots, HomelessMod, CustomSkateboard, Minimap) are IL2CPP-only by deployment choice. `S1API` 3.2.0 supports both via the loader mechanism.
+Most workspace mods (NotesApp, PotScanner, CalculatorApp, BankApp, PocketShop, BusinessIncome, MoreSaveSlots, CustomSkateboard, MessagesPlus, Weather, TaxiDriver) are IL2CPP-only by deployment choice. `S1API` 3.2.1-beta.7 supports both via the loader mechanism.
 
 ---
 

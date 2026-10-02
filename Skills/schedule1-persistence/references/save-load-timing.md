@@ -4,7 +4,7 @@ Static lists empty at OnGameplaySceneLoaded → use GameLifecycle.
 
 ```
 Game → S1API OnPreLoad → Mod ResetState() (clear caches, destroy clones)
-Game → S1API OnSaveInfoLoaded → Mod refresh Property/Item caches
+Game -> S1API OnPreLoad -> Mod refresh Property/Item caches (OnSaveInfoLoaded is dead on 0.4.7f6)
 Game → S1API OnLoadComplete → Mod LoadAndSpawn / Attach UI
 Gameplay → in-memory Register/Unregister only
 Game → S1API OnSaveComplete → Mod SaveAtomic(slot_{n}.json)
@@ -12,7 +12,7 @@ Game → S1API OnSaveComplete → Mod SaveAtomic(slot_{n}.json)
 
 ```csharp
 GameLifecycle.OnPreLoad       += ResetState;
-GameLifecycle.OnSaveInfoLoaded+= OnSaveInfoLoaded; // PotScanner v0.2.1 dropped 25s retry
+GameLifecycle.OnSceneWasLoaded += _ => OnSceneWasLoaded(); // scene 'Main' active (OnSaveInfoLoaded is dead on 0.4.7f6)
 GameLifecycle.OnLoadComplete  += OnLoadComplete;
 GameLifecycle.OnSaveComplete  += OnSaveComplete;
 ```

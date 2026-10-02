@@ -1,17 +1,17 @@
 ---
 name: schedule1-items
 description: >-
-  Item Framework runbook for Schedule I v0.4.7f6 (BaseItemDefinition/Instance, Registry hashing, StackLimit, Inventory slots, ItemFilters). Use when registering custom items, injecting shop listings, patching StackLimit, scanning definitions, or handling inventory capacity (CashSlot, hotbar, StoredItem). Covers StackLimitMod dual-layer scan + Registry hook + field-accessor trap, HomelessMod sleeping-bag injection, PocketShop fit-check.
+  Item Framework runbook for Schedule I v0.4.7f7 (BaseItemDefinition/Instance, Registry hashing, StackLimit, Inventory slots, ItemFilters). Use when registering custom items, injecting shop listings, patching StackLimit, scanning definitions, or handling inventory capacity (CashSlot, hotbar, StoredItem). Covers StackLimitMod dual-layer scan + Registry hook + field-accessor trap, the archived HomelessMod sleeping-bag injection, PocketShop fit-check.
   Keywords: ItemDefinition, BaseItemDefinition, BaseItemInstance, Registry, GetAllItems, StackLimit, Inventory, PlayerInventory, CashSlot, StackLimitMod, HomelessMod, sleepingbag, GetDefaultInstance, BuildableItemDefinition.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02 against the live Steam Open Beta: Latest.log "Game Version: 0.4.7f7"; content deep-verified against 0.4.7f6 / 2026-09-28 - anything not explicitly marked as re-verified must be checked against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — Items Skill (ItemFramework / Registry / Inventory)
 
-This skill maps **how items exist, register, stack, and fit** — hierarchy, Registry hashing, stack limits (non-patchable accessor), inventory slots vs world storage, and buildable injections verified in `StackLimitMod`, `HomelessMod`, `PocketShop`, and `BackpackMod`.
+This skill maps **how items exist, register, stack, and fit** — hierarchy, Registry hashing, stack limits (non-patchable accessor), inventory slots vs world storage, and buildable injections verified in `StackLimitMod`, `PocketShop`, and the archived `HomelessMod` / `BackpackMod` (`Source/Archive/`).
 
-> **Version check (verified 2026-09-11):** `Il2CppScheduleOne.ItemFramework`, `Il2CppScheduleOne.Core.Items.Framework`, `Registry` (`PersistentSingleton<Registry>`), `PlayerInventory`. Incorporates dual-layer scan and WasCollected safety rules.
+> **Version check (audited 2026-09-11; not re-audited since):** `Il2CppScheduleOne.ItemFramework`, `Il2CppScheduleOne.Core.Items.Framework`, `Registry` (`PersistentSingleton<Registry>`), `PlayerInventory`. Incorporates dual-layer scan and WasCollected safety rules.
 
 ---
 
@@ -94,7 +94,7 @@ inv.RemoveAmountOfItem(id, 1u);          // HomelessMod Place deducts source
 
 ---
 
-## 5. Custom Item Injection (HomelessMod Sleeping Bag)
+## 5. Custom Item Injection (archived HomelessMod Sleeping Bag)
 
 ```csharp
 // StreetPropertyManager: clone from base "bed" to keep GridItem+footprint
@@ -113,6 +113,8 @@ Handy Hanks Hardware injection: listing.AddItem("sleepingbag");
 ## 6. ItemFilters (9 subclasses, Systems/09:62)
 
 `IDs` (whitelist/blacklist), `Category` (EItemCategory), `LegalStatus`, `ClothingSlot`, `Dryable` (Weed/Shrooms), `MixingIngredient`, `PackagedProduct`/`UnpackagedProduct`. Use for shop filtering, storage rules, recipe matching.
+
+**Categories & classification (StackLimitMod v0.1.6/v0.1.7):** `BaseItemDefinition.Category` is a blittable `EItemCategory` — compare it directly, and use `TryCast<T>` (never `is`/`as`) when the real class matters; proxies always present the wrapper type (`schedule1-il2cpp-reflection` §9). Mixing/cooking ingredients carry `EItemCategory.Ingredient` (Acid, Banana, Chili, Cuke, …). Keyword ID guards need word boundaries: the weapon substring `bat` also matched `battery` and pinned it to the vanilla stack limit (v0.1.7 fixed it by excluding `battery`).
 
 ---
 

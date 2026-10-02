@@ -1,12 +1,12 @@
 # Mod Patterns — 7 Established Architectures
 
-The active workspace mods (NotesApp, PotScanner, CalculatorApp, CustomSkateboard, MoreSaveSlots, PocketShop, BankApp, HomelessMod, BusinessIncome, Minimap, MoreDrugs) cluster into **7 architectural patterns**. Pick the pattern that matches your use-case before designing.
+The workspace mods (NotesApp, PotScanner, CalculatorApp, CustomSkateboard, MoreSaveSlots, PocketShop, BankApp, Weather, BusinessIncome, StackLimitMod, AutoPackagingStation, HitmanPhone, MessagesPlus, TaxiDriver, plus the archived sources under `Source/Archive/`) cluster into **7 architectural patterns**. Pick the pattern that matches your use-case before designing.
 
 ---
 
 ## Pattern 1: PhoneApp (S1API)
 
-**Used by:** NotesApp, PotScanner, CalculatorApp, PocketShop, BankApp (and TVBrowser-archived).
+**Used by:** NotesApp, PotScanner, CalculatorApp, PocketShop, BankApp (and the archived TVBrowser).
 
 **When:** A persistent in-game app reachable from the phone UI. Touch data the player keeps across sessions.
 
@@ -61,7 +61,7 @@ public class MyState : Saveable
 
 ## Pattern 2: HUD Overlay (uGUI / TextMeshPro / IMGUI)
 
-**Used by:** Minimap, DayCounter (archived), ProfitTracker (archived), PotScanner.
+**Used by:** Minimap (archived), DayCounter (archived), ProfitTracker (archived), PotScanner.
 
 **When:** Constantly visible status display (clock, money, weather, distance, etc.). Drawn over the world without a screen.
 
@@ -106,7 +106,7 @@ if (HotkeyManager.IsInputFieldFocused()) return; // skip toggle when user types
 
 ## Pattern 3: Polling Service (Periodic Tick)
 
-**Used by:** PotScanner, MoreDrugs ProductScanner.
+**Used by:** PotScanner (and the removed MoreDrugs ProductScanner).
 
 **When:** Need to refresh data regularly from the game world (pot status, NPC list, station state). Tick via `OnUpdate` with cooldown timer; avoid per-frame scans.
 
@@ -143,7 +143,7 @@ private void Refresh()
 
 ## Pattern 4: Saveable / Persistence Layer
 
-**Used by:** MoreDrugs (custom-product provider), NotesApp.
+**Used by:** MoreDrugs (removed 2026-09-19), NotesApp.
 
 **When:** Persisting custom data structures into the Schedule I save game.
 
@@ -163,7 +163,7 @@ public class MySave : Saveable
 **Key rules:**
 - Class must be `public`, non-abstract, with parameterless constructor.
 - All persistent fields need `[SaveableField("name")]`.
-- `GameLifecycle.OnSaveInfoLoaded` is the proper hook for save-data refresh — fire earlier than `OnGameplaySceneLoaded`.
+- Refresh save data on `GameLifecycle.OnPreLoad` + `OnSceneWasLoaded("Main")` / `OnLoadComplete`; `OnSaveInfoLoaded` fired 0 times on 0.4.7f6 (see `schedule1-lifecycle-verify`).
 - `Saveable.RequestGameSave()` triggers a save after significant changes.
 
 ### Standalone JSON Persist (no Save System)
@@ -179,7 +179,7 @@ if (SafeStorage.TryLoad(filePath, out string json))
 
 ## Pattern 5: Harmony Patch (Cautious)
 
-**Used by:** CustomSkateboard (GetSurfaceSmoothness, IsOnTerrain), MoreSaveSlots (SaveDisplay, ContinueScreen), TVBrowser, MikuPlayerModel (archived).
+**Used by:** CustomSkateboard (GetSurfaceSmoothness, IsOnTerrain), MoreSaveSlots (SaveDisplay, ContinueScreen), TVBrowser (archived), MikuPlayerModel (archived).
 
 **When:** Modifying existing game behavior without re-implementing it from scratch.
 
@@ -319,9 +319,9 @@ A real mod typically combines 2-4 patterns:
 - **PocketShop**: 1 (PhoneApp) + Multi-Payment + SFX + ItemDetailModal + Atomic Purchase (§5 architecture-and-shared)
 - **BankApp**: 1 (PhoneApp) + SafeStorage Slot-Isolation + Weekly Limits + SFX + InputFocus
 - **CustomSkateboard**: 5 (Harmony) + 6 (ModConfig) + 7 (Console)
-- **HomelessMod**: 5 (Harmony / Build-Everywhere) + Procedural 3D Mesh + SafeStorage + 7 (Console)
+- **HomelessMod** (archived): 5 (Harmony / Build-Everywhere) + Procedural 3D Mesh + SafeStorage + 7 (Console)
 - **BusinessIncome**: Multiplayer Host Guard + 4 (SafeStorage Idempotency) + 6 (ModConfig + JSON sidecar) + 7 (Console/Hash)
-- **Minimap**: 2 (HUD Overlay / Dual-Shape) + 3 (0-Alloc Pooled Scan) + Drag&Drop + 6 (ModConfig) + 7 (Console/Hash) + Parameter-Keyed Sprite Cache
+- **Minimap** (archived): 2 (HUD Overlay / Dual-Shape) + 3 (0-Alloc Pooled Scan) + Drag&Drop + 6 (ModConfig) + 7 (Console/Hash) + Parameter-Keyed Sprite Cache
 - **MoreSaveSlots**: 5 (Harmony, multiple patches) + Modal UI
 - **DayCounter (archived)**: 2 (HUD) + 6 (ModConfig) + 7 (Console)
 

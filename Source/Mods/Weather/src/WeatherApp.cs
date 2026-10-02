@@ -20,8 +20,9 @@ namespace Weather;
 /// holding the giant condition name, the big percentage, a solid accent pill with dark text
 /// (HEAVY/MODERATE/LIGHT) and the "N OF 9 ACTIVE" meta line; the radial ring gauge on the right
 /// carries the same accent arc (rounded cap) around the shape-drawn condition icon. Below it,
-/// "ALL CONDITIONS" captions a stack of nine rounded rows whose own accent tint, border, icon
-/// and bar mark the active conditions; inactive rows stay neutral grey-blue. A tie for the top
+/// "ALL CONDITIONS" captions a stack of nine rounded rows whose icons always carry their
+/// condition's theme colour while the accent tint, border and bar mark the active conditions;
+/// inactive rows otherwise stay neutral grey-blue. A tie for the top
 /// weight shows "MIXED". No footer/status row.
 ///
 /// Every anchor is a canvas fraction measured off the reference design (aspect 400:750, so the
@@ -113,9 +114,10 @@ public sealed class WeatherApp : PhoneApp
         "Sunny", "Cloudy", "Rainy", "Stormy", "Snowy", "Foggy", "Windy", "Hail", "Sleet"
     };
 
-    // --- Condition accents: hero border/halo, chip, ring arc, active row border/bar/icon ---
+    // --- Condition accents: hero border/halo, chip, ring arc, every row icon plus the active
+    //     rows' tint/border/bar ---
     // Sunny, Cloudy, Foggy and Windy are the accents measured off the reference design; the other
-    // five keep the house palette (they sit inactive/grey in the reference).
+    // five keep the house palette (they sit inactive in the reference).
     private static readonly Color[] ComponentColors =
     {
         new(0.992f, 0.816f, 0.180f, 1f), // Sunny  — amber
@@ -143,7 +145,6 @@ public sealed class WeatherApp : PhoneApp
     private static readonly Color TextSection = new(1f, 1f, 1f, 0.68f);
     private static readonly Color TextLive = new(1f, 1f, 1f, 0.62f);
     private static readonly Color TextMeta = new(1f, 1f, 1f, 0.58f);
-    private static readonly Color IconIdleColor = new(0.502f, 0.545f, 0.612f, 0.90f);
     private static readonly Color BarTrackColor = new(1f, 1f, 1f, 0.10f);   // over the row base
     private static readonly Color RingTrackColor = new(1f, 1f, 1f, 0.14f);  // over the hero base
 
@@ -630,7 +631,7 @@ public sealed class WeatherApp : PhoneApp
         le.flexibleWidth = 1f;
         le.flexibleHeight = 1f;
 
-        // Shape icon of the row's condition (accent while active, muted grey otherwise).
+        // Shape icon of the row's condition (always in its own theme colour).
         var iconRoot = new GameObject("RowIcon");
         iconRoot.transform.SetParent(row.transform, false);
         var iconRt = iconRoot.AddComponent<RectTransform>();
@@ -639,7 +640,7 @@ public sealed class WeatherApp : PhoneApp
         float rowIconSide = UITheme.Dp(RowIconSize);
         iconRt.sizeDelta = new Vector2(rowIconSide, rowIconSide);
         BuildConditionIcon(iconRoot.transform, index, rowIconSide);
-        TintIconMono(iconRoot.transform, IconIdleColor);
+        TintIconMono(iconRoot.transform, ComponentColors[index]);
         _rowIconRoot[index] = iconRoot.transform;
 
         // Name and bar form one left-aligned column; the percentage is centred on the row.
@@ -1098,7 +1099,7 @@ public sealed class WeatherApp : PhoneApp
         if (NetworkGuard.IsAlive(_activeLabel))
             _activeLabel.text = $"{activeCount} OF {ComponentCount} ACTIVE";
 
-        // --- All nine components: accent tint/border/bar while active, neutral grey otherwise ---
+        // --- All nine components: icon always themed; accent tint/border/bar while active, neutral otherwise ---
         for (int i = 0; i < ComponentCount; i++)
         {
             float value = Mathf.Clamp01(_values[i]);
@@ -1113,7 +1114,7 @@ public sealed class WeatherApp : PhoneApp
             _rowBase[i].color = active ? AccentOverBg(cc) : RowFillColor;
             _rowFill[i].color = new Color(cc.r, cc.g, cc.b, 1f);
             if (_rowIconRoot[i] != null)
-                TintIconMono(_rowIconRoot[i], active ? new Color(cc.r, cc.g, cc.b, 1f) : IconIdleColor);
+                TintIconMono(_rowIconRoot[i], cc);
             _target[i] = active ? value : 0f;
         }
     }

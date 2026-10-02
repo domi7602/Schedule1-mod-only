@@ -1,11 +1,11 @@
 ---
 name: schedule1-il2cpp-reflection
 description: >-
-  Runtime-reflection recipes for MelonLoader IL2CPP mods in Schedule I v0.4.7f6. Use when IL2CPP bindings are missing or wrong (Il2CppStructArray vs byte[], Sprite[] vs Il2CppReferenceArray), when patching game types that may move namespaces, or when reading/writing private fields across Mono/IL2CPP runtime.
+  Runtime-reflection recipes for MelonLoader IL2CPP mods in Schedule I v0.4.7f7. Use when IL2CPP bindings are missing or wrong (Il2CppStructArray vs byte[], Sprite[] vs Il2CppReferenceArray), when patching game types that may move namespaces, or when reading/writing private fields across Mono/IL2CPP runtime.
   Keywords: Il2CppStructArray, Il2CppReferenceArray, Il2CppInterop, RuntimeReflection, byte[] overload, Texture2D.LoadImage, Sprite array, type cache, namespace fallback.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02 against the live Steam Open Beta: Latest.log "Game Version: 0.4.7f7"; content deep-verified against 0.4.7f6 / 2026-09-28 - anything not explicitly marked as re-verified must be checked against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — IL2CPP Runtime-Reflection Recipes
 
@@ -28,6 +28,7 @@ Need to call a Unity API or read/write a game-class field?
    ├─ Missing overload (e.g. byte[] version of LoadImage)? → see §4 (Missing Overload)
    ├─ Namespace may drift between game patches?  → see §5 (Namespace Fallback)
    ├─ Reading/writing private members on IL2CPP objects? → see §6 (Member Access)
+   ├─ Checking whether an object IS a game class (`is`/`as`)? → see §9 (TryCast — proxies lie)
    └─ Materializing Il2CppList<T> / List<T> to managed list? → see §7 (Collection Materialization)
 ```
 
@@ -242,11 +243,30 @@ public static List<object> Materialize(object il2cppCollection) {
 | `ReflectionTypeLoadException` on `Assembly.GetTypes()` | Forward reference in a dependency | `try { GetTypes() } catch (ReflectionTypeLoadException ex) { return ex.Types.OfType<Type>(); }` |
 | Inherited private field returns `null` | Base-class proxy hides it | Walk `t.BaseType` chain (§6) |
 | `GetProperty("Item", int)` returns `null` | `Item` is on a base, not the concrete type | Same as above |
+| Eligible/protected items silently misclassified | `is`/`as` checks see the managed proxy, not the real IL2CPP class | `TryCast<T>()` (§9) |
 | `[Il2CppInterop] Method X on type Y has unsupported parameter Z of type Z` warning at startup | `[RegisterTypeInIl2Cpp]` class has a method whose parameter/return type is a plain C# class (e.g. a save-data POCO) — no native stub can be generated | Decorate managed-only methods with `[HideFromIl2Cpp]` (`Il2CppInterop.Runtime.Attributes`); verified in decompiled `ClassInjector.IsMethodEligible` (AutoPackagingStation `RestoreNativeSlots`, 2026-09-01) |
 
 ---
 
-## 9. References
+## 9. Type Checks on IL2CPP Proxies — `TryCast<T>`, Never `is` / `as`
+
+`is` / `as` (and `GetType()`) evaluate the **managed wrapper** type. For game objects that wrapper is always the generic interop proxy (`BaseItemDefinition`, `ItemInstance`, …) — never the real IL2CPP class — so classification silently fails (verified 2026-09-19, StackLimitMod v0.1.6: `WeedDefinition` / meth / cocaine were classified as "not agriculture"; `cash` slipped through the weapon veto, `mushroomhat` was wrongly stacked).
+
+Use Il2CppInterop's `TryCast<T>()`, which consults the real IL2CPP class hierarchy:
+
+```csharp
+if (def.TryCast<WeedDefinition>() != null) { /* real type check */ }
+var item = gameObject.TryCast<ProductItemInstance>();   // null when not that type
+if (item != null) { /* ... */ }
+```
+
+- Blittable enum fields (e.g. `BaseItemDefinition.Category` → `EItemCategory`) are safe to compare directly — no cast needed.
+- After changing any classification logic, re-run the mod's own report (`StackLimitMod` writes `apply_report.json`) — a silent misclassification looks exactly like "the feature does nothing".
+- Warning sign: protected items being modified (or eligible ones skipped) while the logic reads correctly.
+
+---
+
+## 10. References
 
 - `Source/Mods/Shared/src/TypeResolver.cs` — production wrapper (uses §5 + §6)
 - Live source of patterns above: decompiled `CustomLoadingScreens/CustomLoadingScreens.Utils/RuntimeReflection.cs` and `CustomLoadingScreens/CustomLoadingScreens.Integrations.Interop/RuntimeInterop.cs` (decompile kept transiently under `.scratch/mod-decompile/_decompiled/` - NOT part of the repo, regenerate on demand)

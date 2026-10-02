@@ -66,15 +66,15 @@ Release/           Release ZIP output
 | **CalculatorApp** | ✅ active (v0.2.3, **Verified 2026-09-15**) | `Mods/CalculatorApp/` | `CalculatorApp.dll` | PhoneApp, Money, SafeStorage |
 | **CustomSkateboard** | ✅ active (v1.1.5, **Verified 2026-09-15**) | `Mods/CustomSkateboard/` | `CustomSkateboard.dll` + icon | Harmony, visuals, avatar safety |
 | **MoreSaveSlots** | ✅ active (v1.0.12, **Verified 2026-09-15**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` | no S1API (MelonMod + Harmony) |
-| **PocketShop** | ✅ active (v0.3.2, **Verified 2026-09-20**) | `Mods/PocketShop/` | `PocketShop.dll` | PhoneApp, vanilla PaymentType, level locks |
+| **PocketShop** | ✅ active (v0.3.9, layout playtest open) | `Mods/PocketShop/` | `PocketShop.dll` | PhoneApp, vanilla PaymentType, level locks, NPC shop portraits |
 | **BankApp** | ✅ active (v0.4.4, **Verified 2026-09-15**) | `Mods/BankApp/` | `BankApp.dll` + icon | PhoneApp, banking, slot isolation |
-| **Weather** | ✅ active (v0.4.0, In-Game-Verify open) | `Mods/Weather/` | `Weather.dll` + icon | PhoneApp, read-only dashboard |
-| **BusinessIncome** | ✅ active (v0.1.6, **Verified 2026-09-19**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | host authority, slot isolation, console |
+| **Weather** | ✅ active (v0.4.1, In-Game-Verify open) | `Mods/Weather/` | `Weather.dll` + icon | PhoneApp, read-only dashboard |
+| **BusinessIncome** | ✅ active (v0.1.7, **Verified 2026-09-19**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | host authority, slot isolation, console |
 | **StackLimitMod** | ✅ active (v0.1.7; v0.1.6 **Verified 2026-09-20**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` | Harmony, Registry, agriculture-only |
 | **AutoPackagingStation** | ✅ active (v0.3.3, **Verified 2026-09-20**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable, SafeStorage, GLB |
 | **HitmanPhone** | ✅ active (v0.2.9, beta **Verified 2026-09-24**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Messages/NPC/Items/Quests |
 | **MessagesPlus** | ✅ active (v0.4.1, **In-Game-Verify open**; v0.4.0 **Verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
-| **TaxiDriver** | 🧪 spike (v0.7.0; Stages 1–3 live-verified 2026-09-25, Pakete C–G test round open) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | vehicles, own NPC driver, S1MAPI |
+| **TaxiDriver** | 🧪 spike (v0.8.0; Stages 1–3 live-verified 2026-09-25, Pakete C–G test round open) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | vehicles, own NPC driver, S1MAPI |
 | **S1MCP** | ✅ active (v1.0.1) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | MCP over TCP :8765 |
 | **Shared** | ✅ active (workspace lib) | `Mods/Shared/` | `Shared.dll` | see §5 |
 | **S1API** | ✅ active (3.2.1-beta.7, submodule `ThirdParty/S1API/`) | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | required for 0.4.7f6 |
@@ -106,20 +106,26 @@ Release/           Release ZIP output
 - 25+ save slots with paginated navigation, inline rename (with `Game.json.bak`), hotkeys/wheel; Harmony remaps keep the vanilla menus working; modal canvas/sorting fixes.
 - History: `Source/Mods/MoreSaveSlots/docs/CHANGELOG.md`.
 
-**PocketShop v0.3.2 (2026-09-20):**
-- Phone shop browser (grid + detail modal, inline quantity). Since v0.3.1 payment follows the vanilla `ShopInterface.PaymentType` — cash shops use `ChangeCashBalance`, online shops `CreateOnlineTransaction`; level/rank locks enforced; host-safe refunds.
-- **Verified 2026-09-20.** History: `Source/Mods/PocketShop/docs/CHANGELOG.md`.
+**PocketShop v0.3.9 (2026-10-02):**
+- First-open directory fix: the layout is forced from the **topmost** rect under the canvas before measuring (v0.3.8 rebuilt only a mid-level rect, so the very first open of a session still measured ~100u instead of ~546u and looked wrong until the app was reopened). A stale viewport now uses a canvas estimate plus a bounded one-frame rebuild (`TickRetry`), logged as `directory viewport stale …` / `directory rebuilt with the live viewport … — no reopen needed`.
+- Row-fit measurement fixed: the root layout is rebuilt before measuring (v0.3.6 measured the panel alone and always fell to the 90dp floor); canvas fallback uses the landscape short side; one `directory rows=N rowH=Xpx` log line proves the fit.
+- Arms card shows Manny the Fixer's portrait (user choice — real face, wrong person): Stan stays first in line and wins automatically once TVGS ships his `MugshotSprite`; crosshair last.
+- Store rows divide the live viewport exactly — 12 stores fit with no clipping, scroll or black void (90dp floor + scroll for overflow); no version footer in the app (only log/`mod.json`/assembly); avatars 66dp, banner 48dp.
+- Portraits: shopkeeper `ShopInterface`-field binding first, keyword fallback; Gas-Marts show the on-shift clerk (6–18h Chloe/Meg, else Charles/Javier).
+- **Playtest open: layout check.** History: `Source/Mods/PocketShop/docs/CHANGELOG.md`.
 
 **BankApp v0.4.4 (2026-09-12):**
 - Chip-based deposit/withdraw screen: weekly $10k ATM limit, two-column cash/online balances, double-entry booking with rollback, slot-isolated persistence, `NetworkGuard.IsInMainScene` guards.
 - History: `Source/Mods/BankApp/docs/CHANGELOG.md`.
 
-**Weather v0.4.0 (2026-10-01):**
-- Read-only phone dashboard of the nine weather components: accent-bordered hero card (name, percentage, intensity pill, meta count, ring gauge with a rounded accent arc) over nine live rows — active conditions tint their row, border, icon and bar, inactive rows stay neutral. Empty state, no persistence, no gameplay impact, no input field.
-- v0.4.0 = rebuilt to the approved mockup (flat canvas without header chrome, name above the bar in each row, accent-tinted active rows). All anchors measured off the reference design as canvas fractions. **In-Game-Verify open.** History: `Source/Mods/Weather/docs/CHANGELOG.md`.
+**Weather v0.4.1 (2026-10-02):**
+- Read-only phone dashboard of the nine weather components: accent-bordered hero card (name, percentage, intensity pill, meta count, ring gauge with a rounded accent arc) over nine live rows — every row icon always carries its condition's theme colour; active conditions additionally tint their row, border and bar, inactive rows stay neutral otherwise. Empty state, no persistence, no gameplay impact, no input field.
+- v0.4.1 = all row icons permanently theme-coloured (previously only active rows' icons were; idle rows sat in a grey-blue tint). **In-Game-Verify open.**
+- v0.4.0 = rebuilt to the approved mockup (flat canvas without header chrome, name above the bar in each row, accent-tinted active rows). All anchors measured off the reference design as canvas fractions. History: `Source/Mods/Weather/docs/CHANGELOG.md`.
 
-**BusinessIncome v0.1.6 (2026-09-17):**
+**BusinessIncome v0.1.7 (2026-10-02):**
 - Daily passive revenue for owned businesses: deterministic variance, employee/weekend bonuses; host-authority fail-closed, slot-isolated idempotent payout marker, bounded catch-up; `biz` console dashboard.
+- v0.1.7 = payout banners carry a real icon: the game's `MoneyManager.LaunderingNotificationIcon` (fallback: procedural green "$" tile) instead of the empty white square. **In-Game-Verify open.**
 - History: `Source/Mods/BusinessIncome/docs/CHANGELOG.md`.
 
 **StackLimitMod v0.1.7 (2026-09-26, ingredient stacks):**
@@ -140,8 +146,10 @@ Release/           Release ZIP output
 - **v0.4.1 fix:** the deal-window popup themes **instantly** (`DealWindowSelectorPatch` — same-frame subtree refresh on `SetIsOpen`, forced re-tint for vanilla re-colours); previously freshly shown surfaces stayed light until the 1 s tick. **In-Game-Verify open.**
 - Round-1 fixes: `(RectTransform)x.transform` casts → `GetComponent<RectTransform>()` (IL2CPP cast made the "⋯" menu dead), search surface keeps `raycastTarget=true` (v0.4.0 **Verified 2026-09-30**). History: `Source/Mods/MessagesPlus/docs/CHANGELOG.md`.
 
-**TaxiDriver v0.7.0 (2026-09-29, spike):**
-- Orderable taxi from the in-game phone ("Taxi" app) with an own NPC driver: vehicle spawn + `VehicleAgent.Navigate` A→B + player ride, `taxi.glb` visual swap via S1MAPI GltfLoader, `RoadKeeper` road-corridor assistance, destination picker (properties/custom checkpoints), fare meter (moving in-game minutes; cash → bank; host-only fail-closed), F1–F12 diagnostic hotkeys + output-only `taxi` console.
+**TaxiDriver v0.8.0 (2026-10-02, spike):**
+- Orderable taxi from the in-game phone ("Taxi" app) with an own NPC driver: vehicle spawn + `VehicleAgent.Navigate` A→B + player ride, `taxi.glb` visual swap via S1MAPI GltfLoader, `RoadKeeper` road-corridor assistance, landscape destination dashboard (hero / CALL+STOP / All-Homes-Deals-Places chips / pinned Taxi-Stand list), fare meter (moving in-game minutes; cash → bank; host-only fail-closed), F1–F12 diagnostic hotkeys + output-only `taxi` console.
+- v0.8.0 = landscape redesign in the PotScanner idiom (GamePalette/UISprites: hero with live state + teal fare value, CALL/STOP action row, filter chips, selection-highlighted destination list) + custom checkpoints fully removed (incl. the "YOU / rename me …" row). **In-Game-Verify open.**
+- v0.7.1 = roll-up of the 2026-10-02 batch (stall watchdog, order tokens, ghost-drive guard) + fare-notification Taxi icon (`taxi_icon.png`, procedural "T" fallback) + log quieting (`UserData/TaxiDriver/log.json`, `VerboseLogging` default off; milestones/warnings stay). User 2026-10-02: "taxi funktioniert jetzt sauber". **Icon/log In-Game-Verify open.**
 - Stages 1–3 live-verified 2026-09-25. **Pakete C–G in-game test round open** (exit hardening, driver retention, spawn clearance, clear-selection, patrol NRE). History: `Source/Mods/TaxiDriver/docs/CHANGELOG.md`.
 
 ---

@@ -5,13 +5,13 @@ description: >-
   Keywords: S1MCP, S1MCPServer, S1MCPClient, Model Context Protocol, s1_get_player, s1_get_player_inventory, s1_capture_logs, s1_list_npcs, s1_spawn_item, s1_inspect_object, s1_get_game_state, live debugging, TCP 8765.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02 against the live Steam Open Beta: Latest.log "Game Version: 0.4.7f7"; content deep-verified against 0.4.7f6 / 2026-09-28 - anything not explicitly marked as re-verified must be checked against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — S1MCP Live Game Introspection & Debugging Skill
 
 This skill is the runbook for **live, real-time agentic interaction with the running *Schedule I* game** using the Model Context Protocol (MCP) bridge (`ifBars/S1MCPServer`).
 
-> **Stack Status (verified: 2026-08-22):** Game v0.4.6f13 (IL2CPP net6), MelonLoader 0.7.3, Python 3.11, TCP localhost:8765, JSON-RPC 2.0 stdio MCP server.
+> **Stack Status (2026-10-02):** Game v0.4.7f7 (IL2CPP net6), MelonLoader 0.7.3, Python 3.11, TCP localhost:8765, JSON-RPC 2.0 stdio MCP server. Bridge behaviour was last verified 2026-08-22 against 0.4.6f13 - re-check on f7 if calls misbehave.
 
 ---
 
@@ -38,7 +38,7 @@ This skill is the runbook for **live, real-time agentic interaction with the run
 └────────────────────────────┬────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────┐
-│              Schedule I Game Engine (v0.4.7f6)              │
+│              Schedule I Game Engine (v0.4.7f7)              │
 │  - PlayerInventory, PlayerClothing, NPCs, Growing, Buildings│
 └─────────────────────────────────────────────────────────────┘
 ```

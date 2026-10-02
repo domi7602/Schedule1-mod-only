@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MelonLoader;
 using PocketShop.Services;
 using S1API.UI;
 using S1API.Utils;
@@ -20,6 +21,16 @@ public class StoreCatalogPane
 
     private readonly RectTransform _parent;
     private GameObject? _rootPanel;
+
+    /// <summary>
+    /// Units below which a measured viewport is implausibly small. The phone canvas is
+    /// 655×1201 units and the content area is always most of the short side — the stale
+    /// first-frame value in the live log (2026-10-02) was 100u vs the real 546u.
+    /// </summary>
+    private const float MinPlausibleViewportUnits = 300f;
+
+    private bool _rebuildRetryPending;
+    private int _rebuildRetries;
 
     public StoreCatalogPane(RectTransform parent)
     {
@@ -89,14 +100,21 @@ public class StoreCatalogPane
         const int columns = 4;
         int rows = (shops.Count + columns - 1) / columns;
 
+        // v0.3.6: exact-fit rows — measure the live viewport and divide it by the
+        // row count, so all cards fit on screen with neither clipping nor scroll
+        // nor black void. Overflow (many mod-injected shops) falls back to a
+        // 90dp floor + scroll.
+        float rowH = ComputeFittedRowHeight(rows, vlg);
+
         for (int r = 0; r < rows; r++)
         {
             var rowGO = new GameObject($"StoreRow_{r}");
             rowGO.transform.SetParent(contentGO.transform, false);
             var rowLE = rowGO.AddComponent<LayoutElement>();
-            rowLE.minHeight = UITheme.Dp(105f);
-            rowLE.preferredHeight = UITheme.Dp(105f);
+            rowLE.minHeight = rowH;
+            rowLE.preferredHeight = rowH;
             rowLE.flexibleWidth = 1f;
+            rowLE.flexibleHeight = 0f;
 
             var rowHlg = rowGO.AddComponent<HorizontalLayoutGroup>();
             rowHlg.spacing = UITheme.Dp(6f);
@@ -112,7 +130,7 @@ public class StoreCatalogPane
                 if (idx < shops.Count)
                 {
                     var shop = shops[idx];
-                    BuildStoreCard(rowGO.transform, shop);
+                    BuildStoreCard(rowGO.transform, shop, rowH);
                 }
                 else
                 {
@@ -123,7 +141,7 @@ public class StoreCatalogPane
         }
     }
 
-    private void BuildStoreCard(Transform parent, ShopPOCO shop)
+    private void BuildStoreCard(Transform parent, ShopPOCO shop, float rowH)
     {
         var cardColor = ShopColorScheme.ColorFor(shop.ShopCode);
 
@@ -131,8 +149,9 @@ public class StoreCatalogPane
         var card = UIFactory.Panel($"StoreCard_{shop.ShopCode}", parent, cardColor);
         var cardLE = card.AddComponent<LayoutElement>();
         cardLE.flexibleWidth = 1f;
-        cardLE.preferredHeight = UITheme.Dp(105f);
-        cardLE.minHeight = UITheme.Dp(105f);
+        cardLE.flexibleHeight = 0f;
+        cardLE.preferredHeight = rowH;
+        cardLE.minHeight = rowH;
 
         var cardVlg = card.AddComponent<VerticalLayoutGroup>();
         cardVlg.spacing = 0f;
@@ -146,7 +165,7 @@ public class StoreCatalogPane
         var topSection = UIFactory.Panel("AvatarSection", card.transform, Color.clear);
         var topLE = topSection.AddComponent<LayoutElement>();
         topLE.flexibleHeight = 1f;
-        topLE.minHeight = UITheme.Dp(60f);
+        topLE.minHeight = UITheme.Dp(65f);
 
         // Circular backdrop vignette matching vanilla framed avatar circles
         var backdropGO = new GameObject("AvatarBackdrop");
@@ -155,7 +174,7 @@ public class StoreCatalogPane
         bRt.anchorMin = new Vector2(0.5f, 0.5f);
         bRt.anchorMax = new Vector2(0.5f, 0.5f);
         bRt.pivot = new Vector2(0.5f, 0.5f);
-        bRt.sizeDelta = new Vector2(UITheme.Dp(52f), UITheme.Dp(52f));
+        bRt.sizeDelta = new Vector2(UITheme.Dp(68f), UITheme.Dp(68f));
         var bImg = backdropGO.AddComponent<Image>();
         bImg.sprite = NPCPortraitService.GetCircleSprite(64);
         bImg.color = new Color(0f, 0f, 0f, 0.30f);
@@ -170,7 +189,7 @@ public class StoreCatalogPane
             aRt.anchorMin = new Vector2(0.5f, 0.5f);
             aRt.anchorMax = new Vector2(0.5f, 0.5f);
             aRt.pivot = new Vector2(0.5f, 0.5f);
-            aRt.sizeDelta = new Vector2(UITheme.Dp(50f), UITheme.Dp(50f));
+            aRt.sizeDelta = new Vector2(UITheme.Dp(66f), UITheme.Dp(66f));
 
             var img = avatarGO.AddComponent<Image>();
             img.sprite = avatar;
@@ -181,8 +200,8 @@ public class StoreCatalogPane
         // Bottom section: Dark banner with Store Name & Item count
         var bottomBanner = UIFactory.Panel("BottomBanner", card.transform, new Color(0f, 0f, 0f, 0.45f));
         var bLE = bottomBanner.AddComponent<LayoutElement>();
-        bLE.minHeight = UITheme.Dp(42f);
-        bLE.preferredHeight = UITheme.Dp(42f);
+        bLE.minHeight = UITheme.Dp(48f);
+        bLE.preferredHeight = UITheme.Dp(48f);
         bLE.flexibleHeight = 0f;
 
         var bVlg = bottomBanner.AddComponent<VerticalLayoutGroup>();
@@ -194,12 +213,12 @@ public class StoreCatalogPane
         bVlg.childForceExpandHeight = false;
         bVlg.childAlignment = TextAnchor.MiddleCenter;
 
-        var nameTxt = UIFactory.Text("ShopName", shop.Name, bottomBanner.transform, UITheme.Sp(11), TextAnchor.MiddleCenter, FontStyle.Bold | FontStyle.Italic);
+        var nameTxt = UIFactory.Text("ShopName", shop.Name, bottomBanner.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold | FontStyle.Italic);
         nameTxt.color = Color.white;
         nameTxt.raycastTarget = false;
         nameTxt.horizontalOverflow = HorizontalWrapMode.Wrap;
 
-        var countTxt = UIFactory.Text("ItemCount", $"{shop.ItemCount} items", bottomBanner.transform, UITheme.Sp(9), TextAnchor.MiddleCenter);
+        var countTxt = UIFactory.Text("ItemCount", $"{shop.ItemCount} items", bottomBanner.transform, UITheme.Sp(10), TextAnchor.MiddleCenter);
         countTxt.color = new Color(0.90f, 0.92f, 0.95f, 0.90f);
         countTxt.raycastTarget = false;
 
@@ -207,6 +226,123 @@ public class StoreCatalogPane
         var btn = card.AddComponent<Button>();
         btn.transition = Selectable.Transition.None;
         ButtonUtils.AddListener(btn, () => OnShopSelected?.Invoke(shop));
+    }
+
+    /// <summary>
+    /// Divides the live content height exactly by the row count so every store card
+    /// fits on screen (v0.3.6 — user request: squeeze into format, no scroll, no clip).
+    /// v0.3.8 fix: the content panel gets its height from the ROOT vertical layout,
+    /// so the root (not the panel itself) must be rebuilt before measuring —
+    /// rebuilding only the panel returns a stale mini value and the floor wins.
+    /// v0.3.9 fix: even that was not enough on the FIRST open — the app becomes visible
+    /// in the same frame the directory builds, so the freshly activated tree had never
+    /// run a layout pass (live log 2026-10-02: viewport=100u instead of 546u; users had
+    /// to reopen the app twice). Now the layout is forced from the TOPMOST rect under
+    /// the canvas, and a stale result schedules an exact rebuild for the next frame.
+    /// Falls back to a 90dp floor (scrolls on overflow) when the viewport cannot be
+    /// measured yet, and to the proven 105dp rows when measurement fails entirely.
+    /// </summary>
+    private float ComputeFittedRowHeight(int rows, VerticalLayoutGroup contentVlg)
+    {
+        float parentH = 0f;
+        bool plausible = false;
+        try
+        {
+            Canvas.ForceUpdateCanvases();
+
+            // The whole chain counts: app container -> _mainBG vertical layout ->
+            // content area. Rebuilding a mid-level rect (v0.3.8) left the chain above
+            // it stale on the first open, so climb to the top first.
+            var top = FindTopmostLayoutRect(_parent);
+            if (top != null)
+                LayoutRebuilder.ForceRebuildLayoutImmediate(top);
+
+            parentH = _parent.rect.height;
+            plausible = parentH >= MinPlausibleViewportUnits;
+        }
+        catch
+        {
+            plausible = false;
+        }
+
+        if (plausible)
+        {
+            _rebuildRetryPending = false;
+            _rebuildRetries = 0;
+        }
+        else
+        {
+            // First paint on a stale rect: derive from the phone canvas so the
+            // immediate build is at least close, and rebuild exactly next frame.
+            _rebuildRetryPending = true;
+            float estimate = UITheme.ActualWidth - UITheme.Dp(38f) - UITheme.Dp(30f);
+            if (estimate > parentH)
+                parentH = estimate;
+            MelonLogger.Msg(
+                $"[PocketShop] directory viewport stale ({_parent.rect.height:F0}u) — estimate {parentH:F0}u; exact rebuild next frame.");
+        }
+
+        if (parentH > 0f && rows > 0)
+        {
+            float padV = contentVlg.padding.top + contentVlg.padding.bottom;
+            float gaps = contentVlg.spacing * (rows - 1);
+            float fit = (parentH - padV - gaps) / rows;
+            float rowH = Mathf.Max(UITheme.Dp(90f), fit);
+            MelonLogger.Msg($"[PocketShop] directory rows={rows} rowH={rowH:F0}px viewport={parentH:F0}px{(plausible ? string.Empty : " (estimated)")}");
+            return rowH;
+        }
+        return UITheme.Dp(105f);
+    }
+
+    /// <summary>
+    /// Highest RectTransform under the canvas that contains this pane — rebuilding it
+    /// runs every nested layout group. Stops at a Canvas (its rect is the render area,
+    /// not a layout item) and at a non-RectTransform parent.
+    /// </summary>
+    private static RectTransform? FindTopmostLayoutRect(RectTransform rect)
+    {
+        var top = rect;
+        for (int i = 0; i < 32; i++)
+        {
+            var parent = top.parent as RectTransform;
+            if (parent == null)
+                break;
+            if (parent.GetComponent<Canvas>() != null)
+                break;
+            top = parent;
+        }
+        return top;
+    }
+
+    /// <summary>
+    /// v0.3.9: runs from the app's per-frame update while the directory is visible —
+    /// rebuilds the rows once with the live viewport after a stale first measurement
+    /// (replaces the "reopen the app twice" workaround). Bounded to a few attempts.
+    /// </summary>
+    public void TickRetry()
+    {
+        if (!_rebuildRetryPending || _rootPanel == null)
+            return;
+
+        float parentH = _parent != null ? _parent.rect.height : 0f;
+        bool plausible = parentH >= MinPlausibleViewportUnits;
+
+        _rebuildRetries++;
+        if (_rebuildRetries >= 5 || plausible)
+        {
+            bool rebuild = plausible;
+            _rebuildRetryPending = false;
+            _rebuildRetries = 0;
+            if (rebuild)
+            {
+                MelonLogger.Msg($"[PocketShop] directory rebuilt with the live viewport ({parentH:F0}px) — no reopen needed.");
+                Build();
+            }
+            else
+            {
+                MelonLogger.Warning("[PocketShop] directory viewport never became plausible — keeping the estimated rows.");
+            }
+        }
     }
 
     public void SetActive(bool active)

@@ -142,9 +142,9 @@ For deeper integration with police behavior, see `S1API.Law` decompile.
 
 ## 5. Workspace Reference
 
-* `Money` — used by `BankApp`, `BusinessIncome`, `PocketShop`, `CalculatorApp`, `HomelessMod`
-* `GameTime` — used by `DayCounter` (in `Minimap`), `BankApp` (history timestamps), `HomelessMod` (`IsNight` check)
-* `Property` — used by `HomelessMod`, `BusinessIncome`, `PotScanner`
+* `Money` - used by `BankApp`, `BusinessIncome`, `PocketShop`, `CalculatorApp`
+* `GameTime` - used by `BankApp` (history timestamps).
+* `Property` - used by `BusinessIncome`, `PotScanner`
 * `Law` — unused by current workspace mods (potential for future police mods)
 
 For the full API surface, see the S1API source in `ThirdParty/S1API/` (S1API.Money / S1API.GameTime / S1API.Property).

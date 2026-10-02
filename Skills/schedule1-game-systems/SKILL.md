@@ -1,13 +1,13 @@
 ---
 name: schedule1-game-systems
-description: "Reference guide for all 64 core game systems in Schedule I (v0.4.7f6). Use this to understand game mechanics, find core classes, and plan hooks."
+description: "Reference guide for all 64 core game systems in Schedule I (v0.4.7f7). Use this to understand game mechanics, find core classes, and plan hooks."
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02: Latest.log "Game Version: 0.4.7f7"; deep-verified against 0.4.7f6 / 2026-09-28, with references/58-Temperature.md + 64-Weather.md re-verified against 0.4.7f7 on 2026-10-01 - check remaining details against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I Game Systems
 
-This skill is the **map to the 64 core game systems** in *Schedule I* v0.4.7f6 — bypassing the need to navigate raw decompiled code blind. Every system is curated with core classes, network behavior, variables, and Harmony/S1API hook points directly in `Skills/schedule1-game-systems/references/`.
+This skill is the **map to the 64 core game systems** in *Schedule I* v0.4.7f7 — bypassing the need to navigate raw decompiled code blind. Every system is curated with core classes, network behavior, variables, and Harmony/S1API hook points directly in `Skills/schedule1-game-systems/references/`.
 
 ---
 

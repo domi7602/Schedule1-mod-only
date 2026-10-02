@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.7 (2026-10-02) - payout notifications show a real icon
+
+- **Both payout banners** (the normal revenue notification and the "booked — save FAILED" warning) now pass a real sprite instead of `null` — previously the HUD notification rendered as an empty white square.
+- Primary icon: the game's own money-notification sprite (`MoneyManager.LaunderingNotificationIcon`, resolved once per session via `Il2CppScheduleOne.Money.MoneyManager.Instance`). Fallback: a procedural deep-green tile with a white "$" (built at runtime, logged once) — the banner never falls back to a blank square.
+
 ## 0.1.6 (2026-09-17)
 - **Fix: 0-business backlog bug**: When the player owns no businesses yet (`lines.Count == 0`), the day is now properly marked as paid/settled in the `PayoutStateStore` on `commit && !isDryRun` (`LastPaidElapsedDay = elapsedDays`). Previously `TryExecuteDailyPayout` aborted without a state commit, so `LastPaidElapsedDay` got stuck on the seed day (e.g. day 3) and produced a growing backlog warning (> 7 days) plus endless catch-up loops in the log with every day change.
 

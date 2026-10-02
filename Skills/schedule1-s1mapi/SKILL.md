@@ -1,12 +1,12 @@
 ---
 name: schedule1-s1mapi
 description: >-
-  Author-reference for the S1MAPI framework (ifBars, v2.0.1, deployed as UserLibs\S1MAPI_Il2Cpp.dll) for Schedule I v0.4.7f6 (IL2CPP/Mono).
+  Author-reference for the S1MAPI framework (ifBars, v2.0.1, deployed as UserLibs\S1MAPI_Il2Cpp.dll) for Schedule I v0.4.7f7 (IL2CPP/Mono).
   Use this skill whenever you need to procedurally generate 3D meshes at runtime, build entire buildings or rooms, load external GLTF/GLB models, clear or flatten terrain, build NPC navigation meshes, or place in-game prefabs with network synchronization.
   Keywords: S1MAPI, ProceduralMesh, MeshBuilder, BuildingBuilder, InteriorBuilder, GltfLoader, glb, TerrainClearer, FlattenTerrain, NavigationBuilder, PrefabPlacer, NetworkPrefab, MaterialPresets, URP, UnityEngine, no AssetBundle, no Assembly-CSharp.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02 against the live Steam Open Beta: Latest.log "Game Version: 0.4.7f7"; content deep-verified against 0.4.7f6 / 2026-09-28 - anything not explicitly marked as re-verified must be checked against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — S1MAPI Author Reference (ifBars, v2.0.1)
 

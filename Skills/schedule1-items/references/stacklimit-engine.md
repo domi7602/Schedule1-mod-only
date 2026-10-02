@@ -23,7 +23,7 @@ NOT patched: `BaseItemDefinition.get_DefaultStackLimit` field accessor cannot be
 
 **Symptom:** certain item categories (e.g. packaged products) do not stack; `stack stats` shows too few modified items.
 
-**Cause:** `OnSaveInfoLoaded` may fire BEFORE the game has called `Registry.AddToRegistry` for all items. Result: Apply with `Resources:23 Registry:0` (too few hits). The 1500 ms dedupe in `OnLoadComplete` then swallowed the canonical post-load apply — most definitions stayed on the vanilla limit.
+**Cause (historical, 2026-09-19):** the early refresh could run BEFORE the game had called `Registry.AddToRegistry` for all items. Result: Apply with `Resources:23 Registry:0` (too few hits). The 1500 ms dedupe in `OnLoadComplete` then swallowed the canonical post-load apply - most definitions stayed on the vanilla limit. (`OnSaveInfoLoaded` itself was later observed to never fire on 0.4.7f6 (2026-09-29); the `OnLoadComplete` re-apply remains the active mitigation.)
 
 **Fix:** `OnLoadComplete` checks `StackLimitEngine.LastRegistryCount == 0 && ModifiedItemCount > 0` ("blind apply") and reapplies even with dedupe.
 

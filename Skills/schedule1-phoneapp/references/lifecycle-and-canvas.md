@@ -76,7 +76,7 @@ public enum EOrientation
 | Setting | Use Case | Behavior |
 |---|---|---|
 | `EOrientation.Vertical` | Text, Tools, Standard Apps (NotesApp, CalculatorApp, PotScanner) | Keeps standard phone rotation, `LookOffsetMultiplier = 1.0f`. |
-| `EOrientation.Horizontal` | Wide Dashboards, 5-Column Stores (PocketShop, TVBrowser) | Rotates phone model by 90°, adjusts camera look offset to `0.6f`. |
+| `EOrientation.Horizontal` | Wide Dashboards, 5-Column Stores (PocketShop; TVBrowser archived) | Rotates phone model by 90°, adjusts camera look offset to `0.6f`. |
 
 > [!IMPORTANT]
 > **Always explicitly declare `Orientation` in your app class.**

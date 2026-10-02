@@ -189,7 +189,7 @@ public enum EQuestState
 
 ## 7. Workspace Reference
 
-This workspace uses `S1API.Quests` in `HomelessMod` (3-quest Street Nomad storyline: Cold Concrete, Alley Operations, Street Sovereign). See `Source/Archive/HomelessMod/src/HomelessQuestline.cs` for a production implementation.
+The archived `HomelessMod` used `S1API.Quests` (3-quest Street Nomad storyline: Cold Concrete, Alley Operations, Street Sovereign) - see `Source/Archive/HomelessMod/src/HomelessQuestline.cs` for a production implementation. The active `HitmanPhone` (`Source/Mods/HitmanPhone/`) is the current quest-using reference.
 
 Sub-namespaces:
 - `S1API.Quests.Constants` — quest constants

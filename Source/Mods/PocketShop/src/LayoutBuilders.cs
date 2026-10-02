@@ -80,28 +80,3 @@ internal static class AppHeaderBuilder
         S1API.Utils.ButtonUtils.AddListener(btn, onClick);
     }
 }
-
-internal static class FooterBuilder
-{
-    public static void Build(Transform parent)
-    {
-        var footer = S1API.UI.UIFactory.Panel("Footer", parent, new Color(0.04f, 0.05f, 0.07f, 1f));
-        var le = footer.AddComponent<LayoutElement>();
-        le.minHeight = UITheme.Dp(16f);
-        le.preferredHeight = UITheme.Dp(16f);
-        le.flexibleHeight = 0f;
-
-        var hlg = footer.AddComponent<HorizontalLayoutGroup>();
-        hlg.childControlWidth = true;
-        hlg.childControlHeight = true;
-        hlg.childForceExpandWidth = true;
-        hlg.childForceExpandHeight = true;
-        hlg.childAlignment = TextAnchor.MiddleCenter;
-        hlg.padding = new RectOffset(0, 0, 0, 0);
-
-        var txt = S1API.UI.UIFactory.Text("Version", $"PocketShop v{Mod.Version}", footer.transform, UITheme.Sp(9), TextAnchor.MiddleCenter);
-        txt.color = new Color(0.40f, 0.45f, 0.52f, 1f);
-        txt.raycastTarget = false;
-        txt.horizontalOverflow = HorizontalWrapMode.Overflow;
-    }
-}

@@ -189,7 +189,7 @@ public static class IncomeEngine
                     if (notifMgr != null && (UnityEngine.Object)notifMgr != null)
                         notifMgr.SendNotification("Business Revenue",
                             $"+${totalNet.ToString("N0", CultureInfo.InvariantCulture)} booked — save FAILED, run 'biz pending confirm|resolve'.",
-                            null!, 5f, false);
+                            ResolveNotificationIcon(), 5f, false);
                 }
                 catch { }
             }
@@ -200,6 +200,84 @@ public static class IncomeEngine
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// The game's own money-notification sprite (MoneyManager.LaunderingNotificationIcon),
+    /// resolved lazily once per session. Falls back to a procedural green "$" tile so the
+    /// banner never renders as an empty white square.
+    /// </summary>
+    private static Sprite? _notificationIcon;
+    private static bool _notificationIconResolved;
+
+    private static Sprite ResolveNotificationIcon()
+    {
+        if (_notificationIconResolved)
+            return _notificationIcon!;
+
+        _notificationIconResolved = true;
+        try
+        {
+            var money = Il2CppScheduleOne.Money.MoneyManager.Instance;
+            if (money == null || (UnityEngine.Object)money == null)
+            {
+                Mod.Log.Warn("[notify] MoneyManager instance unavailable - using the procedural fallback icon.");
+            }
+            else
+            {
+                Sprite? icon = money.LaunderingNotificationIcon;
+                if (icon != null && (UnityEngine.Object)icon != null)
+                    return _notificationIcon = icon;
+                Mod.Log.Warn("[notify] MoneyManager.LaunderingNotificationIcon is not assigned - using the procedural fallback icon.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[notify] reading the money notification icon failed ({ex.Message}) - using the procedural fallback icon.");
+        }
+
+        _notificationIcon = CreateFallbackNotificationIcon();
+        return _notificationIcon;
+    }
+
+    /// <summary>Procedural fallback: deep-green rounded tile with a white "$" (no bitmap asset).</summary>
+    private static Sprite CreateFallbackNotificationIcon()
+    {
+        const int size = 64;
+        const float radius = 12f;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { name = "BusinessIncome_NotifyIcon_Fallback" };
+        var tile = new Color32(46, 125, 70, 255);
+        var glyph = new Color32(255, 255, 255, 255);
+        var px = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float cx = Mathf.Clamp(x + 0.5f, radius, size - radius);
+                float cy = Mathf.Clamp(y + 0.5f, radius, size - radius);
+                float dist = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(cx, cy));
+                float a = Mathf.Clamp01(radius - dist + 0.5f);
+                bool inTile = a > 0.5f;
+                px[y * size + x] = inTile && IsDollarPixel(x + 0.5f, y + 0.5f)
+                    ? glyph
+                    : new Color32(tile.r, tile.g, tile.b, (byte)Mathf.RoundToInt(a * 255f));
+            }
+        }
+
+        tex.SetPixels32(px);
+        tex.Apply(false, true);
+        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+    }
+
+    /// <summary>Blocky "$" mask: vertical stem plus five S segments (LCD-style).</summary>
+    private static bool IsDollarPixel(float x, float y)
+    {
+        if (x >= 29f && x < 35f && y >= 6f && y <= 58f) return true;   // stem
+        if (y >= 44f && y < 50f && x >= 16f && x < 48f) return true;   // top bar
+        if (y >= 38f && y < 44f && x >= 16f && x < 23f) return true;   // upper-left connector
+        if (y >= 29f && y < 35f && x >= 16f && x < 48f) return true;   // middle bar
+        if (y >= 14f && y < 29f && x >= 42f && x < 48f) return true;   // lower-right connector
+        return y >= 8f && y < 14f && x >= 16f && x < 48f;              // bottom bar
     }
 
     /// <summary>
@@ -214,7 +292,7 @@ public static class IncomeEngine
             {
                 string title = "Business Revenue";
                 string sub = $"+${totalNet.ToString("N0", CultureInfo.InvariantCulture)} from {businessCount} {(businessCount == 1 ? "business" : "businesses")}";
-                notifMgr.SendNotification(title, sub, null!, 5f, playSound);
+                notifMgr.SendNotification(title, sub, ResolveNotificationIcon(), 5f, playSound);
             }
         }
         catch (Exception ex)

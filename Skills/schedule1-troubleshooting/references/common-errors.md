@@ -141,9 +141,9 @@ Windows Error Dialog: "0x80131506" (Fatal CLR Error)
 
 **Cause (verified 2026-08-04, PotScanner v0.2.0):** `OnGameplaySceneLoaded` fires before S1API/internal save-load completes. Static lists are uninitialized at that point.
 
-**Fix:** Subscribe to `GameLifecycle.OnSaveInfoLoaded` (fires after save-info parse, before scene build).
+**Fix:** Refresh on `GameLifecycle.OnPreLoad` + `OnSceneWasLoaded("Main")` / `OnLoadComplete`. **Do NOT use `OnSaveInfoLoaded`** - it fired 0 times on 0.4.7f6 (instrumented run 2026-09-29, see `schedule1-lifecycle-verify`).
 ```csharp
-GameLifecycle.OnSaveInfoLoaded += () => RefreshPropertyCache();
+GameLifecycle.OnSceneWasLoaded += _ => RefreshPropertyCache();
 GameLifecycle.OnLoadComplete   += () => ForceRefreshUI();
 ```
 
@@ -301,7 +301,7 @@ Additionally, using blind `harmony.PatchAll()` will indiscriminately arm such da
 | `NullReferenceException` in patch | Add `GetInstanceID() == 0` null-check |
 | Mod silent | Check inlining (small method patched → patch caller) |
 | Native AV / 0xc0000005 | Remove `ref <Il2CppType> __result` in Prefix (§19), split DLL |
-| Save data empty | Use `OnSaveInfoLoaded` hook, not `OnGameplaySceneLoaded` |
+| Save data empty | Use `OnPreLoad` + `OnSceneWasLoaded("Main")` / `OnLoadComplete`, not `OnGameplaySceneLoaded` (never `OnSaveInfoLoaded` - dead on 0.4.7f6) |
 | UIButton crash | Use `ButtonUtils.AddListener` |
 | JSON corrupt | Use `SafeStorage.SaveAtomic` |
 | `[RegisterTypeInIl2Cpp]` crash | Add `IntPtr` ctor |

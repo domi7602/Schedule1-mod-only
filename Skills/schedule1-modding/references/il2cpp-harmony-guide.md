@@ -48,7 +48,7 @@ internal static class Patch_GrowContainer_Water
 
 ## 4. Sprite/Texture/Curve Caches — Key by Parameters (verified 2026-08-20/21)
 
-Procedurally generated `Sprite`/`Texture2D`/`AnimationCurve`/`Gradient` caches must be keyed by their constructor parameters. A single `private static Sprite? _x` field shared across different radii/thicknesses silently returns the FIRST caller's asset for everyone (Minimap Rounded-vs-Square shape bug + **circle mask bug 2026-08-21**: `_circleMaskSprite/_circleBorderSprite` single-field → wrong mask after `size` change, fixed via `_circleMaskCache/_circleBorderCache` keyed `"{size}"`/`"{size}_{thickness}"` in `MinimapTextures.cs:9`).
+Procedurally generated `Sprite`/`Texture2D`/`AnimationCurve`/`Gradient` caches must be keyed by their constructor parameters. A single `private static Sprite? _x` field shared across different radii/thicknesses silently returns the FIRST caller's asset for everyone (archived Minimap Rounded-vs-Square shape bug + **circle mask bug 2026-08-21**: `_circleMaskSprite/_circleBorderSprite` single-field → wrong mask after `size` change, fixed via `_circleMaskCache/_circleBorderCache` keyed `"{size}"`/`"{size}_{thickness}"` in `MinimapTextures.cs:9`).
 
 ```csharp
 // ❌ WRONG — two radii share one cache slot

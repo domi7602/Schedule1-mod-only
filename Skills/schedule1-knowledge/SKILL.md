@@ -6,7 +6,7 @@ description: >-
   Keywords: Decompiles, Assembly-CSharp, Il2CppScheduleOne, GameReferences, Game Systems, S1API, S1MAPI, ilspycmd, research.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f7 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (install verified 2026-10-02 against the live Steam Open Beta: Latest.log "Game Version: 0.4.7f7"; content deep-verified against 0.4.7f6 / 2026-09-28 - anything not explicitly marked as re-verified must be checked against the live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — Knowledge Navigation Skill
 
@@ -45,8 +45,10 @@ Schedule1-mod-only/
 │   ├── Archive/PhoneScroll/               (retired 2026-09-16, phone scroll hook by V4LEXL)
 │   └── S1MCPServer-master/                  (S1MCP protocol bridge source)
 │
-└── Source/Mods/                             (13 active mod implementations: NotesApp, BankApp, PotScanner, PocketShop, etc.; archivierte Mods in Source/Archive/)
+└── Source/Mods/                             (14 mods + the Shared library: NotesApp, BankApp, PotScanner, PocketShop, MessagesPlus, TaxiDriver, Weather, etc.; archived mods in Source/Archive/)
 ```
+
+> **Deep dives:** [`references/inventory.md`](references/inventory.md) - the complete in-repo reference inventory (decompiles, framework sources, archives); [`references/search-recipes.md`](references/search-recipes.md) - tested grep / `ilspycmd` search recipes.
 
 > **Live Inspection:** Always verify method signatures against the live game proxies in `$env:SCHEDULE1_PATH\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll` using `ilspycmd`.
 
@@ -67,9 +69,9 @@ When you get a question, run this mental check:
 | How does growing work (water/soil/growth)? | `Skills/schedule1-game-systems/references/08-Plant-Growing.md` | `Source/Mods/PotScanner/` |
 | Item stacking / Registry / slots? | `Skills/schedule1-items/SKILL.md` + `references/09-Inventory-ItemFramework.md` | `Source/Mods/StackLimitMod/` |
 | How to handle multi-payment (Cash/Bank) or economy? | `Skills/schedule1-economy/SKILL.md` | `Source/Mods/PocketShop/` + `Source/Mods/BankApp/` |
-| How to build a Minimap / Radar / Blips? | `Source/Archive/Minimap/` | `Skills/schedule1-modding/references/mod-patterns.md` |
+| How to theme/patch vanilla UI (dark mode, injected bands)? | `Source/Mods/MessagesPlus/` | `Skills/schedule1-phoneapp/` |
 | How to do Multiplayer Host Authority or passive income? | `Source/Mods/BusinessIncome/` | `Skills/schedule1-economy/references/passive-revenue.md` |
-| How to implement Everywhere Building / Procedural 3D? | `Source/Archive/HomelessMod/` | `Skills/schedule1-grid/` |
+| How to implement Everywhere Building / Procedural 3D? | `Source/Archive/HomelessMod/` (archived) | `Skills/schedule1-grid/` |
 
 ---
 
@@ -122,10 +124,10 @@ D. **Inspect S1API wrappers:**
 ## 6. Knowledge State & Anchors
 
 * Workspace: the `Schedule1-mod-only` repository root (wherever you cloned it)
-* Game Version: `v0.4.7f6` (Unity 2022.3, IL2CPP).
+* Game Version: `v0.4.7f7` (Unity 2022.3, IL2CPP).
 * S1API: `3.2.1-beta.7` deployed (`Plugins\S1APILoader.MelonLoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`).
 * S1MAPI: `2.0.1` in `ThirdParty/S1MAPI/`.
-* Active Mods: 13 mods in `Source/Mods/` (NotesApp, PotScanner, CalculatorApp, CustomSkateboard, MoreSaveSlots, PocketShop, BankApp, BusinessIncome, StackLimitMod, AutoPackagingStation, HitmanPhone, Shared, _DiagPerfCounter); archivierte Mods in `Source/Archive/`.
+* Active Mods: 14 mods + the `Shared` library in `Source/Mods/` (NotesApp, PotScanner, CalculatorApp, CustomSkateboard, MoreSaveSlots, PocketShop, BankApp, Weather, BusinessIncome, StackLimitMod, AutoPackagingStation, HitmanPhone, MessagesPlus, TaxiDriver); archived mods in `Source/Archive/`.
 * All 64 game systems fully documented in `Skills/schedule1-game-systems/references/`.
 
 ---

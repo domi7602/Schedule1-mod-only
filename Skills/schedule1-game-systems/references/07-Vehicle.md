@@ -1,5 +1,7 @@
 # Vehicle (Schedule I)
 
+> Live implementation: `Source/Mods/TaxiDriver/` (v0.7.0 spike) exercises spawn + `VehicleAgent.Navigate` + player ride + GLB swap end-to-end; Stages 1-3 were live-verified 2026-09-25 and Pakete C-G are an open test round - use it as a field reference, not as proof for the claims below. The claims below were disassembled 2026-09-25 against the 0.4.7f6 interop assembly.
+
 ## Vehicle Types
 | Type | Base | Physics |
 |------|------|---------|

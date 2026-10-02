@@ -1,7 +1,7 @@
 {
   "name": "Weather",
   "author": "Dominik",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Read-only phone app showing the live in-game weather: dominant condition as a hero readout plus all nine weather components with progress bars.",
   "requires": ["S1API"]
 }

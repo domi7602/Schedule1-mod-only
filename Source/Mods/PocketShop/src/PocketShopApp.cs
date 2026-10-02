@@ -72,7 +72,7 @@ public sealed class PocketShopApp : PhoneApp
             MelonEvents.OnUpdate.Subscribe(DispatchUpdate);
         }
         base.OnCreated();
-        MelonLogger.Msg("Registered with S1API PhoneApp system (v0.3.2).");
+        MelonLogger.Msg("Registered with S1API PhoneApp system (v0.3.8).");
     }
 
     internal static void TearDownForSceneUnload()
@@ -136,6 +136,12 @@ public sealed class PocketShopApp : PhoneApp
 
         if (open)
         {
+            // v0.3.9: the very first directory build can hit a stale viewport (app just
+            // became visible) — rebuild once with the real rect instead of making the
+            // user reopen the app twice.
+            if (_viewMode == ViewMode.Directory)
+                _directoryPane?.TickRetry();
+
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 OnBackClicked();
@@ -230,9 +236,6 @@ public sealed class PocketShopApp : PhoneApp
         // Bug-Audit 2026-09-13 (Round 5): wire the catalog-change callback
         // so the directory pane's store-count badge updates when the catalog refreshes.
         _gridPane.OnCatalogChanged += () => _directoryPane?.RefreshShopCount();
-
-        // Footer: Version
-        FooterBuilder.Build(_mainBG.transform);
     }
 
     /// <summary>

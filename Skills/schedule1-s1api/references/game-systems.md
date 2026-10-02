@@ -113,13 +113,29 @@ casino.Open();
 
 ## 9. Weather / Temperature / Time
 
-Covered in `references/money-economy.md` (GameTime) and these one-liners:
+**`S1API.Weather` is read-only by design** (verified against the deployed 3.2.1-beta.7 assembly and its source doc `ThirdParty/S1API/S1API/docs/weather.md`). The complete surface is three members — there is **no** `SetWeather`, no `TemperatureManager`:
 
 ```csharp
-WeatherManager.SetWeather(Weather.Sunny);
-TemperatureManager.SetTemperature(20f);   // Celsius
-LevelingManager.GetXP(Player.Local);
+using S1API.Weather;
+
+WeatherManager.OnWeatherChanged += state => { if (state.Rainy > 0.5f) { /* react */ } };
+WeatherState? current = WeatherManager.Current;               // null outside gameplay
+IReadOnlyList<string> ids = WeatherManager.KnownSequenceIds;  // configured sequence ids (game order/casing)
 ```
+
+`WeatherState` is a readonly struct with nine float properties: `Sunny, Cloudy, Rainy, Stormy, Snowy, Foggy, Windy, Hail, Sleet`. Internally S1API polls `EnvironmentManager._currentWeatherConditions` every 0.1 s (the native change callback is not raised by the current weather implementation) and re-publishes distinct snapshots.
+
+**Writing weather requires direct vanilla interop** on `Il2CppScheduleOne.Weather.EnvironmentManager` (`NetworkSingleton` → wrap in `NetworkGuard.IsHostOrSingleplayer()`). Verified members on the live 0.4.7f7 assembly:
+
+- `SetWeather(string type)`, `SetWeatherSequence(string sequenceId)` — valid ids come from `WeatherSequences` / `WeatherProfile.Id`
+- `TriggerLightningEvent()`, `TriggerTargetedLightningEvent(Vector3)`, `TriggerDistantThunder()`
+- `OverrideTimeOfDay(int)` / `ClearTimeOfDayOverride()`
+- `GetActiveWeatherConditionsFromPosition(Vector3)`, `GetWeatherProfile(string id)`, `IsPositionUnderCover(Vector3)`
+- `WeatherSequences` (`List<WeatherSequence>`), `_currentWeatherConditions` (`WeatherConditions`, nine public float fields + `Set`)
+
+**Temperature (`S1API.Temperature`) IS writable:** `TemperatureEmitter.GetOrAddComponent(go)` plus `SetTemperature / SetRange / SetPosition / NotifyChanged`, `TemperatureUtility.TemperatureSystemEnabled`, and the pure `TemperatureAlgorithm.GetTemperatureAtPoint(ambient, origin, point, emitters)`. Native limits: ambient 20 °C, emitter 0–40 °C, range 0.1–100 units (default 5, 0.1 min).
+
+**Time / XP:** time via `S1API.GameTime`; `LevelManager.AddXP(int)` exists (`S1API.Leveling`), a `GetXP`/`LevelingManager` does not — read `LevelManager.XP / Rank / Tier`.
 
 ---
 

@@ -178,7 +178,7 @@ Buildables also need a prefab (or `MeshVault`). If you don't have one, use a van
 
 ## 6. Workspace Reference
 
-`HomelessMod` uses `S1API.Items.Buildable` for the procedural SleepingBag. See `Source/Archive/SnackVendor/src/Items/SnackVendorItemFactory.cs` for a production pattern.
+The archived `HomelessMod` used `S1API.Items.Buildable` for the procedural SleepingBag. Active example: `Source/Mods/AutoPackagingStation/src/AutoPackagingItemFactory.cs`; archived production pattern: `Source/Archive/SnackVendor/src/Items/SnackVendorItemFactory.cs`.
 
 `MoreDrugs` (ThirdParty/) uses `S1API.Products` with `ICustomProductSaveProvider` for full save integration.
 

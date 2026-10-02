@@ -48,7 +48,7 @@ internal static class TaxiCloseExperiment
             if (PatchGuard.TryPatch(_harmony, original, prefixMethod, null, null, null, Mod.Log))
             {
                 Armed = true;
-                Mod.Log.Info("[close-exp] armed: Taxi skips S1API's immediate canvas hide on close.");
+                TaxiLog.Verbose("[close-exp] armed: Taxi skips S1API's immediate canvas hide on close.");
             }
         }
         catch (Exception ex)
@@ -66,7 +66,7 @@ internal static class TaxiCloseExperiment
         {
             if (PendingApp != null)
             {
-                Mod.Log.Info("[close-exp] re-open inside the defer window - pending hide cancelled.");
+                TaxiLog.Verbose("[close-exp] re-open inside the defer window - pending hide cancelled.");
                 PendingApp = null;
             }
             return true;
@@ -87,7 +87,7 @@ internal static class TaxiCloseExperiment
 
         PendingApp = app;
         HideAtFrame = Time.frameCount + HideDelayFrames;
-        Mod.Log.Info($"[close-exp] close deferred {HideDelayFrames} frames - the screen keeps its content while the phone folds away.");
+        TaxiLog.Verbose($"[close-exp] close deferred {HideDelayFrames} frames - the screen keeps its content while the phone folds away.");
         return false;
     }
 
@@ -107,7 +107,7 @@ internal static class TaxiCloseExperiment
                 ApplyingHide = true;
                 SetAppOpenMethod.Invoke(app, new object[] { false });
                 ApplyingHide = false;
-                Mod.Log.Info("[close-exp] deferred close applied - the screen dies together with the phone now.");
+                TaxiLog.Verbose("[close-exp] deferred close applied - the screen dies together with the phone now.");
             }
             (app as TaxiApp)?.ForceHideBg();
         }

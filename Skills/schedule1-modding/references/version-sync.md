@@ -135,15 +135,6 @@ files (`Mod.cs MelonInfo`, `mod.json`, `AGENTS.md matrix row`).
 If any of these fails, fix it before committing — the bump is not "done" until
 all four agree.
 
-## 5. The ripgrep bracket-trap (tool-side, not skill-side)
+## 5. Regex-heavy searches
 
-When using `search_files` for patterns containing `(` or `[`, the underlying
-ripgrep fails with "unclosed group/character class". Workaround that worked
-this session:
-
-- Drop the special char when possible (`MelonInfo` instead of `MelonInfo(`).
-- Add `file_glob="*.cs"` to narrow scope first, then grep inside.
-- For complex patterns, escape with `\(` (didn't fully test).
-
-This is a Hermes-tool quirk, not a workspace pattern. Mentioned here so the
-next agent doesn't lose 3 tool calls re-trying the same failing regex.
+Escaping is search-tool-dependent: when a search API rejects `(` / `[` (unclosed group / character class), drop the special char where possible (`MelonInfo` instead of `MelonInfo(`), narrow the scope with a file glob first, then search inside, or escape the char (`\(`). Not a workspace pattern - just a time saver.

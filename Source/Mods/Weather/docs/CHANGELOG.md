@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1 (2026-10-02) - all row icons always in their condition theme colour
+
+- **All nine row icons now carry their condition's theme colour at all times** (amber, light blue, blue, violet, white, warm grey, teal, light blue, cyan). Previously only active conditions got a coloured icon, while inactive rows sat in the neutral grey-blue idle tint — a session with a single active condition showed just one coloured icon.
+- **Active/inactive signalling unchanged:** the accent rim, the accent-tinted base and the live bar still mark active conditions; inactive rows otherwise stay neutral. Hero icon, ring, chip and halo behaviour untouched.
+- `IconIdleColor` removed; row icons are tinted from the shared `ComponentColors` table at build time and on every render.
+
 ## 0.4.0 (2026-10-01) - design overhaul: rebuilt to the approved mockup
 
 - **Flat canvas, no header chrome:** "WEATHER" (Sp21) top left, a pulsing amber dot plus a muted `LIVE CONDITIONS` (Sp10) on the same line. The header bar, the accent tick and the divider rule are gone.
