@@ -15,13 +15,13 @@ namespace MoreSaveSlots;
 
 public class MoreSaveSlotsMod : MelonMod
 {
-    public static MoreSaveSlotsMod Instance { get; private set; } = null!;
     public static MoreSaveSlotsConfig Config { get; private set; } = null!;
+
+    private static string? _activeSceneName;
+    private static EventSystem? _cachedEventSystem;
 
     public override void OnInitializeMelon()
     {
-        Instance = this;
-
         // Load configuration
         Config = MoreSaveSlotsConfig.Load();
         PaginationController.TotalSlots = Config.TotalSlots;
@@ -97,9 +97,15 @@ public class MoreSaveSlotsMod : MelonMod
     {
         try
         {
-            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            // Cached in OnSceneWasLoaded — avoids a SceneManager interop call every frame.
+            string? scene = _activeSceneName;
+            if (scene == null)
+            {
+                scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+                _activeSceneName = scene;
+            }
             // Workspace convention: gameplay scene is named exactly "Main".
-            return scene.name == "Main";
+            return scene == "Main";
         }
         catch
         {
@@ -117,6 +123,7 @@ public class MoreSaveSlotsMod : MelonMod
 
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {
+        _activeSceneName = sceneName;
         try
         {
             if (RenameDialog.IsOpen)
@@ -131,7 +138,13 @@ public class MoreSaveSlotsMod : MelonMod
     {
         try
         {
-            var es = EventSystem.current;
+            // Cached EventSystem — re-resolved when missing or destroyed (Unity fake-null).
+            var es = _cachedEventSystem;
+            if (es == null)
+            {
+                es = EventSystem.current;
+                _cachedEventSystem = es;
+            }
             if (es != null && es.currentSelectedGameObject != null)
             {
                 var tmpInput = es.currentSelectedGameObject.GetComponent<TMP_InputField>();

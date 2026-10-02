@@ -597,7 +597,7 @@ public static class SaveDisplay_Patches
             if (string.IsNullOrWhiteSpace(tmp.text)) continue;
             if (infoTransform != null && tmp.transform.IsChildOf(infoTransform)) continue;
             string t = tmp.text.Trim();
-            if (System.Text.RegularExpressions.Regex.IsMatch(t, @"^SLOT\s+\d+$"))
+            if (t.StartsWith("SLOT ", StringComparison.Ordinal) && int.TryParse(t.Substring(5), out _))
             {
                 tmp.text = $"SLOT {slotNumber}";
             }
@@ -613,7 +613,7 @@ public static class SaveDisplay_Patches
             if (string.IsNullOrWhiteSpace(txt.text)) continue;
             if (infoTransform != null && txt.transform.IsChildOf(infoTransform)) continue;
             string t = txt.text.Trim();
-            if (System.Text.RegularExpressions.Regex.IsMatch(t, @"^SLOT\s+\d+$"))
+            if (t.StartsWith("SLOT ", StringComparison.Ordinal) && int.TryParse(t.Substring(5), out _))
             {
                 txt.text = $"SLOT {slotNumber}";
             }
