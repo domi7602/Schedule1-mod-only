@@ -29,6 +29,12 @@ public static class SkateboardItemFactory
     public static void ClearTuningState() { _tunedInstanceIds.Clear(); }
 
     /// <summary>
+    /// Hot-path gate: true only while at least one tuned (custom) board is tracked.
+    /// When false, per-physics-step prefixes can bail before any per-instance work.
+    /// </summary>
+    public static bool HasTunedInstances => _tunedInstanceIds.Count > 0;
+
+    /// <summary>
     /// Hot-path check: is this board instance one of our custom (tuned) boards?
     /// O(1) HashSet lookup — safe to call every physics step.
     /// </summary>
@@ -300,7 +306,7 @@ public static class SkateboardItemFactory
         }
     }
 
-    public static void DumpSkateboardStats(Skateboard board, string context)
+    private static void DumpSkateboardStats(Skateboard board, string context)
     {
         try
         {
@@ -490,20 +496,4 @@ public static class SkateboardItemFactory
         return null;
     }
 
-    public static void InvalidateIconCache()
-    {
-        if (_cachedIcon != null)
-        {
-            try
-            {
-                var tex = _cachedIcon.texture;
-                if (tex != null && tex.Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(tex);
-            }
-            catch { }
-            try { if (_cachedIcon.Pointer != IntPtr.Zero) UnityEngine.Object.Destroy(_cachedIcon); } catch { }
-            _cachedIcon = null;
-            _cachedIconPath = null;
-            Mod.Log.Info("Custom icon cache invalidated.");
-        }
-    }
 }

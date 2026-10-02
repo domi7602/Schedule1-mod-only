@@ -108,6 +108,10 @@ public static class SkateboardVisualPatches
         {
             if (__instance == null || __instance.Pointer == IntPtr.Zero || __instance.WasCollected) return;
 
+            // Hot-path gate: with no tuned boards tracked, skip GetInstanceID() entirely
+            // (IsInstanceTuned would be false for every id anyway).
+            if (!SkateboardItemFactory.HasTunedInstances) return;
+
             int instId = __instance.GetInstanceID();
             if (instId == 0 || !SkateboardItemFactory.IsInstanceTuned(instId)) return;
 
