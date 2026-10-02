@@ -65,6 +65,9 @@ public sealed class NotesApp : PhoneApp
     private string _savePath = null!;
     private string _lastKnownSlot = "default";
     private string _searchQuery = string.Empty;
+    private string _pendingSearchQuery = string.Empty;
+    private float _searchDebounceTimer = -1f;
+    private const float SearchDebounceSeconds = 0.15f;
 
     /// <summary>
     /// Slot-Suffix im Format "slot_{n}" mit last-known-Fallback ("default").
@@ -147,6 +150,18 @@ public sealed class NotesApp : PhoneApp
             if (_copyResetTimer <= 0f && NetworkGuard.IsAlive(_copyButtonText))
             {
                 _copyButtonText.text = "Copy";
+            }
+        }
+
+        // Apply debounced search filtering (~150 ms after the last keystroke)
+        if (_searchDebounceTimer >= 0f)
+        {
+            _searchDebounceTimer -= Time.unscaledDeltaTime;
+            if (_searchDebounceTimer <= 0f)
+            {
+                _searchDebounceTimer = -1f;
+                _searchQuery = _pendingSearchQuery;
+                RefreshList();
             }
         }
 
@@ -431,8 +446,16 @@ public sealed class NotesApp : PhoneApp
 
     private void OnSearchQueryChanged(string query)
     {
-        _searchQuery = query?.Trim() ?? string.Empty;
-        RefreshList();
+        string next = query?.Trim() ?? string.Empty;
+        // Same-value guard: query reverted to the applied one -> no rebuild needed.
+        if (string.Equals(next, _searchQuery, StringComparison.Ordinal))
+        {
+            _searchDebounceTimer = -1f;
+            return;
+        }
+        // Debounce: rebuild the list once typing pauses (~150 ms) instead of per keystroke.
+        _pendingSearchQuery = next;
+        _searchDebounceTimer = SearchDebounceSeconds;
     }
 
     // =====================================================================
@@ -1028,7 +1051,7 @@ public sealed class NotesApp : PhoneApp
         }
         else
         {
-            _textInput.text += (string.IsNullOrEmpty(_textInput.text) || _textInput.text.EndsWith("\n") ? "" : "\n") + stamp;
+            _textInput.text += (_textInput.text.EndsWith("\n") ? "" : "\n") + stamp;
         }
         _textInput.MoveTextEnd(false);
         UpdateWordCount(_textInput.text);
