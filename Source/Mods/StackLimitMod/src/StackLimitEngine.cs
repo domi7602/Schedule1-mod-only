@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using HarmonyLib;
 using Il2CppScheduleOne;
 using Il2CppScheduleOne.Clothing;
 using Il2CppScheduleOne.Core.Items.Framework;
@@ -640,8 +641,8 @@ public static class StackLimitEngine
 
     /// <summary>
     /// Bug-Audit 2026-09-12 (Round 3): Restore every previously captured original stack
-    /// limit. Called from Mod.OnDeinitializeMelon (and from the `stack restore` console
-    /// command) so a disabling / unload / explicit-restore leaves the registry clean.
+    /// limit. Called from Mod.OnDeinitializeMelon so a disabling / unload leaves the
+    /// registry clean.
     /// Without this, mod uninstall / disable would leave overrides on every definition
     /// and survive reloads — Vanilla's <c>StackLimit</c> would never come back.
     /// </summary>
@@ -697,13 +698,97 @@ public static class StackLimitEngine
         }
         return restored;
     }
+}
 
-    /// <summary>
-    /// Forget every captured original value. After this, a re-Apply will start a fresh
-    /// capture set. Use for test isolation or full reset.
-    /// </summary>
-    public static void ForgetAllOriginals()
+public static class StackLimitPatches
+{
+    // Hot-path decision cache for get_StackLimit: whether the override applies, keyed by the native
+    // object pointer (BaseItemInstance is an Il2CppSystem.Object — no Unity GetInstanceID()). Avoids
+    // the IL2CPP ID string marshaling + engine lookups on every call. Postfix runs on the main thread,
+    // so a plain Dictionary is sufficient. Pointers are per-session: cleared on scene unload and on
+    // 'stack reload' (config change may flip exclusions / OverrideNonStackable).
+    // Residual risk: the IL2CPP GC recycles pointers, so a fresh instance can inherit a stale
+    // decision until the next clear. MaxEntries bounds both the memory growth and that stale
+    // window (worst case a few thousand instances in a long session).
+    private static readonly Dictionary<IntPtr, bool> _overrideDecisionCache = new();
+    private const int MaxDecisionCacheEntries = 4096;
+
+    public static void ClearDecisionCache()
     {
-        lock (_lock) { _originalLimits.Clear(); }
+        _overrideDecisionCache.Clear();
     }
+
+    [HarmonyPostfix]
+    public static void Registry_AddToRegistry_Postfix(Registry __instance, ItemDefinition item)
+    {
+        try
+        {
+            if (Mod.Config == null) return;
+            if (item == null || item.Pointer == IntPtr.Zero) return;
+            if (__instance != null && __instance.Pointer == IntPtr.Zero) return;
+            StackLimitEngine.ApplyToItem(item, Mod.Config);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"Error in Registry_AddToRegistry_Postfix: {ex}");
+        }
+    }
+
+    [HarmonyPostfix]
+    public static void BaseItemInstance_GetStackLimit_Postfix(BaseItemInstance __instance, ref int __result)
+    {
+        try
+        {
+            if (Mod.Config == null) return;
+            if (__instance == null || __instance.Pointer == IntPtr.Zero) return;
+
+            // Hot-path: consult the decision cache before resolving the ID string (no marshaling on hit).
+            IntPtr key = __instance.Pointer;
+            if (_overrideDecisionCache.TryGetValue(key, out bool shouldOverride))
+            {
+                if (shouldOverride) __result = Mod.Config.StackLimit;
+                return;
+            }
+
+            string id = __instance.ID;
+            if (string.IsNullOrEmpty(id)) return;
+
+            bool isWeaponOrAmmo = StackLimitEngine.IsWeaponOrAmmoId(id);
+            bool excluded = isWeaponOrAmmo || StackLimitEngine.IsExcluded(id);
+            bool eligible = !isWeaponOrAmmo && StackLimitEngine.IsEligibleForOverride(id, __instance);
+            bool keepOriginal = false;
+            // Unknown ID (instance seen before the first definition scan): decide live
+            // but do NOT cache — the fallback limit (1) may be wrong, and a cached
+            // false would stick until scene unload even after the scan fills in.
+            bool known = StackLimitEngine.IsOriginalKnown(id);
+            if (!excluded && eligible && !Mod.Config.OverrideNonStackable)
+            {
+                int orig = StackLimitEngine.GetOriginalLimit(id, 1);
+                keepOriginal = orig == 1;
+            }
+
+            shouldOverride = !excluded && eligible && !keepOriginal;
+            if (known || isWeaponOrAmmo)
+            {
+                if (_overrideDecisionCache.Count >= MaxDecisionCacheEntries)
+                    _overrideDecisionCache.Clear();
+                _overrideDecisionCache[key] = shouldOverride;
+            }
+
+            // v0.1.5 diagnostics: record uncached decisions for apply_report.json (opt-in).
+            if (!known && Mod.Config.LogDecisions)
+            {
+                StackLimitEngine.RecordPostfixDecision(id, eligible, keepOriginal, shouldOverride, "InstancePostfix");
+            }
+
+            if (shouldOverride) __result = Mod.Config.StackLimit;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"Error in BaseItemInstance_GetStackLimit_Postfix: {ex}");
+        }
+    }
+
+    // Removed: BaseItemDefinition_GetDefaultStackLimit is a field accessor and not patchable on IL2CPP side.
+    // See Mod.ApplyHarmonyPatches — engine resolves this via scan + field write.
 }

@@ -46,8 +46,8 @@ var all = reg.GetAllItems();                // Il2Cpp IList<ItemDefinition>, for
 
 * **Layer 1 — Resources:** `Resources.FindObjectsOfTypeAll<BaseItemDefinition>()` finds ScriptableObjects in memory (197 items in StackLimitMod log).
 * **Layer 2 — Registry:** `registry.GetAllItems()` finds runtime-registered dynamic items (198 after mod items, `Latest.log:17:43:35.170`→`17:43:35.170` 197→198). `StackLimitEngine.ApplyStackLimits:46/69` scans **both** — else newly injected items (e.g. `sleepingbag`) missed.
-* **Injection hook:** `StackLimitPatches.Registry_AddToRegistry_Postfix(ItemDefinition item)` `StackLimitPatches.cs:11` — applies limit immediately on `Registry.AddToRegistry` (runtime registration).
-* **TOCTOU:** Don't `if (ItemExists) GetItem` — atomic `GetItem` + null check (CustomSkateboard candidate-ID collapse `StackLimitPatches.cs:11` pattern).
+* **Injection hook:** `StackLimitPatches.Registry_AddToRegistry_Postfix(ItemDefinition item)` `StackLimitEngine.cs:11` — applies limit immediately on `Registry.AddToRegistry` (runtime registration).
+* **TOCTOU:** Don't `if (ItemExists) GetItem` — atomic `GetItem` + null check (CustomSkateboard candidate-ID collapse `StackLimitEngine.cs:11` pattern).
 
 ---
 
@@ -90,7 +90,7 @@ inv.RemoveAmountOfItem(id, 1u);          // HomelessMod Place deducts source
 }
 ```
 
-**Trap 2026-08-21:** `BaseItemDefinition.get_DefaultStackLimit` is a **field accessor** → `Il2CppInterop "can't be patched"` `Latest.log:17:43:04.438` → postfix never fires, 16/16 false-positive. Removed `Mod.cs:109` + `StackLimitPatches.cs:54`. Use scan + instance postfix instead. Verify before patch: `ilspycmd -t BaseItemDefinition`.
+**Trap 2026-08-21:** `BaseItemDefinition.get_DefaultStackLimit` is a **field accessor** → `Il2CppInterop "can't be patched"` `Latest.log:17:43:04.438` → postfix never fires, 16/16 false-positive. Removed `Mod.cs:109` + `StackLimitEngine.cs:54`. Use scan + instance postfix instead. Verify before patch: `ilspycmd -t BaseItemDefinition`.
 
 ---
 
