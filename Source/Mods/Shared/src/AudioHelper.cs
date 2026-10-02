@@ -151,23 +151,4 @@ public static class AudioHelper
         return clip;
     }
 
-    private static AudioClip GenerateChimeTone()
-    {
-        const int sampleRate = 44100;
-        const float duration = 0.25f;
-        int sampleCount = (int)(sampleRate * duration);
-        var samples = new float[sampleCount];
-
-        for (int i = 0; i < sampleCount; i++)
-        {
-            float t = (float)i / sampleRate;
-            float envelope = Mathf.Exp(-5f * t);
-            float val = Mathf.Sin(2f * Mathf.PI * 880f * t) + 0.5f * Mathf.Sin(2f * Mathf.PI * 1320f * t) + 0.25f * Mathf.Sin(2f * Mathf.PI * 1760f * t);
-            samples[i] = val * envelope * 0.35f;
-        }
-
-        var clip = AudioClip.Create("S1Mods_Chime", sampleCount, 1, sampleRate, false);
-        clip.SetData(samples, 0);
-        return clip;
-    }
 }

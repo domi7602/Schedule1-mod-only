@@ -18,31 +18,6 @@ public static class GameObjectResolver
         // Hook for future UI reference caches
     }
 
-    private static Transform? FindChildRecursive(Transform parent, string name, bool exactMatch)
-    {
-        if (!IsAlive(parent)) return null;
-        int childCount = parent.childCount;
-        for (int i = 0; i < childCount; i++)
-        {
-            Transform child = parent.GetChild(i);
-            if (!IsAlive(child))
-                continue;
-
-            bool matches = exactMatch
-                ? string.Equals(child.name, name, StringComparison.OrdinalIgnoreCase)
-                : child.name.IndexOf(name, StringComparison.OrdinalIgnoreCase) >= 0;
-
-            if (matches)
-                return child;
-
-            Transform? foundInSubtree = FindChildRecursive(child, name, exactMatch);
-            if (foundInSubtree != null)
-                return foundInSubtree;
-        }
-
-        return null;
-    }
-
     /// <summary>IL2CPP liveness: managed wrappers survive scene unload while native objects are dead.</summary>
     private static bool IsAlive(UnityEngine.Object? obj)
     {
