@@ -27,11 +27,11 @@ public sealed class PotTracker
 
     public IReadOnlyList<PotInfo> Pots => _pots;
 
-    /// <summary>Fired after every completed Refresh() (every 2s while active). UI subscribes here.</summary>
+    /// <summary>Fired after every completed Refresh() (2s cadence while the app is open or Auto-Water is on, else 10s). UI subscribes here.</summary>
     public event Action? OnPotsScanned;
 
     private readonly List<PotInfo> _pots = new();
-    private readonly List<IntPtr> _seen = new(64);
+    private readonly HashSet<IntPtr> _seen = new(64);
     private readonly List<PropertyWrapper> _propertyCache = new();
     private readonly HashSet<string> _ownedPropertyCodes = new();
 
@@ -39,9 +39,6 @@ public sealed class PotTracker
     private float _postLoadTimer;
     private int _postLoadScansRemaining;
     private bool _active;
-    private int _scanCount;
-
-    public int TotalScans => _scanCount;
 
     /// <summary>
     /// Called by Mod when S1API fires GameLifecycle.OnSaveInfoLoaded.
@@ -88,7 +85,8 @@ public sealed class PotTracker
         NotifyPotsScanned();
     }
 
-    /// <summary>Called by Mod every frame. Triggers refresh at PotRefreshIntervalSec cadence.</summary>
+    /// <summary>Called by Mod every frame. Scans every 2s while the phone app is open or Auto-Water is
+    /// enabled; otherwise the cadence relaxes to PotIdleRefreshIntervalSec (nothing consumes the data).</summary>
     public void Tick(float dt)
     {
         if (!_active) return;
@@ -106,15 +104,12 @@ public sealed class PotTracker
         }
 
         _elapsed += dt;
-        if (_elapsed < Constants.PotRefreshIntervalSec) return;
+        float interval = (AutoWaterService.IsEnabled || PotScannerApp.IsAppOpen)
+            ? Constants.PotRefreshIntervalSec
+            : Constants.PotIdleRefreshIntervalSec;
+        if (_elapsed < interval) return;
         _elapsed = 0f;
         Refresh();
-    }
-
-    /// <summary>Force next Tick to refresh (used by optional MinPass-Hook in iter 2).</summary>
-    public void MarkDirty()
-    {
-        _elapsed = Constants.PotRefreshIntervalSec;
     }
 
     /// <summary>
@@ -159,20 +154,9 @@ public sealed class PotTracker
         }
     }
 
-    /// <summary>
-    /// Plan C fallback: read native _IsOwned_k__BackingField via reflection.
-    /// Only triggers when save-load is done (NativeProperty.OwnedProperties populated)
-    /// but S1API's PropertyWrapper.IsOwned still returns false. Belt-and-suspenders.
-    /// </summary>
-    private void RefreshPropertyCacheViaReflection(List<PropertyWrapper>? allWrappers)
-    {
-        // REMOVED in v0.2.1 — the S1API OnSaveInfoLoaded hook makes this unnecessary.
-    }
-
     private void Refresh()
     {
         _seen.Clear();
-        _scanCount++;
 
         GrowContainer[] containers;
         try
@@ -204,8 +188,15 @@ public sealed class PotTracker
             UpdateInfo(info, c);
         }
 
-        // Remove pots that disappeared from the scene
-        _pots.RemoveAll(p => !_seen.Contains(p.NativePtr));
+        // Remove pots that disappeared from the scene (linear in-place compaction, order preserved)
+        int write = 0;
+        for (int read = 0; read < _pots.Count; read++)
+        {
+            if (_seen.Contains(_pots[read].NativePtr))
+                _pots[write++] = _pots[read];
+        }
+        if (write < _pots.Count)
+            _pots.RemoveRange(write, _pots.Count - write);
 
         // Auto-Water tick if enabled (reuses discovered containers)
         if (AutoWaterService.IsEnabled)
@@ -339,4 +330,52 @@ public sealed class PotTracker
         }
         return null;
     }
+}
+
+/// <summary>
+/// Read-only snapshot of a placed pot in the world. Holds an IntPtr (not a managed reference)
+/// to the underlying IL2CPP GrowContainer wrapper, so we can detect destroyed objects via
+/// pointer comparison instead of weak GC handles (IL2CPP wrapper GC behavior is unreliable).
+/// </summary>
+public sealed class PotInfo
+{
+    /// <summary>Native pointer of the GrowContainer IL2CPP wrapper. Survives scenes; valid until destroyed.</summary>
+    public IntPtr NativePtr { get; set; }
+
+    /// <summary>Property code (e.g. "barn", "bungalow") the pot sits in. "unknown" if not inside any owned property.</summary>
+    public string PropertyCode { get; set; } = string.Empty;
+
+    /// <summary>Property display name (e.g. "Barn").</summary>
+    public string PropertyName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// True iff the pot sits on a property the player currently owns. Set by PotTracker
+    /// against PropertyManager.GetOwnedProperties() — independent of the display's
+    /// Owned→All-fallback. Used by WaterAllService to filter targets.
+    /// </summary>
+    public bool IsOwnedProperty { get; set; }
+
+    /// <summary>World position snapshot (struct copy — safe, no Unity reference held).</summary>
+    public Vector3 WorldPosition { get; set; }
+
+    /// <summary>Water level normalized 0..1 (from GrowContainer.NormalizedMoistureAmount).</summary>
+    public float WaterPercent { get; set; }
+
+    /// <summary>Soil level normalized 0..1.</summary>
+    public float SoilPercent { get; set; }
+
+    /// <summary>Plant growth normalized 0..1. 0 if no plant in pot.</summary>
+    public float GrowthPercent { get; set; }
+
+    /// <summary>Plant display name (SeedDefinition.Name). Empty if no plant.</summary>
+    public string PlantName { get; set; } = string.Empty;
+
+    /// <summary>Plant quality (0..1). 0 if no plant.</summary>
+    public float Quality { get; set; }
+
+    /// <summary>Whether the plant is fully grown.</summary>
+    public bool IsFullyGrown { get; set; }
+
+    /// <summary>Last scan timestamp (UTC).</summary>
+    public DateTime LastScanned { get; set; }
 }

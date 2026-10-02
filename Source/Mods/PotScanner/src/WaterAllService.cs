@@ -34,9 +34,6 @@ public static class WaterAllService
 {
     private static bool _isWatering;
 
-    /// <summary>True while a WaterAll() call is in progress. Used by the UI to lock the button.</summary>
-    public static bool IsWatering => _isWatering;
-
     /// <summary>
     /// 10-step validate-then-charge flow (v0.2.2 adds skip-when-sufficiently-watered):
     ///   0. HOST GUARD  — only host/server may mutate moisture + cash in MP (clients: silent no-op)

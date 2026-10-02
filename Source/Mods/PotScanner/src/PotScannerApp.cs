@@ -122,7 +122,6 @@ public sealed class PotScannerApp : PhoneApp
     private Text _autoWaterLabel = null!;
     private Text _autoWaterSubLabel = null!;
     private Image _autoWaterFill = null!;
-    private float _lastRefreshRealtime;
     private string? _activePropertyKey;
     private PotFilter _activeFilter = PotFilter.All;
     private readonly Dictionary<PotFilter, (Image bg, Text label, Button btn)> _filterButtons = new();
@@ -247,6 +246,18 @@ public sealed class PotScannerApp : PhoneApp
         }
         catch { }
         _active = null;
+    }
+
+    /// <summary>True while the PotScanner phone app is open — PotTracker keeps its fast scan cadence in this case.</summary>
+    internal static bool IsAppOpen
+    {
+        get
+        {
+            var active = _active;
+            if (active == null) return false;
+            try { return active.IsOpen(); }
+            catch { return false; }
+        }
     }
 
     private static void DispatchUpdate() => _active?.Update();
@@ -677,7 +688,6 @@ public sealed class PotScannerApp : PhoneApp
     public void RefreshList()
     {
         if (_listContent == null) return;
-        _lastRefreshRealtime = Time.realtimeSinceStartup;
         _initialScanComplete = true;
 
         var pots = PotTracker.Instance.Pots;
