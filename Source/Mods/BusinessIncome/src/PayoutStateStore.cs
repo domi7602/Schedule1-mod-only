@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BusinessIncome.Config;
 using BusinessIncome.Models;
 using Il2CppScheduleOne.DevUtilities;
 using Il2CppScheduleOne.Persistence;
@@ -118,11 +119,15 @@ public static class PayoutStateStore
     /// </summary>
     public static PayoutState GetState()
     {
-        string slotSuffix = GetActiveSlotSuffix();
-        if (_cachedState != null && _currentSlotSuffix == slotSuffix)
+        // Perf: the slot probe (SaveSlots -> native LoadManager reads) is expensive; while the
+        // state is cached it is skipped. Reset() runs on every save load (Mod.OnPreLoad) and on
+        // scene unload, so a slot switch always invalidates the cache and the next call re-probes.
+        if (_cachedState != null)
         {
             return _cachedState;
         }
+
+        string slotSuffix = GetActiveSlotSuffix();
 
         // H3: Slot change — clear stale pending snapshot from previous slot
         if (_currentSlotSuffix != slotSuffix)
@@ -162,19 +167,6 @@ public static class PayoutStateStore
     {
         var state = GetState();
         return state.LastPaidElapsedDay >= elapsedDay;
-    }
-
-    /// <summary>
-    /// Checks whether a specific business has already been paid on that day.
-    /// </summary>
-    public static bool IsBusinessPaid(string businessId, int elapsedDay)
-    {
-        var state = GetState();
-        if (state.LastPaidDayByBusiness.TryGetValue(businessId, out int lastDay))
-        {
-            return lastDay >= elapsedDay;
-        }
-        return false;
     }
 
     /// <summary>
@@ -356,5 +348,52 @@ public static class PayoutStateStore
     public static void ResetForSceneUnload()
     {
         Reset(keepSlot: true);
+    }
+}
+
+/// <summary>
+/// JSON sidecar for config fields that MelonPreferences/TOML cannot map
+/// (Dictionary&lt;string,float&gt;, Dictionary&lt;string,string&gt;, List&lt;string&gt;).
+/// ModConfig&lt;T&gt; only persists scalar properties — this file secures the
+/// complex collections via SafeStorage (atomic + .bak).
+/// </summary>
+public static class ConfigJsonStore
+{
+    private static readonly string SavePath = SafeStorage.GetUserDataPath("BusinessIncome", "business_config.json");
+
+    public static void ApplyToConfig(BusinessIncomeConfig cfg)
+    {
+        if (cfg == null) return;
+        try
+        {
+            var stored = SafeStorage.LoadSafe<BusinessIncomeConfig>(SavePath, new BusinessIncomeConfig(), Mod.Log);
+            if (stored == null) return;
+
+            if (stored.PropertyMultipliers != null && stored.PropertyMultipliers.Count > 0)
+                cfg.PropertyMultipliers = stored.PropertyMultipliers;
+            if (stored.DisplayNameOverrides != null && stored.DisplayNameOverrides.Count > 0)
+                cfg.DisplayNameOverrides = stored.DisplayNameOverrides;
+            if (stored.WeekendBonusCategories != null && stored.WeekendBonusCategories.Count > 0)
+                cfg.WeekendBonusCategories = stored.WeekendBonusCategories;
+
+            Mod.Log.Info($"Applied {cfg.PropertyMultipliers.Count} multipliers, {cfg.DisplayNameOverrides.Count} name overrides, {cfg.WeekendBonusCategories.Count} weekend categories from JSON sidecar.");
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"Failed to apply config JSON sidecar: {ex.Message}");
+        }
+    }
+
+    public static void Save(BusinessIncomeConfig cfg)
+    {
+        if (cfg == null) return;
+        try
+        {
+            SafeStorage.SaveAtomic(SavePath, cfg, Mod.Log);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"Failed to save config JSON sidecar: {ex.Message}");
+        }
     }
 }

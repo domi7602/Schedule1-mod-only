@@ -43,11 +43,9 @@ public static class RevenueCalculator
         }
 
         // 4. Check weekend bonus
-        bool isWeekendBonusApplied = false;
         float weekendBonusPercent = 0f;
         if (isWeekend && config.WeekendBonusCategories.Contains(business.Id))
         {
-            isWeekendBonusApplied = true;
             weekendBonusPercent = config.WeekendBonusRate;
         }
 
@@ -70,13 +68,10 @@ public static class RevenueCalculator
         {
             BusinessId = business.Id,
             DisplayName = business.DisplayName,
-            BaseIncome = baseIncome,
             Multiplier = multiplier,
             VarianceFactor = varianceFactor,
             EmployeeCount = business.EmployeeCount,
             EmployeeBonusPercent = employeeBonusPercent,
-            IsWeekendBonusApplied = isWeekendBonusApplied,
-            WeekendBonusPercent = weekendBonusPercent,
             GrossRevenue = grossRevenue,
             OperatingCosts = operatingCosts,
             NetRevenue = netRevenue
