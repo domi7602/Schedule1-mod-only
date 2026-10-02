@@ -14,7 +14,7 @@ using S1NPC = Il2CppScheduleOne.NPCs.NPC;
 using S1NPCHealth = Il2CppScheduleOne.NPCs.NPCHealth;
 using S1Time = Il2CppScheduleOne.GameTime.TimeManager;
 
-[assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.2.9", "Dominik")]
+[assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.3.0", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace HitmanPhone;

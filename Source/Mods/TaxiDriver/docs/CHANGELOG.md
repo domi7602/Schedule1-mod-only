@@ -1,6 +1,11 @@
 # Changelog
 
-## 0.8.0 (2026-10-02) — landscape redesign (PotScanner idiom) + custom checkpoints removed
+## 0.8.1 (2026-10-02) - internal cleanup (file merges)
+
+- Merged `TaxiIcon` + `TaxiCloseExperiment` into `TaxiApp.cs`, `SpikeTrace` into `SpikeCommands.cs` and `TaxiLog` into `Mod.cs` (21 -> 17 files). Code moved verbatim; class names, console words, Harmony targets and config keys unchanged.
+- No behaviour change intended. Build 0 errors; 2026-10-02 session smoke: loads clean (log-verified). Phase-2 perf work stays queued until the Pakete C-G test round is done.
+
+## 0.8.0 (2026-10-02) - landscape redesign (PotScanner idiom) + custom checkpoints removed
 
 - **Landscape dashboard** (`EOrientation.Horizontal`): the game turns the phone sideways
   like PocketShop/PotScanner; `UITheme.InitializeForDashboard`. The portrait

@@ -6,7 +6,7 @@ using S1Mods.Shared;
 using UnityEngine;
 using UnityEngine.UI;
 
-[assembly: MelonInfo(typeof(MessagesPlus.Mod), "MessagesPlus", "0.4.1", "Dominik")]
+[assembly: MelonInfo(typeof(MessagesPlus.Mod), "MessagesPlus", "0.5.0", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MessagesPlus;

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.2 (2026-10-02) - poll throttled to 0.5 s
+
+- The per-frame `WeatherManager` snapshot poll now runs at most every 0.5 s; `OnWeatherChanged` still renders immediately and the animations stay per-frame.
+- 2026-10-02 session smoke: loads clean (log-verified).
+
 ## 0.4.1 (2026-10-02) - all row icons always in their condition theme colour
 
 - **All nine row icons now carry their condition's theme colour at all times** (amber, light blue, blue, violet, white, warm grey, teal, light blue, cyan). Previously only active conditions got a coloured icon, while inactive rows sat in the neutral grey-blue idle tint — a session with a single active condition showed just one coloured icon.

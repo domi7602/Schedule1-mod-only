@@ -8,7 +8,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(StackLimitMod.Mod), "StackLimitMod", "0.1.7", "Dominik")]
+[assembly: MelonInfo(typeof(StackLimitMod.Mod), "StackLimitMod", "0.1.8", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace StackLimitMod;

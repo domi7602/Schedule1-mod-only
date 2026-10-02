@@ -2,6 +2,12 @@
 
 All notable changes to the BankApp mod will be documented in this file.
 
+## 0.4.5 (2026-10-02) - BankTheme -> GamePalette, merge, cached slot state
+
+- `BankTheme.cs` deleted; colours now come from `S1Mods.Shared.GamePalette` (values verified bit-identical). `BankState` + `BankTransaction` -> `BankModels.cs`; `BankSoundService` -> `BankService.cs` (9 -> 6 files); dead members removed.
+- Perf: `GetActiveState` serves the cached state and re-probes the save slot only on cache miss (writes still resolve the live slot).
+- 2026-10-02 session smoke: loads clean (log-verified).
+
 ## 0.4.4 (2026-09-12) — Bug-audit fixes round 3 (audit 2026-09-12)
 - `DepositCash`/`WithdrawCash` now have a `NetworkGuard.IsInMainScene` guard before every money op. Defense in depth: if a scene-change-mid-call or hotkey invocation happens outside Main, the service aborts cleanly with an error message instead of risking a partial transaction.
 

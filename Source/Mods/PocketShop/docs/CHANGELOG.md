@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.3.9 (2026-10-02) — Directory fits on the FIRST open (no reopen workaround)
+## 0.3.10 (2026-10-02) - internal cleanup: 15 -> 12 files, cheap buy-state sweep
+
+- Merged `SoundService` -> `PurchaseService.cs` and `PocketShopCommand` -> `ShopCatalog.cs`; deleted dead `ShopNavigator.cs`. Dead members removed (`Buy`, `IsAtMax`/`IsAtMin`, `SetQuantity`, `RefreshDisplay`, `ChangeBySafe`, `perShopCount`).
+- Perf: `ItemCard.RefreshBuyState` is signature-guarded (no per-second label strings/colour writes while unchanged); `QuantitySelector` caches its button refs and skips redundant `SetInteractable` calls.
+- Stale v0.3.8 strings/comments fixed. Layout untouched (playtest scope). 2026-10-02 session smoke: loads clean + directory viewport live on first open (log-verified).
+
+## 0.3.9 (2026-10-02) - Directory fits on the FIRST open (no reopen workaround)
 
 User report: "PocketShop braucht einen 2× Reload, damit die Icons gestreckt werden" —
 the first directory build of a session measured the content viewport as ~100 units

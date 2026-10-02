@@ -1,6 +1,12 @@
 # Changelog
 
-## 1.0.3 (2026-09-13) — Bug Report Round 6
+## 1.0.4 (2026-10-02) - search debounce
+
+- Search: same-value guard + 150 ms debounce via the existing per-frame update - rows are no longer rebuilt on every keystroke.
+- Removed a redundant empty-check in `InsertQuickStamp`.
+- 2026-10-02 session smoke: loads clean (log-verified).
+
+## 1.0.3 (2026-09-13) - Bug Report Round 6
 Bug Report Round 6: N1 - JSON 'Title'/'Text': null is normalized to string.Empty on load (fixed RefreshList crash on hand-edited/corrupted notes files).
 
 ## 1.0.2 (2026-09-11)

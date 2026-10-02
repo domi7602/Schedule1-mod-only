@@ -1,6 +1,12 @@
 # Changelog
 
-## 1.1.5 (2026-09-13) — Bug-audit fixes round 5 (audit 2026-09-13)
+## 1.1.6 (2026-10-02) - internal cleanup: ObjLoader merge, FixedUpdate gate
+
+- `ObjLoader` merged into `CyberSkateboardVisualizer.cs` (8 -> 7 files); dead `InvalidateCache`/`InvalidateIconCache` removed; `DumpSkateboardStats` private.
+- Perf: the `FixedUpdate` prefix bails before `GetInstanceID()` when no tuned board exists.
+- No behaviour change intended. 2026-10-02 session smoke: loads + 7/7 patches clean (log-verified).
+
+## 1.1.5 (2026-09-13) - Bug-audit fixes round 5 (audit 2026-09-13)
 - Dead state removed: `s_disableTerrainSlowdownCached` / `SetDisableTerrainSlowdownCached` in `SkateboardVisualPatches` and `ClearStyledCache()` in `CyberSkateboardVisualizer` — fields were written, never read. Call site in `SkateboardItemFactory.TuneSkateboard()` removed.
 - Memory waste eliminated (~2 static bool + 1 static method + 1 call per Tune).
 

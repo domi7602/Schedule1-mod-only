@@ -2,6 +2,12 @@
 
 All notable changes to **CalculatorApp** are documented in this file.
 
+## 0.2.4 (2026-10-02) - internal cleanup: merge, input gates
+
+- `CalculatorAppInputFocus` merged into `CalculatorApp.cs` (5 -> 4 files); dead fields/`PendingOperator` getter removed.
+- Perf: `anyKeyDown` early-out in `HandleKeyboardInput`; same-value guard in the search handler.
+- Tests 18/18. 2026-10-02 session smoke: loads clean (log-verified).
+
 ## 0.2.3 (2026-09-12) — Bug-Audit-Fixes (Audit 2026-09-12)
 - `GetActiveSlotSuffix`: added `SaveSlotNumber >= 0` guard (closes the `calculator_state_slot_-1.json` path that NotesApp already had).
 - `InputSquare`/`InputReciprocal` catch `decimal.OverflowException` and now set "Overflow" instead of throwing uncontrolled into the button callback.

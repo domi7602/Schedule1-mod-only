@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.1 (2026-10-02) - internal cleanup: merge, idle cadence, HashSet
+
+- `PotInfo` merged into `PotTracker.cs` (9 -> 8 files); dead members removed (`MarkDirty`, `TotalScans`, `RefreshPropertyCacheViaReflection`, `Summary`, `HudRangeMeters`, `IsWatering`, `_lastRefreshRealtime`).
+- Perf: the scene scan runs at a 10 s idle cadence while the app is closed and auto-water is off (2 s otherwise; `pot refresh` still forces); the seen-set is a `HashSet` with linear compaction instead of an O(n^2) `RemoveAll`.
+- No behaviour change intended. 2026-10-02 session smoke: loads clean (log-verified).
+
 ## 0.7.0 (2026-09-27)
 - **BankApp-palette view rewrite** (pure view; lifecycle, polling, filters and WaterAll/Auto-Water behaviour unchanged): every colour now comes from the new shared `S1Mods.Shared.GamePalette` — the screenshot-verified BankApp v0.3.0 look, promoted to a shared palette so all phone apps read as one product. The white-alpha glass vocabulary of v0.6.0 is gone: surfaces are fully opaque and hierarchy comes from steps of surface lightness (Bg < Card < CardAlt < Hover/Pressed < Border) instead of fill alpha, outlines are 1 px instead of 2 Dp, chips use a 6 px radius instead of a full capsule, and the fake elevation shadow was removed (the reference look is flat).
 - Semantic accents replace the monochrome scheme: filter chips active = AccentBlue fill with white ink (BankApp's selected-tab precedent), Water All enabled = solid AccentGreen with white ink (BankApp's primary button), Water All inert / Auto-Water = neutral surfaces, Auto-Water ON shows a green sublabel. Progress-bar fills and their right-aligned value numbers are Teal (BankApp's weekly bar and balance values); the hero donut is green around a teal pot icon; the pot status dots are orange (ready) / green (growing) / muted (empty).

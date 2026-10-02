@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0 (2026-10-02) - LegacyRestore removed; 10 -> 5 files; sweep latch
+
+- **Removed:** the one-time legacy restore (v0.1.x trash files + hidden supplier/dealer threads) is gone - saves that were never healed by v0.2.0+ keep their hidden threads. The code stays recoverable from git history.
+- Merged `MessagesPlusConfig` + `MessagesPlusInputFocus` -> `Mod.cs`, `InboxView` -> `InboxUI.cs`, `DealWindowSelectorPatch` -> `AppTheme.cs`; removed the unreachable `AppTheme.RestoreAll` + original-colour tracking.
+- Perf: the full-app dark sweep latches off after 3 clean passes (re-arms on rebuild/popup/scene/conversation change); the 1 s tick skips view/unread work while the phone is closed.
+- 2026-10-02 session smoke: loads + 18/18 patches clean (log-verified).
+
 ## 0.4.1 (2026-09-30)
 - **Dark mode is permanent:** the in-app toggle is gone — the config defaults to ON and a stale `false` (e.g. left behind by the 0.4.0 menu toggle) is self-healed to ON at startup. The config field itself stays so the schema remains stable.
 - **Instant dark theme for the deal-window popup:** new `DealWindowSelectorPatch` hooks `DealWindowSelector.SetIsOpen` (the Morning/Afternoon/Night/LateNight picker) and force-refreshes the popup's subtree in the same frame — before this, freshly shown surfaces stayed light until the next 1 s theme tick. The force scope never overwrites cached originals.

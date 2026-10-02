@@ -1,6 +1,11 @@
 # Changelog
 
-## 0.1.7 (2026-09-26) — Ingredient stacking
+## 0.1.8 (2026-10-02) - internal cleanup: patches merged into engine
+
+- `StackLimitPatches` merged into `StackLimitEngine.cs` (5 -> 4 files); dead `ForgetAllOriginals` removed; `RestoreAll` doc corrected.
+- No behaviour change intended. 2026-10-02 session smoke: loads + 20/20 patches clean (log-verified).
+
+## 0.1.7 (2026-09-26) - Ingredient stacking
 - Mixing/cooking ingredients (native item category `Ingredient`: Acid, Banana, Chili, Cuke, ...) are now eligible for the configurable stack limit (default 40) in Agriculture-Only mode instead of being skipped as "not-agriculture".
 - New `StackLimitEngine.IsIngredientItem`: reads the native `BaseItemDefinition.Category` (blittable `EItemCategory.Ingredient` enum — direct comparison, no IL2CPP `is`/`as`) with the same try/catch + liveness-guard style as the other helpers. Wired into both eligibility paths: the definition-scan gate (`ApplyToDefinition`, "Agriculture Only") and the instance-fallback (`IsEligibleForOverride` for the `BaseItemInstance.get_StackLimit` postfix).
 - Unchanged protections: the weapon/ammo veto and `ExcludedItemIds` remain first and unconditional (weapons, ammo, clothing, cash are never stacked); `OverrideNonStackable` semantics unchanged (original limit 1 stays unless the toggle is on).

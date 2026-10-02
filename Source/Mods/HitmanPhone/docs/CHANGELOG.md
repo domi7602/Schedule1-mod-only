@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 (2026-10-02) - internal cleanup: 25 -> 16 files, dead code, perf
+
+- Merged 9 small files into their hosts (scheduler constants + dialog templates -> `BountyCallScheduler.cs`; caller NPC -> `BountyConversationRouter.cs`; save data + target helper -> `BountyPersistence.cs`; target watchdog -> `BountyService.cs`; dead-drop patch + identifier -> `BountyReceiptService.cs`; time helper -> `Mod.cs`). Class/namespace names, JSON fields, quest ids and console words unchanged.
+- Removed the dead MONOMELON alias branches (IL2CPP-only build) and dead members (`FailPursuitDays`, `ActiveSlotKey`, `SetJournalState`, `TryRefreshDisplayTitle`, `CancelQuest`, unused `excludeCount`); `ResolveCallerIndex` deduplicated (3 -> 1).
+- Perf: receipt reflection handles (`GetAllItemsSafe`/`IsPolaroid`/`ReadIntValue`) resolved once per runtime type; `QuestManager.Quests` field cached; debug log strings stripped from Release builds via the shared `ModLogger` `[Conditional("DEBUG")]`.
+- No behaviour change intended. Build 0 errors; 2026-10-02 session smoke: loads clean (log-verified).
+
 ## 0.2.9 (2026-09-15)
 - Host-authority check consolidated into `S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer`; the previously local fail-open branch (catch => true) has been removed. When an authority exception occurs without an owned save, the payout is now aborted instead of blindly continuing. The MONOMELON dead branch was removed along with it (workspace builds exclusively IL2CPP).
 - **Schedule I 0.4.7f6 (Open Beta) compatibility — `NPCDeathPatch`:** vanilla `NPCHealth.npc` no longer exists on the beta game assembly (CS1061 against the live 0.4.7f6). The patch now resolves the owning NPC via `GetComponent<S1NPC>()` on the health component — the same pattern S1API uses. Local decompiles in `GameReferences/` still reflect 0.4.6f13 and show the old field.

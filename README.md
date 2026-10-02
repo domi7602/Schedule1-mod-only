@@ -43,20 +43,20 @@ Status legend: **Active** = released and verified in-game · **Active ¹** = cod
 
 | Mod | Category | Version | Status | Description |
 |---|---|---|---|---|
-| [**NotesApp**](Source/Mods/NotesApp/) | Phone | 1.0.3 | Active | In-game notepad with real-time search, pinning, quick in-game timestamps and keyboard shortcuts. Notes are saved atomically per save slot. |
-| [**CalculatorApp**](Source/Mods/CalculatorApp/) | Phone | 0.2.3 | Active | Decimal-precision calculator with live cash/bank quick-insert chips, clipboard support and a searchable history. |
-| [**PotScanner**](Source/Mods/PotScanner/) | Phone | 0.7.0 | Active | Monitors every grow pot across your properties: filter tabs (thirsty / ready / empty), quality ratings, Water-All and Auto-Water, plus `pot` console commands — in the shared BankApp-style palette. |
-| [**BankApp**](Source/Mods/BankApp/) | Phone | 0.4.4 | Active | Mobile banking dashboard: deposit and withdraw cash via quick-amount chips, weekly ATM-limit progress and slot-isolated transaction history. |
-| [**PocketShop**](Source/Mods/PocketShop/) | Phone | 0.3.9 | Active | Shop from your phone. Follows each shop's vanilla payment type (cash vs. card), enforces level locks and offers a quantity picker and item detail view. |
-| [**Weather**](Source/Mods/Weather/) | Phone | 0.4.1 | Active ¹ | Read-only weather dashboard: accent-bordered hero card with an intensity pill and ring gauge over nine live condition rows that tint themselves while active. |
-| [**MessagesPlus**](Source/Mods/MessagesPlus/) | Phone / QoL | 0.4.1 | Active ¹ | Sticky search band under the vanilla title (live name search, category chips, unread counter) plus a "⋯" menu with Clear Read / Clear All and a **permanent whole-app dark mode**. |
-| [**HitmanPhone**](Source/Mods/HitmanPhone/) | Gameplay | 0.2.9 | Active | Bounty contracts via the Messages app: anonymous callers, Polaroid evidence dead-drops, police heat and journal quests. |
-| [**CustomSkateboard**](Source/Mods/CustomSkateboard/) | Gameplay | 1.1.5 | Active | Adds the *Pro Cyber Skateboard* with tuned carving and jump physics, anti-gravel suspension and purchase through Jeff Gilmore. |
-| [**BusinessIncome**](Source/Mods/BusinessIncome/) | Gameplay | 0.1.7 | Active | Daily passive income for owned businesses with multiplayer host authority, deterministic variance and a `biz` console dashboard. |
-| [**AutoPackagingStation**](Source/Mods/AutoPackagingStation/) | Gameplay | 0.3.3 | Active | Placeable automated packaging line (conveyor belt, weighted quality mixing, auto-unpack) with a 2×2 footprint, unlocked at Hustler I rank. |
-| [**MoreSaveSlots**](Source/Mods/MoreSaveSlots/) | QoL | 1.0.12 | Active | Raises the save-slot count from 5 to 25 (configurable) with paginated menus and inline save renaming. |
-| [**StackLimitMod**](Source/Mods/StackLimitMod/) | QoL | 0.1.7 | Active | Configurable stack limits (default 40, 1–9999) for agriculture items (soil, seeds, baggies, jars, fertiliser, harvested crops); weapons and ammo always keep their vanilla limits. |
-| [**TaxiDriver**](Source/Mods/TaxiDriver/) | Developer | 0.8.0 | Experimental | Orderable taxi from the in-game phone with its own NPC driver: vehicle spawn, autonomous A→B navigation, player ride, GLB visual swap, road-corridor assistance and an in-game fare meter. Still a spike — the current test round is open. |
+| [**NotesApp**](Source/Mods/NotesApp/) | Phone | 1.0.4 | Active | In-game notepad with real-time search, pinning, quick in-game timestamps and keyboard shortcuts. Notes are saved atomically per save slot. |
+| [**CalculatorApp**](Source/Mods/CalculatorApp/) | Phone | 0.2.4 | Active | Decimal-precision calculator with live cash/bank quick-insert chips, clipboard support and a searchable history. |
+| [**PotScanner**](Source/Mods/PotScanner/) | Phone | 0.7.1 | Active | Monitors every grow pot across your properties: filter tabs (thirsty / ready / empty), quality ratings, Water-All and Auto-Water, plus `pot` console commands — in the shared BankApp-style palette. |
+| [**BankApp**](Source/Mods/BankApp/) | Phone | 0.4.5 | Active | Mobile banking dashboard: deposit and withdraw cash via quick-amount chips, weekly ATM-limit progress and slot-isolated transaction history. |
+| [**PocketShop**](Source/Mods/PocketShop/) | Phone | 0.3.10 | Active | Shop from your phone. Follows each shop's vanilla payment type (cash vs. card), enforces level locks and offers a quantity picker and item detail view. |
+| [**Weather**](Source/Mods/Weather/) | Phone | 0.4.2 | Active ¹ | Read-only weather dashboard: accent-bordered hero card with an intensity pill and ring gauge over nine live condition rows that tint themselves while active. |
+| [**MessagesPlus**](Source/Mods/MessagesPlus/) | Phone / QoL | 0.5.0 | Active ¹ | Sticky search band under the vanilla title (live name search, category chips, unread counter) plus a "⋯" menu with Clear Read / Clear All and a **permanent whole-app dark mode**. |
+| [**HitmanPhone**](Source/Mods/HitmanPhone/) | Gameplay | 0.3.0 | Active | Bounty contracts via the Messages app: anonymous callers, Polaroid evidence dead-drops, police heat and journal quests. |
+| [**CustomSkateboard**](Source/Mods/CustomSkateboard/) | Gameplay | 1.1.6 | Active | Adds the *Pro Cyber Skateboard* with tuned carving and jump physics, anti-gravel suspension and purchase through Jeff Gilmore. |
+| [**BusinessIncome**](Source/Mods/BusinessIncome/) | Gameplay | 0.1.8 | Active | Daily passive income for owned businesses with multiplayer host authority, deterministic variance and a `biz` console dashboard. |
+| [**AutoPackagingStation**](Source/Mods/AutoPackagingStation/) | Gameplay | 0.3.4 | Active | Placeable automated packaging line (conveyor belt, weighted quality mixing, auto-unpack) with a 2×2 footprint, unlocked at Hustler I rank. |
+| [**MoreSaveSlots**](Source/Mods/MoreSaveSlots/) | QoL | 1.0.13 | Active | Raises the save-slot count from 5 to 25 (configurable) with paginated menus and inline save renaming. |
+| [**StackLimitMod**](Source/Mods/StackLimitMod/) | QoL | 0.1.8 | Active | Configurable stack limits (default 40, 1–9999) for agriculture items (soil, seeds, baggies, jars, fertiliser, harvested crops); weapons and ammo always keep their vanilla limits. |
+| [**TaxiDriver**](Source/Mods/TaxiDriver/) | Developer | 0.8.1 | Experimental | Orderable taxi from the in-game phone with its own NPC driver: vehicle spawn, autonomous A→B navigation, player ride, GLB visual swap, road-corridor assistance and an in-game fare meter. Still a spike — the current test round is open. |
 
 Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not built or shipped): BackpackMod, DayCounter, HomelessMod, Minimap, ProfitTracker, SnackVendor, TVBrowser, `_DiagPerfCounter`. Each mod folder contains its own documentation (`Source/Mods/<Mod>/docs/README.md`) and version history (`Source/Mods/<Mod>/docs/CHANGELOG.md`).
 
@@ -66,48 +66,48 @@ Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not 
   <tr>
     <td align="center" width="25%">
       <img src="Source/Mods/NotesApp/assets/notiz_app_lowpoly_fancy.png" width="64" alt="NotesApp icon"><br>
-      <b>NotesApp</b> · v1.0.3<br>
+      <b>NotesApp</b> · v1.0.4<br>
       <sub>Notepad on your phone with search, pins and in-game timestamps.</sub><br>
       <a href="Source/Mods/NotesApp/docs/README.md">Docs</a> · <a href="Source/Mods/NotesApp/docs/CHANGELOG.md">Changelog</a>
     </td>
     <td align="center" width="25%">
       <img src="Source/Mods/PotScanner/assets/PotScannerIcon.png" width="64" alt="PotScanner icon"><br>
-      <b>PotScanner</b> · v0.7.0<br>
+      <b>PotScanner</b> · v0.7.1<br>
       <sub>All grow pots at a glance, Water-All and Auto-Water.</sub><br>
       <a href="Source/Mods/PotScanner/docs/README.md">Docs</a> · <a href="Source/Mods/PotScanner/docs/CHANGELOG.md">Changelog</a>
     </td>
     <td align="center" width="25%">
       <img src="Source/Mods/BankApp/assets/bank_icon.png" width="64" alt="BankApp icon"><br>
-      <b>BankApp</b> · v0.4.4<br>
+      <b>BankApp</b> · v0.4.5<br>
       <sub>Deposit and withdraw from anywhere, weekly limit tracking.</sub><br>
       <a href="Source/Mods/BankApp/docs/README.md">Docs</a> · <a href="Source/Mods/BankApp/docs/CHANGELOG.md">Changelog</a>
     </td>
     <td align="center" width="25%">
       <img src="Source/Mods/PocketShop/assets/pocketshop_icon.png" width="64" alt="PocketShop icon"><br>
-      <b>PocketShop</b> · v0.3.9<br>
+      <b>PocketShop</b> · v0.3.10<br>
       <sub>Order from every shop through the phone, vanilla payment rules.</sub><br>
       <a href="Source/Mods/PocketShop/docs/README.md">Docs</a> · <a href="Source/Mods/PocketShop/docs/CHANGELOG.md">Changelog</a>
     </td>
   </tr>
   <tr>
     <td align="center" width="25%">
-      <b>AutoPackagingStation</b> · v0.3.3<br>
+      <b>AutoPackagingStation</b> · v0.3.4<br>
       <sub>Automated packaging line with conveyor and quality mixing.</sub><br>
       <a href="Source/Mods/AutoPackagingStation/docs/README.md">Docs</a> · <a href="Source/Mods/AutoPackagingStation/docs/CHANGELOG.md">Changelog</a>
     </td>
     <td align="center" width="25%">
-      <b>HitmanPhone</b> · v0.2.9<br>
+      <b>HitmanPhone</b> · v0.3.0<br>
       <sub>Bounty contracts, evidence dead-drops and police heat.</sub><br>
       <a href="Source/Mods/HitmanPhone/docs/README.md">Docs</a> · <a href="Source/Mods/HitmanPhone/docs/CHANGELOG.md">Changelog</a>
     </td>
     <td align="center" width="25%">
       <img src="Source/Mods/CustomSkateboard/assets/icon.png" width="64" alt="CustomSkateboard icon"><br>
-      <b>CustomSkateboard</b> · v1.1.5<br>
+      <b>CustomSkateboard</b> · v1.1.6<br>
       <sub>High-performance skateboard sold by Jeff Gilmore.</sub><br>
       <a href="Source/Mods/CustomSkateboard/docs/README.md">Docs</a> · <a href="Source/Mods/CustomSkateboard/docs/CHANGELOG.md">Changelog</a>
     </td>
     <td align="center" width="25%">
-      <b>MoreSaveSlots</b> · v1.0.12<br>
+      <b>MoreSaveSlots</b> · v1.0.13<br>
       <sub>25 save slots with pagination and renaming.</sub><br>
       <a href="Source/Mods/MoreSaveSlots/docs/README.md">Docs</a> · <a href="Source/Mods/MoreSaveSlots/docs/CHANGELOG.md">Changelog</a>
     </td>

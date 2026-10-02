@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.8 (2026-10-02) - internal cleanup: models merge, cached slot state
+
+- `BusinessRevenueLine` + `PayoutState` -> `Models.cs`; `ConfigJsonStore` -> `PayoutStateStore.cs` (10 -> 8 files); dead members removed (`IsBusinessPaid`, `SchemaVersion`, write-only line fields).
+- Perf: `GetState` serves the cached state and re-probes the save slot only on cache miss (writes still resolve the live slot). Money ordering untouched.
+- 2026-10-02 session smoke: loads clean (log-verified).
+
 ## 0.1.7 (2026-10-02) - payout notifications show a real icon
 
 - **Both payout banners** (the normal revenue notification and the "booked — save FAILED" warning) now pass a real sprite instead of `null` — previously the HUD notification rendered as an empty white square.

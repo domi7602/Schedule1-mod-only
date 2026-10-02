@@ -1,6 +1,12 @@
 # Changelog
 
-## 1.0.12 (2026-09-13) — S-05: dead DEL/EDIT buttons (invisible modals) fixed
+## 1.0.13 (2026-10-02) - internal cleanup: merge + per-frame caching
+
+- `MenuScreenPatches` merged into `SaveManagerPatches.cs` (11 -> 10 files); dead `Instance` removed.
+- Perf: the active scene name is cached (set on scene load); `EventSystem.current` is cached and re-resolved on fake-null; the `SLOT <n>` regex checks were replaced with `StartsWith` + `int.TryParse`.
+- No behaviour change intended. 2026-10-02 session smoke: loads clean (log-verified).
+
+## 1.0.12 (2026-09-13) - S-05: dead DEL/EDIT buttons (invisible modals) fixed
 S-05 fix "dead DEL/EDIT buttons": The rename/delete modals selected an arbitrary, unsorted canvas via `FindObjectsByType<Canvas>()[0]` — if they landed behind the menu canvas they opened invisibly and their fullscreen dimmer swallowed all clicks (menu appeared dead, ESC healed it). Now: (1) `UIHelper.FindDialogCanvas()` selects the canvas of the SaveDisplay UI stack (fallback: root canvas with highest `sortingOrder`), (2) each modal gets its own sorting overlay (`overrideSorting`, `sortingOrder` 1000) + its own `GraphicRaycaster`, (3) `SetAsLastSibling` on re-open. Click handlers were never broken — the routing behind them was.
 
 ## 1.0.11 (2026-09-13) — Savegame dupe fix (ghost cards)

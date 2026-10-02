@@ -1,6 +1,12 @@
 # Changelog - AutoPackagingStation
 
-## 0.3.3 (2026-09-20) — Fix: Baggie clones floating above the machine during unpack
+## 0.3.4 (2026-10-02) - internal cleanup: dead legacy buffer UI removed (-511 lines), perf
+
+- Removed the unreachable custom-buffer API (`TryExtractInputProduct`/`TryExtractInputPackaging`/`TryExtractOutputProduct`, `TryExtractAll`, `TryDepositProduct`/`TryDepositPackaging` - superseded by the native canvas in v0.2.8) plus dead `SpawnStationAt`, `ActiveStations` and the `CreateSaveData(string, ...)` overload.
+- Perf: the F-raycast + focus probe run only on F-keydown frames, the Escape focus probe only on Escape frames; the native `PackagingStation` component is cached; `ResolvePackagedItemId` is memoized (invalidated on save load).
+- No behaviour change intended. Tests 28/28; 2026-10-02 session smoke: loads + patch clean (log-verified).
+
+## 0.3.3 (2026-09-20) - Fix: Baggie clones floating above the machine during unpack
 - **Root cause (live finding, user report):** During auto-unpack, vanilla renders the returned empty packages at the native `PackagingAlignments`/`ActivePackagingAlignent` points. These transforms are NOT part of the slot positions hidden in `HideBaseRenderers` — on our custom station (vanilla chassis hidden), up to 8 "baggie clones" floated freely above the housing and glitched into the machine when the UI opened. Visible only during unpack, since only this flow returns packages.
 - **Fix:** `HideBaseRenderers` now additionally parks `ActivePackagingAlignent`, all `PackagingAlignments[]`, and `ActiveProductAlignments[]` invisibly (scale 0, moved below the base) — same technique as for the slot positions. Applies exclusively to AutoPack stations; vanilla machines are unaffected (their display remains intact).
 - Storage/inventory data was correct at all times (purely visual issue).

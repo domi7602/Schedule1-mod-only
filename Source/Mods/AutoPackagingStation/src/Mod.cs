@@ -13,7 +13,7 @@ using S1API.Lifecycle;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(AutoPackagingStation.Mod), "AutoPackagingStation", "0.3.3", "Dominik")]
+[assembly: MelonInfo(typeof(AutoPackagingStation.Mod), "AutoPackagingStation", "0.3.4", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace AutoPackagingStation;

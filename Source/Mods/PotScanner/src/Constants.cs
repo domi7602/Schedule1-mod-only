@@ -3,7 +3,7 @@ namespace PotScanner.Utils;
 public static class Constants
 {
     public const string ModName = "PotScanner";
-    public const string ModVersion = "0.7.0";
+    public const string ModVersion = "0.7.1";
     public const string ModAuthor = "Dominik";
     public const float PotRefreshIntervalSec = 2f;
     /// <summary>Slow scan cadence while the phone app is closed and Auto-Water is off (no UI to feed, no watering to do).</summary>
