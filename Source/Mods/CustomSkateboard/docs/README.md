@@ -63,6 +63,6 @@ Verified in-game on Schedule I v0.4.6f13 (2026-09-15, v1.1.5). Not yet re-verifi
 dotnet build Source/Mods/CustomSkateboard/src/CustomSkateboard.csproj -c Release
 ```
 
-Source layout: `src/Mod.cs` (entry, config bootstrap), `SkateboardConfig.cs`, `SkateboardItemFactory.cs` (item definition), `SkateboardSellerInjector.cs` (dialogue injection), `SkateboardVisualPatches.cs` + `CyberSkateboardVisualizer.cs` (deck swap, underglow), `ObjLoader.cs` (runtime OBJ loading with winding correction), `SkateboardConsoleCommand.cs`. The 3D model is regenerated with `assets/generate_skateboard.py` (Blender).
+Source layout: `src/Mod.cs` (entry, config bootstrap), `SkateboardConfig.cs`, `SkateboardItemFactory.cs` (item definition), `SkateboardSellerInjector.cs` (dialogue injection), `SkateboardVisualPatches.cs` + `CyberSkateboardVisualizer.cs` (deck swap, underglow, merged runtime OBJ loading), `SkateboardConsoleCommand.cs`. The 3D model is regenerated with `assets/generate_skateboard.py` (Blender).
 
 Author: Dominik · License: MIT (see repository `LICENSE`).

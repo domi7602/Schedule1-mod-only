@@ -160,7 +160,7 @@ GameLifecycle.OnPreLoad        += OnPreLoad;        // before new save loads →
 **Fix — ConfigJsonStore sidecar:**
 
 ```csharp
-// Services/ConfigJsonStore.cs
+// Services/PayoutStateStore.cs (ConfigJsonStore class)
 public static class ConfigJsonStore {
     private static readonly string Path = SafeStorage.GetUserDataPath("MyMod", "config_extra.json");
     public static void ApplyToConfig(MyConfig cfg) {

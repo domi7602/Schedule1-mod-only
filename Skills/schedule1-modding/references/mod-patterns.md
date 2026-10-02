@@ -40,7 +40,7 @@ public sealed class MyApp : PhoneApp
 
 **Key constraints:**
 - Container is a *cloned template* of an in-game app; treat it as opaque.
-- Use `UITheme.Sp/Dp` (Method 3) for all sizes — see `references/ui-and-s1api.md`. **Delegate to `S1Mods.Shared.UITheme`** (Shared/UITheme.cs) — `InitializeForTextApp` (750f) or `InitializeForDashboard` (900f); never duplicate a local UITheme class.
+- Use `UITheme.Sp/Dp` (Method 3) for all sizes — see `references/ui-and-s1api.md`. **Delegate to `S1Mods.Shared.UITheme`** (Shared/UiKit.cs) — `InitializeForTextApp` (750f) or `InitializeForDashboard` (900f); never duplicate a local UITheme class.
 - For text input: register an `InputFocus` MonoBehaviour (NotesAppInputFocus pattern, see AGENTS.md §5).
 - For persistence: `SafeStorage.SaveAtomic(...)` on `OnApplicationQuit`.
 - **Subscription lifetime (Rule 10, 2026-08-20):** `OnCreated` fires ONCE per scene. Never `Unsubscribe(MelonEvents.OnUpdate)` or `-=` static events inside `OnPhoneClosed` — app goes blank after first close. Defensive `-=`-before-`+=` only in `OnCreated`. Details: `schedule1-phoneapp` SKILL Rule 10 + `schedule1-s1api/references/lifecycle.md` §7.
@@ -93,11 +93,12 @@ public override void OnGUI()
 }
 ```
 
-### HotkeyManager + InputField-Focus-Guard
+### InputField-Focus-Guard (HotkeyManager)
 ```csharp
 using S1Mods.Shared;
-HotkeyManager.Bind(KeyCode.F7, () => _enabled = !_enabled);
-if (HotkeyManager.IsInputFieldFocused()) return; // skip toggle when user types
+if (HotkeyManager.IsInputFieldFocused()) return; // skip your own hotkey handling while the user types
+// The instance-based hotkey router was removed 2026-10-02 — mods drive their own
+// Input.GetKeyDown loops (TaxiDriver, MoreSaveSlots); only the focus guard remains.
 ```
 
 **Reference impl:** DayCounter — IMGUI HUD + drag/drop + 4 anchor presets + persistence via MelonPreferences.
@@ -246,7 +247,7 @@ cfg.OnChanged += (_, _) => Refresh();
 ModConfig<MyModConfig>.Initialize("MyMod");
 ConfigJsonStore.ApplyToConfig(ModConfig<MyModConfig>.Instance);  // merge dicts
 
-// ConfigJsonStore (see BusinessIncome/Services/ConfigJsonStore.cs)
+// ConfigJsonStore (see BusinessIncome/Services/PayoutStateStore.cs)
 public static void ApplyToConfig(MyModConfig cfg) { /* LoadSafe + merge */ }
 public static void Save(MyModConfig cfg)          { /* SaveAtomic */ }
 ```

@@ -1,6 +1,6 @@
 # Slot Isolation
 
-Per-save files: `slot_{SaveSlotNumber}.json`. See `CalculatorState.cs`, `NotesApp.cs`, `PayoutStateStore.cs`, `BankState.cs`.
+Per-save files: `slot_{SaveSlotNumber}.json`. See `CalculatorState.cs`, `NotesApp.cs`, `PayoutStateStore.cs`, `BankModels.cs`.
 
 ### Robust Slot Suffix Derivation (IL2CPP Triple Guard + >= 0 Check)
 

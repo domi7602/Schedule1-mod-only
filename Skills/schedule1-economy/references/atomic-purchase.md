@@ -1,6 +1,6 @@
 # Atomic Purchase (PocketShop Reference)
 
-Complete sequence from `PocketShop/src/Services/PurchaseService.cs:114` (verified v0.2.1, `PocketShop/UI/UITheme.cs` delegates to Shared).
+Complete sequence from `PocketShop/src/Services/PurchaseService.cs:114` (verified v0.2.1, `Shared/UiKit.cs`).
 
 ```csharp
 // 1. Validate definition + qty + stock

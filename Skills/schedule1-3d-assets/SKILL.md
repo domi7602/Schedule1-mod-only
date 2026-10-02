@@ -35,7 +35,7 @@ flowchart TD
 
 | Pipeline | File format | Loader / Tool | When to use? |
 |---|---|---|---|
-| **1. ObjLoader (Lightweight)** | `.obj` | `ObjLoader.cs` (in `Shared`/Mod) | Backpacks, hats, weapons, hand-items, signs, deco. Loads directly from `UserData/<Mod>/models/`. |
+| **1. ObjLoader (Lightweight)** | `.obj` | `CyberSkateboardVisualizer.cs` (CustomSkateboard; ObjLoader merged 2026-10-02) | Backpacks, hats, weapons, hand-items, signs, deco. Loads directly from `UserData/<Mod>/models/`. |
 | **2. S1MAPI GltfLoader** | `.glb` / `.gltf` | `S1MAPI.ProceduralMesh.GltfLoader` | Full PBR models with embedded textures, furniture, vehicles, building interiors. |
 | **3. Procedural Meshes** | C# code | `ProceduralMeshBuilder` / `Mesh` | Sleeping bags, crates, UI meshes, dynamic geometric shapes without external files. |
 | **4. Unity AssetBundle** | `.bundle` | `AssetBundle.LoadFromFile` | Animated characters, complex skeleton rigs, particle effects, custom shaders. |

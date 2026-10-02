@@ -68,7 +68,7 @@ The dependency rules are spelled out in [`docs/architecture.md`](../../docs/arch
 | `ModConfig<T>` | Typed MelonPreferences wrapper with auto-save and change events | PotScanner, CustomSkateboard, PocketShop, BankApp, BusinessIncome, MessagesPlus |
 | `ModLogger` | `[ModName]`-prefixed logging (`Info`, `Warn`, `Error`, `Debug`) | most mods (e.g. BankApp, PocketShop, HitmanPhone, TaxiDriver) |
 | `SafeInvoker` | try/catch wrapper for callbacks so one failing handler cannot stop the Unity loop | used internally by `SceneGate`; covered by `Shared.Tests` |
-| `HotkeyManager` | Allocation-free hotkey router with modifier handling and InputField focus protection | AutoPackagingStation |
+| `HotkeyManager` | InputField focus guard (`IsInputFieldFocused`); the instance hotkey router was removed 2026-10-02 | AutoPackagingStation |
 | `GameObjectResolver`, `TypeResolver` | Cached deep component search; type lookup across loaded assemblies | AutoPackagingStation (`TypeResolver`); `GameObjectResolver` currently unused by active mods |
 | `EconomyHelper`, `AudioHelper`, `ShopListingSync` | Money helpers, sound playback, shop-listing synchronisation | BankApp (`EconomyHelper`, `AudioHelper`), PocketShop (`AudioHelper`), AutoPackagingStation (`AudioHelper`, `ShopListingSync`) |
 

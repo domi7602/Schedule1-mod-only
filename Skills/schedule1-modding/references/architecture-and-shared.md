@@ -55,7 +55,7 @@ Use `ModConfig<T>` to bind strongly-typed C# models to `UserData/MelonPreference
 
 **Fix pattern — JSON sidecar via SafeStorage:**
 ```csharp
-// Services/ConfigJsonStore.cs
+// Services/PayoutStateStore.cs (ConfigJsonStore class)
 public static class ConfigJsonStore
 {
     private static readonly string SavePath = SafeStorage.GetUserDataPath("MyMod", "config_extra.json");
