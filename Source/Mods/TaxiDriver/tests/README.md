@@ -35,3 +35,21 @@
 Keep `MelonLoader/Latest.log` immediately after a test. Include `[patrol]`,
 `[meter]`, `[driver]` and `[nav]` lines plus the relevant obstacle, route and
 pause/time-speed settings. Do not claim a gameplay pass from the build alone.
+
+## Paket 1 v2 checklist (2026-10-02)
+
+| Test | Success criterion |
+|---|---|
+| Bungalow six times | One dispatch; five `duplicate pick ignored`; no repeated "releasing the game's patrol driver". |
+| `navCalc` stays active | Documented fallback (`start self-test failed` → mod dispatch) no later than 8 s after the dispatch. |
+| Crawl only, no drive start | Startup protection stays armed; no fare (`standing (FREE)`, never `meter armed`). |
+| Pickup reached, do not board | Taxi holds (parked); a drift logs `[guard]` + is stopped — none of the unexplained 12 m drift. |
+| Exit during a calculation | One ride end (`[drive] stopped`); a later callback logs `stale callback … ignored`. |
+| Arrival at the destination | Route ends, drive stops, taxi stays parked (`[park]`), no ghost motion. |
+| Speed spike > 2.5 km/h, then standstill | No start confirmation from the impulse (needs 0.5 s held) — protection stays effective. |
+| New ride right after a ride end, then an old callback | The new ride is unaffected (order tokens). |
+| Pause during startup/calculation | No recovery in the pause; after resume only the remaining time runs. |
+| Spawn | `[tune]` log shows `StuckTimeThreshold 15 -> 6` (per-agent); `UserData/TaxiDriver/tuning.json` exists. |
+
+The `[probe]` double-read (`autoDriving1/2`, `navCalc1/2` + pointers in one line) is the
+evidence for the old `[nav]`/`[hb]` flag mismatch — include it if a stall fires.

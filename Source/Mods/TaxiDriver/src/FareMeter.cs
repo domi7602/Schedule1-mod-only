@@ -50,7 +50,7 @@ internal static class FareMeter
         public int DollarsPerInGameMinute { get; set; } = 1;
 
         /// <summary>Below this speed the car counts as standing (meter pauses).</summary>
-        public float MovingSpeedThresholdKmh { get; set; } = 0.5f;
+        public float MovingSpeedThresholdKmh { get; set; } = 3f;
     }
 
     private static FareConfig? _config;
@@ -64,6 +64,7 @@ internal static class FareMeter
     private static int _lastTickFrame = -1;
     private static int _billedMinutes;
     private static bool _wasMoving;
+    private static bool _armed;
     private static bool _paused;
     private static int _nextChargeLogAt = 10;
     private static float _lastClockRate = -1f;
@@ -98,7 +99,20 @@ internal static class FareMeter
 
             if (float.IsNaN(_config.MovingSpeedThresholdKmh) || float.IsInfinity(_config.MovingSpeedThresholdKmh) ||
                 _config.MovingSpeedThresholdKmh < 0.1f)
-                _config.MovingSpeedThresholdKmh = 0.5f;
+                _config.MovingSpeedThresholdKmh = 3f;
+
+            // Review 2026-10-02 (point 6): the 0.5 km/h legacy threshold counted the
+            // physics creep (parking-speed crawl) as motion — the 2026-10-01 test ride
+            // billed $9 for ~2 m of crawl. The migration is REAL (file rewritten) and
+            // logs both values, so a later deliberate change is not overwritten again.
+            if (_config.MovingSpeedThresholdKmh <= 0.5f)
+            {
+                float old = _config.MovingSpeedThresholdKmh;
+                _config.MovingSpeedThresholdKmh = 3f;
+                SafeStorage.SaveAtomic(FilePath, _config, Mod.Log);
+                Mod.Log.Warn(
+                    $"[meter] legacy threshold migrated: {old:0.###} -> 3 km/h (creep no longer billed); {FilePath} updated.");
+            }
             Mod.Log.Info($"[meter] loaded {FilePath}: Enabled={_config.Enabled}, DollarsPerInGameMinute={_config.DollarsPerInGameMinute}, MovingSpeedThresholdKmh={_config.MovingSpeedThresholdKmh:0.###}.");
             if (_config.DollarsPerInGameMinute != 1)
                 Mod.Log.Warn("[meter] fare.json differs from requested $1 rate; keeping the explicit config. Set DollarsPerInGameMinute=1 for $1 per full moving second at normal speed.");
@@ -129,6 +143,7 @@ internal static class FareMeter
         _lastTickFrame = -1;
         _billedMinutes = 0;
         _wasMoving = false;
+        _armed = false;
         _paused = false;
         _nextChargeLogAt = 10;
         _lastClockRate = -1f;
@@ -211,6 +226,12 @@ internal static class FareMeter
         }
 
         bool moving = !float.IsNaN(speed) && !float.IsInfinity(speed) && speed > 0f && speed >= cfg.MovingSpeedThresholdKmh;
+        if (moving && !_armed)
+        {
+            _armed = true;
+            Mod.Log.Info(
+                $"[meter] armed — first confirmed motion above {cfg.MovingSpeedThresholdKmh:0.###} km/h; the time before this moment is discarded.");
+        }
         if (moving != _wasMoving)
             Mod.Log.Info($"[meter] {(moving ? "moving" : "standing (FREE)")}: speed={speed:0.###} km/h, accumulated={_movingMinutes:0.###} moving in-game minutes, charged=${_chargedTotal}, frame={Time.frameCount}.");
         bool countInterval = moving && _wasMoving;

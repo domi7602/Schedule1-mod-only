@@ -51,6 +51,10 @@ internal static class TaxiAI
     private static IntPtr LastDestroyedPatrol;
     private static int LastDestroyedPatrolFrame = -1;
 
+    private static float _lastDeactivateWarnAt;
+    private static string _lastDeactivateMessage = string.Empty;
+    private static int _deactivateSuppressed;
+
     /// <summary>The runtime-built route handed to the game's behaviour.</summary>
     private static VehiclePatrolRoute? Route;
 
@@ -234,8 +238,9 @@ internal static class TaxiAI
     /// Every step is logged BEFORE it runs: if the game hangs inside one of them, the
     /// last line in the log names the step (the lesson from the earlier freeze reports).
     /// </summary>
-    internal static bool StartPatrol(NPC? driver, LandVehicle? veh, Vector3 arrival, string label)
+    internal static bool StartPatrol(NPC? driver, LandVehicle? veh, Vector3 arrival, string label, out Vector3 resolvedTarget)
     {
+        resolvedTarget = arrival;
         StopPatrol("restart");
 
         if (driver == null || veh == null)
@@ -250,30 +255,9 @@ internal static class TaxiAI
         {
             Vector3 from = veh.transform.position;
 
-            // The game's route wants Transform objects, not vectors: two throwaway
-            // waypoint objects, kept alive in WaypointObjects until StopPatrol.
-            GameObject start = new GameObject("TaxiPatrol_Waypoint_0");
-            start.transform.position = from;
-            GameObject goal = new GameObject("TaxiPatrol_Waypoint_1");
-            goal.transform.position = arrival;
-            WaypointObjects.Add(start);
-            WaypointObjects.Add(goal);
-
-            RouteLabel = label;
-            Route = new VehiclePatrolRoute();
-            Route.RouteName = $"Taxi - {label}";
-            Route.Waypoints = new Il2CppReferenceArray<Transform>(new[] { start.transform, goal.transform });
-            Route.StartWaypointIndex = 0;
-
-            Mod.Log.Info(
-                $"[patrol] route '{Route.RouteName}': {Route.Waypoints.Length} waypoints " +
-                $"{TaxiDestinations.Fmt(from)} -> {TaxiDestinations.Fmt(arrival)}.");
-
-            // Reuse the prefab's own component when there is one (a police officer
-            // prefab carries a VehiclePatrolBehaviour field — the game configures and
-            // activates it in PoliceOfficer.StartVehiclePatrol); only add one when the
-            // driver is a plain NPC. Adding a second behaviour to an NPC that already
-            // has one is the kind of thing that fights itself.
+            // Attach/reuse the behaviour FIRST (review 2026-10-02, point 8): the game's
+            // own reachability check needs the instance, and its answer decides the ONE
+            // point that route, NavTarget and drop-off all use afterwards.
             Patrol = driver.GetComponent<VehiclePatrolBehaviour>();
             // Unity Destroy is deferred until frame end. Never reuse a component
             // already scheduled for destruction during a same-frame route change.
@@ -319,6 +303,30 @@ internal static class TaxiAI
 
             Patrol.Vehicle = veh;
             Patrol.aggressiveDrivingEnabled = false;
+
+            // Resolve the dispatch target BEFORE the route is built (review point 8) —
+            // the same point goes into the route, NavTarget and the drop-off note.
+            resolvedTarget = ResolveDispatchTarget(arrival, label);
+
+            // The game's route wants Transform objects, not vectors: two throwaway
+            // waypoint objects, kept alive in WaypointObjects until StopPatrol.
+            GameObject start = new GameObject("TaxiPatrol_Waypoint_0");
+            start.transform.position = from;
+            GameObject goal = new GameObject("TaxiPatrol_Waypoint_1");
+            goal.transform.position = resolvedTarget;
+            WaypointObjects.Add(start);
+            WaypointObjects.Add(goal);
+
+            RouteLabel = label;
+            Route = new VehiclePatrolRoute();
+            Route.RouteName = $"Taxi - {label}";
+            Route.Waypoints = new Il2CppReferenceArray<Transform>(new[] { start.transform, goal.transform });
+            Route.StartWaypointIndex = 0;
+
+            Mod.Log.Info(
+                $"[patrol] route '{Route.RouteName}': {Route.Waypoints.Length} waypoints " +
+                $"{TaxiDestinations.Fmt(from)} -> {TaxiDestinations.Fmt(resolvedTarget)}.");
+
             Patrol.SetRoute(Route);
             Mod.Log.Info($"[patrol] SetRoute done (CurrentWaypoint={Patrol.CurrentWaypoint}).");
 
@@ -331,7 +339,6 @@ internal static class TaxiAI
                 $"[patrol] StartPatrol done (CurrentWaypoint={Patrol.CurrentWaypoint}, isDriving={Patrol.isDriving}) " +
                 "— THE GAME DRIVES NOW, the mod only supervises.");
 
-            LogReachability(arrival, label);
             return true;
         }
         catch (Exception ex)
@@ -339,45 +346,54 @@ internal static class TaxiAI
             Mod.Log.Error(
                 $"[patrol] cloning the game's patrol driver failed ({ex.GetType().Name}: {ex.Message}) — " +
                 "falling back to the mod's own Navigate() dispatch.");
+            resolvedTarget = arrival;
             StopPatrol("start failed");
             return false;
         }
     }
 
     /// <summary>
-    /// Lets the game's own arrival rule speak: <c>IsAsCloseAsPossible</c> answers
-    /// "can the car reach this point, and if not, where would it end up". Logged as a
-    /// warning, not used as a hard gate — the call is unproven and must not be able to
-    /// refuse a ride on its own.
+    /// Review 2026-10-02, point 8: resolves the ONE dispatch target before the route is
+    /// built. <c>IsAsCloseAsPossible</c> stays advisory (its semantics are not fully
+    /// proven): a meaningful delta (≥ 0.5 m) rebinds to the game's closest reachable
+    /// point; a zero-delta "unreachable" verdict keeps the exact point (logged), with
+    /// the 8 s start self-test covering the ride.
     /// </summary>
-    private static void LogReachability(Vector3 arrival, string label)
+    private static Vector3 ResolveDispatchTarget(Vector3 arrival, string label)
     {
         if (Patrol == null)
-            return;
+            return arrival;
 
+        const float rebindMeters = 0.5f;
         try
         {
             bool reachable = Patrol.IsAsCloseAsPossible(arrival, out Vector3 closest);
             float delta = Vector3.Distance(arrival, closest);
-            // bug6 (2026-09-29): the game's own "where would I end up" is now USED, not
-            // just logged - an unreachable goal rebinds the ride target to the reachable
-            // point so the arrival verdict is honest instead of "24 m short".
-            if (!reachable && delta > 1f && !SpikeState.RideArrived)
+
+            if (!reachable && delta >= rebindMeters)
             {
-                SpikeState.NavTarget = closest;
-                SpikeState.RideDropOff = "reachable point (game's own arrival check)";
                 Mod.Log.Warn(
-                    $"[ai] '{label}': the goal is not reachable - the ride now aims at the game's " +
-                    $"closest reachable point {TaxiDestinations.Fmt(closest)} ({TaxiDestinations.Num(delta)} m from the wanted point).");
+                    $"[ai] '{label}': the goal is not reachable — aiming at the game's closest reachable point " +
+                    $"{TaxiDestinations.Fmt(closest)} ({TaxiDestinations.Num(delta)} m from the wanted point).");
+                return closest;
             }
-            string verdict = reachable
-                ? $"yes (the route ends {TaxiDestinations.Num(delta)} m from the wanted point)"
-                : $"NO — the game would end {TaxiDestinations.Num(delta)} m away, at {TaxiDestinations.Fmt(closest)}";
-            Mod.Log.Info($"[ai] the game's own arrival check for '{label}': reachable={verdict}.");
+
+            if (!reachable)
+            {
+                Mod.Log.Warn(
+                    $"[ai] '{label}': the game reports the goal unreachable although its closest point matches it " +
+                    $"(delta {TaxiDestinations.Num(delta)} m) — keeping the exact point; the start self-test covers the ride.");
+                return arrival;
+            }
+
+            Mod.Log.Info(
+                $"[ai] the game's own arrival check for '{label}': reachable (route ends {TaxiDestinations.Num(delta)} m from the wanted point).");
+            return arrival;
         }
         catch (Exception ex)
         {
-            Mod.Log.Warn($"[ai] the game's arrival check threw ({ex.GetType().Name}: {ex.Message}) — no verdict, ride continues.");
+            Mod.Log.Warn($"[ai] the game's arrival check threw ({ex.GetType().Name}: {ex.Message}) — keeping the wanted point.");
+            return arrival;
         }
     }
 
@@ -403,7 +419,7 @@ internal static class TaxiAI
             }
             catch (Exception ex)
             {
-                Mod.Log.Warn($"[patrol] Deactivate() failed ({ex.Message}); disabling the behaviour before releasing it.");
+                ReportDeactivateFailure(ex);
                 try { Patrol.enabled = false; }
                 catch (Exception disableEx) { Mod.Log.Warn($"[patrol] disabling failed: {disableEx.Message}"); }
             }
@@ -452,5 +468,50 @@ internal static class TaxiAI
 
         if (had && !string.Equals(reason, "restart", StringComparison.Ordinal))
             Mod.Log.Info($"[patrol] released ({reason}).");
+    }
+
+    /// <summary>
+    /// Review 2026-10-02: the first occurrence of a Deactivate() failure is logged with
+    /// the full exception and a wiring snapshot (a quieter log alone would repair
+    /// nothing); repeats of the SAME error are throttled to one report per 30 s, and a
+    /// DIFFERENT error always logs immediately.
+    /// </summary>
+    private static void ReportDeactivateFailure(Exception ex)
+    {
+        string message = $"{ex.GetType().Name}: {ex.Message}";
+        float now = Time.unscaledTime;
+        bool sameAsLast = string.Equals(message, _lastDeactivateMessage, StringComparison.Ordinal);
+        if (sameAsLast && now - _lastDeactivateWarnAt < 30f)
+        {
+            _deactivateSuppressed++;
+            return;
+        }
+
+        string suppressed = _deactivateSuppressed > 0
+            ? $" ({_deactivateSuppressed} repeats suppressed since the last report)"
+            : string.Empty;
+        _deactivateSuppressed = 0;
+        _lastDeactivateWarnAt = now;
+        _lastDeactivateMessage = message;
+
+        string snapshot;
+        try
+        {
+            snapshot = Patrol == null
+                ? "behaviour gone"
+                : $"enabled={Patrol.enabled} activeAndEnabled={Patrol.isActiveAndEnabled} " +
+                  $"vehicle={(Patrol.Vehicle == null ? "null" : "set")} " +
+                  $"route={(Patrol.Route == null ? "null" : "set")} " +
+                  $"wp={Patrol.CurrentWaypoint} isDriving={Patrol.isDriving} " +
+                  $"beh={(Patrol.beh == null ? "null" : "set")} ptr=0x{Patrol.Pointer.ToInt64():X}";
+        }
+        catch (Exception snapshotEx)
+        {
+            snapshot = $"<snapshot failed: {snapshotEx.Message}>";
+        }
+
+        Mod.Log.Warn(
+            $"[patrol] Deactivate() failed ({message}){suppressed} — wiring snapshot: {snapshot}; " +
+            $"disabling + removing the behaviour.\n{ex}");
     }
 }

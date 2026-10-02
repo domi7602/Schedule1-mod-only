@@ -423,8 +423,9 @@ internal static class RoadKeeper
         return true;
     }
 
-    /// <summary>Last-resort startup rescue. Prefer the live road corridor, never an occupied point.</summary>
-    internal static bool TryRescueStartup(LandVehicle veh, VehicleAgent agent)
+    /// <summary>Last-resort rescue. Prefer the live road corridor, never an occupied point.</summary>
+    /// <param name="context">Who triggered the rescue (used verbatim in the log lines).</param>
+    internal static bool TryRescueStartup(LandVehicle veh, VehicleAgent agent, string context = "startup")
     {
         Vector3 position = veh.transform.position;
         Vector3 closest = position;
@@ -438,7 +439,7 @@ internal static class RoadKeeper
         if (!TryFindFreeSpot(veh, closest, direction, out Vector3 spot,
                 skipOrigin: Vector3.Distance(closest, position) < 0.5f))
         {
-            Mod.Log.Warn("[patrol] startup rescue: TryFindFreeSpot found no free point; no blind teleport.");
+            Mod.Log.Warn($"[patrol] {context} rescue: TryFindFreeSpot found no free point; no blind teleport.");
             return false;
         }
         Vector3 flatDirection = new Vector3(direction.x, 0f, direction.z);
@@ -451,7 +452,7 @@ internal static class RoadKeeper
                 rotation = rotation * Quaternion.Euler(0f, 180f, 0f);
             else
             {
-                Mod.Log.Warn("[patrol] startup rescue: free point blocked on both ends; not relocating.");
+                Mod.Log.Warn($"[patrol] {context} rescue: free point blocked on both ends; not relocating.");
                 return false;
             }
         }
@@ -473,7 +474,7 @@ internal static class RoadKeeper
         }
         if (!grounded || !SpikeCommands.TryGetVehicleBoxWorldBounds(veh, out Vector3 boxMin, out _))
         {
-            Mod.Log.Warn("[patrol] startup rescue: no safe ground at free point; not relocating.");
+            Mod.Log.Warn($"[patrol] {context} rescue: no safe ground at free point; not relocating.");
             return false;
         }
         spot.y = groundY + (position.y - boxMin.y) + 0.05f;
@@ -481,7 +482,7 @@ internal static class RoadKeeper
             return false;
         ApplyPosition(veh, spot, rotation, zeroVelocity: true);
         Physics.SyncTransforms();
-        Mod.Log.Warn($"[patrol] startup rescue: placed at {SpikeCommands.Fmt(spot)} (TryFindFreeSpot, oriented box clear).");
+        Mod.Log.Warn($"[patrol] {context} rescue: placed at {SpikeCommands.Fmt(spot)} (TryFindFreeSpot, oriented box clear).");
         return true;
     }
 }

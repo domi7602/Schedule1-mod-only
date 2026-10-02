@@ -45,11 +45,20 @@ internal static class SpikeState
     /// <summary><see cref="Time.unscaledTime"/> of the settings=null retry, 0 when it never fired.</summary>
     internal static float NavRetryAt;
 
-    /// <summary>Keeps the managed navigation callback alive for the whole run (IL2CPP delegate).</summary>
-    internal static Action<VehicleAgent.ENavigationResult>? NavCallback;
+    /// <summary>
+    /// Current navigation order (review 2026-10-02): every dispatch bumps this
+    /// monotonically, and each Navigate call carries its order in its callback closure.
+    /// Callbacks only affect the matching order. Deliberately NEVER reset — not by
+    /// <see cref="ResetNavigation"/>, ride ends or save reloads — so a late callback
+    /// can never be mistaken for the current order (review 2026-10-02, point 2).
+    /// </summary>
+    internal static int NavOrder;
 
-    /// <summary>Last <c>ENavigationResult</c> reported by the callback, null when none arrived.</summary>
+    /// <summary>Last <c>ENavigationResult</c> reported by the matching-order callback, null when none arrived.</summary>
     internal static string? NavCallbackResult;
+
+    /// <summary>Next navigation order (monotonic; see <see cref="NavOrder"/>).</summary>
+    internal static int NextNavOrder() => ++NavOrder;
 
     // ---- Deferred respawn (freeze guard, review B2/M1) ----
     /// <summary>Code of a spawn that is waiting for its own tick (never destroy + spawn in one frame).</summary>
@@ -237,7 +246,7 @@ internal static class SpikeState
         NavEverAutoDriving = false;
         NavRetried = false;
         NavRetryAt = 0f;
-        NavCallback = null;
+        // NavOrder deliberately NOT reset — it must stay monotonic (see its doc).
         NavCallbackResult = null;
         NavToPlayer = false;
         NavGaveUp = false;

@@ -23,7 +23,7 @@ internal static class SpikeRunner
 
     // ------------------------------------------- Stage 3d progress supervision
 
-    /// <summary>Motion (metres) that counts as progress in the watchdog window.</summary>
+    /// <summary>Motion (metres) that counts as the reverse-manoeuvre effect check.</summary>
     private const float ProgressEpsilonMeters = 0.5f;
 
     /// <summary>
@@ -35,18 +35,152 @@ internal static class SpikeRunner
     private const float StuckWindowSeconds = 5f;
     private const float StaticObstacleStuckSeconds = 2.5f;
     private const float StartupStuckSeconds = 3f;
+
+    // ------------------------- Paket 1 (review 2026-10-02): stuck hardening -------
+
+    /// <summary>
+    /// Fixed start deadline after a dispatch (review point 1) - extended only by a real
+    /// pause, never by navCalc and never by a duplicate destination pick.
+    /// </summary>
+    private const float DriveSelfTestSeconds = 8f;
+
+    /// <summary>Sustained speed that proves a real drive start - a single physics or collision impulse must not.</summary>
+    private const float DriveStartSustainKmh = 2.5f;
+    private const float DriveStartSustainSeconds = 0.5f;
+
+    /// <summary>Net approach (start distance - best distance, NOT summed jitter) that proves a drive start.</summary>
+    private const float DriveStartApproachMeters = 4f;
+
+    /// <summary>Cap on one uninterrupted path-calculation phase before it counts as a stall (review point 4).</summary>
+    private const float NavCalcGraceSeconds = 8f;
+
+    /// <summary>
+    /// Running-stall criteria (review point 2): progress needs the AVERAGE speed over
+    /// the window or a net approach - a 0.5 km/h crawl can reach neither before the
+    /// window expires. The 2 m approach alternative is deliberately generous
+    /// (1.44 km/h direct approach).
+    /// </summary>
+    private const float ProgressAvgKmh = 5f;
+    private const float ProgressApproachMeters = 2f;
+
+    /// <summary>Second reverse attempt length (the first is <see cref="ReverseSeconds"/>).</summary>
+    private const float ReverseSecondsLong = 3f;
+
+    /// <summary>Free-spot rescues allowed per ride - never a blind teleport loop.</summary>
+    private const int MaxFreeSpotRescuesPerRide = 2;
+
+    /// <summary>Idle guard: speed above this while no valid order runs counts as ghost motion.</summary>
+    private const float IdleGuardSpeedKmh = 0.5f;
+    private const float IdleGuardSeconds = 1f;
+    private const int IdleGuardMaxAttempts = 3;
+
+    /// <summary>Exit debounce (review 2026-10-02): the seat flag has been seen to flap for a frame.</summary>
+    private const float PlayerOutDebounceSeconds = 0.3f;
+
     private static bool _startupArmed;
-    private static bool _startupReversePending;
-    private static Vector3 _startupOrigin;
     private static float _startupAt;
     private static bool _recoveryOwnsNavigation;
+
+    private static bool _selfTestActive;
+    private static int _selfTestOrder = -1;
+    private static float _selfTestAt;
+
+    private static int _proofOrder = -1;
+    private static bool _driveStartConfirmed;
+    private static float _proofStartDistance;
+    private static float _proofBestDistance;
+    private static float _proofSpeedSince;
+
+    private static float _navCalcSince;
+
+    private static float _windowStartDistance;
+    private static float _windowBestDistance;
+
+    private static int _reverseAttempt;
+    private static Vector3 _reverseOrigin;
+    private static int _freeSpotRescues;
+
+    private static float _playerOutSince;
+    private static float _idleMovingSince;
+    private static int _idleStopAttempts;
 
     internal static void ArmStartupRecovery(LandVehicle veh)
     {
         _startupArmed = true;
-        _startupReversePending = false;
-        _startupOrigin = veh.transform.position;
         _startupAt = Time.unscaledTime;
+    }
+
+    /// <summary>Patrol dispatch: the 8 s self-test owns the start, the startup rescue stays out (review point 1).</summary>
+    internal static void DisarmStartupRecovery()
+    {
+        _startupArmed = false;
+    }
+
+    /// <summary>Arms the fixed start deadline for a patrol dispatch (order-bound).</summary>
+    internal static void ArmPatrolSelfTest(int order)
+    {
+        _selfTestActive = true;
+        _selfTestOrder = order;
+        _selfTestAt = Time.unscaledTime;
+    }
+
+    /// <summary>
+    /// Fresh progress window for a dispatch: position, start distance and the best
+    /// (smallest) distance seen. All of them reset TOGETHER - a stale "best" would make
+    /// the approach test pass instantly and blind the watchdog (review point 2).
+    /// </summary>
+    internal static void ArmProgressWindow(LandVehicle veh)
+    {
+        Vector3 position = veh.transform.position;
+        SpikeState.ProgressFrom = position;
+        SpikeState.ProgressWindowStart = Time.unscaledTime;
+        _windowStartDistance = Vector3.Distance(position, SpikeState.NavTarget);
+        _windowBestDistance = _windowStartDistance;
+    }
+
+    /// <summary>Callback factory for a fresh navigation order (review point 4).</summary>
+    internal static Action<VehicleAgent.ENavigationResult> NavigationCallbackFor(int order) =>
+        result => OnNavigationResult(order, result);
+
+    /// <summary>
+    /// Review 2026-10-02, point 3: the central stop. Invalidates the current order FIRST,
+    /// then releases the patrol, stops reverse + navigation, parks the car and clears
+    /// every private drive flag. Used by exit, arrival, give-up and STOP; the idle guard
+    /// verifies the standstill afterwards.
+    /// </summary>
+    internal static void StopDriving(string reason)
+    {
+        SpikeState.NextNavOrder(); // (1) invalidate every in-flight order
+        TaxiAI.StopPatrol(reason); // (2) release the game's driver
+
+        LandVehicle? veh = SpikeState.Vehicle;
+        if (veh != null && veh.Pointer != IntPtr.Zero)
+        {
+            try
+            {
+                veh.Agent?.StopReversing();
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"[drive] StopReversing() failed ({reason}): {ex.Message}");
+            }
+
+            SpikeCommands.ParkCar(veh, reason);
+        }
+
+        SpikeState.ResetNavigation();
+        _startupArmed = false;
+        _selfTestActive = false;
+        _selfTestOrder = -1;
+        _proofOrder = -1;
+        _driveStartConfirmed = false;
+        _proofSpeedSince = 0f;
+        _navCalcSince = 0f;
+        _reverseAttempt = 0;
+        _freeSpotRescues = 0;
+        _idleMovingSince = 0f;
+        _idleStopAttempts = 0;
+        Mod.Log.Info($"[drive] stopped ({reason}) — order invalidated, patrol released, navigation off, car parked.");
     }
 
     /// <summary>Free space (metres) required behind the car before recovery #1 may reverse.</summary>
@@ -97,11 +231,15 @@ internal static class SpikeRunner
     {
         try
         {
+            if (Time.timeScale == 0f)
+                ShiftPauseDeadlines();
+
             TickPendingSpawn();
             TickLotDump();
             HandleHotkey();
             TickAutoRun();
             TickRide();
+            TickIdleGuard();
             RoadKeeper.Tick();
             TickSettleLog();
             TickNavigationPolling();
@@ -119,6 +257,326 @@ internal static class SpikeRunner
                 _updateErrorLogged = true;
                 Mod.Log.Error($"SpikeRunner.Update threw (further occurrences are suppressed until one clean tick): {ex}");
             }
+        }
+    }
+
+    /// <summary>
+    /// Review 2026-10-02: extends every drive deadline by exactly one unscaled frame
+    /// while the game is paused, so no recovery fires in a pause and the remaining time
+    /// after resuming is exactly what was left before.
+    /// </summary>
+    private static void ShiftPauseDeadlines()
+    {
+        float dt = Time.unscaledDeltaTime;
+        if (SpikeState.NavReDispatchAt > 0f)
+            SpikeState.NavReDispatchAt += dt;
+        if (SpikeState.NavStartTime > 0f)
+            SpikeState.NavStartTime += dt;
+        if (_startupAt > 0f)
+            _startupAt += dt;
+        if (_selfTestAt > 0f)
+            _selfTestAt += dt;
+        if (_navCalcSince > 0f)
+            _navCalcSince += dt;
+        if (_proofSpeedSince > 0f)
+            _proofSpeedSince += dt;
+        if (_playerOutSince > 0f)
+            _playerOutSince += dt;
+        if (_idleMovingSince > 0f)
+            _idleMovingSince += dt;
+        if (SpikeState.ProgressWindowStart > 0f)
+            SpikeState.ProgressWindowStart = Time.unscaledTime; // the window must not age through a pause
+    }
+
+    // ------------------------------------------- drive-start proof (review 2026-10-02)
+
+    /// <summary>
+    /// Proves a REAL drive start for the current order (review point 1): the speed must
+    /// hold for <see cref="DriveStartSustainSeconds"/> (a single physics/collision
+    /// impulse must not disarm anything), or the car must have approached the target by
+    /// <see cref="DriveStartApproachMeters"/> net (start distance - BEST distance, not
+    /// the sum of jitter). Shared by the startup rescue and the patrol self-test.
+    /// </summary>
+    private static void UpdateDriveStartProof(LandVehicle veh, Vector3 position, float distance, float now)
+    {
+        if (_proofOrder != SpikeState.NavOrder)
+        {
+            _proofOrder = SpikeState.NavOrder;
+            _driveStartConfirmed = false;
+            _proofStartDistance = distance;
+            _proofBestDistance = distance;
+            _proofSpeedSince = 0f;
+        }
+
+        if (_driveStartConfirmed)
+            return;
+
+        float speed = 0f;
+        try
+        {
+            speed = Mathf.Abs(veh.Speed_Kmh);
+        }
+        catch (Exception)
+        {
+            // cosmetic only
+        }
+
+        if (speed >= DriveStartSustainKmh)
+        {
+            if (_proofSpeedSince <= 0f)
+                _proofSpeedSince = now;
+            else if (now - _proofSpeedSince >= DriveStartSustainSeconds)
+            {
+                _driveStartConfirmed = true;
+                Mod.Log.Info(
+                    $"[drive] start confirmed by speed ({TaxiDestinations.Num(speed)} km/h held {DriveStartSustainSeconds:0.0} s, order {SpikeState.NavOrder}).");
+                return;
+            }
+        }
+        else
+        {
+            _proofSpeedSince = 0f;
+        }
+
+        if (distance < _proofBestDistance)
+            _proofBestDistance = distance;
+        if (_proofStartDistance - _proofBestDistance >= DriveStartApproachMeters)
+        {
+            _driveStartConfirmed = true;
+            Mod.Log.Info(
+                $"[drive] start confirmed by approach ({TaxiDestinations.Num(_proofStartDistance - _proofBestDistance)} m net toward the target, order {SpikeState.NavOrder}).");
+        }
+    }
+
+    /// <summary>
+    /// Running-stall progress check (review point 2): the window only resets on an
+    /// average speed of <see cref="ProgressAvgKmh"/> over the window or
+    /// <see cref="ProgressApproachMeters"/> of net approach. Returns false while a
+    /// freshly opened window has not evaluated yet.
+    /// </summary>
+    private static bool EvaluateProgress(Vector3 position, float distance, float now)
+    {
+        if (SpikeState.ProgressWindowStart <= 0f)
+        {
+            SpikeState.ProgressFrom = position;
+            SpikeState.ProgressWindowStart = now;
+            _windowStartDistance = distance;
+            _windowBestDistance = distance;
+            return false; // a fresh window never counts as progress (and never as a stall)
+        }
+
+        _windowBestDistance = Mathf.Min(_windowBestDistance, distance);
+        float window = now - SpikeState.ProgressWindowStart;
+        float moved = Vector3.Distance(position, SpikeState.ProgressFrom);
+
+        bool fastEnough = window > 0.05f && moved / window * 3.6f >= ProgressAvgKmh;
+        bool approached = _windowStartDistance - _windowBestDistance >= ProgressApproachMeters;
+        if (!fastEnough && !approached)
+            return false;
+
+        SpikeState.ProgressFrom = position;
+        SpikeState.ProgressWindowStart = now;
+        _windowStartDistance = distance;
+        _windowBestDistance = distance;
+        return true;
+    }
+
+    /// <summary>
+    /// Free-spot rescue with a per-ride budget (review 2026-10-02): used when the rear
+    /// is blocked or a reverse provably did not move the car. Never a blind teleport -
+    /// <see cref="RoadKeeper.TryRescueStartup"/> checks the oriented box, ground and
+    /// occupancy first.
+    /// </summary>
+    private static bool TryFreeSpotRescue(LandVehicle veh, VehicleAgent agent, string context)
+    {
+        if (_freeSpotRescues >= MaxFreeSpotRescuesPerRide)
+        {
+            Mod.Log.Warn(
+                $"[patrol] {context}: free-spot rescue budget exhausted ({_freeSpotRescues}/{MaxFreeSpotRescuesPerRide}) — not relocating again.");
+            return false;
+        }
+
+        if (!RoadKeeper.TryRescueStartup(veh, agent, context))
+            return false;
+
+        _freeSpotRescues++;
+        return true;
+    }
+
+    /// <summary>
+    /// Review point 4 forensics: the same agent is read twice back-to-back in one line
+    /// (pointers + order included) — settles whether the [nav]/[hb] flag mismatch is
+    /// temporal or tied to different instances.
+    /// </summary>
+    private static void LogAgentProbe(string context)
+    {
+        LandVehicle? veh = SpikeState.Vehicle;
+        try
+        {
+            VehicleAgent? agent = veh == null ? null : veh.Agent;
+            if (veh == null || agent == null)
+            {
+                Mod.Log.Warn($"[probe] {context}: no live vehicle/agent (veh={(veh == null ? "null" : "ok")}).");
+                return;
+            }
+
+            bool a1 = agent.AutoDriving;
+            bool n1 = agent.NavigationCalculationInProgress;
+            bool a2 = agent.AutoDriving;
+            bool n2 = agent.NavigationCalculationInProgress;
+
+            float speed = -1f;
+            try
+            {
+                speed = veh.Speed_Kmh;
+            }
+            catch (Exception)
+            {
+                // cosmetic only
+            }
+
+            Mod.Log.Warn(
+                $"[probe] {context}: order={SpikeState.NavOrder} frame={Time.frameCount} " +
+                $"vehPtr=0x{veh.Pointer.ToInt64():X} agentPtr=0x{agent.Pointer.ToInt64():X} " +
+                $"autoDriving1={a1} navCalc1={n1} autoDriving2={a2} navCalc2={n2} " +
+                $"speed={TaxiDestinations.Num(speed)} km/h pos={SpikeCommands.Fmt(veh.transform.position)} " +
+                $"stuck={agent.GetIsStuck()} ahead={DescribeAhead(veh)}");
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[probe] {context}: agent read failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Stall forensics (review 2026-10-02): names the first colliders in front of the
+    /// bumper (object + layer), so the next stall log says WHAT it hit. The game's own
+    /// <c>VehicleAgent.GetForwardObstacle</c> is private on this build — this is the
+    /// equivalent probe, not a behavioural gate.
+    /// </summary>
+    private static string DescribeAhead(LandVehicle veh)
+    {
+        try
+        {
+            Vector3 origin = veh.transform.position + Vector3.up * 0.8f + veh.transform.forward * 2.2f;
+            RaycastHit[] hits = Physics.RaycastAll(origin, veh.transform.forward, 3f, ~0, QueryTriggerInteraction.Ignore);
+            if (hits == null || hits.Length == 0)
+                return "clear";
+
+            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+            var names = new System.Collections.Generic.List<string>(2);
+            foreach (RaycastHit hit in hits)
+            {
+                if (hit.collider == null || hit.transform == null)
+                    continue;
+                if (hit.transform.IsChildOf(veh.transform))
+                    continue;
+
+                names.Add($"'{hit.collider.name}'(layer {hit.collider.gameObject.layer}, {hit.distance:0.0} m)");
+                if (names.Count >= 2)
+                    break;
+            }
+            return names.Count == 0 ? "clear (own colliders ignored)" : string.Join(", ", names);
+        }
+        catch (Exception ex)
+        {
+            return $"<probe failed: {ex.Message}>";
+        }
+    }
+
+    /// <summary>
+    /// Review 2026-10-02, point 5: the idle guard lives on "no valid drive/recovery
+    /// order" - the individual flags are plausibility checks, not the definition. It
+    /// also runs at pickup-arrived and waiting-for-destination; a new dispatch leaves it
+    /// by definition. A player driving the taxi solo is intent, never a ghost.
+    /// </summary>
+    private static void TickIdleGuard()
+    {
+        if (Time.timeScale == 0f)
+            return;
+
+        LandVehicle? veh = SpikeState.Vehicle;
+        if (veh == null || veh.Pointer == IntPtr.Zero)
+        {
+            _idleMovingSince = 0f;
+            _idleStopAttempts = 0;
+            return;
+        }
+
+        bool validOrder = SpikeState.PollingActive || TaxiAI.Active || SpikeState.NavReDispatchAt > 0f ||
+                          SpikeState.AutoRunning || _recoveryOwnsNavigation || _selfTestActive ||
+                          SpikeState.PendingSpawnCode != null;
+        if (validOrder)
+        {
+            _idleMovingSince = 0f;
+            _idleStopAttempts = 0;
+            return;
+        }
+
+        // The player alone at the wheel (no NPC driver) is intent, never a ghost.
+        if (SpikeCommands.SafePlayerInVehicle(veh) && !SpikeCommands.DriverAtWheel(veh))
+        {
+            _idleMovingSince = 0f;
+            _idleStopAttempts = 0;
+            return;
+        }
+
+        float speed;
+        try
+        {
+            speed = Mathf.Abs(veh.Speed_Kmh);
+        }
+        catch (Exception)
+        {
+            return;
+        }
+
+        if (speed < IdleGuardSpeedKmh)
+        {
+            _idleMovingSince = 0f;
+            _idleStopAttempts = 0; // standing = the stop worked; fresh budget next time
+            return;
+        }
+
+        float now = Time.unscaledTime;
+        if (_idleMovingSince <= 0f)
+        {
+            _idleMovingSince = now;
+            return;
+        }
+
+        if (now - _idleMovingSince < IdleGuardSeconds)
+            return;
+
+        _idleMovingSince = now;
+        _idleStopAttempts++;
+        Mod.Log.Warn(
+            $"[guard] the taxi is moving without an active order (speed={TaxiDestinations.Num(speed)} km/h, " +
+            $"attempt {_idleStopAttempts}/{IdleGuardMaxAttempts}, destination='{SpikeState.RideDestinationName}') — stopping it.");
+        LogAgentProbe("idle guard");
+        try
+        {
+            veh.Agent?.StopNavigating();
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[guard] StopNavigating() failed: {ex.Message}");
+        }
+
+        try
+        {
+            veh.BrakesApplied = true;
+            veh.HandbrakeApplied = true;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[guard] setting the brakes failed: {ex.Message}");
+        }
+
+        if (_idleStopAttempts >= IdleGuardMaxAttempts)
+        {
+            Mod.Log.Error("[guard] the taxi keeps moving without an order — press STOP to despawn it (the state is not being stopped silently).");
+            _idleStopAttempts = 0;
         }
     }
 
@@ -523,15 +981,32 @@ internal static class SpikeRunner
         }
 
         // Exit detection: covers the game's own E-exit and `taxi out` / F9.
+        // Review 2026-10-02: the seat flag has been seen to flap for a single frame - a
+        // spurious "player exited" ended a ride the player never left. The exit now only
+        // counts after PlayerOutDebounceSeconds of continuous absence; a re-entry inside
+        // the window cancels it.
         if (!veh.LocalPlayerIsInVehicle)
         {
-            SpikeState.LastExitAt = Time.unscaledTime;
+            float now = Time.unscaledTime;
+            if (_playerOutSince <= 0f)
+            {
+                _playerOutSince = now;
+                return;
+            }
+
+            if (now - _playerOutSince < PlayerOutDebounceSeconds)
+                return;
+
+            _playerOutSince = 0f;
+            SpikeState.LastExitAt = now;
             SpikeCommands.EndRide("player exited", rearm: true);
             // Paket E: the game placed the player somewhere — verify there is ground
             // (the "fell under the map on exit" report). Covers the native E path.
             SpikeCommands.SafeExitGroundSnap(veh);
             return;
         }
+
+        _playerOutSince = 0f;
 
         // The seat trap can re-assert (a game seat update moves the player back onto the
         // driver seat) — fix it every frame while riding.
@@ -639,8 +1114,7 @@ internal static class SpikeRunner
         if (SpikeCommands.EnsureDriverSeat(veh))
         {
             SpikeState.StuckRecoveries--;
-            SpikeState.ProgressFrom = position;
-            SpikeState.ProgressWindowStart = Time.unscaledTime;
+            ArmProgressWindow(veh);
             return;
         }
 
@@ -662,12 +1136,16 @@ internal static class SpikeRunner
                 $"speed={TaxiDestinations.Num(speed)} km/h, {TaxiDestinations.Num(elapsed)} s into the run) — " +
                 $"recovery #1: reverse {TaxiDestinations.Num(ReverseSeconds)} s if rear clear, then re-dispatch.");
 
-            SpikeState.ProgressFrom = position;
-            SpikeState.ProgressWindowStart = Time.unscaledTime;
+            ArmProgressWindow(veh);
 
             // AutoDriving is not evidence of motion: a newly spawned car can be wedged too.
             if (!TryStartReverse(agent, veh, Time.unscaledTime, "navigation recovery"))
-                ReDispatch(agent, SpikeState.NavTarget, "recovery #1 (no reverse)");
+            {
+                if (TryFreeSpotRescue(veh, agent, "navigation recovery"))
+                    ReDispatch(agent, SpikeState.NavTarget, "recovery #1 (free-spot rescue)");
+                else
+                    ReDispatch(agent, SpikeState.NavTarget, "recovery #1 (no reverse)");
+            }
             return;
         }
 
@@ -683,8 +1161,7 @@ internal static class SpikeRunner
                 SpikeState.RideDropOff = "lot entry (fallback after a failed approach)";
                 SpikeState.RideDropOffLot = lot;
                 SpikeState.RideDestination = fallback;
-                SpikeState.ProgressFrom = position;
-                SpikeState.ProgressWindowStart = Time.unscaledTime;
+                ArmProgressWindow(veh);
                 ReDispatch(agent, fallback, "recovery #2 (fallback drop-off)");
                 return;
             }
@@ -702,8 +1179,7 @@ internal static class SpikeRunner
             Mod.Log.Warn(
                 $"[nav] recovery #{SpikeState.StuckRecoveries}: re-dispatching again — the game's own supervision " +
                 $"tolerates {cap} consecutive pathing failures.");
-            SpikeState.ProgressFrom = position;
-            SpikeState.ProgressWindowStart = Time.unscaledTime;
+            ArmProgressWindow(veh);
             ReDispatch(agent, SpikeState.NavTarget, $"recovery #{SpikeState.StuckRecoveries}");
             return;
         }
@@ -738,11 +1214,18 @@ internal static class SpikeRunner
             SpikeCommands.EnsureDriverSeat(veh);
             veh.BrakesApplied = false;
             veh.HandbrakeApplied = false;
+
+            // Review 2026-10-02: the second attempt in the same episode reverses longer
+            // (the first 1.5 s often only unsticks the wheels but not the bumper).
+            _reverseOrigin = veh.transform.position;
+            _reverseAttempt = Math.Min(_reverseAttempt + 1, 2);
+            float seconds = _reverseAttempt >= 2 ? ReverseSecondsLong : ReverseSeconds;
+
             agent.StartReverse();
-            SpikeState.NavReDispatchAt = now + ReverseSeconds;
+            SpikeState.NavReDispatchAt = now + seconds;
             SpikeState.NavReDispatchTarget = SpikeState.NavTarget;
             SpikeState.PollingActive = true;
-            Mod.Log.Warn($"[patrol] {reason}: reversing {ReverseSeconds:0.0}s, rear clear; then redispatch to {SpikeCommands.Fmt(SpikeState.NavTarget)}.");
+            Mod.Log.Warn($"[patrol] {reason}: reversing {seconds:0.0}s (attempt {_reverseAttempt}), rear clear; then redispatch to {SpikeCommands.Fmt(SpikeState.NavTarget)}.");
             return true;
         }
         catch (Exception ex)
@@ -760,19 +1243,25 @@ internal static class SpikeRunner
     {
         if (!_startupArmed || distance <= ArrivalThresholdMeters)
             return false;
-        float speed = Mathf.Abs(veh.Speed_Kmh);
-        if (Vector3.Distance(position, _startupOrigin) >= ProgressEpsilonMeters || speed >= PatrolStandingKmh)
+
+        // Review 2026-10-02: neither an impulse nor a few cm of crawl may disarm the
+        // startup protection any more - only a CONFIRMED drive start does (shared proof).
+        if (_driveStartConfirmed)
         {
             _startupArmed = false;
             return false;
         }
-        if (navCalc)
-        {
-            _startupAt = Time.unscaledTime; // path calculation is not a startup wedge
+
+        float now = Time.unscaledTime;
+
+        // A path calculation is not a wedge - but only up to the fixed grace cap
+        // (review point 4): a calculation that never finishes must not mask the rescue.
+        if (navCalc && _navCalcSince > 0f && now - _navCalcSince < NavCalcGraceSeconds)
             return false;
-        }
-        if (Time.unscaledTime - _startupAt < StartupStuckSeconds)
+
+        if (now - _startupAt < StartupStuckSeconds)
             return false;
+
         _startupArmed = false; // one startup rescue per dispatch, not a teleport loop
         _recoveryOwnsNavigation = true;
         try { TaxiAI.StopPatrol("startup stuck"); }
@@ -783,16 +1272,20 @@ internal static class SpikeRunner
             _startupAt = Time.unscaledTime;
             return true;
         }
+
         SpikeState.StuckRecoveries++;
-        Mod.Log.Warn("[patrol] startup stuck: under 1 km/h and under 0.5 m motion for 3s; reverse first, free-spot rescue otherwise.");
+        LogAgentProbe("startup stuck");
+        Mod.Log.Warn(
+            $"[patrol] startup stuck: no confirmed drive start after {TaxiDestinations.Num(now - _startupAt)} s " +
+            "(position/speed below the start markers) — reverse first, free-spot rescue otherwise.");
         if (TryStartReverse(agent, veh, Time.unscaledTime, "startup stuck"))
+            return true;
+        if (TryFreeSpotRescue(veh, agent, "startup stuck"))
         {
-            _startupOrigin = position;
-            _startupReversePending = true;
+            ReDispatch(agent, SpikeState.NavTarget, "startup stuck (free-spot rescue)");
             return true;
         }
-        RoadKeeper.TryRescueStartup(veh, agent);
-        ReDispatch(agent, SpikeState.NavTarget, "startup free-spot rescue");
+        ReDispatch(agent, SpikeState.NavTarget, "startup stuck (no reverse, no free spot)");
         return true;
     }
 
@@ -830,56 +1323,80 @@ internal static class SpikeRunner
                 $"[patrol] ARRIVED at {SpikeState.RideDestinationName} — waypoint {waypoint}/{last}, " +
                 $"{TaxiDestinations.Num(distance)} m to the target, speed={TaxiDestinations.Num(speed)} km/h " +
                 $"({(nearTarget ? $"within the {ArrivalThresholdMeters:F0} m threshold" : "standing on the last waypoint")}).");
+            _selfTestActive = false;
             TaxiAI.StopPatrol("arrived");
             SpikeState.PollingActive = false;
             return;
         }
 
-        if (SpikeState.ProgressWindowStart <= 0f)
+        // ---- fixed start deadline (review 2026-10-02, point 1) --------------------
+        // Until a drive start is CONFIRMED (shared proof: sustained speed or real net
+        // approach), the 8 s self-test owns the ride; navCalc and stall ladder stay out.
+        if (_selfTestActive)
         {
-            SpikeState.ProgressFrom = position;
-            SpikeState.ProgressWindowStart = now;
-            return;
+            if (_selfTestOrder != SpikeState.NavOrder)
+            {
+                _selfTestActive = false; // a new dispatch superseded this ride start
+            }
+            else if (_driveStartConfirmed)
+            {
+                _selfTestActive = false;
+                Mod.Log.Info("[patrol] the game's driver passed the start self-test — the stall watchdog takes over.");
+            }
+            else if (now - _selfTestAt >= DriveSelfTestSeconds)
+            {
+                _selfTestActive = false;
+                Mod.Log.Warn(
+                    $"[patrol] start self-test failed — no confirmed drive start within {DriveSelfTestSeconds:0} s " +
+                    $"(waypoint {waypoint}/{last}, {TaxiDestinations.Num(distance)} m to the target, " +
+                    $"speed={TaxiDestinations.Num(speed)} km/h, navCalc={navCalc}) — handing the ride to the mod's Navigate dispatch.");
+                LogAgentProbe("start self-test failed");
+                _recoveryOwnsNavigation = true;
+                try { TaxiAI.StopPatrol("start self-test failed"); }
+                finally { _recoveryOwnsNavigation = false; }
+                ReDispatch(veh.Agent, SpikeState.NavTarget, "patrol start self-test fallback");
+                return;
+            }
         }
 
-        // The game is still calculating the route: the car is standing because it has
-        // not been told where to go yet, not because it is stuck (long routes took
-        // longer than the old 1.5 s window and the patrol was killed mid-thought).
-        if (navCalc)
-        {
-            SpikeState.ProgressFrom = position;
-            SpikeState.ProgressWindowStart = now;
-            return;
-        }
-
-        float moved = Vector3.Distance(position, SpikeState.ProgressFrom);
-        if (moved >= ProgressEpsilonMeters)
+        // ---- running stall watchdog (review point 2) ------------------------------
+        // Progress needs an average speed over the window or a net approach; a crawl
+        // can no longer reset the window, and navCalc only excuses its grace cap.
+        if (EvaluateProgress(position, distance, now))
         {
             if (SpikeState.StuckRecoveries > 0)
-                Mod.Log.Info($"[patrol] progress resumed — {TaxiDestinations.Num(moved)} m after recovery #{SpikeState.StuckRecoveries}.");
+                Mod.Log.Info($"[patrol] progress resumed — the car is moving again after recovery #{SpikeState.StuckRecoveries}.");
             SpikeState.StuckRecoveries = 0;
-            SpikeState.ProgressFrom = position;
-            SpikeState.ProgressWindowStart = now;
+            _reverseAttempt = 0;
             return;
         }
+
+        if (navCalc && _navCalcSince > 0f && now - _navCalcSince < NavCalcGraceSeconds)
+            return; // calculation still inside its grace cap — not a stall yet
 
         bool staticObstacle = RoadKeeper.HasObstacle(veh, position, veh.transform.rotation, staticOnly: true);
         float stallWindow = staticObstacle ? StaticObstacleStuckSeconds : StuckWindowSeconds;
-        if (Mathf.Abs(speed) >= PatrolStandingKmh || now - SpikeState.ProgressWindowStart < stallWindow)
+        if (now - SpikeState.ProgressWindowStart < stallWindow)
             return;
 
         SpikeState.StuckRecoveries++;
         Mod.Log.Warn(
-            $"[patrol] the game's own driver made no progress for {TaxiDestinations.Num(stallWindow)} s (staticObstacle={staticObstacle}) " +
+            $"[patrol] the game's own driver made no progress for {TaxiDestinations.Num(stallWindow)} s " +
+            $"(staticObstacle={staticObstacle}, navCalc={navCalc}) " +
             $"(waypoint {waypoint}/{last}, {TaxiDestinations.Num(distance)} m to the target, " +
             $"speed={TaxiDestinations.Num(speed)} km/h) — releasing it and handing the ride to the mod's dispatch.");
+        LogAgentProbe("patrol stall");
         _recoveryOwnsNavigation = true;
         try { TaxiAI.StopPatrol("stalled"); }
         finally { _recoveryOwnsNavigation = false; }
-        SpikeState.ProgressFrom = position;
-        SpikeState.ProgressWindowStart = Time.unscaledTime;
+        ArmProgressWindow(veh);
         if (!TryStartReverse(veh.Agent, veh, now, "patrol stall"))
-            ReDispatch(agent: veh.Agent, target: SpikeState.NavTarget, why: "patrol stall (no reverse) -> mod dispatch");
+        {
+            if (TryFreeSpotRescue(veh, veh.Agent, "patrol stall"))
+                ReDispatch(veh.Agent, SpikeState.NavTarget, "patrol stall (free-spot rescue)");
+            else
+                ReDispatch(veh.Agent, SpikeState.NavTarget, "patrol stall (no reverse) -> mod dispatch");
+        }
     }
 
     /// <summary>Finishes the reverse manoeuvre and re-dispatches the same route.</summary>
@@ -897,13 +1414,25 @@ internal static class SpikeRunner
             Mod.Log.Warn($"[nav] StopReversing() failed: {ex.Message}");
         }
 
-        if (_startupReversePending)
+        // Review 2026-10-02: a reverse that provably did not move the car escalates —
+        // a second (longer) reverse while possible, then the free-spot rescue.
+        LandVehicle? veh = SpikeState.Vehicle;
+        bool moved = veh == null ||
+                     Vector3.Distance(veh.transform.position, _reverseOrigin) >= ProgressEpsilonMeters;
+        if (!moved && veh != null)
         {
-            _startupReversePending = false;
-            LandVehicle? veh = SpikeState.Vehicle;
-            if (veh != null && Vector3.Distance(veh.transform.position, _startupOrigin) < ProgressEpsilonMeters)
-                RoadKeeper.TryRescueStartup(veh, agent);
+            Mod.Log.Warn($"[patrol] reverse attempt {_reverseAttempt} did not move the car — escalating.");
+            if (_reverseAttempt < 2 && TryStartReverse(agent, veh, Time.unscaledTime, "reverse ineffective"))
+                return;
+            if (TryFreeSpotRescue(veh, agent, "reverse ineffective"))
+            {
+                _reverseAttempt = 0;
+                ReDispatch(agent, target, "post-reverse free-spot rescue");
+                return;
+            }
         }
+
+        _reverseAttempt = 0;
         Mod.Log.Info("[patrol] reverse manoeuvre complete — re-dispatching the route.");
         ReDispatch(agent, target, "post-reverse");
     }
@@ -918,17 +1447,21 @@ internal static class SpikeRunner
         SpikeState.NavCallbackResult = null;
         SpikeState.NavRetried = true;
 
+        // Invalidate first, dispatch second (review 2026-10-02, point 2): the fresh
+        // order owns the callback from here on; a late result of the old order is stale.
+        int order = SpikeState.NextNavOrder();
+
         // The watchdog window must REALLY restart here - the log line below has
         // promised "fresh measurement window" since v0.6.0. Bug evidence (Latest.log
         // 2026-09-29 06:17): TickReDispatch's post-reverse path left ProgressWindowStart
         // stale, so recovery #2 ("cannot reach") fired 0.5 s after the re-dispatch and
-        // dumped the player 24 m from the goal.
-        SpikeState.ProgressWindowStart = Time.unscaledTime;
+        // dumped the player 24 m from the goal. ArmProgressWindow resets position,
+        // window, start distance and best distance together (review point 2).
         try
         {
             LandVehicle? v = SpikeState.Vehicle;
             if (v != null)
-                SpikeState.ProgressFrom = v.transform.position;
+                ArmProgressWindow(v);
         }
         catch (Exception)
         {
@@ -956,8 +1489,8 @@ internal static class SpikeRunner
 
         try
         {
-            agent.Navigate(target, null, SpikeState.NavCallback);
-            Mod.Log.Info($"[nav] {why}: Navigate(settings=null) dispatched to {SpikeCommands.Fmt(target)} — fresh measurement window.");
+            agent.Navigate(target, null, NavigationCallbackFor(order));
+            Mod.Log.Info($"[nav] {why}: Navigate(settings=null) dispatched (order {order}) to {SpikeCommands.Fmt(target)} — fresh measurement window.");
         }
         catch (Exception ex)
         {
@@ -973,6 +1506,7 @@ internal static class SpikeRunner
     {
         SpikeState.PollingActive = false;
         SpikeState.NavGaveUp = true;
+        SpikeState.NextNavOrder(); // invalidate in-flight orders (review point 4)
 
         Mod.Log.Error(
             $"[nav] GAVE UP after {TaxiDestinations.Num(elapsed)} s since the last re-dispatch and {SpikeState.StuckRecoveries} recovery attempt(s) — " +
@@ -1061,10 +1595,17 @@ internal static class SpikeRunner
     /// Invoked by <c>VehicleAgent.Navigate</c> through the interop
     /// <c>NavigationCallback</c> conversion — <c>Failed</c> / <c>Complete</c> /
     /// <c>Stopped</c> is the authoritative end of a run (review M7), so polling stops
-    /// as soon as a result arrives.
+    /// as soon as a result arrives. Order-bound (review 2026-10-02, point 4): a result
+    /// for a superseded order changes nothing.
     /// </summary>
-    internal static void OnNavigationResult(VehicleAgent.ENavigationResult result)
+    internal static void OnNavigationResult(int order, VehicleAgent.ENavigationResult result)
     {
+        if (order != SpikeState.NavOrder)
+        {
+            Mod.Log.Info($"[nav] stale callback order={order} (current={SpikeState.NavOrder}) ignored — no state changed.");
+            return;
+        }
+
         if (_recoveryOwnsNavigation || SpikeState.NavReDispatchAt > 0f)
         {
             Mod.Log.Info($"[patrol] old navigation callback {result} ignored during controlled recovery.");
@@ -1075,7 +1616,7 @@ internal static class SpikeRunner
 
         float elapsed = SpikeState.NavStartTime > 0f ? Time.unscaledTime - SpikeState.NavStartTime : -1f;
         Mod.Log.Info(
-            $"[nav] callback result={text} after {elapsed:F1}s (frame={Time.frameCount}) — " +
+            $"[nav] callback result={text} after {elapsed:F1}s (frame={Time.frameCount}, order={order}) — " +
             "authoritative completion signal, navigation polling stops.");
         SpikeState.PollingActive = false;
 
@@ -1090,10 +1631,14 @@ internal static class SpikeRunner
             Mod.Log.Info(
                 $"[F5] taxi arrived at player (callback=Complete after {elapsed:F1}s, " +
                 $"{dist:F1} m from the resolved target {SpikeCommands.Fmt(SpikeState.NavTarget)}) — board with E or F9.");
+            // Review point 3: a finished pickup is final — order invalidated, car parked,
+            // only then the boarding gate (never a passenger-ride teardown).
+            SpikeCommands.CompletePickup(arrivedVeh, "callback=Complete");
         }
         else if (SpikeState.NavToPlayer)
         {
             Mod.Log.Warn($"[F5] call-taxi run ended WITHOUT arriving at the player (callback={text} after {elapsed:F1}s) — see the [target] lines for the candidate that was dispatched.");
+            SpikeCommands.CompletePickup(SpikeState.Vehicle, $"callback={text}");
         }
     }
 
@@ -1111,15 +1656,10 @@ internal static class SpikeRunner
         if (!SpikeState.PollingActive)
             return;
 
+        // Pauses are handled once per frame in ShiftPauseDeadlines (review 2026-10-02):
+        // no recovery runs during a pause and every deadline keeps its remaining time.
         if (Time.timeScale == 0f)
-        {
-            SpikeState.ProgressWindowStart = Time.unscaledTime;
-            _startupAt = Time.unscaledTime;
-            if (SpikeState.NavReDispatchAt > 0f)
-                SpikeState.NavReDispatchAt += Time.unscaledDeltaTime;
-            SpikeState.NavStartTime += Time.unscaledDeltaTime;
             return;
-        }
         LandVehicle? veh = SpikeState.Vehicle;
         if (veh == null)
         {
@@ -1159,6 +1699,23 @@ internal static class SpikeRunner
             if (autoDriving)
                 SpikeState.NavEverAutoDriving = true;
 
+            // Review 2026-10-02, point 4: one cap per uninterrupted calculation phase.
+            // The phase starts with the first navCalc=true and ends the moment it clears;
+            // the cap never extends the stall timer, it only bounds the navCalc excuse.
+            if (navCalc)
+            {
+                if (_navCalcSince <= 0f)
+                    _navCalcSince = now;
+            }
+            else
+            {
+                _navCalcSince = 0f;
+            }
+
+            Vector3 position = veh.transform.position;
+            float distance = Vector3.Distance(position, SpikeState.NavTarget);
+            UpdateDriveStartProof(veh, position, distance, now);
+
             // A pending post-reverse re-dispatch runs before anything else.
             if (SpikeState.NavReDispatchAt > 0f)
             {
@@ -1169,12 +1726,10 @@ internal static class SpikeRunner
                 return;
             }
 
-            Vector3 position = veh.transform.position;
-            float distance = Vector3.Distance(position, SpikeState.NavTarget);
             if (TickStartupRecovery(agent, veh, position, distance, navCalc))
                 return;
             Mod.Log.Info(
-                $"[nav t={elapsed:F1}s] AutoDriving={autoDriving} navCalc={navCalc} " +
+                $"[nav t={elapsed:F1}s] order={SpikeState.NavOrder} AutoDriving={autoDriving} navCalc={navCalc} " +
                 $"target={SpikeCommands.Fmt(SpikeState.NavTarget)} " +
                 $"vehicle={SpikeCommands.Fmt(position)} distToTarget={distance:F1}m " +
                 $"onVehicleGraph={agent.IsOnVehicleGraph()} stuck={agent.GetIsStuck()} " +
@@ -1187,6 +1742,7 @@ internal static class SpikeRunner
             if (elapsed >= NavigationTimeoutSeconds)
             {
                 SpikeState.PollingActive = false;
+                SpikeState.NextNavOrder(); // stale callbacks must not act afterwards
                 TaxiAI.StopPatrol("navigation timeout");
                 Mod.Log.Warn(
                     $"[nav] timeout after {elapsed:F1}s (limit {NavigationTimeoutSeconds:F0}s, AutoDriving={autoDriving} navCalc={navCalc} " +
@@ -1220,26 +1776,18 @@ internal static class SpikeRunner
             // ROAD A): AutoDriving=True, navCalc=False, speed=0.0 km/h, constant
             // distance for 9.6 s — the old `if (autoDriving) return;` skipped the
             // retry AND the terminal branch, so only the 90 s timeout could end it.
-            // Measure movement instead of trusting flags.
-            float window = SpikeState.ProgressWindowStart <= 0f ? 0f : now - SpikeState.ProgressWindowStart;
-            float moved = Vector3.Distance(position, SpikeState.ProgressFrom);
-            if (SpikeState.ProgressWindowStart <= 0f)
-            {
-                SpikeState.ProgressFrom = position;
-                SpikeState.ProgressWindowStart = now;
-            }
-            else if (moved >= ProgressEpsilonMeters)
+            // Measure movement instead of trusting flags. Since review 2026-10-02 the
+            // bar is an average speed or a net approach — a crawl cannot reset it.
+            if (EvaluateProgress(position, distance, now))
             {
                 if (SpikeState.StuckRecoveries > 0)
-                    Mod.Log.Info(
-                        $"[nav] progress resumed — the car moved {TaxiDestinations.Num(moved)} m " +
-                        $"after recovery #{SpikeState.StuckRecoveries}.");
+                    Mod.Log.Info($"[nav] progress resumed — the car is moving again after recovery #{SpikeState.StuckRecoveries}.");
                 SpikeState.StuckRecoveries = 0;
-                SpikeState.ProgressFrom = position;
-                SpikeState.ProgressWindowStart = now;
+                _reverseAttempt = 0;
             }
-            else if (window >= (RoadKeeper.HasObstacle(veh, position, veh.transform.rotation, staticOnly: true)
-                         ? StaticObstacleStuckSeconds : StuckWindowSeconds) && !navCalc && Mathf.Abs(veh.Speed_Kmh) < PatrolStandingKmh)
+            else if (now - SpikeState.ProgressWindowStart >= (RoadKeeper.HasObstacle(veh, position, veh.transform.rotation, staticOnly: true)
+                         ? StaticObstacleStuckSeconds : StuckWindowSeconds)
+                     && !(navCalc && _navCalcSince > 0f && now - _navCalcSince < NavCalcGraceSeconds))
             {
                 RecoverStuck(agent, veh, position, distance, elapsed, autoDriving);
                 return;
@@ -1258,12 +1806,13 @@ internal static class SpikeRunner
                 // NavigationSettings=null (flag mismatch would show up here).
                 SpikeState.NavRetried = true;
                 SpikeState.NavRetryAt = now;
+                int retryOrder = SpikeState.NextNavOrder();
                 Mod.Log.Info(
                     $"[nav] retry #1: Navigate(target, settings=null, callback) at t={elapsed:F1}s " +
-                    $"(nothing drove with NavigationSettings, no calculation pending) — grace window {RetryGraceSeconds:F0}s starts now.");
+                    $"(order {retryOrder}) (nothing drove with NavigationSettings, no calculation pending) — grace window {RetryGraceSeconds:F0}s starts now.");
                 try
                 {
-                    agent.Navigate(SpikeState.NavTarget, null, SpikeState.NavCallback);
+                    agent.Navigate(SpikeState.NavTarget, null, NavigationCallbackFor(retryOrder));
                 }
                 catch (Exception ex)
                 {
@@ -1302,6 +1851,8 @@ internal static class SpikeRunner
                 $"start={SpikeCommands.Fmt(SpikeState.NavStartPosition)}) " +
                 $"everAutoDriving={SpikeState.NavEverAutoDriving} nullRetryFired={SpikeState.NavRetried} " +
                 $"callback={SpikeState.NavCallbackResult ?? "-"}.");
+            if (SpikeState.NavToPlayer)
+                SpikeCommands.CompletePickup(veh, arrivedWithin ? "polling terminal (arrived)" : "polling terminal (stopped short)");
         }
         catch (Exception ex)
         {

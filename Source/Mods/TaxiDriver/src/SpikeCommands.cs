@@ -1513,24 +1513,14 @@ internal static class SpikeCommands
         SpikeState.ResetRide();
         FareMeter.Stop(reason);
         RideLocks.UnlockTrunk();
-        // Stage 4: the game's patrol behaviour must go with the ride (it is attached to
-        // the NPC, not to the vehicle, so DestroyVehicle alone would leave it running).
-        TaxiAI.StopPatrol(reason);
 
+        // Review 2026-10-02, point 3: exit/arrival/give-up/STOP share ONE stop routine —
+        // order invalidated, patrol released, reverse + navigation stopped, car parked,
+        // runner state cleared. The idle guard verifies the standstill afterwards.
         if (stopNavigation && wasRiding)
-        {
-            try
-            {
-                VehicleAgent? agent = SpikeState.Vehicle?.Agent;
-                if (agent != null)
-                    agent.StopNavigating();
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"VehicleAgent.StopNavigating() during EndRide('{reason}') failed: {ex.Message}");
-            }
-            SpikeState.PollingActive = false;
-        }
+            SpikeRunner.StopDriving(reason);
+        else
+            TaxiAI.StopPatrol(reason);
 
         string rearmNote = string.Empty;
         if (rearm)
@@ -1552,6 +1542,75 @@ internal static class SpikeCommands
     }
 
     /// <summary>
+    /// Review 2026-10-02, point 3: a finished pickup is FINAL — its order is invalidated
+    /// (no pickup recovery, no late callback can act), the car is parked, and only then
+    /// the boarding gate stays open. Never touches passenger-ride state; idempotent.
+    /// </summary>
+    internal static void CompletePickup(LandVehicle? veh, string note)
+    {
+        if (!SpikeState.NavToPlayer)
+            return; // already completed (idempotent)
+
+        SpikeState.NavToPlayer = false;
+        SpikeState.PollingActive = false;
+        SpikeState.NextNavOrder(); // every in-flight pickup order is stale from here on
+        ParkCar(veh, $"pickup finished ({note})");
+    }
+
+    /// <summary>
+    /// Stops the drive and holds the car (brakes + handbrake + navigation off). The
+    /// idle guard re-checks the standstill afterwards; callers that also invalidate
+    /// orders and clear runner state use <see cref="SpikeRunner.StopDriving"/>.
+    /// </summary>
+    internal static void ParkCar(LandVehicle? veh, string reason)
+    {
+        if (veh == null || veh.Pointer == IntPtr.Zero)
+            return;
+
+        try
+        {
+            veh.Agent?.StopNavigating();
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[park] StopNavigating() failed ({reason}): {ex.Message}");
+        }
+
+        try
+        {
+            veh.BrakesApplied = true;
+            veh.HandbrakeApplied = true;
+            Mod.Log.Info($"[park] {reason} — brakes + handbrake set, navigation off.");
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[park] setting the brakes failed ({reason}): {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// True when our NPC driver provably sits in THIS vehicle (never re-boards — that
+    /// is <see cref="EnsureDriverSeat"/>).
+    /// </summary>
+    internal static bool DriverAtWheel(LandVehicle veh)
+    {
+        NPC? npc = SpikeState.DriverNpc;
+        if (npc == null || npc.Pointer == IntPtr.Zero)
+            return false;
+
+        try
+        {
+            LandVehicle? current = SafeVehicle(npc);
+            return SafeInVehicle(npc) && current != null && current.Pointer == veh.Pointer &&
+                   OccupantIndexOf(veh, npc, out _, out _) >= 0;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
     /// Stage 3c — destination picker target (TaxiApp ROAD A / ROAD B / STAND): writes
     /// <see cref="SpikeState.RideDestination"/> + <see cref="SpikeState.RideDestinationName"/>
     /// (both survive rides; the change takes effect on the NEXT ride). STAND is the fixed
@@ -1566,6 +1625,9 @@ internal static class SpikeCommands
         // taxi spawns on that street-side entry on every call-taxi run.
         if (normalized == "STAND")
         {
+            if (IsDuplicatePick(TaxiStand.StandCoordinate, caller))
+                return true;
+
             SpikeState.RideGoal = TaxiStand.StandCoordinate;
             SpikeState.RideDestination = TaxiStand.StandCoordinate;
             SpikeState.RideDestinationName = "Taxi-Stand";
@@ -1583,6 +1645,9 @@ internal static class SpikeCommands
         if (normalized == "ROAD A" || normalized == "ROAD B")
         {
             Vector3 legacy = normalized == "ROAD A" ? RideTargetRoadA : RideTargetRoadB;
+            if (IsDuplicatePick(legacy, caller))
+                return true;
+
             Mod.Log.Warn(
                 $"{caller}: '{normalized}' is a legacy hand-read coordinate {Fmt(legacy)} — " +
                 "prefer a named place from `taxi pois`.");
@@ -1813,7 +1878,9 @@ internal static class SpikeCommands
               $"startDistance={startDistance:F1}m target=({Fmt(target)}) vehicle=({Fmt(veh.transform.position)})");
 
         // State first: a callback that fires inside Navigate must not be overwritten
-        // by bookkeeping that runs after the dispatch (review M7).
+        // by bookkeeping that runs after the dispatch (review M7). Invalidate first,
+        // dispatch second (review 2026-10-02, point 2): the fresh order owns the state.
+        int order = SpikeState.NextNavOrder();
         SpikeState.PollingActive = true;
         SpikeState.NavTarget = target;
         SpikeState.NavStartPosition = veh.transform.position;
@@ -1824,16 +1891,14 @@ internal static class SpikeCommands
         SpikeState.NavRetried = !useSettings;
         SpikeState.NavRetryAt = 0f;
         SpikeState.NavCallbackResult = null;
-        SpikeState.NavCallback = SpikeRunner.OnNavigationResult;
-        // Stage 3d: a fresh dispatch starts a fresh progress window — a stale window
-        // would make the watchdog report "stuck" on the first tick.
-        SpikeState.ProgressFrom = veh.transform.position;
-        SpikeState.ProgressWindowStart = Time.unscaledTime;
         SpikeState.StuckRecoveries = 0;
         SpikeState.NavReDispatchAt = 0f;
         SpikeState.NavReDispatchTarget = Vector3.zero;
         RoadKeeper.Reset();
         SpikeRunner.ArmStartupRecovery(veh);
+        // Stage 3d: a fresh dispatch starts a fresh progress window — position, start
+        // distance and best distance reset together (review 2026-10-02, point 2).
+        SpikeRunner.ArmProgressWindow(veh);
         // Stage 3b: gates the "taxi arrived at player" verdict for the F5 run.
         SpikeState.NavToPlayer = toPlayer;
 
@@ -1842,7 +1907,8 @@ internal static class SpikeCommands
             // Implicit conversion Action<ENavigationResult> -> VehicleAgent.NavigationCallback
             // (public in the interop assembly) — the documented "IL2CPP delegate-ctor
             // pitfall" does not apply to this path, so the vanilla completion signal is used.
-            agent.Navigate(target, settings, SpikeState.NavCallback);
+            // The closure carries this dispatch's order (review point 4).
+            agent.Navigate(target, settings, SpikeRunner.NavigationCallbackFor(order));
         }
         catch (Exception ex)
         {
@@ -1882,6 +1948,10 @@ internal static class SpikeCommands
         if (!TaxiDestinations.ResolveArrival(destination, out TaxiDestinations.Arrival arrival))
             return false;
 
+        // Review 2026-10-02: a repeat pick of the same point never restarts the drive.
+        if (IsDuplicatePick(arrival.Point, caller))
+            return true;
+
         SpikeState.RideGoal = destination.Goal;
         SpikeState.RideDestination = arrival.Point;
         SpikeState.RideDestinationName = destination.Name;
@@ -1899,6 +1969,26 @@ internal static class SpikeCommands
             return ReRoute(caller);
 
         Print($"{caller}: takes effect on the NEXT ride (no ride is running).");
+        return true;
+    }
+
+    /// <summary>
+    /// Review 2026-10-02: a repeat pick of the SAME destination while its dispatch is
+    /// still running is a no-op — the old behaviour restarted patrol + route for every
+    /// tap (six restarts in 25 s in the 2026-10-01 test log). A pick after a give-up or
+    /// for a different point re-dispatches normally.
+    /// </summary>
+    private static bool IsDuplicatePick(Vector3 point, string caller)
+    {
+        bool riding = SpikeState.RideActive || SpikeState.RideBoarded || SpikeState.RidePassengerMode;
+        bool driving = SpikeState.PollingActive || TaxiAI.Active || SpikeState.NavReDispatchAt > 0f;
+        if (!riding || !driving || SpikeState.NavGaveUp || !SpikeState.RideDestination.HasValue)
+            return false;
+
+        if (Vector3.Distance(point, SpikeState.RideDestination.Value) > 1f)
+            return false;
+
+        Print($"{caller}: duplicate pick ignored — already heading to {SpikeState.RideDestinationName} {Fmt(point)}.");
         return true;
     }
 
@@ -1943,23 +2033,61 @@ internal static class SpikeCommands
         // a mid-ride re-route keeps the running total.
         FareMeter.Start();
 
-        if (veh != null && npc != null && TaxiAI.StartPatrol(npc, veh, destination, SpikeState.RideDestinationName))
+        // Invalidate first, dispatch second (review 2026-10-02, point 2): the fresh
+        // order owns the state from here on, including the 8 s start self-test.
+        int order = SpikeState.NextNavOrder();
+
+        // A taxi parked by the previous ride end (StopDriving → ParkCar) must roll free
+        // before the driver takes over — Go() performs the same release for the mod path.
+        if (veh != null)
         {
-            SpikeState.NavTarget = destination;
+            try
+            {
+                if (veh.isParked)
+                    veh.ExitPark(false);
+                if (veh.BrakesApplied)
+                    veh.BrakesApplied = false;
+                if (veh.HandbrakeApplied)
+                    veh.HandbrakeApplied = false;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"{caller}: releasing the parked taxi before the dispatch failed: {ex.Message}");
+            }
+        }
+
+        if (veh != null && npc != null &&
+            TaxiAI.StartPatrol(npc, veh, destination, SpikeState.RideDestinationName, out Vector3 resolvedTarget))
+        {
+            // Review point 8 (reachability): the point the ROUTE was built with is the
+            // single source of truth — NavTarget, ride destination and drop-off all use
+            // it (the old code let LogReachability rebind NavTarget while the route kept
+            // the original point).
+            if (Vector3.Distance(resolvedTarget, destination) > 0.1f)
+            {
+                SpikeState.RideDropOff = "reachable point (game's arrival check)";
+                Mod.Log.Info(
+                    $"{caller}: dispatch target rebound to the game's reachable point " +
+                    $"{TaxiDestinations.Fmt(resolvedTarget)} (wanted {TaxiDestinations.Fmt(destination)}).");
+            }
+            SpikeState.RideDestination = resolvedTarget;
+            SpikeState.NavTarget = resolvedTarget;
             SpikeState.NavStartTime = Time.unscaledTime;
             SpikeState.NavStartPosition = veh.transform.position;
-            SpikeState.NavStartDistance = Vector3.Distance(veh.transform.position, destination);
+            SpikeState.NavStartDistance = Vector3.Distance(veh.transform.position, resolvedTarget);
             SpikeState.NavEverAutoDriving = false;
             SpikeState.NavRetried = false;
             SpikeState.NavCallbackResult = null;
             SpikeState.NavGaveUp = false;
-            SpikeState.ProgressFrom = veh.transform.position;
-            SpikeState.ProgressWindowStart = Time.unscaledTime;
             SpikeState.StuckRecoveries = 0;
             SpikeState.NavReDispatchAt = 0f;
             SpikeState.PollingActive = true;
             RoadKeeper.Reset();
-            SpikeRunner.ArmStartupRecovery(veh);
+            SpikeRunner.ArmProgressWindow(veh);
+            // Review point 1: the 8 s start self-test owns the patrol start; the plain
+            // startup rescue stays out of the way (its old navCalc gate would mask a hang).
+            SpikeRunner.DisarmStartupRecovery();
+            SpikeRunner.ArmPatrolSelfTest(order);
             Mod.Log.Info(
                 $"{caller}: the GAME's patrol driver owns the ride to {SpikeState.RideDestinationName} " +
                 $"({SpikeState.RideDropOff}) — the mod only supervises ([patrol]/[hb] lines).");

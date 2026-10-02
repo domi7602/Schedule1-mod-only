@@ -1,5 +1,80 @@
 # Changelog
 
+## Unreleased (2026-10-02) — Paket 1 v2: Stall-Watchdog, Auftrags-Tokens, Geisterfahrt-Schutz
+
+Basis: Code-Review der Diffs `abb5fc0`/`c984d9c` (GitHub) + Auswertung des Live-Logs
+2026-10-01. Lokal gebaut (**0 Fehler, 2 bekannte CS8604**); **keine** In-Game-Verifikation.
+Kein Versionsbump, kein Commit.
+
+### Fixed
+
+- **Stall-Watchdog blockiert nicht mehr an `navCalc`** (`TickPatrolSupervision`,
+  `TickStartupRecovery`): Die Pfadberechnung bekommt eine feste **8-s-Karenz je
+  zusammenhängender Phase** (`NavCalcGraceSeconds`) — eine nie endende Berechnung kann
+  keinen Stall mehr maskieren, und die Frist verlängert den Stall-Timer nicht.
+- **Feste 8-s-Startfrist für Patrol-Dispatches**: Bis ein Fahrstart **bestätigt** ist —
+  ≥ 2,5 km/h **gehalten für 0,5 s** (ein einzelner Physik-/Kollisionsimpuls zählt nicht)
+  oder ≥ 4 m Netto-Annäherung (Startdistanz − beste Distanz, nicht Summe von Jitter) —
+  gehört der Start dem Selbsttest; ohne Bestätigung nach 8 s wird die Patrol einmalig
+  freigegeben und die Fahrt fällt auf den Mod-`Navigate`-Dispatch zurück.
+- **Fortschritt zeitbezogen**: Das Stall-Fenster setzt nur noch bei **Ø ≥ 5 km/h über das
+  Fenster** oder **≥ 2 m Netto-Annäherung** zurück. Das 0,5-km/h-Kriechen (2026-10-01)
+  kann den Schutz nicht mehr aushebeln.
+- **Reverse-Eskalation**: Ein Reverse, der das Auto nachweislich nicht bewegt, löst einen
+  zweiten, längeren (3 s) Versuch aus, danach die Free-Spot-Rescue
+  (`RoadKeeper.TryRescueStartup`, Budget 2 pro Fahrt) — nie ein blinder Teleport.
+- **Zentraler Stopp** (`SpikeRunner.StopDriving`): Ausstieg, Give-Up und STOP invalidieren
+  den Auftrag, geben die Patrol frei, stoppen Reverse + Navigation, parken das Auto
+  (Bremsen + Handbremse) und räumen alle Runner-Flags; `ResetNavigation()` läuft jetzt
+  wirklich am Fahrtende (vorher nicht).
+- **Bremsen-Freigabe beim nächsten Dispatch**: Ein geparktes Taxi
+  (`StopDriving`/`ParkCar` → Bremsen + Handbremse) wird vor jedem neuen Ride-Dispatch
+  wieder gelöst (`isParked`/`BrakesApplied`/`HandbrakeApplied`) — auch im Patrol-Pfad,
+  der das vorher nicht tat (Go() hatte die Freigabe, StartRideDrive nicht).
+- **Auftrags-Tokens**: Jeder Dispatch zählt `SpikeState.NavOrder` monoton hoch (wird nie
+  zurückgesetzt) und jede `Navigate()`-Closure trägt ihre Order — späte Callbacks werden
+  als `stale callback … ignored` geloggt und ändern nichts.
+- **Pickup endgültig**: Der Abschluss invalidiert den Pickup-Auftrag, parkt das Auto und
+  öffnet erst dann das Boarding-Gate; späte Pickup-Callbacks können nicht mehr wirken.
+- **Pickup-Parken**: Der Pickup-Callback ließ das Auto ungeparkt zurück — Verdacht für die
+  unerklärten 12 m Leerlauf-Bewegung zwischen Ankunft und Boarding (2026-10-01).
+- **Geisterfahrt-/Idle-Wächter**: Solange ein Taxi existiert und **kein gültiger
+  Fahr-/Recovery-Auftrag** läuft (inkl. „Pickup erreicht“ und „wartet auf Ziel“, aber nie
+  ein allein fahrender Spieler), wird Bewegung > 0,5 km/h für 1 s geloggt (`[probe]` +
+  `[guard]`), der Agent gestoppt und die Bremsen gesetzt.
+- **Exit-Entprellung**: Das Seat-Flag flackert nachweislich für Einzelframes — der Ausstieg
+  zählt erst nach 0,3 s durchgehender Abwesenheit.
+- **Erreichbarkeits-Konsistenz**: Die Game-eigene Prüfung (`IsAsCloseAsPossible`) läuft
+  VOR dem Routenbau; **ein** aufgelöster Punkt geht in Route, `NavTarget`, Ride-Ziel und
+  Drop-off-Notiz (Rebinding beratend, nur ab ≥ 0,5 m Delta; `LogReachability` schreibt
+  keinen State mehr).
+- **Duplikat-Picks**: Derselbe Zielpunkt während eines laufenden Dispatches ist ein No-Op
+  (`duplicate pick ignored`) — der 2026-10-01-Log zeigte sechs Patrol-Neustarts in 25 s.
+- **Fare-Migration (echt)**: `fare.json` mit dem Alt-Schwellwert 0,5 km/h wird auf 3 km/h
+  umgeschrieben (alte/neue Werte geloggt); der Zähler wird erst mit bestätigter Bewegung
+  scharf (Zeit davor verworfen).
+- **Agent-Tuning** (Instanz-Felder, nur der Taxi-Agent — kein Spiel-weites Static):
+  neu `UserData/TaxiDriver/tuning.json` (`StuckTimeThresholdSeconds`, Default 6,
+  0 = Game-Default), angewendet beim Spawn (`[tune]`-Log).
+- **Deactivate()-NRE-Diagnose**: Erstes Auftreten je Fehler loggt vollen Stacktrace +
+  Wiring-Snapshot (enabled/activeAndEnabled/vehicle/route/wp/isDriving/beh/Pointer);
+  Wiederholungen desselben Fehlers sind auf 1 Bericht pro 30 s gedrosselt (Zähler).
+
+### Forensics
+
+- `[probe]`-Zeilen (Order, Frame, Fahrzeug-/Agent-Pointer, Doppelleseprobe
+  `AutoDriving`/`navCalc`, Speed, Position, stuck) bei Selbsttest-Fehler, Startup-Stuck,
+  Patrol-Stall und Idle-Guard-Stopps.
+- `[nav]`-Pollingzeilen tragen `order=`; neu: `[drive]`-Startbestätigungen,
+  `[park]`-Parkzeilen, `[guard]`-Geisterfahrt-Zeilen.
+
+### Open
+
+- In-Game-Verifikation (Checkliste in `tests/README.md`).
+- Die Patrol-Wiring-Tiefenursache (Deactivate-NRE, Klon fährt nicht) ist **nicht** behoben —
+  der 8-s-Fallback macht Fahrten davon unabhängig; Snapshot/Probe-Daten der nächsten
+  Testsession sind die Grundlage für den Wiring-Fix.
+
 ## Unreleased (2026-10-01) - taxi stand spawn faces the street entry
 
 ### Fixed
