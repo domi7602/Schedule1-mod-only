@@ -1,7 +1,6 @@
 using System;
 using BankApp.Config;
 using BankApp.Services;
-using BankApp.UI;
 using Il2CppInterop.Runtime.Injection;
 using MelonLoader;
 using S1API.Lifecycle;

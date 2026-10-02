@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using BankApp.Models;
 using Il2CppScheduleOne.DevUtilities;
@@ -15,7 +14,6 @@ namespace BankApp.Services;
 public static class TransactionHistoryService
 {
     private static BankState? _activeState;
-    private static string? _lastResolvedSlot;
     private static string _lastKnownSlot = "default";
 
     public static event Action? OnHistoryChanged;
@@ -124,13 +122,14 @@ public static class TransactionHistoryService
 
     public static BankState GetActiveState()
     {
-        string currentSlot = GetSaveSlotSuffix();
-        if (_activeState != null && _lastResolvedSlot == currentSlot)
+        // Perf: the native save-slot probe (LoadManager.ActiveSaveInfo) is expensive; while the
+        // state is cached it is skipped. Mod.HandlePreLoad -> ResetCache runs on every save load,
+        // so a slot switch always invalidates the cache and the next call re-probes the slot.
+        if (_activeState != null)
         {
             return _activeState;
         }
 
-        _lastResolvedSlot = currentSlot;
         string path = GetFilePath();
 
         _activeState = SafeStorage.LoadSafe<BankState>(path, new BankState(), Mod.Log);
@@ -143,12 +142,6 @@ public static class TransactionHistoryService
         string path = GetFilePath();
         SafeStorage.SaveAtomic(path, _activeState, Mod.Log);
         OnHistoryChanged?.Invoke();
-    }
-
-    public static IReadOnlyList<BankTransaction> GetTransactions()
-    {
-        var state = GetActiveState();
-        return state.Transactions;
     }
 
     public static void AddTransaction(BankTransaction transaction)
@@ -190,16 +183,9 @@ public static class TransactionHistoryService
         // This prevents double-write desync where weekly amount persisted but transaction not
     }
 
-    internal static void RecordWeeklyDepositAndSave(float amount, int currentWeek)
-    {
-        RecordWeeklyDeposit(amount, currentWeek);
-        SaveActiveState();
-    }
-
     public static void ResetCache(bool keepSlot = false)
     {
         _activeState = null;
-        _lastResolvedSlot = null;
         if (!keepSlot) _lastKnownSlot = "default";
     }
 

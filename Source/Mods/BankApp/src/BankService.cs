@@ -18,7 +18,6 @@ public static class BankService
 
     public static float GetOnlineBalance() => EconomyHelper.GetOnlineBalance();
     public static float GetCashBalance() => EconomyHelper.GetCashBalance();
-    public static float GetNetWorth() => EconomyHelper.GetNetWorth();
 
     public static int GetCurrentInGameDay()
     {
@@ -50,8 +49,6 @@ public static class BankService
     }
 
     public static int GetFreeInventorySlotsCount() => EconomyHelper.GetFreeInventorySlotsCount();
-
-    public static float GetCashInDedicatedCashSlot() => EconomyHelper.GetCashInDedicatedCashSlot();
 
     private static int GetEffectiveMaxPerSlot()
     {
@@ -284,5 +281,30 @@ public static class BankService
 
         BankSoundService.PlayCashSuccess();
         return true;
+    }
+}
+
+/// <summary>
+/// Handles audio feedback for BankApp actions (transaction success, insufficient funds / limits, UI clicks).
+/// Delegated to S1Mods.Shared.AudioHelper with user config toggle checks.
+/// </summary>
+public static class BankSoundService
+{
+    public static void PlayCashSuccess()
+    {
+        if (!ModConfig<BankAppConfig>.Instance.EnableSoundEffects) return;
+        AudioHelper.PlayCashSound();
+    }
+
+    public static void PlayError()
+    {
+        if (!ModConfig<BankAppConfig>.Instance.EnableSoundEffects) return;
+        AudioHelper.PlayDenySound();
+    }
+
+    public static void PlayClick()
+    {
+        if (!ModConfig<BankAppConfig>.Instance.EnableSoundEffects) return;
+        AudioHelper.PlayClickSound();
     }
 }
