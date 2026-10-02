@@ -29,9 +29,6 @@ S1API/**/*.dll
 S1MAPI/**/*.dll
 S1MCPServer-master/**/*.dll
 
-# ScheduleIArcade — reaktiviertes Reference-DLL, manuelles Deploy.
-ScheduleIArcade/**/*.dll
-
 # Workspace — interne Notizen.
 Workspace/**/*.dll
 

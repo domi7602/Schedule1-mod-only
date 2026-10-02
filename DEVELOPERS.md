@@ -179,7 +179,7 @@ The code is the single source of truth; the script synchronises `MelonInfo`, the
 - **Symbols:** builds produce portable PDBs that are deployed to `UserData\<Mod>\`, so stack traces in the log carry file and line information.
 - **Debug vs. Release:** some diagnostics (for example HitmanPhone test commands) are compiled only in `Debug`. A `-c Release` build overwrites the deployed Debug DLL unless `-p:S1NoDeploy=true` is passed.
 - **Console commands:** several mods register S1API console commands (`pot`, `biz`, `stack`, `skate`, `pshop`, `taxi`); the MelonLoader console itself is output-only.
-- **Live introspection:** the vendored S1MCP server (`ThirdParty/S1MCPServer-master/`, TCP `:8765`) exposes game state to tooling; see the `schedule1-mcp` skill.
+- **Live introspection:** the local-only S1MCP server snapshot (`ThirdParty/S1MCPServer-master/`, TCP `:8765`; untracked/gitignored since 2026-10-02 — obtain it separately) exposes game state to tooling; see the `schedule1-mcp` skill.
 - **Static pre-flight:** `s1interop analyze <csproj>` (external tool, optional) reports IL2CPP interop issues such as missing `IntPtr` constructors. It is advisory and always exits 0 — read the output. Details and known false positives: [CONTRIBUTING.md](CONTRIBUTING.md#il2cpp-obligations).
 - **Diagnostic runbook:** [`Skills/schedule1-troubleshooting/SKILL.md`](Skills/schedule1-troubleshooting/SKILL.md) (decision tree, log decoder, save-load timing).
 
