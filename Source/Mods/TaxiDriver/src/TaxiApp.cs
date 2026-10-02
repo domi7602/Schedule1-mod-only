@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
 using MelonLoader;
+using S1API.PhoneApp;
 using S1API.UI;
 using S1API.Utils;
 using S1Mods.Shared;
@@ -1034,5 +1037,197 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         rt.anchorMax = new Vector2(xMax, yMax);
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Merged from TaxiIcon.cs (2026-10-02) — shared app/notification icon.
+// ---------------------------------------------------------------------------
+
+/// <summary>
+/// The taxi icon, shared by the phone app and the fare notification: <c>taxi_icon.png</c>
+/// from the game's <c>Mods</c> folder (deployed from <c>assets/</c>), with the procedural
+/// yellow "T" fallback so a missing or broken file never logs load errors and never
+/// renders as an empty white square.
+/// </summary>
+internal static class TaxiIcon
+{
+    private static Sprite? _cachedIconSprite;
+
+    /// <summary>Loads and caches the icon (never returns null - the fallback is generated if needed).</summary>
+    internal static Sprite Get()
+    {
+        if (_cachedIconSprite != null)
+            return _cachedIconSprite;
+
+        try
+        {
+            string path = Path.Combine(MelonLoader.Utils.MelonEnvironment.ModsDirectory, "taxi_icon.png");
+            if (File.Exists(path))
+            {
+                var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                if (ImageConversion.LoadImage(tex, File.ReadAllBytes(path)))
+                {
+                    tex.name = "TaxiApp_Icon";
+                    _cachedIconSprite = Sprite.Create(
+                        tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+                    return _cachedIconSprite;
+                }
+
+                MelonLogger.Warning($"[TaxiApp] Icon '{path}' is not a decodable texture — using the procedural fallback.");
+            }
+            else
+            {
+                MelonLogger.Warning($"[TaxiApp] Icon '{path}' not found — using the procedural fallback.");
+            }
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Warning($"[TaxiApp] Icon load failed ({ex.Message}) — using the procedural fallback.");
+        }
+
+        _cachedIconSprite = CreateFallbackIconSprite();
+        return _cachedIconSprite;
+    }
+
+    /// <summary>Procedural yellow "T" icon — used when the PNG cannot be loaded.</summary>
+    private static Sprite CreateFallbackIconSprite()
+    {
+        const int size = 64;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { name = "TaxiApp_Icon_Fallback" };
+        var yellow = new Color32(242, 194, 48, 255);
+        var dark = new Color32(30, 34, 44, 255);
+        var px = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                bool inT = (y >= 42 && y < 52 && x >= 14 && x < 50) ||   // top bar
+                           (x >= 27 && x < 37 && y >= 14 && y < 52);    // stem
+                px[y * size + x] = inT ? dark : yellow;
+            }
+        }
+
+        tex.SetPixels32(px);
+        tex.Apply(false, true);
+        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Merged from TaxiCloseExperiment.cs (2026-10-02) — deferred phone close.
+// ---------------------------------------------------------------------------
+
+/// <summary>
+/// DELAYED CLOSE (2026-09-29) - the fix for the transparent close gap, not an
+/// experiment any more. Screenshot + user confirmation (2026-09-29): S1API's
+/// SetAppOpen(false) hides AppsCanvas + _appContainer SYNCHRONOUSLY while the
+/// phone mesh animates away (~1 s) - during that window the phone stands upright
+/// with a dead screen. The fix defers the whole close by HideDelayFrames so the
+/// screen keeps its content until the phone is effectively gone; a re-open
+/// cancels the pending hide. Same shape as the proposed upstream fix.
+/// </summary>
+internal static class TaxiCloseExperiment
+{
+    internal static bool Armed { get; private set; }
+
+    private static HarmonyLib.Harmony? _harmony;
+
+    /// <summary>Frames the close is deferred (~0.75 s at 60 fps - the fold animation).</summary>
+    private const int HideDelayFrames = 45;
+
+    private static PhoneApp? PendingApp;
+    private static int HideAtFrame;
+    private static bool ApplyingHide;
+    private static MethodInfo? SetAppOpenMethod;
+
+    /// <summary>True while a close is waiting out its defer window.</summary>
+    internal static bool DeferActive => PendingApp != null;
+
+    internal static void Enable()
+    {
+        if (Armed)
+            return;
+
+        try
+        {
+            _harmony = new HarmonyLib.Harmony("com.taxidriver.closeexperiment");
+            MethodBase? original = typeof(S1API.PhoneApp.PhoneApp).GetMethod(
+                "SetAppOpen", BindingFlags.Instance | BindingFlags.NonPublic);
+            MethodInfo? prefix = typeof(TaxiCloseExperiment).GetMethod(
+                nameof(SetAppOpen_Prefix), BindingFlags.Static | BindingFlags.NonPublic);
+            var prefixMethod = prefix == null ? null : new HarmonyLib.HarmonyMethod(prefix);
+            if (PatchGuard.TryPatch(_harmony, original, prefixMethod, null, null, null, Mod.Log))
+            {
+                Armed = true;
+                TaxiLog.Verbose("[close-exp] armed: Taxi skips S1API's immediate canvas hide on close.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[close-exp] arming failed ({ex.GetType().Name}: {ex.Message}).");
+        }
+    }
+
+    private static bool SetAppOpen_Prefix(object __instance, bool open)
+    {
+        if (ApplyingHide)
+            return true;                       // our own deferred close runs unmodified
+
+        if (open)
+        {
+            if (PendingApp != null)
+            {
+                TaxiLog.Verbose("[close-exp] re-open inside the defer window - pending hide cancelled.");
+                PendingApp = null;
+            }
+            return true;
+        }
+
+        if (__instance is not TaxiApp app)
+            return true;
+
+        try
+        {
+            // Mirror the non-visual bookkeeping the base would do.
+            Il2CppScheduleOne.UI.Phone.Phone.ActiveApp = null;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[close-exp] ActiveApp reset failed ({ex.GetType().Name}: {ex.Message}).");
+        }
+
+        PendingApp = app;
+        HideAtFrame = Time.frameCount + HideDelayFrames;
+        TaxiLog.Verbose($"[close-exp] close deferred {HideDelayFrames} frames - the screen keeps its content while the phone folds away.");
+        return false;
+    }
+
+    /// <summary>Applies the deferred close once the window has passed (TaxiApp.Update).</summary>
+    internal static void TickDeferredHide()
+    {
+        if (PendingApp == null || Time.frameCount < HideAtFrame)
+            return;
+
+        PhoneApp app = PendingApp;
+        PendingApp = null;
+        try
+        {
+            SetAppOpenMethod ??= typeof(PhoneApp).GetMethod("SetAppOpen", BindingFlags.Instance | BindingFlags.NonPublic);
+            if (SetAppOpenMethod != null)
+            {
+                ApplyingHide = true;
+                SetAppOpenMethod.Invoke(app, new object[] { false });
+                ApplyingHide = false;
+                TaxiLog.Verbose("[close-exp] deferred close applied - the screen dies together with the phone now.");
+            }
+            (app as TaxiApp)?.ForceHideBg();
+        }
+        catch (Exception ex)
+        {
+            ApplyingHide = false;
+            (app as TaxiApp)?.ForceHideBg();
+            Mod.Log.Warn($"[close-exp] deferred close failed ({ex.GetType().Name}: {ex.Message}) - content hidden directly.");
+        }
     }
 }
