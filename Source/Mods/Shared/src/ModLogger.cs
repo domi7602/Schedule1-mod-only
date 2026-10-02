@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using MelonLoader;
 
 namespace S1Mods.Shared;
@@ -21,6 +22,12 @@ public class ModLogger
     public void Error(string msg) => MelonLogger.Error($"[{ModName}] {msg}");
     public void Error(string context, Exception ex) => MelonLogger.Error($"[{ModName}] {context}: {ex}");
     public void Error(Exception ex) => MelonLogger.Error($"[{ModName}] {ex}");
+    /// <summary>
+    /// Debug-only line. The <see cref="ConditionalAttribute"/> strips the entire call
+    /// (including argument evaluation / string interpolation) from Release builds —
+    /// call sites stay source-identical, Release pays nothing.
+    /// </summary>
+    [Conditional("DEBUG")]
     public void Debug(string msg)
     {
 #if DEBUG
