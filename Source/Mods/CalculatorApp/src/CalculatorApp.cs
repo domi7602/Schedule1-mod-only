@@ -52,15 +52,11 @@ public sealed class CalculatorApp : PhoneApp
     private Text _mainDisplayText = null!;
     private Text _subDisplayText = null!;
     private Text _clearBtnLabel = null!;
-    private Text _tabKeypadLabel = null!;
-    private Text _tabHistoryLabel = null!;
     private Image _tabKeypadBg = null!;
     private Image _tabHistoryBg = null!;
     private InputField _historySearchInput = null!;
     private RectTransform _historyListContent = null!;
-    private ScrollRect _historyScrollRect = null!;
     private Text _historyCountText = null!;
-    private CalculatorAppInputFocus _inputFocusHook = null!;
     private Sprite? _cachedIconSprite;
 
     protected override string AppName => "CalculatorApp";
@@ -209,7 +205,7 @@ public sealed class CalculatorApp : PhoneApp
             UITheme.Initialize(containerRt);
         }
 
-        _inputFocusHook = container.AddComponent<CalculatorAppInputFocus>();
+        var inputFocusHook = container.AddComponent<CalculatorAppInputFocus>();
 
         _mainBG = UIFactory.Panel("CalculatorBG", container.transform, BgColor, fullAnchor: true);
         _mainBG.SetActive(false);
@@ -219,9 +215,9 @@ public sealed class CalculatorApp : PhoneApp
         BuildHistoryScreen(_mainBG);
 
         // Assign search input to focus hook
-        if (_inputFocusHook != null)
+        if (inputFocusHook != null)
         {
-            _inputFocusHook.searchInput = _historySearchInput;
+            inputFocusHook.searchInput = _historySearchInput;
         }
 
         // Show Keypad view by default
@@ -261,7 +257,7 @@ public sealed class CalculatorApp : PhoneApp
         tcRt.offsetMax = Vector2.zero;
 
         // Keypad Tab Button
-        var (keypadMask, keypadBtn, keypadLabel) = UIFactory.RoundedButtonWithLabel(
+        var (keypadMask, keypadBtn, _) = UIFactory.RoundedButtonWithLabel(
             "TabKeypad", "Calc", tabContainer.transform,
             EqualsBtnColor, 90f, UITheme.Dp(32f), UITheme.Sp(17), Color.white);
         var kpRt = keypadMask.GetComponent<RectTransform>();
@@ -269,12 +265,11 @@ public sealed class CalculatorApp : PhoneApp
         kpRt.anchorMax = new Vector2(0.48f, 1f);
         kpRt.offsetMin = Vector2.zero;
         kpRt.offsetMax = Vector2.zero;
-        _tabKeypadLabel = keypadLabel;
         _tabKeypadBg = keypadMask.GetComponentInChildren<Image>();
         EventHelper.AddListener(ShowKeypadTab, keypadBtn.onClick);
 
         // History Tab Button
-        var (histMask, histBtn, histLabel) = UIFactory.RoundedButtonWithLabel(
+        var (histMask, histBtn, _) = UIFactory.RoundedButtonWithLabel(
             "TabHistory", "History", tabContainer.transform,
             FuncBtnColor, 90f, UITheme.Dp(32f), UITheme.Sp(17), Color.white);
         var histRt = histMask.GetComponent<RectTransform>();
@@ -282,7 +277,6 @@ public sealed class CalculatorApp : PhoneApp
         histRt.anchorMax = new Vector2(1.0f, 1f);
         histRt.offsetMin = Vector2.zero;
         histRt.offsetMax = Vector2.zero;
-        _tabHistoryLabel = histLabel;
         _tabHistoryBg = histMask.GetComponentInChildren<Image>();
         EventHelper.AddListener(ShowHistoryTab, histBtn.onClick);
 
@@ -508,7 +502,6 @@ public sealed class CalculatorApp : PhoneApp
 
         // --- Scrollable History List ---
         var list = UIFactory.ScrollableVerticalList("HistoryList", _historyRoot.transform, out var scrollRect);
-        _historyScrollRect = scrollRect;
         // Fix 2026-09-02: responsive scroll feel (same tuning as NotesApp).
         scrollRect.scrollSensitivity = 35f;
         scrollRect.elasticity = 0.08f;
@@ -559,6 +552,8 @@ public sealed class CalculatorApp : PhoneApp
 
     private void OnSearchQueryChanged(string query)
     {
+        // Same-value guard: skip the full row rebuild when the query did not change.
+        if (string.Equals(query, _currentSearchQuery, StringComparison.Ordinal)) return;
         _currentSearchQuery = query;
         RefreshHistoryList();
     }
@@ -889,6 +884,10 @@ public sealed class CalculatorApp : PhoneApp
 
     private void HandleKeyboardInput()
     {
+        // Every action below is driven by GetKeyDown; with no key pressed this frame
+        // the whole method is a no-op, so bail before any Input query.
+        if (!Input.anyKeyDown) return;
+
         // Don't intercept keyboard if user is typing in a search input
         if (_historySearchInput != null && _historySearchInput.isFocused)
         {
@@ -1021,5 +1020,34 @@ public sealed class CalculatorApp : PhoneApp
         var sprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
         sprite.name = "CalculatorProgrammaticIcon";
         return sprite;
+    }
+}
+
+/// <summary>
+/// Monitors UI input focus within CalculatorApp (e.g., the history search input)
+/// and toggles Controls.IsTyping to prevent player movement or game hotkey triggers while typing.
+/// </summary>
+[RegisterTypeInIl2Cpp]
+public sealed class CalculatorAppInputFocus : MonoBehaviour
+{
+    public CalculatorAppInputFocus(IntPtr ptr) : base(ptr) { }
+
+    public InputField? searchInput;
+    private bool _lastTyping;
+
+    private void Update()
+    {
+        bool typing = searchInput != null && searchInput.isFocused;
+        if (typing != _lastTyping)
+        {
+            _lastTyping = typing;
+            Controls.IsTyping = typing;
+        }
+    }
+
+    private void OnDisable()
+    {
+        _lastTyping = false;
+        Controls.IsTyping = false;
     }
 }
