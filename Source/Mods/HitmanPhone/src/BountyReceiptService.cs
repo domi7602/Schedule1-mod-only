@@ -5,7 +5,6 @@ using HitmanPhone.Persistence;
 using MelonLoader;
 using S1Mods.Shared;
 
-#if (IL2CPPMELON)
 using S1DeadDrop = Il2CppScheduleOne.Economy.DeadDrop;
 using S1StorageEntity = Il2CppScheduleOne.Storage.StorageEntity;
 using S1ItemInstance = Il2CppScheduleOne.ItemFramework.ItemInstance;
@@ -13,15 +12,6 @@ using S1IntegerItemInstance = Il2CppScheduleOne.ItemFramework.IntegerItemInstanc
 using S1MoneyManager = Il2CppScheduleOne.Money.MoneyManager;
 using S1NPC = Il2CppScheduleOne.NPCs.NPC;
 using S1NPCManager = Il2CppScheduleOne.NPCs.NPCManager;
-#elif MONOMELON
-using S1DeadDrop = ScheduleOne.Economy.DeadDrop;
-using S1StorageEntity = ScheduleOne.Storage.StorageEntity;
-using S1ItemInstance = ScheduleOne.ItemFramework.ItemInstance;
-using S1IntegerItemInstance = ScheduleOne.ItemFramework.IntegerItemInstance;
-using S1MoneyManager = ScheduleOne.Money.MoneyManager;
-using S1NPC = ScheduleOne.NPCs.NPC;
-using S1NPCManager = ScheduleOne.NPCs.NPCManager;
-#endif
 
 namespace HitmanPhone.Bounty;
 
@@ -547,5 +537,137 @@ public static class BountyReceiptService
             }
         }
         return -1;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Merged from DeadDropPatch.cs (2026-10-02) — storage write hooks.
+// ---------------------------------------------------------------------------
+
+/// <summary>
+/// Phase F — Storage write hooks (v0.1.7 design).
+///
+/// History: v0.1.0–v0.1.5 hooked <c>StorageEntity.InsertItem</c>; the 0.1.5 live
+/// test proved the dead-drop UI never calls it. v0.1.6 hooked
+/// <c>StorageEntity.ContentsChanged()</c>; the 0.1.6 live test proved the game
+/// never invokes it for dead drops either — the method exists (interop dump:
+/// <c>ContentsChanged() : Void</c>), the patch applied cleanly (NPCDeathPatch
+/// from the same PatchAll demonstrably ran), but the dead-drop UI writes slots
+/// through the FishNet RPC chain
+/// (<c>SetStoredInstance → SetStoredInstance_Internal</c> and
+/// <c>SetItemSlotQuantity → SetItemSlotQuantity_Internal</c>) and never raises
+/// ContentsChanged. ContentsChanged is only serviced by UpdateWhileOpen, which
+/// runs solely for storages opened through the regular storage UI — dead drops
+/// use their own UI and never call Open().
+///
+/// New design: hook the two actual write paths plus the old signal. Every slot
+/// write in the game flows through SetStoredInstance_Internal (full instance
+/// write) or SetItemSlotQuantity_Internal (quantity-only write), regardless of
+/// which UI issued it. The three hooks are registered explicitly via
+/// PatchGuard.TryPatch in Mod.cs (house standard), so a missing method is
+/// logged at startup instead of being silently skipped.
+///
+/// Idempotency: scanning on each write is safe — a payout removes the contract
+/// from Active, so repeated events cannot double-pay.
+///
+/// Skill Rule #3: every postfix body is wrapped in try/catch so a thrown
+/// exception never destabilises the engine.
+/// </summary>
+internal static class DeadDropPatch
+{
+    public static void PostfixContentsChanged(S1StorageEntity __instance)
+        => SafeScan(__instance, "ContentsChanged");
+
+    public static void PostfixSetStoredInstance(S1StorageEntity __instance)
+        => SafeScan(__instance, "SetStoredInstance_Internal");
+
+    public static void PostfixSetItemSlotQuantity(S1StorageEntity __instance)
+        => SafeScan(__instance, "SetItemSlotQuantity_Internal");
+
+    private static void SafeScan(S1StorageEntity instance, string source)
+    {
+        try
+        {
+            BountyReceiptService.OnStorageContentsChanged(instance);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Error($"DeadDropPatch[{source}] swallowed exception: {ex.Message}");
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Merged from DeadDropIdentifier.cs (2026-10-02) — storage→DeadDrop ownership.
+// ---------------------------------------------------------------------------
+
+/// <summary>
+/// Phase F — Receipt Identifier.
+///
+/// BUGFIX (2026-08-31, v0.1.4): the previous check walked the inheritance chain
+/// assuming <c>Economy.DeadDrop</c> derives from <c>StorageEntity</c>. The
+/// decompiled stub proves the opposite (Archive/Temp_DeadDrop.cs line 16:
+/// <c>DeadDrop : MonoBehaviour</c>) — the drop OWNS a <c>WorldStorageEntity</c>
+/// in its <c>Storage</c> field. The inheritance test therefore returned false
+/// for every object in the game and the payout chain never ran.
+///
+/// Correct semantics: a storage entity belongs to a dead drop when one of the
+/// registered <see cref="S1DeadDrop.DeadDrops"/> holds exactly that entity.
+/// </summary>
+internal static class DeadDropIdentifier
+{
+    /// <summary>
+    /// Returns the registered DeadDrop that owns this storage entity, or null.
+    /// Comparison via Unity instance id (stable within a session, unlike the
+    /// Il2Cpp wrapper references which may differ per access).
+    /// </summary>
+    public static S1DeadDrop? FindOwningDeadDrop(S1StorageEntity entity)
+    {
+        if (entity == null || entity.Pointer == IntPtr.Zero || entity.WasCollected) return null;
+        try
+        {
+            var drops = S1DeadDrop.DeadDrops;
+            if (drops == null) return null;
+            int instanceId = entity.GetInstanceID();
+            for (int i = 0; i < drops.Count; i++)
+            {
+                try
+                {
+                    var dd = drops[i];
+                    if (dd == null || dd.Pointer == IntPtr.Zero || dd.WasCollected) continue;
+                    var st = dd.Storage;
+                    if (st == null || st.Pointer == IntPtr.Zero || st.WasCollected) continue;
+                    if (st.GetInstanceID() == instanceId) return dd;
+                }
+                catch { }
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"FindOwningDeadDrop failed: {ex.Message}");
+        }
+        return null;
+    }
+
+    /// <summary>True if the given storage entity belongs to any registered dead drop.</summary>
+    public static bool IsDeadDropStorage(S1StorageEntity entity) => FindOwningDeadDrop(entity) != null;
+
+    /// <summary>
+    /// The dead drop's GUID. Lives on the <see cref="S1DeadDrop"/> component itself,
+    /// NOT on the storage entity (the old entity-based reflection lookup could
+    /// never find it for the same reason as the inheritance bug).
+    /// </summary>
+    public static string GetGuidString(S1DeadDrop drop)
+    {
+        if (drop == null) return string.Empty;
+        try
+        {
+            return drop.GUID.ToString();
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"GetGuidString failed: {ex.Message}");
+            return string.Empty;
+        }
     }
 }

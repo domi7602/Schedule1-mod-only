@@ -5,16 +5,13 @@ using System;
 using System.Collections.Generic;
 using HitmanPhone.Persistence;
 using MelonLoader;
+using S1API.Entities;
+using S1API.Entities.NPCs;
 using S1API.Messaging;
 using S1Mods.Shared;
 
-#if (IL2CPPMELON)
 using S1NPC = Il2CppScheduleOne.NPCs.NPC;
 using S1Messaging = Il2CppScheduleOne.Messaging;
-#elif MONOMELON
-using S1NPC = ScheduleOne.NPCs.NPC;
-using S1Messaging = ScheduleOne.Messaging;
-#endif
 
 namespace HitmanPhone.Bounty;
 
@@ -459,5 +456,27 @@ public static class BountyConversationRouter
         {
             Mod.Log.Warn($"SendOfferExpiredNotice failed: {ex.Message}");
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Merged from HitmanCallerNPC.cs (2026-10-02) — virtual caller NPC shell.
+// ---------------------------------------------------------------------------
+
+/// <summary>
+/// A non-physical S1API NPC that acts as the virtual caller for all hitman bounties.
+/// Because IsPhysical is false, this NPC never spawns in the 3D world, but it gets
+/// a full S1API wrapper which allows us to use SendTextMessage to its dedicated
+/// phone thread ("Unknown Number").
+/// </summary>
+public sealed class HitmanCallerNPC : NPC
+{
+    public const string NPC_ID = "hitman_unknown_caller";
+
+    public override bool IsPhysical => false;
+
+    protected override void ConfigurePrefab(NPCPrefabBuilder builder)
+    {
+        builder.WithIdentity(id: NPC_ID, firstName: "Unknown", lastName: "Number");
     }
 }
