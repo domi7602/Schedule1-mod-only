@@ -3,7 +3,8 @@
 .SYNOPSIS
     setup-workspace — generates local.build.props for S1API and S1MAPI
     on a freshly cloned machine, prompts for the game path if needed,
-    optionally activates the pre-commit hook.
+    optionally activates the pre-commit hook and can generate the local
+    game decompiles under GameReferences/.
 
 .DESCRIPTION
     Idempotent: re-running just refreshes the local.build.props files.
@@ -16,10 +17,12 @@
 .EXAMPLE
     pwsh Tools/setup-workspace.ps1
     pwsh Tools/setup-workspace.ps1 -GameDir "D:\SteamLibrary\steamapps\common\Schedule I"
+    pwsh Tools/setup-workspace.ps1 -BootstrapGameReferences
 #>
 [CmdletBinding()]
 param(
-    [string]$GameDir
+    [string]$GameDir,
+    [switch]$BootstrapGameReferences
 )
 
 $ErrorActionPreference = 'Stop'
@@ -119,7 +122,20 @@ if (Test-Path -LiteralPath $s1MapiExample) {
     Write-Host "[setup-workspace] WARN: ThirdParty/S1MAPI/local.build.props.example not found. Skipping S1MAPI props." -ForegroundColor Yellow
 }
 
-# --- 4. Pre-commit hook (optional) -------------------------------------------
+# --- 4. Game references (optional) -------------------------------------------
+
+if ($BootstrapGameReferences) {
+    Write-Host "[setup-workspace] Generating game decompiles into GameReferences/decompiled (ilspycmd, can take several minutes)..." -ForegroundColor Cyan
+    try {
+        & (Join-Path $PSScriptRoot 'bootstrap-game-references.ps1') -GameDir $GameDir -Force
+    } catch {
+        throw "Game-reference bootstrap failed: $($_.Exception.Message)"
+    }
+} else {
+    Write-Host "[setup-workspace] Skipping game decompiles. Generate them with: pwsh Tools/bootstrap-game-references.ps1 (or re-run with -BootstrapGameReferences)." -ForegroundColor DarkGray
+}
+
+# --- 5. Pre-commit hook (optional) -------------------------------------------
 
 $hooksPath = git -C $workspaceRoot config --get core.hooksPath 2>$null
 if (-not $hooksPath) {
@@ -135,11 +151,12 @@ if (-not $hooksPath) {
     Write-Host "[setup-workspace] core.hooksPath already set to '$hooksPath'" -ForegroundColor DarkGray
 }
 
-# --- 5. Summary --------------------------------------------------------------
+# --- 6. Summary --------------------------------------------------------------
 
 Write-Host ""
 Write-Host "[setup-workspace] Done." -ForegroundColor Green
 Write-Host "  Next steps:"
-Write-Host "    1. dotnet build Source/Mods/S1Mods.sln -c Release    # builds all 13 mods + frameworks"
+Write-Host "    1. dotnet build Source/Mods/S1Mods.sln -c Release    # builds all mods + Shared"
 Write-Host "    2. Start the game once to confirm MelonLoader logs the mods as loaded"
+Write-Host "    3. Optional research: re-run with -BootstrapGameReferences for local game decompiles"
 Write-Host "  Working tree stays clean: both local.build.props are gitignored."

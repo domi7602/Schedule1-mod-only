@@ -30,9 +30,9 @@ PowerShell 7 helper scripts for building, checking, releasing and setting up the
 
 | Script | Purpose |
 |---|---|
-| `setup-workspace.ps1` | Generates the git-ignored `local.build.props` for the S1API and S1MAPI submodules on a new machine; prompts for the game path if it is not the Steam default; optionally enables the pre-commit hook. Idempotent. |
+| `setup-workspace.ps1` | Generates the git-ignored `local.build.props` for the S1API and S1MAPI submodules on a new machine; prompts for the game path if it is not the Steam default; optionally enables the pre-commit hook; `-BootstrapGameReferences` additionally generates the local game decompiles under `GameReferences/`. Idempotent. |
 | `new-laptop-workspace.ps1` | Clones the repository into a second, sandboxed workspace whose remote is renamed to `upstream` (so it cannot push to the main repo by accident) and runs `setup-workspace.ps1` there. |
-| `bootstrap-game-references.ps1` | Decompiles `<GameDir>\MelonLoader\Il2CppAssemblies` with `ilspycmd` (installed into `.cache/tools/`) into the git-ignored `GameReferences/decompiled/`. Research aid only. |
+| `bootstrap-game-references.ps1` | Decompiles `<GameDir>\MelonLoader\Il2CppAssemblies` with `ilspycmd` (pinned net6-compatible version, installed into `.cache/tools/`) into the git-ignored `GameReferences/decompiled/`. A failing tool never destroys existing output (staging + atomic replace). Research aid only; also reachable via `setup-workspace.ps1 -BootstrapGameReferences`. |
 | `mods-cleanup-inventory.ps1` | Inventories `<GameDir>\Mods\` and, with `-Apply`, moves runtime-DLL duplicates into `MelonLoader\_archived\` (reversible move, `-WhatIf` by default). |
 | `backup-to-d.ps1` | Robocopy mirror of the game folder, saves and this workspace to a backup drive (`-TargetRoot`, default `D:\Schedule 1\Backups`). Maintainer convenience, machine-specific. |
 
