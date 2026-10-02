@@ -7,7 +7,7 @@ namespace MessagesPlus;
 
 /// <summary>
 /// Small IL2CPP-safe helpers shared by <see cref="InboxUI"/>,
-/// <see cref="InboxView"/> and <see cref="LegacyRestore"/>: proxy liveness
+/// <see cref="InboxView"/>: proxy liveness
 /// (Pointer/WasCollected), stable conversation identity, and the conservative
 /// category filter. Every member access on a game proxy is wrapped in
 /// try/catch — proxies can throw at any time (WasCollected / uninitialized

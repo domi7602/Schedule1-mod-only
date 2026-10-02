@@ -1,8 +1,10 @@
 using System;
 using Il2CppInterop.Runtime.Injection;
 using MelonLoader;
-using S1API.Lifecycle;
+using S1API.Input;
 using S1Mods.Shared;
+using UnityEngine;
+using UnityEngine.UI;
 
 [assembly: MelonInfo(typeof(MessagesPlus.Mod), "MessagesPlus", "0.4.1", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
@@ -12,11 +14,10 @@ namespace MessagesPlus;
 /// <summary>
 /// MessagesPlus — inbox hygiene for the vanilla MessagesApp: customer-only
 /// Clear All + Clear Read, live name search, category filter chips and an
-/// unread counter, plus the one-time legacy restore.
-///
-/// Patch-only mod (plain MelonMod + Harmony, like MoreSaveSlots/StackLimitMod):
-/// it enhances the EXISTING in-game Messages app and never registers a new
-/// PhoneApp or homescreen icon. See MessagesAppPatch/InboxUI/InboxView/LegacyRestore.
+/// unread counter. Patch-only mod (plain MelonMod + Harmony, like
+/// MoreSaveSlots/StackLimitMod): it enhances the EXISTING in-game Messages app
+/// and never registers a new PhoneApp or homescreen icon.
+/// See MessagesAppPatch/InboxUI/InboxView/AppTheme.
 /// </summary>
 public class Mod : MelonMod
 {
@@ -50,14 +51,7 @@ public class Mod : MelonMod
         DealWindowSelectorPatch.ApplyAll(HarmonyInstance, Log);
         PatchGuard.Report(Log);
 
-        // 3. Save-load timing: OnSaveInfoLoaded fires after save parsing but
-        //    before scene build (OnGameplaySceneLoaded is too early/late — see
-        //    IL2CPP pitfalls, save-load timing). The MessagesApp.Loaded postfix
-        //    retries LegacyRestore.Run once the conversation lists are
-        //    populated (Run is idempotent).
-        GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
-
-        Log.Info("MessagesPlus v0.4.1 initialized (search band + category chips + unread counter + ... menu with Clear Read/All + permanent whole-app dark mode + instant deal-popup theming + legacy restore).");
+        Log.Info("MessagesPlus v0.4.1 initialized (search band + category chips + unread counter + ... menu with Clear Read/All + permanent whole-app dark mode + instant deal-popup theming).");
     }
 
     /// <summary>
@@ -71,11 +65,6 @@ public class Mod : MelonMod
         InboxUI.Tick();
     }
 
-    public override void OnDeinitializeMelon()
-    {
-        GameLifecycle.OnSaveInfoLoaded -= OnSaveInfoLoaded;
-    }
-
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
     {
         base.OnSceneWasUnloaded(buildIndex, sceneName);
@@ -86,16 +75,72 @@ public class Mod : MelonMod
             AppTheme.HandleSceneUnload();
         }
     }
+}
 
-    private void OnSaveInfoLoaded()
+// ---------------------------------------------------------------------------
+// Merged from MessagesPlusConfig.cs (2026-10-02) — MelonPreferences schema.
+// ---------------------------------------------------------------------------
+
+/// <summary>
+/// MelonPreferences-backed configuration for MessagesPlus (via S1Mods.Shared.ModConfig).
+/// The v0.1.x trash schema is gone with the trash feature; the remaining fields
+/// are the Phase 2/3 placeholders (toast/sound + custom background) so the
+/// config schema stays stable across phases.
+/// </summary>
+public sealed class MessagesPlusConfig
+{
+    /// <summary>Dark theme for the whole Messages app (injected surface + vanilla
+    /// pages). PERMANENT since v0.4.1 — always ON, no in-app toggle any more; the
+    /// field is kept so the config schema stays stable and a stale "false" from
+    /// older versions is self-healed to ON at startup.</summary>
+    public bool DarkMode { get; set; } = true;
+
+    /// <summary>Top color of the app background gradient (hex, Phase 3).</summary>
+    public string BackgroundColor1 { get; set; } = "#101318";
+
+    /// <summary>Bottom color of the app background gradient (hex, Phase 3).</summary>
+    public string BackgroundColor2 { get; set; } = "#1C2230";
+
+    /// <summary>Show toast popups on new messages (Phase 2).</summary>
+    public bool ToastEnabled { get; set; } = true;
+
+    /// <summary>Play sound effects (Phase 2).</summary>
+    public bool SoundEnabled { get; set; } = true;
+}
+
+// ---------------------------------------------------------------------------
+// Merged from MessagesPlusInputFocus.cs (2026-10-02) — typing guard.
+// ---------------------------------------------------------------------------
+
+/// <summary>
+/// InputFocus guard (Key Rule 5) for the MessagesPlus search field: while the
+/// InputField is focused, `Controls.IsTyping` suppresses player movement
+/// (WASD). Registered via ClassInjector in Mod.OnInitializeMelon — the public
+/// IntPtr constructor is mandatory (without it AddComponent crashes the IL2CPP
+/// bridge). Mirrors NotesAppInputFocus, minus the editor auto-focus.
+/// </summary>
+[RegisterTypeInIl2Cpp]
+internal sealed class MessagesPlusInputFocus : MonoBehaviour
+{
+    public MessagesPlusInputFocus(IntPtr ptr) : base(ptr) { }
+
+    public InputField searchInput = null!;
+
+    private bool _lastTyping;
+
+    private void Update()
     {
-        try
+        bool typing = searchInput != null && searchInput.isFocused;
+        if (typing != _lastTyping)
         {
-            LegacyRestore.Run();
+            _lastTyping = typing;
+            Controls.IsTyping = typing;
         }
-        catch (Exception ex)
-        {
-            Log.Error($"OnSaveInfoLoaded handler failed: {ex.Message}");
-        }
+    }
+
+    private void OnDisable()
+    {
+        _lastTyping = false;
+        Controls.IsTyping = false;
     }
 }

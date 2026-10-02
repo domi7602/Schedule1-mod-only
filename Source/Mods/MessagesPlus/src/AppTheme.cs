@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes;
 using Il2CppScheduleOne.Messaging;
 using Il2CppScheduleOne.UI.Phone.Messages;
@@ -14,9 +16,7 @@ namespace MessagesPlus;
 /// Dark mode — recolors the VANILLA Messages surfaces so the WHOLE app (not just
 /// the injected band) goes dark: page backgrounds, inbox rows, chat bubbles, the
 /// dialogue header bar and the response panel. Everything is applied once per
-/// graphic (instance-id tracked) and every original colour is cached — dormant
-/// since v0.4.1 (dark mode is permanent), but a light restore would still hand
-/// the game's own look back exactly.
+/// graphic (instance-id tracked; vanilla re-colours are never fought again).
 ///
 /// Only colours are touched — never layouts, raycasts or save state. Guards:
 ///  - our own injected UI (band/menu/dialog) is excluded from every sweep;
@@ -26,9 +26,6 @@ namespace MessagesPlus;
 /// </summary>
 internal static class AppTheme
 {
-    /// <summary>(instance id, graphic, original colour) of every vanilla graphic we touched.</summary>
-    private static readonly List<(int Id, Graphic Graphic, Color Original)> _originals = new();
-
     /// <summary>Instance ids already themed once — we never fight vanilla re-colours after that.</summary>
     private static readonly HashSet<int> _themed = new();
 
@@ -39,9 +36,18 @@ internal static class AppTheme
     private static readonly List<Transform> _ownRoots = new();
 
     /// <summary>Transient force scope: while set, already-themed graphics under this
-    /// root may be re-tinted (a popup that just opened re-set some colours — the
-    /// cached originals stay untouched, so light restore remains exact).</summary>
+    /// root may be re-tinted (a popup that just opened re-set some colours).</summary>
     private static Transform? _forceRoot;
+
+    // Perf (2026-10-02): the 1 s tick keeps running the specific passes (bubbles /
+    // rows / header), but the full-app generic sweep is latched off once a few
+    // consecutive passes found no new graphics. It re-arms on page rebuilds
+    // (SetOwnRoots), popup theming (ApplyToSubtree), scene unload and conversation
+    // changes (checked in Apply).
+    private static bool _sweepLatched;
+    private static int _cleanSweepPasses;
+    private static int _lastConversationCount = -1;
+    private static IntPtr _lastCurrentConversation;
 
     // ------------------------------------------------------------------
     // Apply / restore
@@ -90,8 +96,40 @@ internal static class AppTheme
             catch (Exception ex) { Mod.Log?.Debug($"AppTheme header: {ex.Message}"); }
 
             // 4. Generic sweep: every remaining near-white surface + dark neutral text.
-            try { SweepAppSurfaces(app); }
-            catch (Exception ex) { Mod.Log?.Debug($"AppTheme sweep: {ex.Message}"); }
+            //    Latched off after a few clean passes (see field comment); a conversation
+            //    change re-arms it so chat surfaces are never missed.
+            int conversationCount = 0;
+            try
+            {
+                var conversations = MessagesApp.ActiveConversations;
+                conversationCount = conversations?.Count ?? 0;
+            }
+            catch { }
+            IntPtr currentPtr = IntPtr.Zero;
+            try { currentPtr = current?.Pointer ?? IntPtr.Zero; } catch { }
+            if (conversationCount != _lastConversationCount || currentPtr != _lastCurrentConversation)
+            {
+                _lastConversationCount = conversationCount;
+                _lastCurrentConversation = currentPtr;
+                _sweepLatched = false;
+                _cleanSweepPasses = 0;
+            }
+
+            if (!_sweepLatched)
+            {
+                int themedBefore = _themed.Count;
+                try { SweepAppSurfaces(app); }
+                catch (Exception ex) { Mod.Log?.Debug($"AppTheme sweep: {ex.Message}"); }
+
+                if (_themed.Count == themedBefore)
+                {
+                    if (++_cleanSweepPasses >= 3) _sweepLatched = true;
+                }
+                else
+                {
+                    _cleanSweepPasses = 0;
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -112,6 +150,9 @@ internal static class AppTheme
         Transform? previous = _forceRoot;
         try
         {
+            // Perf (2026-10-02): the popup brought fresh surfaces — re-arm the sweep.
+            _sweepLatched = false;
+            _cleanSweepPasses = 0;
             _forceRoot = root.transform;
             SweepRoot(root); // ends with the dark-text pass over the same subtree
         }
@@ -137,32 +178,16 @@ internal static class AppTheme
         catch { return false; }
     }
 
-    /// <summary>Restores every vanilla graphic we touched and forgets them. Dormant
-    /// since v0.4.1 (dark mode is permanent) — kept so a light mode could be
-    /// re-enabled with one call.</summary>
-    public static void RestoreAll()
-    {
-        for (int i = _originals.Count - 1; i >= 0; i--)
-        {
-            (int _, Graphic graphic, Color original) = _originals[i];
-            try
-            {
-                if (graphic != null && NetworkGuard.IsAlive(graphic)) graphic.color = original;
-            }
-            catch { /* dead object — nothing to restore */ }
-        }
-        _originals.Clear();
-        _themed.Clear();
-        _skip.Clear();
-    }
-
     /// <summary>Scene unload: the objects die with the scene — drop the tracking without touching them.</summary>
     public static void HandleSceneUnload()
     {
-        _originals.Clear();
         _themed.Clear();
         _skip.Clear();
         _ownRoots.Clear();
+        _sweepLatched = false;
+        _cleanSweepPasses = 0;
+        _lastConversationCount = -1;
+        _lastCurrentConversation = IntPtr.Zero;
     }
 
     // ------------------------------------------------------------------
@@ -176,6 +201,9 @@ internal static class AppTheme
         AddOwnRoot(toolbar);
         AddOwnRoot(menu);
         AddOwnRoot(modal);
+        // Perf (2026-10-02): a (re)build can bring new surfaces — re-arm the sweep.
+        _sweepLatched = false;
+        _cleanSweepPasses = 0;
     }
 
     /// <summary>Forgets the own-UI roots (a rebuild re-registers them).</summary>
@@ -567,8 +595,7 @@ internal static class AppTheme
         {
             // Already themed once. Vanilla re-colours stay — EXCEPT inside a force
             // scope (a popup that just opened re-set some colours): re-apply the
-            // dark target. The cached original is never overwritten, so the
-            // light-mode restore stays exact.
+            // dark target.
             if (!IsInForceScope(graphic.transform)) return;
             try { graphic.color = new Color(dark.r, dark.g, dark.b, original.a); } catch { /* dead */ }
             return;
@@ -577,7 +604,6 @@ internal static class AppTheme
         try
         {
             graphic.color = new Color(dark.r, dark.g, dark.b, original.a);
-            _originals.Add((id, graphic, original));
         }
         catch
         {
@@ -600,7 +626,7 @@ internal static class AppTheme
     }
 
     /// <summary>True while the app's home or dialogue page is actually shown (phone open).</summary>
-    private static bool IsPageVisible(MessagesApp app)
+    internal static bool IsPageVisible(MessagesApp app)
     {
         try
         {
@@ -630,5 +656,99 @@ internal static class AppTheme
             return comp != null ? comp.gameObject : null;
         }
         catch { return null; }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Merged from DealWindowSelectorPatch.cs (2026-10-02) — instant popup theming.
+// ---------------------------------------------------------------------------
+
+/// <summary>
+/// Immediate dark-theme refresh for the deal-window popup (<see cref="DealWindowSelector"/> —
+/// the Morning/Afternoon/Night/LateNight picker that opens from a conversation
+/// response). Without this, the popup keeps its vanilla colours until the next
+/// 1-second theme tick — the "popup flashes light for a moment" report.
+///
+/// The postfix runs in the same frame as the open call (before the first render)
+/// and force-refreshes the popup's subtree, so colours the game re-sets while
+/// opening also end up dark.
+/// </summary>
+public static class DealWindowSelectorPatch
+{
+    public static void ApplyAll(HarmonyLib.Harmony harmony, ModLogger log)
+    {
+        // One shared postfix for both overloads below — identical behaviour.
+        HarmonyMethod postfix = new(typeof(DealWindowSelectorPatch), nameof(SetIsOpen_Postfix));
+
+        // The app's real open path: SetIsOpen(bool, MSGConversation, Action<EDealWindow>).
+        // Found by SHAPE (name + arity + first parameter) instead of naming the
+        // IL2CPP delegate type in a parameter list — the proxy delegate type
+        // (Il2CppSystem.Action<EDealWindow>) is not referenceable from mod code
+        // (CS0305: Il2CppSystem.Action is generated as a 9-arity generic only).
+        MethodInfo? threeArg = FindThreeArgSetIsOpen();
+        if (threeArg != null)
+        {
+            PatchGuard.TryPatch(harmony, threeArg, postfix: postfix, log: log);
+        }
+        else
+        {
+            log.Warn("DealWindowSelectorPatch: SetIsOpen(bool, MSGConversation, Action<EDealWindow>) not found — popup hook skipped (the 1 s tick stays as fallback).");
+        }
+
+        // Defensive: the bool-only overload (no managed callers in 0.4.7f7, but
+        // patched so every edge call path is covered as well).
+        PatchGuard.TryPatch(
+            harmony,
+            typeof(DealWindowSelector),
+            nameof(DealWindowSelector.SetIsOpen),
+            postfix: postfix,
+            parameterTypes: new[] { typeof(bool) },
+            log: log);
+    }
+
+    /// <summary>Locates SetIsOpen(bool, MSGConversation, Action&lt;EDealWindow&gt;) by its shape.</summary>
+    private static MethodInfo? FindThreeArgSetIsOpen()
+    {
+        try
+        {
+            foreach (MethodInfo m in typeof(DealWindowSelector).GetMethods(
+                         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                if (m.Name != nameof(DealWindowSelector.SetIsOpen)) continue;
+                ParameterInfo[] ps = m.GetParameters();
+                if (ps.Length == 3 && ps[0].ParameterType == typeof(bool))
+                    return m;
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"DealWindowSelectorPatch: overload lookup failed: {ex.Message}");
+        }
+
+        return null;
+    }
+
+    [HarmonyPostfix]
+    public static void SetIsOpen_Postfix(DealWindowSelector __instance, bool __0)
+    {
+        // "__0" instead of a named parameter — immune to future renames.
+        if (!__0) return; // closing — nothing to theme
+        Refresh(__instance);
+    }
+
+    private static void Refresh(DealWindowSelector selector)
+    {
+        try
+        {
+            MessagesPlusConfig? cfg = ModConfig<MessagesPlusConfig>.Instance;
+            if (cfg == null || !cfg.DarkMode) return;
+            if (selector == null || !NetworkGuard.IsAlive(selector)) return;
+
+            AppTheme.ApplyToSubtree(selector.gameObject);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"DealWindowSelector theme refresh failed: {ex.Message}");
+        }
     }
 }

@@ -15,8 +15,7 @@ namespace MessagesPlus;
 ///   Start            — inject the MessagesPlus toolbar + confirmation modal (once per app instance).
 ///   SetOpen(bool)    — re-inject when the app is opened (covers page rebuilds); on close,
 ///                      reset the modal and the search/filter view (W12 analogue).
-///   Loaded()         — one-time legacy restore (idempotent) + re-inject after the game
-///                      loaded the conversations.
+///   Loaded()         — re-inject after the game loaded the conversations.
 ///
 /// The v0.1.x CreateConversationUI patch is gone —
 /// v0.2.0+ has no per-entry UI at all.
@@ -96,9 +95,7 @@ public static class MessagesAppPatch
     }
 
     /// <summary>
-    /// The vanilla app finished loading its conversations from the save — run
-    /// the (idempotent) legacy restore now that the conversation lists are
-    /// populated (OnSaveInfoLoaded fires earlier and defers), then re-inject
+    /// The vanilla app finished loading its conversations from the save — re-inject
     /// the UI in case the page was rebuilt.
     /// </summary>
     [HarmonyPostfix]
@@ -106,7 +103,6 @@ public static class MessagesAppPatch
     {
         try
         {
-            LegacyRestore.Run();
             InboxUI.EnsureBuilt(__instance);
         }
         catch (Exception ex)
