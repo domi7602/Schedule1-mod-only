@@ -27,7 +27,12 @@
 .cache/
 .vs/
 TestResults/
-GameReferences/decompiled/
+
+# Game research decompiles stay local: only README.md and the nested .gitignore
+# are tracked, everything else under GameReferences/ is ignored.
+GameReferences/*
+!GameReferences/README.md
+!GameReferences/.gitignore
 
 # Misc
 *.bak
@@ -36,8 +41,9 @@ GameReferences/decompiled/
 __pycache__/
 *.pyc
 Thumbs.db
-# Release packages
+# Release packages (ZIPs and locally extracted test folders)
 Release/*.zip
+Release/*/
 
 # Archives
 Source/Archive/*.zip
@@ -57,5 +63,9 @@ local.build.props
 ThirdParty/**/local.build.props
 ThirdParty/**/game_config.json
 ThirdParty/**/config.local.json
+
+# Local-only S1MCP server snapshot (untracked 2026-10-02; not part of the
+# public repository — obtain it separately, e.g. from ifBars/S1MCPServer).
+/ThirdParty/S1MCPServer-master/
 
 .hermes-tmp.*
