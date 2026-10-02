@@ -208,6 +208,7 @@ public sealed class WeatherApp : PhoneApp
     private readonly float[] _values = new float[ComponentCount];
     private WeatherState? _state;
     private bool _dirty;
+    private float _nextPollTime;   // fallback-poll throttle (unscaled seconds)
 
     // --- Lively animation state (targets are set by RenderInternal, eased in AnimateTick) ---
     private readonly float[] _target = new float[ComponentCount];
@@ -215,6 +216,7 @@ public sealed class WeatherApp : PhoneApp
     private float _ringTarget;
     private float _ringShown;
     private const float AnimSpeed = 8f;
+    private const float PollInterval = 0.5f;
 
     protected override string AppName => "Weather";
     protected override string AppTitle => "Weather";
@@ -295,13 +297,18 @@ public sealed class WeatherApp : PhoneApp
 
         if (!open) return;
 
-        // Cheap per-frame poll of the immutable snapshot: covers a weather change that happened
-        // before this instance subscribed or an edge case where the change event was missed.
-        WeatherState? current = SafeCurrent();
-        if (_dirty || !SameState(current, _state))
+        // Fallback poll of the immutable snapshot, throttled to ~0.5 s: covers a weather change
+        // that happened before this instance subscribed or an edge case where the change event
+        // was missed. The WeatherManager.OnWeatherChanged event still re-renders immediately.
+        if (_dirty || Time.unscaledTime >= _nextPollTime)
         {
-            _state = current;
-            RenderInternal();
+            _nextPollTime = Time.unscaledTime + PollInterval;
+            WeatherState? current = SafeCurrent();
+            if (_dirty || !SameState(current, _state))
+            {
+                _state = current;
+                RenderInternal();
+            }
         }
 
         AnimateTick();
