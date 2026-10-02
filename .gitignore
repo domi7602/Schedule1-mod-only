@@ -66,6 +66,8 @@ ThirdParty/**/config.local.json
 
 # Local-only S1MCP server snapshot (untracked 2026-10-02; not part of the
 # public repository — obtain it separately, e.g. from ifBars/S1MCPServer).
-/ThirdParty/S1MCPServer-master/
+# No trailing slash: the bare path is referenced in AGENTS.md/DEVELOPERS.md and
+# must also match on fresh clones where the folder does not exist yet.
+/ThirdParty/S1MCPServer-master
 
 .hermes-tmp.*
