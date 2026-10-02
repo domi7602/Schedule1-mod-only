@@ -8,7 +8,7 @@ In *Schedule I*, S1API instantiates phone app containers on high-resolution uGUI
 
 ## 1. Core UITheme Implementation
 
-**Single source of truth (since 2026-08-20):** `S1Mods.Shared.UITheme` (`Source/Mods/Shared/src/UITheme.cs`) — do NOT copy a local class into your mod. Mod-specific wrappers (e.g. `BankApp.UI.UITheme`, `PocketShop.UI.UITheme`) delegate to it and only add their own color palette:
+**Single source of truth (since 2026-08-20):** `S1Mods.Shared.UITheme` (`Source/Mods/Shared/src/UiKit.cs`) — do NOT copy a local class into your mod. Mod-specific wrappers (e.g. `BankApp.UI.UITheme`, `PocketShop.UI.UITheme`) delegate to it and only add their own color palette:
 
 ```csharp
 // Text-heavy app (NotesApp/CalculatorApp style):

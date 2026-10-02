@@ -16,7 +16,7 @@
 
 ### 1.2 Responsive UI ("Method 3": `UITheme`)
 - S1API phone canvases are high-DPI and rotated 90° — fixed pixel sizes are unreadable on different resolutions.
-- **Single source of truth:** `S1Mods.Shared.UITheme` (`Source/Mods/Shared/src/UITheme.cs`). Mod UI elements use `UITheme.Sp(...)`, `UITheme.Dp(...)`, and `UITheme.Scale`.
+- **Single source of truth:** `S1Mods.Shared.UITheme` (`Source/Mods/Shared/src/UiKit.cs`, merged 2026-10-02). Mod UI elements use `UITheme.Sp(...)`, `UITheme.Dp(...)`, and `UITheme.Scale`.
 - **Non-Destructive PhoneApp Lifecycle:** Never call `Object.Destroy()` or destructive UI clears in `OnPhoneClosed()` — only `_mainBG.SetActive(false)`. Otherwise the dreaded **"Transparent Phone"** bug occurs on the next open.
 - **Rule 10/11:** `OnCreated()` fires only 1× per scene (S1API `HomeScreen_Start_Patch`), `OnPhoneClosed()` on every close. **Never** unsubscribe `MelonEvents.OnUpdate` subscriptions in `OnPhoneClosed()`, otherwise the app becomes unoperable on the second open.
 
