@@ -44,6 +44,8 @@ internal sealed class FareLedger
     /// <summary>True once the first confirmed motion of the ride was seen.</summary>
     public bool Armed => _armed;
 
+    private static bool IsFinite(float value) => !float.IsNaN(value) && !float.IsInfinity(value);
+
     /// <summary>Clears all accrual state for a new ride (FareMeter.Start).</summary>
     public void Reset()
     {
@@ -84,7 +86,15 @@ internal sealed class FareLedger
             return outcome;
         }
 
+        // Numeric hardening (2026-10-03): reject non-finite tick input BEFORE any
+        // state mutation - a poisoned accumulator can never be repaired (the old
+        // behavior let NaN pass through Math.Clamp and corrupted the ride total).
+        if (!IsFinite(input.RawDeltaSeconds) || !IsFinite(input.ClockRate))
+            return outcome;
+
         float dt = Math.Clamp(input.RawDeltaSeconds, 0f, MaxDeltaSeconds) * input.ClockRate;
+        if (!IsFinite(dt))
+            return outcome;
 
         bool moving = !float.IsNaN(input.SpeedKmh) && !float.IsInfinity(input.SpeedKmh) &&
                       input.SpeedKmh > 0f && input.SpeedKmh >= input.MovingThresholdKmh;
@@ -109,7 +119,17 @@ internal sealed class FareLedger
         // Floor TIME first (rate=2 must not charge $1 after 0.5 s).
         int wholeMinutes = (int)Math.Floor(_movingMinutes);
         int units = wholeMinutes - _billedMinutes;
-        int due = units > 0 ? checked(units * input.DollarsPerMinute) : 0;
+        int due = 0;
+        if (units > 0)
+        {
+            // Numeric hardening (2026-10-03): the old checked() threw AFTER the
+            // accumulator moved (line 106) and BEFORE the billed update, leaving a
+            // half-advanced state that threw on every following tick. Compute in
+            // long and clamp instead: the tick completes and the ledger stays
+            // consistent (billed == floored moving minutes).
+            long rawDue = (long)units * input.DollarsPerMinute;
+            due = rawDue > int.MaxValue ? int.MaxValue : (int)rawDue;
+        }
         if (due > 0)
         {
             // Mark consumed before the caller touches money: a failed/partially
@@ -243,6 +263,14 @@ internal static class FareClock
             return false;
 
         rate = 1440f / (cycleRealMinutesPerDay * 60f) * speedMultiplier;
+        if (!IsFinitePositive(rate))
+        {
+            // Numeric hardening (2026-10-03): finite positive inputs can still
+            // overflow the computed rate - a useless result is rejected, not used.
+            rate = 0f;
+            return false;
+        }
+
         return true;
     }
 

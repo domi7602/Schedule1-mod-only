@@ -121,7 +121,6 @@ internal static class SpikeCommands
         Print("  F2  = taxi go to the second proven road target (-17.1, 0.0, 13.4)");
         Print("  F3  = full run (spawn -> npc) to the proven road target (-131.4, -4.0, 51.9)");
         Print("  F4  = taxi visual on/off toggle (applies to the NEXT spawn)");
-        Print("  F5  = call-taxi (Stage 3b): spawn at the FIXED taxi stand -> npc -> navigate to a road point near the player");
         Print("  F6  = full spike run: spawn -> +1s npc -> +1s go 40 (blind forward target)");
         Print("  F7  = taxi probe");
         Print("  F8  = taxi trace on/off toggle");
@@ -1602,36 +1601,54 @@ internal static class SpikeCommands
     internal static void EndRide(string reason, bool stopNavigation = true, bool rearm = false)
     {
         bool wasRiding = SpikeState.RideActive || SpikeState.RideBoarded || SpikeState.RidePassengerMode || SpikeState.RideAwaitingBoard;
-        SpikeState.ResetRide();
-        FareMeter.Stop(reason);
-        RideLocks.UnlockTrunk();
+
+        // Cleanup package (2026-10-03): every step runs in the proven order but is
+        // guarded individually - a throwing step (e.g. FareMeter.Stop's config IO)
+        // must never prevent the steps after it (review: "Fehler protokollieren,
+        // aber UnlockTrunk und StopDriving weiterhin versuchen").
+        CleanupGuard.Run("ResetRide", SpikeState.ResetRide, ReportCleanupFailure);
+        CleanupGuard.Run("FareMeter.Stop", () => FareMeter.Stop(reason), ReportCleanupFailure);
+        CleanupGuard.Run("RideLocks.UnlockTrunk", RideLocks.UnlockTrunk, ReportCleanupFailure);
 
         // Review 2026-10-02, point 3: exit/arrival/give-up/STOP share ONE stop routine —
         // order invalidated, patrol released, reverse + navigation stopped, car parked,
         // runner state cleared. The idle guard verifies the standstill afterwards.
         if (stopNavigation && wasRiding)
-            SpikeRunner.StopDriving(reason);
+            CleanupGuard.Run("StopDriving", () => SpikeRunner.StopDriving(reason), ReportCleanupFailure);
         else
-            TaxiAI.StopPatrol(reason);
+            CleanupGuard.Run("StopPatrol", () => TaxiAI.StopPatrol(reason), ReportCleanupFailure);
 
         string rearmNote = string.Empty;
         if (rearm)
         {
-            LandVehicle? veh = SpikeState.Vehicle;
-            NPC? npc = SpikeState.DriverNpc;
-            LandVehicle? npcVehicle = npc == null ? null : SafeVehicle(npc);
-            bool playerOut = veh == null || !veh.LocalPlayerIsInVehicle;
-            bool npcAtWheel = veh != null && npc != null && SafeInVehicle(npc) && npcVehicle != null && npcVehicle.Pointer == veh.Pointer;
-            if (playerOut && npcAtWheel)
-            {
-                SpikeState.RideAwaitingBoard = true;
-                rearmNote = " — next board (E) starts a new ride";
-            }
+            CleanupGuard.Run(
+                "rearm",
+                () =>
+                {
+                    LandVehicle? veh = SpikeState.Vehicle;
+                    NPC? npc = SpikeState.DriverNpc;
+                    LandVehicle? npcVehicle = npc == null ? null : SafeVehicle(npc);
+                    bool playerOut = veh == null || !veh.LocalPlayerIsInVehicle;
+                    bool npcAtWheel = veh != null && npc != null && SafeInVehicle(npc) && npcVehicle != null && npcVehicle.Pointer == veh.Pointer;
+                    if (playerOut && npcAtWheel)
+                    {
+                        SpikeState.RideAwaitingBoard = true;
+                        rearmNote = " — next board (E) starts a new ride";
+                    }
+                },
+                ReportCleanupFailure);
         }
 
         if (wasRiding)
             Mod.Log.Info($"[ride] ended ({reason}) — input/trunk locks released{rearmNote}.");
     }
+
+    /// <summary>
+    /// Cleanup package: one line per failed cleanup step; the remaining steps
+    /// still run (see <see cref="CleanupGuard"/>).
+    /// </summary>
+    internal static void ReportCleanupFailure(string label, Exception ex) =>
+        Mod.Log.Warn($"[ride] cleanup step '{label}' failed ({ex.GetType().Name}: {ex.Message}) — continuing with the remaining cleanup.");
 
     /// <summary>
     /// Review 2026-10-02, point 3: a finished pickup is FINAL — its order is invalidated
@@ -2133,6 +2150,34 @@ internal static class SpikeCommands
         // A dispatch means the wait is over (Paket A: ride started mid-ride by the picker).
         SpikeState.RideAwaitingDestination = false;
 
+        // Ghost-ride skip (log-proven 2026-10-03, refined: target identity is
+        // required — a different nearby pick must still dispatch).
+        // Conservative: same completed target, in threshold, parked, last
+        // navigation COMPLETED — never after a give-up or an unknown end.
+        // TickRide declares ARRIVED next frame.
+        bool ghostCase = false;
+        if (veh != null)
+        {
+            try
+            {
+                ghostCase =
+                    Vector3.Distance(veh.transform.position, destination) <= SpikeRunner.ArrivalThresholdMeters &&
+                    Vector3.Distance(destination, SpikeState.NavTarget) <= 1f &&
+                    Mathf.Abs(veh.Speed_Kmh) <= 1f; // parked-car bound (cf. PatrolStandingKmh)
+            }
+            catch { /* dispatch normally */ }
+        }
+        if (ghostCase && !SpikeState.NavGaveUp &&
+            string.Equals(SpikeState.NavCallbackResult, "Complete", StringComparison.Ordinal))
+        {
+            SpikeState.RideDestination = destination;
+            SpikeState.NavTarget = destination;
+            SpikeState.ActiveTripName = SpikeState.RideDestinationName;
+            SpikeState.ActiveTripPoint = destination;
+            Mod.Log.Info($"[ride] {caller}: already at {SpikeState.RideDestinationName} — skipping dispatch, arrival next frame.");
+            return true;
+        }
+
         // The meter starts the moment the destination turns into a drive (Dominik:
         // "der Trigger beginnt wenn die Destination ausgewählt ist"). Idempotent —
         // a mid-ride re-route keeps the running total.
@@ -2259,15 +2304,15 @@ internal static class SpikeCommands
 
     /// <summary>
     /// Stage 3b call-taxi — the single source of truth for ordering the taxi.
-    /// Shared by the F5 hotkey (<see cref="SpikeRunner.HandleHotkey"/>) and the
-    /// in-game phone app (<c>TaxiApp</c> "CALL TAXI"): the shared run-start guard
-    /// (<see cref="SpikeRunner.TryBeginGo"/>), the one-shot stand arm
-    /// (<see cref="PrepareStand"/>) and the automation state block all live here,
-    /// so the hotkey and the phone button can never drift apart.
+    /// Called from the in-game phone app (<c>TaxiApp</c> "CALL TAXI"); the F5
+    /// hotkey was removed (2026-10-03: re-calling with a standing taxi destroyed
+    /// it first). The shared run-start guard (<see cref="SpikeRunner.TryBeginGo"/>),
+    /// the one-shot stand arm (<see cref="PrepareStand"/>) and the automation
+    /// state block all live here.
     /// The run spawns at the taxi stand → +1 s npc → +1 s navigate to a road
     /// point near the player (step 3 reads <c>SpikeState.AutoToPlayer</c>).
     /// </summary>
-    /// <param name="caller">Who ordered the taxi (e.g. <c>"F5"</c>, <c>"TaxiApp"</c>) — used verbatim in the log lines.</param>
+    /// <param name="caller">Who ordered the taxi (e.g. <c>"TaxiApp"</c>) — used verbatim in the log lines.</param>
     /// <returns><c>true</c> when the run was started; <c>false</c> with a logged reason otherwise.</returns>
     internal static bool CallTaxi(string caller)
     {

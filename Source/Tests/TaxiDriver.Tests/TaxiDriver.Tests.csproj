@@ -25,7 +25,10 @@
     Unity-free logic is extracted.
   -->
   <ItemGroup>
+    <Compile Include="..\..\Mods\TaxiDriver\src\CleanupGuard.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\DestinationFilter.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\FareLedger.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\FarePayment.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\HeroSnapshot.cs" />
   </ItemGroup>
 

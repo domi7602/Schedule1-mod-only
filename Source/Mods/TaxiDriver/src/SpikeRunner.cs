@@ -74,6 +74,12 @@ internal static class SpikeRunner
     private const float IdleGuardSeconds = 1f;
     private const int IdleGuardMaxAttempts = 3;
 
+    /// <summary>Speed drop that proves a stop action worked (anything less = the brakes do nothing).</summary>
+    private const float IdleSlowEpsilonKmh = 0.5f;
+
+    /// <summary>Quiet interval once the brake action is proven ineffective (log-proven roll case).</summary>
+    private const float IdleQuietSeconds = 30f;
+
     /// <summary>Exit debounce (review 2026-10-02): the seat flag has been seen to flap for a frame.</summary>
     private const float PlayerOutDebounceSeconds = 0.3f;
 
@@ -103,6 +109,9 @@ internal static class SpikeRunner
     private static float _playerOutSince;
     private static float _idleMovingSince;
     private static int _idleStopAttempts;
+    private static bool _idleIneffective;
+    private static float _idleLastSpeed;
+    private static float _idleNextLogAt;
 
     internal static void ArmStartupRecovery(LandVehicle veh)
     {
@@ -180,6 +189,9 @@ internal static class SpikeRunner
         _freeSpotRescues = 0;
         _idleMovingSince = 0f;
         _idleStopAttempts = 0;
+        _idleIneffective = false;
+        _idleLastSpeed = 0f;
+        _idleNextLogAt = 0f;
         TaxiLog.Verbose($"[drive] stopped ({reason}) — order invalidated, patrol released, navigation off, car parked.");
     }
 
@@ -199,7 +211,7 @@ internal static class SpikeRunner
     /// <c>endAtRoad = true</c> — the non-callback verdict must not call that a
     /// failure.
     /// </summary>
-    private const float ArrivalThresholdMeters = 10f;
+    internal const float ArrivalThresholdMeters = 10f;
 
     /// <summary>Stage 4: speed at or below this counts as "standing" while the game's patrol driver owns the ride.</summary>
     private const float PatrolStandingKmh = 1f;
@@ -447,10 +459,20 @@ internal static class SpikeRunner
                 // cosmetic only
             }
 
+            // Roll diagnosis (log-proven 2026-10-03: constant -2.5 km/h rolling
+            // with brakes set). Reversing/brakes/pitch decide slope vs stuck gear.
+            string reversing = "n/a";
+            string brakeState = "n/a";
+            string pitch = "n/a";
+            try { reversing = agent.IsReversing.ToString(); } catch { /* cosmetic */ }
+            try { brakeState = $"brakes={veh.BrakesApplied} hand={veh.HandbrakeApplied}"; } catch { /* cosmetic */ }
+            try { pitch = TaxiDestinations.Num(veh.transform.forward.y); } catch { /* cosmetic */ }
+
             Mod.Log.Warn(
                 $"[probe] {context}: order={SpikeState.NavOrder} frame={Time.frameCount} " +
                 $"vehPtr=0x{veh.Pointer.ToInt64():X} agentPtr=0x{agent.Pointer.ToInt64():X} " +
                 $"autoDriving1={a1} navCalc1={n1} autoDriving2={a2} navCalc2={n2} " +
+                $"reversing={reversing} {brakeState} pitchFwdY={pitch} " +
                 $"speed={TaxiDestinations.Num(speed)} km/h pos={SpikeCommands.Fmt(veh.transform.position)} " +
                 $"stuck={agent.GetIsStuck()} ahead={DescribeAhead(veh)}");
         }
@@ -522,6 +544,8 @@ internal static class SpikeRunner
         {
             _idleMovingSince = 0f;
             _idleStopAttempts = 0;
+            _idleIneffective = false;
+            _idleLastSpeed = 0f;
             return;
         }
 
@@ -530,6 +554,8 @@ internal static class SpikeRunner
         {
             _idleMovingSince = 0f;
             _idleStopAttempts = 0;
+            _idleIneffective = false;
+            _idleLastSpeed = 0f;
             return;
         }
 
@@ -545,8 +571,12 @@ internal static class SpikeRunner
 
         if (speed < IdleGuardSpeedKmh)
         {
+            if (_idleIneffective)
+                Mod.Log.Info("[guard] recovered — the taxi stands still again.");
             _idleMovingSince = 0f;
             _idleStopAttempts = 0; // standing = the stop worked; fresh budget next time
+            _idleIneffective = false;
+            _idleLastSpeed = 0f;
             return;
         }
 
@@ -562,10 +592,33 @@ internal static class SpikeRunner
 
         _idleMovingSince = now;
         _idleStopAttempts++;
-        Mod.Log.Warn(
-            $"[guard] the taxi is moving without an active order (speed={TaxiDestinations.Num(speed)} km/h, " +
-            $"attempt {_idleStopAttempts}/{IdleGuardMaxAttempts}, destination='{SpikeState.RideDestinationName}') — stopping it.");
-        LogAgentProbe("idle guard");
+
+        // Effectiveness latch (log-proven 2026-10-03: 12 s rolling at -2.5 km/h
+        // while the guard re-applied the same useless brakes every second). If
+        // the last action did not slow the car, warn once with a handoff and go
+        // quiet — repeating it helps nobody. No auto-despawn, ever: destroying
+        // under a seated player stays forbidden.
+        bool slowing = _idleLastSpeed <= 0f || speed < _idleLastSpeed - IdleSlowEpsilonKmh;
+        _idleLastSpeed = speed;
+        if (!slowing && !_idleIneffective)
+        {
+            _idleIneffective = true;
+            _idleNextLogAt = now;
+            Mod.Log.Warn(
+                $"[guard] brake action ineffective — the taxi keeps rolling at {TaxiDestinations.Num(speed)} km/h " +
+                $"destination='{SpikeState.RideDestinationName}': press STOP to despawn it or E to get out. Further reminders are throttled.");
+        }
+
+        bool loud = !_idleIneffective || now >= _idleNextLogAt;
+        if (loud)
+        {
+            if (_idleIneffective)
+                _idleNextLogAt = now + IdleQuietSeconds;
+            Mod.Log.Warn(
+                $"[guard] the taxi is moving without an active order (speed={TaxiDestinations.Num(speed)} km/h, " +
+                $"attempt {_idleStopAttempts}/{IdleGuardMaxAttempts}, destination='{SpikeState.RideDestinationName}') — stopping it.");
+            LogAgentProbe("idle guard");
+        }
         try
         {
             veh.Agent?.StopNavigating();
@@ -585,7 +638,7 @@ internal static class SpikeRunner
             Mod.Log.Warn($"[guard] setting the brakes failed: {ex.Message}");
         }
 
-        if (_idleStopAttempts >= IdleGuardMaxAttempts)
+        if (_idleStopAttempts >= IdleGuardMaxAttempts && !_idleIneffective)
         {
             Mod.Log.Error("[guard] the taxi keeps moving without an order — press STOP to despawn it (the state is not being stopped silently).");
             _idleStopAttempts = 0;
@@ -782,20 +835,6 @@ internal static class SpikeRunner
                 $"F4 → visual swap {(SpikeState.VisualSwapEnabled ? "ON" : "OFF")} (applies to next spawn).");
         }
 
-        /// <summary>
-        /// F5 — Stage 3b call-taxi flow: the taxi starts at the FIXED taxi stand
-        /// (a vanilla ParkingLot spot, Dominik: "das Auto nur via den Taxi-Fahrer
-        /// spawnen … einen fixen Punkt, wo er losfährt — Parkplatz") and drives TO
-        /// the player: spawn at the stand → nearest NPC boards → navigate to a road
-        /// point near the player (see <see cref="RoadTarget"/>). E then puts the
-        /// local player aboard. The flow itself lives in
-        /// <see cref="SpikeCommands.CallTaxi"/> — single source of truth shared with
-        /// the Taxi phone app.
-        /// </summary>
-        else if (Input.GetKeyDown(KeyCode.F5))
-        {
-            SpikeCommands.CallTaxi("F5");
-        }
     }
 
     /// <summary>
@@ -1053,7 +1092,9 @@ internal static class SpikeRunner
             }
 
             float dist = Vector3.Distance(veh.transform.position, SpikeState.NavTarget);
-            FareMeter.Stop("arrived");
+            // Cleanup package (2026-10-03): a FareMeter.Stop failure (config IO)
+            // must not skip the arrival verdict or the rest of the tick chain.
+            CleanupGuard.Run("FareMeter.Stop(arrived)", () => FareMeter.Stop("arrived"), SpikeCommands.ReportCleanupFailure);
             // Honest verdict (bug1, 2026-09-29): the ride used to announce ARRIVED even
             // 152.9 m off when the callback came back Failed - RideArrived only means
             // "driving done", but every consumer read it as "arrived". Any end beyond the

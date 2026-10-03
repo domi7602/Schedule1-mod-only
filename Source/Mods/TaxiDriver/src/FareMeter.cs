@@ -59,6 +59,12 @@ internal static class FareMeter
 
     private static bool _active;
     private static int _chargedTotal;
+
+    /// <summary>
+    /// Total calculated (due) for the current/last ride. TD-04: calculated fare
+    /// and confirmed charge are separate quantities - a client shows only this one.
+    /// </summary>
+    private static int _calculatedTotal;
     private static float _lastTickAt;
     private static int _lastTickFrame = -1;
     private static int _nextChargeLogAt = 10;
@@ -136,6 +142,7 @@ internal static class FareMeter
         _active = true;
         _ledger.Reset();
         _chargedTotal = 0;
+        _calculatedTotal = 0;
         _lastTickAt = Time.time;
         _lastTickFrame = -1;
         _nextChargeLogAt = 10;
@@ -227,57 +234,127 @@ internal static class FareMeter
     }
 
     /// <summary>Charges whole dollars: cash first (never below 0), the rest to the bank.</summary>
+    /// <remarks>
+    /// Behavior-preserving seam extraction (2026-10-03, seam-mapping.md): thin
+    /// adapter around <see cref="FarePayment.Execute"/>. Control flow, catch
+    /// boundaries, payloads, the client path and the special-value split are
+    /// unchanged; the counter and all log text stay here.
+    /// </remarks>
     private static void Charge(int dollars)
     {
+        PaymentOutcome outcome;
         try
         {
-            if (!NetworkGuard.IsHostOrSingleplayer())
-            {
-                // Fail-closed like BusinessIncome: a client never touches money, but
-                // the meter display stays honest (the fare still "ran").
-                if (!_mpWarned)
-                {
-                    _mpWarned = true;
-                    Mod.Log.Warn("[meter] multiplayer client — the meter counts, but no money is charged here (host authority).");
-                }
+            // The host-gate call sat inside the original try (old line 234) - kept
+            // there so a thrown gate produces the identical "fare skipped" line.
+            bool isHost = NetworkGuard.IsHostOrSingleplayer();
 
-                _chargedTotal += dollars;
-                return;
-            }
-
-            float cash;
-            try
-            {
-                cash = Money.GetCashBalance();
-            }
-            catch (Exception)
-            {
-                cash = 0f;
-            }
-
-            int fromCash = (int)Mathf.Min(Mathf.Max(cash, 0f), dollars);
-            int fromBank = dollars - fromCash;
-
-            if (fromCash > 0)
-                Money.ChangeCashBalance(-fromCash, true, false);
-
-            if (fromBank > 0)
-                Money.CreateOnlineTransaction("Taxi fare", -fromBank, 1, "Taxi");
-
-            _chargedTotal += dollars;
-
-            // One quiet line per $10 — the per-second tick must never spam the log.
-            if (_chargedTotal >= _nextChargeLogAt)
-            {
-                _nextChargeLogAt = (_chargedTotal / 10 + 1) * 10;
-                TaxiLog.Verbose(
-                    $"[meter] ${_chargedTotal} charged so far " +
-                    $"({_ledger.MovingMinutes:0.###} moving in-game minutes; rate=${Config.DollarsPerInGameMinute}/full minute, clock=TimeManager; last charge: ${fromCash} cash / ${fromBank} bank, frame={Time.frameCount}).");
-            }
+            outcome = FarePayment.Execute(
+                dollars,
+                Wallet,
+                isHost,
+                recordCharge: d => _chargedTotal += d,
+                clientWarnOnce: WarnClientOnce,
+                chargeSummaryLog: LogChargeSummary);
         }
         catch (Exception ex)
         {
-            Mod.Log.Warn($"[meter] charging ${dollars} failed ({ex.GetType().Name}: {ex.Message}) — ride continues, fare skipped.");
+            // Reachable only from the host-gate call above (Execute never throws).
+            Mod.Log.Warn($"[meter] charging ${dollars} failed ({ex.GetType().Name}: {ex.Message}) — ride continues, nothing further was attempted.");
+            return;
+        }
+
+        _calculatedTotal += outcome.CalculatedDollars; // TD-04: the due fare always accrues
+
+        if (outcome.CashReadFailed)
+        {
+            // TD-02 (fixed 2026-10-03): fail closed - explicit report, nothing touched.
+            Mod.Log.Warn(
+                $"[meter] charging ${dollars} aborted — cash balance unreadable ({outcome.CashReadError}); " +
+                $"nothing was charged, ${outcome.UnpaidDollars} reported as unpaid.");
+        }
+        else if (outcome.Caught)
+        {
+            if (outcome.UnknownDollars > 0 || outcome.UnpaidDollars > 0)
+            {
+                // TD-01 (fixed 2026-10-03): name the confirmed, unknown and unpaid
+                // parts - no blanket "fare skipped", a thrown part is never called
+                // "not charged", and nothing is retried.
+                Mod.Log.Warn(
+                    $"[meter] charging ${dollars} partially applied — confirmed ${outcome.CountedDollars}, " +
+                    $"unknown ${outcome.UnknownDollars} (a money call threw; outcome unknown, never retried), " +
+                    $"unpaid ${outcome.UnpaidDollars} ({outcome.CaughtType}: {outcome.CaughtMessage}).");
+            }
+            else
+            {
+                Mod.Log.Warn(
+                    $"[meter] ${outcome.CountedDollars} charged; a post-payment step failed ({outcome.CaughtType}: {outcome.CaughtMessage}).");
+            }
+        }
+    }
+
+    /// <summary>Original client warn-once block (old lines 238-242), verbatim.</summary>
+    private static void WarnClientOnce()
+    {
+        if (!_mpWarned)
+        {
+            _mpWarned = true;
+            Mod.Log.Warn("[meter] multiplayer client — the meter counts, but no money is charged here (host authority).");
+        }
+    }
+
+    /// <summary>
+    /// Original $10 summary block (old lines 270-276), verbatim except the two
+    /// split values: those are read from the wallet, which records exactly the
+    /// parts dispatched to S1API (reset per settlement at the cash read). Same
+    /// values as the original locals fromCash/fromBank.
+    /// </summary>
+    private static void LogChargeSummary()
+    {
+        if (_chargedTotal >= _nextChargeLogAt)
+        {
+            _nextChargeLogAt = (_chargedTotal / 10 + 1) * 10;
+            int fromCash = Wallet.LastCashPart;
+            int fromBank = Wallet.LastBankPart;
+            TaxiLog.Verbose(
+                $"[meter] ${_chargedTotal} charged so far " +
+                $"({_ledger.MovingMinutes:0.###} moving in-game minutes; rate=${Config.DollarsPerInGameMinute}/full minute, clock=TimeManager; last charge: ${fromCash} cash / ${fromBank} bank, frame={Time.frameCount}).");
+        }
+    }
+
+    private static readonly S1ApiWallet Wallet = new();
+
+    /// <summary>
+    /// Production <see cref="IGameWallet"/>: forwards 1:1 to S1API.Money.Money
+    /// (same arguments as the original direct calls) and records the dispatched
+    /// split parts from the call arguments so <see cref="LogChargeSummary"/> can
+    /// print the same values as before the extraction.
+    /// </summary>
+    private sealed class S1ApiWallet : IGameWallet
+    {
+        /// <summary>Cash part (fromCash) of the current settlement; 0 when no call ran.</summary>
+        internal int LastCashPart;
+
+        /// <summary>Bank part (fromBank) of the current settlement; 0 when no call ran.</summary>
+        internal int LastBankPart;
+
+        public float GetCashBalance()
+        {
+            LastCashPart = 0;
+            LastBankPart = 0;
+            return Money.GetCashBalance();
+        }
+
+        public void ChangeCashBalance(float delta, bool visualizeChange, bool playCashSound)
+        {
+            LastCashPart = (int)-delta;
+            Money.ChangeCashBalance(delta, visualizeChange, playCashSound);
+        }
+
+        public void CreateOnlineTransaction(string transactionName, float unitAmount, float quantity, string transactionNote)
+        {
+            LastBankPart = (int)-unitAmount;
+            Money.CreateOnlineTransaction(transactionName, unitAmount, quantity, transactionNote);
         }
     }
 
@@ -330,12 +407,21 @@ internal static class FareMeter
 
         _active = false;
         int total = _chargedTotal;
+        int calculated = _calculatedTotal;
         int minutes = (int)_ledger.MovingMinutes;
         FareConfig cfg = Config;
 
-        Mod.Log.Info($"[meter] ride ended ({reason}) — fare ${total} for {minutes} moving in-game minute(s).");
+        Mod.Log.Info(
+            $"[meter] ride ended ({reason}) — fare ${calculated} calculated, ${total} charged " +
+            $"for {minutes} moving in-game minute(s).");
 
-        if (!cfg.Enabled || total <= 0)
+        // TD-04: only confirmed charges are called "charged"; a diverging total is
+        // named "not confirmed" (unpaid/unknown parts, or host authority on clients).
+        string fareText = calculated == total
+            ? $"Fare ${total} — {minutes} moving in-game min (${cfg.DollarsPerInGameMinute}/min)"
+            : $"Fare ${calculated} calculated — ${total} charged, ${calculated - total} not confirmed — {minutes} moving in-game min (${cfg.DollarsPerInGameMinute}/min)";
+
+        if (!cfg.Enabled || calculated <= 0)
             return;
 
         try
@@ -345,7 +431,7 @@ internal static class FareMeter
             {
                 notifMgr.SendNotification(
                     "Taxi",
-                    $"Fare ${total} — {minutes} moving in-game min (${cfg.DollarsPerInGameMinute}/min)",
+                    fareText,
                     TaxiIcon.Get(),
                     5f,
                     true);
@@ -365,7 +451,7 @@ internal static class FareMeter
             $"[meter] {(cfg.Enabled ? "ON" : "OFF")} — ${cfg.DollarsPerInGameMinute} per moving in-game minute " +
             $"(0 km/h free, threshold {cfg.MovingSpeedThresholdKmh:0.#} km/h), payment cash→bank (bank may go negative).");
         SpikeCommands.Print(
-            $"[meter] current ride: {(_active ? "RUNNING" : "idle")} — ${_chargedTotal} charged, " +
+            $"[meter] current ride: {(_active ? "RUNNING" : "idle")} — ${_chargedTotal} charged of ${_calculatedTotal} calculated, " +
             $"{(int)_ledger.MovingMinutes} moving in-game min. Config: {FilePath}");
     }
 }

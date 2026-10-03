@@ -16,11 +16,11 @@ namespace TaxiDriver;
 
 /// <summary>
 /// "Taxi" phone app — landscape ride dashboard in the PotScanner/BankApp design language
-/// (GamePalette surfaces, UISprites two-layer cards, filter chips, banded layout:
-/// hero / actions / filters / flexible destination list).
+/// (GamePalette surfaces, UISprites two-layer cards, filter chips, search band,
+/// banded layout: hero / actions / filters / search / flexible destination list).
 ///
-/// CALL TAXI runs the same flow as the F5 hotkey (<see cref="SpikeCommands.CallTaxi"/>),
-/// STOP runs <see cref="SpikeCommands.Stop"/>, and tapping a destination row runs the
+/// CALL TAXI runs the shared call-taxi flow (<see cref="SpikeCommands.CallTaxi"/>;
+/// the former F5 hotkey was removed 2026-10-03), STOP runs <see cref="SpikeCommands.Stop"/>, and tapping a destination row runs the
 /// shared <see cref="SpikeCommands.SetRideDestination"/>. The hero mirrors the live
 /// <see cref="SpikeState"/> (state, drop-off, fare from <see cref="FareMeter"/>) and is
 /// the only status surface — button outcomes appear there for a few seconds.
@@ -28,7 +28,8 @@ namespace TaxiDriver;
 /// Lifecycle follows the golden rules: explicit Horizontal orientation, isolated
 /// background panel (starts hidden, never destroyed), <c>OnUpdate</c> wired exactly once,
 /// close deferred by <see cref="TaxiCloseExperiment"/> (Rule 12 — the open-direction
-/// visibility sync is never gated). No text input, no persistence.
+/// visibility sync is never gated). One text input (the session-only destination
+/// search, typing guard per phoneapp Rule 5), no persistence.
 /// </summary>
 public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
 {
@@ -102,6 +103,11 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     private Button? _clearButton;
     private Image? _clearFill;
     private Text? _clearLabel;
+
+    // ---- destination search (session-only, never persisted) --------------------
+    private InputField? _searchInput;
+    private string _searchQuery = string.Empty;
+    private GameObject? _searchClearGo;
 
     /// <summary>Destination rows keyed by their click key (catalog index / "STAND"), each carrying
     /// the name the highlight compares against.</summary>
@@ -182,6 +188,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         CreateHero(_mainBG.transform);
         CreateActionRow(_mainBG.transform);
         CreateFilterToolbar(_mainBG.transform);
+        CreateSearchBand(_mainBG.transform);
         CreateList(_mainBG.transform);
 
         RefreshHero();
@@ -263,6 +270,13 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            // Search feature: the first Escape clears the search, the second closes.
+            if (_searchQuery.Trim().Length > 0)
+            {
+                SetSearchQuery(string.Empty);
+                return;
+            }
+
             CloseApp();
             return;
         }
@@ -441,6 +455,113 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         RefreshFilterChips();
     }
 
+    /// <summary>
+    /// Search band (Dp32): live destination search over name and type tag
+    /// (<see cref="DestinationFilter"/>), combined with the filter chips above.
+    /// Session-only (never persisted); typing is guarded by
+    /// <see cref="TaxiAppInputFocus"/> so neither the player nor the hotkeys
+    /// react while the field is focused (phoneapp Rule 5/17).
+    /// </summary>
+    private void CreateSearchBand(Transform parent)
+    {
+        var band = UIFactory.Panel("SearchBand", parent, Color.clear);
+        var bandImg = band.GetComponent<Image>();
+        if (bandImg != null) bandImg.raycastTarget = false;
+        var bandLe = band.AddComponent<LayoutElement>();
+        bandLe.minHeight = UITheme.Dp(32f);
+        bandLe.preferredHeight = UITheme.Dp(32f);
+        bandLe.flexibleHeight = 0f;
+
+        var hlg = band.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = UITheme.Dp(8f);
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = false;
+        hlg.childForceExpandHeight = true;
+
+        var card = CreateCard("SearchPanel", band.transform, CardFill, out Image fill, raycastTarget: true, radius: ChipRadius);
+        var cardLe = card.AddComponent<LayoutElement>();
+        cardLe.flexibleWidth = 1f;
+        cardLe.minWidth = UITheme.Dp(120f);
+        cardLe.flexibleHeight = 1f;
+
+        // Rule 17: the field surface must stay clickable - the card image (created
+        // with raycastTarget: true) is the InputField's target graphic.
+        _searchInput = card.AddComponent<InputField>();
+        _searchInput.transition = Selectable.Transition.None;
+        _searchInput.targetGraphic = card.GetComponent<Graphic>();
+        _searchInput.lineType = InputField.LineType.SingleLine;
+        _searchInput.caretWidth = 2;
+        _searchInput.caretColor = TextPrimary;
+        _searchInput.selectionColor = new Color(0.22f, 0.45f, 0.90f, 0.30f);
+
+        var text = UIFactory.Text("SearchText", string.Empty, fill.transform, UITheme.Sp(11), TextAnchor.MiddleLeft);
+        text.color = TextPrimary;
+        text.supportRichText = false;
+        text.raycastTarget = false;
+        AnchorRect(text.rectTransform, 0.05f, 0f, 0.95f, 1f);
+
+        var placeholder = UIFactory.Text("SearchPlaceholder", "Search destinations (name or type)", fill.transform, UITheme.Sp(11), TextAnchor.MiddleLeft);
+        placeholder.color = TextDim;
+        placeholder.supportRichText = false;
+        placeholder.raycastTarget = false;
+        AnchorRect(placeholder.rectTransform, 0.05f, 0f, 0.95f, 1f);
+
+        _searchInput.textComponent = text;
+        _searchInput.placeholder = placeholder;
+
+        // Clear chip beside the field (hidden while the query is empty).
+        var clearCard = CreateCard("SearchClearPanel", band.transform, CardFill, out Image clearFill, raycastTarget: true, radius: ChipRadius);
+        var clearLe = clearCard.AddComponent<LayoutElement>();
+        clearLe.preferredWidth = UITheme.Dp(40f);
+        clearLe.minWidth = UITheme.Dp(36f);
+        clearLe.flexibleWidth = 0f;
+        var clearButton = clearCard.AddComponent<Button>();
+        clearButton.transition = Selectable.Transition.None;
+        var clearLabel = UIFactory.Text("SearchClearLbl", "X", clearFill.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
+        clearLabel.color = TextDim;
+        clearLabel.raycastTarget = false;
+        AnchorRect(clearLabel.rectTransform, 0.03f, 0f, 0.97f, 1f);
+        ButtonUtils.AddListener(clearButton, OnSearchClearPressed);
+        _searchClearGo = clearCard;
+        _searchClearGo.SetActive(false);
+
+        EventHelper.RemoveListener(OnSearchQueryChanged, _searchInput.onValueChanged);
+        EventHelper.AddListener(OnSearchQueryChanged, _searchInput.onValueChanged);
+
+        // Rule 5: the typing guard lives on the band and dies with it (OnDisable
+        // resets Controls.IsTyping).
+        var focusHook = band.AddComponent<TaxiAppInputFocus>();
+        focusHook.searchInput = _searchInput;
+    }
+
+    /// <summary>Search text changed (live filter).</summary>
+    private void OnSearchQueryChanged(string value) => SetSearchQuery(value, fromField: true);
+
+    /// <summary>Clear chip: empties the search field and shows the full list again.</summary>
+    private void OnSearchClearPressed() => SetSearchQuery(string.Empty);
+
+    /// <summary>
+    /// Single write path for the search query: updates the field (unless the
+    /// change came FROM the field), toggles the clear chip and rebuilds the list.
+    /// Setting <c>.text</c> re-fires onValueChanged - the equality guard makes
+    /// that a no-op.
+    /// </summary>
+    private void SetSearchQuery(string value, bool fromField = false)
+    {
+        string normalized = value ?? string.Empty;
+        if (string.Equals(_searchQuery, normalized, StringComparison.Ordinal))
+            return;
+        _searchQuery = normalized;
+
+        if (!fromField && _searchInput != null && IsAlive(_searchInput))
+            _searchInput.text = normalized;
+        if (_searchClearGo != null)
+            _searchClearGo.SetActive(normalized.Trim().Length > 0);
+
+        RebuildDestinationList();
+    }
+
     /// <summary>Flexible list band: scrollable destination rows (RectMask2D-clipped).</summary>
     private void CreateList(Transform parent)
     {
@@ -502,9 +623,19 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         _destSnapshot.Clear();
         _rowWidths.Clear();
 
-        MakeDestinationRow("STAND", $"Taxi-Stand ({TaxiStand.StandName})", "STAND", "Taxi-Stand");
+        string query = _searchQuery.Trim();
+        string standName = $"Taxi-Stand ({TaxiStand.StandName})";
+        int places = 0;
+        int visible = 0; // rows the active chips show WITHOUT the search query
 
-        int places = 1;
+        // The stand row is chip-independent; only the search can hide it.
+        visible++;
+        if (DestinationFilter.Matches(query, standName, "STAND"))
+        {
+            MakeDestinationRow("STAND", standName, "STAND", "Taxi-Stand");
+            places++;
+        }
+
         if (!TaxiDestinations.BuildCatalog(out List<TaxiDestinations.Destination> catalog, "TaxiApp list"))
         {
             MakeDestinationRow("NONE", "No places found — is a save loaded?", string.Empty, string.Empty);
@@ -527,6 +658,10 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
                 if (!MatchesFilter(destination))
                     continue;
 
+                visible++;
+                if (!DestinationFilter.Matches(query, destination.Name, destination.Tag))
+                    continue;
+
                 string rowKey = RowKey(destination);
                 if (_destSnapshot.ContainsKey(rowKey))
                     rowKey += "#" + destination.Index; // twins within 1 m stay tappable
@@ -535,8 +670,11 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
                 places++;
             }
 
+            if (places == 0 && query.Length > 0)
+                MakeDestinationRow("NOMATCH", $"No destination matches '{query}'", string.Empty, string.Empty);
+
             if (IsAlive(_countText))
-                _countText.text = $"{places} places";
+                _countText.text = query.Length > 0 ? $"{places} of {visible}" : $"{places} places";
         }
 
         UIFactory.FitContentHeight(_listContent);
