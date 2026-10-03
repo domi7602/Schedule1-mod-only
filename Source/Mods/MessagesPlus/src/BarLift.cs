@@ -25,6 +25,9 @@ internal static class BarLift
     private const float TargetPeak = 0.5f;    // target max channel of the lifted art
     private const float ScaleCap = 25f;       // cap: near-black fringe must not blow up
     private const float Eps = 1f / 255f;
+    private const float FrameMutePeak = 0.30f;   // near-white track/frame -> muted grey
+    private const float FrameMuteAbove = 0.72f;  // min channel above this = near-white
+    private const float FrameMuteSpread = 0.12f; // ...and near-neutral
 
     private static readonly HashSet<int> _lifted = new();           // Image ids we lifted
     private static readonly Dictionary<int, Sprite> _owned = new(); // our sprites (freed on scene unload)
@@ -114,23 +117,38 @@ internal static class BarLift
         try
         {
             int changed = 0;
+            int frameMuted = 0;
             for (int i = 0; i < px.Length; i++)
             {
                 Color32 c = px[i];
                 if (c.a == 0) continue;
                 float r = c.r / 255f, g = c.g / 255f, b = c.b / 255f;
                 float mx = Mathf.Max(r, Mathf.Max(g, b));
+                float mn = Mathf.Min(r, Mathf.Min(g, b));
                 if (mx <= Eps) continue; // pure black has no hue to preserve
-                float scale = Mathf.Clamp(TargetPeak / mx, 1f, ScaleCap);
-                float eff = 1f + ((scale - 1f) * (c.a / 255f)); // damp by alpha: no halo
+
+                // Near-white + neutral = the bar's light track/frame, painted for the
+                // vanilla LIGHT header. Mute it toward the dark theme instead of
+                // lifting it; a coloured segment lifts (max channel to the target
+                // peak, ratios preserved). Both are damped by alpha so edges stay
+                // smooth and no halo appears.
+                bool isFrame = mn > FrameMuteAbove && (mx - mn) < FrameMuteSpread;
+                float factor = isFrame
+                    ? FrameMutePeak / mx
+                    : Mathf.Clamp(TargetPeak / mx, 1f, ScaleCap);
+                float eff = 1f + ((factor - 1f) * (c.a / 255f));
                 byte nr = ToByte(r * eff), ng = ToByte(g * eff), nb = ToByte(b * eff);
-                if (nr != c.r || ng != c.g || nb != c.b) changed++;
+                if (nr != c.r || ng != c.g || nb != c.b)
+                {
+                    changed++;
+                    if (isFrame) frameMuted++;
+                }
                 px[i] = new Color32(nr, ng, nb, c.a);
             }
 
             if (changed == 0)
             {
-                Log($"{label}: {tw}x{th} sprite already bright ({path}) - no lift");
+                Log($"{label}: {tw}x{th} sprite already themed ({path}) - no change");
                 return;
             }
 
@@ -150,7 +168,7 @@ internal static class BarLift
             img.sprite = lifted; // PLAIN slot - never overrideSprite
             _lifted.Add(id);
             _owned[id] = lifted;
-            Log($"{label}: lifted {tw}x{th} sprite ({changed} px, peak={TargetPeak:0.00}, {path})");
+            Log($"{label}: themed {tw}x{th} sprite ({changed} px, {frameMuted} frame px muted, peak={TargetPeak:0.00}, {path})");
         }
         catch (Exception ex)
         {
