@@ -95,20 +95,20 @@ internal static class FareMeter
                     $"(${_config!.DollarsPerInGameMinute}/In-Game-min moving, {(_config.Enabled ? "enabled" : "disabled")}).");
             }
 
-            if (FareConfigRules.IsInvalidThreshold(_config.MovingSpeedThresholdKmh))
-                _config.MovingSpeedThresholdKmh = FareConfigRules.DefaultThresholdKmh;
-
-            // Review 2026-10-02 (point 6): the 0.5 km/h legacy threshold counted the
-            // physics creep (parking-speed crawl) as motion — the 2026-10-01 test ride
-            // billed $9 for ~2 m of crawl. The migration is REAL (file rewritten) and
-            // logs both values, so a later deliberate change is not overwritten again.
-            if (FareConfigRules.IsLegacyThreshold(_config.MovingSpeedThresholdKmh))
+            // Package 8: legacy FIRST (it carries the rewrite), invalid second —
+            // both persist, so a second load is migration-free. The 0.5 km/h
+            // legacy threshold counted physics creep as motion (the 2026-10-01
+            // test ride billed $9 for ~2 m of crawl).
+            float migrated = FareConfigRules.Migrate(
+                _config.MovingSpeedThresholdKmh, out bool changed, out bool wasLegacy);
+            if (changed)
             {
-                float old = _config.MovingSpeedThresholdKmh;
-                _config.MovingSpeedThresholdKmh = FareConfigRules.DefaultThresholdKmh;
-                SafeStorage.SaveAtomic(FilePath, _config, Mod.Log);
                 Mod.Log.Warn(
-                    $"[meter] legacy threshold migrated: {old:0.###} -> 3 km/h (creep no longer billed); {FilePath} updated.");
+                    wasLegacy
+                        ? $"[meter] legacy threshold migrated: {_config.MovingSpeedThresholdKmh:0.###} -> 3 km/h (creep no longer billed); {FilePath} updated."
+                        : $"[meter] invalid threshold {_config.MovingSpeedThresholdKmh:0.###} reset to 3 km/h; {FilePath} updated.");
+                _config.MovingSpeedThresholdKmh = migrated;
+                SafeStorage.SaveAtomic(FilePath, _config, Mod.Log);
             }
             TaxiLog.Verbose($"[meter] loaded {FilePath}: Enabled={_config.Enabled}, DollarsPerInGameMinute={_config.DollarsPerInGameMinute}, MovingSpeedThresholdKmh={_config.MovingSpeedThresholdKmh:0.###}.");
             if (_config.DollarsPerInGameMinute != 1)

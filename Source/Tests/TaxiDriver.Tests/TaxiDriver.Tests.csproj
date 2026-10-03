@@ -26,6 +26,7 @@
   -->
   <ItemGroup>
     <Compile Include="..\..\Mods\TaxiDriver\src\FareLedger.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\HeroSnapshot.cs" />
   </ItemGroup>
 
 </Project>

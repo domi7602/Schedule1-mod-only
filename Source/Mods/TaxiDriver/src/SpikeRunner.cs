@@ -284,6 +284,18 @@ internal static class SpikeRunner
             _playerOutSince += dt;
         if (_idleMovingSince > 0f)
             _idleMovingSince += dt;
+        if (SpikeState.NavRetryAt > 0f)
+            SpikeState.NavRetryAt += dt;
+        if (SpikeState.AutoNextAt > 0f)
+            SpikeState.AutoNextAt += dt;
+        if (SpikeState.PendingSpawnAt > 0f)
+            SpikeState.PendingSpawnAt += dt;
+        if (SpikeState.SettleCheckAt > 0f)
+            SpikeState.SettleCheckAt += dt;
+        if (SpikeState.LastExitAt > 0f)
+            SpikeState.LastExitAt += dt;
+        if (SpikeState.RideHeartbeatAt > 0f)
+            SpikeState.RideHeartbeatAt += dt;
         if (SpikeState.ProgressWindowStart > 0f)
             SpikeState.ProgressWindowStart = Time.unscaledTime; // the window must not age through a pause
     }
@@ -644,21 +656,10 @@ internal static class SpikeRunner
         }
         else if (Input.GetKeyDown(KeyCode.F9))
         {
-            LandVehicle? rideVeh = SpikeState.Vehicle;
-            if (rideVeh == null)
-            {
-                Mod.Log.Info("F9 ignored — no spike vehicle (spawn first).");
-            }
-            else if (rideVeh.LocalPlayerIsInVehicle)
-            {
-                Mod.Log.Info("F9 → taxi out.");
-                SpikeCommands.Out();
-            }
-            else
-            {
-                Mod.Log.Info("F9 → taxi ride.");
-                SpikeCommands.Ride();
-            }
+            // Console-free diagnosis: the MelonLoader window takes no input,
+            // so the one-shot ride scan lives on the freed F9 key.
+            Mod.Log.Info("F9 → taxi diag.");
+            SpikeCommands.Diag();
         }
         /// <summary>F10 — `taxi go2`: Navigate with settings=null (A/B against `taxi go`).</summary>
         else if (Input.GetKeyDown(KeyCode.F10))
@@ -786,7 +787,7 @@ internal static class SpikeRunner
         /// (a vanilla ParkingLot spot, Dominik: "das Auto nur via den Taxi-Fahrer
         /// spawnen … einen fixen Punkt, wo er losfährt — Parkplatz") and drives TO
         /// the player: spawn at the stand → nearest NPC boards → navigate to a road
-        /// point near the player (see <see cref="RoadTarget"/>). F9 then puts the
+        /// point near the player (see <see cref="RoadTarget"/>). E then puts the
         /// local player aboard. The flow itself lives in
         /// <see cref="SpikeCommands.CallTaxi"/> — single source of truth shared with
         /// the Taxi phone app.
@@ -859,9 +860,11 @@ internal static class SpikeRunner
         if (Time.unscaledTime < SpikeState.AutoNextAt)
             return;
 
-        // Step 1 of a deferred-respawn run cannot proceed while the previous vehicle
-        // is still being torn down — wait for the pending spawn instead of failing.
-        if (SpikeState.AutoStep == 1 && SpikeState.PendingSpawnCode != null)
+        // No vehicle-dependent step of a deferred-respawn run may proceed while
+        // the previous vehicle is still being torn down — wait for the pending
+        // spawn instead of failing (time margins alone prove no readiness on
+        // hitching frames).
+        if (SpikeState.AutoStep >= 1 && SpikeState.PendingSpawnCode != null)
             return;
 
         int step = SpikeState.AutoStep;
@@ -951,7 +954,7 @@ internal static class SpikeRunner
 
     /// <summary>
     /// Stage 3c ride kernel (per frame, next to <see cref="TickAutoRun"/>): board
-    /// detection (<c>RideAwaitingBoard</c> + the game's own E-enter / F9 →
+    /// detection (<c>RideAwaitingBoard</c> + the game's own E-enter →
     /// <see cref="SpikeCommands.StartRide"/>), the per-frame passenger seat fix, exit
     /// detection (→ <see cref="SpikeCommands.EndRide"/>, re-armed for the next board) and
     /// the arrival verdict (navigation finished → brakes + handbrake, "Arrived — press E to
@@ -961,10 +964,19 @@ internal static class SpikeRunner
     {
         LandVehicle? veh = SpikeState.Vehicle;
 
+        // Finding 11: settle a provisional boarding first (confirm or fail
+        // loudly) — never blocks the ride kernel below.
+        SpikeCommands.TickSeatVerify();
+
         // Board detection: the pickup reached the player (or the last ride ended with an
-        // exit) and the player just got in (the game's own E-enter or F9) — start the ride.
+        // exit) and the player just got in (the game's own E-enter) — start the ride.
+        // A manual board (no pickup, no rearm) starts one too while the NPC holds
+        // the wheel — but never while a pickup or an automation run owns the car.
         // Paket E: rapid E in/out churn waits out the debounce before a new ride starts.
-        if (SpikeState.RideAwaitingBoard && veh != null && veh.LocalPlayerIsInVehicle &&
+        bool manualBoard = veh != null && veh.LocalPlayerIsInVehicle &&
+            !SpikeState.RideActive && !SpikeState.NavToPlayer && !SpikeState.AutoRunning &&
+            SpikeCommands.DriverAtWheel(veh);
+        if ((SpikeState.RideAwaitingBoard || manualBoard) && veh != null && veh.LocalPlayerIsInVehicle &&
             Time.unscaledTime - SpikeState.LastExitAt >= SpikeCommands.ExitDebounceSeconds)
         {
             SpikeCommands.StartRide("ride-kernel");
@@ -980,7 +992,7 @@ internal static class SpikeRunner
             return;
         }
 
-        // Exit detection: covers the game's own E-exit and `taxi out` / F9.
+        // Exit detection: covers the game's own E-exit and `taxi out`.
         // Review 2026-10-02: the seat flag has been seen to flap for a single frame - a
         // spurious "player exited" ended a ride the player never left. The exit now only
         // counts after PlayerOutDebounceSeconds of continuous absence; a re-entry inside
@@ -1440,12 +1452,14 @@ internal static class SpikeRunner
     /// <summary>Fresh <c>Navigate</c> dispatch with settings=null and a new measurement window.</summary>
     internal static void ReDispatch(VehicleAgent agent, Vector3 target, string why)
     {
+        float now = Time.unscaledTime;
         SpikeState.PollingActive = true;
         SpikeState.NavTarget = target;
-        SpikeState.NavStartTime = Time.unscaledTime;
+        SpikeState.NavStartTime = now;
         SpikeState.NavEverAutoDriving = false;
         SpikeState.NavCallbackResult = null;
         SpikeState.NavRetried = true;
+        SpikeState.NavRetryAt = now;
 
         // Invalidate first, dispatch second (review 2026-10-02, point 2): the fresh
         // order owns the callback from here on; a late result of the old order is stale.
@@ -1511,7 +1525,7 @@ internal static class SpikeRunner
         Mod.Log.Error(
             $"[nav] GAVE UP after {TaxiDestinations.Num(elapsed)} s since the last re-dispatch and {SpikeState.StuckRecoveries} recovery attempt(s) — " +
             $"the taxi did not move ({TaxiDestinations.Num(distance)} m left to {SpikeCommands.Fmt(SpikeState.NavTarget)}, " +
-            $"stuck at {SpikeCommands.Fmt(position)}). Press STOP to despawn the taxi, or E/F9 (`taxi out`) to get out.");
+            $"stuck at {SpikeCommands.Fmt(position)}). Press STOP to despawn the taxi, or E (`taxi out`) to get out.");
 
         try
         {
@@ -1621,7 +1635,7 @@ internal static class SpikeRunner
         SpikeState.PollingActive = false;
 
         // Stage 3b: the F5 run ends HERE — the taxi left the stand and reached the
-        // road point next to the player (the local player then boards with E or F9,
+        // road point next to the player (the local player then boards with E,
         // which starts the Stage-3c passenger ride via the ride kernel).
         if (SpikeState.NavToPlayer && result == VehicleAgent.ENavigationResult.Complete)
         {
@@ -1630,7 +1644,7 @@ internal static class SpikeRunner
             SpikeState.RideAwaitingBoard = true;
             Mod.Log.Info(
                 $"[F5] taxi arrived at player (callback=Complete after {elapsed:F1}s, " +
-                $"{dist:F1} m from the resolved target {SpikeCommands.Fmt(SpikeState.NavTarget)}) — board with E or F9.");
+                $"{dist:F1} m from the resolved target {SpikeCommands.Fmt(SpikeState.NavTarget)}) — board with E.");
             // Review point 3: a finished pickup is final — order invalidated, car parked,
             // only then the boarding gate (never a passenger-ride teardown).
             SpikeCommands.CompletePickup(arrivedVeh, "callback=Complete");
@@ -1937,6 +1951,11 @@ internal static class SpikeRunner
         Mod.Log.Info(
             $"[scene '{sceneName}'] spike vehicle is gone — clearing navigation polling, F6 automation, " +
             "pending respawn and NPC state (stale-state guard).");
+        // Package 4: the trunk list holds scene objects — forget it with the
+        // rest (UnlockTrunk is per-entry exception-safe and ends with Clear).
+        // Only here, where the vehicle is proven gone; a live additive load
+        // above keeps its valid lock.
+        RideLocks.UnlockTrunk();
         SpikeState.Reset();
     }
 

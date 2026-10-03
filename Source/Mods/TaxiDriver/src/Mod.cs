@@ -3,7 +3,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "0.8.1", "Dominik")]
+[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "0.8.2", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace TaxiDriver;
@@ -37,7 +37,7 @@ public class Mod : MelonMod
         GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
         Log.Info("GameLifecycle.OnSaveInfoLoaded hooked — the destination picker is cleared on every save load.");
 
-        Log.Info("Console: `taxi help` (both `taxi` and `/taxi` are registered) — but the MelonLoader console is log-only, so every taxi command is output-only. Hotkeys are the control surface (F1-F12): F1 road target A, F2 road target B, F3 full run to road target, F4 visual swap on/off toggle (applies to the next spawn), F5 call-taxi (spawn at the fixed taxi stand -> npc -> navigate to a road point near the player), F6 full run, F7 probe, F8 trace, F9 ride/out, F10 go2 (settings=null), F11 run without NPC, F12 Navigate on a vanilla vehicle. Hotkeys only fire in the gameplay scene (menu scenes keep their own keys).");
+        Log.Info("Console: `taxi help` (both `taxi` and `/taxi` are registered) — but the MelonLoader console is log-only, so every taxi command is output-only. Hotkeys are the control surface (F1-F12): F1 road target A, F2 road target B, F3 full run to road target, F4 visual swap on/off toggle (applies to the next spawn), F5 call-taxi (spawn at the fixed taxi stand -> npc -> navigate to a road point near the player), F6 full run, F7 probe, F8 trace, F9 diag, F10 go2 (settings=null), F11 run without NPC, F12 Navigate on a vanilla vehicle. Hotkeys only fire in the gameplay scene (menu scenes keep their own keys).");
     }
 
     /// <summary>

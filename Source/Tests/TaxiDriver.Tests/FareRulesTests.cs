@@ -84,3 +84,52 @@ public class FareConfigRulesTests
         Assert.Equal(3f, FareConfigRules.DefaultThresholdKmh);
     }
 }
+
+/// <summary>Pins the package-8 migration decision: legacy first, invalid second, both rewrite.</summary>
+public class FareMigrationTests
+{
+    [Theory]
+    [InlineData(0.5f)]
+    [InlineData(0.1f)]
+    [InlineData(0.05f)]
+    [InlineData(0f)]
+    [InlineData(float.NegativeInfinity)]
+    public void LegacyValues_MigrateWithRewrite(float value)
+    {
+        float fixed_ = FareConfigRules.Migrate(value, out bool changed, out bool wasLegacy);
+        Assert.True(wasLegacy);
+        Assert.True(changed);
+        Assert.Equal(3f, fixed_);
+    }
+
+    [Theory]
+    [InlineData(float.NaN)]
+    [InlineData(float.PositiveInfinity)]
+    public void InvalidNonLegacyValues_RepairWithRewrite(float value)
+    {
+        float fixed_ = FareConfigRules.Migrate(value, out bool changed, out bool wasLegacy);
+        Assert.False(wasLegacy);
+        Assert.True(changed);
+        Assert.Equal(3f, fixed_);
+    }
+
+    [Theory]
+    [InlineData(0.6f)]
+    [InlineData(3f)]
+    public void CurrentValues_PassThroughWithoutRewrite(float value)
+    {
+        float fixed_ = FareConfigRules.Migrate(value, out bool changed, out bool wasLegacy);
+        Assert.False(changed);
+        Assert.Equal(value, fixed_);
+    }
+
+    [Fact]
+    public void RepairedFile_LoadsClean()
+    {
+        // A rewritten value must not migrate again (second load migration-free).
+        float fixed_ = FareConfigRules.Migrate(0.05f, out _, out _);
+        float second = FareConfigRules.Migrate(fixed_, out bool changed, out _);
+        Assert.False(changed);
+        Assert.Equal(fixed_, second);
+    }
+}

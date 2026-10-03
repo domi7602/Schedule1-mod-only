@@ -204,6 +204,25 @@ internal static class FareConfigRules
 
     /// <summary>True for the legacy creep threshold that counted parking-speed crawl as motion.</summary>
     public static bool IsLegacyThreshold(float value) => value <= LegacyThresholdMaxKmh;
+
+    /// <summary>
+    /// Package 8: migration decision (legacy first, invalid second), pure so the
+    /// matrix stays under test. Legacy (even below 0.1) and invalid values both
+    /// repair to the default; <paramref name="changed"/> tells the caller to
+    /// rewrite the file so a second load is migration-free.
+    /// </summary>
+    public static float Migrate(float value, out bool changed, out bool wasLegacy)
+    {
+        wasLegacy = IsLegacyThreshold(value);
+        if (wasLegacy || IsInvalidThreshold(value))
+        {
+            changed = true;
+            return DefaultThresholdKmh;
+        }
+
+        changed = false;
+        return value;
+    }
 }
 
 /// <summary>

@@ -56,7 +56,7 @@ Status legend: **Active** = released and verified in-game · **Active ¹** = cod
 | [**AutoPackagingStation**](Source/Mods/AutoPackagingStation/) | Gameplay | 0.3.4 | Active | Placeable automated packaging line (conveyor belt, weighted quality mixing, auto-unpack) with a 2×2 footprint, unlocked at Hustler I rank. |
 | [**MoreSaveSlots**](Source/Mods/MoreSaveSlots/) | QoL | 1.0.13 | Active | Raises the save-slot count from 5 to 25 (configurable) with paginated menus and inline save renaming. |
 | [**StackLimitMod**](Source/Mods/StackLimitMod/) | QoL | 0.1.8 | Active | Configurable stack limits (default 40, 1–9999) for agriculture items (soil, seeds, baggies, jars, fertiliser, harvested crops); weapons and ammo always keep their vanilla limits. |
-| [**TaxiDriver**](Source/Mods/TaxiDriver/) | Developer | 0.8.1 | Experimental | Orderable taxi from the in-game phone with its own NPC driver: vehicle spawn, autonomous A→B navigation, player ride, GLB visual swap, road-corridor assistance and an in-game fare meter. Still a spike — the current test round is open. |
+| [**TaxiDriver**](Source/Mods/TaxiDriver/) | Developer | 0.8.2 | Experimental | Orderable taxi from the in-game phone with its own NPC driver: vehicle spawn, autonomous A→B navigation, player ride, GLB visual swap, road-corridor assistance and an in-game fare meter. Still a spike — the current test round is open. |
 
 Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not built or shipped): BackpackMod, DayCounter, HomelessMod, Minimap, ProfitTracker, SnackVendor, TVBrowser, `_DiagPerfCounter`. Each mod folder contains its own documentation (`Source/Mods/<Mod>/docs/README.md`) and version history (`Source/Mods/<Mod>/docs/CHANGELOG.md`).
 

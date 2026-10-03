@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.8.2 (2026-10-03) - bug-report batch (14 findings) + taxi diag
+
+- F9 ride/out toggle removed (E is the only in-game board/exit path; console
+  `taxi ride`/`out` stay as diagnostics); F9 now runs the new `taxi diag`
+  one-shot ride scan (verdict, ride flags, picker vs active trip, nav state,
+  car + driver slot, fare) into the MelonLoader log.
+- Recovery re-dispatch refreshes NavRetryAt (full 6 s grace after every
+  handover); pause now freezes all timers (auto-run, pending spawn, settle
+  check, exit debounce, heartbeat).
+- Manual E-boarding with the NPC at the wheel starts a ride (never during a
+  pickup or automation run); double board in one frame opens one ride.
+- Exits park the car first (brakes + handbrake); STOP/cleanup snaps the
+  player to safe ground after a proven exit.
+- Trunk lock survives scene loads (dead entries pruned, unlock on the
+  scene-load reset); tuning.json is applied once per spawn with readback.
+- Hero uses a typed snapshot (no more $32 fare-display freeze); destination
+  rows use stable keys against a held catalog snapshot; hero and `taxi status`
+  show the active trip while driving (`(default ROAD A)` label fixed).
+- Boarding requires the occupant slot, with a bounded 1 s late verdict
+  (no EnterVehicle repeat); config migration repairs and rewrites in both
+  branches; auto-run spawn guard covers all steps.
+- Tests: 61 green (HeroSnapshot boundaries, migration matrix).
+
 ## 0.8.1 (2026-10-02) - internal cleanup (file merges)
 
 - Merged `TaxiIcon` + `TaxiCloseExperiment` into `TaxiApp.cs`, `SpikeTrace` into `SpikeCommands.cs` and `TaxiLog` into `Mod.cs` (21 -> 17 files). Code moved verbatim; class names, console words, Harmony targets and config keys unchanged.

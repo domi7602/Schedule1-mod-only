@@ -88,9 +88,12 @@ internal static class TaxiTuning
             }
 
             agent.StuckTimeThreshold = want;
+            float applied = agent.StuckTimeThreshold;
             Mod.Log.Info(
                 $"[tune] taxi agent StuckTimeThreshold {before:0.###} -> {want:0.###} s " +
-                "(this vehicle's agent only — the game un-sticks earlier).");
+                $"(readback {applied:0.###}; this vehicle's agent only — the game un-sticks earlier).");
+            if (Math.Abs(applied - want) >= 0.01f)
+                Mod.Log.Warn("[tune] readback differs — the game may overwrite StuckTimeThreshold (in-game check open).");
         }
         catch (Exception ex)
         {

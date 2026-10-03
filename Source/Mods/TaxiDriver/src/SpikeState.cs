@@ -77,6 +77,15 @@ internal static class SpikeState
     /// <summary><see cref="Time.unscaledTime"/> of the last successful boarding.</summary>
     internal static float LastBoardedAt;
 
+    /// <summary>Finding 11: NPC with weak boarding proof (flagged in-vehicle, no slot yet) awaiting its late verdict.</summary>
+    internal static NPC? SeatVerifyNpc;
+
+    /// <summary>Vehicle the pending NPC boarded.</summary>
+    internal static LandVehicle? SeatVerifyVeh;
+
+    /// <summary><see cref="Time.unscaledTime"/> when the pending verdict times out, 0 when none.</summary>
+    internal static float SeatVerifyUntil;
+
     // ---- F6 automation ----
     internal static bool AutoRunning;
     internal static int AutoStep;
@@ -158,7 +167,7 @@ internal static class SpikeState
 
     /// <summary>
     /// The call-taxi pickup reached the player (or the last ride ended with an
-    /// exit): the next board (the game's own E-enter or F9) starts a passenger
+    /// exit): the next board (the game's own E-enter) starts a passenger
     /// ride via <see cref="SpikeCommands.StartRide"/>.
     /// </summary>
     internal static bool RideAwaitingBoard;
@@ -195,6 +204,16 @@ internal static class SpikeState
 
     /// <summary>Lot the ride drops off at (empty unless the rule picked a lot).</summary>
     internal static string RideDropOffLot = string.Empty;
+
+    /// <summary>
+    /// Package 7: the running trip's target, snapshotted at dispatch. The picker
+    /// (<see cref="RideDestinationName"/>) may be cleared or re-picked mid-ride;
+    /// hero and status show THIS while driving.
+    /// </summary>
+    internal static string ActiveTripName = string.Empty;
+
+    /// <summary>Dispatched point of the running trip (null while no trip drives).</summary>
+    internal static Vector3? ActiveTripPoint;
 
     /// <summary>True when the progress supervision gave up on the current dispatch.</summary>
     internal static bool NavGaveUp;
@@ -290,6 +309,8 @@ internal static class SpikeState
         RideAwaitingBoard = false;
         RidePassengerMode = false;
         RideAwaitingDestination = false;
+        ActiveTripName = string.Empty;
+        ActiveTripPoint = null;
     }
 
     /// <summary>
@@ -347,6 +368,10 @@ internal static class SpikeState
         ResetNavigation();
         ResetAutoRun();
         ResetRide();
+        // A pending seat verdict refers to destroyed objects — drop it silently.
+        SeatVerifyNpc = null;
+        SeatVerifyVeh = null;
+        SeatVerifyUntil = 0f;
         // LastBoardedNpc/LastBoardedAt deliberately survive: the re-enter cooldown
         // protects against the repeat-EnterVehicle freeze even across a respawn.
     }

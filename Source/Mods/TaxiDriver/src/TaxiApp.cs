@@ -107,6 +107,19 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     /// the name the highlight compares against.</summary>
     private readonly Dictionary<string, (Image Rim, Image Fill, Text Label, Text Tag, string Highlight)> _destRows = new();
 
+    /// <summary>
+    /// Package 7: catalog snapshot held per list build — taps resolve against
+    /// THIS, never against a fresh scene walk with shifted indexes.
+    /// </summary>
+    private readonly Dictionary<string, TaxiDestinations.Destination> _destSnapshot = new();
+
+    /// <summary>Stable row identity: kind + name + 1 m goal grid.</summary>
+    private static string RowKey(TaxiDestinations.Destination destination)
+    {
+        Vector3 g = destination.Goal;
+        return $"{destination.Kind}|{destination.Name}|{(int)Math.Round(g.x)}|{(int)Math.Round(g.y)}|{(int)Math.Round(g.z)}";
+    }
+
     private string _activeFilter = FilterAll;
 
     /// <summary>One-shot per session: first app open writes the complete destination table into the log.</summary>
@@ -117,9 +130,8 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     private float _statusOverrideUntil;
     private const float StatusOverrideSeconds = 4f;
 
-    // Change guards: the Update loop refreshes only when the cheap signature changed.
-    private int _heroSignature = int.MinValue;
-    private string _heroOverrideShown = string.Empty;
+    // Change guard: the Update loop refreshes only when the snapshot changed.
+    private HeroSnapshot _heroSnapshot;
     private int _actionSignature = int.MinValue;
     private int _clearSignature = int.MinValue;
 
@@ -487,6 +499,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
 
         UIFactory.ClearChildren(_listContent);
         _destRows.Clear();
+        _destSnapshot.Clear();
         _rowWidths.Clear();
 
         MakeDestinationRow("STAND", $"Taxi-Stand ({TaxiStand.StandName})", "STAND", "Taxi-Stand");
@@ -506,14 +519,19 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
                 TaxiDestinations.DumpPois("TaxiApp first open — full destination dump (one-shot per session)");
             }
 
-            // The INDEX is the click key: lot names repeat in the scene ("Parking"),
-            // and a name lookup would refuse an ambiguous hit.
+            // Package 7: the row key is a stable identity (kind + name + 1 m goal
+            // grid) into the snapshot held above — never a catalog index, which
+            // shifts when the scene changes between list build and tap.
             foreach (TaxiDestinations.Destination destination in catalog)
             {
                 if (!MatchesFilter(destination))
                     continue;
 
-                MakeDestinationRow(destination.Index.ToString(), destination.Name, destination.Tag, destination.Name);
+                string rowKey = RowKey(destination);
+                if (_destSnapshot.ContainsKey(rowKey))
+                    rowKey += "#" + destination.Index; // twins within 1 m stay tappable
+                _destSnapshot[rowKey] = destination;
+                MakeDestinationRow(rowKey, destination.Name, destination.Tag, destination.Name);
                 places++;
             }
 
@@ -738,23 +756,24 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         string overrideText = overrideActive ? _statusOverride : string.Empty;
         string destination = SpikeState.RideDestinationName;
 
-        int signature = (SpikeState.RideActive ? 1 : 0)
-                        | (SpikeState.RideAwaitingDestination ? 2 : 0)
-                        | (SpikeState.RideArrived ? 4 : 0)
-                        | (SpikeState.NavGaveUp ? 8 : 0)
-                        | (SpikeState.RideDestinationPicked ? 16 : 0)
-                        | (SpikeState.RideAwaitingBoard ? 32 : 0)
-                        | (SpikeState.AutoToPlayer ? 64 : 0)
-                        | ((SpikeState.NavToPlayer && SpikeState.PollingActive) ? 128 : 0)
-                        | (SpikeState.AutoRunning ? 256 : 0)
-                        | (SpikeState.PendingSpawnCode != null ? 512 : 0)
-                        | (SpikeState.Vehicle != null ? 1024 : 0)
-                        | ((destination.GetHashCode() & 0xFFFF) << 11)
-                        | (FareMeter.ChargedTotal << 27);
-        if (signature == _heroSignature && overrideText == _heroOverrideShown)
+        var snapshot = new HeroSnapshot(
+            SpikeState.RideActive,
+            SpikeState.RideAwaitingDestination,
+            SpikeState.RideArrived,
+            SpikeState.NavGaveUp,
+            SpikeState.RideDestinationPicked,
+            SpikeState.RideAwaitingBoard,
+            SpikeState.AutoToPlayer,
+            SpikeState.AutoRunning,
+            SpikeState.PendingSpawnCode != null,
+            SpikeState.Vehicle != null,
+            SpikeState.NavToPlayer && SpikeState.PollingActive,
+            destination,
+            FareMeter.ChargedTotal,
+            overrideText);
+        if (snapshot == _heroSnapshot)
             return;
-        _heroSignature = signature;
-        _heroOverrideShown = overrideText;
+        _heroSnapshot = snapshot;
 
         string title;
         string meta;
@@ -779,10 +798,15 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             }
             else
             {
-                bool picked = SpikeState.RideDestinationPicked;
-                title = picked ? $"RIDING TO {destination.ToUpperInvariant()}" : "RIDING";
+                // Package 7: while driving, the hero names the ACTIVE trip —
+                // the picker may have been cleared or re-picked since dispatch.
+                string trip = SpikeState.ActiveTripPoint.HasValue && SpikeState.ActiveTripName.Length > 0
+                    ? SpikeState.ActiveTripName
+                    : destination;
+                bool showing = SpikeState.RideDestinationPicked || trip != destination;
+                title = showing ? $"RIDING TO {trip.ToUpperInvariant()}" : "RIDING";
                 string dropOff = ShortDropOff(SpikeState.RideDropOff);
-                meta = picked
+                meta = showing
                     ? (string.IsNullOrEmpty(dropOff) ? "On the way" : $"Drop-off: {dropOff}")
                     : "On the way";
                 value = $"FARE ${FareMeter.ChargedTotal}";
@@ -915,7 +939,21 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             return;
         }
 
-        bool ok = SpikeCommands.SetRideDestination(key, "TaxiApp");
+        bool ok;
+        if (string.Equals(key, "STAND", StringComparison.Ordinal))
+        {
+            ok = SpikeCommands.SetRideDestination(key, "TaxiApp");
+        }
+        else if (_destSnapshot.TryGetValue(key, out TaxiDestinations.Destination? destination) && destination != null)
+        {
+            ok = SpikeCommands.ToDestination(destination, "TaxiApp");
+        }
+        else
+        {
+            SetStatusOverride($"'{key}' is no longer listed — reopening the list.");
+            RebuildDestinationList();
+            return;
+        }
         SetStatusOverride(ok
             ? $"Destination: {SpikeState.RideDestinationName}"
             : $"Could not set '{key}' — see the log.");

@@ -18,7 +18,7 @@ public sealed class TaxiConsoleCommand : BaseConsoleCommand
     public override string CommandWord => "taxi";
 
     public override string CommandDescription =>
-        "TaxiDriver spike (Stage 1 drive + Stage 2 visual swap + Stage 3 NPC driver ride + Stage 3b taxi stand / call-taxi): help, codes, spawn, npc, ride, out, go, go2, stop, status, cleanup, probe, trace, visual, lots, stand";
+        "TaxiDriver spike (Stage 1 drive + Stage 2 visual swap + Stage 3 NPC driver ride + Stage 3b taxi stand / call-taxi): help, codes, spawn, npc, ride, out, go, go2, stop, status, diag, cleanup, probe, trace, visual, lots, stand";
 
     public override string ExampleUsage => "taxi to Skatepark";
 
@@ -78,6 +78,10 @@ public sealed class TaxiConsoleCommand : BaseConsoleCommand
 
                 case "status":
                     SpikeCommands.Status();
+                    break;
+
+                case "diag":
+                    SpikeCommands.Diag();
                     break;
 
                 case "cleanup":
