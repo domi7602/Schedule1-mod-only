@@ -17,15 +17,18 @@
 
 **Fix (`DealWindowSelectorPatch`, MessagesPlus v0.4.1):**
 * Postfix `SetIsOpen` — one shared postfix for **both overloads** — and force-refresh the popup's subtree in the same frame.
-* The forced refresh must not overwrite the cached originals (restore must stay exact).
-* Generalise: any vanilla surface that appears on demand needs either a same-frame hook on its show method or a forced re-tint after it re-colours itself.
+* The forced refresh re-applies the stored dark target over whatever the popup re-set while opening (targets are tracked per instance id; the "cached originals" era ended with v0.5.0 — the mode is permanent).
+* Generalise: any vanilla surface that appears on demand needs either a same-frame hook on its show method or a forced re-tint after it re-colours itself. Same-frame hooks exist for the deal window, dead-drop order, confirmation popup, counter-offer interface and its product selector; a rebuild watcher plus a 5 s heartbeat sweep cover anything else.
 
 ## 3. Whole-app theming (`AppTheme`)
 
 * One theme applier recolours the mod's injected surfaces **and** selected vanilla ones: page backgrounds, inbox rows + their texts, chat bubbles + tails, dialogue header + response panel, plus a conservative near-white sweep for leftovers.
 * **Colours only** — never touch layouts, listeners or `raycastTarget` in the theme applier.
-* **One-time per graphic with cached originals** so light mode restores the game's exact look; re-tint graphics the vanilla code re-colours.
+* **Once per graphic with a stored dark target**; a 1 s verification pass restores it when a tracked graphic reads as a light fallback (hover, pooling, rebuilds) — deliberate dark or coloured re-colours are left alone.
+* Selectables whose target graphic gets themed: the graphic is set white and the palette lives in the ColorBlock (uGUI multiplies graphic colour x state colour) — hover/press stay in the dark family and visible.
 * **Never theme avatars, badges or the unread dot** — they carry identity/state.
+* **Sliders stay vanilla** (dialogue header friendship bar): the sweep skips any image under a `Slider` component (or a "Slider" ancestor) - state displays must stay readable on dark surfaces. The current conversation's slider is additionally protected through `MSGConversation.slider` itself (object-name-independent): the spectrum segments, fill and standing marker stay vanilla (a missing ref never opens the guard), only the full-width track is lifted to `TextMuted` when it would blend dark-on-dark, and stale dark targets on slider images are purged so the verify pass cannot restore them. The small-icon pass skips the slider subtree too, so dark spectrum segments are never mistaken for icons. Track resolution prefers a "background" name and falls back to the widest non-fill, non-handle image; a one-time Info-level dump per conversation logs every slider image (name, width, colour, alpha, canvas and group alpha, fill-ref flag) so the real hierarchy can be read from Latest.log.
+* **Keep the aggressive square rules popup-scoped**: vanilla marks plenty of identity art (e.g. the header avatar) raycastable, so "interactive / control-named = theme it" may only run inside popup passes (`ApplyToSubtree`); the app-wide sweep stays conservative (sprite-bearing squares are protected).
 * Permanently-ON mode (v0.4.1): config defaults to ON and a stale `false` self-heals at startup; keep the config field for schema stability instead of deleting it.
 
 ## 4. Making room in vanilla layouts
@@ -48,5 +51,5 @@ When a setting becomes permanent (dark mode ON), keep the field, ignore/rewrite 
 
 ---
 
-**Reference implementation:** `Source/Mods/MessagesPlus/src/` (`AppTheme`, `InboxUI`, `DealWindowSelectorPatch`, `ConversationUtils`).
+**Reference implementation:** `Source/Mods/MessagesPlus/src/` (`AppTheme` incl. the merged popup patches, `InboxUI`, `ConversationUtils`).
 **Related:** `schedule1-phoneapp` SKILL Rules 16–18; `schedule1-modding` Key Rule 19 (EventHelper dedupe).

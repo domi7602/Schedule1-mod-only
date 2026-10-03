@@ -90,6 +90,8 @@ Need live game interaction?
 | **`s1_spawn_item`** | Spawn physical item in front of player or at `(x,y,z)` | `item_id`, `quantity`, `x`, `y`, `z` |
 | **`s1_list_buildings`** | List properties & business states | None |
 | **`s1_inspect_object`** | Reflectively inspect components & fields of a GameObject | `game_object_name`, `component_name` |
+| **`inspect_ui_image`** | Render-relevant Image state incl. inactive/deep UI (dark-mode triage) | `object_name` (name or path substring), `max_results`, `max_depth`, `include_children` |
+| **`read_sprite_pixels`** | Sample sprite texels (RGBA + max channel) via RenderTexture copy | `object_name`, `which` (active/plain/override), `samples` ([[u,v],...]) |
 
 ---
 

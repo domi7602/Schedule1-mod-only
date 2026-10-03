@@ -168,7 +168,7 @@ and in each row's `HorizontalLayoutGroup`: `childControlWidth = true; childForce
 
 Short map — full patterns in [`references/vanilla-ui-patching.md`](references/vanilla-ui-patching.md):
 * Refresh freshly shown vanilla popups in the SAME frame by postfixing their `SetIsOpen` (one shared postfix for both overloads → force-refresh the subtree); otherwise they appear in the old theme until the next tick (`DealWindowSelectorPatch`, MessagesPlus v0.4.1).
-* Recolour the mod's injected **and** vanilla surfaces with one theme applier: colours only (never layout/raycast), one-time per graphic with cached originals so a restore is exact; avatars, badges and the unread dot stay untouched (`AppTheme`).
+* Recolour the mod's injected **and** vanilla surfaces with one theme applier: colours only (never layout/raycast), once per graphic with a stored dark target plus a verification pass for light-fallback re-colours; avatars, badges and the unread dot stay untouched (`AppTheme`).
 * Reserve space for an injected band by taking its height off `ScrollRect.viewport.offsetMax.y` (`TryMakeRoom`) and hand it back before every rebuild (`UndoMakeRoom`); re-assert from a throttled tick because vanilla re-lays out on its own events; fall back to a fixed offset under the title when no ScrollRect exists (logged).
 * Wire rebuilt controls with defensive Remove-before-Add (`EventHelper` dedupes globally per delegate instance) — details in `schedule1-modding` Key Rule 19.
 

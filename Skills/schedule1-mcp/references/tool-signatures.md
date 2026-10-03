@@ -55,3 +55,56 @@ Performs reflection on any active GameObject.
   - `game_object_name` (string): Exact name or path of GameObject.
   - `component_name` (string, optional): Specific component to inspect.
 - **Response:** Component properties, field values, child names, and world transform.
+
+---
+
+## 3. Wire-protocol quick facts (verified 2026-10-03 against v1.0.1)
+
+- Framing: TCP `127.0.0.1:8765`, 4-byte LITTLE-endian length prefix + UTF-8 JSON.
+  Request shape `{"id": 1, "method": "<name>", "params": {...}}` - no `jsonrpc`
+  envelope field is needed (unknown fields are ignored).
+- Method names on the wire have NO `s1_` prefix: `get_game_state`,
+  `capture_logs`, `inspect_object`, `find_gameobjects`, `inspect_ui_image`,
+  `read_sprite_pixels`, ... (48 handlers). The `s1_*` names belong to the
+  Python MCP client's tool surface only. `handshake` lists all methods.
+- Use ONE request per connection and retry with a fresh connection on a
+  timeout: pipelined requests and rapid reconnects can drop responses.
+
+## 4. UI / theming tools (added 2026-10-03)
+
+### `inspect_ui_image`
+Render-relevant Image state for dark-mode / theming triage. Resolves targets by
+name or full path as case-insensitive substrings, inactive objects INCLUDED
+(bounded scene traversal, never Resources.FindObjectsOfTypeAll).
+- **Parameters:**
+  - `object_name` (string, required): name or path substring.
+  - `max_results` (int, default 10), `max_depth` (int, default 20),
+    `include_children` (bool, default true).
+- **Response per match:** full `path`, active flags, and per Image:
+  `field_m_Sprite` / `field_m_OverrideSprite` (the true slots) vs
+  `prop_sprite` / `prop_overrideSprite_active` (Unity: the overrideSprite
+  GETTER returns the ACTIVE sprite and falls back to the plain one),
+  `color` vs `canvas_renderer.color` (a dark crColor with white color means a
+  Selectable state multiply), type/fill/raycast flags, sprite rect/pivot/
+  border/packing + texture info, rect, and the nearest Selectable
+  (transition, normal_color, target_is_this_image).
+
+### `read_sprite_pixels`
+Samples actual sprite texels through a RenderTexture copy (works for
+non-readable and atlas textures) - decides "is the art dark or is it a tint"
+without screenshots.
+- **Parameters:**
+  - `object_name` (string, required), `which` (active | plain | override,
+    default active), `samples` (list of `[u, v]` normalized to the sprite's
+    textureRect; default 7 points across the middle), `max_depth`.
+- **Response:** texture size/name, texture_rect, and per sample: u/v, pixel
+  x/y, `rgba_hex`, `rgba`, `max_channel`. Refuses textures above 4096 px.
+
+### `capture_logs` (extended)
+- **New parameter:** `source` (`file` | `ring` | `both`, default `file`).
+  `ring`/`both` include the in-memory capture buffer, which holds ALL
+  MelonLoader log lines including `[DEBUG]` (those never reach Latest.log).
+- `find_gameobjects` was also fixed (2026-10-03): `pattern` works as an alias
+  of `name_pattern`, new `path_pattern`, `max_results`, `max_depth` (default
+  20), and every result now carries its full hierarchy `path` (previously
+  filters silently missed anything deeper than level 10 / past 2000 objects).
