@@ -28,9 +28,12 @@ public class Mod : MelonMod
     {
         Log = new ModLogger("MessagesPlus");
 
-        // 0. IL2CPP registration for the search field's InputFocus guard (Key Rule 5).
+        // 0. IL2CPP registration: the search field's InputFocus guard (Key Rule 5)
+        //    and the dark-mode rebuild watcher.
         try { ClassInjector.RegisterTypeInIl2Cpp<MessagesPlusInputFocus>(); }
         catch (Exception ex) { Log.Warn($"Failed to register MessagesPlusInputFocus: {ex.Message}"); }
+        try { ClassInjector.RegisterTypeInIl2Cpp<ThemeRebuildWatcher>(); }
+        catch (Exception ex) { Log.Warn($"Failed to register ThemeRebuildWatcher: {ex.Message}"); }
 
         // 1. Config (Phase 2 toast/sound + Phase 3 background placeholders).
         ModConfig<MessagesPlusConfig>.Initialize("MessagesPlus", Log);
@@ -45,13 +48,20 @@ public class Mod : MelonMod
             Log.Info("Dark mode is permanent — config forced to ON.");
         }
 
-        // 2. Harmony patches on the vanilla MessagesApp + the deal-window popup
-        //    (PatchGuard = graceful degradation if a game update renames a method).
+        // 2. Harmony patches on the vanilla MessagesApp + the popups (deal window,
+        //    supplier dead-drop order, confirmation dialog, counter-offer flow) —
+        //    PatchGuard = graceful degradation if a game update renames a method.
         MessagesAppPatch.ApplyAll(HarmonyInstance, Log);
         DealWindowSelectorPatch.ApplyAll(HarmonyInstance, Log);
+        PhoneShopInterfacePatch.ApplyAll(HarmonyInstance, Log);
+        ConfirmationPopupPatch.ApplyAll(HarmonyInstance, Log);
+        CounterofferInterfacePatch.ApplyAll(HarmonyInstance, Log);
+        CounterOfferProductSelectorPatch.ApplyAll(HarmonyInstance, Log);
         PatchGuard.Report(Log);
 
-        Log.Info("MessagesPlus v0.4.1 initialized (search band + category chips + unread counter + ... menu with Clear Read/All + permanent whole-app dark mode + instant deal-popup theming).");
+        // Keep the "Initialized (vX.Y.Z)" shape — Tools/bump-version.ps1 syncs it.
+        Log.Info("Initialized (v0.5.0).");
+        Log.Info("MessagesPlus ready: search band + category chips + unread counter + ... menu with Clear Read/All + permanent whole-app dark mode + instant popup theming.");
     }
 
     /// <summary>
@@ -130,7 +140,11 @@ internal sealed class MessagesPlusInputFocus : MonoBehaviour
 
     private void Update()
     {
-        bool typing = searchInput != null && searchInput.isFocused;
+        // IL2CPP: isFocused is a proxy read and can throw on a collected
+        // wrapper (teardown frames) - never latch Controls.IsTyping on doubt.
+        bool typing = false;
+        try { typing = searchInput != null && S1Mods.Shared.NetworkGuard.IsAlive(searchInput) && searchInput.isFocused; }
+        catch { typing = false; }
         if (typing != _lastTyping)
         {
             _lastTyping = typing;

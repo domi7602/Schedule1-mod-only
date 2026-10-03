@@ -139,12 +139,23 @@ public static class InboxUI
     private static int _lastUnreadShown = -1;
     private static Action? _pendingConfirm;
     private static float _nextTickTime;
+    private static int _openBoostFrames;   // unthrottled theme passes right after an app open
+    private static bool _lastPageVisible;  // page visibility edge -> re-arm the theme (menu/page switch)
 
     // Vanilla list surgery: the band takes its height off the top of the vanilla
     // conversation viewport so the two can never overlap. Restored on rebuild.
     private static RectTransform? _listViewport;
     private static Vector2 _listViewportOffsetMax;
     private static bool _listShifted;
+
+    /// <summary>Borrowed-slot geometry (band top below the page top) for re-parking.</summary>
+    private static float _listTopFromHomeTop;
+
+    /// <summary>The no-ScrollRect miss is logged once per scene (the retry loop is quiet).</summary>
+    private static bool _roomMissLogged;
+
+    /// <summary>Bounded deferrals of the first build while the home rect is stale (rule 15).</summary>
+    private static int _buildRetryBudget = 3;
 
     /// <summary>
     /// Builds the injected UI exactly once per MessagesApp instance. Called from
@@ -162,17 +173,41 @@ public static class InboxUI
             bool alive = NetworkGuard.IsAlive(_toolbarRoot) && NetworkGuard.IsAlive(_modalRoot);
             if (sameApp && alive)
             {
+                // Self-heal: a first-build TryMakeRoom failure (the vanilla list
+                // does not exist yet in the build frame) must not be permanent.
+                if (!_listShifted) TryMakeRoom();
                 UpdateUnreadLabel();
                 return;
             }
             GameObject home = app.homePage;
             if (!NetworkGuard.IsAlive(home))
             {
-                Mod.Log?.Debug("EnsureBuilt: homePage not ready yet — retrying on next open.");
+                Mod.Log?.Debug("EnsureBuilt: homePage not ready yet - retrying on next open.");
                 return;
             }
 
-            // W4: destroy OUR old managed roots before rebuilding — a mid-build
+            // Rule 15: the home rect has never been laid out in the build frame -
+            // force the layout from the topmost rect before measuring, and defer
+            // the build while the measure is implausibly small (the tick self-heal
+            // calls back). Without this, UITheme latches Scale=1.0 and the band
+            // parks at a stale offset for the whole scene.
+            RectTransform homeRt = home.GetComponent<RectTransform>();
+            if (homeRt != null)
+            {
+                try
+                {
+                    Canvas.ForceUpdateCanvases();
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(homeRt);
+                }
+                catch { /* the floor check below covers it */ }
+                if (Mathf.Abs(homeRt.rect.height) < 300f && _buildRetryBudget-- > 0)
+                {
+                    Mod.Log?.Info($"EnsureBuilt: home rect still stale ({Mathf.Abs(homeRt.rect.height):0} units) - deferring the build.");
+                    return;
+                }
+            }
+
+            // W4: destroy OUR old managed roots before rebuilding - a mid-build
             // exception can leave earlier roots alive in the scene; dropping the
             // references without Destroy would orphan them and the next build
             // would inject a second toolbar. These are our own injected objects
@@ -180,11 +215,11 @@ public static class InboxUI
             // scene and must never be Destroyed).
             DestroyManagedRoots();
 
-            // Drop stale references from a previous scene before rebuilding.
-            TearDownForSceneUnload();
+            // Drop stale references from a previous scene before rebuilding
+            // (rebuild path: the vanilla entries live on - see TearDown).
+            TearDownForSceneUnload(entriesDieWithScene: false);
 
             _app = app;
-            RectTransform homeRt = home.GetComponent<RectTransform>();
             if (homeRt != null)
             {
                 UITheme.InitializeForDashboard(homeRt);
@@ -210,6 +245,47 @@ public static class InboxUI
     }
 
     /// <summary>
+    /// Called on every app open: runs the dark theme immediately (same frame) and
+    /// keeps a few unthrottled follow-up passes so surfaces the game builds while
+    /// opening go dark instantly instead of after the 1 s tick (first-open flash).
+    /// </summary>
+    public static void RequestOpenRefresh(MessagesApp app)
+    {
+        try
+        {
+            _nextTickTime = 0f;      // let the next Update tick run right away
+            _openBoostFrames = 3;    // ... and run the theme on the next few frames
+            AppTheme.RequestSweep(); // fresh page state — re-arm sweep + heartbeat
+            if (DarkMode && NetworkGuard.IsAlive(app)) AppTheme.Apply(app);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"RequestOpenRefresh failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// A conversation was selected (vanilla MessagesApp.SetCurrentConversation):
+    /// theme the same frame and keep a short unthrottled boost, because the vanilla
+    /// UI swaps the chat surfaces in over the following frames. Without this the
+    /// switch shows vanilla (light) bubbles until the next 1 s tick (2026-10-03).
+    /// </summary>
+    public static void RequestConversationRefresh(MessagesApp app)
+    {
+        try
+        {
+            _nextTickTime = 0f;
+            if (_openBoostFrames < 4) _openBoostFrames = 4;
+            AppTheme.RequestSweep();
+            if (DarkMode && NetworkGuard.IsAlive(app)) AppTheme.Apply(app);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"RequestConversationRefresh failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
     /// Throttled self-healing tick (driven by Mod.OnUpdate, 1 s): re-applies the
     /// search/filter view (vanilla callbacks can re-show entries — v0.1.x TrashUI
     /// W5 lesson), refreshes the unread counter, and re-injects the UI when the
@@ -219,6 +295,29 @@ public static class InboxUI
     {
         try
         {
+            // Page visibility edge: a menu/page switch that only shows or hides an
+            // existing page fires no child-change watcher. Catch the edge here and
+            // arm a short unthrottled boost so fresh surfaces go dark immediately.
+            bool pageVisible = _app != null && NetworkGuard.IsAlive(_app) && AppTheme.IsPageVisible(_app);
+            if (pageVisible != _lastPageVisible)
+            {
+                _lastPageVisible = pageVisible;
+                if (pageVisible)
+                {
+                    _nextTickTime = 0f;
+                    if (_openBoostFrames < 3) _openBoostFrames = 3;
+                    AppTheme.RequestSweep();
+                }
+            }
+
+            // Open boost: a few unthrottled passes right after an app open so the
+            // theme lands before the first visible frames (no white flash).
+            if (_openBoostFrames > 0 && _app != null && NetworkGuard.IsAlive(_app))
+            {
+                _openBoostFrames--;
+                if (DarkMode) AppTheme.Apply(_app);
+            }
+
             if (Time.unscaledTime < _nextTickTime) return;
             _nextTickTime = Time.unscaledTime + 1.0f;
 
@@ -246,7 +345,7 @@ public static class InboxUI
     }
 
     /// <summary>Clears managed UI references on scene unload (objects die with the scene — never Destroy).</summary>
-    public static void TearDownForSceneUnload()
+    public static void TearDownForSceneUnload(bool entriesDieWithScene = true)
     {
         AppTheme.ClearOwnRoots();
         _app = null;
@@ -263,9 +362,16 @@ public static class InboxUI
         Array.Clear(_chipLabels, 0, _chipLabels.Length);
         _pendingConfirm = null;
         _lastUnreadShown = -1;
+        _openBoostFrames = 0;
         _listViewport = null;   // the scene died together with its list — nothing left to restore
         _listShifted = false;
-        // View state references entries of the dying scene — drop without touching them.
+        _currentFilter = InboxFilter.All;
+        _buildRetryBudget = 3;
+        // View state: on scene unload the entries die with the scene and must
+        // never be SetActive'ed; on a REBUILD they live on, so the hides this
+        // engine owns must be released first or the rows stay invisible with
+        // no owner left to restore them.
+        if (!entriesDieWithScene) InboxView.ReleaseOwnedHides();
         InboxView.DropState();
     }
 
@@ -276,6 +382,7 @@ public static class InboxUI
     /// </summary>
     public static void OnAppClosed()
     {
+        _openBoostFrames = 0;
         ResetModal();
         HideMenu();
         _currentFilter = InboxFilter.All;
@@ -630,6 +737,15 @@ public static class InboxUI
         cardRt.offsetMax = new Vector2(-1f, -1f);
         SetDecorSprite(card, UISprites.Rounded(9f));
 
+        // W8 pattern (rule 17): clicks on the card's dead zone (padding,
+        // separator, the empty band below the rows) must not fall through to
+        // the backdrop and dismiss the menu - a no-op Button consumes them.
+        var cardClickImage = card.GetComponent<Image>();
+        if (cardClickImage != null) cardClickImage.raycastTarget = true;
+        Button cardClick = card.AddComponent<Button>();
+        cardClick.transition = Selectable.Transition.None;
+        WireClick(cardClick, () => { });
+
         var vlg = card.AddComponent<VerticalLayoutGroup>();
         vlg.childControlWidth = true;
         vlg.childControlHeight = true;
@@ -755,6 +871,13 @@ public static class InboxUI
     /// nor the first conversation. When the vanilla list cannot be located
     /// nothing is shifted and the fixed fallback offset stays in place.
     /// </summary>
+    private static RectTransform? GetBandRect()
+    {
+        return _toolbarRoot != null && NetworkGuard.IsAlive(_toolbarRoot)
+            ? _toolbarRoot.GetComponent<RectTransform>()
+            : null;
+    }
+
     private static void TryMakeRoom()
     {
         try
@@ -771,22 +894,41 @@ public static class InboxUI
             ScrollRect? scroll = home.GetComponentInChildren<ScrollRect>();
             if (scroll == null)
             {
-                Mod.Log?.Info("Band: no vanilla ScrollRect found — keeping the fallback offset (no shift).");
+                if (!_roomMissLogged)
+                {
+                    _roomMissLogged = true;
+                    Mod.Log?.Info("Band: no vanilla ScrollRect found yet - keeping the fallback offset (no shift).");
+                }
                 return;
             }
 
             RectTransform vp = scroll.viewport != null ? scroll.viewport : scroll.GetComponent<RectTransform>();
             if (vp == null || !NetworkGuard.IsAlive(vp)) return;
 
+            // Rule 15: measure only after forcing the layout; an activation-frame
+            // measure is stale and would park the band at the wrong Y forever.
+            try
+            {
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(homeRt);
+            }
+            catch { /* the floor check below covers it */ }
+
+            float vpHeight = Mathf.Abs(vp.rect.height);
+            if (vpHeight < 300f)
+            {
+                Mod.Log?.Info($"Band: viewport stale ({vpHeight:0} units) - fallback park, re-measure on a later tick.");
+                return; // _listShifted stays false -> EnsureBuilt/ReassertRoom re-measure
+            }
+
             float band = BandHeightPx;
             Vector3 vpTopWorld = vp.TransformPoint(new Vector3(0f, vp.rect.height * (1f - vp.pivot.y), 0f));
             Vector3 vpTopLocal = homeRt.InverseTransformPoint(vpTopWorld);
             float homeTop = homeRt.rect.height * (1f - homeRt.pivot.y);
             float listTopFromHomeTop = Mathf.Max(band, homeTop - vpTopLocal.y);
+            _listTopFromHomeTop = listTopFromHomeTop;
 
-            RectTransform? bandRt = _toolbarRoot != null && NetworkGuard.IsAlive(_toolbarRoot)
-                ? _toolbarRoot.GetComponent<RectTransform>()
-                : null;
+            RectTransform? bandRt = GetBandRect();
             if (bandRt != null)
             {
                 bandRt.anchoredPosition = new Vector2(0f, -(listTopFromHomeTop - band));
@@ -833,7 +975,13 @@ public static class InboxUI
     /// </summary>
     private static void ReassertRoom()
     {
-        if (!_listShifted) return;
+        if (!_listShifted)
+        {
+            // Self-heal: a stale first measure or a late-built vanilla list must
+            // not leave the band on the fallback offset forever.
+            TryMakeRoom();
+            return;
+        }
         if (_listViewport == null || !NetworkGuard.IsAlive(_listViewport))
         {
             _listShifted = false;
@@ -846,7 +994,16 @@ public static class InboxUI
             if ((_listViewport.offsetMax - expected).sqrMagnitude > 0.01f)
             {
                 _listViewport.offsetMax = expected;
-                Mod.Log?.Debug("Band: vanilla re-laid out the list — borrowed space re-asserted.");
+                Mod.Log?.Debug("Band: vanilla re-laid out the list - borrowed space re-asserted.");
+            }
+
+            // Vanilla re-layouts can also move the list - re-park the band.
+            RectTransform? bandRt = GetBandRect();
+            if (bandRt != null && _listTopFromHomeTop > 0f)
+            {
+                Vector2 expectedPos = new(0f, -(_listTopFromHomeTop - BandHeightPx));
+                if ((bandRt.anchoredPosition - expectedPos).sqrMagnitude > 0.01f)
+                    bandRt.anchoredPosition = expectedPos;
             }
         }
         catch (Exception ex)
@@ -1349,6 +1506,34 @@ internal static class InboxView
     /// Drops all view state WITHOUT touching entries (scene unload — the
     /// entries die with the scene and must never be SetActive'ed).
     /// </summary>
+    /// <summary>
+    /// Re-shows every entry this engine hid (rebuild path - the vanilla entries
+    /// live on and would stay invisible with no owner left to restore them).
+    /// </summary>
+    public static void ReleaseOwnedHides()
+    {
+        try
+        {
+            var conversations = MessagesApp.ActiveConversations;
+            int count = conversations?.Count ?? 0;
+            for (int i = 0; i < count; i++)
+            {
+                MSGConversation? conv = conversations![i];
+                if (!ConversationUtils.IsAlive(conv)) continue;
+                string id = ConversationUtils.GetConversationId(conv!);
+                if (!HiddenIds.Contains(id)) continue;
+                try
+                {
+                    RectTransform? entry = ConversationUtils.SafeEntry(conv!);
+                    if (entry != null && !entry.gameObject.activeSelf) entry.gameObject.SetActive(true);
+                }
+                catch { /* leave it hidden rather than crash */ }
+            }
+        }
+        catch { /* best effort */ }
+        HiddenIds.Clear();
+    }
+
     public static void DropState()
     {
         _search = string.Empty;

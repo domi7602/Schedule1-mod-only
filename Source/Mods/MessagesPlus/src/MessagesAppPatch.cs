@@ -44,6 +44,16 @@ public static class MessagesAppPatch
             "Loaded",
             postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(Loaded_Postfix)),
             log: log);
+
+        // Conversation switch: theme in the SAME frame the selection runs, so the
+        // freshly shown chat surfaces never sit light until the next 1 s tick (the
+        // "white artifacts while switching messages" report, 2026-10-03).
+        PatchGuard.TryPatch(
+            harmony,
+            typeof(MessagesApp),
+            nameof(MessagesApp.SetCurrentConversation),
+            postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(ConversationSwitched_Postfix)),
+            log: log);
     }
 
     /// <summary>
@@ -87,6 +97,7 @@ public static class MessagesAppPatch
         try
         {
             InboxUI.EnsureBuilt(__instance);
+            InboxUI.RequestOpenRefresh(__instance);
         }
         catch (Exception ex)
         {
@@ -108,6 +119,25 @@ public static class MessagesAppPatch
         catch (Exception ex)
         {
             Mod.Log?.Warn($"Loaded_Postfix failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// A conversation was selected: theme immediately (same frame) and keep a few
+    /// unthrottled follow-up passes, because the vanilla UI swaps the chat surfaces
+    /// in over the following frames (the selection is deferred). Without this the
+    /// switch shows vanilla (light) bubbles until the next 1 s tick (2026-10-03).
+    /// </summary>
+    [HarmonyPostfix]
+    public static void ConversationSwitched_Postfix(MessagesApp __instance)
+    {
+        try
+        {
+            InboxUI.RequestConversationRefresh(__instance);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"ConversationSwitched_Postfix failed: {ex.Message}");
         }
     }
 }
