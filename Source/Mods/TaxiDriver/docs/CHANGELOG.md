@@ -1,10 +1,81 @@
 # Changelog
 
-## Unreleased (2026-10-02) — Paket 1 v2: Stall-Watchdog, Auftrags-Tokens, Geisterfahrt-Schutz
+## 0.8.2 (2026-10-03) - bug-report batch (14 findings) + taxi diag
+
+- F9 ride/out toggle removed (E is the only in-game board/exit path; console
+  `taxi ride`/`out` stay as diagnostics); F9 now runs the new `taxi diag`
+  one-shot ride scan (verdict, ride flags, picker vs active trip, nav state,
+  car + driver slot, fare) into the MelonLoader log.
+- Recovery re-dispatch refreshes NavRetryAt (full 6 s grace after every
+  handover); pause now freezes all timers (auto-run, pending spawn, settle
+  check, exit debounce, heartbeat).
+- Manual E-boarding with the NPC at the wheel starts a ride (never during a
+  pickup or automation run); double board in one frame opens one ride.
+- Exits park the car first (brakes + handbrake); STOP/cleanup snaps the
+  player to safe ground after a proven exit.
+- Trunk lock survives scene loads (dead entries pruned, unlock on the
+  scene-load reset); tuning.json is applied once per spawn with readback.
+- Hero uses a typed snapshot (no more $32 fare-display freeze); destination
+  rows use stable keys against a held catalog snapshot; hero and `taxi status`
+  show the active trip while driving (`(default ROAD A)` label fixed).
+- Boarding requires the occupant slot, with a bounded 1 s late verdict
+  (no EnterVehicle repeat); config migration repairs and rewrites in both
+  branches; auto-run spawn guard covers all steps.
+- Tests: 61 green (HeroSnapshot boundaries, migration matrix).
+
+## 0.8.1 (2026-10-02) - internal cleanup (file merges)
+
+- Merged `TaxiIcon` + `TaxiCloseExperiment` into `TaxiApp.cs`, `SpikeTrace` into `SpikeCommands.cs` and `TaxiLog` into `Mod.cs` (21 -> 17 files). Code moved verbatim; class names, console words, Harmony targets and config keys unchanged.
+- No behaviour change intended. Build 0 errors; 2026-10-02 session smoke: loads clean (log-verified). Phase-2 perf work stays queued until the Pakete C-G test round is done.
+
+## 0.8.0 (2026-10-02) - landscape redesign (PotScanner idiom) + custom checkpoints removed
+
+- **Landscape dashboard** (`EOrientation.Horizontal`): the game turns the phone sideways
+  like PocketShop/PotScanner; `UITheme.InitializeForDashboard`. The portrait
+  `ScreenSafeInset` math is replaced by the landscape band layout (Dp8 padding).
+- **Banded layout in the PotScanner/BankApp design language** (`GamePalette` surfaces,
+  `UISprites` two-layer cards — the ad-hoc blue boxes are gone):
+  - `[1] Hero (Dp96)`: live state as the headline (`CALL A TAXI` / `TAXI ON THE WAY` /
+    `BOARD NOW` / `RIDING TO X` / `ARRIVED`), context line, **fare as the big teal value**
+    while riding, app icon on the right; button feedback appears in the hero for a few
+    seconds (the separate status box is gone).
+  - `[2] Action row (Dp48)`: **CALL TAXI** (green, primary) + **STOP** (red, destructive;
+    disabled while no taxi exists).
+  - `[3] Filter toolbar (Dp28)`: **All / Homes / Deals / Places** chips (blue = active),
+    place count, `✕ clear` chip (enabled only while a destination is picked).
+  - `[4] Destination list (flexible)`: two-layer cards, name (computed fit) + type tag
+    (STAND/HOME/PROP/DEAL/PARK in palette hues); the picked destination gets the blue
+    selection rim + raised fill. Taxi-Stand stays pinned first in every filter.
+- **Custom checkpoints removed** (Dominik: "die custom destination bzw rename … passt
+  nicht rein"): `CustomCheckpoints.cs`, the `taxi wp` command/help and the `YOU` row
+  ("EXAMPLE – rename me …") are gone. `UserData/TaxiDriver/checkpoints.json` is no longer
+  read (the file is left on disk untouched). Destination ties resolve owned property →
+  property → deal.
+- **Quiet diagnostics:** the `[ui]`/`[close]` chatter now goes through `TaxiLog.Verbose`
+  (log.json) instead of Info.
+- Lifecycle untouched: `_mainBG` deactivate-on-close, OnUpdate wired once, the deferred
+  close experiment (Rule 12) as before.
+
+## 0.7.1 (2026-10-02) — Paket 1 v2 + Fare-Icon + Log-Quieting
 
 Basis: Code-Review der Diffs `abb5fc0`/`c984d9c` (GitHub) + Auswertung des Live-Logs
-2026-10-01. Lokal gebaut (**0 Fehler, 2 bekannte CS8604**); **keine** In-Game-Verifikation.
-Kein Versionsbump, kein Commit.
+2026-10-01. Lokal gebaut (**0 Fehler, 2 bekannte CS8604**); User-Feedback 2026-10-02:
+„taxi funktioniert jetzt sauber“. Roll-up: enthält zusätzlich den Icon-/Log-Batch vom
+selben Tag (unten). Kein Commit (wartet auf Dominik).
+
+### Icon + Log-Quieting (gleicher Tag)
+
+- **Fare-Notification zeigt das Taxi-Icon**: `FareMeter` übergibt nicht mehr `null`
+  (weißes Quadrat), sondern `TaxiIcon.Get()` — dieselbe `taxi_icon.png` wie das Phone-App-Icon
+  (prozeduraler gelber „T“-Fallback, jetzt in `TaxiIcon.cs`; App und Notification teilen
+  ein Sprite).
+- **Log-Quieting per `UserData/TaxiDriver/log.json`**: neuer Schalter `VerboseLogging`
+  (Default `false`, Datei wird beim ersten Start angelegt) + mod-lokales `TaxiLog.Verbose`.
+  Standardmäßig still sind die Dauerläufer: `[nav t=…]`-Poll, `[hb]`, Lot-/Stand-Dumps,
+  `[pois]`-Detaildump, `[ai]`-Konstanten/-Drive-Model, `[meter]`-Detailzeilen, Patrol-Wiring,
+  `[visual]`, `[close-exp]`, `[target]`-Kandidaten. **Info bleibt** für Meilensteine (gerufen,
+  angekommen, Ride-Ende/Fare), **Warn/Error immer**; Hotkey- und `taxi`-Diagnosen bleiben
+  unverändert. Gemessen am 2026-10-02-Log: 1133 → erwartet ~100 TaxiDriver-Zeilen/Session.
 
 ### Fixed
 
@@ -71,6 +142,8 @@ Kein Versionsbump, kein Commit.
 ### Open
 
 - In-Game-Verifikation (Checkliste in `tests/README.md`).
+- Icon-/Log-Paket: Fare-Notification zeigt das Taxi-Icon; `log.json` Default = still,
+  `VerboseLogging=true` = voller Diagnose-Stream.
 - Die Patrol-Wiring-Tiefenursache (Deactivate-NRE, Klon fährt nicht) ist **nicht** behoben —
   der 8-s-Fallback macht Fahrten davon unabhängig; Snapshot/Probe-Daten der nächsten
   Testsession sind die Grundlage für den Wiring-Fix.

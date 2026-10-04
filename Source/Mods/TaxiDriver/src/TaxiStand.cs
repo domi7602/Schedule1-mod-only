@@ -89,7 +89,7 @@ internal static class TaxiStand
         }
 
         int count = lots == null ? 0 : lots.Length;
-        Mod.Log.Info($"[lots] {reason}: {count} ParkingLot instance(s).");
+        TaxiLog.Verbose($"[lots] {reason}: {count} ParkingLot instance(s).");
         if (lots == null || count == 0)
             return false;
 
@@ -99,7 +99,7 @@ internal static class TaxiStand
             ParkingLot? lot = lots[i];
             if (lot == null)
             {
-                Mod.Log.Info($"  [{i}] <null entry>");
+                TaxiLog.Verbose($"  [{i}] <null entry>");
                 continue;
             }
 
@@ -135,7 +135,7 @@ internal static class TaxiStand
                         }
                         catch (Exception ex)
                         {
-                            Mod.Log.Info($"      spot[{s}] native getter failed: {ex.Message}");
+                            TaxiLog.Verbose($"      spot[{s}] native getter failed: {ex.Message}");
                         }
 
                         if (usable && !occupied)
@@ -196,22 +196,22 @@ internal static class TaxiStand
                     guid = $"<threw: {ex.Message}>";
                 }
 
-                Mod.Log.Info(
+                TaxiLog.Verbose(
                     $"  [{i}] name='{name}' worldPos={Fmt(pos)} lotForward={Fmt(lotForward)} " +
                     $"spots={spotCount} freeUsable={freeCount}");
-                Mod.Log.Info(
+                TaxiLog.Verbose(
                     $"      firstSpot={firstSpot} firstSpotForward={firstSpotForward} alignmentPoint={alignmentPoint}");
-                Mod.Log.Info(
+                TaxiLog.Verbose(
                     $"      firstFreeSpot={firstFree} entryPoint={entry} exitPoint={exit} guid='{guid}'");
                 reported++;
             }
             catch (Exception ex)
             {
-                Mod.Log.Info($"  [{i}] dump failed for this lot: {ex.Message}");
+                TaxiLog.Verbose($"  [{i}] dump failed for this lot: {ex.Message}");
             }
         }
 
-        Mod.Log.Info($"[lots] {reason}: {reported}/{count} lot(s) reported — stand candidates above.");
+        TaxiLog.Verbose($"[lots] {reason}: {reported}/{count} lot(s) reported — stand candidates above.");
         RoadTarget.DumpGraphs();
         return reported > 0;
     }
@@ -273,7 +273,7 @@ internal static class TaxiStand
         }
 
         foreach (LotEntry e in entries)
-            Mod.Log.Info($"[stand] candidate '{e.Name}' spot0={Fmt(e.SpotPosition)} {(e.HasEntry ? $"entry={Fmt(e.EntryPosition)} " : string.Empty)}spots={e.SpotCount} distanceToConstant={(StandCoordinate == Vector3.zero ? "n/a" : StandDistance(e, StandCoordinate).ToString("F1") + "m")}");
+            TaxiLog.Verbose($"[stand] candidate '{e.Name}' spot0={Fmt(e.SpotPosition)} {(e.HasEntry ? $"entry={Fmt(e.EntryPosition)} " : string.Empty)}spots={e.SpotCount} distanceToConstant={(StandCoordinate == Vector3.zero ? "n/a" : StandDistance(e, StandCoordinate).ToString("F1") + "m")}");
 
         LotEntry? chosen = null;
         string rule = "<none>";
@@ -305,7 +305,7 @@ internal static class TaxiStand
         }
         else
         {
-            Mod.Log.Info("[stand] configured coordinate is the (0,0,0) placeholder — skipping the coordinate rule.");
+            TaxiLog.Verbose("[stand] configured coordinate is the (0,0,0) placeholder — skipping the coordinate rule.");
         }
 
         // 2..4) name filters

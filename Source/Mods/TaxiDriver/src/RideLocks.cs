@@ -171,6 +171,7 @@ internal static class RideLocks
     /// </summary>
     internal static void LockTrunk(LandVehicle veh)
     {
+        PruneDeadTrunkEntries();
         if (TrunkInteractables.Count > 0)
             return;
         try
@@ -244,6 +245,29 @@ internal static class RideLocks
         catch (Exception ex)
         {
             Mod.Log.Warn($"[ride] trunk lock failed ({ex.Message}) — the StorageDoorAnimation gate still blocks opens.");
+        }
+    }
+
+    /// <summary>
+    /// Drops entries whose object died with a scene unload (a bare count check
+    /// would mistake them for a live lock and skip the new one). Anything
+    /// unreadable is dropped, never trusted.
+    /// </summary>
+    private static void PruneDeadTrunkEntries()
+    {
+        for (int i = TrunkInteractables.Count - 1; i >= 0; i--)
+        {
+            bool dead;
+            try
+            {
+                dead = TrunkInteractables[i] == null;
+            }
+            catch
+            {
+                dead = true;
+            }
+            if (dead)
+                TrunkInteractables.RemoveAt(i);
         }
     }
 

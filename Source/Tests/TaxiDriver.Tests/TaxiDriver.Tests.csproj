@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <LangVersion>12</LangVersion>
+    <RootNamespace>TaxiDriver.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!--
+    Link the pure-logic source files directly from the mod so the test project
+    stays free of MelonLoader/Unity/S1API references (same pattern as
+    AutoPackagingStation.Tests and CalculatorApp.Tests). Extend the list as more
+    Unity-free logic is extracted.
+  -->
+  <ItemGroup>
+    <Compile Include="..\..\Mods\TaxiDriver\src\CleanupGuard.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\DestinationFilter.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\FareLedger.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\FarePayment.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\HeroSnapshot.cs" />
+  </ItemGroup>
+
+</Project>

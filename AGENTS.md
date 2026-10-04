@@ -74,7 +74,7 @@ Release/           Release ZIP output
 | **AutoPackagingStation** | ✅ active (v0.3.3, **Verified 2026-09-20**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable, SafeStorage, GLB |
 | **HitmanPhone** | ✅ active (v0.2.9, beta **Verified 2026-09-24**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Messages/NPC/Items/Quests |
 | **MessagesPlus** | ✅ active (v0.4.1, **In-Game-Verify open**; v0.4.0 **Verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
-| **TaxiDriver** | 🧪 spike (v0.7.0; Stages 1–3 live-verified 2026-09-25, Pakete C–G test round open) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | vehicles, own NPC driver, S1MAPI |
+| **TaxiDriver** | 🧪 spike (v0.8.2; Stages 1–3 live-verified 2026-09-25, Pakete C–G test round open) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | vehicles, own NPC driver, S1MAPI |
 | **S1MCP** | ✅ active (v1.0.1) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | MCP over TCP :8765 |
 | **Shared** | ✅ active (workspace lib) | `Mods/Shared/` | `Shared.dll` | see §5 |
 | **S1API** | ✅ active (3.2.1-beta.7, submodule `ThirdParty/S1API/`) | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | required for 0.4.7f6 |
@@ -140,7 +140,7 @@ Release/           Release ZIP output
 - **v0.4.1 fix:** the deal-window popup themes **instantly** (`DealWindowSelectorPatch` — same-frame subtree refresh on `SetIsOpen`, forced re-tint for vanilla re-colours); previously freshly shown surfaces stayed light until the 1 s tick. **In-Game-Verify open.**
 - Round-1 fixes: `(RectTransform)x.transform` casts → `GetComponent<RectTransform>()` (IL2CPP cast made the "⋯" menu dead), search surface keeps `raycastTarget=true` (v0.4.0 **Verified 2026-09-30**). History: `Source/Mods/MessagesPlus/docs/CHANGELOG.md`.
 
-**TaxiDriver v0.7.0 (2026-09-29, spike):**
+**TaxiDriver v0.8.2 (2026-10-02, spike):**
 - Orderable taxi from the in-game phone ("Taxi" app) with an own NPC driver: vehicle spawn + `VehicleAgent.Navigate` A→B + player ride, `taxi.glb` visual swap via S1MAPI GltfLoader, `RoadKeeper` road-corridor assistance, destination picker (properties/custom checkpoints), fare meter (moving in-game minutes; cash → bank; host-only fail-closed), F1–F12 diagnostic hotkeys + output-only `taxi` console.
 - Stages 1–3 live-verified 2026-09-25. **Pakete C–G in-game test round open** (exit hardening, driver retention, spawn clearance, clear-selection, patrol NRE). History: `Source/Mods/TaxiDriver/docs/CHANGELOG.md`.
 

@@ -1,6 +1,11 @@
 using System;
+using System.Diagnostics;
 using System.Globalization;
+using System.Reflection;
+using System.Text;
+using HarmonyLib;
 using Il2CppFishNet;
+using Il2CppScheduleOne.Math;
 using Il2CppScheduleOne.NPCs;
 using Il2CppScheduleOne.PlayerScripts;
 using Il2CppScheduleOne.Vehicles;
@@ -94,15 +99,14 @@ internal static class SpikeCommands
         Print("  taxi go2 [distance=40] - same but with settings=null (A/B comparison)");
         Print("  taxi stop              - VehicleAgent.StopNavigating() + end polling");
         Print("  taxi status            - dump all spike state (incl. F6 automation: AutoTarget + SkipNpcStep)");
+        Print("  taxi diag              - one ride scan into the log (driving? arrived? picked? changed?)");
         Print("  taxi cleanup           - everyone out + LandVehicle.DestroyVehicle() (guarded: verified exit, no NPC occupants)");
         Print("  taxi probe             - Navigate preconditions for ALL vehicles: Flags/Seekers/graph sample/ownership");
         Print("  taxi trace [on|off]    - Harmony trace of Navigate, CalculatePath, NavigationCalculationCallback, StopNavigating");
         Print("                           (no third argument = `taxi trace status`: prints patched= / logging=)");
         Print("  taxi lots              - Stage 3b: dump every live ParkingLot (name, world position, spots, first spot = spawn position)");
         Print("  taxi stand             - Stage 3b: resolve the fixed taxi stand and arm it for the next spawn (no spawn itself)");
-        Print("  taxi pois              - Stage 3d: dump every destination (custom checkpoints + deal locations + named places) with its goal");
-        Print("  taxi wp add <name>     - custom checkpoints: add/replace a named checkpoint at YOUR position (UserData/TaxiDriver/checkpoints.json)");
-        Print("  taxi wp remove <name>  - delete a custom checkpoint   |   taxi wp list - show all custom checkpoints");
+        Print("  taxi pois              - Stage 3d: dump every destination (properties + deal locations + named places) with its goal");
         Print("  taxi clear             - clear the selected destination (the marker goes away; a waiting ride keeps waiting)");
         Print("  taxi fare              - the meter: $1 per moving in-game minute (0 km/h free), cash first then bank (may go negative)");
         Print("                           (1 real second = 1 in-game minute — TimeManager.CycleDuration = 24 real min/day)");
@@ -117,11 +121,10 @@ internal static class SpikeCommands
         Print("  F2  = taxi go to the second proven road target (-17.1, 0.0, 13.4)");
         Print("  F3  = full run (spawn -> npc) to the proven road target (-131.4, -4.0, 51.9)");
         Print("  F4  = taxi visual on/off toggle (applies to the NEXT spawn)");
-        Print("  F5  = call-taxi (Stage 3b): spawn at the FIXED taxi stand -> npc -> navigate to a road point near the player");
         Print("  F6  = full spike run: spawn -> +1s npc -> +1s go 40 (blind forward target)");
         Print("  F7  = taxi probe");
         Print("  F8  = taxi trace on/off toggle");
-        Print("  F9  = player ride/out toggle");
+        Print("  F9  = taxi diag (one ride scan into the log)");
         Print("  F10 = taxi go2 (Navigate with settings=null)");
         Print("  F11 = full run WITHOUT the npc step (occupant hypothesis)");
         Print("  F12 = Navigate on a VANILLA vehicle (vehicle-vs-caller A/B)");
@@ -384,6 +387,10 @@ internal static class SpikeCommands
         // Stage 2: swap the vanilla Shitbox visuals for our GLB (visual only —
         // vanilla physics, colliders and wheel colliders stay untouched).
         TaxiVisual.SwapAfterSpawn(veh);
+
+        // Package 5 (finding 3): the tuning loaded but was never applied —
+        // one call per spawn, right where the agent exists.
+        TaxiTuning.Apply(veh);
 
         // 0.3.0: ONE [snap] diagnostic line per spawn (root/bbox/GLB heights).
         Print($"[snap] spawnY(raw)={FmtY(spawnRawY)} hitY={FmtY(hitY)} boxMinY={FmtY(boxMinY)} " +
@@ -702,6 +709,9 @@ internal static class SpikeCommands
         }
     }
 
+    /// <summary>Grace window for a provisional boarding's late verdict (finding 11).</summary>
+    private const float SeatVerifyGraceSeconds = 1f;
+
     /// <summary>
     /// Seats <paramref name="best"/> in <paramref name="veh"/> (EnterVehicle +
     /// AddNPCOccupant fallback, seat proof) and records it as the driver.
@@ -720,6 +730,15 @@ internal static class SpikeCommands
             SpikeState.DriverNpc = best;
             SpikeState.LastBoardedNpc = best;
             SpikeState.LastBoardedAt = Time.unscaledTime;
+            return true;
+        }
+
+        // Finding 11: a provisional boarding awaiting its late verdict must not
+        // re-enter every frame — the initial EnterVehicle + fallback stay the
+        // only tries until TickSeatVerify settles it.
+        if (SeatVerifyPendingFor(veh, best))
+        {
+            SpikeState.DriverNpc = best;
             return true;
         }
 
@@ -767,15 +786,87 @@ internal static class SpikeCommands
 
         if (!best.IsInVehicle || best.CurrentVehicle == null)
         {
+            ClearSeatVerify();
             Mod.Log.Error("NPC is still not seated after NPC.EnterVehicle + LandVehicle.AddNPCOccupant — see the seat dump above.");
             return false;
         }
 
+        int finalSlot = OccupantIndexOf(veh, best, out _, out _);
+        if (finalSlot < 0)
+        {
+            // Provisional: flagged in-vehicle but holding no slot. One bounded
+            // late verdict via TickSeatVerify instead of another EnterVehicle.
+            SpikeState.SeatVerifyNpc = best;
+            SpikeState.SeatVerifyVeh = veh;
+            SpikeState.SeatVerifyUntil = Time.unscaledTime + SeatVerifyGraceSeconds;
+            Mod.Log.Warn($"[seat] '{npcId}' reports seated without an OccupantNPCs slot — provisional, late verdict within {SeatVerifyGraceSeconds:0.0} s (no re-enter until then).");
+            PrintSeatProof("after enter (provisional)", veh, best);
+            SpikeState.LastBoardedNpc = best;
+            SpikeState.LastBoardedAt = Time.unscaledTime;
+            return true;
+        }
+
+        ClearSeatVerify();
         Print($"NPC '{npcId}' is seated (npc.IsInVehicle=true, npc.CurrentVehicle='{codeOf(best.CurrentVehicle)}').");
         PrintSeatProof("after enter", veh, best);
         SpikeState.LastBoardedNpc = best;
         SpikeState.LastBoardedAt = Time.unscaledTime;
         return true;
+    }
+
+    /// <summary>
+    /// Finding 11: late verdict for a provisional boarding. Runs every frame from
+    /// <see cref="SpikeRunner.TickRide"/> — confirms loudly or fails loudly, but
+    /// never re-enters (the initial EnterVehicle + fallback stay the only tries).
+    /// </summary>
+    internal static void TickSeatVerify()
+    {
+        NPC? npc = SpikeState.SeatVerifyNpc;
+        if (npc == null)
+            return;
+
+        LandVehicle? veh = SpikeState.SeatVerifyVeh;
+        bool vehGone = veh == null; // Unity fake-null covers destroyed objects
+        int slot = vehGone ? -1 : OccupantIndexOf(veh!, npc, out _, out _);
+        if (!vehGone && slot >= 0)
+        {
+            Mod.Log.Info($"[seat] late verdict: '{SafeId(npc)}' confirmed at occupant slot {slot} — provisional boarding stands.");
+            ClearSeatVerify();
+            return;
+        }
+
+        if (!vehGone && Time.unscaledTime < SpikeState.SeatVerifyUntil)
+            return; // still inside the grace window
+
+        Mod.Log.Error(vehGone
+            ? $"[seat] late verdict: vehicle gone before '{SafeId(npc)}' took a slot — boarding unverified, see the log."
+            : $"[seat] late verdict: '{SafeId(npc)}' never took an OccupantNPCs slot — boarding FAILED, see the seat dump above.");
+        ClearSeatVerify();
+    }
+
+    private static void ClearSeatVerify()
+    {
+        SpikeState.SeatVerifyNpc = null;
+        SpikeState.SeatVerifyVeh = null;
+        SpikeState.SeatVerifyUntil = 0f;
+    }
+
+    /// <summary>
+    /// True while a provisional boarding for this NPC + vehicle still owns its
+    /// grace window — callers must not re-enter until the verdict lands.
+    /// </summary>
+    private static bool SeatVerifyPendingFor(LandVehicle veh, NPC best)
+    {
+        try
+        {
+            return ReferenceEquals(SpikeState.SeatVerifyNpc, best) &&
+                   ReferenceEquals(SpikeState.SeatVerifyVeh, veh) &&
+                   Time.unscaledTime < SpikeState.SeatVerifyUntil;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     /// <summary>
@@ -921,16 +1012,9 @@ internal static class SpikeCommands
         bool stopNavEarly = SpikeState.RideActive && !SpikeState.RideArrived;
         if (stopNavEarly)
         {
-            try
-            {
-                VehicleAgent? agent = veh.Agent;
-                if (agent != null)
-                    agent.StopNavigating();
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"VehicleAgent.StopNavigating() before the exit failed: {ex.Message}");
-            }
+            // One writer for the hold: ParkCar stops the navigation and sets
+            // brakes + handbrake, so the car cannot roll while the player leaves.
+            ParkCar(veh, "player exit");
             SpikeState.PollingActive = false;
         }
 
@@ -1463,6 +1547,13 @@ internal static class SpikeCommands
             return false;
         }
 
+        // Idempotency: a second board event in the same frame must not open a
+        // second ride. Same-thread Update makes this check sufficient. Placed
+        // AFTER the preconditions so a refused start never leaves a phantom
+        // active ride behind for EndRide.
+        if (SpikeState.RideActive)
+            return true;
+
         SpikeState.RideActive = true;
         SpikeState.RideBoarded = true;
         SpikeState.RidePassengerMode = true;
@@ -1510,36 +1601,54 @@ internal static class SpikeCommands
     internal static void EndRide(string reason, bool stopNavigation = true, bool rearm = false)
     {
         bool wasRiding = SpikeState.RideActive || SpikeState.RideBoarded || SpikeState.RidePassengerMode || SpikeState.RideAwaitingBoard;
-        SpikeState.ResetRide();
-        FareMeter.Stop(reason);
-        RideLocks.UnlockTrunk();
+
+        // Cleanup package (2026-10-03): every step runs in the proven order but is
+        // guarded individually - a throwing step (e.g. FareMeter.Stop's config IO)
+        // must never prevent the steps after it (review: "Fehler protokollieren,
+        // aber UnlockTrunk und StopDriving weiterhin versuchen").
+        CleanupGuard.Run("ResetRide", SpikeState.ResetRide, ReportCleanupFailure);
+        CleanupGuard.Run("FareMeter.Stop", () => FareMeter.Stop(reason), ReportCleanupFailure);
+        CleanupGuard.Run("RideLocks.UnlockTrunk", RideLocks.UnlockTrunk, ReportCleanupFailure);
 
         // Review 2026-10-02, point 3: exit/arrival/give-up/STOP share ONE stop routine —
         // order invalidated, patrol released, reverse + navigation stopped, car parked,
         // runner state cleared. The idle guard verifies the standstill afterwards.
         if (stopNavigation && wasRiding)
-            SpikeRunner.StopDriving(reason);
+            CleanupGuard.Run("StopDriving", () => SpikeRunner.StopDriving(reason), ReportCleanupFailure);
         else
-            TaxiAI.StopPatrol(reason);
+            CleanupGuard.Run("StopPatrol", () => TaxiAI.StopPatrol(reason), ReportCleanupFailure);
 
         string rearmNote = string.Empty;
         if (rearm)
         {
-            LandVehicle? veh = SpikeState.Vehicle;
-            NPC? npc = SpikeState.DriverNpc;
-            LandVehicle? npcVehicle = npc == null ? null : SafeVehicle(npc);
-            bool playerOut = veh == null || !veh.LocalPlayerIsInVehicle;
-            bool npcAtWheel = veh != null && npc != null && SafeInVehicle(npc) && npcVehicle != null && npcVehicle.Pointer == veh.Pointer;
-            if (playerOut && npcAtWheel)
-            {
-                SpikeState.RideAwaitingBoard = true;
-                rearmNote = " — next board (E or F9) starts a new ride";
-            }
+            CleanupGuard.Run(
+                "rearm",
+                () =>
+                {
+                    LandVehicle? veh = SpikeState.Vehicle;
+                    NPC? npc = SpikeState.DriverNpc;
+                    LandVehicle? npcVehicle = npc == null ? null : SafeVehicle(npc);
+                    bool playerOut = veh == null || !veh.LocalPlayerIsInVehicle;
+                    bool npcAtWheel = veh != null && npc != null && SafeInVehicle(npc) && npcVehicle != null && npcVehicle.Pointer == veh.Pointer;
+                    if (playerOut && npcAtWheel)
+                    {
+                        SpikeState.RideAwaitingBoard = true;
+                        rearmNote = " — next board (E) starts a new ride";
+                    }
+                },
+                ReportCleanupFailure);
         }
 
         if (wasRiding)
             Mod.Log.Info($"[ride] ended ({reason}) — input/trunk locks released{rearmNote}.");
     }
+
+    /// <summary>
+    /// Cleanup package: one line per failed cleanup step; the remaining steps
+    /// still run (see <see cref="CleanupGuard"/>).
+    /// </summary>
+    internal static void ReportCleanupFailure(string label, Exception ex) =>
+        Mod.Log.Warn($"[ride] cleanup step '{label}' failed ({ex.GetType().Name}: {ex.Message}) — continuing with the remaining cleanup.");
 
     /// <summary>
     /// Review 2026-10-02, point 3: a finished pickup is FINAL — its order is invalidated
@@ -1945,6 +2054,19 @@ internal static class SpikeCommands
         if (!TaxiDestinations.TryFind(query, out TaxiDestinations.Destination destination))
             return false;
 
+        return ToDestination(destination, caller);
+    }
+
+    /// <summary>
+    /// Package 7: destination-direct pick. The TaxiApp resolves its tap against
+    /// its held catalog snapshot and comes in here — no second scene walk, no
+    /// shifted index. Console keeps using <see cref="To"/> (fresh resolve).
+    /// </summary>
+    internal static bool ToDestination(TaxiDestinations.Destination destination, string caller)
+    {
+        if (destination == null)
+            return false;
+
         if (!TaxiDestinations.ResolveArrival(destination, out TaxiDestinations.Arrival arrival))
             return false;
 
@@ -2028,6 +2150,34 @@ internal static class SpikeCommands
         // A dispatch means the wait is over (Paket A: ride started mid-ride by the picker).
         SpikeState.RideAwaitingDestination = false;
 
+        // Ghost-ride skip (log-proven 2026-10-03, refined: target identity is
+        // required — a different nearby pick must still dispatch).
+        // Conservative: same completed target, in threshold, parked, last
+        // navigation COMPLETED — never after a give-up or an unknown end.
+        // TickRide declares ARRIVED next frame.
+        bool ghostCase = false;
+        if (veh != null)
+        {
+            try
+            {
+                ghostCase =
+                    Vector3.Distance(veh.transform.position, destination) <= SpikeRunner.ArrivalThresholdMeters &&
+                    Vector3.Distance(destination, SpikeState.NavTarget) <= 1f &&
+                    Mathf.Abs(veh.Speed_Kmh) <= 1f; // parked-car bound (cf. PatrolStandingKmh)
+            }
+            catch { /* dispatch normally */ }
+        }
+        if (ghostCase && !SpikeState.NavGaveUp &&
+            string.Equals(SpikeState.NavCallbackResult, "Complete", StringComparison.Ordinal))
+        {
+            SpikeState.RideDestination = destination;
+            SpikeState.NavTarget = destination;
+            SpikeState.ActiveTripName = SpikeState.RideDestinationName;
+            SpikeState.ActiveTripPoint = destination;
+            Mod.Log.Info($"[ride] {caller}: already at {SpikeState.RideDestinationName} — skipping dispatch, arrival next frame.");
+            return true;
+        }
+
         // The meter starts the moment the destination turns into a drive (Dominik:
         // "der Trigger beginnt wenn die Destination ausgewählt ist"). Idempotent —
         // a mid-ride re-route keeps the running total.
@@ -2072,6 +2222,8 @@ internal static class SpikeCommands
             }
             SpikeState.RideDestination = resolvedTarget;
             SpikeState.NavTarget = resolvedTarget;
+            SpikeState.ActiveTripName = SpikeState.RideDestinationName;
+            SpikeState.ActiveTripPoint = resolvedTarget;
             SpikeState.NavStartTime = Time.unscaledTime;
             SpikeState.NavStartPosition = veh.transform.position;
             SpikeState.NavStartDistance = Vector3.Distance(veh.transform.position, resolvedTarget);
@@ -2097,7 +2249,13 @@ internal static class SpikeCommands
         Mod.Log.Warn(
             $"{caller}: the game's patrol driver is unavailable — using the mod's own Navigate() dispatch " +
             $"to {SpikeState.RideDestinationName}.");
-        return Go(0f, useSettings: true, absoluteTarget: destination, toPlayer: false);
+        bool dispatched = Go(0f, useSettings: true, absoluteTarget: destination, toPlayer: false);
+        if (dispatched)
+        {
+            SpikeState.ActiveTripName = SpikeState.RideDestinationName;
+            SpikeState.ActiveTripPoint = SpikeState.NavTarget;
+        }
+        return dispatched;
     }
 
     /// <summary>Cancels navigation and the polling (and aborts a passenger ride anywhere).</summary>
@@ -2146,15 +2304,15 @@ internal static class SpikeCommands
 
     /// <summary>
     /// Stage 3b call-taxi — the single source of truth for ordering the taxi.
-    /// Shared by the F5 hotkey (<see cref="SpikeRunner.HandleHotkey"/>) and the
-    /// in-game phone app (<c>TaxiApp</c> "CALL TAXI"): the shared run-start guard
-    /// (<see cref="SpikeRunner.TryBeginGo"/>), the one-shot stand arm
-    /// (<see cref="PrepareStand"/>) and the automation state block all live here,
-    /// so the hotkey and the phone button can never drift apart.
+    /// Called from the in-game phone app (<c>TaxiApp</c> "CALL TAXI"); the F5
+    /// hotkey was removed (2026-10-03: re-calling with a standing taxi destroyed
+    /// it first). The shared run-start guard (<see cref="SpikeRunner.TryBeginGo"/>),
+    /// the one-shot stand arm (<see cref="PrepareStand"/>) and the automation
+    /// state block all live here.
     /// The run spawns at the taxi stand → +1 s npc → +1 s navigate to a road
     /// point near the player (step 3 reads <c>SpikeState.AutoToPlayer</c>).
     /// </summary>
-    /// <param name="caller">Who ordered the taxi (e.g. <c>"F5"</c>, <c>"TaxiApp"</c>) — used verbatim in the log lines.</param>
+    /// <param name="caller">Who ordered the taxi (e.g. <c>"TaxiApp"</c>) — used verbatim in the log lines.</param>
     /// <returns><c>true</c> when the run was started; <c>false</c> with a logged reason otherwise.</returns>
     internal static bool CallTaxi(string caller)
     {
@@ -2199,6 +2357,96 @@ internal static class SpikeCommands
         return RoadTarget.FindNearPlayer(pos, forward);
     }
 
+    // ------------------------------------------------------------ diag ride scan
+
+    /// <summary>
+    /// <c>taxi diag</c> — one on-demand ride scan into the MelonLoader log (never
+    /// per-frame): is it driving, is the target reached, what is picked and did
+    /// the pick change since dispatch. Reads <see cref="SpikeState"/> only;
+    /// every native read is guarded.
+    /// </summary>
+    internal static void Diag()
+    {
+        LandVehicle? veh = SpikeState.Vehicle;
+
+        float speed = float.NaN;
+        string vehPos = "-";
+        try
+        {
+            if (veh != null)
+            {
+                vehPos = Fmt(veh.transform.position);
+                speed = Mathf.Abs(veh.Speed_Kmh);
+            }
+        }
+        catch
+        {
+            // guarded below via NaN
+        }
+
+        bool driving = SpikeState.PollingActive || TaxiAI.Active || SpikeState.NavReDispatchAt > 0f;
+        float dist = -1f;
+        if (veh != null)
+        {
+            try { dist = Vector3.Distance(veh.transform.position, SpikeState.NavTarget); }
+            catch { /* stays unknown */ }
+        }
+
+        string picker = SpikeState.RideDestinationPicked ? SpikeState.RideDestinationName : "(none selected)";
+        string trip = SpikeState.ActiveTripPoint.HasValue && SpikeState.ActiveTripName.Length > 0
+            ? SpikeState.ActiveTripName : "-";
+
+        string changed = "no";
+        if (SpikeState.RideDestinationPicked && SpikeState.ActiveTripPoint.HasValue &&
+            !string.Equals(SpikeState.RideDestinationName, SpikeState.ActiveTripName, StringComparison.Ordinal))
+        {
+            changed = $"picker='{SpikeState.RideDestinationName}' vs trip='{SpikeState.ActiveTripName}'";
+        }
+        else if (SpikeState.RideDestination.HasValue)
+        {
+            try
+            {
+                float snap = Vector3.Distance(SpikeState.RideDestination.Value, SpikeState.NavTarget);
+                if (snap > 0.1f)
+                    changed = $"dispatched point off by {snap.ToString("0.0", CultureInfo.InvariantCulture)} m (graph snap / game rebound)";
+            }
+            catch { /* cosmetic */ }
+        }
+
+        string verdict;
+        if (!SpikeState.RideActive && !SpikeState.RideAwaitingBoard)
+            verdict = "IDLE (no ride)";
+        else if (!SpikeState.RideActive)
+            verdict = "BOARD NOW (pickup arrived, press E)";
+        else if (SpikeState.RideAwaitingDestination)
+            verdict = "WAITING FOR DESTINATION (pick a place)";
+        else if (SpikeState.RideArrived)
+            verdict = SpikeState.NavGaveUp ? "GAVE UP (could not get there)" : "ARRIVED (press E to exit)";
+        else if (driving)
+            verdict = "DRIVING";
+        else
+            verdict = "STALLED (active but nothing drives)";
+
+        NPC? npc = SpikeState.DriverNpc;
+        string driver = npc == null ? "none" : SafeId(npc);
+        if (npc != null && veh != null)
+        {
+            int slot = OccupantIndexOf(veh, npc, out _, out _);
+            driver += slot >= 0 ? $" (slot {slot})" : " (NO SLOT)";
+        }
+
+        Print($"[diag] verdict={verdict}");
+        Print($"[diag] ride: active={SpikeState.RideActive} boarded={SpikeState.RideBoarded} arrived={SpikeState.RideArrived} " +
+              $"awaitingDest={SpikeState.RideAwaitingDestination} passenger={SpikeState.RidePassengerMode} awaitingBoard={SpikeState.RideAwaitingBoard}");
+        Print($"[diag] route: picked={SpikeState.RideDestinationPicked} picker='{picker}' trip='{trip}' changed: {changed}");
+        Print($"[diag] drive: polling={SpikeState.PollingActive} order={SpikeState.NavOrder} callback={SpikeState.NavCallbackResult ?? "-"} " +
+              $"gaveUp={SpikeState.NavGaveUp} recoveries={SpikeState.StuckRecoveries} " +
+              $"dist={(dist < 0f ? "-" : dist.ToString("0.0", CultureInfo.InvariantCulture) + " m")} " +
+              $"speed={(float.IsNaN(speed) ? "-" : speed.ToString("0.0", CultureInfo.InvariantCulture) + " km/h")}");
+        Print($"[diag] car: {(veh == null ? "none" : $"code='{codeOf(veh)}' pos=({vehPos})")} driver={driver} " +
+              $"fare=${FareMeter.ChargedTotal} (meter {(FareMeter.Running ? "RUNNING" : "idle")})");
+    }
+
     // -------------------------------------------------------------- status
 
     internal static void Status()
@@ -2237,7 +2485,8 @@ internal static class SpikeCommands
 
         Print($"Ride: active={SpikeState.RideActive} boarded={SpikeState.RideBoarded} arrived={SpikeState.RideArrived} " +
               $"awaitingBoard={SpikeState.RideAwaitingBoard} passengerMode={SpikeState.RidePassengerMode} " +
-              $"destination='{SpikeState.RideDestinationName}' {(SpikeState.RideDestination.HasValue ? Fmt(SpikeState.RideDestination.Value) : "(default ROAD A)")}");
+              $"destination='{SpikeState.RideDestinationName}' {(SpikeState.RideDestination.HasValue ? Fmt(SpikeState.RideDestination.Value) : "(none selected)")} " +
+              $"activeTrip='{(SpikeState.ActiveTripPoint.HasValue ? SpikeState.ActiveTripName : "-")}'");
 
         Print($"Navigation polling active: {SpikeState.PollingActive}");
         if (SpikeState.PollingActive)
@@ -2357,7 +2606,7 @@ internal static class SpikeCommands
                 // nobody drives" report — prove the exit, never assume it.
                 if (SafePlayerInVehicle(veh))
                 {
-                    Mod.Log.Error("LocalPlayerIsInVehicle is still true after LandVehicle.ExitVehicle() — destroy refused (freeze guard). Press E/F9 (`taxi out`) and retry `taxi stop`.");
+                    Mod.Log.Error("LocalPlayerIsInVehicle is still true after LandVehicle.ExitVehicle() — destroy refused (freeze guard). Press E (`taxi out`) and retry `taxi stop`.");
                     ok = false;
                 }
             }
@@ -2366,6 +2615,12 @@ internal static class SpikeCommands
                 Mod.Log.Error($"LandVehicle.ExitVehicle() failed: {ex.Message}");
                 ok = false;
             }
+
+            // Same ground safety as Out()/TickRide: never leave the player where
+            // there is no ground before the destroy below. Only once the exit
+            // is proven — a seated player must never be moved.
+            if (!SafePlayerInVehicle(veh))
+                SafeExitGroundSnap(veh);
 
             try
             {
@@ -3183,6 +3438,191 @@ internal static class SpikeCommands
         {
             Print($"[bounds] boundingBox read failed: {ex.Message}");
             return false;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Merged from SpikeTrace.cs (2026-10-02) — on-demand Navigate instrumentation.
+// ---------------------------------------------------------------------------
+
+/// <summary>
+/// On-demand instrumentation for test finding 1 ("Navigate fails silently").
+/// Four Harmony prefixes answer the decisive question — does a dispatched
+/// <c>VehicleAgent.Navigate</c> reach the vanilla path calculation at all, and
+/// what does the vanilla side report back?
+///
+/// <list type="bullet">
+/// <item><c>taxi trace on</c> patches <c>VehicleAgent.Navigate</c>,
+/// <c>NavigationUtility.CalculatePath</c>,
+/// <c>VehicleAgent.NavigationCalculationCallback</c> and
+/// <c>VehicleAgent.StopNavigating</c> through <c>PatchGuard</c> (a missing or
+/// renamed method degrades to a logged warning, never a crash).</item>
+/// <item><c>taxi trace off</c> only stops the logging — the prefixes stay installed
+/// and become no-ops, so toggling never risks an unpatch mismatch.</item>
+/// </list>
+/// </summary>
+internal static class SpikeTrace
+{
+    private static HarmonyLib.Harmony? _harmony;
+
+    /// <summary>Prefix logging is gated by this flag; the patches themselves stay.</summary>
+    private static volatile bool _logging;
+
+    internal static bool Patched { get; private set; }
+
+    internal static bool Logging => _logging;
+
+    /// <summary>Applies the prefixes once and switches their logging on.</summary>
+    internal static bool Enable()
+    {
+        if (!Patched)
+        {
+            _harmony ??= new HarmonyLib.Harmony("TaxiDriver.trace");
+
+            bool navigate = S1Mods.Shared.PatchGuard.TryPatch(
+                _harmony, typeof(VehicleAgent), nameof(VehicleAgent.Navigate),
+                prefix: new HarmonyMethod(typeof(SpikeTrace), nameof(NavigatePrefix)), log: Mod.Log);
+
+            bool calculatePath = S1Mods.Shared.PatchGuard.TryPatch(
+                _harmony, typeof(NavigationUtility), nameof(NavigationUtility.CalculatePath),
+                prefix: new HarmonyMethod(typeof(SpikeTrace), nameof(CalculatePathPrefix)), log: Mod.Log);
+
+            // Round 10: the async result relay and the stop call are public and
+            // managed — they are the only reliable observers of the native
+            // Navigate body (CalculatePath is never dispatched through managed).
+            bool navResult = S1Mods.Shared.PatchGuard.TryPatch(
+                _harmony, typeof(VehicleAgent), nameof(VehicleAgent.NavigationCalculationCallback),
+                prefix: new HarmonyMethod(typeof(SpikeTrace), nameof(NavCalcResultPrefix)), log: Mod.Log);
+
+            bool stopNav = S1Mods.Shared.PatchGuard.TryPatch(
+                _harmony, typeof(VehicleAgent), nameof(VehicleAgent.StopNavigating),
+                prefix: new HarmonyMethod(typeof(SpikeTrace), nameof(StopNavigatingPrefix)), log: Mod.Log);
+
+            Patched = navigate || calculatePath || navResult || stopNav;
+            if (!Patched)
+            {
+                Mod.Log.Error("taxi trace: no VehicleAgent/NavigationUtility prefix could be patched — tracing unavailable.");
+                return false;
+            }
+
+            Mod.Log.Info($"taxi trace: patches applied (Navigate={navigate}, CalculatePath={calculatePath}, NavigationCalculationCallback={navResult}, StopNavigating={stopNav}).");
+            LogNativePointers();
+        }
+
+        _logging = true;
+        Mod.Log.Info("taxi trace ON — every Navigate dispatch and every path calculation now logs one line.");
+        return true;
+    }
+
+    /// <summary>Stops the log lines; the (harmless) prefixes remain installed.</summary>
+    internal static void Disable()
+    {
+        _logging = false;
+        Mod.Log.Info(Patched
+            ? "taxi trace OFF — prefixes stay installed but are silent (`taxi trace on` re-enables the lines)."
+            : "taxi trace OFF.");
+    }
+
+    // ------------------------------------------------------------ prefixes
+
+    private static void NavigatePrefix(Vector3 location, NavigationSettings settings)
+    {
+        if (!_logging)
+            return;
+
+        Mod.Log.Info(
+            $"[trace] VehicleAgent.Navigate(location=({SpikeCommands.Fmt(location)}), " +
+            $"settings={(settings == null ? "null" : "NavigationSettings")}) entered (frame={Time.frameCount}) — " +
+            "reaching this line proves the agent accepted the dispatch.");
+    }
+
+    private static void CalculatePathPrefix(Vector3 startPosition, Vector3 destination)
+    {
+        if (!_logging)
+            return;
+
+        Mod.Log.Info(
+            $"[trace] NavigationUtility.CalculatePath(start=({SpikeCommands.Fmt(startPosition)}), " +
+            $"dest=({SpikeCommands.Fmt(destination)})) entered (frame={Time.frameCount}) — " +
+            "the vanilla path calculation IS running (dispatch reached the graph layer).");
+    }
+
+    /// <summary>Async path-search relay: Success/Failed + managed stack.</summary>
+    private static void NavCalcResultPrefix(NavigationUtility.ENavigationCalculationResult result, PathSmoothingUtility.SmoothedPath _path)
+    {
+        if (!_logging)
+            return;
+
+        Mod.Log.Warn(
+            $"[trace] VehicleAgent.NavigationCalculationCallback(result={result}, path={(_path == null ? "null" : "SmoothedPath")}) " +
+            $"frame={Time.frameCount}\n{ShortStack()}");
+    }
+
+    /// <summary>Who ends a navigation (stack shows caller context).</summary>
+    private static void StopNavigatingPrefix()
+    {
+        if (!_logging)
+            return;
+
+        Mod.Log.Warn($"[trace] VehicleAgent.StopNavigating() frame={Time.frameCount}\n{ShortStack()}");
+    }
+
+    private static string ShortStack()
+    {
+        try
+        {
+            var st = new StackTrace(1, false);
+            var frames = st.GetFrames();
+            if (frames == null || frames.Length == 0)
+                return "    <no stack>";
+
+            var sb = new StringBuilder();
+            int n = 0;
+            foreach (var f in frames)
+            {
+                var m = f.GetMethod();
+                if (m == null)
+                    continue;
+                string type = m.DeclaringType?.FullName ?? "?";
+                sb.Append("    at ").Append(type).Append('.').AppendLine(m.Name);
+                if (++n >= 12)
+                    break;
+            }
+
+            return sb.ToString().TrimEnd();
+        }
+        catch (Exception ex)
+        {
+            return "    <stacktrace failed: " + ex.Message + ">";
+        }
+    }
+
+    /// <summary>
+    /// Logs the IL2CPP native method pointers of the Navigate family (reflection
+    /// over Il2CppInterop's NativeMethodInfoPtr_* statics). The VAs let us
+    /// disassemble the real native body of Navigate from GameAssembly.dll —
+    /// the only place that still holds the logic behind 'Failed'.
+    /// </summary>
+    private static void LogNativePointers()
+    {
+        try
+        {
+            const BindingFlags F = BindingFlags.NonPublic | BindingFlags.Static;
+            foreach (var fi in typeof(VehicleAgent).GetFields(F))
+            {
+                if (!fi.Name.Contains("Navigate", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                object? v = fi.GetValue(null);
+                if (v is IntPtr p && p != IntPtr.Zero)
+                    Mod.Log.Info($"[trace] native ptr {fi.Name} = 0x{p.ToInt64():X}");
+                else
+                    Mod.Log.Info($"[trace] native ptr {fi.Name} = {v ?? "null"}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"LogNativePointers failed: {ex.Message}");
         }
     }
 }

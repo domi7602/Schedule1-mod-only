@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using MelonLoader;
+using S1API.PhoneApp;
 using S1API.UI;
 using S1API.Utils;
 using S1Mods.Shared;
@@ -13,23 +14,22 @@ using UnityEngine.UI;
 namespace TaxiDriver;
 
 /// <summary>
-/// "Taxi" phone app — order the taxi from the in-game phone instead of the
-/// keyboard: the CALL TAXI button runs the very same flow as the F5 hotkey
-/// (<see cref="SpikeCommands.CallTaxi"/> — single source of truth) and STOP runs
-/// the <c>taxi stop</c> console path (<see cref="SpikeCommands.Stop"/>). The
-/// status label mirrors the live <see cref="SpikeState"/> (cheap string compare,
-/// refreshed from <c>Update</c>).
-/// S1API auto-discovers every <c>PhoneApp</c> subclass in this assembly when the
-/// phone home screen starts — no manual registration.
-/// Follows the workspace phone-app golden rules: explicit vertical orientation,
-/// background panel deactivated (never destroyed) in <c>OnPhoneClosed</c>,
-/// <c>UITheme</c> sizing, <c>ButtonUtils.AddListener</c> wiring (IL2CPP-safe),
-/// idempotent <c>MelonEvents.OnUpdate</c> subscription, no text input fields and
-/// no persistence (the spike state lives in <see cref="SpikeState"/>).
+/// "Taxi" phone app — landscape ride dashboard in the PotScanner/BankApp design language
+/// (GamePalette surfaces, UISprites two-layer cards, filter chips, search band,
+/// banded layout: hero / actions / filters / search / flexible destination list).
 ///
-/// The deferred-close experiment (TaxiCloseExperiment, 45-frame hide delay) was
-/// removed 2026-10: it made this app's ESC close lag ~0.75 s behind every other
-/// phone app. Close is now immediate, same frame as the others.
+/// CALL TAXI runs the shared call-taxi flow (<see cref="SpikeCommands.CallTaxi"/>;
+/// the former F5 hotkey was removed 2026-10-03), STOP runs <see cref="SpikeCommands.Stop"/>, and tapping a destination row runs the
+/// shared <see cref="SpikeCommands.SetRideDestination"/>. The hero mirrors the live
+/// <see cref="SpikeState"/> (state, drop-off, fare from <see cref="FareMeter"/>) and is
+/// the only status surface — button outcomes appear there for a few seconds.
+///
+/// Lifecycle follows the golden rules: explicit Horizontal orientation, isolated
+/// background panel (starts hidden, never destroyed), <c>OnUpdate</c> wired exactly once,
+/// and an immediate close in the same frame as every other phone app (the deferred-close
+/// experiment was removed 2026-10 - it made this app's ESC close lag ~0.75 s behind them).
+/// One text input (the session-only destination search, typing guard per phoneapp
+/// Rule 5), no persistence.
 /// </summary>
 public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
 {
@@ -51,133 +51,99 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     /// </summary>
     protected override string IconFileName => string.Empty;
 
-    /// <summary>Golden Rule 1: always vertical, always explicit.</summary>
-    protected override EOrientation Orientation => EOrientation.Vertical;
+    /// <summary>Landscape dashboard (the game turns the phone sideways, like PocketShop/PotScanner).</summary>
+    protected override EOrientation Orientation => EOrientation.Horizontal;
 
-    // ---- icon ---------------------------------------------------------------
+    /// <summary>The app icon (shared with the fare notification — see <see cref="TaxiIcon"/>).</summary>
+    protected override Sprite? IconSprite => TaxiIcon.Get();
 
-    private Sprite? _cachedIconSprite;
+    // ---- palette (GamePalette semantics: green = primary action, blue = selection,
+    // teal = value ink, red = destructive, orange = deals) ----------------------
+    private static readonly Color BgColor = GamePalette.Bg;
+    private static readonly Color CardFill = GamePalette.Card;
+    private static readonly Color CardFillSoft = GamePalette.CardAlt;
+    private static readonly Color CardBorder = GamePalette.Border;
+    private static readonly Color PrimaryAction = GamePalette.Green;
+    private static readonly Color DestructiveAction = GamePalette.Red;
+    private static readonly Color SelectionAccent = GamePalette.Blue;
+    private static readonly Color ValueInk = GamePalette.Teal;
+    private static readonly Color TextPrimary = GamePalette.TextPrimary;
+    private static readonly Color TextMuted = GamePalette.TextMuted;
+    private static readonly Color TextDim = GamePalette.TextDim;
 
-    /// <summary>
-    /// The app icon: <c>taxi_icon.png</c> from the game's <c>Mods</c> folder
-    /// (deployed from <c>Source/Mods/TaxiDriver/assets/</c> by
-    /// <c>Directory.Build.targets</c>), with a procedural fallback so a missing
-    /// or broken file never logs errors.
-    /// </summary>
-    protected override Sprite? IconSprite
-    {
-        get
-        {
-            if (_cachedIconSprite != null)
-                return _cachedIconSprite;
+    private const float CardRadius = 10f;
+    private const float ChipRadius = 6f;
 
-            try
-            {
-                string path = Path.Combine(MelonLoader.Utils.MelonEnvironment.ModsDirectory, "taxi_icon.png");
-                if (File.Exists(path))
-                {
-                    var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-                    if (ImageConversion.LoadImage(tex, File.ReadAllBytes(path)))
-                    {
-                        tex.name = "TaxiApp_Icon";
-                        _cachedIconSprite = Sprite.Create(
-                            tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
-                        return _cachedIconSprite;
-                    }
+    // ---- destination filter keys --------------------------------------------
+    private const string FilterAll = "all";
+    private const string FilterHomes = "homes";
+    private const string FilterDeals = "deals";
+    private const string FilterPlaces = "places";
+    private static readonly string[] FilterKeys = { FilterAll, FilterHomes, FilterDeals, FilterPlaces };
+    private static readonly string[] FilterLabels = { "All", "Homes", "Deals", "Places" };
 
-                    MelonLogger.Warning($"[TaxiApp] Icon '{path}' is not a decodable texture — using the procedural fallback.");
-                }
-                else
-                {
-                    MelonLogger.Warning($"[TaxiApp] Icon '{path}' not found — using the procedural fallback.");
-                }
-            }
-            catch (Exception ex)
-            {
-                MelonLogger.Warning($"[TaxiApp] Icon load failed ({ex.Message}) — using the procedural fallback.");
-            }
-
-            _cachedIconSprite = CreateFallbackIconSprite();
-            return _cachedIconSprite;
-        }
-    }
-
-    /// <summary>Procedural yellow "T" icon — used when the PNG cannot be loaded.</summary>
-    private static Sprite CreateFallbackIconSprite()
-    {
-        const int size = 64;
-        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { name = "TaxiApp_Icon_Fallback" };
-        var yellow = new Color32(242, 194, 48, 255);
-        var dark = new Color32(30, 34, 44, 255);
-        var px = new Color32[size * size];
-        for (int y = 0; y < size; y++)
-        {
-            for (int x = 0; x < size; x++)
-            {
-                bool inT = (y >= 42 && y < 52 && x >= 14 && x < 50) ||   // top bar
-                           (x >= 27 && x < 37 && y >= 14 && y < 52);    // stem
-                px[y * size + x] = inT ? dark : yellow;
-            }
-        }
-
-        tex.SetPixels32(px);
-        tex.Apply(false, true);
-        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
-    }
-
-    // ---- UI state -----------------------------------------------------------
-
+    // ---- UI refs ------------------------------------------------------------
     private GameObject? _mainBG;
-    private Text? _statusLabel;
-    private string _statusOverride = string.Empty;
-    private float _statusOverrideUntil;
+    private RectTransform? _listContent;
+    private Text? _heroTitle;
+    private Text? _heroMeta;
+    private Text? _heroValue;
 
-    /// <summary>How long a button outcome stays in the status label before the live state takes over again.</summary>
-    private const float StatusOverrideSeconds = 4f;
+    private Button? _callButton;
+    private Image? _callFill;
+    private Text? _callLabel;
+    private Text? _callSub;
+    private Button? _stopButton;
+    private Image? _stopFill;
+    private Text? _stopLabel;
+    private Text? _stopSub;
 
-    /// <summary>Destination picker button background/label colors (selected / unselected).</summary>
-    private static readonly Color DestSelectedColor = new(0.95f, 0.76f, 0.10f, 1f);
+    private readonly Dictionary<string, (Image Fill, Text Label, Button Button)> _filterChips = new();
+    private Text? _countText;
+    private Button? _clearButton;
+    private Image? _clearFill;
+    private Text? _clearLabel;
 
-    private static readonly Color DestUnselectedColor = new(0.16f, 0.20f, 0.31f, 1f);
-    private static readonly Color DestSelectedLabelColor = new(0.10f, 0.11f, 0.14f, 1f);
-    private static readonly Color DestUnselectedLabelColor = Color.white;
+    // ---- destination search (session-only, never persisted) --------------------
+    private InputField? _searchInput;
+    private string _searchQuery = string.Empty;
+    private GameObject? _searchClearGo;
 
-    /// <summary>Tag colour off the selected row, and on it (dark, or the tag is
-    /// "ST…" in pale grey on bright yellow — unreadable, see the 0.5.4 screenshot).</summary>
-    private static readonly Color DestUnselectedTagColor = new(0.70f, 0.76f, 0.88f, 1f);
-    private static readonly Color DestSelectedTagColor = new(0.26f, 0.22f, 0.04f, 1f);
+    /// <summary>Destination rows keyed by their click key (catalog index / "STAND"), each carrying
+    /// the name the highlight compares against.</summary>
+    private readonly Dictionary<string, (Image Rim, Image Fill, Text Label, Text Tag, string Highlight)> _destRows = new();
 
     /// <summary>
-    /// Destination list rows keyed by their click key (catalog index / "STAND"),
-    /// each carrying the name the highlight compares against (Stage 3d).
+    /// Package 7: catalog snapshot held per list build — taps resolve against
+    /// THIS, never against a fresh scene walk with shifted indexes.
     /// </summary>
-    private readonly Dictionary<string, (Image Image, Text Label, Text Tag, string Highlight)> _destRows = new();
+    private readonly Dictionary<string, TaxiDestinations.Destination> _destSnapshot = new();
 
-    /// <summary>Scroll content of the destination list (rows are rebuilt on every app open).</summary>
-    private RectTransform? _destContent;
+    /// <summary>Stable row identity: kind + name + 1 m goal grid.</summary>
+    private static string RowKey(TaxiDestinations.Destination destination)
+    {
+        Vector3 g = destination.Goal;
+        return $"{destination.Kind}|{destination.Name}|{(int)Math.Round(g.x)}|{(int)Math.Round(g.y)}|{(int)Math.Round(g.z)}";
+    }
 
-    /// <summary>
-    /// One-shot per session: the first app open writes the COMPLETE destination
-    /// table into the log (<see cref="TaxiDestinations.DumpPois"/>). The DEAL names
-    /// live in scene data (`DeliveryLocation.LocationName`), so the log dump is the
-    /// only way to read the full list outside the app itself.
-    /// </summary>
+    private string _activeFilter = FilterAll;
+
+    /// <summary>One-shot per session: first app open writes the complete destination table into the log.</summary>
     private static bool _catalogDumpedThisSession;
 
-    /// <summary>"DESTINATION: &lt;place&gt;" line above the list.</summary>
-    private Text? _destHeader;
+    // ---- live state ---------------------------------------------------------
+    private string _statusOverride = string.Empty;
+    private float _statusOverrideUntil;
+    private const float StatusOverrideSeconds = 4f;
 
-    /// <summary>Right-aligned place count in the same line ("79 places").</summary>
-    private Text? _destCount;
+    // Change guard: the Update loop refreshes only when the snapshot changed.
+    private HeroSnapshot _heroSnapshot;
+    private int _actionSignature = int.MinValue;
+    private int _clearSignature = int.MinValue;
 
-    /// <summary>Theme scale the app was BUILT with (the global theme can be re-initialised later).</summary>
-    private float _buildScale = 1f;
-
-    /// <summary>
-    /// Measured label widths (name, preferred width in units) collected while the list is
-    /// built, so the [ui] summary can name the rows that have to shrink — measurement
-    /// instead of guessing whether a name fits the phone's app container.
-    /// </summary>
+    private float _nameColumnWidth;
+    private int _refitFrames;
+    private int _closeTraceFrames;
     private readonly List<(string Name, float Width)> _rowWidths = new();
 
     // ---- lifecycle ----------------------------------------------------------
@@ -195,14 +161,39 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         MelonEvents.OnUpdate.Subscribe(Update);
     }
 
-    /// <summary>Builds the compact phone UI (background panel starts hidden).</summary>
+    /// <summary>Builds the landscape dashboard (background panel starts hidden).</summary>
     protected override void OnCreatedUI(GameObject container)
     {
         var containerRt = container.GetComponent<RectTransform>();
         if (containerRt != null)
-            UITheme.InitializeForTextApp(containerRt);
+        {
+            UITheme.InitializeForDashboard(containerRt);
+            TaxiLog.Verbose($"[ui] canvas {UITheme.ActualWidth:F0}x{UITheme.ActualHeight:F0} scale={UITheme.Scale:F2}");
+        }
 
-        BuildUI(container);
+        // Golden Rule 3: isolated background panel, starts hidden.
+        _mainBG = UIFactory.Panel("TaxiApp_MainBG", container.transform, BgColor, fullAnchor: true);
+        _mainBG.SetActive(false);
+
+        // Banded stack (PotScanner idiom): hero / action row / filter toolbar / flexible list.
+        var vlg = _mainBG.AddComponent<VerticalLayoutGroup>();
+        vlg.childControlHeight = true;
+        vlg.childControlWidth = true;
+        vlg.childForceExpandHeight = false;
+        vlg.childForceExpandWidth = true;
+        vlg.spacing = UITheme.Dp(8f);
+        int pad = (int)UITheme.Dp(8f);
+        vlg.padding = new RectOffset(pad, pad, pad, pad);
+
+        CreateHero(_mainBG.transform);
+        CreateActionRow(_mainBG.transform);
+        CreateFilterToolbar(_mainBG.transform);
+        CreateSearchBand(_mainBG.transform);
+        CreateList(_mainBG.transform);
+
+        RefreshHero();
+        RefreshActionButtons();
+        RefreshClearButton();
     }
 
     /// <summary>IL2CPP liveness: managed wrappers survive scene unload while native objects are dead.</summary>
@@ -213,12 +204,6 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         catch { return false; }
     }
 
-<<<<<<< HEAD
-    /// <summary>
-    /// Golden Rule 2: deactivate the background panel ONLY — never
-    /// <c>Object.Destroy</c>, never clear the hierarchy (the "Transparent Phone"
-    /// bug).
-    /// </summary>
     protected override void OnPhoneClosed()
     {
         TaxiLog.Verbose($"[close] OnPhoneClosed f={Time.frameCount} t={Time.unscaledTime:0.000}");
@@ -231,8 +216,9 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     }
 
     /// <summary>
-    /// Per-frame sync: background visibility follows <see cref="IsOpen"/>,
-    /// Escape closes the app, and the status label is refreshed.
+    /// Per-frame sync: background visibility follows <see cref="IsOpen"/>, Escape closes
+    /// the app, and the cheap change-guarded refreshes keep hero/actions/list in sync
+    /// with <see cref="SpikeState"/>.
     /// </summary>
     private void Update()
     {
@@ -250,21 +236,26 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             // The destination catalog walks the scene (deal locations + lots), so it
             // is built on open — never per frame.
             if (open)
+            {
                 RebuildDestinationList();
+                _refitFrames = 5;   // labels settle one layout pass after the rebuild
+            }
             else
-                _closeTraceFrames = 8;   // [close] frame-gap trace
+            {
+                _closeTraceFrames = 8;   // [close] frame-gap trace (verbose)
+            }
         }
 
-        if (_uiDumpFrames > 0 && --_uiDumpFrames == 0)
+        if (_refitFrames > 0 && --_refitFrames == 0)
         {
+            FitHeroTitle();
             RefitLabelsAtRender();
-            DumpActualLayout();
         }
 
         if (_closeTraceFrames > 0)
         {
             _closeTraceFrames--;
-            Mod.Log.Info($"[close] trace f={Time.frameCount} t={Time.unscaledTime:0.000} open={open} mainBG={_mainBG.activeSelf}");
+            TaxiLog.Verbose($"[close] trace f={Time.frameCount} t={Time.unscaledTime:0.000} open={open} mainBG={_mainBG.activeSelf}");
         }
 
         if (!open)
@@ -272,491 +263,770 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            // Search feature: the first Escape clears the search, the second closes.
+            if (_searchQuery.Trim().Length > 0)
+            {
+                SetSearchQuery(string.Empty);
+                return;
+            }
+
             CloseApp();
             return;
         }
 
-        RefreshStatus();
+        RefreshHero();
+        RefreshActionButtons();
+        RefreshClearButton();
         RefreshDestinationHighlight();
     }
 
-    // ---- UI construction ----------------------------------------------------
+    // =====================================================================
+    // UI construction
+    // =====================================================================
 
-    private void BuildUI(GameObject container)
+    /// <summary>Hero band (Dp96): live state, context, fare, app icon.</summary>
+    private void CreateHero(Transform parent)
     {
-        // The theme scale is GLOBAL and gets re-initialised by whichever phone app is
-        // opened last (log: two "Responsive canvas initialized" lines 67 ms apart, 1.60
-        // then 1.20). Every size in this app is therefore Dp/Sp() at BUILD time, and the
-        // [ui] report has to use the same number — reporting the current one produced a
-        // wrong "name font 22 pt / column 489 units" while the app was built at 29 pt.
-        _buildScale = UITheme.Scale;
-        _rowHeight = UITheme.Dp(48f);
-        _rowPadH = UITheme.Dp(10f);
-        _rowSpacing = UITheme.Dp(8f);
-        _nameSize = UITheme.Sp(18);
-        _nameMin = UITheme.Sp(12);
-        _tagSize = UITheme.Sp(12);
-        _tagMin = UITheme.Sp(9);
-        _tagWidth = UITheme.Dp(78f);
-        _tagMinWidth = UITheme.Dp(64f);
-        _nameColumnWidth = UITheme.ActualWidth - 2f * ScreenSafeInset - 2f * (14f * _buildScale) - 2f * 10f - 2f * (10f * _buildScale) - (78f * _buildScale + 8f * _buildScale);
-        // Golden Rule 3: isolated background panel, starts hidden.
-        var bg = UIFactory.Panel("TaxiApp_MainBG", container.transform, new Color(0.078f, 0.102f, 0.18f, 1f), fullAnchor: true);
-        _mainBG = bg;
+        var band = UIFactory.Panel("HeroBand", parent, Color.clear);
+        var bandImg = band.GetComponent<Image>();
+        if (bandImg != null) bandImg.raycastTarget = false;
+        var le = band.AddComponent<LayoutElement>();
+        le.minHeight = UITheme.Dp(96f);
+        le.preferredHeight = UITheme.Dp(96f);
+        le.flexibleHeight = 0f;
 
-        var layout = bg.AddComponent<VerticalLayoutGroup>();
-        int safeInset = (int)ScreenSafeInset;
-        layout.padding = new RectOffset(
-            (int)UITheme.Dp(14) + safeInset, (int)UITheme.Dp(14) + safeInset, (int)UITheme.Dp(14), (int)UITheme.Dp(14));
-        layout.spacing = UITheme.Dp(10);
-        layout.childAlignment = TextAnchor.UpperCenter;
-        layout.childControlWidth = true;
-        layout.childControlHeight = true;
-        layout.childForceExpandWidth = true;
-        layout.childForceExpandHeight = false;
+        var card = CreateCard("HeroCard", band.transform, CardFill, out var fill);
 
-        // Header bar.
-        var header = UIFactory.Panel("TaxiApp_Header", bg.transform, new Color(0.11f, 0.14f, 0.23f, 1f));
-        AddFixedHeight(header, 56f);
-        var title = UIFactory.Text("TaxiApp_Title", "TAXI", header.transform, UITheme.Sp(22), TextAnchor.MiddleCenter, FontStyle.Bold);
-        Stretch(title.rectTransform);
-        title.color = new Color(0.95f, 0.78f, 0.2f, 1f);
+        var overline = UIFactory.Text("HeroOverline", "TAXI", fill.transform, UITheme.Sp(12), TextAnchor.MiddleLeft, FontStyle.Bold);
+        overline.color = TextMuted;
+        overline.raycastTarget = false;
+        AnchorRect(overline.rectTransform, 0.05f, 0.76f, 0.68f, 0.94f);
 
-        // Primary action — orders the taxi (same flow as the F5 hotkey).
-        MakeButton("TaxiApp_CallBtn", bg.transform, new Color(0.95f, 0.76f, 0.10f, 1f), 72f,
-            "CALL TAXI", UITheme.Sp(20), FontStyle.Bold, new Color(0.10f, 0.11f, 0.14f, 1f), OnCallTaxiPressed);
+        _heroTitle = UIFactory.Text("HeroTitle", "CALL A TAXI", fill.transform, UITheme.Sp(26), TextAnchor.MiddleLeft, FontStyle.Bold);
+        _heroTitle.color = TextPrimary;
+        _heroTitle.raycastTarget = false;
+        _heroTitle.horizontalOverflow = HorizontalWrapMode.Overflow;
+        _heroTitle.verticalOverflow = VerticalWrapMode.Truncate;
+        AnchorRect(_heroTitle.rectTransform, 0.05f, 0.46f, 0.68f, 0.78f);
 
-        // Stage 3d: instead of three buttons (two of them hand-read coordinates) the
-        // app now lists every place the GAME owns — deal locations first, then
-        // parking lot entries (`taxi pois` dumps the same list to the log). Tapping
-        // a row runs the shared SpikeCommands.SetRideDestination, which also
-        // resolves the drop-off (a goal that is off the vehicle graph is served by
-        // the nearest lot entry instead of being force-driven into geometry).
-        var destHeaderPanel = UIFactory.Panel("TaxiApp_DestHeaderPanel", bg.transform, new Color(0.11f, 0.14f, 0.23f, 1f));
-        AddFixedHeight(destHeaderPanel, 42f);
-        // HorizontalLayoutGroup instead of hand-placed rects (BankApp's idiom): the
-        // layout places the two texts, so nothing can slide out of the panel.
-        var headerLayout = destHeaderPanel.AddComponent<HorizontalLayoutGroup>();
-        headerLayout.padding = new RectOffset((int)UITheme.Dp(10f), (int)UITheme.Dp(10f), 0, 0);
-        headerLayout.spacing = UITheme.Dp(8f);
-        headerLayout.childAlignment = TextAnchor.MiddleLeft;
-        headerLayout.childControlWidth = true;
-        headerLayout.childControlHeight = true;
-        headerLayout.childForceExpandWidth = true;
-        headerLayout.childForceExpandHeight = true;
+        _heroMeta = UIFactory.Text("HeroMeta", "Orders a cab to your position", fill.transform, UITheme.Sp(11), TextAnchor.MiddleLeft);
+        _heroMeta.color = TextMuted;
+        _heroMeta.raycastTarget = false;
+        _heroMeta.horizontalOverflow = HorizontalWrapMode.Overflow;
+        _heroMeta.verticalOverflow = VerticalWrapMode.Truncate;
+        AnchorRect(_heroMeta.rectTransform, 0.05f, 0.25f, 0.70f, 0.44f);
 
-        int headerSize = UITheme.Sp(15);
-        _destHeader = UIFactory.Text("TaxiApp_DestHeader", "DESTINATION: none picked", destHeaderPanel.transform,
-            headerSize, TextAnchor.MiddleLeft, FontStyle.Bold);
-        _destHeader.color = DestSelectedColor;
-        _destHeader.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
-        MakeSingleLineFitting(_destHeader, headerSize, UITheme.Sp(11));
+        _heroValue = UIFactory.Text("HeroValue", string.Empty, fill.transform, UITheme.Sp(12), TextAnchor.MiddleLeft, FontStyle.Bold);
+        _heroValue.color = ValueInk;
+        _heroValue.raycastTarget = false;
+        _heroValue.horizontalOverflow = HorizontalWrapMode.Overflow;
+        _heroValue.verticalOverflow = VerticalWrapMode.Truncate;
+        AnchorRect(_heroValue.rectTransform, 0.05f, 0.05f, 0.70f, 0.24f);
 
-        int countSize = UITheme.Sp(12);
-        _destCount = UIFactory.Text("TaxiApp_DestCount", string.Empty, destHeaderPanel.transform,
-            countSize, TextAnchor.MiddleRight, FontStyle.Normal);
-        _destCount.color = new Color(0.62f, 0.68f, 0.80f, 1f);
-        var countLe = _destCount.gameObject.AddComponent<LayoutElement>();
-        countLe.preferredWidth = UITheme.Dp(84f);
-        countLe.minWidth = UITheme.Dp(70f);
+        // Right side: the app icon (brand anchor) in the slot PotScanner uses for its donut.
+        float iconSide = Mathf.Min(UITheme.Dp(96f) * 0.62f, UITheme.ActualWidth * 0.14f);
+        var iconGo = UIFactory.Panel("HeroIcon", fill.transform, Color.white);
+        var iconImg = iconGo.GetComponent<Image>();
+        if (iconImg != null)
+        {
+            iconImg.sprite = TaxiIcon.Get();
+            iconImg.preserveAspect = true;
+            iconImg.raycastTarget = false;
+        }
+        var iconRt = iconGo.GetComponent<RectTransform>();
+        iconRt.anchorMin = new Vector2(0.85f, 0.5f);
+        iconRt.anchorMax = iconRt.anchorMin;
+        iconRt.sizeDelta = new Vector2(iconSide, iconSide);
+    }
+
+    /// <summary>Action band (Dp48): CALL TAXI (primary, green) + STOP (destructive, red).</summary>
+    private void CreateActionRow(Transform parent)
+    {
+        var panel = UIFactory.Panel("ActionRow", parent, Color.clear);
+        var img = panel.GetComponent<Image>();
+        if (img != null) img.raycastTarget = false;
+        var le = panel.AddComponent<LayoutElement>();
+        le.minHeight = UITheme.Dp(48f);
+        le.preferredHeight = UITheme.Dp(48f);
+        le.flexibleHeight = 0f;
+
+        var hlg = panel.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = UITheme.Dp(8f);
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = true;
+        hlg.childForceExpandHeight = true;
+
+        var callCard = CreateCard("CallPanel", panel.transform, PrimaryAction, out _callFill, raycastTarget: true, radius: ChipRadius);
+        _callButton = callCard.AddComponent<Button>();
+        _callButton.transition = Selectable.Transition.None;
+        _callLabel = UIFactory.Text("CallLbl", "CALL TAXI", _callFill.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _callLabel.color = Color.white;
+        _callLabel.raycastTarget = false;
+        AnchorRect(_callLabel.rectTransform, 0.06f, 0.46f, 0.94f, 0.95f);
+        _callSub = UIFactory.Text("CallSubLbl", "to your position", _callFill.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _callSub.color = Color.white;
+        _callSub.raycastTarget = false;
+        AnchorRect(_callSub.rectTransform, 0.06f, 0.06f, 0.94f, 0.42f);
+        ButtonUtils.AddListener(_callButton, OnCallTaxiPressed);
+
+        var stopCard = CreateCard("StopPanel", panel.transform, CardFillSoft, out _stopFill, raycastTarget: true, radius: ChipRadius);
+        _stopButton = stopCard.AddComponent<Button>();
+        _stopButton.transition = Selectable.Transition.None;
+        _stopLabel = UIFactory.Text("StopLbl", "STOP", _stopFill.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _stopLabel.color = TextDim;
+        _stopLabel.raycastTarget = false;
+        AnchorRect(_stopLabel.rectTransform, 0.06f, 0.46f, 0.94f, 0.95f);
+        _stopSub = UIFactory.Text("StopSubLbl", "cancel & despawn", _stopFill.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _stopSub.color = TextDim;
+        _stopSub.raycastTarget = false;
+        AnchorRect(_stopSub.rectTransform, 0.06f, 0.06f, 0.94f, 0.42f);
+        ButtonUtils.AddListener(_stopButton, OnStopPressed);
+    }
+
+    /// <summary>Filter band (Dp28): 4 category chips + place count + clear chip.</summary>
+    private void CreateFilterToolbar(Transform parent)
+    {
+        var panel = UIFactory.Panel("FilterToolbar", parent, Color.clear);
+        var img = panel.GetComponent<Image>();
+        if (img != null) img.raycastTarget = false;
+        var le = panel.AddComponent<LayoutElement>();
+        le.minHeight = UITheme.Dp(28f);
+        le.preferredHeight = UITheme.Dp(28f);
+        le.flexibleHeight = 0f;
+
+        var hlg = panel.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = UITheme.Dp(8f);
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = false;
+        hlg.childForceExpandHeight = true;
+
+        _filterChips.Clear();
+        for (int i = 0; i < FilterKeys.Length; i++)
+        {
+            string key = FilterKeys[i];
+            var chip = CreateCard($"Filter_{key}", panel.transform, CardFill, out var chipFill, raycastTarget: true, radius: ChipRadius);
+            var chipLe = chip.AddComponent<LayoutElement>();
+            chipLe.flexibleWidth = 1f;   // the four chips divide the free width
+            chipLe.minWidth = UITheme.Dp(44f);
+            chipLe.flexibleHeight = 1f;
+
+            var btn = chip.AddComponent<Button>();
+            btn.transition = Selectable.Transition.None;
+            var lbl = UIFactory.Text($"Filter_{key}_Lbl", FilterLabels[i], chipFill.transform, UITheme.Sp(11), TextAnchor.MiddleCenter, FontStyle.Bold);
+            lbl.color = TextMuted;
+            lbl.raycastTarget = false;
+            AnchorRect(lbl.rectTransform, 0.06f, 0f, 0.94f, 1f);
+
+            _filterChips[key] = (chipFill, lbl, btn);
+            string captured = key;
+            ButtonUtils.AddListener(btn, () => SetFilter(captured));
+        }
+
+        _countText = UIFactory.Text("PlaceCount", string.Empty, panel.transform, UITheme.Sp(10), TextAnchor.MiddleRight);
+        _countText.color = TextMuted;
+        _countText.raycastTarget = false;
+        var countLe = _countText.gameObject.AddComponent<LayoutElement>();
+        countLe.preferredWidth = UITheme.Dp(64f);
+        countLe.minWidth = UITheme.Dp(52f);
         countLe.flexibleWidth = 0f;
-        MakeSingleLineFitting(_destCount, countSize, UITheme.Sp(9));
 
-        _destCount.color = new Color(0.62f, 0.68f, 0.80f, 1f);
+        var clearCard = CreateCard("ClearPanel", panel.transform, CardFill, out _clearFill, raycastTarget: true, radius: ChipRadius);
+        var clearLe = clearCard.AddComponent<LayoutElement>();
+        clearLe.preferredWidth = UITheme.Dp(58f);
+        clearLe.minWidth = UITheme.Dp(48f);
+        clearLe.flexibleWidth = 0f;
+        _clearButton = clearCard.AddComponent<Button>();
+        _clearButton.transition = Selectable.Transition.None;
+        _clearLabel = UIFactory.Text("ClearLbl", "✕ clear", _clearFill.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _clearLabel.color = TextDim;
+        _clearLabel.raycastTarget = false;
+        AnchorRect(_clearLabel.rectTransform, 0.03f, 0f, 0.97f, 1f);
+        ButtonUtils.AddListener(_clearButton, OnClearPressed);
 
-        var destPanel = UIFactory.Panel("TaxiApp_DestPanel", bg.transform, new Color(0.09f, 0.12f, 0.20f, 1f));
-        AddFixedHeight(destPanel, 370f);
-        _destContent = UIFactory.ScrollableVerticalList("TaxiApp_DestScroll", destPanel.transform, out ScrollRect destScroll);
+        RefreshFilterChips();
+    }
 
-        // Content width = VIEWPORT width (2026-09-29, the real clipping mechanism):
-        // UIFactory's content keeps a width of its own (measured: 711 units inside a
-        // 655-unit screen!), so rows laid out to the content hung ~28 units out at
-        // BOTH sides - past the visible screen edge. That is why names lost their
-        // first letters and tags their last while every rect "fit" its parent.
-        // Force the content to the viewport's width (x only; y stays free for
-        // FitContentHeight). Row/name math then matches _nameColumnWidth exactly.
-        RectTransform contentRt = _destContent;
+    /// <summary>
+    /// Search band (Dp32): live destination search over name and type tag
+    /// (<see cref="DestinationFilter"/>), combined with the filter chips above.
+    /// Session-only (never persisted); typing is guarded by
+    /// <see cref="TaxiAppInputFocus"/> so neither the player nor the hotkeys
+    /// react while the field is focused (phoneapp Rule 5/17).
+    /// </summary>
+    private void CreateSearchBand(Transform parent)
+    {
+        var band = UIFactory.Panel("SearchBand", parent, Color.clear);
+        var bandImg = band.GetComponent<Image>();
+        if (bandImg != null) bandImg.raycastTarget = false;
+        var bandLe = band.AddComponent<LayoutElement>();
+        bandLe.minHeight = UITheme.Dp(32f);
+        bandLe.preferredHeight = UITheme.Dp(32f);
+        bandLe.flexibleHeight = 0f;
+
+        var hlg = band.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = UITheme.Dp(8f);
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = false;
+        hlg.childForceExpandHeight = true;
+
+        var card = CreateCard("SearchPanel", band.transform, CardFill, out Image fill, raycastTarget: true, radius: ChipRadius);
+        var cardLe = card.AddComponent<LayoutElement>();
+        cardLe.flexibleWidth = 1f;
+        cardLe.minWidth = UITheme.Dp(120f);
+        cardLe.flexibleHeight = 1f;
+
+        // Rule 17: the field surface must stay clickable - the card image (created
+        // with raycastTarget: true) is the InputField's target graphic.
+        _searchInput = card.AddComponent<InputField>();
+        _searchInput.transition = Selectable.Transition.None;
+        _searchInput.targetGraphic = card.GetComponent<Graphic>();
+        _searchInput.lineType = InputField.LineType.SingleLine;
+        _searchInput.caretWidth = 2;
+        _searchInput.caretColor = TextPrimary;
+        _searchInput.selectionColor = new Color(0.22f, 0.45f, 0.90f, 0.30f);
+
+        var text = UIFactory.Text("SearchText", string.Empty, fill.transform, UITheme.Sp(11), TextAnchor.MiddleLeft);
+        text.color = TextPrimary;
+        text.supportRichText = false;
+        text.raycastTarget = false;
+        AnchorRect(text.rectTransform, 0.05f, 0f, 0.95f, 1f);
+
+        var placeholder = UIFactory.Text("SearchPlaceholder", "Search destinations (name or type)", fill.transform, UITheme.Sp(11), TextAnchor.MiddleLeft);
+        placeholder.color = TextDim;
+        placeholder.supportRichText = false;
+        placeholder.raycastTarget = false;
+        AnchorRect(placeholder.rectTransform, 0.05f, 0f, 0.95f, 1f);
+
+        _searchInput.textComponent = text;
+        _searchInput.placeholder = placeholder;
+
+        // Clear chip beside the field (hidden while the query is empty).
+        var clearCard = CreateCard("SearchClearPanel", band.transform, CardFill, out Image clearFill, raycastTarget: true, radius: ChipRadius);
+        var clearLe = clearCard.AddComponent<LayoutElement>();
+        clearLe.preferredWidth = UITheme.Dp(40f);
+        clearLe.minWidth = UITheme.Dp(36f);
+        clearLe.flexibleWidth = 0f;
+        var clearButton = clearCard.AddComponent<Button>();
+        clearButton.transition = Selectable.Transition.None;
+        var clearLabel = UIFactory.Text("SearchClearLbl", "X", clearFill.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
+        clearLabel.color = TextDim;
+        clearLabel.raycastTarget = false;
+        AnchorRect(clearLabel.rectTransform, 0.03f, 0f, 0.97f, 1f);
+        ButtonUtils.AddListener(clearButton, OnSearchClearPressed);
+        _searchClearGo = clearCard;
+        _searchClearGo.SetActive(false);
+
+        EventHelper.RemoveListener(OnSearchQueryChanged, _searchInput.onValueChanged);
+        EventHelper.AddListener(OnSearchQueryChanged, _searchInput.onValueChanged);
+
+        // Rule 5: the typing guard lives on the band and dies with it (OnDisable
+        // resets Controls.IsTyping).
+        var focusHook = band.AddComponent<TaxiAppInputFocus>();
+        focusHook.searchInput = _searchInput;
+    }
+
+    /// <summary>Search text changed (live filter).</summary>
+    private void OnSearchQueryChanged(string value) => SetSearchQuery(value, fromField: true);
+
+    /// <summary>Clear chip: empties the search field and shows the full list again.</summary>
+    private void OnSearchClearPressed() => SetSearchQuery(string.Empty);
+
+    /// <summary>
+    /// Single write path for the search query: updates the field (unless the
+    /// change came FROM the field), toggles the clear chip and rebuilds the list.
+    /// Setting <c>.text</c> re-fires onValueChanged - the equality guard makes
+    /// that a no-op.
+    /// </summary>
+    private void SetSearchQuery(string value, bool fromField = false)
+    {
+        string normalized = value ?? string.Empty;
+        if (string.Equals(_searchQuery, normalized, StringComparison.Ordinal))
+            return;
+        _searchQuery = normalized;
+
+        if (!fromField && _searchInput != null && IsAlive(_searchInput))
+            _searchInput.text = normalized;
+        if (_searchClearGo != null)
+            _searchClearGo.SetActive(normalized.Trim().Length > 0);
+
+        RebuildDestinationList();
+    }
+
+    /// <summary>Flexible list band: scrollable destination rows (RectMask2D-clipped).</summary>
+    private void CreateList(Transform parent)
+    {
+        var listPanel = UIFactory.Panel("DestList", parent, Color.clear);
+        var listImg = listPanel.GetComponent<Image>();
+        if (listImg != null) listImg.raycastTarget = false;
+        var listLe = listPanel.AddComponent<LayoutElement>();
+        listLe.flexibleHeight = 1f;
+
+        if (listPanel.GetComponent<RectMask2D>() == null)
+            listPanel.AddComponent<RectMask2D>();
+
+        _listContent = UIFactory.ScrollableVerticalList("DestListScroll", listPanel.transform, out var scroll);
+        UIFactory.FitContentHeight(_listContent);
+        _listContent.sizeDelta = new Vector2(0f, _listContent.sizeDelta.y);
+
+        // Content width = VIEWPORT width (2026-09-29 fix, kept in the landscape rebuild):
+        // row math must match the visible width exactly.
+        RectTransform contentRt = _listContent;
         contentRt.anchorMin = new Vector2(0f, contentRt.anchorMin.y);
         contentRt.anchorMax = new Vector2(1f, contentRt.anchorMax.y);
         contentRt.offsetMin = new Vector2(0f, contentRt.offsetMin.y);
         contentRt.offsetMax = new Vector2(0f, contentRt.offsetMax.y);
-        // Scroll-content fix (2026-09-29 screenshot): UIFactory's content
-        // VerticalLayoutGroup does NOT set childControlWidth, so rows kept their
-        // PREFERRED width (long names = wide rows) and bled past BOTH mask edges -
-        // names lost their first letters, tags their last. Width-control the rows to
-        // the content. Headers never showed this: the app root VLG has
-        // childControlWidth = true.
-        var contentLayout = _destContent.GetComponent<VerticalLayoutGroup>();
-        if (contentLayout != null)
+
+        var vlg = _listContent.GetComponent<VerticalLayoutGroup>();
+        if (vlg != null)
         {
-            contentLayout.childControlWidth = true;
-            contentLayout.childForceExpandWidth = true;
-        }
-        UIFactory.FitContentHeight(_destContent);
-        if (destScroll != null)
-        {
-            destScroll.vertical = true;
-            destScroll.movementType = ScrollRect.MovementType.Clamped;
+            vlg.spacing = UITheme.Dp(5f);
+            vlg.padding = new RectOffset(0, 0, (int)UITheme.Dp(2f), (int)UITheme.Dp(6f));
+            vlg.childControlWidth = true;
+            vlg.childForceExpandWidth = true;
         }
 
-        // Secondary action — same code path as the `taxi stop` console command.
-        MakeButton("TaxiApp_StopBtn", bg.transform, new Color(0.62f, 0.17f, 0.17f, 1f), 62f,
-            "STOP", UITheme.Sp(18), FontStyle.Bold, Color.white, OnStopPressed);
+        if (scroll != null)
+        {
+            scroll.vertical = true;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+        }
 
-        // Live status.
-        var statusPanel = UIFactory.Panel("TaxiApp_Status", bg.transform, new Color(0.11f, 0.14f, 0.23f, 1f));
-        AddFixedHeight(statusPanel, 66f);
-        var status = UIFactory.Text("TaxiApp_StatusLabel", "No taxi", statusPanel.transform, UITheme.Sp(15), TextAnchor.MiddleCenter);
-        Stretch(status.rectTransform);
-        _statusLabel = status;
-
-        bg.SetActive(false);
+        _nameColumnWidth = UITheme.ActualWidth - 2f * UITheme.Dp(8f) - 2f * UITheme.Dp(10f) - UITheme.Dp(60f) - UITheme.Dp(8f);
     }
+
+    // =====================================================================
+    // Destination list
+    // =====================================================================
 
     /// <summary>
-    /// Makes a text line that can never be cut off or wrap out of its row: the rect is
-    /// exactly one line tall, best-fit shrinks the font between <paramref name="minSize"/>
-    /// and <paramref name="maxSize"/> until the text fits, and Truncate is only the last
-    /// resort. Dominik (2026-09-28): "Die Wege sind abgeschnitten, zu breit für die phone
-    /// UI" — a place name like "Thompson Street Taxi Station" at Sp(18) is wider than
-    /// the app container, and neither wrapping nor clipping is acceptable.
-    /// </summary>
-    private static void MakeSingleLineFitting(Text txt, int maxSize, int minSize)
-    {
-        txt.resizeTextForBestFit = true;
-        txt.resizeTextMaxSize = maxSize;
-        txt.resizeTextMinSize = minSize;
-        txt.verticalOverflow = VerticalWrapMode.Truncate;
-    }
-
-    /// <summary>
-    /// Single-line label with a COMPUTED-ONCE font size (2026-09-29). The earlier
-    /// resizeTextForBestFit variant re-ran Unity's text generator on EVERY canvas
-    /// rebuild - with 80 rows x 2 labels that made each close/open rebuild do ~160
-    /// generator passes (the Taxi-only flicker while the phone folds). The fit ratio
-    /// is the same math the [ui] report prints.
-    /// </summary>
-    private static void MakeFixedFitting(Text txt, int maxSize, int minSize, float availableWidth)
-    {
-        txt.resizeTextForBestFit = false;
-        txt.verticalOverflow = VerticalWrapMode.Truncate;
-        txt.horizontalOverflow = HorizontalWrapMode.Overflow;
-        float natural = txt.preferredWidth;
-        if (natural > availableWidth && natural > 1f)
-            txt.fontSize = Mathf.Clamp(Mathf.FloorToInt(maxSize * availableWidth / natural), minSize, maxSize);
-    }
-
-    /// <summary>Builds a full-width button row and wires it IL2CPP-safely.</summary>
-    private static void MakeButton(string name, Transform parent, Color bg, float height,
-        string label, int fontSize, FontStyle style, Color labelColor, Action onClick)
-    {
-        var go = UIFactory.Panel(name, parent, bg);
-        AddFixedHeight(go, height);
-
-        var btn = go.AddComponent<Button>();
-        btn.targetGraphic = go.GetComponent<Image>();
-
-        var txt = UIFactory.Text(name + "_Label", label, go.transform, fontSize, TextAnchor.MiddleCenter, style);
-        Stretch(txt.rectTransform);
-        txt.color = labelColor;
-
-        // Golden Rule 5: NEVER wire clicks via the raw onClick API directly
-        // (IL2CPP crash) — always ButtonUtils.AddListener.
-        ButtonUtils.AddListener(btn, onClick);
-    }
-
-    private static void AddFixedHeight(GameObject go, float height)
-    {
-        var le = go.AddComponent<LayoutElement>();
-        le.preferredHeight = UITheme.Dp(height);
-    }
-
-    private static void Stretch(RectTransform rt)
-    {
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
-    }
-
-    // Row geometry baked at BUILD time (2026-09-29): the global UITheme scale is
-    // re-initialised by whichever app builds last (log: 1.60 -> 1.20 within 67 ms),
-    // so live Dp/Sp at OPEN time could size rows differently than this app's frame.
-    // Same invariant as the [ui] report's _buildScale math.
-    private float _rowHeight, _rowPadH, _rowSpacing, _tagWidth, _tagMinWidth;
-    private int _nameSize, _nameMin, _tagSize, _tagMin;
-    private int _uiDumpFrames;
-    private float _nameColumnWidth;
-    private int _closeTraceFrames;
-
-    /// <summary>
-    /// Screen-safe side inset (2026-09-29): the phone's VISIBLE screen is narrower
-    /// than the app container - the bezel hides units at both edges (screenshot
-    /// analysis: container ~755 units vs a ~655-unit screen). Text laid out to the
-    /// full container ends up BEHIND the bezel: the row names lost their first
-    /// letters and the tags their last even though every rect fit its parent.
-    /// Every column now stays clear of the hidden edge zone.
-    /// </summary>
-    private static float ScreenSafeInset => UITheme.Dp(18f);
-
-    /// <summary>
-    /// One destination row (tap = pick). LayoutElement-driven height, IL2CPP-safe
-    /// click wiring, highlight driven by <see cref="SpikeState.RideDestinationName"/>.
-    /// </summary>
-    private void MakeDestinationRow(string key, string name, string tag, string highlight)
-    {
-        if (_destContent == null)
-            return;
-
-        var go = UIFactory.Panel($"Dest_{key}", _destContent, DestUnselectedColor);
-        var le = go.AddComponent<LayoutElement>();
-        // Legibility (2026-09-28): the row used to be Dp(30) with Sp(11) text, which
-        // rendered as 5 px on screen — half of the smallest text in the Weather app
-        // (measured from Dominik's screenshots: phone 655x1201 units at 0.42 px/unit).
-        // Row = Dp(48) with Sp(18) text now, and the "DEAL * " prefix moved into a
-        // small right-aligned tag so the NAME gets the width.
-        le.preferredHeight = _rowHeight;
-
-        var btn = go.AddComponent<Button>();
-        btn.targetGraphic = go.GetComponent<Image>();
-
-        // BankApp's row idiom: a HorizontalLayoutGroup positions both texts itself, so no
-        // RectTransform hand-math can push the name out of its row — exactly what clipped
-        // the first letters ("xi-Stand", "eyway behind…") behind the scroll mask.
-        var rowLayout = go.AddComponent<HorizontalLayoutGroup>();
-        rowLayout.padding = new RectOffset((int)_rowPadH, (int)_rowPadH, 0, 0);
-        rowLayout.spacing = _rowSpacing;
-        rowLayout.childAlignment = TextAnchor.MiddleLeft;
-        rowLayout.childControlWidth = true;
-        rowLayout.childControlHeight = true;
-        // 2026-09-29: force-expand made the FIXED tag expand too (50/50 split).
-        // false = the tag keeps LayoutElement.preferredWidth, the name gets the rest.
-        rowLayout.childForceExpandWidth = false;
-        rowLayout.childForceExpandHeight = true;
-
-        int nameSize = _nameSize;
-        var txt = UIFactory.Text($"Dest_{key}_Name", name, go.transform, nameSize, TextAnchor.MiddleLeft, FontStyle.Bold);
-        txt.color = DestUnselectedLabelColor;
-        txt.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;   // name takes the rest
-        MakeFixedFitting(txt, nameSize, _nameMin, _nameColumnWidth);
-
-        // Measurement instead of guessing (see the [ui] summary after the list build).
-        _rowWidths.Add((name, txt.preferredWidth));
-
-        int tagSize = _tagSize;
-        var tagText = UIFactory.Text($"Dest_{key}_Tag", tag, go.transform, tagSize, TextAnchor.MiddleRight, FontStyle.Bold);
-        tagText.color = DestUnselectedTagColor;
-        var tagLe = tagText.gameObject.AddComponent<LayoutElement>();
-        tagLe.preferredWidth = _tagWidth;
-        tagLe.minWidth = _tagMinWidth;
-        tagLe.flexibleWidth = 0f;                                          // tag keeps its width
-        MakeFixedFitting(tagText, tagSize, _tagMin, _tagWidth);
-
-        string captured = key;
-        ButtonUtils.AddListener(btn, () => OnDestinationPressed(captured));
-        _destRows[captured] = (go.GetComponent<Image>(), txt, tagText, highlight);
-    }
-
-    /// <summary>
-    /// Rebuilds the destination list. Called once per app open because
-    /// <see cref="TaxiDestinations.BuildCatalog"/> walks the scene (never per frame).
+    /// Rebuilds the destination list. Called once per app open (the catalog walks the
+    /// scene — never per frame) and on every filter change. The Taxi-Stand stays pinned
+    /// first in every filter (proven routable — the taxi spawns on that street entry).
     /// </summary>
     private void RebuildDestinationList()
     {
-        if (_destContent == null)
+        if (_listContent == null)
             return;
 
-        UIFactory.ClearChildren(_destContent);
+        UIFactory.ClearChildren(_listContent);
         _destRows.Clear();
+        _destSnapshot.Clear();
         _rowWidths.Clear();
 
-        // Paket D (2026-09-29, "nach Checkpoint-Auswahl bleibt immer der letzte
-        // markiert"): explicit clear row on top. Its highlight key is NoDestinationName,
-        // so it reads as "selected" exactly while nothing is picked.
-        MakeDestinationRow("CLEAR", "✕ Clear selection", "NONE", SpikeState.NoDestinationName);
+        string query = _searchQuery.Trim();
+        string standName = $"Taxi-Stand ({TaxiStand.StandName})";
+        int places = 0;
+        int visible = 0; // rows the active chips show WITHOUT the search query
 
-        // The taxi stand stays a first-class choice: proven routable, because the
-        // taxi spawns on that street-side entry on every call-taxi run.
-        int places = 1;
-        MakeDestinationRow("STAND", $"Taxi-Stand ({TaxiStand.StandName})", "STAND", "Taxi-Stand");
+        // The stand row is chip-independent; only the search can hide it.
+        visible++;
+        if (DestinationFilter.Matches(query, standName, "STAND"))
+        {
+            MakeDestinationRow("STAND", standName, "STAND", "Taxi-Stand");
+            places++;
+        }
 
         if (!TaxiDestinations.BuildCatalog(out List<TaxiDestinations.Destination> catalog, "TaxiApp list"))
         {
             MakeDestinationRow("NONE", "No places found — is a save loaded?", string.Empty, string.Empty);
-            if (IsAlive(_destCount))
-                _destCount.text = "—";
-            UIFactory.FitContentHeight(_destContent);
-            return;
+            if (IsAlive(_countText))
+                _countText.text = "—";
         }
-
-        if (!_catalogDumpedThisSession)
+        else
         {
-            _catalogDumpedThisSession = true;
-            TaxiDestinations.DumpPois("TaxiApp first open — full destination dump (one-shot per session)");
-        }
-
-        // The INDEX is the click key: lot names repeat in the scene ("Parking"),
-        // and a name lookup would refuse an ambiguous hit.
-        foreach (TaxiDestinations.Destination destination in catalog)
-        {
-            MakeDestinationRow(destination.Index.ToString(), destination.Name, destination.Tag, destination.Name);
-            places++;
-        }
-
-        if (IsAlive(_destCount))
-            _destCount.text = $"{places} places";
-
-        UIFactory.FitContentHeight(_destContent);
-        _uiDumpFrames = 3;   // [ui2] real-layout dump 3 frames later
-        ReportLabelWidths();
-    }
-
-    /// <summary>
-    /// Logs the label geometry that decides legibility: how wide the name column is
-    /// (unit math, independent of the layout pass) and the widest names the list has to
-    /// fit. This is what tells us whether best-fit has to shrink anything, without
-    /// needing a screenshot.
-    /// </summary>
-    private void ReportLabelWidths()
-    {
-        float scale = _buildScale;
-        float container = UITheme.ActualWidth;
-        float appPadding = 14f * scale + ScreenSafeInset;
-        float scrollPadding = 10f;                 // ScrollableVerticalList uses raw units
-        float nameInset = 10f * scale;
-        float tagColumn = 78f * scale + 8f * scale;
-        float nameColumn = container - 2f * appPadding - 2f * scrollPadding - 2f * nameInset - tagColumn;
-        int nameSize = Mathf.RoundToInt(18f * scale);
-
-        Mod.Log.Info(
-            $"[ui] app container {container:0} x {UITheme.ActualHeight:0} units, built at scale {scale:0.00}; " +
-            $"name column {nameColumn:0} units, name font {nameSize} pt, min {Mathf.RoundToInt(12f * scale)} pt (best-fit), " +
-            $"tag column {tagColumn:0} units.");
-
-        if (_rowWidths.Count == 0)
-            return;
-
-        int over = 0;
-        int cut = 0;
-        float minSize = 12f * scale;
-        foreach ((string name, float width) in _rowWidths)
-        {
-            if (width <= nameColumn)
-                continue;
-
-            over++;
-            if (width * minSize / Math.Max(nameSize, 1) > nameColumn)
-                cut++;
-        }
-
-        Mod.Log.Info(
-            $"[ui] {_rowWidths.Count} rows measured: {over} wider than the name column, " +
-            $"{cut} still too wide at the minimum font size (those would be cut).");
-
-        foreach ((string name, float width) in _rowWidths.OrderByDescending(r => r.Width).Take(5))
-            Mod.Log.Info($"[ui]   widest: '{name}' needs {width:0} units" +
-                         $"{(width > nameColumn ? $" -> shrinks to {nameSize * nameColumn / Math.Max(width, 1f):0} pt" : " (fits)")}");
-    }
-
-    /// <summary>
-    /// Render-time fit verification (2026-09-29): the build-time fit trusts
-    /// _nameColumnWidth unit math; this pass re-checks every label against its REAL
-    /// laid-out rect 3 frames after the build and shrinks the font of anything that
-    /// would render wider than its box. One generator pass per label, only on list
-    /// rebuild - not per canvas rebuild (that caused the fold flicker).
-    /// </summary>
-    private void RefitLabelsAtRender()
-    {
-        int over = 0;
-        float worst = 0f;
-        foreach (KeyValuePair<string, (Image Image, Text Label, Text Tag, string Highlight)> entry in _destRows)
-        {
-            over += RefitLabel(entry.Value.Label, _nameMin, ref worst);
-            over += RefitLabel(entry.Value.Tag, _tagMin, ref worst);
-        }
-        Mod.Log.Info($"[ui2] render-fit: {over} label(s) were wider than their rect (worst +{worst:0}u) and were shrunk to fit.");
-    }
-
-    private static int RefitLabel(Text txt, int minSize, ref float worst)
-    {
-        if (!IsAlive(txt))
-            return 0;
-        float avail = txt.rectTransform.rect.width;
-        if (avail < 1f)
-            return 0;
-        float natural = txt.preferredWidth;
-        float overBy = natural - avail;
-        if (overBy <= 0f)
-            return 0;
-        if (overBy > worst)
-            worst = overBy;
-        txt.fontSize = Mathf.Clamp(Mathf.FloorToInt(txt.fontSize * avail / natural), minSize, txt.fontSize);
-        return 1;
-    }
-
-    /// <summary>
-    /// [ui2] one-shot real-layout dump (3 frames after a list build): reports the
-    /// ACTUAL row/name rects against the scroll viewport. The [ui] report is unit
-    /// math and cannot see layout-pass positioning - the clipped first letters
-    /// ("Ta" in "Taxi-Stand") are positional, and this dump names the mechanism.
-    /// worldLeftInset &lt; 0 = the name starts left of the mask = clipped left.
-    /// </summary>
-    private void DumpActualLayout()
-    {
-        try
-        {
-            if (_destContent == null)
-                return;
-
-            RectTransform contentRt = _destContent;
-            // Il2cpp-interop safe: an `as RectTransform` on Transform.parent can come
-            // back null in MelonLoader even when the parent IS a RectTransform (that is
-            // exactly why the 13:20 [ui2] dump printed worldLeft=worldRight=0.0).
-            RectTransform? viewportRt = contentRt.parent != null ? contentRt.parent.GetComponent<RectTransform>() : null;
-            Vector3[] corners = new Vector3[4];
-
-            float vpLeft = 0f, vpRight = 0f;
-            if (viewportRt != null)
+            if (!_catalogDumpedThisSession)
             {
-                viewportRt.GetWorldCorners(corners);
-                vpLeft = corners[0].x;
-                vpRight = corners[2].x;
+                _catalogDumpedThisSession = true;
+                TaxiDestinations.DumpPois("TaxiApp first open — full destination dump (one-shot per session)");
             }
 
-            Mod.Log.Info(
-                $"[ui2] theme scale now {UITheme.Scale:0.00} (built at {_buildScale:0.00}); " +
-                $"content anchoredX={contentRt.anchoredPosition.x:0.0} w={contentRt.rect.width:0.0} " +
-                $"pivot=({contentRt.pivot.x:0.00},{contentRt.pivot.y:0.00}); " +
-                $"viewport worldLeft={vpLeft:0.0} worldRight={vpRight:0.0}");
-
-            int shown = 0;
-            foreach (KeyValuePair<string, (Image Image, Text Label, Text Tag, string Highlight)> entry in _destRows)
+            // Package 7: the row key is a stable identity (kind + name + 1 m goal
+            // grid) into the snapshot held above — never a catalog index, which
+            // shifts when the scene changes between list build and tap.
+            foreach (TaxiDestinations.Destination destination in catalog)
             {
-                if (!IsAlive(entry.Value.Label))
+                if (!MatchesFilter(destination))
                     continue;
 
-                RectTransform nameRt = entry.Value.Label.rectTransform;
-                RectTransform? rowRt = nameRt.parent as RectTransform;
-                nameRt.GetWorldCorners(corners);
-                float inset = corners[0].x - vpLeft;
+                visible++;
+                if (!DestinationFilter.Matches(query, destination.Name, destination.Tag))
+                    continue;
 
-                Mod.Log.Info(
-                    $"[ui2]   row '{entry.Key}': row anchoredX={(rowRt != null ? rowRt.anchoredPosition.x : -99999f):0.0} " +
-                    $"w={(rowRt != null ? rowRt.rect.width : -1f):0.0} pivot=({(rowRt != null ? rowRt.pivot.x : -1f):0.00}); " +
-                    $"name anchoredX={nameRt.anchoredPosition.x:0.0} w={nameRt.rect.width:0.0} " +
-                    $"worldLeftInset={inset:0.0} u (NEGATIVE = first letters clipped)");
-
-                if (++shown >= 4)
-                    break;
+                string rowKey = RowKey(destination);
+                if (_destSnapshot.ContainsKey(rowKey))
+                    rowKey += "#" + destination.Index; // twins within 1 m stay tappable
+                _destSnapshot[rowKey] = destination;
+                MakeDestinationRow(rowKey, destination.Name, destination.Tag, destination.Name);
+                places++;
             }
+
+            if (places == 0 && query.Length > 0)
+                MakeDestinationRow("NOMATCH", $"No destination matches '{query}'", string.Empty, string.Empty);
+
+            if (IsAlive(_countText))
+                _countText.text = query.Length > 0 ? $"{places} of {visible}" : $"{places} places";
         }
-        catch (Exception ex)
+
+        UIFactory.FitContentHeight(_listContent);
+        _refitFrames = 3;
+        ReportLabelWidths();
+        RefreshDestinationHighlight();
+    }
+
+    private bool MatchesFilter(TaxiDestinations.Destination destination)
+    {
+        switch (_activeFilter)
         {
-            Mod.Log.Warn($"[ui2] layout dump failed: {ex.Message}");
+            case FilterHomes: return destination.Kind == TaxiDestinations.KindProperty;
+            case FilterDeals: return destination.Kind == TaxiDestinations.KindDeal;
+            case FilterPlaces: return destination.Kind == TaxiDestinations.KindLot;
+            default: return true;
         }
     }
 
-    // ---- button handlers ----------------------------------------------------
+    /// <summary>
+    /// One destination row (tap = pick): two-layer card, name (computed fit) + type tag.
+    /// Selection restyles the card from the highlight pass — the row is never rebuilt for it.
+    /// </summary>
+    private void MakeDestinationRow(string key, string name, string tag, string highlight)
+    {
+        if (_listContent == null)
+            return;
+
+        var row = CreateCard($"Dest_{key}", _listContent, CardFill, out var fill, raycastTarget: true, radius: CardRadius);
+        var le = row.AddComponent<LayoutElement>();
+        le.preferredHeight = UITheme.Dp(44f);
+        le.minHeight = UITheme.Dp(30f);
+        var btn = row.AddComponent<Button>();
+        btn.transition = Selectable.Transition.None;
+
+        var hlg = fill.gameObject.AddComponent<HorizontalLayoutGroup>();
+        hlg.padding = new RectOffset((int)UITheme.Dp(10f), (int)UITheme.Dp(10f), 0, 0);
+        hlg.spacing = UITheme.Dp(8f);
+        hlg.childAlignment = TextAnchor.MiddleLeft;
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = false;
+        hlg.childForceExpandHeight = true;
+
+        int nameSize = UITheme.Sp(15);
+        var nameTxt = UIFactory.Text($"Dest_{key}_Name", name, fill.transform, nameSize, TextAnchor.MiddleLeft, FontStyle.Bold);
+        nameTxt.color = TextPrimary;
+        nameTxt.raycastTarget = false;
+        nameTxt.horizontalOverflow = HorizontalWrapMode.Overflow;
+        nameTxt.verticalOverflow = VerticalWrapMode.Truncate;
+        nameTxt.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;   // name takes the rest
+        MakeFixedFitting(nameTxt, nameSize, UITheme.Sp(11), _nameColumnWidth);
+        _rowWidths.Add((name, nameTxt.preferredWidth));
+
+        int tagSize = UITheme.Sp(10);
+        var tagTxt = UIFactory.Text($"Dest_{key}_Tag", tag, fill.transform, tagSize, TextAnchor.MiddleRight, FontStyle.Bold);
+        tagTxt.color = TagColor(tag);
+        tagTxt.raycastTarget = false;
+        var tagLe = tagTxt.gameObject.AddComponent<LayoutElement>();
+        tagLe.preferredWidth = UITheme.Dp(60f);
+        tagLe.minWidth = UITheme.Dp(44f);
+        tagLe.flexibleWidth = 0f;   // tag keeps its width, the name gets the rest
+
+        string captured = key;
+        ButtonUtils.AddListener(btn, () => OnDestinationPressed(captured));
+        _destRows[captured] = (row.GetComponent<Image>(), fill, nameTxt, tagTxt, highlight);
+    }
+
+    /// <summary>Type tag ink (GamePalette hues; selection never changes it).</summary>
+    private static Color TagColor(string tag) => tag switch
+    {
+        "STAND" => SelectionAccent,
+        "HOME" => PrimaryAction,
+        "PROP" => ValueInk,
+        "DEAL" => GamePalette.Orange,
+        _ => TextMuted,
+    };
+
+    /// <summary>Highlight pass: the picked destination gets the blue selection rim + raised fill.</summary>
+    private void RefreshDestinationHighlight()
+    {
+        string selected = SpikeState.RideDestinationName;
+
+        foreach (KeyValuePair<string, (Image Rim, Image Fill, Text Label, Text Tag, string Highlight)> entry in _destRows)
+        {
+            bool isSelected = entry.Value.Highlight.Length > 0 &&
+                              string.Equals(entry.Value.Highlight, selected, StringComparison.Ordinal);
+
+            // Change guards only: an unconditional Set forces a canvas rebuild for every row.
+            Color rim = isSelected ? SelectionAccent : CardBorder;
+            Color fill = isSelected ? CardFillSoft : CardFill;
+            if (IsAlive(entry.Value.Rim) && entry.Value.Rim.color != rim)
+                entry.Value.Rim.color = rim;
+            if (IsAlive(entry.Value.Fill) && entry.Value.Fill.color != fill)
+                entry.Value.Fill.color = fill;
+        }
+    }
+
+    // =====================================================================
+    // Filters / clear / actions
+    // =====================================================================
+
+    private void SetFilter(string key)
+    {
+        if (_activeFilter == key)
+            return;
+
+        _activeFilter = key;
+        RefreshFilterChips();
+        RebuildDestinationList();
+        RefreshHero();
+    }
+
+    private void RefreshFilterChips()
+    {
+        foreach (KeyValuePair<string, (Image Fill, Text Label, Button Button)> chip in _filterChips)
+        {
+            bool isActive = chip.Key == _activeFilter;
+
+            // BankApp precedent: selected = AccentBlue fill with WHITE ink, unselected =
+            // neutral surface with muted ink.
+            Color fillColor = isActive ? SelectionAccent : CardFill;
+            Color labelColor = isActive ? Color.white : TextMuted;
+            if (IsAlive(chip.Value.Fill) && chip.Value.Fill.color != fillColor)
+                chip.Value.Fill.color = fillColor;
+            if (IsAlive(chip.Value.Label) && chip.Value.Label.color != labelColor)
+                chip.Value.Label.color = labelColor;
+        }
+    }
+
+    /// <summary>Clear chip: enabled exactly while a destination is picked.</summary>
+    private void RefreshClearButton()
+    {
+        if (!IsAlive(_clearFill))
+            return;
+
+        bool picked = SpikeState.RideDestinationPicked;
+        int signature = picked ? 1 : 0;
+        if (signature == _clearSignature)
+            return;
+        _clearSignature = signature;
+
+        if (_clearButton != null)
+            _clearButton.interactable = picked;
+        Color fill = picked ? CardFillSoft : CardFill;
+        if (_clearFill!.color != fill)
+            _clearFill.color = fill;
+        if (_clearLabel != null)
+        {
+            Color labelColor = picked ? TextPrimary : TextDim;
+            if (_clearLabel.color != labelColor)
+                _clearLabel.color = labelColor;
+        }
+    }
+
+    /// <summary>Action band states: CALL is the primary action (blocked outside gameplay);
+    /// STOP is enabled exactly while a taxi exists or a ride runs.</summary>
+    private void RefreshActionButtons()
+    {
+        if (!IsAlive(_callFill) || !IsAlive(_stopFill))
+            return;
+
+        bool inScene = SceneGate.IsInMainScene;
+        bool carExists = SpikeState.Vehicle != null || SpikeState.PendingSpawnCode != null;
+        bool stopEnabled = inScene && (carExists || SpikeState.RideActive);
+
+        int signature = (inScene ? 1 : 0) | (carExists ? 2 : 0) | (stopEnabled ? 4 : 0);
+        if (signature == _actionSignature)
+            return;
+        _actionSignature = signature;
+
+        SetActionVisual(_callButton, _callFill, _callLabel, _callSub, inScene, PrimaryAction,
+            "CALL TAXI", inScene ? "to your position" : "only in gameplay");
+        SetActionVisual(_stopButton, _stopFill, _stopLabel, _stopSub, stopEnabled, DestructiveAction,
+            "STOP", stopEnabled ? "cancel & despawn" : "no active taxi");
+    }
+
+    private static void SetActionVisual(Button? btn, Image? fill, Text? label, Text? sub,
+        bool enabled, Color enabledFill, string labelText, string subText)
+    {
+        if (btn != null && btn.interactable != enabled)
+            btn.interactable = enabled;
+        if (fill != null)
+        {
+            Color color = enabled ? enabledFill : CardFillSoft;
+            if (fill.color != color)
+                fill.color = color;
+        }
+        if (label != null)
+        {
+            if (label.text != labelText) label.text = labelText;
+            Color color = enabled ? Color.white : TextDim;
+            if (label.color != color) label.color = color;
+        }
+        if (sub != null)
+        {
+            if (sub.text != subText) sub.text = subText;
+            Color color = enabled ? Color.white : TextDim;
+            if (sub.color != color) sub.color = color;
+        }
+    }
+
+    // =====================================================================
+    // Hero (live status)
+    // =====================================================================
+
+    /// <summary>
+    /// Live <see cref="SpikeState"/> (and the fare) → hero texts. Change-guarded by a
+    /// cheap signature, so an idle screen costs one comparison per frame.
+    /// </summary>
+    private void RefreshHero()
+    {
+        if (!IsAlive(_heroTitle) || !IsAlive(_heroMeta) || !IsAlive(_heroValue))
+            return;
+
+        bool overrideActive = _statusOverride.Length > 0 && Time.unscaledTime < _statusOverrideUntil;
+        string overrideText = overrideActive ? _statusOverride : string.Empty;
+        string destination = SpikeState.RideDestinationName;
+
+        var snapshot = new HeroSnapshot(
+            SpikeState.RideActive,
+            SpikeState.RideAwaitingDestination,
+            SpikeState.RideArrived,
+            SpikeState.NavGaveUp,
+            SpikeState.RideDestinationPicked,
+            SpikeState.RideAwaitingBoard,
+            SpikeState.AutoToPlayer,
+            SpikeState.AutoRunning,
+            SpikeState.PendingSpawnCode != null,
+            SpikeState.Vehicle != null,
+            SpikeState.NavToPlayer && SpikeState.PollingActive,
+            destination,
+            FareMeter.ChargedTotal,
+            overrideText);
+        if (snapshot == _heroSnapshot)
+            return;
+        _heroSnapshot = snapshot;
+
+        string title;
+        string meta;
+        string value = string.Empty;
+        Color valueColor = TextMuted;
+
+        if (SpikeState.RideActive)
+        {
+            if (SpikeState.RideAwaitingDestination)
+            {
+                title = "ON BOARD";
+                meta = "Pick a destination below";
+            }
+            else if (SpikeState.RideArrived)
+            {
+                title = SpikeState.NavGaveUp ? "COULDN'T GET THERE" : "ARRIVED";
+                meta = SpikeState.NavGaveUp
+                    ? "Press E to get out — or STOP to despawn"
+                    : "Press E to exit the taxi";
+                value = $"FARE ${FareMeter.ChargedTotal}";
+                valueColor = ValueInk;
+            }
+            else
+            {
+                // Package 7: while driving, the hero names the ACTIVE trip —
+                // the picker may have been cleared or re-picked since dispatch.
+                string trip = SpikeState.ActiveTripPoint.HasValue && SpikeState.ActiveTripName.Length > 0
+                    ? SpikeState.ActiveTripName
+                    : destination;
+                bool showing = SpikeState.RideDestinationPicked || trip != destination;
+                title = showing ? $"RIDING TO {trip.ToUpperInvariant()}" : "RIDING";
+                string dropOff = ShortDropOff(SpikeState.RideDropOff);
+                meta = showing
+                    ? (string.IsNullOrEmpty(dropOff) ? "On the way" : $"Drop-off: {dropOff}")
+                    : "On the way";
+                value = $"FARE ${FareMeter.ChargedTotal}";
+                valueColor = ValueInk;
+            }
+        }
+        else if (SpikeState.RideAwaitingBoard)
+        {
+            title = "BOARD NOW";
+            meta = "Press E to get in";
+            value = SpikeState.RideDestinationPicked ? $"TO {destination}" : "Or pick a destination below";
+        }
+        else if (SpikeState.AutoToPlayer || (SpikeState.NavToPlayer && SpikeState.PollingActive))
+        {
+            title = "TAXI ON THE WAY";
+            meta = "Driving to your position — wait outside";
+            if (SpikeState.RideDestinationPicked)
+                value = $"NEXT: {destination}";
+        }
+        else if (SpikeState.AutoRunning || SpikeState.PendingSpawnCode != null)
+        {
+            title = "SPAWNING…";
+            meta = "The taxi is being dispatched";
+        }
+        else if (SpikeState.Vehicle != null)
+        {
+            title = "TAXI WAITING";
+            meta = "Press STOP to despawn it";
+            value = SpikeState.RideDestinationPicked ? $"TO {destination}" : "No destination picked";
+        }
+        else
+        {
+            title = "CALL A TAXI";
+            meta = "Orders a cab to your position";
+            value = SpikeState.RideDestinationPicked ? $"TO {destination}" : "No destination picked";
+        }
+
+        if (overrideText.Length > 0)
+            meta = overrideText;
+
+        if (_heroTitle!.text != title)
+        {
+            _heroTitle.text = title;
+            FitHeroTitle();
+        }
+        if (_heroMeta!.text != meta)
+            _heroMeta.text = meta;
+        if (_heroValue!.text != value)
+        {
+            _heroValue.text = value;
+            _heroValue.color = valueColor;
+        }
+    }
+
+    /// <summary>Drops the parenthesised detail from a drop-off sentence ("lot entry (nearest…)").</summary>
+    private static string ShortDropOff(string? dropOff)
+    {
+        if (string.IsNullOrEmpty(dropOff))
+            return string.Empty;
+        int paren = dropOff.IndexOf('(');
+        return paren > 0 ? dropOff.Substring(0, paren).Trim() : dropOff;
+    }
+
+    /// <summary>Shrinks the hero title to its band (computed once per text change, no per-frame best-fit).</summary>
+    private void FitHeroTitle()
+    {
+        if (!IsAlive(_heroTitle))
+            return;
+
+        int maxSize = UITheme.Sp(26);
+        int minSize = UITheme.Sp(14);
+        _heroTitle!.fontSize = maxSize;
+        float available = _heroTitle.rectTransform.rect.width;
+        float natural = _heroTitle.preferredWidth;
+        if (available > 1f && natural > available)
+            _heroTitle.fontSize = Mathf.Clamp(Mathf.FloorToInt(maxSize * available / natural), minSize, maxSize);
+    }
+
+    /// <summary>Shows a button outcome in the hero meta line for a few seconds.</summary>
+    private void SetStatusOverride(string text)
+    {
+        _statusOverride = text;
+        _statusOverrideUntil = Time.unscaledTime + StatusOverrideSeconds;
+        RefreshHero();
+    }
+
+    // =====================================================================
+    // Button handlers
+    // =====================================================================
 
     private void OnCallTaxiPressed()
     {
@@ -800,133 +1070,216 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             return;
         }
 
-        // Paket D: the clear row is not a destination — drop the pick instead of
-        // resolving a place.
-        if (key == "CLEAR")
+        bool ok;
+        if (string.Equals(key, "STAND", StringComparison.Ordinal))
         {
-            SpikeState.ClearDestination();
-            SetStatusOverride("Destination cleared — tap a place to pick a new one.");
-            Mod.Log.Info("[ride] destination cleared via the app (Paket D).");
+            ok = SpikeCommands.SetRideDestination(key, "TaxiApp");
+        }
+        else if (_destSnapshot.TryGetValue(key, out TaxiDestinations.Destination? destination) && destination != null)
+        {
+            ok = SpikeCommands.ToDestination(destination, "TaxiApp");
+        }
+        else
+        {
+            SetStatusOverride($"'{key}' is no longer listed — reopening the list.");
+            RebuildDestinationList();
             return;
         }
-
-        bool ok = SpikeCommands.SetRideDestination(key, "TaxiApp");
         SetStatusOverride(ok
-            ? $"Destination: {SpikeState.RideDestinationName} ({SpikeState.RideDropOff})"
+            ? $"Destination: {SpikeState.RideDestinationName}"
             : $"Could not set '{key}' — see the log.");
+        RefreshDestinationHighlight();
+        RefreshClearButton();
     }
 
-    // ---- status label -------------------------------------------------------
-
-    /// <summary>Shows a button outcome for a few seconds, then the live state returns.</summary>
-    private void SetStatusOverride(string text)
+    /// <summary>Clear chip → drop the pick (the waiting ride keeps waiting).</summary>
+    private void OnClearPressed()
     {
-        _statusOverride = text;
-        _statusOverrideUntil = Time.unscaledTime + StatusOverrideSeconds;
+        SpikeState.ClearDestination();
+        SetStatusOverride("Destination cleared — tap a place to pick a new one.");
+        RefreshDestinationHighlight();
+        RefreshClearButton();
     }
 
-    private void RefreshStatus()
-    {
-        if (!IsAlive(_statusLabel))
-            return;
-
-        string desired = Time.unscaledTime < _statusOverrideUntil ? _statusOverride : BuildLiveStatus();
-        if (_statusLabel.text != desired) // cheap string compare before assigning
-            _statusLabel.text = desired;
-    }
+    // =====================================================================
+    // Fit + diagnostics
+    // =====================================================================
 
     /// <summary>
-    /// Highlights the row matching <see cref="SpikeState.RideDestinationName"/> and
-    /// keeps the "DESTINATION:" line in sync (cheap string compares, no per-frame
-    /// allocations beyond the one label string).
+    /// Single-line label with a computed-once font size: the rect stays exactly one
+    /// line tall, the font shrinks when the natural width exceeds the column. No
+    /// per-canvas-rebuild best-fit passes (those caused the fold flicker).
     /// </summary>
-    private void RefreshDestinationHighlight()
+    private static void MakeFixedFitting(Text txt, int maxSize, int minSize, float availableWidth)
     {
-        string selected = SpikeState.RideDestinationName;
+        txt.resizeTextForBestFit = false;
+        txt.verticalOverflow = VerticalWrapMode.Truncate;
+        txt.horizontalOverflow = HorizontalWrapMode.Overflow;
+        float natural = txt.preferredWidth;
+        if (natural > availableWidth && natural > 1f)
+            txt.fontSize = Mathf.Clamp(Mathf.FloorToInt(maxSize * availableWidth / natural), minSize, maxSize);
+    }
 
-        if (IsAlive(_destHeader))
+    /// <summary>Render-time fit verification 3 frames after a rebuild (real rect widths).</summary>
+    private void RefitLabelsAtRender()
+    {
+        int over = 0;
+        float worst = 0f;
+        foreach (KeyValuePair<string, (Image Rim, Image Fill, Text Label, Text Tag, string Highlight)> entry in _destRows)
+            over += RefitLabel(entry.Value.Label, UITheme.Sp(11), ref worst);
+
+        TaxiLog.Verbose($"[ui] render-fit: {over} label(s) were wider than their rect (worst +{worst:0}u) and were shrunk to fit.");
+    }
+
+    private static int RefitLabel(Text txt, int minSize, ref float worst)
+    {
+        if (!IsAlive(txt))
+            return 0;
+        float available = txt.rectTransform.rect.width;
+        if (available < 1f)
+            return 0;
+        float natural = txt.preferredWidth;
+        float overBy = natural - available;
+        if (overBy <= 0f)
+            return 0;
+        if (overBy > worst)
+            worst = overBy;
+        txt.fontSize = Mathf.Clamp(Mathf.FloorToInt(txt.fontSize * available / natural), minSize, txt.fontSize);
+        return 1;
+    }
+
+    /// <summary>Verbose width audit: does any destination name need shrinking at the built size?</summary>
+    private void ReportLabelWidths()
+    {
+        TaxiLog.Verbose(
+            $"[ui] canvas {UITheme.ActualWidth:0}x{UITheme.ActualHeight:0} units, scale {UITheme.Scale:0.00}; " +
+            $"name column {_nameColumnWidth:0} units, name font {UITheme.Sp(15)} pt (min {UITheme.Sp(11)} pt).");
+
+        if (_rowWidths.Count == 0)
+            return;
+
+        int over = _rowWidths.Count(row => row.Width > _nameColumnWidth);
+        TaxiLog.Verbose($"[ui] {_rowWidths.Count} rows measured: {over} wider than the name column (auto-shrunk).");
+        foreach ((string name, float width) in _rowWidths.OrderByDescending(r => r.Width).Take(3))
+            TaxiLog.Verbose($"[ui]   widest: '{name}' needs {width:0} units (column {_nameColumnWidth:0}).");
+    }
+
+    // =====================================================================
+    // Shared helpers (PotScanner idiom)
+    // =====================================================================
+
+    /// <summary>
+    /// Two-layer card: outer rounded rect in <see cref="GamePalette.Border"/> with an inner
+    /// fill inset by 1 Dp — a 1 px outline around an opaque surface. Returns the outer card
+    /// GameObject; content parents to <paramref name="fillImage"/>.transform.
+    /// </summary>
+    private static GameObject CreateCard(string name, Transform parent, Color fill, out Image fillImage,
+        bool raycastTarget = false, float radius = CardRadius)
+    {
+        var card = UIFactory.Panel(name, parent, CardBorder, fullAnchor: true);
+        var borderImg = card.GetComponent<Image>();
+        if (borderImg != null)
         {
-            // Paket A (2026-09-29): the header is honest about the pick state —
-            // "none selected" with a hint instead of silently naming a default.
-            string header;
-            if (!SpikeState.RideDestinationPicked)
+            borderImg.sprite = UISprites.Rounded(radius);
+            borderImg.type = Image.Type.Sliced;
+            borderImg.raycastTarget = raycastTarget;
+        }
+
+        var fillGo = UIFactory.Panel("Fill", card.transform, fill, fullAnchor: true);
+        var fillRt = fillGo.GetComponent<RectTransform>();
+        float inset = UITheme.Dp(1f);
+        fillRt.offsetMin = new Vector2(inset, inset);
+        fillRt.offsetMax = new Vector2(-inset, -inset);
+
+        fillImage = fillGo.GetComponent<Image>()!;
+        fillImage.sprite = UISprites.Rounded(radius - 1f);
+        fillImage.type = Image.Type.Sliced;
+        fillImage.raycastTarget = false;
+
+        return card;
+    }
+
+    /// <summary>Stretches an anchored rect over an anchor band (fractions of the parent).</summary>
+    private static void AnchorRect(RectTransform rt, float xMin, float yMin, float xMax, float yMax)
+    {
+        rt.anchorMin = new Vector2(xMin, yMin);
+        rt.anchorMax = new Vector2(xMax, yMax);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Merged from TaxiIcon.cs (2026-10-02) — shared app/notification icon.
+// ---------------------------------------------------------------------------
+
+/// <summary>
+/// The taxi icon, shared by the phone app and the fare notification: <c>taxi_icon.png</c>
+/// from the game's <c>Mods</c> folder (deployed from <c>assets/</c>), with the procedural
+/// yellow "T" fallback so a missing or broken file never logs load errors and never
+/// renders as an empty white square.
+/// </summary>
+internal static class TaxiIcon
+{
+    private static Sprite? _cachedIconSprite;
+
+    /// <summary>Loads and caches the icon (never returns null - the fallback is generated if needed).</summary>
+    internal static Sprite Get()
+    {
+        if (_cachedIconSprite != null)
+            return _cachedIconSprite;
+
+        try
+        {
+            string path = Path.Combine(MelonLoader.Utils.MelonEnvironment.ModsDirectory, "taxi_icon.png");
+            if (File.Exists(path))
             {
-                header = "DESTINATION: none selected — tap a place";
+                var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                if (ImageConversion.LoadImage(tex, File.ReadAllBytes(path)))
+                {
+                    tex.name = "TaxiApp_Icon";
+                    _cachedIconSprite = Sprite.Create(
+                        tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
+                    return _cachedIconSprite;
+                }
+
+                MelonLogger.Warning($"[TaxiApp] Icon '{path}' is not a decodable texture — using the procedural fallback.");
             }
             else
             {
-                // The drop-off detail can be a whole sentence ("lot entry (nearest to the
-                // goal, 43 m)") — the line only shows its kind, the log has the rest.
-                string dropOff = SpikeState.RideDropOff ?? string.Empty;
-                int paren = dropOff.IndexOf('(');
-                if (paren > 0)
-                    dropOff = dropOff.Substring(0, paren).Trim();
-
-                header = string.IsNullOrEmpty(dropOff)
-                    ? $"DESTINATION: {selected}"
-                    : $"DESTINATION: {selected}  >  {dropOff}";
+                MelonLogger.Warning($"[TaxiApp] Icon '{path}' not found — using the procedural fallback.");
             }
-
-            if (_destHeader.text != header)
-                _destHeader.text = header;
         }
-
-        foreach (KeyValuePair<string, (Image Image, Text Label, Text Tag, string Highlight)> entry in _destRows)
+        catch (Exception ex)
         {
-            bool isSelected = string.Equals(entry.Value.Highlight, selected, StringComparison.Ordinal);
-
-            // Change guards only (2026-09-29): an unconditional Set dirties the
-            // graphics and forces a canvas rebuild EVERY frame for 80 rows x 3
-            // graphics - prime suspect for the Taxi-only frame flicker.
-            Color imageColor = isSelected ? DestSelectedColor : DestUnselectedColor;
-            if (IsAlive(entry.Value.Image) && entry.Value.Image.color != imageColor)
-                entry.Value.Image.color = imageColor;
-
-            Color labelColor = isSelected ? DestSelectedLabelColor : DestUnselectedLabelColor;
-            if (IsAlive(entry.Value.Label) && entry.Value.Label.color != labelColor)
-                entry.Value.Label.color = labelColor;
-
-            if (entry.Value.Tag != null && IsAlive(entry.Value.Tag))
-            {
-                Color tagColor = isSelected ? DestSelectedTagColor : DestUnselectedTagColor;
-                if (entry.Value.Tag.color != tagColor)
-                    entry.Value.Tag.color = tagColor;
-            }
+            MelonLogger.Warning($"[TaxiApp] Icon load failed ({ex.Message}) — using the procedural fallback.");
         }
+
+        _cachedIconSprite = CreateFallbackIconSprite();
+        return _cachedIconSprite;
     }
 
-    /// <summary>
-    /// Live spike state → status text (from the real <see cref="SpikeState"/> fields).
-    /// Precedence follows the ride flow: riding beats awaiting-board beats arriving beats
-    /// the plain run/vehicle states.
-    /// </summary>
-    private static string BuildLiveStatus()
+    /// <summary>Procedural yellow "T" icon — used when the PNG cannot be loaded.</summary>
+    private static Sprite CreateFallbackIconSprite()
     {
-        if (SpikeState.RideActive)
+        const int size = 64;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { name = "TaxiApp_Icon_Fallback" };
+        var yellow = new Color32(242, 194, 48, 255);
+        var dark = new Color32(30, 34, 44, 255);
+        var px = new Color32[size * size];
+        for (int y = 0; y < size; y++)
         {
-            if (SpikeState.RideAwaitingDestination)
-                return "On board — pick a destination";
-
-<<<<<<< HEAD
-            if (SpikeState.RideArrived)
+            for (int x = 0; x < size; x++)
             {
-                return SpikeState.NavGaveUp
-                    ? "The driver cannot get there — press E to get out"
-                    : "Arrived — press E to exit";
+                bool inT = (y >= 42 && y < 52 && x >= 14 && x < 50) ||   // top bar
+                           (x >= 27 && x < 37 && y >= 14 && y < 52);    // stem
+                px[y * size + x] = inT ? dark : yellow;
             }
-
-            return SpikeState.RideDestinationPicked
-                ? $"Riding to {SpikeState.RideDestinationName} — ${FareMeter.ChargedTotal}"
-                : $"Riding — ${FareMeter.ChargedTotal}";
         }
-        if (SpikeState.RideAwaitingBoard)
-            return "Board to ride (E)";
-        if (SpikeState.AutoToPlayer || (SpikeState.NavToPlayer && SpikeState.PollingActive))
-            return "Taxi arriving";
-        if (SpikeState.AutoRunning || SpikeState.PendingSpawnCode != null)
-            return "Run in progress";
-        if (SpikeState.Vehicle != null)
-            return "Taxi active — press STOP or ride along";
-        return "No taxi";
+
+        tex.SetPixels32(px);
+        tex.Apply(false, true);
+        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
     }
 }
+

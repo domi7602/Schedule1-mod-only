@@ -51,10 +51,6 @@ internal static class TaxiAI
     private static IntPtr LastDestroyedPatrol;
     private static int LastDestroyedPatrolFrame = -1;
 
-    private static float _lastDeactivateWarnAt;
-    private static string _lastDeactivateMessage = string.Empty;
-    private static int _deactivateSuppressed;
-
     /// <summary>The runtime-built route handed to the game's behaviour.</summary>
     private static VehiclePatrolRoute? Route;
 
@@ -144,13 +140,16 @@ internal static class TaxiAI
             float cap = VehiclePatrolBehaviour.MAX_CONSECUTIVE_PATHING_FAILURES;
             int clamped = Mathf.Clamp((int)Math.Round(cap), 1, 4);
             PathingFailureCap = clamped;
-            Mod.Log.Info(
+            TaxiLog.Verbose(
                 $"[ai] {caller}: adopted the game's supervision number — MAX_CONSECUTIVE_PATHING_FAILURES=" +
                 $"{Num(cap)} — the ride's recovery ladder now re-dispatches up to {clamped} times before giving up.");
-            // The MelonLoader console is log-only (no typing), so the numbers have to
-            // arrive on their own: the first ride dumps them once, unasked.
-            DumpConstants(caller);
-            DumpDriveModel(caller);
+            // The MelonLoader console is log-only (no typing): the full dumps only arrive
+            // when log.json enables verbose logging; otherwise the ride stays quiet.
+            if (TaxiLog.VerboseEnabled)
+            {
+                DumpConstants(caller);
+                DumpDriveModel(caller);
+            }
         }
         catch (Exception ex)
         {
@@ -267,13 +266,13 @@ internal static class TaxiAI
             PatrolOwned = false;
             if (Patrol != null)
             {
-                Mod.Log.Info("[patrol] the taxi driver already carries a VehiclePatrolBehaviour — reusing it.");
+                TaxiLog.Verbose("[patrol] the taxi driver already carries a VehiclePatrolBehaviour — reusing it.");
             }
             else
             {
                 Patrol = driver.gameObject.AddComponent<VehiclePatrolBehaviour>();
                 PatrolOwned = true;
-                Mod.Log.Info("[patrol] VehiclePatrolBehaviour attached to the taxi driver (runtime AddComponent) — next: Vehicle, SetRoute, Activate, StartPatrol.");
+                TaxiLog.Verbose("[patrol] VehiclePatrolBehaviour attached to the taxi driver (runtime AddComponent) — next: Vehicle, SetRoute, Activate, StartPatrol.");
             }
 
             // Behaviour-framework wiring (bug3, 2026-09-29): VehiclePatrolBehaviour is an
@@ -323,19 +322,19 @@ internal static class TaxiAI
             Route.Waypoints = new Il2CppReferenceArray<Transform>(new[] { start.transform, goal.transform });
             Route.StartWaypointIndex = 0;
 
-            Mod.Log.Info(
+            TaxiLog.Verbose(
                 $"[patrol] route '{Route.RouteName}': {Route.Waypoints.Length} waypoints " +
                 $"{TaxiDestinations.Fmt(from)} -> {TaxiDestinations.Fmt(resolvedTarget)}.");
 
             Patrol.SetRoute(Route);
-            Mod.Log.Info($"[patrol] SetRoute done (CurrentWaypoint={Patrol.CurrentWaypoint}).");
+            TaxiLog.Verbose($"[patrol] SetRoute done (CurrentWaypoint={Patrol.CurrentWaypoint}).");
 
             Patrol.enabled = true;
             Patrol.Activate();
-            Mod.Log.Info("[patrol] Activate done - StartPatrol next.");
+            TaxiLog.Verbose("[patrol] Activate done - StartPatrol next.");
 
             Patrol.StartPatrol();
-            Mod.Log.Info(
+            TaxiLog.Verbose(
                 $"[patrol] StartPatrol done (CurrentWaypoint={Patrol.CurrentWaypoint}, isDriving={Patrol.isDriving}) " +
                 "— THE GAME DRIVES NOW, the mod only supervises.");
 
@@ -386,7 +385,7 @@ internal static class TaxiAI
                 return arrival;
             }
 
-            Mod.Log.Info(
+            TaxiLog.Verbose(
                 $"[ai] the game's own arrival check for '{label}': reachable (route ends {TaxiDestinations.Num(delta)} m from the wanted point).");
             return arrival;
         }
@@ -407,22 +406,11 @@ internal static class TaxiAI
 
         if (Patrol != null)
         {
-            Mod.Log.Info($"[patrol] releasing the game's patrol driver ({reason}).");
-            try
-            {
-                // Paket F (2026-09-29): Deactivate() NREs on an already-torn-down
-                // behaviour (one Warn per ride end in the log) — only deactivate a live
-                // one, and keep any residual noise at Debug level (Destroy below still
-                // removes only mod-owned behaviours).
-                if (Patrol.enabled || Patrol.isActiveAndEnabled)
-                    Patrol.Deactivate();
-            }
-            catch (Exception ex)
-            {
-                ReportDeactivateFailure(ex);
-                try { Patrol.enabled = false; }
-                catch (Exception disableEx) { Mod.Log.Warn($"[patrol] disabling failed: {disableEx.Message}"); }
-            }
+            TaxiLog.Verbose($"[patrol] releasing the game's patrol driver ({reason}).");
+            // Deactivate() NREs on an already-torn-down behaviour (game bug). Skip it
+            // entirely: disable + Destroy below is enough and never throws.
+            try { Patrol.enabled = false; }
+            catch (Exception disableEx) { Mod.Log.Warn($"[patrol] disabling failed: {disableEx.Message}"); }
 
             try
             {
@@ -431,11 +419,11 @@ internal static class TaxiAI
                     LastDestroyedPatrol = Patrol.Pointer;
                     LastDestroyedPatrolFrame = Time.frameCount;
                     UnityEngine.Object.Destroy(Patrol);
-                    Mod.Log.Info("[patrol] removed mod-owned AddComponent behaviour.");
+                    TaxiLog.Verbose("[patrol] removed mod-owned AddComponent behaviour.");
                 }
                 else
                 {
-                    Mod.Log.Info("[patrol] prefab behaviour preserved (not created by this mod).");
+                    TaxiLog.Verbose("[patrol] prefab behaviour preserved (not created by this mod).");
                 }
             }
             catch (Exception ex)
@@ -467,51 +455,7 @@ internal static class TaxiAI
         WaypointObjects.Clear();
 
         if (had && !string.Equals(reason, "restart", StringComparison.Ordinal))
-            Mod.Log.Info($"[patrol] released ({reason}).");
+            TaxiLog.Verbose($"[patrol] released ({reason}).");
     }
 
-    /// <summary>
-    /// Review 2026-10-02: the first occurrence of a Deactivate() failure is logged with
-    /// the full exception and a wiring snapshot (a quieter log alone would repair
-    /// nothing); repeats of the SAME error are throttled to one report per 30 s, and a
-    /// DIFFERENT error always logs immediately.
-    /// </summary>
-    private static void ReportDeactivateFailure(Exception ex)
-    {
-        string message = $"{ex.GetType().Name}: {ex.Message}";
-        float now = Time.unscaledTime;
-        bool sameAsLast = string.Equals(message, _lastDeactivateMessage, StringComparison.Ordinal);
-        if (sameAsLast && now - _lastDeactivateWarnAt < 30f)
-        {
-            _deactivateSuppressed++;
-            return;
-        }
-
-        string suppressed = _deactivateSuppressed > 0
-            ? $" ({_deactivateSuppressed} repeats suppressed since the last report)"
-            : string.Empty;
-        _deactivateSuppressed = 0;
-        _lastDeactivateWarnAt = now;
-        _lastDeactivateMessage = message;
-
-        string snapshot;
-        try
-        {
-            snapshot = Patrol == null
-                ? "behaviour gone"
-                : $"enabled={Patrol.enabled} activeAndEnabled={Patrol.isActiveAndEnabled} " +
-                  $"vehicle={(Patrol.Vehicle == null ? "null" : "set")} " +
-                  $"route={(Patrol.Route == null ? "null" : "set")} " +
-                  $"wp={Patrol.CurrentWaypoint} isDriving={Patrol.isDriving} " +
-                  $"beh={(Patrol.beh == null ? "null" : "set")} ptr=0x{Patrol.Pointer.ToInt64():X}";
-        }
-        catch (Exception snapshotEx)
-        {
-            snapshot = $"<snapshot failed: {snapshotEx.Message}>";
-        }
-
-        Mod.Log.Warn(
-            $"[patrol] Deactivate() failed ({message}){suppressed} — wiring snapshot: {snapshot}; " +
-            $"disabling + removing the behaviour.\n{ex}");
-    }
 }

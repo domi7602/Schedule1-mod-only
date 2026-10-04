@@ -24,6 +24,9 @@ namespace TaxiDriver;
 /// </summary>
 internal static class TaxiVisual
 {
+    /// <summary>Diagnostic trace: printed only when log.json enables verbose logging.</summary>
+    private static void Trace(string msg) => TaxiLog.Verbose(msg);
+
     /// <summary>MelonLoader mod folder name (also the UserData subfolder).</summary>
     internal const string ModFolderName = "TaxiDriver";
 
@@ -119,7 +122,7 @@ internal static class TaxiVisual
                 continue;
 
             _resolvedPath = candidates[i];
-            SpikeCommands.Print($"[visual] GLB resolved: {candidates[i]}");
+            Trace($"[visual] GLB resolved: {candidates[i]}");
             return _resolvedPath;
         }
 
@@ -147,7 +150,7 @@ internal static class TaxiVisual
 
         if (!SpikeState.VisualSwapEnabled)
         {
-            SpikeCommands.Print("[visual] swap disabled (SpikeState.VisualSwapEnabled=false) — vanilla visuals kept.");
+            Trace("[visual] swap disabled (SpikeState.VisualSwapEnabled=false) — vanilla visuals kept.");
             return;
         }
 
@@ -160,21 +163,21 @@ internal static class TaxiVisual
         // telemetry, not proof that this spawn is already swapped.
         if (attachedAlive && modelT != null && attached!.transform.IsChildOf(modelT))
         {
-            SpikeCommands.Print(
+            Trace(
                 $"[visual] a swap root is already attached under '{modelT.name}' — skipping a second swap on this vehicle.");
             return;
         }
 
         if (attachedAlive)
         {
-            SpikeCommands.Print(
+            Trace(
                 $"[visual] stale swap root '{attached!.name}' under '{attached.transform.parent?.name}' does not belong to " +
                 $"'{modelT?.name ?? "<no model>"}' — clearing it and swapping this vehicle.");
             SpikeState.VisualRoot = null;
         }
         else if (attached != null)
         {
-            SpikeCommands.Print("[visual] swap root reference points at a destroyed object — clearing it.");
+            Trace("[visual] swap root reference points at a destroyed object — clearing it.");
             SpikeState.VisualRoot = null;
         }
 
@@ -260,12 +263,12 @@ internal static class TaxiVisual
         Vector3 vanillaSize = boxMax - boxMin;
         // Stale-bounds diagnostic only — never used for the alignment itself.
         bool haveRendererBounds = TryGetWorldBounds(parentGo, out Vector3 staleCenter, out Vector3 staleSize);
-        SpikeCommands.Print(
+        Trace(
             $"[visual] parent = '{parentGo.name}' (vehicleModel {(vehicleModel == null ? "NULL — falling back to the vehicle root" : "present")}), " +
             (haveVanillaBounds
                 ? $"boundingBox min=({Vec(boxMin)}) max=({Vec(boxMax)}) — alignment reference"
                 : "boundingBox unavailable (no BoxCollider) — alignment skipped"));
-        SpikeCommands.Print(
+        Trace(
             haveRendererBounds
                 ? $"[visual] vanilla Renderer.bounds (diagnostic only, culling-stale on the spawn frame) center=({Vec(staleCenter)}) size=({Vec(staleSize)})"
                 : "[visual] vanilla Renderer.bounds unavailable (no renderer)");
@@ -412,7 +415,7 @@ internal static class TaxiVisual
                     // No pixels here (VehicleSound, TrunkGrid, OwnedVehiclePoI, collider
                     // dummies): a functional node — leaving it alone is the safe default.
                     untouched++;
-                    SpikeCommands.Print($"[visual]   '{Path2(child)}' -> untouched (colliders={cols.Length} renderers=0 lodGroups={lodgs})");
+                    Trace($"[visual]   '{Path2(child)}' -> untouched (colliders={cols.Length} renderers=0 lodGroups={lodgs})");
                 }
                 else if (cols.Length == 0)
                 {
@@ -420,7 +423,7 @@ internal static class TaxiVisual
                     // activeSelf=false survives the game's own SetVisible(parent) toggles.
                     child.gameObject.SetActive(false);
                     deactivated++;
-                    SpikeCommands.Print($"[visual]   '{Path2(child)}' -> SetActive(false) (colliders=0 renderers={rs.Length} lodGroups={lodgs})");
+                    Trace($"[visual]   '{Path2(child)}' -> SetActive(false) (colliders=0 renderers={rs.Length} lodGroups={lodgs})");
                 }
                 else
                 {
@@ -428,7 +431,7 @@ internal static class TaxiVisual
                     // keep the GameObject active so physics is untouched, hide only pixels.
                     HideRenderers(child, glb.transform);
                     softHidden++;
-                    SpikeCommands.Print($"[visual]   '{Path2(child)}' -> renderers hidden, object KEPT ACTIVE (colliders={cols.Length} renderers={rs.Length} lodGroups={lodgs})");
+                    Trace($"[visual]   '{Path2(child)}' -> renderers hidden, object KEPT ACTIVE (colliders={cols.Length} renderers={rs.Length} lodGroups={lodgs})");
                 }
             }
             catch (Exception ex)
@@ -487,13 +490,13 @@ internal static class TaxiVisual
                     alignNote = $"disabled — would be ({Vec(delta)})";
                 }
 
-                SpikeCommands.Print($"[visual] GLB bounds   center=({Vec(glbCenter)}) size=({Vec(glbSize)})");
-                SpikeCommands.Print($"[visual] delta(xz centre + y ground) = ({Vec(delta)}) -> align {alignNote}");
+                Trace($"[visual] GLB bounds   center=({Vec(glbCenter)}) size=({Vec(glbSize)})");
+                Trace($"[visual] delta(xz centre + y ground) = ({Vec(delta)}) -> align {alignNote}");
             }
             else
             {
                 alignNote = "skipped (bounds below the 0.1 m guard)";
-                SpikeCommands.Print($"[visual] bounds too small to align — boundingBox size=({Vec(vanillaSize)}) GLB size=({Vec(glbSize)})");
+                Trace($"[visual] bounds too small to align — boundingBox size=({Vec(vanillaSize)}) GLB size=({Vec(glbSize)})");
             }
         }
 
@@ -512,7 +515,7 @@ internal static class TaxiVisual
         _rollback = null;
         SpikeState.VisualSwaps++;
 
-        SpikeCommands.Print(
+        Trace(
             $"[visual] swap DONE: GLB '{VisualRootName}' parented under '{parentGo.name}' (renderers={glbRenderers}, colliders stripped={strippedColliders}); " +
             $"vanilla children deactivated={deactivated}, renderer-hidden(kept active)={softHidden}, untouched(no renderers)={untouched}, errors={errors}, " +
             $"final-sweep-only renderers hidden={parentRs}; align {alignNote}; model rotated 180° about Y (nose onto vehicle +Z).");
@@ -595,7 +598,7 @@ internal static class TaxiVisual
             catch { /* best effort */ }
         }
 
-        SpikeCommands.Print(
+        Trace(
             $"[visual] rollback: GLB removed, vanilla visibility restored " +
             $"(children={children}, renderers={renderers}, lodGroups={lodGroups} written back).");
     }
