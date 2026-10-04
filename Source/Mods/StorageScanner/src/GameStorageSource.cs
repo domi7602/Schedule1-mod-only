@@ -50,7 +50,7 @@ namespace StorageScanner
                 for (int i = 0; i < ownedProperties.Count; i++)
                 {
                     PropertyWrapper wrapper = ownedProperties[i];
-                    if (wrapper == null || wrapper.Pointer == IntPtr.Zero || wrapper.WasCollected) continue;
+                    if (wrapper == null) continue;
 
                     string code = wrapper.PropertyCode;
                     if (string.IsNullOrEmpty(code)) continue;
@@ -225,7 +225,7 @@ namespace StorageScanner
             for (int i = 0; i < _owned.Count; i++)
             {
                 PropertyWrapper wrapper = _owned[i];
-                if (wrapper == null || wrapper.Pointer == IntPtr.Zero || wrapper.WasCollected) continue;
+                if (wrapper == null) continue;
                 try
                 {
                     if (wrapper.IsPointInside(position)) return wrapper;
