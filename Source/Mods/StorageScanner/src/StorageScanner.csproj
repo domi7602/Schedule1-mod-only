@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Repository-wide compilation settings are inherited from Source/Mods/Directory.Build.props. -->
+  <PropertyGroup>
+    <AssemblyName>StorageScanner</AssemblyName>
+    <RootNamespace>StorageScanner</RootNamespace>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <!--
+    Next integration step:
+    Mirror the verified references and package settings from PotScanner.csproj.
+    This project intentionally contains no guessed MelonLoader or game assembly paths.
+  -->
+</Project>
