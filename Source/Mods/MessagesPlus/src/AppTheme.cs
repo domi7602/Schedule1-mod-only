@@ -1125,10 +1125,17 @@ internal static class AppTheme
 
                 Color c;
                 try { c = img.color; } catch { continue; }
-                if (c.a <= 0.02f || !IsLightSurface(c))
+                if (c.a <= 0.02f)
                 {
-                    // Surfaces the rules deliberately leave alone are logged for
-                    // the test round (debug; capped per pass).
+                    LogStillLight(img, c, ref stillLightBudget);
+                    continue;
+                }
+                if (!IsLightSurface(c))
+                {
+                    // Dark content art on a now-dark popup (item icons: the supplier's
+                    // OG Kush leaf, counter-offer rows) reads dark-on-dark. In a popup
+                    // pass, lift such icons hue-preserving so they stay readable.
+                    if (aggressiveSquares) TryLiftDarkIcon(img, w, h);
                     LogStillLight(img, c, ref stillLightBudget);
                     continue;
                 }
@@ -1366,6 +1373,31 @@ internal static class AppTheme
         }
 
         try { return img.sprite != null; } catch { return true; }
+    }
+
+    /// <summary>
+    /// Popup-pass helper: a DARK, sprite-bearing, icon-sized image sitting on a dark
+    /// surface is game art painted for the old light popup (item icons like the
+    /// supplier's OG Kush leaf). Lift it hue-preserving so it reads on the dark
+    /// surface. Skips our own themed graphics and anything still on a light surface.
+    /// </summary>
+    private static void TryLiftDarkIcon(Image img, float pageW, float pageH)
+    {
+        try
+        {
+            if (IsTracked(img)) return;                  // ours already - never re-lift
+            if (img.sprite == null) return;              // icons carry a sprite
+            if (IsOnLightSurface(img.transform)) return; // still readable where it is
+
+            RectTransform? rt = img.rectTransform;
+            if (rt == null) return;
+            float iw = Mathf.Abs(rt.rect.width);
+            float ih = Mathf.Abs(rt.rect.height);
+            if (!IsAvatarLike(iw, ih, pageW)) return;    // icon-sized and roughly square
+
+            BarLift.LiftImage(img, "popup icon");
+        }
+        catch { /* a failed icon is never fatal */ }
     }
 
     /// <summary>

@@ -47,7 +47,7 @@ internal static class BarLift
             Image? img = images[i];
             if (img == null || !NetworkGuard.IsAlive(img)) continue;
             try { ResetBlockIfDark(img, label); } catch { /* insurance only */ }
-            try { TryLift(img, label); }
+            try { LiftImage(img, label); }
             catch (Exception ex) { Log($"{label}: lift failed: {ex.Message}"); }
         }
     }
@@ -73,7 +73,8 @@ internal static class BarLift
         _blockFixed.Clear();
     }
 
-    private static void TryLift(Image img, string label)
+    /// <summary>Lifts one image's sprite (hue-preserving; near-white frame muted).</summary>
+    public static void LiftImage(Image img, string label)
     {
         int id;
         try { id = img.GetInstanceID(); } catch { return; }
