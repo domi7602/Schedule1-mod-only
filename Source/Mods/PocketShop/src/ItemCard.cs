@@ -151,7 +151,7 @@ public class ItemCard
         {
             _buyButton.interactable = false;
             _buyPanelImage.color = new Color(0.18f, 0.14f, 0.16f, 1f);
-            _buyLabel.text = "🔒 LOCKED";
+            _buyLabel.text = "LOCKED";
             _buyLabel.color = new Color(0.90f, 0.45f, 0.45f, 1f);
             _qty.SetInteractable(false);
             return;
@@ -185,7 +185,7 @@ public class ItemCard
             _buyButton.interactable = true;
             _buyPanelImage.color = new Color(0.24f, 0.82f, 0.44f, 1f);
             // Payment hint only where it differs from the default (card): black-market items say CASH.
-            string payBadge = effective == PaymentMode.Cash ? " 💵" : "";
+            string payBadge = effective == PaymentMode.Cash ? " CASH" : "";
             _buyLabel.text = $"BUY{payBadge}";
             _buyLabel.color = new Color(0.03f, 0.10f, 0.05f, 1f);
         }
@@ -215,7 +215,7 @@ public class ItemCard
 
     private static string StockText(ItemPOCO item)
     {
-        if (!item.IsAvailableToPlayer) return "🔒";
+        if (!item.IsAvailableToPlayer) return "LOCKED";
         if (!item.IsInStock) return "OUT";
         if (item.CurrentStock <= 0) return "∞";
         return item.CurrentStock.ToString();

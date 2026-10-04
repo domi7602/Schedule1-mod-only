@@ -54,6 +54,8 @@ public sealed class PocketShopApp : PhoneApp
     private ViewMode _viewMode = ViewMode.Directory;
     private int _activeShopIndex;
     private float _lastStatsRefreshTime;
+    private InputField _searchField = null!;
+    private string _searchQuery = string.Empty;
 
     // Fix (Bug-Audit 2026-09-10): the phone re-instantiates this app per scene load and the old
     // per-instance handler stayed subscribed to MelonEvents.OnUpdate forever, while ItemGridPane's
@@ -119,6 +121,13 @@ public sealed class PocketShopApp : PhoneApp
         base.OnPhoneClosed();
         if (_mainBG != null) _mainBG.SetActive(false);
         _viewMode = ViewMode.Directory;
+        _searchQuery = string.Empty;
+        if (_searchField != null)
+        {
+            try { _searchField.text = string.Empty; } catch { }
+        }
+        if (_directoryPane != null) _directoryPane.Filter = string.Empty;
+        if (_gridPane != null) _gridPane.Filter = string.Empty;
         // Update bleibt lebenslang subscribed (defensives Unsubscribe-Subscribe in OnCreated).
     }
 
@@ -138,7 +147,17 @@ public sealed class PocketShopApp : PhoneApp
         {
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                OnBackClicked();
+                // The search field owns the first Escape (same behaviour as the Taxi app);
+                // a second Escape navigates back / closes.
+                if (_searchQuery.Trim().Length > 0)
+                {
+                    ClearSearch();
+                    ApplySearch();
+                }
+                else
+                {
+                    OnBackClicked();
+                }
             }
 
             if (Time.unscaledTime - _lastStatsRefreshTime > 1.0f)
@@ -177,8 +196,14 @@ public sealed class PocketShopApp : PhoneApp
         rootVlg.spacing = 0f;
         rootVlg.padding = new RectOffset(0, 0, 0, 0);
 
-        // 1. Header: Back | PocketShop Title | X
-        AppHeaderBuilder.Build(_mainBG.transform, OnBackClicked, () => CloseApp());
+        // 1. Header: Back | Title | live search | X
+        _searchField = AppHeaderBuilder.Build(_mainBG.transform, OnBackClicked, () => CloseApp(), OnSearchChanged);
+        try
+        {
+            var focus = _searchField.gameObject.AddComponent<PocketShopInputFocus>();
+            focus.inputField = _searchField;
+        }
+        catch (Exception ex) { MelonLogger.Warning($"[PocketShop] search focus guard failed: {ex.Message}"); }
 
         // 2. SubHeader Bar: (Left: Store/Item Count) | (Right: Interactive Payment Chips)
         var subHeaderPanel = S1API.UI.UIFactory.Panel("SubHeaderBar", _mainBG.transform, new Color(0.08f, 0.10f, 0.14f, 1f));
@@ -209,7 +234,7 @@ public sealed class PocketShopApp : PhoneApp
         var shSpacer = S1API.UI.UIFactory.Panel("Spacer", subHeaderPanel.transform, Color.clear);
         shSpacer.AddComponent<LayoutElement>().flexibleWidth = 1f;
 
-        // Payment Chips: [💵 Cash $X] [💳 Bank $Y] [⚡ Auto]
+        // Payment Chips: [CASH $X] [CARD $Y]  (no emoji glyphs: Arial renders them blank)
         BuildPaymentChips(subHeaderPanel.transform);
 
         // 3. Main Content Area
@@ -253,7 +278,7 @@ public sealed class PocketShopApp : PhoneApp
         cashVlg.childForceExpandWidth = true;
         cashVlg.childForceExpandHeight = true;
         cashVlg.childAlignment = TextAnchor.MiddleCenter;
-        _cashChipText = S1API.UI.UIFactory.Text("Txt", "💵 $—", cashPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _cashChipText = S1API.UI.UIFactory.Text("Txt", "CASH $—", cashPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
         _cashChipText.color = new Color(0.35f, 0.92f, 0.58f, 1f);
         _cashChipText.raycastTarget = false;
 
@@ -270,7 +295,7 @@ public sealed class PocketShopApp : PhoneApp
         cardVlg.childForceExpandWidth = true;
         cardVlg.childForceExpandHeight = true;
         cardVlg.childAlignment = TextAnchor.MiddleCenter;
-        _cardChipText = S1API.UI.UIFactory.Text("Txt", "💳 $—", cardPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
+        _cardChipText = S1API.UI.UIFactory.Text("Txt", "CARD $—", cardPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
         _cardChipText.color = new Color(0.30f, 0.85f, 0.95f, 1f);
         _cardChipText.raycastTarget = false;
     }
@@ -301,6 +326,7 @@ public sealed class PocketShopApp : PhoneApp
             _gridPane.SetActive(false);
             _statsLabel.text = $"CHOOSE A SHOP  ·  {ShopCatalog.Shops.Count} STORES";
             _statsLabel.color = new Color(0.55f, 0.70f, 0.85f, 1f);
+            _directoryPane.Filter = _searchQuery;
             _directoryPane.Build();
         }
         else
@@ -341,14 +367,48 @@ public sealed class PocketShopApp : PhoneApp
         _statsLabel.text = shop.Name.ToUpperInvariant();
         _statsLabel.color = new Color(0.78f, 0.95f, 0.25f, 1f);
         _gridPane.ActiveShopCode = shop.ShopCode;
+        _gridPane.Filter = _searchQuery;
         _gridPane.RefreshActiveShop();
         ModConfig<PocketShopConfig>.SetAndSave("LastShopIndex", _activeShopIndex);
+    }
+
+    /// <summary>Live search: filters the store tiles (Directory) or the item list (ShopDetail).</summary>
+    private void OnSearchChanged(string value)
+    {
+        _searchQuery = value ?? string.Empty;
+        ApplySearch();
+    }
+
+    private void ApplySearch()
+    {
+        if (_viewMode == ViewMode.Directory)
+        {
+            _directoryPane.Filter = _searchQuery;
+            _directoryPane.Build();
+        }
+        else
+        {
+            _gridPane.Filter = _searchQuery;
+            _gridPane.RefreshActiveShop();
+        }
+    }
+
+    private void ClearSearch()
+    {
+        _searchQuery = string.Empty;
+        if (_searchField != null)
+        {
+            try { _searchField.text = string.Empty; } catch { }
+        }
+        if (_directoryPane != null) _directoryPane.Filter = string.Empty;
+        if (_gridPane != null) _gridPane.Filter = string.Empty;
     }
 
     private void OnBackClicked()
     {
         if (_viewMode == ViewMode.ShopDetail)
         {
+            ClearSearch();
             SetViewMode(ViewMode.Directory);
         }
         else
@@ -363,8 +423,9 @@ public sealed class PocketShopApp : PhoneApp
         if (mm != null)
         {
             // v0.3.1: both balances — black-market = Cash, clean shops = Card.
-            if (_cashChipText != null) _cashChipText.text = $"💵 ${mm.cashBalance:F0}";
-            if (_cardChipText != null) _cardChipText.text = $"💳 ${mm.onlineBalance:F0}";
+            // No emoji glyphs: Arial renders them as blanks, so the chips would show an empty gap.
+            if (_cashChipText != null) _cashChipText.text = $"CASH ${mm.cashBalance:F0}";
+            if (_cardChipText != null) _cardChipText.text = $"CARD ${mm.onlineBalance:F0}";
         }
 
         if (_viewMode == ViewMode.Directory && _statsLabel != null)

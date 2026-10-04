@@ -26,6 +26,10 @@ namespace TaxiDriver;
 /// <c>UITheme</c> sizing, <c>ButtonUtils.AddListener</c> wiring (IL2CPP-safe),
 /// idempotent <c>MelonEvents.OnUpdate</c> subscription, no text input fields and
 /// no persistence (the spike state lives in <see cref="SpikeState"/>).
+///
+/// The deferred-close experiment (TaxiCloseExperiment, 45-frame hide delay) was
+/// removed 2026-10: it made this app's ESC close lag ~0.75 s behind every other
+/// phone app. Close is now immediate, same frame as the others.
 /// </summary>
 public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
 {
@@ -209,27 +213,20 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         catch { return false; }
     }
 
+<<<<<<< HEAD
     /// <summary>
     /// Golden Rule 2: deactivate the background panel ONLY — never
     /// <c>Object.Destroy</c>, never clear the hierarchy (the "Transparent Phone"
     /// bug).
     /// </summary>
-    /// <summary>Deferred-close helper: hides the background when the delayed close lands.</summary>
-    internal void ForceHideBg()
-    {
-        if (IsAlive(_mainBG))
-            _mainBG.SetActive(false);
-    }
-
     protected override void OnPhoneClosed()
     {
-        // Close experiment: while armed, our own hide is suspended too (the
-        // base hide is already skipped) — otherwise we would cause the very
-        // transparency we are measuring.
-        Mod.Log.Info($"[close] OnPhoneClosed f={Time.frameCount} t={Time.unscaledTime:0.000}");
-        // Delayed close: visibility is owned by the Update sync + the deferred close step.
-        // Hiding here would kill the content at the START of the fold animation (the gap).
-        if (!TaxiCloseExperiment.DeferActive && !TaxiCloseExperiment.Armed && IsAlive(_mainBG))
+        TaxiLog.Verbose($"[close] OnPhoneClosed f={Time.frameCount} t={Time.unscaledTime:0.000}");
+        // Hide immediately, like every other phone app. The deferred-close experiment
+        // (patched S1API SetAppOpen, HideDelayFrames=45) made the Taxi app linger ~0.75 s
+        // behind the others on ESC - removed, the close path is now the plain S1API one.
+        base.OnPhoneClosed();
+        if (IsAlive(_mainBG))
             _mainBG.SetActive(false);
     }
 
@@ -243,11 +240,10 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             return;
 
         bool open = IsOpen();
-        // Close experiment: on CLOSE the visibility stays as-is while armed (see above).
-        // The OPEN direction must always sync: _mainBG starts inactive (Golden Rule 3)
-        // and this sync is the only thing that ever shows it. Regression 2026-09-29: the
-        // armed guard spanned both directions, so the app stayed permanently invisible.
-        if (_mainBG.activeSelf != open && (open || !TaxiCloseExperiment.DeferActive))
+        // Visibility follows IsOpen() in BOTH directions. _mainBG starts inactive
+        // (Golden Rule 3) and this sync is the only thing that ever shows it, so the
+        // OPEN direction must never be gated by a close-path experiment.
+        if (_mainBG.activeSelf != open)
         {
             _mainBG.SetActive(open);
 
@@ -264,8 +260,6 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             RefitLabelsAtRender();
             DumpActualLayout();
         }
-
-        TaxiCloseExperiment.TickDeferredHide();
 
         if (_closeTraceFrames > 0)
         {
@@ -913,6 +907,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             if (SpikeState.RideAwaitingDestination)
                 return "On board — pick a destination";
 
+<<<<<<< HEAD
             if (SpikeState.RideArrived)
             {
                 return SpikeState.NavGaveUp

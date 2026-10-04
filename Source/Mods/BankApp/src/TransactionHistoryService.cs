@@ -99,7 +99,7 @@ public static class TransactionHistoryService
                 }
                 try
                 {
-                    var legacyState = SafeStorage.LoadSafe<BankState>(legacy, null, Mod.Log);
+                    var legacyState = SafeStorage.LoadSafe<BankState>(legacy, new BankState(), Mod.Log);
                     if (legacyState != null && legacyState.Transactions != null && legacyState.Transactions.Count > 0)
                     {
                         if (SafeStorage.SaveAtomic(slotPath, legacyState, Mod.Log))

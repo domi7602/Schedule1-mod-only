@@ -110,6 +110,7 @@ public static class BankService
     public static bool DepositCash(float amount, out string errorMessage)
     {
         errorMessage = string.Empty;
+        Mod.Log?.Info($"[Bank] Deposit request: amount={amount:0.##}");
         // Bug-Audit 2026-09-12 (Round 3): gate money mutations behind a scene guard.
         // The UI is normally only reachable while the player is on Main, but a leftover
         // hotkey, scene change mid-call, or programmatic invocation could otherwise
@@ -199,21 +200,25 @@ public static class BankService
         });
 
         BankSoundService.PlayCashSuccess();
+        Mod.Log?.Info($"[Bank] Deposit ok: -{amount:0.##} cash, +{netCredited:0.##} bank.");
         return true;
     }
 
     public static bool WithdrawCash(float amount, out string errorMessage)
     {
         errorMessage = string.Empty;
+        Mod.Log?.Info($"[Bank] Withdraw request: amount={amount:0.##}");
         // Bug-Audit 2026-09-12 (Round 3): see DepositCash — guard against outside-Main calls.
         if (!NetworkGuard.IsInMainScene)
         {
+            Mod.Log?.Warn("[Bank] Withdraw rejected: not in Main scene.");
             errorMessage = "Bank not available outside the game scene.";
             BankSoundService.PlayError();
             return false;
         }
         if (amount <= 0f)
         {
+            Mod.Log?.Warn($"[Bank] Withdraw rejected: invalid amount ({amount:0.##}).");
             errorMessage = "Invalid amount.";
             BankSoundService.PlayError();
             return false;
@@ -227,6 +232,7 @@ public static class BankService
 
         if (onlineBalance < totalDeducted)
         {
+            Mod.Log?.Warn($"[Bank] Withdraw rejected: bank {onlineBalance:0.##} < required {totalDeducted:0.##}.");
             errorMessage = $"Insufficient bank funds (${onlineBalance:N0} available, ${totalDeducted:N0} required).";
             BankSoundService.PlayError();
             return false;
@@ -236,6 +242,7 @@ public static class BankService
         if (amount > maxWithdrawable)
         {
             int freeSlots = GetFreeInventorySlotsCount();
+            Mod.Log?.Warn($"[Bank] Withdraw rejected: amount {amount:0.##} > maxWithdrawable {maxWithdrawable:0.##} (freeSlots={freeSlots}).");
             errorMessage = $"Inventory full! Only room for ${maxWithdrawable:N0} ({freeSlots} free slot{(freeSlots == 1 ? "" : "s")}).";
             BankSoundService.PlayError();
             return false;
@@ -283,6 +290,7 @@ public static class BankService
         });
 
         BankSoundService.PlayCashSuccess();
+        Mod.Log?.Info($"[Bank] Withdraw ok: -{totalDeducted:0.##} bank, +{amount:0.##} cash.");
         return true;
     }
 }

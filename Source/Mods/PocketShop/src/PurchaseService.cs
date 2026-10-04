@@ -142,6 +142,19 @@ public static class PurchaseService
             return result;
         }
 
+        // Shop availability: a locked shop (black-market unlock) is never purchasable, and a
+        // closed shop (opening hours) blocks the buy until its zone re-opens. Re-resolved live
+        // so a shop that closes while the app is open takes effect immediately.
+        if (ShopCatalog.TryGetGate(item.ShopCode, out ShopGate gate) && (gate.IsLocked || !gate.IsOpen))
+        {
+            result.Result = BuyResult.Error;
+            result.Message = gate.IsLocked
+                ? "This shop is locked."
+                : (string.IsNullOrEmpty(gate.HoursText) ? "This shop is closed." : $"This shop is closed ({gate.HoursText}).");
+            SoundService.PlayPurchaseDenied();
+            return result;
+        }
+
         if (!NetworkGuard.IsInMainScene)
         {
             result.Result = BuyResult.Error;

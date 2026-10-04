@@ -421,7 +421,29 @@ internal static class AppTheme
                 if (rt == null) continue;
                 float iw = Mathf.Abs(rt.rect.width);
                 float ih = Mathf.Abs(rt.rect.height);
-                if (IsAvatarLike(iw, ih, w)) continue;
+                if (IsAvatarLike(iw, ih, w))
+                {
+                    // Small squares are usually avatars/item art — but the supplier
+                    // dead-drop order popup draws its quantity boxes the same way.
+                    // Content stays protected; input/decor boxes get the control
+                    // fill instead (aggressive = popup passes only).
+                    if (IsContentSquare(img, aggressiveSquares))
+                    {
+                        _passProtected++;
+                        // A protected content square (item-icon art with a light tint) can still
+                        // read dark-on-dark when the ART itself was painted for the old light
+                        // popup (supplier dead-drop seed icons). In a popup pass, lift the sprite
+                        // hue-preserving as well - BarLift only brightens texels whose max
+                        // channel is below the target peak, so bright art and sprite-less images
+                        // are left untouched.
+                        if (aggressiveSquares) TryLiftDarkIcon(img, w, h);
+                        LogStillLight(img, c, ref stillLightBudget);
+                        continue;
+                    }
+                    _passThemed++;
+                    TintGraphic(img, GamePalette.CardAlt);
+                    continue;
+                }
 
                 if (iw >= w * 0.85f && ih >= h * 0.85f)
                 {

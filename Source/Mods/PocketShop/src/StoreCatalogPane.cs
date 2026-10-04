@@ -26,6 +26,9 @@ public class StoreCatalogPane
         _parent = parent;
     }
 
+    /// <summary>Live search filter over the store tiles (name or code, case-insensitive).</summary>
+    public string Filter { get; set; } = string.Empty;
+
     public void Build()
     {
         if (_rootPanel != null)
@@ -78,10 +81,11 @@ public class StoreCatalogPane
         csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         scrollRect.content = contentRt;
 
-        var shops = ShopCatalog.Shops;
+        var shops = FilterShops(ShopCatalog.Shops);
         if (shops.Count == 0)
         {
-            var emptyTxt = UIFactory.Text("EmptyState", "No stores registered in town.", contentGO.transform, UITheme.Sp(14), TextAnchor.MiddleCenter);
+            string emptyMsg = string.IsNullOrEmpty(Filter) ? "No stores registered in town." : "No matching stores.";
+            var emptyTxt = UIFactory.Text("EmptyState", emptyMsg, contentGO.transform, UITheme.Sp(14), TextAnchor.MiddleCenter);
             emptyTxt.color = new Color(0.6f, 0.6f, 0.6f, 1f);
             return;
         }
@@ -123,9 +127,36 @@ public class StoreCatalogPane
         }
     }
 
-    private void BuildStoreCard(Transform parent, ShopPOCO shop)
+    /// <summary>Live search filter over the store tiles (name or code, case-insensitive).</summary>
+    private List<ShopPOCO> FilterShops(IReadOnlyList<ShopPOCO> all)
     {
+        var list = new List<ShopPOCO>(all.Count);
+        if (string.IsNullOrEmpty(Filter))
+        {
+            for (int i = 0; i < all.Count; i++) list.Add(all[i]);
+            return list;
+        }
+        string needle = Filter.Trim().ToLowerInvariant();
+        for (int i = 0; i < all.Count; i++)
+        {
+            var s = all[i];
+            if (s == null) continue;
+            string name = (s.Name ?? string.Empty).ToLowerInvariant();
+            string code = (s.ShopCode ?? string.Empty).ToLowerInvariant();
+            if (name.Contains(needle) || code.Contains(needle)) list.Add(s);
+        }
+        return list;
+    }
+
+    private void BuildStoreCard(Transform parent, ShopPOCO shop, float rowH)
+    {
+        bool locked = shop.IsLocked;
+        bool closed = !locked && !shop.IsOpen;
+
         var cardColor = ShopColorScheme.ColorFor(shop.ShopCode);
+        // A locked / closed shop reads as an inactive tile (vanilla does not offer it either).
+        if (locked || closed)
+            cardColor = Color.Lerp(cardColor, new Color(0.10f, 0.11f, 0.13f, 1f), 0.62f);
 
         // Outer Card
         var card = UIFactory.Panel($"StoreCard_{shop.ShopCode}", parent, cardColor);
@@ -199,14 +230,26 @@ public class StoreCatalogPane
         nameTxt.raycastTarget = false;
         nameTxt.horizontalOverflow = HorizontalWrapMode.Wrap;
 
-        var countTxt = UIFactory.Text("ItemCount", $"{shop.ItemCount} items", bottomBanner.transform, UITheme.Sp(9), TextAnchor.MiddleCenter);
-        countTxt.color = new Color(0.90f, 0.92f, 0.95f, 0.90f);
+        string subLabel;
+        if (locked) subLabel = "LOCKED";
+        else if (closed) subLabel = string.IsNullOrEmpty(shop.HoursText) ? "CLOSED" : $"CLOSED {shop.HoursText}";
+        else subLabel = $"{shop.ItemCount} items";
+
+        var countTxt = UIFactory.Text("ItemCount", subLabel, bottomBanner.transform, UITheme.Sp(10), TextAnchor.MiddleCenter);
+        countTxt.color = locked ? new Color(0.95f, 0.58f, 0.45f, 1f) : new Color(0.90f, 0.92f, 0.95f, 0.90f);
         countTxt.raycastTarget = false;
 
-        // Button overlay for the whole card
+        // Button overlay for the whole card. A locked shop is not enterable.
         var btn = card.AddComponent<Button>();
         btn.transition = Selectable.Transition.None;
-        ButtonUtils.AddListener(btn, () => OnShopSelected?.Invoke(shop));
+        if (locked)
+        {
+            btn.interactable = false;
+        }
+        else
+        {
+            ButtonUtils.AddListener(btn, () => OnShopSelected?.Invoke(shop));
+        }
     }
 
     public void SetActive(bool active)

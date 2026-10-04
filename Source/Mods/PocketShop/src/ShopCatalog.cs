@@ -116,6 +116,27 @@ public sealed class ItemPOCO
     }
 
     /// <summary>
+    /// Numeric required rank (lower = earlier unlock); -1 when the item has no level gate.
+    /// Used for the vanilla-like display order (unlocked first, then by rank).
+    /// </summary>
+    public int RequiredRankValue
+    {
+        get
+        {
+            try
+            {
+                if (Definition != null && Definition.Pointer != IntPtr.Zero && !Definition.WasCollected
+                    && Definition.RequiresLevelToPurchase)
+                {
+                    return Definition.RequiredRank.GetRankIndex();
+                }
+            }
+            catch { }
+            return -1;
+        }
+    }
+
+    /// <summary>
     /// Checks whether this item is currently available for purchase by the player,
     /// considering the EnforceLevelRequirements configuration.
     /// </summary>
@@ -136,6 +157,17 @@ public sealed class ShopPOCO
     /// Black-market shops charge Cash, clean/legal shops charge by card (Online).
     /// </summary>
     public EPaymentType PaymentType { get; set; } = EPaymentType.Online;
+
+    /// <summary>The live vanilla shop this tile was built from (used to re-resolve the gate).</summary>
+    public ShopInterface SourceShop { get; set; } = null!;
+
+    /// <summary>Unlock + opening-hours state, resolved per catalog refresh.</summary>
+    public ShopGate Gate { get; set; } = new ShopGate();
+
+    public bool IsLocked => Gate?.IsLocked ?? false;
+    public bool IsOpen => Gate?.IsOpen ?? true;
+    public bool HasSchedule => Gate?.HasSchedule ?? false;
+    public string HoursText => Gate?.HoursText ?? string.Empty;
 }
 
 /// <summary>
@@ -166,6 +198,34 @@ public static class ShopCatalog
             if (item.ShopCode == shopCode) result.Add(item);
         }
         return result;
+    }
+
+    /// <summary>
+    /// Live availability of the shop with the given code. Re-resolved from vanilla state
+    /// because opening hours can change while the app is open; falls back to the cached
+    /// gate when the native shop reference is gone. False when the code is unknown.
+    /// </summary>
+    public static bool TryGetGate(string shopCode, out ShopGate gate)
+    {
+        gate = new ShopGate();
+        if (string.IsNullOrEmpty(shopCode)) return false;
+        for (int i = 0; i < _shopCache.Count; i++)
+        {
+            var poco = _shopCache[i];
+            if (poco == null || poco.ShopCode != shopCode) continue;
+            try
+            {
+                if (poco.SourceShop != null && poco.SourceShop.Pointer != IntPtr.Zero && !poco.SourceShop.WasCollected)
+                {
+                    gate = ShopGateResolver.Resolve(poco.SourceShop, poco.ShopCode, poco.Name);
+                    return true;
+                }
+            }
+            catch { }
+            gate = poco.Gate ?? new ShopGate();
+            return true;
+        }
+        return false;
     }
 
     public static void Refresh()
@@ -244,6 +304,10 @@ public static class ShopCatalog
                     });
                 }
 
+                // Availability (unlock + opening hours) resolved from vanilla state; every
+                // decision is logged by ShopGateResolver so a playtest log can attribute it.
+                var gate = ShopGateResolver.Resolve(shop, code, shop.ShopName);
+
                 // Always show shop tile — even with 0 available items (empty state "OUT").
                 // Previously the shop vanished completely from the catalog as soon as everything was sold out.
                 perShopCount[code] = availableCount;
@@ -252,7 +316,9 @@ public static class ShopCatalog
                     Name = shop.ShopName,
                     ShopCode = code,
                     ItemCount = availableCount,
-                    PaymentType = shopPaymentType
+                    PaymentType = shopPaymentType,
+                    SourceShop = shop,
+                    Gate = gate
                 });
             }
 

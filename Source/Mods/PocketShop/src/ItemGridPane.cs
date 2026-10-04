@@ -118,16 +118,49 @@ public class ItemGridPane
         var currentShopCode = ActiveShopCode;
         if (string.IsNullOrEmpty(currentShopCode)) return;
         var items = ShopCatalog.GetItemsOfShop(currentShopCode);
+        if (!string.IsNullOrEmpty(Filter))
+        {
+            string needle = Filter.Trim().ToLowerInvariant();
+            items = items.FindAll(x => x.Name != null && x.Name.ToLowerInvariant().Contains(needle));
+        }
         if (items.Count == 0)
         {
-            ShowEmptyState("No items in stock.");
+            ShowEmptyState(string.IsNullOrEmpty(Filter) ? "No items in stock." : "No matching items.");
             return;
         }
+        SortForDisplay(items);
         BuildGrid(items);
+    }
+
+    /// <summary>
+    /// Vanilla-like display order: purchasable (unlocked) items first, then ascending by the
+    /// required rank, then by price and name. Vanilla sorts its shop lists; the raw listing
+    /// order looked arbitrary.
+    /// </summary>
+    private static void SortForDisplay(List<ItemPOCO> items)
+    {
+        items.Sort((a, b) =>
+        {
+            int ua = a.IsAvailableToPlayer ? 0 : 1;
+            int ub = b.IsAvailableToPlayer ? 0 : 1;
+            if (ua != ub) return ua - ub;
+
+            int ra = a.RequiredRankValue;
+            int rb = b.RequiredRankValue;
+            if (ra != rb) return ra - rb;
+
+            int byPrice = a.Price.CompareTo(b.Price);
+            if (byPrice != 0) return byPrice;
+
+            return string.CompareOrdinal(a.Name ?? string.Empty, b.Name ?? string.Empty);
+        });
     }
 
     /// <summary>Currently displayed shop code (set externally by PocketShopApp).</summary>
     public string ActiveShopCode { get; set; } = string.Empty;
+
+    /// <summary>Live search filter (case-insensitive substring on the item name). Empty = no filter.</summary>
+    public string Filter { get; set; } = string.Empty;
 
     /// <summary>Refresh every card's BUY enabled-state (called on Cash/Bank change or payment toggle).</summary>
     public void RefreshAllBuyStates()

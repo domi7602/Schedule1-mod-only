@@ -25,9 +25,6 @@ public class Mod : MelonMod
         // patch is non-fatal and named in the log; the ride still works without it).
         RideLocks.Apply();
 
-        // Close experiment (transparent frame): armed once, reverts cleanly.
-        TaxiCloseExperiment.Enable();
-
         // Paket A (2026-09-29): the destination picker must NOT survive a save
         // reload (Dominik: "das Taxi merkt sich die letzten punkte, nachdem man das
         // game reloaded"). OnSaveInfoLoaded is the workspace's canonical save-load

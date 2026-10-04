@@ -472,9 +472,25 @@ public sealed class BankApp : PhoneApp
             return;
         }
 
-        bool success = _mode == TransferMode.Deposit
-            ? BankService.DepositCash(_enteredAmount, out string errorMsg)
-            : BankService.WithdrawCash(_enteredAmount, out errorMsg);
+        bool success;
+        string errorMsg;
+        try
+        {
+            success = _mode == TransferMode.Deposit
+                ? BankService.DepositCash(_enteredAmount, out errorMsg)
+                : BankService.WithdrawCash(_enteredAmount, out errorMsg);
+        }
+        catch (Exception ex)
+        {
+            // A thrown money call must never be silent: the click handler would otherwise
+            // swallow it and the UI would show nothing at all. Surface it in the feedback
+            // line and the log so a failing transaction is always attributable.
+            MelonLogger.Error($"[Bank] {_mode} threw: {ex.GetType().Name}: {ex.Message}");
+            SetFeedback($"Transaction error: {ex.Message}", isError: true);
+            BankSoundService.PlayError();
+            RefreshAll();
+            return;
+        }
 
         if (success)
         {

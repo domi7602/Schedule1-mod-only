@@ -45,8 +45,8 @@ public static class WaterAllService
     ///   3. RESOLVE     — single full scan of GrowContainers, build IntPtr → container dictionary
     ///   4. TARGET LIST — filter by IsOwnedProperty + scene-validity + WaterPercent &lt; threshold
     ///   5. VALIDATE    — non-empty targets, sufficient cash (only target count is charged)
-    ///   6. CHARGE      — exact-once atomic deduction
-    ///   7. WATER       — SetMoistureAmount(capacity) per target, per-pot try/catch
+    ///   6. WATER       - SetMoistureAmount(capacity) per target, per-pot try/catch, charge accumulated
+    ///   7. CHARGE      - one exact aggregate deduction for the whole batch (single HUD popup)
     ///   8. REFRESH     — RefreshNow() for immediate UI feedback
     ///   9. RESULT      — build WaterAllResult with skip counts in Message
     ///  10. UNLOCK      — finally block always releases the lock
@@ -126,9 +126,12 @@ public static class WaterAllService
                 return new WaterAllResult(false, targets.Count, 0, 0f,
                     $"Not enough cash ({totalCost} needed, {money.cashBalance} available)");
 
-            // 6. CHARGE & 7. WATER — per-pot try/catch, only successfully watered pots are charged.
-            //    Bug-Audit 2026-09-12: re-check the running cash balance before each charge so a
-            //    concurrent spender (another mod / shop) cannot drive the balance negative.
+            // 6. WATER & 7. ACCUMULATE - per-pot try/catch, only successfully watered pots are
+            //    charged. The cash is booked ONCE after the loop (7b): a per-pot
+            //    ChangeCashBalance(visualizeChange:true) call made the game's HUD change
+            //    indicator show a single "-costPerPot" popup even though the full sum was
+            //    deducted. The running guard re-checks the live balance minus what this batch
+            //    already committed, so a concurrent spender cannot drive the balance negative.
             int watered = 0;
             float totalCharged = 0f;
             foreach (var (_, c) in targets)
@@ -137,13 +140,12 @@ public static class WaterAllService
                 {
                     if (c.NormalizedMoistureAmount < 0.99f)
                     {
-                        if (money.cashBalance < Constants.WaterAllCostPerPot)
+                        if (money.cashBalance - totalCharged < Constants.WaterAllCostPerPot)
                         {
-                            // Out of cash mid-loop — stop and report what we already did.
+                            // Out of cash mid-loop - stop and report what we already did.
                             break;
                         }
                         c.SetMoistureAmount(c.MoistureCapacity);
-                        money.ChangeCashBalance(-Constants.WaterAllCostPerPot, visualizeChange: true, playCashSound: false);
                         watered++;
                         totalCharged += Constants.WaterAllCostPerPot;
                     }
@@ -151,6 +153,21 @@ public static class WaterAllService
                 catch (Exception ex)
                 {
                     MelonLogger.Warning($" Failed to water pot @ {c.Pointer:X}: {ex.Message}");
+                }
+            }
+
+            // 7b. CHARGE - one aggregate deduction for the whole batch (single HUD popup).
+            if (totalCharged > 0f)
+            {
+                try
+                {
+                    money.ChangeCashBalance(-totalCharged, visualizeChange: true, playCashSound: false);
+                }
+                catch (Exception ex)
+                {
+                    // Mutate-then-throw: the pots are already watered, the booking outcome is
+                    // UNKNOWN. Never retry (a retry can double-charge) - log it as money at risk.
+                    MelonLogger.Error($"CRITICAL WaterAll charge failed after watering {watered} pot(s) (money at risk): {ex.GetType().Name}: {ex.Message}");
                 }
             }
 
