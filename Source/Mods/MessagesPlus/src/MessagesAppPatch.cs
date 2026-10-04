@@ -1,5 +1,6 @@
 using System;
 using HarmonyLib;
+using Il2CppScheduleOne.Messaging;
 using Il2CppScheduleOne.UI.Phone.Messages;
 using S1Mods.Shared;
 
@@ -53,6 +54,17 @@ public static class MessagesAppPatch
             typeof(MessagesApp),
             nameof(MessagesApp.SetCurrentConversation),
             postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(ConversationSwitched_Postfix)),
+            log: log);
+
+        // A message was rendered into a conversation (new message, deal schedule,
+        // chain delivery): theme its bubbles in the SAME frame, otherwise the fresh
+        // bubble sits vanilla-white until the next 1 s tick ("message briefly white
+        // then dark", 2026-10-04).
+        PatchGuard.TryPatch(
+            harmony,
+            typeof(MSGConversation),
+            nameof(MSGConversation.RenderMessage),
+            postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(RenderMessage_Postfix)),
             log: log);
     }
 
@@ -138,6 +150,24 @@ public static class MessagesAppPatch
         catch (Exception ex)
         {
             Mod.Log?.Warn($"ConversationSwitched_Postfix failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// A message was rendered into a conversation: theme its bubbles right now (same
+    /// frame) plus a short boost, so a freshly rendered bubble is never visible in
+    /// its vanilla white before the next tick (2026-10-04).
+    /// </summary>
+    [HarmonyPostfix]
+    public static void RenderMessage_Postfix(MSGConversation __instance)
+    {
+        try
+        {
+            InboxUI.RequestBubbleRefresh(__instance);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"RenderMessage_Postfix failed: {ex.Message}");
         }
     }
 }

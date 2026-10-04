@@ -286,6 +286,30 @@ public static class InboxUI
     }
 
     /// <summary>
+    /// A message was rendered into a conversation (vanilla MSGConversation.RenderMessage):
+    /// theme that conversation's bubbles in the SAME frame, plus a short unthrottled
+    /// boost for the frames that follow. Without this the fresh bubble shows its
+    /// vanilla white until the next 1 s tick ("message briefly white then dark").
+    /// </summary>
+    public static void RequestBubbleRefresh(MSGConversation conv)
+    {
+        try
+        {
+            if (!DarkMode) return;
+            if (!ConversationUtils.IsAlive(conv)) return;
+
+            AppTheme.ThemeConversation(conv); // same-frame: the new bubble goes dark now
+            _nextTickTime = 0f;
+            if (_openBoostFrames < 3) _openBoostFrames = 3;
+            AppTheme.RequestSweep();
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"RequestBubbleRefresh failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
     /// Throttled self-healing tick (driven by Mod.OnUpdate, 1 s): re-applies the
     /// search/filter view (vanilla callbacks can re-show entries — v0.1.x TrashUI
     /// W5 lesson), refreshes the unread counter, and re-injects the UI when the

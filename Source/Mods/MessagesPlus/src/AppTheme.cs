@@ -675,6 +675,20 @@ internal static class AppTheme
     }
 
     /// <summary>
+    /// Themes the conversation-specific surfaces (chat bubbles + response panel) for
+    /// ONE conversation, plus a tracked-graphic restore. Called from the RenderMessage
+    /// hook so a freshly rendered bubble goes dark in the SAME frame instead of
+    /// waiting for the 1 s tick ("message briefly white then dark", 2026-10-04).
+    /// </summary>
+    internal static void ThemeConversation(MSGConversation conv)
+    {
+        if (!ConversationUtils.IsAlive(conv)) return;
+        try { TintBubbles(conv); } catch (Exception ex) { Mod.Log?.Debug($"AppTheme bubbles: {ex.Message}"); }
+        try { TintResponseArea(conv); } catch (Exception ex) { Mod.Log?.Debug($"AppTheme responses: {ex.Message}"); }
+        try { VerifyTracked(); } catch { /* restore is best effort */ }
+    }
+
+    /// <summary>
     /// The response panel (Yes / [Counter-offer] / No): the panel and every
     /// non-dark surface inside become dark cards, the dark button texts turn light.
     /// The container lives on MSGConversation and survives page switches.
