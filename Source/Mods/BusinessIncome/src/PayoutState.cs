@@ -11,6 +11,9 @@ public sealed class PayoutState
 {
     public int SchemaVersion { get; set; } = 1;
     public int LastPaidElapsedDay { get; set; } = -1;
+    /// <summary>Day this state was first seeded on a fresh install (-1 = never seeded). Tracked
+    /// separately from a real payout so the UI shows "Initialized", not "Paid Today".</summary>
+    public int InitializationDay { get; set; } = -1;
     public string SaveIdentity { get; set; } = "";
     public string LastPayoutTimestamp { get; set; } = "";
     public Dictionary<string, int> LastPaidDayByBusiness { get; set; } = new(StringComparer.OrdinalIgnoreCase);

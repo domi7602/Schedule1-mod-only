@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <LangVersion>12</LangVersion>
+    <RootNamespace>BusinessIncome.Tests</RootNamespace>
+    <AssemblyName>BusinessIncome.Tests</AssemblyName>
+    <!-- Auto-include every *.cs in this project directory (all test files). -->
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!--
+    Pure mod sources under test. These have NO Unity / IL2CPP / S1API / MelonLoader
+    dependency (the A-D financial-safety core plus the payout models), so they link
+    straight into the test assembly.
+
+    The runtime glue (IncomeEngine / PayoutStateStore / Mod / BusinessConsoleCommand)
+    and the native BusinessResolver are deliberately NOT linked here - they touch
+    Unity/IL2CPP and are covered by the compile-only integration build instead.
+  -->
+  <ItemGroup>
+    <Compile Include="..\..\Mods\BusinessIncome\src\Core\**\*.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutState.cs" />
+  </ItemGroup>
+
+  <!--
+    Fixed-contract sources owned by other agents, linked only when present so the
+    revenue/config test files compile once those files land. Condition on Exists so a
+    mid-flight tree still builds.
+  -->
+  <ItemGroup Condition="Exists('..\..\Mods\BusinessIncome\src\BusinessData.cs')">
+    <Compile Include="..\..\Mods\BusinessIncome\src\BusinessData.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="Exists('..\..\Mods\BusinessIncome\src\BusinessRevenueLine.cs')">
+    <Compile Include="..\..\Mods\BusinessIncome\src\BusinessRevenueLine.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="Exists('..\..\Mods\BusinessIncome\src\ConfigSidecarData.cs')">
+    <Compile Include="..\..\Mods\BusinessIncome\src\ConfigSidecarData.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="Exists('..\..\Mods\BusinessIncome\src\BusinessIncomeConfig.cs') AND Exists('..\..\Mods\BusinessIncome\src\ConfigSidecarData.cs')">
+    <Compile Include="..\..\Mods\BusinessIncome\src\BusinessIncomeConfig.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="Exists('..\..\Mods\BusinessIncome\src\RevenueCalculator.cs') AND Exists('..\..\Mods\BusinessIncome\src\BusinessData.cs')">
+    <Compile Include="..\..\Mods\BusinessIncome\src\RevenueCalculator.cs" />
+  </ItemGroup>
+
+  <!--
+    Escape hatch for isolated runs while other agents' sources/tests are still
+    landing: pass -p:FinancialOnly=true and a filter of
+    "FullyQualifiedName~Financial|FullyQualifiedName~Persistence".
+    Excludes the revenue/config test files from compilation for the isolated run;
+    the default build (no property) auto-includes every test file.
+  -->
+  <ItemGroup Condition="'$(FinancialOnly)' == 'true'">
+    <Compile Remove="Revenue*.cs" />
+  </ItemGroup>
+
+</Project>

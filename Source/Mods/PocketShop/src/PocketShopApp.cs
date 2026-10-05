@@ -120,11 +120,17 @@ public sealed class PocketShopApp : PhoneApp
     {
         base.OnPhoneClosed();
         if (_mainBG != null) _mainBG.SetActive(false);
+        // Close-path must stay allocation- and rebuild-free: the next OnAppOpened()
+        // rebuilds via SetViewMode(Directory) anyway. In particular, _searchField.text =
+        // would fire OnSearchChanged -> ApplySearch -> full Directory.Build() synchronously
+        // inside the close handler, stalling the phone-lower animation (glass phone
+        // while the device is put away). SetTextWithoutNotify resets the visible text
+        // without triggering the event chain.
         _viewMode = ViewMode.Directory;
         _searchQuery = string.Empty;
         if (_searchField != null)
         {
-            try { _searchField.text = string.Empty; } catch { }
+            try { _searchField.SetTextWithoutNotify(string.Empty); } catch { }
         }
         if (_directoryPane != null) _directoryPane.Filter = string.Empty;
         if (_gridPane != null) _gridPane.Filter = string.Empty;
@@ -398,7 +404,10 @@ public sealed class PocketShopApp : PhoneApp
         _searchQuery = string.Empty;
         if (_searchField != null)
         {
-            try { _searchField.text = string.Empty; } catch { }
+            // No event: callers (Escape handler) run ApplySearch() explicitly right after.
+            // .text = would fire OnSearchChanged -> ApplySearch a first time, rebuilding
+            // the directory twice per keypress.
+            try { _searchField.SetTextWithoutNotify(string.Empty); } catch { }
         }
         if (_directoryPane != null) _directoryPane.Filter = string.Empty;
         if (_gridPane != null) _gridPane.Filter = string.Empty;

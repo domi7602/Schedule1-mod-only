@@ -116,7 +116,7 @@ public class StoreCatalogPane
                 if (idx < shops.Count)
                 {
                     var shop = shops[idx];
-                    BuildStoreCard(rowGO.transform, shop);
+                    BuildStoreCard(rowGO.transform, shop, UITheme.Dp(105f));
                 }
                 else
                 {

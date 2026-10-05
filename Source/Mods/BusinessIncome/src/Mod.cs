@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Reflection;
 using BusinessIncome.Config;
+using BusinessIncome.Core;
 using BusinessIncome.Services;
 using MelonLoader;
 using S1API.Lifecycle;
@@ -59,18 +60,18 @@ public class Mod : MelonMod
         if (sceneName == "Main")
         {
             PayoutStateStore.ResetForSceneUnload();
-            Log.Debug("Main Scene unloaded. PayoutStateStore reset (keepSlot).");
+            Log.Debug("Main Scene unloaded. PayoutStateStore reset — authority and slot cleared (no stale-slot writes).");
         }
     }
 
     private void OnPreLoad()
     {
-        // Audit 2026-09-13 (BIZ-05): keepSlot:true — OnPreLoad fires BEFORE the new save info is
-        // parsed. With keepSlot:false the store would fall back to the 'default' slot, and every
-        // state access in the PreLoad->SaveInfoLoaded window would read/write *_default.json.
-        // BankApp hardened this the same way (keepSlot:true); the slot is re-resolved on load.
-        PayoutStateStore.Reset(keepSlot: true);
-        Log.Debug("OnPreLoad: PayoutStateStore reset (keepSlot).");
+        // Readiness AND authority are invalidated here; the active slot is cleared as well.
+        // Carrying a slot across the PreLoad -> LoadComplete window could write into the
+        // PREVIOUS save (the old keepSlot:true "last-known slot" behaviour). The slot is
+        // re-resolved on LoadComplete.
+        PayoutStateStore.Reset();
+        Log.Debug("OnPreLoad: PayoutStateStore reset — ready=false, slot cleared.");
     }
 
     public override void OnDeinitializeMelon()
@@ -88,21 +89,11 @@ public class Mod : MelonMod
 
     private void OnSaveLoaded()
     {
+        // Informational only: the slot is (re-)resolved and state is loaded on LoadComplete,
+        // so no state is read or written during this window.
         try
         {
-            string slot = PayoutStateStore.GetActiveSlotSuffix();
-            var state = PayoutStateStore.GetState();
-            Log.Info($"Save loaded (Slot: {slot}). Last payout on day {state.LastPaidElapsedDay}.");
-
-            // F1: leftover write-ahead marker = a payout transaction may be booked but its
-            // state commit was never confirmed (crash between booking and save). Warn loudly
-            // instead of silently paying the day again on the next catch-up.
-            var pending = PayoutStateStore.ReadPendingMarker();
-            if (pending != null && pending.Day >= 0)
-            {
-                Log.Warn($"UNCHECKED PAYOUT: day {pending.Day} may already be booked (+${pending.Amount.ToString("N2", CultureInfo.InvariantCulture)}, {pending.BusinessCount} businesses, started {pending.StartedUtc}) but its payout state was never saved. " +
-                         "Check the in-game bank app for a 'Business Revenue' entry of that day, then run 'biz pending confirm' (money received — skip day) or 'biz pending resolve' (money missing — pay again).");
-            }
+            Log.Info("Save info loaded. Payout state will be resolved on LoadComplete.");
         }
         catch (Exception ex)
         {
@@ -112,115 +103,224 @@ public class Mod : MelonMod
 
     private void OnLoadComplete()
     {
-        // Scene build is done, owned business lists are guaranteed populated here.
-        CheckCatchupPayout();
+        // Scene build is done and owned-business lists are guaranteed populated here. This is
+        // the single point where authority + readiness are resolved and the pending marker is
+        // inspected — regardless of whether SaveInfoLoaded fired.
+        try
+        {
+            PayoutStateStore.LoadForActiveSlot();
+            WarnPendingMarker();
+            CheckCatchupPayout();
+        }
+        catch (Exception ex)
+        {
+            Log.Warn("OnLoadComplete payout init failed", ex);
+        }
     }
 
     private void OnDayPass()
     {
         var cfg = ModConfig<BusinessIncomeConfig>.Instance;
+
+        // Catch up FIRST and only pay today when catch-up completed safely: a failed or
+        // blocked earlier day must never be skipped over by today's payout.
+        if (!CheckCatchupPayout())
+        {
+            Log.Warn("[Payout] OnDayPass: skipping today's payout - catch-up did not complete safely.");
+            return;
+        }
+
         if (cfg.PayoutHour == 0)
         {
             int elapsedDays = S1API.GameTime.TimeManager.ElapsedDays;
             Log.Debug($"OnDayPass event received (day {elapsedDays}). Executing midnight payout...");
-            IncomeEngine.TryExecuteDailyPayout(elapsedDays, cfg);
+            IncomeEngine.ExecuteDailyPayout(elapsedDays, cfg);
         }
-        CheckCatchupPayout();
     }
 
     private void OnHourPass()
     {
         var cfg = ModConfig<BusinessIncomeConfig>.Instance;
-        if (cfg.PayoutHour > 0)
-        {
-            // Use the vanilla current-time range check so we don't have to interpret the time encoding ourselves.
-            int payoutStart = cfg.PayoutHour == 0 ? 0 : cfg.PayoutHour * 100;
-            int payoutEnd = payoutStart + 59;
+        if (cfg.PayoutHour <= 0) return;
 
-            try
+        try
+        {
+            // Catch up FIRST so a failed earlier day is never skipped by the in-window payout.
+            if (!CheckCatchupPayout())
             {
-                if (S1API.GameTime.TimeManager.IsCurrentTimeWithinRange(payoutStart, payoutEnd))
-                {
-                    int elapsedDays = S1API.GameTime.TimeManager.ElapsedDays;
-                    Log.Debug($"OnHourPass event in payout window ({payoutStart:D4}-{payoutEnd:D4}). Executing configured payout for day {elapsedDays}...");
-                    IncomeEngine.TryExecuteDailyPayout(elapsedDays, cfg);
-                }
+                Log.Warn("[Payout] OnHourPass: skipping in-window payout - catch-up did not complete safely.");
+                return;
             }
-            catch (Exception ex) { Log.Warn("OnHourPass failed", ex); }
+
+            int elapsedDays = S1API.GameTime.TimeManager.ElapsedDays;
+            var decision = DecideWindow(cfg.PayoutHour, isPastDay: false);
+            if (!decision.InWindow)
+            {
+                Log.Debug($"[Payout] OnHourPass outside window: {decision.Reason}.");
+                return;
+            }
+
+            Log.Debug($"[Payout] OnHourPass in window ({decision.Reason}). Executing configured payout for day {elapsedDays}...");
+            IncomeEngine.ExecuteDailyPayout(elapsedDays, cfg);
         }
+        catch (Exception ex) { Log.Warn("OnHourPass failed", ex); }
     }
 
-    private void CheckCatchupPayout()
+    /// <summary>
+    /// Shared, fail-closed payout-window decision (centralized pure planner).
+    /// </summary>
+    private static WindowDecision DecideWindow(int payoutHour, bool isPastDay)
+    {
+        int now24 = 0;
+        bool timeKnown = false;
+        try
+        {
+            now24 = S1API.GameTime.TimeManager.CurrentTime;
+            timeKnown = true;
+        }
+        catch { timeKnown = false; }
+
+        return PayoutWindowPlanner.Plan(payoutHour, now24, timeKnown, isPastDay);
+    }
+
+    private void WarnPendingMarker()
+    {
+        var status = PayoutStateStore.PendingStatus;
+        if (status == PendingStatus.Missing) return;
+
+        if (status == PendingStatus.Corrupt)
+        {
+            Log.Error($"[Payout] pending marker for slot {PayoutStateStore.GetActiveSlotSuffix()} is CORRUPT/unreadable. " +
+                      "ALL new automatic and forced payouts are BLOCKED. Back up the state, marker and artifacts, " +
+                      "then repair the unreadable marker using verified bank history. Deleting it does NOT accept the payout and can enable a duplicate payout.");
+            return;
+        }
+
+        var pending = PayoutStateStore.ReadPendingMarker();
+        if (pending == null || pending.Day < 0) return;
+
+        string recovered = status == PendingStatus.Backup ? " (recovered from .bak)" : "";
+        Log.Warn($"UNCHECKED PAYOUT{recovered}: day {pending.Day} may already be booked (+${pending.Amount.ToString("N2", CultureInfo.InvariantCulture)}, {pending.BusinessCount} businesses, started {pending.StartedUtc}) " +
+                 "but its payout state was never saved. Check the in-game bank app for a 'Business Revenue' entry of that day, then run " +
+                 "'biz pending confirm' (money received — skip day) or 'biz pending resolve' (money missing — pay again). New payouts are BLOCKED until then.");
+    }
+
+    /// <summary>
+    /// Runs the catch-up pass and returns true ONLY when it is safe to proceed with today's
+    /// in-window payout. Any host/authority/state/marker failure, an unpersisted seed or cap
+    /// commit, or a day whose outcome stopped the loop returns false so the caller never books
+    /// a later day on top of an unsafe earlier one.
+    /// </summary>
+    private bool CheckCatchupPayout()
     {
         try
         {
+            // Host authority FIRST, before ANY mutation (seed, cap-skip, terminal commit) —
+            // clients must never write state even though the engine also gates the bank.
+            if (!IncomeEngine.IsHostOrSingleplayer())
+            {
+                Log.Debug("[Payout] catch-up skipped: not host/singleplayer (fail closed).");
+                return false;
+            }
+            if (!PayoutStateStore.IsAuthoritative)
+            {
+                Log.Warn("[Payout] catch-up skipped: active slot not resolved (fail closed).");
+                return false;
+            }
+            if (PayoutStateStore.StateLoad.BlocksMutation)
+            {
+                Log.Error($"[Payout] catch-up skipped: payout state is {PayoutStateStore.StateLoad.Status} for slot {PayoutStateStore.GetActiveSlotSuffix()} ({PayoutStateStore.StateLoad.Detail}). " +
+                          "Back up all state/marker artifacts and reconcile with verified bank history before manual repair. Do not delete the ledger to bypass this lock.");
+                return false;
+            }
+            if (PayoutStateStore.PendingStatus != PendingStatus.Missing)
+            {
+                Log.Warn("[Payout] catch-up skipped: an unresolved pending payout marker exists. Run 'biz pending confirm' or 'biz pending resolve'.");
+                return false;
+            }
+
             int elapsedDays = S1API.GameTime.TimeManager.ElapsedDays;
             var cfg = ModConfig<BusinessIncomeConfig>.Instance;
             var state = PayoutStateStore.GetState();
 
-            // Fresh state file (LastPaidElapsedDay = -1): seed it to the current day so installing
-            // the mod on an old save doesn't book every day since day 0 as windfall. Days after the
-            // install date still pay. States with a real last-paid day (>= 0) keep full catch-up.
-            if (state.LastPaidElapsedDay < 0)
+            // Fresh state (never seeded): record the seed as INITIALIZATION via the guarded,
+            // durable-only Initialize op and stop for this pass. Only genuinely-MISSING state is
+            // seeded; a failed write advances nothing. Today's payout is deferred (no windfall).
+            if (PayoutStateStore.StateLoad.Status == StateStatus.Missing)
             {
-                state.LastPaidElapsedDay = elapsedDays;
-                // Persist the seed — otherwise no state file is ever written and every
-                // session re-seeds (biz stats flips "Paid Today" after each restart).
-                PayoutStateStore.CommitPayout(elapsedDays, Array.Empty<string>());
-                Log.Info($"Fresh payout state: seeded last-paid day to current day {elapsedDays} (skipping save history).");
+                var seed = PayoutStateStore.Initialize(elapsedDays);
+                if (seed.Succeeded)
+                    Log.Info($"[Payout] Fresh payout state: day {elapsedDays} seeded as INITIALIZATION (not a paid day); today's payout deferred.");
+                else
+                    Log.Warn($"[Payout] fresh-state initialization NOT persisted ({seed.Outcome}: {seed.Detail}); catch-up deferred and will retry.");
+                return false;
             }
 
-            int lastPaid = state.LastPaidElapsedDay;
-
-            // F2: cap the catch-up. A huge backlog (corrupted/copied state) would otherwise
-            // burst-book every day since day 0. Days beyond the cap are skipped with a
-            // warning; state advances so the storm does not repeat every day-pass.
-            int cap = Math.Max(1, cfg.MaxCatchupDays);
-            int backlog = elapsedDays - lastPaid;
-            if (backlog > cap)
+            if (!BusinessResolver.TryGetOwnedBusinesses(cfg.DisplayNameOverrides, out var ownedNow))
             {
-                Log.Warn($"Catch-up backlog of {backlog} days exceeds MaxCatchupDays={cap} — paying only the last {cap} days ({elapsedDays - cap + 1}..{elapsedDays}), rest skipped.");
-                PayoutStateStore.CommitPayout(elapsedDays - cap, Array.Empty<string>());
-                // Audit 2026-09-13 (BIZ-01): re-read after the cap commit — continuing on the
-                // stale value made the loop below iterate the full (potentially billions-wide,
-                // corrupted-state) backlog even though IsDayPaid skips the middle. Re-reading
-                // bounds the loop to MaxCatchupDays iterations.
-                lastPaid = PayoutStateStore.GetState().LastPaidElapsedDay;
+                Log.Warn("[Payout] catch-up aborted: owned-business read is not trustworthy (unreadable/partial) — refusing to treat it as 'no businesses'.");
+                return false;
+            }
+            bool hasBusinesses = ownedNow.Count > 0;
+            var plan = PayoutScheduler.PlanCatchup(state.LastPaidElapsedDay, elapsedDays, cfg.MaxCatchupDays, hasBusinesses, stateDurable: true);
+
+            if (plan.TerminalSkip || plan.Days.Count == 0)
+            {
+                Log.Debug($"[Payout] catch-up: {plan.Reason}.");
+                return true;
             }
 
-            // H5: Pay all missed days, not just current (mod disabled, sleep skip)
-            // Audit 2026-09-13 (BIZ-01): belt-and-braces — never iterate more than MaxCatchupDays,
-            // even if the cap commit failed (e.g. read-only disk).
-            int loopStart = Math.Max(lastPaid + 1, elapsedDays - Math.Max(1, cfg.MaxCatchupDays));
-            for (int d = loopStart; d <= elapsedDays; d++)
+            int planFirst = plan.Days[0];
+            int planLast = plan.Days[plan.Days.Count - 1];
+            if (plan.StoppedEarly) Log.Warn($"[Payout] {plan.Reason}: days {planFirst}..{planLast}.");
+            else Log.Debug($"[Payout] {plan.Reason}: days {planFirst}..{planLast}.");
+
+            // A capped backlog durably advances the state to just before the first planned day
+            // so the storm does not repeat on every day-pass. The commit is CHECKED — if it is
+            // not durable the whole catch-up aborts (we do not book on top of an unpersisted day).
+            if (plan.StoppedEarly)
+            {
+                var skip = PayoutStateStore.CommitOnly(planFirst - 1, Array.Empty<string>());
+                if (!skip.Succeeded)
+                {
+                    Log.Warn($"[Payout] catch-up aborted: cap-skip commit to day {planFirst - 1} not persisted ({skip.Outcome}: {skip.Detail}).");
+                    return false;
+                }
+            }
+
+            // Oldest -> newest. Stop at the first day whose outcome is unresolved or whose state
+            // could not be persisted, so we never book later days on top of an unsafe earlier day.
+            foreach (int d in plan.Days)
             {
                 if (PayoutStateStore.IsDayPaid(d)) continue;
 
-                // For past days, ignore payout window — they were missed.
-                // For current day, respect window unless force.
                 bool isPastDay = d < elapsedDays;
                 if (!isPastDay)
                 {
-                    int payoutStart = cfg.PayoutHour == 0 ? 0 : cfg.PayoutHour * 100;
-                    int payoutEnd = payoutStart + 59;
-                    bool withinPayoutWindow = false;
-                    try { withinPayoutWindow = S1API.GameTime.TimeManager.IsCurrentTimeWithinRange(payoutStart, payoutEnd); } catch { withinPayoutWindow = true; }
-                    if (!withinPayoutWindow)
+                    var decision = DecideWindow(cfg.PayoutHour, isPastDay: false);
+                    if (!decision.InWindow)
                     {
-                        Log.Debug($"Catch-up: day {d} not in window {payoutStart:D4}-{payoutEnd:D4}, skip current day");
+                        Log.Debug($"[Payout] catch-up: day {d} not in window ({decision.Reason}).");
                         continue;
                     }
                 }
 
-                Log.Info($"Catch-up payout for day {d} ({(isPastDay ? "backlog" : $"window {cfg.PayoutHour * 100:D4}")})...");
-                IncomeEngine.TryExecuteDailyPayout(d, cfg);
+                Log.Info($"[Payout] catch-up for day {d} ({(isPastDay ? "backlog" : "current window")})...");
+                var r = IncomeEngine.ExecuteDailyPayout(d, cfg);
+                if (IncomeEngine.StopsCatchup(r.Outcome))
+                {
+                    Log.Warn($"[Payout] catch-up stopped at day {d}: {r.Outcome} ({r.Detail}).");
+                    return false;
+                }
             }
+            return true;
         }
         catch (Exception ex)
         {
             // F3: Warn (not Debug — Debug is compiled out in release builds) so payout
             // failures are visible in the MelonLoader log instead of vanishing silently.
             Log.Warn("CheckCatchupPayout failed", ex);
+            return false;
         }
     }
 

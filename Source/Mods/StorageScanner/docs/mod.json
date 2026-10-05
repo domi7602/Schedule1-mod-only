@@ -1,0 +1,7 @@
+{
+  "name": "StorageScanner",
+  "author": "Dominik",
+  "version": "0.2.0",
+  "description": "Read-only phone app showing total item quantities across the storage containers of your owned properties, with a property filter, a name search and an explicit incomplete-scan warning.",
+  "requires": ["S1API"]
+}

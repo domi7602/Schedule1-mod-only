@@ -150,6 +150,13 @@ public class Mod : MelonMod
             // DefaultStackLimit via direct field access / scan; no Harmony patch needed.
 
             PatchGuard.Report(Log);
+
+            MixGuard.Apply(HarmonyInstance, Log);
+
+            // TEMPORARY (2026-10-05): mixing-station loss diagnostics for the
+            // "double Begin loses half the ingredients" report. Log-only; remove
+            // once the loss path is pinned and fixed (see MixingTrace.cs).
+            MixingTrace.Apply(HarmonyInstance, Log);
         }
         catch (Exception ex)
         {

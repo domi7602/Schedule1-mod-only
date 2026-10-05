@@ -21,10 +21,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Setup .NET 6 SDK
+      - name: Setup .NET 8 SDK and .NET 6 runtime
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: "6.0.x"
+          dotnet-version: |
+            8.0.x
+            6.0.x
 
       - name: Cache NuGet packages
         uses: actions/cache@v6
@@ -60,11 +62,13 @@ jobs:
       - name: Check formatting (dotnet format --verify-no-changes)
         run: dotnet format Source/Mods/S1Mods.sln --verify-no-changes --verbosity diagnostic
 
-      # These two test projects link pure C# source files and need no game assemblies.
-      - name: Run pure-logic tests (AutoPackagingStation, CalculatorApp)
+      # These test projects link pure C# source files and need no game assemblies.
+      - name: Run pure-logic tests (AutoPackagingStation, CalculatorApp, BusinessIncome)
         run: |
           dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release --nologo
           dotnet test Source/Tests/CalculatorApp.Tests/CalculatorApp.Tests.csproj -c Release --nologo
+          dotnet test Source/Tests/BusinessIncome.Tests/BusinessIncome.Tests.csproj -c Release --nologo
+          dotnet test Source/Tests/BusinessIncome.ConfigIo.Tests/BusinessIncome.ConfigIo.Tests.csproj -c Release --nologo
 
       - name: Build solution (Release, no deploy)
         if: steps.detect.outputs.has-game == 'true'

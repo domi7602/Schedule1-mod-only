@@ -98,33 +98,84 @@ public sealed class BusinessIncomeConfig
 
     /// <summary>
     /// Cleans and validates inputs to safe bounds.
+    /// Values are identical to the historical behaviour; <paramref name="warn"/> (optional)
+    /// additionally reports every field that had to be replaced, so a hand-edited sidecar or
+    /// TOML file is diagnosable instead of silently corrected.
+    /// The parameterless overload (no warning sink) keeps the pre-existing contract.
     /// </summary>
-    public void Sanitize()
+    public void Sanitize(Action<string>? warn = null)
     {
         if (PayoutHour < 0 || PayoutHour > 23)
+        {
+            warn?.Invoke($"PayoutHour={PayoutHour} out of range [0,23] - reset to 0.");
             PayoutHour = 0;
+        }
 
-        // Audit 2026-09-13 (BIZ-03): float.IsFinite guards — a TOML 'nan' is valid input and
+        // Audit 2026-09-13 (BIZ-03): float.IsFinite guards - a TOML 'nan' is valid input and
         // survives every range check; NaN then poisons the revenue math and finally the online
         // balance (all comparisons false => economy bricked, save-edit required). Upper bounds
         // keep config mistakes/edits from minting absurd payouts.
         if (!float.IsFinite(DefaultBaseIncome) || DefaultBaseIncome < 0f || DefaultBaseIncome > 100000f)
+        {
+            warn?.Invoke($"DefaultBaseIncome={DefaultBaseIncome} out of range [0,100000] - reset to 500.");
             DefaultBaseIncome = 500f;
+        }
 
         if (!float.IsFinite(OperatingCostRate) || OperatingCostRate < 0f || OperatingCostRate > 1f)
+        {
+            warn?.Invoke($"OperatingCostRate={OperatingCostRate} out of range [0,1] - reset to 0.10.");
             OperatingCostRate = 0.10f;
+        }
 
         if (!float.IsFinite(EmployeeBonusPerWorker) || EmployeeBonusPerWorker < 0f || EmployeeBonusPerWorker > 1f)
+        {
+            warn?.Invoke($"EmployeeBonusPerWorker={EmployeeBonusPerWorker} out of range [0,1] - reset to 0.05.");
             EmployeeBonusPerWorker = 0.05f;
+        }
 
         if (!float.IsFinite(MaxEmployeeBonus) || MaxEmployeeBonus < 0f || MaxEmployeeBonus > 5f)
+        {
+            warn?.Invoke($"MaxEmployeeBonus={MaxEmployeeBonus} out of range [0,5] - reset to 0.25.");
             MaxEmployeeBonus = 0.25f;
+        }
 
         if (!float.IsFinite(WeekendBonusRate) || WeekendBonusRate < 0f || WeekendBonusRate > 5f)
+        {
+            warn?.Invoke($"WeekendBonusRate={WeekendBonusRate} out of range [0,5] - reset to 0.25.");
             WeekendBonusRate = 0.25f;
+        }
 
         // Audit 2026-09-13 (BIZ-01/03): clamp to the same 1..365 window the console enforces.
         if (MaxCatchupDays < 1 || MaxCatchupDays > 365)
+        {
+            warn?.Invoke($"MaxCatchupDays={MaxCatchupDays} out of range [1,365] - reset to 7.");
             MaxCatchupDays = 7;
+        }
+
+        // Runtime collections must never be null (RevenueCalculator calls TryGetValue/Contains
+        // on them every calculation). A deliberately EMPTY collection is honored as-is - only
+        // null is replaced. Per-entry validation (see ConfigCollectionSanitizer) drops unsafe
+        // keys/names, clamps absurd multipliers and de-duplicates weekend ids so a hand-edited
+        // sidecar cannot poison a calculation.
+        if (PropertyMultipliers == null)
+        {
+            warn?.Invoke("PropertyMultipliers was null - reset to an empty case-insensitive map.");
+            PropertyMultipliers = new Dictionary<string, float>(StringComparer.OrdinalIgnoreCase);
+        }
+        PropertyMultipliers = ConfigCollectionSanitizer.SanitizeMultipliers(PropertyMultipliers, warn);
+
+        if (DisplayNameOverrides == null)
+        {
+            warn?.Invoke("DisplayNameOverrides was null - reset to an empty case-insensitive map.");
+            DisplayNameOverrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        }
+        DisplayNameOverrides = ConfigCollectionSanitizer.SanitizeDisplayNames(DisplayNameOverrides, warn);
+
+        if (WeekendBonusCategories == null)
+        {
+            warn?.Invoke("WeekendBonusCategories was null - reset to an empty list.");
+            WeekendBonusCategories = new List<string>();
+        }
+        WeekendBonusCategories = ConfigCollectionSanitizer.SanitizeWeekendCategories(WeekendBonusCategories, warn);
     }
 }

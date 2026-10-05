@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using BusinessIncome.Config;
+using BusinessIncome.Core;
 using BusinessIncome.Models;
 using Il2CppScheduleOne.UI;
 using S1API.GameTime;
@@ -15,6 +16,10 @@ namespace BusinessIncome.Services;
 /// <summary>
 /// Main service orchestrating revenue calculation, payout,
 /// host check, transaction execution, and in-game notifications.
+///
+/// All money movement is delegated to the pure A-D settlement core via
+/// <see cref="PayoutStateStore"/> so the safety ordering (pending marker -> bank request ->
+/// forward state commit -> marker clear) is enforced in exactly one place.
 /// </summary>
 public static class IncomeEngine
 {
@@ -31,12 +36,31 @@ public static class IncomeEngine
     public static (List<BusinessRevenueLine> Lines, float TotalGross, float TotalCosts, float TotalNet) GetDailyRevenuePreview(
         int elapsedDays,
         BusinessIncomeConfig config)
+        => TryGetDailyRevenuePreview(elapsedDays, config, out var p)
+            ? p
+            : (new List<BusinessRevenueLine>(), 0f, 0f, 0f);
+
+    /// <summary>
+    /// Fail-closed revenue preview. Returns FALSE when the owned-business read is not
+    /// trustworthy (unreadable / partial) — the caller must NOT treat that as "no businesses",
+    /// because an unknown read must never terminal-mark a day nor suppress a real payout.
+    /// </summary>
+    public static bool TryGetDailyRevenuePreview(
+        int elapsedDays,
+        BusinessIncomeConfig config,
+        out (List<BusinessRevenueLine> Lines, float TotalGross, float TotalCosts, float TotalNet) preview)
     {
         config.Sanitize();
-        var owned = BusinessResolver.GetOwnedBusinesses(config.DisplayNameOverrides);
+        preview = (new List<BusinessRevenueLine>(), 0f, 0f, 0f);
+
+        if (!BusinessResolver.TryGetOwnedBusinesses(config.DisplayNameOverrides, out var owned))
+        {
+            Mod.Log.Warn("[Payout] owned-business read is not trustworthy (unreadable/partial) — failing closed (NOT treated as 'no businesses').");
+            return false;
+        }
         if (owned.Count == 0)
         {
-            return (new List<BusinessRevenueLine>(), 0f, 0f, 0f);
+            return true;
         }
 
         // H2: Derive weekend from elapsedDays, not current day — backfill correctness
@@ -62,145 +86,107 @@ public static class IncomeEngine
         float totalCosts = lines.Sum(l => l.OperatingCosts);
         float totalNet = lines.Sum(l => l.NetRevenue);
 
-        return (lines, totalGross, totalCosts, totalNet);
+        preview = (lines, totalGross, totalCosts, totalNet);
+        return true;
     }
 
+    /// <summary>Whether a payout outcome means the caller must stop any catch-up loop.</summary>
+    public static bool StopsCatchup(PayoutOutcome outcome) => outcome is
+        PayoutOutcome.NotAuthoritative or
+        PayoutOutcome.NotReady or
+        PayoutOutcome.BlockedPending or
+        PayoutOutcome.BlockedStateCorrupt or
+        PayoutOutcome.BlockedMarkerWrite or
+        PayoutOutcome.BookedStateNotSaved or
+        PayoutOutcome.UnknownOutcome or
+        PayoutOutcome.StateNotPersisted or
+        PayoutOutcome.MarkerClearFailed or
+        PayoutOutcome.InvalidInput or
+        PayoutOutcome.Reentrant;
+
     /// <summary>
-    /// Executes the daily payout if all conditions (host, idempotency, ownership) are met.
+    /// Executes the daily payout and returns the explicit settlement outcome. A clean
+    /// <see cref="PayoutOutcome.Requested"/> means the bank request was ACCEPTED, not that
+    /// settlement is confirmed.
     /// </summary>
-    public static bool TryExecuteDailyPayout(
+    public static PayoutResult ExecuteDailyPayout(
         int elapsedDays,
         BusinessIncomeConfig config,
         bool force = false,
         bool commit = true,
         bool isDryRun = false)
     {
-        // 1. Check host authority
+        // 1. Calculate revenue. An untrustworthy owned-business read fails closed and is never
+        //    treated as "no businesses".
+        if (!TryGetDailyRevenuePreview(elapsedDays, config, out var preview))
+            return new PayoutResult(PayoutOutcome.NotReady, elapsedDays, 0f, 0, "owned-business read not trustworthy");
+        var (lines, totalGross, totalCosts, totalNet) = preview;
+
+        // 2. Dry run FIRST: a pure preview needs no host authority, no bank call and no write.
+        if (isDryRun)
+        {
+            var dryPreview = PayoutStateStore.Preview(elapsedDays, totalNet, lines.Count);
+            Mod.Log.Info($"[DRY RUN] Day {elapsedDays}: Gross ${totalGross.ToString("N2", CultureInfo.InvariantCulture)}, Costs ${totalCosts.ToString("N2", CultureInfo.InvariantCulture)}, Net ${totalNet.ToString("N2", CultureInfo.InvariantCulture)} ({lines.Count} businesses). [{dryPreview.Outcome}]");
+            return dryPreview with { Day = elapsedDays, Net = totalNet, BusinessCount = lines.Count };
+        }
+
+        // 3. Host authority: only the authoritative instance may mutate money or state.
         if (!IsHostOrSingleplayer())
         {
             Mod.Log.Debug("Payout skipped: Client instance (only server/host executes payouts).");
-            return false;
+            return new PayoutResult(PayoutOutcome.NotAuthoritative, elapsedDays, 0f, 0, "not host/singleplayer");
         }
 
-        // 2. Idempotency check
-        if (!force && PayoutStateStore.IsDayPaid(elapsedDays))
+        if (!commit)
         {
-            Mod.Log.Debug($"Payout for day {elapsedDays} already executed.");
-            return false;
+            Mod.Log.Debug($"Payout day {elapsedDays}: preview-only (commit:false), nothing booked.");
+            return new PayoutResult(PayoutOutcome.Skipped, elapsedDays, totalNet, lines.Count, "preview-only (commit:false)");
         }
 
-        // 3. Calculate revenue
-        var (lines, totalGross, totalCosts, totalNet) = GetDailyRevenuePreview(elapsedDays, config);
-        if (lines.Count == 0)
-        {
-            Mod.Log.Debug($"No owned businesses for day {elapsedDays}.");
-            if (commit && !isDryRun)
-            {
-                PayoutStateStore.MarkInMemoryPaid(elapsedDays, Array.Empty<string>());
-                bool ok = PayoutStateStore.CommitPayout(elapsedDays, Array.Empty<string>());
-                if (!ok) PayoutStateStore.RevertInMemoryPaid(elapsedDays, Array.Empty<string>());
-            }
-            return false;
-        }
-
-        if (totalNet <= 0f)
-        {
-            Mod.Log.Info($"Total revenue for day {elapsedDays} is $0. No transaction executed.");
-            if (commit && !isDryRun)
-            {
-                var idsZero = lines.Select(l => l.BusinessId).ToList();
-                PayoutStateStore.MarkInMemoryPaid(elapsedDays, idsZero);
-                bool ok = PayoutStateStore.CommitPayout(elapsedDays, idsZero);
-                if (!ok) PayoutStateStore.RevertInMemoryPaid(elapsedDays, idsZero);
-            }
-            return false;
-        }
-
-        if (isDryRun)
-        {
-            Mod.Log.Info($"[DRY RUN] Day {elapsedDays}: Gross ${totalGross.ToString("N2", CultureInfo.InvariantCulture)}, Costs ${totalCosts.ToString("N2", CultureInfo.InvariantCulture)}, Net ${totalNet.ToString("N2", CultureInfo.InvariantCulture)} ({lines.Count} businesses).");
-            return true;
-        }
-
-        // 4. Mark as paid IN MEMORY FIRST, then execute the transaction, then persist.
-        //    Order prevents money duplication: if CommitPayout (disk) fails after a
-        //    successful transaction, the in-memory state remains set and the
-        //    next day pass is skipped (no double payout).
-        //    If the transaction itself fails, the memory state is reverted.
         var businessIds = lines.Select(l => l.BusinessId).ToList();
-        if (commit)
+
+        // All days, including zero/no-business days, use the same guarded settlement
+        // path. This preserves idempotency, invalid-input checks and pending locks.
+        var result = PayoutStateStore.TryBook(elapsedDays, totalNet, businessIds, force);
+
+        switch (result.Outcome)
         {
-            // F1: Write-ahead marker BEFORE the transaction. If the game crashes after the
-            // bank booked but before CommitPayout below, the marker survives on disk and
-            // startup warns instead of silently paying this day again.
-            PayoutStateStore.WritePendingMarker(elapsedDays, totalNet, lines.Count);
-            PayoutStateStore.MarkInMemoryPaid(elapsedDays, businessIds);
+            case PayoutOutcome.Requested:
+            case PayoutOutcome.BookedStateNotSaved:
+                Mod.Log.Info($"[Payout] Day {elapsedDays}: +${totalNet.ToString("N2", CultureInfo.InvariantCulture)} request accepted ({lines.Count} businesses) [{result.Outcome}].");
+                break;
+
+            case PayoutOutcome.UnknownOutcome:
+                Mod.Log.Error($"[Payout] Day {elapsedDays}: bank call raised AFTER invocation — outcome UNKNOWN. Marker kept and retry blocked. " +
+                              "Use 'biz pending confirm' (money received) or 'biz pending resolve' (pay again).");
+                break;
+
+            default:
+                Mod.Log.Debug($"[Payout] Day {elapsedDays} not booked: {result.Outcome} ({result.Detail}).");
+                break;
         }
 
-        try
-        {
-            string summaryNote = $"Daily Revenue ({lines.Count} businesses): +${totalNet.ToString("N0", CultureInfo.InvariantCulture)}";
-            Money.CreateOnlineTransaction("Business Revenue", totalNet, 1f, summaryNote);
-            Mod.Log.Info($"[Payout] Day {elapsedDays}: +${totalNet.ToString("N2", CultureInfo.InvariantCulture)} booked ({lines.Count} businesses).");
-        }
-        catch (Exception ex)
-        {
-            // Transaction failed — revert the in-memory marker so the payout can retry.
-            if (commit)
-            {
-                PayoutStateStore.RevertInMemoryPaid(elapsedDays, businessIds);
-                PayoutStateStore.ClearPendingMarker(); // F1: no money moved — safe to clear
-            }
-            Mod.Log.Error($"Online transaction failed: {ex.Message}");
-            return false;
-        }
-
-        // 5. Persist state (now safe: transaction already succeeded; a disk failure here
-        //    only means the marker is missing on disk, but in-memory state stays set).
-        bool committed = true;
-        if (commit)
-        {
-            // F1: the commit result is now checked. On failure the pending marker stays on
-            // disk: the money IS booked, but the saved state is not — startup warns and
-            // 'biz pending confirm|resolve' resolves it instead of a silent double payout.
-            committed = PayoutStateStore.CommitPayout(elapsedDays, businessIds);
-            if (committed)
-            {
-                PayoutStateStore.ClearPendingMarker();
-            }
-            else
-            {
-                Mod.Log.Error($"PayoutState for day {elapsedDays} NOT saved (transaction already booked). Pending marker kept — resolve with 'biz pending confirm' (money received) or 'biz pending resolve' (pay again).");
-            }
-        }
-
-        // 6. Send in-game HUD notification. Only show the success banner when the money is
-        //    actually in the bank (committed=true). On commit-with-failed-persist, show a
-        //    different message so the player is not told "you got paid" when the state
-        //    was not saved. Dry-run (commit=false) keeps the normal revenue preview
-        //    notification since nothing was booked.
         if (config.EnableNotifications)
         {
-            if (commit && !committed)
-            {
-                try
-                {
-                    var notifMgr = NotificationsManager.Instance;
-                    if (notifMgr != null && (UnityEngine.Object)notifMgr != null)
-                        notifMgr.SendNotification("Business Revenue",
-                            $"+${totalNet.ToString("N0", CultureInfo.InvariantCulture)} booked — save FAILED, run 'biz pending confirm|resolve'.",
-                            null!, 5f, false);
-                }
-                catch { }
-            }
-            else
-            {
+            if (result.Outcome is PayoutOutcome.BookedStateNotSaved or PayoutOutcome.UnknownOutcome)
+                SendBlockerNotification($"+${totalNet.ToString("N0", CultureInfo.InvariantCulture)} requested — save NOT confirmed. Run 'biz pending confirm|resolve'.");
+            else if (result.Outcome == PayoutOutcome.Requested)
                 SendNotification(totalNet, lines.Count, config.PlayCashSound);
-            }
+            else if (result.Outcome is PayoutOutcome.BlockedPending or PayoutOutcome.BlockedStateCorrupt)
+                SendBlockerNotification($"Payout for day {elapsedDays} blocked: {result.Detail}. Run 'biz pending confirm|resolve'.");
         }
 
-        return true;
+        return result;
     }
+
+    /// <summary>Back-compat bool wrapper — true only when the bank request was accepted.</summary>
+    public static bool TryExecuteDailyPayout(
+        int elapsedDays,
+        BusinessIncomeConfig config,
+        bool force = false,
+        bool commit = true,
+        bool isDryRun = false)
+        => ExecuteDailyPayout(elapsedDays, config, force, commit, isDryRun).Succeeded;
 
     /// <summary>
     /// Sends an in-game HUD notification via the NotificationsManager.
@@ -221,5 +207,17 @@ public static class IncomeEngine
         {
             Mod.Log.Debug($"Failed to send notification: {ex.Message}");
         }
+    }
+
+    /// <summary>Warning banner when a payout was blocked or its persistence is unconfirmed.</summary>
+    private static void SendBlockerNotification(string message)
+    {
+        try
+        {
+            var notifMgr = NotificationsManager.Instance;
+            if (notifMgr != null && (UnityEngine.Object)notifMgr != null)
+                notifMgr.SendNotification("Business Revenue", message, null!, 5f, false);
+        }
+        catch { }
     }
 }

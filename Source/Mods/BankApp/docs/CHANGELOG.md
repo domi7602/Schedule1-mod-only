@@ -2,6 +2,11 @@
 
 All notable changes to the BankApp mod will be documented in this file.
 
+## 0.4.5 (2026-10-04) — Withdraw "Inventory full" fix
+- **Root cause:** `WithdrawCash` gated withdrawals on a slot-capacity model (`freeSlots × cash-StackLimit`). Vanilla cash `StackLimit` is **1**, so the model computed ~$1 of room per free slot and rejected legit withdrawals (e.g. $5 with 4 free slots) with "Inventory full!".
+- **Fix:** capacity gate removed. The engine cash path (`MoneyManager.ChangeCashBalance` → `cashBalance` float + single `CashInstance` with arbitrary `SetQuantity`, no hotbar involvement — same path the vanilla ATM, HitmanPhone bounties and PocketShop refunds use without slot checks) can neither be blocked nor lose money on a full inventory. Withdrawals are now limited only by bank balance (+fee) and the weekly ATM limit.
+- `MaxCashPerSlot` config removed (was the fiction's input — vanilla cash was never $1,000/slot).
+
 ## 0.4.4 (2026-09-12) — Bug-audit fixes round 3 (audit 2026-09-12)
 - `DepositCash`/`WithdrawCash` now have a `NetworkGuard.IsInMainScene` guard before every money op. Defense in depth: if a scene-change-mid-call or hotkey invocation happens outside Main, the service aborts cleanly with an error message instead of risking a partial transaction.
 

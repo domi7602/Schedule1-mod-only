@@ -22,12 +22,6 @@ public sealed class BankAppConfig
     public bool RespectVanillaAtmLimit { get; set; } = true;
 
     /// <summary>
-    /// Maximum cash allowed per inventory slot (Vanilla = 1,000$).
-    /// Default: 1000.
-    /// </summary>
-    public int MaxCashPerSlot { get; set; } = 1000;
-
-    /// <summary>
     /// Enables native cash register sounds and transaction feedback.
     /// Default: true.
     /// </summary>

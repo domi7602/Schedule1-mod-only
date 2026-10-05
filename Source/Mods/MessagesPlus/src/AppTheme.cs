@@ -43,6 +43,12 @@ internal static class AppTheme
     /// cached originals stay untouched, so light restore remains exact).</summary>
     private static Transform? _forceRoot;
 
+    /// <summary>Popup-pass counters, reset per <see cref="ApplyToSubtree"/> — feed the quiet summary line.</summary>
+    private static int _passThemed;
+
+    /// <summary>Popup-pass count of protected content squares (kept as-is, art untouched).</summary>
+    private static int _passProtected;
+
     // ------------------------------------------------------------------
     // Apply / restore
     // ------------------------------------------------------------------
@@ -113,7 +119,10 @@ internal static class AppTheme
         try
         {
             _forceRoot = root.transform;
-            SweepRoot(root); // ends with the dark-text pass over the same subtree
+            _passThemed = 0;
+            _passProtected = 0;
+            SweepRoot(root, aggressiveSquares: true); // ends with the dark-text pass over the same subtree
+            Mod.Log?.Debug($"AppTheme popup pass: {_passThemed} surface(s) tinted, {_passProtected} content square(s) kept.");
         }
         catch (Exception ex)
         {
@@ -391,18 +400,20 @@ internal static class AppTheme
     /// </summary>
     private static void SweepAppSurfaces(MessagesApp app)
     {
-        SweepRoot(app.gameObject);
+        SweepRoot(app.gameObject, aggressiveSquares: false);
     }
 
     /// <summary>Generic sweep over an arbitrary subtree, sized by its own rect —
     /// the app root and the popup refresh share the same rules.</summary>
-    private static void SweepRoot(GameObject root)
+    private static void SweepRoot(GameObject root, bool aggressiveSquares)
     {
         RectTransform? rootRt = root.GetComponent<RectTransform>();
         if (rootRt == null) return;
         float w = Mathf.Abs(rootRt.rect.width);
         float h = Mathf.Abs(rootRt.rect.height);
         if (w <= 1f || h <= 1f) return;
+
+        int stillLightBudget = 20; // capped diagnostics slots per sweep (see LogStillLight)
 
         var images = root.GetComponentsInChildren<Image>(true);
         if (images != null)
@@ -462,6 +473,127 @@ internal static class AppTheme
 
         TintDarkTextsIn(root);
     }
+
+    /// <summary>
+    /// True when the square is content (item/avatar art) the sweep must NOT tint:
+    /// anything under an input field, and — in the aggressive popup pass — anything
+    /// clickable or living under input/quantity/stepper chrome. Sprite-less squares
+    /// are decor and stay eligible for the control fill.
+    /// </summary>
+    private static bool IsContentSquare(Image img, bool aggressive)
+    {
+        try { if (img.GetComponentInParent<TMP_InputField>() != null) return false; } catch { /* skip */ }
+        try { if (img.GetComponentInParent<InputField>() != null) return false; } catch { /* skip */ }
+
+        if (aggressive)
+        {
+            try { if (img.raycastTarget) return false; } catch { /* skip */ }
+            try
+            {
+                Transform? t = img.transform;
+                for (int i = 0; i < 3 && t != null; i++, t = t.parent)
+                {
+                    string name = t.name.ToLowerInvariant();
+                    if (name.Contains("input") || name.Contains("quantity") || name.Contains("amount") ||
+                        name.Contains("stepper") || name.Contains("plus") || name.Contains("minus"))
+                    {
+                        return false;
+                    }
+                }
+            }
+            catch { /* skip */ }
+        }
+
+        try { return img.sprite != null; } catch { return true; }
+    }
+
+    /// <summary>
+    /// Popup-pass icon lift: sprite art painted for the old light popup can read
+    /// dark-on-dark on tinted chrome. Texels whose max channel falls below half
+    /// the sprite's own peak are brightened hue-preserving up to that level, on a
+    /// per-sprite rect copy (another Image sharing the sprite keeps its original
+    /// pixels). Non-readable textures are skipped — no blit chain in this compact
+    /// variant. Not covered by the colour restore (dark mode is permanent).
+    /// </summary>
+    private static void TryLiftDarkIcon(Image img, float pageW, float pageH)
+    {
+        try
+        {
+            if (img == null || img.sprite == null) return;
+            RectTransform? rt = img.rectTransform;
+            if (rt == null) return;
+            float iw = Mathf.Abs(rt.rect.width);
+            float ih = Mathf.Abs(rt.rect.height);
+            if (!IsAvatarLike(iw, ih, pageW)) return;
+
+            Sprite s = img.sprite;
+            Texture2D? src = s.texture;
+            if (src == null || !src.isReadable) return;
+
+            Rect r = s.rect; // texel rect within (possibly atlas) source texture
+            int rw = (int)r.width, rh = (int)r.height;
+            if (rw <= 0 || rh <= 0) return;
+
+            Color32[] all;
+            try { all = src.GetPixels32(); } catch { return; }
+            int x0 = (int)r.x, y0 = (int)r.y;
+            Color32[] px = new Color32[rw * rh];
+            for (int y = 0; y < rh; y++)
+            {
+                Array.Copy(all, (y0 + y) * src.width + x0, px, y * rw, rw);
+            }
+
+            int peak = 0; // brightest channel of any opaque texel (0.5 fallback)
+            for (int i = 0; i < px.Length; i++)
+            {
+                Color32 p = px[i];
+                if (p.a < 8) continue;
+                int max = Math.Max(p.r, Math.Max(p.g, p.b));
+                if (max > peak) peak = max;
+            }
+            if (peak == 0) peak = 127;
+            int target = peak / 2;
+
+            bool changed = false;
+            for (int i = 0; i < px.Length; i++)
+            {
+                Color32 p = px[i];
+                int max = Math.Max(p.r, Math.Max(p.g, p.b));
+                if (p.a <= 0 || max == 0 || max >= target) continue;
+                float scale = (float)target / max;
+                px[i] = new Color32(
+                    (byte)Math.Min(255, (int)(p.r * scale)),
+                    (byte)Math.Min(255, (int)(p.g * scale)),
+                    (byte)Math.Min(255, (int)(p.b * scale)),
+                    p.a);
+                changed = true;
+            }
+            if (!changed) return;
+
+            var copy = new Texture2D(rw, rh, TextureFormat.RGBA32, false);
+            copy.SetPixels32(px);
+            copy.Apply(updateMipmaps: false, makeNoLongerReadable: true);
+            img.sprite = Sprite.Create(
+                copy, new Rect(0, 0, rw, rh),
+                new Vector2(s.pivot.x / rw, s.pivot.y / rh),
+                s.pixelsPerUnit, 0, SpriteMeshType.FullRect, s.border);
+        }
+        catch { /* best effort — icons keep their original art */ }
+    }
+
+    /// <summary>
+    /// Budgeted diagnostic hook for protected squares whose tint may still read
+    /// light (capped <c>budget</c> slots per sweep). Intentionally silent since
+    /// the log cleanup — the popup summary reports the totals instead.
+    /// </summary>
+    private static void LogStillLight(Image img, Color c, ref int budget)
+    {
+        if (budget <= 0 || c.a <= 0.02f || Lum(c) <= 0.5f) return;
+        budget--;
+    }
+
+    /// <summary>Rec. 601 luma of a colour (0..1).</summary>
+    private static float Lum(Color c) => 0.299f * c.r + 0.587f * c.g + 0.114f * c.b;
 
     /// <summary>Dark, near-neutral texts on the now-dark surfaces turn light.</summary>
     private static void TintDarkTextsIn(GameObject root)

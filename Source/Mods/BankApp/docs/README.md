@@ -11,9 +11,9 @@ In-game screenshot (v0.3.0 UI): [`assets/bankapp/dashboard-v0.3.0.png`](https://
 - **Digital Accounts Overview**:
   - Large digital checking-account card design with live balance (`$ 12,450.00`).
   - Companion cards for available pocket cash (`💵 Cash on Hand`) and net worth (`🏛 Net Worth`).
-- **Slot-Aware Mobile Transfers (ATM)**:
+- **Mobile Transfers (ATM)**:
   - **Deposits (Cash → Bank)**: Atomically deducts cash and credits the checking account.
-  - **Withdrawals (Bank → Cash)**: Accurately calculates available space in the inventory (dedicated `CashSlot` up to $1,000 + free hotbar slots at $1,000 each). Reliably prevents any cash loss from a full inventory!
+  - **Withdrawals (Bank → Cash)**: Limited only by bank balance and the weekly ATM limit — the engine cash path (`MoneyManager.ChangeCashBalance` → balance float + single `CashInstance`) never touches hotbar slots, so a full inventory can neither block nor lose a withdrawal.
   - **Weekly ATM Limits**: By default bound to the vanilla weekly limit of **$10,000 / week** (`RespectVanillaAtmLimit`), so as not to undermine vanilla money-laundering and ATM gameplay (configurable).
   - Quick chips: `[+$100]`, `[+$500]`, `[+$1,000]`, `[MAX]` (computes the absolute maximum from limits and balance).
 - **Savegame Slot Isolation & SafeStorage**:
@@ -34,6 +34,5 @@ In-game screenshot (v0.3.0 UI): [`assets/bankapp/dashboard-v0.3.0.png`](https://
 [BankApp]
 ServiceFeePercent = 0.0
 RespectVanillaAtmLimit = true
-MaxCashPerSlot = 1000
 EnableSoundEffects = true
 ```

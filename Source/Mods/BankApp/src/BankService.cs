@@ -10,7 +10,7 @@ using BankApp;
 namespace BankApp.Services;
 
 /// <summary>
-/// Core banking service executing slot-aware and limit-checked money operations.
+/// Core banking service executing limit-checked money operations.
 /// </summary>
 public static class BankService
 {
@@ -53,39 +53,17 @@ public static class BankService
 
     public static float GetCashInDedicatedCashSlot() => EconomyHelper.GetCashInDedicatedCashSlot();
 
-    private static int GetEffectiveMaxPerSlot()
-    {
-        int configured = ModConfig<BankAppConfig>.Instance.MaxCashPerSlot;
-        try
-        {
-            var cashDef = Il2CppScheduleOne.Registry.GetItem("cash") ?? Il2CppScheduleOne.Registry.GetItem("Cash");
-            if (cashDef != null && cashDef.Pointer != IntPtr.Zero)
-            {
-                int actual = cashDef.StackLimit;
-                if (actual > 0 && actual < configured)
-                {
-                    // Mod like StackLimitMod may lower actual StackLimit — respect authoritative
-                    return Mathf.Clamp(actual, 1, 9999);
-                }
-                if (actual > 0 && configured > actual)
-                {
-                    // Prevent overflow beyond engine limit (H1)
-                    Mod.Log?.Debug($"MaxCashPerSlot {configured} clamped to authoritative StackLimit {actual}");
-                    return actual;
-                }
-            }
-        }
-        catch { }
-        return Mathf.Clamp(configured, 1, 9999);
-    }
-
     public static float GetMaxWithdrawableCash()
     {
-        int maxPerSlot = GetEffectiveMaxPerSlot();
-        float capacity = EconomyHelper.GetMaxHoldableCashCapacity(maxPerSlot);
+        // No inventory-capacity term: the engine cash path is slot-free.
+        // MoneyManager keeps the balance as a float plus a single CashInstance
+        // (arbitrary SetQuantity — S1API Money.CreateCashInstance relies on it),
+        // with no hotbar involvement. The old slot model (freeSlots x
+        // cash-StackLimit) collapsed because vanilla cash StackLimit is 1,
+        // which wrongly limited withdrawals to ~$1 per free slot.
         float onlineBalance = GetOnlineBalance();
 
-        return Mathf.Min(onlineBalance, capacity);
+        return Mathf.Max(0f, onlineBalance);
     }
 
     public static float GetRemainingWeeklyAtmLimit()
@@ -238,15 +216,12 @@ public static class BankService
             return false;
         }
 
-        float maxWithdrawable = GetMaxWithdrawableCash();
-        if (amount > maxWithdrawable)
-        {
-            int freeSlots = GetFreeInventorySlotsCount();
-            Mod.Log?.Warn($"[Bank] Withdraw rejected: amount {amount:0.##} > maxWithdrawable {maxWithdrawable:0.##} (freeSlots={freeSlots}).");
-            errorMessage = $"Inventory full! Only room for ${maxWithdrawable:N0} ({freeSlots} free slot{(freeSlots == 1 ? "" : "s")}).";
-            BankSoundService.PlayError();
-            return false;
-        }
+        // NOTE: deliberately no inventory-capacity gate. The engine cash path
+        // (MoneyManager.ChangeCashBalance -> cashBalance float + single
+        // CashInstance) never touches hotbar slots, so a full inventory
+        // cannot destroy withdrawn cash. The old freeSlots x StackLimit
+        // model was fiction (vanilla cash StackLimit is 1) and wrongly
+        // rejected legit withdrawals with "Inventory full".
 
         // Step 1: debit bank (must succeed before cash spawn)
         try

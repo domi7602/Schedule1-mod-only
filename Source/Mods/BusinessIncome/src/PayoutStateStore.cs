@@ -1,360 +1,313 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using BusinessIncome.Core;
 using BusinessIncome.Models;
-using Il2CppScheduleOne.DevUtilities;
-using Il2CppScheduleOne.Persistence;
 using S1Mods.Shared;
 
 namespace BusinessIncome.Services;
 
 /// <summary>
-/// Persists and manages the payout state per savegame slot.
-/// Protects against double payouts on the same in-game day.
+/// Runtime facade over the pure A-D financial-safety core
+/// (<see cref="PayoutSettlementEngine"/>, <see cref="PayoutCodec"/>, <see cref="PayoutLedger"/>,
+/// <see cref="PayoutScheduler"/>, <see cref="PayoutWindowPlanner"/>, <see cref="LegacyMigration"/>).
+///
+/// Hard rules enforced here:
+/// <list type="bullet">
+/// <item>every mutation needs a KNOWN active slot and resolved load readiness;</item>
+/// <item>the active slot is NEVER a default or a cached last-known value - it is cleared on every
+/// PreLoad / scene-unload transition and only re-resolved on LoadComplete;</item>
+/// <item>corrupt / schema / identity-invalid state fails closed - no silent fresh seed;</item>
+/// <item>legacy state is never deleted and is only auto-adopted on an exact identity match.</item>
+/// </list>
 /// </summary>
 public static class PayoutStateStore
 {
-    private static PayoutState? _cachedState;
-    private static string _currentSlotSuffix = "default";
-    private static string _lastKnownSlot = "default";
-    private static int _pendingPrevLastPaid = -1;
-    private static string? _pendingPrevSaveIdentity;
-    private static string? _pendingPrevTimestamp;
-    private static Dictionary<string, int?> _pendingPrevPerBusiness = new();
+    private static readonly PayoutRuntimeStorage Storage = new();
+    private static readonly PayoutSettlementEngine Engine =
+        new(Storage, new MoneyPayoutBank(), m => Mod.Log?.Debug(m));
+    private static readonly Dictionary<string, bool> LegacyMigrationBlocked = new(StringComparer.OrdinalIgnoreCase);
+
+    public static SlotAuthority Authority => Engine.Authority;
+    public static LoadReadiness Readiness => Engine.Readiness;
+    public static bool IsAuthoritative => Engine.Authority == SlotAuthority.Known;
+    public static bool IsReady =>
+        IsAuthoritative && Engine.Readiness == LoadReadiness.Resolved && !Engine.StateLoad.BlocksMutation;
+    public static PayoutState? StateOrNull => Engine.State;
+    public static StateLoadResult StateLoad => Engine.StateLoad;
+    public static PendingLoadResult PendingLoad => Engine.PendingLoad;
+
+    // --- lifecycle ------------------------------------------------------------------
 
     /// <summary>
-    /// Determines the save-slot suffix of the active save file.
-    /// Format unchanged ("slot_{n}" / regex token from the save path) — probe:
-    /// S1Mods.Shared.SaveSlots (consolidation 2026-09-15).
+    /// Readiness AND authority reset at PreLoad / scene unload. The slot is deliberately
+    /// cleared (the keepSlot parameter exists only for call-site compatibility and is
+    /// ignored): carrying a slot across a transition could write into the previous save.
     /// </summary>
-    public static string GetActiveSlotSuffix()
+    public static void Reset(bool keepSlot = false) => Engine.ResetForLoad();
+
+    public static void ResetForSceneUnload() => Engine.ResetForLoad();
+
+    /// <summary>Resolves the active slot from the S1 save info, or returns null (fail closed).</summary>
+    public static string? TryResolveActiveSlot()
     {
-        string slotSuffix = "default";
-        bool resolved = false;
-
-        var info = SaveSlots.TryGetActiveSaveInfo();
-        if (info is { SlotNumber: >= 0 } slot)
+        try
         {
-            slotSuffix = $"slot_{slot.SlotNumber}";
-            resolved = true;
+            var info = SaveSlots.TryGetActiveSaveInfo();
+            if (info is { SlotNumber: >= 0 } slot)
+            {
+                Engine.SetActiveSlot($"slot_{slot.SlotNumber}");
+                return Engine.ActiveSlot;
+            }
+            if (SaveSlots.TryExtractSlotTokenFromSavePath(info?.SavePath) is { } token)
+            {
+                Engine.SetActiveSlot($"slot_{token}");
+                return Engine.ActiveSlot;
+            }
         }
-        else if (SaveSlots.TryExtractSlotTokenFromSavePath(info?.SavePath) is { } token)
+        catch (Exception ex)
         {
-            slotSuffix = $"slot_{token}";
-            resolved = true;
+            Mod.Log?.Warn($"[Payout] active-slot resolution failed: {ex.Message}");
         }
-
-        if (resolved)
-        {
-            _lastKnownSlot = slotSuffix;
-        }
-        else if (!string.IsNullOrEmpty(_lastKnownSlot))
-        {
-            return _lastKnownSlot;
-        }
-
-        return slotSuffix;
+        return null;
     }
 
     /// <summary>
-    /// Returns the full path to the state file of the current save file.
+    /// Back-compat accessor. Returns the resolved slot, or "(unresolved)" - it NEVER invents
+    /// "default" and NEVER caches a last-known slot.
     /// </summary>
+    public static string GetActiveSlotSuffix() => Engine.ActiveSlot ?? "(unresolved)";
+
     public static string GetStateFilePath()
     {
-        string slotSuffix = GetActiveSlotSuffix();
-        _currentSlotSuffix = slotSuffix;
-        string dir = SafeStorage.GetUserDataPath("BusinessIncome");
-        string path = Path.Combine(dir, $"payout_state_{slotSuffix}.json");
-        TryMigrateLegacy(path, slotSuffix);
-        return path;
+        string? slot = Engine.ActiveSlot;
+        return string.IsNullOrEmpty(slot) ? "" : PayoutPaths.State(slot);
     }
 
-    private static void TryMigrateLegacy(string slotPath, string slotSuffix)
+    public static string GetPendingFilePath()
+    {
+        string? slot = Engine.ActiveSlot;
+        return string.IsNullOrEmpty(slot) ? "" : PayoutPaths.Pending(slot);
+    }
+
+    /// <summary>
+    /// Called on LoadComplete: resolves readiness (regardless of SaveInfoLoaded), re-reads the
+    /// pending marker here, and loads state. If no slot can be resolved the engine stays
+    /// NotAuthoritative and every mutation is blocked for the session.
+    /// </summary>
+    public static void LoadForActiveSlot()
+    {
+        string? slot = TryResolveActiveSlot();
+        Engine.ResolveOnLoadComplete(slot);
+        if (slot == null)
+        {
+            Mod.Log?.Warn("[Payout] active slot unresolved at LoadComplete - payouts are blocked for this session (fail closed).");
+            return;
+        }
+
+        bool legacyBlocked = RunLegacyMigrationOnce(slot);
+        string statePath = PayoutPaths.State(slot);
+        MigratePreSchemaState(statePath, slot);
+        Engine.LoadState(statePath);
+        Engine.LoadPending(PayoutPaths.Pending(slot));
+
+        if (legacyBlocked)
+        {
+            // Ambiguous/failed legacy migration fails closed and stays blocked for the whole
+            // session; the cached result survives every later LoadComplete.
+            Engine.BlockMutations("ambiguous/failed legacy state migration - payouts blocked this session");
+            Mod.Log?.Warn($"[Payout] legacy migration blocked for {slot} - automatic AND forced payouts are BLOCKED; no fresh seed.");
+            return;
+        }
+
+        if (Engine.StateLoad.BlocksMutation)
+            Mod.Log?.Warn($"[Payout] state for {slot} is {Engine.StateLoad.Status} ({Engine.StateLoad.Detail}) - automatic AND forced payouts are BLOCKED; no fresh seed.");
+    }
+
+    /// <summary>
+    /// Runs legacy migration at most once per slot and CACHES the blocked result so a repeat
+    /// LoadComplete cannot bypass a failed or ambiguous adoption. Returns true when the slot
+    /// must stay fail-closed.
+    /// </summary>
+    private static bool RunLegacyMigrationOnce(string slot)
+    {
+        if (LegacyMigrationBlocked.TryGetValue(slot, out bool cached)) return cached;
+
+        bool blocked = RunLegacyMigration(slot);
+        LegacyMigrationBlocked[slot] = blocked;
+        return blocked;
+    }
+
+    private static bool RunLegacyMigration(string slot)
+    {
+        bool blocked = false;
+        string target = PayoutPaths.State(slot);
+        foreach (string legacy in PayoutPaths.LegacyStateCandidates)
+        {
+            try
+            {
+                if (string.Equals(legacy, target, StringComparison.OrdinalIgnoreCase)) continue;
+                if (!Storage.Exists(legacy)) continue;
+
+                // Parse+validate first: only the parsed identity drives the decision, and only
+                // VALIDATED contents are ever copied.
+                var decoded = PayoutCodec.DecodeState(Storage, legacy, expectedIdentity: "");
+                string legacyIdentity = decoded.Usable ? decoded.State?.SaveIdentity ?? "" : "";
+
+                switch (LegacyMigration.Decide(legacyIdentity, slot, Storage.Exists(target) || Storage.BackupExists(target) || Storage.Exists(target + ".tmp"), legacyExists: true))
+                {
+                    case LegacyMigrationDecision.AdoptMatching:
+                        // Re-encode the validated state - NEVER write the raw (possibly
+                        // structurally invalid) legacy text into the live target.
+                        if (decoded.State != null && Storage.WriteAtomic(target, PayoutCodec.EncodeState(decoded.State)))
+                            Mod.Log?.Info($"[Payout] adopted matching legacy state {legacy} -> {target}; legacy file left in place (never deleted).");
+                        else
+                        {
+                            blocked = true;
+                            Mod.Log?.Warn($"[Payout] legacy adoption of {legacy} FAILED - payouts stay BLOCKED this session (no fresh seed).");
+                        }
+                        break;
+
+                    case LegacyMigrationDecision.BlockAmbiguous:
+                        blocked = true;
+                        Mod.Log?.Warn($"[Payout] AMBIGUOUS legacy state {legacy} (identity '{legacyIdentity}' != slot '{slot}'). NOT adopted and NOT deleted. " +
+                                      "Rename or remove it manually if it belongs to another save - payouts are BLOCKED this session.");
+                        break;
+
+                    case LegacyMigrationDecision.TargetExists:
+                        Mod.Log?.Debug($"[Payout] legacy {legacy} present but {target} already exists - legacy left untouched.");
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                blocked = true;
+                Mod.Log?.Warn($"[Payout] legacy migration inspection failed for {legacy}: {ex.Message} - payouts BLOCKED this session (fail closed).");
+            }
+        }
+        return blocked;
+    }
+
+    /// <summary>
+    /// Upgrades a pre-schema (v0) payout state in place, once per load, right before the state
+    /// is read. The codec already ACCEPTS such a file, so a failed upgrade never blocks payouts:
+    /// the state stays valid and the upgrade is simply retried on the next load. Structurally
+    /// invalid or foreign-identity files are never rewritten (the load result below still fails
+    /// closed for them).
+    /// </summary>
+    private static void MigratePreSchemaState(string statePath, string slot)
     {
         try
         {
-            // Legacy pre-slot file: payout_state.json and payout_state_default.json
-            string[] legacyCandidates = new[]
+            var result = PayoutCodec.MigrateLegacySchema(Storage, statePath, slot);
+            switch (result.Status)
             {
-                SafeStorage.GetUserDataPath("BusinessIncome", "payout_state.json"),
-                SafeStorage.GetUserDataPath("BusinessIncome", "payout_state_default.json")
-            };
-            foreach (var legacy in legacyCandidates)
-            {
-                if (!File.Exists(legacy)) continue;
-                if (string.Equals(legacy, slotPath, StringComparison.OrdinalIgnoreCase)) continue;
-                if (File.Exists(slotPath))
-                {
-                    try { File.Delete(legacy); } catch { }
-                    continue;
-                }
-                try
-                {
-                    var legacyState = SafeStorage.LoadSafe<PayoutState>(legacy, null, Mod.Log);
-                    if (legacyState != null && legacyState.LastPaidElapsedDay >= 0)
-                    {
-                        if (SafeStorage.SaveAtomic(slotPath, legacyState, Mod.Log))
-                        {
-                            try { File.Delete(legacy); } catch { }
-                            Mod.Log?.Info($"Migrated legacy {Path.GetFileName(legacy)} -> {Path.GetFileName(slotPath)}");
-                            break;
-                        }
-                    }
-                    SafeStorage.EnsureDirectoryForFile(slotPath);
-                    File.Copy(legacy, slotPath, true);
-                    try { File.Delete(legacy); } catch { }
-                    Mod.Log?.Info($"Migrated legacy {Path.GetFileName(legacy)} -> {Path.GetFileName(slotPath)} (copy)");
+                case SchemaMigrationStatus.Migrated:
+                    Mod.Log?.Info($"[Payout] upgraded pre-schema payout state {statePath} to schema {PayoutCodec.CurrentSchemaVersion} ({result.Detail}).");
                     break;
-                }
-                catch (Exception ex) { Mod.Log?.Warn($"Legacy migrate {Path.GetFileName(legacy)} failed: {ex.Message}"); }
+                case SchemaMigrationStatus.WriteFailed:
+                    Mod.Log?.Warn($"[Payout] pre-schema payout state upgrade of {statePath} FAILED ({result.Detail}) - the state stays valid and is retried next load.");
+                    break;
+                case SchemaMigrationStatus.NotLegacy:
+                case SchemaMigrationStatus.IdentityMismatch:
+                    // The load below reports the blocking status with its own warning.
+                    Mod.Log?.Debug($"[Payout] payout state {statePath} not upgraded ({slot}): {result.Detail}.");
+                    break;
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"[Payout] pre-schema payout state upgrade of {statePath} threw: {ex.Message} - state loaded as-is.");
+        }
     }
 
-    /// <summary>
-    /// Loads the current state for the active slot or creates a new one.
-    /// </summary>
-    public static PayoutState GetState()
-    {
-        string slotSuffix = GetActiveSlotSuffix();
-        if (_cachedState != null && _currentSlotSuffix == slotSuffix)
-        {
-            return _cachedState;
-        }
+    // --- reads ----------------------------------------------------------------------
 
-        // H3: Slot change — clear stale pending snapshot from previous slot
-        if (_currentSlotSuffix != slotSuffix)
-        {
-            _pendingPrevPerBusiness.Clear();
-            _pendingPrevLastPaid = -1;
-        }
+    /// <summary>In-memory state, or a transient default when nothing is loaded (never written).</summary>
+    public static PayoutState GetState() =>
+        Engine.State ?? new PayoutState { SaveIdentity = Engine.ActiveSlot ?? "", LastPaidElapsedDay = -1 };
 
-        string path = GetStateFilePath();
-        PayoutState fallback = new()
-        {
-            SaveIdentity = slotSuffix,
-            LastPaidElapsedDay = -1
-        };
-
-        PayoutState state = SafeStorage.LoadSafe<PayoutState>(path, fallback, Mod.Log);
-
-        // Audit 2026-09-13 (BIZ-01): a valid JSON with a strongly negative LastPaidElapsedDay
-        // (hand edit, cloud-sync conflict, copied file) would make the catch-up loop iterate
-        // billions of days on the main thread => freeze. Route corrupted states into the
-        // fresh-state seed path instead.
-        if (state.LastPaidElapsedDay < -1)
-        {
-            Mod.Log.Warn($"PayoutState: invalid LastPaidElapsedDay {state.LastPaidElapsedDay} — reset to -1 (fresh, will re-seed to current day).");
-            state.LastPaidElapsedDay = -1;
-        }
-
-        _cachedState = state;
-        _currentSlotSuffix = slotSuffix;
-        return state;
-    }
-
-    /// <summary>
-    /// Checks whether the given in-game day has already been paid out.
-    /// </summary>
     public static bool IsDayPaid(int elapsedDay)
     {
-        var state = GetState();
-        return state.LastPaidElapsedDay >= elapsedDay;
+        var s = Engine.State;
+        return s != null && s.LastPaidElapsedDay >= elapsedDay;
     }
 
-    /// <summary>
-    /// Checks whether a specific business has already been paid on that day.
-    /// </summary>
+    /// <summary>True when the day is only covered by the fresh-install seed, not a real payout.</summary>
+    public static bool IsInitializationOnly(int elapsedDay)
+    {
+        var s = Engine.State;
+        return s != null
+            && s.InitializationDay >= 0
+            && s.LastPaidElapsedDay == s.InitializationDay
+            && elapsedDay <= s.InitializationDay;
+    }
+
     public static bool IsBusinessPaid(string businessId, int elapsedDay)
     {
-        var state = GetState();
-        if (state.LastPaidDayByBusiness.TryGetValue(businessId, out int lastDay))
-        {
-            return lastDay >= elapsedDay;
-        }
-        return false;
+        var s = Engine.State;
+        return s != null && s.LastPaidDayByBusiness.TryGetValue(businessId, out int lastDay) && lastDay >= elapsedDay;
     }
 
-    /// <summary>
-    /// Marks the day and the given businesses as paid IN MEMORY ONLY (no disk write).
-    /// Called BEFORE the bank transaction to prevent double-payouts on retry loops.
-    /// Snapshots previous values so Revert can restore them without losing history.
-    /// </summary>
-    public static void MarkInMemoryPaid(int elapsedDay, IEnumerable<string> paidBusinessIds)
+    public static PendingPayoutState? ReadPendingMarker() => Engine.PendingLoad.Marker;
+
+    public static PendingStatus PendingStatus => Engine.PendingLoad.Status;
+
+    // --- mutations (explicit PayoutResult, never a bare bool) ------------------------
+
+    public static PayoutResult TryBook(int day, float net, IReadOnlyList<string> businessIds, bool force)
     {
-        var state = GetState();
-        _pendingPrevLastPaid = state.LastPaidElapsedDay;
-        _pendingPrevSaveIdentity = state.SaveIdentity;
-        _pendingPrevTimestamp = state.LastPayoutTimestamp;
-        _pendingPrevPerBusiness.Clear();
-        var ids = paidBusinessIds.ToList();
-        foreach (var id in ids)
-        {
-            if (state.LastPaidDayByBusiness.TryGetValue(id, out int prev))
-                _pendingPrevPerBusiness[id] = prev;
-            else
-                _pendingPrevPerBusiness[id] = null;
-        }
-
-        state.LastPaidElapsedDay = elapsedDay;
-        state.SaveIdentity = GetActiveSlotSuffix();
-        state.LastPayoutTimestamp = DateTime.UtcNow.ToString("o");
-
-        foreach (var id in ids)
-        {
-            state.LastPaidDayByBusiness[id] = elapsedDay;
-        }
+        if (!IsAuthoritative)
+            return new PayoutResult(PayoutOutcome.NotAuthoritative, day, net, businessIds.Count, "active slot unknown - no write");
+        return Engine.TryBook(day, net, businessIds, GetStateFilePath(), GetPendingFilePath(), force);
     }
 
-    /// <summary>
-    /// Reverts the in-memory paid-marker after a failed transaction so the payout can retry.
-    /// Restores the snapshotted previous day/business values instead of wiping to -1.
-    /// </summary>
-    public static void RevertInMemoryPaid(int elapsedDay, IEnumerable<string> paidBusinessIds)
+    /// <summary>Dry-run preview: no bank call, no storage write, no host requirement.</summary>
+    public static PayoutResult Preview(int day, float net, int businessCount) => Engine.Preview(day, net, businessCount);
+
+    /// <summary>Forward-only commit with no bank call (seed / cap / terminal day).</summary>
+    public static PayoutResult CommitOnly(int day, IReadOnlyList<string> businessIds)
     {
-        var state = GetState();
-        if (state.LastPaidElapsedDay == elapsedDay)
-        {
-            state.LastPaidElapsedDay = _pendingPrevLastPaid;
-            if (_pendingPrevSaveIdentity != null) state.SaveIdentity = _pendingPrevSaveIdentity;
-            if (_pendingPrevTimestamp != null) state.LastPayoutTimestamp = _pendingPrevTimestamp;
-        }
-        foreach (var id in paidBusinessIds)
-        {
-            if (state.LastPaidDayByBusiness.TryGetValue(id, out int lastDay) && lastDay == elapsedDay)
-            {
-                if (_pendingPrevPerBusiness.TryGetValue(id, out var prev) && prev.HasValue)
-                    state.LastPaidDayByBusiness[id] = prev.Value;
-                else
-                    state.LastPaidDayByBusiness.Remove(id);
-            }
-        }
-        _pendingPrevPerBusiness.Clear();
-        _pendingPrevSaveIdentity = null;
-        _pendingPrevTimestamp = null;
+        if (!IsAuthoritative)
+            return new PayoutResult(PayoutOutcome.NotAuthoritative, day, 0f, businessIds.Count, "active slot unknown - no write");
+        return Engine.CommitOnly(day, businessIds, GetStateFilePath());
     }
 
-    /// <summary>
-    /// Marks the day and the given businesses as successfully paid and saves atomically.
-    /// </summary>
+    /// <summary>Back-compat bool commit; prefer <see cref="CommitOnly"/> for the explicit outcome.</summary>
     public static bool CommitPayout(int elapsedDay, IEnumerable<string> paidBusinessIds)
-    {
-        try
-        {
-            var state = GetState();
-            state.LastPaidElapsedDay = elapsedDay;
-            state.SaveIdentity = GetActiveSlotSuffix();
-            state.LastPayoutTimestamp = DateTime.UtcNow.ToString("o");
-
-            foreach (var id in paidBusinessIds)
-            {
-                state.LastPaidDayByBusiness[id] = elapsedDay;
-            }
-
-            string path = GetStateFilePath();
-            bool success = SafeStorage.SaveAtomic(path, state, Mod.Log);
-            if (success)
-            {
-                Mod.Log.Info($"PayoutState for day {elapsedDay} saved to {Path.GetFileName(path)}.");
-                _pendingPrevPerBusiness.Clear();
-                _pendingPrevSaveIdentity = null;
-                _pendingPrevTimestamp = null;
-            }
-            return success;
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Error($"Failed to save PayoutState: {ex.Message}");
-            return false;
-        }
-    }
-
-    // --- F1: Write-ahead pending marker ----------------------------------------------
-    // Lifecycle: WritePendingMarker() BEFORE Money.CreateOnlineTransaction,
-    // ClearPendingMarker() only after the payout state is durably committed.
-    // A leftover marker means "transaction may be booked, state save not confirmed".
-
-    private static string PendingMarkerPath =>
-        Path.Combine(SafeStorage.GetUserDataPath("BusinessIncome"), $"payout_pending_{GetActiveSlotSuffix()}.json");
+        => CommitOnly(elapsedDay, paidBusinessIds.ToList()).Succeeded;
 
     /// <summary>
-    /// Writes the pending-payout marker for the active slot (called before the bank
-    /// transaction). Failures are logged but do not block the payout — the marker is a
-    /// safety net, not a gate.
+    /// Explicit, fail-closed fresh-install initialization. Seeds GENUINELY missing state only,
+    /// and only after a durable write (a failed write never advances memory). A pending marker
+    /// or any blocking/non-missing state is never overwritten.
     /// </summary>
-    public static void WritePendingMarker(int elapsedDay, float amount, int businessCount)
+    public static PayoutResult Initialize(int day)
     {
-        try
-        {
-            var marker = new PendingPayoutState
-            {
-                Day = elapsedDay,
-                Amount = amount,
-                BusinessCount = businessCount,
-                StartedUtc = DateTime.UtcNow.ToString("o")
-            };
-            string path = PendingMarkerPath;
-            SafeStorage.EnsureDirectoryForFile(path);
-            SafeStorage.SaveAtomic(path, marker, Mod.Log);
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Warn($"Pending payout marker could not be written: {ex.Message}");
-        }
+        if (!IsAuthoritative)
+            return new PayoutResult(PayoutOutcome.NotAuthoritative, day, 0f, 0, "active slot unknown - no write");
+        return Engine.Initialize(day, GetStateFilePath());
     }
 
-    /// <summary>
-    /// Returns the pending marker of the active slot, or null if there is none.
-    /// </summary>
-    public static PendingPayoutState? ReadPendingMarker()
+    /// <summary>Back-compat alias for <see cref="Initialize"/> (fresh-install seed).</summary>
+    public static PayoutResult MarkInitialization(int day) => Initialize(day);
+
+    public static PayoutResult ConfirmPending()
     {
-        try
-        {
-            string path = PendingMarkerPath;
-            if (!File.Exists(path)) return null;
-            return SafeStorage.LoadSafe<PendingPayoutState>(path, null, Mod.Log);
-        }
-        catch
-        {
-            return null;
-        }
+        if (!IsAuthoritative) return new PayoutResult(PayoutOutcome.NotAuthoritative, -1, 0f, 0, "active slot unknown");
+        return Engine.ConfirmPending(GetStateFilePath(), GetPendingFilePath());
     }
 
-    /// <summary>
-    /// Deletes the pending marker — after the payout state is durably committed, or after
-    /// an explicit user decision via 'biz pending confirm|resolve'.
-    /// </summary>
+    public static PayoutResult ResolvePending()
+    {
+        if (!IsAuthoritative) return new PayoutResult(PayoutOutcome.NotAuthoritative, -1, 0f, 0, "active slot unknown");
+        return Engine.ResolvePending(GetPendingFilePath());
+    }
+
     public static void ClearPendingMarker()
     {
-        try
-        {
-            string path = PendingMarkerPath;
-            if (File.Exists(path)) File.Delete(path);
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Warn($"Pending payout marker could not be cleared: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Resets the in-memory cache (e.g. on scene unload).
-    /// </summary>
-    public static void Reset(bool keepSlot = false)
-    {
-        _cachedState = null;
-        _currentSlotSuffix = "default";
-        _pendingPrevPerBusiness.Clear();
-        _pendingPrevLastPaid = -1;
-        _pendingPrevSaveIdentity = null;
-        _pendingPrevTimestamp = null;
-        if (!keepSlot) _lastKnownSlot = "default";
-    }
-
-    public static void ResetForSceneUnload()
-    {
-        Reset(keepSlot: true);
+        string p = GetPendingFilePath();
+        if (!string.IsNullOrEmpty(p)) PayoutCodec.ClearMarker(Storage, p);
+        Engine.LoadPending(p);
     }
 }

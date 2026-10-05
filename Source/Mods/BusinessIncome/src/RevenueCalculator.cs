@@ -8,20 +8,22 @@ namespace BusinessIncome.Services;
 /// <summary>
 /// Pure, testable calculation logic without Unity, network, or game dependencies.
 /// Uses deterministic pseudo-random numbers so revenue preview and payout match exactly.
+/// Consumes only the pure <see cref="BusinessData"/> model, never the runtime
+/// ResolvedBusiness (which carries a native Business handle).
 /// </summary>
 public static class RevenueCalculator
 {
     /// <summary>
     /// Calculates the billing line for a specific business on a given in-game day.
+    /// Does NOT mutate <paramref name="config"/>: callers sanitize at the boundary
+    /// (IncomeEngine) before invoking the calculator.
     /// </summary>
     public static BusinessRevenueLine Calculate(
-        ResolvedBusiness business,
+        BusinessData business,
         int elapsedDays,
         bool isWeekend,
         BusinessIncomeConfig config)
     {
-        config.Sanitize();
-
         // 1. Resolve multiplier
         float multiplier = 1.0f;
         if (config.PropertyMultipliers.TryGetValue(business.Id, out float customMult) && customMult > 0f)
@@ -87,7 +89,7 @@ public static class RevenueCalculator
     /// Calculates all billing lines for a list of businesses.
     /// </summary>
     public static List<BusinessRevenueLine> CalculateAll(
-        IEnumerable<ResolvedBusiness> businesses,
+        IEnumerable<BusinessData> businesses,
         int elapsedDays,
         bool isWeekend,
         BusinessIncomeConfig config)
