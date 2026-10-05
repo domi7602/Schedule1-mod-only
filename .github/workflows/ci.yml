@@ -60,11 +60,12 @@ jobs:
       - name: Check formatting (dotnet format --verify-no-changes)
         run: dotnet format Source/Mods/S1Mods.sln --verify-no-changes --verbosity diagnostic
 
-      # These two test projects link pure C# source files and need no game assemblies.
-      - name: Run pure-logic tests (AutoPackagingStation, CalculatorApp)
+      # These test projects link pure C# source files and need no game assemblies.
+      - name: Run pure-logic tests (AutoPackagingStation, CalculatorApp, StorageScanner)
         run: |
           dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release --nologo
           dotnet test Source/Tests/CalculatorApp.Tests/CalculatorApp.Tests.csproj -c Release --nologo
+          dotnet test Source/Tests/StorageScanner.Tests/StorageScanner.Tests.csproj -c Release --nologo
 
       - name: Build solution (Release, no deploy)
         if: steps.detect.outputs.has-game == 'true'

@@ -1,0 +1,6 @@
+{
+  "name": "StorageScanner",
+  "author": "Dominik",
+  "version": "0.2.0",
+  "description": "Phone app that scans storage across owned properties with search, sorting, item locations and last-known data for culled properties."
+}

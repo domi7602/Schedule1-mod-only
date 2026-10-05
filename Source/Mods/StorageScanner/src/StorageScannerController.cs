@@ -5,9 +5,9 @@ namespace StorageScanner
 {
     public interface IStorageScannerView
     {
-        // Portrait layout: property selector, search, item rows, refresh button.
-        // Always show snapshot completeness and capture time.
-        void Render(StorageSnapshot snapshot, IReadOnlyList<StockRow> rows, string selectedPropertyId);
+        void RenderInventory(StorageSnapshot snapshot, IReadOnlyList<StockRow> rows,
+            string? selectedPropertyId, StockSortMode sortMode);
+        void RenderItemDetails(StorageSnapshot snapshot, ItemDetails details, string? selectedPropertyId);
         void ShowError(string message);
     }
 
@@ -15,9 +15,11 @@ namespace StorageScanner
     {
         private readonly IStorageSource source;
         private readonly IStorageScannerView view;
-        private StorageSnapshot snapshot;
-        private string propertyId;
-        private string search;
+        private StorageSnapshot? snapshot;
+        private string? propertyId;
+        private string? search;
+        private string? selectedItemId;
+        private StockSortMode sortMode = StockSortMode.NameAscending;
 
         public StorageScannerController(IStorageSource source, IStorageScannerView view)
         {
@@ -31,25 +33,58 @@ namespace StorageScanner
         {
             try
             {
+                if (!source.IsReadyToScan())
+                {
+                    view.ShowError("Loading storage...");
+                    return;
+                }
+
                 snapshot = source.Capture() ?? throw new InvalidOperationException("Scanner returned no snapshot.");
                 Render();
             }
             catch (Exception ex)
             {
-                // Never replace a failed scan with a misleading empty inventory.
                 view.ShowError("Scan failed; displayed data may be outdated: " + ex.Message);
             }
         }
 
-        public void SelectProperty(string id)
+        public void SelectProperty(string? id)
         {
-            propertyId = id; // null selects all properties.
+            propertyId = id;
+            selectedItemId = null;
             Render();
         }
 
-        public void SetSearch(string value)
+        public void SetSearch(string? value)
         {
             search = value;
+            selectedItemId = null;
+            Render();
+        }
+
+        public void CycleSortMode()
+        {
+            sortMode = sortMode switch
+            {
+                StockSortMode.NameAscending => StockSortMode.NameDescending,
+                StockSortMode.NameDescending => StockSortMode.QuantityDescending,
+                StockSortMode.QuantityDescending => StockSortMode.QuantityAscending,
+                StockSortMode.QuantityAscending => StockSortMode.ContainersDescending,
+                StockSortMode.ContainersDescending => StockSortMode.ContainersAscending,
+                _ => StockSortMode.NameAscending,
+            };
+            Render();
+        }
+
+        public void SelectItem(string itemId)
+        {
+            selectedItemId = itemId;
+            Render();
+        }
+
+        public void CloseItemDetails()
+        {
+            selectedItemId = null;
             Render();
         }
 
@@ -58,12 +93,29 @@ namespace StorageScanner
             snapshot = null;
             propertyId = null;
             search = null;
+            selectedItemId = null;
+            sortMode = StockSortMode.NameAscending;
         }
 
         private void Render()
         {
             if (snapshot == null) return;
-            view.Render(snapshot, StockAggregator.Summarize(snapshot, propertyId, search), propertyId);
+
+            if (selectedItemId != null)
+            {
+                ItemDetails? details = StockAggregator.GetItemDetails(snapshot, selectedItemId, propertyId);
+                if (details != null)
+                {
+                    view.RenderItemDetails(snapshot, details, propertyId);
+                    return;
+                }
+                selectedItemId = null;
+            }
+
+            view.RenderInventory(snapshot,
+                StockAggregator.Summarize(snapshot, propertyId, search, sortMode),
+                propertyId,
+                sortMode);
         }
     }
 }
