@@ -1,18 +1,18 @@
 ---
 name: schedule1-s1api
 description: >-
-  Author-reference for the S1API framework (ifBars fork, v3.2.1-beta.7 deployed, 1000 .cs files in 152 namespaces) for Schedule I v0.4.7f6 (IL2CPP/Mono).
+  Author-reference for the S1API framework (ifBars fork, v3.2.1-beta.8 deployed, 859 .cs files in 116 namespaces) for Schedule I v0.4.7f9 (IL2CPP/Mono).
   Use this skill whenever you need to find the right S1API namespace for a task, write a Saveable, build a PhoneApp, register a Quest, create a custom NPC, register a console command, hook a lifecycle event, or decide whether to use a S1API wrapper vs direct Il2CppScheduleOne interop.
-  Keywords: S1API, Folders, Money, GameTime, Lifecycle, PhoneApp, Quests, NPCs, Saveables, Items, Products, Building, Law, Vehicles, GameLifecycle, OnSaveLoaded, OnLoadComplete, Property, Il2CppScheduleOne, MelonLoader.
+  Keywords: S1API, Folders, Money, GameTime, Lifecycle, PhoneApp, Quests, NPCs, Saveables, Items, Products, Building, Law, Vehicles, GameLifecycle, OnSaveInfoLoaded, OnLoadComplete, OnPreLoad, Property, Il2CppScheduleOne, MelonLoader.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
-# Schedule I — S1API Author Reference (ifBars fork, v3.2.0)
+# Schedule I — S1API Author Reference (ifBars fork, v3.2.1-beta.8 deployed / in-repo source beta.7)
 
 This skill is the **API-catalog map** for S1API. Use it when you need to know which namespace / class to reach for, what the wired lifecycle hooks are, which patterns are safe via S1API wrapper vs which require direct IL2CPP interop, and how to handle the runtime-neutral contract.
 
-> **Version check (verified 2026-09-04 / 2026-09-11):** S1API 3.2.0 deployed in this workspace (`Plugins\S1APILoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`), built directly from `ThirdParty/S1API/`.
+> **Version check (verified 2026-10-05):** S1API **3.2.1-beta.8** deployed (`Plugins\S1APILoader.MelonLoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`, product 3.2.1-beta.8). **Never compile against 3.2.0-stable — it does not know the 0.4.7f6+ renames** (docs/compatibility.md). Note: the in-repo source `ThirdParty/S1API/` is still the **beta.8** submodule (tag `v3.2.1-beta.8`, commit f65ae40 — identical to the deployed build, checked out 2026-10-05). Source-level claims are now beta.8-grounded.
 
 ---
 
@@ -67,7 +67,7 @@ This skill is the **API-catalog map** for S1API. Use it when you need to know wh
 
 ---
 
-## 4. Namespace Map (114 Namespaces)
+## 4. Namespace Map (116 Namespaces, counted 2026-10-05)
 
 ### Core (10)
 `S1API` · `S1API.Misc` · `S1API.Logging` · `S1API.Internal` · `S1API.Properties` · `S1API.Properties.Interfaces` · `S1API.Properties.Tokens` · `S1API.Saveables` · `S1API.Constants`
@@ -136,23 +136,23 @@ public sealed class MyMod : MelonMod
 {
     public override void OnInitializeMelon()
     {
-        GameLifecycle.OnSaveLoaded += OnSaveLoaded;
+        GameLifecycle.OnLoadComplete += OnLoadComplete;
     }
 
     public override void OnApplicationQuit()
     {
-        GameLifecycle.OnSaveLoaded -= OnSaveLoaded;  // defensive unsubscribe
+        GameLifecycle.OnLoadComplete -= OnLoadComplete;  // defensive unsubscribe
     }
 
-    private static void OnSaveLoaded()
+    private static void OnLoadComplete()
     {
-        Log.Info("S1API is loaded and the save is ready.");
+        Log.Info("Save loaded and scene build complete.");
         // Now safe to access NPCs, Properties, Businesses, etc.
     }
 }
 ```
 
-> **Why the unsubscribe?** Migrating this skill from the legacy `OnSaveInfoLoaded` namespace to the newer `OnSaveLoaded` — both still exist in 3.2.0. When in doubt, prefer `OnSaveLoaded` for new mods.
+> **Why the unsubscribe?** **`OnSaveLoaded` does NOT exist in S1API 3.2.1-beta.8** (verified 2026-10-05 against `GameLifecycle` source + deployed DLL: the event set is exactly `OnPreLoad` / `OnLoadComplete` / `OnPreSceneChange` / `OnSaveInfoLoaded` / `OnSaveStart` / `OnSaveComplete`). And `OnSaveInfoLoaded` exists in the API but **fires 0× on game 0.4.7f6+** (verified 2026-09-29, see `schedule1-lifecycle-verify` §7). Use `OnPreLoad` (reset caches) / `OnLoadComplete` (refresh + spawn).
 
 ---
 
@@ -195,8 +195,8 @@ Auto-discovery: any `public class : BaseConsoleCommand` with a parameterless con
 **Solution:** Use the S1API lifecycle hooks — they fire AFTER the list is populated:
 
 ```csharp
-GameLifecycle.OnSaveLoaded    += OnSaveLoaded;   // after save-info + property cache
-GameLifecycle.OnLoadComplete  += OnLoadComplete; // after scene build
+GameLifecycle.OnPreLoad       += OnPreLoad;       // before save data loads: reset caches
+GameLifecycle.OnLoadComplete  += OnLoadComplete;  // after save data + scene build: refresh/spawn
 ```
 
 **Pitfall:** Never cache vanilla `Quest` / `QuestEntry` references across save loads — S1API replaces them on restore, cached references become stale. Always do fresh lookups via `QuestManager.GetQuestByName(name)`.
@@ -249,4 +249,4 @@ For map geometry / buildings / terrain / GLTF models, **S1MAPI** is the right to
 * [game-systems.md](references/game-systems.md) — Doors, Vehicles, Growing, Building, Weather, Law, Leveling
 * [cross-compat.md](references/cross-compat.md) — IL2CPP vs Mono, when to bypass wrappers
 * External: [S1API Docs](https://ifbars.github.io/S1API/) · [API Reference](https://ifbars.github.io/S1API/api/S1API.html) · [GitHub](https://github.com/ifBars/S1API)
-* In-Repo Source: `ThirdParty/S1API/S1API/` (v3.2.0 C# project)
+* In-Repo Source: `ThirdParty/S1API/S1API/` (v3.2.1-beta.8 C# project — submodule at the deployed build commit since 2026-10-05)

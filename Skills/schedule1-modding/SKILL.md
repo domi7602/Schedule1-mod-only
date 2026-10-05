@@ -1,18 +1,18 @@
 ---
 name: schedule1-modding
 description: >-
-  Expert guide and runbook for developing, building, testing, and maintaining MelonLoader IL2CPP C# mods for Schedule I v0.4.7f6 (TVGS) in the Schedule I Modding Workspace.
+  Expert guide and runbook for developing, building, testing, and maintaining MelonLoader IL2CPP C# mods for Schedule I v0.4.7f9 (TVGS) in the Schedule I Modding Workspace.
   Use this skill whenever creating new mods, modifying existing mods, writing Harmony patches, building PhoneApps via S1API, troubleshooting IL2CPP/Unity/MelonLoader issues, building solutions, or implementing UI features for Schedule I.
   Keywords: Schedule I, MelonLoader, IL2CPP, Harmony, HarmonyPatch, PhoneApp, S1API, Unity 2022.3, mod scaffolding, SafeStorage, UITheme.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — Modding Skill & Runbook
 
-This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I v0.4.7f6** (TVGS) in this workspace (the `Schedule1-mod-only` repository root). The workspace lives outside the game install dir; game path resolves via `$env:SCHEDULE1_PATH` (default: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`).
+This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I v0.4.7f9** (TVGS) in this workspace (the `Schedule1-mod-only` repository root). The workspace lives outside the game install dir; game path resolves via `$env:SCHEDULE1_PATH` (default: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`).
 
-> **Version check (last verified: 2026-09-12):** Before writing patches or building, confirm the installed game version and S1API version still match this skill. If the game was updated, follow the Update Runbook (§5) first.
+> **Version check (last verified: 2026-10-05):** Before writing patches or building, confirm the installed game version and S1API version still match this skill. If the game was updated, follow the Update Runbook (§5) first.
 
 ---
 
@@ -34,8 +34,8 @@ AGENTS.md           Single source of truth for mod inventory & current status
 ```
 
 **Deploy Convention (since 2026-09):**
-- `<GameDir>\Mods\` $\rightarrow$ Loadables for MelonLoader (`*.dll`, `*.png`, `*.bundle`)
-- `<GameDir>\UserData\<ModName>\` $\rightarrow$ Metadata and debug symbols (`mod.json`, `<ModName>.pdb`)
+- `<GameDir>\Mods\` → Loadables for MelonLoader (`*.dll`, `*.png`, `*.bundle`)
+- `<GameDir>\UserData\<ModName>\` → Metadata and debug symbols (`mod.json`, `<ModName>.pdb`)
 - ThirdParty DLLs auto-deployed via `Tools/deploy-thirdparty.ps1` with whitelist in `ThirdParty/.deployignore`.
 
 **Sync rule:** After creating, renaming, removing, or changing the status of any mod, update `AGENTS.md` and the mod's `CHANGELOG.md` in the same change. `AGENTS.md` must never drift from reality.
@@ -96,35 +96,11 @@ Two valid outcomes from the diff:
 
 Mitigation: always read the post-bump CHANGELOG.md immediately after the script run and clean up duplicates/placeholder text.
 
-### D. Spec-First Workflow for Fixes and Changes (mandatory in the Hermes group chat)
+### D. Spec-First Workflow for Fixes and Changes
 
-**Rule (2026-08-27, group-chat convention with `@gatekeeper` + `@designer`):** Never start a code change just because a user reported a problem. The maker-checker chain (`@coder` writes, `@gatekeeper` reviews) requires an explicit green light after a Spec, BEFORE any `dotnet build`.
+Spec-first is mandatory for fixes/refactors/hot-path/lifecycle changes (group-chat maker-checker with `@gatekeeper`): full convention + spec template → [references/spec-first-workflow.md](references/spec-first-workflow.md).
 
-**When this applies:**
-- Bug fixes, refactors, new features touching >1 file
-- Any change to a hot path (Harmony prefix/postfix, Update loops, polling)
-- Any change to save/load lifecycle hooks (`OnPreLoad`, `OnSaveInfoLoaded`, `OnLoadComplete`, `OnSaveComplete`)
-
-**Spec template (paste into the chat before any code touches a file):**
-1. **Trigger / problem** — what's broken, where, repro
-2. **Spec items as a numbered checklist** — concrete acceptance criteria, NOT aspirational
-3. **Pitfalls / edge cases** — list each one with the chosen handling (e.g. "What if X happens during a scene reload? — ResetState() before spawn cycle")
-4. **Logging / observability** — what counters or log lines prove the fix fires
-5. **Build order** — "first A (critical), then B/C/D"
-6. **Open questions** — anything ambiguous; ask before coding, not during
-
-**Workflow:**
-1. User reports problem → coder reads code, finds root cause
-2. Coder drafts Spec (template above) in the chat → gatekeeper reviews, pokes holes, suggests edge cases
-3. Spec gets explicit "green" / "spec ok, build" → coder builds in the order listed
-4. Build green → coder reports what changed, where, what to test → gatekeeper does the review
-
-**Don't do:**
-- Don't ask "may I build?" — write the Spec, wait for green light, then build
-- Don't skip the Spec "just because it's a small fix" — small fixes have the biggest hidden regressions
-- Don't list build-order bullets that aren't in the chat (e.g. "I'll also fix X while I'm in there" — out of scope; surface it as a separate Spec if needed)
-
-**Live reference:** CustomSkateboard `IsInstanceTuned` early-out fix (Spec → green → build green) and HomelessMod F-key + slot-switch fix (Spec → 3 answer round → green with edge-case list → build green) both ran this way in 2026-08-27 and shipped without a revert.
+**Summary:** draft a Spec (trigger, numbered acceptance criteria, pitfalls + chosen handling, observability, build order, open questions) → wait for the explicit green light → build in the listed order → report what changed for review. Live references: CustomSkateboard `IsInstanceTuned` early-out + HomelessMod F-key/slot-switch (2026-08-27, both shipped without revert).
 
 ### E. Testing a Mod In-Game
 1. Build in `Release` and confirm the DLL landed in `<GameDir>\Mods\` (check timestamp).

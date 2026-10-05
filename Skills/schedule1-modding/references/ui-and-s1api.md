@@ -1,8 +1,10 @@
 # S1API & Responsive UI Frameworks Guide
 
+> verified: S1API section checked against 3.2.1-beta.8 2026-10-05 (icon policy + clamp curves); Method 3 section since 2026-08-20. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 ---
 
-## 1. S1API 3.2.1-beta.7 Architecture
+## 1. S1API 3.2.1-beta.8 Architecture
 
 S1API provides high-level abstractions for Schedule I:
 * **Phone Applications**: `PhoneApp`, `PhoneAppRegistry`
@@ -19,7 +21,10 @@ public sealed class MyPhoneApp : PhoneApp
     protected override string AppName => "my_phone_app";
     protected override string AppTitle => "My App";
     protected override string IconLabel => "My";
-    protected override string IconFileName => "";
+    // Ship icon.png in the mod's assets/ folder (Directory.Build.targets must copy it — see phoneapp checklist).
+    protected override string IconFileName => "icon.png";
+    // No icon file? Override `IconSprite` to return a Sprite directly instead
+    // (PotScanner fix — avoids the "Icon file not found" log at runtime).
 
     protected override void OnCreatedUI(GameObject container)
     {
@@ -52,7 +57,7 @@ int   sp = S1Mods.Shared.UITheme.Sp(14);    // fonts
 
 * **Buttons & Row Heights**: Use `Dp(...)` for heights, paddings, margins.
 * **Text / Fonts**: Use `Sp(...)` for `TMP_Text.fontSize`.
-* **Clamping**: Clamping between `0.75f` and `1.20f` prevents giant UI elements on 4K screens while keeping elements readable on smaller displays.
+* **Clamping**: the TextApp curve clamps `0.85–2.0` (RefHeight 750f), the Dashboard curve `0.75–1.20` (RefHeight 900f) — prevents giant UI on 4K while keeping small screens readable (curves: `schedule1-phoneapp/references/responsive-ui-theme.md`).
 * **Do NOT** re-implement the math in a local `UITheme` class — delegate to `S1Mods.Shared.UITheme` (wrappers may add palettes only).
 
 ---

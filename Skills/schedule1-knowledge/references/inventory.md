@@ -1,5 +1,7 @@
 # Knowledge-Base & Code Reference Inventory
 
+> verified: counts re-measured 2026-10-05 (116 S1API namespaces / 859 .cs files; 87 Il2CppScheduleOne sub-namespaces). Decompiles regenerated 2026-10-05 (ilspycmd 9.1.0.7988, project mode, fresh 0.4.7f9 proxies) — spot-check set passed. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 The inventory of code references, decompiles, framework sources, and game system analyses available directly in the repository workspace. **Use this when researching game mechanics, APIs, and vanilla behavior.**
 
 ---
@@ -8,7 +10,7 @@ The inventory of code references, decompiles, framework sources, and game system
 
 | Path | Contents | Purpose & Usage |
 |------|----------|-----------------|
-| `ThirdParty/S1API/S1API/` | Full C# Source of S1API 3.2.1-beta.7 | Reference for PhoneApp, Saveables, Registry, Items, UI, NPCs, Quests, GameTime |
+| `ThirdParty/S1API/S1API/` | Full C# Source of S1API 3.2.1-beta.7 (submodule; deployed runtime = beta.8) | Reference for PhoneApp, Saveables, Registry, Items, UI, NPCs, Quests, GameTime |
 | — (MoreDrugs: source not in repo) | Deployed DLL only (`DrugExpansion_Il2cpp.dll`) | Reference for Custom Product Save Provider & Item Expansion |
 | `ThirdParty/S1MCPServer-master/` | C# Source of S1MCP | Reference for Live Runtime Introspection & TCP Server :8765 |
 | `ThirdParty/Archive/PhoneScroll/` | Documentation (DLL retired 2026-09-16) | Reference for Phone Home Screen scrolling (Closed Source, V4LEXL) |
@@ -21,13 +23,13 @@ The inventory of code references, decompiles, framework sources, and game system
 
 ### 2.1. Assembly-CSharp (★ In-Repo Decompile: ~2100+ files)
 
-`GameReferences/decompiled/Assembly-CSharp/` contains the full IL2CPP-aware decompile of *Schedule I* v0.4.6f13. Organized by namespace:
+`GameReferences/decompiled/Assembly-CSharp/` contains the full IL2CPP-aware decompile of *Schedule I* (generation 2026-10-02; game is v0.4.7f9 — regenerate after updates, see header). Organized by namespace:
 
 ```
 GameReferences/decompiled/Assembly-CSharp/
 ├── Assembly-CSharp.csproj               (for IDE navigation)
 ├── Il2Cpp/                              (interop primitives)
-├── Il2CppScheduleOne/                   (★ ~69 sub-namespaces; game core)
+├── Il2CppScheduleOne/                   (★ ~87 sub-namespaces; game core)
 │   ├── Audio/ AvatarFramework/ Building/ Calling/ Cartel/ Casino/ Clothing/
 │   ├── Combat/ Configuration/ Dialogue/ Doors/ Dragging/ Economy/ Effects/
 │   ├── Employees/ EntityFramework/ Equipping/ Events/ Gamepad/ GameTime/
@@ -93,4 +95,4 @@ Curated architecture reference documents located in `Skills/schedule1-game-syste
 - **Check S1API public interfaces or implementations** → `ThirdParty/S1API/S1API/`
 - **Inspect live game state or spawn items** → `Skills/schedule1-mcp/SKILL.md` (S1MCP TCP :8765)
 - **Check save-game format & persistence events** → `Skills/schedule1-game-systems/references/02-Save-Persistence.md` + `Skills/schedule1-persistence/SKILL.md`
-- **Check MelonLoader log for errors or GC issues** → Run pwsh: `Get-Content "$env:SCHEDULE1_PATH\MelonLoader\Latest.log" -Tail 200 | Select-String -Pattern '\[ERROR\]|\[WARNING\]|Exception|WasCollected'`
+- **Check MelonLoader log for errors or GC issues** → `schedule1-troubleshooting/references/logscan-and-logs.md` (canonical one-liners + spike patterns)

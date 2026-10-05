@@ -1,4 +1,6 @@
 # Method 3: Responsive UI & Canvas-Scaling (`UITheme`)
+> UNVERIFIED for 0.4.7f9 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 In *Schedule I*, S1API instantiates phone app containers on high-resolution uGUI Canvases that are often rotated by 90° (`Quaternion.Euler(0, 0, 90)`). Using fixed integer pixel dimensions (e.g. `14pt` font, `40px` button) results in unreadable, microscopic, or overflowing layouts across different resolutions.
 
@@ -85,14 +87,14 @@ Different app types require different scaling curves:
 ## 3. Applying `UITheme` in UI Builders
 
 ### A. Initialization
-Call `UITheme.Initialize(...)` at the very start of `OnCreatedUI`:
+Call `S1Mods.Shared.UITheme.InitializeForTextApp(...)` (or `InitializeForDashboard(...)`) at the very start of `OnCreatedUI`:
 ```csharp
 protected override void OnCreatedUI(GameObject container)
 {
     var containerRt = container.GetComponent<RectTransform>();
     if (containerRt != null)
     {
-        UITheme.Initialize(containerRt);
+        S1Mods.Shared.UITheme.InitializeForTextApp(containerRt);
     }
     // ...
 }

@@ -1,8 +1,10 @@
 # Implementation Patterns
 
+> verified: patterns consolidated 2026-10-05 (duplicates moved to canonical reference). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 ## Purpose
 
-This file captures reusable S1API custom NPC implementation patterns without assuming any local sample repository exists.
+This file captures reusable S1API custom NPC implementation patterns without assuming any local sample repository exists. API rules are canonical in `s1api-custom-npc-reference.md`; this file keeps only role-specific recipes and links there for full API rules instead of duplicating code blocks.
 
 ## Pattern 1: Physical Customer NPC
 
@@ -41,84 +43,29 @@ Extra checks:
 - Confirm the schedule includes `EnsureDealSignal()` when the customer should actively deal.
 - Keep spending, standards, and relationship requirements internally consistent.
 
+→ full API rules: s1api-custom-npc-reference.md (§Prefab-time Responsibilities, §Runtime Responsibilities)
+
 ## Pattern 2: Event-wired Customer NPC
 
 Use when customer events drive other behavior such as messages, relationship gains, recommendations, or rewards.
 
-Recommended structure:
+Structure: cache the delegate in a private field, subscribe in `OnCreated()` via subtract-then-add, and unsubscribe in `OnDestroyed()` with null guards.
 
-```csharp
-private Action _customerDealCompletedHandler;
-
-protected override void OnCreated()
-{
-    base.OnCreated();
-
-    _customerDealCompletedHandler ??= HandleDealCompleted;
-    Customer.OnDealCompleted -= _customerDealCompletedHandler;
-    Customer.OnDealCompleted += _customerDealCompletedHandler;
-}
-
-protected override void OnDestroyed()
-{
-    base.OnDestroyed();
-
-    if (Customer != null && _customerDealCompletedHandler != null)
-    {
-        Customer.OnDealCompleted -= _customerDealCompletedHandler;
-    }
-}
-```
+→ full rules + full code: s1api-custom-npc-reference.md §Runtime Responsibilities › Event cleanup
 
 Guidelines:
 
-- Cache delegates in private fields.
-- Always clean up subscriptions in `OnDestroyed()`.
 - Keep persistent customer configuration in `ConfigurePrefab(...)`, not in runtime event code.
 
 ## Pattern 3: Dealer NPC
 
 Use when the NPC is recruitable, handles contracts, or participates in the dealer economy.
 
-Minimum structure:
+Minimum structure: `IsDealer => true` plus `builder.WithDealerDefaults(dd => dd.WithSigningFee(1000f).WithCut(0.15f).WithDealerType(DealerType.PlayerDealer).WithHomeName("North Apartments"));` in `ConfigurePrefab(...)`.
 
-```csharp
-public override bool IsDealer => true;
+Event wiring follows the same cache/subscribe/cleanup pattern as Pattern 2, using `Dealer.OnRecruited`, `Dealer.OnContractAccepted`, and `Dealer.OnRecommended` — null-check `Dealer` before wiring.
 
-builder.WithDealerDefaults(dd =>
-    {
-        dd.WithSigningFee(1000f)
-            .WithCut(0.15f)
-            .WithDealerType(DealerType.PlayerDealer)
-            .WithHomeName("North Apartments");
-    });
-```
-
-Recommended event wiring:
-
-```csharp
-private Action _dealerRecruitedHandler;
-
-private void WireDealerEvents()
-{
-    if (Dealer == null)
-        return;
-
-    _dealerRecruitedHandler ??= HandleDealerRecruited;
-    Dealer.OnRecruited -= _dealerRecruitedHandler;
-    Dealer.OnRecruited += _dealerRecruitedHandler;
-}
-
-protected override void OnDestroyed()
-{
-    base.OnDestroyed();
-
-    if (Dealer != null && _dealerRecruitedHandler != null)
-    {
-        Dealer.OnRecruited -= _dealerRecruitedHandler;
-    }
-}
-```
+→ full rules + full code: s1api-custom-npc-reference.md §Prefab-time Responsibilities › Dealer defaults (defaults) and §Runtime Responsibilities › Event cleanup (wiring)
 
 Dealer checks:
 
@@ -159,6 +106,8 @@ Guidelines:
 - Usually skip `WithSchedule(...)`.
 - Consider `ClearConversationCategories()` for contacts that should not show the default badge.
 - If message choices must survive load, implement `OnResponseLoaded(...)` and rebind callbacks there.
+
+→ base rules: s1api-custom-npc-reference.md §Minimal Patterns › Non-physical contact
 
 ## Pattern 5: NPC as UI entry point
 

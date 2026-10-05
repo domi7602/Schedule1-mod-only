@@ -1,9 +1,9 @@
 ---
 name: schedule1-grid
-description: "Schedule I: Grid placement system, outdoor/unrestricted building, BuildUpdate_Grid patching, ghost positioning, and IL2CPP lifecycle stability"
+description: "Schedule I: Grid placement system, outdoor/unrestricted building, BuildUpdate_Grid patching, ghost positioning, and IL2CPP lifecycle stability. Use when placing buildables outside purchased properties, patching BuildUpdate_Grid/BuildableItem, stripping FishNet networking, or fixing ghost/footprint issues. Keywords: Grid, GridItem, BuildableItem, BuildUpdate_Grid, GridManager, FootprintTile, StreetPropertyManager, outdoor placement, anti-dupe, slot isolation."
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I - Grid & Building System Skill
 
@@ -48,7 +48,7 @@ Full code & rationale in `references/`:
 
 - **Ghost evaluation** (`CheckIntersections` postfix): camera raycast → fallback down ray → 4-corner sampling (slope ≤45°, reach 0.3–7m) → `OverlapBoxNonAlloc` clearance → ghost white/red. Details: `references/collision-and-ghosts.md`
 - **Placement** (`Place` prefix): if `IsCustomPlacementValid` → deactivate source prefab, `Instantiate`, parent to `StreetRoot`, strip networking, attach `OutdoorItemInteractable`, suppress footprints, register, deduct inventory, `Stop()` and `return false`. Details: `references/build-update-patching.md`
-- **Save/Load:** `OnPreLoad→ResetState`, `OnSaveInfoLoaded→register defs`, `OnLoadComplete→LoadAndSpawn`, `OnSaveComplete→SaveStreetItems` (atomic). Diagram in `references/build-update-patching.md`
+- **Save/Load:** `OnPreLoad→ResetState`, `OnLoadComplete→LoadAndSpawn + register defs`, `OnSaveComplete→SaveStreetItems` (atomic). Diagram in `references/build-update-patching.md` — **kein `OnSaveInfoLoaded`** (feuert 0× auf 0.4.7f6+, verified 2026-09-29).
 
 ---
 

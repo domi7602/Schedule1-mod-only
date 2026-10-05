@@ -1,5 +1,7 @@
 # S1API — Lifecycle Hooks & Save-Load Timing
 
+> verified: instrumented run 2026-09-29 (order + OnSaveInfoLoaded = 0 firings); event set re-verified against 3.2.1-beta.8 source 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 The most important module for **not chasing ghost bugs**. Static game lists (`Property.OwnedProperties`, `NPCManager.Registered`, `Business.OwnedBusinesses`) are populated at different times than scene callbacks fire. Use `GameLifecycle` hooks; never poll.
 
 ---
@@ -20,13 +22,14 @@ public static class GameLifecycle
 
 | Hook | When | Use for |
 |---|---|---|
-| `OnSaveInfoLoaded` | Save-info parsed, BEFORE scene build | Property/NPC/Business cache refresh |
-| `OnLoadComplete` | AFTER scene build complete | UI rebuild, attach to runtime, instantiate managers |
+| `OnPreLoad` | Before save data loads; also fires for same-slot Menu→Game scene reloads (modding Rule 18) | Reset caches, clear state |
+| `OnLoadComplete` | AFTER scene build | **Cache refresh, UI rebuild, attach to runtime, instantiate managers** |
 | `OnPreSceneChange` | Before scene change | Cache cleanup, unsubscribe |
 | `OnSaveStart` | When player hits save | Optional pre-save state mutations |
 | `OnSaveComplete` | After save | Diagnostic, post-save UI updates |
+| `OnSaveInfoLoaded` | **DEAD on game 0.4.7f6+: fires 0×** (verified 2026-09-29 — `schedule1-lifecycle-verify` §7) | Do not use for refresh |
 
-> **Naming:** `S1API` 3.2.0 exposes both `OnSaveInfoLoaded` AND `OnSaveLoaded`. The newer `OnSaveLoaded` is the recommended hook for new code; `OnSaveInfoLoaded` is kept for backward compatibility.
+> **Naming (verified 2026-10-05 against 3.2.1-beta.8 source + deployed DLL):** `GameLifecycle` exposes EXACTLY these 6 events — `OnPreLoad`, `OnLoadComplete`, `OnPreSceneChange`, `OnSaveInfoLoaded`, `OnSaveStart`, `OnSaveComplete`. **`OnSaveLoaded` does NOT exist** (earlier editions of this file recommended it — that was wrong). Refresh work goes into `OnLoadComplete`. Verified order: Scene 'Main' loaded → `OnPreLoad` → `OnLoadComplete` (instrumented run 2026-09-29).
 
 ---
 
@@ -35,13 +38,13 @@ public static class GameLifecycle
 ```csharp
 public override void OnInitializeMelon()
 {
-    GameLifecycle.OnSaveLoaded   += OnSaveLoaded;
+    GameLifecycle.OnPreLoad      += OnPreLoad;        // reset caches
     GameLifecycle.OnLoadComplete += OnLoadComplete;
 }
 
 public override void OnApplicationQuit()
 {
-    GameLifecycle.OnSaveLoaded   -= OnSaveLoaded;   // defensive — avoids double-fire across multi-loads
+    GameLifecycle.OnPreLoad      -= OnPreLoad;   // defensive — avoids double-fire across multi-loads
     GameLifecycle.OnLoadComplete -= OnLoadComplete;
 }
 ```
@@ -57,17 +60,13 @@ public override void OnApplicationQuit()
 ```csharp
 private HashSet<string> _ownedPropertyCodes = new();
 
-private void OnSaveLoaded()
+private void OnLoadComplete()
 {
+    // Lists are populated by now (verified order: Scene 'Main' → OnPreLoad → OnLoadComplete).
     _ownedPropertyCodes = new HashSet<string>(
         PropertyManager.GetOwnedProperties()
             .Select(p => p.PropertyCode)
     );
-}
-
-private void OnLoadComplete()
-{
-    // Now safe to query S1API's PropertyManager — it's populated.
     RefreshUI();
 }
 ```
@@ -77,16 +76,12 @@ private void OnLoadComplete()
 ```csharp
 private List<NPC> _npcs = new();
 
-private void OnSaveLoaded()
-{
-    _npcs = NPCManager.GetAllNPCs();   // returns wrappers, not vanilla
-}
-
 private void OnLoadComplete()
 {
+    _npcs = NPCManager.GetAllNPCs();   // returns wrappers, not vanilla — populated by now
     foreach (var npc in _npcs)
     {
-        // Subscribe to NPC events HERE, not in OnSaveLoaded
+        // Subscribe to NPC events HERE, not in OnPreLoad
         npc.HealthChanged += OnNpcHealthChanged;
     }
 }
@@ -95,7 +90,7 @@ private void OnLoadComplete()
 ### Pattern C: Quest state (typical for quest mods)
 
 ```csharp
-private void OnSaveLoaded()
+private void OnLoadComplete()
 {
     // ALWAYS fresh lookup — never cache Quest/QuestEntry references
     var quest = QuestManager.GetQuestByName("Cold Concrete");
@@ -133,7 +128,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName)
 // ✅ DO — use S1API lifecycle hooks
 public override void OnInitializeMelon()
 {
-    GameLifecycle.OnSaveLoaded += () =>
+    GameLifecycle.OnLoadComplete += () =>
     {
         // Property.OwnedProperties, NPCManager.Registered, Business.OwnedBusinesses all populated
         var owned = PropertyManager.GetOwnedProperties();
@@ -147,7 +142,7 @@ public override void OnInitializeMelon()
 ## 5. Multiplayer Caveats
 
 In multiplayer:
-- `OnSaveLoaded` fires on **host + clients** but the world state may differ.
+- Lifecycle events fire on **host + clients** but the world state may differ.
 - Use `NetworkGuard` (from `S1Mods.Shared`) or `InstanceFinder.IsServer` (Il2CppFishNet) to gate host-only logic.
 - Subscribe to `GameLifecycle.OnPreSceneChange` to clean up state before scene transitions.
 
@@ -158,11 +153,11 @@ In multiplayer:
 ```
 Game Launch
   ↓
-OnPreLoad (very early)
+Scene 'Main' loads (OnSceneWasLoaded)
   ↓
-OnSaveInfoLoaded (after save-info, lists populated) ← BEST for Property cache
+OnPreLoad  (reset caches; ALSO fires for same-slot Menu→Game reloads)
   ↓
-OnLoadComplete (after scene build) ← BEST for UI init
+OnLoadComplete (after scene build) ← BEST for Property cache + UI init  [verified 2026-09-29]
   ↓
 Scene playing
   ↓
@@ -171,6 +166,9 @@ OnPreSceneChange (before transition)
 OnSaveStart (player hits save)
   ↓
 OnSaveComplete (after save)
+
+DEAD: OnSaveInfoLoaded — 0 firings on game 0.4.7f6+ (2026-09-29 instrumented run).
+The ≤ 0.4.6f13 pipeline had an 'OnSaveInfoLoaded after parse' stage between the two — that stage no longer exists on 0.4.7f6+.
 ```
 
 For deep flow diagrams, see the [`S1API.Lifecycle.GameLifecycle` source](../../../ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs).

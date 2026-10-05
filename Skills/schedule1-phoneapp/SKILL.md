@@ -1,9 +1,9 @@
 ---
 name: schedule1-phoneapp
-description: Expert runbook and architectural standard for developing in-game smartphone apps (PhoneApps) using S1API and uGUI in Schedule I (v0.4.7f6, IL2CPP, MelonLoader 0.7.3). Use this skill whenever creating a new PhoneApp, designing responsive phone UI layouts, fixing phone lifecycle bugs (such as transparent housing or input freezes), adding keyboard shortcuts, or integrating with S1API Phone systems.
+description: Expert runbook and architectural standard for developing in-game smartphone apps (PhoneApps) using S1API and uGUI in Schedule I (v0.4.7f9, IL2CPP, MelonLoader 0.7.3). Use this skill whenever creating a new PhoneApp, designing responsive phone UI layouts, fixing phone lifecycle bugs (such as transparent housing or input freezes), adding keyboard shortcuts, or integrating with S1API Phone systems. Keywords: PhoneApp, S1API, uGUI, UITheme, Sp, Dp, Method 3, responsive, InputFocus, IsTyping, OnCreated, OnPhoneClosed, IsOpen, UIFactory, ButtonUtils, EventHelper, slot isolation, IconSprite, mockup, restyle.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — PhoneApp Development Runbook (S1API & IL2CPP)
 
@@ -22,7 +22,7 @@ This skill is the authoritative engineering standard for building, styling, and 
 
 ---
 
-## 1. The 9 Golden Rules of PhoneApp Modding
+## 1. Golden Rules 1–9 (+ empirical Rules 10–14 below)
 
 1. **Explicit Orientation:** Always override `protected override EOrientation Orientation => EOrientation.Vertical;` (or `Horizontal` for wide tablet dashboards). Never leave it unassigned.
 2. **Never Destroy GameObjects on Close:** Never call `Object.Destroy()` or clear UI hierarchies in `OnPhoneClosed()`. Only hide modals or reset navigation. Destroying UI objects on close causes the **"Transparent Phone" (empty housing)** bug when the phone is raised again.
@@ -34,45 +34,7 @@ This skill is the authoritative engineering standard for building, styling, and 
 8. **Audio Feedback:** Play native game audio like `MoneyManager.Instance.PlayCashSound()` for successful transactions and procedural buzzers for errors to enhance UX (see `PocketShop` and `BankApp`).
 9. **Multi-Payment Safety:** When implementing shops or banks, carefully check both physical cash (`cashBalance`) and online bank accounts (`onlineBalance`), considering inventory slot capacity limits (see `BankApp`).
 
-### Rule 11 (empirical, 2026-08-21 / 2026-09-11 audit): Slot-Isolated Persistence for PhoneApps
-
-**Symptom:** `CalculatorApp` `calculator_state.json` was global → Slot-A history leaked into Slot-B. In-game menu/transition also caused `slot_-1.json` when `SaveSlotNumber` is `-1`.
-
-**Root cause:** `CalculatorState.GetStateFilePath()` returned a global path, or didn't guard against `SaveSlotNumber < 0`. All slot-aware mods (`NotesApp`, `CalculatorApp`, `BankApp`, `HomelessMod`, `BusinessIncome`) must use the triple-guarded slot suffix + `TryMigrateLegacy`.
-
-**Fix pattern (`NotesApp.cs` / `CalculatorState.cs`):**
-```csharp
-private static string _lastKnownSlot = "default";
-
-public static string GetActiveSlotSuffix() {
-    try {
-        var loadMgr = LoadManager.Instance;
-        if (loadMgr != null && loadMgr.Pointer != IntPtr.Zero && !loadMgr.WasCollected) {
-            var info = loadMgr.ActiveSaveInfo;
-            if (info != null && info.Pointer != IntPtr.Zero && !info.WasCollected && info.SaveSlotNumber >= 0) {
-                _lastKnownSlot = info.SaveSlotNumber.ToString();
-                return _lastKnownSlot;
-            }
-        }
-    } catch {}
-    return _lastKnownSlot;
-}
-
-public static string GetStateFilePath() {
-    string s = GetActiveSlotSuffix();
-    string path = SafeStorage.GetUserDataPath("MyApp", $"state_slot_{s}.json");
-    TryMigrateLegacy(path);
-    return path;
-}
-
-private static void TryMigrateLegacy(string slotPath) {
-    string legacy = SafeStorage.GetUserDataPath("MyApp", "state.json");
-    if (!File.Exists(legacy)) return;
-    if (File.Exists(slotPath)) { File.Delete(legacy); return; }
-    File.Move(legacy, slotPath);
-}
-```
-`Load()`/`Save()` must use `GetStateFilePath()` — **every** PhoneApp with non-slot file or unguarded `-1` suffix is buggy.
+> Numbering note: Rules 10–14 are later empirical additions (kept numbered for cross-references in other skills — "Rule 10"/"Rule 11" are cited by name). Sections are in numerical order below.
 
 ### Rule 10 (empirical, 2026-08-20): Never Unsubscribe `MelonEvents.OnUpdate` in `OnPhoneClosed()`
 
@@ -101,6 +63,14 @@ protected override void OnPhoneClosed()
 ```
 
 **Corollary:** The same applies to **static event handlers** (`PotTracker.OnPotsScanned`, `Money.OnBalanceChanged`, `TransactionHistoryService.OnHistoryChanged`, `_engine.OnStateChanged`). Unsubscribing them in `OnPhoneClosed` kills live-updates after the first close. The defensive `-=` before `+=` in `OnCreated` is sufficient and correct.
+
+### Rule 11 (empirical, 2026-08-21 / 2026-09-11 audit): Slot-Isolated Persistence for PhoneApps
+
+**Symptom:** `CalculatorApp` `calculator_state.json` was global → Slot-A history leaked into Slot-B. In-game menu/transition also caused `slot_-1.json` when `SaveSlotNumber` is `-1`.
+
+**Root cause:** `CalculatorState.GetStateFilePath()` returned a global path, or didn't guard against `SaveSlotNumber < 0`. All slot-aware mods (`NotesApp`, `CalculatorApp`, `BankApp`, `HomelessMod`, `BusinessIncome`) must use the triple-guarded slot suffix + `TryMigrateLegacy`.
+
+**Fix pattern (canonical):** Triple IL2CPP Guard + `SaveSlotNumber >= 0` + `_lastKnownSlot` fallback + `TryMigrateLegacy` — full copyable code lives in **[`../schedule1-persistence/references/slot-isolation.md`](../schedule1-persistence/references/slot-isolation.md)** (edit there, not here). Rules: `Load()`/`Save()` must use `GetStateFilePath()`; menu/transition states can report `-1` — never write `slot_-1.json`; migrate the legacy global file once. **Every** PhoneApp with a non-slot file or unguarded `-1` suffix is buggy.
 
 ### Rule 12 (empirical, 2026-09-29): Close-Path Experiments Must Not Kill the Open-Direction Sync
 

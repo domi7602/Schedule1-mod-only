@@ -1,4 +1,6 @@
 # Ghost Positioning & Collision — Raycast, Sampling, Pack-Up
+> UNVERIFIED for 0.4.7f9 — carried-over 0.4.6-era working knowledge (no re-verification run yet). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 Ghost evaluation runs every frame in `BuildUpdate_Grid.CheckIntersections` postfix. Uses `GroundPlacementAssistant` for 5-point sampling.
 

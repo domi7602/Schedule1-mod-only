@@ -1,18 +1,18 @@
 ---
 name: schedule1-s1mapi
 description: >-
-  Author-reference for the S1MAPI framework (ifBars, v2.0.1, deployed as UserLibs\S1MAPI_Il2Cpp.dll) for Schedule I v0.4.7f6 (IL2CPP/Mono).
+  Author-reference for the S1MAPI framework (ifBars, v2.0.1, deployed as UserLibs\S1MAPI_Il2Cpp.dll) for Schedule I v0.4.7f9 (IL2CPP/Mono).
   Use this skill whenever you need to procedurally generate 3D meshes at runtime, build entire buildings or rooms, load external GLTF/GLB models, clear or flatten terrain, build NPC navigation meshes, or place in-game prefabs with network synchronization.
   Keywords: S1MAPI, ProceduralMesh, MeshBuilder, BuildingBuilder, InteriorBuilder, GltfLoader, glb, TerrainClearer, FlattenTerrain, NavigationBuilder, PrefabPlacer, NetworkPrefab, MaterialPresets, URP, UnityEngine, no AssetBundle, no Assembly-CSharp.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — S1MAPI Author Reference (ifBars, v2.0.1)
 
 This skill is the **API catalog** for S1MAPI. S1MAPI is a **mapping and construction library**: generates procedural meshes at runtime, constructs full buildings, loads external 3D models (GLTF/GLB) — **without AssetBundles and without dependency on `Assembly-CSharp`**.
 
-> **Version check (verified 2026-09-03 / 2026-09-11):** S1MAPI 2.0.0 (`UserLibs\S1MAPI_Il2Cpp.dll`).
+> **Version check (verified 2026-10-05):** S1MAPI **2.0.1** (`UserLibs\S1MAPI_Il2cpp.dll`, FileVersion 2.0.1.0, deployed 2026-10-02).
 
 ---
 
@@ -195,5 +195,6 @@ For step-by-step recipes: see [recipes.md](references/recipes.md).
 * [gltf-loading.md](references/gltf-loading.md) — `GltfLoader` for `.glb`/`.gltf` models
 * [world-tools.md](references/world-tools.md) — Terrain, Navigation, Prefab placement
 * [recipes.md](references/recipes.md) — Step-by-step end-to-end examples
+* [persistence.md](references/persistence.md) — making S1MAPI-built geometry survive save/load (NEW 2026-10-05)
 * External: [GitHub](https://github.com/ifBars/S1MAPI) · [Thunderstore](https://thunderstore.io/c/schedule-i/p/ifBars/S1MAPI/) · [Nexus Mods](https://www.nexusmods.com/schedule1/mods/1447)
 

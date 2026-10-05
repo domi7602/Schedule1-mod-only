@@ -1,5 +1,7 @@
 # S1API Custom NPC Reference
 
+> **Canonical home of the Custom-NPC API rules.** verified: API surface vs S1API source 2026-10-05 (grep in C:\Users\pc\Schedule1-mod-only\ThirdParty\S1API\S1API\Entities\; in-repo ThirdParty source = 3.2.1-beta.7, deployed S1API = 3.2.1-beta.8 — submodule update pending, see SKILL.md). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 ## Coverage
 
 This reference consolidates the most relevant guidance from:
@@ -14,6 +16,10 @@ This reference consolidates the most relevant guidance from:
 - `scheduling-system.md`
 
 It also adds AvatarFramework-backed notes from vanilla decompiles (`GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/AvatarFramework/`) and S1API (`ThirdParty/S1API/S1API/Entities/`):
+
+## Scope and duplication policy
+
+This file is canonical for the Custom-NPC API surface: Two-Phase Model, prefab-builder methods, appearance constraints, dialogue API, schedule rules, and lifecycle hooks. Role recipes and project-structure patterns live in `example-project-patterns.md`; that file links here instead of repeating full API rules. Do not copy complete code blocks from here into the patterns file — link to the section instead.
 
 - `AvatarFramework/Avatar.cs`
 - `AvatarFramework/AvatarSettings.cs`
@@ -249,7 +255,9 @@ protected override void OnCreated()
 }
 ```
 
-Add `Schedule.InitializeActions()` when the NPC needs explicit action initialization.
+Bundled S1API docs suggest adding `Schedule.InitializeActions()` when the NPC needs explicit action initialization.
+
+Correction (2026-10-05, verified against source): `NPCSchedule.InitializeActions()` is declared `internal` in the in-repo S1API source (`Entities/NPCSchedule.cs`) and is invoked by S1API itself after schedule actions are added. Mod code cannot call it. Bundled S1API docs show mod code calling `Schedule.InitializeActions()` — treat those examples as docs bugs. unverified: whether the deployed S1API 3.2.1-beta.8 changed the visibility.
 
 ### Dialogue
 

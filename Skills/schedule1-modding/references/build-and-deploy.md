@@ -1,5 +1,7 @@
 # Build & Deploy — Detailed Runbook
 
+> verified: pipeline re-checked 2026-10-05 against the current workspace state (deploy rows + bump caveats); anchor: game v0.4.7f9 / S1API 3.2.1-beta.8 (submodule at the beta.8 tag since 2026-10-05).
+
 This reference documents the **complete build/deploy pipeline** for the Schedule I Modding Workspace, including the conventions enforced by `Source/Mods/Directory.Build.props` + `Directory.Build.targets` and the handling of ThirdParty frameworks.
 
 ---
@@ -21,13 +23,13 @@ This reference documents the **complete build/deploy pipeline** for the Schedule
 
 Every workspace mod's `.csproj` is implicitly wrapped by `Source/Mods/Directory.Build.props` (precedence) and `Source/Mods/Directory.Build.targets` (action) — both live in `Source/Mods/`. The targets file auto-deploys:
 
-1. **Loadables for MelonLoader** $\rightarrow$ `<GameDir>\Mods\`:
+1. **Loadables for MelonLoader** → `<GameDir>\Mods\`:
    - `<ModName>.dll`
    - `*.png` (app/HUD icons)
    - `*.bundle` (embedded AssetBundles)
-2. **Metadata & Debug Symbols** $\rightarrow$ `<GameDir>\UserData\<ModName>\`:
-   - `Source/Mods/<ModName>/docs/mod.json` $\rightarrow$ `<GameDir>\UserData\<ModName>\mod.json`
-   - `<ModName>.pdb` $\rightarrow$ `<GameDir>\UserData\<ModName>\<ModName>.pdb`
+2. **Metadata & Debug symbols** → `<GameDir>\UserData\<ModName>\`:
+   - `Source/Mods/<ModName>/docs/mod.json` → `<GameDir>\UserData\<ModName>\mod.json`
+   - `<ModName>.pdb` → `<GameDir>\UserData\<ModName>\<ModName>.pdb`
 3. **ThirdParty DLLs**:
    - `Directory.Build.targets` invokes `Tools/deploy-thirdparty.ps1`.
    - Copies whitelisted DLLs under `ThirdParty/` to `<GameDir>\Mods\` based on `ThirdParty/.deployignore`.
@@ -76,7 +78,7 @@ Remove-Item "$env:SCHEDULE1_PATH\Mods\<Name>.dll"
 dotnet build  Source\Mods\<Name>\src\<Name>.csproj -c Release
 ```
 
-**Version bump (since 2026-08-20):** Never edit 4 files manually — `Tools/bump-version.ps1` synchronizes `Mod.cs` (MelonInfo) + `Source/Mods/<Mod>/docs/mod.json` + `Source/Mods/<Mod>/docs/CHANGELOG.md` + `AGENTS.md` atomically:
+**Version bump (since 2026-08-20):** Never edit 4 files manually — `Tools/bump-version.ps1` updates `Mod.cs` (MelonInfo) + `Source/Mods/<Mod>/docs/mod.json` + `Source/Mods/<Mod>/docs/CHANGELOG.md` + `AGENTS.md`. **Not truly atomic:** the 3 documented regex pitfalls (version-sync.md §3) produce duplicate CHANGELOG entries in some formats — always read the post-bump CHANGELOG and clean up; run the Feature-Diff Gate first (`schedule1-modding` §2.C).
 ```pwsh
 pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.1        # actual change
 pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.1 -DryRun # preview
@@ -88,12 +90,12 @@ pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.1 -DryRun # preview
 
 | Framework | Status | Origin / Deploy | Notes |
 |---|---|---|---|
-| **S1API 3.2.1-beta.7** | ✅ active | Fork-build in `ThirdParty/S1API/` $\rightarrow$ `Mods\S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.MelonLoader.dll` | Core modding API |
-| **PhoneScroll 1.4** | ❌ retired 2026-09-16 | `ThirdParty/Archive/PhoneScroll/` (only README, DLL withdrawn) $\rightarrow$ `Mods\PhoneScroll.dll` | Closed-source vanilla phone scroll hook by V4LEXL |
+| **S1API 3.2.1-beta.8** | ✅ active | deployed `Mods\S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.MelonLoader.dll` (2026-10-05); submodule at the beta.8 tag | Core modding API — **never compile against 3.2.0-stable** (lacks 0.4.7f6+ renames) |
+| **PhoneScroll 1.4** | ❌ retired 2026-09-16 | `ThirdParty/Archive/PhoneScroll/` (only README, DLL withdrawn) → `Mods\PhoneScroll.dll` | Closed-source vanilla phone scroll hook by V4LEXL |
 | **S1MAPI 2.0.1** | ✅ active | `ThirdParty/S1MAPI/` | Procedural meshes, GLTF loader, interior tools |
-| **S1MCPServer** | ✅ active | `ThirdParty/S1MCPServer-master/` $\rightarrow$ `Mods\S1MCPServer-IL2CPP.dll` | Live TCP introspection (:8765) |
+| **S1MCPServer** | ✅ active | `ThirdParty/S1MCPServer-master/` → `Mods\S1MCPServer-IL2CPP.dll` | Live TCP introspection (:8765) |
 | **Sideload** | ❌ removed | Removed on 2026-09-10 (commit `37e7a5d`) | Deprecated, unused |
-| **hash 1.0.5** | 📦 deprecated | `ThirdParty/Archive/ScheduleOne-Hash/` (undeployed) | Kept for reference only |
+| **Hash 1.0.5** | 📦 deprecated | `ThirdParty/Archive/ScheduleOne-Hash/` (undeployed) | Kept for reference only |
 
 ---
 

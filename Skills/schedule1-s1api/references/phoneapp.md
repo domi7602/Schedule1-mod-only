@@ -1,5 +1,7 @@
 # S1API — PhoneApp (In-Game Smartphone UI)
 
+> verified: §5 UIFactory signatures checked against `UIFactory.cs` (3.2.1-beta.8 source) 2026-10-05; lifecycle rules empirical 2026-08-20. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 The `PhoneApp` base class turns your mod into a fully integrated app on the in-game phone home screen. Auto-discovered, lifecycle-managed, and branch-portable.
 
 For the full PhoneApp **runbook** (lifecycle, UI patterns, InputFocus, lifecycle sync), see the `schedule1-phoneapp` skill. This reference is the **S1API-specific catalog** of the PhoneApp base class.
@@ -130,7 +132,7 @@ public void CloseApp()
 |---|---|---|
 | `Panel(name, parent, color)` | `GameObject` | uGUI panel with `Image` |
 | `Panel(name, parent, color, fullAnchor:true)` | `GameObject` | Full-screen-anchored panel |
-| `Text(name, parent, fontSize, color, alignment)` | `GameObject` | Text mesh |
+| `Text(name, content, parent, fontSize = 14, anchor = UpperLeft, style = Normal)` | `Text` | Legacy UGUI text — **returns the `Text` component directly**, NOT a GameObject (verified against `UIFactory.cs:69`, 3.2.1-beta.8) |
 | `RoundedButtonWithLabel(name, label, parent, color, w, h, fontSize, labelColor)` | `(GameObject, Button, Text)` | Pill-shaped button |
 | `InputField(name, parent, w, h, placeholder)` | `InputField` | Text input |
 | `ScrollableVerticalList(name, parent, spacing)` | `ScrollRect` | Pre-wired scroll rect |

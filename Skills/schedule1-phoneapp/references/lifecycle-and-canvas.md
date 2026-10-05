@@ -1,5 +1,7 @@
 # PhoneApp Lifecycle & Canvas Architecture
 
+> **Canonical home of Rule 10** (OnCreated fires once / never unsubscribe in OnPhoneClosed) — other files reference here instead of duplicating the pattern. verified: 2026-08-20 / 2026-09-11 audit; S1API mechanism re-checked 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 This reference covers the complete lifecycle of an S1API `PhoneApp` inside Schedule I, the container hierarchy, orientation mechanics, and critical stability rules to prevent UI destruction bugs.
 
 ---
@@ -38,7 +40,7 @@ protected override void OnCreatedUI(GameObject container)
     var containerRt = container.GetComponent<RectTransform>();
     if (containerRt != null)
     {
-        UITheme.Initialize(containerRt);
+        S1Mods.Shared.UITheme.InitializeForTextApp(containerRt);   // or InitializeForDashboard — never a local UITheme (see responsive-ui-theme.md)
     }
 
     // 1. Isolated Full-Screen Background Panel
@@ -168,7 +170,7 @@ private void Update()
 }
 ```
 
-### ⚠️ Subscription Lifetime (empirical, 2026-08-20 / 2026-09-11 audit)
+### ⚠️ Subscription Lifetime — Rule 10 (canonical; empirical, 2026-08-20 / 2026-09-11 audit)
 
 - `OnCreated()` fires **ONCE** per scene (S1API auto-discovery via `HomeScreen_Start_Patch` — see `ThirdParty/S1API/S1API/Internal/Patches/HomeScreen.Start.cs`).
 - `OnPhoneClosed()` fires on **every** phone close.

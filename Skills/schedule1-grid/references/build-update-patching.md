@@ -1,5 +1,7 @@
 # BuildUpdate Patching — Lifecycle & Harmony Guards
 
+> verified: guards + anti-dupe live-verified via HomelessMod (0.4.6-era); lifecycle section re-verified 2026-09-29 against the instrumented run. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 Covers `BuildUpdate_Grid` interception and save/load timing. See `outdoor-placement.md` for GridItem rules and `collision-and-ghosts.md` for ghost raycasts.
 
 ## 2. Strip FishNet Networking
@@ -70,11 +72,11 @@ Always check `obj == null || obj.Pointer == IntPtr.Zero`. Use iterative `transfo
 ## Save & Load Lifecycle
 
 ```
-OnPreLoad → ResetState()
-OnSaveInfoLoaded → register item defs
-OnLoadComplete → LoadAndSpawnStreetItems()
+OnPreLoad → ResetState()                    (fires for slot switches AND same-slot Menu→Game reloads — modding Rule 18)
+OnLoadComplete → LoadAndSpawnStreetItems()  (refresh caches + spawn; register item defs here too)
 Gameplay → in-memory Register/Unregister
 OnSaveComplete → SaveStreetItems() atomic
 ```
 
 Align strictly with `S1API.Lifecycle.GameLifecycle` — see `schedule1-persistence` for atomic patterns.
+**Do NOT use `OnSaveInfoLoaded`** (an older recipe had it fire "register item defs") — verified 2026-09-29: it fires **0×** on game 0.4.7f6+ (`schedule1-troubleshooting/references/save-load-timing.md` §1). Move that work into `OnLoadComplete`.

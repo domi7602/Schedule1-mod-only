@@ -1,4 +1,6 @@
 # Input-Focus Protection & Keyboard Navigation
+> UNVERIFIED for 0.4.7f9 — carried-over (IntPtr-ctor CAUTION is a stable IL2CPP rule). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 When building Phone Apps in *Schedule I*, two critical input problems occur:
 1. **The WASD & Game-Hotkey Leak**: When typing text into an `InputField` (e.g. search bar, notes editor, rename field), the base game's input system still listens for <kbd>W</kbd>, <kbd>A</kbd>, <kbd>S</kbd>, <kbd>D</kbd>, <kbd>Tab</kbd>, and number keys, causing the player character to walk around or trigger inventory hotkeys while typing.

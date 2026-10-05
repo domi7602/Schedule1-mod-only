@@ -1,17 +1,17 @@
 ---
 name: schedule1-economy
 description: >-
-  Economy runbook for Schedule I v0.4.7f6 (Money, Businesses, Shops, Customers, Laundering). Use when implementing purchases, bank transfers, passive income, inventory capacity, weekly ATM limits, or multiplayer-safe economy logic. Covers BankApp double-entry, PocketShop multi-payment + atomic purchase, BusinessIncome host authority + snapshot revert.
+  Economy runbook for Schedule I v0.4.7f9 (Money, Businesses, Shops, Customers, Laundering). Use when implementing purchases, bank transfers, passive income, inventory capacity, weekly ATM limits, or multiplayer-safe economy logic. Covers BankApp double-entry, PocketShop multi-payment + atomic purchase, BusinessIncome host authority + snapshot revert.
   Keywords: Money, MoneyManager, onlineBalance, cashBalance, Business, OwnedBusinesses, ShopInterface, PurchaseService, BankService, TransactionHistory, weekly limit, cash slot, Auto payment, CreateOnlineTransaction, ChangeCashBalance.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — Economy Skill (Money / Business / Shop)
 
 This skill is the **runbook for every economy interaction** in Schedule I — cash vs bank, price + fees, inventory capacity, weekly ATM limits, passive daily payouts, and multiplayer-safe transaction ordering. It codifies the patterns verified across active economy mods (`BankApp`, `PocketShop`, `BusinessIncome`).
 
-> **Version check (verified 2026-09-11):** Game v0.4.6f13, S1API 3.2.0, `S1API.Money` + `Il2CppScheduleOne.Money.MoneyManager`. Incorporates host authority and partial refund rules from 2026-09-11 audit.
+> **Version check (verified 2026-10-05):** Game v0.4.7f9, S1API 3.2.1-beta.8, `S1API.Money` + `Il2CppScheduleOne.Money.MoneyManager` — `ChangeCashBalance`/`CreateOnlineTransaction` signatures re-verified against the 0.4.7f9 decompile (see §7 API table). Incorporates host authority and partial refund rules from the 2026-09-11 audit.
 
 ---
 
@@ -163,8 +163,8 @@ Cash first, then bank — preserves physical cash for emergencies, uses the bank
 |---|---|---|
 | `MoneyManager.Instance.cashBalance` | `Il2CppScheduleOne.Money.MoneyManager` | Read physical cash |
 | `MoneyManager.Instance.onlineBalance` | same (use `sync___get_value_onlineBalance()` in IL2CPP) | Read bank balance |
-| `MoneyManager.Instance.ChangeCashBalance(delta, visualize, playSound)` | same | Adjust physical cash |
-| `MoneyManager.Instance.CreateOnlineTransaction(title, amount, days, note)` | same | Adjust bank + log transaction |
+| `MoneyManager.Instance.ChangeCashBalance(float change, bool visualizeChange = true, bool playCashSound = false)` | same | Adjust physical cash — 2nd param = on-screen change visualization, 3rd = cash sound (verified 2026-10-05, 0.4.7f9 decompile; PocketShop passes `false/false` to keep its own UI feedback, BankApp keeps default visualization) |
+| `MoneyManager.Instance.CreateOnlineTransaction(string title, float unitAmount, float quantity, string note)` | same | Adjust bank + log transaction — **3rd param is `quantity`, NOT `days`**: bank is credited/debited `unitAmount × quantity` (verified 2026-10-05, 0.4.7f9 decompile; workspace code passes `1f`) |
 | `Supplier.Debt` (get/set) | `Il2CppScheduleOne.Economy.Supplier` | Outstanding debt |
 | `Supplier.MaxOrderLimit` | same | Order cap (denominator for relationship gain) |
 | `SupplierDebtAccess.ChangeDebt(supplier, delta)` | extension on Supplier | Safe debt mutation (no direct setter on Supplier) |

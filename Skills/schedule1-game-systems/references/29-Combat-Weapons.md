@@ -1,44 +1,65 @@
 # Combat & Weapons (Schedule I)
+> verified: classes + methods/fields + enum values + UnityEvents re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
 
 ## Core Classes
 
-| Class | Purpose |
-|-------|---------|
-| `CombatManager` | Global combat manager (NetworkSingleton) |
-| `CombatBehaviour` | NPC combat AI behavior |
-| `PunchController` | Unarmed melee attacks |
-| `IDamageable` | Damage interface |
-| `Explosion` | Explosion damage handling |
+| Class | Verified base type | Purpose |
+|-------|--------------------|---------|
+| `CombatManager` | `NetworkSingleton<CombatManager>` (`ScheduleOne.Combat`) | Explosion routing (server-authoritative via FishNet RPCs) |
+| `CombatBehaviour` | `Il2CppScheduleOne.NPCs.Behaviour.Behaviour` | NPC combat AI: targeting, searching, shooting, melee |
+| `PunchController` | `MonoBehaviour` | Player unarmed combat: `StartLoad()`, `Release()`, `Punch(float power)`, `ExecuteHit(float power)` |
+| `Explosion` | `MonoBehaviour` | `Initialize(Vector3 origin, ExplosionData data)` applies radial damage/push |
+| `Impact` | plain object (NOT MonoBehaviour) | Payload struct-like class: `HitPoint`, `ImpactForceDirection`, `ImpactForce`, `ImpactDamage`, `ImpactType`, `ImpactSource`, `ImpactID`, `ExplosionType`; `IsPlayerImpact(out Player)` |
+| `ExplosionData` | data class | `DamageRadius`, `MaxDamage`, `PushForceRadius`, `MaxPushForce`, `CheckLoS`, `ExplosionType`, statics `DefaultSmall`, `LightningStrike` |
+
+## Interfaces (interop wrappers, real C# interfaces in game)
+- `IDamageable`: `gameObject`, `SendImpact(Impact)`, `ReceiveImpact(Impact)`
+- `ICombatTargetable`: `NetworkObject`, `CenterPoint`, `CenterPointTransform`, `LookAtPoint`, `IsCurrentlyTargetable`, `RangedHitChanceMultiplier`, `Velocity`, `RecordLastKnownPosition(bool)`, `GetSearchTime()`, `IsPlayer`, `AsPlayer`
+- `IPhysicsDamageable` / `PhysicsDamageable` (MonoBehaviour) / `NetworkedPhysicsDamageable` (NetworkBehaviour, RPCs `SendImpact`/`ReceiveImpact`) — physics-prop damage chain
+
+## Enums (values verified)
+- `EImpactType`: `Punch, BluntMetal, SharpMetal, Bullet, PhysicsProp, Explosion`
+- `EExplosionType`: `Default, Lightning`
+- `ERangedWeaponAction`: `None, Shoot, Reposition, RepositionAndShoot` (drives `CombatBehaviour` ranged decision-making / prompts)
 
 ## Weapons
+| Class | Verified inheritance | Notes |
+|-------|---------------------|-------|
+| `AvatarWeapon` | `AvatarEquippable` (`ScheduleOne.AvatarFramework.Equipping`) | Base for all avatar-held weapons |
+| `AvatarMeleeWeapon` | `AvatarWeapon` | Nested `MeleeAttack` data class |
+| `AvatarRangedWeapon` | `AvatarWeapon` | `CanShoot()`, `IsTargetInLoS(ICombatTargetable)`, reload routine |
+| `AvatarGun` | `AvatarRangedWeapon` | Muzzle flash routine |
+| `Taser` | `AvatarRangedWeapon` | Police taser (NOT `AvatarEquippable` directly as previously listed) |
+| `Equippable_MeleeWeapon` | `Equippable_AvatarViewmodel` | `UpdateInput()`, `StartLoad()`, `Release()`, `Hit(float)`, `ExecuteHit(float)` |
+| `Equippable_RangedWeapon` | `Equippable_AvatarViewmodel` | Full gun framework: `MagazineSize`, `Magazine`, `CanFire(bool checkAmmo = true)`, `CanCock()`, `Cock()`, `GetSpreadAngle()`, `CheckAimingAtNPC()`, `MinSpread`/`MaxSpread`, `ReloadType` (`EReloadType`) |
+| `Equippable_Revolver` | `Equippable_RangedWeapon` | `SetDisplayedBullets(int)` cylinder display |
+| `Equippable_PumpShotgun` | `Equippable_RangedWeapon` | No unique public members in dump — pump behavior comes from base fields (`MustBeCocked`, `CockedByDefault`, reload/cock config) |
 
-- **Melee**: `Equippable_MeleeWeapon` (Baseball bat, knife)
-- **Ranged**: `Equippable_RangedWeapon`, `Equippable_Revolver`, `Equippable_PumpShotgun`
-- **Taser**: `Taser` (AvatarEquippable)
-- **Handgun / Firearms**: `AvatarGun`, `AvatarRangedWeapon`
+## Events / UnityEvents
+On `Equippable_RangedWeapon` (verified `UnityEvent` properties; invocation sites are inside the fire/reload/cock method flow — exact `.Invoke()` call sites not visible in the interop dump):
+| UnityEvent | Associated flow |
+|-----------|-----------|
+| `onFire` | firing (`Fire` path, single + spread) |
+| `onReloadStart` / `onReloadIndividual` / `onReloadEnd` | reload coroutine (`EReloadType` magazine vs. individual) |
+| `onCockStart` | cock routine |
 
-## Damage System
+No `UnityEvent`/`event Action`/`PreallocatedAction` members exist anywhere in `ScheduleOne.Combat` itself — explosion and impact flow is method-based, not event-based.
 
-- `PhysicsDamageable`: Damage caused by physics objects
-- `ICombatTargetable`: Combat targeting interface
-- `EImpactType`: Damage types (Blunt, Pierce, Explosion)
-- `ExplosionData`: Explosion parameters
+## CombatBehaviour AI (verified fields — moddable tuning knobs)
+- Constants: `RECENT_VISIBILITY_THRESHOLD`, `REPOSITION_TIME`, `SEARCH_RADIUS_MIN/MAX`, `SEARCH_SPEED`, `CONSECUTIVE_MISS_ACCURACY_BOOST`, `REACHED_DESTINATION_DISTANCE`, `DelayBeforeFirstAttack`
+- Inspector/config: `GiveUpRange`, `GiveUpAfterSuccessfulHits`, `DefaultMovementSpeed`, `VirtualPunchWeapon`, `DefaultSearchTime`, `CombatOnStart`
+- Key methods: `SetTargetAndEnable_Server(NetworkObject)`, `SetDefaultWeapon(AvatarWeapon)`, `SetWeapon(string weaponPath)` (protected virtual), `ClearWeapon()`, `IsCurrentWeaponMelee()`, `Shoot()`, `SucessfulHit()` (sic), `StartSearching()`/`StopSearching()`, `CheckTargetVisibility()`, `MarkPlayerVisible()`
 
-## Combat UI
+## Save Participation
+- None of the Combat/Equipping classes implement `ISaveable` (grep verified). Ammo state is item-instance data; equipped items persist via item instances, not via this namespace.
 
-- `ReticleController`: Crosshair animation controller
-- `ReticleUI`: Crosshair display
-- `CrosshairText`: Interaction prompt text inside crosshair
+## Hook Points (Harmony)
+1. `CombatManager.CreateExplosion(Vector3, ExplosionData)` (public, CallerCount>0) and its private id-overload — prefix to modify/custom-block explosions; networked flow is `RpcWriter___Server_CreateExplosion_*` → server → observers, so patch the public client entry, not the RPC reader.
+2. `CombatBehaviour.Shoot()` — bool-returning, non-trivial instance method; prefix to force hit/miss (roll accuracy mods) without touching raycast internals.
+3. `Equippable_RangedWeapon.CanFire(bool)` or `PunchController.Punch(float)` — gate/disable weapons or re-route damage.
+- S1API: **no** `S1API.Combat`/weapon namespace exists. `S1API.Entities.NPC` exposes `.CombatBehaviour` (wrapper class `S1API.Entities.Behaviour.CombatBehaviour`) with `GiveUpRange`, `DefaultSearchTime`, `DefaultWeapon`, `SetTargetAndEnable_Server`, `SetWeapon(string path)` — use that instead of raw Harmony where possible.
 
-## Weapon Classes
-
-- `AvatarWeapon`: Base class for all avatar weapons
-- `AvatarMeleeWeapon`: Melee weapons
-- `AvatarRangedWeapon`: Firearms
-- `Equippable_RangedWeapon`: Player equippable component for firearms
-
-## Ammunition & Reloading
-
-- Weapons consume item system ammunition
-- `Equippable_Revolver`: 6-shot capacity, manual reload
-- `Equippable_PumpShotgun`: Pump-action mechanics
+## Not Implemented / Dead Code
+- No `WeaponRegistry` or ammo-reserve manager class found in this dump; magazine/ammo logic lives entirely on `Equippable_RangedWeapon` fields.
+- `ReticleController` (`ShowReticle(float duration = -1)`, `HideReticle`, `SetReticle(float spreadAngle)`), `ReticleUI`, `CrosshairText` live in `ScheduleOne.UI` — UI-only, no damage involvement.
+- Old claim "Taser (AvatarEquippable)" corrected: `Taser : AvatarRangedWeapon`.

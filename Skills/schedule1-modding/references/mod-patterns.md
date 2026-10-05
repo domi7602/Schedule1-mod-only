@@ -1,6 +1,8 @@
 # Mod Patterns — 7 Established Architectures
 
-The active workspace mods (NotesApp, PotScanner, CalculatorApp, CustomSkateboard, MoreSaveSlots, PocketShop, BankApp, HomelessMod, BusinessIncome, Minimap, MoreDrugs) cluster into **7 architectural patterns**. Pick the pattern that matches your use-case before designing.
+> verified: patterns established 2026-08-20 → 2026-09-11; §4 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+); Pattern-1 skeleton modernized to the Shared UITheme API 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
+The workspace mods (see [`AGENTS.md`](../../../AGENTS.md) §2 for the current, authoritative inventory) cluster into **7 architectural patterns**. Pick the pattern that matches your use-case before designing.
 
 ---
 
@@ -28,7 +30,7 @@ public sealed class MyApp : PhoneApp
 
     protected override void OnCreatedUI(GameObject container)
     {
-        UITheme.Initialize(container.GetComponent<RectTransform>());
+        S1Mods.Shared.UITheme.InitializeForTextApp(container.GetComponent<RectTransform>());  // or InitializeForDashboard
         var panel   = UIFactory.Panel("Root",   container.transform, new Color(0.1f, 0.1f, 0.1f), fullAnchor: true);
         // build scroll, list, buttons, input fields ...
         ButtonUtils.AddListener(button, OnClick);
@@ -163,7 +165,7 @@ public class MySave : Saveable
 **Key rules:**
 - Class must be `public`, non-abstract, with parameterless constructor.
 - All persistent fields need `[SaveableField("name")]`.
-- `GameLifecycle.OnSaveInfoLoaded` is the proper hook for save-data refresh — fire earlier than `OnGameplaySceneLoaded`.
+- `GameLifecycle.OnLoadComplete` is the proper hook for save-data refresh on game 0.4.7f6+ — **`OnSaveInfoLoaded` fires 0× there** (verified 2026-09-29; see `schedule1-troubleshooting` §5 + `save-load-timing.md` §1).
 - `Saveable.RequestGameSave()` triggers a save after significant changes.
 
 ### Standalone JSON Persist (no Save System)
@@ -174,6 +176,8 @@ if (SafeStorage.TryLoad(filePath, out string json))
     state = JsonSerializer.Deserialize<MyState>(json);
 ```
 **Reference impl:** CalculatorApp — decimal-arithmetic + JSON history + clipboard + atomic save.
+
+API note: `SafeStorage.TryLoad` = raw-text loader with `out` param; `LoadSafe<T>` / `LoadTextSafe` = fallback-object loaders — see `schedule1-persistence` §3.
 
 ---
 
@@ -245,11 +249,10 @@ cfg.OnChanged += (_, _) => Refresh();
 // Mod.cs
 ModConfig<MyModConfig>.Initialize("MyMod");
 ConfigJsonStore.ApplyToConfig(ModConfig<MyModConfig>.Instance);  // merge dicts
-
-// ConfigJsonStore (see BusinessIncome/Services/ConfigJsonStore.cs)
-public static void ApplyToConfig(MyModConfig cfg) { /* LoadSafe + merge */ }
-public static void Save(MyModConfig cfg)          { /* SaveAtomic */ }
+// after every SetAndSave:  ConfigJsonStore.Save(ModConfig<MyModConfig>.Instance);
 ```
+
+**Canonical implementation** (full `ConfigJsonStore` class + sidecar-managed-properties note): `references/architecture-and-shared.md` §3 — edit there, not here.
 
 **Reference impl:** PotScannerConfig (pot-scanner/src/Services/PotScannerConfig.cs) — AutoWaterEnabled, plus per-throttle. BusinessIncomeConfig + ConfigJsonStore for dictionaries.
 

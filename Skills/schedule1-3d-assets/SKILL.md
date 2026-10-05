@@ -1,16 +1,16 @@
 ---
 name: schedule1-3d-assets
 description: >-
-  Comprehensive 3D asset, Blender pipeline, and Unity URP rendering runbook for Schedule I modding (v0.4.7f6, Unity 2022.3 LTS, URP).
+  Comprehensive 3D asset, Blender pipeline, and Unity URP rendering runbook for Schedule I modding (v0.4.7f9, Unity 2022.3 LTS, URP).
   Use this skill whenever creating 3D models in Blender, fixing rendering issues (pink shaders, flipped normals, axis rotations), exporting to .obj/.glb/AssetBundles, rigging/attaching to avatar bones (Spine2, Head, Hands), setting up PBR materials, and tuning proportions for Schedule I characters and props.
   Keywords: Blender, 3D, Mesh, URP, Universal Render Pipeline, Shader, Material, Lit, Unlit, Pink Texture, Flipped Normals, Backface Culling, ObjLoader, GLTF, GLB, AssetBundle, Bone Attachment, Spine2, Humanoid, Zero Collider, Scale.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — 3D Asset & Blender Rendering Pipeline
 
-This skill is the **complete runbook** for creating, exporting, and rendering 3D assets in *Schedule I* (v0.4.7f6, Unity 2022.3 LTS, Universal Render Pipeline).
+This skill is the **complete runbook** for creating, exporting, and rendering 3D assets in *Schedule I* (v0.4.7f9, Unity 2022.3 LTS, Universal Render Pipeline).
 
 ---
 
@@ -45,8 +45,8 @@ flowchart TD
 ## 2. The 7 Golden Rules for 3D Assets in Schedule I
 
 1. **Transform Reset in Blender (<kbd>Ctrl+A</kbd>):**  
-   Always run <kbd>Ctrl+A</kbd> $\rightarrow$ **Apply All Transforms** (Rotation, Scale, Location) in Blender before export. Never export unscaled or rotated objects!
-2. **Coordinate Standard ($Z$-Up vs. $Y$-Up):**  
+   Always run <kbd>Ctrl+A</kbd> → **Apply All Transforms** (Rotation, Scale, Location) in Blender before export. Never export unscaled or rotated objects!
+2. **Coordinate Standard (Z-Up vs. Y-Up):**  
    Blender uses $+Z$ as up, Unity uses $+Y$ as up. Export settings for OBJ/GLTF: **Forward: `-Z Forward` / Up: `Y Up`**.
 3. **Face Orientation & Normals Check (<kbd>Shift+N</kbd>):**  
    Enable the **Face Orientation** overlay in Blender before export. Blue faces = outside, red faces = inside. If outward-facing faces are red, select all (<kbd>A</kbd>) and press <kbd>Shift+N</kbd>.
@@ -55,7 +55,7 @@ flowchart TD
 5. **Zero-Collider Rule for Clothing & Wearables:**  
    Clothing items, backpacks, or worn accessories must **not have active colliders** (`Destroy(collider)` on load), otherwise they intercept raycasts, block inventory clicks, or cause physics glitches.
 6. **Respect Avatar Proportions:**  
-   The *Schedule I* character is slim and stylized. Torso width: $\approx 0.12\text{--}0.14\,\text{m}$, total height: $\approx 1.75\,\text{m}$. Never use a standard 1m cube as a backpack — align to the real avatar dimensions.
+   The *Schedule I* character is slim and stylized. Torso width: ≈0.12–0.14 m, total height: ≈1.75 m. Never use a standard 1m cube as a backpack — align to the real avatar dimensions.
 7. **Material Memory Hygiene (`sharedMaterial` vs `material`):**  
    Never casually access `renderer.material` in code (creates memory leaks through dynamic instances); use `renderer.sharedMaterial` or cache materials in `static readonly` fields.
 

@@ -1,44 +1,21 @@
 # Multiplayer & Lobby (Schedule I)
 
+> **Redirect stub** (consolidated 2026-10-05): FishNet fundamentals (NetworkSingleton, SyncVar patterns, RPC naming, server authority, PredictedSpawn) live in **[`01-FishNet-Networking.md`](01-FishNet-Networking.md)**. This file keeps only the lobby/splitscreen class register. Class-list only — not yet re-verified against 0.4.7f9.
+
 ## Core Classes
 
 | Class | Purpose |
 |-------|---------|
-| `Lobby` | Lobby management |
-| `AutoNetworkStart` | Automatic network start |
-| `TransportInitializer` | Transport initialization |
-| `LocalMultiplayerTool` | Splitscreen tool |
+| `Lobby` | Create / Join / Manage (Steamworks-based, invitations via Steam Overlay) |
+| `LobbyInterface` / `JoinLocal` | Lobby UI / local join |
+| `AutoNetworkStart` | Automatic start as Host/Client |
+| `TransportInitializer` | Selects transport (Steam, Local) |
+| `LocalMultiplayerTool` | Splitscreen co-op (2 players, controller for P2) |
+| `NetworkConditionalObject` | Network-dependent objects |
+| `IStaggeredReplicator` / `ReplicationQueue` | Replication plumbing |
 
-## Lobby System
+## Sync model (details in 01)
 
-- Steamworks-based networking
-- `Lobby`: Create / Join / Manage
-- Invitations via Steam Overlay
-- `NetworkConditionalObject`: Network-dependent objects
+FishNet 3.x · `NetworkSingleton<T>` for global managers · server-authoritative · SyncVars + RPCs.
 
-## Splitscreen
-
-- `LocalMultiplayerTool`: Local co-op via splitscreen
-- Two players on one screen
-- Shared inventory and progress
-- Player 2 uses controller
-
-## Network Start
-
-- `AutoNetworkStart`: Automatic start as Host/Client
-- `TransportInitializer`: Selects transport (Steam, Local)
-- `IStaggeredReplicator`: Staggered replication
-- `ReplicationQueue`: Replication queue
-
-## UI
-
-- `LobbyInterface`: Lobby UI
-- `JoinLocal`: Join local game
-- Steam Overlay for invitations
-
-## Sync
-
-- FishNet 3.x as networking layer
-- NetworkSingleton<T> for global managers
-- Server-authoritative model
-- SyncVars + RPCs for state sync
+**Mod-side rule:** host authority for economy/world writes via `NetworkGuard.IsHostOrSingleplayer()` — see `schedule1-modding` Rule 15 + `schedule1-economy` §6.

@@ -1,45 +1,20 @@
 # Skateboard (Schedule I)
 
+> **Redirect stub** (consolidated 2026-10-05): the deep, live-verified skateboard analysis (PID values, API signatures, Harmony hook point, TaxiDriver spike results) lives in **[`07-Vehicle.md`](07-Vehicle.md)** (skateboard section, "Live-Verified API (v0.4.7f6, 2026-09-25)" block). This file keeps only the class register. Class-list only — not yet re-verified against 0.4.7f9.
+
 ## Core Classes
 
 | Class | Purpose |
 |-------|---------|
 | `Skateboard` | Main skateboard class |
-| `Skateboard_Equippable` | Equippable skateboard |
+| `Skateboard_Equippable` | Equippable skateboard (hotbar, right-click to mount) |
 | `SkateboardAnimation` | Animations |
-| `SkateboardCamera` | Camera modifications |
+| `SkateboardCamera` | Camera mods (dynamic FOV, turn tilt) |
+| `SkateboardVisuals` | Visual customizations |
+| `SkateboardAudio` / `SkateboardEffects` | Sounds / particles |
+| `SkateboardData` / `SkateboardOverrideData` / `SkateboardSettings` | Experimental prototype data (`Experimental/`) |
 
-## Skateboard Mechanics
+## Related
 
-- Faster than walking
-- Can perform tricks
-- Overrides movement and camera
-- `SkateboardVisuals`: Visual customizations
-
-## Components
-
-- `SkateboardAudio`: Sound effects
-- `SkateboardEffects`: Particle effects
-- `SkateboardData`: Experimental data
-- `SkateboardOverrideData`: Override settings
-- `SkateboardSettings`: Settings
-
-## Equipment
-
-- `Skateboard_Equippable`: Equippable version
-- Equipped in the hotbar
-- Right-click to mount
-- Movement with WASD + Sprint boost
-
-## Camera
-
-- `SkateboardCamera`: Changes camera perspective
-- Dynamic FOV based on speed
-- Camera tilt during turns
-
-## Experimental
-
-- `Experimental/SkateboardData.cs`
-- `Experimental/SkateboardOverrideData.cs`
-- `Experimental/SkateboardSettings.cs`
-- Part of the Experimental namespace (Prototype?)
+- Workspace reference mod: `Source/Mods/CustomSkateboard/` (Harmony + ModConfig + Console)
+- Physics/PID + hook points: [`07-Vehicle.md`](07-Vehicle.md)

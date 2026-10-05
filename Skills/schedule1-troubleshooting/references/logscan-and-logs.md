@@ -1,5 +1,7 @@
 # Latest.log Triage & Diagnostics
 
+> verified: PowerShell one-liners re-tested 2026-08-03; §4.3 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 The canonical method for inspecting runtime diagnostics in Schedule I is querying `<GameDir>\MelonLoader\Latest.log`. These native PowerShell commands provide fast, zero-dependency log triage without game-freeze risks.
 
 ---
@@ -24,20 +26,7 @@ Get-Content $log | Select-String -Pattern '\[ERROR\]|Exception' | Select-Object 
 
 ---
 
-## 2. Common Flags
-
-| Flag | Effect |
-|------|--------|
-| `--error-summary` | Aggregate error categories with counts |
-| `--mod <name>` | Filter log lines containing `<name>` |
-| `--since HH:MM` | Only lines after this wall-clock time (today) |
-| `--level error\|warn\|info` | Filter by log level |
-| `--tail <N>` | Only the last N lines (faster on huge logs) |
-| `--regex <pattern>` | Custom line-level grep (case-insensitive) |
-| `--json` | Machine-readable output (for scripts) |
-| `--no-color` | Plain text (for piping) |
-
----
+## 2. Log Anatomy (What Each Block Means)
 
 ## 3. Log Anatomy (What Each Block Means)
 
@@ -60,9 +49,9 @@ Get-Content $log | Select-String -Pattern '\[ERROR\]|Exception' | Select-Object 
 
 ---
 
-## 4. Common Spike Patterns (What to Look For)
+## 3. Common Spike Patterns (What to Look For)
 
-### 4.1. Mod Init Failure (Mod never starts)
+### 3.1. Mod Init Failure (Mod never starts)
 ```
 [<time>] [ModName] Error: <message>
 [<time>] Exception: ... StackOverflowException / MissingMethodException / TypeInitializationException
@@ -73,7 +62,7 @@ Get-Content $log | Select-String -Pattern '\[ERROR\]|Exception' | Select-Object 
 3. Find the **first** error belonging to the mod — ignore everything later.
 4. Cross-reference with `[common-errors.md](common-errors.md)`.
 
-### 4.2. Patch Silent No-Op
+### 3.2. Patch Silent No-Op
 ```
 [<time>] [ModName] Info: Patched: <Type>.<Method> (Prefix: 1, Postfix: 0)
 [<time>] (no further logs about the patched method)
@@ -83,15 +72,15 @@ Get-Content $log | Select-String -Pattern '\[ERROR\]|Exception' | Select-Object 
 - `__instance == null` early return.
 - Scene/lifecycle condition.
 
-### 4.3. Save-Load Desync
+### 3.3. Save-Load Desync
 ```
 [<time>] [S1API] Error: GameLifecycle.OnLoadComplete fired before ...
 [<time>] [ModName] Error: Property.OwnedProperties.Count == 0
 [<time>] Exception: NullReferenceException at …
 ```
-**Cause:** Hooked the wrong lifecycle. Use `GameLifecycle.OnSaveInfoLoaded` instead of `OnGameplaySceneLoaded`.
+**Cause:** Hooked the wrong lifecycle. Refresh on `GameLifecycle.OnLoadComplete` (verified order 2026-09-29: Scene 'Main' → `OnPreLoad` → `OnLoadComplete`; see save-load-timing.md §1). **Do NOT use `OnSaveInfoLoaded` for this — it fires 0× on game 0.4.7f6+** (older advice recommending it is historical).
 
-### 4.4. Native AV Crash (0xc0000005)
+### 3.4. Native AV Crash (0xc0000005)
 ```
 Windows Error: 0xc0000005 (Access Violation)
 (no managed stack trace in log)
@@ -99,7 +88,7 @@ Windows Error: 0xc0000005 (Access Violation)
 **Cause:** Mod class volume too high (>5-10 MB) → IL2CPPInterop class init failure → native AV.
 **Fix:** Reduce `RegisterTypeInIl2Cpp` count, defer init, split into multiple mods.
 
-### 4.5. IL2CPP Interop Failure (0x80131506)
+### 3.5. IL2CPP Interop Failure (0x80131506)
 ```
 Windows Error: 0x80131506 (CLR Fatal Error)
 Fatal error in GC
@@ -108,7 +97,7 @@ Fatal error in GC
 
 ---
 
-## 5. Worked Example: Catch the First Error
+## 4. Worked Example: Catch the First Error
 
 ```pwsh
 # Step 1: Cold-start capture
@@ -125,7 +114,7 @@ The first error is almost always the **root cause**; subsequent errors are usual
 
 ---
 
-## 6. Performance Notes
+## 5. Performance Notes
 
 * Streaming `Latest.log` with `Get-Content -Tail 200` is instantaneous even on huge log files (>100 MB).
 * To follow the log in real time during a gameplay session:

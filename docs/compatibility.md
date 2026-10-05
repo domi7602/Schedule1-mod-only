@@ -7,10 +7,10 @@ This page records which game and framework versions each mod was built against a
 | Component | Version | Notes |
 |---|---|---|
 | Schedule I (Steam default) | v0.4.6f13 | IL2CPP, Unity 2022.3. Baseline for the September 2026 verification pass. |
-| Schedule I (Open Beta) | v0.4.7f6 | Development target since 2026-09-23. Local decompiles under `GameReferences/` may still be 0.4.6f13. |
+| Schedule I (Open Beta) | v0.4.7f9 | Live since ~2026-10-03 (buildid 25698382, verified 2026-10-05). Local decompiles under `GameReferences/` regenerated 2026-10-05 (ilspycmd 9.1.0.7988, project mode) — verified against the spot-check set (EClothingSlot/EClothingColor, MoneyManager, EEmployeeType, EConversationCategory). |
 | MelonLoader | 0.7.3 | `net6` runtime. |
-| S1API | 3.2.1-beta.7 (git submodule `ThirdParty/S1API`) | Build reference; stay on the 3.2.1-beta line for the 0.4.7f6 renames. |
-| S1API (deployed runtime) | 3.2.1-beta.7 | `Mods\S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.MelonLoader.dll`. The 3.2.0 stable build does not know the 0.4.7f6 renames. |
+| S1API | 3.2.1-beta.8 (git submodule `ThirdParty/S1API`) | Build reference — submodule checked out at the beta.8 tag 2026-10-05 (commit f65ae40 = deployed build). Stay on the 3.2.1-beta line for the 0.4.7f6+ renames. |
+| S1API (deployed runtime) | 3.2.1-beta.8 (2026-10-05) | `Mods\S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.MelonLoader.dll`. The 3.2.0 stable build does not know the 0.4.7f6 renames. |
 | S1MAPI | 2.0.1 (git submodule `ThirdParty/S1MAPI`) | Deployed as `UserLibs\S1MAPI_Il2Cpp.dll`. |
 | Target framework | `net6.0`, C# 12, nullable enabled | Shared via `Source/Mods/Directory.Build.props`. |
 
@@ -34,6 +34,8 @@ This page records which game and framework versions each mod was built against a
 | Weather | 0.4.0 | — | — | yes | no | In-game verification open (0.4.0 = rebuild to the approved mockup; no version of this mod has been verified in-game yet). |
 | MessagesPlus | 0.4.1 | v0.4.7f6 (beta) | 2026-09-30 | yes (`S1API.Lifecycle`, `S1API.UI`) | no | v0.4.0 verified in-game 2026-09-30; v0.4.1 (permanent whole-app dark mode + instant deal-window theming) verification open. |
 | TaxiDriver | 0.7.0 | v0.4.7f6 (beta) | 2026-09-25 | yes | yes (`S1MAPI.Gltf.GltfLoader`) | Feasibility spike / developer tool. Stages 1-3 live-verified 2026-09-25; the current Pakete C-G test round is open. |
+| TabToHome | 0.1.0 | — | — | no | no | Shelved 2026-10-04 before in-game verification (S1API's own `Phone.SetIsOpen` calls defeat the Tab redirect); game copy removed, not deployed. |
+| StorageScanner | 0.1.1 | — | — | yes | no | v0.1.0 never ran a scan (readiness gate blocked on `IsContentCulled`); v0.1.1 fix deployed 2026-10-04, in-game verification open. |
 
 ## Known version-drift risks
 

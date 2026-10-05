@@ -1,5 +1,7 @@
 # Search Recipes — Concrete Patterns
 
+> verified: recipes tested against workspace 2026-10-05 (ilspycmd 9.1.0.7988 needs scoped `DOTNET_ROOT="$env:USERPROFILE\.dotnet"` — Pitfall 6 in `../schedule1-lifecycle-verify/SKILL.md`). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 Concrete patterns to use the workspace's grep/glob/ilspycmd tools efficiently. Generic advice ("search the codebase") is not actionable; these are tested recipes.
 
 ---
@@ -78,16 +80,18 @@ Get-ChildItem 'ThirdParty/S1API/S1API' -Recurse -Filter '*Money*.cs' | Select-Ob
 
 ```pwsh
 # Find lifecycle event definitions in S1API
-Select-String -Pattern 'OnSaveInfoLoaded|OnLoadComplete|OnGameplaySceneLoaded' `
+Select-String -Pattern 'OnPreLoad|OnLoadComplete|OnSaveInfoLoaded|OnSaveStart|OnSaveComplete|OnPreSceneChange' `
     -Path 'ThirdParty\S1API\S1API\Lifecycle\*.cs'
+# Known 2026-10-05: OnSaveLoaded does NOT exist; OnSaveInfoLoaded fires 0x on 0.4.7f6+ (see schedule1-s1api/references/lifecycle.md)
 ```
 
 ---
 
 ## Recipe 8: Quick Log Diagnosis (PowerShell)
 
+**Canonical recipes** (one-liners, streaming, spike patterns): `schedule1-troubleshooting/references/logscan-and-logs.md`. Fast starter:
+
 ```pwsh
-# Scan Latest.log for errors and exceptions (last 200 lines)
 Get-Content "$env:SCHEDULE1_PATH\MelonLoader\Latest.log" -Tail 200 |
     Select-String -Pattern '\[ERROR\]|\[WARNING\]|Exception|WasCollected'
 ```
@@ -125,5 +129,5 @@ Get-Content "$env:SCHEDULE1_PATH\MelonLoader\Latest.log" -Tail 200 |
 3. Check established mod pattern: `Skills/schedule1-modding/references/mod-patterns.md` (Pattern 2: HUD Overlay).
 4. Scaffold: `pwsh Tools/new-mod.ps1 -Name "CashHUD" -Author "Dominik"`.
 5. Implement following the HUD pattern; register `ModConfig<CashHudConfig>` for toggle.
-6. `dotnet build Source\Mods\CashHUD\src\CashHUD.csproj -c Release` $\rightarrow$ auto-deploy.
+6. `dotnet build Source\Mods\CashHUD\src\CashHUD.csproj -c Release` → auto-deploy.
 7. Launch game, validate.

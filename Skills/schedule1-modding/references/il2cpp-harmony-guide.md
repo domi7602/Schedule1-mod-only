@@ -1,5 +1,7 @@
 # IL2CPP & Harmony Patching Guide (Schedule I)
 
+> **Canonical home of the WasCollected/Golden-Guard idiom (§2) and parameter-keyed sprite caches (§4)** — other files reference here. verified: 2026-08-20/21; re-checked 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 Schedule I is built on Unity 2022.3 compiled with **IL2CPP**. Interacting with IL2CPP types via MelonLoader 0.7.3 requires specific patterns.
 
 ---
@@ -34,7 +36,11 @@ internal static class Patch_GrowContainer_Water
 
 ### Safety & Scene Transitions:
 * When returning to Main Menu (`MenuScreen`), objects from gameplay scenes are destroyed.
-* Always check `if (__instance == null || __instance.WasCollected)` before accessing unhollowed IL2CPP objects.
+* **The Golden Guard** (canonical idiom — use EXACTLY this everywhere):
+  ```csharp
+  if (obj == null || obj.Pointer == IntPtr.Zero || obj.WasCollected) return;
+  ```
+  (`!= null` alone can be true for dead proxies; `GetInstanceID() == 0` covers pure Unity objects but NOT collected IL2CPP wrappers.)
 * Clear cached gameplay lists on scene unload (`OnSceneWasUnloaded`).
 
 ---

@@ -1,5 +1,7 @@
 # Common Error Patterns — Detailed Decoder
 
+> verified: patterns collected 2026-08-03 → 2026-08-22; §9 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+); §11 guard idiom unified to the Golden Guard 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 A deeper dive than the master `SKILL.md` table. Includes cause, workarounds, and reference impls for the most common Schedule I mod failures.
 
 ---
@@ -141,11 +143,13 @@ Windows Error Dialog: "0x80131506" (Fatal CLR Error)
 
 **Cause (verified 2026-08-04, PotScanner v0.2.0):** `OnGameplaySceneLoaded` fires before S1API/internal save-load completes. Static lists are uninitialized at that point.
 
-**Fix:** Subscribe to `GameLifecycle.OnSaveInfoLoaded` (fires after save-info parse, before scene build).
+**Fix:** Refresh on `GameLifecycle.OnLoadComplete` (verified order 2026-09-29: Scene 'Main' → `OnPreLoad` → `OnLoadComplete`).
 ```csharp
-GameLifecycle.OnSaveInfoLoaded += () => RefreshPropertyCache();
-GameLifecycle.OnLoadComplete   += () => ForceRefreshUI();
+GameLifecycle.OnPreLoad        += () => ResetCaches();          // before save data loads
+GameLifecycle.OnLoadComplete   += () => { RefreshPropertyCache(); ForceRefreshUI(); };
 ```
+
+> **Historical:** the ≤ 0.4.6f13 recipe subscribed `GameLifecycle.OnSaveInfoLoaded` here — that event **fires 0× on game 0.4.7f6+** (verified 2026-09-29, see save-load-timing.md §1).
 
 ---
 
@@ -175,9 +179,9 @@ static void LogPatchError(string msg) => MelonLogger.Msg($"[MyMod] {msg}"); // o
 
 **Fix:**
 ```csharp
-if (obj == null || obj.GetInstanceID() == 0) return;
+if (obj == null || obj.Pointer == IntPtr.Zero || obj.WasCollected) return;
 ```
-Never `is null` for `UnityEngine.Object` (operator overload is bypassed).
+Never `is null` for `UnityEngine.Object` (operator overload is bypassed). This is the workspace **Golden Guard** (same idiom as `schedule1-modding` Rule 3). The older `obj.GetInstanceID() == 0` idiom also appears in this file's history: it works for pure Unity objects but does **NOT** cover collected IL2CPP wrappers — use the Golden Guard everywhere (unified 2026-10-05).
 
 ---
 
@@ -236,21 +240,7 @@ Never `is null` for `UnityEngine.Object` (operator overload is bypassed).
 
 **Cause:** `OnPhoneClosed()` contains `MelonEvents.OnUpdate.Unsubscribe(Update)` (or `-=` on static events like `OnPotsScanned`/`OnBalanceChanged`/`OnStateChanged`). S1API instantiates each `PhoneApp` **ONCE per scene** (`HomeScreen_Start_Patch` + `Activator.CreateInstance`), so `OnCreated` (which re-subscribes) never fires again until a scene reload. After the 1st close the Update loop is dead → `_mainBG.SetActive(open)` never runs → app stays hidden.
 
-**Fix:**
-```csharp
-protected override void OnCreated()
-{
-    base.OnCreated();
-    MelonEvents.OnUpdate.Unsubscribe(Update);  // idempotent (scene reload)
-    MelonEvents.OnUpdate.Subscribe(Update);
-}
-protected override void OnPhoneClosed()
-{
-    base.OnPhoneClosed();
-    if (_mainBG != null) _mainBG.SetActive(false);
-    // NO Unsubscribe here!
-}
-```
+**Fix (pattern; canonical code in `schedule1-phoneapp/references/lifecycle-and-canvas.md` §5):** defensive `Unsubscribe`-before-`Subscribe` of `MelonEvents.OnUpdate` in `OnCreated()` ONLY; `OnPhoneClosed()` just hides (`_mainBG.SetActive(false)`) — no unsubscribe, no destroy. Real teardown goes in `OnDestroyed()`.
 
 **Detection:** Grep all PhoneApp mods for `Unsubscribe` inside `OnPhoneClosed`. Regression source: e24371b (2026-08-19).
 
@@ -298,10 +288,10 @@ Additionally, using blind `harmony.PatchAll()` will indiscriminately arm such da
 | Error | First Try |
 |-------|-----------|
 | `MissingMethodException` on patch | Patch the caller, not the dead method |
-| `NullReferenceException` in patch | Add `GetInstanceID() == 0` null-check |
+| `NullReferenceException` in patch | Add the Golden Guard: `obj != null && obj.Pointer != IntPtr.Zero && !obj.WasCollected` (§11) |
 | Mod silent | Check inlining (small method patched → patch caller) |
 | Native AV / 0xc0000005 | Remove `ref <Il2CppType> __result` in Prefix (§19), split DLL |
-| Save data empty | Use `OnSaveInfoLoaded` hook, not `OnGameplaySceneLoaded` |
+| Save data empty | Refresh on `OnLoadComplete` — `OnSaveInfoLoaded` fires 0× on 0.4.7f6+ (§9) |
 | UIButton crash | Use `ButtonUtils.AddListener` |
 | JSON corrupt | Use `SafeStorage.SaveAtomic` |
 | `[RegisterTypeInIl2Cpp]` crash | Add `IntPtr` ctor |

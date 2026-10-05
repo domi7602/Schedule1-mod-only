@@ -1,4 +1,6 @@
 # Inventory Capacity
+> UNVERIFIED for 0.4.7f9 — slot indexes + capacity facts carried over (last reflected check 2026-08-22). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 Hotbar 0-7 + Cash 9 (1000 per stack) + Clipboard 8.
 

@@ -1,32 +1,63 @@
 # Configuration (Schedule I)
+> verified: classes + methods + event add/remove pairs re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
 
 ## Core Classes
 
-| Class | Purpose |
-|-------|---------|
-| `ConfigurationService` | Configuration management service |
-| `ConfigurationServiceNetworker` | Network sync for settings/configuration |
-| `Configuration` | Main configuration data class |
-| `BaseConfiguration` | Base configuration class |
+| Class | Verified base type | Purpose |
+|-------|--------------------|---------|
+| `ConfigurationService` | `PersistentSingleton<ConfigurationService>` (`ScheduleOne.Configuration`) | Central registry of all `BaseConfiguration` assets |
+| `ConfigurationServiceNetworker` | `NetworkBehaviour` | Host→client settings sync (FishNet Target RPC) |
+| `BaseConfiguration` | `ScriptableObject` | Config asset base; carries `OnConfigurationChanged` |
+| `Configuration<T>` | `BaseConfiguration where T : Settings` | Generic wrapper with `_Settings` / `_DefaultSettings` |
+| `Settings` | `PersistentSingleton<Settings>` (`ScheduleOne.DevUtilities`) | Applies/writes the real engine settings |
 
-## Settings Categories
+Concrete `Configuration<T>` examples verified: `SFXConfiguration : Configuration<SFXSettings>` (Audio), `EquipConfiguration : Configuration<EquipSettings>` (Equipping). So the same pattern is used across game systems.
 
-- `GameSettings`: General game settings
-- `InputSettings`: Key bindings and controls
-- `GraphicsSettings`: Graphics options
-- `AudioSettings`: Audio settings (wrapper)
-- `DisplaySettings`: Display options
-- `OtherSettings`: Miscellaneous settings
+## ConfigurationService API (verified)
+- `Configurations` property → all registered `BaseConfiguration` assets
+- `TryGetConfiguration<T>(out T)` (generic) / `TryGetConfiguration(string name, out BaseConfiguration)`
+- `GetConfigurationAndListenForChanges(Action<BaseConfiguration> callback)` — subscribe to change notifications
+- `UnsubscribeFromConfigurationChanges(Action<BaseConfiguration> callback)`
+- `ResetConfigurations()` (private)
+- `BaseConfiguration.OnConfigurationChanged` — `Il2CppSystem.Action<BaseConfiguration>` field; raised by config instances when a setting changes
+
+## Settings Categories (DevUtilities)
+Data classes are plain `[Serializable]` classes; `Settings` singleton applies them:
+| Data class | Applied by | Reloaded by |
+|-----------|------------|-------------|
+| `DisplaySettings` | `ApplyDisplaySettings` (+ `MoveMainWindowTo`, `ConfirmDisplaySettings` UI) | — (no `ReloadDisplaySettings` exists; changes flow through `WriteDisplaySettings`) |
+| `GraphicsSettings` | `ApplyGraphicsSettings` | `ReloadGraphicsSettings` |
+| `AudioSettings` | `ApplyAudioSettings` | `ReloadAudioSettings` |
+| `InputSettings` | `ApplyInputSettings`, `RestoreDefaultKeyboardBindings`, `RestoreDefaultGamepadBindings` | `ReloadInputSettings` |
+| `OtherSettings` | `ApplyOtherSettings` | `ReloadOtherSettings` |
+| `GamepadSettings` (+ `HapticSettings`) | `ApplyGamepadSettings` | `ReloadGamepadSettings` |
+- `GameSettings` data class holds e.g. `ConsoleEnabled`, `UseRandomizedMixMaps`
+- `Settings` also has `GetActionControlPath(string actionName)` for input display strings
+
+## Events
+On `Settings` (verified):
+| Event | Kind | Trigger |
+|-------|------|---------|
+| `onDisplaySettingsApplied` | `Action` event (add/remove verified) | after display settings applied |
+| `onQualitySettingsChanged` | `Action` event (add/remove verified) | quality preset change |
+| `onInputsApplied` | delegate field (accessible directly) | after input bindings applied |
+| `onUnappliedDisplayIndexChanged` | delegate field (accessible directly) | pending display change before confirmation |
+
+## Network Sync
+- `ConfigurationServiceNetworker`: on `OnSpawnServer(NetworkConnection)` and `OnConfigChanged(BaseConfiguration)` the host sends `ApplySettingsJson(NetworkConnection, string, string)` (Target RPC) so client settings JSON matches host.
+
+## Save Participation
+- Configurations are `ScriptableObject` assets; **no** `ISaveable` implementation in this namespace (grep verified). Persistence is via the `Write*Settings` methods on `Settings` (file-based), not via the save system.
 
 ## Settings UI
+- `GameSettingsWindow` (`ScheduleOne.UI.Settings`), `SettingsScreen` (`ScheduleOne.UI.MainMenu`), controls: `SettingsSlider`, `SettingsToggle`, `SettingsDropdown`, `ConfirmDisplaySettings`, `RebindActionUI` (DevUtilities, input rebinding UI)
 
-- `GameSettingsWindow`: Settings menu window
-- Numerous UI controls: `SettingsSlider`, `SettingsToggle`, `SettingsDropdown`
-- `Keybinder`: Rebinding key UI
-- `ResolutionDropdown`, `QualityDropdown`, `DisplayModeDropdown`
+## Hook Points (Harmony)
+1. `ConfigurationService.GetConfigurationAndListenForChanges(...)` — usually **no patch needed**: call it directly to observe any game configuration.
+2. `Settings.ApplyDisplaySettings(DisplaySettings)` / `ApplyGraphicsSettings(...)` — postfix to enforce mod settings (e.g., clamp/override after the game applies its own).
+3. `ConfigurationServiceNetworker.ApplySettingsJson` (Target RPC) — patch to intercept/filter synced settings in multiplayer.
 
-## Modding Configuration
-
-- Custom configurations via `ModConfig<T>` in Shared
-- MelonLoader `UserData/<Mod>.cfg` pattern
-- No direct modification of the game configuration required
+## Modding Configuration (Mods)
+- **No `ModConfig<T>` class exists in S1API** (only appears inside a doc-comment example in `S1API.Internal.Abstraction.Saveable` — do not reference it as an API).
+- Standard pattern: MelonLoader `MelonPreferences.CreateCategory(...)` / `CreateEntry<T>(...)` → `UserData/<Mod>.cfg`; S1API itself does this internally via `S1APIPreferences`.
+- Game settings themselves: prefer `ConfigurationService.TryGetConfiguration<T>` + `Settings.Apply*/Write*` instead of editing config files behind the game's back.

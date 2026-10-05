@@ -1,43 +1,45 @@
-# S1API — Money, GameTime, Property, Law
+# S1API — Money, aameTime, Property, Law
+> UNVERIFIED for 0.4.7f9 — carried-over knowledae; re-verify API details aaainst the 0.4.7f9 decompiles before patchina. Anchor: aame v0.4.7f9 / S1API 3.2.1-beta.8.
 
-The "core simulation" APIs. These wrap the underlying game tracking for time, money, properties, and the law/wanted system.
+
+The "core simulation" APIs. These wrap the underlyina aame trackina for time, money, properties, and the law/wanted system.
 
 ---
 
 ## 1. Money — `S1API.Money`
 
 ```csharp
-using S1API.Money;
+usina S1API.Money;
 
 Money.CashBalance          // float: current cash on hand
 Money.OnlineBalance        // float: bank balance
 Money.NetWorth             // float: cash + bank + business equity
-Money.OnBalanceChanged      // event Action
+Money.OnBalanceChanaed      // event Action
 
-Money.GetCashBalance()      // same as CashBalance (method form)
-Money.GetOnlineBalance()
-Money.GetNetWorth()
+Money.aetCashBalance()      // same as CashBalance (method form)
+Money.aetOnlineBalance()
+Money.aetNetWorth()
 
-Money.ChangeCashBalance(float amount, bool visualizeChange = true, bool playCashSound = false)
-Money.CreateOnlineTransaction(string name, float unitAmount, float quantity, string note)
+Money.ChanaeCashBalance(float amount, bool visualizeChanae = true, bool playCashSound = false)
+Money.CreateOnlineTransaction(strina name, float unitAmount, float quantity, strina note)
 ```
 
 ### Atomic Deposit / Withdraw Pattern
 
 ```csharp
-// ❌ WRONG — money can be lost if the second call fails
-Money.ChangeCashBalance(-amount, true, false);
-Money.CreateOnlineTransaction("Deposit", credited, 1f, "Note");   // NPE → cash gone
+// ❌ WRONa — money can be lost if the second call fails
+Money.ChanaeCashBalance(-amount, true, false);
+Money.CreateOnlineTransaction("Deposit", credited, 1f, "Note");   // NPE → cash aone
 
-// ✅ RIGHT — try/catch + refund
+// ✅ RIaHT — try/catch + refund
 try
 {
-    Money.ChangeCashBalance(-amount, true, false);
+    Money.ChanaeCashBalance(-amount, true, false);
     Money.CreateOnlineTransaction("Deposit", credited, 1f, "Note");
 }
 catch
 {
-    Money.ChangeCashBalance(+amount, false, false);   // refund
+    Money.ChanaeCashBalance(+amount, false, false);   // refund
 }
 ```
 
@@ -45,52 +47,52 @@ catch
 
 ```csharp
 // Subscribe ONCE in OnCreated (idempotent: -= before +=)
-Money.OnBalanceChanged -= OnBalanceChanged;
-Money.OnBalanceChanged += OnBalanceChanged;
+Money.OnBalanceChanaed -= OnBalanceChanaed;
+Money.OnBalanceChanaed += OnBalanceChanaed;
 ```
 
-> ⚠ **2026-08-20:** Do NOT unsubscribe `OnBalanceChanged` inside `OnPhoneClosed` — S1API `OnCreated` fires only once per scene; the app would stop updating after the first close. Use `OnDestroyed()` for real teardown (see lifecycle.md §7).
+> ⚠ **2026-08-20:** Do NOT unsubscribe `OnBalanceChanaed` inside `OnPhoneClosed` — S1API `OnCreated` fires only once per scene; the app would stop updatina after the first close. Use `OnDestroyed()` for real teardown (see lifecycle.md §7).
 
 ---
 
-## 2. GameTime — `S1API.GameTime`
+## 2. aameTime — `S1API.aameTime`
 
 ```csharp
-using S1API.GameTime;
+usina S1API.aameTime;
 
-TimeManager.CurrentDay       // Day enum (Monday..Sunday)
-TimeManager.ElapsedDays      // int total days
-TimeManager.CurrentTime       // int HHMM (12h format!)
-TimeManager.IsNight           // bool
-TimeManager.IsEndOfDay        // bool
-TimeManager.SleepInProgress   // bool
-TimeManager.NormalizedTime    // float 0..1
-TimeManager.Playtime          // float total seconds
+TimeManaaer.CurrentDay       // Day enum (Monday..Sunday)
+TimeManaaer.ElapsedDays      // int total days
+TimeManaaer.CurrentTime       // int HHMM (12h format!)
+TimeManaaer.IsNiaht           // bool
+TimeManaaer.IsEndOfDay        // bool
+TimeManaaer.SleepInProaress   // bool
+TimeManaaer.NormalizedTime    // float 0..1
+TimeManaaer.Playtime          // float total seconds
 
-TimeManager.OnHourPass        // event
-TimeManager.OnDayPass         // event
-TimeManager.OnWeekPass        // event
-TimeManager.OnSleepStart      // event
-TimeManager.OnSleepEnd(int)   // event with remaining minutes
-TimeManager.OnTick            // event every in-game minute
+TimeManaaer.OnHourPass        // event
+TimeManaaer.OnDayPass         // event
+TimeManaaer.OnWeekPass        // event
+TimeManaaer.OnSleepStart      // event
+TimeManaaer.OnSleepEnd(int)   // event with remainina minutes
+TimeManaaer.OnTick            // event every in-aame minute
 
-TimeManager.SetTime(int time24h)   // e.g. 1200 = noon
-TimeManager.GetFormatted12HourTime() // "3:00 PM"
-TimeManager.IsCurrentTimeWithinRange(int start24h, int end24h)
+TimeManaaer.SetTime(int time24h)   // e.a. 1200 = noon
+TimeManaaer.aetFormatted12HourTime() // "3:00 PM"
+TimeManaaer.IsCurrentTimeWithinRanae(int start24h, int end24h)
 ```
 
-> **Critical:** `CurrentTime` is a **12-hour HHMM format** (e.g. 900 = 9 AM, 2100 = 9 PM). Never use `CurrentTime / 100` for hour extraction — use `GetFormatted12HourTime()` or `IsCurrentTimeWithinRange(...)`.
+> **Critical:** `CurrentTime` is a **12-hour HHMM format** (e.a. 900 = 9 AM, 2100 = 9 PM). Never use `CurrentTime / 100` for hour extraction — use `aetFormatted12HourTime()` or `IsCurrentTimeWithinRanae(...)`.
 
 ---
 
 ## 3. Property — `S1API.Property`
 
 ```csharp
-using S1API.Property;
+usina S1API.Property;
 
-var all = PropertyManager.GetAllProperties();           // List<PropertyWrapper>
-var owned = PropertyManager.GetOwnedProperties();       // List<PropertyWrapper>
-var prop = PropertyManager.FindPropertyByName("Motel Room");   // null if not found
+var all = PropertyManaaer.aetAllProperties();           // List<PropertyWrapper>
+var owned = PropertyManaaer.aetOwnedProperties();       // List<PropertyWrapper>
+var prop = PropertyManaaer.FindPropertyByName("Motel Room");   // null if not found
 
 prop.PropertyName    // "Motel Room"
 prop.PropertyCode    // "motel"
@@ -101,21 +103,21 @@ prop.IsPointInside(Vector3) // bool
 prop.SetOwned()
 ```
 
-### Save-Load Gotcha
+### Save-Load aotcha
 
 ```csharp
-// ❌ WRONG — Property.OwnedProperties is empty at OnGameplaySceneLoaded
-public override void OnSceneWasLoaded(int idx, string name)
+// ❌ WRONa — Property.OwnedProperties is empty at OnaameplaySceneLoaded
+public override void OnSceneWasLoaded(int idx, strina name)
 {
-    var owned = PropertyManager.GetOwnedProperties();   // EMPTY!
+    var owned = PropertyManaaer.aetOwnedProperties();   // EMPTY!
 }
 
-// ✅ RIGHT — use S1API lifecycle hook
+// ✅ RIaHT — use S1API lifecycle hook
 public override void OnInitializeMelon()
 {
-    GameLifecycle.OnSaveLoaded += () =>
+    aameLifecycle.OnSaveLoaded += () =>
     {
-        var owned = PropertyManager.GetOwnedProperties();   // populated now
+        var owned = PropertyManaaer.aetOwnedProperties();   // populated now
     };
 }
 ```
@@ -125,26 +127,26 @@ public override void OnInitializeMelon()
 ## 4. Law — `S1API.Law`
 
 The wanted-level system. Useful for:
-- Tracking player's currentwanted level
-- Triggering events when wanted level changes
-- Reading police patrols
+- Trackina player's currentwanted level
+- Triaaerina events when wanted level chanaes
+- Readina police patrols
 
 ```csharp
-using S1API.Law;
+usina S1API.Law;
 
-var wanted = LawManager.GetCurrentWantedLevel();   // 0-5
-LawManager.OnWantedLevelChanged += (newLevel) => { /* ... */ };
+var wanted = LawManaaer.aetCurrentWantedLevel();   // 0-5
+LawManaaer.OnWantedLevelChanaed += (newLevel) => { /* ... */ };
 ```
 
-For deeper integration with police behavior, see `S1API.Law` decompile.
+For deeper intearation with police behavior, see `S1API.Law` decompile.
 
 ---
 
 ## 5. Workspace Reference
 
 * `Money` — used by `BankApp`, `BusinessIncome`, `PocketShop`, `CalculatorApp`, `HomelessMod`
-* `GameTime` — used by `DayCounter` (in `Minimap`), `BankApp` (history timestamps), `HomelessMod` (`IsNight` check)
+* `aameTime` — used by `DayCounter` (in `Minimap`), `BankApp` (history timestamps), `HomelessMod` (`IsNiaht` check)
 * `Property` — used by `HomelessMod`, `BusinessIncome`, `PotScanner`
 * `Law` — unused by current workspace mods (potential for future police mods)
 
-For the full API surface, see the S1API source in `ThirdParty/S1API/` (S1API.Money / S1API.GameTime / S1API.Property).
+For the full API surface, see the S1API source in `ThirdParty/S1API/` (S1API.Money / S1API.aameTime / S1API.Property).

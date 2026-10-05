@@ -1,4 +1,6 @@
 # S1MAPI — GltfLoader (External 3D Models)
+> UNVERIFIED for 0.4.7f9 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 `GltfLoader` loads `.glb` / `.gltf` models exported from Blender (or similar) at runtime. Replaces AssetBundles — no Unity Editor roundtrip, no version lock.
 

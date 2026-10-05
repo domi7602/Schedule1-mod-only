@@ -1,4 +1,6 @@
 # Blender Export & Geometry Preparation for Schedule I
+> UNVERIFIED for 0.4.7f9 — carried-over knowledge; measurement tables without recorded verification source. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 This reference document explains how to optimally prepare 3D models in Blender for import into *Schedule I* and how to avoid typical modeling mistakes.
 
@@ -14,7 +16,7 @@ Blender and Unity use different coordinate systems:
 
 1. **Freeze transformations before export:**
    * Select everything in object mode (<kbd>A</kbd>).
-   * Press <kbd>Ctrl+A</kbd> $\rightarrow$ choose **Apply All Transforms** (sets rotation to $(0,0,0)$, scale to $(1,1,1)$, and origin to $(0,0,0)$).
+   * Press <kbd>Ctrl+A</kbd> → choose **Apply All Transforms** (sets rotation to (0,0,0), scale to (1,1,1), and origin to (0,0,0)).
 2. **Export settings for Wavefront OBJ (`.obj`):**
    * **Forward:** `-Z Forward`
    * **Up:** `Y Up`
@@ -24,7 +26,7 @@ Blender and Unity use different coordinate systems:
    * **Triangulate Faces:** `Optional (recommended for clean triangles)`
 3. **Export settings for GLTF/GLB (`.glb`):**
    * **Format:** `glTF Binary (.glb)` (contains textures and meshes in a single compact file).
-   * **Transform $\rightarrow$ +Y Up:** `Enabled`.
+   * **Transform → +Y Up:** `Enabled`.
 
 ---
 
@@ -46,16 +48,16 @@ By default, Unity renders triangles only from one side (*Backface Culling*) to s
 
 ## 3. Scales & Reference Dimensions for Schedule I
 
-Schedule I uses real meters as units ($1.0 = 1\,\text{meter}$):
+Schedule I uses real meters as units (1.0 = 1 meter):
 
 | Body part / element | Real dimensions in Schedule I | Recommended Blender bounding box |
 |---|---|---|
-| **Avatar total height** | $\approx 1.75\,\text{m}$ | $Z = 1.75\,\text{m}$ |
-| **Torso width (shoulder to shoulder)** | $\approx 0.12\text{--}0.14\,\text{m}$ | $X = 0.14\,\text{m}$ |
-| **Backpack Tier 1 (Small)** | W: $0.095\,\text{m}$, H: $0.145\,\text{m}$, D: $0.055\,\text{m}$ | Sits flat on upper back |
-| **Backpack Tier 2 (Hiking)** | W: $0.110\,\text{m}$, H: $0.170\,\text{m}$, D: $0.068\,\text{m}$ | Sits between the shoulder blades |
-| **Backpack Tier 3 (Tactical)** | W: $0.125\,\text{m}$, H: $0.195\,\text{m}$, D: $0.080\,\text{m}$ | Larger pack volume, max torso width |
-| **Hand items / weapons** | Grip length: $\approx 0.12\text{--}0.15\,\text{m}$ | Set pivot point directly on the palm |
+| **Avatar total height** | ≈1.75 m | Z = 1.75 m |
+| **Torso width (shoulder to shoulder)** | ≈0.12–0.14 m | X = 0.14 m |
+| **Backpack Tier 1 (Small)** | W: 0.095 m, H: 0.145 m, D: 0.055 m | Sits flat on upper back |
+| **Backpack Tier 2 (Hiking)** | W: 0.110 m, H: 0.170 m, D: 0.068 m | Sits between the shoulder blades |
+| **Backpack Tier 3 (Tactical)** | W: 0.125 m, H: 0.195 m, D: 0.080 m | Larger pack volume, max torso width |
+| **Hand items / weapons** | Grip length: ≈0.12–0.15 m | Set pivot point directly on the palm |
 
 ---
 

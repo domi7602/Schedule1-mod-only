@@ -1,35 +1,50 @@
 # Noise System (Schedule I)
 
+> verified: classes, enums, signatures re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Decompiles are IL2CPP interop stubs — hierarchy/signatures/CallerCount verified, method bodies not readable. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 ## Core Classes
 
-| Class | Purpose |
-|-------|---------|
-| `NoiseUtility` | Noise utilities |
-| `NoiseEvent` | Individual noise event |
-| `Listener` | Noise listener |
+| Class | Namespace | Verified Purpose |
+|-------|-----------|------------------|
+| `NoiseUtility` | `ScheduleOne.Noise` | Static emitter: `EmitNoise(Vector3 origin, ENoiseType type, float range, GameObject source = null)` |
+| `NoiseEvent` | `ScheduleOne.Noise` | Payload: `origin`, `range`, `type`, `source`; property `OriginInSewer` (public get, private set) |
+| `Listener` | `ScheduleOne.Noise` | MonoBehaviour on NPCs; static `List<Listener> listeners`; `Sensitivity`, `HearingOrigin`, `SquaredHearingRange` |
+| `NPCAwareness` | `ScheduleOne.NPCs` | Bridges hearing → reactions: `NoiseEvent(NoiseEvent)` handler; holds `Listener` + `Responses` refs |
+| `LocalPlayerFootstepGenerator` | `ScheduleOne.PlayerScripts` | Footstep emitter for local player, extends `GenericFootstepDetector` (`DistancePerStep`) |
 
-## Noise System
+## ENoiseType (complete — 3 values)
 
-- Players and NPCs generate noise events
-- `ENoiseType`: Types (Footstep, Gunshot, Breaking, etc.)
-- NPCs with `Listener` component react to noise
-- Distance-based detection
+`Footstep`, `Gunshot`, `Explosion`
 
-## Applications
+**NOT implemented:** no `Breaking`, no `Scream`, no `Vehicle` types. The old claim "Footstep, Gunshot, Breaking, etc." was wrong — only 3 enum values exist.
 
-- Police hear gunshots → Pursuit
-- NPCs hear breaking glass → React
-- Cartel goons hear fights
-- Sneaking reduces noise
+## Events (verified raising chain)
 
-## Integration
+| Event | Raising / Handler |
+|-------|-------------------|
+| `Listener.onNoiseHeard` (`HearingEvent` delegate, 236 delegate-ctor sites) | Entry point `Listener.Notify(NoiseEvent)`; delegate raise happens natively |
+| `NPCAwareness.onGunshotHeard` (`UnityEvent<NoiseEvent>`) | Raised from `NPCAwareness.NoiseEvent(NoiseEvent)` for Gunshot |
+| `NPCAwareness.onExplosionHeard` (`UnityEvent<NoiseEvent>`) | Same, for Explosion |
+| `NPCResponses.GunshotHeard/ExplosionHeard(NoiseEvent)` | Virtual reaction entry, overridden by `NPCResponses_Police` + `NPCResponses_CartelGoon` |
 
-- `NoiseEvent` has position, radius, type
-- `Listener` on NPCs checks events within range
-- Combined with vision system for complete detection
+- **No footstep UnityEvent** on `NPCAwareness` — footsteps flow only through `Listener.onNoiseHeard`.
+- **No global noise bus** — `NoiseUtility.EmitNoise` (2 native call sites) is the only emission API; noise is not serialized anywhere.
 
-## Stealth
+## Detection Model
 
-- Sneaky effect eliminates footstep noise
-- Movement speed affects noise level
-- Underground/Sewer reduces noise range
+- Per-listener: NPC reacts when `origin` lies within its `SquaredHearingRange` (weighted by `Sensitivity` — exact formula **unverified**, bodies are native).
+- `NoiseEvent.OriginInSewer` is a dedicated flag — sewer origins get special treatment (see [`15-Sewer.md`](15-Sewer.md); range behavior unverified).
+- `NoiseEvent` consumers: `NPCAwareness`, `NPCResponses`, `NPCResponses_Civilian`, `NPCResponses_Police`, `NPCResponses_CartelGoon`.
+- Combined detection: police pursuit = Vision ([`62-Vision.md`](62-Vision.md)) + Noise + Law ([`12-Heat-Pursuit-Law.md`](12-Heat-Pursuit-Law.md)).
+- `Player.Sneaky` (verified property) exists as drug-effect variable; its exact influence on footstep emission is **unverified**.
+
+## Save participation
+
+None — `NoiseUtility` is static; `NoiseEvent`/`Listener` are not `ISaveable` and never persist.
+
+## Hook Points
+
+1. **Prefix `NoiseUtility.EmitNoise`** — single global tap: log, filter or amplify all noise (static method, no instance needed).
+2. **Prefix `Listener.Notify`** — per-NPC hearing control (silence specific NPCs, spoof events).
+3. No patch needed: subscribe `NPCAwareness.onGunshotHeard` / `onExplosionHeard` UnityEvents at runtime.
+4. **S1API:** `S1API.Entities.NPC.OnGunshotHeard` / `OnExplosionHeard` (typed `NPCNoiseEvent`: `Origin`, `Range`, `Type`, `OriginInSewer`) + `NPCNoiseType` enum — prefer these over direct patching.

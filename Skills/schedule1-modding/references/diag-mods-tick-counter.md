@@ -1,10 +1,6 @@
----
-name: diag-mods-tick-counter
-description: Reusable tick-counter MelonMod for diagnosing "which mod blocks the main thread" symptoms. CORRECT implementation that does NOT freeze the game. Load when the symptom is "FPS dropped after enabling N mods, but Latest.log shows no errors".
-keywords: tick counter, diagnostic mod, performance, Resources.FindObjectsOfTypeAll, FPS, per-frame, isolation, binary search, MelonMod template.
----
-
 # Diagnostic Tick-Counter MelonMod (Correct Version)
+> UNVERIFIED for 0.4.7f9 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 ## Symptom it answers
 

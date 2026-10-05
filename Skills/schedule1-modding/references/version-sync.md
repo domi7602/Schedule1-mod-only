@@ -1,4 +1,6 @@
 # Version Sync — Reference & Session Notes
+> UNVERIFIED for 0.4.7f9 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 Concrete, session-tested data for AGENTS.md ↔ Source version drift fixes. Read this **before** running `bump-version.ps1` on any mod.
 
@@ -137,13 +139,12 @@ all four agree.
 
 ## 5. The ripgrep bracket-trap (tool-side, not skill-side)
 
-When using `search_files` for patterns containing `(` or `[`, the underlying
-ripgrep fails with "unclosed group/character class". Workaround that worked
-this session:
+When using ripgrep-backed file-search tools with patterns containing `(` or `[`,
+ripgrep fails with "unclosed group/character class". Workarounds that worked:
 
 - Drop the special char when possible (`MelonInfo` instead of `MelonInfo(`).
-- Add `file_glob="*.cs"` to narrow scope first, then grep inside.
+- Narrow scope with a file glob (`*.cs`) first, then grep inside.
 - For complex patterns, escape with `\(` (didn't fully test).
 
-This is a Hermes-tool quirk, not a workspace pattern. Mentioned here so the
+This is a tool-quirk (regex engine, not the workspace). Mentioned here so the
 next agent doesn't lose 3 tool calls re-trying the same failing regex.

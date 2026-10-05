@@ -1,4 +1,6 @@
 # S1MAPI — InteriorBuilder & FurnitureType
+> UNVERIFIED for 0.4.7f9 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 `InteriorBuilder` places in-game furniture (desks, chairs, beds, …) inside custom buildings or anywhere in the world. This bridges geometry back to the game world — your procedural building can host real, interactable game objects.
 

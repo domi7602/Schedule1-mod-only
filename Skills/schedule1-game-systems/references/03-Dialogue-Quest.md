@@ -1,4 +1,6 @@
 # Dialogue/Quest (Schedule I)
+> UNVERIFIED for 0.4.7f9 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 ## Dialogue System (Custom Built)
 - **NO** YarnSpinner, Ink, or external framework

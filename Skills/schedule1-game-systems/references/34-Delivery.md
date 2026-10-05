@@ -1,37 +1,50 @@
 # Delivery (Schedule I)
+> verified: classes + methods + enum values + events re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
 
-## Core Classes
+## Core Classes (`ScheduleOne.Delivery`)
 
-| Class | Purpose |
-|-------|---------|
-| `DeliveryManager` | Global delivery manager (NetworkSingleton) |
-| `DeliveryVehicle` | Delivery vehicle |
-| `DeliveryInstance` | Individual delivery |
-| `DeliveryReceipt` | Delivery receipt |
-| `LoadingDock` | Loading dock station |
+| Class | Verified base type | Purpose |
+|-------|--------------------|---------|
+| `DeliveryManager` | `NetworkSingleton<DeliveryManager>` | Order tracking, delivery state machine, save participation |
+| `DeliveryInstance` | plain object | One order: `DeliveryID`, `StoreName`, `DestinationCode`, `LoadingDockIndex`, `Items` (`StringIntPair` list), `Status`, `TimeUntilArrival`, `ActiveVehicle` |
+| `DeliveryReceipt` | plain object | Receipt snapshot: same fields as instance minus status/time |
+| `DeliveryVehicle` | `MonoBehaviour` (NOT a `LandVehicle` itself — holds `_Vehicle` backing + `GUID`) | `Activate(DeliveryInstance)`, `Deactivate()` |
+| `DeliveryConfiguration` | `Configuration<DeliverySettings>` | Delivery tuning config |
+| `LoadingDock` | `MonoBehaviour` | Physical dock per property: `InputSlots`/`OutputSlots`, `SetOccupant(LandVehicle)`, `SetStaticOccupant(LandVehicle)`, `RefreshOccupant()`, `ShowOutline(Color)`, `HideOutline()`, `ParentProperty`, `VehicleDetector`, `Parking`, `IsAcceptingItems`, `IsDestroyed`, `GUID`/`BakedGUID` |
 
-## Deliveries
+`EDeliveryStatus` (verified values): `InTransit, Waiting, Arrived, Completed` — **not** "Pending/InTransit/Delivered" as previously listed.
 
-- `DeliveryConfiguration`: Delivery configuration
-- `EDeliveryStatus`: Status tracking (Pending, InTransit, Delivered)
-- Deliveries are ordered via the Phone app
-- `DeliveryApp`: Delivery UI on the phone
+## DeliveryManager API (verified)
+- State: `Deliveries` (static list), `deliveryCache`, `_deliveryHistory` / `_displayedDeliveryHistory`, `_minsSinceVehicleEmpty`
+- Queries: `GetDelivery(string deliveryID)`, `GetDelivery(Property destination)`, `GetActiveShopDelivery(DeliveryShop shop)`, `IsLoadingBayFree(Property destination, int loadingDockIndex)`
+- Mutations: `SendDelivery(DeliveryInstance)` (server RPC funnel), `RecordDeliveryReceipt_Server(DeliveryReceipt, string originalOrderID = "")`, `ReceiveDelivery(NetworkConnection, DeliveryInstance)`, `SetDeliveryState(string, EDeliveryStatus)`
+- Tick: `OnTimePass(int minutes)` — per-minute update hook (same pattern as other managers; exact subscriber wiring unverified). Progresses `TimeUntilArrival` and delivery completion
+- Save: `InitializeSaveable()` (registers with the save system) + `Load(DeliveriesData data)` — deliveries **do** participate in the save file
 
-## Delivery Vehicles
+## Events
+| Event | Type | Raised by |
+|-------|------|-----------|
+| `DeliveryManager.onDeliveryCreated` | `Action<DeliveryInstance>` (add/remove verified) | order creation path |
+| `DeliveryManager.onDeliveryCompleted` | `Action<DeliveryInstance>` (add/remove verified) | completion path (also mirrored per-instance as `DeliveryInstance.onDeliveryCompleted` field) |
 
-- `DeliveryVehicle`: Dedicated vehicle type
-- Drives automatically to the loading dock
-- Controlled via AI
+## Phone UI (`ScheduleOne.UI.Phone.Delivery`)
+- `DeliveryApp` — the phone app: `CanReorder(DeliveryReceipt, out string reason)`, `SetIsAvailable(ShopInterface, bool)`, `OnTabChange(int)`
+- `DeliveryShop` — shop order screen: `SubmitOrder(string originalDeliveryID)`, `GetDeliveryTime(int itemCount)`, `CanOrder(out string reason)`, `CanReorder(...)`, `DestinationDropdownSelected(int)`, `LoadingDockDropdownSelected(int)`; fields `DeliveryFeeLabel`, `ItemTotalLabel`, `OrderTotalLabel`, `DeliveryTimeLabel`, `OrderButton`
+- `ListingEntry`, `DeliveryStatusDisplay`, `DeliveryReceiptDisplay` — list/status/receipt widgets
+- `ShopInterface` (matching shop interface) ties each delivery shop to an in-game store
 
-## UI
+## Flow
+1. Player orders in `DeliveryApp`/`DeliveryShop` → `SubmitOrder` → server `SendDelivery`
+2. `DeliveryInstance` created with `TimeUntilArrival`, vehicle activated (`DeliveryVehicle.Activate`)
+3. `OnTimePass` counts down; status `InTransit → Arrived` (next morning / delivery time), player fills dock inputs
+4. `RecordDeliveryReceipt_Server` → `Completed`, receipt persisted in `_deliveryHistory`
 
-- `DeliveryApp`: Order UI
-- `DeliveryStatusDisplay`: Delivery status
-- `DeliveryReceiptDisplay`: Receipt display
-- `ListingEntry`: Order listing
+## Hook Points (Harmony)
+1. `DeliveryManager.OnTimePass(int minutes)` — prefix/postfix for delivery timing control (accelerate/skip/queue custom deliveries); regular per-minute method, safe patch.
+2. `DeliveryShop.SubmitOrder(string originalDeliveryID)` — intercept custom orders, or `CanOrder(out string)` prefix to override availability.
+3. `LoadingDock.SetOccupant(LandVehicle)` — react to vehicle arrivals at docks.
+- S1API: `S1API.Deliveries` exists — `Delivery`, `DeliveryStatus`, `DeliveryRegistry`, `DeliveryReceipt`, `DeliveryItem`; supported locations via `S1API.Map.DeliveryLocation` + dozens of `IDeliveryLocationIdentifier` classes (e.g. `DestroyedRV`, `BrickWarehouseDocks`). Internally S1API hooks delivery flow itself: `Internal/Deliveries/DeliveryEventBridge`, `SupplierDeliveryRecovery`/`SupplierDeliveryUiBridge`, and `Internal/Patches/DeliveryPatches` + `LoadingDockPatches`.
 
-## Delivery Locations
-
-- `LoadingDock`: Loading dock station at the property
-- Each property has its own loading dock
-- Deliveries appear the next morning
+## Not Implemented / Notes
+- `DeliveryVehicle` drives itself (vehicle AI on the wrapped `Vehicle` component) — no separate "AI driver NPC" class in this namespace.
+- `DeliveryInstance.GetTimeStatus()` returns `int` (time-related status; exact unit semantics unverified); `OnTimePass(int minutes)` drives status progression; `AddItemsToDeliveryVehicle()` moves order items into the vehicle; `GetReceipt()` builds the `DeliveryReceipt`

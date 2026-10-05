@@ -1,5 +1,7 @@
 # Slot Isolation
 
+> **Canonical home of the Triple-Guard / slot-suffix pattern** — SKILL.md and other skills reference here instead of duplicating the code. verified: 2026-09-11 standard; re-checked 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 Per-save files: `slot_{SaveSlotNumber}.json`. See `CalculatorState.cs`, `NotesApp.cs`, `PayoutStateStore.cs`, `BankState.cs`.
 
 ### Robust Slot Suffix Derivation (IL2CPP Triple Guard + >= 0 Check)

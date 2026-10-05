@@ -1,4 +1,6 @@
 # S1MAPI — World Tools (Terrain, Navigation, Prefab Placement)
+> UNVERIFIED for 0.4.7f9 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 The "advanced" world-modification API. Use these when you need to integrate procedural geometry with the existing game world: clear surroundings, flatten terrain, build NPC navigation, place in-game prefabs.
 
@@ -134,7 +136,7 @@ public class NewRegionBuilder
 |---|---|---|
 | NPC walks into wall | NavMesh says "yes" but geometry blocks | Re-run `NavigationBuilder` after geometry changes |
 | Cleared terrain suddenly respawns vegetation | Game spawns new vegetation periodically | Use `FlattenTerrain` regularly, or pre-claim area with `Marker` |
-| Placed prefab disappears on save load | Game restores its own state | Use `PrefabPlacer` with `networked: true` + S1API `Saveable` integration |
+| Placed prefab disappears on save load | PrefabPlacer networking is **session-sync, not persistence** (FishNet spawn + deferred client link, no save hooks in S1MAPI 2.0.1) | Persist placements yourself: slot-isolated JSON + `OnSaveComplete`/`OnLoadComplete` — full pattern in [`../../schedule1-s1mapi/references/persistence.md`](../../schedule1-s1mapi/references/persistence.md); old "networked:true + Saveable" advice was wrong |
 | NavigationBuilder takes a long time | Large area | Build per-room, not per-building |
 
 ---

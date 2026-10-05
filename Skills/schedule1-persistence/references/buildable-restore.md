@@ -1,27 +1,15 @@
-# Save-Load Timing
+# Buildable Restore Rule (Guided Spawning)
 
-Static lists empty at OnGameplaySceneLoaded → use GameLifecycle.
+> verified: 2026-08-22 (AutoPackagingStation duplicate-station bug); cross-checked against `common-errors.md` §20 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
 
-```
-Game → S1API OnPreLoad → Mod ResetState() (clear caches, destroy clones)
-Game → S1API OnSaveInfoLoaded → Mod refresh Property/Item caches
-Game → S1API OnLoadComplete → Mod LoadAndSpawn / Attach UI
-Gameplay → in-memory Register/Unregister only
-Game → S1API OnSaveComplete → Mod SaveAtomic(slot_{n}.json)
-```
+Save/load **timing** (which lifecycle hook fires when, and which are dead) lives in the canonical doc:
+[`schedule1-troubleshooting/references/save-load-timing.md`](../../schedule1-troubleshooting/references/save-load-timing.md) — verified order 2026-09-29: Scene 'Main' → `OnPreLoad` → `OnLoadComplete`; **`OnSaveInfoLoaded` fires 0× on game 0.4.7f6+**. Atomar-Speicherung: `safestorage-atomic.md`.
 
-```csharp
-GameLifecycle.OnPreLoad       += ResetState;
-GameLifecycle.OnSaveInfoLoaded+= OnSaveInfoLoaded; // PotScanner v0.2.1 dropped 25s retry
-GameLifecycle.OnLoadComplete  += OnLoadComplete;
-GameLifecycle.OnSaveComplete  += OnSaveComplete;
-```
-
-Also `OnSceneWasLoaded("Main")` for in-session retries (StackLimitEngine.ApplyStackLimits).
+This file keeps the **placement-specific rule** that pairs with that timing doc.
 
 ---
 
-## Buildable Restore Rule (verified 2026-08-22)
+## The Rule
 
 **⚠️ CRITICAL: Never call `SpawnStationAt` / `new GameObject` in `OnLoadComplete` for items that are registered `BuildableItem`s.**
 
@@ -49,3 +37,11 @@ foreach (var saved in data.Stations)
 
 **GUID**: Use `BuildableItem.GUID` (persistent). Never `Guid.NewGuid()` in `Awake()` — it regenerates every session and breaks GUID matching.
 
+---
+
+## Cross-References
+
+- Expanded decoder: `schedule1-troubleshooting/references/common-errors.md` §20 (Buildable Duplicate-Spawn Bug)
+- Timing + logging pattern: `schedule1-troubleshooting/references/save-load-timing.md` §1/§10
+- Atomic persistence: `safestorage-atomic.md` (same skill)
+- Slot isolation: `slot-isolation.md` (same skill)

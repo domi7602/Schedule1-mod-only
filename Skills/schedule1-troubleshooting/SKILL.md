@@ -1,14 +1,15 @@
 ---
 name: schedule1-troubleshooting
 description: >-
-  Diagnostic runbook for Schedule I MelonLoader IL2CPP mods (v0.4.7f6, S1API 3.2.1-beta.7).
+  Diagnostic runbook for Schedule I MelonLoader IL2CPP mods (v0.4.7f9, S1API 3.2.1-beta.7).
   Use this skill whenever: the game crashes on start, a mod throws on first frame, a Harmony patch silently no-ops,
   Latest.log shows error spikes, save-load desyncs, property/owner-lists stay empty,
   an [RegisterTypeInIl2Cpp] crash report appears, S1MCP find_gameobjects freezes the game,
   or any symptom suggests IL2CPP marshalling issues.
   Tools covered: native PowerShell log triage (see references/logscan-and-logs.md), s1interop analyze, s1interop doctor, ilspycmd, MelonPreferences.cfg.
+  Keywords: troubleshooting, crash, Latest.log, log triage, 0xc0000005, 0x80131506, WasCollected, Harmony patch silent, no-op, save-load timing, IL2CPP pitfalls, slot_-1, FishNet, SyncVar, breakage log, update resilience, s1interop, ilspycmd.
 ---
-<!-- Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install: Latest.log game-version line 0.4.7f6 + MelonLoader v0.7.3 Open-Beta, S1API.Il2Cpp.MelonLoader.dll file 3.2.1.0 / product 3.2.1-beta.7, Steam buildid 25439817; content NOT re-verified after the 0.4.7f6 update). Re-check after game updates. -->
+<!-- Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log game-version line 0.4.7f9 + MelonLoader v0.7.3 Open-Beta, S1API.Il2Cpp.MelonLoader.dll file 3.2.1.0 / product 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag), Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update). Re-check after game updates. -->
 
 # Schedule I — Troubleshooting & Crash Diagnostics
 
@@ -69,6 +70,8 @@ s1interop analyze "Source\Mods\NotesApp\src\NotesApp.csproj"
 ```
 Catches `injected_type_missing_intptr_constructor`, `[HideFromIl2Cpp]` gaps, `[RegisterTypeInIl2Cpp]` issues.
 
+> 2026-10-05: s1interop was NOT found on PATH or in the workspace — verify it still exists before relying on this section (reference-only section, possibly stale tool).
+
 ### `ilspycmd` (LIVE ASSEMBLY VERIFICATION)
 ```pwsh
 & (Get-Command ilspycmd -ErrorAction Stop).Source -t <Full.Type.Name> "$env:SCHEDULE1_PATH\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll"
@@ -85,7 +88,7 @@ The classic symptom: `OnInitializeMelon` logs "Ready" but `OnUpdate` work never 
 1. **Method-Inlining in IL2CPP.** Small methods (getters, one-liners) are inlined in the native build — Harmony patch installs but never fires. **Fix: patch the caller, not the inline target.**
 2. **`HarmonyPatch` attribute without explicit target.** `[HarmonyPatch(typeof(X))]` without `(nameof(X.Method))` fails with "Undefined target method". **Fix: `harmony.Patch(methodInfo, new HarmonyMethod(...))` manually without marker attribute**, or supply full target spec.
 3. **Scene is wrong.** The patched object's scene is not active. Verify with `[Mod].Logger.Msg($"Scene: {SceneManager.GetActiveScene().name}")`.
-4. **Static-List empty at scene load.** E.g. `Property.OwnedProperties.Count == 0` even though player owns properties. **Fix: subscribe to `GameLifecycle.OnSaveInfoLoaded` instead of `OnGameplaySceneLoaded`**.
+4. **Static-List empty at scene load.** E.g. `Property.OwnedProperties.Count == 0` even though player owns properties. **Fix: subscribe to `GameLifecycle.OnLoadComplete` instead of `OnGameplaySceneLoaded`** — `OnSaveInfoLoaded` fires 0× on game 0.4.7f6+ (see §5).
 5. **Mod dependency missing.** Optional dep via `[assembly: MelonOptionalDependencies("S1API")]` requires you to try-catch every S1API code path. Otherwise the mod throws before reaching your logic.
 
 ---
@@ -115,20 +118,21 @@ The Schedule I save-load pipeline is multi-phase and most static lists (`Propert
 
 ```csharp
 // In Mod.cs OnInitializeMelon:
-GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
-GameLifecycle.OnLoadComplete   += OnLoadComplete;
+GameLifecycle.OnPreLoad       += OnPreLoad;       // before save data loads: reset caches / clear state
+GameLifecycle.OnLoadComplete  += OnLoadComplete;  // after scene build: refresh Property/Item caches, attach UI
 
-// Lifecycle order:
-//   OnSaveInfoLoaded  → after Save-Info parsing, BEFORE scene build
-//                        (good time to refresh Property / Item caches)
-//   OnLoadComplete    → after scene build complete
-//                        (good time to attach UI / instantiate managers)
-//   [UNVERIFIED — verify against live Assembly-CSharp.dll via ilspycmd before relying]
+// Verified order 2026-09-28/29 (schedule1-lifecycle-verify §7):
+//   OnSceneWasLoaded("Main") → OnPreLoad → OnLoadComplete
+//   OnPreLoad also fires for same-slot Menu→Game scene reloads (see modding Rule 18)
+
+// BROKEN on Game 0.4.7f6+ (verified 2026-09-29, instrumented run): GameLifecycle.OnSaveInfoLoaded
+//   fires 0× (0 firings in a full load; still present in S1API 3.2.1-beta.8 but never invoked).
+//   Do NOT subscribe to it — historical recipes that recommend it are dead on 0.4.7f9.
 ```
 
 Symptom: HUD looks empty, PhoneApp shows "(unknown)" properties, Owner-count = 0 even though save has 5 owned.
 
-Reference pattern: **PotScanner v0.2.1** (2026-08-04) — used exactly this hook to drop the 25-second retry-mechanism it needed in v0.2.0.
+Reference pattern: **PotScanner v0.2.1** (2026-08-04, game 0.4.6f13-era) — used the lifecycle hook to drop the 25-second retry-mechanism it needed in v0.2.0; on 0.4.7f9 the equivalent hook is `OnLoadComplete`.
 
 For deeper analysis (multi-phase lifecycle, all S1API hooks, FishNet SyncVar timing) see **[`references/save-load-timing.md`](references/save-load-timing.md)**.
 
@@ -147,6 +151,8 @@ If a previously-working patch no-ops:
 1. Open `Latest.log`, search for `Harmony` lines
 2. Compare `harmony.GetPatchedMethods()` output before/after game restart
 3. Most likely culprit: small inlined getter/setter — patch the caller
+
+Detailed per-update breakage log: references/update-breakage-log.md
 
 ---
 
@@ -250,8 +256,5 @@ If a diagnostic step exceeds 30 minutes without resolution:
 
 ## 12. Open Questions (review backlog)
 
-* **Multiplayer / FishNet SyncVar timing** — `references/save-load-timing.md:196` mentions SyncVar timing briefly but lacks a diagnostic pattern. When this gets a real diagnostic, cross-link here and remove this entry. Tracked since 2026-09-02 (skill-health-check).
+* ~~Multiplayer / FishNet SyncVar timing~~ RESOLVED 2026-10-05 → references/fishnet-syncvar-diagnosis.md (diagnostic pattern documented; host-side behaviors still partially unverified)
 
----
-
-<!-- TODO next-review: When the open-question entry above is resolved, remove this comment. -->

@@ -1,37 +1,17 @@
 # VoiceOver (Schedule I)
 
+> **Redirect stub** (consolidated 2026-10-05): NPC behaviour + the VO emitter/type content lives in **[`14-NPC-Behaviour.md`](14-NPC-Behaviour.md)** (VO-Types section). This file keeps only the class register. Class-list only — not yet re-verified against 0.4.7f9.
+
 ## Core Classes
 
 | Class | Purpose |
 |-------|---------|
-| `VODatabase` | VoiceOver database |
-| `VODatabaseEntry` | Individual VO entry |
-| `VOEmitter` | VO playback component |
+| `VODatabase` | VoiceOver database (all entries, organized by NPC/category, random selection) |
+| `VODatabaseEntry` | Individual line (audio clip + text) |
+| `VOEmitter` | Plays VO on NPC (3D positioned, distance volume, priority interrupts) |
+| `EVOLineType` | Line types (Response, Idle, Alert, …) |
+| `PoliceChatterVO` | Police radio chatter (pursuit) |
 
-## VoiceOver System
+## Triggers
 
-- Spoken dialogue lines for NPCs
-- `EVOLineType`: Line types (Response, Idle, Alert, etc.)
-- NPCs play VO during specific events
-- `PoliceChatterVO`: Police radio chatter
-
-## Database
-
-- `VODatabase`: Contains all VO entries
-- `VODatabaseEntry`: Individual line with audio clip + text
-- Organized by NPC/category
-- Random selection from multiple lines
-
-## Emitter
-
-- `VOEmitter`: Plays VO on NPC
-- Positions audio in 3D world
-- Distance-based volume
-- Priority system (higher priority interrupts lower)
-
-## Integration
-
-- VO is triggered during dialogue events
-- Police radio chatter during pursuit
-- NPC responses during interaction
-- Cartel goon threats
+Dialogue events · pursuit police chatter · interaction responses · cartel goon threats.

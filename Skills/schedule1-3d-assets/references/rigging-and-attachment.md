@@ -1,4 +1,6 @@
 # Rigging & Bone Attachment in Schedule I
+> UNVERIFIED for 0.4.7f9 — carried-over knowledge; skeleton bone names without recorded verification source. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 This document describes how 3D gear, clothing, backpacks, and hand-held objects are bound to the skeleton of the *Schedule I* player avatar.
 
@@ -68,7 +70,7 @@ if (spine2 != null)
 
 ### The Problem:
 When a 3D object attached to the player (e.g. a backpack or a hat) still contains active `BoxCollider`, `MeshCollider`, or `CapsuleCollider` components:
-1. It blocks the camera raycasts $\rightarrow$ the player can no longer open doors, talk to NPCs, or pick up items.
+1. It blocks the camera raycasts → the player can no longer open doors, talk to NPCs, or pick up items.
 2. The cursor in the character or inventory menu gets stuck on the player's own backpack.
 3. The physics engine (CharacterController) collides with the player's own backpack and the player flies through the floor or gets stuck in doors.
 

@@ -1,4 +1,6 @@
 # Universal Render Pipeline (URP) & Material System in Schedule I
+> verified: against game v0.4.7f6 (self-stated in text); NOT re-verified after 0.4.7f9. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 This document describes the shader architecture of *Schedule I* (v0.4.7f6), how to correctly assign textures and materials at runtime, and how to avoid typical rendering mistakes (pink shaders, missing gloss, material leaks).
 
@@ -41,7 +43,7 @@ A URP Lit material controls its appearance through standardized shader propertie
 | `_BaseColor` | `Color` (RGBA) | Main color / tint of the material (e.g. `Color(0.2f, 0.5f, 0.2f, 1f)` for olive green). |
 | `_BaseMap` | `Texture2D` | Diffuse / albedo texture map. |
 | `_Metallic` | `float` (0.0 to 1.0) | 0.0 = non-metallic (fabric, wood, plastic), 1.0 = full metal (buckles, steel). |
-| `_Smoothness` | `float` (0.0 to 1.0) | 0.0 = matte / rough, 1.0 = high-gloss / mirror-like. For fabric, $0.1\text{--}0.3$ is recommended. |
+| `_Smoothness` | `float` (0.0 to 1.0) | 0.0 = matte / rough, 1.0 = high-gloss / mirror-like. For fabric, 0.1–0.3 is recommended. |
 | `_BumpMap` | `Texture2D` | Normal map for realistic surface details (e.g. threads, folds, grooves). |
 | `_EmissionColor` | `Color` (HDR) | Emission color for LED elements, screens, or glowing strips. |
 

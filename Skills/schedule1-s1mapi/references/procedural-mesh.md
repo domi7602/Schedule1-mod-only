@@ -1,4 +1,6 @@
 # S1MAPI — ProceduralMesh (Primitive Shapes)
+> UNVERIFIED for 0.4.7f9 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 The `ProceduralMeshBuilder` is the lowest-level entry point. It generates primitive shapes (box, sphere, cylinder, capsule) as ready-made GameObjects with mesh, collider, and material — all in one fluent chain.
 
@@ -105,7 +107,7 @@ public class PalletBuilder
 ```csharp
 var table = new ProceduralMeshBuilder("Table")
     .AddBox(Vector3.zero, new Vector3(1.5f, 0.05f, 1.0f))   // top
-    .SetColor(Color.brown)
+    .SetColor(new Color(0.44f, 0.27f, 0.13f))   // brown — UnityEngine has NO Color.brown, use explicit RGB
     .Build();
 
 foreach (var legPos in new[] {

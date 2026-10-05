@@ -1,51 +1,19 @@
 # Police (Schedule I)
 
+> **Redirect stub** (consolidated 2026-10-05): the deep law-enforcement analysis (LE_Intensity mechanics +0.15/Tag, 4 pursuit levels, 16-crime fines table, arrest constants) lives in **[`12-Heat-Pursuit-Law.md`](12-Heat-Pursuit-Law.md)**. This file keeps only the class register. Class-list only — not yet re-verified against 0.4.7f9.
+
 ## Core Classes
 
 | Class | Purpose |
 |-------|---------|
-| `PoliceOfficer` | Police officer character |
-| `Investigation` | Current investigation |
-| `Offense` | Offense |
-| `RoadCheckpoint` | Road checkpoint |
+| `PoliceOfficer` | Officer NPC (patrol/pursue/search, reacts to noise + sightings) |
+| `NPCResponses_Police` | Police dialogues |
+| `Investigation` | Ongoing investigation (crime discovery → pursuit escalation, evidence incl. footprints) |
+| `Offense` / `OffenceNoticeUI` | Individual offense (severity, combinable) / notification |
+| `RoadCheckpoint` / `CheckpointInstance` / `CheckpointManager` | Vehicle checkpoints |
+| `ArrestScreen` / `ArrestNoticeScreen` / `BodySearchScreen` / `PickpocketScreen` | Arrest/search UI |
+| `FootprintMatchData` | Evidence matching |
 
-## Police Behavior
+## Integration (details in 12)
 
-- `PoliceOfficer`: NPC with specialized AI behavior
-- Patrolling, pursuing, searching
-- React to noise events and sightings
-- `NPCResponses_Police`: Police dialogues
-
-## Investigations
-
-- `Investigation`: Ongoing investigation
-- Starts upon crime discovery
-- Escalation to pursuit
-- Evidence system (footprints, etc.)
-
-## Offenses
-
-- `Offense`: Individual offense
-- Severity level affects reaction
-- Can be combined into charges
-- `OffenceNoticeUI`: Display notification upon offense
-
-## Road Checkpoints
-
-- `RoadCheckpoint`: Random checkpoints
-- `CheckpointInstance`: Active checkpoint
-- Vehicle search
-- `CheckpointManager`: Checkpoint management
-
-## Arrest
-
-- `ArrestScreen`: Arrest screen
-- `ArrestNoticeScreen`: Charges list
-- `BodySearchScreen`: Body search
-- `PickpocketScreen`: Pickpocketing
-
-## Integration with Law System
-
-- Works together with LawManager/Crime classes
-- `FootprintMatchData`: Evidence
-- Pursuit combines Vision + Noise + Law
+Works with `LawManager`/Crime classes; pursuit combines Vision ([`62-Vision.md`](62-Vision.md)) + Noise ([`46-Noise.md`](46-Noise.md)) + Law.

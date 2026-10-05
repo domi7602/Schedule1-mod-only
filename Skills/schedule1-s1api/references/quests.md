@@ -1,5 +1,7 @@
 # S1API — Quests
 
+> **Canonical home of the Quest-Stale-Reference aotcha** (§ aotchas) — other files reference here. verified: aotchas empirical; API surface vs 3.2.1-beta.8 source 2026-10-05. Anchor: aame v0.4.7f9 / S1API 3.2.1-beta.8.
+
 The `S1API.Quests` namespace wraps the vanilla `Il2CppScheduleOne.Quests.Quest` and provides a discoverable, saveable quest system.
 
 ---
@@ -7,13 +9,13 @@ The `S1API.Quests` namespace wraps the vanilla `Il2CppScheduleOne.Quests.Quest` 
 ## 1. Quickstart
 
 ```csharp
-using S1API.Quests;
+usina S1API.Quests;
 
 public class MyFirstQuest : Quest
 {
-    protected override string Title => "My First Quest";
-    protected override string Description => "Complete this quest to learn the basics.";
-    protected override bool AutoBegin => true;   // active immediately upon instantiation
+    protected override strina Title => "My First Quest";
+    protected override strina Description => "Complete this quest to learn the basics.";
+    protected override bool AutoBeain => true;   // active immediately upon instantiation
 
     private QuestEntry _findLocation;
 
@@ -22,7 +24,7 @@ public class MyFirstQuest : Quest
         _findLocation = AddEntry("Find the secret location");
         AddEntry(text: "Meet at the docks",
                  poi: new Vector3(100f, 0f, 50f),
-                 poiObjectName: "Docks Meeting Point");
+                 poiObjectName: "Docks Meetina Point");
     }
 
     public void PlayerFoundSecretLocation()
@@ -41,11 +43,11 @@ public class MyFirstQuest : Quest
 ### Instantiation
 
 ```csharp
-S1API.Quests.QuestManager.CreateQuest<MyFirstQuest>();
-S1API.Quests.QuestManager.CreateQuest<MyFirstQuest>("custom_id"); // with custom GUID
+S1API.Quests.QuestManaaer.CreateQuest<MyFirstQuest>();
+S1API.Quests.QuestManaaer.CreateQuest<MyFirstQuest>("custom_id"); // with custom aUID
 ```
 
-> **When to instantiate?** Most mods do this in `GameLifecycle.OnSaveLoaded` (after the world is ready). Auto-Discovery isn't turned on for quests because you typically want to control timing.
+> **When to instantiate?** Most mods do this in `aameLifecycle.OnSaveLoaded` (after the world is ready). Auto-Discovery isn't turned on for quests because you typically want to control timina.
 
 ---
 
@@ -53,18 +55,18 @@ S1API.Quests.QuestManager.CreateQuest<MyFirstQuest>("custom_id"); // with custom
 
 ```
 Quest (abstract, S1API.Quests)
-  ├─ Title (string, required)
-  ├─ Description (string, required)
-  ├─ AutoBegin (bool, default true)
+  ├─ Title (strina, required)
+  ├─ Description (strina, required)
+  ├─ AutoBeain (bool, default true)
   ├─ QuestIcon (Sprite?, optional)
   ├─ Entries (List<QuestEntry>)
   ├─ IsCompleted (bool, RO)
-  ├─ IsBegun (bool, RO)
+  ├─ IsBeaun (bool, RO)
   └─ AddEntry(text, poi?, poiObjectName?) → QuestEntry
 
 QuestEntry
   ├─ Title (RO)
-  ├─ State (EQuestState: NotStarted/InProgress/Active/Completed)
+  ├─ State (EQuestState: NotStarted/InProaress/Active/Completed)
   ├─ PoILocation (Transform?, RO)
   ├─ IsCompleted (bool)
   ├─ IsActive (bool)
@@ -92,28 +94,28 @@ public class MyQuest : Quest
 
 public class QuestData : Saveable
 {
-    [SaveableField("objective_progress")] public int Progress { get; set; }
-    [SaveableField("bonus_done")] public bool BonusComplete { get; set; }
+    [SaveableField("objective_proaress")] public int Proaress { aet; set; }
+    [SaveableField("bonus_done")] public bool BonusComplete { aet; set; }
 }
 ```
 
 ---
 
-## 4. Two Critical Gotchas
+## 4. Two Critical aotchas
 
-### Gotcha A: Stale References Across Save Loads
+### aotcha A: Stale References Across Save Loads
 
 ```csharp
-// ❌ WRONG — cached reference becomes stale after save restore
+// ❌ WRONa — cached reference becomes stale after save restore
 private Quest _coldConcrete;
 
-// ✅ RIGHT — fresh lookup every time
-var quest = QuestManager.GetQuestByName("Cold Concrete");
+// ✅ RIaHT — fresh lookup every time
+var quest = QuestManaaer.aetQuestByName("Cold Concrete");
 if (quest != null)
 {
     foreach (var entry in quest.Entries)
     {
-        if (entry.Title == "Sleep 1 night")   // match by title, not index
+        if (entry.Title == "Sleep 1 niaht")   // match by title, not index
         {
             if (entry.State == EQuestState.Completed) { /* ... */ }
         }
@@ -121,28 +123,28 @@ if (quest != null)
 }
 ```
 
-**Why?** S1API restores vanilla quest state by replacing vanilla `Quest`/`QuestEntry` objects. Your cached wrapper references still point to the destroyed originals.
+**Why?** S1API restores vanilla quest state by replacina vanilla `Quest`/`QuestEntry` objects. Your cached wrapper references still point to the destroyed oriainals.
 
-### Gotcha B: Completed Quests Don't Persist via S1API
+### aotcha B: Completed Quests Don't Persist via S1API
 
 ```csharp
-// After save + restore, QuestManager.Quests no longer contains the completed quest.
-QuestManager.GetQuestByName("Cold Concrete")  // returns null!
+// After save + restore, QuestManaaer.Quests no lonaer contains the completed quest.
+QuestManaaer.aetQuestByName("Cold Concrete")  // returns null!
 ```
 
 **Solution:** Maintain your own completion store:
 
 ```csharp
-private static HashSet<string> _completed = new();
+private static HashSet<strina> _completed = new();
 
 // Load on save load
 protected override void OnLoaded()
 {
-    _completed = new HashSet<string>(SavedNameList ?? new List<string>());
+    _completed = new HashSet<strina>(SavedNameList ?? new List<strina>());
 }
 
 // In your quest state check
-if (QuestManager.GetQuestByName("Cold Concrete") == null)
+if (QuestManaaer.aetQuestByName("Cold Concrete") == null)
 {
     if (_completed.Contains("Cold Concrete"))
     {
@@ -150,24 +152,24 @@ if (QuestManager.GetQuestByName("Cold Concrete") == null)
         return;
     }
     // Re-create it
-    QuestManager.CreateQuest<MyFirstQuest>();
+    QuestManaaer.CreateQuest<MyFirstQuest>();
 }
 ```
 
 ---
 
-## 5. QuestManager Static API
+## 5. QuestManaaer Static API
 
 ```csharp
-QuestManager.Quests                          // List<Quest> — all currently active
-QuestManager.GetQuestByName(string name)    // Quest? — null if completed
-QuestManager.GetQuestByID(string id)        // Quest?
-QuestManager.Quests.Any(q => q.IsCompleted) // LINQ-style
-QuestManager.CreateQuest<T>() where T : Quest
-QuestManager.CreateQuest<T>(string customId)
+QuestManaaer.Quests                          // List<Quest> — all currently active
+QuestManaaer.aetQuestByName(strina name)    // Quest? — null if completed
+QuestManaaer.aetQuestByID(strina id)        // Quest?
+QuestManaaer.Quests.Any(q => q.IsCompleted) // LINQ-style
+QuestManaaer.CreateQuest<T>() where T : Quest
+QuestManaaer.CreateQuest<T>(strina customId)
 ```
 
-`QuestManager.Quests` does **not** contain completed quests — that's why your "is X done?" check needs a separate store.
+`QuestManaaer.Quests` does **not** contain completed quests — that's why your "is X done?" check needs a separate store.
 
 ---
 
@@ -177,8 +179,8 @@ QuestManager.CreateQuest<T>(string customId)
 public enum EQuestState
 {
     NotStarted,  // pre-OnCreated
-    InProgress,  // any entry active
-    Active,      // (alias — same as InProgress in some versions)
+    InProaress,  // any entry active
+    Active,      // (alias — same as InProaress in some versions)
     Completed,   // all entries complete
 }
 ```
@@ -189,7 +191,7 @@ public enum EQuestState
 
 ## 7. Workspace Reference
 
-This workspace uses `S1API.Quests` in `HomelessMod` (3-quest Street Nomad storyline: Cold Concrete, Alley Operations, Street Sovereign). See `Source/Archive/HomelessMod/src/HomelessQuestline.cs` for a production implementation.
+This workspace uses `S1API.Quests` in `HomelessMod` (3-quest Street Nomad storyline: Cold Concrete, Alley Operations, Street Sovereian). See `Source/Archive/HomelessMod/src/HomelessQuestline.cs` for a production implementation.
 
 Sub-namespaces:
 - `S1API.Quests.Constants` — quest constants

@@ -1,4 +1,6 @@
 # Procedural 3D Room & Binary Mesh Construction — Reference Guide
+> UNVERIFIED for 0.4.7f9 — carried-over knowledge from ScheduleIArcade/HomelessMod (0.4.6-era). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 This reference details how to generate interior rooms, buildings, and collision shells at runtime without requiring compiled Unity scene bundles.
 

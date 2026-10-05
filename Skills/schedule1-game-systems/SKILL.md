@@ -1,13 +1,13 @@
 ---
 name: schedule1-game-systems
-description: "Reference guide for all 64 core game systems in Schedule I (v0.4.7f6). Use this to understand game mechanics, find core classes, and plan hooks."
+description: "Reference guide for all 64 core game systems in Schedule I (v0.4.7f9). Use this to understand game mechanics, find core classes, and plan hooks. Keywords: game systems, FishNet, Save, Dialogue, Quest, Growing, Inventory, Building, Laundering, Heat, Pursuit, Regions, NPC, TimeManager, Economy, Avatar, Mixing, DrugEffects, Stations, Property, Skateboard, Tiles, Weather, hook points, Harmony."
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I Game Systems
 
-This skill is the **map to the 64 core game systems** in *Schedule I* v0.4.7f6 — bypassing the need to navigate raw decompiled code blind. Every system is curated with core classes, network behavior, variables, and Harmony/S1API hook points directly in `Skills/schedule1-game-systems/references/`.
+This skill is the **map to the 64 core game systems** in *Schedule I* v0.4.7f9 — bypassing the need to navigate raw decompiled code blind. Every system is curated with core classes, network behavior, variables, and Harmony/S1API hook points directly in `Skills/schedule1-game-systems/references/`.
 
 ---
 

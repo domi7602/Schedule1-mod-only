@@ -1,48 +1,67 @@
 # Station Framework (Schedule I)
+> verified: StationItem, StationRecipe, ItemModule family and station types re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
+Namespace: `Il2CppScheduleOne.StationFramework` — 17 types in the decompile dump.
 
 ## Core Classes
 
-| Class | Purpose |
-|-------|---------|
-| `StationItem` | Base station item |
-| `StationRecipe` | Recipe definition |
-| `BoilingFlask` | Boiling flask |
-| `LiquidContainer` | Liquid container |
+| Class | Base | Purpose |
+|-------|------|---------|
+| `StationItem` | MonoBehaviour | Base for station **items**. Fields: `Modules` (`List<ItemModule>`), `TrashPrefab`. `ActiveModules` property. Methods: `Initialize(StorableItemDefinition)`, `ActivateModule<T>()`, `HasModule<T>()`, `GetModule<T>()`, `Destroy()` |
+| `StationRecipe` | ScriptableObject | Recipe asset: inputs, product, cooking parameters (see below) |
+| `ItemModule` | MonoBehaviour | Module on a station item: `Item` (owner), `IsModuleActive`, virtual `ActivateModule(StationItem)` |
+| `Fillable` | MonoBehaviour | Liquid reservoir: `contents` (`List<Content>`), `AddLiquid(name, volume, color)`, `GetLiquidVolume(name)`, `GetTotalLiquidVolume()`, `LiquidCapacity_L` |
+| `BoilingFlask` | Fillable | Cook vessel: `Burner` (`BunsenBurner`, ObjectScripts), temperature sim (`CurrentTemperature` + velocity, `TEMPERATURE_MAX`, `OverheatScale`), `Recipe` property, canvas + smoke visuals |
 
-## Base Classes
+## StationRecipe API
+- Fields: `RecipeTitle`, `IsDiscovered`, `Unlocked`, `Ingredients` (`List<IngredientQuantity>`), `Product` (`ItemQuantity`), `FinalLiquidColor`, `CookTime_Mins`, `CookTemperature`, `CookTemperatureTolerance`, `QualityCalculationMethod`
+- `EQualityCalculationMethod` = `{ Additive }` — only one value exists
+- Bounds: `CookTemperatureLowerBound` / `CookTemperatureUpperBound` (derived from `CookTemperature` ± tolerance; exact formula unverified)
+- Nested types: `ItemQuantity { Item, Quantity }`, `IngredientQuantity { Items (List<ItemDefinition>), Quantity, Item getter }`
+- Methods: `DoIngredientsSuffice(List<ItemInstance>)`, `CalculateQuality(List<ItemInstance>)` → `EQuality`, `GetProductInstance(List<ItemInstance>)`, `GetProductInstance(EQuality)`, `RecipeID` getter (derivation unverified)
 
-- `StationItem`: MonoBehaviour base for all stations
-- `StationRecipe`: Defines input/output for stations
-- `ItemModule`: Item integration
-- `IngredientModule`: Ingredient integration
-- `PourableModule`: Pouring integration
+## Module Classes
+| Module | Fields of interest |
+|--------|--------------------|
+| `IngredientModule` | `Pieces`; `ActivateModule` spawns ingredient pieces |
+| `PourableModule` | `LiquidType`, `PourRate`, `LiquidCapacity_L`, `LiquidContainer`, `OnlyEmptyOverFillable`; virtual `CanPour()`, `PourAmount()`, `ChangeLiquidLevel()` |
+| `CookableModule` | `CookTime`, `CookType` (`ECookableType`), `Product`, `ProductQuantity`, `ProductShardPrefab`, `LiquidColor`/`SolidColor` |
 
-## Liquids
-
-- `LiquidContainer`: Liquid physics
-- `LiquidLevelVisuals`: Visual liquid level display
-- `LiquidVolumeCollider`: Collision volume
-- `BoilingFlask`: Boiling flask with boiling behavior
+Supporting: `LiquidContainer` (level + color mesh control), `LiquidLevelVisuals`, `LiquidVolumeCollider`, `IngredientPiece` (dissolve-over-time in liquid), `PourableAngleLimit`.
 
 ## Station Types
+| Station | Class | Base |
+|---------|-------|------|
+| Mushroom spawn (container) | `MushroomSpawnStation` | **GridItem**, not StationItem |
+| Mushroom spawn (bag item) | `MushroomSpawnStationItem` | StationItem |
+| Spore syringe | `SporeSyringeStationItem` | StationItem |
+| Liquid meth flask | `LiquidMeth_StationItem` | StationItem |
+| Product wrapping station | `ProductStationItem` | StationItem |
 
-| Station | Class |
-|---------|-------|
-| Mushroom Spawn | `MushroomSpawnStation` |
-| Spore Syringe | `SporeSyringeStationItem` |
-| Liquid Meth | `LiquidMeth_StationItem` |
-| Product | `ProductStationItem` |
+`MushroomSpawnStation` is the networked container behind the mushroom growing workflow: `GrainBagSlot`/`SyringeSlot`/`OutputSlot`, `Use()`/`OnEndUse()`, `SetPlayerUser`/`SetNPCUser`/`SetConfigurer` (server RPCs), `SetItemSlotQuantity`/`SetSlotLocked`/`SetSlotFilter` (server RPCs), `GetSaveData()`.
 
-## Cookables
+## Events / UnityEvents
+| Event | Type | Raised by |
+|-------|------|-----------|
+| `onUse`, `onUseEnded` | `UnityEvent` (`MushroomSpawnStation`) | `Use()` / `OnEndUse()` |
+| `onCapRemoved`, `onInserted` | `UnityEvent` (`SporeSyringeStationItem`) | `RemoveCap()` / `InsertSyringe()` |
+| `onPlungerMoved` | `UnityEvent<float>` (`SporeSyringeStationItem`) | plunger input |
 
-- `CookableModule`: Cooking module
-- `Fillable`: Fillable stations
-- `IngredientPiece`: Ingredient pieces
-- `PourableAngleLimit`: Pouring angle limit
+No UnityEvents on `StationItem` / `StationRecipe` / `BoilingFlask`.
 
-## Integration
+## Save Participation
+- `MushroomSpawnStation` saves via its GridItem/property data path (`GetBaseData`/`GetSaveData`) — see 02-Save-Persistence.
+- `StationRecipe.IsDiscovered`/`Unlocked`: no ISaveable on `StationRecipe` in this dump; persistence path unverified (S1API wraps both flags via `SetAvailability`).
 
-- Stations interact with the management system (Clipboard)
-- Each station has a UI configuration
-- Networked for multiplayer sync
-- Integration with EntityFramework (GridItem, SurfaceItem)
+## Hook Points
+1. **Prefix `StationRecipe.CalculateQuality(List<ItemInstance>)`** — inject custom quality formulas (S1API mirrors this via `QualityCalculationMethod`).
+2. **Prefix `StationItem.Initialize(StorableItemDefinition)`** — inject custom modules into stations after item init.
+3. **Prefix `BoilingFlask.SetTemperature(float)`** — override the flask heat curve (pairs with 58-Temperature).
+- **S1API wrapper (verified in 3.2.1-beta.8)**: `S1API.Stations.ChemistryStationRecipes.CreateAndRegister(builder => ...)` / `Register(recipe)` / `GetAll()` — wraps a native `StationRecipe`; `ChemistryStationRecipe.SetAvailability(isDiscovered, isUnlocked)`.
+
+## Not Implemented / Unverified
+- No station "progress" or "process time" manager class exists in StationFramework — cooking time is owned by `BoilingFlask`/`CookableModule` consumers (25-Mixing-Production).
+- `RecipeID` derivation and recipe discovery persistence: unverified.
+
+## Cross-links
+08-Plant-Growing · 25-Mixing-Production · 47-ObjectStations · 09-Inventory-ItemFramework · 58-Temperature · 02-Save-Persistence

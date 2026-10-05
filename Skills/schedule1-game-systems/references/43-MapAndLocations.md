@@ -1,50 +1,24 @@
 # Map & Locations (Schedule I)
 
+> **Redirect stub** (consolidated 2026-10-05): region mechanics/unlocks live in **[`13-Regions.md`](13-Regions.md)**; the live-verified map-POI/S1API `MapPOIBuilder` analysis lives in the map section of **[`07-Vehicle.md`](07-Vehicle.md)** (verified 2026-09-25). This file keeps only the class register. Class-list only — not yet re-verified against 0.4.7f9.
+
 ## Core Classes
 
 | Class | Purpose |
 |-------|---------|
-| `Map` | Main map |
-| `MapPositionUtility` | Map positions |
-| `EMapRegion` | Regions enum |
-| `POI` | Points of Interest |
+| `Map` / `MapPositionUtility` / `EMapRegion` | Main map / positions / regions enum |
+| `MapApp` / `UIMapPanel` / `UIMapItem` | Phone map app + UI |
+| `POI` / `NPCPoI` / `MapRegionData` | Points of interest |
+| `AccessZone` / `TimedAccessZone` / `NPCPresenceAccessZone` | Access control zones |
+| `Gate` / `ManorGate` / `Ladder` | Traversal |
+| `ParkingLot` / `ParkingSpot` | Parking |
+| `SewerCameraPresense` | Camera presence |
 
-## Map System
+## Named locations
 
-- `MapApp`: Map app on the phone
-- `UIMapPanel`: Map UI panel
-- `UIMapItem`: Map UI item
-- Interactive 2D map of the game world
+DarkMarket · Dealership · MedicalCentre · PoliceStation · SewerManager · AutoshopAccessZone · ManorGate
 
-## Points of Interest
+## Related
 
-- `POI`: Base POI class
-- `NPCPoI`: NPC-specific POIs
-- `MapRegionData`: Region data on map
-- POIs display NPCs, shops, properties
-
-## Important Locations
-
-| Location | Class | Description |
-|----------|-------|-------------|
-| DarkMarket | `DarkMarket` | Dark market |
-| Dealership | `Dealership` | Car dealership |
-| MedicalCentre | `MedicalCentre` | Hospital / Medical center |
-| PoliceStation | `PoliceStation` | Police station |
-| SewerManager | `SewerManager` | Sewer system |
-| AutoshopAccessZone | `AutoshopAccessZone` | Auto repair shop |
-| ManorGate | `ManorGate` | Manor gate |
-
-## Regions
-
-- `EMapRegion`: 6 regions + Sewer
-- `AccessZone`: Access zones
-- `TimedAccessZone`: Timer-controlled access
-- `NPCPresenceAccessZone`: NPC presence zone
-
-## Access Control
-
-- `Gate`, `ManorGate`: Gates
-- `Ladder`: Ladders
-- `SewerCameraPresense`: Camera presence
-- `ParkingLot`, `ParkingSpot`: Parking lots and spots
+- Regions/unlocks: [`13-Regions.md`](13-Regions.md) · Manor constants: [`54-Property.md`](54-Property.md)
+- S1API map hooks: `schedule1-s1api/references/game-systems.md` + 07 map section

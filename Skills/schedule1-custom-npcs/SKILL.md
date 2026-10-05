@@ -1,9 +1,9 @@
 ---
 name: schedule1-custom-npcs
-description: Focused Schedule One S1API custom NPC creation skill. Use when creating, editing, debugging, or reviewing custom NPC classes for Schedule 1 mods, including physical or non-physical NPCs, ConfigurePrefab builder setup, appearance, schedules, dialogue, customer behavior, dealer behavior, runtime lifecycle hooks, save/load callback restoration, and AvatarFramework-backed appearance ranges and asset paths.
+description: Focused Schedule One S1API custom NPC creation skill. Use when creating, editing, debugging, or reviewing custom NPC classes for Schedule 1 mods, including physical or non-physical NPCs, ConfigurePrefab builder setup, appearance, schedules, dialogue, customer behavior, dealer behavior, runtime lifecycle hooks, save/load callback restoration, and AvatarFramework-backed appearance ranges and asset paths. Keywords: NPC, NPCPrefabBuilder, ConfigurePrefab, OnCreated, Appearance, Avatar, Schedule, Dialogue, Customer, Dealer, EnsureDealSignal, OnResponseLoaded, layers.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule One Custom NPCs (S1API)
 

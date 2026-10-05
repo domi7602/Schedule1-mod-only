@@ -1,4 +1,6 @@
 # Outdoor Placement — Golden Rules 1, 4, 5
+> UNVERIFIED for 0.4.7f9 — carried-over 0.4.6-era working knowledge (no re-verification run yet). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 Applies when placing buildables outside purchased properties (e.g. HomelessMod street items). See `SKILL.md` for class map.
 

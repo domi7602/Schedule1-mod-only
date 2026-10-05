@@ -1,5 +1,7 @@
 # S1API — Cross-Compatibility (IL2CPP vs Mono)
 
+> verified: loader mechanism checked against S1API 3.2.1-beta.8 source 2026-10-05; §6 runtime check corrected 2026-10-05 (was an OS check that proved nothing). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 S1API's main promise: **one mod, one build, both branches** (IL2CPP standard + Mono `alternate`). This reference explains how that works, when it breaks, and how to handle the exceptions.
 
 ---
@@ -68,7 +70,7 @@ Most use cases are covered by S1API wrappers:
 | Money | `S1API.Money` |
 | Game Time | `S1API.GameTime` |
 | Property | `S1API.Property` |
-| Saving | `S1API.Lifecycle.OnSaveLoaded` |
+| Saving | `S1API.Lifecycle` (`OnPreLoad`/`OnLoadComplete`/`OnSaveComplete` — **`OnSaveLoaded` does NOT exist** in 3.2.1-beta.8; `OnSaveInfoLoaded` fires 0× on game 0.4.7f6+, verified 2026-09-29) |
 | Console | `S1API.Console` |
 | Geometry | `S1MAPI` (separate skill) |
 
@@ -123,14 +125,16 @@ For mods that genuinely need IL2CPP-specific behavior (e.g., IL2CPP-only optimiz
 ```csharp
 public override void OnInitializeMelon()
 {
-    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && /* IL2CPP detected */)
+    bool isIl2Cpp = AppDomain.CurrentDomain.GetAssemblies()
+        .Any(a => string.Equals(a.GetName().Name, "Il2CppInterop.Runtime", StringComparison.Ordinal));
+    if (isIl2Cpp)
     {
         // IL2CPP-only fast path
     }
 }
 ```
 
-The runtime check is rare; usually S1API handles it.
+The runtime check is rare; usually S1API handles it. (Canonical check = the `Il2CppInterop.Runtime` assembly probe from `schedule1-il2cpp-reflection` §2 — the older `OSPlatform.Windows` example here proved nothing about the runtime and was fixed 2026-10-05.)
 
 ---
 
@@ -149,7 +153,7 @@ dotnet build Source/Mods/MyMod/src/MyMod.csproj -c MonoRelease
 # Verify deployment, launch game, test
 ```
 
-Most workspace mods (NotesApp, PotScanner, CalculatorApp, BankApp, PocketShop, BusinessIncome, MoreSaveSlots, HomelessMod, CustomSkateboard, Minimap) are IL2CPP-only by deployment choice. `S1API` 3.2.0 supports both via the loader mechanism.
+Most workspace mods are IL2CPP-only by deployment choice (current inventory: [`AGENTS.md`](../../../AGENTS.md) §2). `S1API` 3.2.1-beta.8 supports both via the loader mechanism.
 
 ---
 

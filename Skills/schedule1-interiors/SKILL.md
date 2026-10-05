@@ -1,11 +1,11 @@
 ---
 name: schedule1-interiors
 description: >-
-  Architectural runbook for creating procedural 3D interiors, custom buildings, seamless vanilla door transitions, and interactive CRT/minigame displays in Schedule I v0.4.7f6 (IL2CPP / MelonLoader). Use when creating enterable buildings (Arcades, Clubs, Safehouses, Labs), hooking vanilla doors (StaticDoor, DoorKnocker, NpcSummonMenu), building procedural 3D room shells without AssetBundles, streaming spatial audio ambience, or rendering real-time pixel minigames onto in-world 3D screens (Texture2D.SetPixels32).
+  Architectural runbook for creating procedural 3D interiors, custom buildings, seamless vanilla door transitions, and interactive CRT/minigame displays in Schedule I v0.4.7f9 (IL2CPP / MelonLoader). Use when creating enterable buildings (Arcades, Clubs, Safehouses, Labs), hooking vanilla doors (StaticDoor, DoorKnocker, NpcSummonMenu), building procedural 3D room shells without AssetBundles, streaming spatial audio ambience, or rendering real-time pixel minigames onto in-world 3D screens (Texture2D.SetPixels32).
   Keywords: Interior, Building, StaticDoor, DoorKnocker, NpcSummonMenu, RawArcadeSceneService, ArcadeEntranceService, IArcadeGame, Texture2D, SetPixels32, CRT, PacMan, Pinball, CabinetInteraction, AudioSource, Ambience, TeleportPlayerWithController.
 ---
 
-> Version anchor: Game v0.4.7f6 / S1API 3.2.1-beta.7 / MelonLoader 0.7.3 (versions verified 2026-09-28 against live install; content NOT re-verified after the 0.4.7f6 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
 
 # Schedule I — Interiors & Minigame Systems Skill
 
@@ -160,7 +160,7 @@ To allow first-person interaction with in-world terminals or game cabinets:
 
 ## 7. Common Gotchas & Guardrails
 
-1. **CharacterController Teleport Glitch:** Never set `transform.position` while `CharacterController.enabled == true`; Unity's physics engine will snap the player back to the exterior. Always toggle `enabled = false` $\rightarrow$ set pos $\rightarrow$ `enabled = true`.
-2. **Return Position Zero Trap:** If the player loads directly inside the room or restarts, `_outsideReturnPosition` might be null $\rightarrow$ always provide a fallback exterior coordinate (e.g. sidewalk outside the building).
+1. **CharacterController Teleport Glitch:** Never set `transform.position` while `CharacterController.enabled == true`; Unity's physics engine will snap the player back to the exterior. Always toggle `enabled = false` → set pos → `enabled = true`.
+2. **Return Position Zero Trap:** If the player loads directly inside the room or restarts, `_outsideReturnPosition` might be null → always provide a fallback exterior coordinate (e.g. sidewalk outside the building).
 3. **Texture Mipmap Performance Penalty:** Always pass `_texture.Apply(false)` when uploading 60 FPS pixel buffers to avoid regenerating mipmaps every frame.
 4. **Input Leak to Character:** When playing an arcade game or using a terminal, always hook and disable `PlayerMovement.Instance.CanMove` so the character doesn't walk into walls while pressing arrow keys.

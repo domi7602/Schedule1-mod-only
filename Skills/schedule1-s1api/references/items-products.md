@@ -1,4 +1,6 @@
 # S1API — Items & Products
+> UNVERIFIED for 0.4.7f9 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+
 
 Two related but distinct APIs:
 - **`S1API.Items`** — define **custom items** (anything that goes in inventory: tools, consumables, packaging, etc.)

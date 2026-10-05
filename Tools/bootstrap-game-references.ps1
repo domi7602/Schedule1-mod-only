@@ -19,7 +19,9 @@ if (-not (Test-Path -LiteralPath $assembliesDir)) {
 
 if (-not (Test-Path -LiteralPath $ilspycmd)) {
     New-Item -ItemType Directory -Path $toolDir -Force | Out-Null
-    dotnet tool install ilspycmd --tool-path $toolDir
+    # Pinned version: bare `dotnet tool install ilspycmd` pulls 10.x/11.x which fails on SDK 8
+    # (see schedule1-lifecycle-verify Pitfall 6). 9.1.0.7988 is the last line that installs and runs on net8.
+    dotnet tool install ilspycmd --tool-path $toolDir --version 9.1.0.7988
     if ($LASTEXITCODE -ne 0) {
         throw 'Failed to install ilspycmd.'
     }
@@ -41,7 +43,10 @@ foreach ($assemblyName in 'Assembly-CSharp.dll', 'Assembly-CSharp-firstpass.dll'
     }
 
     Write-Host "Decompiling $assemblyName -> $targetDir" -ForegroundColor Cyan
-    & $ilspycmd --outputdir $targetDir $assemblyPath
+    # -p = project mode: per-type .cs files + .csproj (matches the documented GameReferences layout;
+    # without -p ilspycmd 8.2+ writes ONE monolithic file, which breaks all `GameReferences/decompiled/
+    # Assembly-CSharp/Il2CppScheduleOne/<Area>/<Type>.cs` references in skills and docs).
+    & $ilspycmd --outputdir $targetDir -p $assemblyPath
     if ($LASTEXITCODE -ne 0) {
         throw "ilspycmd failed for $assemblyName (exit $LASTEXITCODE)."
     }
