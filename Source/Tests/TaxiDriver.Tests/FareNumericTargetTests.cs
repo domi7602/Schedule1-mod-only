@@ -19,17 +19,17 @@ public class FareNumericTargetTests
         float speed = 30f,
         float clockRate = 1f,
         int rate = 1) => new()
-    {
-        RideValid = true,
-        RawDeltaSeconds = delta,
-        ClockAvailable = true,
-        ClockRate = clockRate,
-        ConfigEnabled = true,
-        DollarsPerMinute = rate,
-        SpeedReadFailed = false,
-        SpeedKmh = speed,
-        MovingThresholdKmh = 3f,
-    };
+        {
+            RideValid = true,
+            RawDeltaSeconds = delta,
+            ClockAvailable = true,
+            ClockRate = clockRate,
+            ConfigEnabled = true,
+            DollarsPerMinute = rate,
+            SpeedReadFailed = false,
+            SpeedKmh = speed,
+            MovingThresholdKmh = 3f,
+        };
 
     [Fact]
     public void NT01_UnitOverflow_NeverThrows_AndKeepsTheLedgerConsistent()
