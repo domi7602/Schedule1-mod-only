@@ -39,6 +39,12 @@ namespace S1Mods.Shared
 }
 namespace BusinessIncome.Services
 {
+    // The procedural Unity sprite is a native presentation boundary, not payout logic.
+    internal static class BusinessIcon
+    {
+        internal static object Get() => new object();
+    }
+
     public static class BusinessResolver
     {
         public static bool Readable { get; set; } = true;
