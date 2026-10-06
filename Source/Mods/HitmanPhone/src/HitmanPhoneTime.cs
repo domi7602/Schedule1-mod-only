@@ -108,4 +108,46 @@ public static class HitmanPhoneTime
             return 0;
         }
     }
+
+    // ------------------------------------------------------------------
+    // Minute-precision helpers (drop windows + call plan). TimeManager's
+    // CurrentTime is the game's 24-hour int (1330 = 13:30); the static
+    // GetMinSumFrom24HourTime converts it to minutes-of-day (proven in the
+    // 0.4.7 stub decompile).
+    // ------------------------------------------------------------------
+
+    /// <summary>Current minute-of-day (0..1399). 0 on failure.</summary>
+    public static int CurrentMinuteOfDay()
+    {
+        try
+        {
+            var tm = S1Time.Instance;
+            if (tm == null) return 0;
+            return S1Time.GetMinSumFrom24HourTime(tm.CurrentTime);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"HitmanPhoneTime.CurrentMinuteOfDay failed: {ex.Message}");
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// Absolute in-game minute sum (day*1440 + minute-of-day) — the game's own
+    /// GameDateTime.GetMinSum() convention. Base for drop-window due points.
+    /// </summary>
+    public static long MinuteSum(int day, int minuteOfDay) => day * 1440L + minuteOfDay;
+
+    public static long CurrentMinuteSum() => MinuteSum(CurrentDay(), CurrentMinuteOfDay());
+
+    /// <summary>Minutes remaining until the given absolute minute sum (negative when past).</summary>
+    public static long MinutesUntil(long dueMinSum) => dueMinSum - CurrentMinuteSum();
+
+    /// <summary>HHMM int (e.g. 1405) for an absolute minute sum — for display/debug.</summary>
+    public static int To24HourTime(long minSum)
+    {
+        int minutesInDay = (int)(minSum % 1440);
+        if (minutesInDay < 0) minutesInDay += 1440;
+        return S1Time.Get24HourTimeFromMinSum(minutesInDay);
+    }
 }

@@ -44,7 +44,7 @@ public static class BountyService
     public static int PolaroidsSpawned => Volatile.Read(ref _polaroidsSpawned);
     public static int EarlyOuts => Volatile.Read(ref _earlyOuts);
 
-    public static void OnNpcDied(S1NPC npc)
+    public static void OnNpcDied(S1NPC npc, bool fatal = true)
     {
         Interlocked.Increment(ref _deathsObserved);
 
@@ -140,6 +140,12 @@ public static class BountyService
             // off EvidenceSpawned (which is reset below so a lost polaroid can
             // be re-earned by killing the target again).
             match.AwaitingDrop = true;
+            // Tracker + two-phase deadlines (budget/dead-drop update): the
+            // polaroid is confirmed in the player's hands right now — record the
+            // takedown (KO vs. fatal death kept apart) and start the post-photo
+            // drop window.
+            RecordKillEvent(match, npcId, fatal);
+            EnsureDropWindowStarted(match);
             Interlocked.Increment(ref _polaroidsSpawned);
             BountyPersistence.PersistCurrent(); // v0.1.3: evidence state must survive a game restart
 
@@ -157,6 +163,65 @@ public static class BountyService
         {
             Mod.Log.Error($"Adding polaroid to inventory failed: {ex}");
         }
+    }
+
+    /// <summary>
+    /// Tracker record (kill tracker update): exactly ONE historical record per
+    /// NPC per save — several contracts on the same head must never count as
+    /// several kills. A confirmed fatal death upgrades an earlier KO record.
+    /// </summary>
+    private static void RecordKillEvent(BountyContract match, string npcId, bool fatal)
+    {
+        try
+        {
+            var save = Mod.Instance?.Save;
+            if (save == null) return;
+            string id = string.IsNullOrEmpty(npcId) ? match.TargetNpcId : npcId;
+            if (string.IsNullOrEmpty(id)) return;
+            for (int i = 0; i < save.KillEvents.Count; i++)
+            {
+                var e = save.KillEvents[i];
+                if (!string.Equals(e.TargetNpcId, id, StringComparison.OrdinalIgnoreCase)) continue;
+                if (fatal && !e.Died)
+                {
+                    e.Died = true;
+                    e.Day = HitmanPhoneTime.CurrentDay();
+                    e.MinuteSum = HitmanPhoneTime.CurrentMinuteSum();
+                    e.ContractId = match.Id;
+                }
+                return;
+            }
+            save.KillEvents.Add(new BountyKillRecord
+            {
+                TargetNpcId = id,
+                TargetName = match.TargetNpcName,
+                Day = HitmanPhoneTime.CurrentDay(),
+                MinuteSum = HitmanPhoneTime.CurrentMinuteSum(),
+                Died = fatal,
+                ContractId = match.Id
+            });
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"RecordKillEvent failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// First confirmed receipt of the polaroid (in the player's inventory or in
+    /// any dead drop) starts the short post-photo drop window — the countdown
+    /// begins at receipt, never at accept. Idempotent. Legacy contracts without
+    /// an offer-time window (DropWindowMinutes ≤ 0) keep their old single
+    /// deadline: no retroactive short window is imposed on old saves.
+    /// </summary>
+    public static void EnsureDropWindowStarted(BountyContract c)
+    {
+        if (c == null || c.DropDueStarted) return;
+        if (c.DropWindowMinutes <= 0) return;
+        c.DropDueStarted = true;
+        c.DropDueMinSum = HitmanPhoneTime.CurrentMinuteSum() + c.DropWindowMinutes;
+        Mod.Log.Info($"[Bounty#{c.Id}] Drop window started: {c.DropWindowMinutes} min " +
+                     $"(due min-sum {c.DropDueMinSum}, drop '{c.AssignedDropName}').");
     }
 
     /// <summary>

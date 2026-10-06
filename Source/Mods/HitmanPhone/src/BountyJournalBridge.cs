@@ -530,7 +530,7 @@ public static class BountyJournalBridge
                     {
                         entry.Complete();
                     }
-                    else if (entry.Title == "Drop the polaroid at any dead-drop" && entry.State != S1API.Quests.Constants.QuestState.Completed)
+                    else if (entry.Title == "Drop the polaroid at the assigned dead drop" && entry.State != S1API.Quests.Constants.QuestState.Completed)
                     {
                         entry.Begin();
                     }

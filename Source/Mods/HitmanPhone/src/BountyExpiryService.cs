@@ -22,7 +22,10 @@ namespace HitmanPhone.Bounty;
 /// </summary>
 public static class BountyExpiryService
 {
-    private static int _lastCheckedDay = -1;
+    private static long _lastTickRealtime;
+    private const long TickThrottleMs = 2000;
+    /// <summary>Warn the player once when the drop window has this many minutes left.</summary>
+    private const int DropWarningThresholdMinutes = 30;
     private static int _expirationsDispatched;
     private static int _lastExpiredContracts;
 
@@ -38,11 +41,16 @@ public static class BountyExpiryService
         var save = Mod.Instance?.Save;
         if (save == null) return;
 
-        int day = HitmanPhoneTime.CurrentDay();
-        if (day == _lastCheckedDay) return;
-        if (day < 0 || !NetworkGuard.IsInMainScene) return;
+        // Budget/dead-drop update: the post-drop window runs on MINUTE
+        // precision, so the old once-per-day latch is gone — a 2s real-time
+        // throttle keeps the ≤-few-contract loop negligible ("0-Allocation
+        // Polling" rule still holds: no allocations in the steady state).
+        long nowMs = Environment.TickCount64;
+        if (nowMs - _lastTickRealtime < TickThrottleMs) return;
+        _lastTickRealtime = nowMs;
 
-        _lastCheckedDay = day;
+        int day = HitmanPhoneTime.CurrentDay();
+        if (day < 0 || !NetworkGuard.IsInMainScene) return;
 
         int batched = 0;
         // Audit M6 (2026-09-01): expired contracts now LEAVE Active (moved to
@@ -54,10 +62,37 @@ public static class BountyExpiryService
             if (c.Status != EBountyStatus.Active) continue;
             if (c.DeadlineDay <= 0) continue;
 
-            // Boundary: DeadlineDay = OfferedAtDay + ContractDeadlineDays and the quest
-            // journal promises exactly that many days ("Time limit: {Deadline-Offered}").
-            // Expire when the deadline day is REACHED (>=), not the day after (>).
-            if (day >= c.DeadlineDay)
+            // Two-phase deadlines (budget/dead-drop update):
+            //   1. Execution phase — the polaroid is not in confirmed player
+            //      possession yet: the classic day-based DeadlineDay applies
+            //      (kill + delivery).
+            //   2. Drop phase — the first confirmed receipt of the polaroid
+            //      started the short budget-scaled drop window (minute
+            //      precision); it replaces the execution deadline from that
+            //      moment on.
+            if (c.DropDueStarted)
+            {
+                long remaining = HitmanPhoneTime.MinutesUntil(c.DropDueMinSum);
+                if (remaining > 0)
+                {
+                    if (!c.DropWarningSent && remaining <= DropWarningThresholdMinutes)
+                    {
+                        c.DropWarningSent = true;
+                        BountyPersistence.PersistCurrent();
+                        WarnDropWindow(c, (int)remaining);
+                    }
+                    continue;
+                }
+                // Drop window missed → same failure transition as a missed
+                // execution deadline (below).
+            }
+            else
+            {
+                // Boundary: DeadlineDay = OfferedAtDay + ContractDeadlineDays and the quest
+                // journal promises exactly that many days ("Time limit: {Deadline-Offered}").
+                // Expire when the deadline day is REACHED (>=), not the day after (>).
+                if (day < c.DeadlineDay) continue;
+            }
             {
                 c.Status = EBountyStatus.Expired;
                 save.Active.RemoveAt(i);
@@ -98,6 +133,23 @@ public static class BountyExpiryService
     }
 
     /// <summary>
+    /// One-shot caller SMS shortly before the assigned drop window closes.
+    /// A warning is never worth breaking the expiry transition (all wrapped).
+    /// </summary>
+    private static void WarnDropWindow(BountyContract c, int remainingMinutes)
+    {
+        try
+        {
+            BountyConversationRouter.SendDropWindowWarning(
+                ResolveCallerIndex(c.CallerId), remainingMinutes, c.AssignedDropName);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"Drop-window warning failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
     /// Reconstruct caller index from "caller_ghost" → 0 etc.
     /// </summary>
     private static int ResolveCallerIndex(string callerId)
@@ -123,6 +175,6 @@ public static class BountyExpiryService
     /// </summary>
     public static void ResetDayLatch()
     {
-        _lastCheckedDay = -1;
+        _lastTickRealtime = 0;
     }
 }

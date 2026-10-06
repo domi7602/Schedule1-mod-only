@@ -127,9 +127,30 @@ public class BountyQuest : Quest
         {
             var c = GetContract();
             if (c == null) return "Eliminate the target.";
+            // Budget/dead-drop update: the drop is fixed per contract and the
+            // deadline is two-phase (execution window, then the short post-photo
+            // drop window). Both are shown in in-game time terms.
+            string dropLine = string.IsNullOrEmpty(c.AssignedDropName)
+                ? "Dead drop: any"
+                : $"Dead drop: {c.AssignedDropName}";
+            if (c.DropWindowMinutes > 0 && !c.DropDueStarted)
+                dropLine += $" - deliver within {c.DropWindowMinutes / 60}h after the photo reaches you";
+            string phaseLine;
+            if (c.DropDueStarted)
+            {
+                long left = HitmanPhoneTime.MinutesUntil(c.DropDueMinSum);
+                phaseLine = $"Drop window: {left} min left (in-game)";
+            }
+            else
+            {
+                int days = c.DeadlineDay - c.OfferedAtDay;
+                if (days < 0) days = 0;
+                phaseLine = $"Time limit: {days} days (in-game)";
+            }
             return $"Caller: {c.CallerId.Replace("caller_", "").ToUpper()}\n" +
                    $"Reward: ${c.RewardCash:N0}\n" +
-                   $"Time limit: {c.DeadlineDay - c.OfferedAtDay} days";
+                   dropLine + "\n" +
+                   phaseLine;
         }
     }
 
@@ -139,7 +160,7 @@ public class BountyQuest : Quest
         var c = GetContract();
         string targetName = c != null ? FormatName(c.TargetNpcName ?? c.TargetNpcId) : "the target";
         AddEntry($"Eliminate {targetName} and collect the polaroid");
-        AddEntry("Drop the polaroid at any dead-drop");
+        AddEntry("Drop the polaroid at the assigned dead drop");
     }
 
     /// <summary>

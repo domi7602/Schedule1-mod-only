@@ -149,9 +149,34 @@ public static class BountyPersistence
             Log.Info("Adopted existing bounty state for the current vanilla save identity.");
         }
 
+        NormalizeLoadedState(data);
+
         Log.Info($"Loaded BountySaveData from '{path}': " +
                  $"{data.Active.Count} active, {data.History.Count} historical contracts.");
         return data;
+    }
+
+    /// <summary>
+    /// Field-level defaults keep old saves fully compatible (see the budget-terms
+    /// block in <see cref="BountyContract"/>), but an explicit JSON null (or a
+    /// hand-edited file) must never NRE the scheduler/tracker — normalize here.
+    /// </summary>
+    private static void NormalizeLoadedState(BountySaveData data)
+    {
+        data.KillEvents ??= new System.Collections.Generic.List<BountyKillRecord>();
+        if (data.CallSchedule == null) data.CallSchedule = new BountyCallScheduleState();
+        data.CallSchedule.Slots ??= new System.Collections.Generic.List<BountyCallSlot>();
+        data.LastUsedDropId ??= "";
+        foreach (var c in data.Active)
+        {
+            c.AssignedDropName ??= "";
+            c.RewardTier ??= "";
+        }
+        foreach (var c in data.History)
+        {
+            c.AssignedDropName ??= "";
+            c.RewardTier ??= "";
+        }
     }
 
     private static BountySaveData NewStateForActiveSave()

@@ -47,13 +47,13 @@ public static class BountyConversationRouter
     /// thread — the player sees the message from "Ghost"/"Jackal"/etc. even though
     /// it is hosted on the target's conversation.
     /// </summary>
-    public static void SendOffer(BountySaveData save, int callerIndex, S1NPC target, string body, float rewardCash)
+    public static void SendOffer(BountySaveData save, int callerIndex, S1NPC target, string body, BountyOfferTerms terms)
     {
         if (target == null) return;
 
         // Built up-front (pure, no side effects) so both the S1API host path and
         // the native fallback tier below can reuse the same response set.
-        var responses = BuildResponses(save, callerIndex, target, body, rewardCash);
+        var responses = BuildResponses(save, callerIndex, target, body, terms);
         var hostWrapper = GetCallerWrapper();
 #if DEBUG
         // Beta 0.4.7f6 / S1API 3.2.1-beta.2: HitmanCallerNPC never instantiates
@@ -215,13 +215,13 @@ public static class BountyConversationRouter
     /// (de-DE "18.000" parsed as 18) and the style templates carry no "$" at
     /// all, so the parser always fell back to $10k.
     /// </summary>
-    private static Response[] BuildResponses(BountySaveData save, int callerIndex, S1NPC target, string body, float rewardCash)
+    private static Response[] BuildResponses(BountySaveData save, int callerIndex, S1NPC target, string body, BountyOfferTerms terms)
     {
         var accept = new Response
         {
             Label = BountyDialogTemplates.AcceptLabel,
             Text = BountyDialogTemplates.AcceptText,
-            OnTriggered = () => OnAccept(save, callerIndex, target, body, rewardCash)
+            OnTriggered = () => OnAccept(save, callerIndex, target, body, terms)
         };
 
         var decline = new Response
@@ -235,7 +235,7 @@ public static class BountyConversationRouter
         {
             Label = BountyDialogTemplates.MoreInfoLabel,
             Text = BountyDialogTemplates.MoreInfoText,
-            OnTriggered = () => OnMoreInfo(save, callerIndex, target, body, rewardCash)
+            OnTriggered = () => OnMoreInfo(save, callerIndex, target, body, terms)
         };
 
         return new[] { accept, decline, info };
@@ -257,7 +257,7 @@ public static class BountyConversationRouter
 #endif
     }
 
-    private static void OnAccept(BountySaveData capturedSave, int callerIndex, S1NPC target, string body, float rewardCash)
+    private static void OnAccept(BountySaveData capturedSave, int callerIndex, S1NPC target, string body, BountyOfferTerms terms)
     {
         try
         {
@@ -299,11 +299,21 @@ public static class BountyConversationRouter
                 TargetNpcId = target.ID,
                 TargetNpcInstanceId = target.GetInstanceID(),
                 TargetNpcName = BountyQuest.FormatName(target.ID),
-                RewardCash = rewardCash,
+                RewardCash = terms.RewardCash,
                 OfferedAtDay = now,
                 DeadlineDay = now + BountyCallSchedulerConstants.ContractDeadlineDays,
                 Status = EBountyStatus.Active,
-                RequiredDropId = null
+                // Offer-time terms (budget/dead-drop update): the assigned drop
+                // and the post-photo window are fixed BEFORE the player accepts
+                // and were named in the offer text.
+                TargetWeeklySpend = terms.TargetWeeklySpend,
+                RewardTier = terms.RewardTier ?? "",
+                RequiredDropId = string.IsNullOrEmpty(terms.DropId) ? null : terms.DropId,
+                AssignedDropName = terms.DropName ?? "",
+                DropWindowMinutes = terms.DropWindowMinutes > 0
+                    ? terms.DropWindowMinutes
+                    : BountyBudget.MidTierWindowMinutes,
+                DropDueStarted = false
             };
 
             save.Active.RemoveAll(c => c.Status == EBountyStatus.Offered && c.CallerId == contract.CallerId);
@@ -330,9 +340,16 @@ public static class BountyConversationRouter
                 {
                     // Audit L7 (2026-09-01): derive from the deadline constant instead
                     // of a hardcoded "Three days." that can drift from the config.
+                    // Budget/dead-drop update: the terms now name the assigned drop
+                    // and the post-photo window, so the confirmation cannot
+                    // contradict the offer text.
+                    string dropLine = string.IsNullOrEmpty(terms.DropName)
+                        ? "Any dead-drop."
+                        : $"Proof to {terms.DropName}.";
                     host.SendTextMessage(
                         $"[{BountyDialogTemplates.GetCallerName(callerIndex)}]: Understood. " +
-                        $"{BountyCallSchedulerConstants.ContractDeadlineDays} days. Don't disappoint me.",
+                        $"{BountyCallSchedulerConstants.ContractDeadlineDays} days for the job. " +
+                        $"{dropLine} You have {BountyBudget.WindowHoursFor(terms.RewardTier)}h after the photo.",
                         network: true);
                 }
             }
@@ -340,7 +357,7 @@ public static class BountyConversationRouter
             {
                 // best-effort confirmation message
             }
-            Mod.Log.Info($"[BountyRouter] Accepted: id={id} target={target.ID} reward=${rewardCash} deadline={contract.DeadlineDay}.");
+            Mod.Log.Info($"[BountyRouter] Accepted: id={id} target={target.ID} reward=${terms.RewardCash:N0} deadline={contract.DeadlineDay} drop={terms.DropName}.");
         }
         catch (Exception ex)
         {
@@ -371,7 +388,7 @@ public static class BountyConversationRouter
         }
     }
 
-    private static void OnMoreInfo(BountySaveData capturedSave, int callerIndex, S1NPC target, string body, float rewardCash)
+    private static void OnMoreInfo(BountySaveData capturedSave, int callerIndex, S1NPC target, string body, BountyOfferTerms terms)
     {
         try
         {
@@ -387,17 +404,20 @@ public static class BountyConversationRouter
             }
             string caller = BountyDialogTemplates.GetCallerName(callerIndex);
             // v0.2.1 (Bug 2): show the ACTUAL rolled reward the offer carries
-            // (rewardCash), not a static per-caller range — the old
-            // The MoreInfo message shows the actual rolled reward, so it cannot
-            // contradict the 200–500 amount already stored in the contract.
+            // (terms.RewardCash), not a static per-caller range.
             // v0.2.1 (Bug 1): derive the window from the deadline constant
             // instead of a hardcoded "Three days window." (same drift L7
             // already fixed in OnAccept).
+            // Budget/dead-drop update: name the assigned drop and its post-photo
+            // window exactly like the offer did.
+            string dropLine = string.IsNullOrEmpty(terms.DropName)
+                ? "Photo of the body, any dead-drop."
+                : $"Drop the photo at {terms.DropName} within {BountyBudget.WindowHoursFor(terms.RewardTier)}h after you take it.";
             string followUp =
                 $"[{caller}]: Target is {BountyQuest.FormatName(target.ID)}. " +
-                $"Pay {rewardCash:N0}, negotiable for clean work. " +
-                $"Photo of the body, any dead-drop. " +
-                $"{BountyCallSchedulerConstants.ContractDeadlineDays} days window.";
+                $"Pay {terms.RewardCash:N0}, negotiable for clean work. " +
+                $"{dropLine} " +
+                $"{BountyCallSchedulerConstants.ContractDeadlineDays} days for the job.";
             var host = GetCallerWrapper();
 #if DEBUG
             // Same missing-caller workaround as SendOffer (tier 1): keep the
@@ -414,7 +434,7 @@ public static class BountyConversationRouter
             // replaced the offer's Accept/Decline buttons — after asking
             // "Who is the target?" the player could neither accept nor decline.
             // Re-attach the full response set so the decision stays available.
-            host.SendTextMessage(followUp, BuildResponses(save, callerIndex, target, body, rewardCash),
+            host.SendTextMessage(followUp, BuildResponses(save, callerIndex, target, body, terms),
                 responseDelay: 1f, network: true);
             Mod.Log.Info($"[BountyRouter] More-info sent for '{target.ID}' (responses re-attached).");
         }
@@ -459,5 +479,20 @@ public static class BountyConversationRouter
         {
             Mod.Log.Warn($"SendOfferExpiredNotice failed: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// One-shot caller SMS shortly before the assigned drop window closes
+    /// (budget/dead-drop update).
+    /// </summary>
+    public static void SendDropWindowWarning(int callerIndex, int remainingMinutes, string dropName)
+    {
+        var host = GetCallerWrapper();
+        if (host == null) return;
+        string caller = BountyDialogTemplates.GetCallerName(callerIndex < 0 ? 0 : callerIndex);
+        string where = string.IsNullOrEmpty(dropName) ? "the dead-drop" : dropName;
+        host.SendTextMessage(
+            $"[{caller}]: {remainingMinutes} minutes left. Get that photo to {where} before the window closes.",
+            network: true);
     }
 }

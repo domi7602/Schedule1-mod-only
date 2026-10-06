@@ -5,9 +5,11 @@ using HitmanPhone.Persistence;
 #if (IL2CPPMELON)
 using S1NPC = Il2CppScheduleOne.NPCs.NPC;
 using S1Dealer = Il2CppScheduleOne.Economy.Dealer;
+using S1Customer = Il2CppScheduleOne.Economy.Customer;
 #elif MONOMELON
 using S1NPC = ScheduleOne.NPCs.NPC;
 using S1Dealer = ScheduleOne.Economy.Dealer;
+using S1Customer = ScheduleOne.Economy.Customer;
 #endif
 
 namespace HitmanPhone.Bounty;
@@ -98,6 +100,28 @@ public static class TargetSelector
         }
 
         return false;
+    }
+
+    /// <summary>
+    /// Mean weekly customer spend for this target (budget/tier basis). Returns
+    /// 0 when unknown; the contract then falls back to legacy reward math.
+    /// </summary>
+    public static float TryGetWeeklySpend(S1NPC? target)
+    {
+        if (target == null || target.WasCollected) return 0f;
+        try
+        {
+            var customer = target.GetComponent<S1Customer>();
+            if (customer == null || customer.WasCollected) return 0f;
+            var data = customer.CustomerData;
+            if (data == null || data.WasCollected) return 0f;
+            return (data.MinWeeklySpend + data.MaxWeeklySpend) / 2f;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Debug($"TargetSelector.TryGetWeeklySpend failed: {ex.Message}");
+            return 0f;
+        }
     }
 
     private static List<S1NPC> CollectOwnCustomers()

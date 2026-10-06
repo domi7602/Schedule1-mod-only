@@ -26,21 +26,26 @@ public static class BountyDialogTemplates
     /// Caller is asked to provide caller name (anonymised) and the target npc
     /// display name; reward is shown explicitly because the worker-stage is
     /// post-cartel and the player has to weigh reward vs. police heat.
+    /// Every offer names its assigned dead drop and the post-photo drop window
+    /// (both fixed at offer time), so the terms are visible BEFORE accepting.
     /// NOTE (audit H2, 2026-09-01): the reward travels structurally to the
     /// accept handler — the body is display-only, never parsed back.
     /// </summary>
-    public static string BuildColdOffer(string caller, string target, string region, float r)
+    public static string BuildColdOffer(string caller, string target, string region, float r, string dropName, int windowHours)
         => $"[{caller}]: I have a job for you. Clean.\n\n" +
-           $"Target <b>{target}</b> in {region}. {r:N0} on confirmation. No questions.";
+           $"Target <b>{target}</b> in {region}. {r:N0} on confirmation. No questions.\n" +
+           $"Proof goes to <b>{dropName}</b> — you have {windowHours}h after the photo.";
 
-    public static string BuildThreateningOffer(string caller, string target, string region, float r)
+    public static string BuildThreateningOffer(string caller, string target, string region, float r, string dropName, int windowHours)
         => $"[{caller}]: Listen. {region} has been rough on me.\n\n" +
-           $"Target <b>{target}</b>. I want them gone. {r:N0} when they're gone. Don't test me.";
+           $"Target <b>{target}</b>. I want them gone. {r:N0} when they're gone. Don't test me.\n" +
+           $"Proof goes to <b>{dropName}</b> — you have {windowHours}h after the photo. Don't be late.";
 
-    public static string BuildDesperateOffer(string caller, string target, string region, float r)
+    public static string BuildDesperateOffer(string caller, string target, string region, float r, string dropName, int windowHours)
         => $"[{caller}]: Please. <b>{target}</b> took something from me. " +
            "I can't do this myself. They hang out in " + region + ".\n" +
-           $"I have {r:N0} for you if you do it. Please.";
+           $"I have {r:N0} for you if you do it. Please.\n" +
+           $"Bring the photo to <b>{dropName}</b> within {windowHours}h. I'll be waiting.";
 
     /// <summary>
     /// Style rotation: pick one in stable order — caller index → style.
@@ -57,15 +62,16 @@ public static class BountyDialogTemplates
     }
 
     /// <summary>
-    /// Pick the message-builder for the chosen style.
+    /// Pick the message-builder for the chosen style. The assigned dead drop
+    /// and its post-photo window are part of every offer body.
     /// </summary>
-    public static string BuildForStyle(string style, string caller, string target, string region, float r)
+    public static string BuildForStyle(string style, string caller, string target, string region, float r, string dropName, int windowHours)
     {
         return style switch
         {
-            StyleThreatening => BuildThreateningOffer(caller, target, region, r),
-            StyleDesperate => BuildDesperateOffer(caller, target, region, r),
-            _ => BuildColdOffer(caller, target, region, r)
+            StyleThreatening => BuildThreateningOffer(caller, target, region, r, dropName, windowHours),
+            StyleDesperate => BuildDesperateOffer(caller, target, region, r, dropName, windowHours),
+            _ => BuildColdOffer(caller, target, region, r, dropName, windowHours)
         };
     }
 

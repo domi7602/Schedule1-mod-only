@@ -155,9 +155,14 @@ public static class BountyReceiptService
             var save = Mod.Instance?.Save;
             if (save == null) return;
             bool anyPayoutFailed = false;
+            bool anyPayout = false;
             for (int m = 0; m < matches.Count; m++)
             {
                 var match = matches[m];
+                // First confirmed sighting of the polaroid anywhere (inventory or
+                // this drop) starts the post-photo drop window (two-phase
+                // deadlines). Idempotent, legacy contracts unaffected.
+                BountyService.EnsureDropWindowStarted(match);
                 if (!string.IsNullOrEmpty(match.RequiredDropId) &&
                     !string.Equals(dropGuid, match.RequiredDropId, StringComparison.OrdinalIgnoreCase))
                 {
@@ -179,8 +184,10 @@ public static class BountyReceiptService
 
                 match.Status = EBountyStatus.Completed;
                 match.RequiredDropId ??= dropGuid;
+                save.LastUsedDropId = dropGuid; // next offer avoids this drop (variety)
                 save.Active.Remove(match);
                 save.History.Add(match);
+                anyPayout = true;
                 Interlocked.Increment(ref _receiptsMatched);
                 Mod.Log.Info($"[Bounty#{match.Id}] Receipt matched for target '{match.TargetNpcId}' " +
                              $"(drop={dropGuid}). Reward=${match.RewardCash}.");
@@ -198,11 +205,18 @@ public static class BountyReceiptService
             // Persist once after the batch (cheaper than per-contract) unless a
             // payout failed mid-batch — in that case skip persistence so the failed
             // contract remains visible in Active for the next retry.
-            if (!anyPayoutFailed)
+            if (anyPayout && !anyPayoutFailed)
             {
                 BountyPersistence.PersistCurrent();
                 // One polaroid covers the whole matched group (single kill → single evidence).
                 ConsumePolaroids(entity, encodedId);
+            }
+            else if (!anyPayout)
+            {
+                // Every matched contract was rejected (wrong assigned drop): the
+                // polaroid STAYS where it is — no payout AND no evidence loss
+                // (plan constraint; the player can move it to the assigned drop).
+                Mod.Log.Info($"[Receipt] polaroid kept in '{dropName}' — matched contract(s) require their assigned drop.");
             }
             return; // one payout-group per storage event
         }

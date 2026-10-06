@@ -120,6 +120,7 @@ public class Mod : MelonMod
         if (string.Equals(sceneName, "Main", StringComparison.OrdinalIgnoreCase))
         {
             BountyJournalBridge.ResetSessionCache();
+            BountyTrackerApp.TearDownForSceneUnload();
         }
     }
 

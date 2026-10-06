@@ -92,7 +92,8 @@ internal static class NPCDeathPatch
             // NPCHealth since 3.2.0/0.4.6, so it compiles and runs on both game versions.
             var npc = __instance.GetComponent<S1NPC>();
             if (npc == null || npc.Pointer == IntPtr.Zero || npc.WasCollected) return;
-            BountyService.OnNpcDied(npc);
+            // Tracker semantics: Health.Die = game-confirmed death.
+            BountyService.OnNpcDied(npc, fatal: true);
         }
         catch (Exception ex)
         {
@@ -115,7 +116,8 @@ internal static class NPCDeathPatch
             // 0.4.7 drift: same as PostfixHealthDie — NPCHealth.npc is gone; GetComponent instead.
             var npc = __instance.GetComponent<S1NPC>();
             if (npc == null || npc.Pointer == IntPtr.Zero || npc.WasCollected) return;
-            BountyService.OnNpcDied(npc);
+            // Tracker semantics: a knockout is "ausgeschaltet", NOT confirmed dead.
+            BountyService.OnNpcDied(npc, fatal: false);
         }
         catch (Exception ex)
         {

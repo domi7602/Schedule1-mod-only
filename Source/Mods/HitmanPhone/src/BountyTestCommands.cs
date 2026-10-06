@@ -232,6 +232,8 @@ public static class BountyTestCommands
             new HitmanKillSimCommand(),
             new HitmanResetCommand(),
             new HitmanCleanupCommand(),
+            new HitmanDumpBudgetsCommand(),
+            new HitmanDumpCallPlanCommand(),
         };
 
         foreach (var cmd in commands)
@@ -241,7 +243,7 @@ public static class BountyTestCommands
             try { registerMi.Invoke(null, new object[] { new SlashAliasCommand(cmd) }); } catch (System.Exception ex) { Mod.Log.Warn(ex.Message); }
         }
 
-        Mod.Log.Info("HitmanPhone commands registered: hitman_force_offer, hitman_status, hitman_kill, hitman_reset, hitman_cleanup (plus '/' aliases).");
+        Mod.Log.Info("HitmanPhone commands registered: hitman_force_offer, hitman_status, hitman_kill, hitman_reset, hitman_cleanup, hitman_dump_budgets, hitman_dump_callplan (plus '/' aliases).");
     }
 
     /// <summary>
@@ -261,6 +263,77 @@ public static class BountyTestCommands
             if (found != null) return found;
         }
         return null;
+    }
+    /// <summary>
+    /// Print budget-derived bounty terms for active contracts (and optionally one
+    /// target id): weekly customer spend, tier, reward math, drop window.
+    /// </summary>
+    internal sealed class HitmanDumpBudgetsCommand : BaseConsoleCommand
+    {
+        public override string CommandWord => "hitman_dump_budgets";
+        public override string CommandDescription =>
+            "Print weekly budget -> tier/reward/window for active bounty targets. Args: [targetNpcId].";
+        public override string ExampleUsage => "/hitman_dump_budgets ludwig_meyer";
+
+        public override void ExecuteCommand(List<string> args)
+        {
+            try
+            {
+                var log = Mod.Log;
+                var save = Mod.Instance?.Save;
+                if (save == null) { log.Warn("No save loaded."); return; }
+                log.Info("=== Bounty budgets (weekly customer spend -> tier/reward) ===");
+                if (args != null && args.Count >= 1 && !string.IsNullOrEmpty(args[0]))
+                {
+                    var npc = HitmanPhone.Persistence.TargetResolveHelper.FindById(args[0]);
+                    if (npc == null) { log.Warn($"Target '{args[0]}' not found."); return; }
+                    float weekly = TargetSelector.TryGetWeeklySpend(npc);
+                    string tier = BountyBudget.TierFor(weekly);
+                    log.Info($"{args[0]}: budget=${weekly:N0}/wk tier={tier} " +
+                             $"window={BountyBudget.WindowMinutesFor(tier)}min " +
+                             $"(reward preview ${BountyBudget.RewardForBudget(weekly, new System.Random()):N0})");
+                    return;
+                }
+                if (save.Active.Count == 0) { log.Info("(no active contracts)"); return; }
+                for (int i = 0; i < save.Active.Count; i++)
+                {
+                    var c = save.Active[i];
+                    log.Info($"[{c.Id}] {c.TargetNpcName}: budget=${c.TargetWeeklySpend:N0}/wk tier={c.RewardTier} " +
+                             $"reward=${c.RewardCash:N0} drop='{c.AssignedDropName}' window={c.DropWindowMinutes}min " +
+                             $"dropDue={(c.DropDueStarted ? $"{HitmanPhoneTime.MinutesUntil(c.DropDueMinSum)}min left" : "not started")}");
+                }
+            }
+            catch (System.Exception ex) { Mod.Log.Warn($"hitman_dump_budgets failed: {ex.Message}"); }
+        }
+
+    }
+
+    /// <summary>Print the persisted call-plan slots and their state (DEBUG).</summary>
+    internal sealed class HitmanDumpCallPlanCommand : BaseConsoleCommand
+    {
+        public override string CommandWord => "hitman_dump_callplan";
+        public override string CommandDescription =>
+            "Print the persisted caller schedule plan (in-game day/minute slots).";
+        public override string ExampleUsage => "/hitman_dump_callplan";
+
+        public override void ExecuteCommand(List<string> args)
+        {
+            try
+            {
+                var log = Mod.Log;
+                var save = Mod.Instance?.Save;
+                if (save == null) { log.Warn("No save loaded."); return; }
+                var plan = save.CallSchedule;
+                if (plan == null) { log.Info("No call plan yet (created on first tick)."); return; }
+                log.Info($"=== Call plan: {plan.GeneratedThroughDay} days generated through ===");
+                for (int i = 0; i < plan.Slots.Count; i++)
+                {
+                    var s = plan.Slots[i];
+                    log.Info($"slot[{i}] day={s.Day} min={s.MinuteOfDay:D4} caller={s.CallerIndex} dispatched={s.Dispatched} cancelled={s.Cancelled}");
+                }
+            }
+            catch (System.Exception ex) { Mod.Log.Warn($"hitman_dump_callplan failed: {ex.Message}"); }
+        }
     }
 }
 #endif

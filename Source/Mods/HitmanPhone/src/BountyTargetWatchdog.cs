@@ -45,8 +45,10 @@ public static class BountyTargetWatchdog
                     && npc.Health.Pointer != IntPtr.Zero && !npc.Health.WasCollected
                     && (npc.Health.IsDead || npc.Health.IsKnockedOut || !npc.IsConscious))
                 {
-                    // Trigger the existing polaroid logic
-                    BountyService.OnNpcDied(npc);
+                    // Trigger the existing polaroid logic. Fatal = the game's own
+                    // Health.IsDead; a knockout/unconsciousness records
+                    // "ausgeschaltet" only (tracker semantics).
+                    BountyService.OnNpcDied(npc, fatal: npc.Health.IsDead);
                 }
             }
             catch { }
