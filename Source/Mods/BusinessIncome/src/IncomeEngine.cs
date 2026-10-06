@@ -200,7 +200,7 @@ public static class IncomeEngine
             {
                 string title = "Business Revenue";
                 string sub = $"+${totalNet.ToString("N0", CultureInfo.InvariantCulture)} from {businessCount} {(businessCount == 1 ? "business" : "businesses")}";
-                notifMgr.SendNotification(title, sub, null!, 5f, playSound);
+                notifMgr.SendNotification(title, sub, BusinessIcon.Get(), 5f, playSound);
             }
         }
         catch (Exception ex)
@@ -216,7 +216,7 @@ public static class IncomeEngine
         {
             var notifMgr = NotificationsManager.Instance;
             if (notifMgr != null && (UnityEngine.Object)notifMgr != null)
-                notifMgr.SendNotification("Business Revenue", message, null!, 5f, false);
+                notifMgr.SendNotification("Business Revenue", message, BusinessIcon.Get(), 5f, false);
         }
         catch { }
     }

@@ -21,6 +21,14 @@ public class Mod : MelonMod
         Log = new ModLogger("BankApp");
         ModConfig<BankAppConfig>.Initialize("BankApp", Log);
 
+        // Register the injected input helper so the guarded amount field can flag typing to the
+        // game (WASD suppression) while the phone keyboard is open.
+        try
+        {
+            ClassInjector.RegisterTypeInIl2Cpp<BankAppInputFocus>();
+        }
+        catch (Exception ex) { Log.Warn($"Failed to register BankAppInputFocus: {ex.Message}"); }
+
         // H4: Slot isolation lifecycle — GameLifecycle is source of truth (OnSceneWasLoaded kept as secondary)
         try
         {

@@ -1,5 +1,6 @@
 using System;
 using BankApp.Config;
+using BankApp.Logic;
 using BankApp.Models;
 using Il2CppScheduleOne.DevUtilities;
 using S1API.GameTime;
@@ -61,9 +62,13 @@ public static class BankService
         // with no hotbar involvement. The old slot model (freeSlots x
         // cash-StackLimit) collapsed because vanilla cash StackLimit is 1,
         // which wrongly limited withdrawals to ~$1 per free slot.
+        // Fee-aware: a withdrawal is debited gross + fee, so the maximum must leave
+        // room for the fee (TransferMath.MaxWithdraw solves A + fee(A) <= balance;
+        // with no fee it is simply the whole balance).
         float onlineBalance = GetOnlineBalance();
+        float feePercent = ModConfig<BankAppConfig>.Instance.ServiceFeePercent;
 
-        return Mathf.Max(0f, onlineBalance);
+        return TransferMath.MaxWithdraw(onlineBalance, feePercent);
     }
 
     public static float GetRemainingWeeklyAtmLimit()
@@ -81,8 +86,9 @@ public static class BankService
     public static float GetMaxDepositableCash()
     {
         float cashOnHand = GetCashBalance();
-        float remainingLimit = GetRemainingWeeklyAtmLimit();
-        return Mathf.Min(cashOnHand, remainingLimit);
+        bool limitEnabled = ModConfig<BankAppConfig>.Instance.RespectVanillaAtmLimit;
+        float remainingLimit = limitEnabled ? GetRemainingWeeklyAtmLimit() : float.MaxValue;
+        return TransferMath.MaxDeposit(cashOnHand, remainingLimit, limitEnabled);
     }
 
     public static bool DepositCash(float amount, out string errorMessage)
@@ -107,29 +113,27 @@ public static class BankService
             return false;
         }
 
-        float cashOnHand = GetCashBalance();
-        if (cashOnHand < amount)
+        var config = ModConfig<BankAppConfig>.Instance;
+        bool limitEnabled = config.RespectVanillaAtmLimit;
+        float remainingLimit = limitEnabled ? GetRemainingWeeklyAtmLimit() : float.MaxValue;
+
+        // Shared seam: the live UI preview runs the exact same validation, so a quote
+        // the button accepted cannot be recomputed differently at execution time.
+        // This also rejects non-finite amounts and applies the preserved float fee formula.
+        TransferQuote quote = TransferMath.ComputeQuote(
+            TransferDirection.Deposit, amount, GetCashBalance(), GetOnlineBalance(),
+            config.ServiceFeePercent, limitEnabled, remainingLimit);
+
+        if (!quote.IsValid)
         {
-            errorMessage = $"Insufficient cash on hand ($ {cashOnHand:N0} available).";
+            errorMessage = quote.ErrorMessage;
+            Mod.Log?.Warn($"[Bank] Deposit rejected: {quote.ErrorMessage}");
             BankSoundService.PlayError();
             return false;
         }
 
-        var config = ModConfig<BankAppConfig>.Instance;
-        if (config.RespectVanillaAtmLimit)
-        {
-            float remainingLimit = GetRemainingWeeklyAtmLimit();
-            if (amount > remainingLimit)
-            {
-                errorMessage = $"Weekly ATM limit exceeded (Max remaining: ${remainingLimit:N0} / ${VanillaWeeklyAtmLimit:N0}).";
-                BankSoundService.PlayError();
-                return false;
-            }
-        }
-
-        float feePercent = Mathf.Clamp(config.ServiceFeePercent, 0f, 10f);
-        float fee = amount * (feePercent / 100f);
-        float netCredited = amount - fee;
+        float fee = quote.Fee;
+        float netCredited = quote.Net;
 
         // Step 1: deduct physical cash (must succeed before bank credit)
         try
@@ -173,8 +177,10 @@ public static class BankService
             InGameTime = timeStr,
             Amount = netCredited,
             Type = TransactionType.Deposit,
-            Description = fee > 0f ? $"Mobile Cash Deposit (Fee: ${fee:N0})" : "Mobile Cash Deposit",
-            BalanceAfter = balanceAfter
+            Description = "Mobile Cash Deposit",
+            BalanceAfter = balanceAfter,
+            Gross = amount,
+            Fee = fee
         });
 
         BankSoundService.PlayCashSuccess();
@@ -202,19 +208,23 @@ public static class BankService
             return false;
         }
 
-        float onlineBalance = GetOnlineBalance();
         var config = ModConfig<BankAppConfig>.Instance;
-        float feePercent = Mathf.Clamp(config.ServiceFeePercent, 0f, 10f);
-        float fee = amount * (feePercent / 100f);
-        float totalDeducted = amount + fee;
 
-        if (onlineBalance < totalDeducted)
+        // Same shared seam as the deposit path and the UI preview.
+        TransferQuote quote = TransferMath.ComputeQuote(
+            TransferDirection.Withdraw, amount, GetCashBalance(), GetOnlineBalance(),
+            config.ServiceFeePercent, false, 0f);
+
+        if (!quote.IsValid)
         {
-            Mod.Log?.Warn($"[Bank] Withdraw rejected: bank {onlineBalance:0.##} < required {totalDeducted:0.##}.");
-            errorMessage = $"Insufficient bank funds (${onlineBalance:N0} available, ${totalDeducted:N0} required).";
+            errorMessage = quote.ErrorMessage;
+            Mod.Log?.Warn($"[Bank] Withdraw rejected: {quote.ErrorMessage}");
             BankSoundService.PlayError();
             return false;
         }
+
+        float fee = quote.Fee;
+        float totalDeducted = quote.Debit;
 
         // NOTE: deliberately no inventory-capacity gate. The engine cash path
         // (MoneyManager.ChangeCashBalance -> cashBalance float + single
@@ -258,10 +268,13 @@ public static class BankService
         {
             InGameDay = currentDay,
             InGameTime = timeStr,
-            Amount = -amount,
+            // Actual bank delta for new entries: gross + fee debited (Gross/Fee record the split).
+            Amount = -totalDeducted,
             Type = TransactionType.Withdrawal,
-            Description = fee > 0f ? $"Mobile Cash Withdrawal (Fee: ${fee:N0})" : "Mobile Cash Withdrawal",
-            BalanceAfter = balanceAfter
+            Description = "Mobile Cash Withdrawal",
+            BalanceAfter = balanceAfter,
+            Gross = amount,
+            Fee = fee
         });
 
         BankSoundService.PlayCashSuccess();
