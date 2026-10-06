@@ -58,6 +58,7 @@ public sealed class Mod : MelonMod
         {
             ModConfig<SkateboardConfig>.Initialize("CustomSkateboard");
             _isConfigInitialized = true;
+            CurrentConfig.Validate();
         }
         catch (Exception ex)
         {
@@ -71,7 +72,6 @@ public sealed class Mod : MelonMod
 
         // Subscribe to S1API Lifecycle events
         GameLifecycle.OnPreLoad += OnPreLoad;
-        GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
         GameLifecycle.OnLoadComplete += OnLoadComplete;
     }
 
@@ -79,9 +79,10 @@ public sealed class Mod : MelonMod
     {
         // Clean up lifecycle event subscriptions
         GameLifecycle.OnPreLoad -= OnPreLoad;
-        GameLifecycle.OnSaveInfoLoaded -= OnSaveInfoLoaded;
         GameLifecycle.OnLoadComplete -= OnLoadComplete;
         try { HarmonyInstance.UnpatchSelf(); } catch (Exception ex) { Log.Warn($"UnpatchSelf failed: {ex.Message}"); }
+        SkateboardItemFactory.ClearTuningState();
+        ObjLoader.InvalidateCache();
     }
 
     private void ApplyHarmonyPatches()
@@ -157,21 +158,6 @@ public sealed class Mod : MelonMod
     {
         Log.Info("GameLifecycle.OnPreLoad: Checking custom skateboard definition...");
         SkateboardItemFactory.CreateAndRegister(CurrentConfig);
-    }
-
-    private void OnSaveInfoLoaded()
-    {
-        Log.Info("GameLifecycle.OnSaveInfoLoaded: Ensuring custom skateboard definition is registered...");
-        bool registered = SkateboardItemFactory.CreateAndRegister(CurrentConfig);
-        var item = SkateboardItemFactory.CustomSkateboardItem;
-        if (registered && item != null)
-        {
-            Log.Info($"[SaveRecovery] Custom board '{item.ID}' ready. Player can resume use on next equip.");
-        }
-        else if (!registered)
-        {
-            Log.Warn("[SaveRecovery] Custom board registration deferred — base board prefab not in Registry yet.");
-        }
     }
 
     private void OnLoadComplete()

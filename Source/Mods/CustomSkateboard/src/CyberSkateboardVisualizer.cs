@@ -232,23 +232,24 @@ public static class CyberSkateboardVisualizer
         }
     }
 
-    private static bool IsSkateboardPart(string name)
-    {
-        string n = name.ToLowerInvariant();
-        return n.Contains("wheel") || n.Contains("truck") || n.Contains("deck")
-            || n.Contains("board") || n.Contains("axle") || n.Contains("hanger")
-            || n.Contains("grip") || n.Contains("skate");
-    }
-
     private static bool IsPlayerAvatarPart(string name)
     {
         string n = name.ToLowerInvariant();
-        if (IsSkateboardPart(n)) return false;
+        // Vorrang: Avatar-Muster gewinnt immer über Skateboard-Muster
         return n.Contains("hair") || n.Contains("eye") || n.Contains("head")
             || n.Contains("face") || n.Contains("body") || n.Contains("arm")
             || n.Contains("hand") || n.Contains("leg") || n.Contains("foot")
             || n.Contains("cloth") || n.Contains("skin") || n.Contains("avatar")
             || n.Contains("player") || n.Contains("character") || n.Contains("mesh_character");
+    }
+
+    private static bool IsSkateboardPart(string name)
+    {
+        string n = name.ToLowerInvariant();
+        if (IsPlayerAvatarPart(n)) return false; // Avatar hat Vorrang
+        return n.Contains("wheel") || n.Contains("truck") || n.Contains("deck")
+            || n.Contains("board") || n.Contains("axle") || n.Contains("hanger")
+            || n.Contains("grip") || n.Contains("skate");
     }
 
     // Gatekeeper-fix B7: robust deck mesh heuristic — prefer exact "deck" name with sanity check, fallback to Contains.
@@ -315,6 +316,8 @@ public static class CyberSkateboardVisualizer
                 return true;
             }
         }
+        // Debug: kein Deck-Ziel gefunden — nur einmalig loggen (kein Spam, da Debug-Level)
+        Mod.Log.Debug("TrySwapDeckMesh: kein passendes Deck-Ziel gefunden.");
         return false;
     }
 

@@ -39,10 +39,13 @@ public static class ObjLoader
             Path.Combine(MelonEnvironment.ModsDirectory, "models", "skateboard.obj")
         };
 
+        // Gelöschte Datei: alten Mesh nicht behalten
+        bool anyFound = false;
         foreach (var p in possiblePaths)
         {
             if (File.Exists(p))
             {
+                anyFound = true;
                 DateTime mtime = File.GetLastWriteTimeUtc(p);
                 if (_cachedCustomMesh != null && _lastLoadedPath == p && _lastLoadedFileTime == mtime)
                 {
@@ -64,6 +67,17 @@ public static class ObjLoader
                 }
             }
         }
+
+        // Wenn vorher eine Datei geladen war und jetzt keine existiert: Cache löschen
+        if (!anyFound && _lastLoadedPath != null && !string.IsNullOrEmpty(_lastLoadedPath) && File.Exists(_lastLoadedPath) == false)
+        {
+            InvalidateCache();
+            return null;
+        }
+
+        // Falls kein gültiger Mesh geladen wurde und keine Datei existiert
+        if (!anyFound && _cachedCustomMesh == null)
+            return null;
 
         return _cachedCustomMesh;
     }
@@ -150,6 +164,29 @@ public static class ObjLoader
                         }
                         break;
                 }
+            }
+
+            // Validierung vor Mesh-Erstellung
+            if (outVertices.Count < 3 || outTriangles.Count < 3 || outTriangles.Count % 3 != 0)
+            {
+                Mod.Log.Warn($"OBJ mesh rejected: insufficient geometry ({outVertices.Count} vertices, {outTriangles.Count} triangles) in '{objPath}'.");
+                return null;
+            }
+            // Prüfe, dass alle Triangle-Indizes gültig sind
+            for (int i = 0; i < outTriangles.Count; i++)
+            {
+                int idx = outTriangles[i];
+                if (idx < 0 || idx >= outVertices.Count)
+                {
+                    Mod.Log.Warn($"OBJ mesh rejected: invalid triangle index {idx} in '{objPath}'.");
+                    return null;
+                }
+            }
+            // Mesh-Größe begrenzen (max 5000 Vertices als vernünftige Grenze für ein Deck)
+            if (outVertices.Count > 5000)
+            {
+                Mod.Log.Warn($"OBJ mesh rejected: too large ({outVertices.Count} vertices) in '{objPath}'.");
+                return null;
             }
 
             Mesh mesh = new Mesh();

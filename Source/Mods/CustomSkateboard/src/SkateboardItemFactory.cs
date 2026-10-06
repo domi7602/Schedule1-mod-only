@@ -167,9 +167,6 @@ public static class SkateboardItemFactory
         // no-op. Delegate to Validate first, then apply the few additional fields that
         // are only tuned here (PushForceDuration, BrakeForce, AirMovementForce) so the
         // clamp ranges can never drift again.
-        config.BrakeForce = Mathf.Clamp(config.BrakeForce, 0f, 20f);
-        config.AirMovementForce = Mathf.Clamp(config.AirMovementForce, 0f, 50f);
-        config.PushForceDuration = Mathf.Clamp(config.PushForceDuration, 0.05f, 2f);
         int instId = 0;
         try { instId = board.GetInstanceID(); } catch { }
         // H5: Use only InstanceID (pointer recycled after Destroy). If ID unavailable, don't cache — always retune.
@@ -253,15 +250,25 @@ public static class SkateboardItemFactory
             Mod.Log.Warn($"RearAxleJumpCurve flatten notice: {ex.Message}");
         }
 
-        // 3. Tune ONLY the active runtime settings instance on this specific board (NEVER touch _defaultData ScriptableObject!)
-        // NOTE: SkateboardSettings is a plain Il2Cpp object (not a UnityEngine.Object),
-        // so per-instance cloning via Object.Instantiate is not possible. Sharing check
-        // below (VerifySettingsNotShared) proves at runtime whether the tune stayed local.
+        // Preflight: sharing detection before mutation
+        bool settingsShared = false;
         try
         {
-            if (board._settings != null && board._settings.Pointer != IntPtr.Zero)
+            if (board._settings != null && board._settings.Pointer != IntPtr.Zero) settingsShared = IsSettingsCurrentlyShared(board);
+            if (settingsShared)
             {
-                TuneSettingsObject(board._settings, config);
+                Mod.Log.Warn("Shared settings detected. Settings tuning skipped to protect vanilla boards.");
+                tuneOk = false;
+            }
+        }
+        catch { }
+
+        // 3. Tune ONLY the active runtime settings instance on this specific board (NEVER touch _defaultData ScriptableObject!)
+        try
+        {
+            if (!settingsShared && board._settings != null && board._settings.Pointer != IntPtr.Zero)
+            {
+                if (!TuneSettingsObject(board._settings, config)) tuneOk = false;
             }
         }
         catch (Exception ex)
@@ -275,7 +282,7 @@ public static class SkateboardItemFactory
             var curSettings = board.CurentSettings;
             if (curSettings != null && curSettings.Pointer != IntPtr.Zero && curSettings != board._settings)
             {
-                TuneSettingsObject(curSettings, config);
+                if (!TuneSettingsObject(curSettings, config)) tuneOk = false;
             }
         }
         catch (Exception ex)
@@ -310,6 +317,31 @@ public static class SkateboardItemFactory
         catch { }
     }
 
+    private static bool IsSettingsCurrentlyShared(Skateboard board)
+    {
+        try
+        {
+            var ours = board._settings;
+            if (ours == null || ours.Pointer == IntPtr.Zero) return false;
+            var boards = UnityEngine.Object.FindObjectsByType<Skateboard>(FindObjectsSortMode.None);
+            if (boards == null) return false;
+            for (int i = 0; i < boards.Count; i++)
+            {
+                var other = boards[i];
+                if (other == null || other.Pointer == IntPtr.Zero || other.WasCollected) continue;
+                if (other.Pointer == board.Pointer) continue;
+                try
+                {
+                    var theirs = other._settings;
+                    if (theirs != null && theirs.Pointer == ours.Pointer) return true;
+                }
+                catch { }
+            }
+        }
+        catch { }
+        return false;
+    }
+
     /// <summary>
     /// Detects settings-object sharing: compares our tuned board's _settings pointer
     /// against every other Skateboard in the scene. A match means the tune leaked to
@@ -340,15 +372,11 @@ public static class SkateboardItemFactory
         catch (Exception ex) { Mod.Log.Debug($"VerifySettingsNotShared notice: {ex.Message}"); }
     }
 
-    private static void TuneSettingsObject(Il2CppScheduleOne.Experimental.SkateboardSettings settings, SkateboardConfig config)
+    private static bool TuneSettingsObject(Il2CppScheduleOne.Experimental.SkateboardSettings settings, SkateboardConfig config)
     {
-        if (settings == null || settings.Pointer == IntPtr.Zero) return;
+        if (settings == null || settings.Pointer == IntPtr.Zero) return false;
+        bool ok = true;
 
-        // Fix 2026-09-03 (ollie flattening, second half): the axle jump curves exist TWICE —
-        // on the board instance (board.FrontAxleJumpCurve / RearAxleJumpCurve) AND on the
-        // SkateboardSettings ScriptableObject. Vanilla's native Jump() most likely reads the
-        // settings copy (same dual-storage pattern as JumpForce). The 2026-09-02 fix only
-        // wrote the board copy, so the ollie nose-lift persisted. Clone front → rear here too.
         try
         {
             var frontCurve = settings.FrontAxleJumpCurve;
@@ -360,6 +388,7 @@ public static class SkateboardItemFactory
         catch (Exception ex)
         {
             Mod.Log.Warn($"Settings RearAxleJumpCurve assignment notice: {ex.Message}");
+            // Kurve nicht fatal
         }
 
         try
@@ -368,49 +397,45 @@ public static class SkateboardItemFactory
             settings.PushForceMultiplier = config.PushForceMultiplier;
             settings.PushForceDuration = config.PushForceDuration;
             settings.PushDelay = config.PushCooldown;
-
             settings.JumpForce = config.JumpForce;
             settings.JumpDuration_Min = Mathf.Clamp(config.JumpDuration_Min, 0.1f, 1.5f);
             settings.JumpDuration_Max = Mathf.Clamp(Mathf.Max(config.JumpDuration_Max, config.JumpDuration_Min), 0.1f, 1.5f);
             settings.JumpForwardBoost = config.JumpForwardBoost;
-
             settings.TurnForce = config.TurnForce;
             settings.TurnChangeRate = config.TurnChangeRate;
             settings.TurnReturnToRestRate = config.TurnReturnToRestRate;
             settings.TurnSpeedBoost = config.TurnSpeedBoost;
-
-            // Gatekeeper-fix 2026-08-30 B1: wire AirMovement config
             settings.AirMovementEnabled = config.AirMovementEnabled;
             settings.AirMovementForce = config.AirMovementForce;
-
             settings.BrakeForce = config.BrakeForce;
             settings.LateralFrictionForceMultiplier = config.LateralFrictionForceMultiplier;
             settings.LongitudinalFrictionMultiplier = config.LongitudinalFrictionMultiplier;
-
-            try
-            {
-                // Gatekeeper-fix 2026-08-30 B4: clone curve to avoid mutating static cache
-                settings.TurnForceMap = new AnimationCurve(_cachedTurnCurve.keys);
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"Settings TurnForceMap assignment notice: {ex.Message}");
-            }
-
-            try
-            {
-                // Gatekeeper-fix 2026-08-30 B4: clone curve to avoid mutating static cache
-                settings.PushForceMultiplierMap = new AnimationCurve(_cachedPushCurve.keys);
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"Settings PushForceMultiplierMap assignment notice: {ex.Message}");
-            }
         }
         catch (Exception ex)
         {
-            Mod.Log.Warn($"TuneSettingsObject exception: {ex.Message}");
+            Mod.Log.Warn($"TuneSettingsObject critical settings exception: {ex.Message}");
+            ok = false;
         }
+
+        try
+        {
+            settings.TurnForceMap = new AnimationCurve(_cachedTurnCurve.keys);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"Settings TurnForceMap assignment notice: {ex.Message}");
+        }
+
+        try
+        {
+            settings.PushForceMultiplierMap = new AnimationCurve(_cachedPushCurve.keys);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"Settings PushForceMultiplierMap assignment notice: {ex.Message}");
+        }
+
+        return ok;
     }
 
     private static readonly AnimationCurve _cachedTurnCurve = BuildHighSpeedTurnCurve();

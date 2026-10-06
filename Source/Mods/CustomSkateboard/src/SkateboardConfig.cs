@@ -49,22 +49,40 @@ public sealed class SkateboardConfig
     public bool AutoInjectToJeffGilmore { get; set; } = true;
 
     // Gatekeeper-fix B13: validate deserialized JSON values (TopSpeed 0/negative would break physics/curves).
+    private static float SafeClamp(string fieldName, float value, float min, float max, float def)
+    {
+        if (float.IsNaN(value) || float.IsInfinity(value))
+        {
+            return def;
+        }
+        return Mathf.Clamp(value, min, max);
+    }
+
     public void Validate()
     {
-        if (TopSpeed_Kmh <= 0f)
-            TopSpeed_Kmh = 100f;
-        TopSpeed_Kmh = Mathf.Clamp(TopSpeed_Kmh, 5f, 300f);
-        PushForceMultiplier = Mathf.Clamp(PushForceMultiplier, 0.1f, 20f);
-        PushCooldown = Mathf.Clamp(PushCooldown, 0.05f, 2f);
-        PushForceDuration = Mathf.Clamp(PushForceDuration, 0.05f, 2f);
-        TurnForce = Mathf.Clamp(TurnForce, 0.1f, 50f);
-        TurnChangeRate = Mathf.Clamp(TurnChangeRate, 1f, 200f);
-        TurnReturnToRestRate = Mathf.Clamp(TurnReturnToRestRate, 1f, 200f);
-        JumpForce = Mathf.Clamp(JumpForce, 0.1f, 50f);
-        JumpDuration_Min = Mathf.Clamp(JumpDuration_Min, 0.05f, 2f);
-        JumpDuration_Max = Mathf.Clamp(JumpDuration_Max, JumpDuration_Min, 2f);
-        BrakeForce = Mathf.Clamp(BrakeForce, 0f, 20f);
-        AirMovementForce = Mathf.Clamp(AirMovementForce, 0f, 50f);
+        var d = Default();
+
+        TopSpeed_Kmh = SafeClamp("TopSpeed", TopSpeed_Kmh, 5f, 300f, d.TopSpeed_Kmh);
+        PushForceMultiplier = SafeClamp("PushForceMult", PushForceMultiplier, 0.1f, 20f, d.PushForceMultiplier);
+        PushCooldown = SafeClamp("PushCooldown", PushCooldown, 0.05f, 2f, d.PushCooldown);
+        PushForceDuration = SafeClamp("PushDur", PushForceDuration, 0.05f, 2f, d.PushForceDuration);
+        TurnForce = SafeClamp("TurnForce", TurnForce, 0.1f, 50f, d.TurnForce);
+        TurnChangeRate = SafeClamp("TurnChangeRate", TurnChangeRate, 1f, 200f, d.TurnChangeRate);
+        TurnReturnToRestRate = SafeClamp("TurnReturn", TurnReturnToRestRate, 1f, 200f, d.TurnReturnToRestRate);
+        TurnSpeedBoost = SafeClamp("TurnSpeedBoost", TurnSpeedBoost, 0.1f, 20f, d.TurnSpeedBoost);
+        LateralFrictionForceMultiplier = SafeClamp("LateralFric", LateralFrictionForceMultiplier, 0.01f, 20f, d.LateralFrictionForceMultiplier);
+        LongitudinalFrictionMultiplier = SafeClamp("LongFric", LongitudinalFrictionMultiplier, 0.01f, 20f, d.LongitudinalFrictionMultiplier);
+        MaxBoardLean = SafeClamp("MaxLean", MaxBoardLean, 1f, 90f, d.MaxBoardLean);
+        BoardLeanRate = SafeClamp("LeanRate", BoardLeanRate, 1f, 200f, d.BoardLeanRate);
+
+        JumpForce = SafeClamp("JumpForce", JumpForce, 0.1f, 50f, d.JumpForce);
+        JumpDuration_Min = SafeClamp("JumpDurMin", JumpDuration_Min, 0.05f, 2f, d.JumpDuration_Min);
+        float jDurMax = float.IsNaN(JumpDuration_Max) || float.IsInfinity(JumpDuration_Max) ? d.JumpDuration_Max : JumpDuration_Max;
+        JumpDuration_Max = Mathf.Clamp(Mathf.Max(jDurMax, JumpDuration_Min), 0.05f, 2f);
+        JumpForwardBoost = SafeClamp("JumpForward", JumpForwardBoost, 0.1f, 20f, d.JumpForwardBoost);
+
+        BrakeForce = SafeClamp("BrakeForce", BrakeForce, 0f, 20f, d.BrakeForce);
+        AirMovementForce = SafeClamp("AirMove", AirMovementForce, 0f, 50f, d.AirMovementForce);
         Price = Mathf.Max(0f, Price);
     }
 }
