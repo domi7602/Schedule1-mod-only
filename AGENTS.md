@@ -1,6 +1,8 @@
 # AGENTS.md
 
-Workspace: the `Schedule1-mod-only` repository root (any path/user, e.g. `C:\Users\<you>\Schedule1-mod-only`) — MelonLoader IL2CPP modding workspace for *Schedule I* **v0.4.7f9** (TVGS, Steam Open Beta). The repo lives **outside** the game install; builds and deploys resolve the game via the `SCHEDULE1_PATH` env var or the default `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
+Workspace: the `Schedule1-mod-only` repository root (any path/user, e.g. `C:\Users\<you>\Schedule1-mod-only`) — MelonLoader IL2CPP modding workspace for *Schedule I* (TVGS, Steam Open Beta; documented baseline **v0.4.7f9**). The repo lives **outside** the game install; builds and deploys resolve the game via the `SCHEDULE1_PATH` env var or the default `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
+
+> **Current local runtime override (2026-10-07):** The fresh Windows installation runs **game v0.4.7f11**, Steam build **25770926**, with MelonLoader 0.7.3 and **S1API beta.8 + the unpublished compatibility fix from [PR #353](https://github.com/ifBars/S1API/pull/353)**. Official beta.8 fails to patch the removed `ProductIconManager.GenerateIcons` on f11. The local DLL was built and deployed after 749 IL2CPP contract tests passed; startup/gameplay with it remain unverified. The submodule stays unmodified at the beta.8 tag. Build provenance, modified source, and the official DLL backup are preserved in `<GameDir>\UserData\S1API\LocalBuilds\2026-10-07-f11\README.md`. Older f9 compatibility claims below are historical, not f11 gameplay verification.
 
 Quick links: [`DEVELOPERS.md`](DEVELOPERS.md) — human build/test/debug workflow · [`docs/README.md`](docs/README.md) — documentation index · [`docs/architecture.md`](docs/architecture.md) — dependency boundaries · [`docs/pitfalls.md`](docs/pitfalls.md) — battle-tested gotchas · [`docs/compatibility.md`](docs/compatibility.md) — per-mod verification matrix · [`ThirdParty/README.md`](ThirdParty/README.md) — pinned dependencies · [`GameReferences/README.md`](GameReferences/README.md) — local decompiles · [`Skills/README.md`](Skills/README.md) — skill index.
 
@@ -30,8 +32,8 @@ The skill list is anchored in three files (this one, `Skills/README.md`, `README
 ## 1. Setup
 
 - **Game:** `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` — override with `$env:SCHEDULE1_PATH` **before** `dotnet build` (MSBuild reads it once at startup).
-- **Versions:** game v0.4.7f9 (Unity 2022.3, IL2CPP; verified 2026-10-05) · MelonLoader 0.7.3 (net6) · S1API 3.2.1-beta.8 deployed; submodule at beta.8 tag (2026-10-05) · TFM `net6.0`, `LangVersion` 12, nullable enabled.
-- **Install state (after the 2026-09-27 Steam reinstall):** .NET 6 runtime global in `C:\Program Files\dotnet`; .NET SDK 8.0.425 user-local in `$env:USERPROFILE\.dotnet`. Older repo copies (in the game dir / on the Desktop) are obsolete — this path is the only truth.
+- **Baseline versions:** game v0.4.7f9 (Unity 2022.3, IL2CPP; verified 2026-10-05) · MelonLoader 0.7.3 (net6) · S1API 3.2.1-beta.8; submodule at beta.8 tag. See the current local runtime override above for the installed f11 compatibility build. TFM `net6.0`, `LangVersion` 12, nullable enabled.
+- **Install state (after the 2026-10-07 Windows reinstall):** .NET 6.0.36 runtime global in `C:\Program Files\dotnet` and user-local for tests; .NET SDK 8.0.425 user-local in `$env:USERPROFILE\.dotnet`; Python 3.13 with MCP dependencies isolated in `%LOCALAPPDATA%\Schedule1Tools\s1mcp-venv`; official nuget.org package source configured. Older repo copies (in the game dir / on the Desktop) are obsolete — this path is the only truth.
 - **Runtime dependencies in the game dir:** S1API at `Mods\S1API.Il2Cpp.MelonLoader.dll` — the build probes exactly that filename (a wrong name breaks every mod with `CS0103: The name 'S1API' does not exist`); S1MAPI at `UserLibs\S1MAPI_Il2Cpp.dll`. `MelonLoader\Il2CppAssemblies\` only exists after the game has run once — until then, mods cannot reference Unity/IL2CPP types.
 - **Launch, logs, live debugging:** `Start-Process "steam://rungameid/3164500"`; gameplay log `MelonLoader\Latest.log`; S1MCP bridge at `ThirdParty/S1MCPServer-master/` (TCP `127.0.0.1:8765`) — see `schedule1-mcp`.
 
@@ -289,7 +291,7 @@ Always exits 0 — it is a report, not a gate; read the output. Known false posi
 
 ## 7. Reference Material
 
-- **Game decompiles:** `GameReferences/` — regenerate with `pwsh Tools/bootstrap-game-references.ps1` (pinned ilspycmd 9.1.0.7988, project mode; regenerate after every game update). Current generation: 2026-10-05 against the 0.4.7f9 proxies, spot-check set passed; for ground truth use `ilspycmd` against `<GameDir>\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll` (scoped `DOTNET_ROOT`).
+- **Game decompiles:** `GameReferences/` — regenerate with `pwsh Tools/bootstrap-game-references.ps1` (pinned ilspycmd 9.1.0.7988, project mode; regenerate after every game update). Current generation: 2026-10-07 against the freshly generated 0.4.7f11 proxies; `ProductIconManager` was inspected to confirm `GenerateIcons` is absent and `GenerateRuntimeIcons(string)` exists. For ground truth use `ilspycmd` against `<GameDir>\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll` (scoped `DOTNET_ROOT`).
 - **S1API source:** `ThirdParty/S1API/` (submodule, pinned beta line — currently the beta.8 tag).
 - **64 system analyses:** `Skills/schedule1-game-systems/references/`.
 - **Archived mod sources:** `Source/Archive/`. The old `Knowledge/` folder from the pre-reinstall workspace no longer exists.
