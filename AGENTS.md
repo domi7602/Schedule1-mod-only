@@ -78,7 +78,6 @@ Release/           Release ZIP output
 | **HitmanPhone** | ✅ active (v0.2.9, beta **Verified 2026-09-24**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Messages/NPC/Items/Quests |
 | **MessagesPlus** | ✅ active (v0.4.1, **In-Game-Verify open**; v0.4.0 **Verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
 | **TaxiDriver** | 🧪 spike (v0.8.2; Stages 1–3 live-verified 2026-09-25, Pakete C–G test round open) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | vehicles, own NPC driver, S1MAPI |
-| **TabToHome** | ⏸️ shelved (v0.1.0, **not deployed**; game copy removed 2026-10-04, waiting for upstream S1API fix) | `Mods/TabToHome/` | `TabToHome.dll` (not deployed) | no S1API (MelonMod + Harmony): Tab → HomeScreen |
 | **StorageScanner** | 🆕 new (v0.2.0, **In-Game-Verify open**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | PhoneApp, read-only storage overview |
 | **S1MCP** | ✅ active (v1.0.1) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | MCP over TCP :8765 |
 | **Shared** | ✅ active (workspace lib) | `Mods/Shared/` | `Shared.dll` | see §5 |
@@ -148,10 +147,6 @@ Release/           Release ZIP output
 **TaxiDriver v0.8.2 (2026-10-02, spike):**
 - Orderable taxi from the in-game phone ("Taxi" app) with an own NPC driver: vehicle spawn + `VehicleAgent.Navigate` A→B + player ride, `taxi.glb` visual swap via S1MAPI GltfLoader, `RoadKeeper` road-corridor assistance, destination picker (properties/custom checkpoints), fare meter (moving in-game minutes; cash → bank; host-only fail-closed), F9–F12 diagnostic hotkeys + output-only `taxi` console.
 - Stages 1–3 live-verified 2026-09-25. **Pakete C–G in-game test round open** (exit hardening, driver retention, spawn clearance, clear-selection, patrol NRE). History: `Source/Mods/TaxiDriver/docs/CHANGELOG.md`.
-
-**TabToHome v0.1.0 (2026-10-04, new — shelved same day):**
-- Harmony prefix on `Phone.SetIsOpen`: Tab with an app open fires the game's own `closeApps` event and skips the put-away, so the phone stays up on the HomeScreen (Escape-equivalent state); second Tab puts the phone away as usual. Any patch failure falls through to vanilla behavior.
-- **Shelved 2026-10-04 (decision by Dominik):** in-game the phone still closed — S1API's own `Phone.SetIsOpen(false)` calls (3+ per Tab, alternating) run after the patch's skip, so the redirect cannot win. Game copy removed (not deployed); stock Tab behavior until upstream S1API is fixed. History: `Source/Mods/TabToHome/docs/CHANGELOG.md`.
 
 **StorageScanner v0.2.0 (2026-10-04, new):**
 - Read-only PhoneApp: totals per item across all storage containers of owned properties; `ALL` + per-property filter chips, live name search, manual + periodic refresh, explicit INCOMPLETE banner (culled containers reported, never silently counted). No Harmony, no background scanning.

@@ -34,7 +34,6 @@ This page records which game and framework versions each mod was built against a
 | Weather | 0.4.0 | — | — | yes | no | In-game verification open (0.4.0 = rebuild to the approved mockup; no version of this mod has been verified in-game yet). |
 | MessagesPlus | 0.4.1 | v0.4.7f6 (beta) | 2026-09-30 | yes (`S1API.Lifecycle`, `S1API.UI`) | no | v0.4.0 verified in-game 2026-09-30; v0.4.1 (permanent whole-app dark mode + instant deal-window theming) verification open. |
 | TaxiDriver | 0.7.0 | v0.4.7f6 (beta) | 2026-09-25 | yes | yes (`S1MAPI.Gltf.GltfLoader`) | Feasibility spike / developer tool. Stages 1-3 live-verified 2026-09-25; the current Pakete C-G test round is open. |
-| TabToHome | 0.1.0 | — | — | no | no | Shelved 2026-10-04 before in-game verification (S1API's own `Phone.SetIsOpen` calls defeat the Tab redirect); game copy removed, not deployed. |
 | StorageScanner | 0.1.1 | — | — | yes | no | v0.1.0 never ran a scan (readiness gate blocked on `IsContentCulled`); v0.1.1 fix deployed 2026-10-04, in-game verification open. |
 
 ## Known version-drift risks

@@ -1,6 +1,0 @@
-{
-  "name": "TabToHome",
-  "author": "Dominik",
-  "version": "0.1.0",
-  "description": "Tab closes the active phone app to the HomeScreen; second Tab puts the phone away."
-}
