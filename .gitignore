@@ -42,6 +42,11 @@ Release/*.zip
 # Archives
 Source/Archive/*.zip
 
+# Unlicensed third-party game assets (arcade/Pac-Man art, ripped textures and
+# audio) are kept as local reference only and must never ship in the public
+# repo (legal hygiene 2026-10-07). Local working copies may stay on disk here.
+/ThirdParty/Archive/ScheduleIArcade/
+
 # Scratch / WIP / decompile output (never commit)
 .scratch/
 **/*.tmp.cs
