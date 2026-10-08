@@ -1,5 +1,5 @@
 # S1MAPI — BuildingBuilder (Rooms & Buildings)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 The killer feature of S1MAPI. Define rooms declaratively: floor, ceiling, walls, doors, windows, roof. Output is a walkable building with collision.

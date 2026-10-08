@@ -1,5 +1,5 @@
 # S1MAPI — InteriorBuilder & FurnitureType
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 `InteriorBuilder` places in-game furniture (desks, chairs, beds, …) inside custom buildings or anywhere in the world. This bridges geometry back to the game world — your procedural building can host real, interactable game objects.

@@ -10,7 +10,7 @@ description: >-
 
 # Schedule I — 3D Asset & Blender Rendering Pipeline
 
-This skill is the **complete runbook** for creating, exporting, and rendering 3D assets in *Schedule I* (v0.4.7f9, Unity 2022.3 LTS, Universal Render Pipeline).
+This skill is the **complete runbook** for creating, exporting, and rendering 3D assets in *Schedule I* (runtime 0.4.7f11, Unity 2022.3 LTS, Universal Render Pipeline).
 
 ---
 

@@ -1,5 +1,5 @@
 # SafeStorage Atomic
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 `Shared/src/SafeStorage.cs:73` SaveAtomic → EnsureDirectoryForFile → Serialize → SaveTextAtomic.

@@ -7,7 +7,7 @@
 [![CI](https://github.com/domi7602/Schedule1-mod-only/actions/workflows/ci.yml/badge.svg)](https://github.com/domi7602/Schedule1-mod-only/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/domi7602/Schedule1-mod-only?include_prereleases&label=release)](https://github.com/domi7602/Schedule1-mod-only/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Schedule I](https://img.shields.io/badge/Schedule_I-0.4.6f13_--_0.4.7f9_beta-blue)
+![Schedule I](https://img.shields.io/badge/Schedule_I-0.4.6f13_--_0.4.7f11-blue)
 ![MelonLoader](https://img.shields.io/badge/MelonLoader-0.7.3-red)
 ![S1API](https://img.shields.io/badge/S1API-3.2.x-orange)
 
@@ -29,9 +29,9 @@ The mods are kept in a single repository so they can share the common library, b
 | Component | Version | Notes |
 |---|---|---|
 | **Schedule I** | **v0.4.6f13** (Steam default branch) | Most mods were verified in-game on this version (September 2026). |
-| **Schedule I** | v0.4.7f9 (Open Beta, live 2026-10-05) | Current development target. `HitmanPhone`, `TaxiDriver` and `MessagesPlus` (v0.4.0, 2026-09-30) are verified on the beta line; the other mods have not been re-verified on 0.4.7f9 yet. |
+| **Schedule I** | v0.4.7f11 (current development runtime, verified 2026-10-07) | `HitmanPhone`, `TaxiDriver` and `MessagesPlus` (v0.4.0, 2026-09-30) were verified on the beta line before f11; no mod has been re-verified on 0.4.7f11 yet. See [`docs/compatibility.md`](docs/compatibility.md). |
 | **MelonLoader** | 0.7.3 | IL2CPP build, `net6` runtime. |
-| **S1API** | 3.2.1-beta.8 (deployed runtime, 2026-10-05) | Required by every mod in this repository. Stay on the 3.2.1-beta line for game v0.4.7f6+. The `ThirdParty/S1API` submodule sits at the beta.8 tag (2026-10-05). |
+| **S1API** | 3.2.1-beta.8 (deployed runtime) | Required by every mod in this repository. Stay on the 3.2.1-beta line for game v0.4.7f6+. The `ThirdParty/S1API` submodule sits at the beta.8 tag. On f11 the deployed build carries a local, unpublished compatibility fix (see `AGENTS.md`). |
 | **S1MAPI** | 2.0.1 (source pin) | Required only by `AutoPackagingStation` and `TaxiDriver` (GLB model loading). |
 | **.NET** | `net6.0` (mod target framework) | .NET 6 SDK to build; see [DEVELOPERS.md](DEVELOPERS.md). |
 

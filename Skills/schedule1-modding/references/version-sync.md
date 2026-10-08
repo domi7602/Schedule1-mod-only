@@ -1,5 +1,5 @@
 # Version Sync — Reference & Session Notes
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 Concrete, session-tested data for AGENTS.md ↔ Source version drift fixes. Read this **before** running `bump-version.ps1` on any mod.

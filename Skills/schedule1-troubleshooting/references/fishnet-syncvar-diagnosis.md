@@ -1,6 +1,6 @@
 # FishNet SyncVar Diagnosis — Multiplayer Cache Staleness
 
-> verified: 2026-10-05 — decompile facts in §3 are grep-verified against `GameReferences/decompiled/Assembly-CSharp/` (0.4.7f9-era proxies, regenerated 2026-10-03). The onChangeCallback surface (§4 Option A) and ALL host/client runtime behaviors are **unverified** — no in-game multiplayer test was run for this document. Anchor: game v0.4.7f9 / FishNet 3.x / S1API 3.2.1-beta.8.
+> verified: 2026-10-05 — decompile facts in §3 are grep-verified against `GameReferences/decompiled/Assembly-CSharp/` (0.4.7f9-era proxies, regenerated 2026-10-03). The onChangeCallback surface (§4 Option A) and ALL host/client runtime behaviors are **unverified** — no in-game multiplayer test was run for this document. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md. FishNet 3.x / S1API 3.2.1-beta.8.
 
 ## 1. Symptom
 

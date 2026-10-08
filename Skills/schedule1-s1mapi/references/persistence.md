@@ -1,6 +1,6 @@
 # S1MAPI Geometry Persistence — Making Buildings/Meshes/GLTF Survive Save/Reload
 
-> verified: research against S1MAPI 2.0.1 source + workspace mods 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8 / S1MAPI 2.0.1.
+> verified: research against S1MAPI 2.0.1 source + workspace mods 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md. S1MAPI 2.0.1.
 
 ## 1. The Problem — S1MAPI Builds GameObjects, Nothing Else
 

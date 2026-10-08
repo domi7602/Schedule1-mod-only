@@ -1,6 +1,6 @@
 # Update Breakage Log — What did each game update break?
 
-> verified: 2026-10-05 — rows compiled from the cited evidence files (evidence dates per row); no new in-game tests were run for this log. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8 / MelonLoader 0.7.3.
+> verified: 2026-10-05 — rows compiled from the cited evidence files (evidence dates per row); no new in-game tests were run for this log. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 Per-update record of **proven** mod breakage, split from expectations. Every "confirmed" row cites an evidence file with a date and a repro/log artifact. "Expected" rows come from `docs/compatibility.md` (Known version-drift risks, 2026-09-19 impact analysis) and are explicitly **not yet confirmed** — treat them as review triggers, not facts.
 

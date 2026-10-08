@@ -46,7 +46,7 @@ Working from more than one machine? See [`docs/working-across-devices.md`](docs/
 | Windows | 10/11 | The build references DLLs from the installed game; PowerShell scripts assume Windows paths. |
 | .NET SDK | 6.0 or newer (8.0 is used on the maintainer's machines) | Mods target `net6.0`; CI pins `6.0.x`. |
 | PowerShell | 7+ | All `Tools/*.ps1` scripts (`#Requires -Version 7` where applicable). |
-| Schedule I | v0.4.6f13 / v0.4.7f6 beta | Provides `MelonLoader\Il2CppAssemblies\*.dll` and `MelonLoader\net6\*.dll` referenced by `Directory.Build.props`. |
+| Schedule I | v0.4.7f11 (current runtime; older verifications on v0.4.6f13 / v0.4.7f6 / v0.4.7f9) | Provides `MelonLoader\Il2CppAssemblies\*.dll` and `MelonLoader\net6\*.dll` referenced by `Directory.Build.props`. |
 | MelonLoader | 0.7.3 | Must be installed into the game directory. |
 | S1API | 3.2.x | Referenced from `<GameDir>\Mods\S1API.Il2Cpp.MelonLoader.dll` (fallback `UserLibs\S1API.dll`). Source is pinned as submodule under `ThirdParty/S1API/`. |
 | S1MAPI | 2.0.1 | Referenced from `<GameDir>\UserLibs\S1MAPI_Il2Cpp.dll` when present; needed by `AutoPackagingStation` and `TaxiDriver`. |

@@ -23,7 +23,7 @@ The inventory of code references, decompiles, framework sources, and game system
 
 ### 2.1. Assembly-CSharp (★ In-Repo Decompile: ~2100+ files)
 
-`GameReferences/decompiled/Assembly-CSharp/` contains the full IL2CPP-aware decompile of *Schedule I* (generation 2026-10-02; game is v0.4.7f9 — regenerate after updates, see header). Organized by namespace:
+`GameReferences/decompiled/Assembly-CSharp/` contains the full IL2CPP-aware decompile of *Schedule I* (current generation 2026-10-07 against game v0.4.7f11 — regenerate after updates, see GameReferences/README.md). Organized by namespace:
 
 ```
 GameReferences/decompiled/Assembly-CSharp/

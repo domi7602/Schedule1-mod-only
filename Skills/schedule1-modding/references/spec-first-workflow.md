@@ -1,5 +1,5 @@
 # Spec-First Workflow (Maker-Checker Convention)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 > Process convention (not game-API knowledge) — extracted from `schedule1-modding` §2.D 2026-10-05 to keep the runbook skill code-focused. Verified convention 2026-08-27.

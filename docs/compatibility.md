@@ -7,7 +7,8 @@ This page records which game and framework versions each mod was built against a
 | Component | Version | Notes |
 |---|---|---|
 | Schedule I (Steam default) | v0.4.6f13 | IL2CPP, Unity 2022.3. Baseline for the September 2026 verification pass. |
-| Schedule I (Open Beta) | v0.4.7f9 | Live since ~2026-10-03 (buildid 25698382, verified 2026-10-05). Local decompiles under `GameReferences/` regenerated 2026-10-05 (ilspycmd 9.1.0.7988, project mode) — verified against the spot-check set (EClothingSlot/EClothingColor, MoneyManager, EEmployeeType, EConversationCategory). |
+| Schedule I (installed runtime) | v0.4.7f11 | Verified 2026-10-07 via `MelonLoader\Latest.log`. Local decompiles under `GameReferences/` regenerated 2026-10-07 against f11 (ilspycmd 9.1.0.7988, project mode); `ProductIconManager.GenerateIcons` is absent, `GenerateRuntimeIcons(string)` present. |
+| Schedule I (previous Open Beta baseline) | v0.4.7f9 | buildid 25698382, verified 2026-10-05. Spot-check set (EClothingSlot/EClothingColor, MoneyManager, EEmployeeType, EConversationCategory) passed on the f9 decompiles. |
 | MelonLoader | 0.7.3 | `net6` runtime. |
 | S1API | 3.2.1-beta.8 (git submodule `ThirdParty/S1API`) | Build reference — submodule checked out at the beta.8 tag 2026-10-05 (commit f65ae40 = deployed build). Stay on the 3.2.1-beta line for the 0.4.7f6+ renames. |
 | S1API (deployed runtime) | 3.2.1-beta.8 (2026-10-05) | `Mods\S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.MelonLoader.dll`. The 3.2.0 stable build does not know the 0.4.7f6 renames. |
@@ -17,6 +18,8 @@ This page records which game and framework versions each mod was built against a
 ## Verification matrix
 
 "Verified" means a functional check in a real game session, recorded in the mod's changelog or the inventory in `AGENTS.md`. No automated in-game test exists; GitHub-hosted CI cannot run the game.
+
+The rows below record the game version each check ran on. The installed runtime is now v0.4.7f11, and none of the rows has been re-run on it yet. Treat f11 behaviour as unverified until a session is logged.
 
 | Mod | Version | Verified on | Date | Needs S1API | Needs S1MAPI | Notes |
 |---|---|---|---|---|---|---|

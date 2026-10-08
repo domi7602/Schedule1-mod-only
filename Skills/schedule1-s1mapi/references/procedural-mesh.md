@@ -1,5 +1,5 @@
 # S1MAPI — ProceduralMesh (Primitive Shapes)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 The `ProceduralMeshBuilder` is the lowest-level entry point. It generates primitive shapes (box, sphere, cylinder, capsule) as ready-made GameObjects with mesh, collider, and material — all in one fluent chain.

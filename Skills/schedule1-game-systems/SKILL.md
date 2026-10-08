@@ -7,7 +7,7 @@ description: "Reference guide for all 64 core game systems in Schedule I (v0.4.7
 
 # Schedule I Game Systems
 
-This skill is the **map to the 64 core game systems** in *Schedule I* v0.4.7f9 — bypassing the need to navigate raw decompiled code blind. Every system is curated with core classes, network behavior, variables, and Harmony/S1API hook points directly in `Skills/schedule1-game-systems/references/`.
+This skill is the **map to the 64 core game systems** in *Schedule I* (curated on 0.4.7f9; runtime 0.4.7f11) — bypassing the need to navigate raw decompiled code blind. Every system is curated with core classes, network behavior, variables, and Harmony/S1API hook points directly in `Skills/schedule1-game-systems/references/`.
 
 ---
 

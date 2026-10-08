@@ -10,7 +10,7 @@ description: >-
 
 # Schedule I — Modding Skill & Runbook
 
-This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I v0.4.7f9** (TVGS) in this workspace (the `Schedule1-mod-only` repository root). The workspace lives outside the game install dir; game path resolves via `$env:SCHEDULE1_PATH` (default: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`).
+This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I** (TVGS; runtime 0.4.7f11, see AGENTS.md) in this workspace (the `Schedule1-mod-only` repository root). The workspace lives outside the game install dir; game path resolves via `$env:SCHEDULE1_PATH` (default: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`).
 
 > **Version check (last verified: 2026-10-05):** Before writing patches or building, confirm the installed game version and S1API version still match this skill. If the game was updated, follow the Update Runbook (§5) first.
 

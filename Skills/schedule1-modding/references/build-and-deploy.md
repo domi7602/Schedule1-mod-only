@@ -1,6 +1,6 @@
 # Build & Deploy — Detailed Runbook
 
-> verified: pipeline re-checked 2026-10-05 against the current workspace state (deploy rows + bump caveats); anchor: game v0.4.7f9 / S1API 3.2.1-beta.8 (submodule at the beta.8 tag since 2026-10-05).
+> verified: pipeline re-checked 2026-10-05 against the current workspace state (deploy rows + bump caveats); anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md (submodule at the beta.8 tag since 2026-10-05).
 
 This reference documents the **complete build/deploy pipeline** for the Schedule I Modding Workspace, including the conventions enforced by `Source/Mods/Directory.Build.props` + `Directory.Build.targets` and the handling of ThirdParty frameworks.
 

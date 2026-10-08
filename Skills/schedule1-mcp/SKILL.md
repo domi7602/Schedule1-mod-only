@@ -11,7 +11,7 @@ description: >-
 
 This skill is the runbook for **live, real-time agentic interaction with the running *Schedule I* game** using the Model Context Protocol (MCP) bridge (`ifBars/S1MCPServer`).
 
-> **Stack Status:** Game v0.4.7f9 / MelonLoader 0.7.3 / S1API 3.2.1-beta.8, TCP localhost:8765, JSON-RPC 2.0 stdio MCP server (anchor above; the 2026-08-22 stack note against Game v0.4.6f13 is historical).
+> **Stack Status:** Game v0.4.7f11 (runtime) / MelonLoader 0.7.3 / S1API 3.2.1-beta.8, TCP localhost:8765, JSON-RPC 2.0 stdio MCP server (anchor above; the 2026-08-22 stack note against Game v0.4.6f13 is historical).
 
 ---
 

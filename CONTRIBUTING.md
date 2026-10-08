@@ -4,7 +4,7 @@ Thanks for your interest in contributing to the Schedule I mods in this reposito
 
 ## Requirements
 
-- **Game:** Schedule I (IL2CPP, Unity 2022.3) — v0.4.6f13 verified baseline, v0.4.7f6 Open Beta current target (see [`docs/compatibility.md`](docs/compatibility.md)); installed under `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`)
+- **Game:** Schedule I (IL2CPP, Unity 2022.3) — v0.4.7f11 current runtime; older verifications on v0.4.6f13 / v0.4.7f6 / v0.4.7f9 (see [`docs/compatibility.md`](docs/compatibility.md)); installed under `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`)
 - **SDK:** .NET 6 SDK, PowerShell 7+
 - **Loader:** MelonLoader 0.7.3
 - **S1API:** 3.2.x (deployed as `Mods/S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.dll`; source pinned as submodule `ThirdParty/S1API/`)
