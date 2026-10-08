@@ -1,6 +1,6 @@
 # Implementation Patterns
 
-> verified: patterns consolidated 2026-10-05 (duplicates moved to canonical reference). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: patterns consolidated 2026-10-05 (duplicates moved to canonical reference). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 ## Purpose
 

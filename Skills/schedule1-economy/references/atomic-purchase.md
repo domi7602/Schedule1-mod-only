@@ -1,5 +1,5 @@
 # Atomic Purchase (PocketShop Reference)
-> verified: sequence from PocketShop v0.2.1 source (0.4.6-era); MoneyManager APIs re-verified against 0.4.7f9 decompiles 2026-10-05 (ChangeCashBalance/CreateOnlineTransaction, see SKILL section 7). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: sequence from PocketShop v0.2.1 source (0.4.6-era); MoneyManager APIs re-verified against 0.4.7f9 decompiles 2026-10-05 (ChangeCashBalance/CreateOnlineTransaction, see SKILL section 7). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 Complete sequence from `PocketShop/src/Services/PurchaseService.cs:114` (verified v0.2.1, `PocketShop/UI/UITheme.cs` delegates to Shared).

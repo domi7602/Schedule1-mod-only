@@ -1,14 +1,14 @@
 ---
 name: schedule1-s1api
 description: >-
-  Author-reference for the S1API framework (ifBars fork, v3.2.1-beta.8 deployed, 859 .cs files in 116 namespaces) for Schedule I v0.4.7f9 (IL2CPP/Mono).
+  Author-reference for the S1API framework (ifBars fork, v3.2.1-beta.8 deployed, 859 .cs files in 116 namespaces) for Schedule I v0.4.7f11 (IL2CPP/Mono).
   Use this skill whenever you need to find the right S1API namespace for a task, write a Saveable, build a PhoneApp, register a Quest, create a custom NPC, register a console command, hook a lifecycle event, or decide whether to use a S1API wrapper vs direct Il2CppScheduleOne interop.
   Keywords: S1API, Folders, Money, GameTime, Lifecycle, PhoneApp, Quests, NPCs, Saveables, Items, Products, Building, Law, Vehicles, GameLifecycle, OnSaveInfoLoaded, OnLoadComplete, OnPreLoad, Property, Il2CppScheduleOne, MelonLoader.
 ---
 
-> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
 
-# Schedule I — S1API Author Reference (ifBars fork, v3.2.1-beta.8 deployed / in-repo source beta.7)
+# Schedule I — S1API Author Reference (ifBars fork, v3.2.1-beta.8 deployed and as in-repo source)
 
 This skill is the **API-catalog map** for S1API. Use it when you need to know which namespace / class to reach for, what the wired lifecycle hooks are, which patterns are safe via S1API wrapper vs which require direct IL2CPP interop, and how to handle the runtime-neutral contract.
 

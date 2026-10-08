@@ -1,12 +1,12 @@
 ---
 name: schedule1-modding
 description: >-
-  Expert guide and runbook for developing, building, testing, and maintaining MelonLoader IL2CPP C# mods for Schedule I v0.4.7f9 (TVGS) in the Schedule I Modding Workspace.
+  Expert guide and runbook for developing, building, testing, and maintaining MelonLoader IL2CPP C# mods for Schedule I v0.4.7f11 (TVGS) in the Schedule I Modding Workspace.
   Use this skill whenever creating new mods, modifying existing mods, writing Harmony patches, building PhoneApps via S1API, troubleshooting IL2CPP/Unity/MelonLoader issues, building solutions, or implementing UI features for Schedule I.
   Keywords: Schedule I, MelonLoader, IL2CPP, Harmony, HarmonyPatch, PhoneApp, S1API, Unity 2022.3, mod scaffolding, SafeStorage, UITheme.
 ---
 
-> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
 
 # Schedule I — Modding Skill & Runbook
 
@@ -27,7 +27,7 @@ This skill provides full procedural knowledge, conventions, and architectural gu
 ```text
 Source/Mods/        Mod projects + Shared lib + Directory.Build.props/targets + S1Mods.sln
 GameReferences/     Local decompiles: decompiled/Assembly-CSharp/ (Il2CppScheduleOne.*)
-ThirdParty/         External frameworks & sources (S1API, S1MAPI, PhoneScroll, S1MCPServer)
+ThirdParty/         External frameworks & sources (S1API, S1MAPI, S1MCPServer; retired PhoneScroll is under ThirdParty/Archive/)
 Tools/              PowerShell automation: build-all.ps1, new-mod.ps1, gen-sln.ps1, deploy-thirdparty.ps1, bump-version.ps1
 Skills/             20 modular modding & game system skills (including all 64 system analyses)
 AGENTS.md           Single source of truth for mod inventory & current status

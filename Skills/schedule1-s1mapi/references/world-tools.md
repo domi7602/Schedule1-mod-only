@@ -1,5 +1,5 @@
 # S1MAPI — World Tools (Terrain, Navigation, Prefab Placement)
-> UNVERIFIED for 0.4.7f9 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 The "advanced" world-modification API. Use these when you need to integrate procedural geometry with the existing game world: clear surroundings, flatten terrain, build NPC navigation, place in-game prefabs.

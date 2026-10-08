@@ -1,11 +1,11 @@
 ---
 name: schedule1-economy
 description: >-
-  Economy runbook for Schedule I v0.4.7f9 (Money, Businesses, Shops, Customers, Laundering). Use when implementing purchases, bank transfers, passive income, inventory capacity, weekly ATM limits, or multiplayer-safe economy logic. Covers BankApp double-entry, PocketShop multi-payment + atomic purchase, BusinessIncome host authority + snapshot revert.
+  Economy runbook for Schedule I v0.4.7f11 (Money, Businesses, Shops, Customers, Laundering). Use when implementing purchases, bank transfers, passive income, inventory capacity, weekly ATM limits, or multiplayer-safe economy logic. Covers BankApp double-entry, PocketShop multi-payment + atomic purchase, BusinessIncome host authority + snapshot revert.
   Keywords: Money, MoneyManager, onlineBalance, cashBalance, Business, OwnedBusinesses, ShopInterface, PurchaseService, BankService, TransactionHistory, weekly limit, cash slot, Auto payment, CreateOnlineTransaction, ChangeCashBalance.
 ---
 
-> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
 
 # Schedule I — Economy Skill (Money / Business / Shop)
 

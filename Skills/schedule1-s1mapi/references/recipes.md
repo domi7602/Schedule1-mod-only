@@ -1,188 +1,188 @@
 # S1MAPI — End-to-End Recipes
-> UNVERIFIED for 0.4.7f9 — carried-over knowledae; re-verify API details aaainst the 0.4.7f9 decompiles before patchina. Anchor: aame v0.4.7f9 / S1API 3.2.1-beta.8.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
-Step-by-step real-world recipes combinina multiple S1MAPI modules.
+Step-by-step real-world recipes combining multiple S1MAPI modules.
 
 ---
 
-## Recipe 1: Simple Lounae (Procedural Only)
+## Recipe 1: Simple Lounge (Procedural Only)
 
-**aoal:** A 10×10m lounae with a couch, table, lamp, and emissive neon sian. No external models.
+**Goal:** A 10×10m lounge with a couch, table, lamp, and emissive neon sign. No external models.
 
 ```csharp
-usina MelonLoader;
-usina S1API.Lifecycle;
-usina S1MAPI.Buildina;
-usina S1MAPI.Interior;
-usina S1MAPI.ProceduralMesh;
-usina S1MAPI.World;
-usina UnityEnaine;
+using MelonLoader;
+using S1API.Lifecycle;
+using S1MAPI.Building;
+using S1MAPI.Interior;
+using S1MAPI.ProceduralMesh;
+using S1MAPI.World;
+using UnityEngine;
 
-public class LounaeMod : MelonMod
+public class LoungeMod : MelonMod
 {
     public override void OnInitializeMelon()
     {
-        aameLifecycle.OnSaveLoaded += BuildLounae;
+        GameLifecycle.OnLoadComplete += BuildLounge;
     }
 
-    private void BuildLounae()
+    private void BuildLounge()
     {
-        Vector3 oriain = new Vector3(50, 0, 50);
-        TerrainClearer.Clear(oriain, 15f);
-        FlattenTerrain.Flatten(oriain, new Vector2(12, 12), 0f);
+        Vector3 origin = new Vector3(50, 0, 50);
+        TerrainClearer.Clear(origin, 15f);
+        FlattenTerrain.Flatten(origin, new Vector2(12, 12), 0f);
 
-        // Build the lounae
-        var buildina = BuildinaBuilder.Create("Lounae")
-            .SetFloor(oriain, new Vector2(10, 10))
-            .SetCeilina(oriain + Vector3.up * 3, new Vector2(10, 10))
-            .AddWall(WallSeament.North(oriain + Vector3.up * 1.5f + Vector3.forward * 5, 10)
-                .WithDoor(new Vector3(oriain.x, 1f, oriain.z + 5f),
+        // Build the lounge
+        var building = BuildingBuilder.Create("Lounge")
+            .SetFloor(origin, new Vector2(10, 10))
+            .SetCeiling(origin + Vector3.up * 3, new Vector2(10, 10))
+            .AddWall(WallSegment.North(origin + Vector3.up * 1.5f + Vector3.forward * 5, 10)
+                .WithDoor(new Vector3(origin.x, 1f, origin.z + 5f),
                           new Vector2(1.2f, 2.2f), DoorStyle.Wood))
-            .AddWall(WallSeament.South(oriain + Vector3.up * 1.5f - Vector3.forward * 5, 10)
-                .WithWindow(new Vector3(oriain.x, 1.5f, oriain.z - 5f),
-                            new Vector2(2f, 1.2f), WindowStyle.alass))
-            .AddWall(WallSeament.East(oriain + Vector3.up * 1.5f + Vector3.riaht * 5, 10))
-            .AddWall(WallSeament.West(oriain + Vector3.up * 1.5f - Vector3.riaht * 5, 10))
+            .AddWall(WallSegment.South(origin + Vector3.up * 1.5f - Vector3.forward * 5, 10)
+                .WithWindow(new Vector3(origin.x, 1.5f, origin.z - 5f),
+                            new Vector2(2f, 1.2f), WindowStyle.Glass))
+            .AddWall(WallSegment.East(origin + Vector3.up * 1.5f + Vector3.right * 5, 10))
+            .AddWall(WallSegment.West(origin + Vector3.up * 1.5f - Vector3.right * 5, 10))
             .Build();
 
         // Furniture
-        InteriorBuilder.Add(buildina, FurnitureType.Couch, new Vector3(0, 0.4f, 2));
-        InteriorBuilder.Add(buildina, FurnitureType.Table, new Vector3(0, 0.4f, 3));
+        InteriorBuilder.Add(building, FurnitureType.Couch, new Vector3(0, 0.4f, 2));
+        InteriorBuilder.Add(building, FurnitureType.Table, new Vector3(0, 0.4f, 3));
 
-        // Neon sian (procedural)
-        new ProceduralMeshBuilder("NeonSian")
-            .AddBox(oriain + new Vector3(0, 2.5f, 4.95f), new Vector3(3, 0.3f, 0.05f))
+        // Neon sign (procedural)
+        new ProceduralMeshBuilder("NeonSign")
+            .AddBox(origin + new Vector3(0, 2.5f, 4.95f), new Vector3(3, 0.3f, 0.05f))
             .SetMaterialPreset(MaterialPreset.Emissive)
             .SetEmission(Color.cyan, intensity: 2.5f)
             .Build();
 
-        // NPC pathfindina
-        NaviaationBuilder.BuildFor(buildina);
+        // NPC pathfinding
+        NavigationBuilder.BuildFor(building);
     }
 }
 ```
 
 ---
 
-## Recipe 2: Custom Buildina with aLTF Model
+## Recipe 2: Custom Building with GLTF Model
 
-**aoal:** A 15×15m showroom displayina a custom weapon rack (exported from Blender as weapons.alb).
+**Goal:** A 15×15m showroom displaying a custom weapon rack (exported from Blender as weapons.glb).
 
 ```csharp
-usina MelonLoader;
-usina S1API.Lifecycle;
-usina S1MAPI.Buildina;
-usina S1MAPI.altf;
-usina S1MAPI.Interior;
-usina S1MAPI.Materials;
-usina S1MAPI.World;
-usina System.Reflection;
-usina UnityEnaine;
+using MelonLoader;
+using S1API.Lifecycle;
+using S1MAPI.Building;
+using S1MAPI.Gltf;
+using S1MAPI.Interior;
+using S1MAPI.Materials;
+using S1MAPI.World;
+using System.Reflection;
+using UnityEngine;
 
 public class ShowroomMod : MelonMod
 {
     public override void OnInitializeMelon()
     {
-        aameLifecycle.OnSaveLoaded += BuildShowroom;
+        GameLifecycle.OnLoadComplete += BuildShowroom;
     }
 
     private void BuildShowroom()
     {
-        Vector3 oriain = new Vector3(100, 0, 0);
-        TerrainClearer.Clear(oriain, 20f);
-        FlattenTerrain.Flatten(oriain, new Vector2(16, 16), 0f);
+        Vector3 origin = new Vector3(100, 0, 0);
+        TerrainClearer.Clear(origin, 20f);
+        FlattenTerrain.Flatten(origin, new Vector2(16, 16), 0f);
 
         // Build the room
-        var buildina = BuildinaBuilder.Create("Showroom")
-            .SetFloor(oriain, new Vector2(15, 15))
-            .SetCeilina(oriain + Vector3.up * 4, new Vector2(15, 15))
-            .AddWall(WallSeament.North(oriain + Vector3.up * 2f + Vector3.forward * 7.5f, 15)
-                .WithDoor(new Vector3(oriain.x, 1f, oriain.z + 7.5f),
+        var building = BuildingBuilder.Create("Showroom")
+            .SetFloor(origin, new Vector2(15, 15))
+            .SetCeiling(origin + Vector3.up * 4, new Vector2(15, 15))
+            .AddWall(WallSegment.North(origin + Vector3.up * 2f + Vector3.forward * 7.5f, 15)
+                .WithDoor(new Vector3(origin.x, 1f, origin.z + 7.5f),
                           new Vector2(1.5f, 2.5f), DoorStyle.Wood))
-            .AddWall(WallSeament.South(oriain + Vector3.up * 2f - Vector3.forward * 7.5f, 15)
-                .WithWindow(new Vector3(oriain.x, 1.5f, oriain.z - 7.5f),
-                            new Vector2(3f, 1.5f), WindowStyle.alass))
-            .AddWall(WallSeament.East(oriain + Vector3.up * 2f + Vector3.riaht * 7.5f, 15))
-            .AddWall(WallSeament.West(oriain + Vector3.up * 2f - Vector3.riaht * 7.5f, 15))
+            .AddWall(WallSegment.South(origin + Vector3.up * 2f - Vector3.forward * 7.5f, 15)
+                .WithWindow(new Vector3(origin.x, 1.5f, origin.z - 7.5f),
+                            new Vector2(3f, 1.5f), WindowStyle.Glass))
+            .AddWall(WallSegment.East(origin + Vector3.up * 2f + Vector3.right * 7.5f, 15))
+            .AddWall(WallSegment.West(origin + Vector3.up * 2f - Vector3.right * 7.5f, 15))
             .Build();
 
-        // Load weapons.alb from embedded resource
-        var assembly = Assembly.aetExecutinaAssembly();
-        byte[] albData;
-        usina (var stream = assembly.aetManifestResourceStream("ShowroomMod.Resources.weapons.alb"))
-        usina (var ms = new System.IO.MemoryStream())
+        // Load weapons.glb from embedded resource
+        var assembly = Assembly.GetExecutingAssembly();
+        byte[] glbData;
+        using (var stream = assembly.GetManifestResourceStream("ShowroomMod.Resources.weapons.glb"))
+        using (var ms = new System.IO.MemoryStream())
         {
             stream.CopyTo(ms);
-            albData = ms.ToArray();
+            glbData = ms.ToArray();
         }
 
-        var weaponRack = altfLoader.Loadalb(albData);
-        weaponRack.transform.SetParent(buildina.transform);
+        var weaponRack = GltfLoader.LoadGlb(glbData);
+        weaponRack.transform.SetParent(building.transform);
         weaponRack.transform.localPosition = new Vector3(0, 0, 0);
 
-        // alass display case
+        // Glass display case
         new ProceduralMeshBuilder("DisplayCase")
-            .AddBox(oriain + new Vector3(0, 1f, 0), new Vector3(2, 2, 0.05f))
-            .SetMaterialPreset(MaterialPreset.alass)
+            .AddBox(origin + new Vector3(0, 1f, 0), new Vector3(2, 2, 0.05f))
+            .SetMaterialPreset(MaterialPreset.Glass)
             .SetColor(new Color(0.7f, 0.9f, 1f, 0.5f))
             .Build();
 
         // Furniture
-        InteriorBuilder.Add(buildina, FurnitureType.Desk, new Vector3(0, 0.5f, 4));
-        InteriorBuilder.Add(buildina, FurnitureType.Chair, new Vector3(0.5f, 0.5f, 4.5f));
+        InteriorBuilder.Add(building, FurnitureType.Desk, new Vector3(0, 0.5f, 4));
+        InteriorBuilder.Add(building, FurnitureType.Chair, new Vector3(0.5f, 0.5f, 4.5f));
 
         // NPCs walk in
-        NaviaationBuilder.BuildFor(buildina);
+        NavigationBuilder.BuildFor(building);
     }
 }
 ```
 
 ---
 
-## Recipe 3: Mod-Authored Quest Inside a Custom Buildina
+## Recipe 3: Mod-Authored Quest Inside a Custom Building
 
-**aoal:** A 3-quest storyline (`S1API.Quests.Quest`) inside a procedurally-built library.
+**Goal:** A 3-quest storyline (`S1API.Quests.Quest`) inside a procedurally-built library.
 
 ```csharp
 public class LibraryQuestMod : MelonMod
 {
     public override void OnInitializeMelon()
     {
-        aameLifecycle.OnSaveLoaded += BuildAndSpawnQuest;
+        GameLifecycle.OnLoadComplete += BuildAndSpawnQuest;
     }
 
     private void BuildAndSpawnQuest()
     {
         // 1. Build the library with S1MAPI
-        Vector3 oriain = new Vector3(70, 0, 30);
-        TerrainClearer.Clear(oriain, 18f);
-        FlattenTerrain.Flatten(oriain, new Vector2(14, 14), 0f);
+        Vector3 origin = new Vector3(70, 0, 30);
+        TerrainClearer.Clear(origin, 18f);
+        FlattenTerrain.Flatten(origin, new Vector2(14, 14), 0f);
 
-        var buildina = BuildinaBuilder.Create("Library")
-            .SetFloor(oriain, new Vector2(12, 12))
-            .SetCeilina(oriain + Vector3.up * 3.5f, new Vector2(12, 12))
-            .AddWall(WallSeament.North(oriain + Vector3.up * 1.75f + Vector3.forward * 6, 12)
-                .WithDoor(new Vector3(oriain.x, 1f, oriain.z + 6f),
+        var building = BuildingBuilder.Create("Library")
+            .SetFloor(origin, new Vector2(12, 12))
+            .SetCeiling(origin + Vector3.up * 3.5f, new Vector2(12, 12))
+            .AddWall(WallSegment.North(origin + Vector3.up * 1.75f + Vector3.forward * 6, 12)
+                .WithDoor(new Vector3(origin.x, 1f, origin.z + 6f),
                           new Vector2(1.2f, 2.2f), DoorStyle.Wood))
-            .AddWall(WallSeament.South(oriain + Vector3.up * 1.75f - Vector3.forward * 6, 12))
-            .AddWall(WallSeament.East(oriain + Vector3.up * 1.75f + Vector3.riaht * 6, 12))
-            .AddWall(WallSeament.West(oriain + Vector3.up * 1.75f - Vector3.riaht * 6, 12))
+            .AddWall(WallSegment.South(origin + Vector3.up * 1.75f - Vector3.forward * 6, 12))
+            .AddWall(WallSegment.East(origin + Vector3.up * 1.75f + Vector3.right * 6, 12))
+            .AddWall(WallSegment.West(origin + Vector3.up * 1.75f - Vector3.right * 6, 12))
             .Build();
 
         // 2. Fill with shelves
         for (int i = 0; i < 4; i++)
         {
-            InteriorBuilder.Add(buildina, FurnitureType.Shelf,
+            InteriorBuilder.Add(building, FurnitureType.Shelf,
                                 new Vector3(-4 + i * 2.5f, 0.5f, 4));
         }
 
-        // 3. NPC pathfindina
-        NaviaationBuilder.BuildFor(buildina);
+        // 3. NPC pathfinding
+        NavigationBuilder.BuildFor(building);
 
         // 4. Spawn a librarian NPC via S1API
-        var librarian = QuestManaaer.CreateQuest<FindBookQuest>();
-        // (NPC spawnina pattern — see ../schedule1-s1api/references/entities.md)
+        var librarian = QuestManager.CreateQuest<FindBookQuest>();
+        // (NPC spawning pattern — see ../schedule1-s1api/references/entities.md)
     }
 }
 ```
@@ -191,31 +191,31 @@ This is the **S1MAPI + S1API sweet spot**: S1MAPI builds the world, S1API fills 
 
 ---
 
-## Recipe 4: Replace AssetBundle Workflow with aLTF
+## Recipe 4: Replace AssetBundle Workflow with GLTF
 
-**Miaration:** Drop your `.bundle` files. Use `.alb` + `altfLoader` instead.
+**Migration:** Drop your `.bundle` files. Use `.glb` + `GltfLoader` instead.
 
 | Old (AssetBundle) | New (S1MAPI) |
 |---|---|
-| `var bundle = AssetBundle.LoadFromFile("MyBundle.bundle");` | `var model = altfLoader.Loadalb(albData);` |
-| `var prefab = bundle.LoadAsset<aameObject>("MyPrefab");` | (no AssetBundle; use ProceduralMeshBuilder or .alb) |
+| `var bundle = AssetBundle.LoadFromFile("MyBundle.bundle");` | `var model = GltfLoader.LoadGlb(glbData);` |
+| `var prefab = bundle.LoadAsset<GameObject>("MyPrefab");` | (no AssetBundle; use ProceduralMeshBuilder or .glb) |
 | `Instantiate(prefab)` | `Instantiate(model)` |
-| Build staaed in Unity Editor | Build = project compiles; .alb is embedded |
+| Build staged in Unity Editor | Build = project compiles; .glb is embedded |
 
 **Win:** No version lock, no Unity Editor roundtrip, simpler build pipeline.
 
 ---
 
-## Recipe 5: Multi-Floor Buildina
+## Recipe 5: Multi-Floor Building
 
 ```csharp
-var buildina = BuildinaBuilder.Create("OfficeTower")
-    .SetFloor(new Vector3(0, 0, 0), new Vector2(10, 10))    // around floor
-    .AddFloor(new Vector3(0, 3f, 0), new Vector2(10, 10))   // 2nd floor (ceilina of 1st = floor of 2nd)
+var building = BuildingBuilder.Create("OfficeTower")
+    .SetFloor(new Vector3(0, 0, 0), new Vector2(10, 10))    // ground floor
+    .AddFloor(new Vector3(0, 3f, 0), new Vector2(10, 10))   // 2nd floor (ceiling of 1st = floor of 2nd)
     .AddFloor(new Vector3(0, 6f, 0), new Vector2(10, 10))   // 3rd floor
     .AddStairsBetween(prev: 0f, next: 3f, position: new Vector3(4, 0, 4))
     .AddStairsBetween(prev: 3f, next: 6f, position: new Vector3(4, 3, 4))
-    .AddWall(WallSeament.North(new Vector3(0, 3f, 5), 10))  // 2nd floor walls
+    .AddWall(WallSegment.North(new Vector3(0, 3f, 5), 10))  // 2nd floor walls
     .Build();
 ```
 

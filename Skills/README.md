@@ -57,9 +57,10 @@ short table for visitors.
 
 - **Frontmatter:** Every `SKILL.md` starts with YAML (`name:` = directory name, `description:` with
   trigger sentences + `Keywords:`). No SKILL.md without frontmatter.
-- **Version anchor:** Directly below the frontmatter is the verification state, e.g.
-  `Game v0.4.7f9 / S1API 3.2.1-beta.8 / MelonLoader 0.7.3 (verified 2026-10-05)`.
-  After game or S1API updates re-verify, don't just touch the date.
+- **Version anchor:** Directly below the frontmatter is a pointer to the runtime versions in the
+  workspace `AGENTS.md` (single source of truth; do not copy version numbers into skills), plus a
+  note whether the content was re-verified against the current decompiles. After game or S1API
+  updates re-verify the affected APIs, don't just touch the date.
 - **Detail depth:** `SKILL.md` = decision tree + quick refs (keep slim);
   details move to `references/*.md` and are linked via relative link.
 - **Link styles:**

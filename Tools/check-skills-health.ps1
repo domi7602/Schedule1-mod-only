@@ -27,8 +27,9 @@ $skillsRoot = Join-Path $Root 'Skills'
 $fail = 0; $warn = 0
 $stalePatterns = @(
     @{ Pattern = 'S1API 3\.2\.0|v3\.2\.0'; Label = 'S1API 3.2.0 (stable lacks 0.4.7f6+ renames)' },
-    @{ Pattern = '3\.2\.1-beta\.7(?!\s*\+?)'; Label = 'S1API 3.2.1-beta.7 (deployed is beta.8)' },
-    @{ Pattern = 'Game v0\.4\.7f6(?![0-9])'; Label = 'Game v0.4.7f6 (live is 0.4.7f9)' },
+    @{ Pattern = '3\.2\.1-beta\.7'; Label = 'S1API 3.2.1-beta.7 (deployed is beta.8)' },
+    @{ Pattern = 'Version anchor:.*0\.4\.7f9'; Label = 'version anchor pinned to 0.4.7f9 (anchor must point to AGENTS.md runtime, currently 0.4.7f11)' },
+    @{ Pattern = 'Game v0\.4\.7f6(?![0-9])'; Label = 'Game v0.4.7f6 (historical unless labelled)' },
     @{ Pattern = 'Game v0\.4\.6f1[13]'; Label = 'Game v0.4.6f1x' },
     @{ Pattern = 'GameLifecycle\.OnSaveLoaded'; Label = 'GameLifecycle.OnSaveLoaded (event does not exist)' },
     @{ Pattern = 'Color\.brown|Color\.cream'; Label = 'non-existent UnityEngine color' },

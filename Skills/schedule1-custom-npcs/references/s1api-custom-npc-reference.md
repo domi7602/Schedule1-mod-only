@@ -1,6 +1,6 @@
 # S1API Custom NPC Reference
 
-> **Canonical home of the Custom-NPC API rules.** verified: API surface vs S1API source 2026-10-05 (grep in C:\Users\pc\Schedule1-mod-only\ThirdParty\S1API\S1API\Entities\; in-repo ThirdParty source = 3.2.1-beta.7, deployed S1API = 3.2.1-beta.8 — submodule update pending, see SKILL.md). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> **Canonical home of the Custom-NPC API rules.** verified: API surface vs S1API source 2026-10-05 (grep in C:\Users\pc\Schedule1-mod-only\ThirdParty\S1API\S1API\Entities\; in-repo ThirdParty source = 3.2.1-beta.7, deployed S1API = 3.2.1-beta.8 — submodule update pending, see SKILL.md). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 ## Coverage
 

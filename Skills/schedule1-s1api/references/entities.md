@@ -1,5 +1,5 @@
 # S1API — Entities (NPCs)
-> UNVERIFIED for 0.4.7f9 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 `S1API.Entities` and its sub-namespaces wrap the vanilla `Il2CppScheduleOne.NPCs` system with a builder-pattern, region-aware, saveable NPC creation API.

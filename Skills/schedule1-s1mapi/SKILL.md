@@ -1,12 +1,12 @@
 ---
 name: schedule1-s1mapi
 description: >-
-  Author-reference for the S1MAPI framework (ifBars, v2.0.1, deployed as UserLibs\S1MAPI_Il2Cpp.dll) for Schedule I v0.4.7f9 (IL2CPP/Mono).
+  Author-reference for the S1MAPI framework (ifBars, v2.0.1, deployed as UserLibs\S1MAPI_Il2Cpp.dll) for Schedule I v0.4.7f11 (IL2CPP/Mono).
   Use this skill whenever you need to procedurally generate 3D meshes at runtime, build entire buildings or rooms, load external GLTF/GLB models, clear or flatten terrain, build NPC navigation meshes, or place in-game prefabs with network synchronization.
   Keywords: S1MAPI, ProceduralMesh, MeshBuilder, BuildingBuilder, InteriorBuilder, GltfLoader, glb, TerrainClearer, FlattenTerrain, NavigationBuilder, PrefabPlacer, NetworkPrefab, MaterialPresets, URP, UnityEngine, no AssetBundle, no Assembly-CSharp.
 ---
 
-> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
 
 # Schedule I — S1MAPI Author Reference (ifBars, v2.0.1)
 
@@ -27,7 +27,7 @@ This skill is the **API catalog** for S1MAPI. S1MAPI is a **mapping and construc
 | **Author** | ifBars (same as S1API fork) — GitHub `ifBars/S1MAPI` |
 | **License** | GPL v3 |
 
-> **Branch compatibility:** This workspace is on the **IL2CPP standard branch**. S1MAPI ships DLLs for both (`S1MAPI_Il2Cpp.dll` and `S1MAPI_Mono.dll`) — pick the matching one at runtime. Reference **only the Mono DLL** during compilation; the runtime DLL is the user's responsibility.
+> **Branch compatibility:** This workspace is on the **IL2CPP standard branch**. S1MAPI ships DLLs for both (`S1MAPI_Il2Cpp.dll` and `S1MAPI_Mono.dll`) — pick the matching one at runtime. The project references the IL2CPP DLL at `UserLibs\S1MAPI_Il2Cpp.dll` (see `Source/Mods/Directory.Build.props`).
 
 ---
 
@@ -97,7 +97,7 @@ public class YourMod : MelonMod
 }
 ```
 
-> **Timing:** For objects meant to live in the saved game world, place them only after the world has loaded. Use `S1API.Lifecycle.OnSaveLoaded` or MelonLoader scene callbacks.
+> **Timing:** For objects meant to live in the saved game world, place them only after the world has loaded. Use `S1API.Lifecycle.GameLifecycle.OnLoadComplete` or MelonLoader scene callbacks.
 
 ---
 
@@ -182,7 +182,7 @@ For step-by-step recipes: see [recipes.md](references/recipes.md).
 | **No game-system hooks** | Use S1API for NPCs, quests, money, save state |
 | **Materials must be URP-compatible** | S1API uses URP shaders; legacy diffuse breaks |
 | **NavigationBuilder for NPCs** | Without it, NPCs won't walk into the new area |
-| **Build after world load** | Use `S1API.Lifecycle.OnSaveLoaded` — placing objects before world load causes them to be orphaned |
+| **Build after world load** | Use `GameLifecycle.OnLoadComplete` — placing objects before world load causes them to be orphaned |
 
 ---
 

@@ -1,5 +1,5 @@
 # Blender Export & Geometry Preparation for Schedule I
-> UNVERIFIED for 0.4.7f9 — carried-over knowledge; measurement tables without recorded verification source. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; measurement tables without recorded verification source. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 This reference document explains how to optimally prepare 3D models in Blender for import into *Schedule I* and how to avoid typical modeling mistakes.

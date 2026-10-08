@@ -1,5 +1,5 @@
 # S1MAPI — MaterialPresets (URP-Compatible Materials)
-> UNVERIFIED for 0.4.7f9 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the 0.4.7f9 decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 Creating URP materials at runtime is error-prone — shader names, property keys, and render pipelines vary. `MaterialPresets` wraps the URP shader suite into 5 ready-to-use presets.

@@ -1,11 +1,11 @@
 ---
 name: schedule1-il2cpp-reflection
 description: >-
-  Runtime-reflection recipes for MelonLoader IL2CPP mods in Schedule I v0.4.7f9. Use when IL2CPP bindings are missing or wrong (Il2CppStructArray vs byte[], Sprite[] vs Il2CppReferenceArray), when patching game types that may move namespaces, or when reading/writing private fields across Mono/IL2CPP runtime.
+  Runtime-reflection recipes for MelonLoader IL2CPP mods in Schedule I v0.4.7f11. Use when IL2CPP bindings are missing or wrong (Il2CppStructArray vs byte[], Sprite[] vs Il2CppReferenceArray), when patching game types that may move namespaces, or when reading/writing private fields across Mono/IL2CPP runtime.
   Keywords: Il2CppStructArray, Il2CppReferenceArray, Il2CppInterop, RuntimeReflection, byte[] overload, Texture2D.LoadImage, Sprite array, type cache, namespace fallback.
 ---
 
-> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
 
 # Schedule I — IL2CPP Runtime-Reflection Recipes
 

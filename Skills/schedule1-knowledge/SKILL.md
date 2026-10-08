@@ -6,7 +6,7 @@ description: >-
   Keywords: Decompiles, Assembly-CSharp, Il2CppScheduleOne, GameReferences, Game Systems, S1API, S1MAPI, ilspycmd, research.
 ---
 
-> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
 
 # Schedule I — Knowledge Navigation Skill
 
@@ -67,7 +67,7 @@ When you get a question, run this mental check:
 | How does growing work (water/soil/growth)? | `Skills/schedule1-game-systems/references/08-Plant-Growing.md` | `Source/Mods/PotScanner/` |
 | Item stacking / Registry / slots? | `Skills/schedule1-items/SKILL.md` + `references/09-Inventory-ItemFramework.md` | `Source/Mods/StackLimitMod/` |
 | How to handle multi-payment (Cash/Bank) or economy? | `Skills/schedule1-economy/SKILL.md` | `Source/Mods/PocketShop/` + `Source/Mods/BankApp/` |
-| How to build a Minimap / Radar / Blips? | `Source/Archive/Minimap/` | `Skills/schedule1-modding/references/mod-patterns.md` |
+| How to build a Minimap / Radar / Blips? | `Source/Mods/Minimap/` | `Skills/schedule1-modding/references/mod-patterns.md` |
 | How to do Multiplayer Host Authority or passive income? | `Source/Mods/BusinessIncome/` | `Skills/schedule1-economy/references/passive-revenue.md` |
 | How to implement Everywhere Building / Procedural 3D? | `Source/Archive/HomelessMod/` | `Skills/schedule1-grid/` |
 | UI theming / EventHelper dedupe / rebuilt-UI wiring? | `Source/Mods/MessagesPlus/` | `schedule1-modding` Rule 19 |
@@ -126,7 +126,7 @@ D. **Inspect S1API wrappers:**
 ## 6. Knowledge State & Anchors
 
 * Workspace: the `Schedule1-mod-only` repository root (wherever you cloned it)
-* Game Version: `v0.4.7f9` (Unity 2022.3, IL2CPP) — verified 2026-10-05.
+* Game Version: `v0.4.7f11` (Unity 2022.3, IL2CPP) — verified 2026-10-07 via `MelonLoader\Latest.log`.
 * S1API: `3.2.1-beta.8` deployed (`Plugins\S1APILoader.MelonLoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`); in-repo `ThirdParty/S1API` source is the beta.8 submodule (tag, 2026-10-05).
 * S1MAPI: `2.0.1` in `ThirdParty/S1MAPI/` (deployed `UserLibs\S1MAPI_Il2Cpp.dll`).
 * Active Mods: **see `AGENTS.md` §2** — it is the single authoritative mod inventory (never copy the list here; it drifts).

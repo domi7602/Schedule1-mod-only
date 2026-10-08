@@ -1,5 +1,5 @@
 # Rigging & Bone Attachment in Schedule I
-> UNVERIFIED for 0.4.7f9 — carried-over knowledge; skeleton bone names without recorded verification source. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; skeleton bone names without recorded verification source. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 This document describes how 3D gear, clothing, backpacks, and hand-held objects are bound to the skeleton of the *Schedule I* player avatar.

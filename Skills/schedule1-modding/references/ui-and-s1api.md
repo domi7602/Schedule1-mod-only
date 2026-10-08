@@ -1,6 +1,6 @@
 # S1API & Responsive UI Frameworks Guide
 
-> verified: S1API section checked against 3.2.1-beta.8 2026-10-05 (icon policy + clamp curves); Method 3 section since 2026-08-20. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: S1API section checked against 3.2.1-beta.8 2026-10-05 (icon policy + clamp curves); Method 3 section since 2026-08-20. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 ---
 

@@ -1,6 +1,6 @@
 # S1API — Cross-Compatibility (IL2CPP vs Mono)
 
-> verified: loader mechanism checked against S1API 3.2.1-beta.8 source 2026-10-05; §6 runtime check corrected 2026-10-05 (was an OS check that proved nothing). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: loader mechanism checked against S1API 3.2.1-beta.8 source 2026-10-05; §6 runtime check corrected 2026-10-05 (was an OS check that proved nothing). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 S1API's main promise: **one mod, one build, both branches** (IL2CPP standard + Mono `alternate`). This reference explains how that works, when it breaks, and how to handle the exceptions.
 

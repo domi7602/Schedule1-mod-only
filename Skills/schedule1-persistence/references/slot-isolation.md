@@ -1,6 +1,6 @@
 # Slot Isolation
 
-> **Canonical home of the Triple-Guard / slot-suffix pattern** — SKILL.md and other skills reference here instead of duplicating the code. verified: 2026-09-11 standard; re-checked 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> **Canonical home of the Triple-Guard / slot-suffix pattern** — SKILL.md and other skills reference here instead of duplicating the code. verified: 2026-09-11 standard; re-checked 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 Per-save files: `slot_{SaveSlotNumber}.json`. See `CalculatorState.cs`, `NotesApp.cs`, `PayoutStateStore.cs`, `BankState.cs`.
 

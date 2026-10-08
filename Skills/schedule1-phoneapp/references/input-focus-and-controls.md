@@ -1,5 +1,5 @@
 # Input-Focus Protection & Keyboard Navigation
-> UNVERIFIED for 0.4.7f9 — carried-over (IntPtr-ctor CAUTION is a stable IL2CPP rule). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over (IntPtr-ctor CAUTION is a stable IL2CPP rule). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 When building Phone Apps in *Schedule I*, two critical input problems occur:

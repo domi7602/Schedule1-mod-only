@@ -1,5 +1,5 @@
 # Interaction (Schedule I)
-> verified: classes + fields + event types + RPCs + save-participation re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: classes + fields + event types + RPCs + save-participation re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 Namespace: `Il2CppScheduleOne.Interaction`.
 

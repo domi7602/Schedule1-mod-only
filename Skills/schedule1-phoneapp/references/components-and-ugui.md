@@ -1,5 +1,5 @@
 # uGUI Components, UIFactory & IL2CPP Rules
-> UNVERIFIED for 0.4.7f9 — carried-over; UIFactory.Text signature re-verified 2026-10-05 (returns Text, see s1api phoneapp.md section 5). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over; UIFactory.Text signature re-verified 2026-10-05 (returns Text, see s1api phoneapp.md section 5). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 This reference documents the component building blocks, 0-allocation list patterns, modal dialogs, and IL2CPP event wiring for Schedule I Phone Apps.

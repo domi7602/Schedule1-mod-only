@@ -1,5 +1,5 @@
 # Inventory Capacity
-> UNVERIFIED for 0.4.7f9 — slot indexes + capacity facts carried over (last reflected check 2026-08-22). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> UNVERIFIED for runtime 0.4.7f11 — slot indexes + capacity facts carried over (last reflected check 2026-08-22). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 Hotbar 0-7 + Cash 9 (1000 per stack) + Clipboard 8.

@@ -5,7 +5,7 @@ description: >-
   Keywords: Object.Destroy, SpriteCache, dirty flag, MarkDirty, EnsureLoaded, IDisposable, Texture2D cache, AudioClip pool, GC.Alloc-free reload.
 ---
 
-> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
 
 # Schedule I — Runtime Unity-Object Cache (Leak-Free Reload)
 
@@ -213,4 +213,4 @@ AudioClips loaded via `UnityWebRequest` need a coroutine; load asynchronously an
 - Source: decompiled `CustomLoadingScreens/CustomLoadingScreens.LoadingScreen/SpriteCache.cs` + `SpriteLoader.cs`
 - Companion skill: `schedule1-debounced-reload` — fires the dirty signal
 - Companion skill: `schedule1-il2cpp-reflection` §3 — wrapping managed `T[]` into `Il2CppReferenceArray<T>` for game-field assignment
-- S1API 3.2.1-beta.7: `S1API.Assets` (if present) may have wrappers — check before rolling your own
+- S1API 3.2.1-beta.8: `S1API.Assets` (if present) may have wrappers — check before rolling your own

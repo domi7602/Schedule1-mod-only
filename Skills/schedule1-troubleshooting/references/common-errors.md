@@ -1,6 +1,6 @@
 # Common Error Patterns — Detailed Decoder
 
-> verified: patterns collected 2026-08-03 → 2026-08-22; §9 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+); §11 guard idiom unified to the Golden Guard 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: patterns collected 2026-08-03 → 2026-08-22; §9 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+); §11 guard idiom unified to the Golden Guard 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 A deeper dive than the master `SKILL.md` table. Includes cause, workarounds, and reference impls for the most common Schedule I mod failures.
 

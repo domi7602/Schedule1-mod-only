@@ -1,12 +1,12 @@
 ---
 name: schedule1-3d-assets
 description: >-
-  Comprehensive 3D asset, Blender pipeline, and Unity URP rendering runbook for Schedule I modding (v0.4.7f9, Unity 2022.3 LTS, URP).
+  Comprehensive 3D asset, Blender pipeline, and Unity URP rendering runbook for Schedule I modding (v0.4.7f11, Unity 2022.3 LTS, URP).
   Use this skill whenever creating 3D models in Blender, fixing rendering issues (pink shaders, flipped normals, axis rotations), exporting to .obj/.glb/AssetBundles, rigging/attaching to avatar bones (Spine2, Head, Hands), setting up PBR materials, and tuning proportions for Schedule I characters and props.
   Keywords: Blender, 3D, Mesh, URP, Universal Render Pipeline, Shader, Material, Lit, Unlit, Pink Texture, Flipped Normals, Backface Culling, ObjLoader, GLTF, GLB, AssetBundle, Bone Attachment, Spine2, Humanoid, Zero Collider, Scale.
 ---
 
-> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
 
 # Schedule I — 3D Asset & Blender Rendering Pipeline
 

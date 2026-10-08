@@ -1,7 +1,7 @@
 ---
 name: schedule1-lifecycle-verify
 description: >-
-  Verification runbook for Schedule I lifecycle hooks (Game v0.4.7f9, S1API 3.2.1-beta.8).
+  Verification runbook for Schedule I lifecycle hooks (Game v0.4.7f11, S1API 3.2.1-beta.8).
   Use whenever a lifecycle claim is marked [UNVERIFIED], before patching lifecycle code,
   after a game update shifts event order, or when deciding between OnSaveInfoLoaded /
   OnLoadComplete / OnGameplaySceneLoaded. Decision tree + ilspycmd command list.
@@ -9,7 +9,7 @@ description: >-
   Keywords: lifecycle, verify, ilspycmd, GameLifecycle, OnPreLoad, OnLoadComplete, OnSaveInfoLoaded, event order, UNVERIFIED, verification log, DOTNET_ROOT, LoadManager, SaveManager.
 ---
 
-> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag) / MelonLoader 0.7.3 / ilspycmd 9.1.0.7988 (versions verified 2026-10-05 against live install; ilspycmd 9.1.0.7988 re-installed 2026-10-05 - the global tools dir had gone missing; start it with the scoped DOTNET_ROOT from section 2; content NOT re-verified after the 0.4.7f9 update except the lifecycle type surface, see section 7). Re-check after any game or S1API update.
+> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
 
 > **Live Verification Rule:** Always verify against the live DLLs under `$env:SCHEDULE1_PATH\` or in-repo decompiles under `GameReferences/decompiled/Assembly-CSharp/`.
 

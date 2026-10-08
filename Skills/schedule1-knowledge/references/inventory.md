@@ -1,6 +1,6 @@
 # Knowledge-Base & Code Reference Inventory
 
-> verified: counts re-measured 2026-10-05 (116 S1API namespaces / 859 .cs files; 87 Il2CppScheduleOne sub-namespaces). Decompiles regenerated 2026-10-05 (ilspycmd 9.1.0.7988, project mode, fresh 0.4.7f9 proxies) — spot-check set passed. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: counts re-measured 2026-10-05 (116 S1API namespaces / 859 .cs files; 87 Il2CppScheduleOne sub-namespaces). Decompiles regenerated 2026-10-05 (ilspycmd 9.1.0.7988, project mode, fresh 0.4.7f9 proxies) — spot-check set passed. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 The inventory of code references, decompiles, framework sources, and game system analyses available directly in the repository workspace. **Use this when researching game mechanics, APIs, and vanilla behavior.**
 
@@ -10,7 +10,7 @@ The inventory of code references, decompiles, framework sources, and game system
 
 | Path | Contents | Purpose & Usage |
 |------|----------|-----------------|
-| `ThirdParty/S1API/S1API/` | Full C# Source of S1API 3.2.1-beta.7 (submodule; deployed runtime = beta.8) | Reference for PhoneApp, Saveables, Registry, Items, UI, NPCs, Quests, GameTime |
+| `ThirdParty/S1API/S1API/` | Full C# Source of S1API 3.2.1-beta.8 (submodule; matches deployed runtime) | Reference for PhoneApp, Saveables, Registry, Items, UI, NPCs, Quests, GameTime |
 | — (MoreDrugs: source not in repo) | Deployed DLL only (`DrugExpansion_Il2cpp.dll`) | Reference for Custom Product Save Provider & Item Expansion |
 | `ThirdParty/S1MCPServer-master/` | C# Source of S1MCP | Reference for Live Runtime Introspection & TCP Server :8765 |
 | `ThirdParty/Archive/PhoneScroll/` | Documentation (DLL retired 2026-09-16) | Reference for Phone Home Screen scrolling (Closed Source, V4LEXL) |

@@ -1,6 +1,6 @@
 # Mod Patterns — 7 Established Architectures
 
-> verified: patterns established 2026-08-20 → 2026-09-11; §4 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+); Pattern-1 skeleton modernized to the Shared UITheme API 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: patterns established 2026-08-20 → 2026-09-11; §4 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+); Pattern-1 skeleton modernized to the Shared UITheme API 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 The workspace mods (see [`AGENTS.md`](../../../AGENTS.md) §2 for the current, authoritative inventory) cluster into **7 architectural patterns**. Pick the pattern that matches your use-case before designing.
 

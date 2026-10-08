@@ -1,6 +1,6 @@
 # Buildable Restore Rule (Guided Spawning)
 
-> verified: 2026-08-22 (AutoPackagingStation duplicate-station bug); cross-checked against `common-errors.md` §20 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: 2026-08-22 (AutoPackagingStation duplicate-station bug); cross-checked against `common-errors.md` §20 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 Save/load **timing** (which lifecycle hook fires when, and which are dead) lives in the canonical doc:
 [`schedule1-troubleshooting/references/save-load-timing.md`](../../schedule1-troubleshooting/references/save-load-timing.md) — verified order 2026-09-29: Scene 'Main' → `OnPreLoad` → `OnLoadComplete`; **`OnSaveInfoLoaded` fires 0× on game 0.4.7f6+**. Atomar-Speicherung: `safestorage-atomic.md`.

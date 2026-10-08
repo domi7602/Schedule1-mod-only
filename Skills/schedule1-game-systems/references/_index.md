@@ -1,6 +1,6 @@
 # Systems — Quick Reference Index (single authority)
 
-> verified: index consolidated 2026-10-05 (stubs + depth column); per-file verification state in each file's header. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: index consolidated 2026-10-05 (stubs + depth column); per-file verification state in each file's header. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 Quick access to all 64 game-system analyses. Each file documents one gameplay subsystem with core classes, events, and entry points.
 

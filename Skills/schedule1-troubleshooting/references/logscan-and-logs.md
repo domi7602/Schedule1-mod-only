@@ -1,6 +1,6 @@
 # Latest.log Triage & Diagnostics
 
-> verified: PowerShell one-liners re-tested 2026-08-03; §4.3 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: PowerShell one-liners re-tested 2026-08-03; §4.3 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 The canonical method for inspecting runtime diagnostics in Schedule I is querying `<GameDir>\MelonLoader\Latest.log`. These native PowerShell commands provide fast, zero-dependency log triage without game-freeze risks.
 

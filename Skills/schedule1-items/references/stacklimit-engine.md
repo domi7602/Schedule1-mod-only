@@ -1,6 +1,6 @@
 # StackLimit Engine
 
-> verified: v0.1.5 lessons 2026-09-19; timing note re-verified 2026-10-05 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: v0.1.5 lessons 2026-09-19; timing note re-verified 2026-10-05 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 `StackLimitEngine.cs:112 ApplyToDefinition` — snapshot originalLimits once, then overwrite.
 

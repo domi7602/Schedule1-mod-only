@@ -1,5 +1,5 @@
 # Universal Render Pipeline (URP) & Material System in Schedule I
-> verified: against game v0.4.7f6 (self-stated in text); NOT re-verified after 0.4.7f9. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: against game v0.4.7f6 (self-stated in text); NOT re-verified after 0.4.7f9. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 This document describes the shader architecture of *Schedule I* (v0.4.7f6), how to correctly assign textures and materials at runtime, and how to avoid typical rendering mistakes (pink shaders, missing gloss, material leaks).

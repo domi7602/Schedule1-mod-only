@@ -1,6 +1,6 @@
 # Search Recipes — Concrete Patterns
 
-> verified: recipes tested against workspace 2026-10-05 (ilspycmd 9.1.0.7988 needs scoped `DOTNET_ROOT="$env:USERPROFILE\.dotnet"` — Pitfall 6 in `../schedule1-lifecycle-verify/SKILL.md`). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: recipes tested against workspace 2026-10-05 (ilspycmd 9.1.0.7988 needs scoped `DOTNET_ROOT="$env:USERPROFILE\.dotnet"` — Pitfall 6 in `../schedule1-lifecycle-verify/SKILL.md`). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 Concrete patterns to use the workspace's grep/glob/ilspycmd tools efficiently. Generic advice ("search the codebase") is not actionable; these are tested recipes.
 

@@ -1,6 +1,6 @@
 # Save-Load Timing — Static-Lists-Pitfalls & Solution
 
-> verified: instrumented run 2026-09-29 (game 0.4.7f6 + S1API 3.2.1-beta.7; order re-checked against 0.4.7f9 era decompiles 2026-10-05 — no API change). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: instrumented run 2026-09-29 (game 0.4.7f6 + S1API 3.2.1-beta.7; order re-checked against 0.4.7f9 era decompiles 2026-10-05 — no API change). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 > Placement-spezifisch (BuildableItem restore): [`../../schedule1-persistence/references/buildable-restore.md`](../../schedule1-persistence/references/buildable-restore.md).
 
 The Schedule I save-load pipeline is multi-phase. Most "static lists" (e.g. `Property.OwnedProperties`, `NPCManager.Registered`, `MixManager.Products`) are populated **AFTER** the gameplay scene loads, not before. The naive `OnGameplaySceneLoaded` hook fires too early.

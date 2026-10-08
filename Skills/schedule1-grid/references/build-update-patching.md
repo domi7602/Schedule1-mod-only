@@ -1,6 +1,6 @@
 # BuildUpdate Patching — Lifecycle & Harmony Guards
 
-> verified: guards + anti-dupe live-verified via HomelessMod (0.4.6-era); lifecycle section re-verified 2026-09-29 against the instrumented run. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: guards + anti-dupe live-verified via HomelessMod (0.4.6-era); lifecycle section re-verified 2026-09-29 against the instrumented run. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 Covers `BuildUpdate_Grid` interception and save/load timing. See `outdoor-placement.md` for GridItem rules and `collision-and-ghosts.md` for ghost raycasts.
 

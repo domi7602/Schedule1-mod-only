@@ -1,6 +1,6 @@
 # PhoneApp Lifecycle & Canvas Architecture
 
-> **Canonical home of Rule 10** (OnCreated fires once / never unsubscribe in OnPhoneClosed) — other files reference here instead of duplicating the pattern. verified: 2026-08-20 / 2026-09-11 audit; S1API mechanism re-checked 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> **Canonical home of Rule 10** (OnCreated fires once / never unsubscribe in OnPhoneClosed) — other files reference here instead of duplicating the pattern. verified: 2026-08-20 / 2026-09-11 audit; S1API mechanism re-checked 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 This reference covers the complete lifecycle of an S1API `PhoneApp` inside Schedule I, the container hierarchy, orientation mechanics, and critical stability rules to prevent UI destruction bugs.
 

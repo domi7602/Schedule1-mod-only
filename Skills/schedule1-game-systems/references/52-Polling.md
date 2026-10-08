@@ -1,6 +1,6 @@
 # Polling (Schedule I)
 
-> verified: full re-check 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9) — all prior speculation resolved/removed. Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: full re-check 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9) — all prior speculation resolved/removed. Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 ## What it actually is (resolved speculation)
 

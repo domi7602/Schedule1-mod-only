@@ -1,5 +1,5 @@
 # Real-Time In-World Minigames & CRT Screens — Reference Guide
-> UNVERIFIED for 0.4.7f9 — carried-over knowledge from ScheduleIArcade (0.4.6-era). Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge from ScheduleIArcade (0.4.6-era). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 This reference details how to implement 60 FPS pixel-buffered minigames and interactive video/terminal screens rendered directly onto 3D props in the game world.

@@ -1,5 +1,5 @@
 # Door Hooking & Interior Transitions — Reference Guide
-> UNVERIFIED for 0.4.7f9 — carried-over knowledge from ScheduleIArcade/HomelessMod (0.4.6-era); unnamed workspace services referenced (DoorTransitionService, InjectCustomMenuOption) — locate implementations before relying. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge from ScheduleIArcade/HomelessMod (0.4.6-era); unnamed workspace services referenced (DoorTransitionService, InjectCustomMenuOption) — locate implementations before relying. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 This reference details how to connect the exterior map of Hyland Point with custom interior spaces using Harmony patches on vanilla door classes.

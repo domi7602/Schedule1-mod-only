@@ -1,9 +1,9 @@
 ---
 name: schedule1-phoneapp
-description: Expert runbook and architectural standard for developing in-game smartphone apps (PhoneApps) using S1API and uGUI in Schedule I (v0.4.7f9, IL2CPP, MelonLoader 0.7.3). Use this skill whenever creating a new PhoneApp, designing responsive phone UI layouts, fixing phone lifecycle bugs (such as transparent housing or input freezes), adding keyboard shortcuts, or integrating with S1API Phone systems. Keywords: PhoneApp, S1API, uGUI, UITheme, Sp, Dp, Method 3, responsive, InputFocus, IsTyping, OnCreated, OnPhoneClosed, IsOpen, UIFactory, ButtonUtils, EventHelper, slot isolation, IconSprite, mockup, restyle.
+description: Expert runbook and architectural standard for developing in-game smartphone apps (PhoneApps) using S1API and uGUI in Schedule I (v0.4.7f11, IL2CPP, MelonLoader 0.7.3). Use this skill whenever creating a new PhoneApp, designing responsive phone UI layouts, fixing phone lifecycle bugs (such as transparent housing or input freezes), adding keyboard shortcuts, or integrating with S1API Phone systems. Keywords: PhoneApp, S1API, uGUI, UITheme, Sp, Dp, Method 3, responsive, InputFocus, IsTyping, OnCreated, OnPhoneClosed, IsOpen, UIFactory, ButtonUtils, EventHelper, slot isolation, IconSprite, mockup, restyle.
 ---
 
-> Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag (checked out 2026-10-05, commit f65ae40 = deployed build)) / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log Game Version 0.4.7f9 + MelonLoader v0.7.3 Open-Beta + S1API product 3.2.1-beta.8, Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update - verify API details against live Il2CppAssemblies). Re-check after any game or S1API update.
+> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
 
 # Schedule I — PhoneApp Development Runbook (S1API & IL2CPP)
 

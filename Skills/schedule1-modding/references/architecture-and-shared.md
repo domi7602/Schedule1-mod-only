@@ -1,6 +1,6 @@
 # S1Mods.Shared & Architecture Guidelines
 
-> verified: API rules 2026-08-20/21 + 2026-09-11 audit; §1/§5 deduplicated to canonical homes 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: API rules 2026-08-20/21 + 2026-09-11 audit; §1/§5 deduplicated to canonical homes 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 `S1Mods.Shared` is the central core library shared across all mods in the workspace (`Source/Mods/Shared/`).
 

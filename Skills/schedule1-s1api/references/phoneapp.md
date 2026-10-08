@@ -1,6 +1,6 @@
 # S1API — PhoneApp (In-Game Smartphone UI)
 
-> verified: §5 UIFactory signatures checked against `UIFactory.cs` (3.2.1-beta.8 source) 2026-10-05; lifecycle rules empirical 2026-08-20. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: §5 UIFactory signatures checked against `UIFactory.cs` (3.2.1-beta.8 source) 2026-10-05; lifecycle rules empirical 2026-08-20. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 The `PhoneApp` base class turns your mod into a fully integrated app on the in-game phone home screen. Auto-discovered, lifecycle-managed, and branch-portable.
 

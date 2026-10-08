@@ -1,5 +1,5 @@
 # ATM Double-Entry (BankApp Reference)
-> verified: flow from BankApp v0.1.0 source (0.4.6-era); MoneyManager APIs re-verified against 0.4.7f9 decompiles 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: flow from BankApp v0.1.0 source (0.4.6-era); MoneyManager APIs re-verified against 0.4.7f9 decompiles 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 
 Source: `BankApp/src/Services/BankService.cs` (v0.1.0 verified) + `TransactionHistoryService.cs`.

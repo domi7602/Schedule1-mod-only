@@ -1,5 +1,5 @@
 # S1MCP Tool Signatures & JSON-RPC Reference
-> verified: tool schemas extracted from S1MCPServer source 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: tool schemas extracted from S1MCPServer source 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 Source of truth: `ThirdParty/S1MCPServer-master/` (C# mod: `S1MCPServer/`, Python MCP client: `S1MCPClient/`). Every schema below is backed by the named source file. Fields that exist only as stubs/TODOs in the source are marked. Nothing in this file is guessed.
 

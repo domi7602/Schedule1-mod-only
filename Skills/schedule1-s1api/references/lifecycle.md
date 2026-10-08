@@ -1,6 +1,6 @@
 # S1API — Lifecycle Hooks & Save-Load Timing
 
-> verified: instrumented run 2026-09-29 (order + OnSaveInfoLoaded = 0 firings); event set re-verified against 3.2.1-beta.8 source 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> verified: instrumented run 2026-09-29 (order + OnSaveInfoLoaded = 0 firings); event set re-verified against 3.2.1-beta.8 source 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 The most important module for **not chasing ghost bugs**. Static game lists (`Property.OwnedProperties`, `NPCManager.Registered`, `Business.OwnedBusinesses`) are populated at different times than scene callbacks fire. Use `GameLifecycle` hooks; never poll.
 

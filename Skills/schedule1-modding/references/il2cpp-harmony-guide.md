@@ -1,6 +1,6 @@
 # IL2CPP & Harmony Patching Guide (Schedule I)
 
-> **Canonical home of the WasCollected/Golden-Guard idiom (§2) and parameter-keyed sprite caches (§4)** — other files reference here. verified: 2026-08-20/21; re-checked 2026-10-05. Anchor: game v0.4.7f9 / S1API 3.2.1-beta.8.
+> **Canonical home of the WasCollected/Golden-Guard idiom (§2) and parameter-keyed sprite caches (§4)** — other files reference here. verified: 2026-08-20/21; re-checked 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
 
 Schedule I is built on Unity 2022.3 compiled with **IL2CPP**. Interacting with IL2CPP types via MelonLoader 0.7.3 requires specific patterns.
 

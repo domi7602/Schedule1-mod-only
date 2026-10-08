@@ -1,7 +1,7 @@
 ---
 name: schedule1-troubleshooting
 description: >-
-  Diagnostic runbook for Schedule I MelonLoader IL2CPP mods (v0.4.7f9, S1API 3.2.1-beta.7).
+  Diagnostic runbook for Schedule I MelonLoader IL2CPP mods (v0.4.7f11, S1API 3.2.1-beta.8).
   Use this skill whenever: the game crashes on start, a mod throws on first frame, a Harmony patch silently no-ops,
   Latest.log shows error spikes, save-load desyncs, property/owner-lists stay empty,
   an [RegisterTypeInIl2Cpp] crash report appears, S1MCP find_gameobjects freezes the game,
@@ -9,7 +9,7 @@ description: >-
   Tools covered: native PowerShell log triage (see references/logscan-and-logs.md), s1interop analyze, s1interop doctor, ilspycmd, MelonPreferences.cfg.
   Keywords: troubleshooting, crash, Latest.log, log triage, 0xc0000005, 0x80131506, WasCollected, Harmony patch silent, no-op, save-load timing, IL2CPP pitfalls, slot_-1, FishNet, SyncVar, breakage log, update resilience, s1interop, ilspycmd.
 ---
-<!-- Version anchor: Game v0.4.7f9 / S1API 3.2.1-beta.8 / MelonLoader 0.7.3 (versions verified 2026-10-05 against live install: Latest.log game-version line 0.4.7f9 + MelonLoader v0.7.3 Open-Beta, S1API.Il2Cpp.MelonLoader.dll file 3.2.1.0 / product 3.2.1-beta.8 (deployed 2026-10-05; in-repo ThirdParty/S1API source = beta.8 tag), Steam buildid 25698382; content NOT re-verified after the 0.4.7f9 update). Re-check after game updates. -->
+> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
 
 # Schedule I — Troubleshooting & Crash Diagnostics
 
