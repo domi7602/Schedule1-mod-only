@@ -11,6 +11,7 @@ public class MoreSaveSlotsConfig
     public int TotalSlots { get; set; } = 25;
     public bool EnableKeyboardNavigation { get; set; } = true;
     public bool EnableRenameFeature { get; set; } = true;
+    public bool EnableDeleteFeature { get; set; } = true;
 
     private static readonly string ConfigDir = Path.Combine(MelonEnvironment.UserDataDirectory, "MoreSaveSlots");
     private static readonly string ConfigPath = Path.Combine(ConfigDir, "config.json");

@@ -298,7 +298,7 @@ public static class SaveDisplay_Patches
             string inlineBtnName = "MoreSaveSlots_InlineRenameBtn";
             Transform existingBtn = container.Find(inlineBtnName);
 
-            if (info != null)
+            if (info != null && MoreSaveSlotsMod.Config.EnableRenameFeature)
             {
                 int captureSlot = actualIndex;
                 if (existingBtn == null)
@@ -346,7 +346,7 @@ public static class SaveDisplay_Patches
             string inlineDeleteName = "MoreSaveSlots_InlineDeleteBtn";
             Transform existingDeleteBtn = container.Find(inlineDeleteName);
 
-            if (info != null)
+            if (info != null && MoreSaveSlotsMod.Config.EnableDeleteFeature)
             {
                 int captureDeleteSlot = actualIndex;
                 if (existingDeleteBtn == null)

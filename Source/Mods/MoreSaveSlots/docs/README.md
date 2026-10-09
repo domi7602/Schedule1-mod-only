@@ -1,6 +1,6 @@
 # MoreSaveSlots
 
-**MoreSaveSlots** is a quality-of-life mod for *Schedule I* (v0.4.6f13, IL2CPP) that expands the save game slots beyond the vanilla 5-slot limitation (default 25 slots across 5 pages, configurable) and adds an inline Save Game Renaming feature.
+**MoreSaveSlots** is a quality-of-life mod for *Schedule I* (v0.4.7, IL2CPP) that expands the save game slots beyond the vanilla 5-slot limitation (default 25 slots across 5 pages, configurable) and adds inline save game renaming and deletion (deleted saves are moved to `UserData/MoreSaveSlots/DeletedSaves`, never hard-deleted).
 
 ---
 
@@ -23,8 +23,8 @@ Located at `UserData/MoreSaveSlots/config.json`:
 ```json
 {
   "TotalSlots": 25,
-  "SlotsPerPage": 5,
   "EnableKeyboardNavigation": true,
-  "EnableRenameFeature": true
+  "EnableRenameFeature": true,
+  "EnableDeleteFeature": true
 }
 ```

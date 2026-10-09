@@ -235,38 +235,44 @@ public static class PaginationController
         Color renameHover = new Color(0.18f, 0.48f, 0.30f, 1f);
         Color renamePressed = new Color(0.08f, 0.20f, 0.12f, 1f);
 
-        UIHelper.CreateButton(
-            barObj.transform,
-            "Btn_Rename",
-            "RENAME",
-            110f,
-            32f,
-            renameNormal,
-            renameHover,
-            renamePressed,
-            btnDisabled,
-            () => RenameDialog.OpenForHoveredOrSelected(),
-            out _
-        );
+        if (MoreSaveSlotsMod.Config.EnableRenameFeature)
+        {
+            UIHelper.CreateButton(
+                barObj.transform,
+                "Btn_Rename",
+                "RENAME",
+                110f,
+                32f,
+                renameNormal,
+                renameHover,
+                renamePressed,
+                btnDisabled,
+                () => RenameDialog.OpenForHoveredOrSelected(),
+                out _
+            );
+        }
 
         // 5. Delete Button (mirrors Rename)
         Color deleteNormal = new Color(0.45f, 0.12f, 0.12f, 0.95f);
         Color deleteHover = new Color(0.65f, 0.18f, 0.18f, 1f);
         Color deletePressed = new Color(0.28f, 0.08f, 0.08f, 1f);
 
-        UIHelper.CreateButton(
-            barObj.transform,
-            "Btn_Delete",
-            "DELETE",
-            110f,
-            32f,
-            deleteNormal,
-            deleteHover,
-            deletePressed,
-            btnDisabled,
-            () => DeleteDialog.OpenForHoveredOrSelected(),
-            out _
-        );
+        if (MoreSaveSlotsMod.Config.EnableDeleteFeature)
+        {
+            UIHelper.CreateButton(
+                barObj.transform,
+                "Btn_Delete",
+                "DELETE",
+                110f,
+                32f,
+                deleteNormal,
+                deleteHover,
+                deletePressed,
+                btnDisabled,
+                () => DeleteDialog.OpenForHoveredOrSelected(),
+                out _
+            );
+        }
 
         UpdateUILabel();
     }

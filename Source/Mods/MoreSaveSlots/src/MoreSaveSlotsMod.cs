@@ -56,11 +56,8 @@ public class MoreSaveSlotsMod : MelonMod
 
         if (DeleteDialog.IsOpen)
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-            {
-                DeleteDialog.Confirm();
-            }
-            else if (Input.GetKeyDown(KeyCode.Escape))
+            // Enter deliberately does not confirm: a reflexive keypress must not delete a save.
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
                 DeleteDialog.Close();
             }
@@ -87,7 +84,7 @@ public class MoreSaveSlotsMod : MelonMod
             RenameDialog.OpenForHoveredOrSelected();
         }
 
-        if (Input.GetKeyDown(KeyCode.Delete))
+        if (Config.EnableDeleteFeature && Input.GetKeyDown(KeyCode.Delete))
         {
             DeleteDialog.OpenForHoveredOrSelected();
         }
