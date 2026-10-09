@@ -90,11 +90,13 @@ public static class WaterAllService
             int foreignSkipped = 0;
             int missingFromScene = 0;
             int dryEnoughSkipped = 0;
+            int unplantedSkipped = 0;
             float threshold = Constants.WaterAllSkipThreshold;
             foreach (var info in snapshot)
             {
                 if (!info.IsOwnedProperty) { foreignSkipped++; continue; }
                 if (!byPtr.TryGetValue(info.NativePtr, out var c)) { missingFromScene++; continue; }
+                if (string.IsNullOrEmpty(info.PlantName) || info.IsFullyGrown) { unplantedSkipped++; continue; }
                 // Bug-Audit 2026-09-12: the cached WaterPercent is up to 2s old, so a pot
                 // cached-dry could be live-feucht (or vice-versa) and skip/charge wrongly.
                 // The live `c.NormalizedMoistureAmount` is the authoritative gate that
@@ -119,6 +121,7 @@ public static class WaterAllService
                     (_, > 0) => $"All owned pots are sufficiently watered ({dryEnoughSkipped} already moist, skipped)",
                     _ => "No owned pots"
                 };
+                if (unplantedSkipped > 0) skipMsg += $" ({unplantedSkipped} empty or fully grown, skipped)";
                 return new WaterAllResult(false, 0, 0, 0f, skipMsg);
             }
 
@@ -182,6 +185,7 @@ public static class WaterAllService
             var msg = dryEnoughSkipped > 0
                 ? $"{baseMsg} ({dryEnoughSkipped} already watered, skipped)"
                 : baseMsg;
+            if (unplantedSkipped > 0) msg += $" ({unplantedSkipped} empty or fully grown, skipped)";
             return new WaterAllResult(success, targets.Count, watered, totalCharged, msg);
         }
         catch (Exception ex)
@@ -211,14 +215,13 @@ public static class WaterAllService
         var pots = PotTracker.Instance.Pots;
         int ownedCount = 0;
         int thirstyCount = 0;
-        float threshold = Constants.WaterAllSkipThreshold;
         float minWater = 1.0f;
         for (int i = 0; i < pots.Count; i++)
         {
             var p = pots[i];
             if (!p.IsOwnedProperty) continue;
             ownedCount++;
-            if (p.WaterPercent < threshold) thirstyCount++;
+            if (p.NeedsWater) thirstyCount++;
             if (p.WaterPercent < minWater) minWater = p.WaterPercent;
         }
 
@@ -271,6 +274,7 @@ public static class WaterAllService
                         // Ownership guard: only own pots (consistent with WaterAll).
                         var info = PotTracker.Instance.FindByPtr(ptr);
                         if (info == null || !info.IsOwnedProperty) return;
+                        if (string.IsNullOrEmpty(info.PlantName) || info.IsFullyGrown) return;
 
                         // Skip threshold: already sufficiently moist pots — do not recompute (live moisture).
                         if (c.NormalizedMoistureAmount >= Constants.WaterAllSkipThreshold) return;

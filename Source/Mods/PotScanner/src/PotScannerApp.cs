@@ -551,7 +551,7 @@ public sealed class PotScannerApp : PhoneApp
         return filter switch
         {
             PotFilter.All => true,
-            PotFilter.Thirsty => p.WaterPercent < Constants.WaterAllSkipThreshold && !p.IsFullyGrown && !string.IsNullOrEmpty(p.PlantName),
+            PotFilter.Thirsty => p.NeedsWater,
             PotFilter.Ready => p.IsFullyGrown,
             PotFilter.Empty => string.IsNullOrEmpty(p.PlantName),
             _ => true
@@ -624,6 +624,10 @@ public sealed class PotScannerApp : PhoneApp
             else if (reason.StartsWith("Not enough cash"))
             {
                 _waterAllSubLabel.text = "No Cash";
+            }
+            else if (reason == "Watering…")
+            {
+                _waterAllSubLabel.text = "Watering…";
             }
             else
             {
@@ -812,7 +816,7 @@ public sealed class PotScannerApp : PhoneApp
             bool hasPlant = !string.IsNullOrEmpty(p.PlantName);
             if (!hasPlant) empty++;
             if (p.IsFullyGrown) ready++;
-            if (p.WaterPercent < Constants.WaterAllSkipThreshold && !p.IsFullyGrown && hasPlant) thirsty++;
+            if (p.NeedsWater) thirsty++;
             if (hasPlant)
             {
                 planted++;
@@ -846,7 +850,7 @@ public sealed class PotScannerApp : PhoneApp
 
     private int GetUrgency(PotInfo p)
     {
-        if (p.WaterPercent < Constants.WaterAllSkipThreshold && !string.IsNullOrEmpty(p.PlantName) && !p.IsFullyGrown) return 1;
+        if (p.NeedsWater) return 1;
         if (p.IsFullyGrown) return 2;
         if (!string.IsNullOrEmpty(p.PlantName)) return 3;
         return 4;
@@ -914,7 +918,7 @@ public sealed class PotScannerApp : PhoneApp
 
         int total = pots.Count;
         int ready = pots.Count(p => p.IsFullyGrown);
-        int dry = pots.Count(p => p.WaterPercent < Constants.WaterAllSkipThreshold && !p.IsFullyGrown && !string.IsNullOrEmpty(p.PlantName));
+        int dry = pots.Count(p => p.NeedsWater);
 
         string badgeText = ready > 0 ? $"{ready} ready" : dry > 0 ? $"{dry} thirsty" : $"{total} pots";
         // Badge copy carries the state; the text itself stays monochrome (white 60%).
@@ -976,7 +980,7 @@ public sealed class PotScannerApp : PhoneApp
             {
                 var p = groupRef.Rows[i].PotInfo;
                 if (p.IsFullyGrown) readyCount++;
-                if (p.WaterPercent < Constants.WaterAllSkipThreshold && !p.IsFullyGrown && !string.IsNullOrEmpty(p.PlantName)) dryCount++;
+                if (p.NeedsWater) dryCount++;
                 if (string.IsNullOrEmpty(p.PlantName)) emptyCount++;
 
                 if (MatchesFilter(p, _activeFilter))

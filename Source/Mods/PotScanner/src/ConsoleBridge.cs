@@ -168,7 +168,7 @@ public sealed class PotConsoleCommand : BaseConsoleCommand
         int ownedPots = pots.Count(p => p.IsOwnedProperty);
         int plantsGrowing = pots.Count(p => !p.IsFullyGrown && !string.IsNullOrEmpty(p.PlantName));
         int readyToHarvest = pots.Count(p => p.IsFullyGrown);
-        int thirstyPots = pots.Count(p => p.IsOwnedProperty && p.WaterPercent < Constants.WaterAllSkipThreshold);
+        int thirstyPots = pots.Count(p => p.IsOwnedProperty && p.NeedsWater);
         float costToWaterAll = thirstyPots * Constants.WaterAllCostPerPot;
         int emptyPots = pots.Count(p => string.IsNullOrEmpty(p.PlantName));
 

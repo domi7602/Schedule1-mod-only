@@ -1,4 +1,5 @@
 using System;
+using PotScanner.Utils;
 using UnityEngine;
 
 namespace PotScanner.Services;
@@ -31,6 +32,12 @@ public sealed class PotInfo
 
     /// <summary>Water level normalized 0..1 (from GrowContainer.NormalizedMoistureAmount).</summary>
     public float WaterPercent { get; set; }
+
+    /// <summary>
+    /// Planted, not yet fully grown, and below the water skip threshold. Ownership is
+    /// not included: billing paths must add IsOwnedProperty themselves.
+    /// </summary>
+    public bool NeedsWater => !string.IsNullOrEmpty(PlantName) && !IsFullyGrown && WaterPercent < Constants.WaterAllSkipThreshold;
 
     /// <summary>Soil level normalized 0..1.</summary>
     public float SoilPercent { get; set; }

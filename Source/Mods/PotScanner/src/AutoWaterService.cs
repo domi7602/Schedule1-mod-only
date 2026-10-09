@@ -75,7 +75,6 @@ public static class AutoWaterService
 
         float now = Time.realtimeSinceStartup;
         const float cost = Constants.WaterAllCostPerPot;
-        const float threshold = Constants.WaterAllSkipThreshold;
 
         // Fast pre-check: any dry owned pot that needs watering and isn't on cooldown?
         // Skip map building / FindObjectsByType if not — the common case is "all pots moist".
@@ -83,8 +82,7 @@ public static class AutoWaterService
         for (int i = 0; i < pots.Count; i++)
         {
             var info = pots[i];
-            if (!info.IsOwnedProperty) continue;
-            if (info.WaterPercent >= threshold) continue;
+            if (!info.IsOwnedProperty || !info.NeedsWater) continue;
             if (_lastWaterByPtr.TryGetValue(info.NativePtr, out var last) &&
                 now - last < PerPotCooldownSec) continue;
             anyDry = true;
@@ -125,8 +123,7 @@ public static class AutoWaterService
         for (int i = 0; i < pots.Count; i++)
         {
             var info = pots[i];
-            if (!info.IsOwnedProperty) continue;
-            if (info.WaterPercent >= threshold) continue;
+            if (!info.IsOwnedProperty || !info.NeedsWater) continue;
             if (_lastWaterByPtr.TryGetValue(info.NativePtr, out var last) &&
                 now - last < PerPotCooldownSec) continue;
             if (money.cashBalance < cost) break;

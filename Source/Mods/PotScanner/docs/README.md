@@ -1,6 +1,6 @@
 # PotScanner
 
-**PotScanner** is a comprehensive plant pot monitoring and management mod for *Schedule I* (v0.4.6f13+, IL2CPP). It equips players with an in-game phone application and console terminal bridge to track moisture, soil levels, plant strains, and growth progress across all properties, complete with bulk watering and automated maintenance services.
+**PotScanner** is a comprehensive plant pot monitoring and management mod for *Schedule I* (v0.4.7, IL2CPP). It equips players with an in-game phone application and console terminal bridge to track moisture, soil levels, plant strains, and growth progress across all properties, complete with bulk watering and automated maintenance services.
 
 ---
 
@@ -12,8 +12,8 @@
   - **Moisture (W):** Real-time water percentage with low-moisture alerts (< 30%).
   - **Growth (G):** Normalized growth progress percentage and gold harvest-ready highlights.
   - **Soil (S):** Soil availability indicators.
-- **One-Click "Water All":** Instantly waters all thirsty player-owned pots (moisture < 30%) for 50g per pot. Automatically skips already-watered and unowned pots to prevent wasted funds.
-- **Automated Background Watering (Auto-Water):** Periodic background maintenance service that monitors and waters dry owned pots on a 2-second polling interval with built-in per-pot cooldowns and negative cash balance guards. State persists across game sessions.
+- **One-Click "Water All":** Instantly waters all thirsty player-owned pots for 50g per pot. A pot qualifies (`PotInfo.NeedsWater`) only if it is owned, has a plant, is not fully grown, and sits below the 30% moisture skip threshold — empty and fully-grown pots are skipped and never billed, unowned pots are never touched, and already-moist pots cost nothing.
+- **Automated Background Watering (Auto-Water):** Periodic background maintenance service that monitors and waters dry owned pots on a 2-second polling interval with built-in per-pot cooldowns and negative cash balance guards. Same target rules and price as "Water All" (empty and fully-grown pots are never billed). State persists across game sessions.
 - **Terminal & Console Integration:** Full integration with the in-game developer console and DooDesch's `hash` phone terminal app via `pot` subcommands (`list`, `summary`, `stats`, `water-all`, `auto`, `refresh`, `help`).
 
 ---
@@ -22,31 +22,38 @@
 
 Open your in-game smartphone and tap the **Pots** icon:
 
+The UI is the flat, dark `S1Mods.Shared.GamePalette` style (BankApp-verified colours and `UISprites`, no emoji glyphs):
+
 ```
 ┌───────────────────────────────────────────────────────────┐
-│ [💧 Water All (4 x 200g)]       [⚙️ Auto-Water: ON]      │
+│ SCAN SUMMARY                               ╭────────╮    │
+│ 23 POTS                                   │  (donut)│    │
+│ 4 ready · 2 thirsty · 0 empty             │  gauge  │    │
+│ AVG WATER 82%                             ╰────────╯    │
 ├───────────────────────────────────────────────────────────┤
-│ ▼ Barn                                       ★ 4 ready    │
-│   ┌─────────────────────────────────────────────────────┐ │
-│   │ ★ OG Kush      W [████████░░] 80%                   │ │
-│   │                G [██████████] 100%                  │ │
-│   │                S [██████████] 100%                  │ │
-│   └─────────────────────────────────────────────────────┘ │
-│   ┌─────────────────────────────────────────────────────┐ │
-│   │ ▶ Sour Diesel  W [██░░░░░░░░] 20%  (Tap to Water)   │ │
-│   │                G [██████░░░░] 60%                   │ │
-│   │                S [██████████] 100%                  │ │
-│   └─────────────────────────────────────────────────────┘ │
-│ ▶ Bungalow                                  8 pots        │
-│ ▶ Downtown Apartment                        3 thirsty     │
+│ ┌───────────────────────────┐ ┌─────────────────────────┐ │
+│ │        Water All          │ │       Auto-Water        │ │
+│ │   2 x 100g                │ │          ON             │ │
+│ └───────────────────────────┘ └─────────────────────────┘ │
+├───────────────────────────────────────────────────────────┤
+│ (All)  Thirsty  Ready  Empty                              │
+├───────────────────────────────────────────────────────────┤
+│ ▸ Barn                                        4 ready    │
+│   ● OG Kush                 Q: 87%                       │
+│   W [████████░░] 80%   (tap the water bar to water)      │
+│   G [██████████] 100%                                    │
+│   S [██████████] 100%                                    │
+│ ▸ Bungalow                                       8 pots  │
 └───────────────────────────────────────────────────────────┘
 ```
 
 ### Controls & Interactions
-- **Water All Button:** Located on the top-left bar. Displays the count of thirsty pots and the exact total cost. Disabled automatically when all owned pots are sufficiently watered or when cash is insufficient.
-- **Auto-Water Toggle:** Located on the top-right bar. Displays `ON` (Green) or `OFF` (Dark Green). Click to toggle background automated watering.
-- **Property Header:** Displays the property name (e.g., `Barn`, `Motel Room`) along with dynamic status badges (`★ X ready`, `💧 X thirsty`, or `X pots`). Clicking toggles between single-property focus and global overview.
-- **Individual Pot Row:** Shows the status icon (`★` ready, `▶` growing, `•` empty), plant strain, and three progress bars. Clicking the water bar on an owned pot allows direct single-pot watering.
+- **Hero Summary Card:** Top card with the `SCAN SUMMARY` overline, total pot count, `X ready · Y thirsty · Z empty` meta line, average water level and a donut moisture gauge — all view-only, derived from the same scan data as the list.
+- **Water All Card:** Left action card. The sub-label shows the thirsty-pot count and the exact total cost (`N x TOTALg`, 50g per pot). Disabled automatically with the reason as sub-label (`All Moist`, `No Pots`, `No Cash`) or while a watering run is in progress; the solid green fill marks the enabled state.
+- **Auto-Water Toggle:** Right action card. The sub-label shows `ON` (green accent) or `OFF` (dim, neutral fill). Click to toggle background automated watering.
+- **Filter Chips:** `(All) Thirsty Ready Empty` — the active chip is the blue accent pill; the filter narrows the pot rows below.
+- **Property Header:** Displays the property name (e.g., `Barn`, `Motel Room`) and a monochrome status badge (`N ready`, else `N thirsty`, else `N pots`). Clicking toggles between single-property focus and global overview; the chevron rotates to show the state.
+- **Individual Pot Row:** Shows the status dot (orange = fully grown, green = growing, muted = empty), plant strain, quality (`Q: n%`), and three progress bars (W water, G growth, S soil) with % badges. Clicking the water bar on a qualifying pot allows direct single-pot watering (same rules and 50g price as Water All).
 
 ---
 
