@@ -10,12 +10,14 @@ namespace S1Mods.Shared;
 public static class SceneGate
 {
     private static bool _eventsSubscribed;
+    private static int _currentSceneHandle = -1;
 
     // IL2CPP GC safety: delegates passed to the native SceneManager must stay rooted
     // on the managed side for the process lifetime — an inline `new Action(...)`
     // could otherwise be collected and scene callbacks would silently stop (or crash).
     private static readonly Action<Scene, LoadSceneMode> _onSceneLoaded = HandleSceneLoaded;
     private static readonly Action<Scene> _onSceneUnloaded = HandleSceneUnloaded;
+    private static readonly Action<Scene, Scene> _onActiveSceneChanged = HandleActiveSceneChanged;
 
     public static string MainSceneName { get; set; } = "Main";
 
@@ -54,6 +56,7 @@ public static class SceneGate
 
             SceneManager.add_sceneLoaded(_onSceneLoaded);
             SceneManager.add_sceneUnloaded(_onSceneUnloaded);
+            SceneManager.add_activeSceneChanged(_onActiveSceneChanged);
 
             _eventsSubscribed = true;
         }
@@ -68,33 +71,40 @@ public static class SceneGate
         try
         {
             var active = SceneManager.GetActiveScene();
-            string name = active.name ?? "";
-            bool loaded = active.isLoaded;
+            ApplyActiveSceneState(active.name, active.isLoaded, active.handle);
+        }
+        catch
+        {
+        }
+    }
 
-            if (name != CurrentSceneName || loaded != IsLoaded)
+    private static void ApplyActiveSceneState(string? name, bool loaded, int handle)
+    {
+        try
+        {
+            name ??= string.Empty;
+            var transition = SceneGateTransition.Evaluate(
+                CurrentSceneName, IsLoaded, _currentSceneHandle, name, loaded, handle, MainSceneName);
+            if (!transition.Changed) return;
+
+            CurrentSceneName = name;
+            IsLoaded = loaded;
+            _currentSceneHandle = handle;
+            IsChangingScenes = !loaded;
+
+            if (!string.IsNullOrEmpty(name))
+                GameObjectResolver.InvalidateCache();
+
+            if (!transition.WasMain && transition.IsMain)
             {
-                bool wasMain = IsInMainScene;
-                CurrentSceneName = name;
-                IsLoaded = loaded;
-                IsChangingScenes = !loaded;
-
-                if (!string.IsNullOrEmpty(name))
-                {
-                    GameObjectResolver.InvalidateCache();
-                }
-
-                bool isNowMain = string.Equals(CurrentSceneName, MainSceneName, StringComparison.Ordinal) && IsLoaded;
-                if (!wasMain && isNowMain)
-                {
-                    SafeInvoker.Execute(() => OnMainSceneLoaded?.Invoke(), null, "SceneGate.OnMainSceneLoaded");
-                }
-                else if (wasMain && !isNowMain)
-                {
-                    SafeInvoker.Execute(() => OnMainSceneUnloaded?.Invoke(), null, "SceneGate.OnMainSceneUnloaded");
-                }
-
-                SafeInvoker.Execute(() => OnSceneChanged?.Invoke(CurrentSceneName), null, "SceneGate.OnSceneChanged");
+                SafeInvoker.Execute(() => OnMainSceneLoaded?.Invoke(), null, "SceneGate.OnMainSceneLoaded");
             }
+            else if (transition.WasMain && !transition.IsMain)
+            {
+                SafeInvoker.Execute(() => OnMainSceneUnloaded?.Invoke(), null, "SceneGate.OnMainSceneUnloaded");
+            }
+
+            SafeInvoker.Execute(() => OnSceneChanged?.Invoke(CurrentSceneName), null, "SceneGate.OnSceneChanged");
         }
         catch
         {
@@ -103,45 +113,17 @@ public static class SceneGate
 
     private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        var active = SceneManager.GetActiveScene();
+        // A load event may be additive and leave the active scene unchanged.
+        UpdateActiveSceneState();
+    }
 
-        bool wasMain = IsInMainScene;
-        CurrentSceneName = active.name ?? "";
-        IsLoaded = active.isLoaded;
-        IsChangingScenes = false;
-
-        GameObjectResolver.InvalidateCache();
-
-        SafeInvoker.Execute(() => OnSceneChanged?.Invoke(CurrentSceneName), null, "SceneGate.OnSceneChanged");
-
-        bool isNowMain = string.Equals(CurrentSceneName, MainSceneName, StringComparison.Ordinal) && IsLoaded;
-        if (!wasMain && isNowMain)
-        {
-            SafeInvoker.Execute(() => OnMainSceneLoaded?.Invoke(), null, "SceneGate.OnMainSceneLoaded");
-        }
-        else if (wasMain && !isNowMain)
-        {
-            SafeInvoker.Execute(() => OnMainSceneUnloaded?.Invoke(), null, "SceneGate.OnMainSceneUnloaded");
-        }
+    private static void HandleActiveSceneChanged(Scene previous, Scene next)
+    {
+        ApplyActiveSceneState(next.name, next.isLoaded, next.handle);
     }
 
     private static void HandleSceneUnloaded(Scene scene)
     {
-        var active = SceneManager.GetActiveScene();
-
-        bool wasMain = IsInMainScene;
-        bool isUnloadingMain = string.Equals(scene.name, MainSceneName, StringComparison.Ordinal);
-        CurrentSceneName = active.name ?? "";
-        IsLoaded = active.isLoaded;
-        IsChangingScenes = !active.isLoaded;
-
-        GameObjectResolver.InvalidateCache();
-
-        SafeInvoker.Execute(() => OnSceneChanged?.Invoke(CurrentSceneName), null, "SceneGate.OnSceneChanged");
-
-        if (isUnloadingMain || (wasMain && !IsInMainScene))
-        {
-            SafeInvoker.Execute(() => OnMainSceneUnloaded?.Invoke(), null, "SceneGate.OnMainSceneUnloaded");
-        }
+        UpdateActiveSceneState();
     }
 }
