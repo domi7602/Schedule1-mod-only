@@ -53,11 +53,6 @@ public class AutoPackConfig
     public int MaxBatchSize { get; set; } = 10;
 
     /// <summary>
-    /// Show interactive 3D HUD / proximity status overlay when near the station.
-    /// </summary>
-    public bool EnableProximityHUD { get; set; } = false;
-
-    /// <summary>
     /// Maximum player interaction distance in meters.
     /// </summary>
     public float InteractionRange { get; set; } = 3.5f;

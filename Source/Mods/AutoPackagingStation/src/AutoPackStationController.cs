@@ -61,11 +61,16 @@ public class AutoPackStationController : MonoBehaviour
     private float _ledPulseTimer = 0f;
     private bool _savedBeginButtonActive = false;
     private string _savedInstructionText = string.Empty;
+    private StationReadout? _shownReadout;
     // Bug-Audit 2026-09-12 (Round 4): reentrancy guard for F-Key PackUp. Input.GetKeyDown
     // is edge-triggered but PackUpStation triggers Destroy_Server + Destroy which can
     // schedule a second dispatch within the same frame from the network layer in MP.
     // Without this flag, two PackUps race on the same station and we double-refund.
     private bool _packingUp = false;
+
+    private enum StatusHeadline { Packing, Unpacking, OutputFull, WaitingForPackaging, WaitingForInput, Blocked, Idle }
+
+    private readonly record struct StationReadout(StatusHeadline Headline, int Percent, int Packaging, int Product, int Output);
 
 
     public void EnsureGuid()
@@ -702,6 +707,7 @@ public class AutoPackStationController : MonoBehaviour
                 if (!_wasCanvasOpen)
                 {
                     // Save original state on first open frame
+                    _shownReadout = null;
                     try
                     {
                         if (canvas.BeginButton != null && canvas.BeginButton.Pointer != IntPtr.Zero)
@@ -724,11 +730,6 @@ public class AutoPackStationController : MonoBehaviour
                 {
                     canvas.BeginButton.gameObject.SetActive(false);
                 }
-                if (canvas.InstructionLabel != null && canvas.InstructionLabel.Pointer != IntPtr.Zero && canvas.InstructionLabel.text != "AUTOMATED PACKING STATION - Auto packs & unpacks in background")
-                {
-                    canvas.InstructionLabel.text = "AUTOMATED PACKING STATION - Auto packs & unpacks in background";
-                }
-
                 // 2c. v0.3.1: Mirror the canvas mode (Package/Unpackage toggle) into runtime data.
                 // The player switches via the arrow button; our automation follows. While the
                 // canvas is CLOSED the last mirrored mode persists — deliberate: the player's
@@ -746,6 +747,18 @@ public class AutoPackStationController : MonoBehaviour
                 catch (Exception ex)
                 {
                     Mod.Log.Debug($"Mode mirror failed: {ex.Message}");
+                }
+
+                // 2d. Status readout in the instruction label. Rebuilt only when the readout value
+                // changes, so the string is not allocated every frame.
+                if (canvas.InstructionLabel != null && canvas.InstructionLabel.Pointer != IntPtr.Zero && station != null)
+                {
+                    var readout = BuildReadout(station, rData);
+                    if (_shownReadout != readout)
+                    {
+                        canvas.InstructionLabel.text = FormatReadout(readout);
+                        _shownReadout = readout;
+                    }
                 }
 
                 // 3. Handle Escape key to close the station menu cleanly — guard typing & pause (H9/M12)
@@ -864,7 +877,60 @@ public class AutoPackStationController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Reads the live native slots (the source of truth for a native station) and derives the
+    /// headline the player should see. Returns a plain value so the caller can skip redundant text writes.
+    /// </summary>
+    private static StationReadout BuildReadout(PackagingStation station, AutoPackStationRuntimeData rData)
+    {
+        var inputSlots = station.InputSlots;
+        var outputSlots = station.OutputSlots;
+        if (inputSlots == null || inputSlots.Count < 2 || outputSlots == null || outputSlots.Count < 1)
+            return new StationReadout(StatusHeadline.Idle, 0, 0, 0, 0);
 
+        var pkgSlot = inputSlots[0];
+        var prodSlot = inputSlots[1];
+        var outSlot = outputSlots[0];
+
+        int packaging = pkgSlot != null && pkgSlot.Pointer != IntPtr.Zero && pkgSlot.ItemInstance != null && pkgSlot.ItemInstance.Pointer != IntPtr.Zero ? pkgSlot.Quantity : 0;
+        int product = prodSlot != null && prodSlot.Pointer != IntPtr.Zero && prodSlot.ItemInstance != null && prodSlot.ItemInstance.Pointer != IntPtr.Zero ? prodSlot.Quantity : 0;
+        int output = outSlot != null && outSlot.Pointer != IntPtr.Zero && outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero ? outSlot.Quantity : 0;
+        int outputLimit = output > 0 && outSlot!.ItemInstance.Definition != null ? outSlot.ItemInstance.Definition.StackLimit : int.MaxValue;
+
+        bool unpack = rData.UnpackageMode;
+        int percent = rData.State == StationState.Packaging ? Mathf.Clamp(Mathf.FloorToInt(rData.PackagingProgress * 100f), 0, 99) : 0;
+
+        StatusHeadline headline;
+        if (rData.State == StationState.Packaging)
+            headline = unpack ? StatusHeadline.Unpacking : StatusHeadline.Packing;
+        else if ((unpack ? output : product) <= 0)
+            headline = StatusHeadline.WaitingForInput;
+        else if (!unpack && packaging <= 0)
+            headline = StatusHeadline.WaitingForPackaging;
+        else if (!unpack && output >= outputLimit)
+            headline = StatusHeadline.OutputFull;
+        else if (rData.State == StationState.Blocked)
+            headline = StatusHeadline.Blocked;
+        else
+            headline = StatusHeadline.Idle;
+
+        return new StationReadout(headline, percent, packaging, product, output);
+    }
+
+    private static string FormatReadout(StationReadout readout)
+    {
+        string headline = readout.Headline switch
+        {
+            StatusHeadline.Packing => $"Packing {readout.Percent}%",
+            StatusHeadline.Unpacking => $"Unpacking {readout.Percent}%",
+            StatusHeadline.OutputFull => "Output full",
+            StatusHeadline.WaitingForPackaging => "Waiting for packaging",
+            StatusHeadline.WaitingForInput => "Waiting for input",
+            StatusHeadline.Blocked => "Blocked",
+            _ => "Idle",
+        };
+        return $"AUTO-PACK: {headline} | In {readout.Product} | Pkg {readout.Packaging} | Out {readout.Output}";
+    }
 
     public void AnimateCycle(float dt, float progress)
     {

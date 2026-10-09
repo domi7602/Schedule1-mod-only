@@ -5,6 +5,7 @@ Automated 4x4 industrial packaging station for *Schedule I*.
 ## Features
 - **4x4 Industrial Visuals:** Heavy steel chassis, moving pneumatic compression pistons, and animated UV-scrolling conveyor belt.
 - **Multi-State Status LEDs:** Real-time visual feedback (Green = Ready, Orange Pulsing = Packaging, Blue = Waiting for Input, Red = Blocked / Full).
+- **Status readout:** the station instruction label shows the live state and buffer counts (e.g. `Packing 40% | In 12 | Pkg 5 | Out 3`), updated only when the values change.
 - **2-Second Packaging Cycle:** High-efficiency automated packaging with procedural pneumatic hiss and mechanical compression sound effects.
 - **+5% Freshness Quality Bonus:** Packaged goods automatically receive a +5% quality freshness bonus while copying all mix-effects 1:1.
 - **TOCTOU Safe 2-Phase Transaction:** Atomic validation and deduction ensuring zero lost items and zero item duplication exploits.
