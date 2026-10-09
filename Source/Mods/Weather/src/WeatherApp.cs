@@ -203,6 +203,7 @@ public sealed class WeatherApp : PhoneApp
     // once and always dispatch through _active, so a scene reload never stacks subscribers.
     private static WeatherApp? _active;
     private static bool _staticSubscribed;
+    private static bool _updateErrorLogged;
 
     private readonly float[] _values = new float[ComponentCount];
     private WeatherState? _state;
@@ -258,7 +259,13 @@ public sealed class WeatherApp : PhoneApp
     {
         var app = _active;
         if (app == null) return;
-        try { app.Update(); } catch { }
+        try { app.Update(); }
+        catch (Exception ex)
+        {
+            if (_updateErrorLogged) return;
+            _updateErrorLogged = true;
+            MelonLogger.Error($"[{app.AppName}] Update failed (logged once): {ex}");
+        }
     }
 
     private static void DispatchWeatherChanged(WeatherState state)
@@ -347,7 +354,8 @@ public sealed class WeatherApp : PhoneApp
         {
             var root = _heroIconRoots[i];
             if (root == null || !root.activeSelf) continue;
-            var rt = (RectTransform)root.transform;
+            var rt = root.GetComponent<RectTransform>();
+            if (rt == null) continue;
             if (i == 0)
                 rt.Rotate(0f, 0f, -12f * dt);
             else
@@ -368,7 +376,7 @@ public sealed class WeatherApp : PhoneApp
         float radius = _ringSide * ((DonutOuter + DonutInner) * 0.5f / (DonutSize * 0.5f));
         float angle = 90f - fill * 360f; // 12 o'clock, sweeping clockwise
         float rad = angle * Mathf.Deg2Rad;
-        ((RectTransform)_ringCap.transform).anchoredPosition = new Vector2(Mathf.Cos(rad) * radius, Mathf.Sin(rad) * radius);
+        _ringCap.rectTransform.anchoredPosition = new Vector2(Mathf.Cos(rad) * radius, Mathf.Sin(rad) * radius);
     }
 
     private void OnAppOpened()
