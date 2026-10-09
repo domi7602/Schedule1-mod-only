@@ -4,7 +4,8 @@ using UnityEngine;
 namespace CustomSkateboard.Config;
 /// <summary>
 /// Configuration for the Custom Skateboard Mod.
-/// Stored in UserData/CustomSkateboard/config.json.
+/// Stored via MelonPreferences in the [CustomSkateboard] category (MelonPreferences.cfg),
+/// managed by S1Mods.Shared.ModConfig.
 /// </summary>
 public sealed class SkateboardConfig
 {

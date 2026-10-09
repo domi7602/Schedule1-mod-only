@@ -183,8 +183,8 @@ public static class SkateboardItemFactory
             board.PushDelay = config.PushCooldown;
 
             board.JumpForce = config.JumpForce;
-            board.JumpDuration_Min = Mathf.Clamp(config.JumpDuration_Min, 0.1f, 1.5f);
-            board.JumpDuration_Max = Mathf.Clamp(Mathf.Max(config.JumpDuration_Max, config.JumpDuration_Min), 0.1f, 1.5f);
+            board.JumpDuration_Min = Mathf.Clamp(config.JumpDuration_Min, 0.1f, 2.0f);
+            board.JumpDuration_Max = Mathf.Clamp(Mathf.Max(config.JumpDuration_Max, config.JumpDuration_Min), 0.1f, 2.0f);
             board.JumpForwardBoost = config.JumpForwardBoost;
 
             board.TurnForce = config.TurnForce;
@@ -398,8 +398,8 @@ public static class SkateboardItemFactory
             settings.PushForceDuration = config.PushForceDuration;
             settings.PushDelay = config.PushCooldown;
             settings.JumpForce = config.JumpForce;
-            settings.JumpDuration_Min = Mathf.Clamp(config.JumpDuration_Min, 0.1f, 1.5f);
-            settings.JumpDuration_Max = Mathf.Clamp(Mathf.Max(config.JumpDuration_Max, config.JumpDuration_Min), 0.1f, 1.5f);
+            settings.JumpDuration_Min = Mathf.Clamp(config.JumpDuration_Min, 0.1f, 2.0f);
+            settings.JumpDuration_Max = Mathf.Clamp(Mathf.Max(config.JumpDuration_Max, config.JumpDuration_Min), 0.1f, 2.0f);
             settings.JumpForwardBoost = config.JumpForwardBoost;
             settings.TurnForce = config.TurnForce;
             settings.TurnChangeRate = config.TurnChangeRate;

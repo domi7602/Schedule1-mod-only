@@ -9,7 +9,7 @@ Adds the **Pro Cyber Skateboard** to *Schedule I*: a custom high-performance boa
 - **Anti-gravel suspension:** the custom board's `SlowOnTerrain` flag is set from `DisableTerrainSlowdown` (default on), so grass, gravel and dirt no longer slow it down. (Earlier Harmony prefixes on terrain smoothness were removed in 2026-08 because the flag alone has the same effect.)
 - **Custom visuals:** deck mesh swapped from `assets/models/custom_skateboard.obj` (generated with `assets/generate_skateboard.py` in Blender; `.blend` and `.mtl` included) plus a cyan neon underglow. Renderer filtering is strict (deck/board meshes only), so player hair, eyes and clothing are never touched.
 - **Console commands** (S1API console, command word `skate`): `skate give` (adds the board to the inventory after verifying the item is registered), `skate stats` (prints the live board parameters), `skate help`.
-- **Resilience:** `PatchGuard`-guarded patches, cached `AnimationCurve`/`Gradient`/material instances (no per-frame allocations, `sharedMaterial` to avoid VRAM leaks), configuration validation with clamping (e.g. `TopSpeed_Kmh` is clamped to 5–300 km/h and reset to 100 if invalid).
+- **Resilience:** `PatchGuard`-guarded patches, cached `AnimationCurve`/`Gradient`/material instances (no per-frame allocations, `sharedMaterial` to avoid VRAM leaks), configuration validation with clamping (e.g. `TopSpeed_Kmh` is clamped to 5–300 km/h and reset to 140 if invalid).
 
 ## Requirements
 
