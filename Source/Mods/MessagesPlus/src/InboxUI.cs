@@ -55,6 +55,12 @@ public static class InboxUI
     private const float ChipsHeightDp = 30f;
     private const float MenuButtonDp = 36f;
     private const float BandTopFallbackDp = 64f;   // only used when the vanilla list cannot be located
+    // Vanilla builds/rebuilds UI on its own events outside our patched methods
+    // (lazy CreateUI, message arrival, category switches). The old 20 s fallback
+    // left those surfaces vanilla-white for up to 20 s — the "applies later"
+    // white artifacts. 1 s is cheap: a pass is cache-hit only once the graphics
+    // are tracked, and it only runs while the app is open.
+    private const float ThemeFallbackIntervalSeconds = 1f;
 
     private static float BandHeightPx =>
         UITheme.Dp(BandPadDp) * 2f + UITheme.Dp(SearchHeightDp) + UITheme.Dp(RowGapDp) + UITheme.Dp(ChipsHeightDp);
@@ -135,10 +141,17 @@ public static class InboxUI
     private static readonly Text?[] _chipLabels = new Text?[4];
     private static GameObject? _menuRoot;              // "..." popup (Clear Read / Clear All)
     private static RectTransform? _menuCard;           // positioned under the "..." button on open
+    private static Text? _menuShowHiddenLabel;         // "Show hidden (N)" — N refreshed on open
+    private static GameObject? _hiddenRoot;            // "Show hidden" overlay (hidden customer threads)
+    private static RectTransform? _hiddenList;         // scroll content holding the rows
+    private static Button? _hiddenShowAllBtn;
+    private static Text? _hiddenShowAllLabel;
+    private static GameObject? _emptyState;            // "No conversations match" under the band
     private static InboxFilter _currentFilter = InboxFilter.All;
     private static int _lastUnreadShown = -1;
     private static Action? _pendingConfirm;
     private static float _nextTickTime;
+    private static float _nextThemeFallbackTime;
 
     // Vanilla list surgery: the band takes its height off the top of the vanilla
     // conversation viewport so the two can never overlap. Restored on rebuild.
@@ -163,6 +176,7 @@ public static class InboxUI
             if (sameApp && alive)
             {
                 UpdateUnreadLabel();
+                if (DarkMode) ApplyThemeOnOpen(app);
                 return;
             }
             GameObject home = app.homePage;
@@ -193,14 +207,16 @@ public static class InboxUI
             BuildToolbar(home.transform);
             BuildMenu(home.transform);
             BuildConfirmModal(home.transform);
+            BuildHiddenPanel(home.transform);
             AppTheme.SetOwnRoots(
                 _toolbarRoot != null ? _toolbarRoot.transform : null,
                 _menuRoot != null ? _menuRoot.transform : null,
-                _modalRoot != null ? _modalRoot.transform : null);
+                _modalRoot != null ? _modalRoot.transform : null,
+                _hiddenRoot != null ? _hiddenRoot.transform : null);
             TryMakeRoom();
             RestyleChips();
             UpdateUnreadLabel();
-            if (DarkMode) AppTheme.Apply(app); // whole-app dark mode (vanilla surfaces)
+            if (DarkMode) ApplyThemeOnOpen(app); // initial complete pass after the injected UI is registered
             Mod.Log?.Info("UI injected into vanilla MessagesApp.");
         }
         catch (Exception ex)
@@ -232,12 +248,25 @@ public static class InboxUI
             ReassertRoom();
             InboxView.Reapply();
             UpdateUnreadLabel();
-            if (DarkMode) AppTheme.Apply(_app); // theme vanilla surfaces that appeared since the last tick
+            UpdateEmptyState();
+            // Known Harmony events handle normal updates. Keep only a slow fallback
+            // for vanilla changes that do not emit one of those events.
+            if (DarkMode && Time.unscaledTime >= _nextThemeFallbackTime && AppTheme.IsPageVisible(_app))
+            {
+                _nextThemeFallbackTime = Time.unscaledTime + ThemeFallbackIntervalSeconds;
+                AppTheme.Apply(_app);
+            }
         }
         catch (Exception ex)
         {
             Mod.Log?.Warn($"Tick failed: {ex.Message}");
         }
+    }
+
+    private static void ApplyThemeOnOpen(MessagesApp app)
+    {
+        AppTheme.Apply(app);
+        _nextThemeFallbackTime = Time.unscaledTime + ThemeFallbackIntervalSeconds;
     }
 
     /// <summary>Clears managed UI references on scene unload (objects die with the scene — never Destroy).</summary>
@@ -251,6 +280,12 @@ public static class InboxUI
         _modalMessage = null;
         _menuRoot = null;
         _menuCard = null;
+        _menuShowHiddenLabel = null;
+        _hiddenRoot = null;
+        _hiddenList = null;
+        _hiddenShowAllBtn = null;
+        _hiddenShowAllLabel = null;
+        _emptyState = null;
         _searchInput = null;
         _searchClear = null;
         _unreadLabel = null;
@@ -258,6 +293,7 @@ public static class InboxUI
         Array.Clear(_chipLabels, 0, _chipLabels.Length);
         _pendingConfirm = null;
         _lastUnreadShown = -1;
+        _nextThemeFallbackTime = 0f;
         _listViewport = null;   // the scene died together with its list — nothing left to restore
         _listShifted = false;
         // View state references entries of the dying scene — drop without touching them.
@@ -273,6 +309,7 @@ public static class InboxUI
     {
         ResetModal();
         HideMenu();
+        HideHidden();
         _currentFilter = InboxFilter.All;
         RestyleChips();
         if (_searchInput != null && NetworkGuard.IsAlive(_searchInput))
@@ -282,6 +319,7 @@ public static class InboxUI
         }
         InboxView.ResetView();
         UpdateUnreadLabel();
+        UpdateEmptyState();
     }
 
     /// <summary>
@@ -312,6 +350,7 @@ public static class InboxUI
         DestroyIfAlive(_toolbarRoot);
         DestroyIfAlive(_menuRoot);
         DestroyIfAlive(_modalRoot);
+        DestroyIfAlive(_hiddenRoot);
     }
 
     private static void DestroyIfAlive(GameObject? go)
@@ -382,6 +421,35 @@ public static class InboxUI
         unreadLe.flexibleWidth = 1f; // eats the leftover space → the counter hugs the right edge
         unreadLe.preferredHeight = UITheme.Dp(ChipsHeightDp);
         unreadLe.minHeight = UITheme.Dp(ChipsHeightDp);
+
+        BuildEmptyState(rt);
+    }
+
+    /// <summary>
+    /// "No conversations match" hint, parked in the list area directly below the
+    /// band (child of the band → it is registered as own UI and never themed).
+    /// Shown only while a search/filter yields zero rows (see UpdateEmptyState).
+    /// </summary>
+    private static void BuildEmptyState(RectTransform band)
+    {
+        Text text = UIFactory.Text("MessagesPlus_EmptyState", "No conversations match", band,
+            (int)UITheme.Sp(22), TextAnchor.MiddleCenter);
+        text.color = InkDim;
+        text.raycastTarget = false;
+        RectTransform rt = text.rectTransform;
+        rt.anchorMin = new Vector2(0f, -1f);
+        rt.anchorMax = new Vector2(1f, 0f);
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+        _emptyState = text.gameObject;
+        _emptyState.SetActive(false);
+    }
+
+    private static void UpdateEmptyState()
+    {
+        if (_emptyState == null || !NetworkGuard.IsAlive(_emptyState)) return;
+        bool show = InboxView.NoMatches;
+        if (_emptyState.activeSelf != show) _emptyState.SetActive(show);
     }
 
     /// <summary>
@@ -499,7 +567,7 @@ public static class InboxUI
         text.supportRichText = false;
         text.raycastTarget = false;
 
-        var placeholder = UIFactory.Text("Placeholder", "Search", go.transform,
+        var placeholder = UIFactory.Text("Placeholder", "Search name or text", go.transform,
             (int)UITheme.Sp(20), TextAnchor.MiddleLeft);
         Stretch(placeholder.rectTransform, leftDp: 36f, rightDp: 34f);
         placeholder.supportRichText = false;
@@ -616,7 +684,7 @@ public static class InboxUI
             anchorMin: new Vector2(1f, 1f), anchorMax: new Vector2(1f, 1f));
         _menuCard = border.GetComponent<RectTransform>();
         _menuCard.pivot = new Vector2(1f, 1f);
-        _menuCard.sizeDelta = new Vector2(UITheme.Dp(212f), UITheme.Dp(120f)); // 3 rows + 2 separators
+        _menuCard.sizeDelta = new Vector2(UITheme.Dp(212f), UITheme.Dp(160f)); // 4 rows + 3 separators
         SetDecorSprite(border, UISprites.Rounded(10f));
 
         GameObject card = UIFactory.Panel("Card", border.transform, MenuBg, fullAnchor: true);
@@ -642,10 +710,13 @@ public static class InboxUI
         AddMenuSeparator(card.transform);
         BuildMenuRow(card.transform, "MessagesPlus_MenuClearAll", "Clear All",
             canMutate ? DestructiveInk : InkDim, canMutate ? OnClearAllClicked : null);
+        AddMenuSeparator(card.transform);
+        _menuShowHiddenLabel = BuildMenuRow(card.transform, "MessagesPlus_MenuShowHidden", "Show hidden",
+            Ink, ShowHidden);
         root.SetActive(false); // opened by the "..." button
     }
 
-    private static void BuildMenuRow(Transform parent, string name, string label, Color ink, Action? onClick)
+    private static Text BuildMenuRow(Transform parent, string name, string label, Color ink, Action? onClick)
     {
         GameObject row = UIFactory.Panel(name, parent, Color.clear);
         var le = row.AddComponent<LayoutElement>();
@@ -662,6 +733,7 @@ public static class InboxUI
         Stretch(txt.rectTransform, leftDp: 14f, rightDp: 14f);
         txt.color = ink;
         txt.raycastTarget = false;
+        return txt;
     }
 
     private static void AddMenuSeparator(Transform parent)
@@ -699,6 +771,11 @@ public static class InboxUI
                         -UITheme.Dp(10f),
                         bandTopY - UITheme.Dp(BandPadDp + SearchHeightDp + 4f));
                 }
+            }
+
+            if (_menuShowHiddenLabel != null && NetworkGuard.IsAlive(_menuShowHiddenLabel))
+            {
+                _menuShowHiddenLabel.text = $"Show hidden ({CollectHiddenCustomerConversations().Count})";
             }
 
             _menuRoot.SetActive(true);
@@ -934,6 +1011,189 @@ public static class InboxUI
         SetRaycastTarget(confirmLabel, false);
     }
 
+    /// <summary>
+    /// "Show hidden" overlay: lists the hidden CUSTOMER threads with a per-row
+    /// Show button plus "Show all". Rows are rebuilt on every open (RefreshHiddenPanel).
+    /// Mutations are host-only; a multiplayer client sees the list disabled.
+    /// </summary>
+    private static void BuildHiddenPanel(Transform parent)
+    {
+        GameObject root = UIFactory.Panel("MessagesPlus_Hidden", parent, ModalBackdrop, fullAnchor: true);
+        _hiddenRoot = root; // keep the ref immediately (see BuildToolbar)
+        root.SetActive(false);
+        Button backdropBtn = root.AddComponent<Button>();
+        backdropBtn.transition = Selectable.Transition.None;
+        WireClick(backdropBtn, HideHidden);
+
+        GameObject card = UIFactory.Panel("MessagesPlus_HiddenCard", root.transform, ModalCard);
+        Image? cardImg = card.GetComponent<Image>();
+        if (cardImg != null)
+        {
+            cardImg.sprite = UISprites.Rounded(8f);
+            cardImg.type = Image.Type.Sliced;
+        }
+        RectTransform cardRt = card.GetComponent<RectTransform>();
+        cardRt.anchorMin = new Vector2(0.5f, 0.5f);
+        cardRt.anchorMax = new Vector2(0.5f, 0.5f);
+        cardRt.sizeDelta = new Vector2(UITheme.Dp(380f), UITheme.Dp(420f));
+
+        Button cardBtn = card.AddComponent<Button>(); // W8: swallow card clicks (see BuildConfirmModal)
+        cardBtn.transition = Selectable.Transition.None;
+        WireClick(cardBtn, () => { });
+
+        var vlg = card.AddComponent<VerticalLayoutGroup>();
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+        vlg.spacing = UITheme.Dp(8f);
+        vlg.padding = new RectOffset(
+            (int)UITheme.Dp(12f), (int)UITheme.Dp(12f),
+            (int)UITheme.Dp(12f), (int)UITheme.Dp(12f));
+
+        Text title = UIFactory.Text("MessagesPlus_HiddenTitle", "Hidden conversations", card.transform,
+            UITheme.Sp(32), TextAnchor.MiddleCenter, FontStyle.Bold);
+        title.color = Ink;
+        SetRaycastTarget(title, false);
+        AddPreferredHeight(title.gameObject, 42f);
+
+        GameObject listBox = UIFactory.Panel("MessagesPlus_HiddenListBox", card.transform, Color.clear);
+        SetRaycastTarget(listBox.GetComponent<Image>(), false);
+        AddPreferredHeight(listBox, 280f);
+        _hiddenList = UIFactory.ScrollableVerticalList("MessagesPlus_HiddenScroll", listBox.transform, out _);
+
+        GameObject footer = UIFactory.Panel("MessagesPlus_HiddenButtons", card.transform, Color.clear);
+        SetRaycastTarget(footer.GetComponent<Image>(), false);
+        var hlg = footer.AddComponent<HorizontalLayoutGroup>();
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = true;
+        hlg.childForceExpandHeight = false;
+        hlg.spacing = UITheme.Dp(8f);
+        AddPreferredHeight(footer, 50f);
+
+        var (allMask, allBtn, allLabel) = UIFactory.RoundedButtonWithLabel(
+            "MessagesPlus_HiddenShowAll", "Show all", footer.transform,
+            NeutralBg, UITheme.Dp(130f), UITheme.Dp(50f), (int)UITheme.Sp(26), NeutralInk);
+        allBtn.GetComponent<Image>().raycastTarget = true;
+        WireClick(allBtn, RunRestoreAll);
+        SetRaycastTarget(allLabel, false);
+        _hiddenShowAllBtn = allBtn;
+        _hiddenShowAllLabel = allLabel;
+
+        var (closeMask, closeBtn, closeLabel) = UIFactory.RoundedButtonWithLabel(
+            "MessagesPlus_HiddenClose", "Close", footer.transform,
+            NeutralBg, UITheme.Dp(130f), UITheme.Dp(50f), (int)UITheme.Sp(26), NeutralInk);
+        closeBtn.GetComponent<Image>().raycastTarget = true;
+        WireClick(closeBtn, HideHidden);
+        SetRaycastTarget(closeLabel, false);
+    }
+
+    private static void ShowHidden()
+    {
+        try
+        {
+            HideMenu();
+            if (_hiddenRoot == null || !NetworkGuard.IsAlive(_hiddenRoot)) return;
+
+            RefreshHiddenPanel();
+            _hiddenRoot.SetActive(true);
+            _hiddenRoot.transform.SetAsLastSibling();
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"ShowHidden failed: {ex.Message}");
+        }
+    }
+
+    private static void HideHidden()
+    {
+        try
+        {
+            if (_hiddenRoot != null && NetworkGuard.IsAlive(_hiddenRoot) && _hiddenRoot.activeSelf)
+            {
+                _hiddenRoot.SetActive(false);
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Debug($"HideHidden failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>Rebuilds the row list from the current save state (one row per hidden customer thread).</summary>
+    private static void RefreshHiddenPanel()
+    {
+        if (_hiddenList == null || !NetworkGuard.IsAlive(_hiddenList)) return;
+
+        // Rows are our own objects: deactivate first (layout ignores them at once), then destroy.
+        Transform content = _hiddenList.transform;
+        for (int i = content.childCount - 1; i >= 0; i--)
+        {
+            GameObject child = content.GetChild(i).gameObject;
+            child.SetActive(false);
+            DestroyIfAlive(child);
+        }
+
+        bool canMutate = NetworkGuard.IsHostOrSingleplayer();
+        List<MSGConversation> hidden = CollectHiddenCustomerConversations();
+        for (int i = 0; i < hidden.Count; i++)
+        {
+            BuildHiddenRow(_hiddenList, hidden[i], canMutate);
+        }
+
+        if (hidden.Count == 0)
+        {
+            Text empty = UIFactory.Text("MessagesPlus_HiddenEmpty", "No hidden customer conversations", _hiddenList,
+                (int)UITheme.Sp(20), TextAnchor.MiddleCenter);
+            empty.color = InkDim;
+            empty.raycastTarget = false;
+            AddPreferredHeight(empty.gameObject, 40f);
+        }
+
+        if (_hiddenShowAllBtn != null && NetworkGuard.IsAlive(_hiddenShowAllBtn))
+        {
+            _hiddenShowAllBtn.interactable = canMutate && hidden.Count > 0;
+        }
+        if (_hiddenShowAllLabel != null && NetworkGuard.IsAlive(_hiddenShowAllLabel))
+        {
+            _hiddenShowAllLabel.text = $"Show all ({hidden.Count})";
+            _hiddenShowAllLabel.color = canMutate && hidden.Count > 0 ? NeutralInk : InkDim;
+        }
+    }
+
+    private static void BuildHiddenRow(Transform parent, MSGConversation conv, bool canMutate)
+    {
+        GameObject row = UIFactory.Panel("MessagesPlus_HiddenRow", parent, FieldBg);
+        SetRaycastTarget(row.GetComponent<Image>(), false);
+        AddPreferredHeight(row, 44f);
+
+        var hlg = row.AddComponent<HorizontalLayoutGroup>();
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = false;
+        hlg.childForceExpandHeight = false;
+        hlg.childAlignment = TextAnchor.MiddleLeft;
+        hlg.spacing = UITheme.Dp(8f);
+        hlg.padding = new RectOffset((int)UITheme.Dp(10f), (int)UITheme.Dp(10f), 0, 0);
+
+        Text name = UIFactory.Text("Name", ConversationUtils.SafeName(conv), row.transform,
+            (int)UITheme.Sp(20), TextAnchor.MiddleLeft);
+        name.color = Ink;
+        name.raycastTarget = false;
+        var nameLe = name.gameObject.AddComponent<LayoutElement>();
+        nameLe.flexibleWidth = 1f;
+
+        var (mask, btn, label) = UIFactory.RoundedButtonWithLabel(
+            "MessagesPlus_HiddenShow", "Show", row.transform,
+            canMutate ? ChipActiveBg : ChipBg, UITheme.Dp(78f), UITheme.Dp(32f),
+            (int)UITheme.Sp(18), canMutate ? Color.white : InkDim);
+        btn.GetComponent<Image>().raycastTarget = true;
+        btn.interactable = canMutate;
+        SetRaycastTarget(label, false);
+        if (canMutate) WireClick(btn, () => RunRestoreOne(conv));
+    }
+
     private static void AddPreferredHeight(GameObject go, float dp)
     {
         var le = go.AddComponent<LayoutElement>();
@@ -983,6 +1243,7 @@ public static class InboxUI
         {
             InboxView.SetSearch(value);
             UpdateUnreadLabel();
+            UpdateEmptyState();
             if (_searchClear != null && NetworkGuard.IsAlive(_searchClear))
             {
                 bool hasText = !string.IsNullOrEmpty(value);
@@ -1003,6 +1264,7 @@ public static class InboxUI
             RestyleChips();
             InboxView.SetFilter(filter);
             UpdateUnreadLabel();
+            UpdateEmptyState();
         }
         catch (Exception ex)
         {
@@ -1136,25 +1398,122 @@ public static class InboxUI
         }
     }
 
-    /// <summary>Plan-then-commit hide: SetEntryVisibility can rebuild the conversation lists under a live walk.</summary>
-    private static int HideConversations(List<MSGConversation> targets, string tag)
+    private static int HideConversations(List<MSGConversation> targets, string tag) =>
+        SetConversationsVisibility(targets, false, tag);
+
+    /// <summary>Plan-then-commit visibility change: SetEntryVisibility can rebuild the conversation lists under a live walk.</summary>
+    private static int SetConversationsVisibility(List<MSGConversation> targets, bool visible, string tag)
     {
-        int hidden = 0;
+        int changed = 0;
         for (int i = 0; i < targets.Count; i++)
         {
             MSGConversation conv = targets[i];
             if (!ConversationUtils.IsAlive(conv)) continue;
             try
             {
-                conv.SetEntryVisibility(false);
-                hidden++;
+                conv.SetEntryVisibility(visible);
+                changed++;
             }
             catch (Exception ex)
             {
-                Mod.Log?.Warn($"{tag}: hide failed for '{ConversationUtils.SafeName(conv)}': {ex.Message}");
+                Mod.Log?.Warn($"{tag}: visibility change failed for '{ConversationUtils.SafeName(conv)}': {ex.Message}");
             }
         }
-        return hidden;
+        return changed;
+    }
+
+    /// <summary>
+    /// Un-hide ONE hidden customer thread from the "Show hidden" overlay. Host-only
+    /// (same gating as Clear All / Clear Read). Not a confirmed action: restoring
+    /// is non-destructive.
+    /// </summary>
+    private static void RunRestoreOne(MSGConversation conv)
+    {
+        if (!NetworkGuard.IsHostOrSingleplayer())
+        {
+            Mod.Log?.Warn("ShowHidden: ignored — mutations are host-only (multiplayer client).");
+            return;
+        }
+
+        try
+        {
+            var targets = new List<MSGConversation> { conv };
+            int shown = SetConversationsVisibility(targets, true, "ShowHidden");
+            AfterRestore();
+            Mod.Log?.Info($"ShowHidden: {shown} customer conversation(s) restored to the inbox.");
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Error($"ShowHidden failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>Un-hides every hidden customer thread. Host-only (same gating as the other mutations).</summary>
+    private static void RunRestoreAll()
+    {
+        if (!NetworkGuard.IsHostOrSingleplayer())
+        {
+            Mod.Log?.Warn("ShowAll: ignored — mutations are host-only (multiplayer client).");
+            return;
+        }
+
+        try
+        {
+            List<MSGConversation> targets = CollectHiddenCustomerConversations();
+            int shown = SetConversationsVisibility(targets, true, "ShowAll");
+            AfterRestore();
+            Mod.Log?.Info($"ShowAll: {shown} customer conversation(s) restored to the inbox.");
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Error($"ShowAll failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>Re-syncs the inbox, the view, the unread counter and the overlay after an un-hide.</summary>
+    private static void AfterRestore()
+    {
+        RefreshApp(_app);
+        InboxView.Reapply();
+        UpdateUnreadLabel();
+        UpdateEmptyState();
+        RefreshHiddenPanel();
+    }
+
+    /// <summary>
+    /// Hidden customer threads: walks the FULL conversation list (ActiveConversations
+    /// omits hidden entries) and keeps those with EntryVisible == false that are
+    /// customers by the same conservative rule as Clear All.
+    /// </summary>
+    private static List<MSGConversation> CollectHiddenCustomerConversations()
+    {
+        List<MSGConversation> targets = new();
+        try
+        {
+            var conversations = MessagesApp.Conversations;
+            if (conversations == null) return targets;
+            int count = conversations.Count;
+            for (int i = 0; i < count; i++)
+            {
+                MSGConversation? conv = conversations[i];
+                if (!ConversationUtils.IsAlive(conv)) continue;
+                try
+                {
+                    if (conv!.EntryVisible) continue;
+                    if (!ConversationUtils.IsCustomer(conv)) continue;
+                    targets.Add(conv);
+                }
+                catch (Exception ex)
+                {
+                    Mod.Log?.Warn($"ShowHidden: conversation {i} skipped: {ex.Message}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Warn($"CollectHiddenCustomerConversations failed: {ex.Message}");
+        }
+        return targets;
     }
 
     private static int CountVisibleCustomerConversations() =>

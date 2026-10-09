@@ -117,6 +117,47 @@ internal static class ConversationUtils
     }
 
     /// <summary>
+    /// Live name filter (case-insensitive substring) on the contact name AND
+    /// the message history text. Falls back to a name-only match when the
+    /// history cannot be read (null/access error → still matches by name).
+    /// </summary>
+    public static bool MatchesSearch(MSGConversation conv, string search)
+    {
+        if (search.Length == 0) return true;
+        string name = SafeName(conv);
+        if (name.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0) return true;
+        return HistoryContainsText(conv, search);
+    }
+
+    /// <summary>
+    /// True when any message in the conversation's history contains the search
+    /// text (case-insensitive). Never throws; unknown history = no match.
+    /// </summary>
+    public static bool HistoryContainsText(MSGConversation conv, string search)
+    {
+        if (search.Length == 0) return true;
+        try
+        {
+            var history = conv._messageHistory;
+            if (history == null) return false;
+            int count = history.Count;
+            for (int i = 0; i < count; i++)
+            {
+                Message? message = history[i];
+                if (message == null) continue;
+                string? text = message.text;
+                if (string.IsNullOrEmpty(text)) continue;
+                if (text.IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0) return true;
+            }
+        }
+        catch
+        {
+            // Unknown history — treat as no match (never throws).
+        }
+        return false;
+    }
+
+    /// <summary>
     /// Conservative customer filter (the ONLY threads Clear All/Clear Read may
     /// hide): Categories contains Customer AND contains neither Supplier nor
     /// Dealer. Null/empty Categories or any access error means NON-customer —

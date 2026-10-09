@@ -1,21 +1,17 @@
 using System;
 using System.Reflection;
 using HarmonyLib;
+using Il2CppScheduleOne.Economy;
+using Il2CppScheduleOne.Messaging;
 using Il2CppScheduleOne.UI.Phone.Messages;
 using S1Mods.Shared;
 
 namespace MessagesPlus;
 
 /// <summary>
-/// Immediate dark-theme refresh for the deal-window popup (<see cref="DealWindowSelector"/> —
-/// the Morning/Afternoon/Night/LateNight picker that opens from a conversation
-/// response). Without this, the popup keeps its vanilla colours until the next
-/// 1-second theme tick — the "popup flashes light for a moment" report.
-///
-/// The postfix runs in the same frame as the open call (before the first render)
-/// and force-refreshes the popup's subtree, so colours the game re-sets while
-/// opening also end up dark. Light-restore correctness is unaffected: the cached
-/// originals of already-themed graphics are never overwritten.
+/// Preserves the deal-window popup's vanilla appearance whenever it changes state.
+/// The popup is excluded from app-wide dark-theme passes, and previously themed
+/// colors under its explicit Container root are restored when first registered.
 /// </summary>
 public static class DealWindowSelectorPatch
 {
@@ -25,10 +21,9 @@ public static class DealWindowSelectorPatch
         HarmonyMethod postfix = new(typeof(DealWindowSelectorPatch), nameof(SetIsOpen_Postfix));
 
         // The app's real open path: SetIsOpen(bool, MSGConversation, Action<EDealWindow>).
-        // Found by SHAPE (name + arity + first parameter) instead of naming the
-        // IL2CPP delegate type in a parameter list — the proxy delegate type
-        // (Il2CppSystem.Action<EDealWindow>) is not referenceable from mod code
-        // (CS0305: Il2CppSystem.Action is generated as a 9-arity generic only).
+        // Found by exact reflected parameter types instead of declaring the
+        // IL2CPP delegate in this patch signature; proxy delegate generic aliases
+        // vary between generated assemblies.
         MethodInfo? threeArg = FindThreeArgSetIsOpen();
         if (threeArg != null)
         {
@@ -36,7 +31,7 @@ public static class DealWindowSelectorPatch
         }
         else
         {
-            log.Warn("DealWindowSelectorPatch: SetIsOpen(bool, MSGConversation, Action<EDealWindow>) not found — popup hook skipped (the 1 s tick stays as fallback).");
+            log.Warn("DealWindowSelectorPatch: SetIsOpen(bool, MSGConversation, Action<EDealWindow>) not found — popup will not be registered for vanilla-color preservation.");
         }
 
         // Defensive: the bool-only overload (no managed callers in 0.4.7f7, but
@@ -60,7 +55,13 @@ public static class DealWindowSelectorPatch
             {
                 if (m.Name != nameof(DealWindowSelector.SetIsOpen)) continue;
                 ParameterInfo[] ps = m.GetParameters();
-                if (ps.Length == 3 && ps[0].ParameterType == typeof(bool))
+                if (ps.Length != 3 || ps[0].ParameterType != typeof(bool) ||
+                    ps[1].ParameterType != typeof(MSGConversation)) continue;
+
+                Type callbackType = ps[2].ParameterType;
+                if (!callbackType.IsGenericType) continue;
+                Type[] callbackArguments = callbackType.GetGenericArguments();
+                if (callbackArguments.Length == 1 && callbackArguments[0] == typeof(EDealWindow))
                     return m;
             }
         }
@@ -72,11 +73,12 @@ public static class DealWindowSelectorPatch
         return null;
     }
 
+    /// <summary>Runs after both open and close calls so reused popup roots stay registered.</summary>
     [HarmonyPostfix]
     public static void SetIsOpen_Postfix(DealWindowSelector __instance, bool __0)
     {
-        // "__0" instead of a named parameter — immune to future renames.
-        if (!__0) return; // closing — nothing to theme
+        // "__0" instead of a named parameter — immune to future renames. Register
+        // the root on close too: the same native container is commonly reused.
         Refresh(__instance);
     }
 
@@ -87,8 +89,10 @@ public static class DealWindowSelectorPatch
             MessagesPlusConfig? cfg = ModConfig<MessagesPlusConfig>.Instance;
             if (cfg == null || !cfg.DarkMode) return;
             if (selector == null || !NetworkGuard.IsAlive(selector)) return;
+            if (!NetworkGuard.IsAlive(selector.Container)) return;
 
-            AppTheme.ApplyToSubtree(selector.gameObject);
+            // Keep the game's own order/deal popup in its native light theme.
+            AppTheme.PreserveVanillaSubtree(selector.Container);
         }
         catch (Exception ex)
         {

@@ -1,19 +1,26 @@
 # MessagesPlus
 
-**Version 0.3.0** — inbox hygiene for the vanilla Messages app (SMS) on the in-game phone: Clear All + Clear Read, live name search, category filter chips, unread counter, and the one-time legacy restore.
+**MessagesPlus** — inbox hygiene for the vanilla Messages app (SMS) on the in-game phone: live name search, category filter chips, an unread counter, Clear Read / Clear All behind a "..." menu (with confirmation dialog), a "Show hidden" panel for hidden customer threads, permanent whole-app dark mode, and the one-time legacy restore.
 
 MessagesPlus is a **patch-only mod**: it enhances the *existing* vanilla `MessagesApp` via Harmony patches and injects its UI into the app's own page. It does **not** register a new PhoneApp or add a homescreen icon.
 
 ## Features
 
-The injected **toolbar** (top-right of the Messages home page) has three rows:
+The injected **search band** (sticky, directly under the Messages title and above the conversation list) has two rows:
 
-1. **🔎 Search** — live contact-name filter (case-insensitive substring) + **🔢 "N unread"** counter (visible conversations with `Read == false` — vanilla has no per-message read state).
-2. **🏷️ Filter chips** — `[All][Customer][Dealer][Supplier]`: show only threads whose `MSGConversation.Categories` contain the selection. Search and filter combine (AND).
-3. **🧹 [Clear Read]** + **🗑️ [Clear All]** — both with a confirmation dialog ("… Supplier and dealer threads are kept.").
+1. **🔎 Search** — live filter over the contact name AND the conversation message text (case-insensitive substring) + the **"..." overflow menu** button.
+2. **🏷️ Filter chips** — `[All][Customer][Dealer][Supplier]`: show only threads whose `MSGConversation.Categories` contain the selection. Search and filter combine (AND). The **🔢 "N unread"** counter (visible conversations with `Read == false` — vanilla has no per-message read state) hugs the right edge of this row.
+
+When search and filter leave zero rows, a **"No conversations match"** empty-state hint shows in the list area.
+
+The destructive actions live behind the **"..." menu** instead of sitting permanently in the open:
+
+1. **🧹 [Clear Read]** + **🗑️ [Clear All]** — both with a confirmation dialog ("… Supplier and dealer threads are kept.").
+2. **👁️ [Show hidden (N)]** — opens an overlay listing the hidden customer threads with a per-row **Show** button plus **Show all** — un-hide a single thread or all of them.
 
 **Clear All** hides every visible **customer** conversation via `MSGConversation.SetEntryVisibility(false)`. **Clear Read** does the same, but only for conversations whose `MSGConversation.Read` flag is `true` (unknown read state = kept).
 
+- **Permanent Messages-app dark mode (`AppTheme`):** always ON — the toggle is gone (the config field is kept for schema stability and a stale `false` self-heals at startup). It recolours the injected band/menu/dialogs and the app shell (page backgrounds, inbox rows, chat bubbles + tails, dialogue header) — one-time per graphic with cached originals; avatars, badges, the unread dot, and product sprites stay untouched. The dead-drop/order and counter-offer menus keep their vanilla colors.
 - **Customer-only:** supplier and dealer threads and threads with unknown/empty categories are never touched (conservative filter: `Categories` contains Customer AND neither Supplier nor Dealer — null/empty categories mean non-customer).
 - **View-only search/filter (`InboxView`):** the search/filter view only toggles entry GameObjects and never mutates save state. It only restores hides it owns (rows hidden by vanilla are left alone) and re-applies itself from a throttled 1 s tick while active (vanilla can re-show entries on its own events). Zero cost with the default view. Search/filter reset when the app closes.
 - **One-time legacy restore:** threads deleted/hidden by MessagesPlus v0.1.x are un-hidden again on the next save load (they are still hidden inside the game save — `MSGConversationData.IsHidden`): every `Trashed`/`Purged` record from the old `UserData/MessagesPlus/trash_*.json[.bak]` files plus every hidden supplier/dealer thread (safety net). Processed legacy files are renamed to `*.restored`.
@@ -24,19 +31,20 @@ The injected **toolbar** (top-right of the Messages home page) has three rows:
 1. Requires **MelonLoader 0.7.3+** and **S1API** (see the repository root README).
 2. Copy `MessagesPlus.dll` into `<GameDir>\Mods\`.
 3. Optionally copy `mod.json` into `<GameDir>\UserData\MessagesPlus\`.
-4. Launch the game. The Messages app shows the MessagesPlus toolbar on its home page.
+4. Launch the game. The Messages app shows the MessagesPlus search band on its home page.
 
 ## Usage
 
-1. Open the phone → **Messages** app.
-2. **Search / filter chips** — narrow the inbox view (view-only, resets on close).
-3. **[Clear Read]** — confirm once; all read customer threads are hidden, unread ones stay.
-4. **[Clear All]** — confirm once; all customer threads are hidden from the inbox, supplier and dealer threads stay.
-5. Hidden threads stay hidden across sessions (the game persists the visibility). To bring v0.1.x-deleted threads back, just load the save once with this version — the legacy restore un-hides them automatically.
+1. Open the phone → **Messages** app. The app is always in dark mode (no toggle).
+2. **Search / filter chips** — narrow the inbox view (view-only, resets on close). Zero matches show a "No conversations match" hint.
+3. **"..." menu → [Clear Read]** — confirm once; all read customer threads are hidden, unread ones stay.
+4. **"..." menu → [Clear All]** — confirm once; all customer threads are hidden from the inbox, supplier and dealer threads stay.
+5. **"..." menu → [Show hidden (N)]** — the overlay lists the hidden customer threads; **Show** a single one or **Show all**.
+6. Hidden threads stay hidden across sessions (the game persists the visibility). To bring v0.1.x-deleted threads back, just load the save once with this version — the legacy restore un-hides them automatically.
 
 ## Multiplayer
 
-Clear All, Clear Read and the legacy restore are **host-only**. Multiplayer clients see disabled mutation buttons; mutations are ignored with a log warning to prevent save desyncs. Search, filter and the unread counter are view-only and stay active for clients.
+Clear All, Clear Read, the un-hide actions in the "Show hidden" panel, and the legacy restore are **host-only**. Multiplayer clients see disabled mutation rows; mutations are ignored with a log warning to prevent save desyncs. Search, filter and the unread counter are view-only and stay active for clients.
 
 ## Legacy restore details
 
@@ -55,7 +63,7 @@ Clear All, Clear Read and the legacy restore are **host-only**. Multiplayer clie
 
 ## Limitations
 
-- Toolbar placement is anchored to the vanilla home page (top-right, ~340×132 Dp); exact pixel offsets may need fine-tuning after in-game verification.
+- The search band is parked directly above the vanilla conversation list (room is made by shifting the list); when that list cannot be located, a fixed fallback offset applies and exact pixel offsets may need fine-tuning after in-game verification.
 - The vanilla app ships its own category filter internals (`MessagesApp.FilterByCategory`/`CategoryButtons`); MessagesPlus deliberately uses its own row-visibility engine instead (unknown int semantics, and it must compose with the search). If the vanilla category buttons turn out to be visible in-game too, the chips can be dropped.
 - Unread counting is per conversation (the `Read` flag lives on `MSGConversationData` per thread); per-message read states do not exist in vanilla.
 - Phase 2 (toast + sound) and Phase 3 (configurable background) are prepared in the config schema (`MessagesPlusConfig`) but not yet active.
@@ -66,6 +74,7 @@ Clear All, Clear Read and the legacy restore are **host-only**. Multiplayer clie
 
 | Key | Default | Purpose |
 |---|---|---|
+| `DarkMode` | `true` | Kept for schema stability — dark mode is permanent since v0.4.1 (a stale `false` self-heals at startup) |
 | `BackgroundColor1` / `BackgroundColor2` | `#101318` / `#1C2230` | App background gradient (Phase 3) |
 | `ToastEnabled` | `true` | Toast popups on new messages (Phase 2) |
 | `SoundEnabled` | `true` | Sound effects (Phase 2) |

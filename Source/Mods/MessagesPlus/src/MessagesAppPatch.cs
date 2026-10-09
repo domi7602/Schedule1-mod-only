@@ -1,5 +1,6 @@
 using System;
 using HarmonyLib;
+using Il2CppScheduleOne.Messaging;
 using Il2CppScheduleOne.UI.Phone.Messages;
 using S1Mods.Shared;
 
@@ -12,11 +13,12 @@ namespace MessagesPlus;
 /// update that renames a method degrades gracefully instead of crashing.
 ///
 /// Patched methods:
-///   Start            — inject the MessagesPlus toolbar + confirmation modal (once per app instance).
-///   SetOpen(bool)    — re-inject when the app is opened (covers page rebuilds); on close,
-///                      reset the modal and the search/filter view (W12 analogue).
-///   Loaded()         — one-time legacy restore (idempotent) + re-inject after the game
-///                      loaded the conversations.
+///   MSGConversation.CreateUI/RenderMessage/RenderPlayerMessage
+///                    — refresh the affected conversation's known surfaces.
+///   CreateResponseUI — register the vanilla response subtree without recoloring it.
+///   Start           — inject the MessagesPlus toolbar + confirmation modal (once per app instance).
+///   SetOpen(bool)   — re-inject when the app is opened; on close, reset the modal and search/filter view.
+///   Loaded()        — one-time legacy restore (idempotent) + re-inject after conversations load.
 ///
 /// The v0.1.x CreateConversationUI patch is gone —
 /// v0.2.0+ has no per-entry UI at all.
@@ -25,6 +27,37 @@ public static class MessagesAppPatch
 {
     public static void ApplyAll(HarmonyLib.Harmony harmony, ModLogger log)
     {
+        PatchGuard.TryPatch(
+            harmony,
+            typeof(MSGConversation),
+            nameof(MSGConversation.CreateUI),
+            postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(ConversationUI_Postfix)),
+            log: log);
+
+        PatchGuard.TryPatch(
+            harmony,
+            typeof(MSGConversation),
+            nameof(MSGConversation.RenderMessage),
+            postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(ConversationUI_Postfix)),
+            parameterTypes: new[] { typeof(Message) },
+            log: log);
+
+        PatchGuard.TryPatch(
+            harmony,
+            typeof(MSGConversation),
+            nameof(MSGConversation.RenderPlayerMessage),
+            postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(ConversationUI_Postfix)),
+            parameterTypes: new[] { typeof(SendableMessage) },
+            log: log);
+
+        PatchGuard.TryPatch(
+            harmony,
+            typeof(MSGConversation),
+            nameof(MSGConversation.CreateResponseUI),
+            postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(ResponseUI_Postfix)),
+            parameterTypes: new[] { typeof(Response) },
+            log: log);
+
         PatchGuard.TryPatch(
             harmony,
             typeof(MessagesApp),
@@ -45,6 +78,36 @@ public static class MessagesAppPatch
             "Loaded",
             postfix: new HarmonyMethod(typeof(MessagesAppPatch), nameof(Loaded_Postfix)),
             log: log);
+    }
+
+    [HarmonyPostfix]
+    public static void ConversationUI_Postfix(MSGConversation __instance)
+    {
+        try
+        {
+            MessagesPlusConfig? cfg = ModConfig<MessagesPlusConfig>.Instance;
+            if (cfg == null || !cfg.DarkMode) return;
+            AppTheme.RefreshConversation(__instance);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Debug($"ConversationUI_Postfix failed: {ex.Message}");
+        }
+    }
+
+    [HarmonyPostfix]
+    public static void ResponseUI_Postfix(MSGConversation __instance)
+    {
+        try
+        {
+            MessagesPlusConfig? cfg = ModConfig<MessagesPlusConfig>.Instance;
+            if (cfg == null || !cfg.DarkMode) return;
+            AppTheme.PreserveConversationResponseArea(__instance);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Debug($"ResponseUI_Postfix failed: {ex.Message}");
+        }
     }
 
     /// <summary>

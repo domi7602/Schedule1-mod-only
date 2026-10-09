@@ -36,9 +36,14 @@ internal static class InboxView
     private static string _search = string.Empty;
     private static InboxFilter _filter = InboxFilter.All;
     private static bool _active;
+    private static int _lastVisible;
+    private static int _lastTotal;
 
     /// <summary>True while a search text or category filter narrows the inbox.</summary>
     public static bool IsActive => _active;
+
+    /// <summary>True while a filter/search is active but no inbox row matches (empty-state hint).</summary>
+    public static bool NoMatches => _active && _lastTotal > 0 && _lastVisible == 0;
 
     /// <summary>Live name filter (case-insensitive substring). Empty = no search.</summary>
     public static void SetSearch(string? value)
@@ -74,6 +79,8 @@ internal static class InboxView
         _search = string.Empty;
         _filter = InboxFilter.All;
         _active = false;
+        _lastVisible = 0;
+        _lastTotal = 0;
         HiddenIds.Clear();
     }
 
@@ -97,7 +104,12 @@ internal static class InboxView
         try
         {
             var conversations = MessagesApp.ActiveConversations;
-            if (conversations == null) return (0, 0);
+            if (conversations == null)
+            {
+                _lastVisible = 0;
+                _lastTotal = 0;
+                return (0, 0);
+            }
             int count = conversations.Count;
             for (int i = 0; i < count; i++)
             {
@@ -149,6 +161,8 @@ internal static class InboxView
         {
             Mod.Log?.Warn($"InboxView.Apply failed: {ex.Message}");
         }
+        _lastVisible = visible;
+        _lastTotal = total;
         return (visible, total);
     }
 
@@ -203,10 +217,10 @@ internal static class InboxView
             return false;
         }
 
-        if (_search.Length > 0)
+        if (_search.Length > 0 &&
+            !ConversationUtils.MatchesSearch(conv, _search))
         {
-            string name = ConversationUtils.SafeName(conv);
-            if (name.IndexOf(_search, StringComparison.OrdinalIgnoreCase) < 0) return false;
+            return false;
         }
 
         return true;
