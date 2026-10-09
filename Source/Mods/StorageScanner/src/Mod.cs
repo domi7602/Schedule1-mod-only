@@ -21,13 +21,15 @@ namespace StorageScanner
             {
                 MelonLogger.Warning("Failed to register StorageScannerInputFocus: " + ex.Message);
             }
-            GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
+            GameLifecycle.OnPreLoad += OnPreLoad;
+            GameLifecycle.OnLoadComplete += OnLoadComplete;
             MelonLogger.Msg($"Initialized ({Constants.ModVersion}).");
         }
 
         public override void OnApplicationQuit()
         {
-            GameLifecycle.OnSaveInfoLoaded -= OnSaveInfoLoaded;
+            GameLifecycle.OnPreLoad -= OnPreLoad;
+            GameLifecycle.OnLoadComplete -= OnLoadComplete;
         }
 
         public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
@@ -39,17 +41,30 @@ namespace StorageScanner
             }
         }
 
-        private void OnSaveInfoLoaded()
+        // OnSaveInfoLoaded fires 0x on game 0.4.7f6+ (lifecycle-verify 2026-09-29), so the reset
+        // runs on OnPreLoad and the owned-property refresh waits for OnLoadComplete.
+        private void OnPreLoad()
         {
             try
             {
                 StorageScannerApp.ResetForNewSave();
-                StorageScannerApp.ActiveSource?.RefreshPropertyCache();
                 StorageScannerApp.ActiveSource?.ClearItemCache();
             }
             catch (Exception ex)
             {
-                MelonLogger.Warning("OnSaveInfoLoaded handler failed: " + ex.Message);
+                MelonLogger.Warning("OnPreLoad handler failed: " + ex.Message);
+            }
+        }
+
+        private void OnLoadComplete()
+        {
+            try
+            {
+                StorageScannerApp.ActiveSource?.RefreshPropertyCache();
+            }
+            catch (Exception ex)
+            {
+                MelonLogger.Warning("OnLoadComplete handler failed: " + ex.Message);
             }
         }
     }
