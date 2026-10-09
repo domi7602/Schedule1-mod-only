@@ -54,7 +54,7 @@ internal sealed class NotesAppInputFocus : MonoBehaviour
                 textInput.Select();
                 textInput.ActivateInputField();
             }
-            else if (textInput != null && textInput.isFocused && (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && titleInput != null)
+            else if (textInput != null && textInput.isFocused && titleInput != null)
             {
                 titleInput.Select();
                 titleInput.ActivateInputField();

@@ -95,13 +95,15 @@ public sealed class NotesApp : PhoneApp
         {
             string legacyPath = SafeStorage.GetUserDataPath("NotesApp", SaveFileName);
             if (!File.Exists(legacyPath)) return;
-            if (File.Exists(slotPath)) { try { File.Delete(legacyPath); } catch { } return; }
+            // Keep the legacy file as a backup instead of deleting it when the slot file already exists.
+            if (File.Exists(slotPath)) { try { File.Move(legacyPath, legacyPath + ".migrated", overwrite: true); } catch { } return; }
             File.Move(legacyPath, slotPath);
         }
         catch { }
     }
     private int _editingIndex = -1;
     private int _detailIndex = -1;
+    private bool _discardArmed;
     private int _pendingDeleteIndex = -1;
 
     // --- UI References ---
@@ -171,21 +173,6 @@ public sealed class NotesApp : PhoneApp
             else if (_detailRoot != null && _detailRoot.activeSelf)
             {
                 ShowList();
-            }
-        }
-
-        // Tab: Focus switch between Title and Body in Editor
-        if (Input.GetKeyDown(KeyCode.Tab) && _editorRoot != null && _editorRoot.activeSelf)
-        {
-            if (_titleInput != null && _titleInput.isFocused && _textInput != null)
-            {
-                _textInput.Select();
-                _textInput.ActivateInputField();
-            }
-            else if (_textInput != null && _textInput.isFocused && _titleInput != null)
-            {
-                _titleInput.Select();
-                _titleInput.ActivateInputField();
             }
         }
 
@@ -974,6 +961,7 @@ public sealed class NotesApp : PhoneApp
 
     private void SwitchToEditor()
     {
+        _discardArmed = false;
         _listRoot.SetActive(false);
         _detailRoot.SetActive(false);
         _editorRoot.SetActive(true);
@@ -985,15 +973,48 @@ public sealed class NotesApp : PhoneApp
 
     private void CancelEditor()
     {
+        // Unsaved changes need a second Cancel: the first only warns in the header.
+        if (IsEditorDirty() && !_discardArmed)
+        {
+            _discardArmed = true;
+            _editorHeader.text = "Unsaved changes - press Cancel again to discard";
+            return;
+        }
+
+        _discardArmed = false;
+        ReturnFromEditor();
+    }
+
+    private bool IsEditorDirty()
+    {
+        string title = _titleInput.text?.Trim() ?? "";
+        string text = _textInput.text?.Trim() ?? "";
+        if (_editingIndex >= 0 && _editingIndex < _notes.Count)
+            return title != _notes[_editingIndex].Title || text != _notes[_editingIndex].Text;
+        return title.Length > 0 || text.Length > 0;
+    }
+
+    /// <summary>Back to the note's detail after editing an existing note, otherwise to the list.</summary>
+    private void ReturnFromEditor()
+    {
+        var edited = _editingIndex >= 0 && _editingIndex < _notes.Count ? _notes[_editingIndex] : null;
         _editingIndex = -1;
-        ShowList();
+        int index = edited != null ? _notes.IndexOf(edited) : -1;
+        if (index >= 0)
+            ShowDetail(index);
+        else
+            ShowList();
     }
 
     private void SaveEditor()
     {
         var title = _titleInput.text?.Trim() ?? "";
         var text = _textInput.text?.Trim() ?? "";
-        if (string.IsNullOrEmpty(title) && string.IsNullOrEmpty(text)) return;
+        if (string.IsNullOrEmpty(title) && string.IsNullOrEmpty(text))
+        {
+            _editorHeader.text = "Nothing to save - add a title or text";
+            return;
+        }
 
         if (_editingIndex >= 0 && _editingIndex < _notes.Count)
         {
@@ -1011,10 +1032,10 @@ public sealed class NotesApp : PhoneApp
                 UpdatedAt = DateTime.UtcNow,
                 IsPinned = false
             });
+            _editingIndex = -1;
         }
-        _editingIndex = -1;
         Save();
-        ShowList();
+        ReturnFromEditor();
     }
 
     private void InsertQuickStamp()

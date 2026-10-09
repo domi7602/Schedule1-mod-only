@@ -41,7 +41,7 @@ Older save files (`List<string>`) and notes without `UpdatedAt`/`IsPinned` prope
 
 - **Target Framework:** `net6.0` (C# 12)
 - **Mod Loader:** MelonLoader 0.7.3 (IL2CPP)
-- **Dependencies:** `S1API` (3.1.15+), `S1Mods.Shared`
+- **Dependencies:** `S1API` (3.2.1-beta.8), `S1Mods.Shared`
 - **UI Engine:** Unity uGUI (`Canvas`, `ScrollRect`, `VerticalLayoutGroup`, `UIFactory`, `EventHelper`)
 
 ---
