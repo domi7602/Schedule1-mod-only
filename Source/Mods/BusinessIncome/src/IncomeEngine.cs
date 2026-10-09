@@ -23,6 +23,22 @@ namespace BusinessIncome.Services;
 /// </summary>
 public static class IncomeEngine
 {
+    /// <summary>One booked (or unknown-outcome) daily payout. In-memory only - cleared on game restart.</summary>
+    public sealed record PayoutHistoryEntry(
+        int Day,
+        string Slot,
+        PayoutOutcome Outcome,
+        float Gross,
+        float Costs,
+        float Net,
+        int BusinessCount);
+
+    private const int PayoutHistoryCapacity = 7;
+    private static readonly List<PayoutHistoryEntry> PayoutHistory = new();
+
+    /// <summary>Last payouts recorded this session, oldest first (max 7, all save slots).</summary>
+    public static PayoutHistoryEntry[] GetRecentPayouts() => PayoutHistory.ToArray();
+
     /// <summary>
     /// Checks whether the current instance is host/server or running in singleplayer.
     /// Consolidated 2026-09-15 in S1Mods.Shared.NetworkGuard.IsHostOrSingleplayer
@@ -166,12 +182,18 @@ public static class IncomeEngine
                 break;
         }
 
+        if (result.Outcome is PayoutOutcome.Requested or PayoutOutcome.BookedStateNotSaved or PayoutOutcome.UnknownOutcome
+            or PayoutOutcome.ZeroNet or PayoutOutcome.NoBusinesses)
+        {
+            RecordPayout(elapsedDays, result.Outcome, totalGross, totalCosts, totalNet, lines.Count);
+        }
+
         if (config.EnableNotifications)
         {
             if (result.Outcome is PayoutOutcome.BookedStateNotSaved or PayoutOutcome.UnknownOutcome)
                 SendBlockerNotification($"+${totalNet.ToString("N0", CultureInfo.InvariantCulture)} requested — save NOT confirmed. Run 'biz pending confirm|resolve'.");
             else if (result.Outcome == PayoutOutcome.Requested)
-                SendNotification(totalNet, lines.Count, config.PlayCashSound);
+                SendNotification(totalNet, totalGross, totalCosts, lines, config.PlayCashSound);
             else if (result.Outcome is PayoutOutcome.BlockedPending or PayoutOutcome.BlockedStateCorrupt)
                 SendBlockerNotification($"Payout for day {elapsedDays} blocked: {result.Detail}. Run 'biz pending confirm|resolve'.");
         }
@@ -188,10 +210,17 @@ public static class IncomeEngine
         bool isDryRun = false)
         => ExecuteDailyPayout(elapsedDays, config, force, commit, isDryRun).Succeeded;
 
+    private static void RecordPayout(int day, PayoutOutcome outcome, float gross, float costs, float net, int businessCount)
+    {
+        PayoutHistory.Add(new PayoutHistoryEntry(day, PayoutStateStore.GetActiveSlotSuffix(), outcome, gross, costs, net, businessCount));
+        if (PayoutHistory.Count > PayoutHistoryCapacity)
+            PayoutHistory.RemoveAt(0);
+    }
+
     /// <summary>
     /// Sends an in-game HUD notification via the NotificationsManager.
     /// </summary>
-    private static void SendNotification(float totalNet, int businessCount, bool playSound)
+    private static void SendNotification(float totalNet, float totalGross, float totalCosts, List<BusinessRevenueLine> lines, bool playSound)
     {
         try
         {
@@ -199,7 +228,15 @@ public static class IncomeEngine
             if (notifMgr != null && (UnityEngine.Object)notifMgr != null)
             {
                 string title = "Business Revenue";
-                string sub = $"+${totalNet.ToString("N0", CultureInfo.InvariantCulture)} from {businessCount} {(businessCount == 1 ? "business" : "businesses")}";
+                int businessCount = lines.Count;
+                string sub = $"+${totalNet.ToString("N0", CultureInfo.InvariantCulture)} requested, not confirmed ({businessCount} {(businessCount == 1 ? "business" : "businesses")}) · " +
+                             $"gross ${totalGross.ToString("N0", CultureInfo.InvariantCulture)} · costs ${totalCosts.ToString("N0", CultureInfo.InvariantCulture)}";
+                var top = lines.OrderByDescending(l => l.NetRevenue).FirstOrDefault();
+                if (top != null)
+                {
+                    string topName = string.IsNullOrWhiteSpace(top.DisplayName) ? top.BusinessId : top.DisplayName;
+                    sub += $" · top: {ConfigCollectionSanitizer.EscapeForConsole(topName)}";
+                }
                 notifMgr.SendNotification(title, sub, BusinessIcon.Get(), 5f, playSound);
             }
         }

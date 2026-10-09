@@ -54,6 +54,6 @@ Scalar values live in `UserData/MelonPreferences.cfg` under `[BusinessIncome]`. 
 
 A fresh ledger records the installation day as initialization, not as a payout. Exceptions after invoking the bank leave the outcome unknown and block retries with a pending marker. Corrupt state, backup-only state and unresolved marker artifacts fail closed. Never delete a ledger or marker as a generic repair: that can enable duplicate payouts.
 
-The float-based revenue formula and deterministic variance remain unchanged. Feature additions such as payout history and a phone app are outside this safety/refactor batch.
+The float-based revenue formula and deterministic variance remain unchanged. Payout history (last 7 payouts, in memory) is shown by `biz stats`, and `biz set mult <id> <value>` configures per-business multipliers from the console; a phone app remains out of scope.
 
-See [safety verification and consolidated gameplay checklist](SAFETY-TESTS.md). The candidate remains compile-only until an explicit deployment; native lifecycle and actual settlement are not proven by unit tests.
+See [safety verification and consolidated gameplay checklist](SAFETY-TESTS.md). Builds auto-deploy to the game directory; native lifecycle and actual settlement are not proven by unit tests.

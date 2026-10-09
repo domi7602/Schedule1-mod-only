@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using BusinessIncome.Config;
 using BusinessIncome.Core;
@@ -19,6 +20,8 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
         "BusinessIncome: stats, trigger [--commit], config, set <key> <val>, pending, catchup, help";
 
     public override string ExampleUsage => "biz stats";
+
+    private const float MaxConsoleMultiplier = 10f;
 
     public override void ExecuteCommand(List<string> args)
     {
@@ -170,6 +173,23 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
             sb.AppendLine($"<color=#aaaaaa>Operating Costs:</color> -${totalCosts.ToString("N2", CultureInfo.InvariantCulture)} ({config.OperatingCostRate * 100:0}%)");
         }
 
+        var recent = IncomeEngine.GetRecentPayouts().Where(e => e.Slot == slotSuffix).ToList();
+        if (recent.Count > 0)
+        {
+            sb.AppendLine("<color=#444444>--------------------------------------------------</color>");
+            sb.AppendLine("<color=#aaaaaa>Recent payouts (this session only, last 7):</color>");
+            sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0,5} {1,-22} {2,8} {3,8} {4,8}", "Day", "Status", "Gross", "Costs", "Net"));
+            foreach (var e in recent)
+            {
+                sb.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0,5} {1,-22} {2,8} {3,8} {4,8}",
+                    e.Day,
+                    e.Outcome,
+                    "$" + e.Gross.ToString("N0", CultureInfo.InvariantCulture),
+                    "$" + e.Costs.ToString("N0", CultureInfo.InvariantCulture),
+                    "$" + e.Net.ToString("N0", CultureInfo.InvariantCulture)));
+            }
+        }
+
         sb.AppendLine("<color=#60f080>==================================================</color>");
         Print(sb.ToString());
     }
@@ -297,7 +317,7 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
     {
         if (args.Count < 3)
         {
-            Print("<color=#ff6060>Usage:</color> biz set <base|hour|costs|notif|sound|maxcatchup> <value>");
+            Print("<color=#ff6060>Usage:</color> biz set <base|hour|costs|notif|sound|maxcatchup> <value>  |  biz set mult <businessId> <value>");
             return;
         }
 
@@ -307,6 +327,11 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
 
         switch (key)
         {
+            case "mult":
+            case "multiplier":
+                ExecuteSetMultiplier(args);
+                return;
+
             case "base":
             case "baseincome":
                 if (float.TryParse(val, NumberStyles.Float, CultureInfo.InvariantCulture, out float baseVal)
@@ -370,8 +395,54 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
                 return;
 
             default:
-                Print($"<color=#ff6060>Unknown key '{key}'.</color> Allowed: base, hour, costs, notif, sound, maxcatchup");
+                Print($"<color=#ff6060>Unknown key '{key}'.</color> Allowed: base, hour, costs, notif, sound, maxcatchup, mult");
                 return;
+        }
+    }
+
+    /// <summary>
+    /// Sets one business multiplier. Multipliers live only in the JSON sidecar, so the change is
+    /// written through ConfigJsonStore and reverted in memory when that write fails.
+    /// </summary>
+    private void ExecuteSetMultiplier(List<string> args)
+    {
+        const string usage = "Usage: biz set mult <businessId> <value>";
+        if (args.Count < 4)
+        {
+            Print($"<color=#ff6060>{usage}</color> (value > 0 and <= {MaxConsoleMultiplier.ToString("0", CultureInfo.InvariantCulture)})");
+            return;
+        }
+
+        string id = args[2];
+        if (!ConfigCollectionSanitizer.IsSafeId(id))
+        {
+            Print($"<color=#ff6060>Invalid business id '{ConfigCollectionSanitizer.EscapeForConsole(id)}' (letters, digits and '_' only).</color> {usage}");
+            return;
+        }
+
+        if (!float.TryParse(args[3], NumberStyles.Float, CultureInfo.InvariantCulture, out float mult)
+            || !float.IsFinite(mult) || mult <= 0f || mult > MaxConsoleMultiplier)
+        {
+            Print($"<color=#ff6060>Invalid multiplier (must be finite, > 0 and <= {MaxConsoleMultiplier.ToString("0", CultureInfo.InvariantCulture)}).</color> {usage}");
+            return;
+        }
+
+        var cfg = ModConfig<BusinessIncomeConfig>.Instance;
+        bool existed = cfg.PropertyMultipliers.TryGetValue(id, out float previous);
+        cfg.PropertyMultipliers[id] = mult;
+
+        if (ConfigJsonStore.Save(cfg))
+        {
+            string change = existed
+                ? $"(was {previous.ToString("0.00", CultureInfo.InvariantCulture)}x)"
+                : "(new entry)";
+            Print($"<color=#60f080>Multiplier for '{ConfigCollectionSanitizer.EscapeForConsole(id)}' set to {mult.ToString("0.00", CultureInfo.InvariantCulture)}x {change} and saved to the JSON sidecar.</color>");
+        }
+        else
+        {
+            if (existed) cfg.PropertyMultipliers[id] = previous;
+            else cfg.PropertyMultipliers.Remove(id);
+            Print("<color=#ff6060>Multiplier NOT saved: the JSON sidecar could not be written. The in-memory value was reverted.</color>");
         }
     }
 
@@ -415,6 +486,7 @@ public sealed class BusinessConsoleCommand : BaseConsoleCommand
         sb.AppendLine("  biz trigger --commit       - Executes real payout and saves marker");
         sb.AppendLine("  biz config                 - Shows current configuration");
         sb.AppendLine("  biz set <key> <val>        - Configures settings at runtime");
+        sb.AppendLine("  biz set mult <id> <val>    - Sets one business multiplier (0 < val <= 10)");
         sb.AppendLine("  biz pending [confirm|resolve] - Resolve an unchecked payout after a crash");
         sb.AppendLine("  biz catchup                - Shows catch-up backlog and MaxCatchupDays cap");
         sb.AppendLine("  biz help                   - Shows this help");
