@@ -1,6 +1,6 @@
 # CalculatorApp
 
-A feature-rich, tactile **Calculator PhoneApp** for *Schedule I* (v0.4.6f13) powered by the **S1API PhoneApp** framework and **S1Mods.Shared**.
+A feature-rich, tactile **Calculator PhoneApp** for *Schedule I* (v0.4.7, IL2CPP) powered by the **S1API PhoneApp** framework and **S1Mods.Shared**.
 
 ## Features
 
@@ -21,9 +21,10 @@ A feature-rich, tactile **Calculator PhoneApp** for *Schedule I* (v0.4.6f13) pow
 - **Input Focus Protection**:
   - `CalculatorAppInputFocus` prevents character movement (WASD) and game shortcut triggers while searching history.
 - **SafeStorage Persistence**:
-  - Atomic JSON persistence (`UserData/CalculatorApp/calculator_state.json`) with `.bak` backup protection.
+  - Atomic JSON persistence with `.bak` backup protection — one file per save slot (`UserData/CalculatorApp/calculator_state_slot_<N>.json`); a legacy `calculator_state.json` is migrated automatically.
 - **Physical Keyboard & Numpad Support**:
-  - `0-9`, `+`, `-`, `*`, `/`, `Enter`/`=`, `Backspace`, `Escape`/`C`, `.`, <kbd>Ctrl+C</kbd>, <kbd>Ctrl+V</kbd>, <kbd>Tab</kbd>/<kbd>Ctrl+H</kbd>.
+  - Keypad tab: `0-9` (numpad or number row), `+`, `-`, `*`, `/`, `.`/`,`, `Enter`/`=`, `Backspace`, `Delete`/`C` (clear).
+  - Both tabs: <kbd>Ctrl+C</kbd>, <kbd>Ctrl+V</kbd>, <kbd>Tab</kbd>/<kbd>Ctrl+H</kbd> (switch between keypad and history).
 
 ## Installation & Build
 

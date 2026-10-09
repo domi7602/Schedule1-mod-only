@@ -194,8 +194,8 @@ public sealed class CalculatorApp : PhoneApp
 
         if (!open) return;
 
-        // Handle physical keyboard input when Keypad view is active
-        if (NetworkGuard.IsAlive(_keypadRoot) && _keypadRoot.activeSelf)
+        // Shortcuts (Tab/Ctrl+H, Ctrl+C/V) work on both tabs; calculator keys only on the keypad.
+        if (NetworkGuard.IsAlive(_keypadRoot))
         {
             HandleKeyboardInput();
         }
@@ -924,6 +924,8 @@ public sealed class CalculatorApp : PhoneApp
             }
             return;
         }
+
+        if (_keypadRoot == null || !_keypadRoot.activeSelf) return;
 
         // Digits 0-9
         if (Input.GetKeyDown(KeyCode.Keypad0) || Input.GetKeyDown(KeyCode.Alpha0)) _engine.InputDigit(0);
