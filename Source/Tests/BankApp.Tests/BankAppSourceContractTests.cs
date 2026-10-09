@@ -30,29 +30,61 @@ public sealed class BankAppSourceContractTests
         Assert.Contains("UISprites.", source, StringComparison.Ordinal);
     }
 
+    // ---- single screen: no second pane, no tab navigation ----
+
     [Fact]
-    public void View_HasOnlyOverviewAndTransactionWithoutActivityOrTabStrip()
+    public void View_IsASingleScreen_WithoutTabsOrBackNavigation()
     {
         string source = AppSource();
 
-        Assert.Contains("BankTab.Overview", source, StringComparison.Ordinal);
-        Assert.Contains("BankTab.Transaction", source, StringComparison.Ordinal);
-        Assert.DoesNotContain("BankTab.Activity", source, StringComparison.Ordinal);
+        Assert.Contains("BuildSingleScreen", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BankTab", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BankNavigation", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("SetTab", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BuildTransactionPane", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("_transactionRoot", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("_overviewRoot", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("OpenTransaction", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BuildActionsCard", source, StringComparison.Ordinal);
         Assert.DoesNotContain("BuildActivity", source, StringComparison.Ordinal);
-        Assert.DoesNotContain("RenderActivity", source, StringComparison.Ordinal);
-        Assert.DoesNotContain("TabStrip", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("< Back", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BuildTabButton", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("BuildTabStrip", source, StringComparison.Ordinal);
     }
 
     [Fact]
-    public void View_ShowsOverviewBalanceCashAndWeeklyLimit()
+    public void View_KeepsOneScrollHelper_ForTheWholePage()
     {
         string source = AppSource();
 
-        Assert.Contains("ONLINE BALANCE", source, StringComparison.Ordinal);
-        Assert.Contains("CASH ON HAND", source, StringComparison.Ordinal);
-        Assert.Contains("WEEKLY DEPOSIT LIMIT", source, StringComparison.Ordinal);
-        Assert.Contains("remaining", source, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("reset", source, StringComparison.OrdinalIgnoreCase);
+        // Exactly one ScrollRect-backed body: the page itself.
+        Assert.Contains("BuildScroll(\"BankAppScroll\"", source, StringComparison.Ordinal);
+        Assert.Single(Regex.Matches(source, Regex.Escape("BuildScroll(\"")));
+    }
+
+    // ---- required content ----
+
+    [Fact]
+    public void View_ShowsOnlineBalanceCashOnHandAndHeaderMeta()
+    {
+        string source = AppSource();
+
+        Assert.Contains("Online balance", source, StringComparison.Ordinal);
+        Assert.Contains("Cash on hand", source, StringComparison.Ordinal);
+        Assert.Contains("BankApp", source, StringComparison.Ordinal);
+        Assert.Contains("BankService.GetCurrentInGameDay", source, StringComparison.Ordinal);
+        Assert.Contains("BankService.GetCurrentInGameTimeString", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void View_HasModeSwitcherThatNeverNavigates()
+    {
+        string source = AppSource();
+
+        Assert.Contains("BuildModeSwitcher", source, StringComparison.Ordinal);
+        Assert.Contains("BuildModeButton(row.transform, \"Deposit\"", source, StringComparison.Ordinal);
+        Assert.Contains("BuildModeButton(row.transform, \"Withdraw\"", source, StringComparison.Ordinal);
+        Assert.Contains("SetMode(mode)", source, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -68,20 +100,39 @@ public sealed class BankAppSourceContractTests
     }
 
     [Fact]
-    public void View_RendersFeeNetDebitBalancePreview()
+    public void AmountField_IsGuardedByTheInputFocusComponent()
     {
         string source = AppSource();
 
-        Assert.Contains("TRANSACTION PREVIEW", source, StringComparison.Ordinal);
-        Assert.Contains("Balance after", source, StringComparison.Ordinal);
-        Assert.Contains("quote.Fee", source, StringComparison.Ordinal);
-        Assert.Contains("quote.Net", source, StringComparison.Ordinal);
-        Assert.Contains("quote.Debit", source, StringComparison.Ordinal);
-        Assert.Contains("quote.BalanceAfter", source, StringComparison.Ordinal);
+        Assert.Contains("_amountInput = field.AddComponent<InputField>()", source, StringComparison.Ordinal);
+        Assert.Contains("_inputFocus.amountInput = _amountInput", source, StringComparison.Ordinal);
     }
 
     [Fact]
-    public void ActionButton_IsDisabledWithInlineReason()
+    public void View_RendersFeeAndBalanceAfterPreview()
+    {
+        string source = AppSource();
+
+        Assert.Contains("PREVIEW", source, StringComparison.Ordinal);
+        Assert.Contains("Balance after", source, StringComparison.Ordinal);
+        Assert.Contains("quote.Fee", source, StringComparison.Ordinal);
+        Assert.Contains("quote.BalanceAfter", source, StringComparison.Ordinal);
+        Assert.Contains("TransferMath.ComputeQuote", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void WeeklyLine_UsesRemainingLimitAndResetCountdown()
+    {
+        string source = AppSource();
+
+        Assert.Contains("Weekly limit left", source, StringComparison.Ordinal);
+        Assert.Contains("GetRemainingWeeklyAtmLimit", source, StringComparison.Ordinal);
+        Assert.Contains("TransferMath.DaysUntilWeeklyReset", source, StringComparison.Ordinal);
+        Assert.Contains("Resets in", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void PrimaryButton_IsDisabledWithInlineReason()
     {
         string source = AppSource();
 
@@ -90,12 +141,13 @@ public sealed class BankAppSourceContractTests
     }
 
     [Fact]
-    public void TransactionPane_HasBackNavigation()
+    public void RecentActivity_KeepsHistoryGrouping()
     {
         string source = AppSource();
 
-        Assert.Contains("BankNavigation.Back", source, StringComparison.Ordinal);
-        Assert.Contains("BankNavigation.DefaultTab", source, StringComparison.Ordinal);
+        Assert.Contains("HistoryGrouping.GroupByDay", source, StringComparison.Ordinal);
+        Assert.Contains("HistoryDayGroup", source, StringComparison.Ordinal);
+        Assert.Contains("group.Label", source, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -107,42 +159,13 @@ public sealed class BankAppSourceContractTests
         Assert.Contains("sizeDelta = Vector2.zero", source, StringComparison.Ordinal);
     }
 
-    // ---- redesign guards (separate transaction pane) ----
-
     [Fact]
-    public void View_ExposesSeparateTransactionPane()
+    public void CloseAndEscape_StayWithThePhone()
     {
         string source = AppSource();
 
-        Assert.Contains("BankTab.Transaction", source, StringComparison.Ordinal);
-        Assert.Contains("BuildTransactionPane", source, StringComparison.Ordinal);
-        Assert.Contains("_transactionRoot", source, StringComparison.Ordinal);
-        Assert.Contains("TRANSACTION PREVIEW", source, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Overview_ActionsOpenTheTransactionPane()
-    {
-        string source = AppSource();
-
-        Assert.Contains("BuildActionsCard", source, StringComparison.Ordinal);
-        Assert.Contains("OpenTransaction", source, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void View_DoesNotBuildUnusedNavigationButtons()
-    {
-        string source = AppSource();
-
-        Assert.DoesNotContain("BuildTabButton", source, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void Escape_Hierarchy_UsesTheS1ApiExitOverride()
-    {
-        string source = AppSource();
-
-        Assert.Contains("public override void Exit(", source, StringComparison.Ordinal);
+        // No in-app Exit override: the app is one screen, so the phone's own exit chain handles it.
+        Assert.DoesNotContain("public override void Exit(", source, StringComparison.Ordinal);
         Assert.DoesNotContain("Input.GetKeyDown(KeyCode.Escape)", source, StringComparison.Ordinal);
     }
 
@@ -164,15 +187,6 @@ public sealed class BankAppSourceContractTests
     }
 
     [Fact]
-    public void WeeklyReset_UsesTheDayCountdown()
-    {
-        string source = AppSource();
-
-        Assert.Contains("TransferMath.DaysUntilWeeklyReset", source, StringComparison.Ordinal);
-        Assert.DoesNotContain("Resets weekly (Week", source, StringComparison.Ordinal);
-    }
-
-    [Fact]
     public void SuccessFeedback_Expires()
     {
         string source = AppSource();
@@ -185,7 +199,7 @@ public sealed class BankAppSourceContractTests
     {
         string source = AppSource();
 
-        Assert.Contains("TransactionHistoryService.GetWeeklyDeposits", source, StringComparison.Ordinal);
+        Assert.Contains("GetRemainingWeeklyAtmLimit", source, StringComparison.Ordinal);
         Assert.Contains("DispatchHistoryChanged", source, StringComparison.Ordinal);
     }
 

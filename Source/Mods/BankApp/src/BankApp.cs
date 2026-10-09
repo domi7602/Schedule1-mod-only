@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using BankApp.Config;
 using BankApp.Logic;
+using BankApp.Models;
 using BankApp.Services;
 using BankApp.UI;
 using MelonLoader;
@@ -24,11 +26,16 @@ public enum TransferMode
 
 /// <summary>
 /// Mobile Banking smartphone app for Schedule I.
-/// Overview and Transaction panes built against the shared <see cref="GamePalette"/> +
-/// <c>UISprites</c>: balances + weekly limit, Deposit/Withdraw modes, a guarded amount field with
-/// fixed/relative presets and a live fee/net/debit/balance-after preview.
+/// <para>
+/// One screen, top to bottom: header (app name, in-game day and clock) → balance hero
+/// (online balance + cash on hand) → Deposit/Withdraw mode switcher → guarded amount field
+/// with quick-amount chips → live fee / balance-after preview (plus the weekly-limit line
+/// while depositing) → the primary action → the newest five transactions grouped by day.
+/// Everything below the header lives in a single scroll helper, so the page scrolls as a
+/// whole and no code path ever opens a second screen.
+/// </para>
 /// All money figures come from the shared <see cref="TransferMath"/>
-/// seam so the preview, the MAX buttons and <c>BankService</c> agree exactly.
+/// seam so the preview, the MAX chip and <c>BankService</c> agree exactly.
 /// </summary>
 public sealed class BankApp : PhoneApp
 {
@@ -42,28 +49,19 @@ public sealed class BankApp : PhoneApp
     protected override Sprite IconSprite => BuildIconSprite();
 
     private GameObject _mainBG = null!;
-    private GameObject _contentRoot = null!;
-    private GameObject _overviewRoot = null!;
-    private RectTransform _overviewContent = null!;
-    private ScrollRect _overviewScroll = null!;
-    private GameObject _transactionRoot = null!;
-    private RectTransform _transactionContent = null!;
 
     // Balances
     private Text _cashText = null!;
     private Text _onlineText = null!;
 
-    // Weekly limit
-    private Text _weeklyValueText = null!;
-    private Text _weeklyRemainingText = null!;
-    private Text _weeklyResetText = null!;
-    private RectTransform _weeklyBarFill = null!;
+    // Header meta (in-game day + clock)
+    private Text _headerMetaText = null!;
 
-    // Mode tabs
-    private Image _depositTabBg = null!;
-    private Text _depositTabText = null!;
-    private Image _withdrawTabBg = null!;
-    private Text _withdrawTabText = null!;
+    // Mode switcher
+    private Image _depositModeBg = null!;
+    private Text _depositModeText = null!;
+    private Image _withdrawModeBg = null!;
+    private Text _withdrawModeText = null!;
 
     // Amount (guarded direct input)
     private InputField _amountInput = null!;
@@ -71,17 +69,20 @@ public sealed class BankApp : PhoneApp
     private bool _suppressInput;
 
     // Preview
-    private Text _previewAmountText = null!;
     private Text _previewFeeText = null!;
-    private Text _previewNetLabel = null!;
-    private Text _previewNetText = null!;
-    private Text _previewDebitLabel = null!;
-    private Text _previewDebitText = null!;
     private Text _previewBalanceText = null!;
     private GameObject _previewFeeRow = null!;
+    private GameObject _weeklyRow = null!;
+    private Text _weeklyRemainingText = null!;
+    private Text _weeklyResetText = null!;
 
-    // Transaction pane header
-    private Text _transactionTitleText = null!;
+    // Recent transactions: fixed slots, updated in place on every refresh
+    private const int RecentRowCount = 5;
+    private readonly GameObject[] _recentRows = new GameObject[RecentRowCount];
+    private readonly Text[] _recentWhenTexts = new Text[RecentRowCount];
+    private readonly Text[] _recentKindTexts = new Text[RecentRowCount];
+    private readonly Text[] _recentAmountTexts = new Text[RecentRowCount];
+    private Text _recentEmptyText = null!;
 
     // Action
     private Image _confirmBtnBg = null!;
@@ -92,7 +93,6 @@ public sealed class BankApp : PhoneApp
     private Text _feedbackText = null!;
 
     private TransferMode _mode = TransferMode.Deposit;
-    private BankTab _tab = BankNavigation.DefaultTab;
     private float _enteredAmount;
     private float _lastRefreshTime;
     private TransferQuote _quote;
@@ -114,7 +114,7 @@ public sealed class BankApp : PhoneApp
         MelonEvents.OnUpdate.Subscribe(DispatchUpdate);
         S1API.Money.Money.OnBalanceChanged += DispatchBalanceChanged;
         TransactionHistoryService.OnHistoryChanged += DispatchHistoryChanged;
-        MelonLogger.Msg("Registered with S1API PhoneApp system (v0.4.5).");
+        MelonLogger.Msg("Registered with S1API PhoneApp system (v0.5.0).");
     }
 
     internal static void TearDownForSceneUnload()
@@ -171,22 +171,13 @@ public sealed class BankApp : PhoneApp
 
         BuildHeader(_mainBG.transform);
 
-        // Content host: fills the remaining height; Overview and Transaction swap here.
-        _contentRoot = UIFactory.Panel("ContentRoot", _mainBG.transform, new Color(0f, 0f, 0f, 0f));
-        NoRaycast(_contentRoot);
-        var contentLe = _contentRoot.AddComponent<LayoutElement>();
-        contentLe.flexibleHeight = 1f;
-        contentLe.minHeight = UITheme.Dp(200f);
-
-        _overviewContent = BuildScroll("OverviewScroll", _contentRoot.transform, out _overviewScroll, out _overviewRoot);
-        BuildOverview(_overviewContent);
-
-        _transactionRoot = BuildTransactionPane(_contentRoot.transform, out _transactionContent);
+        // The single page: one scroll helper holds every section below the header.
+        RectTransform content = BuildScroll("BankAppScroll", _mainBG.transform, out _, out _);
+        BuildSingleScreen(content);
 
         _inputFocus = _mainBG.AddComponent<BankAppInputFocus>();
         _inputFocus.amountInput = _amountInput;
 
-        SetTab(BankNavigation.DefaultTab, playSound: false);
         RefreshAll();
     }
 
@@ -205,147 +196,44 @@ public sealed class BankApp : PhoneApp
         hlg.childForceExpandWidth = false;
         hlg.childForceExpandHeight = false;
 
-        var icon = UIFactory.Text("HeaderIcon", "$", header.transform, UITheme.Sp(18), TextAnchor.MiddleCenter, FontStyle.Bold);
-        icon.color = BankTheme.AccentBlue;
-        icon.raycastTarget = false;
-        SetWidth(icon.gameObject, UITheme.Dp(22f));
-
-        var title = UIFactory.Text("HeaderTitle", "National Bank", header.transform, UITheme.Sp(16), TextAnchor.MiddleLeft, FontStyle.Bold);
+        var title = UIFactory.Text("HeaderTitle", "BankApp", header.transform, UITheme.Sp(16), TextAnchor.MiddleLeft, FontStyle.Bold);
         title.color = BankTheme.TextPrimary;
         title.raycastTarget = false;
         var le = title.gameObject.AddComponent<LayoutElement>();
         le.flexibleWidth = 1f;
+
+        _headerMetaText = UIFactory.Text("HeaderMeta", string.Empty, header.transform, UITheme.Sp(12), TextAnchor.MiddleRight);
+        _headerMetaText.color = BankTheme.TextMuted;
+        _headerMetaText.raycastTarget = false;
+        var mle = _headerMetaText.gameObject.AddComponent<LayoutElement>();
+        mle.flexibleWidth = 1f;
     }
 
-    // --- Overview ----------------------------------------------------------
+    private void UpdateHeader()
+    {
+        if (!IsAlive(_headerMetaText)) return;
+        _headerMetaText.text = $"Day {BankService.GetCurrentInGameDay()} \u2022 {BankService.GetCurrentInGameTimeString()}";
+    }
 
-    private void BuildOverview(Transform content)
+    // --- Single page ----------------------------------------------------------
+
+    /// <summary>
+    /// The whole screen in reading order: balance hero, mode switcher, amount (field + chips),
+    /// preview, primary action, then the recent-activity trail. There is no second pane — the
+    /// mode switcher and the chips only change state, they never navigate.
+    /// </summary>
+    private void BuildSingleScreen(Transform content)
     {
         BuildBalanceCard(content);
-        BuildActionsCard(content);
-        BuildWeeklyCard(content);
-    }
-
-    /// <summary>
-    /// Overview quick actions: two large, equal-width Deposit / Withdraw tiles (green / orange),
-    /// placed directly under the balance hero and above the weekly card to match the mockup.
-    /// Each tile opens the transaction pane pre-set to that direction.
-    /// </summary>
-    private void BuildActionsCard(Transform parent)
-    {
-        var card = BuildCard(parent, "ActionsCard", UITheme.Dp(112f));
-        Stack(card, UITheme.Dp(8f));
-        SectionLabel(card.transform, "QUICK ACTIONS");
-
-        var row = Row(card.transform, UITheme.Dp(84f));
-        var hlg = row.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = UITheme.Dp(8f);
-        hlg.childControlWidth = true;
-        hlg.childControlHeight = true;
-        hlg.childForceExpandWidth = true;   // both tiles share the row equally
-        hlg.childForceExpandHeight = true;
-
-        BuildActionButton(row.transform, "Deposit", TransferMode.Deposit, "CASH \u2192 BANK");
-        BuildActionButton(row.transform, "Withdraw", TransferMode.Withdraw, "BANK \u2192 CASH");
-    }
-
-    private void BuildActionButton(Transform parent, string label, TransferMode mode, string caption)
-    {
-        Color accent = mode == TransferMode.Deposit ? BankTheme.AccentGreen : BankTheme.AccentOrange;
-        var go = UIFactory.Panel("Action_" + label, parent, accent);
-        var img = go.GetComponent<Image>();
-        img.sprite = UISprites.Rounded(10f, 32);
-        img.type = Image.Type.Sliced;
-
-        var button = go.AddComponent<Button>();
-        button.targetGraphic = img;
-        ButtonUtils.AddListener(button, () => OpenTransaction(mode));
-
-        var vlg = go.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = UITheme.Dp(2f);
-        vlg.childAlignment = TextAnchor.MiddleCenter;
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = true;
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
-
-        var text = UIFactory.Text("Label", label.ToUpperInvariant(), go.transform, UITheme.Sp(16), TextAnchor.MiddleCenter, FontStyle.Bold);
-        text.color = Color.white;
-        text.raycastTarget = false;
-        SetHeight(text.gameObject, UITheme.Dp(20f));
-
-        var sub = UIFactory.Text("Caption", caption, go.transform, UITheme.Sp(10), TextAnchor.MiddleCenter);
-        sub.color = new Color(1f, 1f, 1f, 0.85f);
-        sub.raycastTarget = false;
-        SetHeight(sub.gameObject, UITheme.Dp(14f));
-    }
-
-    // --- Transaction pane (Deposit / Withdraw drill-in) --------------------
-
-    /// <summary>
-    /// The transaction screen opened from an Overview action. Builds a compact fixed back/title head,
-    /// a flexible scrolling body (mode toggle, dominant amount field, 3x2 preset grid, unified
-    /// preview) and a fixed footer holding the primary action so it stays at the bottom of the pane.
-    /// </summary>
-    private GameObject BuildTransactionPane(Transform parent, out RectTransform scrollContent)
-    {
-        var pane = UIFactory.Panel("TransactionPane", parent, new Color(0f, 0f, 0f, 0f), fullAnchor: true);
-        var vlg = pane.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = UITheme.Dp(6f);
-        vlg.padding = new RectOffset((int)UITheme.Dp(2f), (int)UITheme.Dp(2f), (int)UITheme.Dp(2f), (int)UITheme.Dp(6f));
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = true;
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
-
-        // Compact drill-in head (fixed): back + title.
-        var head = Row(pane.transform, UITheme.Dp(38f));
-        var hlg = head.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = UITheme.Dp(8f);
-        hlg.childAlignment = TextAnchor.MiddleLeft;
-        hlg.childControlWidth = true;
-        hlg.childControlHeight = true;
-        hlg.childForceExpandWidth = false;
-        hlg.childForceExpandHeight = false;
-
-        var back = UIFactory.Panel("TransBackButton", head.transform, BankTheme.CardBg);
-        var bimg = back.GetComponent<Image>();
-        bimg.sprite = UISprites.Rounded(8f, 32);
-        bimg.type = Image.Type.Sliced;
-        var ble = back.AddComponent<LayoutElement>();
-        ble.preferredWidth = UITheme.Dp(72f);
-        ble.minWidth = UITheme.Dp(72f);
-        SetHeight(back, UITheme.Dp(30f));
-        var bbtn = back.AddComponent<Button>();
-        bbtn.targetGraphic = bimg;
-        ButtonUtils.AddListener(bbtn, () => SetTab(BankNavigation.Back(_tab)));
-        var blabel = UIFactory.Text("Label", "< Back", back.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
-        blabel.color = BankTheme.TextPrimary;
-        blabel.raycastTarget = false;
-        Stretch(blabel.rectTransform, 0f);
-
-        _transactionTitleText = UIFactory.Text("TransTitle", "Deposit", head.transform, UITheme.Sp(16), TextAnchor.MiddleLeft, FontStyle.Bold);
-        _transactionTitleText.color = BankTheme.TextPrimary;
-        _transactionTitleText.raycastTarget = false;
-        var tle = _transactionTitleText.gameObject.AddComponent<LayoutElement>();
-        tle.flexibleWidth = 1f;
-
-        // Flexible scrolling body.
-        scrollContent = BuildScroll("TransactionScroll", pane.transform, out _, out _);
-        BuildModeTabs(scrollContent);
-        BuildAmountCard(scrollContent);
-        BuildChipGrid(scrollContent);
-        BuildPreviewCard(scrollContent);
-
-        // Fixed footer: the primary action and the feedback line stay at the bottom.
-        BuildConfirmButton(pane.transform);
-        _feedbackText = UIFactory.Text("FeedbackText", "", pane.transform, UITheme.Sp(12), TextAnchor.MiddleCenter, FontStyle.Bold);
+        BuildModeSwitcher(content);
+        BuildAmountCard(content);
+        BuildPreviewCard(content);
+        BuildConfirmButton(content);
+        _feedbackText = UIFactory.Text("FeedbackText", "", content, UITheme.Sp(12), TextAnchor.MiddleCenter, FontStyle.Bold);
         _feedbackText.color = BankTheme.AccentGreen;
         _feedbackText.horizontalOverflow = HorizontalWrapMode.Wrap;
         SetHeight(_feedbackText.gameObject, UITheme.Dp(20f));
-
-        pane.SetActive(false);
-        return pane;
+        BuildRecentCard(content);
     }
 
     /// <summary>
@@ -358,7 +246,7 @@ public sealed class BankApp : PhoneApp
         var vlg = Stack(card, UITheme.Dp(8f));
         vlg.childAlignment = TextAnchor.MiddleLeft;
 
-        var caption = SectionLabel(card.transform, "ONLINE BALANCE");
+        var caption = SectionLabel(card.transform, "Online balance");
         caption.color = new Color(1f, 1f, 1f, 0.72f);
 
         _onlineText = UIFactory.Text("OnlineBalance", "$ 0", card.transform, UITheme.Sp(38), TextAnchor.MiddleLeft, FontStyle.Bold);
@@ -373,7 +261,7 @@ public sealed class BankApp : PhoneApp
         rowHlg.childForceExpandWidth = false;
         rowHlg.childForceExpandHeight = true;
 
-        var caption2 = UIFactory.Text("CashCaption", "CASH ON HAND", row.transform, UITheme.Sp(13), TextAnchor.MiddleLeft);
+        var caption2 = UIFactory.Text("CashCaption", "Cash on hand", row.transform, UITheme.Sp(13), TextAnchor.MiddleLeft);
         caption2.color = new Color(1f, 1f, 1f, 0.70f);
         caption2.raycastTarget = false;
         var cle = caption2.gameObject.AddComponent<LayoutElement>();
@@ -386,65 +274,13 @@ public sealed class BankApp : PhoneApp
         vle.flexibleWidth = 1f;
     }
 
-    private void BuildWeeklyCard(Transform parent)
+    /// <summary>
+    /// Mode switcher: two equal-width, 44dp-tall Deposit / Withdraw buttons. Switching only
+    /// changes the mode, the action label and the preview — it never navigates anywhere.
+    /// </summary>
+    private void BuildModeSwitcher(Transform parent)
     {
-        var card = BuildCard(parent, "WeeklyCard", UITheme.Dp(90f));
-        Stack(card, UITheme.Dp(8f));
-
-        var head = Row(card.transform, UITheme.Dp(22f));
-        var hhlg = head.AddComponent<HorizontalLayoutGroup>();
-        hhlg.childControlWidth = true;
-        hhlg.childControlHeight = true;
-        hhlg.childForceExpandWidth = false;
-        hhlg.childForceExpandHeight = true;
-
-        var caption = UIFactory.Text("WeeklyCaption", "WEEKLY DEPOSIT LIMIT", head.transform, UITheme.Sp(12), TextAnchor.MiddleLeft);
-        caption.color = BankTheme.TextMuted;
-        caption.raycastTarget = false;
-        var cle = caption.gameObject.AddComponent<LayoutElement>();
-        cle.flexibleWidth = 1f;
-
-        _weeklyValueText = UIFactory.Text("WeeklyValue", "0 / 0", head.transform, UITheme.Sp(13), TextAnchor.MiddleRight, FontStyle.Bold);
-        _weeklyValueText.color = BankTheme.AccentBlue;
-        _weeklyValueText.raycastTarget = false;
-        var vle = _weeklyValueText.gameObject.AddComponent<LayoutElement>();
-        vle.flexibleWidth = 1f;
-
-        var track = UIFactory.Panel("WeeklyBarTrack", card.transform, BankTheme.CardBgSecondary);
-        NoRaycast(track);
-        SetHeight(track, UITheme.Dp(10f));
-
-        var fill = UIFactory.Panel("WeeklyBarFill", track.transform, BankTheme.AccentBlue);
-        NoRaycast(fill);
-        _weeklyBarFill = fill.GetComponent<RectTransform>();
-        _weeklyBarFill.anchorMin = new Vector2(0f, 0f);
-        _weeklyBarFill.anchorMax = new Vector2(0f, 1f);
-        _weeklyBarFill.offsetMin = Vector2.zero;
-        _weeklyBarFill.offsetMax = Vector2.zero;
-
-        var foot = Row(card.transform, UITheme.Dp(18f));
-        var fhlg = foot.AddComponent<HorizontalLayoutGroup>();
-        fhlg.childControlWidth = true;
-        fhlg.childControlHeight = true;
-        fhlg.childForceExpandWidth = false;
-        fhlg.childForceExpandHeight = true;
-
-        _weeklyRemainingText = UIFactory.Text("WeeklyRemaining", "$ 0 remaining", foot.transform, UITheme.Sp(12), TextAnchor.MiddleLeft);
-        _weeklyRemainingText.color = BankTheme.TextMuted;
-        _weeklyRemainingText.raycastTarget = false;
-        var rle = _weeklyRemainingText.gameObject.AddComponent<LayoutElement>();
-        rle.flexibleWidth = 1f;
-
-        _weeklyResetText = UIFactory.Text("WeeklyReset", "Resets weekly", foot.transform, UITheme.Sp(11), TextAnchor.MiddleRight);
-        _weeklyResetText.color = BankTheme.TextDim;
-        _weeklyResetText.raycastTarget = false;
-        var tle = _weeklyResetText.gameObject.AddComponent<LayoutElement>();
-        tle.flexibleWidth = 1f;
-    }
-
-    private void BuildModeTabs(Transform parent)
-    {
-        var row = Row(parent, UITheme.Dp(40f));
+        var row = Row(parent, UITheme.Dp(44f));
         var hlg = row.AddComponent<HorizontalLayoutGroup>();
         hlg.spacing = UITheme.Dp(6f);
         hlg.childControlWidth = true;
@@ -452,8 +288,8 @@ public sealed class BankApp : PhoneApp
         hlg.childForceExpandWidth = true;
         hlg.childForceExpandHeight = true;
 
-        BuildModeButton(row.transform, "Deposit", TransferMode.Deposit, out _depositTabBg, out _depositTabText);
-        BuildModeButton(row.transform, "Withdraw", TransferMode.Withdraw, out _withdrawTabBg, out _withdrawTabText);
+        BuildModeButton(row.transform, "Deposit", TransferMode.Deposit, out _depositModeBg, out _depositModeText);
+        BuildModeButton(row.transform, "Withdraw", TransferMode.Withdraw, out _withdrawModeBg, out _withdrawModeText);
     }
 
     private void BuildModeButton(Transform parent, string label, TransferMode mode, out Image bg, out Text text)
@@ -533,31 +369,27 @@ public sealed class BankApp : PhoneApp
         clabel.color = BankTheme.TextMuted;
         clabel.raycastTarget = false;
         Stretch(clabel.rectTransform, 0f);
+
+        BuildQuickChips(card.transform);
     }
 
     /// <summary>
-    /// Preset grid matching the mockup: two rows of three fixed amounts ($100..$10,000), then a row
-    /// of 25% / 50% / MAX. Three equal-width chips per row.
+    /// Quick-amount chips directly under the amount field: $100 / $500 / $1,000 write the shared
+    /// fixed presets into the field, MAX writes the largest amount the current mode allows
+    /// (<see cref="BankService.GetMaxDepositableCash"/> / <see cref="BankService.GetMaxWithdrawableCash"/>).
     /// </summary>
-    private void BuildChipGrid(Transform parent)
+    private void BuildQuickChips(Transform parent)
     {
-        BuildChipTriple(parent,
+        BuildChipRow(parent,
             ("$100", (Action)(() => SetAmount(TransferMath.AmountPresets[0]))),
             ("$500", () => SetAmount(TransferMath.AmountPresets[1])),
-            ("$1,000", () => SetAmount(TransferMath.AmountPresets[2])));
-        BuildChipTriple(parent,
-            ("$2,500", () => SetAmount(TransferMath.AmountPresets[3])),
-            ("$5,000", () => SetAmount(TransferMath.AmountPresets[4])),
-            ("$10,000", () => SetAmount(TransferMath.AmountPresets[5])));
-        BuildChipTriple(parent,
-            ("25%", () => SetAmount(TransferMath.PercentageOfMax(TransferMath.RelativePresets[0], CurrentAllowedMax()))),
-            ("50%", () => SetAmount(TransferMath.PercentageOfMax(TransferMath.RelativePresets[1], CurrentAllowedMax()))),
+            ("$1,000", () => SetAmount(TransferMath.AmountPresets[2])),
             ("MAX", () => SetAmount(CurrentAllowedMax())));
     }
 
-    private void BuildChipTriple(Transform parent, params (string label, Action onClick)[] chips)
+    private void BuildChipRow(Transform parent, params (string label, Action onClick)[] chips)
     {
-        var row = Row(parent, UITheme.Dp(40f));
+        var row = Row(parent, UITheme.Dp(44f));
         var hlg = row.AddComponent<HorizontalLayoutGroup>();
         hlg.spacing = UITheme.Dp(6f);
         hlg.childControlWidth = true;
@@ -589,21 +421,61 @@ public sealed class BankApp : PhoneApp
 
     private void BuildPreviewCard(Transform parent)
     {
-        var card = BuildCard(parent, "PreviewCard", UITheme.Dp(166f));
+        var card = BuildCard(parent, "PreviewCard", UITheme.Dp(92f));
         Stack(card, UITheme.Dp(4f));
-        SectionLabel(card.transform, "TRANSACTION PREVIEW");
+        SectionLabel(card.transform, "PREVIEW");
 
-        BuildStatRow(card.transform, "Amount", BankTheme.TextPrimary, out _previewAmountText);
         _previewFeeRow = BuildStatRow(card.transform, "Fee", BankTheme.AccentOrange, out _previewFeeText, out _);
-        BuildStatRow(card.transform, "You receive", BankTheme.AccentGreen, out _previewNetText, out _previewNetLabel);
-        BuildStatRow(card.transform, "Bank debit", BankTheme.AccentOrange, out _previewDebitText, out _previewDebitLabel);
-        BuildStatRow(card.transform, "Balance after", BankTheme.AccentTeal, out _previewBalanceText);
+        BuildStatRow(card.transform, "Balance after", BankTheme.AccentTeal, out _previewBalanceText, out _);
+        BuildWeeklyBlock(card.transform);
 
         _reasonText = UIFactory.Text("Reason", "", card.transform, UITheme.Sp(12), TextAnchor.MiddleLeft);
         _reasonText.color = BankTheme.AccentRed;
         _reasonText.horizontalOverflow = HorizontalWrapMode.Wrap;
         _reasonText.raycastTarget = false;
         SetHeight(_reasonText.gameObject, UITheme.Dp(18f));
+    }
+
+    /// <summary>
+    /// Weekly ATM limit line, shown only while depositing with the vanilla limit enabled:
+    /// the remaining deposit room plus the reset countdown from
+    /// <see cref="TransferMath.DaysUntilWeeklyReset"/>.
+    /// </summary>
+    private void BuildWeeklyBlock(Transform parent)
+    {
+        var block = UIFactory.Panel("WeeklyBlock", parent, new Color(0f, 0f, 0f, 0f));
+        NoRaycast(block);
+        var vlg = block.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = UITheme.Dp(2f);
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+        _weeklyRow = block;
+
+        var row = Row(block.transform, UITheme.Dp(19f));
+        var hlg = row.AddComponent<HorizontalLayoutGroup>();
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = false;
+        hlg.childForceExpandHeight = true;
+
+        var label = UIFactory.Text("WeeklyRemainingLabel", "Weekly limit left", row.transform, UITheme.Sp(12), TextAnchor.MiddleLeft);
+        label.color = BankTheme.TextMuted;
+        label.raycastTarget = false;
+        var lle = label.gameObject.AddComponent<LayoutElement>();
+        lle.flexibleWidth = 1f;
+
+        _weeklyRemainingText = UIFactory.Text("WeeklyRemaining", "\u2014", row.transform, UITheme.Sp(13), TextAnchor.MiddleRight, FontStyle.Bold);
+        _weeklyRemainingText.color = BankTheme.AccentBlue;
+        _weeklyRemainingText.raycastTarget = false;
+        var vle = _weeklyRemainingText.gameObject.AddComponent<LayoutElement>();
+        vle.flexibleWidth = 1f;
+
+        _weeklyResetText = UIFactory.Text("WeeklyReset", "", block.transform, UITheme.Sp(11), TextAnchor.MiddleLeft);
+        _weeklyResetText.color = BankTheme.TextDim;
+        _weeklyResetText.raycastTarget = false;
+        SetHeight(_weeklyResetText.gameObject, UITheme.Dp(16f));
     }
 
     private static GameObject BuildStatRow(Transform parent, string label, Color valueColor, out Text valueText, out Text labelText)
@@ -621,7 +493,7 @@ public sealed class BankApp : PhoneApp
         var lle = labelText.gameObject.AddComponent<LayoutElement>();
         lle.flexibleWidth = 1f;
 
-        valueText = UIFactory.Text("Value", "—", row.transform, UITheme.Sp(13), TextAnchor.MiddleRight, FontStyle.Bold);
+        valueText = UIFactory.Text("Value", "\u2014", row.transform, UITheme.Sp(13), TextAnchor.MiddleRight, FontStyle.Bold);
         valueText.color = valueColor;
         valueText.raycastTarget = false;
         var vle = valueText.gameObject.AddComponent<LayoutElement>();
@@ -651,27 +523,97 @@ public sealed class BankApp : PhoneApp
         Stretch(_confirmBtnText.rectTransform, 0f);
     }
 
+    /// <summary>
+    /// Receipt trail at the bottom of the page: the newest <see cref="RecentRowCount"/> entries,
+    /// one row each (day/time, direction, signed amount). Rows are built once and refreshed in place.
+    /// </summary>
+    private void BuildRecentCard(Transform parent)
+    {
+        var card = BuildCard(parent, "RecentCard", UITheme.Dp(80f));
+        Stack(card, UITheme.Dp(4f));
+        SectionLabel(card.transform, "RECENT");
+
+        _recentEmptyText = UIFactory.Text("RecentEmpty", "No transactions yet", card.transform, UITheme.Sp(12), TextAnchor.MiddleLeft);
+        _recentEmptyText.color = BankTheme.TextDim;
+        _recentEmptyText.raycastTarget = false;
+        SetHeight(_recentEmptyText.gameObject, UITheme.Dp(18f));
+
+        for (int i = 0; i < RecentRowCount; i++)
+        {
+            var row = Row(card.transform, UITheme.Dp(20f));
+            var hlg = row.AddComponent<HorizontalLayoutGroup>();
+            hlg.spacing = UITheme.Dp(8f);
+            hlg.childControlWidth = true;
+            hlg.childControlHeight = true;
+            hlg.childForceExpandWidth = true;
+            hlg.childForceExpandHeight = true;
+
+            _recentWhenTexts[i] = RecentCell(row.transform, "When", TextAnchor.MiddleLeft, BankTheme.TextMuted, 11);
+            _recentKindTexts[i] = RecentCell(row.transform, "Kind", TextAnchor.MiddleCenter, BankTheme.TextPrimary, 12);
+            _recentAmountTexts[i] = RecentCell(row.transform, "Amount", TextAnchor.MiddleRight, BankTheme.TextPrimary, 12);
+            _recentRows[i] = row;
+            row.SetActive(false);
+        }
+    }
+
+    private static Text RecentCell(Transform parent, string name, TextAnchor anchor, Color color, int fontSize)
+    {
+        var text = UIFactory.Text(name, string.Empty, parent, UITheme.Sp(fontSize), anchor, name == "Amount" ? FontStyle.Bold : FontStyle.Normal);
+        text.color = color;
+        text.raycastTarget = false;
+        var le = text.gameObject.AddComponent<LayoutElement>();
+        le.flexibleWidth = 1f;
+        return text;
+    }
+
+    private void UpdateRecent()
+    {
+        if (!IsAlive(_recentEmptyText)) return;
+
+        IReadOnlyList<BankTransaction> history = TransactionHistoryService.GetTransactions();
+        int count = Math.Min(RecentRowCount, history.Count);
+
+        // Only the newest slice is grouped; the stored list is already newest-first.
+        var latest = new List<BankTransaction>(count);
+        for (int i = 0; i < count; i++) latest.Add(history[i]);
+
+        int currentDay = BankService.GetCurrentInGameDay();
+        int slot = 0;
+        foreach (HistoryDayGroup group in HistoryGrouping.GroupByDay(latest, currentDay))
+        {
+            foreach (BankTransaction tx in group.Items)
+            {
+                SetRecentRow(slot, tx, group.Label);
+                slot++;
+            }
+        }
+
+        for (int i = 0; i < RecentRowCount; i++)
+        {
+            if (IsAlive(_recentRows[i])) _recentRows[i].SetActive(i < slot);
+        }
+        _recentEmptyText.gameObject.SetActive(slot == 0);
+    }
+
+    private void SetRecentRow(int slot, BankTransaction tx, string dayLabel)
+    {
+        _recentWhenTexts[slot].text = $"{dayLabel} {tx.InGameTime}";
+        _recentKindTexts[slot].text = DirectionLabel(tx.Type);
+        _recentAmountTexts[slot].text = (tx.Amount < 0f ? "-" : "+") + FormatMoney(Math.Abs(tx.Amount));
+        _recentAmountTexts[slot].color = tx.Amount < 0f ? BankTheme.AccentOrange : BankTheme.AccentGreen;
+    }
+
+    private static string DirectionLabel(TransactionType type) => type switch
+    {
+        TransactionType.Deposit => "Deposit",
+        TransactionType.Withdrawal => "Withdraw",
+        TransactionType.TransferIn => "Transfer in",
+        TransactionType.TransferOut => "Transfer out",
+        TransactionType.Fee => "Fee",
+        _ => type.ToString()
+    };
+
     // --- State changes -----------------------------------------------------
-
-    private void SetTab(BankTab tab, bool playSound = true)
-    {
-        _tab = tab;
-        bool overview = tab == BankTab.Overview;
-        bool transaction = tab == BankTab.Transaction;
-
-        if (IsAlive(_overviewRoot)) _overviewRoot.SetActive(overview);
-        if (IsAlive(_transactionRoot)) _transactionRoot.SetActive(transaction);
-        if (playSound) BankSoundService.PlayClick();
-    }
-
-    /// <summary>Opens the transaction pane pre-set to <paramref name="mode"/> (from an Overview action).</summary>
-    private void OpenTransaction(TransferMode mode)
-    {
-        _mode = mode;
-        UpdateModeVisuals();
-        UpdatePreviewAndAction(ModConfig<BankAppConfig>.Instance);
-        SetTab(BankTab.Transaction);
-    }
 
     private void SetMode(TransferMode mode)
     {
@@ -679,6 +621,7 @@ public sealed class BankApp : PhoneApp
         BankSoundService.PlayClick();
         UpdateModeVisuals();
         UpdatePreviewAndAction(ModConfig<BankAppConfig>.Instance);
+        UpdateWeekly(ModConfig<BankAppConfig>.Instance);
     }
 
     private void SetAmount(float value)
@@ -779,11 +722,10 @@ public sealed class BankApp : PhoneApp
     private void UpdateModeVisuals()
     {
         bool deposit = _mode == TransferMode.Deposit;
-        if (_depositTabBg != null) _depositTabBg.color = deposit ? BankTheme.AccentGreen : BankTheme.CardBg;
-        if (_withdrawTabBg != null) _withdrawTabBg.color = deposit ? BankTheme.CardBg : BankTheme.AccentOrange;
-        if (_depositTabText != null) _depositTabText.color = deposit ? Color.white : BankTheme.TextMuted;
-        if (_withdrawTabText != null) _withdrawTabText.color = deposit ? BankTheme.TextMuted : Color.white;
-        if (_transactionTitleText != null) _transactionTitleText.text = deposit ? "Deposit" : "Withdraw";
+        if (_depositModeBg != null) _depositModeBg.color = deposit ? BankTheme.AccentGreen : BankTheme.CardBg;
+        if (_withdrawModeBg != null) _withdrawModeBg.color = deposit ? BankTheme.CardBg : BankTheme.AccentOrange;
+        if (_depositModeText != null) _depositModeText.color = deposit ? Color.white : BankTheme.TextMuted;
+        if (_withdrawModeText != null) _withdrawModeText.color = deposit ? BankTheme.TextMuted : Color.white;
     }
 
     private void UpdatePreviewAndAction(BankAppConfig config)
@@ -791,20 +733,12 @@ public sealed class BankApp : PhoneApp
         _quote = ComputeCurrentQuote(config);
         bool valid = _quote.IsValid;
 
-        if (IsAlive(_previewAmountText))
-            _previewAmountText.text = _enteredAmount > 0f ? FormatMoney(_enteredAmount) : "—";
         if (IsAlive(_previewFeeText))
             _previewFeeText.text = valid
                 ? $"{FormatMoney(_quote.Fee)} ({TransferMath.SanitizeFeePercent(config.ServiceFeePercent):0.#}%)"
-                : "—";
+                : "\u2014";
         if (IsAlive(_previewFeeRow)) _previewFeeRow.SetActive(valid && _quote.Fee > 0f);
-        if (IsAlive(_previewNetText)) _previewNetText.text = valid ? FormatMoney(_quote.Net) : "—";
-        if (IsAlive(_previewDebitText)) _previewDebitText.text = valid ? FormatMoney(_quote.Debit) : "—";
-        if (IsAlive(_previewBalanceText)) _previewBalanceText.text = valid ? FormatMoney(_quote.BalanceAfter) : "—";
-
-        if (IsAlive(_previewNetLabel)) _previewNetLabel.text = "You receive";
-        if (IsAlive(_previewDebitLabel))
-            _previewDebitLabel.text = _mode == TransferMode.Deposit ? "Cash out" : "Bank debit";
+        if (IsAlive(_previewBalanceText)) _previewBalanceText.text = valid ? FormatMoney(_quote.BalanceAfter) : "\u2014";
 
         if (IsAlive(_reasonText))
         {
@@ -821,31 +755,29 @@ public sealed class BankApp : PhoneApp
         if (IsAlive(_confirmBtnText))
         {
             string verb = _mode == TransferMode.Deposit ? "DEPOSIT" : "WITHDRAW";
-            _confirmBtnText.text = _enteredAmount > 0f ? $"{verb} {FormatMoney(_enteredAmount)}" : verb;
+            string label = _enteredAmount > 0f ? $"{verb} {FormatMoney(_enteredAmount)}" : verb;
+            _confirmBtnText.text = label;
             _confirmBtnText.color = valid ? Color.white : BankTheme.TextDim;
         }
     }
 
+    /// <summary>
+    /// Weekly ATM limit line: remaining deposit room plus the reset countdown. Only relevant
+    /// for deposits, and only while the vanilla weekly limit is respected — the line is hidden
+    /// entirely otherwise.
+    /// </summary>
     private void UpdateWeekly(BankAppConfig config)
     {
-        bool limited = config.RespectVanillaAtmLimit;
-        float limit = BankService.VanillaWeeklyAtmLimit;
-        float used = limited ? TransactionHistoryService.GetWeeklyDeposits(BankService.GetCurrentInGameWeek()) : 0f;
-        float remaining = limited ? BankService.GetRemainingWeeklyAtmLimit() : float.MaxValue;
+        bool show = config.RespectVanillaAtmLimit && _mode == TransferMode.Deposit;
+        if (IsAlive(_weeklyRow)) _weeklyRow.SetActive(show);
+        if (!show) return;
 
-        if (IsAlive(_weeklyValueText))
-            _weeklyValueText.text = limited ? $"{used:N0} / {limit:N0}" : "No weekly limit";
-        if (IsAlive(_weeklyRemainingText))
-            _weeklyRemainingText.text = limited ? $"{FormatMoney(remaining)} remaining" : "Unlimited weekly deposits";
+        float remaining = BankService.GetRemainingWeeklyAtmLimit();
+        if (IsAlive(_weeklyRemainingText)) _weeklyRemainingText.text = FormatMoney(remaining);
         if (IsAlive(_weeklyResetText))
         {
             int daysUntilReset = TransferMath.DaysUntilWeeklyReset(BankService.GetCurrentInGameDay());
-            _weeklyResetText.text = $"Resets in {daysUntilReset}d";
-        }
-        if (_weeklyBarFill != null)
-        {
-            float fraction = limited && limit > 0f ? Mathf.Clamp01(used / limit) : 0f;
-            _weeklyBarFill.anchorMax = new Vector2(fraction, 1f);
+            _weeklyResetText.text = $"Resets in {daysUntilReset} days";
         }
     }
 
@@ -864,10 +796,12 @@ public sealed class BankApp : PhoneApp
 
         var config = ModConfig<BankAppConfig>.Instance;
 
+        UpdateHeader();
         if (IsAlive(_onlineText)) _onlineText.text = FormatMoney(BankService.GetOnlineBalance());
         if (IsAlive(_cashText)) _cashText.text = FormatMoney(BankService.GetCashBalance());
 
         UpdateWeekly(config);
+        UpdateRecent();
         UpdateModeVisuals();
         UpdatePreviewAndAction(config);
     }
@@ -969,14 +903,14 @@ public sealed class BankApp : PhoneApp
     }
 
     /// <summary>
-    /// Fixed-height band helper for the top-level chrome (header, tab strip) and every fixed row.
+    /// Fixed-height band helper for the top-level chrome (header) and every fixed row.
     /// <para>
     /// Root fix for the "band swallows the screen" bug: a LayoutElement that leaves
     /// <c>flexibleHeight</c> unset (-1) stops reporting it, so the layout system falls through to a
     /// sibling layout group on the same GameObject. A HorizontalLayoutGroup with
     /// <c>childForceExpandHeight = true</c> promotes each child to flexible >= 1 and reports a
     /// positive flexible height, so the parent vertical group hands that band the lion's share of
-    /// the spare space (header/tab strip grew to ~140px each on a 560px screen). Pinning
+    /// the spare space (header grew to ~140px on a 560px screen). Pinning
     /// <c>flexibleHeight = 0</c> with <c>layoutPriority = 1</c> makes this value win, so only the
     /// intended content viewport keeps positive height flexibility.
     /// </para>
@@ -1038,7 +972,6 @@ public sealed class BankApp : PhoneApp
             _mainBG.SetActive(open);
             if (open)
             {
-                SetTab(BankNavigation.DefaultTab, playSound: false);
                 RefreshAll();
             }
         }
@@ -1057,25 +990,6 @@ public sealed class BankApp : PhoneApp
             _lastRefreshTime = Time.unscaledTime;
             RefreshAll();
         }
-    }
-
-    /// <summary>
-    /// Escape follows S1API's native phone exit chain instead of polling the key ourselves: a
-    /// Transaction pane is popped first and the exit request consumed;
-    /// on Overview the base implementation closes the app exactly like any other native app.
-    /// </summary>
-    public override void Exit(ExitAction exit)
-    {
-        if (exit.Used || !IsOpen()) return;
-
-        if (_tab == BankTab.Transaction)
-        {
-            exit.Used = true;
-            SetTab(BankNavigation.Back(_tab));
-            return;
-        }
-
-        base.Exit(exit);
     }
 
     private void OnExternalBalanceChanged()
@@ -1099,7 +1013,6 @@ public sealed class BankApp : PhoneApp
         _feedbackExpiry = 0f;
         SetAmountText(string.Empty);
         SetFeedback(string.Empty, false);
-        SetTab(BankNavigation.DefaultTab, playSound: false);
         // Update bleibt lebenslang subscribed (defensives Unsubscribe-Subscribe in OnCreated).
     }
 

@@ -80,7 +80,44 @@ public static class BankService
 
         int currentWeek = GetCurrentInGameWeek();
         float depositedThisWeek = TransactionHistoryService.GetWeeklyDeposits(currentWeek);
-        return Mathf.Max(0f, VanillaWeeklyAtmLimit - depositedThisWeek);
+        float remaining = Mathf.Max(0f, VanillaWeeklyAtmLimit - depositedThisWeek);
+
+        // Synced with the game's own ATM counter: the stricter of both remaining amounts wins.
+        if (TryReadVanillaWeekly(out float vanillaLimit, out float vanillaSum))
+            remaining = Mathf.Min(remaining, Mathf.Max(0f, vanillaLimit - vanillaSum));
+        return remaining;
+    }
+
+    /// <summary>Reads the game's static weekly ATM counter. False when disabled or unreadable (own counter stays in charge).</summary>
+    private static bool TryReadVanillaWeekly(out float limit, out float sum)
+    {
+        limit = 0f;
+        sum = 0f;
+        try
+        {
+            if (!Il2CppScheduleOne.Money.ATM.DepositLimitEnabled) return false;
+            limit = Il2CppScheduleOne.Money.ATM.WeeklyDepositLimit;
+            sum = Il2CppScheduleOne.Money.ATM.WeeklyDepositSum;
+            return limit > 0f;
+        }
+        catch (Exception ex)
+        {
+            MelonLoader.MelonLogger.Warning($"Vanilla ATM weekly counter unreadable, using own counter: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>Adds a BankApp deposit to the game's weekly ATM counter so the vanilla ATM honours it too.</summary>
+    private static void AddVanillaWeeklyDeposit(float amount)
+    {
+        try
+        {
+            Il2CppScheduleOne.Money.ATM.WeeklyDepositSum += amount;
+        }
+        catch (Exception ex)
+        {
+            MelonLoader.MelonLogger.Error($"Could not update vanilla ATM weekly counter (own counter kept): {ex.Message}");
+        }
     }
 
     public static float GetMaxDepositableCash()
@@ -169,6 +206,7 @@ public static class BankService
         if (config.RespectVanillaAtmLimit)
         {
             TransactionHistoryService.RecordWeeklyDeposit(amount, GetCurrentInGameWeek());
+            AddVanillaWeeklyDeposit(amount);
         }
 
         TransactionHistoryService.AddTransaction(new BankTransaction

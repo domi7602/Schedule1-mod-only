@@ -80,33 +80,29 @@ public static class VerticalLayoutModel
 public sealed class LayoutBudgetHarnessTests
 {
     private const float HeaderDp = 38f;
-    private const float TabsDp = 36f;
     private const float ViewportMinDp = 200f;
     private const float SpacingDp = 6f;
     private const float PaddingDp = 18f; // top 8 + bottom 10
 
     [Fact]
-    public void Overview_AtReferenceCanvas_KeepsTopBandsCompactAndViewportDominant()
+    public void SingleScreen_AtReferenceCanvas_KeepsHeaderCompactAndViewportDominant()
     {
         var bands = new[]
         {
             VerticalLayoutModel.Band.Fixed("Header", HeaderDp),
-            VerticalLayoutModel.Band.Fixed("Tabs", TabsDp),
             VerticalLayoutModel.Band.Grow("Viewport", ViewportMinDp, ViewportMinDp),
         };
 
         float[] h = VerticalLayoutModel.Distribute(bands, 750f, SpacingDp, PaddingDp);
 
         Assert.Equal(HeaderDp, h[0], 3);          // header never absorbs slack
-        Assert.Equal(TabsDp, h[1], 3);            // tabs never absorb slack
-        Assert.True(h[2] >= ViewportMinDp);       // viewport keeps its floor
-        Assert.True(h[2] > 600f, $"viewport should dominate: got {h[2]}");
+        Assert.True(h[1] >= ViewportMinDp);       // viewport keeps its floor
+        Assert.True(h[1] > 600f, $"viewport should dominate: got {h[1]}");
         Assert.True(h[0] <= 0.08f * 750f, $"header should be <= 8% of 750: got {h[0]}");
-        Assert.True(h[1] <= 0.08f * 750f, $"tabs should be <= 8% of 750: got {h[1]}");
     }
 
     [Fact]
-    public void Overview_AtInstalledScale_StillLeavesViewportDominant()
+    public void SingleScreen_AtInstalledScale_StillLeavesViewportDominant()
     {
         // Installed phone rect ~300x560 → UITheme.Scale = clamp(560/750, 0.85, 2.0) = 0.85.
         const float scale = 0.85f;
@@ -116,15 +112,12 @@ public sealed class LayoutBudgetHarnessTests
         var bands = new[]
         {
             VerticalLayoutModel.Band.Fixed("Header", dp(HeaderDp)),
-            VerticalLayoutModel.Band.Fixed("Tabs", dp(TabsDp)),
             VerticalLayoutModel.Band.Grow("Viewport", dp(ViewportMinDp), dp(ViewportMinDp)),
         };
 
         float[] h = VerticalLayoutModel.Distribute(bands, available, dp(SpacingDp), dp(PaddingDp));
-
         Assert.True(h[0] <= 0.10f * available, $"header should be <= 10% of the phone: got {h[0]}");
-        Assert.True(h[1] <= 0.10f * available, $"tabs should be <= 10% of the phone: got {h[1]}");
-        Assert.True(h[2] >= 0.70f * available, $"viewport should dominate the phone: got {h[2]}");
+        Assert.True(h[1] >= 0.70f * available, $"viewport should dominate the phone: got {h[1]}");
     }
 
     [Fact]
@@ -132,34 +125,30 @@ public sealed class LayoutBudgetHarnessTests
     {
         // Pre-fix: Header's LayoutElement left flexibleHeight unset (-1); its HorizontalLayoutGroup
         // with childForceExpandHeight=true reports flexibleHeight = childCount (2), so the parent
-        // vertical group split the spare space 2:1 and the header ballooned to most of the screen.
+        // vertical group split the spare space and the header ballooned to most of the screen.
         var buggy = new[]
         {
             VerticalLayoutModel.Band.Unpinned("Header", HeaderDp, HeaderDp, reportedFlexible: 2f),
-            VerticalLayoutModel.Band.Unpinned("Tabs", TabsDp, TabsDp, reportedFlexible: 2f),
             VerticalLayoutModel.Band.Grow("Viewport", ViewportMinDp, ViewportMinDp),
         };
         float[] before = VerticalLayoutModel.Distribute(buggy, 560f, SpacingDp, PaddingDp);
         Assert.True(before[0] > 120f, $"model must reproduce the header blowup (~140 on a 560 screen): got {before[0]}");
-        Assert.True(before[1] > 120f, $"model must reproduce the tab blowup: got {before[1]}");
 
         var fixedBands = new[]
         {
             VerticalLayoutModel.Band.Fixed("Header", HeaderDp),
-            VerticalLayoutModel.Band.Fixed("Tabs", TabsDp),
             VerticalLayoutModel.Band.Grow("Viewport", ViewportMinDp, ViewportMinDp),
         };
         float[] after = VerticalLayoutModel.Distribute(fixedBands, 560f, SpacingDp, PaddingDp);
         Assert.Equal(HeaderDp, after[0], 3);
-        Assert.Equal(TabsDp, after[1], 3);
-        Assert.True(after[2] > before[2], "pinning flexibleHeight=0 must hand the slack back to the viewport");
+        Assert.True(after[1] > before[1], "pinning flexibleHeight=0 must hand the slack back to the viewport");
     }
 }
 
 /// <summary>
 /// Source guards for the shipped view. These assert the actual code shape that fixes the layout /
-/// implements the mockup — they do NOT prove the runtime render. The numeric harness above carries
-/// the sizing budget; these carry the "the fix is actually in the file" contract.
+/// implements the single screen — they do NOT prove the runtime render. The numeric harness above
+/// carries the sizing budget; these carry the "the fix is actually in the file" contract.
 /// </summary>
 public sealed class BankAppLayoutSourceContractTests
 {
@@ -201,10 +190,19 @@ public sealed class BankAppLayoutSourceContractTests
         return count;
     }
 
+    /// <summary>Height token anywhere after the named element (tolerates nested calls between them).</summary>
     private static float DpValue(string body, string nameToken)
     {
-        var m = Regex.Match(body, Regex.Escape("\"" + nameToken + "\"") + @"[^)]*UITheme\.Dp\((\d+(?:\.\d+)?)f\)");
-        Assert.True(m.Success, $"no UITheme.Dp value near \"{nameToken}\"");
+        var m = Regex.Match(body, Regex.Escape("\"" + nameToken + "\"") + @"[\s\S]{0,240}?UITheme\.Dp\((\d+(?:\.\d+)?)f\)");
+        Assert.True(m.Success, $"no UITheme.Dp value after \"{nameToken}\"");
+        return float.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture);
+    }
+
+    /// <summary>Height of a <c>Row(parent, UITheme.Dp(nn))</c> band.</summary>
+    private static float RowDp(string body)
+    {
+        var m = Regex.Match(body, @"Row\([^)]*UITheme\.Dp\((\d+(?:\.\d+)?)f\)");
+        Assert.True(m.Success, "no Row(...UITheme.Dp(nn)) band in this method");
         return float.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture);
     }
 
@@ -232,22 +230,28 @@ public sealed class BankAppLayoutSourceContractTests
         string src = AppSource();
 
         Assert.Contains("childForceExpandHeight = false", MethodBody(src, "private void BuildHeader(Transform parent)"), StringComparison.Ordinal);
-        Assert.DoesNotContain("BuildTabStrip", src, StringComparison.Ordinal);
     }
 
-    // ---- Overview matches the mockup ordering / prominence ----
+    // ---- single screen: required ordering and prominence ----
 
     [Fact]
-    public void Overview_OrderIsBalanceThenActionsThenWeekly()
+    public void SingleScreen_OrderIsBalanceModeAmountPreviewActionRecent()
     {
-        string body = MethodBody(AppSource(), "private void BuildOverview(Transform content)");
+        string body = MethodBody(AppSource(), "private void BuildSingleScreen(Transform content)");
 
         int balance = body.IndexOf("BuildBalanceCard", StringComparison.Ordinal);
-        int actions = body.IndexOf("BuildActionsCard", StringComparison.Ordinal);
-        int weekly = body.IndexOf("BuildWeeklyCard", StringComparison.Ordinal);
+        int mode = body.IndexOf("BuildModeSwitcher", StringComparison.Ordinal);
+        int amount = body.IndexOf("BuildAmountCard", StringComparison.Ordinal);
+        int preview = body.IndexOf("BuildPreviewCard", StringComparison.Ordinal);
+        int action = body.IndexOf("BuildConfirmButton", StringComparison.Ordinal);
+        int recent = body.IndexOf("BuildRecentCard", StringComparison.Ordinal);
 
-        Assert.True(balance >= 0 && actions > balance && weekly > actions,
-            "Overview must be balance hero → large action tiles → weekly card");
+        Assert.True(balance >= 0, "balance hero must be built");
+        Assert.True(mode > balance, "mode switcher comes after the balance hero");
+        Assert.True(amount > mode, "amount comes after the mode switcher");
+        Assert.True(preview > amount, "preview comes after the amount");
+        Assert.True(action > preview, "primary action comes after the preview");
+        Assert.True(recent > action, "recent activity comes last");
     }
 
     [Fact]
@@ -260,83 +264,41 @@ public sealed class BankAppLayoutSourceContractTests
     }
 
     [Fact]
-    public void ActionTiles_AreLargeAndEqualWidth()
+    public void QuickChips_AreOneRowOfPresetsPlusMax()
     {
-        string body = MethodBody(AppSource(), "private void BuildActionsCard(Transform parent)");
+        string body = MethodBody(AppSource(), "private void BuildQuickChips(Transform parent)");
 
-        Assert.True(DpValue(body, "ActionsCard") >= 100f, "action band should be ~110dp");
-        Assert.Contains("childForceExpandWidth = true", body, StringComparison.Ordinal); // equal-width tiles
-        Assert.Contains("BuildActionButton(row.transform, \"Deposit\"", body, StringComparison.Ordinal);
-        Assert.Contains("BuildActionButton(row.transform, \"Withdraw\"", body, StringComparison.Ordinal);
-    }
-
-    // ---- Transaction pane: 3x2 preset grid + pinned primary button ----
-
-    [Fact]
-    public void ChipGrid_IsThreeColumnsByTwoRowsThenRelativeRow()
-    {
-        string body = MethodBody(AppSource(), "private void BuildChipGrid(Transform parent)");
-
-        Assert.Equal(3, Count(body, "BuildChipTriple(parent,"));
-        Assert.DoesNotContain("BuildChipRow(", body, StringComparison.Ordinal);
-
-        int[] order =
-        {
-            body.IndexOf("\"$100\"", StringComparison.Ordinal),
-            body.IndexOf("\"$500\"", StringComparison.Ordinal),
-            body.IndexOf("\"$1,000\"", StringComparison.Ordinal),
-            body.IndexOf("\"$2,500\"", StringComparison.Ordinal),
-            body.IndexOf("\"$5,000\"", StringComparison.Ordinal),
-            body.IndexOf("\"$10,000\"", StringComparison.Ordinal),
-        };
-        for (int i = 0; i < order.Length; i++) Assert.True(order[i] >= 0, "missing preset label");
-        for (int i = 1; i < order.Length; i++) Assert.True(order[i] > order[i - 1], "presets must stay in order");
-
-        Assert.Contains("\"25%\"", body, StringComparison.Ordinal);
-        Assert.Contains("\"50%\"", body, StringComparison.Ordinal);
+        Assert.Contains("TransferMath.AmountPresets[0]", body, StringComparison.Ordinal);
+        Assert.Contains("TransferMath.AmountPresets[1]", body, StringComparison.Ordinal);
+        Assert.Contains("TransferMath.AmountPresets[2]", body, StringComparison.Ordinal);
         Assert.Contains("\"MAX\"", body, StringComparison.Ordinal);
+        Assert.Equal(1, Count(body, "BuildChipRow(parent,"));
+
+        string rowBody = MethodBody(AppSource(), "private void BuildChipRow(Transform parent, params");
+        Assert.True(RowDp(rowBody) >= 44f, "chips must keep a touch target of at least 44dp");
     }
 
     [Fact]
-    public void ChipTriple_BuildsEqualWidthChipsInOneRow()
+    public void ModeButtons_KeepATouchTarget()
     {
-        string body = MethodBody(AppSource(), "private void BuildChipTriple(Transform parent, params");
+        string body = MethodBody(AppSource(), "private void BuildModeSwitcher(Transform parent)");
 
-        Assert.Contains("foreach", body, StringComparison.Ordinal);              // one row, N chips
-        Assert.Equal(1, Count(body, "BuildChip(row.transform"));                  // single call site per chip
-        Assert.Contains("childForceExpandWidth = true", body, StringComparison.Ordinal); // equal width
+        Assert.True(RowDp(body) >= 44f, "mode switcher buttons must be at least 44dp tall");
     }
 
     [Fact]
-    public void ChipGrid_SourcesSixFixedPresetsTwoRelativeAndMax()
+    public void PrimaryButton_IsTallEnoughToTap()
     {
-        string body = MethodBody(AppSource(), "private void BuildChipGrid(Transform parent)");
+        string body = MethodBody(AppSource(), "private void BuildConfirmButton(Transform parent)");
 
-        Assert.Equal(6, Count(body, "TransferMath.AmountPresets["));
-        Assert.Equal(2, Count(body, "TransferMath.RelativePresets["));
-        Assert.Equal(3, Count(body, "CurrentAllowedMax()")); // 25%, 50% ceiling + the MAX chip
+        Assert.True(DpValue(body, "ConfirmButton") >= 44f, "primary action must be at least 44dp tall");
     }
 
     [Fact]
-    public void TransactionPane_PinsPrimaryButtonAndUsesACompactHead()
-    {
-        string body = MethodBody(AppSource(), "private GameObject BuildTransactionPane(Transform parent");
-
-        Assert.Contains("BuildScroll(", body, StringComparison.Ordinal);                // the form scrolls
-        Assert.Contains("BuildConfirmButton(pane.transform)", body, StringComparison.Ordinal); // primary pinned in the footer
-        Assert.Contains("BuildPreviewCard(scrollContent)", body, StringComparison.Ordinal);   // preview lives in the body
-
-        var m = Regex.Match(body, @"Row\(pane\.transform,\s*UITheme\.Dp\((\d+)f\)\)");
-        Assert.True(m.Success, "drill-in head band not found");
-        Assert.True(int.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture) <= 44, "drill-in head must be compact");
-    }
-
-    [Fact]
-    public void TransactionAmount_IsDominant()
+    public void AmountField_IsDominant()
     {
         string body = MethodBody(AppSource(), "private void BuildAmountCard(Transform parent)");
 
-        Assert.True(SpValue(body, "\"Text\"") >= 24, "amount field text must dominate the pane");
+        Assert.True(SpValue(body, "\"Text\"") >= 24, "amount field text must dominate the screen");
     }
-
 }

@@ -1,6 +1,6 @@
 {
   "name": "BankApp",
   "author": "Dominik",
-  "version": "0.4.5",
-  "description": "Mobile Banking Smartphone App for Schedule I. Chip-based single-screen UI: weekly ATM limit progress bar, cash & online balances, quick-amount chip grid ($1–$1000, Clear, MAX), deposit/withdraw tabs, one confirm button."
+  "version": "0.5.0",
+  "description": "Mobile Banking Smartphone App for Schedule I. One screen, no navigation: header with in-game day and clock, balance hero, Deposit/Withdraw mode switcher, guarded amount field with quick chips ($100/$500/$1,000/MAX), live fee and balance-after preview with the weekly ATM limit line, one confirm button and the newest five transactions grouped by day."
 }

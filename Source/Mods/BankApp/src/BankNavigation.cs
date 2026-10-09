@@ -12,9 +12,9 @@ public sealed class HistoryDayGroup
 }
 
 /// <summary>
-/// Unity-free grouping for the Activity tab. The persisted list is already newest-first
-/// (TransactionHistoryService inserts at index 0), so grouping purely preserves that order
-/// while inserting a day header — no re-sorting that could scramble same-timestamp entries.
+/// Unity-free grouping for the activity list of the single screen. The persisted list is already
+/// newest-first (TransactionHistoryService inserts at index 0), so grouping purely preserves that
+/// order while inserting a day header — no re-sorting that could scramble same-timestamp entries.
 /// </summary>
 public static class HistoryGrouping
 {
@@ -58,26 +58,4 @@ public static class HistoryGrouping
 
         return groups;
     }
-}
-
-/// <summary>Available banking screens.</summary>
-public enum BankTab
-{
-    Overview,
-    Transaction
-}
-
-/// <summary>
-/// Trivial, testable navigation state for the transaction back button.
-/// Kept separate from the Unity view so the back target is covered by a plain unit test.
-/// </summary>
-public static class BankNavigation
-{
-    public const BankTab DefaultTab = BankTab.Overview;
-
-    /// <summary>
-    /// The back button of the Transaction pane returns to Overview;
-    /// Overview itself stays put (Escape/close is handled by the phone, not here).
-    /// </summary>
-    public static BankTab Back(BankTab current) => BankTab.Overview;
 }

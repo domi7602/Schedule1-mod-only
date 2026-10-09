@@ -32,7 +32,6 @@ public class HistoryAndNavigationTests
     public void NewEntry_CarriesGrossAndFee()
     {
         var entry = Tx(21, -2550f, TransactionType.Withdrawal, gross: 2500f, fee: 50f);
-
         Assert.True(entry.HasFeeBreakdown);
         Assert.Equal(2500f, entry.Gross!.Value, 4);
         Assert.Equal(50f, entry.Fee!.Value, 4);
@@ -75,20 +74,5 @@ public class HistoryAndNavigationTests
     {
         Assert.Empty(HistoryGrouping.GroupByDay(new List<BankTransaction>(), 27));
         Assert.Empty(HistoryGrouping.GroupByDay(null, 27));
-    }
-
-    [Fact]
-    public void Back_AlwaysReturnsToOverview()
-    {
-        Assert.Equal(BankTab.Overview, BankNavigation.Back(BankTab.Transaction));
-        Assert.Equal(BankTab.Overview, BankNavigation.Back(BankTab.Overview));
-        Assert.Equal(BankTab.Overview, BankNavigation.DefaultTab);
-    }
-
-    [Fact]
-    public void TransactionPane_IsASeparateTab()
-    {
-        Assert.NotEqual(BankTab.Overview, BankTab.Transaction);
-        Assert.Equal(new[] { BankTab.Overview, BankTab.Transaction }, Enum.GetValues<BankTab>());
     }
 }

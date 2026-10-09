@@ -25,7 +25,7 @@
   -->
   <ItemGroup>
     <Compile Include="..\..\Mods\BankApp\src\TransferMath.cs" Link="Production\TransferMath.cs" />
-    <Compile Include="..\..\Mods\BankApp\src\BankNavigation.cs" Link="Production\BankNavigation.cs" />
+    <Compile Include="..\..\Mods\BankApp\src\BankNavigation.cs" Link="Production\HistoryGrouping.cs" />
     <Compile Include="..\..\Mods\BankApp\src\BankTransaction.cs" Link="Production\BankTransaction.cs" />
   </ItemGroup>
 
