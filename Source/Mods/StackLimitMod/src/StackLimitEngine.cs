@@ -640,8 +640,8 @@ public static class StackLimitEngine
 
     /// <summary>
     /// Bug-Audit 2026-09-12 (Round 3): Restore every previously captured original stack
-    /// limit. Called from Mod.OnDeinitializeMelon (and from the `stack restore` console
-    /// command) so a disabling / unload / explicit-restore leaves the registry clean.
+    /// limit. Called from Mod.OnDeinitializeMelon so a disabling / unload leaves the
+    /// registry clean.
     /// Without this, mod uninstall / disable would leave overrides on every definition
     /// and survive reloads — Vanilla's <c>StackLimit</c> would never come back.
     /// </summary>

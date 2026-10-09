@@ -29,14 +29,20 @@
 using System;
 using HarmonyLib;
 using Il2CppScheduleOne.ObjectScripts;
+using Il2CppScheduleOne.UI;
 using Il2CppScheduleOne.UI.Stations;
 using S1Mods.Shared;
+using UnityEngine;
 
 namespace StackLimitMod;
 
 internal static class MixGuard
 {
+    private const long NoticeIntervalMs = 3000;
+
     private static ModLogger? _log;
+    private static long _lastNoticeTick = -NoticeIntervalMs;
+    private static Sprite? _noticeIcon;
 
     public static void Apply(HarmonyLib.Harmony harmony, ModLogger log)
     {
@@ -150,8 +156,53 @@ internal static class MixGuard
         return op != null && op.Pointer != IntPtr.Zero && !station.IsMixingDone;
     }
 
-    private static void Blocked(string where, MixingStation station) =>
+    private static void Blocked(string where, MixingStation station)
+    {
         _log?.Info($"MixGuard: blocked '{where}' - a mix is already running on this station.");
+        ShowBlockedNotice();
+    }
+
+    private static void ShowBlockedNotice()
+    {
+        long now = Environment.TickCount64;
+        if (now - _lastNoticeTick < NoticeIntervalMs) return;
+        _lastNoticeTick = now;
+        try
+        {
+            var notifMgr = NotificationsManager.Instance;
+            if (notifMgr != null && (UnityEngine.Object)notifMgr != null)
+                notifMgr.SendNotification("Mixing Station", "Mixing already running", GetNoticeIcon(), 3f, false);
+        }
+        catch (Exception ex) { _log?.Debug($"MixGuard: notice failed: {ex.Message}"); }
+    }
+
+    // Vanilla NotificationsManager draws a plain grey box when the icon is null.
+    private static Sprite GetNoticeIcon()
+    {
+        if (_noticeIcon != null) return _noticeIcon;
+
+        const int size = 64;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { name = "StackLimitMod_MixNotice" };
+        var amber = new Color32(196, 128, 32, 255);
+        var dark = new Color32(60, 40, 10, 255);
+        var px = new Color32[size * size];
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                bool bar =
+                    (x >= 14 && x < 50 && y >= 22 && y < 30) ||   // upper bar
+                    (x >= 14 && x < 50 && y >= 34 && y < 42);     // lower bar
+                px[y * size + x] = bar ? dark : amber;
+            }
+        }
+
+        tex.SetPixels32(px);
+        tex.Apply(false, true);
+        _noticeIcon = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+        return _noticeIcon;
+    }
 
     private static void F(string where, Exception ex) =>
         _log?.Warn($"MixGuard: {where} failed: {ex.GetType().Name}: {ex.Message} - start allowed");

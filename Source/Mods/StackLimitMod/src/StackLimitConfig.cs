@@ -14,8 +14,8 @@ public class StackLimitConfig
     // for backwards-compatibility with users who already have a config.json, but
     // documented here so new users understand the trade-off (quest items, unique
     // weapons become stackable, which can break certain quests and UI assumptions).
-    // Set to false in-game via `stack set overridenonstackable false` if you hit
-    // quest- or UI regressions.
+    // There is no console setter for this flag: set it to false in config.json and
+    // run `stack reload` if you hit quest- or UI regressions.
     public bool OverrideNonStackable { get; set; } = true;
     /// <summary>
     /// When true (default), stack limits are applied strictly to agriculture and farming items
