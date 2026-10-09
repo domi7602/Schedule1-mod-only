@@ -26,6 +26,11 @@
   -->
   <ItemGroup>
     <Compile Include="..\..\Mods\TaxiDriver\src\CleanupGuard.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\NavigationCallbackPolicy.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\VehicleOwnershipLedger.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\RideProtectionPolicy.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\TaxiVisualPolicy.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\TaxiConsolePolicy.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\DestinationFilter.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\FareLedger.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\FarePayment.cs" />

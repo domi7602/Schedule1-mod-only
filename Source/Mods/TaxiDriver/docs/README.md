@@ -1,63 +1,59 @@
-# TaxiDriver 0.2.0 (2026-09-26)
+# TaxiDriver 0.8.2 — TaxiApp service, no keyboard controls
 
-Stage 1 **feasibility spike** — extended by the Stage-2 visual swap and the
-Stage-3 driver ride (dev tool) for Schedule I 0.4.7f6 (TVGS, IL2CPP, MelonLoader).
-It proves the primitives the future taxi mod is built on:
+TaxiDriver is a Schedule I taxi service controlled through the in-game phone app.
+The current local target is Schedule I **0.4.7f12**, S1API **3.2.1-beta.8**,
+and S1MAPI **2.0.1**. The no-deploy Release build passed on 2026-10-08 against
+the installed references (0 warnings, 0 errors); no TaxiDriver in-game test was
+run. The app displays the calculated fare. A clean return from S1API's void Money
+methods does not confirm a balance change; the settlement summary labels returned,
+unknown and unpaid amounts separately. **Keine Behauptung vollständiger Beta-8-Kompatibilität ohne passenden Build
+beziehungsweise Laufzeittest.**
 
-1. **(a) Autonomous A→B drive** — `VehicleAgent.Navigate(target, settings, callback)`
-   drives the spike vehicle to a target. The callback uses the interop assembly's
-   implicit `Action<ENavigationResult> → VehicleAgent.NavigationCallback` conversion,
-   so `Failed`/`Complete`/`Stopped` ends the run authoritatively; the spike
-   additionally polls every 0.5 s, with a 45 s timeout that covers driving *and* a
-   path calculation that never finishes.
-2. **(b) NPC boards the vehicle** — the nearest living NPC from
-   `NPCManager.NPCRegistry` is passed to `NPC.EnterVehicle(null, veh)`, with
-   `LandVehicle.AddNPCOccupant(npc)` as a fallback, and the resulting seat state
-   is dumped seat-by-seat (driver flag + occupancy).
-3. **(c) Player in/out** — `LandVehicle.EnterVehicle()` /
-   `LandVehicle.ExitVehicle()` for the local player, verified through
-   `LandVehicle.LocalPlayerIsInVehicle`.
-4. **(d) Visible model swap (Stage 2)** — on spawn the vanilla `Shitbox` visuals are
-   switched off and `taxi.glb` is attached as a pure visual child of
-   `LandVehicle.vehicleModel` through `S1MAPI.Gltf.GltfLoader.LoadFromFile`;
-   vanilla physics, colliders and wheel colliders are untouched.
-5. **(e) NPC drives, player rides along (Stage 3)** — the vanilla NPC takes the
-   driver seat (proven by the `LandVehicle.OccupantNPCs` slot **plus** the measured
-   root-to-seat distance of 0.0 m) and `VehicleAgent.Navigate` drives while the local
-   player stays aboard (`F9 ride` → `F9 out`), live-verified with
-   `callback result=Complete after 31.6 s`.
+Current service path:
 
-Everything is driven by a `taxi` command; **F1–F12 hotkeys** run the sequences
-hands-free.
+1. **CALL TAXI** calls `SpikeCommands.CallTaxi`, which still drives the existing
+   `SpikeRunner.TickAutoRun` workflow: spawn at the fixed stand, board the
+   registered `taxi_driver`, then navigate to the player.
+2. **Choose a destination** in the app using its list, search and filters. The
+   passenger ride uses the game's `VehicleAgent`/patrol AI and existing recovery.
+3. **Live status and fare** remain visible in the app. **STOP** cancels and uses
+   ownership-checked cleanup; uncertain destruction retains the tracked handle.
+4. The taxi's `taxi.glb` remains the visual. If import fails or has no usable
+   renderer, vanilla vehicle visuals stay visible; no functional GameObject is
+   deactivated for the visual swap.
+5. Vanilla **E** entry/exit and **Escape** phone-close remain unchanged. TaxiDriver
+   itself installs no keyboard bindings; F1–F12 belong to the game and other mods.
 
-> **The MelonLoader console is log-only (no input field) — all `taxi` commands are
-> output-only; control the spike via hotkeys (F1–F12, table below).** The command
-> table is the reference for *what* each command does and *what it logs*; the keys
-> are the only way to trigger it in-game.
+**F12 drücken | Kein Vanilla-Fahrzeug wird übernommen.**
 
-## Ordering from the phone
+## TaxiApp service flow
 
-The user-facing way to order the taxi is the in-game phone: open the phone →
-tap the **Taxi** app → press **CALL TAXI**. The button runs the exact F5 flow
-through the shared `SpikeCommands.CallTaxi` entry point (single source of truth
-for both the F5 hotkey and the phone button): spawn at the fixed taxi stand →
-the nearest NPC boards → navigate to a road point near the player. The **STOP**
-button runs the `taxi stop` path (`SpikeCommands.Stop()`), and the status label
-shows the live spike state — "No taxi" / "Run in progress" / "Taxi active —
-press STOP or ride along" — with button outcomes shown for a few seconds.
-Outside the gameplay scene every button answers "Only available in gameplay."
+Press **CALL TAXI** in the phone app. It uses the existing
+`SpikeCommands.CallTaxi` → `SpikeRunner.TickAutoRun` path: spawn at the fixed
+stand, seat the registered `taxi_driver`, then navigate to the player. Destination
+selection, search, filters, live status, fare display and STOP remain in the app.
 
-The F1–F12 hotkeys stay as the **diagnostic** surface — same flows, but with the
-full log-rich spike detail; the phone app is the normal order path.
+STOP may ask for a second press during an active ride. Cleanup only destroys the
+tracked TaxiDriver vehicle; if destruction is pending or uncertain, the app says
+so and retains the reference. Vanilla **E** entry/exit and **Escape** phone-close
+remain unchanged. No TaxiDriver keyboard controls are installed.
 
-## Console Commands (S1API console, output-only)
+## Current Console Diagnostics (read-only)
 
-The command word is `taxi`, and a leading `/` works too: **both spellings are
-registered** (`TaxiConsoleCommand` plus the `TaxiSlashCommand` alias, both picked up
-by S1API's auto-discovery). Whether the native console strips the slash before the
-registry lookup is version dependent (S1API 3.2.0 source strips it, the deployed
-3.2.1-beta.5 was never observed either way), so neither spelling is assumed.
-Answers are written to the MelonLoader console with a `[TaxiDriver]` prefix.
+The `taxi` console entry remains for diagnostics only: `help`, `codes`, `status`,
+`diag`, `probe`, `trace [on|off|status]`, `lots`, `pois`, `fare`, and `ai`. It does
+not spawn vehicles, seat drivers, start rides, change destinations, stop rides,
+clean up vehicles, or toggle visuals. Those actions are available only through
+the TaxiApp. Vanilla console slash handling may vary; this does not affect the app.
+
+The older implementation notes below describe previous versions only; their
+operational console commands and keyboard bindings are not available in v0.8.2.
+
+## Historical Console Operations — unavailable in v0.8.2
+
+The following command table is retained as an implementation-history record only.
+Its operational commands are no longer dispatched; use the read-only list above
+for the current console surface.
 
 | Command | What it does |
 | --- | --- |
@@ -79,14 +75,15 @@ Answers are written to the MelonLoader console with a `[TaxiDriver]` prefix.
 **Subcommand aliases:** `taxi list` = `codes`, `taxi driver` = `npc`, `taxi in` = `ride`,
 `taxi out` = `exit`, `taxi reset` = `cleanup`.
 
-### Hotkeys F1–F12 (the diagnostic control surface)
+### Historical keyboard controls — removed in v0.8.2
 
-The MelonLoader console accepts **no input**, so every command above that has to be
-triggered during a session lives on a hotkey. Ordering the taxi is the phone
-app's job (see [Ordering from the phone](#ordering-from-the-phone)); the hotkeys
-remain for diagnostics. Keys are ignored while a text field
-is focused (`S1API.Input.Controls.IsTyping`) and outside the gameplay scene (menu
-scenes keep their own keys — e.g. MoreSaveSlots binds F2/R on the save screens).
+The table below records the retired diagnostic bindings only. They are not
+registered or handled by the current TaxiDriver build; F1–F12 remain available
+to the base game and other mods.
+
+Historical behavior in the 2026-09-25 build: the MelonLoader console accepted no
+input and the bindings below were used for diagnostics. They were removed in
+v0.8.2; use the TaxiApp service flow above. This table is not a current control map.
 
 | Key | What it runs | Purpose |
 | --- | --- | --- |
@@ -113,27 +110,18 @@ pressable *during* a run, because it only decides what the next spawn looks like
 > so the physically unreachable F13-F17 keys moved to F1-F5. Historical session
 > records in this file from 2026-09-25 still use the old names.
 
-### F6 run kernel (details of one key)
+## Automatic pickup flow (current)
 
-While **no text field is focused** (`S1API.Input.Controls.IsTyping` is false),
-**F6** starts the full run (the other eleven keys are listed in the hotkey table
-above):
+CALL TAXI sets the existing automatic-run state in `SpikeCommands.CallTaxi`.
+`SpikeRunner.Update` continues to call `TickAutoRun` independently of keyboard
+input: spawn at the stand → board `taxi_driver` → navigate to the player. Each
+step remains bounded and reports failures; removing keyboard dispatch did not
+remove this phone-app workflow.
 
-```
-F6 → taxi spawn (existing/first code)
-   → +1 s → taxi npc
-   → +1 s → taxi go 40
-```
+## Historical navigation polling (2026-09-25 build)
 
-The steps are driven by a tiny time kernel inside `SpikeRunner.Update`
-(`Time.unscaledTime`, no coroutines, no MonoBehaviours). Every step has its own
-`try/catch`; the first failure aborts the run with a plain-language message that
-names the step.
-
-### Navigation polling
-
-`taxi go` (or F6 step 3) switches polling on. `SpikeRunner.Update` then logs a
-heartbeat **every 0.5 s**:
+The CALL TAXI pickup's navigation step switches polling on. `SpikeRunner.Update`
+then logs a heartbeat **every 0.5 s**:
 
 ```
 [nav t=4.0s] AutoDriving=True target=(...) vehicle=(...) distToTarget=12.3m
@@ -361,7 +349,10 @@ Implemented from the completed code review, in priority order:
    `OnDeinitializeMelon` as well, stale-state clearing on scene load, `/taxi` alias,
    heartbeat documented as 0.5 s (was 2 s).
 
-## Live verification (real-game session 2026-09-25)
+## Historical live verification (real-game session 2026-09-25)
+
+This records the older v0.1.0 feasibility build on Schedule I 0.4.7f6. It is not
+evidence that the current v0.8.2 source has been run in-game.
 
 Stage 1 is **verified live** after 13 test rounds — spawn → NPC → path → drive →
 arrival all observed in one session:
@@ -375,7 +366,7 @@ arrival all observed in one session:
 * The previously open question "does `VehicleAgent.Navigate` reach the vanilla path
   calculation at all" is answered: **yes**, and it completes.
 
-**Current limitations of the verified build:**
+**Limitations of that historical build:**
 
 * **`VehicleSeat.isOccupied` stays `False`** for the NPC driver — that flag is
   Player-only by construction (`VehicleSeat.Occupant` is typed `Player`), so NPC
@@ -386,9 +377,9 @@ arrival all observed in one session:
   projection of the target, not on the raw coordinates. `ArrivalThresholdMeters` is
   therefore 10 m so the non-callback verdict does not report a complete run as
   STOPPED SHORT.
-* **The MelonLoader console is log-only** (no input field) — every `taxi` command is
-  output-only; the F1–F12 hotkeys are the only control surface.
-* **All hotkeys fit F1–F12 and are scene-gated:** the keys were remapped on
+* That build used a log-only MelonLoader console and keyboard bindings for
+  diagnostics; v0.8.2 removes those bindings and uses the phone app.
+* **Its hotkeys fit F1–F12 and were scene-gated:** keys were remapped on
   2026-09-26 (F13-F17 -> F1-F5) because the keyboard has only F1-F12, and the
   dispatcher ignores keys outside the gameplay scene (menu scenes keep their own
   keys, e.g. MoreSaveSlots binds F2/R on the save screens).

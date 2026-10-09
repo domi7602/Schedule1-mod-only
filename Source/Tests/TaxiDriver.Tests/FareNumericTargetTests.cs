@@ -32,19 +32,27 @@ public class FareNumericTargetTests
         };
 
     [Fact]
-    public void NT01_UnitOverflow_NeverThrows_AndKeepsTheLedgerConsistent()
+    public void NT01_MaxValidInputs_SaturateWithoutOverflowOrRepeatedBilling()
     {
-        // A failing computation must leave NO partial progression behind:
-        // after every completed tick, billed minutes match floored moving
-        // minutes (the extreme due amount is clamped, never thrown).
+        // The accepted maximum rate and largest finite clock rate must saturate
+        // at the fare cap. The next tick must not issue the same payment again.
         var ledger = new FareLedger();
+        FareLedger.TickInput extreme = Moving(
+            delta: 0.5f,
+            clockRate: float.MaxValue,
+            rate: FareConfigRules.MaximumDollarsPerMinute);
 
-        ledger.Tick(Moving(delta: 0.5f, clockRate: 3f, rate: int.MaxValue));
-        ledger.Tick(Moving(delta: 0.5f, clockRate: 3f, rate: int.MaxValue));
-        FareLedger.TickOutcome third = ledger.Tick(Moving(delta: 0.5f, clockRate: 3f, rate: int.MaxValue));
+        ledger.Tick(extreme); // first moving frame only arms the meter
+        FareLedger.TickOutcome second = ledger.Tick(extreme);
 
-        Assert.True(third.Counted);
+        Assert.True(second.Counted);
+        Assert.Equal(16_000_000, second.DueDollars);
         Assert.Equal((int)Math.Floor(ledger.MovingMinutes), ledger.BilledMinutes);
+
+        FareLedger.TickOutcome third = ledger.Tick(extreme);
+        Assert.True(third.Counted);
+        Assert.Equal(0, third.DueDollars);
+        Assert.Equal(ledger.BilledMinutes, third.WholeMinutes);
     }
 
     [Fact]

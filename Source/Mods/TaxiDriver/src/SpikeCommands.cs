@@ -11,6 +11,7 @@ using Il2CppScheduleOne.PlayerScripts;
 using Il2CppScheduleOne.Vehicles;
 using Il2CppScheduleOne.Vehicles.AI;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using S1Mods.Shared;
 using UnityEngine;
 
 namespace TaxiDriver;
@@ -37,12 +38,12 @@ internal static class SpikeCommands
     internal const float SettleCheckDelaySeconds = 2f;
 
     /// <summary>
-    /// Proven vanilla Navigate road target A (Success in round 10) — the F1/F3
-    /// target and the default ride destination (ROAD A).
+    /// Proven vanilla Navigate road target A (Success in round 10), retained for
+    /// internal diagnostics and the ROAD A catalog entry.
     /// </summary>
     internal static readonly Vector3 RideTargetRoadA = new(-131.4f, -4.0f, 51.9f);
 
-    /// <summary>Proven vanilla Navigate road target B (Success twice in round 10) — the F2 target (ROAD B).</summary>
+    /// <summary>Proven vanilla Navigate road target B (Success twice in round 10), retained for internal diagnostics.</summary>
     internal static readonly Vector3 RideTargetRoadB = new(-17.1f, 0f, 13.4f);
 
     /// <summary>
@@ -80,58 +81,53 @@ internal static class SpikeCommands
         return false;
     }
 
+    internal static bool HasAuthority()
+    {
+        try { return InstanceFinder.IsServer; }
+        catch { return false; }
+    }
+
+    internal static VehicleOwnershipKind ClassifyTaxiVehicle(LandVehicle? veh)
+    {
+        if (ReferenceEquals(veh, null))
+            return SpikeState.VehicleOwnership.Classify(IntPtr.Zero, isAlive: false);
+
+        try
+        {
+            IntPtr pointer = veh.Pointer;
+            bool alive = NetworkGuard.IsAlive(veh);
+            return SpikeState.VehicleOwnership.Classify(pointer, alive);
+        }
+        catch
+        {
+            return VehicleOwnershipKind.Invalid;
+        }
+    }
+
+    internal static bool IsOwnedTaxi(LandVehicle? veh) =>
+        ClassifyTaxiVehicle(veh) == VehicleOwnershipKind.Owned;
+
+    private static bool RequireOwnedTaxi(LandVehicle? veh, string operation, bool checkAuthority = true)
+    {
+        if (checkAuthority && !EnsureAuthority())
+            return false;
+
+        VehicleOwnershipKind ownership = ClassifyTaxiVehicle(veh);
+        if (ownership == VehicleOwnershipKind.Owned)
+            return true;
+
+        Mod.Log.Warn($"[taxi-recovery] {operation} refused: tracked taxi ownership state is {ownership}; no foreign/uncertain vehicle was changed.");
+        return false;
+    }
+
     // ----------------------------------------------------------------- help
 
     internal static void PrintHelp()
     {
-        Print("TaxiDriver spike commands (Stage 1 spike + Stage 2 visual swap + Stage 3 driver ride + Stage 3b taxi stand / call-taxi):");
-        Print("  NOTE: the MelonLoader console is log-only (no input field) — all `taxi` commands are");
-        Print("        output-only; control the spike via the F1-F12 hotkeys listed at the end.");
-        Print("  taxi help              - this list");
-        Print("  taxi codes             - vehicle code catalog (VehicleManager.VehiclePrefabs)");
-        Print("  taxi spawn [code]      - spawn 6 m in front of the player, snapped to the ground (playerOwned=true)");
-        Print("  taxi npc               - nearest living NPC enters the spike vehicle, then prints the one-line seat proof");
-        Print("                           (OccupantNPCs slot + measured NPC root-to-seat distances, only claimed when both agree)");
-        Print("  taxi ride              - local player enters the spike vehicle; dumps the seat state again as [after ride]");
-        Print("                           (Player occupancy flip + NPC root-to-seat + occupant slot)");
-        Print("  taxi out               - local player leaves the spike vehicle");
-        Print("  taxi go [distance=40]  - VehicleAgent.Navigate() with NavigationSettings (vehicle released first: ExitPark/brakes)");
-        Print("  taxi go2 [distance=40] - same but with settings=null (A/B comparison)");
-        Print("  taxi stop              - VehicleAgent.StopNavigating() + end polling");
-        Print("  taxi status            - dump all spike state (incl. F6 automation: AutoTarget + SkipNpcStep)");
-        Print("  taxi diag              - one ride scan into the log (driving? arrived? picked? changed?)");
-        Print("  taxi cleanup           - everyone out + LandVehicle.DestroyVehicle() (guarded: verified exit, no NPC occupants)");
-        Print("  taxi probe             - Navigate preconditions for ALL vehicles: Flags/Seekers/graph sample/ownership");
-        Print("  taxi trace [on|off]    - Harmony trace of Navigate, CalculatePath, NavigationCalculationCallback, StopNavigating");
-        Print("                           (no third argument = `taxi trace status`: prints patched= / logging=)");
-        Print("  taxi lots              - Stage 3b: dump every live ParkingLot (name, world position, spots, first spot = spawn position)");
-        Print("  taxi stand             - Stage 3b: resolve the fixed taxi stand and arm it for the next spawn (no spawn itself)");
-        Print("  taxi pois              - Stage 3d: dump every destination (properties + deal locations + named places) with its goal");
-        Print("  taxi clear             - clear the selected destination (the marker goes away; a waiting ride keeps waiting)");
-        Print("  taxi fare              - the meter: $1 per moving in-game minute (0 km/h free), cash first then bank (may go negative)");
-        Print("                           (1 real second = 1 in-game minute — TimeManager.CycleDuration = 24 real min/day)");
-        Print("  taxi to <name|index>   - Stage 3d: pick the ride destination BY NAME (deal location or lot) and resolve the drop-off");
-        Print("  taxi ai                - Stage 4: the game's own driving-supervision numbers (patrol + pursuit), read LIVE");
-        Print("                           (while riding this re-routes the running ride instead of waiting for the next one)");
-        Print("  taxi visual [on|off]   - Stage 2 GLB visual swap status / switch (also `taxi visual align [on|off]`);");
-        Print("                           the swap itself runs automatically inside `taxi spawn` — the switch is also hotkey F4");
-        Print("  aliases: taxi list = codes, taxi driver = npc, taxi in = ride, taxi out = exit, taxi reset = cleanup.");
-        Print("Hotkeys (the ONLY in-game control surface — the console cannot be typed into):");
-        Print("  F1  = taxi go to the proven road target (-131.4, -4.0, 51.9)");
-        Print("  F2  = taxi go to the second proven road target (-17.1, 0.0, 13.4)");
-        Print("  F3  = full run (spawn -> npc) to the proven road target (-131.4, -4.0, 51.9)");
-        Print("  F4  = taxi visual on/off toggle (applies to the NEXT spawn)");
-        Print("  F6  = full spike run: spawn -> +1s npc -> +1s go 40 (blind forward target)");
-        Print("  F7  = taxi probe");
-        Print("  F8  = taxi trace on/off toggle");
-        Print("  F9  = taxi diag (one ride scan into the log)");
-        Print("  F10 = taxi go2 (Navigate with settings=null)");
-        Print("  F11 = full run WITHOUT the npc step (occupant hypothesis)");
-        Print("  F12 = Navigate on a VANILLA vehicle (vehicle-vs-caller A/B)");
-        Print("A leading '/' works too (both `taxi` and `/taxi` are registered).");
-        Print("All hotkeys fit on F1-F12 (the keyboard has no keys past F12) and only fire in the");
-        Print("        gameplay scene — menu scenes keep their own keys (e.g. MoreSaveSlots binds F2/R on the save screens).");
-        Print("Navigation polls every 0.5 s: AutoDriving, target/actual distance, graph, stuck, speed, callback result.");
+        Print("TaxiDriver service controls are in the smartphone app: CALL TAXI, destinations/search/filters, live status/fare and STOP.");
+        Print("No TaxiDriver key bindings are installed. Vanilla E entry/exit and Escape phone-close remain unchanged.");
+        Print("Read-only diagnostics: taxi help, codes/list, status, diag, probe, trace [on|off], lots, pois, fare, ai.");
+        Print("Console spawn, ride, route, destination, visual-toggle and cleanup actions are disabled; use the TaxiApp for service.");
     }
 
     // ---------------------------------------------------------------- codes
@@ -177,6 +173,7 @@ internal static class SpikeCommands
     {
         if (!EnsureAuthority())
             return false;
+        ReconcileDeadTaxi();
 
         VehicleManager? vm = VehicleManager.Instance;
         if (vm == null)
@@ -198,7 +195,7 @@ internal static class SpikeCommands
         // Already waiting for its own tick — never queue a second respawn.
         if (SpikeState.PendingSpawnCode != null)
         {
-            Mod.Log.Error("A deferred respawn is already pending (freeze guard) — run `taxi cleanup` first to cancel it.");
+            Mod.Log.Warn("A deferred respawn is already pending — press STOP in the TaxiApp to cancel it safely.");
             return false;
         }
 
@@ -233,7 +230,7 @@ internal static class SpikeCommands
         bool hadVehicle = SpikeState.Vehicle != null;
         if (hadVehicle)
         {
-            Mod.Log.Warn("A spike vehicle already exists — running `taxi cleanup` first (verified before DestroyVehicle).");
+            Mod.Log.Warn("A taxi is already tracked — running ownership-checked cleanup before another spawn.");
             if (!Cleanup())
             {
                 Mod.Log.Error("Cleanup of the previous spike vehicle failed — refusing to spawn a second one (freeze guard). See the errors above.");
@@ -274,9 +271,9 @@ internal static class SpikeCommands
             return false;
         }
 
-        if (SpikeState.Vehicle != null)
+        if (!ReferenceEquals(SpikeState.Vehicle, null) || SpikeState.VehicleOwnership.TrackedPointer != IntPtr.Zero)
         {
-            Mod.Log.Error("SpikeState.Vehicle is already set — refusing to leak a second vehicle (freeze guard). Run `taxi cleanup`.");
+            Mod.Log.Error("[taxi-spawn] a vehicle reference or ownership token is still retained — refusing a second spawn. Resolve cleanup first.");
             return false;
         }
 
@@ -289,8 +286,8 @@ internal static class SpikeCommands
         string spawnSource = "player + forward * 6";
 
         // Stage 3b: the call-taxi flow spawns ON THE STAND (a fixed ParkingLot
-        // spot), never at the player. One-shot override: consumed here so no later
-        // F3/F6 spawn can inherit it (the F5 run itself re-arms it before step 1).
+        // spot), never at the player. One-shot override: consumed here so an
+        // unrelated diagnostic spawn cannot inherit it.
         if (SpikeState.StandSpawnPosition.HasValue)
         {
             spawnPos = SpikeState.StandSpawnPosition.Value;
@@ -342,9 +339,35 @@ internal static class SpikeCommands
             return false;
         }
 
+        // Register the exact native instance immediately. Keep the wrapper even
+        // when its pointer is unreadable: failure is not permission to lose it or
+        // to treat the new object as somebody else's vehicle.
         SpikeState.Vehicle = veh;
+        IntPtr spawnedPointer;
+        try
+        {
+            spawnedPointer = veh.Pointer;
+            if (spawnedPointer == IntPtr.Zero || !NetworkGuard.IsAlive(veh) ||
+                !SpikeState.VehicleOwnership.TryRegister(spawnedPointer))
+            {
+                Mod.Log.Error("[taxi-spawn] the newly returned vehicle could not be registered as TaxiDriver-owned; keeping its reference and refusing further control.");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Error($"[taxi-spawn] ownership registration failed ({ex.Message}); keeping the vehicle reference and refusing further control.");
+            return false;
+        }
+
         SpikeState.LastVehicleCode = code;
         SpikeState.ResetNavigation();
+
+        if (!SpikeCommands.IsOwnedTaxi(veh) || !HasAuthority())
+        {
+            Mod.Log.Error("[taxi-spawn] ownership/host check failed before vehicle positioning; the tracked taxi was left untouched.");
+            return false;
+        }
 
         // 0.3.0 float fix (the floating-taxi root cause): SnapToGround puts the vehicle
         // ROOT on the ground, but the model bottom (LandVehicle.boundingBox world min Y)
@@ -404,17 +427,8 @@ internal static class SpikeCommands
         // relocate to a free point or cancel the spawn (destroy, no wall-taxi).
         if (!EnsurePostSpawnFree(veh, ref forward))
         {
-            Mod.Log.Warn("[patrol] spawn overlap guard: no free point after creation — spawn cancelled, vehicle removed.");
-            try
-            {
-                veh.DestroyVehicle();
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Error($"DestroyVehicle after blocked post-spawn check failed: {ex.Message}");
-            }
-            SpikeState.Vehicle = null;
-            SpikeState.SettleCheckVehicle = null;
+            Mod.Log.Warn("[taxi-spawn] post-spawn overlap guard found no free point — requesting ownership-checked cleanup.");
+            Cleanup("post-spawn overlap rollback", explicitRetry: false);
             return false;
         }
         return true;
@@ -543,9 +557,11 @@ internal static class SpikeCommands
         LandVehicle? veh = SpikeState.Vehicle;
         if (veh == null)
         {
-            Mod.Log.Error("No spike vehicle — run `taxi spawn` first (SpikeState.Vehicle is null).");
+            Mod.Log.Error("No TaxiDriver taxi is tracked — order one with CALL TAXI in the phone app.");
             return false;
         }
+        if (!RequireOwnedTaxi(veh, "select/board driver"))
+            return false;
 
         // Stage 5: our own dressed driver first — a random bystander is only
         // the fallback (see TaxiDriverNPC). Already seated in our vehicle counts
@@ -721,6 +737,9 @@ internal static class SpikeCommands
     /// </summary>
     internal static bool BoardDriver(LandVehicle veh, NPC best)
     {
+        if (!RequireOwnedTaxi(veh, "board driver"))
+            return false;
+
         string npcId = SafeId(best);
 
         int alreadySlot = OccupantIndexOf(veh, best, out _, out _);
@@ -869,55 +888,6 @@ internal static class SpikeCommands
         }
     }
 
-    /// <summary>
-    /// F12 helper: first live vanilla vehicle with an agent that is not the spike
-    /// vehicle (prefers code 'shitbox' so the A/B matches the spike model).
-    /// </summary>
-    internal static Il2CppScheduleOne.Vehicles.LandVehicle? FindVanillaVehicle()
-    {
-        try
-        {
-            var all = VehicleManager.Instance?.AllVehicles;
-            if (all == null)
-            {
-                Mod.Log.Error("FindVanillaVehicle: VehicleManager.AllVehicles is null.");
-                return null;
-            }
-
-            Il2CppScheduleOne.Vehicles.LandVehicle? fallback = null;
-            for (int i = 0; i < all.Count; i++)
-            {
-                Il2CppScheduleOne.Vehicles.LandVehicle? v = all[i];
-                if (v == null)
-                    continue;
-                if (ReferenceEquals(v, SpikeState.Vehicle))
-                    continue; // never pick the spike vehicle itself
-                if (v.Agent == null)
-                    continue;
-
-                if (string.Equals(codeOf(v), "shitbox", StringComparison.OrdinalIgnoreCase))
-                {
-                    Print($"FindVanillaVehicle: [{i}] code='shitbox' pos={Fmt(v.transform.position)} — selected.");
-                    return v;
-                }
-
-                fallback ??= v;
-            }
-
-            if (fallback != null)
-            {
-                Print($"FindVanillaVehicle: no 'shitbox' found — falling back to [{codeOf(fallback)}] pos={Fmt(fallback.transform.position)}.");
-            }
-
-            return fallback;
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Error($"FindVanillaVehicle failed: {ex.Message}");
-            return null;
-        }
-    }
-
     // ------------------------------------------------------------- ride/out
 
     /// <summary>
@@ -974,7 +944,7 @@ internal static class SpikeCommands
               $"IsOccupied={veh.IsOccupied} DriverPlayer={SafeDriverPlayerName(veh)}");
         Print(inVehicle
             ? "[primitive c] PROOF: LocalPlayerIsInVehicle=true — the local player is in the spike vehicle."
-            : "[primitive c] NOT PROVEN: LocalPlayerIsInVehicle is still false after LandVehicle.EnterVehicle() — re-run `taxi ride` once the world has settled a frame.");
+            : "[primitive c] NOT PROVEN: LocalPlayerIsInVehicle is still false after LandVehicle.EnterVehicle() — use the normal E interaction after the world settles.");
 
         // Which seat did the player take? This is the live evidence for the seat
         // semantics: VehicleSeat.isOccupied only ever flips for a Player, and it
@@ -1079,6 +1049,10 @@ internal static class SpikeCommands
     /// </summary>
     internal static void SafeExitGroundSnap(LandVehicle? veh = null)
     {
+        veh ??= SpikeState.Vehicle;
+        if (veh == null || !RequireOwnedTaxi(veh, "safe exit ground snap"))
+            return;
+
         try
         {
             Player? player = Player.Local;
@@ -1240,6 +1214,9 @@ internal static class SpikeCommands
     /// </summary>
     private static bool EnsurePostSpawnFree(LandVehicle veh, ref Vector3 forward)
     {
+        if (!HasAuthority() || !IsOwnedTaxi(veh))
+            return false;
+
         Vector3 pos;
         Quaternion rot;
         try
@@ -1530,8 +1507,28 @@ internal static class SpikeCommands
         LandVehicle? veh = SpikeState.Vehicle;
         if (veh == null)
         {
-            Mod.Log.Error($"{caller}: cannot start the ride — no spike vehicle (run `taxi spawn` / CALL TAXI first).");
+            Mod.Log.Error($"{caller}: cannot start the ride — no TaxiDriver vehicle (use CALL TAXI first).");
             EndRide("no vehicle", stopNavigation: false);
+            return false;
+        }
+        if (!RequireOwnedTaxi(veh, $"start ride ({caller})"))
+            return false;
+
+        if (!RideLocks.Patched)
+        {
+            RideProtectionPatch missing = RideProtectionPolicy.Missing(RideLocks.Installed);
+            Mod.Log.Error($"[ride] passenger ride refused: required input/trunk protection is incomplete (missing={missing}).");
+            EndRide("protection incomplete", stopNavigation: false);
+            ParkCar(veh, "ride protection unavailable");
+            if (SafePlayerInVehicle(veh))
+            {
+                try { veh.ExitVehicle(); }
+                catch (Exception ex) { Mod.Log.Error($"[ride] safe exit after protection refusal failed: {ex.Message}"); }
+            }
+            if (!SafePlayerInVehicle(veh))
+                SafeExitGroundSnap(veh);
+            else
+                Mod.Log.Error("[ride] player remains seated after protection refusal; taxi stays parked and will not navigate. Use the game's E interaction to exit.");
             return false;
         }
 
@@ -1542,7 +1539,7 @@ internal static class SpikeCommands
         {
             Mod.Log.Error(
                 $"{caller}: cannot start the ride — no NPC at the wheel of '{codeOf(veh)}' " +
-                "(the ride needs the NPC driver; run `taxi npc` first).");
+                "(the taxi driver is not confirmed; press STOP, then CALL TAXI in the phone app to reset the service).");
             EndRide("no NPC at the wheel", stopNavigation: false);
             return false;
         }
@@ -1569,7 +1566,7 @@ internal static class SpikeCommands
             SpikeState.RideAwaitingDestination = true;
             Mod.Log.Info(
                 $"{caller} — passenger aboard, but NO destination is selected yet: pick a place in the Taxi app " +
-                "(or run `taxi to <name>`) — the drive starts the moment you do.");
+                "— the drive starts when you choose a destination in the TaxiApp.");
             return true;
         }
 
@@ -1577,7 +1574,7 @@ internal static class SpikeCommands
         Vector3 destination = SpikeState.RideDestination.Value;
         Mod.Log.Info(
             $"{caller} — passenger ride to {SpikeState.RideDestinationName} {Fmt(destination)}: " +
-            $"input + trunk locks engaged, '{SafeId(npc)}' keeps the wheel (DriverPlayer={SafeDriverPlayerName(veh)}).");
+            $"input + trunk locks engaged, '{SafeId(npc!)}' keeps the wheel (DriverPlayer={SafeDriverPlayerName(veh)}).");
 
         if (!StartRideDrive(npc, veh, destination, caller))
         {
@@ -1771,7 +1768,7 @@ internal static class SpikeCommands
         }
 
         // Everything else is a catalog name or index (`taxi pois`).
-        return To(key, caller);
+        return To(key ?? string.Empty, caller);
     }
 
     /// <summary>
@@ -1821,9 +1818,11 @@ internal static class SpikeCommands
         LandVehicle? veh = SpikeState.Vehicle;
         if (veh == null)
         {
-            Mod.Log.Error("No spike vehicle — run `taxi spawn` first.");
+            Mod.Log.Error("No TaxiDriver taxi is tracked — order one with CALL TAXI in the phone app.");
             return false;
         }
+        if (!RequireOwnedTaxi(veh, "navigate taxi"))
+            return false;
 
         Player? player = Player.Local;
         if (player == null || player.transform == null)
@@ -2008,7 +2007,7 @@ internal static class SpikeCommands
         // Stage 3d: a fresh dispatch starts a fresh progress window — position, start
         // distance and best distance reset together (review 2026-10-02, point 2).
         SpikeRunner.ArmProgressWindow(veh);
-        // Stage 3b: gates the "taxi arrived at player" verdict for the F5 run.
+        // Stage 3b: gates the "taxi arrived at player" verdict for the TaxiApp pickup.
         SpikeState.NavToPlayer = toPlayer;
 
         try
@@ -2034,7 +2033,7 @@ internal static class SpikeCommands
             }
         }
 
-        Print("VehicleAgent.Navigate dispatched — polling every 0.5 s plus an ENavigationResult callback (`taxi stop` cancels rides AND despawns the taxi; the progress supervision re-dispatches when the car does not move).");
+        Print("VehicleAgent.Navigate dispatched — polling every 0.5 s plus an ENavigationResult callback (STOP in the TaxiApp cancels the ride and requests safe cleanup; progress supervision re-dispatches when the car does not move).");
         return true;
     }
 
@@ -2262,18 +2261,23 @@ internal static class SpikeCommands
     internal static bool Stop()
     {
         // Dominik (Stage 3d): "Kündigen soll das Taxi despawnen lassen". STOP is
-        // therefore the proven `taxi cleanup` teardown — ride state + input/trunk
+        // therefore the app-driven ownership-checked teardown — ride state + input/trunk
         // locks first, then everyone out (verified), then StopNavigating and
         // DestroyVehicle. The old behaviour (navigation off, player left seated in
         // a car without a driver) read as "the game is stuck" because the player
         // could neither walk nor drive: the NPC held the driver seat.
         //
         // A failed exit never destroys (freeze guard) — the state stays retryable.
-        bool despawned = Cleanup("stopped");
+        SpikeState.StandSpawnPosition = null;
+        bool despawned = Cleanup("stopped", explicitRetry: true);
         if (despawned)
             Print("Ride cancelled — the taxi has been despawned (destroyed) and the state is clear.");
+        else if (SpikeState.VehicleOwnership.DestroyPending)
+            Mod.Log.Warn("[taxi-cleanup] destroy request is pending verification; wait for the result before pressing STOP again.");
+        else if (SpikeState.VehicleOwnership.DestroyUnknown)
+            Mod.Log.Warn("[taxi-cleanup] destroy result is unknown; the taxi remains tracked. One bounded retry is available through STOP.");
         else
-            Mod.Log.Error("taxi stop: the taxi could NOT be despawned (see the errors above) — state kept, retry `taxi stop` or `taxi cleanup`.");
+            Mod.Log.Error("[taxi-cleanup] taxi was not safely removed; it remains tracked. Fix the logged cause, then use STOP again.");
 
         return despawned;
     }
@@ -2284,7 +2288,7 @@ internal static class SpikeCommands
     internal static void Lots() => TaxiStand.DumpLots("manual `taxi lots` dump");
 
     /// <summary>
-    /// <c>taxi stand</c> / F5 step 0 — resolves the fixed taxi stand and arms it for
+    /// Resolves the fixed taxi stand and arms it for
     /// the next spawn (<see cref="SpikeState.StandSpawnPosition"/>, one-shot). Never
     /// spawns anything itself, so it is safe to run at any time.
     /// </summary>
@@ -2304,9 +2308,8 @@ internal static class SpikeCommands
 
     /// <summary>
     /// Stage 3b call-taxi — the single source of truth for ordering the taxi.
-    /// Called from the in-game phone app (<c>TaxiApp</c> "CALL TAXI"); the F5
-    /// hotkey was removed (2026-10-03: re-calling with a standing taxi destroyed
-    /// it first). The shared run-start guard (<see cref="SpikeRunner.TryBeginGo"/>),
+    /// Called from the in-game phone app (<c>TaxiApp</c> "CALL TAXI"). The shared
+    /// run-start guard (<see cref="SpikeRunner.TryBeginGo"/>),
     /// the one-shot stand arm (<see cref="PrepareStand"/>) and the automation
     /// state block all live here.
     /// The run spawns at the taxi stand → +1 s npc → +1 s navigate to a road
@@ -2316,9 +2319,20 @@ internal static class SpikeCommands
     /// <returns><c>true</c> when the run was started; <c>false</c> with a logged reason otherwise.</returns>
     internal static bool CallTaxi(string caller)
     {
+        if (!EnsureAuthority())
+            return false;
+        ReconcileDeadTaxi();
+
+        if (!RideLocks.Patched)
+        {
+            RideProtectionPatch missing = RideProtectionPolicy.Missing(RideLocks.Installed);
+            Mod.Log.Error($"[taxi-call] refused: passenger input/trunk protection is incomplete (missing={missing}). No taxi was spawned.");
+            return false;
+        }
+
         // Shared gate: while an automatic run is in progress or a deferred respawn
         // is still pending, the request is refused (with a reason) instead of
-        // interrupting the run — the same rule as every run-starting hotkey.
+        // interrupting the run.
         if (!SpikeRunner.TryBeginGo(caller))
             return false;
 
@@ -2444,19 +2458,19 @@ internal static class SpikeCommands
               $"dist={(dist < 0f ? "-" : dist.ToString("0.0", CultureInfo.InvariantCulture) + " m")} " +
               $"speed={(float.IsNaN(speed) ? "-" : speed.ToString("0.0", CultureInfo.InvariantCulture) + " km/h")}");
         Print($"[diag] car: {(veh == null ? "none" : $"code='{codeOf(veh)}' pos=({vehPos})")} driver={driver} " +
-              $"fare=${FareMeter.ChargedTotal} (meter {(FareMeter.Running ? "RUNNING" : "idle")})");
+              $"fareCalculated=${FareMeter.CalculatedTotal}, paymentCallsReturned=${FareMeter.PaymentCallsReturnedTotal} (meter {(FareMeter.Running ? "RUNNING" : "idle")})");
     }
 
     // -------------------------------------------------------------- status
 
     internal static void Status()
     {
-        Print("=== TaxiDriver spike status ===");
+        Print("=== TaxiDriver status ===");
 
         LandVehicle? veh = SpikeState.Vehicle;
         if (veh == null)
         {
-            Print("Vehicle: none (run `taxi spawn`)");
+            Print("Vehicle: none (order a taxi with CALL TAXI in the phone app)");
         }
         else
         {
@@ -2473,7 +2487,7 @@ internal static class SpikeCommands
         NPC? npc = SpikeState.DriverNpc;
         if (npc == null)
         {
-            Print("NPC: none (run `taxi npc`)");
+            Print("NPC: none (the driver is assigned during the TaxiApp pickup flow)");
         }
         else
         {
@@ -2504,7 +2518,7 @@ internal static class SpikeCommands
         string autoTarget = SpikeState.AutoTarget.HasValue
             ? $"({Fmt(SpikeState.AutoTarget.Value)})"
             : "<none — blind forward*40>";
-        Print($"F6 automation running: {SpikeState.AutoRunning} (step {SpikeState.AutoStep})");
+        Print($"Pickup automation running: {SpikeState.AutoRunning} (step {SpikeState.AutoStep})");
         Print($"  AutoTarget: {autoTarget}  SkipNpcStep: {SpikeState.SkipNpcStep}");
         Print(SpikeState.PendingSpawnCode == null
             ? "Deferred respawn pending: no"
@@ -2532,9 +2546,110 @@ internal static class SpikeCommands
     /// cleared after a successful destroy — a failed cleanup stays retryable instead
     /// of stranding a vehicle we can no longer reach.
     /// </summary>
-    internal static bool Cleanup(string reason = "cleanup")
+    /// <summary>Stops taxi navigation and releases ride state when Main unloads, without blind teleporting.</summary>
+    internal static void AbortForSceneUnload(string reason)
     {
+        SpikeState.CancelPendingSpawn();
+        SpikeState.ResetAutoRun();
+        SpikeState.ResetPicker();
+
+        LandVehicle? veh = SpikeState.Vehicle;
+        if (ReferenceEquals(veh, null))
+        {
+            SpikeState.ResetNavigation();
+            SpikeState.ResetRide();
+            RideLocks.UnlockTrunk();
+            FareMeter.Stop(reason);
+            return;
+        }
+
+        if (!HasAuthority() || !IsOwnedTaxi(veh))
+        {
+            Mod.Log.Warn($"[taxi-recovery] scene abort refused to touch vehicle; ownership={ClassifyTaxiVehicle(veh)}.");
+            return;
+        }
+
+        SpikeState.NextNavOrder(); // invalidate callbacks before scene-owned state is torn down
+        EndRide(reason, stopNavigation: false);
+        try { SpikeRunner.StopDriving(reason); }
+        catch (Exception ex) { Mod.Log.Warn($"[taxi-recovery] stop during scene unload failed: {ex.Message}"); }
+        try
+        {
+            veh.BrakesApplied = true;
+            veh.HandbrakeApplied = true;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[taxi-recovery] parking during scene unload failed: {ex.Message}");
+        }
+        Mod.Log.Info($"[taxi-recovery] active trip cancelled before scene unload ({reason}); owned taxi retained and parked.");
+    }
+
+    internal static bool Cleanup(string reason = "cleanup", bool explicitRetry = false)
+    {
+        ReconcileDeadTaxi();
+        SpikeState.CancelPendingSpawn();
+        SpikeState.ResetAutoRun();
+
+        LandVehicle? initialVeh = SpikeState.Vehicle;
+        if (ReferenceEquals(initialVeh, null))
+        {
+            if (SpikeState.VehicleOwnership.TrackedPointer != IntPtr.Zero)
+            {
+                Mod.Log.Error("[taxi-cleanup] ownership token is retained but the vehicle reference is missing; refusing to clear state or spawn another taxi.");
+                return false;
+            }
+            return SpikeState.Reset();
+        }
+
+        VehicleOwnershipKind initialOwnership = ClassifyTaxiVehicle(initialVeh);
+        if (initialOwnership == VehicleOwnershipKind.None || initialOwnership == VehicleOwnershipKind.Invalid)
+        {
+            bool reset = SpikeState.Reset();
+            if (!reset)
+                Mod.Log.Error("[taxi-cleanup] invalid vehicle state could not be safely cleared; reference retained.");
+            return reset;
+        }
+        if (initialOwnership == VehicleOwnershipKind.Foreign)
+        {
+            Mod.Log.Error("[taxi-cleanup] vehicle is not the registered TaxiDriver taxi — no exit, movement, or destroy was attempted.");
+            return false;
+        }
+        if (initialOwnership == VehicleOwnershipKind.DestroyPending)
+        {
+            Mod.Log.Warn("[taxi-cleanup] destroy request is still pending verification; no second destroy call was issued.");
+            return false;
+        }
+        if (initialOwnership == VehicleOwnershipKind.DestroyUnknown &&
+            (!explicitRetry || SpikeState.VehicleOwnership.DestroyAttempts >= VehicleOwnershipLedger.MaxDestroyAttempts))
+        {
+            Mod.Log.Error("[taxi-cleanup] previous destroy result is unknown. The handle is retained; only one explicit STOP retry is permitted.");
+            return false;
+        }
+        if (initialOwnership != VehicleOwnershipKind.Owned && initialOwnership != VehicleOwnershipKind.DestroyUnknown)
+        {
+            Mod.Log.Error($"[taxi-cleanup] ownership state {initialOwnership} is not safe to clean up; handle retained.");
+            return false;
+        }
+        if (!HasAuthority())
+        {
+            Mod.Log.Error("[taxi-cleanup] cleanup refused on a client; vehicle changes require host/single-player authority.");
+            return false;
+        }
+
         bool ok = true;
+        bool destroyConfirmed = false;
+        bool destroyPending = false;
+
+        // STOP can arrive during pickup, before RideAwaitingBoard makes EndRide
+        // treat it as a passenger ride. Invalidate that pickup callback before any
+        // StopNavigating/DestroyVehicle work can produce a delayed completion.
+        SpikeState.NextNavOrder();
+        SpikeState.NavToPlayer = false;
+        SpikeState.PollingActive = false;
+        SpikeState.NavReDispatchAt = 0f;
+        SpikeState.NavReDispatchTarget = Vector3.zero;
+
         EndRide(reason); // ride state + input/trunk locks before the teardown
         SpikeState.PollingActive = false;
         SpikeState.CancelPendingSpawn();
@@ -2580,7 +2695,7 @@ internal static class SpikeCommands
 
                 if (SafeInVehicle(npc))
                 {
-                    Mod.Log.Error("NPC is still in a vehicle after ExitVehicle + RemoveNPCOccupant — destroy refused (freeze guard). State kept, retry `taxi cleanup`.");
+                    Mod.Log.Error("NPC is still in a vehicle after ExitVehicle + RemoveNPCOccupant — destroy refused (freeze guard). State kept; resolve the seat issue before using STOP again.");
                     ok = false;
                 }
             }
@@ -2606,7 +2721,7 @@ internal static class SpikeCommands
                 // nobody drives" report — prove the exit, never assume it.
                 if (SafePlayerInVehicle(veh))
                 {
-                    Mod.Log.Error("LocalPlayerIsInVehicle is still true after LandVehicle.ExitVehicle() — destroy refused (freeze guard). Press E (`taxi out`) and retry `taxi stop`.");
+                    Mod.Log.Error("LocalPlayerIsInVehicle is still true after LandVehicle.ExitVehicle() — destroy refused (freeze guard). Use the normal E interaction to exit, then press STOP again.");
                     ok = false;
                 }
             }
@@ -2638,42 +2753,168 @@ internal static class SpikeCommands
 
             if (!ok)
             {
-                Mod.Log.Error("An earlier cleanup step failed — DestroyVehicle refused (freeze guard), state kept. Fix the error above and retry `taxi cleanup`.");
+                Mod.Log.Error("An earlier cleanup step failed — DestroyVehicle refused (freeze guard), state kept. Fix the error above, then use STOP again.");
             }
             else if (!ClearNpcOccupants(veh))
             {
-                Mod.Log.Error("LandVehicle.OccupantNPCs still holds entries after RemoveNPCOccupant — DestroyVehicle refused (freeze guard), state kept. Retry `taxi cleanup`.");
+                Mod.Log.Error("LandVehicle.OccupantNPCs still holds entries after RemoveNPCOccupant — DestroyVehicle refused (freeze guard), state kept. Resolve the occupant issue before using STOP again.");
                 ok = false;
             }
             else
             {
+                IntPtr destroyPointer = IntPtr.Zero;
+                bool liveBeforeDestroy = false;
                 try
                 {
-                    veh.DestroyVehicle();
-                    Print("LandVehicle.DestroyVehicle() called (verified: no NPC occupants left).");
-                    // Stage 5: our driver goes back to the stand so the next ride
-                    // starts from a known spot (dismiss = taxi gone, driver waiting).
-                    TaxiDriverNPC.ReturnToStand();
+                    destroyPointer = veh.Pointer;
+                    liveBeforeDestroy = NetworkGuard.IsAlive(veh);
                 }
                 catch (Exception ex)
                 {
-                    Mod.Log.Error($"LandVehicle.DestroyVehicle() failed: {ex.Message}");
+                    Mod.Log.Error($"[taxi-cleanup] could not verify the taxi before DestroyVehicle ({ex.Message}); handle retained.");
                     ok = false;
+                }
+
+                if (ok && !liveBeforeDestroy)
+                {
+                    destroyConfirmed = SpikeState.VehicleOwnership.ClearAfterConfirmedDeath(destroyPointer, isAlive: false);
+                    if (!destroyConfirmed)
+                    {
+                        Mod.Log.Error("[taxi-cleanup] vehicle became invalid, but its ownership token could not be reconciled; handle retained.");
+                        ok = false;
+                    }
+                }
+                else if (ok && !SpikeState.VehicleOwnership.TryBeginDestroy(
+                    destroyPointer, isAlive: true, explicitRetry: explicitRetry))
+                {
+                    Mod.Log.Error("[taxi-cleanup] destroy refused by the ownership ledger (not owned, pending, or retry limit reached); handle retained.");
+                    ok = false;
+                }
+                else if (ok)
+                {
+                    try
+                    {
+                        veh.DestroyVehicle();
+                        Print("[taxi-cleanup] DestroyVehicle request issued for the registered taxi; waiting for native death confirmation.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Mod.Log.Error($"LandVehicle.DestroyVehicle() threw: {ex.Message} — result is unknown; reference retained while verification runs.");
+                    }
+
+                    bool liveAfterDestroy;
+                    try { liveAfterDestroy = NetworkGuard.IsAlive(veh); }
+                    catch { liveAfterDestroy = true; } // unreadable is not proof of destruction
+
+                    if (!liveAfterDestroy)
+                    {
+                        destroyConfirmed = SpikeState.VehicleOwnership.ResolveDestroy(destroyPointer, isAlive: false);
+                    }
+                    else
+                    {
+                        SpikeState.DestroyVerifyAfterFrame = Time.frameCount + 1;
+                        SpikeState.DestroyVerifyDeadline = Time.unscaledTime + 2f;
+                        destroyPending = true;
+                        ok = false;
+                        Mod.Log.Warn("[taxi-cleanup] destroy is not yet confirmed; taxi reference retained and no retry scheduled.");
+                    }
                 }
             }
         }
 
-        if (ok)
+        if (destroyConfirmed)
         {
-            SpikeState.Reset();
-            Print("SpikeState cleared.");
-        }
-        else
-        {
-            Print("SpikeState kept (cleanup incomplete) — run `taxi cleanup` again to retry.");
+            // Stage 5: only a confirmed native death permits the driver to return
+            // to the stand and the final taxi reference to be cleared.
+            try { TaxiDriverNPC.ReturnToStand(); }
+            catch (Exception ex) { Mod.Log.Warn($"[taxi-cleanup] ReturnToStand after confirmed destroy failed: {ex.Message}"); }
+
+            if (SpikeState.Reset())
+            {
+                Print("[taxi-cleanup] destroy confirmed; TaxiDriver state cleared.");
+                return true;
+            }
+
+            Mod.Log.Error("[taxi-cleanup] destroy was confirmed, but state reset refused; retained reference needs inspection.");
+            return false;
         }
 
-        return ok;
+        if (destroyPending)
+            Print("[taxi-cleanup] destroy pending — reference retained until confirmation or a bounded explicit retry.");
+        else if (!ok)
+            Print("[taxi-cleanup] incomplete — reference retained; no automatic destroy retry was issued.");
+
+        return false;
+    }
+
+    /// <summary>Clears an owned handle only after the native wrapper reports the vehicle dead.</summary>
+    internal static bool ReconcileDeadTaxi()
+    {
+        VehicleOwnershipLedger ownership = SpikeState.VehicleOwnership;
+        IntPtr tracked = ownership.TrackedPointer;
+        LandVehicle? veh = SpikeState.Vehicle;
+        if (tracked == IntPtr.Zero || ReferenceEquals(veh, null) || !HasAuthority())
+            return false;
+
+        bool alive;
+        try { alive = NetworkGuard.IsAlive(veh); }
+        catch { return false; }
+        if (alive || !ownership.ClearAfterConfirmedDeath(tracked, isAlive: false))
+            return false;
+
+        if (SceneGate.IsInMainScene)
+        {
+            try { TaxiDriverNPC.ReturnToStand(); }
+            catch (Exception ex) { Mod.Log.Warn($"[taxi-recovery] ReturnToStand after externally confirmed vehicle death failed: {ex.Message}"); }
+        }
+        if (!SpikeState.Reset())
+            return false;
+
+        Mod.Log.Info("[taxi-recovery] tracked taxi is confirmed dead; ownership and ride state cleared.");
+        return true;
+    }
+
+    /// <summary>Observes one already-issued destroy request; this method never retries it.</summary>
+    internal static void TickDestroyVerification()
+    {
+        VehicleOwnershipLedger ownership = SpikeState.VehicleOwnership;
+        if (!ownership.DestroyPending || SpikeState.DestroyVerifyAfterFrame <= 0 ||
+            Time.frameCount < SpikeState.DestroyVerifyAfterFrame)
+            return;
+
+        IntPtr tracked = ownership.TrackedPointer;
+        LandVehicle? veh = SpikeState.Vehicle;
+        bool referencePresent = !ReferenceEquals(veh, null);
+        bool alive = true; // missing/unreadable reference is uncertainty, not proof of death
+        if (referencePresent)
+        {
+            try { alive = NetworkGuard.IsAlive(veh); }
+            catch { alive = true; }
+        }
+
+        if (!alive && ownership.ResolveDestroy(tracked, isAlive: false))
+        {
+            SpikeState.DestroyVerifyAfterFrame = 0;
+            SpikeState.DestroyVerifyDeadline = 0f;
+            try { TaxiDriverNPC.ReturnToStand(); }
+            catch (Exception ex) { Mod.Log.Warn($"[taxi-cleanup] ReturnToStand after confirmed destroy failed: {ex.Message}"); }
+
+            if (SpikeState.Reset())
+                Mod.Log.Info("[taxi-cleanup] native vehicle death confirmed; TaxiDriver state cleared.");
+            else
+                Mod.Log.Error("[taxi-cleanup] vehicle death confirmed but state reset refused; reference retained for inspection.");
+            return;
+        }
+
+        if (Time.unscaledTime < SpikeState.DestroyVerifyDeadline)
+            return;
+
+        if (ownership.MarkDestroyUnknown(tracked))
+        {
+            SpikeState.DestroyVerifyAfterFrame = 0;
+            SpikeState.DestroyVerifyDeadline = 0f;
+            Mod.Log.Error("[taxi-cleanup] destroy outcome still unknown after the bounded verification window; reference retained, no automatic retry.");
+        }
     }
 
     /// <summary>
@@ -2728,8 +2969,7 @@ internal static class SpikeCommands
     /// <c>taxi visual align on|off</c> (bounds auto-alignment on the next spawn).
     /// Unknown modes and unknown align values both answer with a warning and
     /// change nothing (review M3-8).
-    /// The swap itself runs inside <see cref="SpawnVehicle"/>; the on|off switch is
-    /// also hotkey F4.
+    /// The swap itself runs inside <see cref="SpawnVehicle"/> and defaults on; no keyboard or console toggle is exposed.
     /// </summary>
     internal static void Visual(string? mode, string? value)
     {
@@ -2941,10 +3181,11 @@ internal static class SpikeCommands
     private static LandVehicle? RequireVehicle(string command)
     {
         LandVehicle? veh = SpikeState.Vehicle;
-        if (veh != null)
+        if (veh != null && RequireOwnedTaxi(veh, $"taxi {command}"))
             return veh;
 
-        Mod.Log.Error($"No spike vehicle — run `taxi spawn` first (taxi {command} aborted, SpikeState.Vehicle is null).");
+        if (veh == null)
+            Mod.Log.Error($"No taxi vehicle — run CALL TAXI first (taxi {command} aborted, no tracked vehicle).");
         return null;
     }
 

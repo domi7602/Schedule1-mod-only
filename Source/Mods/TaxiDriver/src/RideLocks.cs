@@ -37,21 +37,29 @@ namespace TaxiDriver;
 internal static class RideLocks
 {
     private static HarmonyLib.Harmony? _harmony;
+    private static bool _applyAttempted;
+    private static bool _inputGateErrorLogged;
+    private static bool _trunkGateErrorLogged;
+    private static RideProtectionPatch _installed;
 
     /// <summary>Trunk/Storage interactable components disabled for the current ride.</summary>
     private static readonly List<InteractableObject> TrunkInteractables = new();
 
-    internal static bool Patched { get; private set; }
+    /// <summary>True only when every required input and trunk patch was installed.</summary>
+    internal static bool Patched => RideProtectionPolicy.IsComplete(_installed);
+
+    internal static RideProtectionPatch Installed => _installed;
 
     /// <summary>
     /// Installs the ride-lock patches once (called from <c>Mod.OnInitializeMelon</c>).
-    /// A failed patch is non-fatal: the ride still works, only its lock is absent
-    /// and the log says so (PatchGuard prints the failed signature).
+    /// A partial patch set is non-fatal to mod loading, but passenger rides are
+    /// disabled because one successful patch is not complete input protection.
     /// </summary>
     internal static bool Apply()
     {
-        if (Patched)
-            return true;
+        if (_applyAttempted)
+            return Patched;
+        _applyAttempted = true;
         try
         {
             _harmony ??= new HarmonyLib.Harmony("com.taxidriver.ridelocks");
@@ -62,36 +70,40 @@ internal static class RideLocks
                 nameof(LandVehicle.UpdateThrottle),
                 prefix: new HarmonyMethod(typeof(RideLocks), nameof(ThrottlePrefix)),
                 log: Mod.Log);
+            if (throttle) _installed |= RideProtectionPatch.Throttle;
             bool steer = PatchGuard.TryPatch(
                 _harmony,
                 typeof(LandVehicle),
                 nameof(LandVehicle.UpdateSteerAngle),
                 prefix: new HarmonyMethod(typeof(RideLocks), nameof(SteerPrefix)),
                 log: Mod.Log);
+            if (steer) _installed |= RideProtectionPatch.Steering;
             bool handbrake = PatchGuard.TryPatch(
                 _harmony,
                 typeof(GameInput),
                 "OnVehicleHandbrake",
                 prefix: new HarmonyMethod(typeof(RideLocks), nameof(HandbrakePrefix)),
                 log: Mod.Log);
+            if (handbrake) _installed |= RideProtectionPatch.Handbrake;
             bool trunkOpen = PatchGuard.TryPatch(
                 _harmony,
                 typeof(StorageDoorAnimation),
                 nameof(StorageDoorAnimation.Open),
                 prefix: new HarmonyMethod(typeof(RideLocks), nameof(TrunkOpenPrefix)),
                 log: Mod.Log);
+            if (trunkOpen) _installed |= RideProtectionPatch.TrunkOpen;
             bool trunkSet = PatchGuard.TryPatch(
                 _harmony,
                 typeof(StorageDoorAnimation),
                 nameof(StorageDoorAnimation.SetIsOpen),
                 prefix: new HarmonyMethod(typeof(RideLocks), nameof(TrunkSetIsOpenPrefix)),
                 log: Mod.Log);
+            if (trunkSet) _installed |= RideProtectionPatch.TrunkSetOpen;
 
-            Patched = throttle || steer || handbrake || trunkOpen || trunkSet;
             if (Patched)
             {
                 Mod.Log.Info(
-                    $"RideLocks patched (throttle={throttle} steer={steer} handbrake={handbrake} " +
+                    $"[ride] complete input/trunk protection installed (throttle={throttle} steer={steer} handbrake={handbrake} " +
                     $"trunkOpen={trunkOpen} trunkSetIsOpen={trunkSet}) — the player-input gate only " +
                     "skips LandVehicle.UpdateThrottle/UpdateSteerAngle + GameInput.OnVehicleHandbrake, " +
                     "the VehicleAgent drive path (UpdateSpeed/UpdateSteering) is untouched.");
@@ -99,13 +111,15 @@ internal static class RideLocks
             }
 
             Mod.Log.Warn(
-                "RideLocks patch failed (all 5 signatures unknown) — the passenger ride runs WITHOUT " +
-                "input/trunk locks. See the failed signatures above.");
+                $"[ride] protection INCOMPLETE (installed={_installed}, missing={RideProtectionPolicy.Missing(_installed)}) — " +
+                "CALL TAXI and passenger rides are disabled. See the failed signatures above.");
             return false;
         }
         catch (Exception ex)
         {
-            Mod.Log.Error($"RideLocks.Apply threw: {ex.GetType().Name} — {ex.Message}");
+            Mod.Log.Error(
+                $"[ride] RideLocks.Apply threw: {ex.GetType().Name} — {ex.Message}; installed={_installed}, " +
+                $"missing={RideProtectionPolicy.Missing(_installed)}. Passenger rides remain disabled.");
             return false;
         }
     }
@@ -119,34 +133,76 @@ internal static class RideLocks
     /// </summary>
     private static bool PlayerInputBlocked(LandVehicle? veh)
     {
+        bool passengerRideMode = SpikeState.RidePassengerMode;
+        if (!passengerRideMode)
+            return false;
+
         try
         {
-            return SpikeState.RidePassengerMode
-                && veh != null
-                && SpikeState.Vehicle != null
-                && veh.Pointer == SpikeState.Vehicle.Pointer
-                && !veh.overrideControls;
+            LandVehicle? tracked = SpikeState.Vehicle;
+            bool ownedRideVehicleVerified = veh != null
+                && tracked != null
+                && SpikeCommands.IsOwnedTaxi(veh)
+                && veh.Pointer == tracked.Pointer;
+            bool overrideControls = veh != null && veh.overrideControls;
+            return RideProtectionPolicy.ShouldBlockPlayerInput(
+                passengerRideMode,
+                ownedRideVehicleVerified,
+                overrideControls);
         }
-        catch
+        catch (Exception ex)
         {
-            return false;
+            if (!_inputGateErrorLogged)
+            {
+                _inputGateErrorLogged = true;
+                try { Mod.Log.Error($"[ride] player-input gate failed closed: {ex.GetType().Name} — {ex.Message}"); }
+                catch { /* Harmony prefixes must never let logging reopen the input path. */ }
+            }
+            return RideProtectionPolicy.ShouldBlockPlayerInput(
+                passengerRideMode,
+                ownedRideVehicleVerified: false,
+                overrideControls: false);
         }
     }
 
-    /// <summary>True while <paramref name="door"/> is the ride vehicle's trunk during a ride.</summary>
+    /// <summary>Blocks the ride trunk and any door whose identity cannot be verified during a passenger ride.</summary>
     private static bool TrunkBlocked(StorageDoorAnimation? door)
     {
+        bool passengerRideMode = SpikeState.RidePassengerMode;
+        if (!passengerRideMode)
+            return false;
+
         try
         {
-            return SpikeState.RidePassengerMode
-                && door != null
-                && SpikeState.Vehicle != null
-                && SpikeState.Vehicle.Trunk != null
-                && door.Pointer == SpikeState.Vehicle.Trunk.Pointer;
+            LandVehicle? tracked = SpikeState.Vehicle;
+            StorageDoorAnimation? trunk = tracked?.Trunk;
+            bool ownedTrunkVerified = tracked != null
+                && SpikeCommands.IsOwnedTaxi(tracked)
+                && trunk != null
+                && trunk.Pointer != IntPtr.Zero;
+            bool doorIdentityVerified = door != null && door.Pointer != IntPtr.Zero;
+            bool isRideTrunk = ownedTrunkVerified
+                && doorIdentityVerified
+                && door!.Pointer == trunk!.Pointer;
+            return RideProtectionPolicy.ShouldBlockTrunkOpen(
+                passengerRideMode,
+                ownedTrunkVerified,
+                doorIdentityVerified,
+                isRideTrunk);
         }
-        catch
+        catch (Exception ex)
         {
-            return false;
+            if (!_trunkGateErrorLogged)
+            {
+                _trunkGateErrorLogged = true;
+                try { Mod.Log.Error($"[ride] trunk-open gate failed closed: {ex.GetType().Name} — {ex.Message}"); }
+                catch { /* Harmony prefixes must never let logging reopen the trunk. */ }
+            }
+            return RideProtectionPolicy.ShouldBlockTrunkOpen(
+                passengerRideMode,
+                ownedTrunkVerified: false,
+                doorIdentityVerified: false,
+                isRideTrunk: false);
         }
     }
 
@@ -156,7 +212,8 @@ internal static class RideLocks
 
     private static bool SteerPrefix(LandVehicle __instance) => !PlayerInputBlocked(__instance);
 
-    private static bool HandbrakePrefix() => !PlayerInputBlocked(SpikeState.Vehicle);
+    private static bool HandbrakePrefix() =>
+        !RideProtectionPolicy.ShouldBlockHandbrake(SpikeState.RidePassengerMode);
 
     private static bool TrunkOpenPrefix(StorageDoorAnimation __instance) => !TrunkBlocked(__instance);
 
@@ -171,6 +228,11 @@ internal static class RideLocks
     /// </summary>
     internal static void LockTrunk(LandVehicle veh)
     {
+        if (!SpikeCommands.HasAuthority() || !SpikeCommands.IsOwnedTaxi(veh))
+        {
+            Mod.Log.Warn("[ride] trunk lock refused: vehicle is not a live TaxiDriver-owned taxi on the host.");
+            return;
+        }
         PruneDeadTrunkEntries();
         if (TrunkInteractables.Count > 0)
             return;

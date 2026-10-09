@@ -2,18 +2,28 @@ using System;
 using Il2CppScheduleOne.NPCs;
 using Il2CppScheduleOne.Vehicles;
 using Il2CppScheduleOne.Vehicles.AI;
+using S1Mods.Shared;
 using UnityEngine;
 
 namespace TaxiDriver;
 
 /// <summary>
-/// Mutable state of the feasibility spike. Everything lives here so the console
-/// command, the per-frame runner and the F6 automation share one source of truth.
+/// Mutable state of the taxi service. Everything lives here so the TaxiApp,
+/// diagnostic commands and per-frame runner share one source of truth.
 /// </summary>
 internal static class SpikeState
 {
-    /// <summary>The spike vehicle created by `taxi spawn`.</summary>
+    /// <summary>The exact vehicle returned by TaxiDriver's own spawn call.</summary>
     internal static LandVehicle? Vehicle;
+
+    /// <summary>Exact native-instance ownership token; only this token authorizes destroy/mutation.</summary>
+    internal static readonly VehicleOwnershipLedger VehicleOwnership = new();
+
+    /// <summary>Deadline for observing an already-issued destroy call; it is never retried by the tick.</summary>
+    internal static float DestroyVerifyDeadline;
+
+    /// <summary>Earliest frame to verify a deferred native destroy.</summary>
+    internal static int DestroyVerifyAfterFrame;
 
     /// <summary>The NPC that `taxi npc` put into the vehicle.</summary>
     internal static NPC? DriverNpc;
@@ -86,33 +96,33 @@ internal static class SpikeState
     /// <summary><see cref="Time.unscaledTime"/> when the pending verdict times out, 0 when none.</summary>
     internal static float SeatVerifyUntil;
 
-    // ---- F6 automation ----
+    // ---- Taxi app pickup automation ----
     internal static bool AutoRunning;
     internal static int AutoStep;
     internal static float AutoNextAt;
     internal static string? AutoCode;
 
-    /// <summary>F11 run: skip the npc step to test Navigate without an occupant.</summary>
+    /// <summary>Diagnostic run option: skip the NPC step to test navigation without an occupant.</summary>
     internal static bool SkipNpcStep;
 
-    /// <summary>F3 run: absolute road target for step 3 (null = blind forward*40).</summary>
+    /// <summary>Diagnostic run target for step 3 (null = blind forward*40).</summary>
     internal static Vector3? AutoTarget;
 
-    // ---- Stage 3b: fixed taxi stand + call-taxi flow (F5) ----
+    // ---- Stage 3b: fixed taxi stand + TaxiApp call flow ----
     /// <summary>
     /// One-shot spawn override: when set, the next <c>SpawnVehicle</c> places the
     /// vehicle HERE (the taxi stand) instead of 6 m in front of the player.
     /// Deliberately NOT cleared by <see cref="Reset"/>/<see cref="ResetAutoRun"/>:
-    /// an F5 run whose old vehicle is being torn down must keep the stand across
-    /// the deferred respawn. Consumed by <c>SpawnVehicle</c>; the F3/F6/F11
-    /// handlers clear it explicitly so no other flow can inherit it.
+    /// a call whose old vehicle is being torn down must keep the stand across the
+    /// deferred respawn. Consumed by <c>SpawnVehicle</c>; other diagnostic spawns
+    /// do not arm it.
     /// </summary>
     internal static Vector3? StandSpawnPosition;
 
     /// <summary>Forward direction for the stand spawn (parking-spot alignment).</summary>
     internal static Vector3 StandSpawnForward = Vector3.forward;
 
-    /// <summary>F5 run: step 3 navigates to a road point near the PLAYER (not to <see cref="AutoTarget"/>).</summary>
+    /// <summary>Taxi-app call: pickup step navigates to a road point near the PLAYER (not to <see cref="AutoTarget"/>).</summary>
     internal static bool AutoToPlayer;
 
     /// <summary>The navigation currently in flight targets the player — gates the "taxi arrived at player" log.</summary>
@@ -122,7 +132,8 @@ internal static class SpikeState
     /// <summary>
     /// Swap the vanilla visuals for <c>taxi.glb</c> on the next spawn.
     /// Default ON (0.3.0: source default verified `= true`; the 0.2.0 session
-    /// that behaved default-off ran a stale deploy). F4 stays the diagnostic toggle.
+    /// that behaved default-off ran a stale deploy). Diagnostic console setting
+    /// affects the next spawn; there is no TaxiDriver key binding.
     /// </summary>
     internal static bool VisualSwapEnabled = true;
 
@@ -282,17 +293,16 @@ internal static class SpikeState
         AutoStep = 0;
         AutoNextAt = 0f;
         AutoCode = null;
-        // Review M1-2: a leftover absolute target would silently redirect the NEXT
-        // run (F11 used to inherit F3's road target), so every teardown clears it.
+        // A leftover absolute target would silently redirect the next run, so
+        // every teardown clears it.
         AutoTarget = null;
-        // Stage 3b: same rule for the call-taxi flag — a finished F5 run must not
-        // turn the next F3/F6 step 3 into a "drive to the player" dispatch.
+        // Stage 3b: a finished call must not turn the next diagnostic run into a
+        // "drive to the player" dispatch.
         // StandSpawnPosition intentionally NOT reset (see its doc: it has to
         // survive the cleanup + deferred respawn of its own run).
         AutoToPlayer = false;
-        // SkipNpcStep intentionally NOT reset: a deferred cleanup inside an F11
-        // run (existing vehicle) must not cancel the skip for the respawn.
-        // F3/F6/F11 set it explicitly where needed.
+        // SkipNpcStep intentionally NOT reset: a deferred cleanup inside a
+        // diagnostic run must not cancel the selected flow for its respawn.
     }
 
     /// <summary>
@@ -315,7 +325,7 @@ internal static class SpikeState
 
     /// <summary>
     /// Clears the destination picker (Paket A). Called at every save-load boundary
-    /// (<c>GameLifecycle.OnSaveInfoLoaded</c>, scene leave of "Main") — the stale
+    /// (<c>GameLifecycle.OnPreLoad</c>, scene leave of "Main") — the stale
     /// picker state was the "taxi drives to the last checkpoint after reload" bug.
     /// Deliberately NOT part of <see cref="Reset"/>: within one save session the
     /// pick is a convenience that survives rides.
@@ -355,8 +365,31 @@ internal static class SpikeState
         PendingSpawnFrame = 0;
     }
 
-    internal static void Reset()
+    /// <summary>
+    /// Clears taxi state only after the tracked vehicle is confirmed gone. A live
+    /// or missing-but-still-owned reference is retained so cleanup remains possible.
+    /// </summary>
+    internal static bool Reset()
     {
+        bool referencePresent = !ReferenceEquals(Vehicle, null);
+        bool vehicleAlive;
+        try { vehicleAlive = referencePresent && NetworkGuard.IsAlive(Vehicle); }
+        catch { vehicleAlive = true; } // unreadable is not proof of death
+
+        if (vehicleAlive)
+        {
+            Mod.Log.Warn("[taxi-cleanup] state reset refused: the tracked vehicle is still alive.");
+            return false;
+        }
+        if (VehicleOwnership.TrackedPointer != IntPtr.Zero && !referencePresent)
+        {
+            Mod.Log.Error("[taxi-cleanup] state reset refused: ownership is recorded but its vehicle reference is missing.");
+            return false;
+        }
+
+        VehicleOwnership.ResetAfterConfirmedDeath();
+        DestroyVerifyDeadline = 0f;
+        DestroyVerifyAfterFrame = 0;
         Vehicle = null;
         DriverNpc = null;
         LastVehicleCode = null;
@@ -374,5 +407,6 @@ internal static class SpikeState
         SeatVerifyUntil = 0f;
         // LastBoardedNpc/LastBoardedAt deliberately survive: the re-enter cooldown
         // protects against the repeat-EnterVehicle freeze even across a respawn.
+        return true;
     }
 }

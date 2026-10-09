@@ -1,6 +1,59 @@
 # Changelog
 
-## 0.8.2 (2026-10-03) - bug-report batch (14 findings) + taxi diag
+## 0.8.2 (2026-10-08) — Beta 8 safety pass
+
+### Controls and retained behavior
+
+- Removed TaxiDriver's F1–F12 runtime bindings and the old `HandleHotkey`/
+  `HandleF6` dispatcher. `SpikeRunner.Update` still calls `TickAutoRun`, and
+  `TaxiApp` still uses `SpikeCommands.CallTaxi`; CALL TAXI, destinations/search/
+  filters, live status/fare, STOP, and navigation between app views remain phone-only.
+- Removed the F12 vanilla-vehicle test/takeover path and `FindVanillaVehicle`;
+  TaxiDriver never adopts a vehicle it did not spawn and register itself.
+- The console is limited to a read-only diagnostic allow-list. Service, route,
+  destination, cleanup, and visual-toggle operations are app-only.
+- Vanilla E entry/exit and Escape phone-close remain unchanged.
+
+### Safety changes
+
+- Added an exact-pointer ownership ledger for TaxiDriver's own spawned vehicle.
+  Cleanup verifies host authority, ownership, occupant exits, destroy request and
+  native death. Pending/unknown outcomes retain the reference; no automatic retry
+  occurs, and only one explicit STOP retry is allowed.
+- Passenger ride startup requires all five input/trunk patches. Input/trunk gates
+  fail closed when identity checks throw or are uncertain; handbrake input remains
+  blocked during a ride, while the agent's throttle/steering override path remains
+  untouched. A partial patch set prevents taxi service from starting.
+- `Npc`, `BoardDriver` and `Go` verify exact host-owned taxi identity before
+  boarding, navigation or brake/physics changes. STOP invalidates the navigation
+  order and pickup state before teardown; callbacks require a current order and
+  active polling, so late pickup callbacks cannot complete after STOP.
+- GLB visuals are committed only when a renderer has mesh vertices and at least
+  one indexed submesh. Import/geometry failure rolls back and leaves vanilla
+  visuals visible; vanilla GameObjects and functional components stay active.
+- Save/scene teardown preserves uncertain vehicle state instead of dropping its
+  ownership token. `TaxiApp.OnDestroyed` removes its update subscription.
+- Fare rate and lifetime fare are bounded. Only moving time accrues; cash is used
+  first and the bank may go negative. Payment status distinguishes returned,
+  thrown/unknown and unpaid parts; returned void calls are explicitly unverified,
+  the app displays calculated fare, and consumed amounts are never automatically retried.
+
+### Verification
+
+- Unity-free test suite: **165 passed, 0 failed, 0 skipped**. New ride-gate,
+  payment-status, callback and mesh-geometry tests were observed failing before
+  their pure policy helpers existed, then passed after implementation.
+- Schedule I 0.4.7f12 / local S1API 3.2.1-beta.8 / S1MAPI 2.0.1 no-deploy Release
+  build: **0 warnings, 0 errors**. Assembly identities and hashes are recorded in
+  `docs/compatibility.md`.
+- No mod deployment or current in-game TaxiDriver test was performed. The build
+  proves compilation only; runtime ride, lifecycle, GLB, money and multiplayer
+  behavior remain unverified.
+- Safety text: **F12 drücken | Kein Vanilla-Fahrzeug wird übernommen**. **Keine
+  Behauptung vollständiger Beta-8-Kompatibilität ohne passenden Build
+  beziehungsweise Laufzeittest.**
+
+## Earlier v0.8.2 iteration (2026-10-03) — superseded by the Beta 8 safety pass
 
 - F9 ride/out toggle removed (E is the only in-game board/exit path; console
   `taxi ride`/`out` stay as diagnostics); F9 now runs the new `taxi diag`

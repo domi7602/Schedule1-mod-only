@@ -8,19 +8,18 @@ using UnityEngine;
 namespace TaxiDriver;
 
 /// <summary>
-/// Stage 2 — visible model swap ("V1 principle"): the spike vehicle keeps the
-/// vanilla <c>Shitbox</c> body, colliders, wheel colliders and physics, but the
-/// vanilla *visuals* are switched off and our own GLB
-/// (<c>assets/taxi.glb</c>) hangs in as a pure visual child of
-/// <see cref="LandVehicle.vehicleModel"/>.
+/// The taxi keeps the vanilla <c>Shitbox</c> body, colliders, wheel colliders
+/// and physics. Its GLB (<c>assets/taxi.glb</c>) is attached as a visual child of
+/// <see cref="LandVehicle.vehicleModel"/>; vanilla renderers/LOD visibility are
+/// hidden only after a usable GLB renderer is confirmed, and vanilla GameObjects
+/// remain active.
 ///
 /// Loader: <c>S1MAPI.Gltf.GltfLoader.LoadFromFile</c> (UserLibs\S1MAPI_Il2cpp.dll) —
 /// the same runtime GLB pipeline that AutoPackagingStation / SnackVendor used,
 /// no AssetBundle, no Unity round-trip.
 ///
-/// Nothing is destroyed: vanilla renderers are disabled and vanilla visual child
-/// GameObjects are <c>SetActive(false)</c>, so repair/repaint scripts that walk the
-/// original hierarchy keep working.
+/// No vanilla GameObject is deactivated: only renderer and LOD visibility are
+/// changed, so physics and functional scripts remain active.
 /// </summary>
 internal static class TaxiVisual
 {
@@ -371,13 +370,15 @@ internal static class TaxiVisual
             catch { /* non-fatal */ }
         }
 
-        // S1MAPI already configures URP/Lit — only force the renderers ON.
+        // S1MAPI creates MeshFilter + MeshRenderer pairs for GLB nodes. Verify
+        // actual mesh vertices and indexed submeshes before any vanilla pixels
+        // are hidden; an empty Renderer component is not a valid visual.
         int glbRenderers = 0;
         var glbRs = glb.GetComponentsInChildren<Renderer>(true);
         for (int i = 0; i < glbRs.Length; i++)
         {
             Renderer r = glbRs[i];
-            if (r == null || r.Pointer == IntPtr.Zero)
+            if (r == null || r.Pointer == IntPtr.Zero || !HasRenderableMeshGeometry(r))
                 continue;
             try
             {
@@ -388,13 +389,16 @@ internal static class TaxiVisual
             catch { /* non-fatal */ }
         }
 
-        // M2-3(c): a swap that produced zero renderers is an invisible taxi — say so
-        // loudly instead of logging a "DONE" that looks successful.
-        if (glbRenderers == 0)
-            Mod.Log.Warn("[visual] WARNING: 0 renderers on GLB — model will be invisible");
+        // Do not hide any vanilla pixels unless the imported GLB has at least one
+        // renderer backed by nonempty mesh geometry. Rollback destroys the bad GLB.
+        if (!TaxiVisualPolicy.CanCommitSwap(glbRenderers))
+        {
+            Mod.Log.Warn("[visual] GLB has 0 renderers with usable mesh geometry — rolling back; vanilla visuals stay visible.");
+            RollbackPartialSwap();
+            return;
+        }
 
         // ---- 5. switch the vanilla visuals off (never destroy) ----
-        int deactivated = 0;
         int softHidden = 0;
         int untouched = 0;
         int errors = 0;
@@ -417,21 +421,13 @@ internal static class TaxiVisual
                     untouched++;
                     Trace($"[visual]   '{Path2(child)}' -> untouched (colliders={cols.Length} renderers=0 lodGroups={lodgs})");
                 }
-                else if (cols.Length == 0)
-                {
-                    // Pure visual branch: safe to switch the whole GameObject off.
-                    // activeSelf=false survives the game's own SetVisible(parent) toggles.
-                    child.gameObject.SetActive(false);
-                    deactivated++;
-                    Trace($"[visual]   '{Path2(child)}' -> SetActive(false) (colliders=0 renderers={rs.Length} lodGroups={lodgs})");
-                }
                 else
                 {
-                    // Something physical lives here (body collider / wheel collider):
-                    // keep the GameObject active so physics is untouched, hide only pixels.
+                    // Keep every vanilla object active so scripts, audio and any
+                    // non-collider gameplay components continue running. Hide pixels only.
                     HideRenderers(child, glb.transform);
                     softHidden++;
-                    Trace($"[visual]   '{Path2(child)}' -> renderers hidden, object KEPT ACTIVE (colliders={cols.Length} renderers={rs.Length} lodGroups={lodgs})");
+                    Trace($"[visual]   '{Path2(child)}' -> renderer-only hide, object KEPT ACTIVE (colliders={cols.Length} renderers={rs.Length} lodGroups={lodgs})");
                 }
             }
             catch (Exception ex)
@@ -517,7 +513,7 @@ internal static class TaxiVisual
 
         Trace(
             $"[visual] swap DONE: GLB '{VisualRootName}' parented under '{parentGo.name}' (renderers={glbRenderers}, colliders stripped={strippedColliders}); " +
-            $"vanilla children deactivated={deactivated}, renderer-hidden(kept active)={softHidden}, untouched(no renderers)={untouched}, errors={errors}, " +
+            $"vanilla children deactivated=0, renderer-hidden(kept active)={softHidden}, untouched(no renderers)={untouched}, errors={errors}, " +
             $"final-sweep-only renderers hidden={parentRs}; align {alignNote}; model rotated 180° about Y (nose onto vehicle +Z).");
     }
 
@@ -698,6 +694,60 @@ internal static class TaxiVisual
         }
 
         return hidden;
+    }
+
+    /// <summary>
+    /// True only when the renderer is backed by a nonempty MeshFilter or
+    /// SkinnedMeshRenderer mesh with vertices and at least one indexed submesh.
+    /// Any interop/API error fails closed so vanilla visuals remain visible.
+    /// </summary>
+    private static bool HasRenderableMeshGeometry(Renderer renderer)
+    {
+        try
+        {
+            MeshFilter? filter = renderer.GetComponent<MeshFilter>();
+            if (filter != null && filter.Pointer != IntPtr.Zero && HasUsableMesh(filter.sharedMesh))
+                return true;
+
+            SkinnedMeshRenderer? skinned = renderer.GetComponent<SkinnedMeshRenderer>();
+            return skinned != null && skinned.Pointer != IntPtr.Zero && HasUsableMesh(skinned.sharedMesh);
+        }
+        catch (Exception ex)
+        {
+            Trace($"[visual] GLB renderer geometry check failed: {ex.Message} — renderer ignored.");
+            return false;
+        }
+    }
+
+    private static bool HasUsableMesh(Mesh? mesh)
+    {
+        if (mesh == null || mesh.Pointer == IntPtr.Zero)
+            return false;
+
+        try
+        {
+            int vertices = mesh.vertexCount;
+            int subMeshes = mesh.subMeshCount;
+            if (vertices <= 0 || subMeshes <= 0)
+                return false;
+
+            int indexedSubMeshes = 0;
+            for (int i = 0; i < subMeshes; i++)
+            {
+                if (mesh.GetIndexCount(i) > 0)
+                {
+                    indexedSubMeshes++;
+                    break;
+                }
+            }
+
+            return TaxiVisualPolicy.HasUsableGeometry(vertices, subMeshes, indexedSubMeshes);
+        }
+        catch (Exception ex)
+        {
+            Trace($"[visual] GLB mesh geometry read failed: {ex.Message} — mesh ignored.");
+            return false;
+        }
     }
 
     /// <summary>

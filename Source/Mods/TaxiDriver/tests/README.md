@@ -9,18 +9,59 @@ The extracted Unity-free logic is covered by `Source/Tests/TaxiDriver.Tests`
 dotnet test Source/Tests/TaxiDriver.Tests/TaxiDriver.Tests.csproj -c Release
 ```
 
-Currently covered: `FareLedger` (fare accrual, motion latch, pause/clock-stop
-handling, hitch cap, billing commit) and the `fare.json` threshold
-validation/migration rules (`FareConfigRules`) plus the game-clock rate formula
-(`FareClock`). The in-game checklist below stays the source of truth for
-everything Unity-bound.
+Current pure-logic coverage includes `VehicleOwnershipLedger` (owned/foreign/
+invalid state, pending/uncertain destruction, confirmed death and bounded retry),
+`RideProtectionPolicy` (complete patch set, fail-closed input/trunk gates),
+`NavigationCallbackPolicy` (only current callbacks during active polling),
+`TaxiVisualPolicy` (nonempty indexed-mesh and zero-renderer fallback), `TaxiConsolePolicy` (read-only
+allow-list), `FareLedger`/`FarePayment`/`FarePaymentStatusLedger` (accrual, cash-first split,
+API-returned versus balance-unverified status, unknown/unpaid totals, exceptions
+and no repeated attempt), and `FareConfigRules`/`FareClock`
+(configuration and numeric bounds). The in-game checklist remains the source of
+truth for Unity-bound behavior.
 
-## Build check, 2026-10-01
+## Beta 8 source verification, 2026-10-08
 
-- Release build against installed game references: 0 errors, 2 existing CS8604
-  nullable warnings in SpikeCommands.
-- Syntax checks and offline meter policy/model tests passed.
-- This is not an in-game verification.
+- `dotnet test Source/Tests/TaxiDriver.Tests/TaxiDriver.Tests.csproj -c Release`:
+  **165 passed, 0 failed, 0 skipped**.
+- Test-first checks for the ride input, handbrake and trunk fail-closed policies
+  first failed because the new pure policy methods were absent; after implementing
+  those methods, the focused `RideProtectionPolicyTests` passed (11/11).
+- Payment-status tests went red for the missing status ledger/formatter and for
+  a client-only status hiding an earlier result; after the fix, the focused
+  `FarePaymentStatusLedgerTests` passed (5/5).
+- Navigation callback tests went red before the callback policy existed, then
+  passed (3/3); visual geometry tests went red before the mesh-data gate existed,
+  then passed in the focused suite (8/8).
+- No-deploy Release build against installed Schedule I 0.4.7f12 / S1API
+  3.2.1-beta.8 / S1MAPI 2.0.1 references: **0 warnings, 0 errors**.
+  `-p:S1NoDeploy=true` was set; the mod was not installed or deployed.
+- This verifies source compilation and pure logic only. No current TaxiDriver
+  in-game test was run; do not claim full Beta-8 gameplay compatibility.
+
+## Historical build check, 2026-10-01
+
+Older result: Release build against the then-installed references had 0 errors
+and 2 CS8604 nullable warnings in SpikeCommands. This is not the current f12
+build result.
+
+## Beta 8 in-game acceptance checklist (not yet run)
+
+| Test | Status |
+|---|---|
+| Press the base game's F1–F12 controls | Not run in-game; static scan found no TaxiDriver F-key binding. |
+| CALL TAXI button | Not run in-game; source still routes `CallTaxi` → `TickAutoRun`. |
+| Taxi arrives and registered `taxi_driver` boards | Not run in-game. |
+| Vanilla E entry/exit | Not run in-game. |
+| Destination selection, search, filters and app navigation | Not run in-game. |
+| STOP exits occupants and removes the owned taxi safely | Not run in-game. |
+| Order taxi twice without an unintended duplicate | Not run in-game. |
+| F12 does not adopt a vanilla vehicle | Not run in-game; foreign-vehicle takeover path and `FindVanillaVehicle` are absent. |
+| Missing/empty GLB keeps vanilla visuals visible | Policy test passes; visual fallback not run in-game. |
+| Close and reopen TaxiApp | Not run in-game; `OnDestroyed` unsubscribes its update handler. |
+| Switch saves/scenes without stale ride state | Not run in-game; local lifecycle signatures compile. |
+| Money API throws or returns an unknown result | Pure payment tests pass; native Money API behavior not run in-game. |
+| Schedule I 0.4.7f12 / local Beta-8 API build | Passed, no deploy; see `docs/compatibility.md`. |
 
 ## Gameplay checklist
 

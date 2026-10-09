@@ -105,7 +105,7 @@ internal static class RoadKeeper
         try
         {
             LandVehicle? veh = SpikeState.Vehicle;
-            if (veh == null || veh.Pointer == IntPtr.Zero)
+            if (veh == null || !SpikeCommands.HasAuthority() || !SpikeCommands.IsOwnedTaxi(veh))
                 return;
 
             VehicleAgent? agent = veh.Agent;
@@ -336,6 +336,12 @@ internal static class RoadKeeper
     /// </summary>
     internal static void ApplyPosition(LandVehicle veh, Vector3 position, Quaternion rotation, bool zeroVelocity)
     {
+        if (!SpikeCommands.HasAuthority() || !SpikeCommands.IsOwnedTaxi(veh))
+        {
+            Mod.Log.Warn("[taxi-recovery] road correction refused: vehicle is not a live TaxiDriver-owned taxi on the host.");
+            return;
+        }
+
         try
         {
             Rigidbody? rb = veh.GetComponent<Rigidbody>();
@@ -427,6 +433,12 @@ internal static class RoadKeeper
     /// <param name="context">Who triggered the rescue (used verbatim in the log lines).</param>
     internal static bool TryRescueStartup(LandVehicle veh, VehicleAgent agent, string context = "startup")
     {
+        if (!SpikeCommands.HasAuthority() || !SpikeCommands.IsOwnedTaxi(veh))
+        {
+            Mod.Log.Warn($"[taxi-recovery] {context} rescue refused: vehicle is not a live TaxiDriver-owned taxi on the host.");
+            return false;
+        }
+
         Vector3 position = veh.transform.position;
         Vector3 closest = position;
         Vector3 direction = veh.transform.forward;

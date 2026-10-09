@@ -145,11 +145,10 @@ public class FarePaymentCharacterizationTests
     [Fact]
     public void P07_SilentNoOp_ReturnStillCounts_NothingMoves()
     {
-        // Documented limitation (unchanged by the fixes): a clean return is not
-        // proof of payment (S1API no-ops when MoneyManager.Instance is null,
-        // Money.cs:43/57), yet with no read-back available the amount is counted
-        // as charged. No balance comparison is turned into a confirmation
-        // (review rule).
+        // A clean return is not proof of payment (S1API no-ops when
+        // MoneyManager.Instance is null, Money.cs:43/57). CountedDollars means
+        // only that the void payment call returned; FareMeter reports balance
+        // movement as unverified and never retries a thrown/unknown part.
         var wallet = new FakeWallet { CashBalance = 0f, SilentNoOp = true };
 
         PaymentOutcome outcome = FarePayment.Execute(5, wallet, isHost: true);
@@ -164,8 +163,8 @@ public class FarePaymentCharacterizationTests
     [Fact]
     public void P08_Client_MakesNoWalletCall_AndClaimsNoCharge()
     {
-        // TD-04 (fixed 2026-10-03): the client path performs no money call
-        // (fail-closed) and counts NOTHING as charged - only the calculated fare.
+        // TD-04 (fixed 2026-10-03): the client path performs no money call and
+        // records no returned amount; it may show only the calculated fare.
         var wallet = new FakeWallet();
         var counted = new List<int>();
         int warns = 0;

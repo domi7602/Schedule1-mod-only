@@ -80,7 +80,8 @@ internal sealed class FareLedger
         // meter disabled/zero rate, or a dead speed handle are all free and
         // reset the motion latch (the first frame after recovery never accrues).
         if (!input.RideValid || !input.ClockAvailable || !input.ConfigEnabled ||
-            input.DollarsPerMinute <= 0 || input.SpeedReadFailed)
+            input.DollarsPerMinute <= 0 || input.DollarsPerMinute > FareConfigRules.MaximumDollarsPerMinute ||
+            input.SpeedReadFailed)
         {
             _wasMoving = false;
             return outcome;
@@ -113,22 +114,21 @@ internal sealed class FareLedger
         if (!countInterval)
             return outcome; // standing is free
 
-        _movingMinutes += dt;
+        long maxBillableMinutes = FareConfigRules.MaximumFareDollars / (long)input.DollarsPerMinute;
+        _movingMinutes = Math.Min(_movingMinutes + (double)dt, maxBillableMinutes);
         outcome.Counted = true;
 
-        // Floor TIME first (rate=2 must not charge $1 after 0.5 s).
+        // Floor TIME first (rate=2 must not charge $1 after 0.5 s). Cap the
+        // lifetime total in minutes before the cast and multiplication so even a
+        // corrupt clock-rate value cannot wrap the int billed-minute counter or
+        // repeat the payment every frame.
         int wholeMinutes = (int)Math.Floor(_movingMinutes);
-        int units = wholeMinutes - _billedMinutes;
+        long units = wholeMinutes - (long)_billedMinutes;
         int due = 0;
         if (units > 0)
         {
-            // Numeric hardening (2026-10-03): the old checked() threw AFTER the
-            // accumulator moved (line 106) and BEFORE the billed update, leaving a
-            // half-advanced state that threw on every following tick. Compute in
-            // long and clamp instead: the tick completes and the ledger stays
-            // consistent (billed == floored moving minutes).
-            long rawDue = (long)units * input.DollarsPerMinute;
-            due = rawDue > int.MaxValue ? int.MaxValue : (int)rawDue;
+            long rawDue = units * input.DollarsPerMinute;
+            due = (int)Math.Min(rawDue, int.MaxValue);
         }
         if (due > 0)
         {
@@ -208,6 +208,22 @@ internal sealed class FareLedger
 /// </summary>
 internal static class FareConfigRules
 {
+    /// <summary>Default whole-dollar rate per fully driven in-game minute.</summary>
+    public const int DefaultDollarsPerMinute = 1;
+
+    /// <summary>Bounds the hand-edited rate so fare math and float money APIs stay finite.</summary>
+    public const int MaximumDollarsPerMinute = 1_000_000;
+
+    /// <summary>Largest exact whole-dollar amount accepted by the game's float money API.</summary>
+    public const int MaximumFareDollars = 16_777_216;
+
+    /// <summary>Repairs zero, negative, and excessively large configured rates.</summary>
+    public static int NormalizeDollarsPerMinute(int value, out bool changed)
+    {
+        changed = value < 1 || value > MaximumDollarsPerMinute;
+        return changed ? DefaultDollarsPerMinute : value;
+    }
+
     /// <summary>Default moving threshold in km/h.</summary>
     public const float DefaultThresholdKmh = 3f;
 

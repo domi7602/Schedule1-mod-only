@@ -1,5 +1,7 @@
 # TaxiDriver fixes — work plan (2026-10-03)
 
+> **Historical plan:** superseded by the 2026-10-08 Beta-8 safety pass. The remaining text records an earlier implementation plan; do not treat its F9/console instructions as current behavior.
+
 Basis: Sonnet review of the 2026-10-03 code-only bug report, plus 7
 repo-grounded corrections (greetings from the working tree: every line
 below was grepped, not guessed). F9 removal added per Dominik.

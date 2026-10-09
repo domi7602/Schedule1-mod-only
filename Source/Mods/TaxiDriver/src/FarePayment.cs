@@ -3,13 +3,9 @@ using System;
 namespace TaxiDriver;
 
 /// <summary>
-/// Draft payment seam for the fare meter (audit package 1, 2026-10-03). NOT
-/// wired into production: FareMeter.Charge keeps its original body until the
-/// extraction is approved (line-by-line preservation mapping:
-/// Downloads/TaxiDriver-precheck-2026-10-03/seam-mapping.md). This file is a
-/// Unity-free, control-flow-faithful reproduction of FareMeter.Charge
-/// (FareMeter.cs:230-282) behind a minimal wallet interface, so the money
-/// semantics can be characterized by unit tests.
+/// Production settlement seam used by <see cref="FareMeter"/>. The money calls
+/// remain behind a small Unity-free wallet interface so cash/bank splitting,
+/// payment status, exception handling and no-retry behavior are unit-testable.
 ///
 /// Preserved semantics (characterized in FarePaymentCharacterizationTests):
 /// <list type="bullet">
@@ -25,9 +21,9 @@ namespace TaxiDriver;
 /// disproven). A thrown part is never auto-classified and never retried.</item>
 /// <item>Since the TD-01/TD-02/TD-04 fixes (2026-10-03): a failed cash read
 /// aborts WITHOUT any money call (fail closed, the amount is unpaid), only
-/// clean-returned parts are counted as charged, a thrown part is UNKNOWN and
-/// never retried, and a client counts nothing as charged (calculated fare
-/// only). The outer catch boundary still covers the wallet calls AND the
+/// clean-returned parts are counted as payment calls returned (not balance-
+/// verified), a thrown part is UNKNOWN and never retried, and a client makes
+/// no payment call (calculated fare only). The outer catch boundary still covers the wallet calls AND the
 /// caller's record/log hooks, exactly like the original try.</item>
 /// </list>
 /// </summary>
@@ -57,8 +53,8 @@ internal static class FarePayment
     /// One settlement attempt for <paramref name="dollars"/> whole dollars: host
     /// gate, cash read with its inner guard, split, cash call, bank call, counter,
     /// summary log - one outer catch around all of it (same boundary as the
-    /// original FareMeter.Charge). Since the TD-01/TD-02/TD-04 fixes the outcome
-    /// reports confirmed/unknown/unpaid parts instead of a blanket skip: the hooks
+    /// original FareMeter.Charge). The outcome reports returned/unknown/unpaid
+    /// parts instead of a blanket skip: the hooks
     /// run at the exact positions of the original statements, and a thrown part is
     /// never classified as "not charged" and never retried.
     /// </summary>
@@ -82,8 +78,8 @@ internal static class FarePayment
             {
                 // FareMeter.cs:238-242 (the warn-once state stays in the adapter).
                 clientWarnOnce?.Invoke();
-                // TD-04: a client counts NOTHING as charged - the calculated fare
-                // is the only quantity a client may claim (host authority).
+                // TD-04: a client makes no payment call; only the calculated fare
+                // may be shown without host authority.
                 outcome.NotHost = true;
                 return outcome;
             }
@@ -143,18 +139,19 @@ internal static class FarePayment
 
             if (!outcome.ChargeRecorded)
             {
-                // TD-01 partial accounting: count only clean-returned parts (never
-                // retried); a thrown part is UNKNOWN, a never-attempted part unpaid.
-                int confirmed =
+                // TD-01 partial accounting: record only clean-returned parts as
+                // API returns (never balance-confirmed); a thrown part is UNKNOWN,
+                // a never-attempted part unpaid.
+                int returned =
                     (outcome.CashStatus == PaymentPartStatus.CallReturned ? outcome.CashPart : 0) +
                     (outcome.BankStatus == PaymentPartStatus.CallReturned ? outcome.BankPart : 0);
-                outcome.CountedDollars = confirmed;
-                if (confirmed > 0)
-                    recordCharge?.Invoke(confirmed);
+                outcome.CountedDollars = returned;
+                if (returned > 0)
+                    recordCharge?.Invoke(returned);
                 outcome.UnknownDollars =
                     (outcome.CashStatus == PaymentPartStatus.CallThrewUnknown ? outcome.CashPart : 0) +
                     (outcome.BankStatus == PaymentPartStatus.CallThrewUnknown ? outcome.BankPart : 0);
-                outcome.UnpaidDollars = dollars - confirmed - outcome.UnknownDollars;
+                outcome.UnpaidDollars = dollars - returned - outcome.UnknownDollars;
             }
         }
 
@@ -209,7 +206,7 @@ internal sealed class PaymentOutcome
     /// <summary>Dollars requested for this attempt.</summary>
     public int DueDollars;
 
-    /// <summary>Calculated fare (display quantity; TD-04 keeps it separate from charges).</summary>
+    /// <summary>Calculated fare shown to the player; separate from payment-call outcomes.</summary>
     public int CalculatedDollars;
 
     /// <summary>Split part attempted via ChangeCashBalance.</summary>
@@ -218,13 +215,13 @@ internal sealed class PaymentOutcome
     /// <summary>Split part attempted via CreateOnlineTransaction.</summary>
     public int BankPart;
 
-    /// <summary>What the original code adds to _chargedTotal (via recordCharge).</summary>
+    /// <summary>Payment-call-returned dollars passed to the record callback; not proof of balance movement.</summary>
     public int CountedDollars;
 
     /// <summary>The client path was taken (no wallet call).</summary>
     public bool NotHost;
 
-    /// <summary>GetCashBalance threw; today's code treats the balance as 0.</summary>
+    /// <summary>GetCashBalance threw; settlement stopped before any money call and the due amount remains unpaid.</summary>
     public bool CashReadFailed;
 
     /// <summary>The outer catch engaged; a wallet call or hook threw.</summary>
@@ -245,7 +242,7 @@ internal sealed class PaymentOutcome
     /// <summary>Parts never attempted (fail-closed abort): not charged.</summary>
     public int UnpaidDollars;
 
-    /// <summary>True once the confirmed amount was handed to recordCharge (guards double counting).</summary>
+    /// <summary>True once the payment-call-returned amount was handed to recordCharge (guards double counting).</summary>
     public bool ChargeRecorded;
 
     /// <summary>State of the cash part (see <see cref="PaymentPartStatus"/>).</summary>
@@ -253,4 +250,70 @@ internal sealed class PaymentOutcome
 
     /// <summary>State of the bank part (see <see cref="PaymentPartStatus"/>).</summary>
     public PaymentPartStatus BankStatus;
+}
+
+/// <summary>
+/// Per-ride summary of settlement outcomes. A clean void API return is tracked
+/// separately from a thrown/unknown call and is never described as verified money
+/// movement. Totals are bounded by the fare ledger's lifetime cap.
+/// </summary>
+internal sealed class FarePaymentStatusLedger
+{
+    internal int ReturnedDollars { get; private set; }
+    internal int UnknownDollars { get; private set; }
+    internal int UnpaidDollars { get; private set; }
+    internal bool ClientOnly { get; private set; }
+
+    internal void Reset()
+    {
+        ReturnedDollars = 0;
+        UnknownDollars = 0;
+        UnpaidDollars = 0;
+        ClientOnly = false;
+    }
+
+    /// <summary>Records the amount whose payment calls returned cleanly, without claiming a balance change.</summary>
+    internal void RecordReturned(int dollars) =>
+        ReturnedDollars = SaturatingAdd(ReturnedDollars, dollars);
+
+    /// <summary>Records one completed payment outcome, including returned parts for unit-test callers.</summary>
+    internal void Record(PaymentOutcome outcome)
+    {
+        RecordReturned(outcome.CountedDollars);
+        RecordNonReturned(outcome);
+    }
+
+    /// <summary>Records only outcome metadata when returned parts were already recorded by the production callback.</summary>
+    internal void RecordNonReturned(PaymentOutcome outcome)
+    {
+        UnknownDollars = SaturatingAdd(UnknownDollars, outcome.UnknownDollars);
+        UnpaidDollars = SaturatingAdd(UnpaidDollars, outcome.UnpaidDollars);
+        ClientOnly |= outcome.NotHost;
+    }
+
+    internal void RecordUnknown(int dollars) =>
+        UnknownDollars = SaturatingAdd(UnknownDollars, dollars);
+
+    internal void RecordUnpaid(int dollars) =>
+        UnpaidDollars = SaturatingAdd(UnpaidDollars, dollars);
+
+    internal string SummaryText()
+    {
+        if (ClientOnly && ReturnedDollars == 0 && UnknownDollars == 0 && UnpaidDollars == 0)
+            return "no payment attempted on this client; host authority required";
+
+        string settlement =
+            $"payment calls returned ${ReturnedDollars} (balance movement unverified), " +
+            $"unknown ${UnknownDollars}, unpaid ${UnpaidDollars}";
+        return ClientOnly
+            ? $"payment skipped on this client (host authority); {settlement}"
+            : settlement;
+    }
+
+    private static int SaturatingAdd(int current, int amount)
+    {
+        if (amount <= 0)
+            return current;
+        return (int)Math.Min((long)current + amount, FareConfigRules.MaximumFareDollars);
+    }
 }

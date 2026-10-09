@@ -9,7 +9,7 @@ namespace TaxiDriver;
 /// spawnen … einen fixen Punkt, wo er losfährt").
 ///
 /// The taxi is never spawned at the player any more: it starts on a vanilla
-/// <see cref="ParkingLot"/> spot and drives TO the player (hotkey F5).
+/// <see cref="ParkingLot"/> spot and drives TO the player (TaxiApp CALL TAXI).
 ///
 /// Two configuration values define the stand and are finalised from the live
 /// ParkingLot dump (see <see cref="DumpLots"/>):
@@ -51,11 +51,11 @@ internal static class TaxiStand
     /// ENTRY (-13.0, 0.0, 84.2), EXIT (-13.0, 0.2, 86.0).
     ///
     /// The constant anchors the ENTRY (street side), not a parking spot:
-    /// spots inside the garage structure are not routable — two F5 runs
+    /// spots inside the garage structure are not routable — two pickup runs
     /// spawned on spot[0] failed path calculation in 0.1 s
     /// (NavigationCalculationCallback(result=Failed, path=null)) for BOTH
     /// NavigationSettings and settings=null, including the vanilla-proven
-    /// target (-131.4,-4,51.9), while an F3 control run spawned near the
+    /// target (-131.4,-4,51.9), while a diagnostic spawn near the
     /// player completed in 17.6 s. The entry is the lot's drive-in point and
     /// therefore open street space.
     /// </summary>
@@ -70,7 +70,7 @@ internal static class TaxiStand
     /// Logs every live <see cref="ParkingLot"/> instance: GameObject name, world
     /// position, spot count, free/usable spots, the FIRST spot position (the true
     /// spawn position), its forward, the alignment point, entry/exit points and
-    /// the baked GUID. Also prints the A* graph names once, because the F5
+    /// the baked GUID. Also prints the A* graph names once, because the pickup
     /// target resolver needs the road graph.
     /// </summary>
     /// <param name="reason">Why the dump runs (attempt counter / command name).</param>
@@ -511,7 +511,7 @@ internal static class TaxiStand
 
     internal static string Fmt(Vector3 v) => $"({v.x:F1}, {v.y:F1}, {v.z:F1})";
 
-    /// <summary>Everything the F5 spawn needs to place the taxi on the stand.</summary>
+    /// <summary>Everything the TaxiApp pickup needs to place the taxi on the stand.</summary>
     internal sealed class StandSelection
     {
         internal string LotName = "<none>";

@@ -1,5 +1,7 @@
 # TaxiDriver Bug Report — code-only review (2026-10-03)
 
+> **Historical snapshot:** this review predates the 2026-10-08 Beta-8 safety pass. Findings describe the earlier source state and may now be stale; do not use this file as the current implementation checklist. See `README.md`, `CHANGELOG.md`, and `docs/compatibility.md` for current status.
+
 Scope: static review of `Source/Mods/TaxiDriver/src` (18 files) plus the
 existing tests under `Source/Tests/TaxiDriver.Tests`. No game session, no
 `Latest.log`, no in-game verify. Every finding cites the mechanism in the

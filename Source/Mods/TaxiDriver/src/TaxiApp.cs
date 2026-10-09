@@ -18,8 +18,8 @@ namespace TaxiDriver;
 /// (GamePalette surfaces, UISprites two-layer cards, filter chips, search band,
 /// banded layout: hero / actions / filters / search / flexible destination list).
 ///
-/// CALL TAXI runs the shared call-taxi flow (<see cref="SpikeCommands.CallTaxi"/>;
-/// the former F5 hotkey was removed 2026-10-03), STOP runs <see cref="SpikeCommands.Stop"/>, and tapping a destination row runs the
+/// The service is operated through the phone app: CALL TAXI runs
+/// <see cref="SpikeCommands.CallTaxi"/>, STOP runs <see cref="SpikeCommands.Stop"/>, and tapping a destination row runs the
 /// shared <see cref="SpikeCommands.SetRideDestination"/>. The hero mirrors the live
 /// <see cref="SpikeState"/> (state, drop-off, fare from <see cref="FareMeter"/>) and is
 /// the only status surface — button outcomes appear there for a few seconds.
@@ -94,6 +94,8 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     private Text? _callLabel;
     private Text? _callSub;
     private Button? _stopButton;
+    private float _stopArmedUntil;
+    private const float StopConfirmSeconds = 3f;
     private Image? _stopFill;
     private Text? _stopLabel;
     private Text? _stopSub;
@@ -149,9 +151,8 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     // ---- lifecycle ----------------------------------------------------------
 
     /// <summary>
-    /// Golden Rules 6 + 10: defensive, idempotent update-hook wiring. The hook is
-    /// NEVER unsubscribed in <c>OnPhoneClosed</c> (the app would stay blank after
-    /// the first close).
+    /// Defensive, idempotent update-hook wiring. Closing the phone only hides the
+    /// app; the hook is removed when S1API destroys the app instance.
     /// </summary>
     protected override void OnCreated()
     {
@@ -159,6 +160,12 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
 
         MelonEvents.OnUpdate.Unsubscribe(Update);
         MelonEvents.OnUpdate.Subscribe(Update);
+    }
+
+    protected override void OnDestroyed()
+    {
+        MelonEvents.OnUpdate.Unsubscribe(Update);
+        base.OnDestroyed();
     }
 
     /// <summary>Builds the landscape dashboard (background panel starts hidden).</summary>
@@ -452,8 +459,8 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     /// Search band (Dp32): live destination search over name and type tag
     /// (<see cref="DestinationFilter"/>), combined with the filter chips above.
     /// Session-only (never persisted); typing is guarded by
-    /// <see cref="TaxiAppInputFocus"/> so neither the player nor the hotkeys
-    /// react while the field is focused (phoneapp Rule 5/17).
+    /// <see cref="TaxiAppInputFocus"/> so player movement is not hijacked while typing.
+    /// TaxiDriver itself installs no keyboard bindings (phoneapp Rule 5/17).
     /// </summary>
     private void CreateSearchBand(Transform parent)
     {
@@ -900,7 +907,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             SpikeState.Vehicle != null,
             SpikeState.NavToPlayer && SpikeState.PollingActive,
             destination,
-            FareMeter.ChargedTotal,
+            FareMeter.CalculatedTotal,
             overrideText);
         if (snapshot == _heroSnapshot)
             return;
@@ -924,7 +931,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
                 meta = SpikeState.NavGaveUp
                     ? "Press E to get out — or STOP to despawn"
                     : "Press E to exit the taxi";
-                value = $"FARE ${FareMeter.ChargedTotal}";
+                value = $"FARE ${FareMeter.CalculatedTotal}";
                 valueColor = ValueInk;
             }
             else
@@ -940,7 +947,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
                 meta = showing
                     ? (string.IsNullOrEmpty(dropOff) ? "On the way" : $"Drop-off: {dropOff}")
                     : "On the way";
-                value = $"FARE ${FareMeter.ChargedTotal}";
+                value = $"FARE ${FareMeter.CalculatedTotal}";
                 valueColor = ValueInk;
             }
         }
@@ -1055,10 +1062,37 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             return;
         }
 
+        // A ride in progress is paid for by the meter: STOP there needs a second press.
+        if (SpikeState.RideActive && Time.unscaledTime > _stopArmedUntil)
+        {
+            _stopArmedUntil = Time.unscaledTime + StopConfirmSeconds;
+            SetStatusOverride($"Ride running — press STOP again within {StopConfirmSeconds:0} s to cancel.");
+            return;
+        }
+        _stopArmedUntil = 0f;
+
         bool stopped = SpikeCommands.Stop();
-        SetStatusOverride(stopped
-            ? "Ride cancelled — the taxi has been despawned."
-            : "Could not despawn the taxi — see the log.");
+        if (stopped)
+        {
+            SetStatusOverride("Ride cancelled — taxi removed safely.");
+        }
+        else if (SpikeState.VehicleOwnership.DestroyPending)
+        {
+            SetStatusOverride("Taxi removal is being verified — wait for the result before pressing STOP again.");
+        }
+        else if (SpikeState.VehicleOwnership.DestroyUnknown &&
+                 SpikeState.VehicleOwnership.DestroyAttempts < VehicleOwnershipLedger.MaxDestroyAttempts)
+        {
+            SetStatusOverride("Taxi removal is uncertain — it remains tracked; press STOP once more for the bounded retry.");
+        }
+        else if (SpikeState.VehicleOwnership.DestroyUnknown)
+        {
+            SetStatusOverride("Taxi removal is still uncertain — no more retries; taxi remains tracked. See the log.");
+        }
+        else
+        {
+            SetStatusOverride("Taxi could not be removed safely and remains tracked. Fix the logged cause before retrying.");
+        }
     }
 
     /// <summary>Destination row press → the shared SpikeCommands ride destination.</summary>
