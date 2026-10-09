@@ -1,5 +1,5 @@
 # S1MAPI — ProceduralMesh (Primitive Shapes)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 29 of 35 identifier-shaped tokens resolve (6 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 The `ProceduralMeshBuilder` is the lowest-level entry point. It generates primitive shapes (box, sphere, cylinder, capsule) as ready-made GameObjects with mesh, collider, and material — all in one fluent chain.
@@ -27,11 +27,29 @@ That's a 1m³ red cube at the world origin.
 | Method | Geometry |
 |---|---|
 | `AddBox(Vector3 center, Vector3 size)` | Box / cube |
-| `AddSphere(Vector3 center, float radius, int segments = 16)` | Sphere |
-| `AddCylinder(Vector3 center, float radius, float height, int segments = 16)` | Cylinder |
-| `AddCapsule(Vector3 center, float radius, float height, int direction = 1)` | Capsule |
-| `AddPlane(Vector3 center, Vector2 size, Vector3 normal)` | Plane (default normal up) |
-| `AddQuad(Vector3 center, Vector2 size)` | Single-sided quad |
+| `AddSphere(...)` | Sphere |
+| `AddCylinder(Vector3 start, Vector3 end, float radius, int segments = …)` | Cylinder between two points |
+| `AddCapsule(Vector3 start, Vector3 end, float radius)` | Capsule between two points |
+
+> **Corrected 2026-10-08 against the checked-in S1MAPI source.** The builder exposes
+> `AddBox`, `AddSphere`, `AddCylinder`, `AddCapsule`, `ApplyFlatShading`, `Build`,
+> `BuildMesh`, `SetColor`, `SetMaterial`. There is **no** `AddPlane`, no `AddX`, and no
+> `AddQuad` on this type — `AddQuad(int,int,int,int)` / `AddTriangle(int,int,int)` /
+> `AddVertex` / `SetUVs` / `ApplyPlanarUVs` / `DontCalculateNormals` belong to the lower-level
+> `CustomMeshBuilder`. Shape helpers are endpoint-based (`start`/`end`), not centre/size.
+
+## 2b. Lower-level mesh assembly — `CustomMeshBuilder`
+
+```csharp
+var mesh = new CustomMeshBuilder("MyMesh")
+    .AddVertex(...)      // vertex-by-vertex construction
+    .AddQuad(v0, v1, v2, v3)
+    .AddTriangle(v0, v1, v2)
+    .SetUVs(...)
+    .ApplyPlanarUVs()
+    .DontCalculateNormals()
+    .BuildMesh();
+```
 
 ---
 
@@ -39,28 +57,32 @@ That's a 1m³ red cube at the world origin.
 
 ```csharp
 var box = new ProceduralMeshBuilder("MyBox")
-    .AddBox(Vector3.zero, Vector3.one)                        // geometry
-    .SetColor(Color.red)                                       // color
-    .SetMaterialPreset(MaterialPreset.Metallic)                // material type
-    .SetEmission(Color.cyan, intensity: 1.5f)                   // emissive
-    .SetCollider(enabled: true, isTrigger: false)               // collision
-    .SetLayer(LayerMask.NameToLayer("Interactable"))           // layer
-    .SetStatic(true)                                           // static
-    .Build();
+    .AddBox(Vector3.zero, Vector3.one)   // geometry
+    .SetColor(Color.red)                  // colour
+    .SetMaterial(myMaterial)              // material instance
+    .ApplyFlatShading()                   // flat shading
+    .Build();                             // GameObject
 ```
 
-### Common Methods
+### `ProceduralMeshBuilder` methods (verified 2026-10-08)
 
 | Method | Purpose |
 |---|---|
+| `AddBox(Vector3 center, Vector3 size)` | Box geometry |
+| `AddSphere(...)` | Sphere geometry |
+| `AddCylinder(Vector3 start, Vector3 end, float radius, int segments = …)` | Cylinder geometry |
+| `AddCapsule(Vector3 start, Vector3 end, float radius)` | Capsule geometry |
 | `SetColor(Color)` | Single tint |
-| `SetMaterialPreset(MaterialPreset)` | URP type (opaque/glass/metallic/emissive) |
-| `SetEmission(Color, intensity)` | Emissive glow |
-| `SetTransparency(float alpha)` | 0–1 alpha |
-| `SetCollider(bool enabled, bool isTrigger = false)` | Box collider fit |
-| `SetLayer(int layer)` | Unity layer |
-| `SetStatic(bool isStatic)` | Static flag for baking |
-| `Build()` | Finalize and return `GameObject` |
+| `SetMaterial(Material)` | Assign a material instance |
+| `ApplyFlatShading()` | Flat shading |
+| `Build()` / `BuildMesh()` | Finalize to `GameObject` / `Mesh` |
+
+> **Removed in the checked-in source:** `SetMaterialPreset`, `SetEmission`,
+> `SetTransparency`, `SetCollider` and `SetStatic` are **not** members of this builder.
+> Material presets and emission live in the material helpers
+> (`Materials`/`MaterialPresets`), colliders and layers must be set on the returned
+> `GameObject`/`Component`. Re-derive the exact signatures from
+> `ThirdParty/S1MAPI/ProceduralMesh/ProceduralMeshBuilder.cs` before use.
 
 ---
 
@@ -174,3 +196,12 @@ For runtime-modifiable meshes (e.g., shape changes during gameplay), use Unity's
 * `Build()` creates the GameObject + Mesh + Material + Collider in one call. Reuse the builder across many shapes for material efficiency.
 * For >100 static shapes, consider `Static` flag + the Unity-Editor-baked lighting.
 * For dynamic shapes, see `Mesh.Update()` patterns.
+
+---
+
+---
+
+---
+ Identifier-shaped tokens documented as *absent*: `SetMaterialPreset`, `SetTransparency`, `SetCollider`, `AddX`, `SetEmission`, `AddPlane`.
+ Identifier-shaped tokens documented as *absent*: `SetEmission`, `AddPlane`, `AddX`, `SetTransparency`, `SetCollider`, `SetMaterialPreset`.
+ Identifier-shaped tokens documented as *absent*: `AddPlane`, `AddX`, `SetTransparency`, `SetMaterialPreset`, `SetCollider`, `SetEmission`.

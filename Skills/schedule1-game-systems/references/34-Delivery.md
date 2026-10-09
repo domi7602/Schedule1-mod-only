@@ -1,5 +1,5 @@
 # Delivery (Schedule I)
-> verified: classes + methods + enum values + events re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 101/102 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## Core Classes (`ScheduleOne.Delivery`)
 
@@ -48,3 +48,25 @@
 ## Not Implemented / Notes
 - `DeliveryVehicle` drives itself (vehicle AI on the wrapped `Vehicle` component) — no separate "AI driver NPC" class in this namespace.
 - `DeliveryInstance.GetTimeStatus()` returns `int` (time-related status; exact unit semantics unverified); `OnTimePass(int minutes)` drives status progression; `AddItemsToDeliveryVehicle()` moves order items into the vehicle; `GetReceipt()` builds the `DeliveryReceipt`
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `_Vehicle`

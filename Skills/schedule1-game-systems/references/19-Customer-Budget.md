@@ -1,5 +1,5 @@
 # Customer/Budget (Schedule I)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. This file contains no backticked identifier claims, so the f12 static identifier sweep 2026-10-08 had nothing to check: its prose, tables and numbers are **not covered** by the static check and must be re-derived from the decompiles before being relied on.
 
 
 ## Customer Budget Calculation
@@ -35,3 +35,5 @@ Enjoyment scaling: ×0.66 to ×1.50
 - **No `dailyBudget` field** – budget is calculated live dynamically for each contract
 - **Dealers have no separate budget** (they only broker transactions)
 - Reset is not necessary as it is always calculated fresh
+
+---

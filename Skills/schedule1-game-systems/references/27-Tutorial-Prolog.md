@@ -1,5 +1,5 @@
 # Tutorial/Prologue (Schedule I)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 40/49 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 
 ## Overview
@@ -12,7 +12,7 @@
 1. **Animation**: Bus ride into town, RV is hidden
 2. **Skip**: Hold jump/input/click for 0.5s → advances animation frame
 3. Next step: **Character Creator** opens
-4. After creation: Teleport to `PlayerInitialPosition` (or `_AfterRVExplosion` if RV was destroyed)
+4. After creation: Teleport to `PlayerInitialPosition` (or `PlayerInitialPosition_AfterRVExplosion` if the RV was destroyed — there is no bare `_AfterRVExplosion` member)
 5. Equip clothing, enable player movement controls, save state written
 
 ## Tutorial Flow (3 Quests)
@@ -94,3 +94,29 @@
 - `UI/TaskManagerUI.cs`, `BodySearchScreen.cs`, `HandoverScreen.cs`
 - `NPCs/CharacterClasses/UncleNelson.cs`
 - `Combat/Explosion.cs`, `Combat/ExplosionData.cs`
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `InputHintsTutorialDone`
+- `Days_Since_Tutorial_Completed`
+- `ItemAmountSelectionTutorialDone`
+- `RV_Watered_Pots`
+- `_AfterRVExplosion`
+- `RV_Soil_Pots`
+- `RV_Seed_Pots`
+- `BodySearchTutorialDone`
+- `RV_SpeedGrow_Pots`

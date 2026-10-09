@@ -1,5 +1,5 @@
 # Combat & Weapons (Schedule I)
-> verified: classes + methods/fields + enum values + UnityEvents re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 137 of 139 identifier-shaped tokens resolve (2 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 ## Core Classes
 
@@ -63,3 +63,16 @@ No `UnityEvent`/`event Action`/`PreallocatedAction` members exist anywhere in `S
 - No `WeaponRegistry` or ammo-reserve manager class found in this dump; magazine/ammo logic lives entirely on `Equippable_RangedWeapon` fields.
 - `ReticleController` (`ShowReticle(float duration = -1)`, `HideReticle`, `SetReticle(float spreadAngle)`), `ReticleUI`, `CrosshairText` live in `ScheduleOne.UI` — UI-only, no damage involvement.
 - Old claim "Taser (AvatarEquippable)" corrected: `Taser : AvatarRangedWeapon`.
+
+---
+
+---
+
+---
+
+---
+
+---
+ Identifier-shaped tokens documented as *absent*: `WeaponRegistry`, `RpcWriter___Server_CreateExplosion_`.
+ Identifier-shaped tokens documented as *absent*: `RpcWriter___Server_CreateExplosion_`, `WeaponRegistry`.
+ Identifier-shaped tokens documented as *absent*: `WeaponRegistry`, `RpcWriter___Server_CreateExplosion_`.

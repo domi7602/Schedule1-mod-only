@@ -1,10 +1,12 @@
 # Systems — Quick Reference Index (single authority)
 
-> verified: index consolidated 2026-10-05 (stubs + depth column); per-file verification state in each file's header. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: index consolidated 2026-10-05; f12 static identifier sweep executed 2026-10-08 against the regenerated `GameReferences/decompiled/Assembly-CSharp` (2 234 files, 56 741 identifiers). Per-file verification state is in each file's header; files with drift candidates carry an `Unresolved identifiers` section.
 
 Quick access to all 64 game-system analyses. Each file documents one gameplay subsystem with core classes, events, and entry points.
 
 > **Workflow:** Find the system in the table → read the MD → open vanilla class in `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/` → check wrapper in `ThirdParty/S1API/S1API/`.
+
+> **Reading the verification headers:** every reference file carries an f12 static identifier sweep dated 2026-10-08, run against `GameReferences/decompiled/Assembly-CSharp` (regenerated from the installed runtime) plus the checked-in S1API/S1MAPI source and the workspace source. `> verified: …` means every identifier-shaped token in the file resolves. `> UNVERIFIED …` means some do not, and those are listed in an `Unresolved identifiers` section at the end of the file — drift **candidates**, not confirmed breakage. Identifiers a file explicitly documents as *absent* are counted as resolved and named in the header, so a file can document a removal without being flagged. Tokens starting lowercase (parameter and variable names) are out of scope. None of this is runtime verification.
 
 > **Depth legend:** 🟢 = deep (formulas/events/hook points/verification) · 🟡 = medium (facts + constants, no hooks) · 🔵 = class-list only (navigation register; deepen on demand) · ↪️ = redirect stub (canonical content merged into another file).
 
@@ -16,7 +18,7 @@ Quick access to all 64 game-system analyses. Each file documents one gameplay su
 | 04 | [DarkMarket](04-DarkMarket.md) | 🟡 | Night shop, Igor + Oscar, Rank Lock |
 | 05 | [Achievement-Steam](05-Achievement-Steam.md) | 🟢 | Steamworks.NET, 13-Achievement table, VariableDatabase |
 | 06 | [UI-Phone-HUD](06-UI-Phone-HUD.md) | 🟡 | 3D worldspace phone, App\<T\>, UIScreenManager |
-| 07 | [Vehicle](07-Vehicle.md) | 🟢 | WheelCollider, PID, skateboard + map-POI section (Live-Verified v0.4.7f6-era, 2026-09-25) |
+| 07 | [Vehicle](07-Vehicle.md) | 🟢 | WheelCollider, PID, skateboard + map-POI section (Live-verified API observations, 2026-09-25) |
 | 08 | [Plant-Growing](08-Plant-Growing.md) | 🟢 | MinPass formula, Soil, Water, Additives, Quality |
 | 09 | [Inventory-ItemFramework](09-Inventory-ItemFramework.md) | 🟢 | Item hierarchy, Slots, Registry, Quality, Filters |
 | 10 | [Building-Construction](10-Building-Construction.md) | 🟢 | 2D Grid (0.5u), Ghost Preview, BuildManager flow |
@@ -26,7 +28,7 @@ Quick access to all 64 game-system analyses. Each file documents one gameplay su
 | 14 | [NPC-Behaviour](14-NPC-Behaviour.md) | 🟡 | NavMesh, Daily routines, Emotions, VO types (canonical for VO) |
 | 15 | [Sewer](15-Sewer.md) | 🟡 | Sewer, Goblin probabilities, King, Office, Mushrooms |
 | 16 | [Graffiti](16-Graffiti.md) | 🟢 | DecalProjector, 8 colors / 4 brushes, XP/Influence table |
-| 17 | [TimeManager](17-TimeManager.md) | 🟢 | Constants, Events table, Sleep flow, Curfew, Energy |
+| 17 | [TimeManager](17-TimeManager.md) | 🟢 | Constants, Events table, Sleep flow, Curfew, **Stamina** (renamed from "Energy" after the f12 check) |
 | 18 | [Trash-Recycling](18-Trash-Recycling.md) | 🟡 | Global limit 2000, Recycler math, Cleaner priorities |
 | 19 | [Customer-Budget](19-Customer-Budget.md) | 🟢 | AdjustedWeeklySpend formula, Bonus table |
 | 20 | [XP-Leveling](20-XP-Leveling.md) | 🟡 | 15 XP sources, 11 Ranks |

@@ -1,5 +1,5 @@
 # S1MAPI — BuildingBuilder (Rooms & Buildings)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 50/65 identifier-shaped tokens resolve (13 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 
 The killer feature of S1MAPI. Define rooms declaratively: floor, ceiling, walls, doors, windows, roof. Output is a walkable building with collision.
@@ -8,96 +8,119 @@ The killer feature of S1MAPI. Define rooms declaratively: floor, ceiling, walls,
 
 ## 1. The Basic Room
 
+> **Corrected 2026-10-08 against the checked-in S1MAPI source.** `BuildingBuilder` uses
+> `AddFloor` / `AddCeiling` / `AddWalls` / `AddInteriorWall` / `AddStairs` / `AddHipRoof` /
+> `AddParapetRoof` / `AddDoorFrames` / `AddInteriorDoorFrames` / `AddSlidingDoors` /
+> `AddFurniture` / `AddPrefab` / `AddLights` / `AddAmbientLighting` / `DefineRoom` /
+> `WithConfig` / `WithPalette` / `WithInteriorWallLayer` / `CreateNavigationBuilder` /
+> `FlattenTerrain` / `Build`.
+> There is **no** `WallSegment` type, no `SetFloor`/`SetCeiling`/`SetRoof`/`AddWall`
+> (singular) and no `ConnectRooms`. Wall geometry is handled by the dedicated
+> `WallBuilder` (`BuildWall`, `BuildWalls`), `InteriorWallBuilder` (`BuildInteriorWall`),
+> `RoofBuilder`, `DecorBuilder` and `InteriorBuilder`.
+
 ```csharp
 using S1MAPI.Building;
 
-GameObject room = BuildingBuilder.Create("MyRoom")
-    .SetFloor(new Vector3(0, 0, 0), new Vector2(10, 10))
-    .SetCeiling(new Vector3(0, 3, 0), new Vector2(10, 10))
-    .AddWall(WallSegment.North(new Vector3(0, 1.5f, 5), 10))
-    .AddWall(WallSegment.South(new Vector3(0, 1.5f, -5), 10))
-    .AddWall(WallSegment.East(new Vector3(5, 1.5f, 0), 10))
-    .AddWall(WallSegment.West(new Vector3(-5, 1.5f, 0), 10))
+var room = BuildingBuilder.Create("MyRoom")
+    .AddFloor(...)          // floor slab
+    .AddCeiling(...)        // ceiling
+    .AddWalls(...)          // exterior walls (WallBuilder: BuildWalls)
     .Build();
 ```
 
-A 10×10m room with 3m ceiling.
+Re-derive exact overloads from `ThirdParty/S1MAPI/Building/BuildingBuilder.cs` —
+the signatures above are verified as *member names*, not as parameter lists.
 
 ---
 
-## 2. The Fluent Wall/Door/Window API
+## 2. Walls, doors and windows
 
-### WallSegment Factory
-
-```csharp
-WallSegment.North(Vector3 center, float length);     // along +Z
-WallSegment.South(Vector3 center, float length);     // along -Z
-WallSegment.East(Vector3 center, float length);      // along +X
-WallSegment.West(Vector3 center, float length);      // along -X
-WallSegment.At(Vector3 center, Vector3 direction, float length);
-```
-
-### Wall with Holes (Door / Window)
+Walls are built through `WallBuilder`, not a `WallSegment` factory:
 
 ```csharp
-var wall = WallSegment.North(center, 10)
-    .WithDoor(position: new Vector3(0, 1f, 5),    // 1m above floor
-              size: new Vector2(1f, 2.2f),          // 1m wide, 2.2m tall
-              style: DoorStyle.Modern);
-
-var wall2 = WallSegment.North(center, 10)
-    .WithWindow(position: new Vector3(0, 1.5f, 5),
-                size: new Vector2(1.5f, 1.2f),
-                style: WindowStyle.Glass);
+WallBuilder.BuildWall(...);   // single wall
+WallBuilder.BuildWalls(...);  // wall set
+InteriorWallBuilder.BuildInteriorWall(...);
 ```
+
+### Doors, windows and openings
+
+Openings are expressed through the door-frame / sliding-door members, not through a
+`WithDoor`/`WithWindow` wall modifier (those do not exist in the checked-in source):
+
+```csharp
+BuildingBuilder.Create("MyRoom")
+    .AddDoorFrames(...)            // door frames
+    .AddInteriorDoorFrames(...)    // interior door frames
+    .AddSlidingDoors(...)          // sliding doors
+    .Build();
+```
+
+Interior furnishing (walls, furniture, decor) is composed via `InteriorBuilder`
+(`AddWall`, `AddBed`, `AddDesk`, `AddLocker`, `AddCustomMesh`, `AddPrefab`, …) and
+`DecorBuilder` (`AddBaseMolding`, `AddCornerTrim`, `AddRoofTrim`, `AddStairs`, …).
+
+> **Removed:** `WallSegment`, `WithDoor`, `WithWindow`, `DoorStyle`, `WindowStyle`
+> are not present. Check `DoorwayInfo` / `InteriorWallAxis` / `InteriorWallDefinition`
+> in `ThirdParty/S1MAPI/Building/` for the current opening model.
 
 ### Roof
 
 ```csharp
-builder.SetRoof(RoofStyle.Flat);                      // flat roof
-builder.SetRoof(RoofStyle.Peaked, peakHeight: 2f, overhang: 0.5f);
-builder.SetRoof(RoofStyle.Pyramid, peakHeight: 3f);
+builder.AddHipRoof(...);        // hipped roof (RoofBuilder)
+builder.AddParapetRoof(...);    // flat roof with parapet (RoofBuilder)
+builder.AddRoofTrim(...);       // roof trim (DecorBuilder)
+builder.AddSecondaryRoofTrim(...);
 ```
+
+> **Removed:** `SetRoof` and `RoofStyle` do not exist in the checked-in source — roof
+> shapes are explicit members (`AddHipRoof`, `AddParapetRoof`).
 
 ---
 
 ## 3. Multi-Room Buildings
 
+Rooms are declared with `DefineRoom` and connected through the interior-wall /
+door-frame members:
+
 ```csharp
-GameObject house = BuildingBuilder.Create("TwoRoomHouse")
-    // First room (living room)
-    .AddRoom("LivingRoom", new Vector3(0, 0, 0), new Vector2(6, 8))
-    // Second room (bedroom) — connected via inner wall
-    .AddRoom("Bedroom", new Vector3(6, 0, 0), new Vector2(6, 8))
-    .ConnectRooms("LivingRoom", "Bedroom",
-                  doorPosition: new Vector3(6, 1f, 0),
-                  doorSize: new Vector2(1.2f, 2.2f))
+var house = BuildingBuilder.Create("TwoRoomHouse")
+    .DefineRoom(...)                  // room definition
+    .AddInteriorWall(...)             // interior wall
+    .AddInteriorDoorFrames(...)       // openings between rooms
+    .WithInteriorWallLayer(...)
+    .CreateNavigationBuilder()        // navigation for the finished shell
     .Build();
 ```
 
-`ConnectRooms` automatically:
-- Removes the wall section between the rooms
-- Adds a doorway
-- Links the floor polygons for navigation
+> **Removed:** `AddRoom(name, pos, size)` and `ConnectRooms(a, b, doorPosition, doorSize)`
+> are not members of the checked-in `BuildingBuilder`. Room definition and room linking go
+> through `DefineRoom` plus the wall/door-frame members; navigation is set up explicitly via
+> `CreateNavigationBuilder()`.
 
 ---
 
 ## 4. Interior Walls & Trim
 
 ```csharp
-builder.AddInteriorWall(position, normal, length, height: 2.8f)
-       .AddTrim(position, style: TrimStyle.Baseboard)
-       .AddCornerTrim(position, style: TrimStyle.Crown);
+builder.AddInteriorWall(...)          // interior wall
+       .AddBaseMolding(...)           // base trim   (DecorBuilder)
+       .AddCornerTrim(...)            // corner trim
+       .AddRoofTrim(...)              // roof trim
+       .AddSecondaryRoofTrim(...);
 ```
+
+> **Removed:** `AddTrim(..., TrimStyle.…)` does not exist; trim is added through the
+> explicit `AddBaseMolding` / `AddCornerTrim` / `AddRoofTrim` members. `TrimStyle`
+> is not present in the checked-in source.
 
 ---
 
 ## 5. Foundation
 
 ```csharp
-builder.SetFoundation(FoundationType.Standalone)    // floating in air
-       .SetFoundation(FoundationType.Slab)         // flat slab on ground
-       .SetFoundation(FoundationType.Basement, depth: 2f);
+builder.AddFoundation(...);           // foundation (DecorBuilder)
 ```
 
 Foundation determines whether the building needs the underlying terrain flattened.
@@ -106,29 +129,39 @@ Foundation determines whether the building needs the underlying terrain flattene
 
 ## 6. Doors — Wiring to Game Systems
 
-A door built via `BuildingBuilder` is a real `GameObject` with a `Collider` and an `Interaction Trigger`. To make it a real interactable door (openable, lockable):
+A door built via `BuildingBuilder` is a real `GameObject` with a `Collider` and an
+interaction trigger. To make it a real interactable door (openable, lockable) attach the
+vanilla door component, or use an S1API wrapper if one exists for your branch:
 
 ```csharp
 door.AddComponent<Il2CppScheduleOne.Doors.DoorController>();
-// Or use S1API's wrapper for in-game door logic:
-door.AddComponent<S1API.Doors.S1Door>();
 ```
 
-For deeper integration with `S1API.Doors`, see the `schedule1-s1api` skill.
+> **Corrected 2026-10-08:** `S1API.Doors.S1Door` does not exist in the checked-in S1API
+> source. Verify the available door wrapper (or use the vanilla component) before relying
+> on it; see `Skills/schedule1-s1api/references/entities.md` for the current wrapper list.
 
 ---
 
 ## 7. Navigation (NPCs Walking Inside)
 
-NPCs need a **NavMesh** to walk through your new building. Use `NavigationBuilder`:
+NPCs need a **NavMesh** to walk through your new building. From inside a build chain use
+`CreateNavigationBuilder()`; standalone use `NavigationBuilder`:
 
 ```csharp
-using S1MAPI.World;
+using S1MAPI.Building;
 
-NavigationBuilder.BuildFor(building.gameObject);
-// or directly:
-NavigationBuilder.Build(region: Region.Docks);    // entire region
+BuildingBuilder.Create("MyRoom")
+    .AddFloor(...)
+    .AddWalls(...)
+    .CreateNavigationBuilder()
+    .Build();
 ```
+
+> **Corrected 2026-10-08:** `NavigationBuilder.BuildFor(building.gameObject)` and
+> `NavigationBuilder.Build(region)` are not members of the checked-in
+> `NavigationBuilder`. Derive the actual entry points from
+> `ThirdParty/S1MAPI/Building/NavigationBuilder.cs`.
 
 Without this, **NPCs won't enter your new building** — they can't pathfind.
 
@@ -141,31 +174,23 @@ public class MotelExtension
 {
     public static GameObject BuildMotelExtension(Vector3 origin)
     {
+        // Shapes below are member names verified against ThirdParty/S1MAPI on 2026-08.
+        // Parameter lists are NOT verified — read the builder source before shipping.
         var builder = BuildingBuilder.Create("MotelExtension")
-            .SetFloor(origin, new Vector2(8, 6))
-            .SetCeiling(origin + Vector3.up * 3, new Vector2(8, 6))
-            .AddWall(WallSegment.North(origin + Vector3.up * 1.5f + Vector3.forward * 3, 8)
-                .WithDoor(new Vector3(origin.x, 1f, origin.z + 3f),
-                          new Vector2(1f, 2.2f),
-                          DoorStyle.Wood))
-            .AddWall(WallSegment.South(origin + Vector3.up * 1.5f - Vector3.forward * 3, 8)
-                .WithWindow(new Vector3(origin.x, 1.5f, origin.z - 3f),
-                            new Vector2(1.2f, 1.2f),
-                            WindowStyle.Standard))
-            .AddWall(WallSegment.East(origin + Vector3.up * 1.5f + Vector3.right * 4, 6))
-            .AddWall(WallSegment.West(origin + Vector3.up * 1.5f - Vector3.right * 4, 6));
-
-        // Skip conflicting rooms
-        // ...
+            .AddFloor(...)                       // floor slab
+            .AddCeiling(...)                     // ceiling
+            .AddWalls(...)                       // exterior walls (WallBuilder.BuildWalls)
+            .AddDoorFrames(...)                  // door openings
+            .AddSlidingDoors(...)                // sliding doors
+            .AddParapetRoof(...)                 // roof (RoofBuilder)
+            .AddBaseMolding(...)                 // trim
+            .FlattenTerrain(...)                 // terrain under the footprint
+            .CreateNavigationBuilder();          // NPC pathing
 
         GameObject building = builder.Build();
 
         // Lay down furniture
-        InteriorBuilder.Add(building, FurnitureType.Desk, new Vector3(0, 0.5f, 0));
-        InteriorBuilder.Add(building, FurnitureType.Chair, new Vector3(0.5f, 0.5f, 0.5f));
-
-        // Wire NPC navigation
-        NavigationBuilder.BuildFor(building);
+        // InteriorBuilder: AddDesk / AddChair / AddBed / AddLocker / …
 
         return building;
     }
@@ -178,12 +203,12 @@ public class MotelExtension
 
 | Pitfall | Fix |
 |---|---|
-| Door clips into wall | Pull door slightly toward wall exterior |
-| NPC can't find path | Use `NavigationBuilder.BuildFor()` |
+| Door clips into wall | Pull the door frame slightly toward the wall exterior |
+| NPC can't find path | Call `CreateNavigationBuilder()` before `Build()` |
 | Building invisible | Foundation z-fighting; raise slightly |
-| Walls look flat | Use `SetMaterialPreset(MaterialPreset.Glass)` for windows |
-| Roof doesn't form | Use `SetRoof` instead of `AddPlane` |
-| Building invisible from one side | Ensure `AddWall` covers all 4 directions |
+| Walls look flat | Assign a material via the material helpers / `SetMaterial` |
+| Roof doesn't form | Use `AddHipRoof` / `AddParapetRoof` explicitly |
+| Building invisible from one side | Ensure the wall set covers all sides |
 
 ---
 
@@ -192,3 +217,22 @@ public class MotelExtension
 S1MAPI's `BuildingBuilder` is **not yet used** by any of the current workspace mods (NotesApp, PotScanner, CalculatorApp, etc.). The skill is forward-looking for content mods that want to extend the game world.
 
 For the source: `ThirdParty/S1API/` (S1API.Map.Buildings - geometry-related S1API classes that complement S1MAPI; initialize the submodule first if needed).
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `SetCeiling`
+- `SetFloor`

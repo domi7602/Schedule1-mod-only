@@ -1,5 +1,5 @@
 # Cutscenes (Schedule I)
-> verified: classes + methods + UnityEvents + event add/remove pairs re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 62 of 63 identifier-shaped tokens resolve (1 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 ## Core Classes (`ScheduleOne.Cutscenes`)
 
@@ -50,3 +50,8 @@ The whole namespace is exactly these 5 classes (no other cutscene classes in the
 ## Not Implemented / Notes
 - Triggering is quest/scripted-flow driven — there is no public "trigger by id" dispatcher beyond `CutsceneManager.Play(name)`.
 - Camera behavior lives in `Cutscene.UpdateCamera()`; overriding individual shots requires scene-level work (Animation + `CutsceneCamera` components), not just code.
+ Identifier-shaped tokens documented as *absent* (counted as resolved): `DemoIntro`.
+ Identifier-shaped tokens documented as *absent*: `DemoIntro`.
+ Identifier-shaped tokens documented as *absent*: `DemoIntro`.
+ Identifier-shaped tokens documented as *absent*: `DemoIntro`.
+ Identifier-shaped tokens documented as *absent*: `DemoIntro`.

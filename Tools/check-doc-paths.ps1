@@ -23,6 +23,10 @@
     (z.B. ThirdParty/S1API/local.build.props), zaehlen als OK mit Hinweis
     (auf einem frischen Clone/CI existieren sie nicht).
 
+    Submodul-Pfade (aus .gitmodules) werden NICHT pauschal ausgenommen: ist
+    das Submodul initialisiert, wird sein Inhalt normal geprueft; nur ein
+    leeres Submodul (frischer Clone/CI) wird als "nicht pruefbar" gewertet.
+
     Gefiltert (bewusst NICHT geprueft): URLs, absolute Pfade (C:\...),
     Platzhalter (<Mod>, {n}, *), game-seitige Root-Ordner (Mods\, UserData\
     — liegen ausserhalb des Worktrees), tokens ohne Slash, Pfade mit ":".
@@ -42,15 +46,43 @@ $ErrorActionPreference = 'Stop'
 
 $workspaceRoot = Split-Path $PSScriptRoot -Parent
 
-# Submodule: Inhalt existiert nur nach `git submodule update --init` — auf
-# frischen Clones/CI ist der Pfad ein leerer Verzeichnisstummel. Referenzen
-# in Submodule hinein sind daher hier nicht verlaesslich pruefbar.
 # GameReferences/decompiled: bootstrap-generierter Output, per Design gitignored
 # (GameReferences/.gitignore:1) — Doku (README.md) referenziert ihn bewusst,
 # der Pfad ist nach `pwsh Tools/bootstrap-game-references.ps1` lokal vorhanden,
 # aber nie Teil des Worktrees.
-$defaultAllow = @('^ThirdParty/S1API/', '^ThirdParty/S1MAPI/', '^GameReferences/decompiled(/|$)')
+$defaultAllow = @('^GameReferences/decompiled(/|$)')
 $Allow = $defaultAllow + $Allow
+
+# Submodule: Inhalt existiert erst nach `git submodule update --init --recursive`.
+# Auf einem frischen Clone/CI ist der Pfad ein leerer Verzeichnisstummel und
+# nicht pruefbar. Auf einer initialisierten Workspace IST der Inhalt aber
+# vorhanden — dann sollen Tippfehler in Doku-Pfaden (z.B.
+# ThirdParty/S1MAPI/Core/... statt .../ProceduralMesh/...) trotzdem auffallen.
+# Deshalb: Submodule-Pfade werden nicht pauschal ausgenommen, sondern nur dann,
+# wenn das Submodul auf dieser Maschine leer ist.
+$submodulePaths = @()
+$gitmodules = Join-Path $workspaceRoot '.gitmodules'
+if (Test-Path -LiteralPath $gitmodules) {
+    foreach ($line in [System.IO.File]::ReadAllLines($gitmodules)) {
+        if ($line -match '^\s*path\s*=\s*(.+?)\s*$') {
+            $submodulePaths += ($Matches[1] -replace '\\', '/').TrimEnd('/')
+        }
+    }
+}
+
+function Test-InUninitializedSubmodule {
+    param([string]$Token)
+    foreach ($sub in $submodulePaths) {
+        if ($Token -ne $sub -and -not $Token.StartsWith("$sub/", [System.StringComparison]::Ordinal)) { continue }
+        $subDir = Join-Path $workspaceRoot ($sub -replace '/', [System.IO.Path]::DirectorySeparatorChar)
+        if (-not (Test-Path -LiteralPath $subDir)) { return $true }
+        $hasContent = @(Get-ChildItem -LiteralPath $subDir -Recurse -File -ErrorAction SilentlyContinue |
+                        Select-Object -First 1).Count -gt 0
+        if (-not $hasContent) { return $true }
+        return $false
+    }
+    return $false
+}
 
 # Historische Wurzeln: Layouts, die es im aktuellen Repo (bewusst) nicht
 # mehr gibt. Pfade unter diesen Segmenten sind per Definition tot —
@@ -167,6 +199,10 @@ foreach ($file in $files) {
 
             $allowed = $false
             foreach ($a in $Allow) { if ($t -match $a) { $allowed = $true; break } }
+            if (-not $allowed -and (Test-InUninitializedSubmodule -Token $t)) {
+                $allowed = $true
+                $localOnlyHits += "$t (Submodul nicht initialisiert — Pfad lokal nicht pruefbar)"
+            }
             if ($allowed) { $seen[$key] = $true; $checked++; continue }
 
             $seen[$key] = $true

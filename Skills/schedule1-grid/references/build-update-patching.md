@@ -1,12 +1,13 @@
 # BuildUpdate Patching — Lifecycle & Harmony Guards
 
-> verified: guards + anti-dupe live-verified via HomelessMod (0.4.6-era); lifecycle section re-verified 2026-09-29 against the instrumented run. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: guards + anti-dupe live-verified via HomelessMod (older game build); lifecycle section re-verified 2026-09-29 against the instrumented run.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 40 of 40 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 Covers `BuildUpdate_Grid` interception and save/load timing. See `outdoor-placement.md` for GridItem rules and `collision-and-ghosts.md` for ghost raycasts.
 
 ## 2. Strip FishNet Networking
 
-Vanilla prefabs carry `NetworkIdentity` + navigation — outdoor clones need stripping:
+Vanilla prefabs carry `NetworkObject` + navigation — outdoor clones need stripping:
 
 ```csharp
 var buildMgr = NetworkSingleton<BuildManager>.Instance;
@@ -79,4 +80,6 @@ OnSaveComplete → SaveStreetItems() atomic
 ```
 
 Align strictly with `S1API.Lifecycle.GameLifecycle` — see `schedule1-persistence` for atomic patterns.
-**Do NOT use `OnSaveInfoLoaded`** (an older recipe had it fire "register item defs") — verified 2026-09-29: it fires **0×** on game 0.4.7f6+ (`schedule1-troubleshooting/references/save-load-timing.md` §1). Move that work into `OnLoadComplete`.
+**Do NOT use `OnSaveInfoLoaded`** (an older recipe had it fire "register item defs") — verified 2026-09-29: it fires **0×** in the instrumented session (`schedule1-troubleshooting/references/save-load-timing.md` §1). Move that work into `OnLoadComplete`.
+
+---

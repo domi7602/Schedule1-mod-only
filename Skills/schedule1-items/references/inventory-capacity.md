@@ -1,5 +1,5 @@
 # Inventory Capacity
-> UNVERIFIED for runtime 0.4.7f11 — slot indexes + capacity facts carried over (last reflected check 2026-08-22). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 5 of 5 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 Hotbar 0-7 + Cash 9 (1000 per stack) + Clipboard 8.
@@ -17,4 +17,8 @@ float maxWithdraw = Mathf.Min(onlineBalance, capacity);
 
 Always probe `GetDefaultInstance(1)` — don't arithmetic stack math. PocketShop atomic purchase refund handles full inventory: try AddItem → catch → refund: `PocketShop/PurchaseService.cs:264`.
 
-StorageEntity world storage uses `StorageGrid` 2D + `StoredItem` footprint — not slot-limited, but `StorageGrid.CanFit(item, rotation)` analog.
+StorageEntity world storage uses `StorageGrid` 2D + `StoredItem` footprint — not slot-limited, but `StorageGrid.TryFitItem(int sizeX, int sizeY, List<Coordinate> lockedCoordinates, out Coordinate originCoordinate, out float rotation)` — there is no `CanFit` member.
+
+---
+
+---

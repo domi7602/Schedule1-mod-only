@@ -1,6 +1,6 @@
 # Packaging (Schedule I)
 
-> verified: classes, enums, signatures re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 64/65 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep. Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable.
 
 ## Core Classes (verified)
 
@@ -46,3 +46,25 @@ Stealth values, police-risk effects and mixing context: see [`25-Mixing-Producti
 1. **Prefix `PackagingStation.PackSingleInstance`** — server-side interception: bypass minigame, alter output, force packaging.
 2. **Prefix `PackagingTool.CheckFinalize`** — auto-pass the Mk2 minigame or log player input.
 3. **S1API:** `S1API.Products.PackagingDefinition` (`Quantity`, `StealthLevel`), `S1API.Products.Packaging.StealthLevel` enum, `CustomProductDefinition.SupportsPackaging(PackagingDefinition)`, `ProductPackagingContentProfile*` APIs. **No station/tool wrapper exists** — patch the native classes for station behavior.
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `Kick`

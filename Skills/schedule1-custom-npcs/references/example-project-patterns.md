@@ -1,6 +1,7 @@
 # Implementation Patterns
 
-> verified: patterns consolidated 2026-10-05 (duplicates moved to canonical reference). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: patterns consolidated 2026-10-05 (duplicates moved to canonical reference).
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 22 of 22 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 ## Purpose
 

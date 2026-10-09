@@ -1,5 +1,5 @@
 # Vehicle (Schedule I)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 119/122 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 
 ## Vehicle Types
@@ -39,17 +39,17 @@
 - VisionCone + `LastKnownPosition`
 - 5s after lost line of sight: `IsTargetRecentlyVisible = false`
 
-## Live-Verified API (v0.4.7f6, disassembled 2026-09-25 from `MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll`)
+## Live-Verified API (inspected 2026-09-25 from `MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll`)
 
-Signatures confirmed via ilspycmd against the INSTALLED build (the sections above may still describe 0.4.6f13):
+Signatures confirmed via ilspycmd against the installed build; some sections above may reflect older evidence:
 
 - `VehicleManager.Instance` → `SpawnAndReturnVehicle(string vehicleCode, Vector3 pos, Quaternion rot, bool playerOwned)`, `VehiclePrefabs` (`List<LandVehicle>`), `GetVehiclePrefab(string)`. Vehicle codes come from `VehiclePrefabs` entries (`VehicleCode` property) — do not guess them.
 - `LandVehicle` → `public VehicleAgent Agent {get;set}`, `Seats` (`Il2CppReferenceArray<VehicleSeat>`), `driverEntryPoint`, `OccupantNPCs`, `DriverPlayer`, `IsOccupied`, `GetFirstFreeSeat()`, `AddNPCOccupant(NPC)`, `RemoveNPCOccupant(NPC)`, `EnterVehicle()` (local player), `ExitVehicle()`, `DestroyVehicle()`, `VehicleCode/VehicleName/VehiclePrice`, `Speed_Kmh`, `LocalPlayerIsInVehicle`.
 - `VehicleAgent` → `Navigate(Vector3 location, NavigationSettings settings = null, NavigationCallback callback = null)`, `StopNavigating()`, `AutoDriving`, `TargetLocation`, `IsOnVehicleGraph()`, `GetIsStuck()`. `ENavigationResult { Failed, Complete, Stopped }` (names verified live 2026-09-25 — Failed=0.2s on bad targets, Complete on arrival, Stopped on our own StopNavigating/timeout).
 - `NavigationSettings` (class, parameterless ctor) → bool fields `endAtRoad`, `ensureProximityToGraph`, `teleportToGraphIfCalculationFails`.
-- `NavigationCallback` → has `public static implicit operator NavigationCallback(System.Action<ENavigationResult>)` (DelegateSupport.ConvertDelegate) — usable from managed code: pass a lambda cast through the operator; `ENavigationResult { Failed, Complete, Stopped }` gives the definitive Navigate outcome (verified in 0.4.7f6 interop dump 2026-09-25; earlier notes claiming an unreachable ctor were wrong).
-- `VehicleSeat` → `isDriverSeat` (get/set), `Occupant` (Player only — NPC occupancy lives on `LandVehicle.OccupantNPCs`; index mapping `OccupantNPCs[i]↔Seats[i]` is only live-verified for the single-driver case, NOT directly observable in 0.4.7f6), `isOccupied` (stays False for NPC occupants by design).
-- `NPC` → `EnterVehicle(NetworkConnection connection, LandVehicle veh)` (public virtual, RPC-shaped — singleplayer: try `null` connection), `ExitVehicle()`, `CurrentVehicle`, `IsInVehicle`, events `onEnterVehicle`/`onExitVehicle`. **There is NO `NPC.CurrentVehicleSeat` in the live 0.4.7f6 dump** (older notes claimed it — wrong); NPC seat proof = `LandVehicle.OccupantNPCs[i] == npc` plus root-to-seat distance (closest seat == `isDriverSeat` seat, measured 0.0 m — the NPC root lands on the seat anchor); `VehicleSeat.Occupant` is typed `Player`, so `isOccupied` never reflects NPCs. `NPCManager.NPCRegistry` is `public static List<NPC>`.
+- `NavigationCallback` -> has `public static implicit operator NavigationCallback(System.Action<ENavigationResult>)` (DelegateSupport.ConvertDelegate) and accepts a managed lambda; `ENavigationResult { Failed, Complete, Stopped }` provides the Navigate outcome (verified in the inspected interop dump on 2026-09-25).
+- `VehicleSeat` -> `isDriverSeat` (get/set), `Occupant` (Player only; NPC occupancy lives on `LandVehicle.OccupantNPCs`), `isOccupied` (stays False for NPC occupants). The `OccupantNPCs[i]` to `Seats[i]` mapping was live-verified only for the single-driver case; the proxy does not expose it directly.
+- `NPC` -> `EnterVehicle(NetworkConnection connection, LandVehicle veh)` (public virtual, RPC-shaped; singleplayer: try `null` connection), `ExitVehicle()`, `CurrentVehicle`, `IsInVehicle`, events `onEnterVehicle` / `onExitVehicle`. The inspected dump had no `NPC.CurrentVehicleSeat`; NPC seat proof used `LandVehicle.OccupantNPCs[i] == npc` plus root-to-seat distance. `VehicleSeat.Occupant` is typed `Player`, so `isOccupied` does not reflect NPC occupants. `NPCManager.NPCRegistry` is `public static List<NPC>`.
 - Reference pattern for NPC-drives-vehicle: schedule spec `S1API.Entities.Schedule.DriveToCarParkSpec` wires native `NPCSignal_DriveToCarPark` via reflection (sets `action.Vehicle`/`action.ParkingLot`). Vanilla behaviour class: `VehiclePatrolBehaviour` (`DriveTo(Vector3)`, `SetRoute`, `Vehicle`, `Agent`).
 - S1API wrappers expose native objects only as `internal` (`LandVehicle.S1LandVehicle`, `NPC.S1NPC`) — mods that need `Agent`/native calls must use the `Il2CppScheduleOne.*` types directly (Assembly-CSharp reference comes from `Directory.Build.props`).
 
@@ -64,7 +64,7 @@ Signatures confirmed via ilspycmd against the INSTALLED build (the sections abov
 - **The only observable path-search boundary from managed code**: `VehicleAgent.NavigationCalculationCallback(NavigationUtility.ENavigationCalculationResult result, PathSmoothingUtility.SmoothedPath path)` — public, Harmony-prefixable, `ENavigationCalculationResult { Success, Failed }` (nested in `NavigationUtility`). Fires for EVERY dispatch. The managed `NavigationUtility.CalculatePath` wrapper is NEVER called by the native Navigate body (0 trace hits despite a valid patch) — do not instrument it expecting traffic.
 - **Before dispatching Navigate**: turn the vehicle toward the target (`transform.rotation = Quaternion.LookRotation(flatDir)`) — otherwise the agent burns its first ~8 s in reverse maneuvers (54/89 reverse polls, no arrival) and clears `BrakesApplied` AND `HandbrakeApplied`.
 - **Heartbeat polling that works**: `agent.AutoDriving`, `veh.Speed_Kmh`, `agent.IsOnVehicleGraph()`, `agent.GetIsStuck()`, `agent.IsReversing` at 0.5 s intervals; arrival = `NavigationCallback(Complete)` (~8 m residual with `endAtRoad=true`, e.g. 25.6 m trip → Complete after 20.2 s, max 20.6 km/h).
-- **Test hotkeys (TaxiDriver spike)**: F1 road target A · F2 road target B · F3 full run to road target · F4 visual toggle · F5 call-taxi · F6 full run · F7 probe · F8 trace (logs `native ptr` of Navigate: `0x327431F8` this session) · F9 ride/out · F10 Navigate settings=null · F11 spawn without NPC · F12 Navigate on a vanilla vehicle. MelonLoader console has NO input field — in-game `taxi ...` commands are unreachable; use hotkeys (all fit F1-F12, scene-gated to the gameplay scene). Since 0.2.0 the taxi can also be ordered from the in-game phone (Taxi app); the hotkeys remain for diagnostics.
+- **Test hotkeys (TaxiDriver spike)**: F1 road target A · F2 road target B · F3 full run to road target · F4 visual toggle · F5 call-taxi · F6 full run · F7 probe · F8 trace (logs `native ptr` of Navigate: `0x327431F8` this session) · F9 ride/out · F10 Navigate settings=null · F11 spawn without NPC · F12 Navigate on a vanilla vehicle. MelonLoader console has NO input field — in-game `taxi ...` commands are unreachable; use hotkeys (all fit F1-F12, scene-gated to the gameplay scene). In a later TaxiDriver iteration, the taxi could also be ordered from the in-game phone (Taxi app); the hotkeys remain for diagnostics.
 - **Input pitfall**: F13+ VKs (≥ 0x7C) are still dropped by synthetic key events, but since the 2026-09-26 remap no taxi hotkey needs them — all fit F1-F12 (VK < 0x7C).
 - `LandVehicle` exposes BOTH `BrakesApplied` and `HandbrakeApplied`; `VehicleAgent.KinematicMode` and `IsPhysicallySimulated`/`ShouldBePhysicallySimulated()` explain drive capability (spawned player-owned vehicles are simulated; vanilla traffic drives non-simulated/kinematic).
 
@@ -75,3 +75,23 @@ Signatures confirmed via ilspycmd against the INSTALLED build (the sections abov
 - Terrain slowdown: 40% speed penalty on Terrain tag
 - Weather: rain influence via `SkateboardSettings.Blend()`
 - Equippable (`Skateboard_Equippable`)
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `VehicleModStation`
+- `BUY_ONLINE`
+- `BUY_CASH`

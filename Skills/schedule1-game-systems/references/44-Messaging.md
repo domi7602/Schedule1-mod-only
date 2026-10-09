@@ -1,5 +1,5 @@
 # Messaging (Schedule I)
-> verified: classes + RPC surface + event types + save-participation re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 99 of 99 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 Namespace: `Il2CppScheduleOne.Messaging` (UI in `Il2CppScheduleOne.UI.Phone.Messages`).
 
@@ -50,7 +50,7 @@ No UnityEvents in the Messaging namespace (grep).
 1. **Postfix `MessagingManager.SendMessage_Server(Message, bool, string)`** — monitor every NPC→player message server-side (loggers, triggers, deal detection); RPC logic method, non-inline.
 2. **Prefix/postfix `MSGConversation.ShowResponses(List<Response>, float, bool)`** — inject or rewrite the player's response options (custom dialogue trees); instance method on a plain object, patchable.
 3. **Prefix `MSGConversation.CanSendNewMessage()`** — throttle/block player sends (phone-signal events); simple bool, patchable.
-- **S1API (3.2.1-beta.8) wrappers (verified in source):** `S1API.Messaging.Response` (`Label`, `Text`, `OnTriggered` → wraps native `Response.callback`); `S1API.Entities.NPC` messaging helpers call `MSGConversation.SendMessage`/`ShowResponses`/`ClearResponses`/`SetCategories`/`EnsureUIExists` directly (send + response flow via `NPC.SendTextMessage`, verified in `NPC.cs`).
+- **S1API wrappers (verified in source):** `S1API.Messaging.Response` (`Label`, `Text`, `OnTriggered` → wraps native `Response.callback`); `S1API.Entities.NPC` messaging helpers call `MSGConversation.SendMessage`/`ShowResponses`/`ClearResponses`/`SetCategories`/`EnsureUIExists` directly (send + response flow via `NPC.SendTextMessage`, verified in `NPC.cs`).
 
 ## Not Implemented / Unverified
 - No global "message received" event on `MessagingManager` — hook the RPCs or per-conversation actions instead.

@@ -1,6 +1,7 @@
 # S1API — Lifecycle Hooks & Save-Load Timing
 
-> verified: instrumented run 2026-09-29 (order + OnSaveInfoLoaded = 0 firings); event set re-verified against 3.2.1-beta.8 source 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: instrumented run 2026-09-29 (order + OnSaveInfoLoaded = 0 firings); event set re-checked against checked-in S1API source on 2026-10-05.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 42 of 42 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 The most important module for **not chasing ghost bugs**. Static game lists (`Property.OwnedProperties`, `NPCManager.Registered`, `Business.OwnedBusinesses`) are populated at different times than scene callbacks fire. Use `GameLifecycle` hooks; never poll.
 
@@ -27,9 +28,9 @@ public static class GameLifecycle
 | `OnPreSceneChange` | Before scene change | Cache cleanup, unsubscribe |
 | `OnSaveStart` | When player hits save | Optional pre-save state mutations |
 | `OnSaveComplete` | After save | Diagnostic, post-save UI updates |
-| `OnSaveInfoLoaded` | **DEAD on game 0.4.7f6+: fires 0×** (verified 2026-09-29 — `schedule1-lifecycle-verify` §7) | Do not use for refresh |
+| `OnSaveInfoLoaded` | **Not observed to fire** in the instrumented session (2026-09-29; see `schedule1-lifecycle-verify` section 7) | Do not rely on it for refresh without re-verification |
 
-> **Naming (verified 2026-10-05 against 3.2.1-beta.8 source + deployed DLL):** `GameLifecycle` exposes EXACTLY these 6 events — `OnPreLoad`, `OnLoadComplete`, `OnPreSceneChange`, `OnSaveInfoLoaded`, `OnSaveStart`, `OnSaveComplete`. **`OnSaveLoaded` does NOT exist** (earlier editions of this file recommended it — that was wrong). Refresh work goes into `OnLoadComplete`. Verified order: Scene 'Main' loaded → `OnPreLoad` → `OnLoadComplete` (instrumented run 2026-09-29).
+> **Naming (verified 2026-10-05 against checked-in source + deployed DLL):** `GameLifecycle` exposes exactly six events: `OnPreLoad`, `OnLoadComplete`, `OnPreSceneChange`, `OnSaveInfoLoaded`, `OnSaveStart`, and `OnSaveComplete`. `OnSaveLoaded` is absent from the checked source. Refresh work goes into `OnLoadComplete`. The observed order was Scene Main loaded -> `OnPreLoad` -> `OnLoadComplete` (instrumented run 2026-09-29); re-check current runtime behavior.
 
 ---
 
@@ -167,8 +168,8 @@ OnSaveStart (player hits save)
   ↓
 OnSaveComplete (after save)
 
-DEAD: OnSaveInfoLoaded — 0 firings on game 0.4.7f6+ (2026-09-29 instrumented run).
-The ≤ 0.4.6f13 pipeline had an 'OnSaveInfoLoaded after parse' stage between the two — that stage no longer exists on 0.4.7f6+.
+Observed: `OnSaveInfoLoaded` fired 0 times in the 2026-09-29 instrumented run.
+An earlier pipeline included an `OnSaveInfoLoaded` stage between parsing and scene construction; the instrumented run did not observe that event.
 ```
 
 For deep flow diagrams, see the [`S1API.Lifecycle.GameLifecycle` source](../../../ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs).
@@ -177,7 +178,7 @@ For deep flow diagrams, see the [`S1API.Lifecycle.GameLifecycle` source](../../.
 
 ## 7. PhoneApp Lifecycle — `OnCreated` Fires ONCE per Scene (empirical, 2026-08-20)
 
-Verified against `S1API.Internal.Patches.HomeScreen_Start_Patch` (decompile 3.2.0):
+Verified against `S1API.Internal.Patches.HomeScreen_Start_Patch` (local decompile):
 
 - `HomeScreen.Start()` → S1API reflects over all `PhoneApp` subclasses → `Activator.CreateInstance` → `(IRegisterable).CreateInternal()` → **`OnCreated()`**.
 - `OnCreatedUI(container)` is called once per app creation (`SpawnUI` → `CreateAppContainer` → `OnCreatedUI`).

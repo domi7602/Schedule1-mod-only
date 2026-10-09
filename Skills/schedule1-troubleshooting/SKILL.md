@@ -1,7 +1,7 @@
 ---
 name: schedule1-troubleshooting
 description: >-
-  Diagnostic runbook for Schedule I MelonLoader IL2CPP mods (v0.4.7f11, S1API 3.2.1-beta.8).
+  Diagnostic runbook for Schedule I MelonLoader IL2CPP mods.
   Use this skill whenever: the game crashes on start, a mod throws on first frame, a Harmony patch silently no-ops,
   Latest.log shows error spikes, save-load desyncs, property/owner-lists stay empty,
   an [RegisterTypeInIl2Cpp] crash report appears, S1MCP find_gameobjects freezes the game,
@@ -9,7 +9,7 @@ description: >-
   Tools covered: native PowerShell log triage (see references/logscan-and-logs.md), s1interop analyze, s1interop doctor, ilspycmd, MelonPreferences.cfg.
   Keywords: troubleshooting, crash, Latest.log, log triage, 0xc0000005, 0x80131506, WasCollected, Harmony patch silent, no-op, save-load timing, IL2CPP pitfalls, slot_-1, FishNet, SyncVar, breakage log, update resilience, s1interop, ilspycmd.
 ---
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — Troubleshooting & Crash Diagnostics
 
@@ -88,7 +88,7 @@ The classic symptom: `OnInitializeMelon` logs "Ready" but `OnUpdate` work never 
 1. **Method-Inlining in IL2CPP.** Small methods (getters, one-liners) are inlined in the native build — Harmony patch installs but never fires. **Fix: patch the caller, not the inline target.**
 2. **`HarmonyPatch` attribute without explicit target.** `[HarmonyPatch(typeof(X))]` without `(nameof(X.Method))` fails with "Undefined target method". **Fix: `harmony.Patch(methodInfo, new HarmonyMethod(...))` manually without marker attribute**, or supply full target spec.
 3. **Scene is wrong.** The patched object's scene is not active. Verify with `[Mod].Logger.Msg($"Scene: {SceneManager.GetActiveScene().name}")`.
-4. **Static-List empty at scene load.** E.g. `Property.OwnedProperties.Count == 0` even though player owns properties. **Fix: subscribe to `GameLifecycle.OnLoadComplete` instead of `OnGameplaySceneLoaded`** — `OnSaveInfoLoaded` fires 0× on game 0.4.7f6+ (see §5).
+4. **Static-List empty at scene load.** E.g. `Property.OwnedProperties.Count == 0` even though the player owns properties. **Fix: subscribe to `GameLifecycle.OnLoadComplete` instead of `OnGameplaySceneLoaded`;** `OnSaveInfoLoaded` fired 0 times in the 2026-09-29 instrumented session (see section 5). Verify current runtime behavior before relying on it.
 5. **Mod dependency missing.** Optional dep via `[assembly: MelonOptionalDependencies("S1API")]` requires you to try-catch every S1API code path. Otherwise the mod throws before reaching your logic.
 
 ---
@@ -125,14 +125,14 @@ GameLifecycle.OnLoadComplete  += OnLoadComplete;  // after scene build: refresh 
 //   OnSceneWasLoaded("Main") → OnPreLoad → OnLoadComplete
 //   OnPreLoad also fires for same-slot Menu→Game scene reloads (see modding Rule 18)
 
-// BROKEN on Game 0.4.7f6+ (verified 2026-09-29, instrumented run): GameLifecycle.OnSaveInfoLoaded
-//   fires 0× (0 firings in a full load; still present in S1API 3.2.1-beta.8 but never invoked).
-//   Do NOT subscribe to it — historical recipes that recommend it are dead on 0.4.7f9.
+// OBSERVED IN THE 2026-09-29 INSTRUMENTED RUN: GameLifecycle.OnSaveInfoLoaded
+// fired 0 times during the full observed load, although the checked-in S1API source declares the event.
+// Do not rely on it without re-verification; use OnPreLoad / OnLoadComplete for the observed pattern.
 ```
 
 Symptom: HUD looks empty, PhoneApp shows "(unknown)" properties, Owner-count = 0 even though save has 5 owned.
 
-Reference pattern: **PotScanner v0.2.1** (2026-08-04, game 0.4.6f13-era) — used the lifecycle hook to drop the 25-second retry-mechanism it needed in v0.2.0; on 0.4.7f9 the equivalent hook is `OnLoadComplete`.
+Reference pattern: **PotScanner lifecycle fix** (2026-08-04) - replaced a long retry mechanism with a lifecycle hook; use `OnLoadComplete` for final refresh when confirmed in the installed runtime.
 
 For deeper analysis (multi-phase lifecycle, all S1API hooks, FishNet SyncVar timing) see **[`references/save-load-timing.md`](references/save-load-timing.md)**.
 
@@ -168,7 +168,7 @@ Detailed per-update breakage log: references/update-breakage-log.md
 | InputField keys trigger WASD movement | InputFocus not hooked | Register `NotesAppInputFocus`-style `MonoBehaviour` per `AGENTS.md §5` |
 | UIButton.onClick silently fails | `new UnityAction(...)` IntPtr issue | Use `S1API.Utils.ButtonUtils.AddListener(...)` |
 | HUD text disappears intermittently | Component destroyed (scene reload) | Re-resolve via `GameObjectResolver.FindComponentDeep<T>()` after `OnSceneWasLoaded` |
-| PhoneApp icon: "Icon file not found" | `IconFileName = ""` or wrong path | Override `IconSprite` (return a Sprite directly, see PotScanner v0.2.0 fix) |
+| PhoneApp icon: "Icon file not found" | `IconFileName = ""` or wrong path | Override `IconSprite` (return a Sprite directly, see PotScanner's `IconSprite` fix) |
 | Minigame/HUD-Sprite wrong after shape change | Cache ignores parameters (one `Sprite?` field for 2 radii) | Key cache by parameters (`Dictionary<string,Sprite>` `"{size}_{radius}"`) — see MinimapTextures Fix `MinimapTextures.cs:9` 2026-08-21 |
 | Circle-mask/border wrong on size change | Single `_circleMaskSprite` instead of dict | `_circleMaskCache` keyed `"{size}"` / `"{size}_{thickness}"` — see Fix 2026-08-21 |
 
@@ -179,8 +179,8 @@ Detailed per-update breakage log: references/update-breakage-log.md
 These **WILL** bite you if you don't read first:
 
 * **`Harmony.Patch` on a method with `MissingMethodException` in IL body** → fails at pin time, BEFORE your code runs. (Documented in `docs/pitfalls.md`.)
-* **`DialogueHandler.get_activeDialogue()` removed in 0.4.6f11** → any mod touching this crashes at JIT. (Documented in `docs/pitfalls.md`.)
-* **10.5 MB+ Mod class volume** → IL2CPPInterop `Class::Init signatures exhausted` warning → native AV 0xc0000005 → game dies. (DrugExpansion 1.0.0.)
+* **`DialogueHandler.get_activeDialogue()` is removed**; patching code that still references the accessor can fail at JIT/patch installation. Verify the current target and its callers in `docs/pitfalls.md` and the decompile.
+* **10.5 MB+ Mod class volume** → IL2CPPInterop `Class::Init signatures exhausted` warning → native AV 0xc0000005 → game dies. (DrugExpansion.)
 * **Static-List Empty at Scene-Load** (see §5).
 * **Reflection-Field-Set in IL2CPP** → unreliable, can write to wrong address — use Harmony-Patch instead.
 * **`MelonLogger.Instance.Error` vs `MelonLogger.Error`** — both must be patched for full coverage. (See il2cpp_modding_rules.md rule #3.)

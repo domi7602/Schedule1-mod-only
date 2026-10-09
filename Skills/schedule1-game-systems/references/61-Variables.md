@@ -1,5 +1,5 @@
 # Variables & Conditions (Schedule I)
-> verified: VariableDatabase, Variable hierarchy, Condition/Conditions, enums and events re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 80 of 80 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 Namespace: `Il2CppScheduleOne.Variables` — 13 types in the decompile dump.
 
@@ -57,7 +57,7 @@ No UnityEvents on the database itself; value replication uses FishNet RPCs (01-F
 1. **Postfix `VariableDatabase.SetVariableValue(string, string, bool)`** — react to any variable write (flags, counters) without patching each consumer.
 2. **Prefix `Conditions.Evaluate()`** — override/extend condition checks for custom dialogue/quest gating.
 3. **Postfix `VariableDatabase.CreateVariable(...)`** — inject variables at creation time (guarantees they exist on both server and clients).
-- **No S1API wrapper namespace for Variables found in 3.2.1-beta.8** (S1API has no `S1API.Variables`) — use direct interop or `VariableSetter`.
+- **No S1API wrapper namespace for Variables found in ** (S1API has no `S1API.Variables`) — use direct interop or `VariableSetter`.
 
 ## Applications (verified usage paths)
 - Quest flags + quest-entry state via `QuestCondition` (03-Dialogue-Quest)

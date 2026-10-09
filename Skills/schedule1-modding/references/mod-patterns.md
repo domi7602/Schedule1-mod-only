@@ -1,6 +1,7 @@
 # Mod Patterns — 7 Established Architectures
 
-> verified: patterns established 2026-08-20 → 2026-09-11; §4 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+); Pattern-1 skeleton modernized to the Shared UITheme API 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: patterns established 2026-08-20 → 2026-09-11; §4 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings in the instrumented session); Pattern-1 skeleton modernized to the Shared UITheme API 2026-10-05.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 45 of 45 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 The workspace mods (see [`AGENTS.md`](../../../AGENTS.md) §2 for the current, authoritative inventory) cluster into **7 architectural patterns**. Pick the pattern that matches your use-case before designing.
 
@@ -127,7 +128,7 @@ public override void OnUpdate()
 
 private void Refresh()
 {
-    // use FindObjectsByType (Unity 2022.3+) ONCE per tick, not per frame
+    // use FindObjectsByType ONCE per tick, not per frame
     // cache IntPtr lookups, avoid LINQ on Il2CppSystem.Collections
     for (int i = 0; i < _containers.Count; i++)
     {
@@ -139,7 +140,7 @@ private void Refresh()
 
 **Pitfalls:** IL2CPP marshalling costs; LINQ/foreach on `Il2CppSystem.Collections.Generic.List<T>` allocates → GC spikes. Use indexed `for` + cached `IntPtr` lookups (see `il2cpp-harmony-guide.md` §3).
 
-**Reference impl:** PotScanner v0.1.0 — 2 s cooldown, FindObjectsByType, dry/all-moist badges, dictionary lookups for O(1) property assignment.
+**Reference impl:** PotScanner source — 2 s cooldown, FindObjectsByType, dry/all-moist badges, dictionary lookups for O(1) property assignment.
 
 ---
 
@@ -165,7 +166,7 @@ public class MySave : Saveable
 **Key rules:**
 - Class must be `public`, non-abstract, with parameterless constructor.
 - All persistent fields need `[SaveableField("name")]`.
-- `GameLifecycle.OnLoadComplete` is the proper hook for save-data refresh on game 0.4.7f6+ — **`OnSaveInfoLoaded` fires 0× there** (verified 2026-09-29; see `schedule1-troubleshooting` §5 + `save-load-timing.md` §1).
+- `GameLifecycle.OnLoadComplete` is the proper hook for save-data refresh in the observed run — **`OnSaveInfoLoaded` fires 0× there** (verified 2026-09-29; see `schedule1-troubleshooting` §5 + `save-load-timing.md` §1).
 - `Saveable.RequestGameSave()` triggers a save after significant changes.
 
 ### Standalone JSON Persist (no Save System)
@@ -213,7 +214,7 @@ internal static class Patch_Skateboard_OnMount
 - ✅ **Use `S1Mods.Shared.PatchGuard.TryPatch(...)`** for graceful-degradation on game updates.
 - ✅ **Always** `if (__instance == null || __instance.WasCollected) return;` first.
 
-**Reference impl:** MoreSaveSlots v1.1.1 — patches SaveDisplay, ContinueScreen, NewGameScreen, MenuScreen, SaveManager — with Harmony, no scene-desync.
+**Reference impl:** MoreSaveSlots source — patches SaveDisplay, ContinueScreen, NewGameScreen, MenuScreen, SaveManager — with Harmony, no scene-desync.
 
 ---
 

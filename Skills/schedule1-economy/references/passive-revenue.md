@@ -1,8 +1,9 @@
 # Passive Revenue (BusinessIncome Reference)
-> verified: flow from BusinessIncome v0.1.0 source (0.4.6-era, snapshot fix 2026-08-21); Money APIs re-verified against 0.4.7f9 decompiles 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: flow from BusinessIncome source (snapshot fix 2026-08-21); Money APIs re-verified against the installed runtime decompiles 2026-10-05.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 9/13 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 
-Source: `BusinessIncome/src/Services/IncomeEngine.cs` + `PayoutStateStore.cs` + `RevenueCalculator.cs` (v0.1.0, host-authoritative, slot-idempotent).
+Source: `BusinessIncome/src/Services/IncomeEngine.cs` + `PayoutStateStore.cs` + `RevenueCalculator.cs` (host-authoritative, slot-idempotent).
 
 ### Revenue Formula (per business)
 ```
@@ -42,3 +43,28 @@ if (config.EnableNotifications) SendNotification(totalNet, lines.Count);
 * `IsDayPaid:93` + `IsBusinessPaid:100` per-business guard
 
 Notification: `NotificationsManager.Instance.SendNotification("Business Revenue", "+$X from N businesses", null, 5f, playSound)` + `PlayCashSound` null-checked.
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `_pendingPrevLastPaid`
+- `MarkInMemoryPaid`
+- `RevertInMemoryPaid`
+- `_pendingPrevPerBusiness`

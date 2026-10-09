@@ -6,7 +6,7 @@ description: >-
   Keywords: Decompiles, Assembly-CSharp, Il2CppScheduleOne, GameReferences, Game Systems, S1API, S1MAPI, ilspycmd, research.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — Knowledge Navigation Skill
 
@@ -40,8 +40,8 @@ Schedule1-mod-only/
 │   └── schedule1-phoneapp/references/       (Method 3 responsive UI, input focus, lifecycle)
 │
 ├── ThirdParty/
-│   ├── S1API/S1API/                         (Full C# source code of S1API 3.2.1-beta.8 — submodule at the deployed build tag)
-│   ├── S1MAPI/                              (S1MAPI 2.0.1 mapping framework)
+│   ├── S1API/S1API/                         (Full S1API C# source tree; compare with deployed DLLs before relying on source-level details)
+│   ├── S1MAPI/                              (S1MAPI mapping framework)
 │   ├── Archive/PhoneScroll/               (retired 2026-09-16, phone scroll hook by V4LEXL)
 │   └── S1MCPServer-master/                  (S1MCP protocol bridge source)
 │
@@ -59,7 +59,7 @@ When you get a question, run this mental check:
 | Question | File / Location to open first | Then |
 |---|---|---|
 | What's the API signature of `GrowContainer.SetMoistureAmount`? | `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/Growing/GrowContainer.cs` | Verify live DLL via `ilspycmd` |
-| What does S1API 3.2.1-beta.8 expose for Phone Apps? | `Skills/schedule1-phoneapp/SKILL.md` + `ThirdParty/S1API/S1API/PhoneApp/` | `Source/Mods/NotesApp/` |
+| What does S1API expose for Phone Apps? | `Skills/schedule1-phoneapp/SKILL.md` + `ThirdParty/S1API/S1API/PhoneApp/` | `Source/Mods/NotesApp/` |
 | How does ModX achieve Y? | `Source/Mods/<ModName>/src/*.cs` (active workspace mods) | `AGENTS.md` (mod inventory) |
 | What are IL2CPP pitfalls? | `Skills/schedule1-il2cpp-reflection/SKILL.md` + `schedule1-troubleshooting` | `Source/Mods/Shared/` |
 | Which class is responsible for Save/Load? | `Skills/schedule1-game-systems/references/02-Save-Persistence.md` | `GameReferences/decompiled/.../Persistence/` |
@@ -112,6 +112,9 @@ C. **Check a specific game system:**
 D. **Inspect S1API wrappers:**
    - Check `ThirdParty/S1API/S1API/` for wrappers before using raw `Il2CppScheduleOne.*`.
 
+E. **Review patterns from third-party decompiles:**
+   - Use `references/third-party-mod-patterns.md` for static observations and pitfalls; verify current APIs live and do not copy third-party code.
+
 ---
 
 ## 5. Anti-Patterns
@@ -126,9 +129,9 @@ D. **Inspect S1API wrappers:**
 ## 6. Knowledge State & Anchors
 
 * Workspace: the `Schedule1-mod-only` repository root (wherever you cloned it)
-* Game Version: `v0.4.7f11` (Unity 2022.3, IL2CPP) — verified 2026-10-07 via `MelonLoader\Latest.log`.
-* S1API: `3.2.1-beta.8` deployed (`Plugins\S1APILoader.MelonLoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`); in-repo `ThirdParty/S1API` source is the beta.8 submodule (tag, 2026-10-05).
-* S1MAPI: `2.0.1` in `ThirdParty/S1MAPI/` (deployed `UserLibs\S1MAPI_Il2Cpp.dll`).
+* Runtime and dependency versions: see workspace `AGENTS.md` / `docs/compatibility.md`; this skill does not mirror them.
+* S1API source and deployment: compare `ThirdParty/S1API/` with the installed DLLs before relying on source-level details.
+* S1MAPI source and deployment: see `ThirdParty/S1MAPI/` and the installed `UserLibs/S1MAPI_Il2Cpp.dll`.
 * Active Mods: **see `AGENTS.md` §2** — it is the single authoritative mod inventory (never copy the list here; it drifts).
 * All 64 game systems documented in `Skills/schedule1-game-systems/references/`.
 

@@ -1,17 +1,17 @@
 ---
 name: schedule1-persistence
 description: >-
-  Persistence runbook for Schedule I v0.4.7f11 (SafeStorage atomic .bak, slot-isolated saves, save-load timing, ModConfig TOML limits). Use when saving configs, player data, placed-world objects, or fixing save-load desyncs, slot leaks, or .bak corruption. Covers NotesApp/CalculatorApp/BankApp/BusinessIncome/HomelessMod/MoreSaveSlots patterns.
+  Persistence runbook for Schedule I (SafeStorage atomic .bak, slot-isolated saves, save-load timing, ModConfig TOML limits). Use when saving configs, player data, placed-world objects, or fixing save-load desyncs, slot leaks, or .bak corruption. Covers NotesApp/CalculatorApp/BankApp/BusinessIncome/HomelessMod/MoreSaveSlots patterns.
   Keywords: SafeStorage, SaveAtomic, SaveTextAtomic, LoadSafe, slot, SaveSlotNumber, TryMigrateLegacy, GameLifecycle, OnSaveInfoLoaded, OnLoadComplete, OnSaveComplete, TOML, ConfigJsonStore.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — Persistence Skill (Save, Config & Slot Isolation)
 
 This skill is the **single source for every file write** — configs, player notes, economy history, placed-world state. It codifies atomic I/O (`Shared/SafeStorage.cs`), slot-isolated naming, lifecycle-timed serialization, and TOML workarounds verified across active workspace mods.
 
-> **Version check (verified 2026-09-11):** `S1Mods.Shared.SafeStorage` (SaveAtomic/SaveTextAtomic + .bak), `S1API.Lifecycle.GameLifecycle`. IL2CPP lifecycle and slot safety rules incorporate the 2026-09-11 bugfix audit.
+> API check (2026-09-11): `S1Mods.Shared.SafeStorage` (`SaveAtomic` / `SaveTextAtomic` + `.bak`) and `S1API.Lifecycle.GameLifecycle` were inspected. IL2CPP lifecycle and slot-safety rules incorporate the 2026-09-11 bug-fix audit.
 
 ---
 
@@ -21,7 +21,7 @@ This skill is the **single source for every file write** — configs, player not
 |---|---|---|
 | **Atomic** | `SafeStorage.SaveAtomic/SaveTextAtomic` only — never `File.WriteAllText` / `File.Copy+Replace` | Crash mid-write → `Game.json`/`config.json` corrupted → save loss (MoreSaveSlots) |
 | **Slot-Isolated** | `…_slot_{info.SaveSlotNumber}.json` per save (guard `SaveSlotNumber >= 0`) | Slot-A state leaks into Slot-B, or `slot_-1.json` is generated |
-| **Timed** | In-memory during gameplay, serialize only on `GameLifecycle.OnSaveComplete`; load on `OnLoadComplete` (**not** `OnSaveInfoLoaded` — fires 0× on 0.4.7f6+, verified 2026-09-29) | Alt+F4 dupe (HomelessMod placed item kept on disk but inventory reverted), empty lists at `OnGameplaySceneLoaded` |
+| **Timed** | Keep state in memory during gameplay; serialize on `GameLifecycle.OnSaveComplete` and load on `OnLoadComplete`. The instrumented session recorded 0 firings for `OnSaveInfoLoaded`; verify before relying on it. | Alt+F4 dupe (HomelessMod placed item kept on disk but inventory reverted), empty lists at `OnGameplaySceneLoaded` |
 
 ---
 
@@ -107,14 +107,14 @@ Static lists `Property.OwnedProperties`, `Business.OwnedBusinesses`, `NPCManager
 
 ```csharp
 // Mod.cs OnInitializeMelon:
-// BROKEN on 0.4.7f6+ (verified 2026-09-29): OnSaveInfoLoaded fires 0× — do NOT subscribe to it.
+// OBSERVED IN THE 2026-09-29 INSTRUMENTED RUN: `OnSaveInfoLoaded` fired 0 times; do not rely on it without re-verification.
 GameLifecycle.OnPreLoad        += OnPreLoad;        // before save data loads → clear caches / reset state
 GameLifecycle.OnLoadComplete   += OnLoadComplete;   // after scene build → refresh Property/Item caches, spawn UI / managers / world objects
 GameLifecycle.OnSaveComplete   += OnSaveComplete;   // user pressed Save → flush to disk
 // Verified order (schedule1-lifecycle-verify §7): OnSceneWasLoaded("Main") → OnPreLoad → OnLoadComplete
 ```
 
-* Reference fix: PotScanner v0.2.1 (game 0.4.6f13-era) dropped its 25s retry via the lifecycle hook; on 0.4.7f9 the equivalent is `OnLoadComplete` (`schedule1-troubleshooting §5`).
+* Reference fix: PotScanner replaced a long retry loop with a lifecycle hook; use `OnLoadComplete` for the final refresh when confirmed in the installed runtime (`schedule1-troubleshooting` section 5).
 * Also cache in `OnSceneWasLoaded("Main")` for in-session `ApplyStackLimits` retries.
 
 ---
@@ -154,7 +154,7 @@ ModConfig<MyConfig>.Initialize("MyMod", Log,
 - [ ] Every `File.WriteAllText / Copy / Replace` replaced by `SafeStorage`?
 - [ ] Every per-save file uses `slot_{n}.json` + `TryMigrateLegacy`?
 - [ ] Placed objects: in-memory during play, SaveAtomic only on `OnSaveComplete`, Reset on `OnPreLoad`?
-- [ ] Static lists read in `OnLoadComplete` (not at `OnGameplaySceneLoaded`) — `OnSaveInfoLoaded` fires 0× on 0.4.7f6+, not used for refresh?
+- [ ] Static lists read in `OnLoadComplete` (not at `OnGameplaySceneLoaded`); the instrumented session observed 0 `OnSaveInfoLoaded` firings, so do not use it for refresh without re-verification.
 - [ ] `LoadSafe` fallback is non-null? `.bak` recovery tested by corrupting one file?
 - [ ] Dictionary/List config handled via `ConfigJsonStore` sidecar, not ModConfig alone?
 - [ ] `Reset()` clears cached state + snapshot on scene unload?

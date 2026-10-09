@@ -1,5 +1,5 @@
 # Achievement/Steam (Schedule I)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 10/16 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 
 ## Steam Integration
@@ -11,7 +11,7 @@
 ## AchievementManager
 - **Static Class** (not a Singleton, not a MonoBehaviour)
 - `Init()` via `[RuntimeInitializeOnLoadMethod]`
-- Dictionary `achievementUnlocked` (cache, loaded via `PullAchievements()`)
+- Dictionary `achievementUnlocked` (cache, loaded via `TryPullAchievements()` — there is no plain `PullAchievements`)
 - **100% Event-based** – no polling, no update loop
 
 ## Achievement List
@@ -38,9 +38,32 @@
 
 ## VariableDatabase
 - `NetworkSingleton<VariableDatabase>` (ISaveable)
-- Tracks: `"TrashRecycled"`, `"HighestValueProduct"`, `"LifetimeEarnings"`
+- Tracks: `"TrashRecycled"`, `"highestValueProduct" (field, lower camel)`, `"LifetimeEarnings"`
 - Network-replicated (ObserversRpc/TargetRpc)
 
 ## Beta Blockade
 - `-beta` command line flag → `GameManager.IS_BETA = true`
 - Blocks all `UnlockAchievement()` calls (silently)
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `RuntimeInitializeOnLoadMethod`
+- `StoreStats`
+- `PullAchievements`
+- `SetAchievement`
+- `RunCallbacks`
+- `TrashRecycled`

@@ -1,6 +1,7 @@
 # Search Recipes — Concrete Patterns
 
-> verified: recipes tested against workspace 2026-10-05 (ilspycmd 9.1.0.7988 needs scoped `DOTNET_ROOT="$env:USERPROFILE\.dotnet"` — Pitfall 6 in `../schedule1-lifecycle-verify/SKILL.md`). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: recipes tested against workspace 2026-10-05 (ilspycmd needs scoped `DOTNET_ROOT="$env:USERPROFILE\.dotnet"` — Pitfall 6 in `../schedule1-lifecycle-verify/SKILL.md`).
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 24/26 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 Concrete patterns to use the workspace's grep/glob/ilspycmd tools efficiently. Generic advice ("search the codebase") is not actionable; these are tested recipes.
 
@@ -82,7 +83,7 @@ Get-ChildItem 'ThirdParty/S1API/S1API' -Recurse -Filter '*Money*.cs' | Select-Ob
 # Find lifecycle event definitions in S1API
 Select-String -Pattern 'OnPreLoad|OnLoadComplete|OnSaveInfoLoaded|OnSaveStart|OnSaveComplete|OnPreSceneChange' `
     -Path 'ThirdParty\S1API\S1API\Lifecycle\*.cs'
-# Known 2026-10-05: OnSaveLoaded does NOT exist; OnSaveInfoLoaded fires 0x on 0.4.7f6+ (see schedule1-s1api/references/lifecycle.md)
+# Known 2026-10-05: OnSaveLoaded does NOT exist; OnSaveInfoLoaded fires 0x in the instrumented session (see schedule1-s1api/references/lifecycle.md)
 ```
 
 ---
@@ -131,3 +132,26 @@ Get-Content "$env:SCHEDULE1_PATH\MelonLoader\Latest.log" -Tail 200 |
 5. Implement following the HUD pattern; register `ModConfig<CashHudConfig>` for toggle.
 6. `dotnet build Source\Mods\CashHUD\src\CashHUD.csproj -c Release` → auto-deploy.
 7. Launch game, validate.
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `CashHudConfig`
+- `CashHUD`

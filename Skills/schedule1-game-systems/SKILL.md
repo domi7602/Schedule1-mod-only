@@ -1,13 +1,13 @@
 ---
 name: schedule1-game-systems
-description: "Reference guide for all 64 core game systems in Schedule I (v0.4.7f11). Use this to understand game mechanics, find core classes, and plan hooks. Keywords: game systems, FishNet, Save, Dialogue, Quest, Growing, Inventory, Building, Laundering, Heat, Pursuit, Regions, NPC, TimeManager, Economy, Avatar, Mixing, DrugEffects, Stations, Property, Skateboard, Tiles, Weather, hook points, Harmony."
+description: "Reference guide for all 64 core game systems in Schedule I. Use this to understand game mechanics, find core classes, and plan hooks. Keywords: game systems, FishNet, Save, Dialogue, Quest, Growing, Inventory, Building, Laundering, Heat, Pursuit, Regions, NPC, TimeManager, Economy, Avatar, Mixing, DrugEffects, Stations, Property, Skateboard, Tiles, Weather, hook points, Harmony."
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I Game Systems
 
-This skill is the **map to the 64 core game systems** in *Schedule I* (curated on 0.4.7f9; runtime 0.4.7f11) — bypassing the need to navigate raw decompiled code blind. Every system is curated with core classes, network behavior, variables, and Harmony/S1API hook points directly in `Skills/schedule1-game-systems/references/`.
+This skill is the **map to the 64 core game systems** in *Schedule I*  — bypassing the need to navigate raw decompiled code blind. Every system is curated with core classes, network behavior, variables, and Harmony/S1API hook points directly in `Skills/schedule1-game-systems/references/`.
 
 ---
 

@@ -1,6 +1,7 @@
 # StackLimit Engine
 
-> verified: v0.1.5 lessons 2026-09-19; timing note re-verified 2026-10-05 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: StackLimitMod lessons 2026-09-19; timing note re-checked 2026-10-05 (OnSaveInfoLoaded = 0 firings in the instrumented run).
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 26/27 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 `StackLimitEngine.cs:112 ApplyToDefinition` — snapshot originalLimits once, then overwrite.
 
@@ -21,17 +22,17 @@ Instance fallback `BaseItemInstance_GetStackLimit_Postfix:26` enforces the limit
 
 NOT patched: `BaseItemDefinition.get_DefaultStackLimit` field accessor cannot be patched: `Latest.log:17:43:04.438` — removed `Mod.cs:109`.
 
-## Apply-Timing Trap (v0.1.5, 2026-09-19)
+## Apply-Timing Trap (2026-09-19)
 
 **Symptom:** certain item categories (e.g. packaged products) do not stack; `stack stats` shows too few modified items.
 
-**Cause (0.4.6-era analysis):** `OnSaveInfoLoaded` may fire BEFORE the game has called `Registry.AddToRegistry` for all items. Result: Apply with `Resources:23 Registry:0` (too few hits). The 1500 ms dedupe in `OnLoadComplete` then swallowed the canonical post-load apply — most definitions stayed on the vanilla limit.
+**Cause (historical analysis):
 
-**0.4.7f6+ note (re-verified 2026-10-05):** `OnSaveInfoLoaded` **fires 0×** on game 0.4.7f6+ (see `schedule1-troubleshooting/references/save-load-timing.md` §1) — the trigger-timing analysis above is historical. The operative fix stands: apply from `OnLoadComplete` + keep the `Registry_AddToRegistry` postfix (schedule1-items SKILL §2) so late registrations are caught whenever they happen.
+**Lifecycle note (re-verified 2026-10-05): `OnSaveInfoLoaded` fired 0 times in the instrumented session (see `schedule1-troubleshooting/references/save-load-timing.md` section 1). The trigger-timing analysis above is historical. Apply from `OnLoadComplete` and keep the `Registry.AddToRegistry` (`Registry_AddToRegistry` is the IL2CPP metadata name of the same member) postfix (schedule1-items SKILL section 2) so late registrations are caught whenever they happen.
 
 **Fix:** `OnLoadComplete` checks `StackLimitEngine.LastRegistryCount == 0 && ModifiedItemCount > 0` ("blind apply") and reapplies even with dedupe.
 
-**Diagnostic tools (since v0.1.5):**
+**Diagnostic tools:
 - `UserData/StackLimitMod/apply_report.json` — per-item Id/Type/Original-Limit/Decision/Source, independent of the MelonLogger debug gating.
 - `stack check <itemId>` — live diagnosis: weapon guard, agriculture type/ID match, exclude, eligibility + verdict.
 - `stack report` — summary of the most recent apply decisions (unmodified items first).
@@ -45,3 +46,25 @@ NOT patched: `BaseItemDefinition.get_DefaultStackLimit` field accessor cannot be
 ## Update Cycle Lesson (2026-09-19)
 
 The repo's `mod.json` (in `docs/`) is updated by `bump-version.ps1`, but the DEPLOYED `UserData/<Mod>/mod.json` is only updated by the build deploy — after manually copying the json, rebuild. Quality gates after each bump: `check-version-sync.ps1`, `check-doc-paths.ps1`, `dotnet format --verify-no-changes`.
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `Registry_AddToRegistry`

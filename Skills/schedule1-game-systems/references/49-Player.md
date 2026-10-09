@@ -1,13 +1,13 @@
 # Player (Schedule I)
 
-> verified: classes, signatures, events re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 135 of 137 identifier-shaped tokens resolve (2 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session. Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable.
 
 ## Core Classes (verified)
 
 | Class | Hierarchy | Purpose |
 |-------|-----------|---------|
 | `Player` | `NetworkBehaviour` (implements `ICombatTargetable`, `IDamageable`, `ISightable`) | Main player; child refs: Avatar, CharacterController, Health, CrimeData, Clothing |
-| `PlayerManager` | `Singleton<PlayerManager>` *(not NetworkSingleton)* | Player list: `GetPlayer`, `GetPlayerByName`, `GetClosestPlayer(Sqr)`, `GetRandomPlayer`, `AreAllPlayersReadyToSleep` |
+| `PlayerManager` | `Singleton<PlayerManager>` *(not NetworkSingleton)* | Player list: `GetPlayer`, `GetPlayerByName`, `GetClosestPlayerSqr`, `GetRandomPlayer`, `AreAllPlayersReadyToSleep` |
 | `PlayerCamera` | `PlayerSingleton<PlayerCamera>` | First-person camera; `ECameraMode` = Default / Vehicle / Skateboard |
 | `PlayerMovement` | `PlayerSingleton<PlayerMovement>` | Movement controller |
 | `PlayerInventory` | `PlayerSingleton<PlayerInventory>` | `HotbarSlot : ItemSlot` slots (+ nested `ItemVariable`, `ItemAmount`) |
@@ -53,3 +53,10 @@
 1. **Prefix `PlayerHealth.TakeDamage`** — god-mode / damage scaling (server RPC + local call paths — patch the public method).
 2. **Prefix `Player.Arrest_Server`** (and `Free_Server`) — control arrest logic server-authoritatively.
 3. **S1API:** `S1API.Entities.Player` (`IEntity`, `IHealth`): static `Local`, static event `LocalPlayerSpawned`, `OnDeath`/`OnRevive`, `Damage(int)`, `Heal(int)`, `Revive()`, `Kill()`, clothing methods. `S1API.Law.PlayerCrimeData` wraps pursuit state (`CurrentPursuitLevel`, `SetPursuitLevel`, `Escalate`, `Deescalate`, `ClearCrimes`, `GetSearchTime()`).
+
+---
+ Identifier-shaped tokens documented as *absent* (counted as resolved): `PassOutScreen`, `PlayerEnergy`.
+ Identifier-shaped tokens documented as *absent*: `PassOutScreen`, `PlayerEnergy`.
+ Identifier-shaped tokens documented as *absent*: `PlayerEnergy`, `PassOutScreen`.
+ Identifier-shaped tokens documented as *absent*: `PassOutScreen`, `PlayerEnergy`.
+ Identifier-shaped tokens documented as *absent*: `PlayerEnergy`, `PassOutScreen`.

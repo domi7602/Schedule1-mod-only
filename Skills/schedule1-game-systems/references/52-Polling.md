@@ -1,6 +1,6 @@
 # Polling (Schedule I)
 
-> verified: full re-check 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9) — all prior speculation resolved/removed. Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 45 of 45 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session. Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable.
 
 ## What it actually is (resolved speculation)
 
@@ -20,7 +20,7 @@ An **online community-poll HTTP client** — not a game-world mechanic. The old 
 ## PollManager (verified members)
 
 - `static string ServerUrl` (settable field), nested enum `EPollSubmissionResult { InProgress, Success, Failed }`.
-- Properties: `ActivePoll`, `ConfirmedPoll` (public get / private set), `SubmissionResult`, `SubmisssionFailedMesssage` *(sic, triple-s typo in the game)*.
+- Properties: `ActivePoll`, `ConfirmedPoll` (public get / private set), `SubmissionResult`, `SubmisssionFailedMesssage` *(sic, triple-s typo in )*.
 - Methods: `SelectPollResponse(int responseIndex)`, `static TryGetExistingPollResponse(int pollId, out int response)`, coroutines `SubmitAnswerToServer(PollAnswer)` + `RequestPoll(string url, Action<string> callback)` (`UnityEngine.Networking.UnityWebRequest`), private `ResponseCallback`, private `PlatformInitialized()`, statics `CleanTicket(string ticket)` (auth-ticket processing — Steam-ticket assumption **unverified**), `RecordSubmission(int pollId, int response)` (marks answered → dedup via `TryGetExistingPollResponse`).
 - Events: `onActivePollReceived` / `onConfirmedPollReceived` (`Action<PollData>`, add_/remove_ verified) — the **only** events in this system.
 - `ActivePoll` = currently running poll, `ConfirmedPoll` = poll whose winner was announced (`winnerIndex`, `confirmationMessage`).

@@ -1,5 +1,5 @@
 # S1API — Saveables (Custom Persistence in Save Games)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 14/16 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 
 Saveables let your mod's custom data classes **persist in the schedule-i save game** with JSON serialization, GUID references, and automatic save-game restart safety.
@@ -177,3 +177,22 @@ The UI subscribes to `NotesChanged` and rebuilds.
 * **Reference loops throw** → S1API uses `JsonIgnoreHandling` per cycle. For circular refs, use `[SaveableField]` on the inner objects too.
 
 Deep reference: `ThirdParty/S1API/` (S1API.Saveables -> Saveable.cs; initialize the submodule first if needed).
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `NotesChanged`
+- `JsonIgnoreHandling`

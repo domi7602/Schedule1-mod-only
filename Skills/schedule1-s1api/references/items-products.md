@@ -1,5 +1,5 @@
 # S1API — Items & Products
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 23/26 identifier-shaped tokens resolve (1 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 
 Two related but distinct APIs:
@@ -120,7 +120,7 @@ public void GiveItemToPlayer()
 For defining the in-game slot:
 - `HotbarSlot` for hotbar (max 9 slots)
 - `CashSlot` for cash (max $1,000)
-- `InventorySlot` for general inventory
+- `InventorySlotCount` / `GetFirstInventorySlotContainingProduct` for general inventory — there is no type named `InventorySlot`
 
 See the `S1Mods.Shared` `EconomyHelper.GetMaxHoldableCashCapacity()` for slot-aware cash handling.
 
@@ -185,3 +185,22 @@ Buildables also need a prefab (or `MeshVault`). If you don't have one, use a van
 `MoreDrugs` (ThirdParty/) uses `S1API.Products` with `ICustomProductSaveProvider` for full save integration.
 
 For source: `ThirdParty/S1API/` (S1API.Items / S1API.Products; initialize the submodule first with `git submodule update --init` if needed).
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `AdditiveItemDefinition`
+- `IngredientItemDefinition`

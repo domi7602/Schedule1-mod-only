@@ -1,18 +1,18 @@
 ---
 name: schedule1-s1api
 description: >-
-  Author-reference for the S1API framework (ifBars fork, v3.2.1-beta.8 deployed, 859 .cs files in 116 namespaces) for Schedule I v0.4.7f11 (IL2CPP/Mono).
+  Author-reference for the S1API framework (ifBars fork) for Schedule I (IL2CPP/Mono).
   Use this skill whenever you need to find the right S1API namespace for a task, write a Saveable, build a PhoneApp, register a Quest, create a custom NPC, register a console command, hook a lifecycle event, or decide whether to use a S1API wrapper vs direct Il2CppScheduleOne interop.
   Keywords: S1API, Folders, Money, GameTime, Lifecycle, PhoneApp, Quests, NPCs, Saveables, Items, Products, Building, Law, Vehicles, GameLifecycle, OnSaveInfoLoaded, OnLoadComplete, OnPreLoad, Property, Il2CppScheduleOne, MelonLoader.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
-# Schedule I — S1API Author Reference (ifBars fork, v3.2.1-beta.8 deployed and as in-repo source)
+# Schedule I — S1API Author Reference (ifBars fork)
 
 This skill is the **API-catalog map** for S1API. Use it when you need to know which namespace / class to reach for, what the wired lifecycle hooks are, which patterns are safe via S1API wrapper vs which require direct IL2CPP interop, and how to handle the runtime-neutral contract.
 
-> **Version check (verified 2026-10-05):** S1API **3.2.1-beta.8** deployed (`Plugins\S1APILoader.MelonLoader.dll` + `Mods\S1API.Il2Cpp.MelonLoader.dll`, product 3.2.1-beta.8). **Never compile against 3.2.0-stable — it does not know the 0.4.7f6+ renames** (docs/compatibility.md). Note: the in-repo source `ThirdParty/S1API/` is still the **beta.8** submodule (tag `v3.2.1-beta.8`, commit f65ae40 — identical to the deployed build, checked out 2026-10-05). Source-level claims are now beta.8-grounded.
+> Use the checked-in `ThirdParty/S1API/` source as the API reference for workspace builds. Deployed DLLs can differ from the source checkout, so compare them before relying on implementation details. Keep the active dependency selection in `AGENTS.md` / `docs/compatibility.md`; do not assume an older stable assembly contains newer game bindings.
 
 ---
 
@@ -22,7 +22,7 @@ This skill is the **API-catalog map** for S1API. Use it when you need to know wh
 |---|---|
 | **Workspace Root** | the `Schedule1-mod-only` repository root (lives outside the game directory; any user/drive) |
 | **Game Path** | `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`) |
-| **Runtime** | MelonLoader 0.7.3 (IL2CPP, Unity 2022.3) |
+| **Runtime** | See `AGENTS.md` for the current local runtime configuration (IL2CPP / Unity) |
 | **S1API DLLs (deployed)** | `<GameDir>\Plugins\S1APILoader.MelonLoader.dll` + `<GameDir>\Mods\S1API.Il2Cpp.MelonLoader.dll` |
 | **S1API Source (In-Repo)** | `ThirdParty/S1API/S1API/` (full C# source tree) |
 | **Decompiled Vanilla Code** | `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/` |
@@ -152,7 +152,7 @@ public sealed class MyMod : MelonMod
 }
 ```
 
-> **Why the unsubscribe?** **`OnSaveLoaded` does NOT exist in S1API 3.2.1-beta.8** (verified 2026-10-05 against `GameLifecycle` source + deployed DLL: the event set is exactly `OnPreLoad` / `OnLoadComplete` / `OnPreSceneChange` / `OnSaveInfoLoaded` / `OnSaveStart` / `OnSaveComplete`). And `OnSaveInfoLoaded` exists in the API but **fires 0× on game 0.4.7f6+** (verified 2026-09-29, see `schedule1-lifecycle-verify` §7). Use `OnPreLoad` (reset caches) / `OnLoadComplete` (refresh + spawn).
+> **Why the unsubscribe?** `OnSaveLoaded` is absent from the checked-in `GameLifecycle` source; its event set is `OnPreLoad` / `OnLoadComplete` / `OnPreSceneChange` / `OnSaveInfoLoaded` / `OnSaveStart` / `OnSaveComplete`. In the instrumented load recorded on 2026-09-29, `OnSaveInfoLoaded` fired 0×. Use `OnPreLoad` (reset caches) / `OnLoadComplete` (refresh + spawn), and verify callback behavior against the installed runtime before relying on it.
 
 ---
 
@@ -249,4 +249,4 @@ For map geometry / buildings / terrain / GLTF models, **S1MAPI** is the right to
 * [game-systems.md](references/game-systems.md) — Doors, Vehicles, Growing, Building, Weather, Law, Leveling
 * [cross-compat.md](references/cross-compat.md) — IL2CPP vs Mono, when to bypass wrappers
 * External: [S1API Docs](https://ifbars.github.io/S1API/) · [API Reference](https://ifbars.github.io/S1API/api/S1API.html) · [GitHub](https://github.com/ifBars/S1API)
-* In-Repo Source: `ThirdParty/S1API/S1API/` (v3.2.1-beta.8 C# project — submodule at the deployed build commit since 2026-10-05)
+* In-Repo Source: `ThirdParty/S1API/S1API/` (C# project; check that the deployed DLL matches the checked-out source before relying on source-level details)

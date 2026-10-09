@@ -1,6 +1,6 @@
 # Clothing & Fashion (Schedule I)
 
-> verified: classes, enums, save paths and wrapper surface re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 63 of 63 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 Namespace: `Il2CppScheduleOne.Clothing` — exactly **7 types** in the decompile dump.
 
@@ -39,7 +39,7 @@ Namespace: `Il2CppScheduleOne.Clothing` — exactly **7 types** in the decompile
 1. **Prefix `PlayerClothing.InsertClothingItem(ClothingInstance)`** — intercept/reject/gate clothing equips (dress codes, custom slots).
 2. **Postfix `PlayerClothing.RefreshAppearance()`** — react to visual changes without patching each caller.
 3. **Postfix `ClothingInstance..ctor(ItemDefinition, int, EClothingColor)`** — tag/redirect instances by color at creation.
-- **S1API wrapper (3.2.1-beta.8): strong.** `S1API.Items.Clothing` + `S1API.Items` provide `ClothingItemDefinition` / `ClothingItemDefinitionBuilder` / `ClothingItemInstance`, `ClothingSlot` / `ClothingColor` + `ClothingSlotMetadata` / `ClothingColorMetadata` / `ClothingMetadataCatalog`, `ClothingApplicationType`, `ClothingItemCreator` — **prefer the wrapper** over raw `Il2CppScheduleOne.Clothing`.
+- **S1API wrapper (): strong.** `S1API.Items.Clothing` + `S1API.Items` provide `ClothingItemDefinition` / `ClothingItemDefinitionBuilder` / `ClothingItemInstance`, `ClothingSlot` / `ClothingColor` + `ClothingSlotMetadata` / `ClothingColorMetadata` / `ClothingMetadataCatalog`, `ClothingApplicationType`, `ClothingItemCreator` — **prefer the wrapper** over raw `Il2CppScheduleOne.Clothing`.
 
 ## Cross-links
 

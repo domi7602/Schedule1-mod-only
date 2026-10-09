@@ -1,5 +1,5 @@
 # Storage (Schedule I)
-> verified: StorageManager, StorageEntity, StorageGrid/StoredItem family re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 101 of 101 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 Namespace: `Il2CppScheduleOne.Storage` (+ subclasses in `ObjectScripts`, menu in `UI`).
 
@@ -49,7 +49,7 @@ No UnityEvents in the Storage namespace.
 1. **Prefix `StorageEntity.CanItemFit(ItemInstance, int)` / `HowManyCanFit`** — custom capacity rules (e.g. backpacks, bigger containers).
 2. **Prefix `StorageEntity.InsertItem(ItemInstance, bool)`** — audit/redirect/log stored contraband.
 3. **Postfix `StorageEntity.ContentsChanged()`** — react to any storage mutation (robbery detection, quest counters).
-- **S1API wrappers (verified in 3.2.1-beta.8)**:
+- **S1API wrappers (verified against checked-in source)**:
   - `S1API.Storages.StorageManager` (static): `GetAll()`, `FindByName()`, `FindByPredicate()`
   - `S1API.Storages.StorageInstance`: `GetItems()`, `GetContentsDictionary()`, `CanItemFit()`, `AddItem()`, `RemoveItem()`, `TryRemoveQuantity()`, `RemoveAllOfDefinition()`
   - `S1API.Storage.StorageEntity`: `AddSlots()`/`RemoveSlots()`/`SetSlotCount()` (slot expansion, incl. load-time handling), `SyncCustomNameToDisplayName()`

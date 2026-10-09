@@ -1,5 +1,5 @@
 # Station Framework (Schedule I)
-> verified: StationItem, StationRecipe, ItemModule family and station types re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 105 of 105 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 Namespace: `Il2CppScheduleOne.StationFramework` — 17 types in the decompile dump.
 
@@ -57,7 +57,7 @@ No UnityEvents on `StationItem` / `StationRecipe` / `BoilingFlask`.
 1. **Prefix `StationRecipe.CalculateQuality(List<ItemInstance>)`** — inject custom quality formulas (S1API mirrors this via `QualityCalculationMethod`).
 2. **Prefix `StationItem.Initialize(StorableItemDefinition)`** — inject custom modules into stations after item init.
 3. **Prefix `BoilingFlask.SetTemperature(float)`** — override the flask heat curve (pairs with 58-Temperature).
-- **S1API wrapper (verified in 3.2.1-beta.8)**: `S1API.Stations.ChemistryStationRecipes.CreateAndRegister(builder => ...)` / `Register(recipe)` / `GetAll()` — wraps a native `StationRecipe`; `ChemistryStationRecipe.SetAvailability(isDiscovered, isUnlocked)`.
+- **S1API wrapper (verified against checked-in source)**: `S1API.Stations.ChemistryStationRecipes.CreateAndRegister(builder => ...)` / `Register(recipe)` / `GetAll()` — wraps a native `StationRecipe`; `ChemistryStationRecipe.SetAvailability(isDiscovered, isUnlocked)`.
 
 ## Not Implemented / Unverified
 - No station "progress" or "process time" manager class exists in StationFramework — cooking time is owned by `BoilingFlask`/`CookableModule` consumers (25-Mixing-Production).

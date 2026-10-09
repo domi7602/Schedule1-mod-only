@@ -1,9 +1,10 @@
 # Buildable Restore Rule (Guided Spawning)
 
-> verified: 2026-08-22 (AutoPackagingStation duplicate-station bug); cross-checked against `common-errors.md` §20 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: 2026-08-22 (AutoPackagingStation duplicate-station bug); cross-checked against `common-errors.md` §20 2026-10-05.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 11 of 11 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 Save/load **timing** (which lifecycle hook fires when, and which are dead) lives in the canonical doc:
-[`schedule1-troubleshooting/references/save-load-timing.md`](../../schedule1-troubleshooting/references/save-load-timing.md) — verified order 2026-09-29: Scene 'Main' → `OnPreLoad` → `OnLoadComplete`; **`OnSaveInfoLoaded` fires 0× on game 0.4.7f6+**. Atomar-Speicherung: `safestorage-atomic.md`.
+[`schedule1-troubleshooting/references/save-load-timing.md`](../../schedule1-troubleshooting/references/save-load-timing.md) — verified order 2026-09-29: Scene 'Main' → `OnPreLoad` → `OnLoadComplete`; **`OnSaveInfoLoaded` fires 0× in the instrumented session**. Atomar-Speicherung: `safestorage-atomic.md`.
 
 This file keeps the **placement-specific rule** that pairs with that timing doc.
 

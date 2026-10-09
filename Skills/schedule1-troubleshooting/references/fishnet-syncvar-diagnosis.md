@@ -1,6 +1,7 @@
 # FishNet SyncVar Diagnosis — Multiplayer Cache Staleness
 
-> verified: 2026-10-05 — decompile facts in §3 are grep-verified against `GameReferences/decompiled/Assembly-CSharp/` (0.4.7f9-era proxies, regenerated 2026-10-03). The onChangeCallback surface (§4 Option A) and ALL host/client runtime behaviors are **unverified** — no in-game multiplayer test was run for this document. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md. FishNet 3.x / S1API 3.2.1-beta.8.
+> verified: 2026-10-05 — decompile facts in §3 are grep-verified against `GameReferences/decompiled/Assembly-CSharp/` (older game build proxies, regenerated 2026-10-03). The onChangeCallback surface (§4 Option A) and ALL host/client runtime behaviors are **unverified** — no in-game multiplayer test was run for this document. FishNet / S1API.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 23/30 identifier-shaped tokens resolve (5 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## 1. Symptom
 
@@ -10,7 +11,7 @@
 
 ## 2. Cause
 
-FishNet 3.x in Schedule I is strictly **server-authoritative** (`../schedule1-game-systems/references/01-FishNet-Networking.md`, §Server Authority): clients send requests via ServerRpc, the server validates and distributes state. Every `[SyncVar]` game field exists as a `SyncVar<T>` wrapper whose writes are funneled through native accessors and replicated to clients via `ReadSyncVar`. Consequence for mods:
+FishNet in Schedule I is strictly **server-authoritative** (`../schedule1-game-systems/references/01-FishNet-Networking.md`, §Server Authority): clients send requests via ServerRpc, the server validates and distributes state. Every `[SyncVar]` game field exists as a `SyncVar<T>` wrapper whose writes are funneled through native accessors and replicated to clients via `ReadSyncVar`. Consequence for mods:
 
 - A mod that caches a game value client-side races the replication loop — the next replicated write wins and the cache goes stale.
 - A mod that writes a SyncVar-backed value on a **client** gets overwritten (or silently stays local) depending on the field's `WritePermission`. Fields declared `WritePermission.ClientUnsynchronized` (documented game pattern) let the client change the local value while the server keeps its own state — guaranteed divergence between client view and server state.
@@ -54,3 +55,24 @@ Logger.Msg($"[{role}] value={x}");
 - Do Harmony patches on `sync___set_value__<field>` thunks fire for replicated client-side writes, or only for local writes? Untested.
 - Exact replication tick rate and its ordering relative to `OnLoadComplete` — unmeasured.
 - Is patching `ReadSyncVar___<Class>` viable for write interception, or does IL2CPP final/virtual stripping block it (compare `SKILL.md` §4)? Untested.
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `ClientUnsynchronized`
+- `WritePermission`

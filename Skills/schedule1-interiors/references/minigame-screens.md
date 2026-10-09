@@ -1,5 +1,5 @@
 # Real-Time In-World Minigames & CRT Screens — Reference Guide
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge from ScheduleIArcade (0.4.6-era). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 3 of 3 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 This reference details how to implement 60 FPS pixel-buffered minigames and interactive video/terminal screens rendered directly onto 3D props in the game world.

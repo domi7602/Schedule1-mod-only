@@ -1,5 +1,5 @@
 # Procedural 3D Room & Binary Mesh Construction — Reference Guide
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge from ScheduleIArcade/HomelessMod (0.4.6-era). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. This file contains no backticked identifier claims, so the f12 static identifier sweep 2026-10-08 had nothing to check: its prose, tables and numbers are **not covered** by the static check and must be re-derived from the decompiles before being relied on.
 
 
 This reference details how to generate interior rooms, buildings, and collision shells at runtime without requiring compiled Unity scene bundles.

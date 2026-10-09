@@ -1,8 +1,9 @@
 # IL2CPP & Harmony Patching Guide (Schedule I)
 
-> **Canonical home of the WasCollected/Golden-Guard idiom (§2) and parameter-keyed sprite caches (§4)** — other files reference here. verified: 2026-08-20/21; re-checked 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> **Canonical home of the WasCollected/Golden-Guard idiom (§2) and parameter-keyed sprite caches (§4)** — other files reference here. verified: 2026-08-20/21; re-checked 2026-10-05.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 35/37 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
-Schedule I is built on Unity 2022.3 compiled with **IL2CPP**. Interacting with IL2CPP types via MelonLoader 0.7.3 requires specific patterns.
+Schedule I is built on Unity compiled with **IL2CPP**. Interacting with IL2CPP types via MelonLoader requires specific patterns.
 
 ---
 
@@ -76,3 +77,26 @@ Static `readonly AnimationCurve`/`Gradient` (CustomSkateboard) are fine when the
 ## 5. Field-Accessor Not Patchable (verified 2026-08-21)
 
 `BaseItemDefinition.get_DefaultStackLimit` is a C++ field accessor → `Il2CppInterop "field accessor, it can't be patched"` (`Latest.log:17:43:04.438`). Harmony postfix never fires, PatchGuard 16/16 is false-positive. **Do not patch** field accessors — verify with `ilspycmd -t Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition` first; handle via direct scan/field write (`StackLimitEngine.cs:39-68` + `BaseItemInstance.get_StackLimit` postfix instead). Reference: `StackLimitMod/Mod.cs:109` removed dead patch.
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `_circleMaskSprite`
+- `_circleBorderSprite`

@@ -1,6 +1,7 @@
 # Latest.log Triage & Diagnostics
 
-> verified: PowerShell one-liners re-tested 2026-08-03; §4.3 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: PowerShell one-liners re-tested 2026-08-03; §4.3 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings in the instrumented session).
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 19 of 19 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 The canonical method for inspecting runtime diagnostics in Schedule I is querying `<GameDir>\MelonLoader\Latest.log`. These native PowerShell commands provide fast, zero-dependency log triage without game-freeze risks.
 
@@ -78,7 +79,7 @@ Get-Content $log | Select-String -Pattern '\[ERROR\]|Exception' | Select-Object 
 [<time>] [ModName] Error: Property.OwnedProperties.Count == 0
 [<time>] Exception: NullReferenceException at …
 ```
-**Cause:** Hooked the wrong lifecycle. Refresh on `GameLifecycle.OnLoadComplete` (verified order 2026-09-29: Scene 'Main' → `OnPreLoad` → `OnLoadComplete`; see save-load-timing.md §1). **Do NOT use `OnSaveInfoLoaded` for this — it fires 0× on game 0.4.7f6+** (older advice recommending it is historical).
+**Cause:** Hooked the wrong lifecycle. Refresh on `GameLifecycle.OnLoadComplete` (verified order 2026-09-29: Scene 'Main' → `OnPreLoad` → `OnLoadComplete`; see save-load-timing.md §1). **Do NOT use `OnSaveInfoLoaded` for this — it fires 0× in the instrumented session** (older advice recommending it is historical).
 
 ### 3.4. Native AV Crash (0xc0000005)
 ```
@@ -93,7 +94,7 @@ Windows Error: 0xc0000005 (Access Violation)
 Windows Error: 0x80131506 (CLR Fatal Error)
 Fatal error in GC
 ```
-**Cause:** S1API pre-init assembly-loading crash (often NPC-registration; confirmed 2026-08-03 for 3.1.3/3.1.6). Suspect S1API version mismatch.
+**Cause:** A historical S1API pre-init assembly-loading crash (often NPC registration) was traced to recursive `Assembly.GetTypes()` calls in `PreRegisterAllNpcPrefabs()`. Suspect a framework/runtime mismatch and inspect the current source and deployed DLL.
 
 ---
 
@@ -121,4 +122,3 @@ The first error is almost always the **root cause**; subsequent errors are usual
   ```pwsh
   Get-Content "$env:SCHEDULE1_PATH\MelonLoader\Latest.log" -Wait -Tail 50
   ```
-

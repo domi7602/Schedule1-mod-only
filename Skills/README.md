@@ -1,9 +1,9 @@
 # Schedule I — AI Agent Skills Index
 
-20 skills under `Skills/<skill-name>/SKILL.md` — runbooks, framework references, and
-diagnostic guides for MelonLoader mod development. Each skill carries its own version
-anchor (game / S1API / MelonLoader version it was verified against); the repository-wide
-toolchain versions are tracked in [`docs/compatibility.md`](../docs/compatibility.md).
+22 skills under `Skills/<skill-name>/SKILL.md` — runbooks, framework references, and
+diagnostic guides for MelonLoader mod development. Skills record evidence and verification
+scope without pinning game or framework versions; current toolchain details live in
+[`AGENTS.md`](../AGENTS.md) and [`docs/compatibility.md`](../docs/compatibility.md).
 
 This file is the **single index** of skills. [`AGENTS.md`](../AGENTS.md) §0 and the root
 [`README.md`](../README.md) link here; the root README additionally lists the skills in a
@@ -39,7 +39,8 @@ short table for visitors.
 | [`schedule1-persistence`](schedule1-persistence/SKILL.md) | SafeStorage atomic + .bak, slot-isolated saves, GameLifecycle timing, ModConfig TOML sidecar. |
 | [`schedule1-items`](schedule1-items/SKILL.md) | BaseItemDefinition/Registry/StackLimit, inventory slots, buildable injection. |
 | [`schedule1-grid`](schedule1-grid/SKILL.md) | Grid & building: outdoor placement, BuildUpdate_Grid patching, ghost positioning. |
-| [`schedule1-interiors`](schedule1-interiors/SKILL.md) | Interiors & minigames: door hooking, procedural room shells, in-world screens, 3D ambience. |
+| [`schedule1-interiors`](schedule1-interiors/SKILL.md) | Interiors & minigames: door hooking, procedural room shells, in-world screens. |
+| [`schedule1-world-expansion`](schedule1-world-expansion/SKILL.md) | Staged world builds, custom properties, navigation, map layouts, and residents. |
 | [`schedule1-custom-npcs`](schedule1-custom-npcs/SKILL.md) | Custom NPCs: NPCPrefabBuilder, dialogue graphs, daily schedules, custom clothing. |
 | [`schedule1-3d-assets`](schedule1-3d-assets/SKILL.md) | 3D assets & Blender: export pipeline, URP shader fix, PBR materials, bone rigging. |
 
@@ -47,6 +48,7 @@ short table for visitors.
 
 | Skill | When to load |
 |---|---|
+| [`schedule1-networked-world-state`](schedule1-networked-world-state/SKILL.md) | Authoritative multiplayer world edits, validated deltas, and interrupted-save recovery. |
 | [`schedule1-harmony-bootstrap`](schedule1-harmony-bootstrap/SKILL.md) | Harmony auto-discovery: find patch classes, count applied/skipped/failed, clean unpatch. |
 | [`schedule1-il2cpp-reflection`](schedule1-il2cpp-reflection/SKILL.md) | IL2CPP runtime reflection: array bridging, missing overloads, namespace fallback. |
 | [`schedule1-debounced-reload`](schedule1-debounced-reload/SKILL.md) | Debounced live reload: FileSystemWatcher debouncing, main-thread pump, config hot reload. |
@@ -57,10 +59,10 @@ short table for visitors.
 
 - **Frontmatter:** Every `SKILL.md` starts with YAML (`name:` = directory name, `description:` with
   trigger sentences + `Keywords:`). No SKILL.md without frontmatter.
-- **Version anchor:** Directly below the frontmatter is a pointer to the runtime versions in the
-  workspace `AGENTS.md` (single source of truth; do not copy version numbers into skills), plus a
-  note whether the content was re-verified against the current decompiles. After game or S1API
-  updates re-verify the affected APIs, don't just touch the date.
+- **Runtime/dependency versions:** Do not pin game, loader, framework, engine, or tool versions in
+  skill files. Keep the current values in `AGENTS.md` / `docs/compatibility.md`. Record what was
+  inspected and when; distinguish source/decompile checks from runtime verification. After an
+  update, re-check affected APIs instead of only changing a date.
 - **Detail depth:** `SKILL.md` = decision tree + quick refs (keep slim);
   details move to `references/*.md` and are linked via relative link.
 - **Link styles:**

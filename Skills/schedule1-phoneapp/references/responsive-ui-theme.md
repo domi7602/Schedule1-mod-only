@@ -1,5 +1,5 @@
 # Method 3: Responsive UI & Canvas-Scaling (`UITheme`)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 18 of 18 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 In *Schedule I*, S1API instantiates phone app containers on high-resolution uGUI Canvases that are often rotated by 90° (`Quaternion.Euler(0, 0, 90)`). Using fixed integer pixel dimensions (e.g. `14pt` font, `40px` button) results in unreadable, microscopic, or overflowing layouts across different resolutions.
@@ -116,9 +116,9 @@ Always scale `RectOffset` and `spacing`:
 var vlg = panel.AddComponent<VerticalLayoutGroup>();
 vlg.spacing = UITheme.Dp(6f);
 vlg.padding = new RectOffset(
-    (int)UITheme.Dp(10f), 
-    (int)UITheme.Dp(10f), 
-    (int)UITheme.Dp(6f), 
+    (int)UITheme.Dp(10f),
+    (int)UITheme.Dp(10f),
+    (int)UITheme.Dp(6f),
     (int)UITheme.Dp(6f)
 );
 ```

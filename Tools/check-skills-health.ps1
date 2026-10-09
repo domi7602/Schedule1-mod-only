@@ -4,10 +4,10 @@ Health check for the Skills/ directory (schedule1-mod-only workspace).
 
 .DESCRIPTION
 Static scans only — no game required. Reports, per category:
-  1. SKILL.md issues: missing/mismatched frontmatter, missing version anchor
+  1. SKILL.md issues: missing/mismatched frontmatter, missing canonical runtime-config pointer
   2. Reference files: missing verification header (> verified / > UNVERIFIED)
   3. Duplicate reference filenames across skills (drift risk)
-  4. Stale version strings: "3.2.0", "3.2.1-beta.7" without 8, "0.4.6f13"/"0.4.7f6" claims, "OnSaveLoaded" (non-existent event)
+  4. Pinned game/framework/tool versions in Skills; non-existent "OnSaveLoaded" event
   5. Broken relative links between skill files
   6. CRLF line endings (repo convention is LF)
 Exit code 1 if any FAIL-level issue; WARN-level issues exit 0.
@@ -26,11 +26,18 @@ $ErrorActionPreference = 'Stop'
 $skillsRoot = Join-Path $Root 'Skills'
 $fail = 0; $warn = 0
 $stalePatterns = @(
-    @{ Pattern = 'S1API 3\.2\.0|v3\.2\.0'; Label = 'S1API 3.2.0 (stable lacks 0.4.7f6+ renames)' },
-    @{ Pattern = '3\.2\.1-beta\.7'; Label = 'S1API 3.2.1-beta.7 (deployed is beta.8)' },
-    @{ Pattern = 'Version anchor:.*0\.4\.7f9'; Label = 'version anchor pinned to 0.4.7f9 (anchor must point to AGENTS.md runtime, currently 0.4.7f11)' },
-    @{ Pattern = 'Game v0\.4\.7f6(?![0-9])'; Label = 'Game v0.4.7f6 (historical unless labelled)' },
-    @{ Pattern = 'Game v0\.4\.6f1[13]'; Label = 'Game v0.4.6f1x' },
+    @{ Pattern = '\b\d+\.\d+\.\d+f\d+\b'; Label = 'game build number (keep current runtime in AGENTS.md)' },
+    @{ Pattern = '(?i)\bS1API\s+\d+(?:\.\d+)*(?:-beta\.\d+)?'; Label = 'S1API release number (keep dependency state in AGENTS.md)' },
+    @{ Pattern = '(?i)\bS1MAPI\s+\d+(?:\.\d+)*'; Label = 'S1MAPI release number (keep dependency state in AGENTS.md)' },
+    @{ Pattern = '(?i)\bMelonLoader\s+\d+(?:\.\d+)*'; Label = 'MelonLoader release number (keep runtime state in AGENTS.md)' },
+    @{ Pattern = '(?i)\bUnity(?: Editor)?\s+20\d{2}\.\d+'; Label = 'Unity release number (keep runtime state in AGENTS.md)' },
+    @{ Pattern = '(?<![\d.])\d+\.\d+\.\d+(?![\d.])'; Label = 'concrete semantic version (use a source-of-truth file or placeholder)' },
+    @{ Pattern = '(?i)\.NET\s+\d+|\bSDK\s+\d+(?:\.\d+)*|\bFishNet\s+\d'; Label = 'toolchain/library version (keep current values in canonical config)' },
+    @{ Pattern = '(?i)\bnet\d+\.\d+|\bC#\s+\d+'; Label = 'target framework/language version (keep build settings in AGENTS.md/project props)' },
+    @{ Pattern = '(?i)\bilspycmd\s+\d+(?:\.\d+)*'; Label = 'ilspycmd release number (avoid toolchain pins in Skills)' },
+    @{ Pattern = '(?i)\bPython\s+\d+(?:\.\d+)*|\bmcp\s*[>=]+\s*\d'; Label = 'Python/MCP package version (use repository setup files)' },
+    @{ Pattern = '\bv\d+\.\d+\.\d+\b'; Label = 'concrete release version (use a source-of-truth file)' },
+    @{ Pattern = 'Version anchor'; Label = 'per-skill version anchor (versions are centralized)' },
     @{ Pattern = 'GameLifecycle\.OnSaveLoaded'; Label = 'GameLifecycle.OnSaveLoaded (event does not exist)' },
     @{ Pattern = 'Color\.brown|Color\.cream'; Label = 'non-existent UnityEngine color' },
     @{ Pattern = '(?<![.\w])UITheme\.Initialize\('; Label = 'bare UITheme.Initialize (use S1Mods.Shared.UITheme.InitializeForTextApp/Dashboard)' }
@@ -50,7 +57,7 @@ foreach ($s in $skills) {
     $skillRaw = [System.IO.File]::ReadAllText($skillPath)
     if ($skillRaw -notmatch '(?m)^---\s*\n') { Add-Warn "$($s.Name): no frontmatter block" }
     elseif ($skillRaw -notmatch "(?m)^name:\s*$([regex]::Escape($s.Name))\s*$") { Add-Fail "$($s.Name): frontmatter name != directory name" }
-    if ($skillRaw -notmatch '(?i)version anchor') { Add-Warn "$($s.Name): no version-anchor line" }
+    if ($skillRaw -notmatch '(?i)AGENTS\.md') { Add-Warn "$($s.Name): no link to canonical runtime/dependency configuration" }
     $desc = if ($skillRaw -match '(?ms)^description:\s*(.+?)\n\w') { $Matches[1] } else { '' }
     if ($skillRaw -notmatch '(?m)^.*Keywords:') { Add-Warn "$($s.Name): description has no Keywords (README convention)" }
 }
@@ -70,17 +77,15 @@ foreach ($r in $refs) {
 $dupes = $refs | Group-Object Name | Where-Object Count -gt 1
 foreach ($d in $dupes) { Add-Warn "duplicate reference filename across skills: $($d.Name) x$($d.Count) — consolidation candidate" }
 
-# --- 4. Stale version strings -------------------------------------------
+# --- 4. Version pins and stale API names --------------------------------
 foreach ($r in ($refs + (Get-ChildItem $skillsRoot -Recurse -Filter SKILL.md))) {
     $raw = [System.IO.File]::ReadAllText($r.FullName)
-    if ($r.Name -eq 'update-breakage-log.md') { continue }  # logs stale versions by design
     foreach ($sp in $stalePatterns) {
         $hits = [regex]::Matches($raw, $sp.Pattern)
         foreach ($h in $hits) {
             $lineNo = ($raw.Substring(0, $h.Index) -split "`n").Count
             $line = ($raw -split "`n")[$lineNo - 1]
-            # skip historical/evidence lines (breakage logs, verification logs, BROKEN markers)
-            if ($line -match '(?i)historical|broken|verified|refuted|dead|stub|does not exist|removed|has NO Color|lacks|kennt') { continue }
+            if ($sp.Label -eq 'non-existent UnityEngine color' -and $line -match '(?i)NO Color|does not exist') { continue }
             Add-Warn "$($r.Name):$lineNo stale string '$($h.Value)' — $($sp.Label)"
         }
     }

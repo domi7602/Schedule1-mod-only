@@ -1,15 +1,15 @@
 ---
 name: schedule1-debounced-reload
 description: >-
-  Debounced live-reload pattern for MelonLoader mods in Schedule I v0.4.7f11. Use when a mod needs to react to file or folder changes (config hot-edit, user asset drop, MelonPreferences.cfg watcher) without thrashing the main thread.
+  Debounced live-reload pattern for MelonLoader mods in Schedule I. Use when a mod needs to react to file or folder changes (config hot-edit, user asset drop, MelonPreferences.cfg watcher) without thrashing the main thread.
   Keywords: FileSystemWatcher, debounce, TryConsumeScheduledReload, OnUpdate, main-thread pump, config hot-reload, ImageFolderWatcher, PreferencesFileWatcher.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — Debounced Live-Reload Pattern
 
-> **Source:** distilled from decompiling `CustomLoadingScreens 1.1.0` (DooDesch). Verified 2026-08-26.
+> **Source:** distilled from decompiling `CustomLoadingScreens` (DooDesch). Verified 2026-08-26.
 >
 > **The trap:** `FileSystemWatcher` fires multiple events per logical change (Create + Changed + sometimes Renamed, plus double-fires from text editors using "atomic save" via temp file). A naive handler re-reads the file 5× per save, allocating GC pressure on the main thread and potentially corrupting state mid-read.
 >

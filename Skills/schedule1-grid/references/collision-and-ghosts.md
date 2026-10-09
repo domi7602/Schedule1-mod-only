@@ -1,5 +1,5 @@
 # Ghost Positioning & Collision — Raycast, Sampling, Pack-Up
-> UNVERIFIED for runtime 0.4.7f11 — carried-over 0.4.6-era working knowledge (no re-verification run yet). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 33 of 33 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 Ghost evaluation runs every frame in `BuildUpdate_Grid.CheckIntersections` postfix. Uses `GroundPlacementAssistant` for 5-point sampling.

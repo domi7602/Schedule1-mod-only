@@ -13,7 +13,7 @@
 | [`working-across-devices.md`](working-across-devices.md) | Maintainers, developers | Multi-machine workflow: what syncs via git, what is machine-local, fresh-clone checklist. |
 | [`../Source/Mods/README.md`](../Source/Mods/README.md) | Developers | Mod source directory: isolation, shared library, conventions. |
 | [`../Tools/README.md`](../Tools/README.md) | Developers | What each PowerShell helper script does. |
-| [`../Skills/README.md`](../Skills/README.md) | AI agents, developers | Index of the 20 skills (runbooks and reference material). |
+| [`../Skills/README.md`](../Skills/README.md) | AI agents, developers | Index of the 22 skills (runbooks and reference material). |
 | [`../AGENTS.md`](../AGENTS.md) | AI agents | Bootstrap file: setup, authoritative mod inventory, agent workflows. |
 | [`../THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md) | Everyone | Third-party components and their licenses. |
 

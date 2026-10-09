@@ -1,17 +1,17 @@
 ---
 name: schedule1-items
 description: >-
-  Item Framework runbook for Schedule I v0.4.7f11 (BaseItemDefinition/Instance, Registry hashing, StackLimit, Inventory slots, ItemFilters). Use when registering custom items, injecting shop listings, patching StackLimit, scanning definitions, or handling inventory capacity (CashSlot, hotbar, StoredItem). Covers StackLimitMod dual-layer scan + Registry hook + field-accessor trap, HomelessMod sleeping-bag injection, PocketShop fit-check.
+  Item Framework runbook for Schedule I (BaseItemDefinition/Instance, Registry hashing, StackLimit, Inventory slots, ItemFilters). Use when registering custom items, injecting shop listings, patching StackLimit, scanning definitions, or handling inventory capacity (CashSlot, hotbar, StoredItem). Covers StackLimitMod dual-layer scan + Registry hook + field-accessor trap, HomelessMod sleeping-bag injection, PocketShop fit-check.
   Keywords: ItemDefinition, BaseItemDefinition, BaseItemInstance, Registry, GetAllItems, StackLimit, Inventory, PlayerInventory, CashSlot, StackLimitMod, HomelessMod, sleepingbag, GetDefaultInstance, BuildableItemDefinition.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — Items Skill (ItemFramework / Registry / Inventory)
 
 This skill maps **how items exist, register, stack, and fit** — hierarchy, Registry hashing, stack limits (non-patchable accessor), inventory slots vs world storage, and buildable injections verified in `StackLimitMod`, `HomelessMod`, `PocketShop`, and `BackpackMod`.
 
-> **Version check (verified 2026-09-11):** `Il2CppScheduleOne.ItemFramework`, `Il2CppScheduleOne.Core.Items.Framework`, `Registry` (`PersistentSingleton<Registry>`), `PlayerInventory`. Incorporates dual-layer scan and WasCollected safety rules.
+> **API check (2026-09-11):** `Il2CppScheduleOne.ItemFramework`, `Il2CppScheduleOne.Core.Items.Framework`, `Registry` (`PersistentSingleton<Registry>`), and `PlayerInventory` were inspected. This incorporates the dual-layer scan and WasCollected safety rules.
 
 ---
 

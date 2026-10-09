@@ -1,5 +1,5 @@
 # Weather & Environment (Schedule I)
-> verified: EnvironmentManager, WeatherVolume, DayNightController, effect controllers re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 137/142 identifier-shaped tokens resolve (3 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 Namespace: `Il2CppScheduleOne.Weather` — 21 types in the decompile dump.
 
@@ -52,7 +52,30 @@ Supporting (verified): `PuddleVolume`, `EnclosureVisualiser`, `HeightMaskGenerat
 1. **Postfix `EnvironmentManager.SetWeather(string)`** — react to / veto weather changes (server-side).
 2. **Prefix `EnvironmentManager.SetRandomWeatherSequence()`** — bias or replace the daily weather roll.
 3. **Prefix `ThunderController.TriggerRandomPlayerLightningStrike()`** — tune/prevent lightning hitting players.
-- **S1API wrapper (verified in 3.2.1-beta.8)**: `S1API.Weather.WeatherManager` (static, **read-only**): `Current` (`WeatherState?` snapshot), `OnWeatherChanged` event, `KnownSequenceIds`; `WeatherState` = 9 weights (`Sunny, Cloudy, Rainy, Stormy, Snowy, Foggy, Windy, Hail, Sleet`, 0–1). S1API explicitly does **not** set weather.
+- **S1API wrapper (verified against checked-in source)**: `S1API.Weather.WeatherManager` (static, **read-only**): `Current` (`WeatherState?` snapshot), `OnWeatherChanged` event, `KnownSequenceIds`; `WeatherState` = 9 weights (`Sunny, Cloudy, Rainy, Stormy, Snowy, Foggy, Windy, Hail, Sleet`, 0–1). S1API explicitly does **not** set weather.
 
 ## Cross-links
 08-Plant-Growing · 62-Vision (night/rain sight) · 58-Temperature · 61-Variables (weather globals) · 17-TimeManager · 13-Regions · 01-FishNet-Networking
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `ToHitPlayer`
+- `ToHitNPC`

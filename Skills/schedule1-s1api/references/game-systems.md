@@ -1,5 +1,5 @@
 # S1API — Game Systems Quick Reference
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 17 of 17 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 One-page navigators for the smaller game-system namespaces. For each, the pattern is: **read the decompile, then use the wrapper** (or fall back to vanilla if no wrapper exists).
@@ -149,3 +149,5 @@ Some vanilla game systems have no S1API wrapper yet (rendering, exotic managers)
 3. **Wrap in an `S1API.Internal.*` namespace** if you want to share with other mods
 
 For branch compatibility concerns, see [cross-compat.md](cross-compat.md).
+
+---

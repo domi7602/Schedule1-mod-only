@@ -1,15 +1,15 @@
 ---
 name: schedule1-il2cpp-reflection
 description: >-
-  Runtime-reflection recipes for MelonLoader IL2CPP mods in Schedule I v0.4.7f11. Use when IL2CPP bindings are missing or wrong (Il2CppStructArray vs byte[], Sprite[] vs Il2CppReferenceArray), when patching game types that may move namespaces, or when reading/writing private fields across Mono/IL2CPP runtime.
+  Runtime-reflection recipes for MelonLoader IL2CPP mods in Schedule I. Use when IL2CPP bindings are missing or wrong (Il2CppStructArray vs byte[], Sprite[] vs Il2CppReferenceArray), when patching game types that may move namespaces, or when reading/writing private fields across Mono/IL2CPP runtime.
   Keywords: Il2CppStructArray, Il2CppReferenceArray, Il2CppInterop, RuntimeReflection, byte[] overload, Texture2D.LoadImage, Sprite array, type cache, namespace fallback.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — IL2CPP Runtime-Reflection Recipes
 
-> **Source:** distilled from decompiling `CustomLoadingScreens 1.1.0`, `Unofficial Map Enhancer 1.0.0`, and the Shared `TypeResolver`. Last verified 2026-08-26.
+> **Source:** distilled from decompiling `CustomLoadingScreens`, `Unofficial Map Enhancer`, and the Shared `TypeResolver`. Last verified 2026-08-26.
 >
 > **Why this exists:** The S1API framework and MelonLoader ecosystem cover 95% of game interactions via pre-bound types. The remaining 5% — image loading, sprite arrays in private fields, dynamic UI discovery, namespace drift between game patches — all need **runtime reflection**. Our `Shared/TypeResolver` is a thin wrapper; this skill is the cookbook for what to do when the wrapper isn't enough.
 
@@ -250,5 +250,5 @@ public static List<object> Materialize(object il2cppCollection) {
 
 - `Source/Mods/Shared/src/TypeResolver.cs` — production wrapper (uses §5 + §6)
 - Live source of patterns above: decompiled `CustomLoadingScreens/CustomLoadingScreens.Utils/RuntimeReflection.cs` and `CustomLoadingScreens/CustomLoadingScreens.Integrations.Interop/RuntimeInterop.cs` (decompile kept transiently under `.scratch/mod-decompile/_decompiled/` - NOT part of the repo, regenerate on demand)
-- S1API 3.2.1-beta.8 already wraps most of this — always check S1API's `Internal/Utils` before rolling your own
+- S1API may already wrap most of this - always check the in-repo `S1API/Internal/Utils` source before rolling your own.
 - Harmony 2.x docs: `[HarmonyPrepare]` + `[HarmonyTargetMethod]` for runtime target resolution (see `schedule1-modding` §5)

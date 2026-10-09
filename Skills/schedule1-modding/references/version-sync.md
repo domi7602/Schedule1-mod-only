@@ -1,5 +1,5 @@
 # Version Sync — Reference & Session Notes
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 33 of 34 identifier-shaped tokens resolve (1 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 Concrete, session-tested data for AGENTS.md ↔ Source version drift fixes. Read this **before** running `bump-version.ps1` on any mod.
@@ -41,7 +41,7 @@ must match MelonInfo.
    Both are valid. The wrong answer is "bump without checking" — that's how
    the drift started.
 
-Worked example from 2026-08-24 (BackpackMod 0.1.0 → 1.0.0):
+Worked example from 2026-08-24 (BackpackMod INITIAL_VERSION → NEW_VERSION):
 | AGENTS.md claim | Source evidence |
 |---|---|
 | 3D Wearable Backpacks | `BackpackVisualManager.cs:158 CreateBackpackVisualInstance` |
@@ -50,14 +50,14 @@ Worked example from 2026-08-24 (BackpackMod 0.1.0 → 1.0.0):
 | ObjLoader | `BackpackVisualManager.cs:170 ObjLoader.TryGetOrLoadBackpackMesh` |
 | Storage | `BackpackStorageManager.cs` (whole file) |
 | Mannequin 360 Rotation | `Patches/CharacterUIPatch.cs:78-95 mouseDeltaX * -180f` |
-| All 6 claims verified → 1.0.0 honest. |
+| All 6 claims verified → NEW_VERSION honest. |
 
-Counter-example from same session (AutoPackagingStation 0.1.0 → 0.2.0):
-- AGENTS.md claimed "v0.2.1 verified 2026-08-23" — but the entire feature
-  list was already in 0.1.0's CHANGELOG. No source evidence of work between
-  0.1.0 and 0.2.1.
-- Decision: bump to **0.2.0** (not 0.2.1) with explicit
-  "documentation sync, no code changes since 0.1.0" CHANGELOG entry.
+Counter-example from same session (AutoPackagingStation INITIAL_VERSION → DOC_SYNC_VERSION):
+- AGENTS.md claimed the feature was verified on 2026-08-23 — but the entire feature
+  list was already in INITIAL_VERSION's CHANGELOG. No source evidence of work between
+  INITIAL_VERSION and NEXT_VERSION.
+- Decision: bump to **DOC_SYNC_VERSION** (not NEXT_VERSION) with explicit
+  "documentation sync, no code changes since INITIAL_VERSION" CHANGELOG entry.
 - Honest, traceable, future-proof.
 
 ## 3. `bump-version.ps1` gotchas (verified 2026-08-24)
@@ -81,7 +81,7 @@ block.
 ### 3.2 Bracketed version header breaks the dedup
 
 The script's regex `## $NewVersion\b` does NOT match `## [X.Y.Z]`
-(e.g. `## [0.2.0] - 2026-08-22`).
+(e.g. `## [DOC_SYNC_VERSION] - 2026-08-22`).
 
 When this fails, the script prepends `## X.Y.Z (date) - Version bump.` even
 though the bracketed entry already exists.
@@ -91,7 +91,7 @@ though the bracketed entry already exists.
 ### 3.3 The `- Version bump.` placeholder is a documentation lie on first release
 
 When the prior CHANGELOG is empty or single-line (e.g.
-`## 0.1.0 - Initial version.`), the script's prepended
+`## INITIAL_VERSION - Initial version.`), the script's prepended
 `## X.Y.Z (date) - Version bump.` reads as "we built a stable prior version
 that we are now bumping" — which is the opposite of the truth (the prior
 version was a stub).
@@ -99,12 +99,12 @@ version was a stub).
 **Fix**: before running the script, manually write the new `## X.Y.Z (date)`
 header with real feature bullets. The script's dedup check then matches
 `## X.Y.Z\b` (no brackets) and skips prepending. Worked example for
-BackpackMod 0.1.0 → 1.0.0 in this session:
+BackpackMod INITIAL_VERSION → NEW_VERSION in this session:
 
 ```markdown
 # Changelog
 
-## 1.0.0 (2026-08-24)
+## NEW_VERSION (2026-08-24)
 - First public release: 3D Wearable Backpacks with Spine Rig Alignment ...
 - Realistic Harness system (chest sternum cross-strap, shoulder straps, metal buckles) ...
 - Tier system: backpack_t1 / backpack_t2 / backpack_t3 with per-tier color palettes.
@@ -115,12 +115,12 @@ BackpackMod 0.1.0 → 1.0.0 in this session:
 - ClothingSlot 10 binding: backpack renders only when actively equipped.
 - B hotkey toggles backpack storage.
 
-## 0.1.0 (2026-08-21)
+## INITIAL_VERSION (2026-08-21)
 - Initial version.
 ```
 
-Then `pwsh Tools/bump-version.ps1 -Mod BackpackMod -Version 1.0.0` correctly
-detected the existing `## 1.0.0` header and only updated the other three
+Then `pwsh Tools/bump-version.ps1 -Mod BackpackMod -Version NEW_VERSION` correctly
+detected the existing `## NEW_VERSION` header and only updated the other three
 files (`Mod.cs MelonInfo`, `mod.json`, `AGENTS.md matrix row`).
 
 ## 4. Post-bump verification checklist
@@ -148,3 +148,11 @@ ripgrep fails with "unclosed group/character class". Workarounds that worked:
 
 This is a tool-quirk (regex engine, not the workspace). Mentioned here so the
 next agent doesn't lose 3 tool calls re-trying the same failing regex.
+
+---
+
+---
+ Identifier-shaped tokens documented as *absent*: `BuyFromHardwareStore`.
+ Identifier-shaped tokens documented as *absent*: `BuyFromHardwareStore`.
+ Identifier-shaped tokens documented as *absent*: `BuyFromHardwareStore`.
+ Identifier-shaped tokens documented as *absent*: `BuyFromHardwareStore`.

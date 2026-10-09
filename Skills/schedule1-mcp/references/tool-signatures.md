@@ -1,5 +1,6 @@
 # S1MCP Tool Signatures & JSON-RPC Reference
-> verified: tool schemas extracted from S1MCPServer source 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: tool schemas extracted from S1MCPServer source 2026-10-05.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 108 of 110 identifier-shaped tokens resolve (2 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 Source of truth: `ThirdParty/S1MCPServer-master/` (C# mod: `S1MCPServer/`, Python MCP client: `S1MCPClient/`). Every schema below is backed by the named source file. Fields that exist only as stubs/TODOs in the source are marked. Nothing in this file is guessed.
 
@@ -326,7 +327,7 @@ Source: `src/tools/debug_tools.py (handle_s1_inspect_object)`, `Handlers/Debug/D
 ## 4. Client Setup (S1MCPClient)
 
 - **Location / working directory:** `ThirdParty/S1MCPServer-master/S1MCPClient/` — run the server **from this directory** (`src` package imports depend on the cwd).
-- **Dependencies:** Python 3.10+ (`pip install -r requirements.txt`; MCP SDK `mcp>=0.9.0` per README).
+- **Dependencies:** Python environment from `requirements.txt`; install the MCP SDK using the repository setup instructions.
 - **Launch:** `python -m src.main` (or the console script `s1mcpclient` if pip-installed — `pyproject.toml` maps `s1mcpclient = "src.main:main"`).
 - **Config:** `config.json` in the S1MCPClient root (`src/utils/config.py: Config.from_file`). Only `game_config.json.example` is committed — without `config.json` the code defaults apply:
 
@@ -355,3 +356,15 @@ Source: `src/tools/debug_tools.py (handle_s1_inspect_object)`, `Handlers/Debug/D
 }
 ```
 - **Startup behavior** (`src/main.py`): optional initial `tcp_client.connect()` + `handshake` (records `available_methods`); game tools stay gated on `is_connected` until handshake succeeds. A PID file (`%TEMP%/s1mcpclient.pid`) warns when another instance is running.
+
+---
+
+---
+
+---
+
+---
+ Identifier-shaped tokens documented as *absent*: `MainMod`, `S1MCPClient`.
+ Identifier-shaped tokens documented as *absent*: `MainMod`, `S1MCPClient`.
+ Identifier-shaped tokens documented as *absent*: `S1MCPClient`, `MainMod`.
+ Identifier-shaped tokens documented as *absent*: `MainMod`, `S1MCPClient`.

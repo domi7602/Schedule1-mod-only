@@ -1,5 +1,5 @@
 # Door Hooking & Interior Transitions — Reference Guide
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge from ScheduleIArcade/HomelessMod (0.4.6-era); unnamed workspace services referenced (DoorTransitionService, InjectCustomMenuOption) — locate implementations before relying. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 13 of 13 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 This reference details how to connect the exterior map of Hyland Point with custom interior spaces using Harmony patches on vanilla door classes.
@@ -11,7 +11,7 @@ This reference details how to connect the exterior map of Hyland Point with cust
 Schedule I uses three primary classes for doors and building interactions:
 - `StaticDoor`: Standard exterior building doors.
 - `DoorKnocker`: Interactive doorbells/knockers that prompt the player to summon NPCs.
-- `NpcSummonMenu`: The UI dialog that pops up when knocking or interacting with an entrance.
+- `NPCSummonMenu`: The UI dialog that pops up when knocking or interacting with an entrance.
 
 ---
 
@@ -32,8 +32,8 @@ public static class DoorHookPatches
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(NpcSummonMenu), nameof(NpcSummonMenu.Open))]
-    public static void NpcSummonMenu_Open_Postfix(NpcSummonMenu __instance)
+    [HarmonyPatch(typeof(NPCSummonMenu), nameof(NPCSummonMenu.Open))]
+    public static void NPCSummonMenu_Open_Postfix(NPCSummonMenu __instance)
     {
         DoorTransitionService.Instance.InjectCustomMenuOption(__instance);
     }
@@ -42,9 +42,9 @@ public static class DoorHookPatches
 
 ---
 
-## 3. Injecting Custom Options into NpcSummonMenu
+## 3. Injecting Custom Options into NPCSummonMenu
 
-When `NpcSummonMenu.Open` is called:
+When `NPCSummonMenu.Open(List<NPC> npcs, Action<NPC> callback)` is called:
 1. Find a reference button inside the menu hierarchy (e.g. `transform.Find("Container/ButtonTemplate")`).
 2. Instantiate a clone:
    ```csharp
@@ -74,4 +74,8 @@ When `NpcSummonMenu.Open` is called:
 | 4 | `CharacterController.enabled = true;` | Restores movement physics |
 | 5 | `Cursor.lockState = CursorLockMode.Locked;` | Restores FPS mouse look |
 | 6 | `Cursor.visible = false;` | Hides UI cursor |
-| 7 | `NpcSummonMenu.Close();` | Cleans up UI |
+| 7 | `NPCSummonMenu.Close();` | Cleans up UI |
+
+---
+
+---

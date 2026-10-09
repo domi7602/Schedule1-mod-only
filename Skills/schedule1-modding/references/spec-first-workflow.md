@@ -1,5 +1,5 @@
 # Spec-First Workflow (Maker-Checker Convention)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 5 of 5 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 > Process convention (not game-API knowledge) — extracted from `schedule1-modding` §2.D 2026-10-05 to keep the runbook skill code-focused. Verified convention 2026-08-27.
@@ -10,7 +10,7 @@
 
 - Bug fixes, refactors, new features touching >1 file
 - Any change to a hot path (Harmony prefix/postfix, Update loops, polling)
-- Any change to save/load lifecycle hooks (`OnPreLoad`, `OnLoadComplete`, `OnSaveComplete` — note: `OnSaveInfoLoaded` fires 0× on game 0.4.7f6+, verified 2026-09-29; treat changes to subscriptions of it as dead-code removals needing a Spec too)
+- Any change to save/load lifecycle hooks (`OnPreLoad`, `OnLoadComplete`, `OnSaveComplete` — note: `OnSaveInfoLoaded` fires 0× in the instrumented session, verified 2026-09-29; treat changes to subscriptions of it as dead-code removals needing a Spec too)
 
 ## Spec Template (paste into the chat before any code touches a file)
 

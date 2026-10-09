@@ -3,7 +3,7 @@ name: schedule1-grid
 description: "Schedule I: Grid placement system, outdoor/unrestricted building, BuildUpdate_Grid patching, ghost positioning, and IL2CPP lifecycle stability. Use when placing buildables outside purchased properties, patching BuildUpdate_Grid/BuildableItem, stripping FishNet networking, or fixing ghost/footprint issues. Keywords: Grid, GridItem, BuildableItem, BuildUpdate_Grid, GridManager, FootprintTile, StreetPropertyManager, outdoor placement, anti-dupe, slot isolation."
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I - Grid & Building System Skill
 
@@ -48,7 +48,7 @@ Full code & rationale in `references/`:
 
 - **Ghost evaluation** (`CheckIntersections` postfix): camera raycast → fallback down ray → 4-corner sampling (slope ≤45°, reach 0.3–7m) → `OverlapBoxNonAlloc` clearance → ghost white/red. Details: `references/collision-and-ghosts.md`
 - **Placement** (`Place` prefix): if `IsCustomPlacementValid` → deactivate source prefab, `Instantiate`, parent to `StreetRoot`, strip networking, attach `OutdoorItemInteractable`, suppress footprints, register, deduct inventory, `Stop()` and `return false`. Details: `references/build-update-patching.md`
-- **Save/Load:** `OnPreLoad→ResetState`, `OnLoadComplete→LoadAndSpawn + register defs`, `OnSaveComplete→SaveStreetItems` (atomic). Diagram in `references/build-update-patching.md` — **kein `OnSaveInfoLoaded`** (feuert 0× auf 0.4.7f6+, verified 2026-09-29).
+- **Save/Load:** `OnPreLoad -> ResetState`, `OnLoadComplete -> LoadAndSpawn + register defs`, `OnSaveComplete -> SaveStreetItems` (atomic). See `references/build-update-patching.md`; the instrumented session on 2026-09-29 observed no `OnSaveInfoLoaded` callbacks, so do not rely on that hook without re-verification.
 
 ---
 

@@ -1,6 +1,7 @@
 # S1API — PhoneApp (In-Game Smartphone UI)
 
-> verified: §5 UIFactory signatures checked against `UIFactory.cs` (3.2.1-beta.8 source) 2026-10-05; lifecycle rules empirical 2026-08-20. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: §5 UIFactory signatures checked against `UIFactory.cs` ( source) 2026-10-05; lifecycle rules empirical 2026-08-20.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 42 of 42 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 The `PhoneApp` base class turns your mod into a fully integrated app on the in-game phone home screen. Auto-discovered, lifecycle-managed, and branch-portable.
 
@@ -132,7 +133,7 @@ public void CloseApp()
 |---|---|---|
 | `Panel(name, parent, color)` | `GameObject` | uGUI panel with `Image` |
 | `Panel(name, parent, color, fullAnchor:true)` | `GameObject` | Full-screen-anchored panel |
-| `Text(name, content, parent, fontSize = 14, anchor = UpperLeft, style = Normal)` | `Text` | Legacy UGUI text — **returns the `Text` component directly**, NOT a GameObject (verified against `UIFactory.cs:69`, 3.2.1-beta.8) |
+| `Text(name, content, parent, fontSize = 14, anchor = UpperLeft, style = Normal)` | `Text` | Legacy UGUI text — **returns the `Text` component directly**, NOT a GameObject (verified against `UIFactory.cs:69`, ) |
 | `RoundedButtonWithLabel(name, label, parent, color, w, h, fontSize, labelColor)` | `(GameObject, Button, Text)` | Pill-shaped button |
 | `InputField(name, parent, w, h, placeholder)` | `InputField` | Text input |
 | `ScrollableVerticalList(name, parent, spacing)` | `ScrollRect` | Pre-wired scroll rect |

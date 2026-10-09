@@ -1,5 +1,5 @@
 # Rigging & Bone Attachment in Schedule I
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; skeleton bone names without recorded verification source. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 7 of 7 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 This document describes how 3D gear, clothing, backpacks, and hand-held objects are bound to the skeleton of the *Schedule I* player avatar.
@@ -97,3 +97,7 @@ In the character menu (<kbd>Tab</kbd>) the game renders a UI doll (*mannequin*).
 * **Mouse-drag rotation:** With the right mouse button held (<kbd>Hold RMB</kbd>), rotate the mannequin transform's Y axis based on `Input.GetAxis("Mouse X")`.
 * **Keyboard keys:** Additional rotation via <kbd>Q</kbd> (left) and <kbd>E</kbd> (right).
 * **Automatic reset:** When the character menu is closed, smoothly reset the rotation back to `Quaternion.identity`.
+
+---
+
+---

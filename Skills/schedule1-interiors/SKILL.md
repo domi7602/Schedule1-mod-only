@@ -1,15 +1,15 @@
 ---
 name: schedule1-interiors
 description: >-
-  Architectural runbook for creating procedural 3D interiors, custom buildings, seamless vanilla door transitions, and interactive CRT/minigame displays in Schedule I v0.4.7f11 (IL2CPP / MelonLoader). Use when creating enterable buildings (Arcades, Clubs, Safehouses, Labs), hooking vanilla doors (StaticDoor, DoorKnocker, NpcSummonMenu), building procedural 3D room shells without AssetBundles, streaming spatial audio ambience, or rendering real-time pixel minigames onto in-world 3D screens (Texture2D.SetPixels32).
+  Architectural runbook for creating procedural 3D interiors, custom buildings, seamless vanilla door transitions, and interactive CRT/minigame displays in Schedule I (IL2CPP / MelonLoader). Use when creating enterable buildings (Arcades, Clubs, Safehouses, Labs), hooking vanilla doors (StaticDoor, DoorKnocker, NpcSummonMenu), building procedural 3D room shells without AssetBundles, streaming spatial audio ambience, or rendering real-time pixel minigames onto in-world 3D screens (Texture2D.SetPixels32).
   Keywords: Interior, Building, StaticDoor, DoorKnocker, NpcSummonMenu, RawArcadeSceneService, ArcadeEntranceService, IArcadeGame, Texture2D, SetPixels32, CRT, PacMan, Pinball, CabinetInteraction, AudioSource, Ambience, TeleportPlayerWithController.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — Interiors & Minigame Systems Skill
 
-This skill documents **how to inject custom enterable buildings, procedural 3D rooms, seamless vanilla door transitions, and interactive in-world screens/minigames** into *Schedule I* (IL2CPP; derived from the 0.4.7f6-era `ScheduleIArcade` and `HomelessMod` work, not yet re-verified on 0.4.7f11).
+This skill documents **how to inject custom enterable buildings, procedural 3D rooms, seamless vanilla door transitions, and interactive in-world screens/minigames** into *Schedule I* (IL2CPP; derived from older `ScheduleIArcade` and `HomelessMod` work, not yet re-verified).
 
 ---
 

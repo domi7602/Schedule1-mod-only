@@ -1,5 +1,5 @@
 # Vision System (Schedule I)
-> verified: VisionCone, EntityVisibility, PlayerVisibility, EVisualState and networked receipts re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 97 of 97 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 Namespace: `Il2CppScheduleOne.Vision` — 12 types in the decompile dump.
 
@@ -58,7 +58,7 @@ Networked: sight progress is shared via receipts so all clients see the same NPC
 1. **Postfix `VisionCone.IsPlayerVisible(Player)` / `GetPlayerVisibility(Player)`** — stealth mods (camouflage, shadow blending, disguises).
 2. **Postfix `EntityVisibility.CalculateVisibility(float)`** — global or per-entity visibility multiplier.
 3. **Prefix `VisionCone.SendEventReceipt(VisionEventReceipt, EEventLevel)`** — intercept/suppress NPC "noticed me" escalations before they reach law enforcement.
-- **No S1API wrapper** — S1API 3.2.1-beta.8 has no `S1API.Vision` namespace (only `S1API.Law`); use direct interop.
+- **No S1API wrapper** — S1APIhas no `S1API.Vision` namespace (only `S1API.Law`); use direct interop.
 
 ## Not Implemented / Unverified
 - Old claim "EVisualState = Invisible/Hidden/Visible/FullyVisible" removed — actual enum has the 10 values above.

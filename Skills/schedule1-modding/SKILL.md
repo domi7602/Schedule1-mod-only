@@ -1,18 +1,18 @@
 ---
 name: schedule1-modding
 description: >-
-  Expert guide and runbook for developing, building, testing, and maintaining MelonLoader IL2CPP C# mods for Schedule I v0.4.7f11 (TVGS) in the Schedule I Modding Workspace.
+  Expert guide and runbook for developing, building, testing, and maintaining MelonLoader IL2CPP C# mods for Schedule I (TVGS) in the Schedule I Modding Workspace.
   Use this skill whenever creating new mods, modifying existing mods, writing Harmony patches, building PhoneApps via S1API, troubleshooting IL2CPP/Unity/MelonLoader issues, building solutions, or implementing UI features for Schedule I.
-  Keywords: Schedule I, MelonLoader, IL2CPP, Harmony, HarmonyPatch, PhoneApp, S1API, Unity 2022.3, mod scaffolding, SafeStorage, UITheme.
+  Keywords: Schedule I, MelonLoader, IL2CPP, Harmony, HarmonyPatch, PhoneApp, S1API, Unity, mod scaffolding, SafeStorage, UITheme.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — Modding Skill & Runbook
 
-This skill provides full procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I** (TVGS; runtime 0.4.7f11, see AGENTS.md) in this workspace (the `Schedule1-mod-only` repository root). The workspace lives outside the game install dir; game path resolves via `$env:SCHEDULE1_PATH` (default: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`).
+This skill provides procedural knowledge, conventions, and architectural guidelines for developing MelonLoader IL2CPP C# mods for **Schedule I** (TVGS) in this workspace (the `Schedule1-mod-only` repository root). The workspace lives outside the game install dir; game path resolves via `$env:SCHEDULE1_PATH` (default: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`).
 
-> **Version check (last verified: 2026-10-05):** Before writing patches or building, confirm the installed game version and S1API version still match this skill. If the game was updated, follow the Update Runbook (§5) first.
+> Before writing patches or building, inspect the installed assemblies and current source. If the game or framework changed, follow the Update Runbook (§5) and re-check affected APIs.
 
 ---
 
@@ -20,8 +20,7 @@ This skill provides full procedural knowledge, conventions, and architectural gu
 
 * **Workspace Root**: the `Schedule1-mod-only` repository root (lives outside the game directory; any user/drive)
 * **Game Path**: `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (Override via `$env:SCHEDULE1_PATH`)
-* **Runtime**: MelonLoader 0.7.3 (IL2CPP, Unity 2022.3)
-* **Target Framework**: `net6.0`, C# 12, `Nullable` enabled
+* **Runtime and build settings**: See `AGENTS.md` and `Source/Mods/Directory.Build.props` for the workspace's current toolchain configuration.
 
 ### Layout
 ```text
@@ -29,7 +28,7 @@ Source/Mods/        Mod projects + Shared lib + Directory.Build.props/targets + 
 GameReferences/     Local decompiles: decompiled/Assembly-CSharp/ (Il2CppScheduleOne.*)
 ThirdParty/         External frameworks & sources (S1API, S1MAPI, S1MCPServer; retired PhoneScroll is under ThirdParty/Archive/)
 Tools/              PowerShell automation: build-all.ps1, new-mod.ps1, gen-sln.ps1, deploy-thirdparty.ps1, bump-version.ps1
-Skills/             20 modular modding & game system skills (including all 64 system analyses)
+Skills/ 22 modular modding & game system skills (including all 64 system analyses)
 AGENTS.md           Single source of truth for mod inventory & current status
 ```
 
@@ -47,7 +46,7 @@ AGENTS.md           Single source of truth for mod inventory & current status
 ### A. Creating a New Mod
 Run the scaffolding script from the workspace root:
 ```pwsh
-pwsh Tools/new-mod.ps1 -Name "MyNewMod" -Author "Dominik" -Version "0.1.0"
+pwsh Tools/new-mod.ps1 -Name "MyNewMod" -Author "Dominik" -Version "<X.Y.Z>"
 pwsh Tools/gen-sln.ps1
 ```
 This generates:
@@ -92,7 +91,7 @@ Two valid outcomes from the diff:
 **Three known `bump-version.ps1` pitfalls** (verified 2026-08-24, may already be fixed in newer revisions):
 1. The CHANGELOG header regex `(?m)^# Changelog\s*\r?\n` does NOT match `# Changelog - ModName` (e.g. AutoPackagingStation). When this fails, the script prepends a duplicate `# Changelog` + `## X.Y.Z` block ABOVE the existing file. Always read the CHANGELOG after the bump and clean up duplicates manually.
 2. The version-match regex `## $NewVersion\b` does NOT match `## [X.Y.Z]` (brackets). Mods that use the `[X.Y.Z]` convention get a duplicate entry prepended.
-3. The auto-prepend body `- Version bump.` is dangerous when the prior CHANGELOG was empty or near-empty (e.g. BackpackMod had `## 0.1.0 - Initial version.`). It produces a release note that implies a stable prior build. Workaround: pre-populate the CHANGELOG with a real `## X.Y.Z (date) - <real-feature-list>` BEFORE running the script. The script's dedup check then skips prepending.
+3. The auto-prepend body `- Version bump.` is dangerous when the prior CHANGELOG was empty or near-empty (e.g. BackpackMod had an initial-release entry only). It produces a release note that implies a stable prior build. Workaround: pre-populate the CHANGELOG with a real `## X.Y.Z (date) - <real-feature-list>` BEFORE running the script. The script's dedup check then skips prepending.
 
 Mitigation: always read the post-bump CHANGELOG.md immediately after the script run and clean up duplicates/placeholder text.
 
@@ -166,7 +165,7 @@ Read the sub-guides **before** the matching task — not just "for reference":
 16. **Idempotency**: Use checks like `LastPaidElapsedDay` to ensure scene reloads or save reloads don't trigger duplicate transactions.
 17. **Hot-Path Harmony Early-Out via Cached Set**: When a Harmony prefix/postfix fires every physics step for every instance in the scene, cache target IDs into a `static readonly HashSet<int> _tunedInstanceIds` in `Awake`/`Start`, and early-out with `if (instanceId == 0 || !_tunedInstanceIds.Contains(instanceId)) return true;`.
 18. **Save-Slot-Change vs Same-Slot-Scene-Reload Detection**: `GameLifecycle.OnPreLoad` fires for both real save-slot switches AND same-slot Menu→Game scene reloads. Distinguish slot switches (`oldSlot != newSlot`) from scene reload to avoid destroying placed objects on menu return.
-19. **S1API EventHelper Dedupe Kills Rebuilt UI — Wire with Defensive Remove-Before-Add**: `S1API.Utils.EventHelper.AddListener` (and `ButtonUtils.AddListener`, which wraps it) dedupes GLOBALLY per listener delegate instance (`SubscribedActions.ContainsKey(listener)`). C# caches static-method-group delegates, so after a UI rebuild (scene reload, re-injection) the same `Action` instance hits the stale dict entry and the NEW UnityEvent silently gets NO listener — every rebuilt control is dead (verified latent bug in MessagesPlus v0.2.0: [Clear All] died after scene reload). Fix pattern: `WireClick`-style helper that calls `ButtonUtils.RemoveListener(btn, handler)` (clears the stale dict entry; harmless on first build) BEFORE `ButtonUtils.AddListener(btn, handler)`; same for `EventHelper.RemoveListener<T>`/`AddListener<T>` on `onValueChanged`. Fresh lambdas per build also work but leak dict entries.
+19. **S1API EventHelper Dedupe Kills Rebuilt UI — Wire with Defensive Remove-Before-Add**: `S1API.Utils.EventHelper.AddListener` (and `ButtonUtils.AddListener`, which wraps it) dedupes GLOBALLY per listener delegate instance (`SubscribedActions.ContainsKey(listener)`). C# caches static-method-group delegates, so after a UI rebuild (scene reload, re-injection) the same `Action` instance hits the stale dict entry and the NEW UnityEvent silently gets NO listener — every rebuilt control is dead (verified latent bug in MessagesPlus earlier release: [Clear All] died after scene reload). Fix pattern: `WireClick`-style helper that calls `ButtonUtils.RemoveListener(btn, handler)` (clears the stale dict entry; harmless on first build) BEFORE `ButtonUtils.AddListener(btn, handler)`; same for `EventHelper.RemoveListener<T>`/`AddListener<T>` on `onValueChanged`. Fresh lambdas per build also work but leak dict entries.
 
 ### Never do (hard guardrails):
 * Never use `foreach` or LINQ on `Il2CppSystem.Collections.Generic.List<T>` — indexed `for` only.
@@ -211,14 +210,14 @@ Symptom → likely cause → fix. Log file is always `<GameDir>\MelonLoader\Late
 
 ---
 
-## 5. Update Runbook (after a game patch)
+## 5. Update Runbook (after a game or framework update)
 
-1. Note the new game version; compare with the version in this skill's header.
+1. Inspect the installed game and dependency assemblies; current toolchain details are recorded in `AGENTS.md`.
 2. Refresh decompiles in `GameReferences/decompiled/Assembly-CSharp/`.
 3. Rebuild the full solution — collect all `TypeLoadException`-relevant compile errors.
 4. Grep `Latest.log` after first launch for `PatchGuard` warnings; fix affected patches against the new decompile.
-5. Run the Definition-of-Done test pass for every affected mod.
-6. Bump version references in this skill, `AGENTS.md`, and affected mods' `CHANGELOG.md`.
+5. Re-check the affected APIs and run the Definition-of-Done test pass for every affected mod.
+6. Update only the canonical compatibility record and directly affected documentation; do not copy runtime versions into skills.
 
 ---
 

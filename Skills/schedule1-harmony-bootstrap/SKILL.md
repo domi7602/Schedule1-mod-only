@@ -5,11 +5,11 @@ description: >-
   Keywords: PatchClassProcessor, HarmonyBootstrap, PatchTargetGuard, IsAllowed, applied/skipped/failed counter, auto-discovery, LogHealth, UnpatchSelf, HarmonyId.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — Harmony Bootstrap (Auto-Discover All Patch Classes)
 
-> **Source:** distilled from decompiling `LegalProduce 0.4.1` (`LegalProduce.Util.Harmony.HarmonyBootstrap` + `PatchTargetGuard`). Verified 2026-08-26.
+> **Source:** distilled from decompiling `LegalProduce` (`LegalProduce.Util.Harmony.HarmonyBootstrap` + `PatchTargetGuard`). Verified 2026-08-26.
 >
 > **The trap:** A mod with 30 patches across 15 files calling `harmony.PatchAll()` silently no-ops if a single target method moved (game patch, signature change). The user gets "mod loaded" with **zero effect** and no error in the log. Worse — `harmony.PatchAll` throws and *kills the entire mod init* on the first bad patch.
 >

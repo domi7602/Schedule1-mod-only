@@ -1,5 +1,5 @@
 # S1MAPI — World Tools (Terrain, Navigation, Prefab Placement)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 7 of 7 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 The "advanced" world-modification API. Use these when you need to integrate procedural geometry with the existing game world: clear surroundings, flatten terrain, build NPC navigation, place in-game prefabs.
@@ -136,7 +136,7 @@ public class NewRegionBuilder
 |---|---|---|
 | NPC walks into wall | NavMesh says "yes" but geometry blocks | Re-run `NavigationBuilder` after geometry changes |
 | Cleared terrain suddenly respawns vegetation | Game spawns new vegetation periodically | Use `FlattenTerrain` regularly, or pre-claim area with `Marker` |
-| Placed prefab disappears on save load | PrefabPlacer networking is **session-sync, not persistence** (FishNet spawn + deferred client link, no save hooks in S1MAPI 2.0.1) | Persist placements yourself: slot-isolated JSON + `OnSaveComplete`/`OnLoadComplete` — full pattern in [`../../schedule1-s1mapi/references/persistence.md`](../../schedule1-s1mapi/references/persistence.md); old "networked:true + Saveable" advice was wrong |
+| Placed prefab disappears on save load | PrefabPlacer networking is **session-sync, not persistence** (FishNet spawn + deferred client link, no save hooks in S1MAPI) | Persist placements yourself: slot-isolated JSON + `OnSaveComplete`/`OnLoadComplete` — full pattern in [`../../schedule1-s1mapi/references/persistence.md`](../../schedule1-s1mapi/references/persistence.md); old "networked:true + Saveable" advice was wrong |
 | NavigationBuilder takes a long time | Large area | Build per-room, not per-building |
 
 ---
@@ -157,3 +157,5 @@ public class NewRegionBuilder
 None of the current workspace mods use `World` tools yet. The skill is forward-looking for content mods that want to extend the game world.
 
 For the official S1MAPI docs: https://github.com/ifBars/S1MAPI/tree/stable/docs/examples.md
+
+---

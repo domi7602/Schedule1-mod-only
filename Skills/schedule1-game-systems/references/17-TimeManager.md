@@ -1,5 +1,5 @@
 # TimeManager (Schedule I)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 36/40 identifier-shaped tokens resolve (3 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 
 ## Architecture
@@ -24,23 +24,35 @@
 - Time stands still between **04:00 – 06:00** (`EndOfDay`)
 
 ## Events
+Event surface re-checked against the f12 decompile on 2026-10-08. `TimeManager` exposes
+`onDayPass`, `onHourPass`, `onWeekPass`, `onTimeChanged`, `onTimeSet`, `onUpdate`,
+`onFixedUpdate` and `onTimeSkip(int)`.
+
 | Event | Trigger |
 |-------|---------|
-| `onMinutePass` | Every minute (except 04:00–06:00) |
-| `onUncappedMinutePass` | Every minute (including 04:00–06:00) |
-| `onTick` | Every 0.5s (Client) |
+| `onTimeChanged` | Current time value changed |
+| `onTimeSet` | Time was explicitly set |
 | `onHourPass` | Every top of the hour |
-| `onDayPass` | Day change (00:00) |
-| `onWeekPass` | Week change (Monday) |
-| `onTimeSkip(mins)` | On time skip |
-| `onSleepStart/End` | Sleep start/end |
+| `onDayPass` | Day change |
+| `onWeekPass` | Week change |
+| `onTimeSkip(mins)` | On a time skip |
+| `onUpdate` / `onFixedUpdate` | Per-frame / fixed-step callbacks |
+
+Related public helpers observed on f12: `GetDateTime()`, `GetTotalMinSum()`,
+`IsCurrentTimeWithinRange(min, max)`, `IsCurrentDateWithinRange(start, end)`,
+`ShouldMinutePass()`, `TickLoop()`, `TimeLoop()`.
+
+> **Removed/renamed:** earlier revisions of this file listed `onMinutePass`,
+> `onUncappedMinutePass` and `onTick`. None exist in the f12 assemblies — re-derive
+> minute-level hooks from `ShouldMinutePass()` / `onTimeChanged` before using them.
 
 ## Sleeping (TimeSkip)
 1. Interact with bed (from 18:00 onwards)
-2. `SleepCanvas`: select hours (4–12h)
-3. All players must be `IsReadyToSleep`
-4. Server: `SkipForwardToTime(0700)` (Wake-up)
-5. TimeSkip difference recalculates plant growth + drug processing catch-up
+2. `SleepMenu` (UI): select hours; `SleepController` drives the session
+3. All players must be ready to sleep
+4. Server advances time (no public `SkipForwardToTime` in the f12 assemblies — use the
+   controller surface or the `onTimeSkip` callback instead)
+5. The skip difference recalculates plant growth + drug processing catch-up
 6. **Automatic save** upon sleep completion
 
 ## Curfew
@@ -53,14 +65,37 @@
 - Active only when `LE_Intensity >= IntensityRequirement` (default 5)
 - Violation: `ViolatingCurfew` = $100 fine
 
-## Energy
-- `PlayerEnergy.MaxEnergy = 100`
-- Drain: ~0.076/min (= full depletion in 22h)
-- Sprinting: 1.3x multiplier
-- Below 20: eyelid overlay begins closing
-- At 0: fainting (`PassOut`), $50–$500 cash loss, teleported
+## Stamina (formerly documented as "Energy")
+**Corrected 2026-10-08.** The f12 assemblies contain **no** `Energy`, `MaxEnergy`,
+`PlayerEnergy` or `PassOut` identifiers (0 hits across all 2 234 decompiled files).
+The player vital is stamina-based instead:
+
+- `Il2CppScheduleOne.UI.StaminaBar` — HUD element (`MonoBehaviour`) with the static
+  `UpdateStaminaBar(float change)` entry point plus `StaminaFadeTime` and `StaminaShowTime`
+- Condition state lives in `ECondition` / `EConditions` / `ConditionFlags`
+
+The previous energy numbers (max value, drain rate, sprint multiplier, fainting penalty)
+are **not verified on f12** — re-derive them from the current stamina code before use.
 
 ## Days of the Week (EDay)
 `Monday(0) → Tuesday → Wednesday → Thursday → Friday → Saturday → Sunday(6)`
 - `ElapsedDays` = total days elapsed
 - `DayIndex = ElapsedDays % 7`
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `SkipForwardToTime`

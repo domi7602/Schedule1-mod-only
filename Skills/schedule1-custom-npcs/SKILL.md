@@ -3,7 +3,7 @@ name: schedule1-custom-npcs
 description: Focused Schedule One S1API custom NPC creation skill. Use when creating, editing, debugging, or reviewing custom NPC classes for Schedule 1 mods, including physical or non-physical NPCs, ConfigurePrefab builder setup, appearance, schedules, dialogue, customer behavior, dealer behavior, runtime lifecycle hooks, save/load callback restoration, and AvatarFramework-backed appearance ranges and asset paths. Keywords: NPC, NPCPrefabBuilder, ConfigurePrefab, OnCreated, Appearance, Avatar, Schedule, Dialogue, Customer, Dealer, EnsureDealSignal, OnResponseLoaded, layers.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule One Custom NPCs (S1API)
 

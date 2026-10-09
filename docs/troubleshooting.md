@@ -14,7 +14,7 @@ Mods from this repository log with a `[<ModName>]` prefix (for example `[NotesAp
 
 ## Checklist before reporting a bug
 
-1. **MelonLoader 0.7.3** is installed and the game starts with the MelonLoader console.
+1. **MelonLoader** is installed and the game starts with the MelonLoader console (required version: [`docs/compatibility.md`](compatibility.md)).
 2. **S1API** is present: `Mods\S1API.Il2Cpp.MelonLoader.dll` and `Plugins\S1APILoader.dll`. Every mod here requires it.
 3. **`Shared.dll`** is present in `Mods\`. It is the common library (`S1Mods.Shared`) used by all mods in this repository and ships inside each release ZIP. Do not delete it when removing a single mod.
 4. **S1MAPI** (`UserLibs\S1MAPI_Il2Cpp.dll`) is installed if you use `AutoPackagingStation` or `TaxiDriver`.

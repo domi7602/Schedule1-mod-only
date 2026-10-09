@@ -1,6 +1,6 @@
 # Noise System (Schedule I)
 
-> verified: classes, enums, signatures re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Decompiles are IL2CPP interop stubs — hierarchy/signatures/CallerCount verified, method bodies not readable. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 50/52 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep. Decompiles are IL2CPP interop stubs — hierarchy/signatures/CallerCount verified, method bodies not readable.
 
 ## Core Classes
 
@@ -48,3 +48,26 @@ None — `NoiseUtility` is static; `NoiseEvent`/`Listener` are not `ISaveable` a
 2. **Prefix `Listener.Notify`** — per-NPC hearing control (silence specific NPCs, spoof events).
 3. No patch needed: subscribe `NPCAwareness.onGunshotHeard` / `onExplosionHeard` UnityEvents at runtime.
 4. **S1API:** `S1API.Entities.NPC.OnGunshotHeard` / `OnExplosionHeard` (typed `NPCNoiseEvent`: `Origin`, `Range`, `Type`, `OriginInSewer`) + `NPCNoiseType` enum — prefer these over direct patching.
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `Scream`
+- `Breaking`

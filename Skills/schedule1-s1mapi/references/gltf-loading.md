@@ -1,5 +1,5 @@
 # S1MAPI — GltfLoader (External 3D Models)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 10 of 10 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 `GltfLoader` loads `.glb` / `.gltf` models exported from Blender (or similar) at runtime. Replaces AssetBundles — no Unity Editor roundtrip, no version lock.
@@ -180,3 +180,5 @@ When exporting `.glb` from Blender:
 GltfLoader is **not yet used** by any of the current workspace mods. The skill is forward-looking for content mods that ship custom 3D models.
 
 For the official S1MAPI glTF-loading docs: https://github.com/ifBars/S1MAPI/tree/stable/docs/gltf-loading.md
+
+---

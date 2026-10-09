@@ -25,7 +25,7 @@ The repository is the single source of truth for everything that ships with the 
 
 ## New device checklist
 
-Prerequisites (details and versions: [Requirements](../DEVELOPERS.md#requirements)): Windows 10/11, .NET SDK 6.0 or newer (8.x recommended, e.g. `winget install Microsoft.DotNet.SDK.8`), PowerShell 7, Schedule I with MelonLoader 0.7.3 installed, and `$env:SCHEDULE1_PATH` set if the game is not in the default Steam location.
+Prerequisites (current versions: [`docs/compatibility.md`](compatibility.md) · setup details: [Requirements](../DEVELOPERS.md#requirements)): Windows 10/11, a .NET SDK that can build the mod target framework, PowerShell 7, Schedule I with MelonLoader installed, and `$env:SCHEDULE1_PATH` set if the game is not in the default Steam location.
 
 ```pwsh
 # 1. Clone with the pinned submodules (public repo, no login needed)

@@ -1,5 +1,5 @@
 # Registry Dual-Layer Scan
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 10 of 10 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 `StackLimitEngine.cs:46` Resources + `StackLimitEngine.cs:69` Registry → both needed.
@@ -48,3 +48,6 @@ bool isPackaging = id.Contains("bag") || id.Contains("jar"); // ← NEVER
 
 **Reflect yourself** via `TempReflect` (workspace root): `dotnet run --project TempReflect\TempReflect.csproj`
 
+---
+
+---

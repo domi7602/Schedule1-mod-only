@@ -1,5 +1,5 @@
 # Configuration (Schedule I)
-> verified: classes + methods + event add/remove pairs re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 75/76 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## Core Classes
 
@@ -8,7 +8,7 @@
 | `ConfigurationService` | `PersistentSingleton<ConfigurationService>` (`ScheduleOne.Configuration`) | Central registry of all `BaseConfiguration` assets |
 | `ConfigurationServiceNetworker` | `NetworkBehaviour` | Host→client settings sync (FishNet Target RPC) |
 | `BaseConfiguration` | `ScriptableObject` | Config asset base; carries `OnConfigurationChanged` |
-| `Configuration<T>` | `BaseConfiguration where T : Settings` | Generic wrapper with `_Settings` / `_DefaultSettings` |
+| `Configuration<T>` | `BaseConfiguration where T : Settings` | Generic wrapper with `DefaultSettings` / `PlatformDefaultSettings` — the underscored spellings are not members |
 | `Settings` | `PersistentSingleton<Settings>` (`ScheduleOne.DevUtilities`) | Applies/writes the real engine settings |
 
 Concrete `Configuration<T>` examples verified: `SFXConfiguration : Configuration<SFXSettings>` (Audio), `EquipConfiguration : Configuration<EquipSettings>` (Equipping). So the same pattern is used across game systems.
@@ -61,3 +61,25 @@ On `Settings` (verified):
 - **No `ModConfig<T>` class exists in S1API** (only appears inside a doc-comment example in `S1API.Internal.Abstraction.Saveable` — do not reference it as an API).
 - Standard pattern: MelonLoader `MelonPreferences.CreateCategory(...)` / `CreateEntry<T>(...)` → `UserData/<Mod>.cfg`; S1API itself does this internally via `S1APIPreferences`.
 - Game settings themselves: prefer `ConfigurationService.TryGetConfiguration<T>` + `Settings.Apply*/Write*` instead of editing config files behind the game's back.
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `ReloadDisplaySettings`

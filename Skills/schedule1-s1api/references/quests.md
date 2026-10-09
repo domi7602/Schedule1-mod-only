@@ -1,6 +1,7 @@
 # S1API — Quests
 
-> **Canonical home of the Quest-Stale-Reference gotcha** (§ gotchas) — other files reference here. verified: gotchas empirical; API surface vs 3.2.1-beta.8 source 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> **Canonical home of the Quest-Stale-Reference gotcha** (§ gotchas) — other files reference here. verified: gotchas empirical; API surface vs source 2026-10-05.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 20 of 20 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 The `S1API.Quests` namespace wraps the vanilla `Il2CppScheduleOne.Quests.Quest` and provides a discoverable, saveable quest system.
 

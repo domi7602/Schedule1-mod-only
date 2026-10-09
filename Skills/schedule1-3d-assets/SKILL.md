@@ -1,16 +1,16 @@
 ---
 name: schedule1-3d-assets
 description: >-
-  Comprehensive 3D asset, Blender pipeline, and Unity URP rendering runbook for Schedule I modding (v0.4.7f11, Unity 2022.3 LTS, URP).
+  Comprehensive 3D asset, Blender pipeline, and Unity URP rendering runbook for Schedule I modding.
   Use this skill whenever creating 3D models in Blender, fixing rendering issues (pink shaders, flipped normals, axis rotations), exporting to .obj/.glb/AssetBundles, rigging/attaching to avatar bones (Spine2, Head, Hands), setting up PBR materials, and tuning proportions for Schedule I characters and props.
   Keywords: Blender, 3D, Mesh, URP, Universal Render Pipeline, Shader, Material, Lit, Unlit, Pink Texture, Flipped Normals, Backface Culling, ObjLoader, GLTF, GLB, AssetBundle, Bone Attachment, Spine2, Humanoid, Zero Collider, Scale.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — 3D Asset & Blender Rendering Pipeline
 
-This skill is the **complete runbook** for creating, exporting, and rendering 3D assets in *Schedule I* (runtime 0.4.7f11, Unity 2022.3 LTS, Universal Render Pipeline).
+This skill is the **complete runbook** for creating, exporting, and rendering 3D assets in *Schedule I* with the Universal Render Pipeline.
 
 ---
 
@@ -22,7 +22,7 @@ flowchart TD
 
     Type -->|Simple geometry / primitive| A[Procedural MeshBuilder / S1MAPI]
     Type -->|Static props / clothing / backpacks| B{Textures & complexity?}
-    Type -->|Complex rigs / animated models / effects| C[Unity 2022.3 AssetBundle]
+    Type -->|Complex rigs / animated models / effects| C[Unity AssetBundle]
 
     B -->|Simple mesh / palette / runtime .obj| D[ObjLoader Pipeline .obj]
     B -->|PBR textures / GLTF standard| E[S1MAPI GltfLoader .glb/.gltf]
@@ -30,7 +30,7 @@ flowchart TD
     A --> Out1[100% C# procedural - 0 external files]
     D --> Out2[Zero-dependency .obj in UserData/Mods]
     E --> Out3[Full PBR embed via S1MAPI]
-    C --> Out4[Unity Editor 2022.3 LTS Build Pipeline]
+    C --> Out4[Unity Editor Build Pipeline]
 ```
 
 | Pipeline | File format | Loader / Tool | When to use? |

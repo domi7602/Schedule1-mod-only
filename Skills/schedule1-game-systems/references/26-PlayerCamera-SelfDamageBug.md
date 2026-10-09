@@ -1,5 +1,13 @@
 # Self-Damage Bug (Baseball Bat + V Key) (Schedule I)
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 15 of 15 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> **Static-check limitation (2026-10-08).** `Il2CppScheduleOne.Equipping.Equippable_MeleeWeapon`
+> exists on the installed runtime and `ExecuteHit(float power)` is still declared, but the
+> decompiled body is only an `il2cpp_runtime_invoke` stub — the method logic is not present in
+> the shipped metadata. Therefore the missing self-damage guard, the local variable name and
+> the "Line 236" reference **cannot be confirmed or refuted** from the decompiles. Everything
+> below is carried-over analysis plus an in-game report, not decompile-verified code. Re-derive
+> it from a runtime dump (S1MCP / dnSpy-on-dump) before relying on it.
 
 
 ## Root Cause
@@ -43,3 +51,5 @@ if (componentInParent != null && componentInParent != Player.Local)
 
 ## Mod Idea
 Set `Range` and `HitRadius` via mod on other melee weapons → bug occurs with frying pan etc. as well.
+
+---

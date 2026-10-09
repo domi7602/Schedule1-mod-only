@@ -1,6 +1,7 @@
 # S1API Custom NPC Reference
 
-> **Canonical home of the Custom-NPC API rules.** verified: API surface vs S1API source 2026-10-05 (grep in C:\Users\pc\Schedule1-mod-only\ThirdParty\S1API\S1API\Entities\; in-repo ThirdParty source = 3.2.1-beta.7, deployed S1API = 3.2.1-beta.8 — submodule update pending, see SKILL.md). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> **Canonical home of the Custom-NPC API rules.** API surface checked against the in-repo S1API source on 2026-10-05. The source checkout and deployed DLL were not aligned at that time; compare them before relying on source-level claims. Current dependency selection lives in `AGENTS.md`.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 82/84 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## Coverage
 
@@ -257,7 +258,7 @@ protected override void OnCreated()
 
 Bundled S1API docs suggest adding `Schedule.InitializeActions()` when the NPC needs explicit action initialization.
 
-Correction (2026-10-05, verified against source): `NPCSchedule.InitializeActions()` is declared `internal` in the in-repo S1API source (`Entities/NPCSchedule.cs`) and is invoked by S1API itself after schedule actions are added. Mod code cannot call it. Bundled S1API docs show mod code calling `Schedule.InitializeActions()` — treat those examples as docs bugs. unverified: whether the deployed S1API 3.2.1-beta.8 changed the visibility.
+Correction (2026-10-05, verified against the checked-in source): `NPCSchedule.InitializeActions()` is declared `internal` in `Entities/NPCSchedule.cs` and is invoked by S1API itself after schedule actions are added. Mod code cannot call it. Bundled S1API docs show mod code calling `Schedule.InitializeActions()`; treat those examples as docs bugs. Whether the deployed DLL differs must be checked before relying on this visibility.
 
 ### Dialogue
 
@@ -401,3 +402,26 @@ For every custom NPC change, check:
 5. Customer or dealer behavior works as configured.
 6. Save/load restores runtime behavior correctly.
 7. Saved message responses still work after load via `OnResponseLoaded(...)`.
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `CustomizationManager`
+- `ApplyBodySettings`

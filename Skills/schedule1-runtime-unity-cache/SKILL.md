@@ -5,11 +5,11 @@ description: >-
   Keywords: Object.Destroy, SpriteCache, dirty flag, MarkDirty, EnsureLoaded, IDisposable, Texture2D cache, AudioClip pool, GC.Alloc-free reload.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — Runtime Unity-Object Cache (Leak-Free Reload)
 
-> **Source:** distilled from decompiling `CustomLoadingScreens 1.1.0` (`SpriteCache`, `SpriteLoader`). Verified 2026-08-26.
+> **Source:** distilled from decompiling `CustomLoadingScreens` (`SpriteCache`, `SpriteLoader`). Verified 2026-08-26.
 >
 > **The trap:** When you `new Texture2D(...)` or `Sprite.Create(...)` at runtime, those are **UnityEngine.Object** subclasses that live on the **native heap**, not the managed GC heap. The GC will never collect them. Forgetting to call `Object.Destroy()` causes a leak per reload: after 10 config-edits the user has 10× the texture memory allocated, plus stale Sprite refs in random fields.
 >
@@ -213,4 +213,4 @@ AudioClips loaded via `UnityWebRequest` need a coroutine; load asynchronously an
 - Source: decompiled `CustomLoadingScreens/CustomLoadingScreens.LoadingScreen/SpriteCache.cs` + `SpriteLoader.cs`
 - Companion skill: `schedule1-debounced-reload` — fires the dirty signal
 - Companion skill: `schedule1-il2cpp-reflection` §3 — wrapping managed `T[]` into `Il2CppReferenceArray<T>` for game-field assignment
-- S1API 3.2.1-beta.8: `S1API.Assets` (if present) may have wrappers — check before rolling your own
+- S1API: `S1API.Assets` (if present) may have wrappers — check before rolling your own

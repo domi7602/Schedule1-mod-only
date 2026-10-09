@@ -1,6 +1,7 @@
 # Common Error Patterns — Detailed Decoder
 
-> verified: patterns collected 2026-08-03 → 2026-08-22; §9 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings on 0.4.7f6+); §11 guard idiom unified to the Golden Guard 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: patterns collected 2026-08-03 → 2026-08-22; §9 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings in the instrumented session); §11 guard idiom unified to the Golden Guard 2026-10-05.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 105/109 identifier-shaped tokens resolve (1 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 A deeper dive than the master `SKILL.md` table. Includes cause, workarounds, and reference impls for the most common Schedule I mod failures.
 
@@ -16,7 +17,7 @@ A deeper dive than the master `SKILL.md` table. Includes cause, workarounds, and
 
 **Cause (verified):** Harmony tries to pin the method's IL body. When the body references an obsolete/removed API, the pin fails BEFORE user code runs.
 
-**Fix:** Patch the **caller** instead. E.g. instead of patching `DialogueHandler.MarkDirty` which references `get_activeDialogue()` (removed in 0.4.6f11), patch the caller of `MarkDirty`.
+**Fix:** Patch the **caller** instead. E.g. instead of patching `DialogueHandler.MarkDirty`, whose body references the removed `get_activeDialogue()` accessor, patch the caller of `MarkDirty`.
 
 **Lessons:**
 - The `AGENTS.md §5` patch-exception rule.
@@ -92,9 +93,9 @@ Windows Error Dialog: "0x80131506" (Fatal CLR Error)
 [<time>] [S1API] Fatal: <…>
 ```
 
-**Cause (verified 2026-08-03, S1API 3.1.3/3.1.6):** S1API's `PreRegisterAllNpcPrefabs()` called `Assembly.GetTypes()` → infinite recursion → CLR crash.
+**Cause (verified 2026-08-03):** A problematic S1API build called `Assembly.GetTypes()` from `PreRegisterAllNpcPrefabs()`, causing infinite recursion and a CLR crash.
 
-**Fix:** Upgrade to S1API 3.1.7+ (ifBars-Fork has the deferred-building-resolve fix). For older 3.1.x forks, roll back.
+**Fix:** Use a S1API build containing the deferred-building-resolve fix. For affected older forks, roll back or align the framework source and deployed DLL with the workspace dependency record.
 
 ---
 
@@ -130,7 +131,7 @@ Windows Error Dialog: "0x80131506" (Fatal CLR Error)
 - Cached `MoneyManager.Instance` is fine (singleton).
 - Cached `List<T>` of gameplay objects is **not** — gets destroyed.
 
-**Fix (verified 2026-08-04, PotScanner v0.1.1):**
+**Fix (verified 2026-08-04, PotScanner source):**
 - Clear all caches in `OnSceneWasUnloaded`.
 - Single helper `IsGameplayScene(name)` predicate, reused by Load + Unload handlers (load/unload asymmetry is the classic bug source).
 - Re-resolve via `S1Mods.Shared.GameObjectResolver.FindComponentDeep<T>()` after scene load.
@@ -141,7 +142,7 @@ Windows Error Dialog: "0x80131506" (Fatal CLR Error)
 
 **Symptom:** `Property.OwnedProperties.Count == 0` even though save has owned properties. `Player.Stats == null`.
 
-**Cause (verified 2026-08-04, PotScanner v0.2.0):** `OnGameplaySceneLoaded` fires before S1API/internal save-load completes. Static lists are uninitialized at that point.
+**Cause (verified 2026-08-04, PotScanner source):** `OnGameplaySceneLoaded` fires before S1API/internal save-load completes. Static lists are uninitialized at that point.
 
 **Fix:** Refresh on `GameLifecycle.OnLoadComplete` (verified order 2026-09-29: Scene 'Main' → `OnPreLoad` → `OnLoadComplete`).
 ```csharp
@@ -149,7 +150,7 @@ GameLifecycle.OnPreLoad        += () => ResetCaches();          // before save d
 GameLifecycle.OnLoadComplete   += () => { RefreshPropertyCache(); ForceRefreshUI(); };
 ```
 
-> **Historical:** the ≤ 0.4.6f13 recipe subscribed `GameLifecycle.OnSaveInfoLoaded` here — that event **fires 0× on game 0.4.7f6+** (verified 2026-09-29, see save-load-timing.md §1).
+> **Historical:** An older recipe subscribed to `GameLifecycle.OnSaveInfoLoaded`; the event fired 0 times in the instrumented session (2026-09-29, see `save-load-timing.md` section 1).
 
 ---
 
@@ -291,7 +292,7 @@ Additionally, using blind `harmony.PatchAll()` will indiscriminately arm such da
 | `NullReferenceException` in patch | Add the Golden Guard: `obj != null && obj.Pointer != IntPtr.Zero && !obj.WasCollected` (§11) |
 | Mod silent | Check inlining (small method patched → patch caller) |
 | Native AV / 0xc0000005 | Remove `ref <Il2CppType> __result` in Prefix (§19), split DLL |
-| Save data empty | Refresh on `OnLoadComplete` — `OnSaveInfoLoaded` fires 0× on 0.4.7f6+ (§9) |
+| Save data empty | Refresh on `OnLoadComplete` — `OnSaveInfoLoaded` fires 0× in the instrumented session (§9) |
 | UIButton crash | Use `ButtonUtils.AddListener` |
 | JSON corrupt | Use `SafeStorage.SaveAtomic` |
 | `[RegisterTypeInIl2Cpp]` crash | Add `IntPtr` ctor |
@@ -342,3 +343,25 @@ ApplySaveData(saved.Guid, saved); // Controller picks up lazily via GetRuntimeDa
 if (Cursor.lockState != CursorLockMode.Locked) return; // UI is open, cursor is free
 ```
 `CursorLockMode.Locked` = gameplay mode, cursor hidden. `None`/`Confined` = UI open.
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `HandlePlayerInput`
+- `Confined`
+- `_isPlayerNear`

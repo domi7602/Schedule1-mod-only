@@ -1,6 +1,6 @@
 # Product System (Schedule I)
 
-> verified: classes, enums, signatures re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 184/190 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep. Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable.
 
 ## Core Classes (verified)
 
@@ -60,3 +60,30 @@ Fields: `BasePrice`, `MarketValue`, `BaseAddictiveness`, `PlayerEffectDuration`,
 2. **Prefix `ProductManager.GetPrice`** or postfix `ProductDefinition.GetPrice` — per-product price override.
 3. **Postfix `ProductManager.CheckDiscovery` / `DiscoverProduct`** — unlock or gate product discovery.
 4. **S1API:** `S1API.Products.ProductManager` (static: `GetPrice`, `CalculateProductValue`, `SetEffectCallback`/`SetNpcEffectCallback` + clear variants), `ProductDefinition`/`WeedDefinition`/`MethDefinition`/`ShroomDefinition`/`CocaineDefinition`, `WeedDefinitionBuilder`, `CustomProductDefinition` (`Discover`, `SetListed`, `SupportsPackaging`, `CreateInstance(quantity, quality)`), `CustomProductSaveDescriptor`/`CustomProductSaveProviderRegistry` (custom-product save integration), `ProductInstance`, `DrugType`, `Quality`, `MixReactions`, `ProductPopulator.GetPackaging(string)`, `PackagingDefinition` + `StealthLevel`.
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `IsMixNameValid`
+- `RpcWriter`
+- `ClearEffectsFrom`
+- `LiquidMeth`
+- `RpcReader`
+- `RpcLogic_`

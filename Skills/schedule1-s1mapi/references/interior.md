@@ -1,5 +1,5 @@
 # S1MAPI — InteriorBuilder & FurnitureType
-> UNVERIFIED for runtime 0.4.7f11 — carried-over knowledge; re-verify API details against the current decompiles before patching. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 10/12 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 
 `InteriorBuilder` places in-game furniture (desks, chairs, beds, …) inside custom buildings or anywhere in the world. This bridges geometry back to the game world — your procedural building can host real, interactable game objects.
@@ -139,3 +139,22 @@ See `../schedule1-s1api/references/items-products.md` for the `BuildableItemDefi
 `HomelessMod`'s procedural SleepingBag is **not** an `InteriorBuilder.Add(...)` — it uses S1API's `BuildableItemDefinition` because it's a custom (not vanilla) furniture. For vanilla furniture in custom buildings, use `InteriorBuilder`.
 
 For the source: `ThirdParty/S1API/` (S1API.Items.Buildable; initialize the submodule first if needed).
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `DoorBuilder`
+- `NetworkPrefab`

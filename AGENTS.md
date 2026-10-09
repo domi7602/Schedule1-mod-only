@@ -1,8 +1,8 @@
 # AGENTS.md
 
-Workspace: the `Schedule1-mod-only` repository root (any path/user, e.g. `C:\Users\<you>\Schedule1-mod-only`) — MelonLoader IL2CPP modding workspace for *Schedule I* (TVGS, Steam Open Beta; installed runtime **v0.4.7f11** — see the override above; the documented verification baseline is still v0.4.7f9). The repo lives **outside** the game install; builds and deploys resolve the game via the `SCHEDULE1_PATH` env var or the default `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
+Workspace: the `Schedule1-mod-only` repository root (any path/user, e.g. `C:\Users\<you>\Schedule1-mod-only`) — MelonLoader IL2CPP modding workspace for *Schedule I* (TVGS, Steam Open Beta; installed runtime **v0.4.7f12** — see the override above; older verification baselines are listed separately). The repo lives **outside** the game install; builds and deploys resolve the game via the `SCHEDULE1_PATH` env var or the default `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
 
-> **Current local runtime override (2026-10-07):** The fresh Windows installation runs **game v0.4.7f11**, Steam build **25770926**, with MelonLoader 0.7.3 and **S1API beta.8 + the unpublished compatibility fix from [PR #353](https://github.com/ifBars/S1API/pull/353)**. Official beta.8 fails to patch the removed `ProductIconManager.GenerateIcons` on f11. The local DLL was built and deployed after 749 IL2CPP contract tests passed; startup/gameplay with it remain unverified. The submodule stays unmodified at the beta.8 tag. Build provenance, modified source, and the official DLL backup are preserved in `<GameDir>\UserData\S1API\LocalBuilds\2026-10-07-f11\README.md`. Older f9 compatibility claims below are historical, not f11 gameplay verification.
+> **Current local runtime (2026-10-08):** `Latest.log` reports Schedule I **v0.4.7f12** and Unity **2022.3.62f2**; `appmanifest_3164500.acf` reports Steam build **25796331**. MelonLoader 0.7.3 loaded S1API **3.2.1-beta.8** and S1MAPI **2.0.1**. The deployed S1API DLL is the local PR #353 compatibility build documented for f11; its known hash still matches the preserved f11 build, and the DLL loads in the f12 log. This does **not** prove all S1API patches or TaxiDriver gameplay work on f12. TaxiDriver 0.8.2's no-deploy Release build passed against the live f12 references with 0 warnings/errors; gameplay verification remains open. `GameReferences/` was regenerated for f12 on 2026-10-08 (2 234 decompiled files from `Assembly-CSharp.dll`); for anything newer, use the live f12 assemblies directly. Provenance and the official S1API backup remain under `<GameDir>\UserData\S1API\LocalBuilds\2026-10-07-f11\README.md`.
 
 Quick links: [`DEVELOPERS.md`](DEVELOPERS.md) — human build/test/debug workflow · [`docs/README.md`](docs/README.md) — documentation index · [`docs/architecture.md`](docs/architecture.md) — dependency boundaries · [`docs/pitfalls.md`](docs/pitfalls.md) — battle-tested gotchas · [`docs/compatibility.md`](docs/compatibility.md) — per-mod verification matrix · [`ThirdParty/README.md`](ThirdParty/README.md) — pinned dependencies · [`GameReferences/README.md`](GameReferences/README.md) — local decompiles · [`Skills/README.md`](Skills/README.md) — skill index.
 
@@ -18,12 +18,12 @@ Quick links: [`DEVELOPERS.md`](DEVELOPERS.md) — human build/test/debug workflo
 
 ## 0. AI-Agent Skills (`Skills/`)
 
-Twenty skills under `Skills/<skill-name>/SKILL.md` (+ `references/`). Load them via the `skill` tool — **always start with `schedule1-modding`**, then the matching specialty. Index: [`Skills/README.md`](Skills/README.md).
+Twenty-two skills under `Skills/<skill-name>/SKILL.md` (+ `references/`). Load them via the `skill` tool — **always start with `schedule1-modding`**, then the matching specialty. Index: [`Skills/README.md`](Skills/README.md).
 
 - **Core runbooks:** `schedule1-modding` (scaffold/build/deploy, architecture — primary) · `schedule1-phoneapp` (Method-3 responsive UI, input focus, lifecycle rules) · `schedule1-troubleshooting` (log triage, crash patterns, IL2CPP pitfalls, slot recovery) · `schedule1-knowledge` (research: decompiles, S1API source, 64 curated systems).
 - **Framework references:** `schedule1-s1api` · `schedule1-s1mapi` · `schedule1-game-systems` (64 systems, hook points) · `schedule1-mcp` (live game introspection, TCP :8765).
-- **Domain:** `schedule1-economy` · `schedule1-persistence` · `schedule1-items` · `schedule1-grid` · `schedule1-interiors` · `schedule1-custom-npcs` · `schedule1-3d-assets`.
-- **Reusable patterns:** `schedule1-harmony-bootstrap` · `schedule1-il2cpp-reflection` · `schedule1-debounced-reload` · `schedule1-runtime-unity-cache` · `schedule1-lifecycle-verify`.
+- **Domain:** `schedule1-economy` · `schedule1-persistence` · `schedule1-items` · `schedule1-grid` · `schedule1-interiors` · `schedule1-world-expansion` · `schedule1-custom-npcs` · `schedule1-3d-assets`.
+- **Reusable patterns:** `schedule1-networked-world-state` · `schedule1-harmony-bootstrap` · `schedule1-il2cpp-reflection` · `schedule1-debounced-reload` · `schedule1-runtime-unity-cache` · `schedule1-lifecycle-verify`.
 
 The skill list is anchored in three files (this one, `Skills/README.md`, `README.md`) — update all three when adding a skill.
 
@@ -32,7 +32,7 @@ The skill list is anchored in three files (this one, `Skills/README.md`, `README
 ## 1. Setup
 
 - **Game:** `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` — override with `$env:SCHEDULE1_PATH` **before** `dotnet build` (MSBuild reads it once at startup).
-- **Baseline versions:** runtime game v0.4.7f11 (Unity 2022.3, IL2CPP; verified 2026-10-07 via Latest.log; the verification matrix in `docs/compatibility.md` still records f9 and older) · MelonLoader 0.7.3 (net6) · S1API 3.2.1-beta.8; submodule at beta.8 tag. See the current local runtime override above for the installed f11 compatibility build. TFM `net6.0`, `LangVersion` 12, nullable enabled.
+- **Installed versions:** runtime game v0.4.7f12 (Steam build 25796331; Unity 2022.3.62f2; verified 2026-10-08 via Latest.log/appmanifest) · MelonLoader 0.7.3 (net6) · S1API 3.2.1-beta.8 · S1MAPI 2.0.1. The compatibility matrix distinguishes assembly load/build from gameplay verification. TFM `net6.0`, `LangVersion` 12, nullable enabled.
 - **Install state (after the 2026-10-07 Windows reinstall):** .NET 6.0.36 runtime global in `C:\Program Files\dotnet` and user-local for tests; .NET SDK 8.0.425 user-local in `$env:USERPROFILE\.dotnet`; Python 3.13 with MCP dependencies isolated in `%LOCALAPPDATA%\Schedule1Tools\s1mcp-venv`; official nuget.org package source configured. Older repo copies (in the game dir / on the Desktop) are obsolete — this path is the only truth.
 - **Runtime dependencies in the game dir:** S1API at `Mods\S1API.Il2Cpp.MelonLoader.dll` — the build probes exactly that filename (a wrong name breaks every mod with `CS0103: The name 'S1API' does not exist`); S1MAPI at `UserLibs\S1MAPI_Il2Cpp.dll`. `MelonLoader\Il2CppAssemblies\` only exists after the game has run once — until then, mods cannot reference Unity/IL2CPP types.
 - **Launch, logs, live debugging:** `Start-Process "steam://rungameid/3164500"`; gameplay log `MelonLoader\Latest.log`; S1MCP bridge at `ThirdParty/S1MCPServer-master/` (TCP `127.0.0.1:8765`) — see `schedule1-mcp`.
@@ -44,7 +44,7 @@ Source/Mods/       Active mods + Shared lib, Directory.Build.props/targets, S1Mo
 Source/Archive/    Archived mods & tests (not in the solution, never built)
 Source/Tests/      xUnit suites: Shared.Tests, AutoPackagingStation.Tests, CalculatorApp.Tests
 GameReferences/    Locally generated decompiles (gitignored; Tools/bootstrap-game-references.ps1)
-Skills/            20 AI-agent skills (index: Skills/README.md)
+Skills/            22 AI-agent skills (index: Skills/README.md)
 ThirdParty/        Pinned deps & archives: S1API, S1MAPI, S1MCPServer-master, Archive/
 Tools/             15 helpers: build-all, gen-sln, new-mod, bump-version, package-release, release-mod,
                    check-version-sync, check-doc-paths, deploy-thirdparty, bootstrap-game-references,
@@ -70,20 +70,21 @@ Release/           Release ZIP output
 | **CustomSkateboard** | ✅ active (v1.1.5, **Verified 2026-09-15**) | `Mods/CustomSkateboard/` | `CustomSkateboard.dll` + icon | Harmony, visuals, avatar safety |
 | **MoreSaveSlots** | ✅ active (v1.0.12, **Verified 2026-09-15**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` | no S1API (MelonMod + Harmony) |
 | **PocketShop** | ✅ active (v0.3.2, **Verified 2026-09-20**) | `Mods/PocketShop/` | `PocketShop.dll` | PhoneApp, vanilla PaymentType, level locks |
-| **BankApp** | ✅ active (v0.4.5, **In-Game-Verify open**; v0.4.4 **Verified 2026-09-15**) | `Mods/BankApp/` | `BankApp.dll` + icon | PhoneApp, banking, slot isolation |
+| **BankApp** | ✅ active (v0.5.0, **In-Game-Verify open**; v0.4.4 **Verified 2026-09-15**) | `Mods/BankApp/` | `BankApp.dll` + icon | PhoneApp, banking, slot isolation |
 | **Weather** | ✅ active (v0.4.0, In-Game-Verify open) | `Mods/Weather/` | `Weather.dll` + icon | PhoneApp, read-only dashboard |
 | **BusinessIncome** | ✅ active (v0.1.6, **Verified 2026-09-19**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | host authority, slot isolation, console |
 | **StackLimitMod** | ✅ active (v0.1.7; v0.1.6 **Verified 2026-09-20**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` | Harmony, Registry, agriculture-only |
+| **Minimap** | ♻️ restored from archive (v2.0.2, **In-Game-Verify open**) | `Mods/Minimap/` | `Minimap.dll` | HUD overlay, blip pool, settings PhoneApp, waypoints |
 | **AutoPackagingStation** | ✅ active (v0.3.3, **Verified 2026-09-20**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable, SafeStorage, GLB |
 | **HitmanPhone** | ✅ active (v0.2.9, beta **Verified 2026-09-24**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Messages/NPC/Items/Quests |
-| **MessagesPlus** | ✅ active (v0.4.1, **In-Game-Verify open**; v0.4.0 **Verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
-| **TaxiDriver** | 🧪 spike (v0.8.2; Stages 1–3 live-verified 2026-09-25, Pakete C–G test round open) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | vehicles, own NPC driver, S1MAPI |
+| **MessagesPlus** | ✅ active (v0.4.3, **In-Game-Verify open**; v0.4.0 **Verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
+| **TaxiDriver** | 🧪 stability update (v0.8.2; f12 no-deploy Release build passed, gameplay unverified) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | TaxiApp-only service, own NPC driver, vehicle ownership guards, S1MAPI |
 | **StorageScanner** | 🆕 new (v0.2.0, **In-Game-Verify open**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | PhoneApp, read-only storage overview |
 | **S1MCP** | ✅ active (v1.0.1) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | MCP over TCP :8765 |
 | **Shared** | ✅ active (workspace lib) | `Mods/Shared/` | `Shared.dll` | see §5 |
 | **S1API** | ✅ active (3.2.1-beta.8, submodule `ThirdParty/S1API/` at the beta.8 tag) | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | required for 0.4.7f6+ |
 
-> **Archived** (source preserved under `Source/Archive/`, not in `S1Mods.sln`, never built): BackpackMod v1.2.3 · DayCounter v1.0.0 · HomelessMod v0.1.12 · Minimap v2.0.2 · ProfitTracker v1.1.0 · snackVendor v0.0.9 · TVBrowser v0.1.0 · _DiagPerfCounter v0.3.2, plus `Source/Archive/Tests/BackpackMod.Tests`.
+> **Archived** (source preserved under `Source/Archive/`, not in `S1Mods.sln`, never built): BackpackMod v1.2.3 · DayCounter v1.0.0 · HomelessMod v0.1.12 · ProfitTracker v1.1.0 · snackVendor v0.0.9 · TVBrowser v0.1.0 · _DiagPerfCounter v0.3.2, plus `Source/Archive/Tests/BackpackMod.Tests`.
 > **Removed / retired third-party:** MikuPlayerModel (discontinued) · ConstructionSiteProperty (disabled) — both remain as `*.dll.bak` (MelonLoader never loads `.bak`) · MoreDrugs (removed 2026-09-19) · PhoneScroll (retired 2026-09-16, `ThirdParty/Archive/PhoneScroll/`) · Herer's Minimap (removed 2026-09-17) · Sideload (dropped 2026-09-10) · Hash (`ThirdParty/Archive/ScheduleOne-Hash/`, reference only).
 >
 > **S1API note:** stay on the 3.2.1-beta line. The 3.2.0 stable build does not know the 0.4.7f6 renames and spams `MissingMethodException: NPCHealth.set_npc` (kills 3 patch classes).
@@ -114,7 +115,7 @@ Release/           Release ZIP output
 - Phone shop browser (grid + detail modal, inline quantity). Since v0.3.1 payment follows the vanilla `shopInterface.PaymentType` — cash shops use `ChangeCashBalance`, online shops `CreateOnlineTransaction`; level/rank locks enforced; host-safe refunds.
 - **Verified 2026-09-20.** History: `Source/Mods/PocketShop/docs/CHANGELOG.md`.
 
-**BankApp v0.4.5 (2026-10-04):**
+**BankApp v0.5.0 (2026-10-04):**
 - Chip-based deposit/withdraw screen: weekly $10k ATM limit, two-column cash/online balances, double-entry booking with rollback, slot-isolated persistence, `NetworkGuard.IsInMainScene` guards.
 - v0.4.5 = removes the phantom withdrawal cap ("inventory full"): the old capacity check multiplied free inventory slots by a cash stack limit that is 1 in vanilla, blocking nearly every withdrawal. **In-Game-Verify open.** History: `Source/Mods/BankApp/docs/CHANGELOG.md`.
 
@@ -138,15 +139,20 @@ Release/           Release ZIP output
 - Bounty contracts via phone messages (anonymous callers): kill → Polaroid evidence → dead-drop payout; police heat, journal quests, 3-day expiry, slot-isolated save; `KnockOut` patch + double-drop latch + orphan-quest cleanup.
 - Beta verified 2026-09-24 (offer → accept → receipt → payout). History: `Source/Mods/HitmanPhone/docs/CHANGELOG.md`.
 
-**MessagesPlus v0.4.1 (2026-09-29/30):**
+**MessagesPlus v0.4.3 (2026-09-29/30):**
 - Patch-only mod (no PhoneApp icon) on the vanilla `MessagesApp`: sticky search band under the title (live search, `[All][Customer][Dealer][Supplier]` chips, unread counter), "⋯" menu with Clear Read / Clear All — view-only filtering, host-only + customer-only mutations, one-time legacy restore of v0.1.x trashed threads.
-- **Whole-app dark mode** (`AppTheme`): **permanent since v0.4.1** — the "⋯" menu toggle is gone, the config defaults to ON and a stale `false` self-heals at startup (`MessagesPlusConfig.DarkMode` stays for schema stability). Recolours our band + vanilla surfaces (page backgrounds, inbox rows, chat bubbles + tails, dialogue header + response panel, generic near-white sweep) — one-time per graphic with cached originals; avatars, badges and the unread dot stay untouched.
-- **v0.4.1 fix:** the deal-window popup themes **instantly** (`DealWindowSelectorPatch` — same-frame subtree refresh on `SetIsOpen`, forced re-tint for vanilla re-colours); previously freshly shown surfaces stayed light until the 1-2 tick. **In-Game-Verify open.**
+- **Whole-app dark mode** (`AppTheme`): **permanent since v0.4.1** — the "⋯" menu toggle is gone, the config defaults to ON and a stale `false` self-heals at startup (`MessagesPlusConfig.DarkMode` stays for schema stability). Recolours our band + vanilla app surfaces (page backgrounds, inbox rows, chat bubbles + tails, dialogue header, generic near-white sweep) — one-time per graphic with cached originals; dead-drop/order and counter-offer subtrees are restored to vanilla colors and excluded from sweeps; avatars, badges, the unread dot, and product sprites remain untouched.
+- **Vanilla order menus (2026-10-08):** `MSGConversation.responseContainer` and the verified `DealWindowSelector.Container` are preserved/restored; the deal-window hook no longer darkens popup content. In-Game-Verify open.
 - Round-1 fixes: `(RectTransform)x.transform` casts → `GetComponent<RectTransform>()` (IL2CPP cast made the "⋯" menu dead), search surface keeps `raycastTarget=true` (v0.4.0 **Verified 2026-09-30**). History: `Source/Mods/MessagesPlus/docs/CHANGELOG.md`.
 
-**TaxiDriver v0.8.2 (2026-10-02, spike):**
-- Orderable taxi from the in-game phone ("Taxi" app) with an own NPC driver: vehicle spawn + `VehicleAgent.Navigate` A→B + player ride, `taxi.glb` visual swap via S1MAPI GltfLoader, `RoadKeeper` road-corridor assistance, destination picker (properties/custom checkpoints), fare meter (moving in-game minutes; cash → bank; host-only fail-closed), F9–F12 diagnostic hotkeys + output-only `taxi` console.
-- Stages 1–3 live-verified 2026-09-25. **Pakete C–G in-game test round open** (exit hardening, driver retention, spawn clearance, clear-selection, patrol NRE). History: `Source/Mods/TaxiDriver/docs/CHANGELOG.md`.
+**Minimap v2.0.2 (2026-09-13, restored from archive 2026-10-07):**
+- Minimap & Unified HUD: dealer/police/customer markers, pulsing heat ring, health bar, user waypoints (`minimap wp …`), and a phone settings app with per-blip-type toggles and hex colours. Fixed 64-blip pool (0 GC allocations per frame).
+- Restored from the archive, including the 2026-09-17 visibility fixes in `MinimapMod.cs`. History: `Source/Mods/Minimap/docs/CHANGELOG.md`.
+
+**TaxiDriver v0.8.2 (2026-10-08, stability update — build passed; gameplay unverified):**
+- Taxi service is controlled only by the phone app: CALL TAXI → `CallTaxi` → preserved `TickAutoRun`; destination list/search/filters, live status/fare and STOP remain in the app. Vanilla E entry/exit and Escape phone-close remain unchanged. The current source installs no TaxiDriver keyboard bindings.
+- The safety pass adds exact spawned-vehicle ownership tracking, fail-closed ride locks, renderer-gated GLB rollback, lifecycle cleanup, bounded fare math and no-repeat payment handling. Earlier Stage 1–3 gameplay checks were on 0.4.7f6; they do not verify this update on f12.
+- Current local target is v0.4.7f12 with S1API 3.2.1-beta.8 and S1MAPI 2.0.1. The no-deploy Release build passed with 0 warnings/errors against the live f12 references; no TaxiDriver in-game run has been made. Do not claim complete Beta-8 compatibility without runtime evidence.
 
 **StorageScanner v0.2.0 (2026-10-04, new):**
 - Read-only PhoneApp: totals per item across all storage containers of owned properties; `ALL` + per-property filter chips, live name search, manual + periodic refresh, explicit INCOMPLETE banner (culled containers reported, never silently counted). No Harmony, no background scanning.
@@ -286,7 +292,7 @@ Always exits 0 — it is a report, not a gate; read the output. Known false posi
 
 ## 7. Reference Material
 
-- **Game decompiles:** `GameReferences/` — regenerate with `pwsh Tools/bootstrap-game-references.ps1` (pinned ilspycmd 9.1.0.7988, project mode; regenerate after every game update). Current generation: 2026-10-07 against the freshly generated 0.4.7f11 proxies; `ProductIconManager` was inspected to confirm `GenerateIcons` is absent and `GenerateRuntimeIcons(string)` exists. For ground truth use `ilspycmd` against `<GameDir>\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll` (scoped `DOTNET_ROOT`).
+- **Game decompiles:** `GameReferences/` — regenerate with `pwsh Tools/bootstrap-game-references.ps1` (pinned ilspycmd 9.1.0.7988, project mode; regenerate after every game update). The local decompiles were regenerated for f12 on 2026-10-08 (2 234 files from `Assembly-CSharp.dll`); `GameReferences/` is gitignored, so never rely on it being in sync — for current ground truth use `ilspycmd` against `<GameDir>\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll` (scoped `DOTNET_ROOT`). The TaxiDriver build uses the live f12 assemblies.
 - **S1API source:** `ThirdParty/S1API/` (submodule, pinned beta line — currently the beta.8 tag).
 - **64 system analyses:** `Skills/schedule1-game-systems/references/`.
 - **Archived mod sources:** `Source/Archive/`. The old `Knowledge/` folder from the pre-reinstall workspace no longer exists.

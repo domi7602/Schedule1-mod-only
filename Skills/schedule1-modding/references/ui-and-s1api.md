@@ -1,10 +1,11 @@
 # S1API & Responsive UI Frameworks Guide
 
-> verified: S1API section checked against 3.2.1-beta.8 2026-10-05 (icon policy + clamp curves); Method 3 section since 2026-08-20. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: S1API section checked against 2026-10-05 (icon policy + clamp curves); Method 3 section since 2026-08-20.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 27 of 27 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 ---
 
-## 1. S1API 3.2.1-beta.8 Architecture
+## 1. S1APIArchitecture
 
 S1API provides high-level abstractions for Schedule I:
 * **Phone Applications**: `PhoneApp`, `PhoneAppRegistry`

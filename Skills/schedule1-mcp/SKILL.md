@@ -5,13 +5,13 @@ description: >-
   Keywords: S1MCP, S1MCPServer, S1MCPClient, Model Context Protocol, s1_get_player, s1_get_player_inventory, s1_capture_logs, s1_list_npcs, s1_spawn_item, s1_inspect_object, s1_get_game_state, live debugging, TCP 8765.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — S1MCP Live Game Introspection & Debugging Skill
 
 This skill is the runbook for **live, real-time agentic interaction with the running *Schedule I* game** using the Model Context Protocol (MCP) bridge (`ifBars/S1MCPServer`).
 
-> **Stack Status:** Game v0.4.7f11 (runtime) / MelonLoader 0.7.3 / S1API 3.2.1-beta.8, TCP localhost:8765, JSON-RPC 2.0 stdio MCP server (anchor above; the 2026-08-22 stack note against Game v0.4.6f13 is historical).
+> The current game and dependency stack is recorded in `AGENTS.md`. This skill documents the MCP endpoint and protocol only: TCP localhost:8765, JSON-RPC 2.0 over stdio.
 
 ---
 
@@ -25,20 +25,20 @@ This skill is the runbook for **live, real-time agentic interaction with the run
                              │ MCP Protocol (JSON-RPC over stdio)
 ┌────────────────────────────▼────────────────────────────────┐
 │              S1MCPClient (Python MCP Server)                │
-│  - Python 3.11 (`mcp>=0.9.0`, `pydantic`, `httpx`)          │
+│  - Python environment from `requirements.txt` (see repository setup).
 │  - Translates MCP tools → JSON-RPC TCP packets              │
 │  - Working Directory: `ThirdParty/S1MCPServer-master/...`   │
 └────────────────────────────┬────────────────────────────────┘
                              │ TCP (localhost:8765, 4-byte length prefix)
 ┌────────────────────────────▼────────────────────────────────┐
-│              S1MCPServer (MelonLoader Mod .NET 6)           │
+│              S1MCPServer (MelonLoader Mod)           │
 │  - Background Thread: TCP Server listening on port 8765     │
 │  - Main Thread Dispatcher: Executes Unity API calls safely   │
 │  - Registered in `<Game>\Mods\S1MCPServer-IL2CPP.dll`       │
 └────────────────────────────┬────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────┐
-│              Schedule I Game Engine (v0.4.7f11)             │
+│              Schedule I Game Runtime             │
 │  - PlayerInventory, PlayerClothing, NPCs, Growing, Buildings│
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -100,7 +100,7 @@ Need live game interaction?
 3. **Localhost Only Security:** S1MCPServer binds strictly to `127.0.0.1:8765`. It never exposes ports externally.
 4. **Main-Thread Marshaling:** All Unity API and IL2CPP calls MUST execute on the Main Thread via `CommandRouter` and the mod's `OnUpdate` loop. Background threads only handle TCP socket I/O.
 
-> **Log hygiene (v1.0.1+):** `[DEBUG]` logging is **off by default** — no more Latest.log spam on agent connect. Enable only when needed via `UserData/S1MCPServer.cfg` → `[S1MCPServer] DebugLogging = true` (payload dumps truncated to 500 chars). Info/Warn lifecycle lines (connect/disconnect) always logged.
+> **Log hygiene:** `[DEBUG]` logging is **off by default** — no more Latest.log spam on agent connect. Enable only when needed via `UserData/S1MCPServer.cfg` → `[S1MCPServer] DebugLogging = true` (payload dumps truncated to 500 chars). Info/Warn lifecycle lines (connect/disconnect) always logged.
 
 ---
 

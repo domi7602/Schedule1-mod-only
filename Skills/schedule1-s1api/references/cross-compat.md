@@ -1,6 +1,7 @@
 # S1API — Cross-Compatibility (IL2CPP vs Mono)
 
-> verified: loader mechanism checked against S1API 3.2.1-beta.8 source 2026-10-05; §6 runtime check corrected 2026-10-05 (was an OS check that proved nothing). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: loader mechanism checked against S1APIsource 2026-10-05; §6 runtime check corrected 2026-10-05 (was an OS check that proved nothing).
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 32 of 32 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 S1API's main promise: **one mod, one build, both branches** (IL2CPP standard + Mono `alternate`). This reference explains how that works, when it breaks, and how to handle the exceptions.
 
@@ -70,7 +71,7 @@ Most use cases are covered by S1API wrappers:
 | Money | `S1API.Money` |
 | Game Time | `S1API.GameTime` |
 | Property | `S1API.Property` |
-| Saving | `S1API.Lifecycle` (`OnPreLoad`/`OnLoadComplete`/`OnSaveComplete` — **`OnSaveLoaded` does NOT exist** in 3.2.1-beta.8; `OnSaveInfoLoaded` fires 0× on game 0.4.7f6+, verified 2026-09-29) |
+| Saving | `S1API.Lifecycle` (`OnPreLoad` / `OnLoadComplete` / `OnSaveComplete`; `OnSaveLoaded` is absent from checked-in source; `OnSaveInfoLoaded` fired 0 times in the instrumented session) |
 | Console | `S1API.Console` |
 | Geometry | `S1MAPI` (separate skill) |
 
@@ -153,7 +154,7 @@ dotnet build Source/Mods/MyMod/src/MyMod.csproj -c MonoRelease
 # Verify deployment, launch game, test
 ```
 
-Most workspace mods are IL2CPP-only by deployment choice (current inventory: [`AGENTS.md`](../../../AGENTS.md) §2). `S1API` 3.2.1-beta.8 supports both via the loader mechanism.
+Most workspace mods are IL2CPP-only by deployment choice (current inventory: [`AGENTS.md`](../../../AGENTS.md) §2). `S1API` supports both via the loader mechanism.
 
 ---
 
@@ -168,8 +169,14 @@ For **map/building geometry** (procedural meshes, GLTF loading, terrain), the si
 | Concern | Tool |
 |---|---|
 | Where's the S1API namespace for X? | `ThirdParty/S1API/` (source tree) |
-| How does S1API X.X.Y work? | `ThirdParty/S1API/` (source of the wrapper in question) |
+| How does a particular S1API API work? | `ThirdParty/S1API/` (source of the wrapper in question) |
 | What's the actual signature? | `ThirdParty/S1API/` (namespace folder) |
 | Is the runtime branch compatible? | S1API repo README / release notes (Submodule-Pin) |
 | Vanilla class signature? | `GameReferences/` (locally generated decompiles, see GameReferences/README.md) |
 | Bridging wrapper from S1API to vanilla? | That's literally what S1API does internally |
+
+---
+
+---
+
+---

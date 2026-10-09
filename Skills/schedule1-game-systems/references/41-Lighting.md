@@ -1,5 +1,5 @@
 # Lighting (Schedule I)
-> verified: classes + fields + methods + save-participation re-checked 2026-10-05 against decompiles (generation 2026-10-02; game v0.4.7f9). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 76 of 76 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 Namespace: `Il2CppScheduleOne.Lighting` — plain MonoBehaviour components, **no manager/singleton**.
 
@@ -42,7 +42,7 @@ Namespace: `Il2CppScheduleOne.Lighting` — plain MonoBehaviour components, **no
 1. **Postfix `LightExposureNode.GetTotalExposure(out float)`** — modify computed grow-light exposure (custom lamps, buff/debuff growth) — note the `out float` is filled before the postfix runs, so overwrite the outer arg; plain method, patchable.
 2. **Postfix `LightExposureNode.AddSource(...)` / `RemoveSource(...)`** — track which lamps feed which plant nodes (light auditing, quest logic).
 3. **Prefix `LightTimer.SetState(bool)`** — force/override scheduled light windows (curfew blackouts, custom timers).
-- **S1API (3.2.1-beta.8): no Lighting wrapper** (grep over S1API source — no `UsableLightSource`/`LightExposureNode` references).
+- **S1API: no Lighting wrapper** (grep over S1API source — no `UsableLightSource`/`LightExposureNode` references).
 
 ## Not Implemented / Unverified
 - No "UV spectrum" system found in the decompiles — old doc claim removed; exposure is a single float pipeline (`unverified` whether art-side shaders add more).

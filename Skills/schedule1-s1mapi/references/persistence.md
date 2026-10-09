@@ -1,12 +1,13 @@
 # S1MAPI Geometry Persistence — Making Buildings/Meshes/GLTF Survive Save/Reload
 
-> verified: research against S1MAPI 2.0.1 source + workspace mods 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md. S1MAPI 2.0.1.
+> verified: research against S1MAPI source + workspace mods 2026-10-05. S1MAPI.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 59/62 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## 1. The Problem — S1MAPI Builds GameObjects, Nothing Else
 
 Everything S1MAPI produces — `ProceduralMeshBuilder` shapes, `BuildingBuilder` buildings, `FurnitureBuilder` furniture, `GltfLoader` models — is a **plain runtime GameObject**. The game's save system never sees it.
 
-Verified against the full S1MAPI 2.0.1 source (`ThirdParty/S1MAPI/`, 2026-10-05): a grep for `save|persist|Saveable|ISaveable|DontDestroyOnLoad` across all `.cs` files returns **zero persistence hits** — the only "Saved" matches are runtime NPC chase positions (`InteriorNavigatorCore.cs`). `GltfImporter` parses the JSON fresh on every call (`GltfImporter.cs:294`) with no cache. **Nothing S1MAPI builds survives a save→load cycle unless your mod persists it.** (`world-tools.md` once said "use `networked: true` + S1API `Saveable`" — see §3 for what that actually covers.)
+Verified against the full S1MAPI source (`ThirdParty/S1MAPI/`, 2026-10-05): a grep for `save|persist|Saveable|ISaveable|DontDestroyOnLoad` across all `.cs` files returns **zero persistence hits** — the only "Saved" matches are runtime NPC chase positions (`InteriorNavigatorCore.cs`). `GltfImporter` parses the JSON fresh on every call (`GltfImporter.cs:294`) with no cache. **Nothing S1MAPI builds survives a save→load cycle unless your mod persists it.** (`world-tools.md` once said "use `networked: true` + S1API `Saveable`" — see §3 for what that actually covers.)
 
 ## 2. The 3-Layer Pattern (workspace-canonical)
 
@@ -24,7 +25,7 @@ Proven by `AutoPackagingStation` (`AutoPackStore.cs`) and `HomelessMod` (`Street
 - **BuildableItem restore rule**: if the placed object is a registered `BuildableItem`, **never spawn it yourself in `OnLoadComplete`** — the game restores placed buildables via its own persistence; your extra spawn duplicates it (2 → 3 → 4 … after each cycle). Instead pre-stage save data in a dictionary keyed by GUID and let `BuildableItem.Start()` (Harmony-postfixed) pick it up (AutoPackStore.cs:306-309: "SaveData staged for GUID … awaiting buildable restore").
 - **Virtual root + DontDestroyOnLoad** (grid Golden Rule 4): parent mod geometry to a dedicated virtual root (e.g. `StreetNomad_WorldRoot`), `DontDestroyOnLoad` it so registrations survive scene transitions, and **never attach vanilla `Property` components to it**. Treat children as disposable: clear state in `OnPreLoad`, rebuild in `OnLoadComplete`.
 - **Never clear state in `OnSceneWasUnloaded`** — it fires for any scene unload (menus) and wipes state before `OnSaveComplete`. Clear only in `OnPreLoad`.
-- **Timing**: `OnPreLoad` → `OnLoadComplete` → `OnSaveComplete`; **`OnSaveInfoLoaded` fires 0× on game 0.4.7f6+** (verified 2026-09-29, `schedule1-troubleshooting/references/save-load-timing.md` §1). Mods that still hook it defensively reset state at a second guard (scene leave) — belt and braces, not reliance.
+- **Timing**: `OnPreLoad` → `OnLoadComplete` → `OnSaveComplete`; **`OnSaveInfoLoaded` fires 0× in the instrumented session** (verified 2026-09-29, `schedule1-troubleshooting/references/save-load-timing.md` §1). Mods that still hook it defensively reset state at a second guard (scene leave) — belt and braces, not reliance.
 
 ## 3. Networked Prefabs (`PrefabPlacer`, `networked: true`)
 
@@ -102,3 +103,25 @@ public static class BuildingStore
 - `schedule1-s1api/references/saveables.md` — S1API `Saveable`/`[SaveableField]` alternative (persist inside the save game; constraint table: no Il2Cpp refs in fields)
 - `schedule1-grid/SKILL.md` + `references/build-update-patching.md` — virtual root, DontDestroyOnLoad, anti-dupe, Harmony guards
 - Real implementations: `Source/Mods/AutoPackagingStation/src/AutoPackStore.cs` (full 3-layer), `Source/Mods/TaxiDriver/` (deterministic GLB rebuild on scene load, no geometry persistence needed), `Source/Archive/HomelessMod/src/StreetPropertyManager.cs` (street items + virtual root)
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `PlacementEntry`
+- `NetworkedPrefabLinker`
+- `Internal_Get`

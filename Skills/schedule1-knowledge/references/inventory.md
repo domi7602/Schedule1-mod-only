@@ -1,6 +1,7 @@
 # Knowledge-Base & Code Reference Inventory
 
-> verified: counts re-measured 2026-10-05 (116 S1API namespaces / 859 .cs files; 87 Il2CppScheduleOne sub-namespaces). Decompiles regenerated 2026-10-05 (ilspycmd 9.1.0.7988, project mode, fresh 0.4.7f9 proxies) — spot-check set passed. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: repository inventory re-measured 2026-10-05; decompiles regenerated 2026-10-05 with ilspycmd in project mode; spot-check set passed.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 68 of 68 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 The inventory of code references, decompiles, framework sources, and game system analyses available directly in the repository workspace. **Use this when researching game mechanics, APIs, and vanilla behavior.**
 
@@ -10,11 +11,11 @@ The inventory of code references, decompiles, framework sources, and game system
 
 | Path | Contents | Purpose & Usage |
 |------|----------|-----------------|
-| `ThirdParty/S1API/S1API/` | Full C# Source of S1API 3.2.1-beta.8 (submodule; matches deployed runtime) | Reference for PhoneApp, Saveables, Registry, Items, UI, NPCs, Quests, GameTime |
+| `ThirdParty/S1API/S1API/` | Full S1API C# source tree | Reference for PhoneApp, Saveables, Registry, Items, UI, NPCs, Quests, GameTime; compare with deployed DLLs |
 | — (MoreDrugs: source not in repo) | Deployed DLL only (`DrugExpansion_Il2cpp.dll`) | Reference for Custom Product Save Provider & Item Expansion |
 | `ThirdParty/S1MCPServer-master/` | C# Source of S1MCP | Reference for Live Runtime Introspection & TCP Server :8765 |
 | `ThirdParty/Archive/PhoneScroll/` | Documentation (DLL retired 2026-09-16) | Reference for Phone Home Screen scrolling (Closed Source, V4LEXL) |
-| `<GameDir>/Mods/` | Runtime deployed DLLs | Live runtime binaries loaded by MelonLoader 0.7.3 |
+| `<GameDir>/Mods/` | Runtime deployed DLLs | Live assemblies loaded by MelonLoader |
 | `<GameDir>/Plugins/` | `S1APILoader.MelonLoader.dll` | S1API lifecycle bootstrap plugin |
 
 ---
@@ -23,7 +24,7 @@ The inventory of code references, decompiles, framework sources, and game system
 
 ### 2.1. Assembly-CSharp (★ In-Repo Decompile: ~2100+ files)
 
-`GameReferences/decompiled/Assembly-CSharp/` contains the full IL2CPP-aware decompile of *Schedule I* (current generation 2026-10-07 against game v0.4.7f11 — regenerate after updates, see GameReferences/README.md). Organized by namespace:
+`GameReferences/decompiled/Assembly-CSharp/` contains the full IL2CPP-aware decompile of *Schedule I* (generated 2026-10-07; regenerate after updates, see `GameReferences/README.md`). Organized by namespace:
 
 ```
 GameReferences/decompiled/Assembly-CSharp/
@@ -96,3 +97,11 @@ Curated architecture reference documents located in `Skills/schedule1-game-syste
 - **Inspect live game state or spawn items** → `Skills/schedule1-mcp/SKILL.md` (S1MCP TCP :8765)
 - **Check save-game format & persistence events** → `Skills/schedule1-game-systems/references/02-Save-Persistence.md` + `Skills/schedule1-persistence/SKILL.md`
 - **Check MelonLoader log for errors or GC issues** → `schedule1-troubleshooting/references/logscan-and-logs.md` (canonical one-liners + spike patterns)
+
+---
+
+---
+
+---
+
+---

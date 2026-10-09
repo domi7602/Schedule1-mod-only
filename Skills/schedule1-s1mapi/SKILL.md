@@ -1,18 +1,18 @@
 ---
 name: schedule1-s1mapi
 description: >-
-  Author-reference for the S1MAPI framework (ifBars, v2.0.1, deployed as UserLibs\S1MAPI_Il2Cpp.dll) for Schedule I v0.4.7f11 (IL2CPP/Mono).
+  Author-reference for the S1MAPI framework (ifBars, deployed as UserLibs\S1MAPI_Il2Cpp.dll) for Schedule I (IL2CPP/Mono).
   Use this skill whenever you need to procedurally generate 3D meshes at runtime, build entire buildings or rooms, load external GLTF/GLB models, clear or flatten terrain, build NPC navigation meshes, or place in-game prefabs with network synchronization.
   Keywords: S1MAPI, ProceduralMesh, MeshBuilder, BuildingBuilder, InteriorBuilder, GltfLoader, glb, TerrainClearer, FlattenTerrain, NavigationBuilder, PrefabPlacer, NetworkPrefab, MaterialPresets, URP, UnityEngine, no AssetBundle, no Assembly-CSharp.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
-# Schedule I — S1MAPI Author Reference (ifBars, v2.0.1)
+# Schedule I — S1MAPI Author Reference (ifBars)
 
 This skill is the **API catalog** for S1MAPI. S1MAPI is a **mapping and construction library**: generates procedural meshes at runtime, constructs full buildings, loads external 3D models (GLTF/GLB) — **without AssetBundles and without dependency on `Assembly-CSharp`**.
 
-> **Version check (verified 2026-10-05):** S1MAPI **2.0.1** (`UserLibs\S1MAPI_Il2cpp.dll`, FileVersion 2.0.1.0, deployed 2026-10-02).
+> Source check (2026-10-05): the checked-in S1MAPI source and deployed DLL were inspected. Compare them before relying on source-level details; current dependency selection is maintained in `AGENTS.md` / `docs/compatibility.md`.
 
 ---
 
@@ -22,7 +22,7 @@ This skill is the **API catalog** for S1MAPI. S1MAPI is a **mapping and construc
 |---|---|
 | **Workspace Root** | the `Schedule1-mod-only` repository root (lives outside the game directory; any user/drive) |
 | **Game Path** | `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`) |
-| **Runtime** | MelonLoader 0.7.3 (IL2CPP, Unity 2022.3) |
+| **Runtime** | See `AGENTS.md` for the current local runtime configuration (IL2CPP / Unity) |
 | **S1MAPI DLL (deployed)** | `<GameDir>\UserLibs\S1MAPI_Il2Cpp.dll` |
 | **Author** | ifBars (same as S1API fork) — GitHub `ifBars/S1MAPI` |
 | **License** | GPL v3 |

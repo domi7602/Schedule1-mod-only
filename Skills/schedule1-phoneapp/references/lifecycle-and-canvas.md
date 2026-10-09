@@ -1,6 +1,7 @@
 # PhoneApp Lifecycle & Canvas Architecture
 
-> **Canonical home of Rule 10** (OnCreated fires once / never unsubscribe in OnPhoneClosed) — other files reference here instead of duplicating the pattern. verified: 2026-08-20 / 2026-09-11 audit; S1API mechanism re-checked 2026-10-05. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> **Canonical home of Rule 10** (OnCreated fires once / never unsubscribe in OnPhoneClosed) — other files reference here instead of duplicating the pattern. verified: 2026-08-20 / 2026-09-11 audit; S1API mechanism re-checked 2026-10-05.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 35/36 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 This reference covers the complete lifecycle of an S1API `PhoneApp` inside Schedule I, the container hierarchy, orientation mechanics, and critical stability rules to prevent UI destruction bugs.
 
@@ -177,3 +178,25 @@ private void Update()
 - **Therefore: NEVER `MelonEvents.OnUpdate.Unsubscribe(Update)` inside `OnPhoneClosed()`** — the Update loop would stay dead until the next scene reload, and `_mainBG` would never re-show → blank app on the 2nd open.
 - Same for **static event handlers** (`OnPotsScanned`, `Money.OnBalanceChanged`, `TransactionHistoryService.OnHistoryChanged`, `_engine.OnStateChanged`): unsubscribing them in `OnPhoneClosed` kills live-refresh after the first close. The `-=`-before-`+=` in `OnCreated` is the correct idempotency pattern.
 - If a handler really must be torn down, override `OnDestroyed()` instead of `OnPhoneClosed()` (S1API calls it once when the app is destroyed).
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `LookOffsetMultiplier`

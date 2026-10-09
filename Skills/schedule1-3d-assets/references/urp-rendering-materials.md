@@ -1,14 +1,14 @@
 # Universal Render Pipeline (URP) & Material System in Schedule I
-> verified: against game v0.4.7f6 (self-stated in text); NOT re-verified after 0.4.7f9. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 12 of 12 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
-This document describes the shader architecture of *Schedule I* (v0.4.7f6), how to correctly assign textures and materials at runtime, and how to avoid typical rendering mistakes (pink shaders, missing gloss, material leaks).
+This document describes Schedule I shader/material behavior, texture assignment at runtime, and common rendering issues (pink shaders, missing gloss, material leaks). Verify shader names and material behavior against the installed game before relying on them.
 
 ---
 
 ## 1. Why Shaders Turn Pink (*The Pink Shader Problem*)
 
-*Schedule I* uses the **Universal Render Pipeline (URP)** in Unity 2022.3 LTS.
+*Schedule I* uses the **Universal Render Pipeline (URP)** in Unity.
 * If a mod attempts to use the old Built-in shaders `"Standard"` or `"Legacy Shaders/Diffuse"`, the URP render pipeline cannot interpret them and renders the object in bright **magenta/pink**.
 
 ### The correct shader resolution in C#:

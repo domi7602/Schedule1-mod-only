@@ -1,6 +1,7 @@
 # Tiles & Grid (Schedule I)
 
-> **Redirect stub** (consolidated 2026-10-05): mechanics (2D grid 0.5 units, BuildManager flow, ghost validation) live in **[`10-Building-Construction.md`](10-Building-Construction.md)**; outdoor-placement working knowledge in the `schedule1-grid` skill. This file keeps only the class register. Class-list only — not yet re-verified against 0.4.7f9.
+> **Redirect stub** (consolidated 2026-10-05): mechanics (2D grid 0.5 units, BuildManager flow, ghost validation) live in **[`10-Building-Construction.md`](10-Building-Construction.md)**; outdoor-placement working knowledge in the `schedule1-grid` skill. This file keeps only the class register. Class-list only — not yet re-verified.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 20 of 20 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 ## Core Classes
 

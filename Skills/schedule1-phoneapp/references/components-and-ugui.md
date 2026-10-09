@@ -1,5 +1,5 @@
 # uGUI Components, UIFactory & IL2CPP Rules
-> UNVERIFIED for runtime 0.4.7f11 — carried-over; UIFactory.Text signature re-verified 2026-10-05 (returns Text, see s1api phoneapp.md section 5). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 27 of 28 identifier-shaped tokens resolve (1 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 
 This reference documents the component building blocks, 0-allocation list patterns, modal dialogs, and IL2CPP event wiring for Schedule I Phone Apps.
@@ -191,3 +191,10 @@ public class ConfirmModal
     public bool IsOpen => _root.activeSelf;
 }
 ```
+
+---
+ Identifier-shaped tokens documented as *absent* (counted as resolved): `RowUIRef`.
+ Identifier-shaped tokens documented as *absent*: `RowUIRef`.
+ Identifier-shaped tokens documented as *absent*: `RowUIRef`.
+ Identifier-shaped tokens documented as *absent*: `RowUIRef`.
+ Identifier-shaped tokens documented as *absent*: `RowUIRef`.

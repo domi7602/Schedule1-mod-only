@@ -1,17 +1,17 @@
 ---
 name: schedule1-economy
 description: >-
-  Economy runbook for Schedule I v0.4.7f11 (Money, Businesses, Shops, Customers, Laundering). Use when implementing purchases, bank transfers, passive income, inventory capacity, weekly ATM limits, or multiplayer-safe economy logic. Covers BankApp double-entry, PocketShop multi-payment + atomic purchase, BusinessIncome host authority + snapshot revert.
+  Economy runbook for Schedule I (Money, Businesses, Shops, Customers, Laundering). Use when implementing purchases, bank transfers, passive income, inventory capacity, weekly ATM limits, or multiplayer-safe economy logic. Covers BankApp double-entry, PocketShop multi-payment + atomic purchase, BusinessIncome host authority + snapshot revert.
   Keywords: Money, MoneyManager, onlineBalance, cashBalance, Business, OwnedBusinesses, ShopInterface, PurchaseService, BankService, TransactionHistory, weekly limit, cash slot, Auto payment, CreateOnlineTransaction, ChangeCashBalance.
 ---
 
-> Version anchor: runtime per workspace AGENTS.md (Game 0.4.7f11, S1API 3.2.1-beta.8 + local PR #353 build). Content predates f11: re-verify API details against the current decompiles before patching.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — Economy Skill (Money / Business / Shop)
 
 This skill is the **runbook for every economy interaction** in Schedule I — cash vs bank, price + fees, inventory capacity, weekly ATM limits, passive daily payouts, and multiplayer-safe transaction ordering. It codifies the patterns verified across active economy mods (`BankApp`, `PocketShop`, `BusinessIncome`).
 
-> **Version check (verified 2026-10-05):** Game v0.4.7f9, S1API 3.2.1-beta.8, `S1API.Money` + `Il2CppScheduleOne.Money.MoneyManager` — `ChangeCashBalance`/`CreateOnlineTransaction` signatures re-verified against the 0.4.7f9 decompile (see §7 API table). Incorporates host authority and partial refund rules from the 2026-09-11 audit.
+> **API check (2026-10-05):** `S1API.Money` and `Il2CppScheduleOne.Money.MoneyManager` signatures were checked against the local decompile (see section 7 API table). Re-check them against installed assemblies before relying on them. Host authority and partial-refund rules incorporate the 2026-09-11 audit.
 
 ---
 
@@ -121,7 +121,7 @@ PayoutStateStore.CommitPayout(day, ids); // SaveAtomic slot_{n}.json + clears sn
 
 ## 7. Supplier Payments (AutoPaySuppliers — Reference Pattern)
 
-> **Source:** distilled from decompiling `AutoPaySuppliers 1.0.0` (Nexus). Verified 2026-08-26. No workspace mod currently implements this — pattern parked here for future use.
+> **Source:** distilled from decompiling `AutoPaySuppliers` (Nexus). Verified 2026-08-26. No workspace mod currently implements this — pattern parked here for future use.
 
 **The flow** (`AutoPaySuppliers/AutoPaySuppliersMod.cs:60-111` `TryPaySupplierDebt`):
 
@@ -163,8 +163,8 @@ Cash first, then bank — preserves physical cash for emergencies, uses the bank
 |---|---|---|
 | `MoneyManager.Instance.cashBalance` | `Il2CppScheduleOne.Money.MoneyManager` | Read physical cash |
 | `MoneyManager.Instance.onlineBalance` | same (use `sync___get_value_onlineBalance()` in IL2CPP) | Read bank balance |
-| `MoneyManager.Instance.ChangeCashBalance(float change, bool visualizeChange = true, bool playCashSound = false)` | same | Adjust physical cash — 2nd param = on-screen change visualization, 3rd = cash sound (verified 2026-10-05, 0.4.7f9 decompile; PocketShop passes `false/false` to keep its own UI feedback, BankApp keeps default visualization) |
-| `MoneyManager.Instance.CreateOnlineTransaction(string title, float unitAmount, float quantity, string note)` | same | Adjust bank + log transaction — **3rd param is `quantity`, NOT `days`**: bank is credited/debited `unitAmount × quantity` (verified 2026-10-05, 0.4.7f9 decompile; workspace code passes `1f`) |
+| `MoneyManager.Instance.ChangeCashBalance(float change, bool visualizeChange = true, bool playCashSound = false)` | same | Adjust physical cash — 2nd param = on-screen change visualization, 3rd = cash sound (verified 2026-10-05, local decompile; PocketShop passes `false/false` to keep its own UI feedback, BankApp keeps default visualization) |
+| `MoneyManager.Instance.CreateOnlineTransaction(string title, float unitAmount, float quantity, string note)` | same | Adjust bank + log transaction — **3rd param is `quantity`, NOT `days`**: bank is credited/debited `unitAmount × quantity` (verified 2026-10-05, local decompile; workspace code passes `1f`) |
 | `Supplier.Debt` (get/set) | `Il2CppScheduleOne.Economy.Supplier` | Outstanding debt |
 | `Supplier.MaxOrderLimit` | same | Order cap (denominator for relationship gain) |
 | `SupplierDebtAccess.ChangeDebt(supplier, delta)` | extension on Supplier | Safe debt mutation (no direct setter on Supplier) |

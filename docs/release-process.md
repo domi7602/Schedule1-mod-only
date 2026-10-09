@@ -5,8 +5,8 @@ Releases are produced **per mod** and **manually**. GitHub-hosted runners do not
 ## Prerequisites
 
 - Schedule I installed; `$env:SCHEDULE1_PATH` set if it is not in the default Steam location.
-- MelonLoader 0.7.3 and S1API deployed into the game directory (the build references `Mods\S1API.Il2Cpp.MelonLoader.dll`).
-- .NET 6 SDK (or newer with the .NET 6 targeting pack) and PowerShell 7.
+- MelonLoader and S1API deployed into the game directory (the build references `Mods\S1API.Il2Cpp.MelonLoader.dll`); required versions: [`docs/compatibility.md`](compatibility.md).
+- An SDK that can build the mod target framework (see `Source/Mods/Directory.Build.props`) and PowerShell 7.
 - Working tree clean, `main` up to date.
 
 ## 1. Bump the version
@@ -63,7 +63,7 @@ Verify the archive contains `Mods/<Mod>.dll`, `Mods/Shared.dll` and `UserData/<M
 2. Create a tag `<ModName>-v<version>` (one mod per tag keeps release notes focused) and push it.
 3. Create a GitHub release from the tag, attach the ZIP from `Release/`, and state in the notes:
    - the game version the package was verified on,
-   - the required frameworks (MelonLoader 0.7.3, S1API 3.2.x, S1MAPI if applicable),
+   - the required frameworks, quoted from [`docs/compatibility.md`](compatibility.md) (MelonLoader, S1API, S1MAPI if applicable),
    - the changelog excerpt for this version.
 4. Update `docs/compatibility.md` if the verified game version changed.
 

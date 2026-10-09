@@ -4,7 +4,7 @@ Analysis of 64 gameplay systems, based on the decompiled C# source code (AssetRi
 
 > **Index:** [`_index.md`](_index.md) is the **single authoritative index** (with depth ratings + redirect stubs). This README keeps only workflow + source provenance.
 
-> verified: file set consolidated 2026-10-05 (7 redirect stubs, one category table). Decompiles regenerated 2026-10-05 against the fresh 0.4.7f9 proxies (ilspycmd 9.1.0.7988, project mode) — spot-check set passed. Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> verified: file set consolidated 2026-10-05 (7 redirect stubs, one category table). Decompiles regenerated 2026-10-05 against the fresh proxies (ilspycmd, project mode) — spot-check set passed.
 
 ## Workflow Guidelines for Agents
 

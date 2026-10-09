@@ -1,9 +1,10 @@
 # Save-Load Timing — Static-Lists-Pitfalls & Solution
 
-> verified: instrumented run 2026-09-29 (game 0.4.7f6 + S1API 3.2.1-beta.7; order re-checked against 0.4.7f9 era decompiles 2026-10-05 — no API change). Anchor: 0.4.7f9-era evidence; runtime 0.4.7f11 per workspace AGENTS.md.
+> Verified: instrumented run 2026-09-29; lifecycle order re-checked against local decompiles on 2026-10-05. `OnSaveInfoLoaded` fired 0 times in that run.
 > Placement-spezifisch (BuildableItem restore): [`../../schedule1-persistence/references/buildable-restore.md`](../../schedule1-persistence/references/buildable-restore.md).
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 28/30 identifier-shaped tokens resolve (1 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
-The Schedule I save-load pipeline is multi-phase. Most "static lists" (e.g. `Property.OwnedProperties`, `NPCManager.Registered`, `MixManager.Products`) are populated **AFTER** the gameplay scene loads, not before. The naive `OnGameplaySceneLoaded` hook fires too early.
+The Schedule I save-load pipeline is multi-phase. Most "static lists" (e.g. `Property.OwnedProperties`, `NPCManager.Registered`, product/mixing state (`MixingStation`, `MixerMap`, `EffectMixCalculator` —there is no `MixManager` type on the installed runtime)) are populated **AFTER** the gameplay scene loads, not before. The naive `OnGameplaySceneLoaded` hook fires too early.
 
 This document explains the timeline, the available hooks, and the proven solution pattern.
 
@@ -24,15 +25,16 @@ Scene build        ← gameplay scene becomes active
   ↓
 Lifecycle event fires:
   - OnGameplaySceneLoaded       ← TOO EARLY for static lists
-  - OnSaveInfoLoaded            ← historical ≤0.4.6f13 stage — DEAD on 0.4.7f6+ (0 firings, see marker below)
+  - OnSaveInfoLoaded <- not observed to fire in the instrumented session; do not rely on it without re-verification
   - OnLoadComplete              ← ★ after scene build complete
   - OnSceneWasLoaded (general)
-  [VERIFIED 2026-09-29 (instrumented run): real order is Scene 'Main' loaded -> OnPreLoad -> OnLoadComplete (7.9 s later). **OnSaveInfoLoaded fired 0 times** on game 0.4.7f6 + S1API 3.2.1-beta.7 — neither at save-menu open nor during the load (two subscribed logging handlers, zero log lines). **Do NOT rely on OnSaveInfoLoaded on 0.4.7f6**: the 'refresh there' pattern in this document is the historical <= 0.4.6f13 recipe. Use OnPreLoad + OnSceneWasLoaded + OnLoadComplete instead. Static proof via ilspycmd is impossible (IL2CPP interop proxies are thunk-only, invokes live in GameAssembly.dll). Evidence: schedule1-lifecycle-verify section 7.]
+  [VERIFIED 2026-09-29 (instrumented run): Scene Main loaded -> OnPreLoad -> OnLoadComplete (7.9 s later). OnSaveInfoLoaded fired 0 times, both at save-menu open and during the load, despite two subscribed logging handlers. Use OnPreLoad + OnSceneWasLoaded + OnLoadComplete for the observed flow.]
+  [STATIC 2026-10-08 (f12 decompile): `Il2CppScheduleOne.Persistence.LoadManager` does declare `public unsafe UnityEvent onSaveInfoLoaded`, but a full-text scan of the 2 234 decompiled game files finds only 5 occurrences — the native field pointer, the property getter and the property setter, all inside LoadManager.cs itself. There is no managed invocation site anywhere in the assembly. So the 0-firing observation is consistent with the event never being raised from game code; it is not a S1API wiring bug. See schedule1-lifecycle-verify section 7.]
   ↓
 Game loop running
 ```
 
-**Key observation:** Phase (1) is where the static lists populate — but `OnGameplaySceneLoaded` is the FIRST hook MelonLoader exposes. S1API *documents* `GameLifecycle.OnSaveInfoLoaded` as the refresh hook, **but on game 0.4.7f6+ it never fires** (verified 2026-09-29, marker above) — the working hooks are `OnPreLoad` (reset) and `OnLoadComplete` (refresh). The S1API doc claim is stale upstream documentation.
+**Key observation:** Static lists populate after `OnGameplaySceneLoaded`, but that callback is too early for refresh. S1API documentation describes `OnSaveInfoLoaded` as a refresh hook; in the instrumented session on 2026-09-29 it fired 0 times, and the f12 decompile shows no managed call site that raises it. Use `OnPreLoad` to reset and `OnLoadComplete` to refresh, then verify the order against the installed runtime.
 
 ---
 
@@ -47,16 +49,16 @@ Game loop running
 vs.
 
 ```
-[<time>] [ModName] Info: OnLoadComplete fired            ← right hook (0.4.7f6+)
+[<time>] [ModName] Info: OnLoadComplete fired (refresh after scene build in the observed run)
 [<time>] [ModName] Info: Found 5 owned properties
 [<time>] [ModName] Info: Property.OwnedProperties.Count = 5
 ```
 
 ---
 
-## 3. The Solution (historical ≤ 0.4.6f13: `GameLifecycle.OnSaveInfoLoaded`; 0.4.7f6+: `OnPreLoad` + `OnLoadComplete`)
+## 3. The Solution (`OnPreLoad` + `OnLoadComplete`; the older `OnSaveInfoLoaded` recipe is not relied on)
 
-> **BROKEN on game 0.4.7f6 + S1API 3.2.1-beta.7 (verified 2026-09-29):** `OnSaveInfoLoaded` no longer fires at all (see the marker in section 1). The snippet below is the historical (<= 0.4.6f13) pattern. On 0.4.7f6+ subscribe `OnPreLoad` (reset), `OnSceneWasLoaded` (scene in) and `OnLoadComplete` (final refresh) instead.
+> **Observed in the 2026-09-29 instrumented run:** `OnSaveInfoLoaded` fired 0 times. The older recipe below is retained only as historical context; use `OnPreLoad` for reset, `OnSceneWasLoaded` for scene entry, and `OnLoadComplete` for final refresh, then re-check current runtime behavior.
 
 ```csharp
 // In Mod.cs / Mod class:
@@ -93,10 +95,10 @@ private void OnLoadComplete()
 
 ## 4. Why Not Retry / Polling?
 
-A previously-used fallback (PotScanner v0.2.0) was a retry loop with delays 3s/6s/12s/25s:
+A previously-used PotScanner fallback was a retry loop with delays 3s/6s/12s/25s:
 
 ```csharp
-// v0.2.0 PRE-fix:
+// PRE-FIX RETRY LOOP:
 private void Tick()
 {
     if (Property.OwnedProperties.Count > 0 && !_refreshed)
@@ -114,7 +116,7 @@ private void Tick()
 3. Adds 60+ lines of timeout-management code.
 4. Confused the log with retry diagnostics.
 
-The lifecycle hook is **cleaner** (≈ 60 fewer lines in PotTracker.cs), **faster** (instant), and **more reliable** (deterministic, no timing guess). On 0.4.7f6+ the clean hook is `OnLoadComplete` (see §3 BROKEN note — `OnSaveInfoLoaded` no longer fires).
+The lifecycle hook is **cleaner** (about 60 fewer lines in PotTracker.cs), **faster** (instant), and **more reliable** (deterministic, no timing guess). In the observed run, `OnLoadComplete` was the clean hook (see section 3; `OnSaveInfoLoaded` was not observed to fire).
 
 ---
 
@@ -141,16 +143,16 @@ The `AfterBaseGame` order means items are loaded after the base-game state — t
 
 ---
 
-## 6. Reference Implementation: PotScanner v0.2.1 (2026-08-04, game 0.4.6f13-era — historical)
+## 6. Reference Implementation: PotScanner Lifecycle Fix (2026-08-04)
 
-> The PotScanner fix below used `OnSaveInfoLoaded`, which worked on 0.4.6f13 and is **dead on 0.4.7f6+** (see §1 marker). The *pattern* (lifecycle hook instead of retry loop) stays; on 0.4.7f9 put the same body into an `OnLoadComplete` handler.
+> An earlier PotScanner implementation used `OnSaveInfoLoaded`. A later instrumented session observed 0 firings, so do not rely on that result without retesting. The transferable lesson is to prefer deterministic lifecycle hooks over retry loops; use `OnLoadComplete` for the final refresh when confirmed in the installed runtime.
 
-Before (v0.2.0):
+Before the lifecycle-hook fix:
 - `OnGameplaySceneLoaded` fires, OwnedProperties empty.
 - 25-second retry loop in `PotTracker.Tick()` eventually catches the populated list.
 - Used 60+ lines for retry logic.
 
-After (v0.2.1):
+After the lifecycle-hook fix:
 ```csharp
 // PotTracker.cs
 public void OnSaveInfoLoaded()
@@ -202,7 +204,7 @@ This is **inferior** to the hook but works as a fallback when S1API isn't availa
 2. **Use only the first phase.** `OnPreLoad` is for reset; `OnLoadComplete` is for cache refresh + UI init — pick the right one based on need.
 3. **Forget hot-reload.** If your mod supports MelonLoader's hot-reload, subscribe/unsubscribe in `OnInitializeMelon`/`OnDeinitializeMelon` symmetrically.
 4. **Race with FishNet SyncVars.** Multiplayer sync may overwrite your local cache — defer UI updates until `OnLoadComplete`. Diagnostic pattern: [`../fishnet-syncvar-diagnosis.md`](fishnet-syncvar-diagnosis.md).
-5. **S1API docs claim `OnSaveInfoLoaded` is multi-fire (surfaced 2026-09-28) — empirically REFUTED on 0.4.7f6+ (verified 2026-09-29: 0 firings ever).** The docs statement describes intended behavior on older versions (or is stale upstream); on the current game the event is never invoked at all. Keep handlers idempotent anyway — the advice transfers to `OnPreLoad` (which DOES fire for both slot switches and same-slot scene reloads, see `schedule1-modding` Rule 18).
+5. **S1API docs describe `OnSaveInfoLoaded` as multi-fire, but the 2026-09-29 instrumented session observed 0 firings.** This is a runtime observation, not a universal guarantee. Keep handlers idempotent and re-check the installed build; `OnPreLoad` was observed for both slot switches and same-slot scene reloads (see `schedule1-modding` Rule 18).
 
 ---
 
@@ -227,7 +229,7 @@ Use `S1Mods.Shared.TypeResolver.Find` to resolve the type across loaded assembli
 
 ## 10. Sanity Checks (Logging Pattern)
 
-Always log the timing-order to validate (verified order on 0.4.7f6+: Scene 'Main' → OnPreLoad → OnLoadComplete):
+Always log the timing order to validate against the installed runtime (the 2026-09-29 observation was Scene Main -> OnPreLoad -> OnLoadComplete):
 ```csharp
 private void OnGameplaySceneLoaded()   => Log.Info($"OnSceneLoaded: Owned={Property.OwnedProperties.Count}");
 private void OnPreLoad()               => Log.Info($"OnPreLoad: Owned={Property.OwnedProperties.Count}");
@@ -237,3 +239,23 @@ private void OnLoadComplete()          => Log.Info($"OnLoadComplete: Owned={Prop
 If `OnLoadComplete.Count > 0` but `OnGameplaySceneLoaded.Count == 0`, **the lists populate between the two events** — expected. If `OnLoadComplete.Count == 0` too, statics populate even later (or are player-state dependent) — log the first successful refresh tick instead.
 
 <!-- RESOLVED 2026-10-05: FishNet/SyncVar diagnostic pattern now exists → fishnet-syncvar-diagnosis.md (same folder). Host-side runtime behaviors there remain partially `unverified` until an instrumented multiplayer session. -->
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+---
+
+## Unresolved identifiers (f12 static check 2026-10-08)
+
+These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+
+- `MixManager`
