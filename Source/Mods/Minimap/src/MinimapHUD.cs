@@ -673,7 +673,12 @@ public sealed class MinimapHUD
             _cardRt.anchorMin = new Vector2(0.5f, 0.5f);
             _cardRt.anchorMax = new Vector2(0.5f, 0.5f);
             _cardRt.pivot = new Vector2(0.5f, 0.5f);
-            _cardRt.anchoredPosition = new Vector2(config.CustomPosX, config.CustomPosY);
+            // Clamp to the canvas: a saved position from a larger resolution must not push the HUD off-screen.
+            float maxX = Mathf.Max(0f, (S1Mods.Shared.UITheme.ActualWidth - size) * 0.5f);
+            float maxY = Mathf.Max(0f, (S1Mods.Shared.UITheme.ActualHeight - totalHeight) * 0.5f);
+            _cardRt.anchoredPosition = new Vector2(
+                Mathf.Clamp(config.CustomPosX, -maxX, maxX),
+                Mathf.Clamp(config.CustomPosY, -maxY, maxY));
         }
         else
         {

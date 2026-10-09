@@ -645,6 +645,8 @@ public sealed class MinimapBlips
                 BlipType.ActiveDeal => MinimapTextures.GetBlipDeal(),
                 BlipType.PotentialCustomer => MinimapTextures.GetBlipPotential(),
                 BlipType.KnownCustomer => MinimapTextures.GetBlipDealer(),
+                BlipType.Dealer => MinimapTextures.GetBlipDealer(),
+                BlipType.Waypoint => MinimapTextures.GetBlipQuest(),
                 BlipType.Property => MinimapTextures.GetBlipProperty(),
                 BlipType.SleepingBag => MinimapTextures.GetBlipSleepingBag(),
                 BlipType.Shop => MinimapTextures.GetBlipShop(),

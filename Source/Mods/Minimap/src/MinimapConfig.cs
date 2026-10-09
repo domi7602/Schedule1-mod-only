@@ -46,7 +46,6 @@ public sealed class MinimapConfig
     public float BackgroundOpacity { get; set; } = 0.85f;
     public string BorderColorHex { get; set; } = "#3BD882"; // Emerald accent
     public bool ShowCompassRing { get; set; } = false; // Only on Circle
-    public bool ShowPlayerArrow { get; set; } = true;
 
     // Performance & Range Filtering
     public float MaxEntityRange { get; set; } = 140f; // Max detection range in meters
