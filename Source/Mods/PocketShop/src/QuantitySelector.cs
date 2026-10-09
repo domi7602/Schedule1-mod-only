@@ -20,6 +20,7 @@ public class QuantitySelector
 
     private int _maxStockOrSentinel;
     private int _quantity;
+    private StockState _stock;
     private InputField _inputField = null!;
     private GameObject? _bar;
 
@@ -29,9 +30,26 @@ public class QuantitySelector
     public bool IsAtMin => _quantity <= 1;
 
     public QuantitySelector(int maxStockOrSentinel, int initial = 1)
+        : this(StockFromMaximum(maxStockOrSentinel), initial)
     {
-        _maxStockOrSentinel = maxStockOrSentinel;
+    }
+
+    public QuantitySelector(StockState stock, int initial = 1)
+    {
+        _stock = stock;
+        _maxStockOrSentinel = stock.QuantityLimit;
         _quantity = Mathf.Clamp(initial, 1, EffectiveMax());
+    }
+
+    private static StockState StockFromMaximum(int maximum)
+    {
+        if (maximum == PurchaseService.UnlimitedStockSentinel)
+            return new StockState(StockKind.Unlimited, PurchaseService.UnlimitedStockSentinel, PurchaseService.UnlimitedStockSentinel);
+        if (maximum > 0)
+            return new StockState(StockKind.LimitedAvailable, maximum, maximum);
+        if (maximum == 0)
+            return new StockState(StockKind.LimitedEmpty, 0, 0);
+        return new StockState(StockKind.Unknown, 0, 0);
     }
 
     public int EffectiveMax()
@@ -41,7 +59,8 @@ public class QuantitySelector
         return _maxStockOrSentinel;
     }
 
-    public bool IsStockEmpty => _maxStockOrSentinel == 0;
+    public bool IsStockEmpty => _stock.Kind == StockKind.LimitedEmpty;
+    public bool IsStockKnown => _stock.Kind != StockKind.Unknown && _stock.Kind != StockKind.NotOffered;
 
     public GameObject Build(Transform parent)
     {
@@ -137,24 +156,28 @@ public class QuantitySelector
         OnChanged?.Invoke(_quantity);
     }
 
-    public void ClampTo(int newMax)
+    public void SetStockState(StockState stock)
     {
-        _maxStockOrSentinel = newMax;
-        int sentinel = PurchaseService.UnlimitedStockSentinel;
-        if (newMax == sentinel)
+        _stock = stock;
+        _maxStockOrSentinel = stock.QuantityLimit;
+        if (stock.Kind == StockKind.Unlimited)
         {
             _quantity = Mathf.Clamp(_quantity, 1, 99);
         }
-        else if (newMax <= 0)
+        else if (stock.Kind == StockKind.LimitedAvailable)
         {
-            _quantity = 1;
+            _quantity = Mathf.Clamp(_quantity, 1, stock.Quantity);
         }
         else
         {
-            _quantity = Mathf.Clamp(_quantity, 1, newMax);
+            _quantity = 1;
         }
-        if (_inputField != null) _inputField.text = _quantity.ToString();
+
+        if (_inputField != null) _inputField.SetTextWithoutNotify(_quantity.ToString());
+        SetInteractable(stock.CanBuy(1));
     }
+
+    public void ClampTo(int newMax) => SetStockState(StockFromMaximum(newMax));
 
     public void SetQuantity(int newQty)
     {

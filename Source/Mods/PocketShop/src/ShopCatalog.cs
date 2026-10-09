@@ -6,6 +6,7 @@ using Il2CppScheduleOne.Levelling;
 using Il2CppScheduleOne.UI.Shop;
 using MelonLoader;
 using PocketShop.Config;
+using S1Mods.Shared;
 using UnityEngine;
 using EPaymentType = Il2CppScheduleOne.UI.Shop.ShopInterface.EPaymentType;
 
@@ -23,11 +24,14 @@ public sealed class ItemPOCO
     public float Price { get; set; }
     public int CurrentStock { get; set; }
     public bool IsInStock { get; set; }
+    public StockState Stock { get; set; }
     public string ShopName { get; set; } = string.Empty;
     public string ShopCode { get; set; } = string.Empty;
+    public string StableItemId { get; set; } = string.Empty;
     public int CategoryValue { get; set; }
     public StorableItemDefinition Definition { get; set; } = null!;
     public ShopListing SourceListing { get; set; } = null!;
+    public ShopInterface SourceShop { get; set; } = null!;
     public Sprite? Icon { get; set; }
 
     /// <summary>
@@ -47,7 +51,7 @@ public sealed class ItemPOCO
                     return Definition.ID ?? string.Empty;
             }
             catch { }
-            return string.Empty;
+            return StableItemId ?? string.Empty;
         }
     }
 
@@ -164,20 +168,32 @@ public sealed class ShopPOCO
     /// <summary>Unlock + opening-hours state, resolved per catalog refresh.</summary>
     public ShopGate Gate { get; set; } = new ShopGate();
 
-    public bool IsLocked => Gate?.IsLocked ?? false;
-    public bool IsOpen => Gate?.IsOpen ?? true;
+    public bool IsLocked => Gate?.IsKnown == true && Gate.IsLocked;
+    public bool IsOpen => Gate?.IsKnown == true && Gate.IsOpen;
+    public bool IsAvailable => Gate?.CanPurchase == true;
+    public bool GateKnown => Gate?.IsKnown == true;
     public bool HasSchedule => Gate?.HasSchedule ?? false;
     public string HoursText => Gate?.HoursText ?? string.Empty;
 }
 
+/// <summary>Verified live values read from the current registered shop and listing.</summary>
+public readonly record struct LiveShopOffer(
+    ShopInterface Shop,
+    ShopListing Listing,
+    StorableItemDefinition Definition,
+    StockState Stock,
+    float Price,
+    EPaymentType PaymentType,
+    ShopGate Gate);
+
 /// <summary>
 /// Aggregates items + shops from all vanilla shops via <see cref="ShopInterface.AllShops"/>.
-/// Handles the save-load timing race condition by retrying until at least one shop is registered.
+/// Handles save-load timing by retrying until at least one live shop is registered.
 /// </summary>
 public static class ShopCatalog
 {
-    private static readonly List<ItemPOCO> _itemCache = new();
-    private static readonly List<ShopPOCO> _shopCache = new();
+    private static List<ItemPOCO> _itemCache = new();
+    private static List<ShopPOCO> _shopCache = new();
     private static bool _initialised;
 
     private static int _retryCount;
@@ -188,6 +204,9 @@ public static class ShopCatalog
     public static IReadOnlyList<ItemPOCO> Items => _itemCache;
     public static IReadOnlyList<ShopPOCO> Shops => _shopCache;
 
+    /// <summary>True after at least one registered shop has been read successfully, even if it has no listings.</summary>
+    public static bool IsInitialized => _initialised;
+    /// <summary>Compatibility property: true when the cached catalog has no purchasable item rows.</summary>
     public static bool IsEmpty => _itemCache.Count == 0;
 
     public static List<ItemPOCO> GetItemsOfShop(string shopCode)
@@ -200,158 +219,328 @@ public static class ShopCatalog
         return result;
     }
 
-    /// <summary>
-    /// Live availability of the shop with the given code. Re-resolved from vanilla state
-    /// because opening hours can change while the app is open; falls back to the cached
-    /// gate when the native shop reference is gone. False when the code is unknown.
-    /// </summary>
+    /// <summary>Resolves a shop gate only from the currently registered live shop.</summary>
     public static bool TryGetGate(string shopCode, out ShopGate gate)
     {
         gate = new ShopGate();
         if (string.IsNullOrEmpty(shopCode)) return false;
+
         for (int i = 0; i < _shopCache.Count; i++)
         {
-            var poco = _shopCache[i];
-            if (poco == null || poco.ShopCode != shopCode) continue;
-            try
-            {
-                if (poco.SourceShop != null && poco.SourceShop.Pointer != IntPtr.Zero && !poco.SourceShop.WasCollected)
-                {
-                    gate = ShopGateResolver.Resolve(poco.SourceShop, poco.ShopCode, poco.Name);
-                    return true;
-                }
-            }
-            catch { }
-            gate = poco.Gate ?? new ShopGate();
+            var snapshot = _shopCache[i];
+            if (snapshot == null || !string.Equals(snapshot.ShopCode, shopCode, StringComparison.Ordinal)) continue;
+            if (!TryFindRegisteredShop(snapshot.SourceShop, snapshot.ShopCode, out var liveShop, out _)) return false;
+            gate = ShopGateResolver.Resolve(liveShop, snapshot.ShopCode, snapshot.Name);
             return true;
         }
         return false;
+    }
+
+    /// <summary>
+    /// Reads the current listing, owning shop, visibility, stock, price, payment rule, and gate.
+    /// A cached POCO is never sufficient authority for a purchase.
+    /// </summary>
+    public static bool TryResolveLiveOffer(ItemPOCO item, out LiveShopOffer offer, out string failure)
+    {
+        offer = default;
+        failure = "The listing is no longer available.";
+        if (item == null || !NetworkGuard.IsAlive(item.SourceShop) || !IsListingAlive(item.SourceListing))
+        {
+            failure = "The shop listing has expired. Refresh the shop and try again.";
+            return false;
+        }
+
+        string expectedItemId = item.StableItemId;
+        if (string.IsNullOrEmpty(expectedItemId))
+        {
+            try
+            {
+                var snapshotDefinition = item.SourceListing.Item;
+                if (NetworkGuard.IsAlive(snapshotDefinition)) expectedItemId = snapshotDefinition!.ID ?? string.Empty;
+            }
+            catch { expectedItemId = string.Empty; }
+        }
+        if (string.IsNullOrEmpty(expectedItemId))
+        {
+            failure = "The item identity could not be verified.";
+            return false;
+        }
+
+        if (!TryFindRegisteredShop(item.SourceShop, item.ShopCode, out var shop, out failure)) return false;
+
+        try
+        {
+            var listings = shop.Listings;
+            if (listings == null || listings.Pointer == IntPtr.Zero || listings.WasCollected)
+            {
+                failure = "The shop listing list is unavailable.";
+                return false;
+            }
+
+            ShopListing? listing = null;
+            for (int i = 0; i < listings.Count; i++)
+            {
+                var candidate = listings[i];
+                if (IsListingAlive(candidate) && candidate!.Pointer == item.SourceListing.Pointer)
+                {
+                    listing = candidate;
+                    break;
+                }
+            }
+            if (listing == null)
+            {
+                failure = "This item is no longer offered by the selected shop.";
+                return false;
+            }
+
+            var owner = listing.Shop;
+            if (!NetworkGuard.IsAlive(owner) || owner!.Pointer != shop.Pointer)
+            {
+                failure = "The listing no longer belongs to the selected shop.";
+                return false;
+            }
+
+            var definition = listing.Item;
+            if (!NetworkGuard.IsAlive(definition))
+            {
+                failure = "The item definition is no longer available.";
+                return false;
+            }
+            string liveItemId = definition!.ID ?? string.Empty;
+            if (!string.Equals(liveItemId, expectedItemId, StringComparison.OrdinalIgnoreCase))
+            {
+                failure = "The item changed while the shop was open. Refresh and try again.";
+                return false;
+            }
+
+            bool shouldShow = listing.ShouldShow();
+            bool limitedStock = listing.LimitedStock;
+            int currentStock = listing.CurrentStock;
+            var stock = PurchaseRules.ResolveStock(true, true, limitedStock, currentStock);
+            // Vanilla may hide a sold-out limited listing. Keep it visible as OUT when the
+            // selected live listing itself is still registered; purchases remain blocked by stock.CanBuy.
+            if (!shouldShow && stock.Kind != StockKind.LimitedEmpty)
+            {
+                failure = "This item is no longer being offered.";
+                return false;
+            }
+
+            float price = listing.Price;
+            var paymentType = shop.PaymentType;
+            var gate = ShopGateResolver.Resolve(shop, item.ShopCode, shop.ShopName);
+
+            item.Name = ResolveCleanItemName(definition, listing);
+            item.Price = price;
+            item.CurrentStock = stock.Quantity;
+            item.IsInStock = stock.CanBuy(1);
+            item.Stock = stock;
+            item.Definition = definition;
+            item.ShopPaymentType = paymentType;
+
+            offer = new LiveShopOffer(shop, listing, definition, stock, price, paymentType, gate);
+            failure = string.Empty;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            failure = $"Live shop data could not be read: {ex.Message}";
+            return false;
+        }
+    }
+
+    private static bool TryFindRegisteredShop(ShopInterface source, string expectedCode, out ShopInterface liveShop, out string failure)
+    {
+        liveShop = null!;
+        failure = "The shop is no longer registered.";
+        if (!NetworkGuard.IsAlive(source)) return false;
+
+        try
+        {
+            var allShops = ShopInterface.AllShops;
+            if (allShops == null || allShops.Pointer == IntPtr.Zero || allShops.WasCollected) return false;
+            for (int i = 0; i < allShops.Count; i++)
+            {
+                var candidate = allShops[i];
+                if (!NetworkGuard.IsAlive(candidate) || candidate!.Pointer != source.Pointer) continue;
+
+                string currentCode = ResolveShopCode(candidate, i);
+                if (!string.Equals(currentCode, expectedCode, StringComparison.Ordinal))
+                {
+                    failure = "The shop identity changed while the app was open.";
+                    return false;
+                }
+
+                liveShop = candidate;
+                failure = string.Empty;
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            failure = $"The live shop registry could not be read: {ex.Message}";
+            return false;
+        }
+        return false;
+    }
+
+    private static bool IsListingAlive(ShopListing? listing)
+    {
+        if (listing == null) return false;
+        try { return listing.Pointer != IntPtr.Zero && !listing.WasCollected; }
+        catch { return false; }
+    }
+
+    private static string ResolveShopCode(ShopInterface shop, int index)
+    {
+        if (!string.IsNullOrEmpty(shop.ShopCode)) return shop.ShopCode;
+        if (!string.IsNullOrEmpty(shop.ShopName)) return shop.ShopName;
+        return shop.name ?? $"shop_{index}";
     }
 
     public static void Refresh()
     {
         try
         {
-            // Bug-Audit 2026-09-13 (Round 5): aggressive cache invalidation.
-            // Clear caches BEFORE reading ShopInterface.AllShops so that any
-            // stale POCO references are fully dropped. This prevents
-            // "ghost shops" when a shop is unregistered between Refresh calls.
-            _itemCache.Clear();
-            _shopCache.Clear();
-
             var allShops = ShopInterface.AllShops;
             if (allShops == null || allShops.Count == 0)
             {
-                _initialised = false;
+                // The game is still registering shops (or is unloading). Keep the last good
+                // snapshot intact; scene teardown explicitly resets it when appropriate.
                 return;
             }
 
-            var perShopCount = new Dictionary<string, int>();
+            var nextItems = new List<ItemPOCO>();
+            var nextShops = new List<ShopPOCO>();
+            int registeredCount = 0;
+            bool refreshHadShopReadError = false;
 
             for (int s = 0; s < allShops.Count; s++)
             {
                 var shop = allShops[s];
-                if (shop == null) continue;
+                if (!NetworkGuard.IsAlive(shop)) continue;
+                registeredCount++;
 
-                var listings = shop.Listings;
-                if (listings == null) continue;
-
-                // Fallback chain: ShopCode → ShopName → GameObject name → Slot index (never null).
-                var code = !string.IsNullOrEmpty(shop.ShopCode) ? shop.ShopCode
-                    : !string.IsNullOrEmpty(shop.ShopName) ? shop.ShopName
-                    : shop.name ?? $"shop_{s}";
-
-                // v0.3.1: cache the vanilla payment rule (Black Market = Cash, clean shops = Card).
-                // TryCast-guarded: a host app domain mismatch must not kill the whole refresh.
-                var shopPaymentType = EPaymentType.Online;
-                try { shopPaymentType = shop.PaymentType; } catch { }
-
-                int availableCount = 0;
-
-                for (int i = 0; i < listings.Count; i++)
+                try
                 {
-                    var listing = listings[i];
-                    if (listing == null) continue;
-                    if (listing.Item == null) continue;
-                    try
+                    var listings = shop!.Listings;
+                    if (listings == null || listings.Pointer == IntPtr.Zero || listings.WasCollected)
                     {
-                        if (!listing.ShouldShow()) continue;
+                        refreshHadShopReadError = true;
+                        MelonLogger.Warning($"PocketShop skipped shop with unreadable listings: {shop.ShopName}");
+                        continue;
                     }
-                    catch { }
-                    // Unlimited listings (LimitedStock=false, e.g. mod-injected) count as in-stock,
-                    // even when IsInStock/CurrentStock were never initialised (vanilla semantics).
-                    // CurrentStock-fallback covers stale saves (LimitedStock=true, IsInStock never set,
-                    // but Stock > 0 present) — such listings would otherwise be invisible.
-                    bool inStock = listing.IsInStock || !listing.LimitedStock || listing.CurrentStock > 0;
-                    if (!inStock) continue;
 
-                    availableCount++;
-                    var def = listing.Item;
+                    string code = ResolveShopCode(shop, s);
+                    EPaymentType paymentType;
+                    try { paymentType = shop.PaymentType; }
+                    catch { paymentType = (EPaymentType)(-1); }
 
-                    _itemCache.Add(new ItemPOCO
+                    var gate = ShopGateResolver.Resolve(shop, code, shop.ShopName);
+                    int availableCount = 0;
+
+                    for (int i = 0; i < listings.Count; i++)
                     {
-                        Name = ResolveCleanItemName(def, listing),
-                        Price = listing.Price,
-                        CurrentStock = listing.CurrentStock,
-                        IsInStock = listing.IsInStock,
-                        ShopName = shop.ShopName,
+                        var listing = listings[i];
+                        if (!IsListingAlive(listing)) continue;
+
+                        try
+                        {
+                            var definition = listing!.Item;
+                            if (!NetworkGuard.IsAlive(definition)) continue;
+                            if (!listing.ShouldShow()) continue;
+
+                            StockState stock;
+                            try
+                            {
+                                stock = PurchaseRules.ResolveStock(true, true, listing.LimitedStock, listing.CurrentStock);
+                            }
+                            catch
+                            {
+                                stock = new StockState(StockKind.Unknown, 0, 0);
+                            }
+
+                            float price;
+                            try { price = listing.Price; }
+                            catch { price = float.NaN; }
+
+                            string itemId;
+                            try { itemId = definition!.ID ?? string.Empty; }
+                            catch { itemId = string.Empty; }
+                            if (string.IsNullOrEmpty(itemId)) continue;
+
+                            nextItems.Add(new ItemPOCO
+                            {
+                                Name = ResolveCleanItemName(definition!, listing),
+                                Price = price,
+                                CurrentStock = stock.Quantity,
+                                IsInStock = stock.CanBuy(1),
+                                Stock = stock,
+                                ShopName = shop.ShopName,
+                                ShopCode = code,
+                                StableItemId = itemId,
+                                CategoryValue = (int)definition!.Category,
+                                Definition = definition,
+                                SourceListing = listing,
+                                SourceShop = shop,
+                                Icon = definition.Icon,
+                                ShopPaymentType = paymentType
+                            });
+
+                            if (stock.CanBuy(1)) availableCount++;
+                        }
+                        catch (Exception ex)
+                        {
+                            MelonLogger.Warning($"PocketShop skipped an invalid listing in '{code}': {ex.Message}");
+                        }
+                    }
+
+                    nextShops.Add(new ShopPOCO
+                    {
+                        Name = shop.ShopName,
                         ShopCode = code,
-                        CategoryValue = (int)def.Category,
-                        Definition = def,
-                        SourceListing = listing,
-                        Icon = def.Icon,
-                        ShopPaymentType = shopPaymentType
+                        ItemCount = availableCount,
+                        PaymentType = paymentType,
+                        SourceShop = shop,
+                        Gate = gate
                     });
                 }
-
-                // Availability (unlock + opening hours) resolved from vanilla state; every
-                // decision is logged by ShopGateResolver so a playtest log can attribute it.
-                var gate = ShopGateResolver.Resolve(shop, code, shop.ShopName);
-
-                // Always show shop tile — even with 0 available items (empty state "OUT").
-                // Previously the shop vanished completely from the catalog as soon as everything was sold out.
-                perShopCount[code] = availableCount;
-                _shopCache.Add(new ShopPOCO
+                catch (Exception ex)
                 {
-                    Name = shop.ShopName,
-                    ShopCode = code,
-                    ItemCount = availableCount,
-                    PaymentType = shopPaymentType,
-                    SourceShop = shop,
-                    Gate = gate
-                });
+                    refreshHadShopReadError = true;
+                    // A broken shop entry is isolated; do not discard the last fully committed snapshot.
+                    MelonLogger.Warning($"PocketShop skipped an unreadable shop: {ex.Message}");
+                }
             }
 
-            _initialised = _itemCache.Count > 0;
-            if (_initialised)
+            if (refreshHadShopReadError || registeredCount == 0 || nextShops.Count == 0) return;
+
+            // Commit only after the candidate snapshot was built. A failed refresh leaves the
+            // previous good snapshot available for display, but purchases still revalidate live.
+            _itemCache = nextItems;
+            _shopCache = nextShops;
+            _initialised = true;
+            _retryCount = 0;
+
+            var handlers = OnCatalogChanged?.GetInvocationList();
+            if (handlers != null)
             {
-                _retryCount = 0;
-                // Per-handler invoke: a throwing subscriber (e.g. dead UI after
-                // scene reload) must not abort the other handlers nor Refresh()
-                // — otherwise _initialised=false + StopRetryLoop = catalog dead.
-                var handlers = OnCatalogChanged?.GetInvocationList();
-                if (handlers != null)
+                foreach (var handler in handlers)
                 {
-                    foreach (var h in handlers)
-                    {
-                        try { ((Action)h)(); }
-                        catch (Exception ex) { MelonLogger.Warning($"ShopCatalog subscriber failed: {ex.Message}"); }
-                    }
+                    try { ((Action)handler)(); }
+                    catch (Exception ex) { MelonLogger.Warning($"ShopCatalog subscriber failed: {ex.Message}"); }
                 }
             }
         }
         catch (Exception ex)
         {
+            // Preserve the last committed snapshot and allow the retry loop to try again.
             MelonLogger.Warning($"ShopCatalog refresh failed: {ex.Message}");
-            _initialised = false;
-            StopRetryLoop();
-            return;
         }
     }
 
     /// <summary>
-    /// Retries the refresh if the catalog is still empty. Safe to call every frame.
-    /// Bails out after 20 attempts (~30s at 1.5s interval) to avoid spinning forever.
+    /// Retries until at least one valid registered shop catalog is read. A shop with zero
+    /// visible listings is still a successfully initialized catalog.
     /// </summary>
     public static void RetryIfEmpty()
     {
@@ -368,6 +557,7 @@ public static class ShopCatalog
         {
             _retryCount++;
             Refresh();
+            if (_initialised) break;
             yield return new WaitForSeconds(1.5f);
         }
         _retryHandle = null;
@@ -385,8 +575,8 @@ public static class ShopCatalog
     public static void ResetForSceneReload()
     {
         StopRetryLoop();
-        _itemCache.Clear();
-        _shopCache.Clear();
+        _itemCache = new List<ItemPOCO>();
+        _shopCache = new List<ShopPOCO>();
         _initialised = false;
         _retryCount = 0;
     }

@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using GamePalette = S1Mods.Shared.GamePalette;
 using UITheme = S1Mods.Shared.UITheme;
 
 namespace PocketShop.UI;
@@ -11,11 +12,12 @@ internal static class AppHeaderBuilder
     /// Builds the app header: [&lt;]  POCKETSHOP  [ search field ]  [X].
     /// The emoji "shopping bag" glyph was dropped (Arial renders emoji as blanks, so it
     /// showed as an empty gap) and a live search field was added in the same row.
-    /// Returns the search InputField so the app can attach its focus guard.
+    /// Returns the search InputField so the app can attach its focus guard; the back
+    /// button is returned so the app can hide it on the top-level directory.
     /// </summary>
-    public static InputField Build(Transform parent, Action onBack, Action onClose, Action<string> onSearchChanged)
+    public static InputField Build(Transform parent, Action onBack, Action onClose, Action<string> onSearchChanged, out GameObject backButton)
     {
-        var header = S1API.UI.UIFactory.Panel("AppHeader", parent, new Color(0.08f, 0.10f, 0.14f, 1f));
+        var header = S1API.UI.UIFactory.Panel("AppHeader", parent, GamePalette.Header);
         var hLE = header.AddComponent<LayoutElement>();
         hLE.minHeight = UITheme.Dp(46f);
         hLE.preferredHeight = UITheme.Dp(46f);
@@ -31,7 +33,7 @@ internal static class AppHeaderBuilder
         hlg.childAlignment = TextAnchor.MiddleLeft;
 
         // Back button (left)
-        BuildButton(header.transform, "<", new Color(0.18f, 0.21f, 0.28f, 1f), Color.white, 36, onBack);
+        backButton = BuildButton(header.transform, "<", GamePalette.CardAlt, GamePalette.TextPrimary, 36, onBack);
 
         // Title (no emoji glyph - it rendered as a blank box in Arial)
         var titleTxt = S1API.UI.UIFactory.Text("Title", "POCKETSHOP", header.transform, UITheme.Sp(15), TextAnchor.MiddleLeft, FontStyle.Bold | FontStyle.Italic);
@@ -45,8 +47,8 @@ internal static class AppHeaderBuilder
         // Live search
         var search = BuildSearchField(header.transform, onSearchChanged);
 
-        // X close button (coral red)
-        BuildButton(header.transform, "X", new Color(0.85f, 0.28f, 0.35f, 1f), Color.white, 32, onClose);
+        // X close button (palette red)
+        BuildButton(header.transform, "X", GamePalette.Red, GamePalette.TextPrimary, 32, onClose);
 
         return search;
     }
@@ -67,7 +69,7 @@ internal static class AppHeaderBuilder
         le.preferredHeight = UITheme.Dp(28f);
         le.minHeight = UITheme.Dp(28f);
 
-        var bg = S1API.UI.UIFactory.Panel("Background", go.transform, new Color(0.14f, 0.16f, 0.20f, 1f), fullAnchor: true);
+        var bg = S1API.UI.UIFactory.Panel("Background", go.transform, GamePalette.Card, fullAnchor: true);
         var bgImg = bg.GetComponent<Image>();
         if (bgImg != null)
         {
@@ -80,13 +82,13 @@ internal static class AppHeaderBuilder
         field.targetGraphic = bgImg;
 
         var text = S1API.UI.UIFactory.Text("Text", string.Empty, go.transform, UITheme.Sp(13), TextAnchor.MiddleLeft);
-        Stretch(text.rectTransform, 12f, 10f);
+        Stretch(text.rectTransform, 12f, 30f);
         text.color = new Color(0.92f, 0.94f, 0.97f, 1f);
         text.supportRichText = false;
         text.raycastTarget = false;
 
         var placeholder = S1API.UI.UIFactory.Text("Placeholder", "Search...", go.transform, UITheme.Sp(13), TextAnchor.MiddleLeft);
-        Stretch(placeholder.rectTransform, 12f, 10f);
+        Stretch(placeholder.rectTransform, 12f, 30f);
         placeholder.color = new Color(0.55f, 0.60f, 0.68f, 1f);
         placeholder.supportRichText = false;
         placeholder.raycastTarget = false;
@@ -103,7 +105,31 @@ internal static class AppHeaderBuilder
             catch (Exception ex) { MelonLoader.MelonLogger.Warning($"[PocketShop] search wiring failed: {ex.Message}"); }
         }
 
+        var clear = BuildClearButton(go.transform);
+        S1API.Utils.ButtonUtils.AddListener(clear, () => field.text = string.Empty);
+
         return field;
+    }
+
+    /// <summary>Small "x" at the right edge of the search field; clears the query.</summary>
+    private static Button BuildClearButton(Transform parent)
+    {
+        var panel = S1API.UI.UIFactory.Panel("ClearSearch", parent, Color.clear);
+        var rt = panel.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1f, 0.5f);
+        rt.anchorMax = new Vector2(1f, 0.5f);
+        rt.pivot = new Vector2(1f, 0.5f);
+        rt.sizeDelta = new Vector2(UITheme.Dp(24f), UITheme.Dp(24f));
+        rt.anchoredPosition = new Vector2(-UITheme.Dp(4f), 0f);
+
+        var btn = panel.AddComponent<Button>();
+        btn.transition = Selectable.Transition.None;
+
+        var txt = S1API.UI.UIFactory.Text("Txt", "x", panel.transform, UITheme.Sp(12), TextAnchor.MiddleCenter, FontStyle.Bold);
+        Stretch(txt.rectTransform, 0f, 0f);
+        txt.color = GamePalette.TextMuted;
+        txt.raycastTarget = false;
+        return btn;
     }
 
     private static void Stretch(RectTransform rt, float leftDp, float rightDp)
@@ -115,7 +141,7 @@ internal static class AppHeaderBuilder
         rt.offsetMax = new Vector2(-UITheme.Dp(rightDp), 0f);
     }
 
-    private static void BuildButton(Transform parent, string label, Color bg, Color fg, int widthDp, Action onClick)
+    private static GameObject BuildButton(Transform parent, string label, Color bg, Color fg, int widthDp, Action onClick)
     {
         var panel = S1API.UI.UIFactory.Panel($"Btn_{label}", parent, bg);
         var btn = panel.AddComponent<Button>();
@@ -134,30 +160,8 @@ internal static class AppHeaderBuilder
         txt.color = fg;
         txt.raycastTarget = false;
         S1API.Utils.ButtonUtils.AddListener(btn, onClick);
+        return panel;
     }
 }
 
-internal static class FooterBuilder
-{
-    public static void Build(Transform parent)
-    {
-        var footer = S1API.UI.UIFactory.Panel("Footer", parent, new Color(0.04f, 0.05f, 0.07f, 1f));
-        var le = footer.AddComponent<LayoutElement>();
-        le.minHeight = UITheme.Dp(16f);
-        le.preferredHeight = UITheme.Dp(16f);
-        le.flexibleHeight = 0f;
 
-        var hlg = footer.AddComponent<HorizontalLayoutGroup>();
-        hlg.childControlWidth = true;
-        hlg.childControlHeight = true;
-        hlg.childForceExpandWidth = true;
-        hlg.childForceExpandHeight = true;
-        hlg.childAlignment = TextAnchor.MiddleCenter;
-        hlg.padding = new RectOffset(0, 0, 0, 0);
-
-        var txt = S1API.UI.UIFactory.Text("Version", $"PocketShop v{Mod.Version}", footer.transform, UITheme.Sp(9), TextAnchor.MiddleCenter);
-        txt.color = new Color(0.40f, 0.45f, 0.52f, 1f);
-        txt.raycastTarget = false;
-        txt.horizontalOverflow = HorizontalWrapMode.Overflow;
-    }
-}

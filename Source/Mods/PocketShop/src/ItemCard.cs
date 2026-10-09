@@ -1,8 +1,10 @@
 using System;
+using System.Globalization;
 using PocketShop.Config;
 using PocketShop.Services;
 using S1API.UI;
 using S1API.Utils;
+using MelonLoader;
 using UnityEngine;
 using UnityEngine.UI;
 using UITheme = S1Mods.Shared.UITheme;
@@ -10,9 +12,10 @@ using UITheme = S1Mods.Shared.UITheme;
 namespace PocketShop.UI;
 
 /// <summary>
-/// Single item card: Price (top-left) + Stock badge (top-right) + Image (clickable) +
-/// Name (clickable) + QuantitySelector + BUY button.
-/// Supports multi-payment methods (Cash, Bank, Auto) and opens ItemDetailModal on tap.
+/// Single item card: Price (top-left) + Stock badge (top-right) + Image +
+/// Name + QuantitySelector + BUY button.
+/// Payment follows the shop's vanilla payment type (v0.3.1: black market = cash,
+/// clean shops = card), resolved by PurchaseService.
 /// </summary>
 public class ItemCard
 {
@@ -26,6 +29,10 @@ public class ItemCard
     private Text _priceLabel = null!;
     private GameObject _stockBadge = null!;
     private GameObject _card = null!;
+    private float _displayedTotal;
+    private PaymentMode _displayedMode;
+    private bool _hasDisplayedConfirmation;
+    private bool _isBuying;
 
     public ItemCard(ItemPOCO item) { _item = item; }
 
@@ -77,7 +84,7 @@ public class ItemCard
         badgeVlg.childForceExpandWidth = true;
         badgeVlg.childForceExpandHeight = true;
         badgeVlg.childAlignment = TextAnchor.MiddleCenter;
-        var badgeTxt = UIFactory.Text("BadgeLbl", StockText(_item), _stockBadge.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
+        var badgeTxt = UIFactory.Text("BadgeLbl", StockText(_item, _item.Stock), _stockBadge.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
         badgeTxt.color = new Color(0.30f, 0.85f, 0.95f, 1f);
         badgeTxt.raycastTarget = false;
 
@@ -113,8 +120,7 @@ public class ItemCard
         nameLE.preferredHeight = UITheme.Dp(16f);
 
         // Quantity selector
-        int maxStock = ResolveMaxStock(_item);
-        _qty = new QuantitySelector(maxStock, 1);
+        _qty = new QuantitySelector(_item.Stock, 1);
         _qty.Build(_card.transform);
         _qty.OnChanged += _ => RefreshBuyState();
 
@@ -142,53 +148,133 @@ public class ItemCard
     }
 
     /// <summary>
-    /// Refreshes BUY-button enabled state and label. Supports Cash, Bank, and Auto modes.
-    /// Also checks whether the item is locked due to player level requirements.
+    /// Refreshes BUY-button enabled state and label. Payment follows the shop's vanilla
+    /// payment type (v0.3.1). Also checks whether the item is locked due to player level requirements.
     /// </summary>
     public void RefreshBuyState()
     {
-        if (!_item.IsAvailableToPlayer)
+        if (_buyButton == null || _buyLabel == null || _buyPanelImage == null || _qty == null) return;
+        _hasDisplayedConfirmation = false;
+
+        if (_isBuying)
         {
-            _buyButton.interactable = false;
-            _buyPanelImage.color = new Color(0.18f, 0.14f, 0.16f, 1f);
-            _buyLabel.text = "LOCKED";
+            SetUnavailable("BUYING", new Color(0.14f, 0.18f, 0.24f, 1f));
+            return;
+        }
+
+        if (!ShopCatalog.TryResolveLiveOffer(_item, out var offer, out string liveFailure))
+        {
+            _qty.SetStockState(new StockState(StockKind.Unknown, 0, 0));
+            UpdateStockBadge(new StockState(StockKind.Unknown, 0, 0));
+            _priceLabel.text = "$—";
+            SetUnavailable("UNAVAILABLE", new Color(0.14f, 0.18f, 0.24f, 1f));
+            if (!string.IsNullOrEmpty(liveFailure)) MelonLogger.Warning($"[PocketShop] {liveFailure}");
+            return;
+        }
+
+        _qty.SetStockState(offer.Stock);
+        UpdateStockBadge(offer.Stock);
+        _priceLabel.text = float.IsFinite(offer.Price) && offer.Price >= 0f
+            ? $"${PurchaseService.FormatMoney(offer.Price)}"
+            : "$—";
+
+        if (offer.Stock.Kind == StockKind.Unknown || offer.Stock.Kind == StockKind.NotOffered)
+        {
+            SetUnavailable("VERIFY", new Color(0.14f, 0.18f, 0.24f, 1f));
+            _qty.SetInteractable(false);
+            return;
+        }
+        if (offer.Stock.Kind == StockKind.LimitedEmpty)
+        {
+            SetUnavailable("OUT", new Color(0.12f, 0.15f, 0.20f, 1f));
+            _qty.SetInteractable(false);
+            return;
+        }
+
+        if (!offer.Gate.IsKnown)
+        {
+            SetUnavailable("VERIFY SHOP", new Color(0.14f, 0.18f, 0.24f, 1f));
+            _qty.SetInteractable(false);
+            return;
+        }
+        if (offer.Gate.IsLocked)
+        {
+            SetUnavailable("SHOP LOCKED", new Color(0.14f, 0.18f, 0.24f, 1f));
+            _qty.SetInteractable(false);
+            return;
+        }
+        if (!offer.Gate.IsOpen)
+        {
+            SetUnavailable("CLOSED", new Color(0.14f, 0.18f, 0.24f, 1f));
+            _qty.SetInteractable(false);
+            return;
+        }
+
+        if (!PurchaseService.IsLevelRequirementSatisfied(offer.Definition, out _))
+        {
+            SetUnavailable("LOCKED", new Color(0.18f, 0.14f, 0.16f, 1f));
             _buyLabel.color = new Color(0.90f, 0.45f, 0.45f, 1f);
             _qty.SetInteractable(false);
             return;
         }
 
-        if (_qty.IsStockEmpty)
+        if (PurchaseService.HasUncertainTransaction)
         {
-            _buyButton.interactable = false;
-            _buyPanelImage.color = new Color(0.12f, 0.15f, 0.20f, 1f);
-            _buyLabel.text = "OUT";
-            _buyLabel.color = new Color(0.55f, 0.58f, 0.65f, 1f);
+            SetUnavailable("VERIFY TX", new Color(0.14f, 0.18f, 0.24f, 1f));
+            _qty.SetInteractable(false);
+            return;
+        }
+        if (!PurchaseService.IsSingleplayerPurchaseContext)
+        {
+            SetUnavailable("MP UNAVAILABLE", new Color(0.14f, 0.18f, 0.24f, 1f));
             _qty.SetInteractable(false);
             return;
         }
 
-        _qty.SetInteractable(true);
+        if (!PurchaseService.TryCalculatePricing(offer.Price, _qty.Quantity, out var pricing))
+        {
+            SetUnavailable("PRICE ERROR", new Color(0.14f, 0.18f, 0.24f, 1f));
+            return;
+        }
 
-        PurchaseService.CalculatePricing(_item, _qty.Quantity, out _, out _, out _, out float total);
-        // v0.3.1: follow the shop's vanilla payment rule (Black Market = Cash, clean = Card).
-        bool canAfford = PurchaseService.CanAfford(total, _item.ShopPaymentType, out PaymentMode effective);
+        if (!PurchaseService.IsSupportedPaymentType(offer.PaymentType))
+        {
+            SetUnavailable("PAYMENT?", new Color(0.14f, 0.18f, 0.24f, 1f));
+            _qty.SetInteractable(false);
+            return;
+        }
 
+        bool canAfford = PurchaseService.CanAfford(pricing.Total, offer.PaymentType, out PaymentMode effectiveMode);
         if (!canAfford)
         {
-            _buyButton.interactable = false;
-            _buyPanelImage.color = new Color(0.14f, 0.18f, 0.24f, 1f);
-            _buyLabel.text = $"${total:F0}";
-            _buyLabel.color = new Color(0.80f, 0.82f, 0.88f, 1f);
+            SetUnavailable($"NEED ${PurchaseService.FormatMoney(pricing.Total)}", new Color(0.14f, 0.18f, 0.24f, 1f));
+            return;
         }
-        else
-        {
-            _buyButton.interactable = true;
-            _buyPanelImage.color = new Color(0.24f, 0.82f, 0.44f, 1f);
-            // Payment hint only where it differs from the default (card): black-market items say CASH.
-            string payBadge = effective == PaymentMode.Cash ? " CASH" : "";
-            _buyLabel.text = $"BUY{payBadge}";
-            _buyLabel.color = new Color(0.03f, 0.10f, 0.05f, 1f);
-        }
+
+        _qty.SetInteractable(true);
+        _displayedTotal = pricing.Total;
+        _displayedMode = effectiveMode;
+        _hasDisplayedConfirmation = true;
+        _buyButton.interactable = true;
+        _buyPanelImage.color = new Color(0.24f, 0.82f, 0.44f, 1f);
+        string payBadge = effectiveMode == PaymentMode.Cash ? " CASH" : " CARD";
+        _buyLabel.text = $"BUY ${PurchaseService.FormatMoney(pricing.Total)}{payBadge}";
+        _buyLabel.color = new Color(0.03f, 0.10f, 0.05f, 1f);
+    }
+
+    private void SetUnavailable(string label, Color color)
+    {
+        _buyButton.interactable = false;
+        _buyPanelImage.color = color;
+        _buyLabel.text = label;
+        _buyLabel.color = new Color(0.80f, 0.82f, 0.88f, 1f);
+    }
+
+    private void UpdateStockBadge(StockState stock)
+    {
+        if (_stockBadge == null) return;
+        var label = _stockBadge.GetComponentInChildren<Text>();
+        if (label != null) label.text = StockText(_item, stock);
     }
 
     /// <summary>
@@ -196,38 +282,43 @@ public class ItemCard
     /// </summary>
     public void NotifyStockChanged()
     {
-        if (_stockBadge == null) return;
-        var badgeTxt = _stockBadge.GetComponentInChildren<Text>();
-        if (badgeTxt != null) badgeTxt.text = StockText(_item);
-
-        _qty.ClampTo(ResolveMaxStock(_item));
         RefreshBuyState();
     }
 
-    /// <summary>Bug-Audit 2026-09-12: stable identifier for cross-card stock-change dispatch.</summary>
+    /// <summary>Stable item identifier used by the grid's stock-change dispatcher.</summary>
     public string GetItemIdPublic() => _item?.ItemId ?? string.Empty;
 
-    private static int ResolveMaxStock(ItemPOCO item)
-    {
-        if (!item.IsInStock) return 0;
-        return item.CurrentStock > 0 ? item.CurrentStock : PurchaseService.UnlimitedStockSentinel;
-    }
-
-    private static string StockText(ItemPOCO item)
+    private static string StockText(ItemPOCO item, StockState stock)
     {
         if (!item.IsAvailableToPlayer) return "LOCKED";
-        if (!item.IsInStock) return "OUT";
-        if (item.CurrentStock <= 0) return "∞";
-        return item.CurrentStock.ToString();
+        return stock.Kind switch
+        {
+            StockKind.Unlimited => "∞",
+            StockKind.LimitedAvailable => stock.Quantity.ToString(CultureInfo.InvariantCulture),
+            StockKind.LimitedEmpty => "OUT",
+            StockKind.NotOffered => "—",
+            _ => "?"
+        };
     }
 
     private void OnBuyClicked()
     {
-        var result = PurchaseService.BuyWithQuantity(_item, _qty.Quantity, PaymentMode.Bank);
-        OnPurchaseResult?.Invoke(result);
-        if (result.IsSuccess)
+        if (_isBuying || !_hasDisplayedConfirmation) return;
+        float confirmedTotal = _displayedTotal;
+        PaymentMode confirmedMode = _displayedMode;
+        _isBuying = true;
+        _buyButton.interactable = false;
+
+        try
         {
-            NotifyStockChanged();
+            var result = PurchaseService.BuyWithQuantity(_item, _qty.Quantity, confirmedTotal, confirmedMode);
+            try { OnPurchaseResult?.Invoke(result); }
+            catch (Exception ex) { MelonLogger.Error($"[PocketShop] Purchase result handler failed: {ex.Message}"); }
+        }
+        finally
+        {
+            _isBuying = false;
+            RefreshBuyState();
         }
     }
 }

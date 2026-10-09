@@ -96,8 +96,9 @@ public static class NPCPortraitService
             else if (sCode.Contains("albert") || sName.Contains("albert")) targetNpcId = "albert_hoover";
             else if (sCode.Contains("fungal") || sCode.Contains("phil") || sName.Contains("phil")) targetNpcId = "philip_wentworth";
             else if (sCode.Contains("arm") || sCode.Contains("manny") || sName.Contains("manny")) targetNpcId = "manny_oakfield";
-            else if (sCode.Contains("herbert") || sName.Contains("herbert")) targetNpcId = "herbert_bleuball";
-            else if (sCode.Contains("fiona") || sName.Contains("fiona")) targetNpcId = "fiona_hancock";
+            else if (sCode.Contains("herbert") || sName.Contains("herbert") || sCode.Contains("bleuball") || sName.Contains("bleuball")) targetNpcId = "herbert_bleuball";
+            else if (sCode.Contains("gas") || sName.Contains("gas")) targetNpcId = "javier_perez";
+            else if (sCode.Contains("fiona") || sName.Contains("fiona") || sCode.Contains("thread") || sName.Contains("thread")) targetNpcId = "fiona_hancock";
             else if (sCode.Contains("igor") || sName.Contains("igor")) targetNpcId = "igor_romanovich";
 
             if (!string.IsNullOrEmpty(targetNpcId))

@@ -20,6 +20,7 @@ public class StoreCatalogPane
 
     private readonly RectTransform _parent;
     private GameObject? _rootPanel;
+    private bool _disposed;
 
     public StoreCatalogPane(RectTransform parent)
     {
@@ -31,10 +32,9 @@ public class StoreCatalogPane
 
     public void Build()
     {
-        if (_rootPanel != null)
-        {
-            UnityEngine.Object.Destroy(_rootPanel);
-        }
+        if (_disposed) return;
+        DestroyOwnedObject(_rootPanel);
+        _rootPanel = null;
 
         _rootPanel = new GameObject("StoreCatalogRoot");
         _rootPanel.transform.SetParent(_parent, false);
@@ -60,14 +60,16 @@ public class StoreCatalogPane
         viewportGO.AddComponent<RectMask2D>();
         scrollRect.viewport = vrt;
 
+        // Anchor the content to the top and size it to its rows; this keeps 4 columns and
+        // makes every row reachable when the filtered shop list exceeds the viewport.
         var contentGO = new GameObject("Content");
         contentGO.transform.SetParent(viewportGO.transform, false);
         var contentRt = contentGO.AddComponent<RectTransform>();
-        contentRt.anchorMin = new Vector2(0, 1);
-        contentRt.anchorMax = new Vector2(1, 1);
+        contentRt.anchorMin = new Vector2(0f, 1f);
+        contentRt.anchorMax = new Vector2(1f, 1f);
         contentRt.pivot = new Vector2(0.5f, 1f);
-        contentRt.offsetMin = Vector2.zero;
-        contentRt.offsetMax = Vector2.zero;
+        contentRt.anchoredPosition = Vector2.zero;
+        contentRt.sizeDelta = new Vector2(0f, Mathf.Max(vrt.rect.height, UITheme.Dp(105f)));
 
         var vlg = contentGO.AddComponent<VerticalLayoutGroup>();
         vlg.spacing = UITheme.Dp(6f);
@@ -76,9 +78,6 @@ public class StoreCatalogPane
         vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true;
         vlg.childForceExpandHeight = false;
-
-        var csf = contentGO.AddComponent<ContentSizeFitter>();
-        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         scrollRect.content = contentRt;
 
         var shops = FilterShops(ShopCatalog.Shops);
@@ -92,15 +91,24 @@ public class StoreCatalogPane
 
         const int columns = 4;
         int rows = (shops.Count + columns - 1) / columns;
+        float minRowHeight = UITheme.Dp(105f);
+        float rowSpacing = UITheme.Dp(6f);
+        float verticalPadding = UITheme.Dp(12f);
+        float viewportHeight = Mathf.Max(0f, vrt.rect.height);
+        float rowHeight = Mathf.Max(minRowHeight,
+            (viewportHeight - verticalPadding - rowSpacing * Mathf.Max(0, rows - 1)) / rows);
+        float contentHeight = verticalPadding + rowSpacing * Mathf.Max(0, rows - 1) + rowHeight * rows;
+        contentRt.sizeDelta = new Vector2(0f, Mathf.Max(viewportHeight, contentHeight));
 
         for (int r = 0; r < rows; r++)
         {
             var rowGO = new GameObject($"StoreRow_{r}");
             rowGO.transform.SetParent(contentGO.transform, false);
             var rowLE = rowGO.AddComponent<LayoutElement>();
-            rowLE.minHeight = UITheme.Dp(105f);
-            rowLE.preferredHeight = UITheme.Dp(105f);
+            rowLE.minHeight = minRowHeight;
+            rowLE.preferredHeight = rowHeight;
             rowLE.flexibleWidth = 1f;
+            rowLE.flexibleHeight = 0f;
 
             var rowHlg = rowGO.AddComponent<HorizontalLayoutGroup>();
             rowHlg.spacing = UITheme.Dp(6f);
@@ -116,7 +124,7 @@ public class StoreCatalogPane
                 if (idx < shops.Count)
                 {
                     var shop = shops[idx];
-                    BuildStoreCard(rowGO.transform, shop, UITheme.Dp(105f));
+                    BuildStoreCard(rowGO.transform, shop, rowHeight);
                 }
                 else
                 {
@@ -151,11 +159,13 @@ public class StoreCatalogPane
     private void BuildStoreCard(Transform parent, ShopPOCO shop, float rowH)
     {
         bool locked = shop.IsLocked;
-        bool closed = !locked && !shop.IsOpen;
+        bool gateUnknown = !shop.GateKnown;
+        bool closed = shop.GateKnown && !locked && !shop.IsOpen;
 
         var cardColor = ShopColorScheme.ColorFor(shop.ShopCode);
-        // A locked / closed shop reads as an inactive tile (vanilla does not offer it either).
-        if (locked || closed)
+        // A locked, closed, or unverified shop reads as inactive; unknown is not treated as open.
+        bool inactive = locked || closed || gateUnknown;
+        if (inactive)
             cardColor = Color.Lerp(cardColor, new Color(0.10f, 0.11f, 0.13f, 1f), 0.62f);
 
         // Outer Card
@@ -232,11 +242,14 @@ public class StoreCatalogPane
 
         string subLabel;
         if (locked) subLabel = "LOCKED";
+        else if (gateUnknown) subLabel = "VERIFY";
         else if (closed) subLabel = string.IsNullOrEmpty(shop.HoursText) ? "CLOSED" : $"CLOSED {shop.HoursText}";
         else subLabel = $"{shop.ItemCount} items";
 
         var countTxt = UIFactory.Text("ItemCount", subLabel, bottomBanner.transform, UITheme.Sp(10), TextAnchor.MiddleCenter);
-        countTxt.color = locked ? new Color(0.95f, 0.58f, 0.45f, 1f) : new Color(0.90f, 0.92f, 0.95f, 0.90f);
+        countTxt.color = locked || gateUnknown
+            ? new Color(0.95f, 0.58f, 0.45f, 1f)
+            : new Color(0.90f, 0.92f, 0.95f, 0.90f);
         countTxt.raycastTarget = false;
 
         // Button overlay for the whole card. A locked shop is not enterable.
@@ -254,32 +267,46 @@ public class StoreCatalogPane
 
     public void SetActive(bool active)
     {
-        if (_rootPanel != null)
-        {
-            _rootPanel.SetActive(active);
-        }
+        if (_disposed || !IsOwnedObjectAlive(_rootPanel)) return;
+        try { _rootPanel!.SetActive(active); }
+        catch { }
     }
 
     /// <summary>
-    /// Bug-Audit 2026-09-13 (Round 5): refresh the store count badge whenever the
-    /// catalog changes (stock update, new shop registered, etc.). Without this,
-    /// the "CHOOSE A SHOP · N STORES" header shows stale counts.
+    /// Refresh the store count badge whenever the catalog changes without keeping callbacks
+    /// alive after the pane is disposed.
     /// </summary>
     public void RefreshShopCount()
     {
-        // Rebuild only if we're currently visible — avoids redundant allocations.
-        if (_rootPanel != null && _rootPanel.activeSelf)
+        if (_disposed || !IsOwnedObjectAlive(_rootPanel)) return;
+        try
         {
-            Build();
+            if (_rootPanel!.activeSelf) Build();
         }
+        catch { }
     }
 
     public void Dispose()
     {
-        if (_rootPanel != null)
-        {
-            UnityEngine.Object.Destroy(_rootPanel);
-            _rootPanel = null;
-        }
+        if (_disposed) return;
+        _disposed = true;
+        OnShopSelected = null;
+        var root = _rootPanel;
+        _rootPanel = null;
+        DestroyOwnedObject(root);
+    }
+
+    private static bool IsOwnedObjectAlive(GameObject? target)
+    {
+        if (target == null) return false;
+        try { return target.Pointer != IntPtr.Zero && !target.WasCollected; }
+        catch { return false; }
+    }
+
+    private static void DestroyOwnedObject(GameObject? target)
+    {
+        if (!IsOwnedObjectAlive(target)) return;
+        try { UnityEngine.Object.Destroy(target); }
+        catch { }
     }
 }

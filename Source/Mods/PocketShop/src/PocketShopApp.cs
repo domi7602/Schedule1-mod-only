@@ -45,6 +45,7 @@ public sealed class PocketShopApp : PhoneApp
     private StoreCatalogPane _directoryPane = null!;
     private ItemGridPane _gridPane = null!;
     private Text _statsLabel = null!;
+    private GameObject _backButton = null!;
 
     // Balance chips (v0.3.1: Cash + Card — black-market shops charge cash, clean shops charge card)
     private Image _cardChipBg = null!;
@@ -64,62 +65,133 @@ public sealed class PocketShopApp : PhoneApp
     // clears _active and disposes the grid pane + detail modal when the gameplay scene tears down.
     private static PocketShopApp? _active;
     private static bool _staticSubscribed;
+    private bool _cleanupComplete;
 
     protected override void OnCreated()
     {
+        var previous = _active;
+        if (previous != null && !ReferenceEquals(previous, this))
+            previous.CleanupAppResources();
+
         _active = this;
-        if (!_staticSubscribed)
-        {
-            _staticSubscribed = true;
-            MelonEvents.OnUpdate.Subscribe(DispatchUpdate);
-        }
+        // Defensive idempotent registration: only one dispatcher survives scene reloads.
+        MelonEvents.OnUpdate.Unsubscribe(DispatchUpdate);
+        MelonEvents.OnUpdate.Subscribe(DispatchUpdate);
+        _staticSubscribed = true;
         base.OnCreated();
         MelonLogger.Msg("Registered with S1API PhoneApp system (v0.3.2).");
+    }
+
+    protected override void OnDestroyed()
+    {
+        try { CleanupAppResources(); }
+        finally { base.OnDestroyed(); }
     }
 
     internal static void TearDownForSceneUnload()
     {
         var app = _active;
-        _active = null;
-        if (app == null) return;
-        try { app._gridPane?.Dispose(); } catch { }
-        // DirectoryPane holds scene GameObjects too — destroy them as well and drop
-        // the instance-level OnShopSelected handler so nothing survives the unload.
+        if (app != null)
+        {
+            app.CleanupAppResources();
+            return;
+        }
+
+        ShopCatalog.StopRetryLoop();
+        if (_staticSubscribed)
+        {
+            MelonEvents.OnUpdate.Unsubscribe(DispatchUpdate);
+            _staticSubscribed = false;
+        }
+        DestroyCachedIcon();
+    }
+
+    private void CleanupAppResources()
+    {
+        if (_cleanupComplete) return;
+        _cleanupComplete = true;
+        bool wasActive = ReferenceEquals(_active, this);
+        if (wasActive)
+        {
+            _active = null;
+            if (_staticSubscribed)
+            {
+                MelonEvents.OnUpdate.Unsubscribe(DispatchUpdate);
+                _staticSubscribed = false;
+            }
+        }
+
+        ShopCatalog.StopRetryLoop();
         try
         {
-            if (app._directoryPane != null)
-                app._directoryPane.OnShopSelected -= app.OnStoreCardSelected;
+            if (_gridPane != null)
+            {
+                _gridPane.OnPurchaseResult -= HandlePurchaseResult;
+                _gridPane.OnCatalogChanged -= HandleCatalogChanged;
+                _gridPane.Dispose();
+            }
         }
         catch { }
-        try { app._directoryPane?.Dispose(); } catch { }
-
-        if (_cachedIcon != null)
+        try
         {
-            try
+            if (_directoryPane != null)
             {
-                if (_cachedIcon.Pointer != IntPtr.Zero && !_cachedIcon.WasCollected)
-                {
-                    if (_cachedIcon.texture != null && _cachedIcon.texture.Pointer != IntPtr.Zero && !_cachedIcon.texture.WasCollected)
-                        UnityEngine.Object.Destroy(_cachedIcon.texture);
-                    UnityEngine.Object.Destroy(_cachedIcon);
-                }
+                _directoryPane.OnShopSelected -= OnStoreCardSelected;
+                _directoryPane.Dispose();
             }
-            catch { }
-            _cachedIcon = null;
         }
+        catch { }
+
+        if (wasActive) DestroyCachedIcon();
+        _gridPane = null!;
+        _directoryPane = null!;
+        _mainBG = null!;
+        _statsLabel = null!;
+        _backButton = null!;
+        _searchField = null!;
+        _cashChipText = null!;
+        _cardChipText = null!;
+        _cardChipBg = null!;
+    }
+
+    private static void DestroyCachedIcon()
+    {
+        var sprite = _cachedIcon;
+        _cachedIcon = null;
+        if (sprite == null) return;
+        try
+        {
+            if (sprite.Pointer == IntPtr.Zero || sprite.WasCollected) return;
+            var texture = sprite.texture;
+            if (texture != null && texture.Pointer != IntPtr.Zero && !texture.WasCollected)
+                UnityEngine.Object.Destroy(texture);
+            UnityEngine.Object.Destroy(sprite);
+        }
+        catch { }
     }
 
     private static void DispatchUpdate()
     {
-        var a = _active;
-        if (a != null)
-            a.Update();
+        var app = _active;
+        if (app == null || app._cleanupComplete) return;
+        try { app.Update(); }
+        catch (Exception ex)
+        {
+            MelonLogger.Error($"[PocketShop] App update failed; cleaning up stale UI: {ex.Message}");
+            app.CleanupAppResources();
+        }
     }
 
     protected override void OnPhoneClosed()
     {
         base.OnPhoneClosed();
-        if (_mainBG != null) _mainBG.SetActive(false);
+        if (_cleanupComplete) return;
+        try
+        {
+            if (_mainBG != null && _mainBG.Pointer != IntPtr.Zero && !_mainBG.WasCollected)
+                _mainBG.SetActive(false);
+        }
+        catch { }
         // Close-path must stay allocation- and rebuild-free: the next OnAppOpened()
         // rebuilds via SetViewMode(Directory) anyway. In particular, _searchField.text =
         // would fire OnSearchChanged -> ApplySearch -> full Directory.Build() synchronously
@@ -139,6 +211,7 @@ public sealed class PocketShopApp : PhoneApp
 
     private void Update()
     {
+        if (_cleanupComplete) return;
         bool open = IsOpen();
         if (_mainBG != null && _mainBG.activeSelf != open)
         {
@@ -176,6 +249,7 @@ public sealed class PocketShopApp : PhoneApp
 
     private void OnAppOpened()
     {
+        if (_cleanupComplete) return;
         ShopCatalog.Refresh();
         ShopCatalog.RetryIfEmpty();
         SetViewMode(ViewMode.Directory);
@@ -203,7 +277,7 @@ public sealed class PocketShopApp : PhoneApp
         rootVlg.padding = new RectOffset(0, 0, 0, 0);
 
         // 1. Header: Back | Title | live search | X
-        _searchField = AppHeaderBuilder.Build(_mainBG.transform, OnBackClicked, () => CloseApp(), OnSearchChanged);
+        _searchField = AppHeaderBuilder.Build(_mainBG.transform, OnBackClicked, () => CloseApp(), OnSearchChanged, out _backButton);
         try
         {
             var focus = _searchField.gameObject.AddComponent<PocketShopInputFocus>();
@@ -258,12 +332,8 @@ public sealed class PocketShopApp : PhoneApp
         // Level 2: Item Grid Pane (5xN Grid)
         _gridPane = new ItemGridPane(contentRt);
         _gridPane.OnPurchaseResult += HandlePurchaseResult;
-        // Bug-Audit 2026-09-13 (Round 5): wire the catalog-change callback
-        // so the directory pane's store-count badge updates when the catalog refreshes.
-        _gridPane.OnCatalogChanged += () => _directoryPane?.RefreshShopCount();
+        _gridPane.OnCatalogChanged += HandleCatalogChanged;
 
-        // Footer: Version
-        FooterBuilder.Build(_mainBG.transform);
     }
 
     /// <summary>
@@ -306,9 +376,18 @@ public sealed class PocketShopApp : PhoneApp
         _cardChipText.raycastTarget = false;
     }
 
+    private void HandleCatalogChanged()
+    {
+        if (_cleanupComplete) return;
+        try { _directoryPane?.RefreshShopCount(); }
+        catch { }
+    }
+
     private void HandlePurchaseResult(PurchaseResultData result)
     {
+        if (_cleanupComplete) return;
         RefreshStats();
+        _gridPane?.ShowStatus(result.Message, result.IsSuccess);
         if (result.IsSuccess && result.Item != null)
         {
             // Bug-Audit 2026-09-12: only refresh BUY-state left the visible card stale
@@ -326,6 +405,7 @@ public sealed class PocketShopApp : PhoneApp
     private void SetViewMode(ViewMode mode)
     {
         _viewMode = mode;
+        _backButton.SetActive(mode != ViewMode.Directory);
         if (mode == ViewMode.Directory)
         {
             _directoryPane.SetActive(true);
@@ -428,6 +508,7 @@ public sealed class PocketShopApp : PhoneApp
 
     private void RefreshStats()
     {
+        if (_cleanupComplete) return;
         var mm = Il2CppScheduleOne.Money.MoneyManager.Instance;
         if (mm != null)
         {
