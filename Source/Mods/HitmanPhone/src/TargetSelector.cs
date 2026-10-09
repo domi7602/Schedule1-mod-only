@@ -124,6 +124,30 @@ public static class TargetSelector
         }
     }
 
+    /// <summary>Offer-text location used when a target exposes no valid region.</summary>
+    public const string FallbackRegionName = "Hyland Point";
+
+    /// <summary>
+    /// Designated region of the target (e.g. "Docks") for the offer text. The NPC
+    /// region is the home designation, not a live position. Falls back to
+    /// <see cref="FallbackRegionName"/> when unreadable or out of range.
+    /// </summary>
+    public static string GetRegionName(S1NPC? target)
+    {
+        if (target == null || target.WasCollected) return FallbackRegionName;
+        try
+        {
+            int value = (int)target.Region;
+            if (Enum.IsDefined(typeof(S1API.Map.Region), value))
+                return ((S1API.Map.Region)value).ToString();
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Debug($"TargetSelector.GetRegionName failed: {ex.Message}");
+        }
+        return FallbackRegionName;
+    }
+
     private static List<S1NPC> CollectOwnCustomers()
     {
         var candidates = new List<S1NPC>();

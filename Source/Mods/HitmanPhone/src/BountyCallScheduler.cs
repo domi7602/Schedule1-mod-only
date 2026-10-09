@@ -116,7 +116,7 @@ public static class BountyCallScheduler
         string style = BountyDialogTemplates.StyleForCallerIndex(chosenIndex);
         // Audit M7 pattern: show the formatted display name, not the raw NPC id.
         string body = BountyDialogTemplates.BuildForStyle(
-            style, callerName, BountyQuest.FormatName(target.ID), "Hyland Point",
+            style, callerName, BountyQuest.FormatName(target.ID), TargetSelector.GetRegionName(target),
             terms.RewardCash, terms.DropName, BountyBudget.WindowHoursFor(terms.RewardTier));
 
         BountyCallSchedulePlan.ConfirmDispatch(slot);
@@ -267,7 +267,7 @@ public static class BountyCallScheduler
             string callerName = BountyDialogTemplates.GetCallerName(callerIndex);
             string style = BountyDialogTemplates.StyleForCallerIndex(callerIndex);
             string body = BountyDialogTemplates.BuildForStyle(
-                style, callerName, BountyQuest.FormatName(target.ID), "Hyland Point",
+                style, callerName, BountyQuest.FormatName(target.ID), TargetSelector.GetRegionName(target),
                 terms.RewardCash, terms.DropName, BountyBudget.WindowHoursFor(terms.RewardTier));
             BountyConversationRouter.SendOffer(Mod.Instance.Save, callerIndex, target, body, terms);
             Mod.Log.Info($"[BountyScheduler] Force-offer: '{callerName}' on '{target.ID}' (${terms.RewardCash:N0}, drop '{terms.DropName}').");

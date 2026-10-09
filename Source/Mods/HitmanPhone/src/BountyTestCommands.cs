@@ -98,7 +98,28 @@ internal sealed class HitmanKillSimCommand : BaseConsoleCommand
             return;
         }
 
-        var polaroid = BountyEvidenceItemRegistry.Spawn(target.GetInstanceID());
+        var save = Mod.Instance?.Save;
+        BountyContract? contract = null;
+        if (save != null)
+        {
+            for (int i = 0; i < save.Active.Count; i++)
+            {
+                var candidate = save.Active[i];
+                if (candidate.Status == EBountyStatus.Active &&
+                    string.Equals(candidate.TargetNpcId, npcId, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    contract = candidate;
+                    break;
+                }
+            }
+        }
+        if (contract == null)
+        {
+            Mod.Log.Warn($"No active bounty targets '{npcId}'; cannot make redeemable test evidence.");
+            return;
+        }
+
+        var polaroid = BountyEvidenceItemRegistry.Spawn(contract.EvidenceToken);
         if (polaroid == null)
         {
             Mod.Log.Warn("Polaroid not registered; cannot simulate kill.");
@@ -109,8 +130,13 @@ internal sealed class HitmanKillSimCommand : BaseConsoleCommand
         var inv = ((S1API.Entities.Interfaces.IEntity)local).gameObject
                       .GetComponent<S1PlayerInventory>();
         if (inv == null) { Mod.Log.Warn("PlayerInventory missing."); return; }
+        if (!inv.CanItemFitInInventory(polaroid, 1)) { Mod.Log.Warn("Inventory full."); return; }
         inv.AddItemToInventory(polaroid);
-        Mod.Log.Info($"[Cmd] Polaroid spawned for NPC '{npcId}' (instance={target.GetInstanceID()}).");
+        contract.TargetNpcInstanceId = target.GetInstanceID();
+        contract.EvidenceSpawned = true;
+        contract.AwaitingDrop = true;
+        BountyPersistence.PersistCurrent();
+        Mod.Log.Info($"[Cmd] Polaroid spawned for NPC '{npcId}' (token={contract.EvidenceToken}).");
     }
 }
 

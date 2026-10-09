@@ -298,6 +298,7 @@ public static class BountyConversationRouter
                 CallerStyle = BountyDialogTemplates.StyleForCallerIndex(callerIndex),
                 TargetNpcId = target.ID,
                 TargetNpcInstanceId = target.GetInstanceID(),
+                EvidenceToken = BountyEvidenceMatcher.AllocateEvidenceToken(save),
                 TargetNpcName = BountyQuest.FormatName(target.ID),
                 RewardCash = terms.RewardCash,
                 OfferedAtDay = now,

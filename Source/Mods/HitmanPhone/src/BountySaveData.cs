@@ -25,6 +25,9 @@ public class BountySaveData
     public List<BountyContract> Active = new();
     public List<BountyContract> History = new();
 
+    /// <summary>Next persistent token used to identify new polaroid evidence.</summary>
+    public int NextEvidenceToken = 1;
+
     /// <summary>
     /// Per-caller cooldown in in-game days (CooldownDay - CurrentDay &lt; 0 means
     /// the caller can ring again). Key = caller NPC id, Value = the in-game day
@@ -70,7 +73,10 @@ public class BountyContract
     public string CallerId;
     public string CallerStyle; // "cold" | "threatening" | "desperate"
     public string TargetNpcId;
-    public int TargetNpcInstanceId; // Unity InstanceID, used as Polaroid `Value`
+    public int TargetNpcInstanceId; // Session-only Unity InstanceID used to resolve the live target
+    public int EvidenceToken; // Persistent key encoded in newly spawned polaroids
+    public int LegacyTargetInstanceId; // Old-format evidence id, preserved only for active awaiting contracts
+    public bool AllowLegacyZeroEvidence; // Compatibility for migrated old photos whose value was lost
     public string TargetNpcName;     // cached display name at offer time
     public float RewardCash;
 

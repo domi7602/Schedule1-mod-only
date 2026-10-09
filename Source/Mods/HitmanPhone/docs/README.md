@@ -10,7 +10,7 @@ dead-drop collection, dirty cash, journal quests, and police heat.
    randomly from the pool of callers off cooldown.
 2. **Polaroid Evidence** — On killing a living customer assigned to one of the player's recruited dealers,
    a polaroid stamped with the target's Unity InstanceID spawns in the player's
-   inventory. KO counts as a kill by design (watchdog tolerates OnDie/KnockOut).
+   inventory. KO counts as a kill by design (watchdog tolerates OnDie/KnockOut; rule re-confirmed 2026-10-07). When a contract expires or is forfeited, its polaroid is removed from the player inventory and from dead-drop storage (idempotent, host-only).
 3. **DeadDrop Receipt** — Depositing the polaroid in any dead drop completes the
    contract. Since v0.1.7 the hooks ride `SetStoredInstance_Internal` +
    `SetItemSlotQuantity_Internal` (the dead-drop UI never fires ContentsChanged).

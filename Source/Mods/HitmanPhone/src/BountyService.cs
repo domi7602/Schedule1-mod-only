@@ -4,6 +4,7 @@ using HitmanPhone.Items;
 using HitmanPhone.Persistence;
 using MelonLoader;
 using S1API.Entities;
+using S1Mods.Shared;
 using UnityEngine;
 
 #if (IL2CPPMELON)
@@ -101,7 +102,7 @@ public static class BountyService
 
         Interlocked.Increment(ref _matchesFound);
 
-        var polaroid = BountyEvidenceItemRegistry.Spawn(npc.GetInstanceID());
+        var polaroid = BountyEvidenceItemRegistry.Spawn(match.EvidenceToken);
         if (polaroid == null)
         {
             // Audit M8 (2026-09-01): the target watchdog re-calls OnNpcDied every
@@ -208,6 +209,92 @@ public static class BountyService
     }
 
     /// <summary>
+    /// Removes only the evidence belonging to a contract when it ends without
+    /// payout. New photos are matched by persistent evidence token; old-format
+    /// photos are matched only through an active legacy contract's preserved id.
+    /// Idempotent: no match is a no-op. Never throws; a failed removal only logs a warning.
+    /// </summary>
+    public static void RemovePolaroidFromInventory(BountyContract c, string reason)
+    {
+        try
+        {
+            if (c == null ||
+                (c.EvidenceToken == 0 && c.LegacyTargetInstanceId == 0 && c.TargetNpcInstanceId == 0)) return;
+            // Host-only: a client-side ClearStoredInstance does not replicate (see BountyReceiptService).
+            if (!NetworkGuard.IsHostOrSingleplayer()) return;
+            var save = Mod.Instance?.Save;
+            if (save == null) return;
+
+            if (HasOtherActiveContractOnTarget(save, c)) return;
+
+            var inv = S1PlayerInventory.Instance;
+            if (inv == null || inv.Pointer == IntPtr.Zero || inv.WasCollected) return;
+
+            var slots = inv.GetAllInventorySlots();
+            if (slots == null) return;
+            for (int i = 0; i < slots.Count; i++)
+            {
+                var slot = slots[i];
+                if (slot == null) continue;
+                var inst = slot.ItemInstance;
+                if (inst == null || !BountyReceiptService.MatchesEvidenceForContract(c, inst)) continue;
+
+                slot.ClearStoredInstance();
+                Mod.Log.Info($"[Bounty#{c.Id}] Polaroid removed from inventory ({reason}).");
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[Bounty#{c?.Id}] Polaroid removal failed ({reason}); item may remain in inventory: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Removes the contract's polaroid from registered dead-drop storage when the
+    /// contract ends without payout. A polaroid deposited before expiry/forfeit
+    /// would otherwise stay in the drop and could still pay out a dead contract.
+    /// Same guards as <see cref="RemovePolaroidFromInventory"/>. Idempotent: no
+    /// match is a no-op. Never throws; a failed removal only logs a warning.
+    /// </summary>
+    public static void RemovePolaroidFromDeadDrops(BountyContract c, string reason)
+    {
+        try
+        {
+            if (c == null ||
+                (c.EvidenceToken == 0 && c.LegacyTargetInstanceId == 0 && c.TargetNpcInstanceId == 0)) return;
+            if (!NetworkGuard.IsHostOrSingleplayer()) return;
+            var save = Mod.Instance?.Save;
+            if (save == null) return;
+            if (HasOtherActiveContractOnTarget(save, c)) return;
+
+            BountyReceiptService.RemoveDeadDropPolaroids(c, reason);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[Bounty#{c?.Id}] Dead-drop polaroid removal failed ({reason}); item may remain in a drop: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// One polaroid can cover several contracts on the same head: the polaroid
+    /// stays while another active contract still waits for that target.
+    /// </summary>
+    private static bool HasOtherActiveContractOnTarget(BountySaveData save, BountyContract c)
+    {
+        for (int i = 0; i < save.Active.Count; i++)
+        {
+            var other = save.Active[i];
+            if (other != c && other.Status == EBountyStatus.Active &&
+                string.Equals(other.TargetNpcId, c.TargetNpcId, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// <summary>
     /// First confirmed receipt of the polaroid (in the player's inventory or in
     /// any dead drop) starts the short post-photo drop window — the countdown
     /// begins at receipt, never at accept. Idempotent. Legacy contracts without
@@ -260,31 +347,19 @@ public static class BountyService
     }
 
     /// <summary>
-    /// Audit M2 (2026-09-01): Unity InstanceIDs are re-rolled every game start.
-    /// A TargetNpcInstanceId persisted by a previous session can randomly equal a
-    /// DIFFERENT NPC's fresh instance id, completing the wrong contract off a
-    /// stale polaroid. Zero the persisted ids on every load — they are re-stamped
-    /// (session-current) the moment this session's target dies, and same-session
-    /// receipts keep working via the GetNPC-by-id fallback in the receipt scan.
+    /// Migrates pre-token contracts and clears transient Unity instance IDs after
+    /// a load. Awaiting legacy contracts retain their old photo ID for matching;
+    /// new evidence uses its persistent token, so IDs cannot collide across sessions.
     /// Call from SaveStateGuard.OnLoadComplete.
     /// </summary>
     public static void InvalidatePersistedInstanceIds()
     {
         if (Mod.Instance?.Save == null) return;
-        int cleared = 0;
-        for (int i = 0; i < Mod.Instance.Save.Active.Count; i++)
+        int migrated = BountyEvidenceMatcher.MigrateLegacyContracts(Mod.Instance.Save);
+        if (migrated > 0)
         {
-            var c = Mod.Instance.Save.Active[i];
-            if (c.Status == EBountyStatus.Active && c.TargetNpcInstanceId != 0)
-            {
-                c.TargetNpcInstanceId = 0;
-                cleared++;
-            }
-        }
-        if (cleared > 0)
-        {
-            Mod.Log.Info($"[Bounty] Invalidated {cleared} persisted TargetNpcInstanceId(s) after load " +
-                         "(stale Unity InstanceIDs must never match across sessions).");
+            Mod.Log.Info($"[Bounty] Migrated {migrated} saved evidence field(s) after load; old photos remain bound only to their active contracts.");
+            BountyPersistence.PersistCurrent();
         }
     }
 }

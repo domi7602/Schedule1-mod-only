@@ -135,9 +135,9 @@ public static class SaveStateGuard
         // contracts whose polaroid was lost become completable again.
         Bounty.BountyJournalBridge.ResetSessionCache();
         Bounty.BountyService.ResetEvidenceFlags();
-        // Audit M2 (2026-09-01): persisted Unity InstanceIDs are dead after a
-        // restart and can randomly collide with a DIFFERENT npc's fresh id —
-        // zero them so only this session's kills (re)stamp them.
+        // Old saves used session-only Unity IDs in contracts and photos. Migration
+        // preserves those IDs only for active legacy evidence, assigns durable
+        // tokens, and clears the transient target IDs to prevent cross-session collisions.
         Bounty.BountyService.InvalidatePersistedInstanceIds();
         // Audit M1 (2026-09-01): drop realtimeSinceStartup grace keys old saves
         // still carry — the grace window is in-memory only now.

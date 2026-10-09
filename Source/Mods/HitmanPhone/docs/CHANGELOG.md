@@ -50,6 +50,12 @@
   ID list are excluded.
 - **Hitman heat:** a confirmed kill immediately sets pursuit to
   `PursuitLevel.Lethal`. The old investigating-grace logic was removed.
+- **Polaroid evidence safety:** new photos use persistent contract tokens. Old
+  photos are migrated only for active awaiting contracts; the legacy item
+  definition stays registered so old saves still load. Expired-contract evidence
+  can no longer pay a later contract for the same NPC.
+- **SceneGate:** scene notifications now follow real active-scene changes. Loading
+  an additive scene without changing the active scene no longer fires a false change.
 
 - **Journal target after save reload:** Active hitman contracts are re-bound
   to the restored journal quest after load. As a result, the target name and

@@ -106,6 +106,9 @@ public static class PlayerDeathWatchdog
             try { BountyJournalBridge.FailQuest(c.Id, reason: "forfeited"); }
             catch { /* best-effort */ }
 
+            BountyService.RemovePolaroidFromInventory(c, "forfeited");
+            BountyService.RemovePolaroidFromDeadDrops(c, "forfeited");
+
             dispatched++;
         }
         if (dispatched > 0)

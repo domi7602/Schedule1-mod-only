@@ -120,6 +120,9 @@ public static class BountyExpiryService
                 {
                     Mod.Log.Warn($"Journal FailQuest during expiry: {ex.Message}");
                 }
+
+                BountyService.RemovePolaroidFromInventory(c, "expired");
+                BountyService.RemovePolaroidFromDeadDrops(c, "expired");
             }
         }
 

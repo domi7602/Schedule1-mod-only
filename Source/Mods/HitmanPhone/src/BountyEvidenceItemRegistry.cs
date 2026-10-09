@@ -17,11 +17,10 @@ namespace HitmanPhone.Items;
 /// <summary>
 /// Registers the Polaroid evidence item used by the Hitman-Phone bounty workflow.
 ///
-/// We piggyback on Schedule I's <c>IntegerItemDefinition</c> (which already exists in
-/// the engine) and store the bounty target's <c>UnityEngine.Object.GetInstanceID()</c>
-/// in the <c>Value</c> field of the spawned <c>IntegerItemInstance</c>. Dead-drop
-/// validation later reads <c>IntegerItemInstance.Value</c> and matches it back to the
-/// active contract — no custom item subclass required (see Spec v3 §Phase B).
+/// We piggyback on Schedule I's <c>IntegerItemDefinition</c> and store a persistent
+/// bounty evidence token in the <c>Value</c> field of the spawned
+/// <c>IntegerItemInstance</c>. Old polaroids used Unity InstanceIDs and remain
+/// recognizable through <see cref="LegacyItemId"/> for save compatibility.
 ///
 /// Caveat: the public surface of <c>StorableItemDefinition</c> in
 /// <c>MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll</c> is stub-only (C++ bodies
@@ -31,20 +30,23 @@ namespace HitmanPhone.Items;
 /// </summary>
 public static class BountyEvidenceItemRegistry
 {
-    public const string ItemId = "bounty_evidence_polaroid";
+    public const string ItemId = "bounty_evidence_polaroid_v2";
+    public const string LegacyItemId = "bounty_evidence_polaroid";
     public const string ItemName = "Polaroid Evidence";
     public const string ItemDescription =
-        "A photo taken at the scene of a bounty. The Unity instance id of the " +
-        "target is encoded in the polaroid's data field. Drop it at any dead-drop " +
-        "to collect the reward.";
+        "A photo taken at the scene of a bounty. Its persistent evidence token " +
+        "links it to an active contract. Drop it at the assigned dead-drop to collect the reward.";
 
     /// <summary>Cached sprite for the polaroid icon (loaded from disk in <see cref="Register"/>).</summary>
     public static Sprite? IconSprite { get; private set; }
 
-    /// <summary>The registered definition. Null until <see cref="Register"/> succeeds.</summary>
+    /// <summary>The current definition used for newly spawned evidence.</summary>
     public static S1ItemFramework.IntegerItemDefinition? Definition { get; private set; }
 
-    public static bool IsRegistered => Definition != null && IsAlive(Definition);
+    /// <summary>Definition needed to deserialize polaroids saved by older versions.</summary>
+    public static S1ItemFramework.IntegerItemDefinition? LegacyDefinition { get; private set; }
+
+    public static bool IsRegistered => IsAlive(Definition) && IsAlive(LegacyDefinition);
 
     /// <summary>
     /// IL2CPP-safe liveness check for the cached Unity objects. A scene change
@@ -68,7 +70,8 @@ public static class BountyEvidenceItemRegistry
     public static void Register()
     {
         if (IsRegistered) return;
-        Definition = null; // drop a scene-destroyed reference so the retry below starts clean
+        Definition = null;
+        LegacyDefinition = null;
 
         if (!IsAlive(IconSprite))
         {
@@ -82,54 +85,47 @@ public static class BountyEvidenceItemRegistry
 
         try
         {
-            var def = ScriptableObject.CreateInstance<S1ItemFramework.IntegerItemDefinition>();
-
-            // Skill Rule: Prevent Unity from destroying our ScriptableObject 
-            // when transitioning from the Main Menu to the Gameplay scene.
-            def.hideFlags = HideFlags.HideAndDontSave;
-
-            // Direct property on IntegerItemDefinition.
-            def.DefaultValue = 0;
-
-            // Inherited properties — set via reflection because the stub-decompile doesn't
-            // expose them as typed accessors. We log every successful match.
-            TrySetReflected(def, "ID", ItemId);
-            TrySetReflected(def, "Name", ItemName);
-            TrySetReflected(def, "Description", ItemDescription);
-            TrySetReflected(def, "StackLimit", 1);
-            TrySetReflected(def, "BasePurchasePrice", 0f);
-            TrySetReflected(def, "ResellMultiplier", 0f);
-            TrySetReflected(def, "Icon", IconSprite);
-
-            // Best-effort category. S1API exposes S1API.Items.ItemCategory as a friendly wrapper;
-            // we try setting it both as the wrapper type (cast to object) and as the underlying int.
-            TrySetCategory(def, S1API.Items.ItemCategory.Decoration);
-
-            // Best-effort native registry injection. If this fails, direct spawning still works.
-            RegisterIntoNativeRegistry(def);
-
-            Definition = def;
-            Mod.Log.Info($"Polaroid '{ItemId}' registered " +
-                          $"(stack=1, icon={(IconSprite != null ? "loaded" : "missing")}).");
+            Definition = CreateDefinition(ItemId);
+            // Keep the old definition registered so saved legacy polaroids can
+            // be deserialized after upgrading to the token-based item ID.
+            LegacyDefinition = CreateDefinition(LegacyItemId);
+            Mod.Log.Info($"Polaroid definitions registered (current='{ItemId}', legacy='{LegacyItemId}', " +
+                         $"icon={(IconSprite != null ? "loaded" : "missing")}).");
         }
         catch (Exception ex)
         {
-            Mod.Log.Error($"Failed to register Polaroid item: {ex}");
+            Definition = null;
+            LegacyDefinition = null;
+            Mod.Log.Error($"Failed to register Polaroid item definitions: {ex}");
         }
     }
 
-    /// <summary>
-    /// Spawn a polaroid instance pointing at the given target's Unity InstanceID.
-    /// Returns null if the definition has not been registered yet.
-    /// </summary>
-    public static S1ItemFramework.IntegerItemInstance? Spawn(int targetInstanceId)
+    private static S1ItemFramework.IntegerItemDefinition CreateDefinition(string id)
     {
-        if (Definition == null || !IsAlive(Definition))
+        var def = ScriptableObject.CreateInstance<S1ItemFramework.IntegerItemDefinition>();
+        def.hideFlags = HideFlags.HideAndDontSave;
+        def.DefaultValue = 0;
+
+        TrySetReflected(def, "ID", id);
+        TrySetReflected(def, "Name", ItemName);
+        TrySetReflected(def, "Description", ItemDescription);
+        TrySetReflected(def, "StackLimit", 1);
+        TrySetReflected(def, "BasePurchasePrice", 0f);
+        TrySetReflected(def, "ResellMultiplier", 0f);
+        TrySetReflected(def, "Icon", IconSprite);
+        TrySetCategory(def, S1API.Items.ItemCategory.Decoration);
+        RegisterIntoNativeRegistry(def);
+        return def;
+    }
+
+    /// <summary>Spawn a version-2 polaroid carrying a persistent evidence token.</summary>
+    public static S1ItemFramework.IntegerItemInstance? Spawn(int evidenceToken)
+    {
+        if (!IsRegistered)
         {
-            // First spawn in this session, or the cached Definition died with a
-            // scene change: register on demand. Expected path, not a failure.
-            Mod.Log.Debug("Polaroid Definition was null or destroyed during Spawn() — attempting lazy re-registration.");
-            Definition = null;
+            // First spawn in this session, or a cached definition was destroyed;
+            // register both current and legacy definitions before continuing.
+            Mod.Log.Debug("Polaroid definitions were unavailable — attempting lazy re-registration.");
             Register();
         }
 
@@ -138,8 +134,13 @@ public static class BountyEvidenceItemRegistry
             Mod.Log.Warn("Polaroid Spawn() failed: Definition is still null or destroyed after re-registration.");
             return null;
         }
-        var instance = new S1ItemFramework.IntegerItemInstance(Definition, 1, targetInstanceId);
-        instance.SetValue(targetInstanceId);
+        if (evidenceToken <= 0)
+        {
+            Mod.Log.Error($"Polaroid Spawn() rejected invalid evidence token {evidenceToken}.");
+            return null;
+        }
+        var instance = new S1ItemFramework.IntegerItemInstance(Definition, 1, evidenceToken);
+        instance.SetValue(evidenceToken);
         return instance;
     }
 

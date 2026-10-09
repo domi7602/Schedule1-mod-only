@@ -99,6 +99,10 @@ public sealed class BountyTrackerApp : PhoneApp
     private Text _summaryLabel = null!;
     private Transform _listContent = null!;
 
+    private const float RefreshIntervalSeconds = 1f;
+    private float _nextRefreshAt;
+    private string _renderedKey = string.Empty;
+
     // Fix (Bug-Audit pattern, cf. CalculatorApp/BankApp/PotScanner): the phone
     // re-instantiates this app per scene load and per-instance MelonEvents.OnUpdate
     // handlers stay in the static invocation list forever. Dispatch through _active,
@@ -218,6 +222,38 @@ public sealed class BountyTrackerApp : PhoneApp
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             CloseApp();
+            return;
+        }
+
+        if (Time.realtimeSinceStartup >= _nextRefreshAt)
+        {
+            ScheduleRefresh();
+            string key = BuildRenderKey();
+            if (key != _renderedKey)
+                Rebuild();
+        }
+    }
+
+    /// <summary>Cheap change check: the same values Rebuild renders. Rows are only rebuilt when this changes.</summary>
+    private string BuildRenderKey()
+    {
+        try
+        {
+            var save = Mod.Instance?.Save;
+            if (save == null) return "no-save";
+            var snap = BountyTrackerService.Build(save);
+            string key = $"{snap.ConfirmedDead}|{snap.OnlyOut}|{snap.ContractsCompleted}|";
+            for (int i = 0; i < snap.Rows.Count; i++)
+            {
+                var r = snap.Rows[i];
+                key += $"{r.TargetName}|{r.Day}|{r.MinuteSum}|{r.Died}|{r.ContractActive}|{r.ContractCompleted};";
+            }
+            return key;
+        }
+        catch (Exception)
+        {
+            // Rebuild() reports the failure; a unique key forces it to run again.
+            return Guid.NewGuid().ToString();
         }
     }
 
@@ -226,9 +262,20 @@ public sealed class BountyTrackerApp : PhoneApp
         Rebuild();
     }
 
+    /// <summary>
+    /// Rebuild cadence while the app is open: contracts change while the screen
+    /// is visible (accept, kill, payout, expiry), so the list must follow.
+    /// </summary>
+    private void ScheduleRefresh()
+    {
+        _nextRefreshAt = Time.realtimeSinceStartup + RefreshIntervalSeconds;
+    }
+
     /// <summary>Rebuild the summary and the target rows from the current save.</summary>
     private void Rebuild()
     {
+        ScheduleRefresh();
+        _renderedKey = BuildRenderKey();
         try
         {
             if (_listContent == null || _listContent.WasCollected) return;
@@ -309,11 +356,12 @@ public sealed class BountyTrackerApp : PhoneApp
             UITheme.Sp(10), TextAnchor.MiddleLeft, FontStyle.Normal);
         time.color = GamePalette.TextMuted;
 
-        // Right: the explicit status distinction (Rule 20: plain words, no debug)
-        string statusText = row.Died ? "Confirmed dead" : "Out of action";
+        // Right: the explicit status distinction (Rule 20: plain words, no debug).
+        // An open contract wins: the target is still being hunted.
+        string statusText = row.ContractActive ? "ACTIVE" : row.Died ? "Confirmed dead" : "Out of action";
         var status = UIFactory.Text("Status", statusText, card.transform,
             UITheme.Sp(10), TextAnchor.MiddleRight, FontStyle.Bold);
-        status.color = row.Died ? GamePalette.Red : GamePalette.Orange;
+        status.color = row.ContractActive ? GamePalette.Teal : row.Died ? GamePalette.Red : GamePalette.Orange;
         var sre = status.gameObject.AddComponent<LayoutElement>();
         sre.preferredWidth = UITheme.Dp(96f);
         sre.flexibleWidth = 0f;

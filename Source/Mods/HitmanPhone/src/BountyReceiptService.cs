@@ -11,16 +11,12 @@ using S1StorageEntity = Il2CppScheduleOne.Storage.StorageEntity;
 using S1ItemInstance = Il2CppScheduleOne.ItemFramework.ItemInstance;
 using S1IntegerItemInstance = Il2CppScheduleOne.ItemFramework.IntegerItemInstance;
 using S1MoneyManager = Il2CppScheduleOne.Money.MoneyManager;
-using S1NPC = Il2CppScheduleOne.NPCs.NPC;
-using S1NPCManager = Il2CppScheduleOne.NPCs.NPCManager;
 #elif MONOMELON
 using S1DeadDrop = ScheduleOne.Economy.DeadDrop;
 using S1StorageEntity = ScheduleOne.Storage.StorageEntity;
 using S1ItemInstance = ScheduleOne.ItemFramework.ItemInstance;
 using S1IntegerItemInstance = ScheduleOne.ItemFramework.IntegerItemInstance;
 using S1MoneyManager = ScheduleOne.Money.MoneyManager;
-using S1NPC = ScheduleOne.NPCs.NPC;
-using S1NPCManager = ScheduleOne.NPCs.NPCManager;
 #endif
 
 namespace HitmanPhone.Bounty;
@@ -35,8 +31,9 @@ namespace HitmanPhone.Bounty;
 /// and try to pay out any polaroid matching an active contract.
 ///
 /// Payout flow per scanned polaroid:
-///   1. Read the integer <c>Value</c> from the polaroid instance.
-///   2. Find the active <see cref="BountyContract"/> whose TargetNpcInstanceId matches.
+///   1. Read the integer <c>Value</c> and identify the item format.
+///   2. Match v2 photos by persistent evidence token; match legacy photos only
+///      to active migrated contracts that retain their original evidence ID.
 ///   3. If the contract's <c>RequiredDropId</c> is set, also confirm the actual
 ///      DeadDrop GUID matches (premium/spec contracts may require a specific drop).
 ///   4. Mark contract Completed, move it to History (idempotent vs. re-scans).
@@ -151,7 +148,8 @@ public static class BountyReceiptService
 
             // Apply side effects for every matched contract.
             string dropGuid = DeadDropIdentifier.GetGuidString(drop);
-            int encodedId = ReadIntValue(item); // 0 for cross-session; that's fine for consumers
+            int encodedId = ReadIntValue(item);
+            bool isLegacyItem = IsLegacyPolaroid(item);
             var save = Mod.Instance?.Save;
             if (save == null) return;
             bool anyPayoutFailed = false;
@@ -209,7 +207,7 @@ public static class BountyReceiptService
             {
                 BountyPersistence.PersistCurrent();
                 // One polaroid covers the whole matched group (single kill → single evidence).
-                ConsumePolaroids(entity, encodedId);
+                ConsumePolaroids(entity, encodedId, isLegacyItem);
             }
             else if (!anyPayout)
             {
@@ -221,36 +219,6 @@ public static class BountyReceiptService
             return; // one payout-group per storage event
         }
         Mod.Log.Debug($"[Receipt] scan of '{dropName}' found no payable polaroid ({items.Count} items).");
-    }
-
-    /// <summary>
-    /// Group contracts that share the same TargetNpcId while all waiting for a dead-drop.
-    /// Used by the evidence fallback when the polaroid's encoded instance id was lost
-    /// across a save reload: if every waiting contract points at the same NPC, one
-    /// deposited polaroid pays out all of them (the kill produced one body, multiple
-    /// bounties on the same head collapse into a single piece of evidence). Contracts on
-    /// different NPCs stay untouched. Returns null on an ambiguous or empty group.
-    /// </summary>
-    private static System.Collections.Generic.List<BountyContract>? GroupSameTargetAwaiting(
-        HitmanPhone.Persistence.BountySaveData save, int excludeCount)
-    {
-        string? sharedNpcId = null;
-        var group = new System.Collections.Generic.List<BountyContract>();
-        for (int i = 0; i < save.Active.Count; i++)
-        {
-            var c = save.Active[i];
-            if (c.Status != EBountyStatus.Active || !c.AwaitingDrop) continue;
-            if (string.IsNullOrEmpty(c.TargetNpcId)) continue;
-            if (sharedNpcId == null) sharedNpcId = c.TargetNpcId;
-            else if (!string.Equals(sharedNpcId, c.TargetNpcId, StringComparison.OrdinalIgnoreCase))
-            {
-                Mod.Log.Warn($"Receipt: {save.Active.Count} contracts awaiting dead-drop " +
-                             "with mixed TargetNpcId — cross-session polaroid is ambiguous, refused.");
-                return null;
-            }
-            group.Add(c);
-        }
-        return group.Count > 0 ? group : null;
     }
 
     /// <summary>
@@ -319,76 +287,22 @@ public static class BountyReceiptService
         if (Mod.Instance?.Save == null) return null;
         var save = Mod.Instance.Save;
 
-        // Read the polaroid's encoded target id (Unity instance id of the NPC).
-        // v0.1.2: Value==0 no longer aborts — a save reload can lose the value,
-        // and the single-awaiting-contract fallback below is safe to try.
-        // v0.2.5 (bug-ludwig-double-2026-09-13): the old fallback refused when >1
-        // contract was awaiting, but Crow can offer multiple bounties on the same
-        // NPC across days. We collapse them onto the polaroid only if every waiting
-        // contract targets the same NPC id.
-        int targetInstanceId = ReadIntValue(item);
-        if (targetInstanceId == 0)
+        // The item definition identifies its format: v2 values are durable tokens;
+        // legacy values are old session-specific Unity IDs (or zero after data loss).
+        int encodedValue = ReadIntValue(item);
+        bool isLegacyItem = IsLegacyPolaroid(item);
+        var matches = BountyEvidenceMatcher.Match(save, encodedValue, isLegacyItem);
+        if (matches == null || matches.Count == 0)
         {
-            Mod.Log.Warn("Receipt: polaroid Value=0 (lost across save reload?) — relying on evidence fallback.");
+            Interlocked.Increment(ref _receiptsMismatched);
+            Mod.Log.Warn($"Receipt: no active contract matches {(isLegacyItem ? "legacy instance id" : "evidence token")} {encodedValue}.");
+            return null;
         }
-
-        BountyContract? match = null;
-
-        // Exact match: encoded instance id still alive.
-        if (targetInstanceId != 0)
+        if (isLegacyItem && encodedValue == 0)
         {
-            for (int i = 0; i < save.Active.Count; i++)
-            {
-                var c = save.Active[i];
-                if (c.Status != EBountyStatus.Active) continue;
-                if (c.TargetNpcInstanceId != 0 && c.TargetNpcInstanceId == targetInstanceId)
-                {
-                    match = c; break;
-                }
-            }
-
-            // Live resolve by id (instance id cached but live re-roll diverges).
-            if (match == null)
-            {
-                for (int i = 0; i < save.Active.Count; i++)
-                {
-                    var c = save.Active[i];
-                    if (c.Status != EBountyStatus.Active) continue;
-                    if (string.IsNullOrEmpty(c.TargetNpcId)) continue;
-                    try
-                    {
-                        var live = S1NPCManager.GetNPC(c.TargetNpcId);
-                        if (live != null && live.GetInstanceID() == targetInstanceId)
-                        {
-                            match = c; break;
-                        }
-                    }
-                    catch { /* ignore */ }
-                }
-            }
+            Mod.Log.Warn("Receipt: accepting a zero-value legacy polaroid only for its migrated active contract.");
         }
-
-        // Session-stable fallback (BUGFIX 2026-08-31, refined 2026-09-13):
-        // Unity InstanceIDs are re-rolled on every game start, so a polaroid saved
-        // in a previous session carries a dead ID. If every Active contract that's
-        // awaiting its dead-drop targets the same NPC, the polaroid pays out all
-        // of them at once — Crow can stack multiple bounties on one head, but
-        // they collapse onto the single piece of evidence the kill produced.
-        if (match == null)
-        {
-            var group = GroupSameTargetAwaiting(save, excludeCount: 0);
-            if (group == null)
-            {
-                Interlocked.Increment(ref _receiptsMismatched);
-                Mod.Log.Warn($"Receipt: no active bounty for target instance id {targetInstanceId}.");
-                return null;
-            }
-            Mod.Log.Info($"Receipt: matched via evidence fallback (cross-session polaroid) " +
-                         $"→ {group.Count} contract(s) on '{group[0].TargetNpcId}'.");
-            return group;
-        }
-
-        return new System.Collections.Generic.List<BountyContract> { match };
+        return matches;
     }
 
     /// <summary>
@@ -430,53 +344,27 @@ public static class BountyReceiptService
         }
     }
 
-    /// <summary>
-    /// v0.1.8: evidence is consumed on payout via <c>ItemSlot.ClearStoredInstance()</c>
-    /// (the same soft-removal path S1API's <c>RemoveAllOfDefinition</c> uses; no world
-    /// item spawns). Before this, the polaroid stayed in the drop forever and every
-    /// later storage write re-scanned it (live log 2026-09-01: repeat scans finding
-    /// "no payable polaroid (2 items)").
-    /// Scoped to a SINGLE slot: prefer the polaroid encoding this contract's target
-    /// instance id; fall back to the first polaroid (Value==0 cross-session case).
-    /// Never clears the whole drop — a second awaiting contract's evidence survives.
-    /// </summary>
-    private static void ConsumePolaroids(S1StorageEntity entity, int targetInstanceId)
+    /// <summary>Consumes only the exact photo that was just validated.</summary>
+    private static void ConsumePolaroids(S1StorageEntity entity, int encodedValue, bool isLegacyItem)
     {
         try
         {
             var slots = entity.ItemSlots;
             if (slots == null) return;
-            int matchedIdx = -1;
-            int firstPolaroidIdx = -1;
             for (int i = 0; i < slots.Count; i++)
             {
                 var slot = slots[i];
                 if (slot == null) continue;
                 var inst = slot.ItemInstance;
-                if (inst == null) continue;
-                if (!IsPolaroid(inst)) continue;
-                if (firstPolaroidIdx < 0) firstPolaroidIdx = i;
-                if (targetInstanceId != 0)
-                {
-                    try
-                    {
-                        if (ReadIntValue(inst) == targetInstanceId) { matchedIdx = i; break; }
-                    }
-                    catch { }
-                }
+                if (inst == null || !IsPolaroid(inst)) continue;
+                if (IsLegacyPolaroid(inst) != isLegacyItem) continue;
+                if (ReadIntValue(inst) != encodedValue) continue;
+
+                slot.ClearStoredInstance();
+                Mod.Log.Info($"[Receipt] Consumed polaroid evidence value {encodedValue}.");
+                return;
             }
-            int consumeIdx = matchedIdx >= 0 ? matchedIdx : firstPolaroidIdx;
-            if (consumeIdx >= 0)
-            {
-                slots[consumeIdx].ClearStoredInstance();
-                Mod.Log.Info(matchedIdx >= 0
-                    ? $"[Receipt] Consumed polaroid for target instance {targetInstanceId} — evidence destroyed."
-                    : "[Receipt] Consumed 1 polaroid (no encoded id match — cross-session fallback) — evidence destroyed.");
-            }
-            else
-            {
-                Mod.Log.Warn("[Receipt] payout done but no polaroid slot found to consume — it stays in the drop.");
-            }
+            Mod.Log.Warn("[Receipt] payout done but the validated polaroid slot was not found to consume.");
         }
         catch (Exception ex)
         {
@@ -485,11 +373,72 @@ public static class BountyReceiptService
     }
 
     /// <summary>
+    /// Removes every polaroid encoding this contract's target instance id from all
+    /// registered dead drops. Polaroids of other targets are never touched.
+    /// Callers own the host and shared-target guards (BountyService.RemovePolaroidFromDeadDrops).
+    /// </summary>
+    internal static void RemoveDeadDropPolaroids(BountyContract c, string reason)
+    {
+        var drops = S1DeadDrop.DeadDrops;
+        if (drops == null) return;
+        int removed = 0;
+        for (int d = 0; d < drops.Count; d++)
+        {
+            var drop = drops[d];
+            if (drop == null || drop.Pointer == IntPtr.Zero || drop.WasCollected) continue;
+            var entity = drop.Storage;
+            if (entity == null || entity.Pointer == IntPtr.Zero || entity.WasCollected) continue;
+            var slots = entity.ItemSlots;
+            if (slots == null) continue;
+            for (int i = 0; i < slots.Count; i++)
+            {
+                var slot = slots[i];
+                if (slot == null) continue;
+                var inst = slot.ItemInstance;
+                if (inst == null || !MatchesEvidenceForContract(c, inst)) continue;
+                slot.ClearStoredInstance();
+                removed++;
+            }
+        }
+        if (removed > 0)
+        {
+            Mod.Log.Info($"[Bounty#{c.Id}] Removed {removed} polaroid(s) from dead-drop storage ({reason}).");
+        }
+    }
+
+    /// <summary>
     /// Reflection-based check: does the inserted item have a Definition whose ID
     /// matches our polaroid id? ItemInstance does not expose a Definition directly
     /// in the stub, but the property <c>Definition</c> lives on the base class.
     /// </summary>
-    private static bool IsPolaroid(S1ItemInstance item)
+    internal static bool IsPolaroid(S1ItemInstance item)
+    {
+        string? id = ReadDefinitionId(item);
+        bool recognized = string.Equals(id, BountyEvidenceItemRegistry.ItemId, StringComparison.OrdinalIgnoreCase) ||
+                          string.Equals(id, BountyEvidenceItemRegistry.LegacyItemId, StringComparison.OrdinalIgnoreCase);
+        if (!recognized && !string.IsNullOrEmpty(id))
+            Mod.Log.Debug($"[Receipt] Item definition id '{id}' is not a bounty polaroid.");
+        return recognized;
+    }
+
+    internal static bool IsLegacyPolaroid(S1ItemInstance item) =>
+        string.Equals(ReadDefinitionId(item), BountyEvidenceItemRegistry.LegacyItemId, StringComparison.OrdinalIgnoreCase);
+
+    internal static bool MatchesEvidenceForContract(BountyContract contract, S1ItemInstance item)
+    {
+        if (contract == null || item == null || !IsPolaroid(item)) return false;
+        int value = ReadIntValue(item);
+        if (IsLegacyPolaroid(item))
+        {
+            int legacyId = contract.LegacyTargetInstanceId;
+            if (legacyId == 0 && contract.EvidenceToken <= 0)
+                legacyId = contract.TargetNpcInstanceId;
+            return legacyId != 0 && value == legacyId;
+        }
+        return contract.EvidenceToken > 0 && value == contract.EvidenceToken;
+    }
+
+    private static string? ReadDefinitionId(S1ItemInstance item)
     {
         try
         {
@@ -498,29 +447,22 @@ public static class BountyReceiptService
                 System.Reflection.BindingFlags.Public |
                 System.Reflection.BindingFlags.NonPublic);
             object? definition = def?.GetValue(item);
-            if (definition == null) return false;
+            if (definition == null) return null;
             var idProp = definition.GetType().GetProperty("ID",
                 System.Reflection.BindingFlags.Instance |
                 System.Reflection.BindingFlags.Public |
                 System.Reflection.BindingFlags.NonPublic);
-            object? id = idProp?.GetValue(definition);
-            if (id is string s)
-            {
-                if (string.Equals(s, BountyEvidenceItemRegistry.ItemId, StringComparison.OrdinalIgnoreCase))
-                    return true;
-                Mod.Log.Debug($"[Receipt] Item definition id '{s}' does not match polaroid '{BountyEvidenceItemRegistry.ItemId}'.");
-            }
-            return false;
+            return idProp?.GetValue(definition) as string;
         }
         catch (Exception ex)
         {
-            Mod.Log.Warn($"IsPolaroid reflection failed: {ex.Message}");
-            return false;
+            Mod.Log.Warn($"Polaroid definition lookup failed: {ex.Message}");
+            return null;
         }
     }
 
     /// <summary>Read <c>IntegerItemInstance.Value</c> via the typed property.</summary>
-    private static int ReadIntValue(S1ItemInstance item)
+    internal static int ReadIntValue(S1ItemInstance item)
     {
         try
         {

@@ -29,6 +29,7 @@
     <Compile Include="..\..\Mods\HitmanPhone\src\BountySaveData.cs" />
     <Compile Include="..\..\Mods\HitmanPhone\src\BountyCallSchedulePlan.cs" />
     <Compile Include="..\..\Mods\HitmanPhone\src\BountyTrackerService.cs" />
+    <Compile Include="..\..\Mods\HitmanPhone\src\BountyEvidenceMatcher.cs" />
   </ItemGroup>
 
 </Project>
