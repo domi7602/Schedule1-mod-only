@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.3 (2026-10-10) — "Visible only while the map is open" (key collision)
+- **Fixed: the minimap appeared only while the big map was open.** Root cause: the default `ToggleKey` was **"M"** — the game's own map key. Every map open/close also toggled the minimap, and the flipped `MinimapVisible` state was persisted on scene unload, so the minimap ended up in lockstep with the map (reported state: `MinimapVisible: false` + `ToggleKey: "M"` in the user's config.json).
+- **New default toggle key: "N"** (next to M, "Navi"; the game's shortcut keys are only M=map, T=messages, J=journal — N is unbound). Rebindable via `UserData/Minimap/config.json` (`ToggleKey`, any `UnityEngine.KeyCode` name).
+- **Config migration on load:** a saved `ToggleKey: "M"` is moved to `"N"` and `MinimapVisible` is re-enabled (the stuck `false` is what made the minimap look map-bound). One-time, logged, then saved back.
+- Expectation after update: the minimap is permanently visible at its position (default top-right) again; pressing M only opens the map.
+
 ## 2.0.2 (2026-09-13) — Bug Report Round 6
 Bug Report Round 6: M-05 - ContentSizeFitter (PreferredSize) on settings scroll content; Save&Apply footer is now reachable on long content (scroll never worked correctly before).
 

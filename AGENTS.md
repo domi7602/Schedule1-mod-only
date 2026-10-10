@@ -61,7 +61,7 @@ Release/           Release ZIP output
 
 ## 2. Mod Inventory
 
-> **Status convention:** `Verified <date>` = confirmed in a real game session (assertion only, no artifact in the repo). `In-Game-Verify open` = code complete, not yet confirmed in-game. Keep the two apart — never claim a verify that did not happen. Latest completed verify: 2026-09-30 (MessagesPlus); previous round 2026-09-20.
+> **Status convention:** `Verified <date>` = confirmed in a real game session (assertion only, no artifact in the repo). `In-Game-Verify open` = code complete, not yet confirmed in-game. Keep the two apart — never claim a verify that did not happen. Latest completed verify: 2026-10-10 (MessagesPlus v0.4.5 dark-mode polish + ProductAppQoL v0.1.0); previous rounds 2026-09-30 (MessagesPlus v0.4.0), 2026-09-20.
 
 | Mod | Status | Path in `Source/` | Path in `<Game>\Mods\` | Key bits |
 |---|---|---|---|---|
@@ -75,7 +75,7 @@ Release/           Release ZIP output
 | **Weather** | ✅ active (v0.4.0, In-Game-Verify open) | `Mods/Weather/` | `Weather.dll` + icon | PhoneApp, read-only dashboard |
 | **BusinessIncome** | ✅ active (v0.1.6, **Verified 2026-09-19**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | host authority, slot isolation, console |
 | **StackLimitMod** | ✅ active (v0.1.7; v0.1.6 **Verified 2026-09-20**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` | Harmony, Registry, agriculture-only |
-| **Minimap** | ♻️ restored from archive (v2.0.2, **In-Game-Verify open**) | `Mods/Minimap/` | `Minimap.dll` | HUD overlay, blip pool, settings PhoneApp, waypoints |
+| **Minimap** | ✅ active (v2.0.3, key-collision fix **Verified 2026-10-10** — minimap stays visible outside the map, migration ran clean; blips/day-header render confirmed from screenshot) | `Mods/Minimap/` | `Minimap.dll` | HUD overlay, blip pool, settings PhoneApp, waypoints |
 | **AutoPackagingStation** | ✅ active (v0.3.3, **Verified 2026-09-20**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable, SafeStorage, GLB |
 | **HitmanPhone** | ✅ active (v0.2.9, beta **Verified 2026-09-24**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Messages/NPC/Items/Quests |
 | **MessagesPlus** | ✅ active (v0.4.5, dark mode **verified in-game 2026-10-09**; v0.4.0 sweep **verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
@@ -150,7 +150,7 @@ Release/           Release ZIP output
 - **Vanilla order menus (2026-10-08):** `MSGConversation.responseContainer` and the verified `DealWindowSelector.Container` are preserved/restored; the deal-window hook no longer darkens popup content. In-Game-Verify open.
 - Round-1 fixes: `(RectTransform)x.transform` casts → `GetComponent<RectTransform>()` (IL2CPP cast made the "⋯" menu dead), search surface keeps `raycastTarget=true` (v0.4.0 **Verified 2026-09-30**). History: `Source/Mods/MessagesPlus/docs/CHANGELOG.md`.
 
-**Minimap v2.0.2 (2026-09-13, restored from archive 2026-10-07):**
+**Minimap v2.0.3 (2026-09-13, restored from archive 2026-10-07):**
 - Minimap & Unified HUD: dealer/police/customer markers, pulsing heat ring, health bar, user waypoints (`minimap wp …`), and a phone settings app with per-blip-type toggles and hex colours. Fixed 64-blip pool (0 GC allocations per frame).
 - Restored from the archive, including the 2026-09-17 visibility fixes in `MinimapMod.cs`. History: `Source/Mods/Minimap/docs/CHANGELOG.md`.
 

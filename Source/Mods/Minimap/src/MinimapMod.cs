@@ -8,7 +8,7 @@ using S1API.Console;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "2.0.2", "Dominik")]
+[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "2.0.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace Minimap;
@@ -23,7 +23,7 @@ public sealed class MinimapMod : MelonMod
     public MinimapWaypoints Waypoints => _hud.Waypoints;
 
     private string _configPath = "";
-    private KeyCode _toggleKeyCode = KeyCode.M;
+    private KeyCode _toggleKeyCode = KeyCode.N;
     private KeyCode _zoomInKeyCode = KeyCode.RightBracket;
     private KeyCode _zoomOutKeyCode = KeyCode.LeftBracket;
 
@@ -194,6 +194,20 @@ public sealed class MinimapMod : MelonMod
             if (loaded != null)
             {
                 Config = loaded;
+
+                // Migration (v2.0.3): the old default toggle key "M" IS the game's map
+                // key, so every map open/close flipped the minimap along with it — and
+                // the flipped state was saved, leaving the minimap "visible only while
+                // the map is open". Move old "M" configs to the new default "N" and
+                // un-freeze the visibility flag (the minimap should stay on the HUD).
+                if (string.Equals(Config.ToggleKey, "M", StringComparison.OrdinalIgnoreCase))
+                {
+                    _log.Info("Migrating ToggleKey 'M' -> 'N' (M is the game's own map key) and re-enabling the minimap.");
+                    Config.ToggleKey = "N";
+                    Config.MinimapVisible = true;
+                    SaveConfig();
+                }
+
                 _log.Info("Loaded configuration from config.json.");
                 return;
             }
