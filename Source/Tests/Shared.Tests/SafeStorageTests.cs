@@ -160,6 +160,43 @@ public class SafeStorageTests
     }
 
     [Fact]
+    public void LoadSafe_CorruptFile_RepairsMainFromBackup_AndPreservesCorrupt()
+    {
+        string path = TempPath("corrupt-repair");
+        try
+        {
+            // v1 then v2 (so .bak = v1), then corrupt the main file
+            SafeStorage.SaveAtomic(path, new TestData { Value = 10, Name = "v1" });
+            SafeStorage.SaveAtomic(path, new TestData { Value = 20, Name = "v2" });
+            string corruptText = "{ this is not valid json !!!";
+            File.WriteAllText(path, corruptText);
+
+            var fallback = new TestData { Value = -1, Name = "fallback" };
+            var loaded = SafeStorage.LoadSafe<TestData>(path, fallback);
+
+            // Restored value comes from the backup
+            Assert.Equal(10, loaded.Value);
+            Assert.Equal("v1", loaded.Name);
+
+            // Main file is repaired: now valid and equal to the backup content
+            string repaired = File.ReadAllText(path);
+            Assert.Contains("\"Value\": 10", repaired);
+            var reloaded = SafeStorage.LoadSafe<TestData>(path, fallback);
+            Assert.Equal(10, reloaded.Value);
+
+            // Corrupt original is preserved forensically, not deleted
+            Assert.True(File.Exists(path + ".corrupt"));
+            Assert.Equal(corruptText, File.ReadAllText(path + ".corrupt"));
+        }
+        finally
+        {
+            TryDelete(path);
+            TryDelete(path + ".bak");
+            TryDelete(path + ".corrupt");
+        }
+    }
+
+    [Fact]
     public void LoadSafe_EmptyFile_ReturnsFallback()
     {
         string path = TempPath("empty");

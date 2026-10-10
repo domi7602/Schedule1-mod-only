@@ -169,9 +169,44 @@ public static class SafeStorage
             log?.Warn($"SafeStorage: Error loading '{Path.GetFileName(filePath)}' ({ex.Message}) — attempting backup recovery.");
             string backupPath = filePath + ".bak";
             if (File.Exists(backupPath))
-                return TryDeserialize(backupPath, fallback, log, options);
+            {
+                // Restore from backup, and if the restore actually succeeded, repair
+                // the corrupt main file from the backup so the next start does not
+                // re-trigger recovery. The corrupt original is preserved as .corrupt
+                // (forensics), never deleted. Deliberately NOT via SaveTextAtomic:
+                // its .bak rotation would overwrite the good backup with corrupt text.
+                if (TryDeserializeCore(backupPath, log, options, out T? restored) && restored != null)
+                {
+                    RepairMainFromBackup(filePath, backupPath, log);
+                    return restored;
+                }
+            }
 
             return fallback;
+        }
+    }
+
+    /// <summary>
+    /// Replaces a corrupt main file with the backup's raw text, preserving the
+    /// corrupt original as &lt;file&gt;.corrupt. Runs under the same per-file lock as
+    /// writes and swallows every failure — a repair problem must never turn a
+    /// successful load into a thrown exception.
+    /// </summary>
+    private static void RepairMainFromBackup(string filePath, string backupPath, ModLogger? log)
+    {
+        try
+        {
+            lock (GetLock(filePath))
+            {
+                string backupText = File.ReadAllText(backupPath);
+                File.Copy(filePath, filePath + ".corrupt", true);
+                File.WriteAllText(filePath, backupText);
+            }
+            log?.Warn($"SafeStorage: Repaired '{Path.GetFileName(filePath)}' from backup (corrupt original kept as '.corrupt').");
+        }
+        catch (Exception ex)
+        {
+            log?.Warn($"SafeStorage: Backup repair of '{Path.GetFileName(filePath)}' failed (continuing with in-memory data): {ex.Message}");
         }
     }
 
@@ -215,17 +250,28 @@ public static class SafeStorage
     }
 
     private static T TryDeserialize<T>(string path, T fallback, ModLogger? log, JsonSerializerOptions? options) where T : class
+        => TryDeserializeCore(path, log, options, out T? result) ? result! : fallback;
+
+    /// <summary>
+    /// Deserializes a JSON file, reporting success separately from the value so
+    /// callers can distinguish a real restore from a fallback (LoadSafe uses this
+    /// to trigger backup repair only when the restore actually succeeded).
+    /// </summary>
+    private static bool TryDeserializeCore<T>(string path, ModLogger? log, JsonSerializerOptions? options, out T? result) where T : class
     {
+        result = null;
         try
         {
             string json = File.ReadAllText(path);
-            T? result = JsonSerializer.Deserialize<T>(json, options ?? DefaultJsonOptions);
-            return result ?? fallback;
+            T? deserialized = JsonSerializer.Deserialize<T>(json, options ?? DefaultJsonOptions);
+            if (deserialized == null) return false;
+            result = deserialized;
+            return true;
         }
         catch (Exception ex)
         {
             log?.Error($"SafeStorage: Backup '{Path.GetFileName(path)}' unreadable: {ex.Message}");
-            return fallback;
+            return false;
         }
     }
 }
