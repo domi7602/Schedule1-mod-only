@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -34,7 +35,7 @@ public static class UISprites
     {
         radius = Mathf.Clamp(radius, 1f, size * 0.45f);
         int key = (size * 1000) + Mathf.RoundToInt(radius * 10f);
-        if (RoundedCache.TryGetValue(key, out var cached) && cached != null) return cached;
+        if (RoundedCache.TryGetValue(key, out var cached) && IsAlive(cached)) return cached;
 
         var px = new Color32[size * size];
         for (int y = 0; y < size; y++)
@@ -55,7 +56,7 @@ public static class UISprites
     /// <summary>Anti-aliased capsule (fully rounded ends), 9-sliced bars/pills/chevrons.</summary>
     public static Sprite Capsule()
     {
-        if (_capsuleSprite != null) return _capsuleSprite;
+        if (IsAlive(_capsuleSprite)) return _capsuleSprite!;
 
         const int w = 32;
         const int h = 8;
@@ -77,7 +78,7 @@ public static class UISprites
     /// <summary>Anti-aliased filled circle (status dots, gauge centrepiece parts).</summary>
     public static Sprite Circle()
     {
-        if (_circleSprite != null) return _circleSprite;
+        if (IsAlive(_circleSprite)) return _circleSprite!;
 
         const int size = 48;
         const float radius = 23.5f;
@@ -104,7 +105,7 @@ public static class UISprites
     /// </summary>
     public static Sprite Donut()
     {
-        if (_donutSprite != null) return _donutSprite;
+        if (IsAlive(_donutSprite)) return _donutSprite!;
 
         const int size = 96;
         const float outer = 46f;
@@ -137,6 +138,14 @@ public static class UISprites
         float inside = Mathf.Min(Mathf.Max(qx, qy), 0f);
         float dist = outside + inside - radius;
         return Mathf.Clamp01(-dist + 0.5f);
+    }
+
+    /// <summary>IL2CPP liveness: managed wrappers survive native destruction while the sprite is dead.</summary>
+    private static bool IsAlive(UnityEngine.Object? obj)
+    {
+        if (obj == null) return false;
+        try { return obj.Pointer != IntPtr.Zero && !obj.WasCollected && (UnityEngine.Object)obj != null; }
+        catch { return false; }
     }
 
     private static Sprite Build(string name, Color32[] px, int w, int h, float radius, int borderX, int borderY, bool sliced = true)

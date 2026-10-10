@@ -56,10 +56,10 @@ public static class GameObjectResolver
     /// </summary>
     public static GameObject? FindChildDeep(GameObject? root, string childName, bool exactMatch = false)
     {
-        if (root == null || string.IsNullOrEmpty(childName))
+        if (!IsAlive(root) || string.IsNullOrEmpty(childName))
             return null;
 
-        return FindChildRecursive(root.transform, childName, exactMatch)?.gameObject;
+        return FindChildRecursive(root!.transform, childName, exactMatch)?.gameObject;
     }
 
     /// <summary>
@@ -68,11 +68,11 @@ public static class GameObjectResolver
     /// </summary>
     public static GameObject? FindByPathFuzzy(GameObject? root, string path)
     {
-        if (root == null || string.IsNullOrEmpty(path))
+        if (!IsAlive(root) || string.IsNullOrEmpty(path))
             return null;
 
         string[] segments = path.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
-        Transform? current = root.transform;
+        Transform? current = root!.transform;
         int matched = 0;
 
         foreach (string segment in segments)

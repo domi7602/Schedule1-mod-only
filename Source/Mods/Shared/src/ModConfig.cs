@@ -128,6 +128,17 @@ public static class ModConfig<T> where T : class, new()
     private static bool _inSetAndSave;
     private static readonly List<(string propertyName, object? value)> _deferredWrites = new();
 
+    /// <summary>
+    /// Disk-write debounce. A UI slider firing SetAndSave every frame used to write the
+    /// complete TOML file per frame (ApplyAndPersist -> Save -> SaveToFile). Now the value
+    /// and OnChanged fire immediately, but the actual SaveToFile is deferred until
+    /// <see cref="SaveDebounceMs"/> of inactivity has passed. Flush() forces it (scene
+    /// unload, quit); FlushIfDue() lets a mod drain it from its Update loop.
+    /// </summary>
+    public const int SaveDebounceMs = 300;
+    private static bool _saveDirty;
+    private static long _lastSaveRequestTick;
+
     public static void SetAndSave(string propertyName, object? value)
     {
         // Reentrancy guard: OnChanged handlers that call SetAndSave again (directly or
@@ -166,8 +177,39 @@ public static class ModConfig<T> where T : class, new()
     {
         if (!TrySetValue(propertyName, value, out object? convertedVal))
             return;
-        Save();
+        // Debounced disk write: mark dirty + timestamp instead of Save() per call.
+        // The actual SaveToFile runs on Flush()/FlushIfDue() after SaveDebounceMs of inactivity.
+        _saveDirty = true;
+        _lastSaveRequestTick = System.Diagnostics.Stopwatch.GetTimestamp();
+        // OnChanged fires immediately so in-memory subscribers never lag behind.
         OnChanged?.Invoke(propertyName, convertedVal);
+    }
+
+    /// <summary>
+    /// Forces a pending debounced save to disk now. Call from scene-unload / quit so no
+    /// debounced value is lost. Safe to call when nothing is dirty (no-op).
+    /// </summary>
+    public static void Flush()
+    {
+        if (!_saveDirty) return;
+        _saveDirty = false;
+        Save();
+    }
+
+    /// <summary>
+    /// Drains a pending debounced save once SaveDebounceMs of inactivity has passed.
+    /// Call from a mod's Update loop (Unity main thread — SaveToFile is not thread-safe).
+    /// </summary>
+    public static void FlushIfDue()
+    {
+        if (!_saveDirty) return;
+        long elapsedMs = (System.Diagnostics.Stopwatch.GetTimestamp() - _lastSaveRequestTick)
+            * 1000L / System.Diagnostics.Stopwatch.Frequency;
+        if (elapsedMs >= SaveDebounceMs)
+        {
+            _saveDirty = false;
+            Save();
+        }
     }
 
     private static bool TrySetValue(string propertyName, object? value, out object? convertedVal)

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace S1Mods.Shared;
@@ -13,6 +14,27 @@ public static class TypeResolver
 {
     private static readonly Dictionary<string, Type?> _typeCache = new(StringComparer.Ordinal);
     private static readonly object _lock = new();
+
+    /// <summary>
+    /// Late-loaded mod assemblies (S1API plugins, user mods) resolve types that were
+    /// looked up — and cached as null — before they were loaded. Subscribing to
+    /// AssemblyLoad lets us drop only the null entries on every new assembly; resolved
+    /// hits stay valid (a type does not move once its assembly is loaded).
+    /// Rooted in a static readonly field so the IL2CPP GC cannot collect the delegate.
+    /// </summary>
+    private static readonly AssemblyLoadEventHandler _onAssemblyLoad = (_, _) =>
+    {
+        lock (_lock)
+        {
+            foreach (var key in _typeCache.Where(kv => kv.Value == null).Select(kv => kv.Key).ToList())
+                _typeCache.Remove(key);
+        }
+    };
+
+    static TypeResolver()
+    {
+        AppDomain.CurrentDomain.AssemblyLoad += _onAssemblyLoad;
+    }
 
     /// <summary>
     /// Finds a type by its full name (e.g. "ScheduleOne.Skateboarding.Skateboard")
