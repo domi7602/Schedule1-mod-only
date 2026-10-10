@@ -102,6 +102,9 @@ public static class SceneGate
             else if (transition.WasMain && !transition.IsMain)
             {
                 SafeInvoker.Execute(() => OnMainSceneUnloaded?.Invoke(), null, "SceneGate.OnMainSceneUnloaded");
+                // Drain debounced ModConfig disk writes before the scene tears down,
+                // otherwise MelonPreferences' own unload-save persists the stale value.
+                SafeInvoker.Execute(ModConfigRegistry.FlushAll, null, "SceneGate.ModConfigFlush");
             }
 
             SafeInvoker.Execute(() => OnSceneChanged?.Invoke(CurrentSceneName), null, "SceneGate.OnSceneChanged");

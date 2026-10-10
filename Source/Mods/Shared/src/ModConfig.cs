@@ -71,6 +71,9 @@ public static class ModConfig<T> where T : class, new()
         {
             _propertyCache[p.Name] = p;
         }
+        // Register this config's debounced flush so SceneGate / quit can drain it
+        // without the consuming mod adding flush call sites itself.
+        ModConfigRegistry.Register(Flush);
 
         try
         {
