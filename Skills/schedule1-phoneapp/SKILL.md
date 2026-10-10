@@ -120,6 +120,16 @@ and in each row's `HorizontalLayoutGroup`: `childControlWidth = true; childForce
 5. **Dynamic popup roots: walk UP from a unique label node.** `GameObject.Find("ItemLimit")` → walk parents until the node whose parent is the app's `Container` = the popup root, whatever window hosts it (the dead-drop order window is NOT the `CounterofferInterface` root). Cache the root — `GameObject.Find` is a scene search; re-find only when the cached root dies.
 6. **S1MCP name collisions:** exact-name lookups collide on generic names ("Background", "Band", "Content" matched world objects like a forklift part). Prefer full paths (`get_hierarchy`/`get_component_property` accept `parent/child/...`); `inspect_object` children entries carry the full `path` and thereby reveal any node's ancestry. See `schedule1-mcp`.
 
+### Rule 16 (empirical, 2026-10-10): Vanilla Phone Controls Can Be Gamepad-Only — `GamepadInput` Is the Warning Sign
+
+**Trigger:** "these buttons do nothing with mouse", "dead buttons for PC players" in a vanilla app. Check the handler class's *namespace* before hunting for a bug.
+
+1. **`ScheduleOne.GamepadInput.InputValueRamp` = gamepad-only hold-to-accelerate control.** It feeds `Begin`/`End` + `_timeToMaxSpeed`/`_rampCurve` (tap = one step, hold = the value ramps). Mouse clicks never start it — the buttons are genuinely dead for mouse/keyboard users. Real example: the Product app's asking-price −/+ (`Products/AskingPrice/Container/{Add,Remove}`, children `SingleAdd`/`MultiAdd`/`SingleRemove`/`MultiRemove`, `ProductAppDetailPanel.AdjustPrice(float change)` + `UpdatePrice()`). Mouse users can only type the value (`PriceSubmitted`).
+2. **A UI class with `OnInputChange(InputDeviceType)` switches its wiring per device** — check what it does for mouse before assuming the control is broken.
+3. **Smart-quote strings in decompiled headers are actually `InputDeviceType`** (`InputDeviceType.???`) — the type name got mangled by the decompiler's encoding.
+4. **Fix pattern (proven in `Source/Mods/ProductAppQoL`):** Harmony-postfix the panel's `Awake`, then `AddComponent` a `[RegisterTypeInIl2Cpp]` MonoBehaviour on the vanilla button that **polls** `RectTransformUtility.RectangleContainsScreenPoint(rect, Input.mousePosition, canvas.worldCamera)` + `Input.GetMouseButton(0)` and calls the *same vanilla methods* the gamepad path calls (tap = 1 step, hold = accelerating repeat 0.13 s → 0.05 s). Never replace the vanilla Button. Do NOT implement `IPointerDownHandler` — see Rule 15's CS1721 note (Il2CppInterop exposes those as classes).
+5. **Default hotkeys of new UI must be checked against the game's own shortcut keys** before release — the game's global keys are M = map, T = messages, J = journal. A shipped `ToggleKey: "M"` made every map open/close toggle the minimap (false reports of "UI is broken"). Consoles/settings that hide the rebind path make this worse: always ship a migration + a console escape hatch. See `schedule1-game-systems` §5 Anti-Patterns.
+
 ---
 
 ## 2. Step-by-Step Runbook: Creating a New PhoneApp
