@@ -4,7 +4,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(MessagesPlus.Mod), "MessagesPlus", "0.4.4", "Dominik")]
+[assembly: MelonInfo(typeof(MessagesPlus.Mod), "MessagesPlus", "0.4.5", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MessagesPlus;
@@ -57,6 +57,8 @@ public class Mod : MelonMod
         //    populated (Run is idempotent).
         GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
 
+        // (Dark-mode same-frame healing runs in OnLateUpdate — see there.)
+
         Log.Info("MessagesPlus v0.4.4 initialized (search band [name + message text] + category chips + unread counter + ... menu with Clear Read/All + permanent app dark mode + whole-app sweep + vanilla order/counter-offer menus + legacy restore).");
     }
 
@@ -69,6 +71,21 @@ public class Mod : MelonMod
     public override void OnUpdate()
     {
         InboxUI.Tick();
+    }
+
+    private static int _lastFastUiFrame = -1;
+
+    /// <summary>
+    /// Runs once per frame AFTER all Updates and BEFORE Unity renders the UI —
+    /// vanilla resets the order popup's value texts/colours immediately on +/-
+    /// clicks (Update phase); healing them in the same frame makes the reset
+    /// invisible. Strictly better than any polling interval.
+    /// </summary>
+    public override void OnLateUpdate()
+    {
+        if (UnityEngine.Time.frameCount == _lastFastUiFrame) return;
+        _lastFastUiFrame = UnityEngine.Time.frameCount;
+        InboxUI.ThemeFastFrame();
     }
 
     public override void OnDeinitializeMelon()

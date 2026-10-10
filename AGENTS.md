@@ -78,7 +78,7 @@ Release/           Release ZIP output
 | **Minimap** | ♻️ restored from archive (v2.0.2, **In-Game-Verify open**) | `Mods/Minimap/` | `Minimap.dll` | HUD overlay, blip pool, settings PhoneApp, waypoints |
 | **AutoPackagingStation** | ✅ active (v0.3.3, **Verified 2026-09-20**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable, SafeStorage, GLB |
 | **HitmanPhone** | ✅ active (v0.2.9, beta **Verified 2026-09-24**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Messages/NPC/Items/Quests |
-| **MessagesPlus** | ✅ active (v0.4.4, dark mode **verified in-game 2026-10-09**; v0.4.0 sweep **verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
+| **MessagesPlus** | ✅ active (v0.4.5, dark mode **verified in-game 2026-10-09**; v0.4.0 sweep **verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
 | **TaxiDriver** | 🧪 stability update (v0.8.2; f12 no-deploy Release build passed, gameplay unverified) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | TaxiApp-only service, own NPC driver, vehicle ownership guards, S1MAPI |
 | **StorageScanner** | 🆕 new (v0.2.0, **In-Game-Verify open**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | PhoneApp, read-only storage overview |
 | **S1MCP** | ✅ active (v1.0.1) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | MCP over TCP :8765 |
@@ -140,10 +140,10 @@ Release/           Release ZIP output
 - Bounty contracts via phone messages (anonymous callers): kill → Polaroid evidence → dead-drop payout; police heat, journal quests, 3-day expiry, slot-isolated save; `KnockOut` patch + double-drop latch + orphan-quest cleanup.
 - Beta verified 2026-09-24 (offer → accept → receipt → payout). History: `Source/Mods/HitmanPhone/docs/CHANGELOG.md`.
 
-**MessagesPlus v0.4.4 (2026-10-09):**
+**MessagesPlus v0.4.5 (2026-10-09):**
 - **Whole-app dark mode regression fixed and verified in-game 2026-10-09.** v0.4.3's rewrite of `AppTheme` had removed the broad sweep that tints every remaining near-white surface AND tightened the near-white detector (`Spread <= 0.08`), so the whole app stayed vanilla-white. The v0.4.0 sweep and its permissive colour gate are restored; the sweep runs as the FINAL pass, after the targeted ones, so it only fills the gaps (`ThemeColorPolicy` makes re-tinting an already-dark surface a no-op). Confirmed dark by Dominik (screenshots 13:39 / 13:43).
 
-**MessagesPlus v0.4.3 (2026-09-29/30):**
+**MessagesPlus v0.4.5 (2026-09-29/30):**
 - Patch-only mod (no PhoneApp icon) on the vanilla `MessagesApp`: sticky search band under the title (live search, `[All][Customer][Dealer][Supplier]` chips, unread counter), "⋯" menu with Clear Read / Clear All — view-only filtering, host-only + customer-only mutations, one-time legacy restore of v0.1.x trashed threads.
 - **Whole-app dark mode** (`AppTheme`): **permanent since v0.4.1** — the "⋯" menu toggle is gone, the config defaults to ON and a stale `false` self-heals at startup (`MessagesPlusConfig.DarkMode` stays for schema stability). Recolours our band + vanilla app surfaces (page backgrounds, inbox rows, chat bubbles + tails, dialogue header, generic near-white sweep) — one-time per graphic with cached originals; dead-drop/order and counter-offer subtrees are restored to vanilla colors and excluded from sweeps; avatars, badges, the unread dot, and product sprites remain untouched.
 - **Vanilla order menus (2026-10-08):** `MSGConversation.responseContainer` and the verified `DealWindowSelector.Container` are preserved/restored; the deal-window hook no longer darkens popup content. In-Game-Verify open.

@@ -63,8 +63,19 @@ internal static class AppTheme
     private static readonly List<Transform> _ownRoots = new();
     private static readonly List<Transform> _vanillaRoots = new();
     private static readonly List<int> _scratchIds = new();
+    private static readonly HashSet<int> _lightBubbleTextIds = new();
+
+    // Vivid, opaque status-bar colours (dark-theme look: bright segments on a
+    // dark track — the vanilla fills are semi-transparent and go murky when the
+    // surface behind them turns dark).
+    private static readonly Color VividRed = new(0.93f, 0.26f, 0.20f, 1f);
+    private static readonly Color VividGreen = new(0.30f, 0.87f, 0.42f, 1f);
+    private static readonly Color VividBlue = new(0.35f, 0.72f, 1.00f, 1f);
 
     private static float _nextCachePruneTime;
+    private static bool _diagStatusLogged;
+    private static bool _diagVividLogged;
+    private static Transform? _orderPopupRoot;
     private static int _fullPassCount;
     private static int _passNew;
     private static int _passRepaired;
@@ -99,6 +110,7 @@ internal static class AppTheme
             _passProtected = 0;
             _passCleaned = 0;
             _fullPassCount++;
+            _lightBubbleTextIds.Clear();
             ResetDiagCounters();
 
             PruneTrackedCaches();
@@ -132,6 +144,12 @@ internal static class AppTheme
 
             try { TintDialogueHeader(app); }
             catch (Exception ex) { Mod.Log?.Debug($"AppTheme header: {ex.Message}"); }
+
+            try { ThemeRelationshipBar(app); }
+            catch (Exception ex) { Mod.Log?.Debug($"AppTheme relationship: {ex.Message}"); }
+
+            try { ThemeOrderPopups(app); }
+            catch (Exception ex) { Mod.Log?.Debug($"AppTheme order popups: {ex.Message}"); }
 
             if (ConversationUtils.IsAlive(current))
             {
@@ -196,21 +214,381 @@ internal static class AppTheme
         }
     }
 
+    /// <summary>
+    /// Preserve the friendship/status slider as a small, bounded vanilla subtree.
+    /// Do NOT search distant named ancestors: that can accidentally exclude the
+    /// whole dialogue and leave incoming bubbles light while their text is white.
+    /// </summary>
     private static void ProtectConversationStatus(MSGConversation conv)
     {
         try
         {
             Image? fill = conv.sliderFill;
-            if (!NetworkGuard.IsAlive(fill)) return;
-            int id = fill!.GetInstanceID();
+            if (!NetworkGuard.IsAlive(fill))
+            {
+                if (!_diagStatusLogged)
+                {
+                    _diagStatusLogged = true;
+                    Mod.Log?.Info("[AppTheme] status widget: sliderFill MISSING — vividify runs via header scan only.");
+                }
+                return;
+            }
+
+            Transform root = fill!.transform;
+            Slider? slider = null;
+            try { slider = fill.GetComponentInParent<Slider>(); } catch { /* prefab variant */ }
+            if (NetworkGuard.IsAlive(slider))
+            {
+                root = slider!.transform;
+            }
+            else
+            {
+                // A slider normally has Fill Area / Fill under the track. Stay
+                // within two parents; never climb to a dialogue/page ancestor.
+                Transform? parent = fill.transform.parent;
+                if (NetworkGuard.IsAlive(parent))
+                {
+                    root = parent!;
+                    string name = parent!.name.ToLowerInvariant();
+                    if (name.Contains("fill"))
+                    {
+                        Transform? grandparent = parent.parent;
+                        if (NetworkGuard.IsAlive(grandparent) &&
+                            (IsStatusSliderName(grandparent!.name) ||
+                             grandparent.name.IndexOf("slider", StringComparison.OrdinalIgnoreCase) >= 0))
+                            root = grandparent;
+                    }
+                }
+            }
+
+            // A prefab variation could place sliderFill below an unexpected
+            // parent. Never preserve anything that owns the chat bubble list.
+            GameObject? bubbleContainer = null;
+            try { bubbleContainer = AsGameObject(conv.bubbleContainer); } catch { }
+            if (NetworkGuard.IsAlive(bubbleContainer) &&
+                IsWithin(bubbleContainer!.transform, root))
+                root = fill.transform;
+
+            PreserveVanillaSubtree(root.gameObject);
+
+            // Registration after restoration: PreserveVanillaSubtree untracks
+            // previously themed graphics that belong to the preserved root.
+            int id = fill.GetInstanceID();
             if (!_protectedGraphics.TryGetValue(id, out Graphic? existing) ||
                 !NetworkGuard.IsAlive(existing) || !SameObject(existing, fill))
             {
                 _protectedGraphics[id] = fill;
                 _passProtected++;
             }
+
+            // The bar itself gets deliberate dark-theme colours: the vanilla
+            // fills are semi-transparent and read as very dark once the surface
+            // behind them is themed dark. Vivid opaque segments fix that.
+            VividifyStatusSegments(conv, fill!);
         }
         catch { /* status UI may not exist yet */ }
+    }
+
+    private static bool IsStatusSliderName(string name)
+    {
+        string lower = name.ToLowerInvariant();
+        return lower.Contains("friend") || lower.Contains("status") ||
+               lower.Contains("relationship") || lower.Contains("orderlimit") ||
+               lower.Contains("order limit");
+    }
+
+    /// <summary>
+    /// Paints the status bar's coloured fill segments vivid and opaque.
+    ///
+    /// The vanilla fills are semi-transparent; once the surface behind the bar is
+    /// themed dark they read as murky maroon/dark green (nearly invisible). The
+    /// dark track is left alone — bright segments on a dark track is the intended
+    /// dark-theme look. Grey/neutral graphics (tracks, handles) are skipped, and
+    /// every write is tracked so a light restore returns the vanilla colour.
+    /// </summary>
+    private static void VividifyStatusSegments(MSGConversation conv, Image fill)
+    {
+        try
+        {
+            // Bounded scope: the fill's parent, widened by at most one more level.
+            // Never a distant ancestor — and never the bubble list's container.
+            Transform scope = fill.transform;
+            Transform? parent = fill.transform.parent;
+            if (NetworkGuard.IsAlive(parent)) scope = parent!;
+            Transform? grandparent = scope.parent;
+            if (NetworkGuard.IsAlive(grandparent))
+            {
+                GameObject? bubbles = null;
+                try { bubbles = AsGameObject(conv.bubbleContainer); } catch { }
+                if (!(NetworkGuard.IsAlive(bubbles) && IsWithin(bubbles!.transform, grandparent!)))
+                    scope = grandparent!;
+            }
+
+            Image[] images = scope.GetComponentsInChildren<Image>(true);
+            if (images == null) return;
+            for (int i = 0; i < images.Length; i++)
+            {
+                Image? img = images[i];
+                if (NetworkGuard.IsAlive(img)) VividifySegmentIfColored(img!);
+            }
+        }
+        catch (Exception ex) { Mod.Log?.Debug($"AppTheme status vividify: {ex.Message}"); }
+    }
+
+    /// <summary>
+    /// Vividifies every clearly coloured fill image under <paramref name="root"/>.
+    /// Used on the dialogue header container so the status bar is found even when
+    /// the game's sliderFill reference is not populated.
+    /// </summary>
+    private static void VividifyColoredImagesIn(GameObject root)
+    {
+        try
+        {
+            Image[] images = root.GetComponentsInChildren<Image>(true);
+            if (images == null) return;
+            int colored = 0;
+            for (int i = 0; i < images.Length; i++)
+            {
+                Image? img = images[i];
+                if (!NetworkGuard.IsAlive(img)) continue;
+                if (VividifySegmentIfColored(img!)) colored++;
+            }
+            if (!_diagVividLogged)
+            {
+                _diagVividLogged = true;
+                Mod.Log?.Info($"[AppTheme] vividify scan: images={(images == null ? 0 : images.Length)} colored={colored} root='{root.name}'.");
+            }
+        }
+        catch (Exception ex) { Mod.Log?.Debug($"AppTheme vividify scan: {ex.Message}"); }
+    }
+
+    /// <summary>One image: clearly coloured fill segment → vivid + opaque (tracked for light restore).</summary>
+    private static bool VividifySegmentIfColored(Image img)
+    {
+        try
+        {
+            Color c = img.color;
+            if (c.a <= 0.02f) return false;
+
+            // Only clearly coloured segments; grey/neutral graphics are
+            // tracks, handles or icons and keep their current look.
+            float max = MaxChannel(c);
+            float min = Mathf.Min(c.r, Mathf.Min(c.g, c.b));
+            if (max < 0.25f || max - min < 0.10f) return false;
+
+            Color vivid = c.r >= c.g && c.r >= c.b ? VividRed
+                        : c.g >= c.r && c.g >= c.b ? VividGreen
+                        : VividBlue;
+
+            int id = img.GetInstanceID();
+            if (TryGetGraphicState(id, img, out GraphicThemeState? state) && state != null)
+            {
+                if (!SameColor(img.color, vivid))
+                {
+                    img.color = vivid;
+                    state!.Role = ThemeRole.StatusIndicator;
+                    state.LastTheme = vivid;
+                    _passRepaired++;
+                }
+                return true;
+            }
+            _graphics[id] = new GraphicThemeState(img, c, vivid, ThemeRole.StatusIndicator);
+            img.color = vivid;
+            _passNew++;
+            return true;
+        }
+        catch { return false; /* invalid proxy */ }
+    }
+
+    /// <summary>
+    /// The relationship bar's "Band" draws a coloured tier sprite ("Relationship
+    /// band"); the Image color multiplies that sprite. The broad safety sweep used
+    /// to tint this graphic with the dark palette, which turned the bright tiles
+    /// into murky dark colours (reported as "very very dark"). Restore a white
+    /// tint (alpha preserved) and protect the graphic from every later sweep so
+    /// the sprite's own colours stay vivid. Only the Band graphic is touched —
+    /// the scrollbar track/handle keep the normal theme behaviour (a blanket tint
+    /// of the widget produced a stray white handle square).
+    /// Verified live via S1MCP 2026-10-10:
+    /// Topbar/Name/Relationship/{Background, Band(SPRITE "Relationship band", child Scrollbar)}.
+    /// </summary>
+    private static void ThemeRelationshipBar(MessagesApp app)
+    {
+        try
+        {
+            RectTransform? rel = app.relationshipContainer;
+            if (!NetworkGuard.IsAlive(rel)) return;
+            Image[] images = rel!.GetComponentsInChildren<Image>(true);
+            if (images == null) return;
+            for (int i = 0; i < images.Length; i++)
+            {
+                Image? img = images[i];
+                if (!NetworkGuard.IsAlive(img)) continue;
+                try
+                {
+                    // Only "Band" carries the coloured tier sprite ("Relationship
+                    // band"). Everything else in the widget (scrollbar track and
+                    // handle, wrapper) keeps the normal theme behaviour — a
+                    // blanket white tint there produced a stray white handle
+                    // square sitting on the bar.
+                    if (img!.name != "Band") continue;
+
+                    int id = img.GetInstanceID();
+                    if (!_protectedGraphics.TryGetValue(id, out Graphic? existing) ||
+                        !NetworkGuard.IsAlive(existing) || !SameObject(existing, img))
+                    {
+                        _protectedGraphics[id] = img;
+                        _passProtected++;
+                    }
+
+                    // White tint = full sprite brightness (the gradient carries the
+                    // colours); alpha is preserved (the wrapper stays invisible).
+                    Color white = new(1f, 1f, 1f, img.color.a);
+                    if (TryGetGraphicState(id, img, out GraphicThemeState? state) && state != null)
+                    {
+                        if (!SameColor(img.color, white))
+                        {
+                            img.color = white;
+                            state!.Role = ThemeRole.StatusIndicator;
+                            state.LastTheme = white;
+                            _passRepaired++;
+                        }
+                    }
+                    else
+                    {
+                        _graphics[id] = new GraphicThemeState(img, img.color, white, ThemeRole.StatusIndicator);
+                        img.color = white;
+                        _passNew++;
+                    }
+                }
+                catch { /* invalid proxy */ }
+            }
+        }
+        catch (Exception ex) { Mod.Log?.Debug($"AppTheme relationship bar: {ex.Message}"); }
+    }
+
+    /// <summary>
+    /// Dark-themes the order/counter-offer popups' flat surfaces: the vanilla
+    /// white quantity/price buttons and input fields clash with the dark theme.
+    /// The broad sweep skips them because their node names trip the content-name
+    /// guard ("item", "product", ...), so this pass handles the popup subtrees
+    /// explicitly: flat neutral-light fills go dark (CardAlt), content art
+    /// (icons, locks, stars, portraits) is never touched, coloured accents keep
+    /// their colours, and texts follow the normal text theming.
+    /// Verified live via S1MCP 2026-10-10: Messages/Container/{CounterofferInterface,
+    /// DealWindowSelector}, incrementor templates under CounterofferInterface/
+    /// Incrementors/{PriceIncrementor, QuantityIncrementor}.
+    /// </summary>
+    private static void ThemeOrderPopups(MessagesApp app)
+    {
+        try
+        {
+            Transform? root = app.transform;
+            if (!NetworkGuard.IsAlive(root)) return;
+            Transform? container = FindDirectChild(root!, "Container");
+            if (!NetworkGuard.IsAlive(container)) return;
+
+            ThemePopupSubtree(FindDirectChild(container!, "CounterofferInterface"));
+            ThemePopupSubtree(FindDirectChild(container!, "DealWindowSelector"));
+        }
+        catch (Exception ex) { Mod.Log?.Debug($"AppTheme order popups: {ex.Message}"); }
+    }
+
+    /// <summary>
+    /// Same-frame dark-mode healing for the open order popup. Called from Unity's
+    /// Canvas.willRenderCanvases (before the UI paints), so vanilla resets of the
+    /// popup's value texts/colours (e.g. the item-limit counter on +/- clicks) are
+    /// repaired in the very frame they happen — no visible polling delay.
+    /// </summary>
+    public static void FastPopupPass(MessagesApp app)
+    {
+        try
+        {
+            if (!NetworkGuard.IsAlive(app)) return;
+            Transform? popup = ResolveOrderPopupRoot();
+            if (popup == null) return;
+            ThemePopupSubtree(popup);
+            TintDarkTextsIn(popup.gameObject);
+        }
+        catch (Exception ex) { Mod.Log?.Debug($"AppTheme fast popup pass: {ex.Message}"); }
+    }
+
+    /// <summary>
+    /// Resolves the currently open order popup's root (a direct child of the app's
+    /// "Container") by walking up from the unique "ItemLimit" summary label — so
+    /// the popup is found regardless of which window hosts it. Cached: the marker
+    /// search is a scene search and only runs when the popup opens or its root died.
+    /// Returns null while no order popup is open.
+    /// </summary>
+    private static Transform? ResolveOrderPopupRoot()
+    {
+        try
+        {
+            if (NetworkGuard.IsAlive(_orderPopupRoot)) return _orderPopupRoot;
+            _orderPopupRoot = null;
+
+            GameObject? marker = null;
+            try { marker = GameObject.Find("ItemLimit"); } catch { /* popup closed */ }
+            if (!NetworkGuard.IsAlive(marker)) return null;
+
+            Transform? t = marker!.transform;
+            for (int depth = 0; depth < 12 && NetworkGuard.IsAlive(t); depth++)
+            {
+                Transform? parent = null;
+                try { parent = t!.parent; } catch { break; }
+                if (!NetworkGuard.IsAlive(parent)) break;
+                if (parent!.name == "Container")
+                {
+                    _orderPopupRoot = t;
+                    return t;
+                }
+                t = parent;
+            }
+        }
+        catch { /* popup not resolvable this frame */ }
+        return null;
+    }
+
+    private static void ThemePopupSubtree(Transform? root)
+    {
+        if (!NetworkGuard.IsAlive(root)) return;
+        try
+        {
+            Image[] images = root!.GetComponentsInChildren<Image>(true);
+            if (images == null) return;
+            for (int i = 0; i < images.Length; i++)
+            {
+                Image? img = images[i];
+                if (!NetworkGuard.IsAlive(img)) continue;
+                try
+                {
+                    if (IsOwnedByMod(img!.transform) || IsVanillaSubtree(img.transform)) continue;
+                    string name = img.name.ToLowerInvariant();
+                    if (name.Contains("avatar") || name.Contains("portrait") || name.Contains("icon") ||
+                        name.Contains("logo") || name.Contains("star") || name.Contains("lock") ||
+                        name.Contains("product") || name.Contains("shade")) continue;
+                    if (!IsNeutralLightSurface(img.color)) continue; // coloured accents keep their look
+                    TintGraphic(img, GamePalette.CardAlt, ThemeRole.InboxRowBackground);
+                }
+                catch { /* invalid proxy */ }
+            }
+        }
+        catch (Exception ex) { Mod.Log?.Debug($"AppTheme popup subtree: {ex.Message}"); }
+    }
+
+    private static Transform? FindDirectChild(Transform parent, string name)
+    {
+        try
+        {
+            int count = parent.childCount;
+            for (int i = 0; i < count; i++)
+            {
+                Transform? child = parent.GetChild(i);
+                if (NetworkGuard.IsAlive(child) && child!.name == name) return child;
+            }
+        }
+        catch { }
+        return null;
     }
 
     private static void RegisterConversationProtections()
@@ -363,9 +741,11 @@ internal static class AppTheme
 
     private static void ClearTracking()
     {
+        _orderPopupRoot = null;
         _graphics.Clear();
         _selectables.Clear();
         _protectedGraphics.Clear();
+        _lightBubbleTextIds.Clear();
         _ownRoots.Clear();
         _vanillaRoots.Clear();
         _scratchIds.Clear();
@@ -463,7 +843,7 @@ internal static class AppTheme
         Image? background = FindEntryBackground(entry);
         if (!NetworkGuard.IsAlive(background)) return;
         if (IsNeutralLightSurface(background!.color) || IsTrackedGraphic(background))
-            TintGraphic(background, GamePalette.Card, ThemeRole.InboxRowBackground);
+            TintGraphic(background, GamePalette.Card, ThemeRole.InboxRowBackground, themeInboxSelectable: true);
         if (!IsThemeSurfaceDark(background, ThemeRole.InboxRowBackground, GamePalette.Card)) return;
 
         Graphic? preview = null;
@@ -577,7 +957,15 @@ internal static class AppTheme
 
             if (IsNeutralLightSurface(bubbleGraphic.color) || IsTrackedGraphic(bubbleGraphic))
                 TintGraphic(bubbleGraphic, GamePalette.CardAlt, ThemeRole.IncomingBubble);
-            if (!IsThemeSurfaceDark(bubbleGraphic, ThemeRole.IncomingBubble, GamePalette.CardAlt)) continue;
+            if (!IsThemeSurfaceDark(bubbleGraphic, ThemeRole.IncomingBubble, GamePalette.CardAlt))
+            {
+                // If the bubble cannot be darkened (e.g. a protected vanilla
+                // widget), never leave behind text whitened by an earlier sweep.
+                RestoreTrackedBubbleText(content);
+                try { if (NetworkGuard.IsAlive(content)) _lightBubbleTextIds.Add(content!.GetInstanceID()); }
+                catch { /* UI was rebuilt */ }
+                continue;
+            }
 
             // The little bubble triangles echo the bubble colour — only neutral
             // triangle graphics may follow the known incoming-bubble background.
@@ -601,6 +989,20 @@ internal static class AppTheme
             if (content != null && !IsProtectedText(content) && IsDarkNeutral(content.color))
                 TintGraphic(content, GamePalette.TextPrimary, ThemeRole.PrimaryText);
         }
+    }
+
+    private static void RestoreTrackedBubbleText(Graphic? content)
+    {
+        if (!NetworkGuard.IsAlive(content)) return;
+        try
+        {
+            int id = content!.GetInstanceID();
+            if (!TryGetGraphicState(id, content, out GraphicThemeState? state) ||
+                state == null || state.Role != ThemeRole.PrimaryText) return;
+            RestoreGraphicIfThemeOwned(state, preserveCurrentAlpha: true);
+            _graphics.Remove(id);
+        }
+        catch { /* native UI may be rebuilding */ }
     }
 
     /// <summary>
@@ -981,6 +1383,10 @@ internal static class AppTheme
         Transform? container = header!.transform.parent;
         if (!NetworkGuard.IsAlive(container)) return;
         TintSmallDarkIconsIn(container!.gameObject, pageWidth, pageHeight);
+
+        // The status/relationship bar lives in the dialogue header area — paint
+        // its coloured segments vivid here even if sliderFill is not populated.
+        VividifyColoredImagesIn(container!.gameObject);
     }
 
     private static bool IsHeaderCandidate(Image? image, RectTransform pageRt, float pageWidth, float pageHeight)
@@ -1130,7 +1536,8 @@ internal static class AppTheme
                     if (!NetworkGuard.IsAlive(img)) continue;
                     try
                     {
-                        if (IsOwnedByMod(img!.transform) || IsVanillaSubtree(img.transform)) continue;
+                        if (IsOwnedByMod(img!.transform) || IsVanillaSubtree(img.transform) ||
+                            IsProtectedContentName(img.name)) continue;
 
                         Color c = img.color;
                         if (c.a <= 0.02f || c.r < 0.60f || c.g < 0.60f || c.b < 0.60f) continue;
@@ -1199,11 +1606,31 @@ internal static class AppTheme
 
     private static void TintIfDarkText(Graphic text)
     {
-        if (IsOwnedByMod(text.transform) || IsVanillaSubtree(text.transform) || IsProtectedText(text)) return;
+        if (IsOwnedByMod(text.transform) || IsVanillaSubtree(text.transform) ||
+            IsProtectedText(text) || IsInsideDisabledSelectable(text)) return;
+        try { if (_lightBubbleTextIds.Contains(text.GetInstanceID())) return; } catch { return; }
         Color c;
         try { c = text.color; } catch { return; }
         if (c.a <= 0.02f || !IsDarkNeutral(c)) return;
         TintGraphic(text, GamePalette.TextPrimary, ThemeRole.PrimaryText);
+    }
+
+    // A locked/disabled vanilla button keeps its own state label colors.
+    // This is a narrow safeguard: it does not affect incoming bubble text.
+    private static bool IsInsideDisabledSelectable(Graphic graphic)
+    {
+        try
+        {
+            Selectable[] parents = graphic.GetComponentsInParent<Selectable>(true);
+            if (parents == null) return false;
+            for (int i = 0; i < parents.Length; i++)
+            {
+                Selectable? selectable = parents[i];
+                if (NetworkGuard.IsAlive(selectable) && !selectable!.interactable) return true;
+            }
+        }
+        catch { /* prefer leaving the text unchanged if uncertain? no broad skip */ }
+        return false;
     }
 
     // ------------------------------------------------------------------
@@ -1257,9 +1684,15 @@ internal static class AppTheme
         if (!NetworkGuard.IsAlive(text)) return true;
         try
         {
+            // Text-specific guard. The generic content-name guard ("item",
+            // "product", "status", ...) must NOT apply to labels: it kept e.g.
+            // "Item Limit" dark while its background was themed dark — dark on
+            // dark, unreadable. Only genuinely special text nodes stay untouched.
             string name = text!.name.ToLowerInvariant();
-            return IsProtectedContentName(name) || name.Contains("notice") || name.Contains("hint") ||
-                   name.Contains("timestamp") || name.Contains("indicator");
+            return name.Contains("avatar") || name.Contains("portrait") ||
+                   name.Contains("notice") || name.Contains("hint") ||
+                   name.Contains("timestamp") || name.Contains("indicator") ||
+                   name.Contains("unread") || name.Contains("badge");
         }
         catch { return true; }
     }
@@ -1323,7 +1756,7 @@ internal static class AppTheme
         _ => false
     };
 
-    private static void TintGraphic(Graphic? graphic, Color target, ThemeRole role)
+    private static void TintGraphic(Graphic? graphic, Color target, ThemeRole role, bool themeInboxSelectable = false)
     {
         if (!NetworkGuard.IsAlive(graphic) || role is ThemeRole.ProtectedContent or ThemeRole.StatusIndicator or ThemeRole.OutgoingContent)
             return;
@@ -1335,9 +1768,11 @@ internal static class AppTheme
             int id = graphic.GetInstanceID();
             if (IsProtectedGraphic(id, graphic)) return;
 
-            // Only known inbox-row ColorTint buttons are themed through ColorBlock.
-            // All other transitions are left to Unity and never hard-set per frame.
-            if (TryHandleSelectableTarget(graphic, id, role)) return;
+            // Only explicitly recognised inbox rows may change ColorBlock.
+            // Disabled vanilla buttons must keep their exact lock styling.
+            // Crucially, do not skip other selectable graphics by default:
+            // incoming bubble backgrounds still need their dark color.
+            if (TryHandleSelectableTarget(graphic, id, role, themeInboxSelectable)) return;
 
             Color current = graphic.color;
             if (current.a <= 0.02f) return;
@@ -1374,40 +1809,17 @@ internal static class AppTheme
     }
 
     /// <summary>
-    /// Themes a graphic that is the target of a vanilla <see cref="Selectable"/>.
-    ///
-    /// Returns false in the normal case so the caller assigns the graphic colour
-    /// itself. Bailing out here (the old behaviour) left every selectable surface
-    /// that is NOT a themeable inbox-row ColorTint button in its vanilla light
-    /// colour permanently — those were the white artifacts no later pass fixed.
-    ///
-    /// Only the known inbox-row ColorTint buttons additionally get a themed
-    /// ColorBlock, and even for those the graphic colour is written directly:
-    /// Unity only pushes <c>colors.normalColor</c> onto the graphic during a
-    /// state transition, so a ColorBlock-only theme left the row vanilla-white
-    /// until the pointer happened to hover/click it ("applies later").
+    /// Theme the explicit inbox-row selectable only. Otherwise preserve every
+    /// disabled/locked selectable and allow normal background tint for enabled
+    /// graphics (including incoming message bubbles).
     /// </summary>
-    private static bool TryHandleSelectableTarget(Graphic graphic, int graphicId, ThemeRole role)
+    private static bool TryHandleSelectableTarget(Graphic graphic, int graphicId, ThemeRole role, bool themeInboxSelectable)
     {
         Selectable[] selectables;
         try { selectables = graphic.GetComponentsInParent<Selectable>(true); }
-        catch { return false; } // uncertain ancestry: let the normal tint path decide
+        catch { return false; }
 
         if (selectables == null || selectables.Length == 0) return false;
-
-        bool ownsGraphic = false;
-        for (int i = 0; i < selectables.Length; i++)
-        {
-            Selectable? selectable = selectables[i];
-            if (!NetworkGuard.IsAlive(selectable)) continue;
-            Graphic? target = null;
-            try { target = selectable!.targetGraphic; } catch { continue; }
-            if (!NetworkGuard.IsAlive(target) || target!.GetInstanceID() != graphicId || !SameObject(target, graphic)) continue;
-            ownsGraphic = true;
-            break;
-        }
-        if (!ownsGraphic) return false; // not a selectable target — normal tint path
-
         for (int i = 0; i < selectables.Length; i++)
         {
             Selectable? selectable = selectables[i];
@@ -1415,10 +1827,16 @@ internal static class AppTheme
             try
             {
                 Graphic? target = selectable!.targetGraphic;
-                if (NetworkGuard.IsAlive(target) && target!.GetInstanceID() == graphicId && SameObject(target, graphic))
+                if (!NetworkGuard.IsAlive(target) || target!.GetInstanceID() != graphicId ||
+                    !SameObject(target, graphic)) continue;
+
+                if (!selectable.interactable && !themeInboxSelectable &&
+                    role != ThemeRole.IncomingBubble) return true;
+
+                if (themeInboxSelectable && role == ThemeRole.InboxRowBackground)
                     ThemeSelectable(selectable, role);
             }
-            catch { /* leave malformed targets unchanged */ }
+            catch { /* invalid/native UI element: continue normal tint */ }
         }
         return false;
     }
@@ -1462,7 +1880,7 @@ internal static class AppTheme
         themed.highlightedColor = WithAlpha(GamePalette.CardHover, original.highlightedColor.a);
         themed.pressedColor = WithAlpha(GamePalette.CardPressed, original.pressedColor.a);
         themed.selectedColor = WithAlpha(GamePalette.CardAlt, original.selectedColor.a);
-        themed.disabledColor = WithAlpha(GamePalette.Bg, original.disabledColor.a); // distinct disabled state; preserve its alpha
+        themed.disabledColor = original.disabledColor; // preserve vanilla disabled/locked state
         return themed;
     }
 

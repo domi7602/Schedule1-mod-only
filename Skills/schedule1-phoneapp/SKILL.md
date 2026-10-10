@@ -109,6 +109,17 @@ and in each row's `HorizontalLayoutGroup`: `childControlWidth = true; childForce
 4. **Legacy `UnityEngine.UI.Text` has NO character spacing.** A tracked label in the mockup (`L I V E  C O N D I T I O N S`) can only be approximated — thin-space padding (U+2009) risks missing-glyph boxes in Arial. Accept the tighter label and record the deviation instead of faking it.
 5. **Only colour/tint surfaces you can derive:** measure the active row base, then solve for the blend (`base = Bg + (accent - Bg) * t`, typically t ≈ 0.14). Hard-coded hexes copied from a JPEG-ish mockup drift; the blend formula keeps every accent consistent.
 
+### Rule 15 (empirical, 2026-10-10): Dark-Theming Vanilla UI — Sprite Multipliers, Name Guards, Same-Frame Healing
+
+**Trigger:** dark mode over vanilla UI (MessagesPlus dark-mode polish round; root-caused live via S1MCP). "It stays dark/white/flashes for a second" always has a structural cause — find the node before touching thresholds.
+
+1. **A graphic whose colour lives in its SPRITE is multiplied by its Image colour.** The relationship bar's `Relationship/Band` draws sprite "Relationship band" (bright red/green/cyan tier tiles); the sweep tinted its Image colour with the dark palette and the tiles went murky ("very very dark"). Rule: sprite-carrying art graphics keep a WHITE tint (alpha preserved) and are protected from sweeps (`_protectedGraphics`) — never palette-tint them. Flat fills (tracks, panels) are the ones to palette-tint.
+2. **Never blanket-tint a widget subtree.** Whitening everything under `Relationship` also whitened the scrollbar handle — a stray white square sat on the bar. Identify the one graphic that carries the art and touch only that one.
+3. **Content-name guards ("item", "product", "status", ...) protect IMAGE art — never TEXT labels.** Applying the image guard to texts kept the `Item Limit` label dark while its surface went dark (dark-on-dark, unreadable). Text guards: only genuinely special nodes (avatar/portrait/notice/hint/timestamp/indicator/unread/badge).
+4. **Vanilla resets texts/colours in the same frame as the interaction (Update phase).** Any polling (1 s fallback, even 0.2 s) shows a visible flash ("dark for a second"). Re-apply in `OnLateUpdate` (after all Updates, before Unity paints) = same-frame healing, zero visible delay. Gate it to the affected subtree and skip entirely when nothing is open.
+5. **Dynamic popup roots: walk UP from a unique label node.** `GameObject.Find("ItemLimit")` → walk parents until the node whose parent is the app's `Container` = the popup root, whatever window hosts it (the dead-drop order window is NOT the `CounterofferInterface` root). Cache the root — `GameObject.Find` is a scene search; re-find only when the cached root dies.
+6. **S1MCP name collisions:** exact-name lookups collide on generic names ("Background", "Band", "Content" matched world objects like a forklift part). Prefer full paths (`get_hierarchy`/`get_component_property` accept `parent/child/...`); `inspect_object` children entries carry the full `path` and thereby reveal any node's ancestry. See `schedule1-mcp`.
+
 ---
 
 ## 2. Step-by-Step Runbook: Creating a New PhoneApp

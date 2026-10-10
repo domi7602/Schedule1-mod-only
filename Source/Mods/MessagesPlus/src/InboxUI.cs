@@ -152,6 +152,7 @@ public static class InboxUI
     private static Action? _pendingConfirm;
     private static float _nextTickTime;
     private static float _nextThemeFallbackTime;
+    private static float _nextPopupFastTime;
 
     // Vanilla list surgery: the band takes its height off the top of the vanilla
     // conversation viewport so the two can never overlap. Restored on rebuild.
@@ -235,6 +236,16 @@ public static class InboxUI
     {
         try
         {
+            // Fast order-popup pass (0.2 s): vanilla resets the popup's value texts
+            // (e.g. the item-limit counter) to its own colours immediately on +/-
+            // interaction — the 1 s fallback left them visibly dark for a second.
+            if (DarkMode && Time.unscaledTime >= _nextPopupFastTime)
+            {
+                _nextPopupFastTime = Time.unscaledTime + 0.2f;
+                if (_app != null && NetworkGuard.IsAlive(_app) && AppTheme.IsPageVisible(_app))
+                    AppTheme.FastPopupPass(_app);
+            }
+
             if (Time.unscaledTime < _nextTickTime) return;
             _nextTickTime = Time.unscaledTime + 1.0f;
 
@@ -261,6 +272,20 @@ public static class InboxUI
         {
             Mod.Log?.Warn($"Tick failed: {ex.Message}");
         }
+    }
+
+    /// <summary>Per-render-frame hook (see Mod.OnWillRenderCanvases): heals the open
+    /// order popup in the same frame vanilla resets its texts/colours.</summary>
+    public static void ThemeFastFrame()
+    {
+        try
+        {
+            if (!DarkMode) return;
+            if (_app == null || !NetworkGuard.IsAlive(_app)) return;
+            if (!AppTheme.IsPageVisible(_app)) return;
+            AppTheme.FastPopupPass(_app);
+        }
+        catch { /* never break rendering */ }
     }
 
     private static void ApplyThemeOnOpen(MessagesApp app)
@@ -294,6 +319,7 @@ public static class InboxUI
         _pendingConfirm = null;
         _lastUnreadShown = -1;
         _nextThemeFallbackTime = 0f;
+        _nextPopupFastTime = 0f;
         _listViewport = null;   // the scene died together with its list — nothing left to restore
         _listShifted = false;
         // View state references entries of the dying scene — drop without touching them.
