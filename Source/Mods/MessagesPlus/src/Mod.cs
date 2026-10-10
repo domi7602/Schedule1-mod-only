@@ -4,7 +4,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(MessagesPlus.Mod), "MessagesPlus", "0.4.3", "Dominik")]
+[assembly: MelonInfo(typeof(MessagesPlus.Mod), "MessagesPlus", "0.4.4", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MessagesPlus;
@@ -57,7 +57,7 @@ public class Mod : MelonMod
         //    populated (Run is idempotent).
         GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
 
-        Log.Info("MessagesPlus v0.4.2 initialized (search band [name + message text] + category chips + unread counter + ... menu with Clear Read/All + permanent app dark mode + vanilla order/counter-offer menus + legacy restore).");
+        Log.Info("MessagesPlus v0.4.4 initialized (search band [name + message text] + category chips + unread counter + ... menu with Clear Read/All + permanent app dark mode + whole-app sweep + vanilla order/counter-offer menus + legacy restore).");
     }
 
     /// <summary>

@@ -148,6 +148,11 @@ internal static class AppTheme
                 catch (Exception ex) { Mod.Log?.Debug($"AppTheme chat body: {ex.Message}"); }
             }
 
+            // Broad safety net (restored from v0.4.0, the last in-game-verified
+            // dark mode): tints any remaining near-white surface the targeted
+            // passes above missed. Runs last so it only fills the gaps.
+            SweepAppSurfaces(app);
+
             LogPassSummary();
             LogChatDiagnostics();
         }
@@ -1086,6 +1091,121 @@ internal static class AppTheme
         }
     }
 
+    /// <summary>
+    /// Broad safety-net sweep over the whole app (restored from the
+    /// in-game-verified v0.4.0 dark mode): every remaining near-white surface
+    /// goes dark — full-page fills → Bg, wide top bands → Header, everything
+    /// else → Card — and dark neutral texts turn light. Avatars/portraits, our
+    /// own UI, preserved vanilla subtrees and protected content are skipped.
+    /// Runs AFTER the targeted passes, so it only fills the gaps they leave
+    /// (ThemeColorPolicy makes re-tinting an already-dark surface a no-op).
+    /// </summary>
+    private static void SweepAppSurfaces(MessagesApp app)
+    {
+        GameObject root = app.gameObject;
+        if (!NetworkGuard.IsAlive(root)) return;
+
+        RectTransform? rootRt = null;
+        float pageW = 0f;
+        float pageH = 0f;
+        try
+        {
+            rootRt = root.GetComponent<RectTransform>();
+            if (rootRt != null)
+            {
+                pageW = Mathf.Abs(rootRt.rect.width);
+                pageH = Mathf.Abs(rootRt.rect.height);
+            }
+        }
+        catch { /* page metrics unavailable → skip band/full-page classification */ }
+
+        try
+        {
+            Image[] images = root.GetComponentsInChildren<Image>(true);
+            if (images != null)
+            {
+                for (int i = 0; i < images.Length; i++)
+                {
+                    Image? img = images[i];
+                    if (!NetworkGuard.IsAlive(img)) continue;
+                    try
+                    {
+                        if (IsOwnedByMod(img!.transform) || IsVanillaSubtree(img.transform)) continue;
+
+                        Color c = img.color;
+                        if (c.a <= 0.02f || c.r < 0.60f || c.g < 0.60f || c.b < 0.60f) continue;
+
+                        RectTransform rt = img.rectTransform;
+                        float iw = Mathf.Abs(rt.rect.width);
+                        float ih = Mathf.Abs(rt.rect.height);
+
+                        if (IsAvatarLike(iw, ih, pageW)) continue; // avatars/portraits stay
+
+                        if (pageW > 1f && pageH > 1f && iw >= pageW * 0.85f && ih >= pageH * 0.85f)
+                            TintGraphic(img, GamePalette.Bg, ThemeRole.PageBackground);
+                        else if (pageW > 1f && pageH > 1f && iw >= pageW * 0.7f && ih <= pageH * 0.3f &&
+                                 rootRt != null && IsInTopHalf(rootRt, rt))
+                            TintGraphic(img, GamePalette.Header, ThemeRole.Header);
+                        else
+                            TintGraphic(img, GamePalette.Card, ThemeRole.InboxRowBackground);
+                    }
+                    catch { /* skip invalid proxy */ }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log?.Debug($"AppTheme sweep: {ex.Message}");
+        }
+
+        try { TintDarkTextsIn(root); }
+        catch (Exception ex) { Mod.Log?.Debug($"AppTheme sweep text: {ex.Message}"); }
+    }
+
+    /// <summary>Roughly square and small → avatar/portrait content, never tinted.</summary>
+    private static bool IsAvatarLike(float iw, float ih, float pageW)
+    {
+        float max = Mathf.Max(iw, ih);
+        if (max <= 1f) return false;
+        if (pageW <= 1f) return false; // unknown page size → do not misclassify as avatar
+        return Mathf.Abs(iw - ih) <= 0.25f * max && iw <= 0.3f * pageW;
+    }
+
+    /// <summary>Dark, near-neutral texts on the now-dark surfaces turn light.</summary>
+    private static void TintDarkTextsIn(GameObject root)
+    {
+        Text[] legacy = root.GetComponentsInChildren<Text>(true);
+        if (legacy != null)
+        {
+            for (int i = 0; i < legacy.Length; i++)
+            {
+                Text? text = legacy[i];
+                if (!NetworkGuard.IsAlive(text)) continue;
+                TintIfDarkText(text!);
+            }
+        }
+
+        TextMeshProUGUI[] tmps = root.GetComponentsInChildren<TextMeshProUGUI>(true);
+        if (tmps != null)
+        {
+            for (int i = 0; i < tmps.Length; i++)
+            {
+                TextMeshProUGUI? text = tmps[i];
+                if (!NetworkGuard.IsAlive(text)) continue;
+                TintIfDarkText(text!);
+            }
+        }
+    }
+
+    private static void TintIfDarkText(Graphic text)
+    {
+        if (IsOwnedByMod(text.transform) || IsVanillaSubtree(text.transform) || IsProtectedText(text)) return;
+        Color c;
+        try { c = text.color; } catch { return; }
+        if (c.a <= 0.02f || !IsDarkNeutral(c)) return;
+        TintGraphic(text, GamePalette.TextPrimary, ThemeRole.PrimaryText);
+    }
+
     // ------------------------------------------------------------------
     // Primitives
     // ------------------------------------------------------------------
@@ -1097,11 +1217,14 @@ internal static class AppTheme
         catch { return false; }
     }
 
+    // Permissive near-white (matches the in-game-verified v0.4.0 detector): the
+    // vanilla Messages app tints several surfaces slightly, and a spread gate
+    // (<= 0.08) rejected those, leaving the whole app vanilla-white (v0.4.3).
     private static bool IsNeutralLightSurface(Color color) =>
-        color.a > 0.02f && Mathf.Min(color.r, Mathf.Min(color.g, color.b)) >= 0.60f && Spread(color) <= 0.08f;
+        color.a > 0.02f && Mathf.Min(color.r, Mathf.Min(color.g, color.b)) >= 0.60f;
 
     private static bool IsDarkNeutral(Color color) =>
-        color.a > 0.02f && MaxChannel(color) <= 0.62f && Spread(color) <= 0.14f;
+        color.a > 0.02f && MaxChannel(color) <= 0.62f && Spread(color) <= 0.25f;
 
     private static bool IsDarkNeutralSurface(Color color) =>
         color.a > 0.02f && MaxChannel(color) <= 0.45f && Spread(color) <= 0.20f;

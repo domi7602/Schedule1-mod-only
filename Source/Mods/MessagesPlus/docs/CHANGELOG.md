@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.4 (2026-10-09)
+- **Whole-app dark mode repaired (regression fix).** After the v0.4.3 refactor the app stayed vanilla-white: the broad safety-net sweep that tinted every remaining near-white surface was removed, and the near-white detector gained a `Spread <= 0.08` gate that rejected the vanilla Messages app's slightly-tinted surfaces.
+- **`AppTheme.SweepAppSurfaces` restored** (from the in-game-verified v0.4.0 dark mode): a final pass over the app that tints full-page fills → `GamePalette.Bg`, wide top bands → `GamePalette.Header`, and everything else → `GamePalette.Card`, plus a dark-neutral text lift. It runs AFTER the targeted passes so it only fills the gaps (`ThemeColorPolicy` makes re-tinting an already-dark surface a no-op). Own UI, preserved vanilla subtrees, avatars/portraits and protected content are still excluded.
+- **`IsNeutralLightSurface` / `IsDarkNeutral` loosened back** to the v0.4.0 values (no `Spread` gate on near-white; `Spread <= 0.25` on dark text), so slightly-tinted vanilla surfaces are themed again.
+- Verified: Release build 0 warnings/0 errors, 9/9 `ThemeColorPolicy` unit tests green, DLL deployed. Dark mode confirmed in-game by Dominik (screenshots 2026-10-09 13:39 / 13:43).
+
 ## 0.4.3 (2026-10-08)
 - **Chat body background — root cause fixed:** the big vanilla-white area behind the message bubbles was never themed because `AppTheme.AsGraphic()` only handled `Graphic` and `GameObject`. `MSGConversation.scrollRectContainer` / `bubbleContainer` are plain `RectTransform`s (no Graphic of their own), so both lookups returned `null` and `TintChatBodyBackground` silently did nothing — the bubbles went dark, the surrounding area stayed white forever (the 1 s fallback "worked", it just had nothing to tint).
 - **Verified against the real vanilla prefab** (Schedule I 0.4.7f12, `sharedassets0` "Conversation"): the white fill is `Conversation/ScrollContainer/ScrollRect/Viewport` — an opaque white `Image` (rgb 1,1,1, a 1) with a `Mask`, the node that actually covers the chat area. The container fields carry no Graphic at all.
