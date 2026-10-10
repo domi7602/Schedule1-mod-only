@@ -14,6 +14,16 @@ public static class EconomyHelper
     public const int DefaultMaxCashPerSlot = 1000;
 
     /// <summary>
+    /// Fallback exact-match ID for the cash item when the player's cashSlot
+    /// definition cannot be read at runtime. Previously the hotbar scan matched
+    /// any item whose ID CONTAINS "cash", which is brittle against game updates
+    /// (a "cashregister" or "gascash" item would false-positive). Prefer the
+    /// runtime-resolved cashSlot definition ID; this constant is only the
+    /// safety net.
+    /// </summary>
+    public const string CashItemIdFallback = "cash";
+
+    /// <summary>
     /// Live online bank balance.
     /// </summary>
     public static float GetOnlineBalance() => S1API.Money.Money.GetOnlineBalance();
@@ -102,6 +112,23 @@ public static class EconomyHelper
             var inv = PlayerSingleton<PlayerInventory>.Instance;
             if (inv != null && inv.Pointer != IntPtr.Zero && !inv.WasCollected && inv.hotbarSlots != null)
             {
+                // Resolve the ACTUAL cash item ID from the dedicated cashSlot at runtime —
+                // update-safe regardless of what the game calls the item. Fall back to
+                // CashItemIdFallback only when the definition cannot be read.
+                string cashId = CashItemIdFallback;
+                try
+                {
+                    var cs = inv.cashSlot;
+                    if (cs != null && cs.Pointer != IntPtr.Zero && !cs.WasCollected &&
+                        cs.ItemInstance != null && cs.ItemInstance.Pointer != IntPtr.Zero &&
+                        !cs.ItemInstance.WasCollected && cs.ItemInstance.Definition != null)
+                    {
+                        string? realId = cs.ItemInstance.Definition.ID;
+                        if (!string.IsNullOrEmpty(realId)) cashId = realId!;
+                    }
+                }
+                catch { }
+
                 var hotbar = inv.hotbarSlots;
                 for (int i = 0; i < hotbar.Count; i++)
                 {
@@ -110,14 +137,15 @@ public static class EconomyHelper
                     var inst = slot.ItemInstance;
                     if (inst != null && inst.Pointer != IntPtr.Zero && !inst.WasCollected && inst.Definition != null)
                     {
-                        // Cash stack identified by same ID as cashSlot definition or by ItemInstance type
                         try
                         {
                             if (inst.Quantity < maxPerSlot && inst.Quantity > 0)
                             {
-                                // Only count room if this is actually a cash stack (ID check)
+                                // Cash stack = exact ID match against the cashSlot definition ID
+                                // (or the fallback constant). No substring match.
                                 string? id = inst.Definition.ID;
-                                if (!string.IsNullOrEmpty(id) && id.ToLowerInvariant().Contains("cash"))
+                                if (!string.IsNullOrEmpty(id) &&
+                                    string.Equals(id, cashId, StringComparison.OrdinalIgnoreCase))
                                 {
                                     partialRoom += (maxPerSlot - inst.Quantity);
                                 }

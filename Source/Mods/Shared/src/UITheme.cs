@@ -25,6 +25,11 @@ public static class UITheme
         try { Canvas.ForceUpdateCanvases(); } catch { }
         if (!NetworkGuard.IsAlive(containerRt)) return;
         var r = containerRt.rect;
+        // Debug breadcrumb: this API assumes a portrait phone panel. A clearly
+        // landscape Rect (width noticeably > height) yields silently swapped
+        // width/height values for callers that misuse it on a landscape panel.
+        if (r.width > r.height * 1.2f)
+            MelonLoader.MelonLogger.Warning($"[UITheme] Container Rect looks landscape ({r.width}x{r.height}); UITheme assumes a portrait phone panel — width/height will be swapped.");
         float h = Mathf.Max(r.width, r.height);
         float w = Mathf.Min(r.width, r.height);
         if (h > 200f && w > 100f)

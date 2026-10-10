@@ -54,6 +54,10 @@ public static partial class NetworkGuard
 
     public static void LogError(ModLogger log, string context, Exception ex)
     {
-        log.Error($"{context}: {ex.InnerException?.Message ?? ex.Message}");
+        // Keep BOTH the outer context and the inner detail: the old form
+        // (InnerException?.Message ?? Message) dropped the outer message whenever
+        // an inner exception existed, hiding what actually failed.
+        string inner = ex.InnerException?.Message ?? string.Empty;
+        log.Error(inner.Length == 0 ? $"{context}: {ex.Message}" : $"{context}: {ex.Message} -> {inner}");
     }
 }
