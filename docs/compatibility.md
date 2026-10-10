@@ -46,6 +46,7 @@ The rows below record the game version each check ran on. The installed runtime 
 | HitmanPhone | 0.2.9 | v0.4.7f6 (beta) | 2026-09-24 | yes | no | v0.2.9 adds a `NPCDeathPatch` for the 0.4.7 `NPCHealth` change; v0.2.8 was verified on v0.4.6f13 (2026-09-15). |
 | Weather | 0.4.0 | — | — | yes | no | In-game verification open (0.4.0 = rebuild to the approved mockup; no version of this mod has been verified in-game yet). |
 | MessagesPlus | 0.4.5 | v0.4.7f12 | 2026-10-10 | yes (`S1API.Lifecycle`, `S1API.UI`) | no | v0.4.5 dark-mode polish verified in-game 2026-10-10 (relationship bar vivid via `ThemeRelationshipBar`, order-popup buttons/inputs dark, same-frame `OnLateUpdate` healing without delay); v0.4.0 whole-app dark mode verified 2026-09-30. |
+| ProductAppQoL | 0.1.0 | v0.4.7f12 | 2026-10-10 | no | no | **Verified in-game 2026-10-10** (tap = ±$1, hold = repeat; typed input unaffected). Confirmed vanilla behaviour: the asking-price −/+ buttons are gamepad-only (`InputValueRamp`) — dead buttons for mouse/keyboard players. |
 | TaxiDriver | 0.8.2 | v0.4.7f6 (beta; historical) | 2026-09-25 | yes | yes (`S1MAPI.Gltf.GltfLoader`) | Earlier drive/visual checks only. No-deploy Release build against installed f12/Beta.8 references passed 2026-10-08 (0 warnings/errors); no current in-game test. |
 | StorageScanner | 0.1.1 | — | — | yes | no | v0.1.0 never ran a scan (readiness gate blocked on `IsContentCulled`); v0.1.1 fix deployed 2026-10-04, in-game verification open. |
 

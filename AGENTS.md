@@ -79,6 +79,7 @@ Release/           Release ZIP output
 | **AutoPackagingStation** | ✅ active (v0.3.3, **Verified 2026-09-20**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable, SafeStorage, GLB |
 | **HitmanPhone** | ✅ active (v0.2.9, beta **Verified 2026-09-24**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Messages/NPC/Items/Quests |
 | **MessagesPlus** | ✅ active (v0.4.5, dark mode **verified in-game 2026-10-09**; v0.4.0 sweep **verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
+| **ProductAppQoL** | ✅ active (v0.1.0, **Verified 2026-10-10**) | `Mods/ProductAppQoL/` | `ProductAppQoL.dll` | Product app: asking-price −/+ buttons respond to mouse/touch (tap = ±$1, hold = repeat) — vanilla wires them gamepad-only via `InputValueRamp` (dead buttons for PC players) |
 | **TaxiDriver** | 🧪 stability update (v0.8.2; f12 no-deploy Release build passed, gameplay unverified) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | TaxiApp-only service, own NPC driver, vehicle ownership guards, S1MAPI |
 | **StorageScanner** | 🆕 new (v0.2.0, **In-Game-Verify open**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | PhoneApp, read-only storage overview |
 | **S1MCP** | ✅ active (v1.0.1) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | MCP over TCP :8765 |

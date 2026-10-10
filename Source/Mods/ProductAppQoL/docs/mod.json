@@ -1,0 +1,6 @@
+{
+  "name": "ProductAppQoL",
+  "author": "Dominik",
+  "version": "0.1.0",
+  "description": "Product app quality of life: the asking-price −/+ buttons respond to mouse and touch (tap = ±$1, hold = repeat with acceleration). Vanilla wires them through the gamepad InputValueRamp, so mouse users could only type the price."
+}
