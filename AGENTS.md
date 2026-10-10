@@ -32,7 +32,8 @@ The skill list is anchored in three files (this one, `Skills/README.md`, `README
 ## 1. Setup
 
 - **Game:** `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` — override with `$env:SCHEDULE1_PATH` **before** `dotnet build` (MSBuild reads it once at startup).
-- **Installed versions:** runtime game v0.4.7f12 (Steam build 25796331; Unity 2022.3.62f2; verified 2026-10-08 via Latest.log/appmanifest) · MelonLoader 0.7.3 (net6) · S1API 3.2.1-beta.8 · S1MAPI 2.0.1. The compatibility matrix distinguishes assembly load/build from gameplay verification. TFM `net6.0`, `LangVersion` 12, nullable enabled.
+- **Installed versions:** runtime game v0.4.7f12 (Steam build 25796331; Unity 2022.3.62f2; verified 2026-10-08 via Latest.log/appmanifest) · MelonLoader 0.7.3 (net6) · S1API 3.2.1 stable · S1MAPI 2.0.1. The compatibility matrix distinguishes assembly load/build from gameplay verification. TFM `net6.0`, `LangVersion` 12, nullable enabled.
+  - **S1API 3.2.1 (2026-10-09):** official stable release installed, replacing the unpublished local beta.8+PR#353 compatibility build. It carries 0.4.7 (Special Customers) support on Mono + IL2CPP. Installed DLL hashes: IL2CPP `85b218ff…` / loader `d58b1d3c…`; the replaced DLLs and the source hash are preserved in `<GameDir>\UserData\S1API\LocalBuilds\2026-10-09-3.2.1`. The `ThirdParty/S1API` submodule is checked out at tag `v3.2.1` (commit `a4cbdd9`); the superproject pointer still records `v3.2.1-beta.8` and must be bumped deliberately per the sync rule. Full solution rebuild against 3.2.1: 0 errors / 0 warnings; all mod DLLs redeployed.
 - **Install state (after the 2026-10-07 Windows reinstall):** .NET 6.0.36 runtime global in `C:\Program Files\dotnet` and user-local for tests; .NET SDK 8.0.425 user-local in `$env:USERPROFILE\.dotnet`; Python 3.13 with MCP dependencies isolated in `%LOCALAPPDATA%\Schedule1Tools\s1mcp-venv`; official nuget.org package source configured. Older repo copies (in the game dir / on the Desktop) are obsolete — this path is the only truth.
 - **Runtime dependencies in the game dir:** S1API at `Mods\S1API.Il2Cpp.MelonLoader.dll` — the build probes exactly that filename (a wrong name breaks every mod with `CS0103: The name 'S1API' does not exist`); S1MAPI at `UserLibs\S1MAPI_Il2Cpp.dll`. `MelonLoader\Il2CppAssemblies\` only exists after the game has run once — until then, mods cannot reference Unity/IL2CPP types.
 - **Launch, logs, live debugging:** `Start-Process "steam://rungameid/3164500"`; gameplay log `MelonLoader\Latest.log`; S1MCP bridge at `ThirdParty/S1MCPServer-master/` (TCP `127.0.0.1:8765`) — see `schedule1-mcp`.
@@ -77,12 +78,12 @@ Release/           Release ZIP output
 | **Minimap** | ♻️ restored from archive (v2.0.2, **In-Game-Verify open**) | `Mods/Minimap/` | `Minimap.dll` | HUD overlay, blip pool, settings PhoneApp, waypoints |
 | **AutoPackagingStation** | ✅ active (v0.3.3, **Verified 2026-09-20**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable, SafeStorage, GLB |
 | **HitmanPhone** | ✅ active (v0.2.9, beta **Verified 2026-09-24**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Messages/NPC/Items/Quests |
-| **MessagesPlus** | ✅ active (v0.4.3, **In-Game-Verify open**; v0.4.0 **Verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
+| **MessagesPlus** | ✅ active (v0.4.4, dark mode **verified in-game 2026-10-09**; v0.4.0 sweep **verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
 | **TaxiDriver** | 🧪 stability update (v0.8.2; f12 no-deploy Release build passed, gameplay unverified) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | TaxiApp-only service, own NPC driver, vehicle ownership guards, S1MAPI |
 | **StorageScanner** | 🆕 new (v0.2.0, **In-Game-Verify open**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | PhoneApp, read-only storage overview |
 | **S1MCP** | ✅ active (v1.0.1) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | MCP over TCP :8765 |
 | **Shared** | ✅ active (workspace lib) | `Mods/Shared/` | `Shared.dll` | see §5 |
-| **S1API** | ✅ active (3.2.1-beta.8, submodule `ThirdParty/S1API/` at the beta.8 tag) | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | required for 0.4.7f6+ |
+| **S1API** | ✅ active (3.2.1 stable, submodule `ThirdParty/S1API/` at tag `v3.2.1`) | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | required for 0.4.7f6+; 3.2.1 adds released Special Customers (0.4.7) support |
 
 > **Archived** (source preserved under `Source/Archive/`, not in `S1Mods.sln`, never built): BackpackMod v1.2.3 · DayCounter v1.0.0 · HomelessMod v0.1.12 · ProfitTracker v1.1.0 · snackVendor v0.0.9 · TVBrowser v0.1.0 · _DiagPerfCounter v0.3.2, plus `Source/Archive/Tests/BackpackMod.Tests`.
 > **Removed / retired third-party:** MikuPlayerModel (discontinued) · ConstructionSiteProperty (disabled) — both remain as `*.dll.bak` (MelonLoader never loads `.bak`) · MoreDrugs (removed 2026-09-19) · PhoneScroll (retired 2026-09-16, `ThirdParty/Archive/PhoneScroll/`) · Herer's Minimap (removed 2026-09-17) · Sideload (dropped 2026-09-10) · Hash (`ThirdParty/Archive/ScheduleOne-Hash/`, reference only).
@@ -138,6 +139,9 @@ Release/           Release ZIP output
 **HitmanPhone v0.2.9 (2026-09-15):**
 - Bounty contracts via phone messages (anonymous callers): kill → Polaroid evidence → dead-drop payout; police heat, journal quests, 3-day expiry, slot-isolated save; `KnockOut` patch + double-drop latch + orphan-quest cleanup.
 - Beta verified 2026-09-24 (offer → accept → receipt → payout). History: `Source/Mods/HitmanPhone/docs/CHANGELOG.md`.
+
+**MessagesPlus v0.4.4 (2026-10-09):**
+- **Whole-app dark mode regression fixed and verified in-game 2026-10-09.** v0.4.3's rewrite of `AppTheme` had removed the broad sweep that tints every remaining near-white surface AND tightened the near-white detector (`Spread <= 0.08`), so the whole app stayed vanilla-white. The v0.4.0 sweep and its permissive colour gate are restored; the sweep runs as the FINAL pass, after the targeted ones, so it only fills the gaps (`ThemeColorPolicy` makes re-tinting an already-dark surface a no-op). Confirmed dark by Dominik (screenshots 13:39 / 13:43).
 
 **MessagesPlus v0.4.3 (2026-09-29/30):**
 - Patch-only mod (no PhoneApp icon) on the vanilla `MessagesApp`: sticky search band under the title (live search, `[All][Customer][Dealer][Supplier]` chips, unread counter), "⋯" menu with Clear Read / Clear All — view-only filtering, host-only + customer-only mutations, one-time legacy restore of v0.1.x trashed threads.
@@ -241,6 +245,7 @@ S1API instantiates the phone on a high-DPI uGUI canvas, often rotated 90° — f
 - TextMeshPro types live under `Il2CppTMPro`.
 - Multiline `InputField`: set `textComponent`/`placeholder.alignment = UpperLeft`, `lineType = MultiLineNewline`, clean `offsetMin/Max`.
 - Save-load timing: static lists (e.g. `Property.OwnedProperties`) are often still empty at scene load — refresh on `S1API.Lifecycle.GameLifecycle.OnLoadComplete` (verified 2026-09-29: scene 'Main' → `OnPreLoad` → `OnLoadComplete`; **`OnSaveInfoLoaded` fires 0× on game 0.4.7f6+** — see `schedule1-lifecycle-verify` §7).
+- **Never raw object-typed MelonPreferences entries** (quit-save crash `Tomlet: Cannot serialize N as an enum of type UnityEngine.KeyCode`): Tomlet registers composite deserializers under `typeof(object)` (bug), so the last enum type loaded hijacks `MelonPreferences_Entry<object>` loads — ints become nameless KeyCode values (crash at quit), other types silently lose stored values. Use `ModConfig<T>` (typed entries since 2026-10-09). Full analysis: `docs/pitfalls.md` §1.3 + §2.
 - `UIFactory.Text` anchors at (0.5, 0.5) — for custom rows set `anchorMin/anchorMax/offsetMin/offsetMax` manually.
 
 ### Shared utilities (`S1Mods.Shared`, `Source/Mods/Shared/`)

@@ -315,7 +315,15 @@ public static class ModConfig<T> where T : class, new()
         {
             object? val = prop.GetValue(_instance);
             object defaultVal = val ?? (prop.PropertyType == typeof(string) ? string.Empty : Activator.CreateInstance(prop.PropertyType)!);
-            MelonPreferences_Entry entry = _cat.CreateEntry(prop.Name, defaultVal, null, false);
+            // Create a TYPED entry (MelonPreferences_Entry<prop.PropertyType>) instead of an object-typed one.
+            // Why: Tomlet bug — TomlSerializationMethods.Register(Type, serializer, deserializer) ignores its
+            // Type argument and registers the delegate under typeof(object). The LAST composite/enum type
+            // deserialized (e.g. UnityEngine.KeyCode from a third-party mod's typed entries) therefore hijacks
+            // ALL object-typed entries: integer values parse into nameless KeyCode values and crash
+            // MelonPreferences.Save() at quit ("Tomlet: Cannot serialize 10 as an enum of type UnityEngine.KeyCode"),
+            // while strings/floats/bools fail to parse and silently fall back to their defaults (value loss).
+            // A typed entry looks up its own type's deserializer and is immune to the hijack.
+            MelonPreferences_Entry entry = CreateTypedEntry(prop, defaultVal);
             _entryCache[prop.Name] = entry;
             return entry;
         }
@@ -324,6 +332,32 @@ public static class ModConfig<T> where T : class, new()
             LogError($"'{prop.Name}' ({prop.PropertyType.Name}) is not TOML-mappable and will not be persisted", ex);
             return null;
         }
+    }
+
+    private static MethodInfo? _openCreateEntryMethod;
+
+    /// <summary>
+    /// Creates MelonPreferences_Entry&lt;prop.PropertyType&gt; via the generic CreateEntry&lt;T&gt;(string, T, string, bool)
+    /// overload. The entry is typed so Tomlet deserializes with the property's own type mapper —
+    /// see the comment in GetOrCreateEntry for why object-typed entries are unsafe (Tomlet typeof(object) hijack).
+    /// </summary>
+    private static MelonPreferences_Entry CreateTypedEntry(PropertyInfo prop, object defaultVal)
+    {
+        if (_openCreateEntryMethod == null)
+        {
+            foreach (MethodInfo m in typeof(MelonPreferences_Category).GetMethods(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (m.Name == "CreateEntry" && m.IsGenericMethodDefinition && m.GetParameters().Length == 4)
+                {
+                    _openCreateEntryMethod = m;
+                    break;
+                }
+            }
+            if (_openCreateEntryMethod == null)
+                throw new MissingMethodException("MelonPreferences_Category.CreateEntry<T>(string, T, string, bool) overload not found");
+        }
+        MethodInfo typed = _openCreateEntryMethod.MakeGenericMethod(prop.PropertyType);
+        return (MelonPreferences_Entry)typed.Invoke(_cat, new object?[] { prop.Name, defaultVal, null, false })!;
     }
 
     private static void EnsureInitialized()

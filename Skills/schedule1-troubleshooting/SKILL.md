@@ -107,6 +107,7 @@ The classic symptom: `OnInitializeMelon` logs "Ready" but `OnUpdate` work never 
 | `Class::Init signatures exhausted, using a substitute!` | IL2CPPInterop can't initialize all classes (>5–10 MB mod) | Reduce mod class count or split mod |
 | 0xc0000005 (native AV) with no MelonLoader trace | Native crash after init | Mod binary size or corrupt interop bindings |
 | `MissingFieldException` on a private field | IL2CPP field not registered for reflection | Use Harmony prefix/postfix on accessor method |
+| `Tomlet: Cannot serialize N as an enum of type UnityEngine.KeyCode` (at quit) | Object-typed MelonPreferences entries hijacked by Tomlet's `typeof(object)` deserializer bug (last enum type loaded wins); N is a nameless enum value (e.g. int 10), other stored values silently fall back to defaults | Use `ModConfig<T>` (typed entries since 2026-10-09); never create raw `MelonPreferences_Entry<object>`. Analysis: `docs/pitfalls.md` §1.3 + §2 |
 
 For an expanded reference (18+ error patterns + IL2CPP exception translations) see **[`references/common-errors.md`](references/common-errors.md)**.
 
