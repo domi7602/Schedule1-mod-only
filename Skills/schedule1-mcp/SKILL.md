@@ -100,6 +100,8 @@ Need live game interaction?
 3. **Localhost Only Security:** S1MCPServer binds strictly to `127.0.0.1:8765`. It never exposes ports externally.
 4. **Main-Thread Marshaling:** All Unity API and IL2CPP calls MUST execute on the Main Thread via `CommandRouter` and the mod's `OnUpdate` loop. Background threads only handle TCP socket I/O.
 
+5. **`call_method` needs the component, and only parameterless methods are reliable.** `call_method` targets a GameObject, so a component method must be named via `component_type` or the call falls through to the GameObject and returns a silent `null` (`{"value":"null","type":"null"}`) with **no** error object — never read that as "the method ran and returned null". Passing a string argument to an injected IL2CPP method also returns `null` (the handler's `object[]` conversion does not produce a managed `string`; `ReflectionEngine.InvokeMethod` swallows the binding failure). Expose primitive, **parameterless** status/mutation methods on a `[RegisterTypeInIl2Cpp]` bridge component instead of a command-string entry point. Live-verified 2026-10-10 with `PropertyLEDs_DiagnosticBridge` (`Status`), which returned its JSON state where `Execute("led status")` returned null.
+
 > **Log hygiene:** `[DEBUG]` logging is **off by default** — no more Latest.log spam on agent connect. Enable only when needed via `UserData/S1MCPServer.cfg` → `[S1MCPServer] DebugLogging = true` (payload dumps truncated to 500 chars). Info/Warn lifecycle lines (connect/disconnect) always logged.
 
 ---

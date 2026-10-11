@@ -130,6 +130,24 @@ and in each row's `HorizontalLayoutGroup`: `childControlWidth = true; childForce
 4. **Fix pattern (proven in `Source/Mods/ProductAppQoL`):** Harmony-postfix the panel's `Awake`, then `AddComponent` a `[RegisterTypeInIl2Cpp]` MonoBehaviour on the vanilla button that **polls** `RectTransformUtility.RectangleContainsScreenPoint(rect, Input.mousePosition, canvas.worldCamera)` + `Input.GetMouseButton(0)` and calls the *same vanilla methods* the gamepad path calls (tap = 1 step, hold = accelerating repeat 0.13 s → 0.05 s). Never replace the vanilla Button. Do NOT implement `IPointerDownHandler` — see Rule 15's CS1721 note (Il2CppInterop exposes those as classes).
 5. **Default hotkeys of new UI must be checked against the game's own shortcut keys** before release — the game's global keys are M = map, T = messages, J = journal. A shipped `ToggleKey: "M"` made every map open/close toggle the minimap (false reports of "UI is broken"). Consoles/settings that hide the rebind path make this worse: always ship a migration + a console escape hatch. See `schedule1-game-systems` §5 Anti-Patterns.
 
+### Rule 17 (empirical, 2026-10-11): The Home-Screen Hover Highlight Is a NON-Maskable White Fill
+
+**Trigger:** "hovering an app icon paints a white/grey plate", worst on partially scrolled icons, once S1API's home-screen scroll patch exists.
+
+1. **The highlight is the icon's `Outline` child**: a filled white sprite (`Rectangle_RoundedEdges`, ~184x185 on the 190 cell while the icon art is only ~170x170), faded in via **CanvasRenderer alpha 0 -> 1**. `Image.color` and every transform value stay untouched — colour or scale probes find nothing, which is why only a full field-level diff identifies it.
+2. **It is non-maskable in vanilla**, so it escapes the scroll viewport's clipping: a half-scrolled icon keeps a full-size white highlight floating over the clipped area (it even covers the status bar). Fix pattern: `Image.maskable = true` (so it clips exactly like the icon art) plus replacing the fill sprite with a slim procedurally generated ring, so the hover reads as a thin clipped frame instead of a plate. Dimming the alpha alone only turns the plate grey — the sprite itself is the problem.
+3. **Screen geometry:** S1API's scroll view is 620x1000 centred on the ~655x1201 home screen, so the viewport's top edge sits ~100 units BELOW the screen top; top-row icons are partly above it when scrolled, exactly where the unclipped highlight shows worst.
+4. **Diagnosis pattern that worked (reusable):** for hover-only / transient UI states, an in-mod field-level watcher (0.5 s poll of every field of every icon subtree — active, scale, rect, position, image colour, canvas alpha, sprite name — logging only diffs with the owning object name) beats interactive S1MCP probing: S1MCP calls take 10-40 s each and the hover is gone before the answer arrives. Keep the watcher as its own temporary mod so it can be deployed, then removed, without touching feature code.
+
+### Rule 18 (empirical, 2026-10-11): Collapsible Inline Pickers — Build Once, Toggle With SetActive, Rebuild the Layout
+
+**Trigger:** a settings row that opens an inline panel inside the scroll content (palette dropdown, accordion sections).
+
+1. Build the panel once in `OnCreatedUI` and start it `SetActive(false)`; never destroy/recreate (Rule 2). Track the currently open panel in one field, close it before opening another (one open at a time), and close any open panel in the open-sync so a fresh phone open starts collapsed.
+2. The panel is a sibling directly under its row, inside the page's VerticalLayoutGroup; give it a `LayoutElement.preferredHeight` (padding + rows x row-height + spacing) so the ContentSizeFitter chain grows and shrinks with it.
+3. After toggling call `Canvas.ForceUpdateCanvases()` then `LayoutRebuilder.ForceRebuildLayoutImmediate(scrollContent)` — otherwise the new height lands a frame late and the panel overlaps the next row.
+4. Inner strips: VerticalLayoutGroup (`childControlWidth` + `childControlHeight = true`, ForceExpand off) over HorizontalLayoutGroups; give every swatch its own LayoutElement (preferredWidth/Height). With `childControlHeight` left false, children keep their default 100 px height and overflow the panel.
+
 ---
 
 ## 2. Step-by-Step Runbook: Creating a New PhoneApp

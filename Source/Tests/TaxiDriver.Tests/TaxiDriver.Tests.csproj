@@ -25,6 +25,9 @@
     Unity-free logic is extracted.
   -->
   <ItemGroup>
+    <Compile Include="..\..\Mods\TaxiDriver\src\StopConfirmation.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\ServiceFeedback.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\DriverBoardingGate.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\CleanupGuard.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\NavigationCallbackPolicy.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\VehicleOwnershipLedger.cs" />

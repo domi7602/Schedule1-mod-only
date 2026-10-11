@@ -107,13 +107,13 @@ public sealed class MinimapConsoleCommand : BaseConsoleCommand
                 case "z":
                     if (args.Count >= 2 && float.TryParse(args[1], NumberStyles.Float, CultureInfo.InvariantCulture, out float zVal))
                     {
-                        mod.Config.ZoomLevel = Mathf.Clamp(zVal, 0.75f, 4.0f);
+                        mod.Config.ZoomLevel = MinimapFeatureRules.ClampZoom(zVal);
                         mod.SaveAndApply();
                         Print($"<color=#60f080> Zoom level set to: {mod.Config.ZoomLevel:F2}x");
                     }
                     else
                     {
-                        Print($"<color=#60f080> Current zoom: {mod.Config.ZoomLevel:F2}x. Usage: minimap zoom <0.75..4.0>");
+                        Print($"<color=#60f080> Current zoom: {mod.Config.ZoomLevel:F2}x. Usage: minimap zoom <0.1..12>");
                     }
                     return;
 
@@ -227,6 +227,18 @@ public sealed class MinimapConsoleCommand : BaseConsoleCommand
                         else if (bType.StartsWith("pot") || bType.StartsWith("sample") || bType.StartsWith("lead")) mod.Config.ShowPotentialCustomers = bState;
                         else if (bType.StartsWith("cust") || bType.StartsWith("known")) mod.Config.ShowKnownCustomers = bState;
                         else if (bType.StartsWith("prop")) mod.Config.ShowPropertyBlips = bState;
+                        else if (bType.StartsWith("check") || bType.StartsWith("purchase")) mod.Config.ShowPurchaseChecks = bState;
+                        else if (bType.StartsWith("lock") || bType.StartsWith("region")) mod.Config.ShowRegionalLocks = bState;
+                        else if (bType.StartsWith("name") || bType.StartsWith("portrait") || bType.StartsWith("face") || bType.StartsWith("mugshot"))
+                        {
+                            // Deprecated: portraits are now automatic. Keep old scripts working with a hint.
+#pragma warning disable CS0618
+                            mod.Config.ShowCustomerNames = false;
+                            mod.Config.ShowCustomerPortraits = true;
+#pragma warning restore CS0618
+                            mod.SaveAndApply();
+                            Print("<color=#f0c040> Customer portraits are now automatic (portrait when available, else symbol). Use 'customers', 'potential' or 'deals' to show/hide customers.</color>");
+                        }
                         else if (bType.StartsWith("shop") || bType.StartsWith("market")) mod.Config.ShowShopBlips = bState;
                         else if (bType.StartsWith("quest") || bType.StartsWith("mission")) mod.Config.ShowQuestBlips = bState;
                         else if (bType.StartsWith("veh") || bType.StartsWith("car") || bType.StartsWith("skate")) mod.Config.ShowVehicleBlips = bState;
@@ -237,7 +249,7 @@ public sealed class MinimapConsoleCommand : BaseConsoleCommand
                     }
                     else
                     {
-                        Print("<color=#60f080> Usage: minimap blips <police|deals|potential|customers|properties|shops|quests|vehicles|clamp> <on|off>");
+                        Print("<color=#60f080> Usage: minimap blips <police|deals|potential|customers|properties|checks|locks|shops|quests|vehicles|clamp> <on|off>");
                     }
                     return;
 

@@ -6,7 +6,7 @@ using S1Mods.Shared;
 using UnityEngine;
 using UnityEngine.UI;
 
-[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "0.8.2", "Dominik")]
+[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "0.8.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace TaxiDriver;
@@ -74,6 +74,7 @@ public class Mod : MelonMod
         if (taxiTracked && !SpikeCommands.Cleanup("save/load boundary", explicitRetry: false))
             Log.Warn("[taxi-recovery] save/load cleanup is not confirmed; tracked taxi handle is retained and another spawn is blocked.");
         SpikeState.ResetPicker();
+        SpikeState.ClearServiceStatus();
         Log.Info("[picker] save load starting — destination selection cleared.");
     }
 

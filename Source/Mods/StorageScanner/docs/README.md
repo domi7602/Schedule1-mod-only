@@ -20,7 +20,7 @@
 
 ## Status
 
-- v0.2.0 — **In-Game-Verify open** (2026-10-04): scan efficiency, per-property last-known cache, sorting, item detail page; see [`CHANGELOG.md`](CHANGELOG.md).
+- v0.2.0 (2026-10-04) — **verified in-game 2026-10-11**: scan efficiency, per-property last-known cache, sorting, item detail page; see [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Usage
 

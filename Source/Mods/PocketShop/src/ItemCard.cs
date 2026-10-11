@@ -162,6 +162,15 @@ public class ItemCard
             return;
         }
 
+        // A card payment is being confirmed by the server: lock the card until the deferred
+        // confirmation resolves it (success, refund, or the uncertain lock).
+        if (PurchaseService.IsPurchasePending)
+        {
+            SetUnavailable("PROCESSING", new Color(0.14f, 0.18f, 0.24f, 1f));
+            _qty.SetInteractable(false);
+            return;
+        }
+
         if (!ShopCatalog.TryResolveLiveOffer(_item, out var offer, out string liveFailure))
         {
             _qty.SetStockState(new StockState(StockKind.Unknown, 0, 0));

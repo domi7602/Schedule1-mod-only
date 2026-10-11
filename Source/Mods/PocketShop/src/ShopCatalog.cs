@@ -219,6 +219,40 @@ public static class ShopCatalog
         return result;
     }
 
+    /// <summary>
+    /// Recomputes one shop's available-item counter from the cached POCOs (no native reads).
+    /// Called after a purchase so the directory tile stays in sync without a full catalog refresh.
+    /// </summary>
+    public static void RefreshShopItemCount(ShopInterface shop)
+    {
+        if (!NetworkGuard.IsAlive(shop)) return;
+        try
+        {
+            for (int i = 0; i < _shopCache.Count; i++)
+            {
+                var snapshot = _shopCache[i];
+                if (snapshot == null || !NetworkGuard.IsAlive(snapshot.SourceShop)) continue;
+                if (snapshot.SourceShop.Pointer != shop.Pointer) continue;
+
+                int count = 0;
+                var items = _itemCache;
+                for (int j = 0; j < items.Count; j++)
+                {
+                    var item = items[j];
+                    if (item != null
+                        && string.Equals(item.ShopCode, snapshot.ShopCode, StringComparison.Ordinal)
+                        && item.Stock.CanBuy(1))
+                    {
+                        count++;
+                    }
+                }
+                snapshot.ItemCount = count;
+                return;
+            }
+        }
+        catch { }
+    }
+
     /// <summary>Resolves a shop gate only from the currently registered live shop.</summary>
     public static bool TryGetGate(string shopCode, out ShopGate gate)
     {

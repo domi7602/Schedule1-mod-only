@@ -12,6 +12,7 @@ All notable changes to the StorageScanner mod will be documented in this file.
 - **Fewer UI rebuilds:** item rows, chips and detail locations are only rebuilt when their data actually changed.
 - **Structured scan logging:** one `[SCAN]` summary line per pass (properties live/cached, containers, stacks, milliseconds) plus `[CACHE]` lines for culled properties.
 - Read-only behaviour unchanged: no inventory changes, no Harmony patches, no background scanning outside the open app.
+- **Verified in-game 2026-10-11** (Dominik): scanning and the v0.2.0 additions were confirmed in a real game session.
 
 ## 0.1.1 (2026-10-04) — Scan blocked by cull-gate fix
 - **Root cause:** `IsReadyToScan()` returned `false` as long as any owned property had `IsContentCulled == true`. The game culls property contents by distance/state, so with more than one owned property — or from anywhere outside a property — the gate blocked every scan; the app showed "Loading storage..." forever and no scan ever ran (zero `[StorageScanner] Scan:` lines in every session).

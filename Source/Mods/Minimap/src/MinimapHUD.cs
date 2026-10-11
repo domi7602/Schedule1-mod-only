@@ -56,6 +56,11 @@ public sealed class MinimapHUD
     private RectTransform? _mapImageRt;
     private Image? _mapImg;
 
+    // Map surface (map image + player marker) stays hidden until a real player/map position
+    // exists. Otherwise the loading screen shows a meaningless 1:1 crop of the huge map
+    // texture around its centre while the blips are already suppressed.
+    private bool _mapSurfaceVisible = true;
+
     // Compass & Border Overlay
     private GameObject? _compassRingObj;
     private RectTransform? _compassRingRt;
@@ -442,6 +447,10 @@ public sealed class MinimapHUD
             _healthBarFillRt.anchorMax = new Vector2(0f, 1f);
             _healthBarFillRt.pivot = new Vector2(0f, 0.5f);
             _healthBarFillRt.anchoredPosition = Vector2.zero;
+            // Zero width until the first poll writes the real value: without this the
+            // fill keeps Unity's default rect and renders a square green blob (the dot
+            // sprite at full size) under the map while the player is still spawning.
+            _healthBarFillRt.sizeDelta = Vector2.zero;
 
             _healthBarFillImg = fill.AddComponent<Image>();
             _healthBarFillImg.sprite = MinimapTextures.GetBlipDot();
@@ -558,12 +567,12 @@ public sealed class MinimapHUD
         _ => MinimapTextures.GetRoundedSquareMask(256, 24f)
     };
 
-    private Sprite GetShapeBorderSprite(MinimapShape shape) => shape switch
+    private Sprite GetShapeBorderSprite(MinimapShape shape, float thickness = 4f) => shape switch
     {
-        MinimapShape.Circle => MinimapTextures.GetCircleBorder(),
-        MinimapShape.RoundedSquare => MinimapTextures.GetRoundedSquareBorder(256, 24f, 4f),
-        MinimapShape.Square => MinimapTextures.GetRoundedSquareBorder(256, 4f, 4f),
-        _ => MinimapTextures.GetRoundedSquareBorder(256, 24f, 4f)
+        MinimapShape.Circle => MinimapTextures.GetCircleBorder(256, thickness),
+        MinimapShape.RoundedSquare => MinimapTextures.GetRoundedSquareBorder(256, 24f, thickness),
+        MinimapShape.Square => MinimapTextures.GetRoundedSquareBorder(256, 4f, thickness),
+        _ => MinimapTextures.GetRoundedSquareBorder(256, 24f, thickness)
     };
 
     private void TryResolveMapSprite()
@@ -651,11 +660,40 @@ public sealed class MinimapHUD
         _log.Warn("TryResolveMapSprite: Resources fallback found no matching sprite — future calls will skip Resources scan (one-shot guard).");
     }
 
+    /// <summary>
+    /// Size of this HUD's own canvas in canvas units. Falls back to the CanvasScaler reference
+    /// resolution (1920x1080) while the runtime rect is not measured yet.
+    /// </summary>
+    private Vector2 ResolveCanvasSize()
+    {
+        try
+        {
+            if (_rootCanvasObj != null)
+            {
+                var canvasRt = _rootCanvasObj.GetComponent<RectTransform>();
+                if (canvasRt != null)
+                {
+                    Vector2 measured = canvasRt.rect.size;
+                    if (measured.x > 1f && measured.y > 1f) return measured;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _log.Warn("Minimap canvas size unavailable: " + ex.Message);
+        }
+        return _scaler != null ? _scaler.referenceResolution : Vector2.zero;
+    }
+
     public void ApplyLayout(MinimapConfig config)
     {
         if (_cardRt == null || _maskRt == null) return;
 
-        float size = config.MapSize;
+        float size = Mathf.Clamp(config.MapSize, 140f, 350f);
+        config.MapSize = size;
+        config.ZoomLevel = MinimapFeatureRules.ClampZoom(config.ZoomLevel);
+        config.BackgroundOpacity = MinimapFeatureRules.ClampOpacity(config.BackgroundOpacity);
+        config.BorderThickness = MinimapFeatureRules.ClampBorderThickness(config.BorderThickness);
         float headerHeight = 26f;
         bool hasHeader = config.DayMode == DayCounterMode.Header;
         bool hasFooter = config.DayMode == DayCounterMode.Footer;
@@ -673,12 +711,25 @@ public sealed class MinimapHUD
             _cardRt.anchorMin = new Vector2(0.5f, 0.5f);
             _cardRt.anchorMax = new Vector2(0.5f, 0.5f);
             _cardRt.pivot = new Vector2(0.5f, 0.5f);
-            // Clamp to the canvas: a saved position from a larger resolution must not push the HUD off-screen.
-            float maxX = Mathf.Max(0f, (S1Mods.Shared.UITheme.ActualWidth - size) * 0.5f);
-            float maxY = Mathf.Max(0f, (S1Mods.Shared.UITheme.ActualHeight - totalHeight) * 0.5f);
-            _cardRt.anchoredPosition = new Vector2(
-                Mathf.Clamp(config.CustomPosX, -maxX, maxX),
-                Mathf.Clamp(config.CustomPosY, -maxY, maxY));
+            // Clamp to THIS HUD canvas: a saved position from a larger resolution must not push the
+            // card off-screen. It must NOT be clamped with UITheme.ActualWidth/Height — those describe
+            // the phone canvas (or are 0 before a phone app was ever built), so a stored top-right
+            // position collapsed towards the screen centre on every layout apply.
+            Vector2 canvasSize = ResolveCanvasSize();
+            if (canvasSize.x > 1f && canvasSize.y > 1f)
+            {
+                float maxX = Mathf.Max(0f, (canvasSize.x - size) * 0.5f);
+                float maxY = Mathf.Max(0f, (canvasSize.y - totalHeight) * 0.5f);
+                _cardRt.anchoredPosition = new Vector2(
+                    Mathf.Clamp(config.CustomPosX, -maxX, maxX),
+                    Mathf.Clamp(config.CustomPosY, -maxY, maxY));
+            }
+            else
+            {
+                // Canvas size not measured yet (very early scene load): keep the stored position
+                // instead of collapsing it to the centre.
+                _cardRt.anchoredPosition = new Vector2(config.CustomPosX, config.CustomPosY);
+            }
         }
         else
         {
@@ -840,14 +891,20 @@ public sealed class MinimapHUD
 
         // Apply Shape Sprites
         if (_maskImg != null) _maskImg.sprite = GetShapeMaskSprite(config.Shape);
-        if (_borderImg != null) _borderImg.sprite = GetShapeBorderSprite(config.Shape);
+        if (_borderImg != null) _borderImg.sprite = GetShapeBorderSprite(config.Shape, config.BorderThickness);
 
         if (_bgImg != null)
             _bgImg.color = new Color(0.06f, 0.08f, 0.10f, config.BackgroundOpacity);
 
         ColorUtility.TryParseHtmlString(config.BorderColorHex, out Color accentCol);
-        if (_borderImg != null) _borderImg.color = accentCol;
+        if (_borderImg != null)
+        {
+            _borderImg.color = accentCol;
+            _borderImg.gameObject.SetActive(config.ShowMapBorder && !isStandalone);
+        }
         if (_dayAccentStrip != null) _dayAccentStrip.color = accentCol;
+        if (_compassRingObj != null)
+            _compassRingObj.SetActive(config.ShowCompassRing && config.Shape == MinimapShape.Circle && !isStandalone);
 
         // Keep raycast behavior in sync with the runtime toggle: EnsureHUD sets this
         // only at build time, so flipping AllowDragging later had no effect. The mask
@@ -855,6 +912,19 @@ public sealed class MinimapHUD
         // phone/game clicks beneath the minimap.
         if (_canvasGroup != null) _canvasGroup.blocksRaycasts = config.AllowDragging;
         if (_maskImg != null) _maskImg.raycastTarget = config.AllowDragging;
+    }
+
+    /// <summary>
+    /// Shows/hides the map image and player marker together. Used while the player position or the
+    /// world→map converter is not available yet (spawn/loading): the blips are already hidden there,
+    /// so the map surface must not keep showing a stale or default crop either.
+    /// </summary>
+    private void SetMapSurfaceVisible(bool visible)
+    {
+        if (_mapSurfaceVisible == visible) return;
+        _mapSurfaceVisible = visible;
+        if (_mapImageObj != null) _mapImageObj.SetActive(visible);
+        if (_playerMarkerObj != null) _playerMarkerObj.SetActive(visible);
     }
 
     public void Update(MinimapConfig config, float now)
@@ -868,7 +938,14 @@ public sealed class MinimapHUD
         // 2. Resolve Player position & rotation
         Player localPlayer = Player.Local;
         if (!NetworkGuard.IsAlive(localPlayer))
+        {
+            // During spawn/loading the player is not yet available. Blips rendered
+            // with a stale or zero player position appear as oversized dots at the
+            // map centre. Hide all blips until the player resolves.
+            _blips.HideAll();
+            SetMapSurfaceVisible(false);
             return;
+        }
 
         Vector3 playerPos = localPlayer.transform.position;
         float playerYaw = localPlayer.transform.eulerAngles.y;
@@ -881,7 +958,14 @@ public sealed class MinimapHUD
         }
         else
         {
-            playerMapPos = new Vector2(playerPos.x * 2.5f, playerPos.z * 2.5f);
+            // While the map utility is not ready (spawn/loading), world→map
+            // conversion is impossible: the 2.5x fallback produces nonsense
+            // coordinates that throw every blip to the map edge (a huge dot at
+            // the border). Render nothing until the real converter exists.
+            playerMapPos = Vector2.zero;
+            _blips.HideAll();
+            SetMapSurfaceVisible(false);
+            return;
         }
 
         // Lazy sprite check
@@ -891,6 +975,7 @@ public sealed class MinimapHUD
         }
 
         // 4. Update Map Position & Rotation
+        SetMapSurfaceVisible(true);
         float zoom = config.ZoomLevel;
         if (_mapImageRt != null)
         {
@@ -1087,7 +1172,7 @@ public sealed class MinimapHUD
 
     public void AdjustZoom(MinimapConfig config, float delta)
     {
-        config.ZoomLevel = Mathf.Clamp(config.ZoomLevel + delta, 0.75f, 4.0f);
+        config.ZoomLevel = MinimapFeatureRules.ClampZoom(config.ZoomLevel + delta);
     }
 
     public void DestroyHUD()

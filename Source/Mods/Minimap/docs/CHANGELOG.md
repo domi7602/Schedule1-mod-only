@@ -1,10 +1,39 @@
 # Changelog
 
+## Unreleased
+- **Settings phone app: user-verified 2026-10-11** — the tabbed layout (Karte / Marker / Farben / Erweitert) works in-game. Two same-day follow-ups from that test (deployed 2026-10-11, look pending):
+  - colour rows are now **palette pickers** — a preview swatch plus a ▼ dropdown opening the shared 16-colour palette (`MinimapFeatureRules.ColorPalette`) instead of manual hex entry; picked colours apply and persist immediately (full hex stays editable via `blip_colors.json` / `config.json`);
+  - the **Zoom value row was removed** from the settings — zoom stays on the keyboard keys and the `minimap zoom` console command.
+- **Settings app rebuild (unreleased):** one tab page per area replaces the long single scroll (the pre-tab section builders are deleted); customer markers use portraits automatically — the Customer Names / Portraits app toggles were removed, and the config fields remain only so old saves still load.
+- **Fixed: HUD position collapsed toward the screen centre on every layout apply.** The clamp used the phone `UITheme.ActualWidth/Height` (0 before any phone app was built) instead of the HUD's own canvas size, so a stored top-right position was crushed on each scene load. The card is now clamped against its own canvas (fallback: 1920x1080 reference); while unmeasured, the stored position is kept. **User-verified 2026-10-10:** the minimap loads in the corner again.
+- **Fixed: map surface stayed visible over the loading screen.** The spawn/loading guard hid only the blips while the map image and player marker kept showing a stale default crop. Both are now hidden under the same readiness guard and re-shown with the first real player position.
+
+## 2.1.1 (2026-10-10) — NPC portraits
+- **Customer markers now show the NPC's portrait image instead of a text name** (user request: "lieber Bilder vom NPC statt Schrift"). The round mugshot badge comes from `NPC.MugshotSprite` (same sprite the game uses in its own UI); the marker keeps its colour (purple = potential, green = known) and the text name only appears as a fallback when no portrait is available (early save load).
+- New setting **Customer Portraits** (default **on**); **Customer Names** now defaults to **off**. In the phone app under HUD, or `minimap blips portraits <on|off>`.
+- Portrait images are lazy-resolved per customer and drawn in the existing 64-blip pool (no per-frame allocations); the pool got a small round mask badge per blip.
+
+
+## 2.1.0 (2026-10-10) — "Nav & Marker Edition"
+- **Zoom range widened to 0.1–12** (was 0.75–4.0); keyboard zoom, the `minimap zoom` command and the settings field all clamp through one shared rule (`MinimapFeatureRules.ClampZoom`).
+- **Settings phone app expanded** with a MAP APPEARANCE section: shape, screen corner, rotation mode, map size, zoom, opacity, border width and border colour — plus a KEYBOARD SHORTCUTS section to rebind Toggle / Zoom In / Zoom Out (Unity `KeyCode` names).
+- **New HUD toggles:** Customer Names, Purchase Checks, Regional Locks, Map Border, Compass Outline, Hide in Menus (hides the minimap while the phone or gameplay menu is open).
+- **Customer markers:**
+  - **Purple** highlight for available potential customers (was turquoise).
+  - **Blue clock** (⏱) for accepted deals / awaiting delivery (was gold "Deal Meeting").
+  - Name labels under customer, deal and lock markers.
+- **Green purchase checks (✓)** for unowned but purchasable properties (`Property.UnownedProperties` + `CanBePurchased()`).
+- **Gray regional locks (🔒)** for regions the player has not unlocked (`Map.Instance.Regions` + `IsUnlocked`).
+- **Border width / on-off** now applied from config (sprite thickness no longer hard-coded).
+- New file `MinimapFeatureRules.cs` (Unity-free decision helpers) with a `Minimap.Tests` xUnit project covering zoom/opacity/border clamping and marker resolution.
+- Runtime visibility now evaluated in one place so `HideInMenus`, the toggle key and config edits stay consistent.
+
 ## 2.0.3 (2026-10-10) — "Visible only while the map is open" (key collision)
 - **Fixed: the minimap appeared only while the big map was open.** Root cause: the default `ToggleKey` was **"M"** — the game's own map key. Every map open/close also toggled the minimap, and the flipped `MinimapVisible` state was persisted on scene unload, so the minimap ended up in lockstep with the map (reported state: `MinimapVisible: false` + `ToggleKey: "M"` in the user's config.json).
 - **New default toggle key: "N"** (next to M, "Navi"; the game's shortcut keys are only M=map, T=messages, J=journal — N is unbound). Rebindable via `UserData/Minimap/config.json` (`ToggleKey`, any `UnityEngine.KeyCode` name).
 - **Config migration on load:** a saved `ToggleKey: "M"` is moved to `"N"` and `MinimapVisible` is re-enabled (the stuck `false` is what made the minimap look map-bound). One-time, logged, then saved back.
 - Expectation after update: the minimap is permanently visible at its position (default top-right) again; pressing M only opens the map.
+- **In-game verified 2026-10-10:** the oversized green dot during startup is gone. The health-bar fill now starts at zero width until the first health update.
 
 ## 2.0.2 (2026-09-13) — Bug Report Round 6
 Bug Report Round 6: M-05 - ContentSizeFitter (PreferredSize) on settings scroll content; Save&Apply footer is now reachable on long content (scroll never worked correctly before).

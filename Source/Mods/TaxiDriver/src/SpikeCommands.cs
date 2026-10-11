@@ -31,8 +31,12 @@ internal static class SpikeCommands
     /// <summary>Gap between destroying and respawning the spike vehicle (freeze guard).</summary>
     private const float FreezeGuardRespawnDelaySeconds = 0.5f;
 
-    /// <summary>Minimum age of the last boarding before the same NPC may enter again (freeze guard).</summary>
-    private const float ReEnterCooldownSeconds = 15f;
+    private static bool RefuseService(string message)
+    {
+        SpikeState.SetServiceStatus(message);
+        Mod.Log.Warn($"[taxi-service] {message}");
+        return false;
+    }
 
     /// <summary>Delay between a spawn and the one-shot [settle] diagnostic (<c>SpikeRunner.TickSettleLog</c>).</summary>
     internal const float SettleCheckDelaySeconds = 2f;
@@ -546,8 +550,8 @@ internal static class SpikeCommands
     // ----------------------------------------------------------------- npc
 
     /// <summary>
-    /// Puts the nearest living NPC into the spike vehicle and dumps the seat
-    /// state so we can see whether it landed on the driver seat.
+    /// Boards only our dedicated, protected driver. Missing/dead drivers never
+    /// cause a registry search or a replacement spawn.
     /// </summary>
     internal static bool Npc()
     {
@@ -555,141 +559,30 @@ internal static class SpikeCommands
             return false;
 
         LandVehicle? veh = SpikeState.Vehicle;
-        if (veh == null)
-        {
-            Mod.Log.Error("No TaxiDriver taxi is tracked — order one with CALL TAXI in the phone app.");
-            return false;
-        }
-        if (!RequireOwnedTaxi(veh, "select/board driver"))
-            return false;
+        if (veh == null || !RequireOwnedTaxi(veh, "select/board driver"))
+            return RefuseService("No live owned taxi is available for the driver.");
 
-        // Stage 5: our own dressed driver first — a random bystander is only
-        // the fallback (see TaxiDriverNPC). Already seated in our vehicle counts
-        // as boardable: BoardDriver then skips EnterVehicle (no repeat boarding,
-        // the 57 s freeze pattern from test run 3).
         NPC? ours = TaxiDriverNPC.TryGetVanilla();
-        if (ours != null && OursBoardable(ours, veh))
-        {
-            Print("Taxi driver: ours is taking the wheel (no bystander needed).");
-            return BoardDriver(veh, ours);
-        }
+        if (ours == null || !TaxiDriverNPC.TryPrepareForService(ours) || !OursBoardable(ours, veh))
+            return RefuseService("Taxi Driver is unavailable — no bystander will be used. Try CALL TAXI again later.");
 
-        Player? player = Player.Local;
-        if (player == null || player.transform == null)
-        {
-            Mod.Log.Error("Player.Local is null — cannot measure NPC distances.");
-            return false;
-        }
-
-        var registry = NPCManager.NPCRegistry;
-        if (registry == null)
-        {
-            Mod.Log.Error("NPCManager.NPCRegistry is null — no NPC catalog to search.");
-            return false;
-        }
-
-        if (registry.Count == 0)
-        {
-            Mod.Log.Error("NPCManager.NPCRegistry is empty — load a save first.");
-            return false;
-        }
-
-        NPC? best = null;
-        float bestDistance = float.MaxValue;
-        int skipped = 0;
-        NPC? cooldownNpc = null;
-        int cooldownSkipped = 0;
-
-        for (int i = 0; i < registry.Count; i++)
-        {
-            NPC? candidate = registry[i];
-            if (candidate == null)
-            {
-                skipped++;
-                continue;
-            }
-
-            try
-            {
-                // 0.4.7f6 has no NPC.WasCollected — dead == Health.IsDead. A missing
-                // Health component cannot prove the NPC is alive, so it is skipped too
-                // (review: Health == null NPCs used to be selectable and shown as alive).
-                if (candidate.Health == null || candidate.Health.IsDead)
-                {
-                    skipped++;
-                    continue;
-                }
-
-                // Freeze guard: do not re-enter the NPC that just left a vehicle — the
-                // third EnterVehicle on the same NPC is the pattern behind the 57 s
-                // freeze in test run 3.
-                if (ReferenceEquals(candidate, SpikeState.LastBoardedNpc) &&
-                    Time.unscaledTime - SpikeState.LastBoardedAt < ReEnterCooldownSeconds)
-                {
-                    cooldownNpc = candidate;
-                    cooldownSkipped++;
-                    continue;
-                }
-
-                if (candidate.IsInVehicle)
-                {
-                    skipped++;
-                    continue;
-                }
-
-                if (candidate.transform == null)
-                {
-                    skipped++;
-                    continue;
-                }
-
-                float distance = Vector3.Distance(player.transform.position, candidate.transform.position);
-                if (distance < bestDistance)
-                {
-                    bestDistance = distance;
-                    best = candidate;
-                }
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Error($"NPCManager.NPCRegistry[{i}] could not be inspected (native getter failed): {ex.Message}");
-                skipped++;
-            }
-        }
-
-        if (best == null && cooldownNpc != null)
-        {
-            best = cooldownNpc;
-            Mod.Log.Warn(
-                $"No NPC outside the {ReEnterCooldownSeconds:F0}s re-enter cooldown — reusing '{SafeId(best)}' anyway " +
-                $"(freeze guard fallback, cooldownSkipped={cooldownSkipped}).");
-        }
-
-        if (best == null)
-        {
-            Mod.Log.Error($"No usable living NPC in NPCManager.NPCRegistry ({registry.Count} entries, {skipped} skipped, {cooldownSkipped} in re-enter cooldown).");
-            return false;
-        }
-
-        // Nearest-bystander fallback (Stage 5: only reached when our own driver
-        // is unavailable) — shares the boarding path below.
-        Print($"Nearest usable NPC: id='{SafeId(best)}' distance={bestDistance:F1}m (registry={registry.Count}, skipped={skipped})");
-        return BoardDriver(veh, best);
+        Print("[driver] Dedicated taxi_driver is taking the wheel; bystander fallback is disabled.");
+        return BoardDriver(veh, ours);
     }
 
     /// <summary>
-    /// True when our own invisible driver can take the wheel of
+    /// True when our own dedicated driver can take the wheel of
     /// <paramref name="veh"/>: alive, with a transform, and either free or
     /// already seated in our vehicle. Never steals him out of an unrelated
-    /// seating silently — an unprovable state falls back to the nearest NPC.
+    /// seating silently — an unprovable state refuses the service.
     /// </summary>
     internal static bool OursBoardable(NPC ours, LandVehicle veh)
     {
         try
         {
-            if (ours.Health != null && ours.Health.IsDead)
+            if (!TaxiDriverNPC.IsOurVanilla(ours) || ours.Health == null || ours.Health.IsDead || ours.Health.IsKnockedOut)
             {
-                Mod.Log.Warn("Taxi driver: ours is dead — falling back to the nearest NPC.");
+                Mod.Log.Warn("Taxi driver: own driver identity/health is not ready — refusing the service.");
                 return false;
             }
 
@@ -705,13 +598,13 @@ internal static class SpikeCommands
                 }
                 catch (Exception ex)
                 {
-                    Mod.Log.Warn($"Taxi driver: ExitVehicle from foreign vehicle failed ({ex.Message}) — falling back to the nearest NPC.");
+                    Mod.Log.Warn($"Taxi driver: ExitVehicle from foreign vehicle failed ({ex.Message}) — refusing the service.");
                     return false;
                 }
 
                 if (SafeInVehicle(ours))
                 {
-                    Mod.Log.Warn("Taxi driver: still seated elsewhere after ExitVehicle — falling back to the nearest NPC.");
+                    Mod.Log.Warn("Taxi driver: still seated elsewhere after ExitVehicle — refusing the service.");
                     return false;
                 }
             }
@@ -720,7 +613,7 @@ internal static class SpikeCommands
         }
         catch (Exception ex)
         {
-            Mod.Log.Warn($"Taxi driver: boardability check failed ({ex.Message}) — falling back to the nearest NPC.");
+            Mod.Log.Warn($"Taxi driver: boardability check failed ({ex.Message}) — refusing the service.");
             return false;
         }
     }
@@ -739,16 +632,18 @@ internal static class SpikeCommands
     {
         if (!RequireOwnedTaxi(veh, "board driver"))
             return false;
+        if (!TaxiDriverNPC.IsOurVanilla(best))
+            return RefuseService("Only the registered Taxi Driver may board; a foreign NPC was rejected.");
+        if (best.Health == null || best.Health.IsDead || best.Health.IsKnockedOut || best.transform == null)
+            return RefuseService("Taxi Driver is not alive and ready to board. No replacement NPC will be used.");
 
         string npcId = SafeId(best);
 
         int alreadySlot = OccupantIndexOf(veh, best, out _, out _);
-        if (best.IsInVehicle && best.CurrentVehicle != null && alreadySlot >= 0)
+        if (best.IsInVehicle && best.CurrentVehicle != null && best.CurrentVehicle.Pointer == veh.Pointer && alreadySlot >= 0)
         {
             Print($"NPC '{npcId}' is already seated in our vehicle (occupantSlot={alreadySlot}) — skipping EnterVehicle.");
             SpikeState.DriverNpc = best;
-            SpikeState.LastBoardedNpc = best;
-            SpikeState.LastBoardedAt = Time.unscaledTime;
             return true;
         }
 
@@ -759,6 +654,13 @@ internal static class SpikeCommands
         {
             SpikeState.DriverNpc = best;
             return true;
+        }
+
+        NPC? dedicated = TaxiDriverNPC.TryGetVanilla();
+        if (!SpikeState.DriverBoarding.TryBeginEntry(best.Pointer, dedicated?.Pointer ?? IntPtr.Zero, Time.unscaledTime))
+        {
+            float remaining = SpikeState.DriverBoarding.RemainingSeconds(best.Pointer, Time.unscaledTime);
+            return RefuseService($"Taxi Driver re-entry is blocked — wait {Math.Ceiling(remaining):0} seconds before ordering again.");
         }
 
         VehicleSeat? freeBefore = SafeFirstFreeSeat(veh);
@@ -784,7 +686,7 @@ internal static class SpikeCommands
         // The occupant slot list is checked too — that is what makes the
         // AddNPCOccupant fallback reachable instead of dead code.
         int slotIdx = OccupantIndexOf(veh, best, out _, out _);
-        bool boardingComplete = best.IsInVehicle && best.CurrentVehicle != null && slotIdx >= 0;
+        bool boardingComplete = best.IsInVehicle && best.CurrentVehicle != null && best.CurrentVehicle.Pointer == veh.Pointer && slotIdx >= 0;
 
         if (!boardingComplete)
         {
@@ -803,7 +705,7 @@ internal static class SpikeCommands
 
         SpikeState.DriverNpc = best;
 
-        if (!best.IsInVehicle || best.CurrentVehicle == null)
+        if (!best.IsInVehicle || best.CurrentVehicle == null || best.CurrentVehicle.Pointer != veh.Pointer)
         {
             ClearSeatVerify();
             Mod.Log.Error("NPC is still not seated after NPC.EnterVehicle + LandVehicle.AddNPCOccupant — see the seat dump above.");
@@ -820,16 +722,12 @@ internal static class SpikeCommands
             SpikeState.SeatVerifyUntil = Time.unscaledTime + SeatVerifyGraceSeconds;
             Mod.Log.Warn($"[seat] '{npcId}' reports seated without an OccupantNPCs slot — provisional, late verdict within {SeatVerifyGraceSeconds:0.0} s (no re-enter until then).");
             PrintSeatProof("after enter (provisional)", veh, best);
-            SpikeState.LastBoardedNpc = best;
-            SpikeState.LastBoardedAt = Time.unscaledTime;
             return true;
         }
 
         ClearSeatVerify();
         Print($"NPC '{npcId}' is seated (npc.IsInVehicle=true, npc.CurrentVehicle='{codeOf(best.CurrentVehicle)}').");
         PrintSeatProof("after enter", veh, best);
-        SpikeState.LastBoardedNpc = best;
-        SpikeState.LastBoardedAt = Time.unscaledTime;
         return true;
     }
 
@@ -1303,18 +1201,26 @@ internal static class SpikeCommands
     /// <summary>
     /// Paket G (2026-09-29, "der Fahrer ist ohne Grund ausgestiegen und die Fahrt fuhr
     /// nicht weiter"): driver retention — while anything ride-ish lives, the NPC has to
-    /// stay at the wheel. A lost driver is re-boarded immediately (BoardDriver has the
-    /// AddNPCOccupant fallback) instead of leaving the car driverless. Returns true when
-    /// a re-board was needed (the stuck watchdog uses that instead of burning a recovery).
+    /// stay at the wheel. A lost driver may re-enter only outside the safety cooldown.
+    /// Failure parks/cancels the trip instead of bypassing the guard. True means this
+    /// tick handled a missing driver (re-boarded OR stopped); callers must respect cancellation.
     /// </summary>
     internal static bool EnsureDriverSeat(LandVehicle veh)
     {
         NPC? npc = SpikeState.DriverNpc;
-        if (npc == null || npc.Pointer == IntPtr.Zero)
-            return false;
+        if (!TaxiDriverNPC.IsOurVanilla(npc))
+        {
+            AbortDriverRecovery("The registered Taxi Driver is unavailable.");
+            return true; // handled: the watchdog must not continue driving without a driver
+        }
 
         try
         {
+            if (npc!.Health == null || npc.Health.IsDead || npc.Health.IsKnockedOut)
+            {
+                AbortDriverRecovery("Taxi Driver is not alive and ready.");
+                return true;
+            }
             LandVehicle? current = SafeVehicle(npc);
             bool seatedHere = SafeInVehicle(npc) &&
                 current != null && current.Pointer == veh.Pointer &&
@@ -1348,14 +1254,24 @@ internal static class SpikeCommands
                     $"re-boarding him now (re-board #{++_driverGuardReboards}).");
             }
 
-            BoardDriver(veh, npc);
+            if (!BoardDriver(veh, npc))
+                AbortDriverRecovery("Taxi Driver cannot safely re-enter yet.");
             return true;
         }
         catch (Exception ex)
         {
-            Mod.Log.Warn($"[driver] EnsureDriverSeat failed: {ex.Message}");
-            return false;
+            AbortDriverRecovery($"Taxi Driver recovery failed: {ex.Message}");
+            return true;
         }
+    }
+
+    private static void AbortDriverRecovery(string reason)
+    {
+        bool wasRiding = SpikeState.RideActive || SpikeState.RideBoarded || SpikeState.RidePassengerMode || SpikeState.RideAwaitingBoard;
+        EndRide("driver unavailable");
+        if (!wasRiding) SpikeRunner.StopDriving("driver unavailable");
+        SpikeState.ResetAutoRun();
+        RefuseService(reason + " Taxi stopped — press E to exit, then STOP before ordering again.");
     }
 
     // ----------------------------------------------------- passenger ride (3c)
@@ -1533,8 +1449,7 @@ internal static class SpikeCommands
         }
 
         NPC? npc = SpikeState.DriverNpc;
-        LandVehicle? npcVehicle = npc == null ? null : SafeVehicle(npc);
-        bool npcAtWheel = npc != null && SafeInVehicle(npc) && npcVehicle != null && npcVehicle.Pointer == veh.Pointer;
+        bool npcAtWheel = DriverAtWheel(veh);
         if (!npcAtWheel)
         {
             Mod.Log.Error(
@@ -1551,6 +1466,7 @@ internal static class SpikeCommands
         if (SpikeState.RideActive)
             return true;
 
+        SpikeState.RideSerial++;
         SpikeState.RideActive = true;
         SpikeState.RideBoarded = true;
         SpikeState.RidePassengerMode = true;
@@ -1707,7 +1623,8 @@ internal static class SpikeCommands
         try
         {
             LandVehicle? current = SafeVehicle(npc);
-            return SafeInVehicle(npc) && current != null && current.Pointer == veh.Pointer &&
+            return TaxiDriverNPC.IsOurVanilla(npc) && npc.Health != null && !npc.Health.IsDead && !npc.Health.IsKnockedOut &&
+                   SafeInVehicle(npc) && current != null && current.Pointer == veh.Pointer &&
                    OccupantIndexOf(veh, npc, out _, out _) >= 0;
         }
         catch (Exception)
@@ -2334,7 +2251,15 @@ internal static class SpikeCommands
         // is still pending, the request is refused (with a reason) instead of
         // interrupting the run.
         if (!SpikeRunner.TryBeginGo(caller))
-            return false;
+            return RefuseService("A taxi order is already being processed. Wait for it or press STOP.");
+
+        SpikeState.ClearServiceStatus();
+        NPC? dedicated = TaxiDriverNPC.TryGetVanilla();
+        if (dedicated == null || !TaxiDriverNPC.TryPrepareForService(dedicated))
+            return RefuseService("Taxi Driver is unavailable — no bystander will be used. Try again later.");
+        float remaining = SpikeState.DriverBoarding.RemainingSeconds(dedicated.Pointer, Time.unscaledTime);
+        if (remaining > 0f)
+            return RefuseService($"Taxi Driver is recovering — wait {Math.Ceiling(remaining):0} seconds before ordering again.");
 
         // Arms SpikeState.StandSpawnPosition (one-shot) — refuses to start when
         // no stand can be resolved (see the [stand] log for the reason).
@@ -2523,9 +2448,9 @@ internal static class SpikeCommands
         Print(SpikeState.PendingSpawnCode == null
             ? "Deferred respawn pending: no"
             : $"Deferred respawn pending: yes (code='{SpikeState.PendingSpawnCode}', fires at t={SpikeState.PendingSpawnAt:F1}s)");
-        Print(SpikeState.LastBoardedNpc == null
-            ? "Re-enter cooldown: none"
-            : $"Re-enter cooldown: last boarded '{SafeId(SpikeState.LastBoardedNpc)}' {Time.unscaledTime - SpikeState.LastBoardedAt:F1}s ago (window {ReEnterCooldownSeconds:F0}s)");
+        NPC? registeredDriver = TaxiDriverNPC.TryGetVanilla();
+        float reentryRemaining = registeredDriver == null ? 0f : SpikeState.DriverBoarding.RemainingSeconds(registeredDriver.Pointer, Time.unscaledTime);
+        Print($"Re-enter cooldown: dedicated driver remaining={reentryRemaining:F1}s (window {DriverBoardingGate.CooldownSeconds:F0}s; genuine attempts only)");
         Print($"Trace: patched={SpikeTrace.Patched} logging={SpikeTrace.Logging}");
 
         // Stage 2 (review M1-2): the four visual fields — `taxi visual` prints the

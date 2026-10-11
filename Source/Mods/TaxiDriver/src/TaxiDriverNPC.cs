@@ -48,12 +48,102 @@ public sealed class TaxiDriverNPC : NPC
             });
     }
 
+    private static Il2CppScheduleOne.NPCs.NPC? _nativeDriver;
+    private static TaxiDriverNPC? _registeredOwner;
+
     protected override void OnCreated()
     {
         base.OnCreated();
+        ResolveNativeDriver();
+        ApplyProtection(_nativeDriver);
         Appearance.Build();
         Schedule.Enable();
         ClearConversationCategories();
+    }
+
+    protected override void OnLoaded()
+    {
+        base.OnLoaded();
+        ResolveNativeDriver();
+        ApplyProtection(_nativeDriver);
+    }
+
+    protected override void OnDestroyed()
+    {
+        if (System.Object.ReferenceEquals(_registeredOwner, this))
+        {
+            _nativeDriver = null;
+            _registeredOwner = null;
+        }
+        base.OnDestroyed();
+    }
+
+    private void ResolveNativeDriver()
+    {
+        try
+        {
+            _registeredOwner = this;
+            _nativeDriver = null;
+            _nativeDriver = gameObject.GetComponent<Il2CppScheduleOne.NPCs.NPC>();
+        }
+        catch (System.Exception ex)
+        {
+            Mod.Log.Warn($"[driver] Native driver resolution failed: {ex.Message}");
+        }
+    }
+
+    internal static bool IsOurVanilla(Il2CppScheduleOne.NPCs.NPC? npc)
+    {
+        try
+        {
+            return S1Mods.Shared.NetworkGuard.IsAlive(npc) &&
+                S1Mods.Shared.NetworkGuard.IsAlive(_nativeDriver) &&
+                DriverBoardingGate.IsDedicatedDriver(npc!.Pointer, _nativeDriver!.Pointer);
+        }
+        catch { return false; }
+    }
+
+    private static bool ApplyProtection(Il2CppScheduleOne.NPCs.NPC? npc)
+    {
+        try
+        {
+            if (!IsOurVanilla(npc) || !S1Mods.Shared.NetworkGuard.IsAlive(npc!.Health))
+                return false;
+            var health = npc.Health;
+            // f12 exposes _invincible. S1API.IsInvincible still looks up the old
+            // Invincible member and can silently no-op; use the verified native field.
+            bool changed = !health._invincible;
+            health._invincible = true;
+            if (changed) Mod.Log.Info("[driver] taxi_driver protection enabled (native health field read back).");
+            return health._invincible;
+        }
+        catch (System.Exception ex)
+        {
+            Mod.Log.Warn($"[driver] Could not confirm Taxi Driver protection: {ex.Message}");
+            return false;
+        }
+    }
+
+    /// <summary>Recover only the existing owned driver, on the host, never spawn/replace one.</summary>
+    internal static bool TryPrepareForService(Il2CppScheduleOne.NPCs.NPC npc)
+    {
+        if (!SpikeCommands.HasAuthority() || !ApplyProtection(npc))
+            return false;
+        try
+        {
+            var health = npc.Health;
+            if (health.IsDead || health.IsKnockedOut)
+            {
+                Mod.Log.Info("[driver] Recovering the existing taxi_driver from saved dead/knocked-out state; no replacement spawn.");
+                health.Revive();
+            }
+            return !health.IsDead && !health.IsKnockedOut && health._invincible;
+        }
+        catch (System.Exception ex)
+        {
+            Mod.Log.Warn($"[driver] Existing Taxi Driver could not be restored: {ex.Message}");
+            return false;
+        }
     }
 
     /// <summary>
@@ -79,13 +169,15 @@ public sealed class TaxiDriverNPC : NPC
     /// </summary>
     internal static Il2CppScheduleOne.NPCs.NPC? TryGetVanilla()
     {
-        var ours = GetOurs();
-        if (ours == null)
-            return null;
-
         try
         {
-            return ours.gameObject.GetComponent<Il2CppScheduleOne.NPCs.NPC>();
+            if (S1Mods.Shared.NetworkGuard.IsAlive(_nativeDriver))
+                return _nativeDriver;
+            var ours = GetOurs();
+            if (ours == null)
+                return null;
+            ours.ResolveNativeDriver();
+            return S1Mods.Shared.NetworkGuard.IsAlive(_nativeDriver) ? _nativeDriver : null;
         }
         catch (System.Exception ex)
         {

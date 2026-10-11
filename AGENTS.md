@@ -2,7 +2,7 @@
 
 Workspace: the `Schedule1-mod-only` repository root (any path/user, e.g. `C:\Users\<you>\Schedule1-mod-only`) — MelonLoader IL2CPP modding workspace for *Schedule I* (TVGS, Steam Open Beta; installed runtime **v0.4.7f12** — see the override above; older verification baselines are listed separately). The repo lives **outside** the game install; builds and deploys resolve the game via the `SCHEDULE1_PATH` env var or the default `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
 
-> **Current local runtime (2026-10-08):** `Latest.log` reports Schedule I **v0.4.7f12** and Unity **2022.3.62f2**; `appmanifest_3164500.acf` reports Steam build **25796331**. MelonLoader 0.7.3 loaded S1API **3.2.1-beta.8** and S1MAPI **2.0.1**. The deployed S1API DLL is the local PR #353 compatibility build documented for f11; its known hash still matches the preserved f11 build, and the DLL loads in the f12 log. This does **not** prove all S1API patches or TaxiDriver gameplay work on f12. TaxiDriver 0.8.2's no-deploy Release build passed against the live f12 references with 0 warnings/errors; gameplay verification remains open. `GameReferences/` was regenerated for f12 on 2026-10-08 (2 234 decompiled files from `Assembly-CSharp.dll`); for anything newer, use the live f12 assemblies directly. Provenance and the official S1API backup remain under `<GameDir>\UserData\S1API\LocalBuilds\2026-10-07-f11\README.md`.
+> **Current local runtime (2026-10-08):** `Latest.log` reports Schedule I **v0.4.7f12** and Unity **2022.3.62f2**; `appmanifest_3164500.acf` reports Steam build **25796331**. MelonLoader 0.7.3 loaded S1API **3.2.1-beta.8** and S1MAPI **2.0.1**. The deployed S1API DLL is the local PR #353 compatibility build documented for f11; its known hash still matches the preserved f11 build, and the DLL loads in the f12 log. This does **not** prove all S1API patches work on f12. TaxiDriver 0.8.2's no-deploy Release build passed against the live f12 references with 0 warnings/errors; the driver-safety update (0.8.3) was verified in-game on this runtime on 2026-10-11. `GameReferences/` was regenerated for f12 on 2026-10-08 (2 234 decompiled files from `Assembly-CSharp.dll`); for anything newer, use the live f12 assemblies directly. Provenance and the official S1API backup remain under `<GameDir>\UserData\S1API\LocalBuilds\2026-10-07-f11\README.md`.
 
 Quick links: [`DEVELOPERS.md`](DEVELOPERS.md) — human build/test/debug workflow · [`docs/README.md`](docs/README.md) — documentation index · [`docs/architecture.md`](docs/architecture.md) — dependency boundaries · [`docs/pitfalls.md`](docs/pitfalls.md) — battle-tested gotchas · [`docs/compatibility.md`](docs/compatibility.md) — per-mod verification matrix · [`ThirdParty/README.md`](ThirdParty/README.md) — pinned dependencies · [`GameReferences/README.md`](GameReferences/README.md) — local decompiles · [`Skills/README.md`](Skills/README.md) — skill index.
 
@@ -61,28 +61,30 @@ Release/           Release ZIP output
 
 ## 2. Mod Inventory
 
-> **Status convention:** `Verified <date>` = confirmed in a real game session (assertion only, no artifact in the repo). `In-Game-Verify open` = code complete, not yet confirmed in-game. Keep the two apart — never claim a verify that did not happen. Latest completed verify: 2026-10-10 (MessagesPlus v0.4.5 dark-mode polish + ProductAppQoL v0.1.0); previous rounds 2026-09-30 (MessagesPlus v0.4.0), 2026-09-20.
+> **Status convention:** `Verified <date>` = confirmed in a real game session (assertion only, no artifact in the repo). `In-Game-Verify open` = code complete, not yet confirmed in-game. Keep the two apart — never claim a verify that did not happen. Latest completed verify: 2026-10-11 (PhoneScrollFix v2.0.0; Minimap settings app; PotScanner v0.7.0, BankApp v0.5.0, Weather v0.4.0, StorageScanner v0.2.0, TaxiDriver v0.8.3); previous rounds 2026-10-10 (MessagesPlus v0.4.5 dark-mode polish + ProductAppQoL v0.1.0), 2026-09-30 (MessagesPlus v0.4.0), 2026-09-20.
 
 | Mod | Status | Path in `Source/` | Path in `<Game>\Mods\` | Key bits |
 |---|---|---|---|---|
 | **NotesApp** | ✅ active (v1.0.3, **Verified 2026-09-15**) | `Mods/NotesApp/` | `NotesApp.dll` + icon | PhoneApp, SafeStorage, UITheme, InputFocus |
-| **PotScanner** | ✅ active (v0.7.0, **In-Game-Verify open**; core Verified 2026-09-15) | `Mods/PotScanner/` | `PotScanner.dll` | PhoneApp, Property/Growing/Money, GamePalette rewrite |
+| **PotScanner** | ✅ active (v0.7.0, **Verified 2026-10-11**; core Verified 2026-09-15) | `Mods/PotScanner/` | `PotScanner.dll` | PhoneApp, Property/Growing/Money, GamePalette rewrite |
 | **CalculatorApp** | ✅ active (v0.2.3, **Verified 2026-09-15**) | `Mods/CalculatorApp/` | `CalculatorApp.dll` | PhoneApp, Money, SafeStorage |
 | **CustomSkateboard** | ✅ active (v1.1.5, **Verified 2026-09-15**) | `Mods/CustomSkateboard/` | `CustomSkateboard.dll` + icon | Harmony, visuals, avatar safety |
 | **MoreSaveSlots** | ✅ active (v1.0.12, **Verified 2026-09-15**) | `Mods/MoreSaveSlots/` | `MoreSaveSlots.dll` | no S1API (MelonMod + Harmony) |
-| **PocketShop** | ✅ active (v0.3.2, **Verified 2026-09-20**) | `Mods/PocketShop/` | `PocketShop.dll` | PhoneApp, vanilla PaymentType, level locks |
-| **BankApp** | ✅ active (v0.5.0, **In-Game-Verify open**; v0.4.4 **Verified 2026-09-15**) | `Mods/BankApp/` | `BankApp.dll` + icon | PhoneApp, banking, slot isolation |
-| **Weather** | ✅ active (v0.4.0, In-Game-Verify open) | `Mods/Weather/` | `Weather.dll` + icon | PhoneApp, read-only dashboard |
+| **PocketShop** | ✅ active (v0.3.3, **Verified 2026-09-20**) | `Mods/PocketShop/` | `PocketShop.dll` | PhoneApp, vanilla PaymentType, level locks |
+| **BankApp** | ✅ active (v0.5.0, **Verified 2026-10-11**; v0.4.4 **Verified 2026-09-15**) | `Mods/BankApp/` | `BankApp.dll` + icon | PhoneApp, banking, slot isolation |
+| **Weather** | ✅ active (v0.4.0, **Verified 2026-10-11**) | `Mods/Weather/` | `Weather.dll` + icon | PhoneApp, read-only dashboard |
 | **BusinessIncome** | ✅ active (v0.1.6, **Verified 2026-09-19**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | host authority, slot isolation, console |
 | **StackLimitMod** | ✅ active (v0.1.7; v0.1.6 **Verified 2026-09-20**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` | Harmony, Registry, agriculture-only |
-| **Minimap** | ✅ active (v2.0.3, key-collision fix **Verified 2026-10-10** — minimap stays visible outside the map, migration ran clean; blips/day-header render confirmed from screenshot) | `Mods/Minimap/` | `Minimap.dll` | HUD overlay, blip pool, settings PhoneApp, waypoints |
+| **Minimap** | ✅ active (v2.1.1, key-collision fix **Verified 2026-10-10** — minimap stays visible outside the map, migration ran clean; blips/day-header render confirmed from screenshot; startup green dot no longer appears; **tabbed settings app Verified 2026-10-11**, palette pickers + zoom-row removal deployed the same day) | `Mods/Minimap/` | `Minimap.dll` | HUD overlay, blip pool, settings PhoneApp, waypoints |
 | **AutoPackagingStation** | ✅ active (v0.3.3, **Verified 2026-09-20**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable, SafeStorage, GLB |
 | **HitmanPhone** | ✅ active (v0.2.9, beta **Verified 2026-09-24**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Messages/NPC/Items/Quests |
 | **MessagesPlus** | ✅ active (v0.4.5, dark mode **verified in-game 2026-10-09**; v0.4.0 sweep **verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
 | **ProductAppQoL** | ✅ active (v0.1.0, **Verified 2026-10-10**) | `Mods/ProductAppQoL/` | `ProductAppQoL.dll` | Product app: asking-price −/+ buttons respond to mouse/touch (tap = ±$1, hold = repeat) — vanilla wires them gamepad-only via `InputValueRamp` (dead buttons for PC players) |
-| **TaxiDriver** | 🧪 stability update (v0.8.2; f12 no-deploy Release build passed, gameplay unverified) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | TaxiApp-only service, own NPC driver, vehicle ownership guards, S1MAPI |
-| **StorageScanner** | 🆕 new (v0.2.0, **In-Game-Verify open**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | PhoneApp, read-only storage overview |
+| **TaxiDriver** | 🧪 driver-safety update (v0.8.3; 207 tests passed, f12/stable-S1API Release built and deployed; gameplay **Verified 2026-10-11**) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB data folder | TaxiApp-only service, own NPC driver, vehicle ownership guards, S1MAPI |
+| **StorageScanner** | 🆕 new (v0.2.0, **Verified 2026-10-11**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | PhoneApp, read-only storage overview |
 | **S1MCP** | ✅ active (v1.0.1) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | MCP over TCP :8765 |
+| **PropertyLEDs** | 🧪 experimental (v0.1.0; beam geometry + 11-property coverage import 2026-10-11, In-Game-Verify open) | `Mods/PropertyLEDs/` | `PropertyLEDs.dll` + icon | independent RGB ceiling LEDs, per-room overrides, slot-isolated settings, segment-beam geometry, measured layout catalog + reference-ported coverage |
+| **PhoneScrollFix** | ✅ active (v2.0.0, hover look **Verified 2026-10-11**) | `Mods/PhoneScrollFix/` | `PhoneScrollFix.dll` | home-screen icon hover: clipped slim frame + RectMask2D viewport (white-plate fix) |
 | **Shared** | ✅ active (workspace lib) | `Mods/Shared/` | `Shared.dll` | see §5 |
 | **S1API** | ✅ active (3.2.1 stable, submodule `ThirdParty/S1API/` at tag `v3.2.1`) | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | required for 0.4.7f6+; 3.2.1 adds released Special Customers (0.4.7) support |
 
@@ -99,7 +101,7 @@ Release/           Release ZIP output
 
 **PotScanner v0.7.0 (2026-09-27, BankApp-palette view rewrite):**
 - Grow dashboard: every `GrowContainer` per property (2 s polling, 0-alloc), filter chips (Thirsty/Ready/Empty), quality display, single-property focus, Water All (30 % skip) + persisted Auto-Water (50 g/pot); money paths host-only.
-- v0.7.0 = pure view rewrite on the shared `S1Mods.Shared.GamePalette` / `UISprites`; behaviour unchanged. **In-Game-Verify open.** History: `Source/Mods/PotScanner/docs/CHANGELOG.md`.
+- v0.7.0 = pure view rewrite on the shared `S1Mods.Shared.GamePalette` / `UISprites`; behaviour unchanged. **Verified 2026-10-11.** History: `Source/Mods/PotScanner/docs/CHANGELOG.md`.
 
 **CalculatorApp v0.2.3 (2026-09-12):**
 - Exact `decimal` calculator with searchable history, Cash/Bank insert chips, clipboard, repeating equals; `CalculatorAppInputFocus`; SafeStorage state.
@@ -113,17 +115,17 @@ Release/           Release ZIP output
 - 25+ save slots with paginated navigation, inline rename (with `Game.json.bak`), hotkeys/wheel; Harmony remaps keep the vanilla menus working; modal canvas/sorting fixes.
 - History: `Source/Mods/MoreSaveSlots/docs/CHANGELOG.md`.
 
-**PocketShop v0.3.2 (2026-09-20):**
+**PocketShop v0.3.3 (2026-09-20):**
 - Phone shop browser (grid + detail modal, inline quantity). Since v0.3.1 payment follows the vanilla `shopInterface.PaymentType` — cash shops use `ChangeCashBalance`, online shops `CreateOnlineTransaction`; level/rank locks enforced; host-safe refunds.
 - **Verified 2026-09-20.** History: `Source/Mods/PocketShop/docs/CHANGELOG.md`.
 
 **BankApp v0.5.0 (2026-10-04):**
 - Chip-based deposit/withdraw screen: weekly $10k ATM limit, two-column cash/online balances, double-entry booking with rollback, slot-isolated persistence, `NetworkGuard.IsInMainScene` guards.
-- v0.4.5 = removes the phantom withdrawal cap ("inventory full"): the old capacity check multiplied free inventory slots by a cash stack limit that is 1 in vanilla, blocking nearly every withdrawal. **In-Game-Verify open.** History: `Source/Mods/BankApp/docs/CHANGELOG.md`.
+- v0.4.5 = removes the phantom withdrawal cap ("inventory full"): the old capacity check multiplied free inventory slots by a cash stack limit that is 1 in vanilla, blocking nearly every withdrawal. **Verified 2026-10-11.** History: `Source/Mods/BankApp/docs/CHANGELOG.md`.
 
 **Weather v0.4.0 (2026-10-01):**
 - Read-only phone dashboard of the nine weather components: accent-bordered hero card (name, percentage, intensity pill, meta count, ring gauge with a rounded accent arc) over nine live rows — active conditions tint their row, border, icon and bar, inactive rows stay neutral. Empty state, no persistence, no gameplay impact, no input field.
-- v0.4.0 = rebuilt to the approved mockup (flat canvas without header chrome, name above the bar in each row, accent-tinted active rows). All anchors measured off the reference design as canvas fractions. **In-Game-Verify open.** History: `Source/Mods/Weather/docs/CHANGELOG.md`.
+- v0.4.0 = rebuilt to the approved mockup (flat canvas without header chrome, name above the bar in each row, accent-tinted active rows). All anchors measured off the reference design as canvas fractions. **Verified 2026-10-11.** History: `Source/Mods/Weather/docs/CHANGELOG.md`.
 
 **BusinessIncome v0.1.6 (2026-09-17):**
 - Daily passive revenue for owned businesses: deterministic variance, employee/weekend bonuses; host-authority fail-closed, slot-isolated idempotent payout marker, bounded catch-up; `biz` console dashboard.
@@ -150,18 +152,24 @@ Release/           Release ZIP output
 - **Vanilla order menus (2026-10-08):** `MSGConversation.responseContainer` and the verified `DealWindowSelector.Container` are preserved/restored; the deal-window hook no longer darkens popup content. In-Game-Verify open.
 - Round-1 fixes: `(RectTransform)x.transform` casts → `GetComponent<RectTransform>()` (IL2CPP cast made the "⋯" menu dead), search surface keeps `raycastTarget=true` (v0.4.0 **Verified 2026-09-30**). History: `Source/Mods/MessagesPlus/docs/CHANGELOG.md`.
 
-**Minimap v2.0.3 (2026-09-13, restored from archive 2026-10-07):**
-- Minimap & Unified HUD: dealer/police/customer markers, pulsing heat ring, health bar, user waypoints (`minimap wp …`), and a phone settings app with per-blip-type toggles and hex colours. Fixed 64-blip pool (0 GC allocations per frame).
+**Minimap v2.1.1 (2026-10-10 — Nav & Portrait Edition; settings app verified in-game 2026-10-11; portrait-badge look still open):**
+- Minimap & Unified HUD: dealer/police/customer markers, pulsing heat ring, health bar, user waypoints (`minimap wp …`), and a phone settings app with per-blip toggles and hex colours. Fixed 64-blip pool (0 GC allocations per frame).
+- v2.1.0 adds: zoom range 0.1–12 (one shared clamp rule), a MAP APPEARANCE settings section (shape, corner, rotation, size, zoom, opacity, border width + colour), rebindable keys in-app, purple potential-customer highlights, a blue accepted-deal clock, green purchase checks, gray regional locks, customer name labels, and a Hide-in-Menus HUD toggle. `Minimap.Tests` (xUnit, in `S1Mods.sln`) covers the Unity-free decision helpers.
+- v2.1.1 replaces the customer text name with the **NPC portrait image** (`NPC.MugshotSprite`) by default; the name stays as a fallback. New `ShowCustomerPortraits` toggle (default on), `ShowCustomerNames` now default off.
+- Built (0 warnings/errors); Minimap.Tests green (26 passed) and the deployed DLL matches the build output. In-game visual verification of the portrait badges is still open.
+- **Verified in-game 2026-10-11 (owner):** the tabbed settings app (Karte / Marker / Farben / Erweitert) works. Follow-ups from that test, built & deployed the same day: colour rows are preview-swatch + ▼ palette pickers (`MinimapFeatureRules.ColorPalette`) instead of hex entry (picked colours persist immediately); the Zoom value row was removed from the settings (zoom stays on keys and the `minimap zoom` console command). Picker look pending.
+- Post-v2.1.1 (unreleased): customer markers use portraits automatically (Customer Names / Portraits toggles removed; config fields kept for old saves); the pre-tab section builders were deleted.
 - Restored from the archive, including the 2026-09-17 visibility fixes in `MinimapMod.cs`. History: `Source/Mods/Minimap/docs/CHANGELOG.md`.
 
-**TaxiDriver v0.8.2 (2026-10-08, stability update — build passed; gameplay unverified):**
+**TaxiDriver v0.8.3 (2026-10-10, dedicated driver safety — built/deployed; gameplay Verified 2026-10-11):**
 - Taxi service is controlled only by the phone app: CALL TAXI → `CallTaxi` → preserved `TickAutoRun`; destination list/search/filters, live status/fare and STOP remain in the app. Vanilla E entry/exit and Escape phone-close remain unchanged. The current source installs no TaxiDriver keyboard bindings.
 - The safety pass adds exact spawned-vehicle ownership tracking, fail-closed ride locks, renderer-gated GLB rollback, lifecycle cleanup, bounded fare math and no-repeat payment handling. Earlier Stage 1–3 gameplay checks were on 0.4.7f6; they do not verify this update on f12.
-- Current local target is v0.4.7f12 with S1API 3.2.1-beta.8 and S1MAPI 2.0.1. The no-deploy Release build passed with 0 warnings/errors against the live f12 references; no TaxiDriver in-game run has been made. Do not claim complete Beta-8 compatibility without runtime evidence.
+- Dedicated driver only: no bystander fallback or replacement spawn from the service. Native invincibility is applied/read back on create/load/service; a host order can restore the existing saved dead driver. Genuine entry attempts use an exact-pointer 15-second guard; rejected re-entry stops the trip safely. STOP approval is tied to the same visible app session and monotonic ride identity.
+- Current local target is v0.4.7f12 with installed S1API 3.2.1 stable and S1MAPI 2.0.1. Release built and deployed with 0 warnings/errors; 207 tests pass (pure policies plus limited source-wiring checks). An independent read-only review found one defect (feedback lost on deferred cleanup), now fixed with its own regression tests. Dominik confirmed the prior driver's killability and replacement appearance in-game; the driver-safety update was verified in-game 2026-10-11.
 
 **StorageScanner v0.2.0 (2026-10-04, new):**
 - Read-only PhoneApp: totals per item across all storage containers of owned properties; `ALL` + per-property filter chips, live name search, manual + periodic refresh, explicit INCOMPLETE banner (culled containers reported, never silently counted). No Harmony, no background scanning.
-- **v0.1.1 fix:** the readiness gate blocked every scan — `IsContentCulled` is true for any property the player is not near, so the app showed "Loading storage..." forever and zero scans ever ran. The gate now waits only for the owned-property list; culled containers are skipped and reported as incomplete. Full source restored to the deployed 0.1.0 behavior + fix. **In-Game-Verify open.** History: `Source/Mods/StorageScanner/docs/CHANGELOG.md`.
+- **v0.1.1 fix:** the readiness gate blocked every scan — `IsContentCulled` is true for any property the player is not near, so the app showed "Loading storage..." forever and zero scans ever ran. The gate now waits only for the owned-property list; culled containers are skipped and reported as incomplete. Full source restored to the deployed 0.1.0 behavior + fix. **Verified 2026-10-11.** History: `Source/Mods/StorageScanner/docs/CHANGELOG.md`.
 
 ---
 

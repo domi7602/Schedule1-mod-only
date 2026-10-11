@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.IO;
 using MelonLoader;
 using S1API.PhoneApp;
@@ -11,18 +12,19 @@ using UnityEngine.UI;
 namespace Minimap;
 
 /// <summary>
-/// M6 Settings PhoneApp: "Minimap Settings" — toggles per blip type + hex color fields
+/// M6 Settings PhoneApp: "Minimap Settings" — toggles per blip type + palette colour pickers
 /// (per user decision 2026-09-12: NO sliders, NO presets).
 ///
 /// Follows the PhoneApp Golden Rules (schedule1-phoneapp skill):
-/// 1. Explicit Orientation (vertical).            2. Never Destroy UI on close — only SetActive(false).
+/// 1. Explicit Orientation (horizontal/landscape). 2. Never Destroy UI on close — only SetActive(false).
 /// 3. Isolated _mainBG panel, starts hidden.      4. UITheme Sp/Dp (Shared single source).
-/// 5. InputFocus guard on the hex InputField.     6. EventHelper/defensive AddListener for IL2CPP buttons.
+/// 5. InputFocus guard covers the compact text fields. 6. EventHelper/defensive AddListener for IL2CPP buttons.
 /// 7. Config persistence via the mod's existing SafeStorage-backed SaveConfig.
 /// 10. Never unsubscribe MelonEvents.OnUpdate in OnPhoneClosed.
 ///
-/// NOTE on color rows: each blip category has a hex InputField + Apply button. Colors are
-/// stored in MinimapConfig per-category hex fields and applied live to the blip renderer.
+/// NOTE on colour rows: each row shows a live preview swatch plus a ▼ dropdown that opens the
+/// shared 16-swatch palette (MinimapFeatureRules.ColorPalette); picking a swatch applies the
+/// colour live. Full hex control stays available via the blip palette sidecar / config.json.
 /// </summary>
 public sealed class MinimapSettingsApp : PhoneApp
 {
@@ -30,7 +32,7 @@ public sealed class MinimapSettingsApp : PhoneApp
     protected override string AppTitle => "Minimap";
     protected override string IconLabel => "Map";
     protected override string IconFileName => string.Empty;
-    protected override EOrientation Orientation => EOrientation.Vertical;
+    protected override EOrientation Orientation => EOrientation.Horizontal;
 
     private Sprite? _cachedIconSprite;
 
@@ -113,10 +115,21 @@ public sealed class MinimapSettingsApp : PhoneApp
 
     private GameObject _mainBG = null!;
     private RectTransform _scrollContent = null!;
+    private ScrollRect _settingsScroll = null!;
 
     // Rows built once in OnCreatedUI; state re-synced from Config on every open.
     private readonly System.Collections.Generic.List<ToggleRow> _toggleRows = new();
     private readonly System.Collections.Generic.List<ColorRow> _colorRows = new();
+    private readonly System.Collections.Generic.List<Action> _inputSyncActions = new();
+
+    // Palette dropdowns: one collapsible panel per colour row (built once, toggled via SetActive).
+    private readonly System.Collections.Generic.List<GameObject> _palettePanels = new();
+    private GameObject? _openPalette;
+
+    // Phase 2 tab navigation: pages built once, switched via SetActive (never destroyed).
+    private int _activeTab;
+    private readonly System.Collections.Generic.List<GameObject> _tabPages = new();
+    private readonly System.Collections.Generic.List<Image> _tabButtonImages = new();
 
     private MinimapMod Mod => MinimapMod.Instance ?? throw new InvalidOperationException("Minimap mod not running");
 
@@ -126,10 +139,13 @@ public sealed class MinimapSettingsApp : PhoneApp
         ("Police",     "Police",        "#338CF2"),
         ("Dealer",     "Dealer",        "#A44DE3"),
         ("Waypoint",   "Waypoint",      "#E14BFF"),
-        ("Deal",       "Active Deal",   "#FAC40F"),
-        ("Potential",  "Potential Cust","#1ABD9C"),
+        ("Deal",       "Active Deal",   "#4DA3FF"),
+        ("DealClock",  "Accepted Deal", "#4DA3FF"),
+        ("Potential",  "Potential Cust","#A44DE3"),
         ("Customer",   "Customer",      "#2ECC70"),
         ("Property",   "Property",      "#F29C12"),
+        ("PurchaseCheck", "Purchase Check", "#2ECC70"),
+        ("RegionLock", "Regional Lock", "#9AA0A6"),
         ("Shop",       "Shop",          "#E84D3D"),
         ("Quest",      "Quest",         "#E64C3C"),
         ("Vehicle",    "Vehicle",       "#3399DB"),
@@ -165,96 +181,386 @@ public sealed class MinimapSettingsApp : PhoneApp
         headerLe.preferredHeight = UITheme.Dp(36f);
         headerLe.minHeight = UITheme.Dp(36f);
         var title = UIFactory.Text("Title", "MINIMAP SETTINGS", header.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
+        // UIFactory.Text creates a default 100x100 RectTransform. Stretch the title
+        // across the header; otherwise it wraps into tiny stacked fragments.
+        title.rectTransform.anchorMin = Vector2.zero;
+        title.rectTransform.anchorMax = Vector2.one;
+        title.rectTransform.offsetMin = Vector2.zero;
+        title.rectTransform.offsetMax = Vector2.zero;
+        title.raycastTarget = false;
         title.color = new Color(0.59f, 0.85f, 0.51f, 1f); // emerald accent
 
-        // 3. Scrollable content
-        var scrollObj = UIFactory.Panel("ScrollZone", _mainBG.transform, new Color(0.05f, 0.06f, 0.09f, 1f));
-        var scrollLe = scrollObj.AddComponent<LayoutElement>();
-        scrollLe.flexibleHeight = 1f;
+        // 2b. Tab bar (Phase 2) — sits between header and scroll content.
+        BuildTabBar(_mainBG.transform);
 
-        var scroll = scrollObj.AddComponent<ScrollRect>();
-        scroll.vertical = true;
-        scroll.horizontal = false;
-        scroll.scrollSensitivity = 24f;
+        // 3. Scrollable content – S1API 3.2.0
+        _scrollContent = UIFactory.ScrollableVerticalList(
+            "ScrollZone",
+            _mainBG.transform,
+            out _settingsScroll
+        );
 
-        var viewport = UIFactory.Panel("Viewport", scrollObj.transform, Color.clear);
-        var vpRt = viewport.GetComponent<RectTransform>();
-        vpRt.anchorMin = Vector2.zero;
-        vpRt.anchorMax = Vector2.one;
-        vpRt.pivot = new Vector2(0.5f, 1f);
-        viewport.AddComponent<RectMask2D>();
-        var vpLe = viewport.AddComponent<LayoutElement>();
-        vpLe.flexibleHeight = 1f;
-
-        var content = UIFactory.Panel("Content", viewport.transform, Color.clear);
-        _scrollContent = content.GetComponent<RectTransform>();
+        // Fix (Log: Content 1301 statt Viewport 1201): Content horizontal exakt
+        // auf den Viewport pinnen. Vertikale Anker, dynamische Höhe,
+        // ContentSizeFitter und Scroll-Verhalten bleiben unangetastet.
         _scrollContent.anchorMin = new Vector2(0f, 1f);
         _scrollContent.anchorMax = new Vector2(1f, 1f);
         _scrollContent.pivot = new Vector2(0.5f, 1f);
-        var contentLe = content.AddComponent<LayoutElement>();
-        contentLe.minHeight = UITheme.Dp(400f);
+        var pinMin = _scrollContent.offsetMin; pinMin.x = 0f; _scrollContent.offsetMin = pinMin;
+        var pinMax = _scrollContent.offsetMax; pinMax.x = 0f; _scrollContent.offsetMax = pinMax;
+        var pinSize = _scrollContent.sizeDelta; pinSize.x = 0f; _scrollContent.sizeDelta = pinSize;
+        var pinPos = _scrollContent.anchoredPosition; pinPos.x = 0f; _scrollContent.anchoredPosition = pinPos;
 
-        var contentVlg = content.AddComponent<VerticalLayoutGroup>();
+        var scrollObj = _settingsScroll.gameObject;
+
+        var scrollLe = scrollObj.AddComponent<LayoutElement>();
+        scrollLe.minHeight = 1f;
+        scrollLe.flexibleHeight = 1f;
+
+        _settingsScroll.vertical = true;
+        _settingsScroll.horizontal = false;
+        _settingsScroll.scrollSensitivity = 24f;
+
+        _scrollContent.anchoredPosition = Vector2.zero;
+
+        var contentVlg = _scrollContent.GetComponent<VerticalLayoutGroup>();
+
         contentVlg.childControlWidth = true;
         contentVlg.childControlHeight = true;
         contentVlg.childForceExpandWidth = true;
         contentVlg.childForceExpandHeight = false;
-        contentVlg.padding = new RectOffset((int)UITheme.Dp(8f), (int)UITheme.Dp(8f), (int)UITheme.Dp(6f), (int)UITheme.Dp(20f));
-        contentVlg.spacing = UITheme.Dp(4f);
 
-        // Audit 2026-09-13 (M-05): without a ContentSizeFitter the content rect keeps its
-        // anchor height (top-anchors => 0) — the VLG lays children into a zero-height strip,
-        // nothing below the first rows is reachable and the Save&Apply footer is cut off.
-        // PreferredSize feeds the VLG's measured height back into the rect (min 400 preserved
-        // via LayoutElement.minHeight).
-        var contentCsf = content.AddComponent<ContentSizeFitter>();
-        contentCsf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        contentCsf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+        // Content now holds the 4 tab pages (each with its own padding) —
+        // so no extra padding/spacing here.
+        contentVlg.padding = new RectOffset(0, 0, 0, 0);
 
-        scroll.content = _scrollContent;
-        scroll.viewport = vpRt;
+        contentVlg.spacing = 0f;
 
-        BuildToggleSection(content.transform);
-        BuildColorSection(content.transform);
-        BuildFooter(content.transform);
-    }
-
-    // ─────────────────────────────────────────────────────────
-    // Section 1: Toggles (one per blip category / HUD element)
-    // ─────────────────────────────────────────────────────────
-
-    private void BuildToggleSection(Transform parent)
-    {
-        AddSectionLabel(parent, "BLIP FILTERS");
-
-        AddToggle(parent, "Police", () => Get().ShowPoliceBlips, v => Get().ShowPoliceBlips = v);
-        AddToggle(parent, "Dealers", () => Get().ShowDealerBlips, v => Get().ShowDealerBlips = v);
-        AddToggle(parent, "Active Deals", () => Get().ShowActiveDeals, v => Get().ShowActiveDeals = v);
-        AddToggle(parent, "Potential Cust", () => Get().ShowPotentialCustomers, v => Get().ShowPotentialCustomers = v);
-        AddToggle(parent, "Customers", () => Get().ShowKnownCustomers, v => Get().ShowKnownCustomers = v);
-        AddToggle(parent, "Properties", () => Get().ShowPropertyBlips, v => Get().ShowPropertyBlips = v);
-        AddToggle(parent, "Shops", () => Get().ShowShopBlips, v => Get().ShowShopBlips = v);
-        AddToggle(parent, "Quests", () => Get().ShowQuestBlips, v => Get().ShowQuestBlips = v);
-        AddToggle(parent, "Vehicles", () => Get().ShowVehicleBlips, v => Get().ShowVehicleBlips = v);
-        AddToggle(parent, "Waypoints", () => Get().ShowWaypoints, v => Get().ShowWaypoints = v);
-        AddToggle(parent, "Health Bar", () => Get().ShowHealthBar, v => Get().ShowHealthBar = v);
-
-        AddSectionLabel(parent, "HUD");
-        AddToggle(parent, "Minimap Visible", () => Get().MinimapVisible, v => Get().MinimapVisible = v);
-    }
-
-    // ─────────────────────────────────────────────────────────
-    // Section 2: Hex color fields
-    // ─────────────────────────────────────────────────────────
-
-    private void BuildColorSection(Transform parent)
-    {
-        AddSectionLabel(parent, "BLIP COLORS (HEX)");
-
-        foreach (var def in ColorDefs)
+        string stage = "BuildMapPage";
+        try
         {
-            AddColorRow(parent, def.Label, def.DefaultHex, def.Key);
+            BuildMapPage();
+
+            stage = "BuildMarkerPage";
+            BuildMarkerPage();
+
+            stage = "BuildColorsPage";
+            BuildColorsPage();
+
+            stage = "BuildAdvancedPage";
+            BuildAdvancedPage();
+
+            stage = "BuildFooter";
+            BuildFooter(_mainBG.transform);
+
+            stage = "ShowPage";
+            ShowPage(0);
+
+            MelonLogger.Msg(
+                $"[MinimapSettings] UI completed. " +
+                $"Pages: {_scrollContent.childCount}"
+            );
         }
+        catch (Exception ex)
+        {
+            MelonLogger.Error(
+                $"[MinimapSettings] UI FAILED at {stage}: {ex}"
+            );
+        }
+    }
+
+    private void AddChoiceRow(Transform parent, string label, Func<string> get, Action cycle)
+    {
+        var row = UIFactory.Panel($"Choice_{label}", parent, new Color(0.11f, 0.13f, 0.18f, 1f));
+        row.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(30f);
+        var layout = row.AddComponent<HorizontalLayoutGroup>();
+        layout.spacing = UITheme.Dp(6f);
+        layout.childAlignment = TextAnchor.MiddleLeft;
+        layout.childForceExpandWidth = false;
+        layout.childControlWidth = true;
+        layout.childControlHeight = false;
+        var title = UIFactory.Text("Label", label, row.transform, UITheme.Sp(10), TextAnchor.MiddleLeft);
+        title.color = Color.white;
+        title.gameObject.AddComponent<LayoutElement>().preferredWidth = UITheme.Dp(92f);
+        var value = UIFactory.Text("Value", get(), row.transform, UITheme.Sp(10), TextAnchor.MiddleLeft);
+        value.color = new Color(0.65f, 0.86f, 0.69f, 1f);
+        value.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
+        var (mask, button, _) = UIFactory.RoundedButtonWithLabel($"Change_{label}", "Change", row.transform,
+            new Color(0.13f, 0.30f, 0.42f, 1f), UITheme.Dp(64f), UITheme.Dp(24f), (int)UITheme.Sp(10), Color.white);
+        var changeLe = mask.GetComponent<LayoutElement>();
+        if (changeLe == null) changeLe = mask.AddComponent<LayoutElement>();
+        changeLe.preferredWidth = UITheme.Dp(64f);
+        ButtonUtils.AddListener(button, () =>
+        {
+            cycle();
+            value.text = get();
+            Mod.SaveAndApply();
+        });
+        _inputSyncActions.Add(() => value.text = get());
+    }
+
+    private void AddFloatRow(Transform parent, string label, Func<float> get, Action<float> set, float min, float max, string format)
+    {
+        var row = UIFactory.Panel($"Number_{label}", parent, new Color(0.11f, 0.13f, 0.18f, 1f));
+        row.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(30f);
+        var layout = row.AddComponent<HorizontalLayoutGroup>();
+        layout.spacing = UITheme.Dp(5f);
+        layout.childAlignment = TextAnchor.MiddleLeft;
+        layout.childForceExpandWidth = false;
+        layout.childControlWidth = true;
+        layout.childControlHeight = false;
+        var title = UIFactory.Text("Label", label, row.transform, UITheme.Sp(9), TextAnchor.MiddleLeft);
+        title.color = Color.white;
+        title.gameObject.AddComponent<LayoutElement>().preferredWidth = UITheme.Dp(112f);
+        var input = CreateHexInput($"Value_{label}", row.transform, Color.white);
+        input.text = get().ToString(format, CultureInfo.InvariantCulture);
+        input.gameObject.AddComponent<LayoutElement>().preferredWidth = UITheme.Dp(72f);
+        input.gameObject.GetComponent<LayoutElement>().preferredHeight = UITheme.Dp(24f);
+        var (mask, button, _) = UIFactory.RoundedButtonWithLabel($"Set_{label}", "Set", row.transform,
+            new Color(0.13f, 0.30f, 0.42f, 1f), UITheme.Dp(48f), UITheme.Dp(24f), (int)UITheme.Sp(10), Color.white);
+        var setLe = mask.GetComponent<LayoutElement>();
+        if (setLe == null) setLe = mask.AddComponent<LayoutElement>();
+        setLe.preferredWidth = UITheme.Dp(48f);
+        ButtonUtils.AddListener(button, () =>
+        {
+            if (!float.TryParse(input.text, NumberStyles.Float, CultureInfo.InvariantCulture, out float parsed)
+                || float.IsNaN(parsed) || float.IsInfinity(parsed)) return;
+            set(Mathf.Clamp(parsed, min, max));
+            input.text = get().ToString(format, CultureInfo.InvariantCulture);
+            Mod.SaveAndApply();
+        });
+        _inputSyncActions.Add(() => input.text = get().ToString(format, CultureInfo.InvariantCulture));
+    }
+
+    private void AddKeybindRow(Transform parent, string label, Func<string> get, Action<string> set)
+    {
+        var row = UIFactory.Panel($"Key_{label}", parent, new Color(0.11f, 0.13f, 0.18f, 1f));
+        row.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(30f);
+        var layout = row.AddComponent<HorizontalLayoutGroup>();
+        layout.spacing = UITheme.Dp(5f);
+        layout.childAlignment = TextAnchor.MiddleLeft;
+        layout.childForceExpandWidth = false;
+        layout.childControlWidth = true;
+        layout.childControlHeight = false;
+        var title = UIFactory.Text("Label", label, row.transform, UITheme.Sp(10), TextAnchor.MiddleLeft);
+        title.color = Color.white;
+        title.gameObject.AddComponent<LayoutElement>().preferredWidth = UITheme.Dp(82f);
+        var input = CreateHexInput($"KeyInput_{label}", row.transform, Color.white);
+        input.text = get();
+        input.gameObject.AddComponent<LayoutElement>().preferredWidth = UITheme.Dp(90f);
+        input.gameObject.GetComponent<LayoutElement>().preferredHeight = UITheme.Dp(24f);
+        var (mask, button, _) = UIFactory.RoundedButtonWithLabel($"SetKey_{label}", "Set", row.transform,
+            new Color(0.13f, 0.30f, 0.42f, 1f), UITheme.Dp(48f), UITheme.Dp(24f), (int)UITheme.Sp(10), Color.white);
+        var setLe = mask.GetComponent<LayoutElement>();
+        if (setLe == null) setLe = mask.AddComponent<LayoutElement>();
+        setLe.preferredWidth = UITheme.Dp(48f);
+        ButtonUtils.AddListener(button, () =>
+        {
+            string value = input.text.Trim();
+            if (!Enum.TryParse(value, true, out KeyCode code) || code == KeyCode.None) return;
+            set(code.ToString());
+            input.text = code.ToString();
+            Mod.SaveAndApply();
+        });
+        _inputSyncActions.Add(() => input.text = get());
+    }
+
+    private void AddBorderColorRow(Transform parent)
+    {
+        BuildColorPickerRow(
+            parent,
+            "MapBorderColor",
+            "Border Color",
+            () => Get().BorderColorHex,
+            hex =>
+            {
+                Get().BorderColorHex = hex;
+                Mod.SaveAndApply();
+            });
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Colour pickers: preview swatch + collapsible palette dropdown.
+    // Tapping ▼ opens the shared 16-swatch palette (MinimapFeatureRules.ColorPalette);
+    // tapping a swatch applies the colour live. Full hex control stays available via the
+    // blip palette sidecar / config.json for power users.
+    // ─────────────────────────────────────────────────────────
+
+    private void BuildColorPickerRow(
+        Transform parent,
+        string rowName,
+        string label,
+        Func<string> getHex,
+        Action<string> commitHex)
+    {
+        var row = UIFactory.Panel(rowName, parent, new Color(0.11f, 0.13f, 0.18f, 1f));
+        row.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(30f);
+        var layout = row.AddComponent<HorizontalLayoutGroup>();
+        layout.spacing = UITheme.Dp(6f);
+        layout.childAlignment = TextAnchor.MiddleLeft;
+        layout.childForceExpandWidth = false;
+        layout.childControlWidth = true;
+        layout.childControlHeight = true;
+        layout.childForceExpandHeight = false;
+        layout.padding = new RectOffset((int)UITheme.Dp(6f), (int)UITheme.Dp(6f), 0, 0);
+
+        var text = UIFactory.Text("Label", label, row.transform, UITheme.Sp(10), TextAnchor.MiddleLeft, FontStyle.Normal);
+        text.color = new Color(0.92f, 0.93f, 0.95f, 1f);
+        text.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
+
+        // Current-colour preview swatch.
+        var preview = UIFactory.Panel("Preview", row.transform, Color.white);
+        var previewLe = preview.AddComponent<LayoutElement>();
+        previewLe.preferredWidth = UITheme.Dp(22f);
+        previewLe.preferredHeight = UITheme.Dp(22f);
+        previewLe.flexibleWidth = 0f;
+        var previewImage = preview.GetComponent<Image>();
+        previewImage.raycastTarget = false;
+
+        // Dropdown toggle.
+        var (dropMask, dropBtn, _) = UIFactory.RoundedButtonWithLabel($"Dropdown_{rowName}", "\u25BC", row.transform,
+            new Color(0.13f, 0.30f, 0.42f, 1f), UITheme.Dp(44f), UITheme.Dp(24f), (int)UITheme.Sp(10), Color.white);
+        var dropLe = dropMask.GetComponent<LayoutElement>();
+        if (dropLe == null) dropLe = dropMask.AddComponent<LayoutElement>();
+        dropLe.preferredWidth = UITheme.Dp(44f);
+        dropLe.preferredHeight = UITheme.Dp(24f);
+
+        // Collapsible palette panel (created once, hidden until the dropdown opens).
+        const int perRow = 8;
+        int rows = (MinimapFeatureRules.ColorPalette.Length + perRow - 1) / perRow;
+        var panel = UIFactory.Panel($"Palette_{rowName}", parent, new Color(0.08f, 0.10f, 0.14f, 1f));
+        panel.AddComponent<LayoutElement>().preferredHeight =
+            UITheme.Dp(12f) + rows * UITheme.Dp(28f) + Math.Max(0, rows - 1) * UITheme.Dp(4f);
+        var panelVlg = panel.AddComponent<VerticalLayoutGroup>();
+        panelVlg.childControlWidth = true;
+        panelVlg.childControlHeight = true;
+        panelVlg.childForceExpandWidth = true;
+        panelVlg.childForceExpandHeight = false;
+        panelVlg.childAlignment = TextAnchor.UpperLeft;
+        panelVlg.padding = new RectOffset((int)UITheme.Dp(8f), (int)UITheme.Dp(8f), (int)UITheme.Dp(6f), (int)UITheme.Dp(6f));
+        panelVlg.spacing = UITheme.Dp(4f);
+        panel.SetActive(false);
+        _palettePanels.Add(panel);
+
+        for (int r = 0; r < rows; r++)
+        {
+            var strip = UIFactory.Panel($"PaletteRow{r}", panel.transform, Color.clear);
+            strip.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(28f);
+            var stripHlg = strip.AddComponent<HorizontalLayoutGroup>();
+            stripHlg.spacing = UITheme.Dp(5f);
+            stripHlg.childAlignment = TextAnchor.MiddleLeft;
+            stripHlg.childForceExpandWidth = false;
+            stripHlg.childControlWidth = true;
+            stripHlg.childControlHeight = true;
+            stripHlg.childForceExpandHeight = false;
+
+            int start = r * perRow;
+            int end = Math.Min(start + perRow, MinimapFeatureRules.ColorPalette.Length);
+            for (int i = start; i < end; i++)
+            {
+                string hex = MinimapFeatureRules.ColorPalette[i];
+                var (swMask, swBtn, _) = UIFactory.RoundedButtonWithLabel($"Swatch_{rowName}_{i}", string.Empty, strip.transform,
+                    ParseHexOr(hex, Color.white), UITheme.Dp(26f), UITheme.Dp(26f), (int)UITheme.Sp(10), Color.white);
+                var swLe = swMask.GetComponent<LayoutElement>();
+                if (swLe == null) swLe = swMask.AddComponent<LayoutElement>();
+                swLe.preferredWidth = UITheme.Dp(26f);
+                swLe.preferredHeight = UITheme.Dp(26f);
+                ButtonUtils.AddListener(swBtn, () =>
+                {
+                    try
+                    {
+                        commitHex(hex);
+                        SyncPreview(previewImage, getHex());
+                        ClosePalette(panel);
+                    }
+                    catch (Exception ex)
+                    {
+                        MelonLogger.Error($"[MinimapSettings] Colour pick failed: {ex.Message}");
+                    }
+                });
+            }
+        }
+
+        ButtonUtils.AddListener(dropBtn, () => TogglePalette(panel));
+        SyncPreview(previewImage, getHex());
+        _inputSyncActions.Add(() => SyncPreview(previewImage, getHex()));
+    }
+
+    private static void SyncPreview(Image preview, string hex)
+    {
+        try
+        {
+            if (preview != null && !preview.WasCollected)
+                preview.color = ParseHexOr(hex, Color.white);
+        }
+        catch { }
+    }
+
+    private static Color ParseHexOr(string hex, Color fallback)
+    {
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(hex) && ColorUtility.TryParseHtmlString(hex.Trim(), out var parsed))
+                return parsed;
+        }
+        catch { }
+        return fallback;
+    }
+
+    private static string SafeGetBlipColor(string key)
+    {
+        try { return MinimapMod.Instance?.GetBlipColor(key) ?? string.Empty; }
+        catch { return string.Empty; }
+    }
+
+    private void TogglePalette(GameObject panel)
+    {
+        try
+        {
+            bool opening = !panel.activeSelf;
+            CloseOpenPalette();
+            panel.SetActive(opening);
+            if (opening) _openPalette = panel;
+            RefreshSettingsLayout();
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Warning($"[MinimapSettings] Palette toggle failed: {ex.Message}");
+        }
+    }
+
+    private void ClosePalette(GameObject panel)
+    {
+        try
+        {
+            panel.SetActive(false);
+            if (_openPalette == panel) _openPalette = null;
+            RefreshSettingsLayout();
+        }
+        catch { }
+    }
+
+    private void CloseOpenPalette()
+    {
+        if (_openPalette == null) return;
+        try
+        {
+            if (!_openPalette.WasCollected) _openPalette.SetActive(false);
+        }
+        catch { }
+        _openPalette = null;
+    }
+
+    /// <summary>Immediate scroll-content rebuild after a palette expands or collapses.</summary>
+    private void RefreshSettingsLayout()
+    {
+        try
+        {
+            Canvas.ForceUpdateCanvases();
+            if (_scrollContent != null && !_scrollContent.WasCollected)
+                LayoutRebuilder.ForceRebuildLayoutImmediate(_scrollContent);
+        }
+        catch { }
     }
 
     private void BuildFooter(Transform parent)
@@ -266,13 +572,14 @@ public sealed class MinimapSettingsApp : PhoneApp
         var hlg = footer.AddComponent<HorizontalLayoutGroup>();
         hlg.spacing = UITheme.Dp(8f);
         hlg.childAlignment = TextAnchor.MiddleCenter;
-        hlg.childForceExpandWidth = true;
-        hlg.childControlWidth = false;
+        hlg.childForceExpandWidth = false;
+        hlg.childControlWidth = true;
         hlg.childControlHeight = false;
 
         var (saveMask, saveBtn, _) = UIFactory.RoundedButtonWithLabel("SaveBtn", "Save & Apply", footer.transform,
             new Color(0.16f, 0.42f, 0.24f, 1f), UITheme.Dp(120f), UITheme.Dp(30f), (int)UITheme.Sp(12), new Color(0.92f, 0.95f, 0.93f, 1f));
-        var saveLe = saveMask.AddComponent<LayoutElement>();
+        var saveLe = saveMask.GetComponent<LayoutElement>();
+        if (saveLe == null) saveLe = saveMask.AddComponent<LayoutElement>();
         saveLe.preferredWidth = UITheme.Dp(120f);
         saveLe.preferredHeight = UITheme.Dp(30f);
         ButtonUtils.AddListener(saveBtn, () =>
@@ -292,7 +599,8 @@ public sealed class MinimapSettingsApp : PhoneApp
 
         var (resetMask, resetBtn, _) = UIFactory.RoundedButtonWithLabel("ResetColorsBtn", "Reset Colors", footer.transform,
             new Color(0.35f, 0.18f, 0.10f, 1f), UITheme.Dp(110f), UITheme.Dp(30f), (int)UITheme.Sp(12), new Color(0.98f, 0.90f, 0.85f, 1f));
-        var resetLe = resetMask.AddComponent<LayoutElement>();
+        var resetLe = resetMask.GetComponent<LayoutElement>();
+        if (resetLe == null) resetLe = resetMask.AddComponent<LayoutElement>();
         resetLe.preferredWidth = UITheme.Dp(110f);
         resetLe.preferredHeight = UITheme.Dp(30f);
         ButtonUtils.AddListener(resetBtn, () =>
@@ -301,12 +609,187 @@ public sealed class MinimapSettingsApp : PhoneApp
             {
                 foreach (var cr in _colorRows) cr.ResetToDefault();
                 ApplyColorsToBlips();
+                MinimapMod.Instance?.SaveBlipPalette();
             }
             catch (Exception ex)
             {
                 MelonLogger.Error($"[MinimapSettings] Reset failed: {ex.Message}");
             }
         });
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Phase 2: tab pages (each short enough for ~one landscape screen)
+    // ─────────────────────────────────────────────────────────
+
+    private static readonly string[] TabNames = { "Karte", "Marker", "Farben", "Erweitert" };
+
+    private void BuildTabBar(Transform parent)
+    {
+        var bar = UIFactory.Panel("TabBar", parent, new Color(0.10f, 0.12f, 0.16f, 1f));
+        bar.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(36f);
+        var hlg = bar.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = UITheme.Dp(6f);
+        hlg.padding = new RectOffset((int)UITheme.Dp(8f), (int)UITheme.Dp(8f), (int)UITheme.Dp(4f), (int)UITheme.Dp(4f));
+        hlg.childAlignment = TextAnchor.MiddleCenter;
+        hlg.childControlWidth = true;
+        hlg.childForceExpandWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandHeight = false;
+
+        for (int i = 0; i < TabNames.Length; i++)
+        {
+            int index = i;
+            var (mask, button, _) = UIFactory.RoundedButtonWithLabel($"Tab_{TabNames[i]}", TabNames[i], bar.transform,
+                new Color(0.11f, 0.13f, 0.18f, 1f), 100f, UITheme.Dp(28f), (int)UITheme.Sp(11), Color.white);
+            var tabLe = mask.GetComponent<LayoutElement>();
+            if (tabLe == null) tabLe = mask.AddComponent<LayoutElement>();
+            tabLe.flexibleWidth = 1f;
+            tabLe.preferredHeight = UITheme.Dp(28f);
+            var bgImage = button.GetComponent<Image>();
+            _tabButtonImages.Add(bgImage);
+            ButtonUtils.AddListener(button, () => ShowPage(index));
+        }
+    }
+
+    private void ShowPage(int index)
+    {
+        if (index < 0 || index >= _tabPages.Count) return;
+        _activeTab = index;
+        for (int i = 0; i < _tabPages.Count; i++)
+        {
+            var page = _tabPages[i];
+            if (page != null && !page.WasCollected)
+                page.SetActive(i == index);
+        }
+        for (int b = 0; b < _tabButtonImages.Count; b++)
+        {
+            var img = _tabButtonImages[b];
+            if (img != null && !img.WasCollected)
+                img.color = b == index
+                    ? new Color(0.16f, 0.42f, 0.24f, 1f)   // active tab: green
+                    : new Color(0.13f, 0.30f, 0.42f, 1f);  // inactive tab: steel blue
+        }
+        if (_settingsScroll != null && !_settingsScroll.WasCollected)
+            _settingsScroll.verticalNormalizedPosition = 1f;
+    }
+
+    /// <summary>Creates one tab page panel (vertical stack with its own padding).</summary>
+    private Transform CreatePage(string name)
+    {
+        var page = UIFactory.Panel(name, _scrollContent.transform, Color.clear);
+        var vlg = page.AddComponent<VerticalLayoutGroup>();
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+        vlg.padding = new RectOffset((int)UITheme.Dp(8f), (int)UITheme.Dp(8f), (int)UITheme.Dp(6f), (int)UITheme.Dp(20f));
+        vlg.spacing = UITheme.Dp(4f);
+        page.SetActive(false);
+        _tabPages.Add(page);
+        return page.transform;
+    }
+
+    private static Transform CreateColumn(Transform parent, string name)
+    {
+        var col = UIFactory.Panel(name, parent, Color.clear);
+        var colLe = col.AddComponent<LayoutElement>();
+        colLe.flexibleWidth = 1f;
+        var vlg = col.AddComponent<VerticalLayoutGroup>();
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+        vlg.spacing = UITheme.Dp(4f);
+        return col.transform;
+    }
+
+    private void BuildMapPage()
+    {
+        var page = CreatePage("Page_Map");
+        AddSectionLabel(page, "MAP");
+        AddToggle(page, "Minimap Visible", () => Get().MinimapVisible, v => Get().MinimapVisible = v);
+        AddChoiceRow(page, "Shape", () => Get().Shape.ToString(), () =>
+        {
+            Get().Shape = (MinimapShape)(((int)Get().Shape + 1) % 3);
+        });
+        AddChoiceRow(page, "Screen Corner", () => Get().AnchorPosition.ToString(), () =>
+        {
+            Get().HasCustomPosition = false;
+            Get().AnchorPosition = (MinimapAnchor)(((int)Get().AnchorPosition + 1) % 4);
+        });
+        AddChoiceRow(page, "Map Rotation", () => Get().RotationMode.ToString(), () =>
+        {
+            Get().RotationMode = Get().RotationMode == MinimapRotation.FollowPlayer
+                ? MinimapRotation.NorthUp : MinimapRotation.FollowPlayer;
+        });
+
+        AddFloatRow(page, "Map Size (140-350)", () => Get().MapSize, v => Get().MapSize = v, 140f, 350f, "0");
+        AddFloatRow(page, "Opacity (0-1)", () => Get().BackgroundOpacity, v => Get().BackgroundOpacity = MinimapFeatureRules.ClampOpacity(v),
+            0f, 1f, "0.00");
+        AddFloatRow(page, "Border Width (0-12)", () => Get().BorderThickness, v => Get().BorderThickness = MinimapFeatureRules.ClampBorderThickness(v),
+            0f, MinimapFeatureRules.MaximumBorderThickness, "0.0");
+        AddToggle(page, "Map Border", () => Get().ShowMapBorder, v => Get().ShowMapBorder = v);
+    }
+
+    private void BuildMarkerPage()
+    {
+        var page = CreatePage("Page_Marker");
+        AddSectionLabel(page, "MARKER FILTERS");
+
+        var cols = UIFactory.Panel("MarkerColumns", page, Color.clear);
+        var colsHlg = cols.AddComponent<HorizontalLayoutGroup>();
+        colsHlg.spacing = UITheme.Dp(8f);
+        colsHlg.childAlignment = TextAnchor.UpperLeft;
+        colsHlg.childControlWidth = true;
+        colsHlg.childForceExpandWidth = true;
+        colsHlg.childControlHeight = true;
+        colsHlg.childForceExpandHeight = false;
+
+        var colA = CreateColumn(cols.transform, "MarkerColA");
+        AddToggle(colA, "Police", () => Get().ShowPoliceBlips, v => Get().ShowPoliceBlips = v);
+        AddToggle(colA, "Dealers", () => Get().ShowDealerBlips, v => Get().ShowDealerBlips = v);
+        AddToggle(colA, "Active Deals", () => Get().ShowActiveDeals, v => Get().ShowActiveDeals = v);
+        AddToggle(colA, "Potential Cust", () => Get().ShowPotentialCustomers, v => Get().ShowPotentialCustomers = v);
+        AddToggle(colA, "Customers", () => Get().ShowKnownCustomers, v => Get().ShowKnownCustomers = v);
+        AddToggle(colA, "Properties", () => Get().ShowPropertyBlips, v => Get().ShowPropertyBlips = v);
+
+        var colB = CreateColumn(cols.transform, "MarkerColB");
+        AddToggle(colB, "Shops", () => Get().ShowShopBlips, v => Get().ShowShopBlips = v);
+        AddToggle(colB, "Quests", () => Get().ShowQuestBlips, v => Get().ShowQuestBlips = v);
+        AddToggle(colB, "Vehicles", () => Get().ShowVehicleBlips, v => Get().ShowVehicleBlips = v);
+        AddToggle(colB, "Sewer Keys", () => Get().ShowSewerKeyBlips, v => Get().ShowSewerKeyBlips = v);
+        AddToggle(colB, "Waypoints", () => Get().ShowWaypoints, v => Get().ShowWaypoints = v);
+
+        AddToggle(page, "Purchase Checks", () => Get().ShowPurchaseChecks, v => Get().ShowPurchaseChecks = v);
+        AddToggle(page, "Regional Locks", () => Get().ShowRegionalLocks, v => Get().ShowRegionalLocks = v);
+    }
+
+    private void BuildColorsPage()
+    {
+        var page = CreatePage("Page_Colors");
+        AddSectionLabel(page, "BLIP COLORS");
+
+        foreach (var def in ColorDefs)
+        {
+            AddColorRow(page, def.Label, def.DefaultHex, def.Key);
+        }
+        AddBorderColorRow(page);
+    }
+
+    private void BuildAdvancedPage()
+    {
+        var page = CreatePage("Page_Advanced");
+        AddSectionLabel(page, "KEYBOARD SHORTCUTS (Unity KeyCode names)");
+        AddKeybindRow(page, "Toggle", () => Get().ToggleKey, v => Get().ToggleKey = v);
+        AddKeybindRow(page, "Zoom In", () => Get().ZoomInKey, v => Get().ZoomInKey = v);
+        AddKeybindRow(page, "Zoom Out", () => Get().ZoomOutKey, v => Get().ZoomOutKey = v);
+
+        AddSectionLabel(page, "HUD");
+        AddToggle(page, "Health Bar", () => Get().ShowHealthBar, v => Get().ShowHealthBar = v);
+        AddToggle(page, "Compass Outline", () => Get().ShowCompassRing, v => Get().ShowCompassRing = v);
+        AddToggle(page, "Drag to Reposition", () => Get().AllowDragging, v => Get().AllowDragging = v);
+        AddToggle(page, "Hide in Menus", () => Get().HideInMenus, v => Get().HideInMenus = v);
     }
 
     // ─────────────────────────────────────────────────────────
@@ -329,8 +812,10 @@ public sealed class MinimapSettingsApp : PhoneApp
 
         var hlg = row.AddComponent<HorizontalLayoutGroup>();
         hlg.childAlignment = TextAnchor.MiddleLeft;
-        hlg.childForceExpandWidth = true;
-        hlg.childControlHeight = false;
+        hlg.childControlWidth = true;
+        hlg.childForceExpandWidth = false;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandHeight = false;
 
         var text = UIFactory.Text("Label", label, row.transform, UITheme.Sp(11), TextAnchor.MiddleLeft, FontStyle.Normal);
         text.color = new Color(0.92f, 0.93f, 0.95f, 1f);
@@ -342,7 +827,20 @@ public sealed class MinimapSettingsApp : PhoneApp
         var checkLe = checkBg.AddComponent<LayoutElement>();
         checkLe.preferredWidth = UITheme.Dp(22f);
         checkLe.preferredHeight = UITheme.Dp(22f);
-        tg.graphic = checkBg.GetComponent<Image>();
+        checkLe.flexibleWidth = 0f;
+        checkLe.flexibleHeight = 0f;
+        // Toggle wiring: background stays visible in both states (targetGraphic),
+        // a separate checkmark shows the ON state (graphic auto-toggled by Toggle).
+        tg.targetGraphic = checkBg.GetComponent<Image>();
+        var checkMark = UIFactory.Text("CheckMark", "✓", checkBg.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
+        checkMark.color = Color.white;
+        checkMark.raycastTarget = false;
+        var checkRt = checkMark.rectTransform;
+        checkRt.anchorMin = Vector2.zero;
+        checkRt.anchorMax = Vector2.one;
+        checkRt.offsetMin = Vector2.zero;
+        checkRt.offsetMax = Vector2.zero;
+        tg.graphic = checkMark;
         tg.isOn = get();
 
         var row2 = new ToggleRow(label, tg, get, set);
@@ -354,51 +852,20 @@ public sealed class MinimapSettingsApp : PhoneApp
 
     private void AddColorRow(Transform parent, string label, string defaultHex, string key)
     {
-        var row = UIFactory.Panel($"Color_{key}", parent, new Color(0.11f, 0.13f, 0.18f, 1f));
-        var le = row.AddComponent<LayoutElement>();
-        le.preferredHeight = UITheme.Dp(30f);
-
-        var hlg = row.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = UITheme.Dp(6f);
-        hlg.childAlignment = TextAnchor.MiddleLeft;
-        hlg.childForceExpandWidth = false;
-        hlg.childControlWidth = false;
-        hlg.childControlHeight = false;
-        hlg.padding = new RectOffset((int)UITheme.Dp(6f), 0, 0, 0);
-
-        var text = UIFactory.Text("Label", label, row.transform, UITheme.Sp(10), TextAnchor.MiddleLeft, FontStyle.Normal);
-        text.color = new Color(0.92f, 0.93f, 0.95f, 1f);
-        var textLe = text.gameObject.AddComponent<LayoutElement>();
-        textLe.preferredWidth = UITheme.Dp(105f);
-
-        // Hex input field (NotesApp CreateInputField pattern, compact single-line)
-        var input = CreateHexInput($"HexInput_{key}", row.transform, GetCategoryColor(key));
-        var inputLe = input.gameObject.AddComponent<LayoutElement>();
-        inputLe.preferredWidth = UITheme.Dp(90f);
-        inputLe.preferredHeight = UITheme.Dp(24f);
-
-        // Apply button
-        var (applyMask, applyBtn, _) = UIFactory.RoundedButtonWithLabel($"Apply_{key}", "Set", row.transform,
-            new Color(0.13f, 0.30f, 0.42f, 1f), UITheme.Dp(48f), UITheme.Dp(24f), (int)UITheme.Sp(10), new Color(0.90f, 0.95f, 1f, 1f));
-        var applyLe = applyMask.AddComponent<LayoutElement>();
-        applyLe.preferredWidth = UITheme.Dp(48f);
-        applyLe.preferredHeight = UITheme.Dp(24f);
-
-        var colorRow = new ColorRow(key, defaultHex, input);
-        _colorRows.Add(colorRow);
-
-        ButtonUtils.AddListener(applyBtn, () =>
-        {
-            try
+        BuildColorPickerRow(
+            parent,
+            $"Color_{key}",
+            label,
+            () => SafeGetBlipColor(key),
+            hex =>
             {
-                colorRow.Commit(Mod);
+                MinimapMod.Instance?.SetBlipColor(key, hex);
                 ApplyColorsToBlips();
-            }
-            catch (Exception ex)
-            {
-                MelonLogger.Error($"[MinimapSettings] Color '{key}' failed: {ex.Message}");
-            }
-        });
+                // Persist immediately — every other row type also auto-saves on interaction.
+                MinimapMod.Instance?.SaveBlipPalette();
+            });
+
+        _colorRows.Add(new ColorRow(key, defaultHex));
     }
 
     /// <summary>
@@ -453,18 +920,6 @@ public sealed class MinimapSettingsApp : PhoneApp
 
     private static MinimapConfig Get() => MinimapMod.Instance?.Config ?? new MinimapConfig();
 
-    private static Color GetCategoryColor(string key)
-    {
-        var mod = MinimapMod.Instance;
-        if (mod == null) return Color.white;
-        try
-        {
-            if (UnityEngine.ColorUtility.TryParseHtmlString(mod.GetBlipColor(key), out var c)) return c;
-        }
-        catch { }
-        return Color.white;
-    }
-
     private static string ColorToHex(Color c)
         => $"#{ColorUtility.ToHtmlStringRGB(c).ToUpperInvariant()}";
 
@@ -490,7 +945,11 @@ public sealed class MinimapSettingsApp : PhoneApp
             if (_mainBG.activeSelf != open)
             {
                 _mainBG.SetActive(open);
-                if (open) SyncFromConfig();
+                if (open)
+                {
+                    RebuildSettingsLayout();
+                    SyncFromConfig();
+                }
             }
 
             if (!open) return;
@@ -510,12 +969,66 @@ public sealed class MinimapSettingsApp : PhoneApp
         }
     }
 
+    /// <summary>
+    /// S1API creates the app container inactive, so rebuild the nested layout after
+    /// activation before the first frame is drawn. Reset the scroll to its top edge.
+    /// </summary>
+    private void RebuildSettingsLayout()
+    {
+        try
+        {
+            Canvas.ForceUpdateCanvases();
+            var rootRt = _mainBG.GetComponent<RectTransform>();
+            if (rootRt != null)
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rootRt);
+            if (_scrollContent != null)
+                LayoutRebuilder.ForceRebuildLayoutImmediate(_scrollContent);
+            Canvas.ForceUpdateCanvases();
+            if (_settingsScroll != null)
+                _settingsScroll.verticalNormalizedPosition = 1f;
+
+            if (_settingsScroll != null && _scrollContent != null && _settingsScroll.viewport != null)
+            {
+                var scrollRt = _settingsScroll.GetComponent<RectTransform>();
+                var viewportRt = _settingsScroll.viewport;
+
+                MelonLogger.Msg(
+                    $"[MinimapSettings] Layout: " +
+                    $"Tab={_activeTab}, " +
+                    $"Scroll={scrollRt.rect.size}, " +
+                    $"Viewport={viewportRt.rect.size}, " +
+                    $"Content={_scrollContent.rect.size}, " +
+                    $"Children={_scrollContent.childCount}"
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Warning($"[MinimapSettings] Layout refresh failed: {ex.Message}");
+        }
+    }
+
     /// <summary>Refresh toggle states from live config each time the app is opened.</summary>
     private void SyncFromConfig()
     {
+        // Fresh open: collapse any palette dropdown left open last time.
+        try
+        {
+            foreach (var panel in _palettePanels)
+            {
+                if (panel != null && !panel.WasCollected) panel.SetActive(false);
+            }
+            _openPalette = null;
+        }
+        catch { }
+
         foreach (var row in _toggleRows)
         {
             row.SyncFromGetter();
+        }
+        foreach (var sync in _inputSyncActions)
+        {
+            try { sync(); } catch { }
         }
     }
 
@@ -552,32 +1065,16 @@ public sealed class MinimapSettingsApp : PhoneApp
     {
         private readonly string _key;
         private readonly string _defaultHex;
-        private readonly InputField _input;
 
-        public ColorRow(string key, string defaultHex, InputField input)
+        public ColorRow(string key, string defaultHex)
         {
-            _key = key; _defaultHex = defaultHex; _input = input;
+            _key = key; _defaultHex = defaultHex;
         }
 
+        /// <summary>Restores this category's documented default colour.</summary>
         public void ResetToDefault()
         {
-            if (_input != null && !_input.WasCollected) _input.text = _defaultHex;
-            CommitTo(_defaultHex);
-        }
-
-        public void Commit(MinimapMod mod)
-        {
-            if (_input == null || _input.WasCollected) return;
-            CommitTo(_input.text);
-        }
-
-        private void CommitTo(string hex)
-        {
-            try
-            {
-                MinimapMod.Instance?.SetBlipColor(_key, hex);
-            }
-            catch { }
+            try { MinimapMod.Instance?.SetBlipColor(_key, _defaultHex); } catch { }
         }
     }
 }

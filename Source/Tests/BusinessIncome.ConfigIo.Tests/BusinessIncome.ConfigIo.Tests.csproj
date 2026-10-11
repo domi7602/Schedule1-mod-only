@@ -25,7 +25,15 @@
        Native lifecycle and actual bank settlement still require gameplay tests. -->
   <ItemGroup>
     <Compile Include="..\..\Mods\Shared\src\SafeStorage.cs" Link="Production\SafeStorage.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\Core\*.cs" Link="Production\Core\%(Filename)%(Extension)" />
+    <!-- Core files sit FLAT in src/ since the src/Core -> src flatten; listed explicitly. -->
+    <Compile Include="..\..\Mods\BusinessIncome\src\FinancialOutcomes.cs" Link="Production\Core\FinancialOutcomes.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\LegacyMigration.cs" Link="Production\Core\LegacyMigration.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutCodec.cs" Link="Production\Core\PayoutCodec.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutLedger.cs" Link="Production\Core\PayoutLedger.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutScheduler.cs" Link="Production\Core\PayoutScheduler.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutSettlementEngine.cs" Link="Production\Core\PayoutSettlementEngine.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutWindowPlanner.cs" Link="Production\Core\PayoutWindowPlanner.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\Seams.cs" Link="Production\Core\Seams.cs" />
     <Compile Include="..\..\Mods\BusinessIncome\src\PayoutState.cs" Link="Production\PayoutState.cs" />
     <Compile Include="..\..\Mods\BusinessIncome\src\PayoutRuntime.cs" Link="Production\PayoutRuntime.cs" />
     <Compile Include="..\..\Mods\BusinessIncome\src\PayoutStateStore.cs" Link="Production\PayoutStateStore.cs" />

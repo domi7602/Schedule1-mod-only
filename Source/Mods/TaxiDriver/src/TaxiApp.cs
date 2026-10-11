@@ -94,8 +94,8 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     private Text? _callLabel;
     private Text? _callSub;
     private Button? _stopButton;
-    private float _stopArmedUntil;
-    private const float StopConfirmSeconds = 3f;
+    private readonly StopConfirmation _stopConfirmation = new();
+    private bool _stopPromptActive;
     private Image? _stopFill;
     private Text? _stopLabel;
     private Text? _stopSub;
@@ -134,8 +134,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     private static bool _catalogDumpedThisSession;
 
     // ---- live state ---------------------------------------------------------
-    private string _statusOverride = string.Empty;
-    private float _statusOverrideUntil;
+    private readonly ServiceFeedback _feedback = new();
     private const float StatusOverrideSeconds = 4f;
 
     // Change guard: the Update loop refreshes only when the snapshot changed.
@@ -164,6 +163,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
 
     protected override void OnDestroyed()
     {
+        ClearStopConfirmation();
         MelonEvents.OnUpdate.Unsubscribe(Update);
         base.OnDestroyed();
     }
@@ -213,6 +213,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
 
     protected override void OnPhoneClosed()
     {
+        ClearStopConfirmation();
         TaxiLog.Verbose($"[close] OnPhoneClosed f={Time.frameCount} t={Time.unscaledTime:0.000}");
         // Hide immediately, like every other phone app. The deferred-close experiment
         // (patched S1API SetAppOpen, HideDelayFrames=45) made the Taxi app linger ~0.75 s
@@ -233,6 +234,8 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             return;
 
         bool open = IsOpen();
+        if (_stopConfirmation.Synchronize(open, SpikeState.RideActive, SpikeState.RideSerial))
+            ClearStopConfirmation();
         // Visibility follows IsOpen() in BOTH directions. _mainBG starts inactive
         // (Golden Rule 3) and this sync is the only thing that ever shows it, so the
         // OPEN direction must never be gated by a close-path experiment.
@@ -277,6 +280,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
                 return;
             }
 
+            ClearStopConfirmation();
             CloseApp();
             return;
         }
@@ -890,8 +894,8 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         if (!IsAlive(_heroTitle) || !IsAlive(_heroMeta) || !IsAlive(_heroValue))
             return;
 
-        bool overrideActive = _statusOverride.Length > 0 && Time.unscaledTime < _statusOverrideUntil;
-        string overrideText = overrideActive ? _statusOverride : string.Empty;
+        string overrideText = _feedback.Resolve(
+            Time.unscaledTime, SpikeState.ServiceStatus, SpikeState.ServiceStatusRevision, _stopPromptActive);
         string destination = SpikeState.RideDestinationName;
 
         var snapshot = new HeroSnapshot(
@@ -1023,11 +1027,23 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             _heroTitle.fontSize = Mathf.Clamp(Mathf.FloorToInt(maxSize * available / natural), minSize, maxSize);
     }
 
-    /// <summary>Shows a button outcome in the hero meta line for a few seconds.</summary>
-    private void SetStatusOverride(string text)
+    /// <summary>Discard both destructive-action approval and its stale instruction.</summary>
+    private void ClearStopConfirmation()
     {
-        _statusOverride = text;
-        _statusOverrideUntil = Time.unscaledTime + StatusOverrideSeconds;
+        _stopConfirmation.Reset();
+        if (_stopPromptActive)
+        {
+            _feedback.ClearOverride();
+            _stopPromptActive = false;
+        }
+    }
+
+    /// <summary>Shows a button outcome; unrelated actions discard earlier STOP approval.</summary>
+    private void SetStatusOverride(string text, bool stopPrompt = false)
+    {
+        if (!stopPrompt) ClearStopConfirmation();
+        _stopPromptActive = stopPrompt;
+        _feedback.ArmOverride(text, Time.unscaledTime, stopPrompt ? StopConfirmation.ConfirmSeconds : StatusOverrideSeconds);
         RefreshHero();
     }
 
@@ -1046,7 +1062,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         bool started = SpikeCommands.CallTaxi("TaxiApp");
         SetStatusOverride(started
             ? "Taxi ordered — spawning at the stand, then driving to you."
-            : "Could not order the taxi — see the log.");
+            : (SpikeState.ServiceStatus.Length > 0 ? SpikeState.ServiceStatus : "Could not order the taxi — see the log."));
     }
 
     /// <summary>
@@ -1063,13 +1079,12 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         }
 
         // A ride in progress is paid for by the meter: STOP there needs a second press.
-        if (SpikeState.RideActive && Time.unscaledTime > _stopArmedUntil)
+        if (!_stopConfirmation.Press(SpikeState.RideActive, SpikeState.RideSerial, Time.unscaledTime))
         {
-            _stopArmedUntil = Time.unscaledTime + StopConfirmSeconds;
-            SetStatusOverride($"Ride running — press STOP again within {StopConfirmSeconds:0} s to cancel.");
+            SetStatusOverride($"Ride running — press STOP again within {StopConfirmation.ConfirmSeconds:0} s to cancel.", stopPrompt: true);
             return;
         }
-        _stopArmedUntil = 0f;
+        ClearStopConfirmation();
 
         bool stopped = SpikeCommands.Stop();
         if (stopped)

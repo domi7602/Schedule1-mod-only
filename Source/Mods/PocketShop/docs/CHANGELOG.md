@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.3.3 (2026-10-11) — Payment confirmation, transaction lock, layout & header fixes
+- **Card payments fixed (root cause):** `CreateOnlineTransaction` is a FishNet **ServerRpc** — the balance changes only when the server applies it on a later network tick, so the old immediate read-back could never succeed: every card purchase ended in "Transaction uncertain" + `VERIFY TX` (log evidence: 28 cash purchases, 0 card). Bank payments are now confirmed **deferred** — the purchase waits (bounded, 5 s) for the exact balance delta or for a Harmony-recorded `ReceiveOnlineTransaction` (new `BankTransactionObserver`), then delivers. Cash stays fully synchronous.
+- **Tri-state confirmation:** `BalanceObservation` (Unchanged / Confirmed / Mismatch) — "not moved yet" is re-checked until the bounded window ends and is never treated as success or failure by itself.
+- **Transaction lock:** an unreconciled transaction locks purchases fail-closed for the session and is only lifted when it is provably irrelevant — a late-applied charge is refunded (deferred-confirmed) and releases the lock; scene/save changes release it deliberately (`ResetForSceneReload`); opening the app never resets it.
+- **Diagnostics:** payment failures log shop, item, vanilla payment rule, effective mode, unit price, service fee, delivery fee, total, expected delta, balance before/after and the confirmation result. Normal successful purchases no longer log.
+- **Multiplayer gate:** purchases (including host sessions) are refused while a lobby is active (`Singleton<Lobby>.Instance.IsInLobby`); singleplayer keeps working, clients stay refused fail-closed.
+- **Directory layout (first open):** tile sizing no longer runs before Unity provides a valid viewport height — it is deferred and finalized on the next frame (`EnsureLayout`), so the directory fills the screen on the first open. The row height is derived from the unfiltered grid (search results keep identical tile sizes) and written explicitly to every row and card.
+- **Header redesign:** sentence-case "PocketShop" title (no italic/caps) with a small drawn storefront glyph (no emoji), compact dark close button with a subtle red edge, dark-blue search field with a subtle border, back button matching the close style — all controls share one height and look identical in both views.
+- **Payment chips:** the balance chips mark the account the current shop charges ("CASH $x •" / "CARD $y •"); the alternative account is dimmed for fixed-rule shops. A card purchase in flight shows "PROCESSING" and the deferred result is drained into the status line.
+- **NPC portraits:** fallback icons are no longer cached forever — they re-resolve when the NPC registry changes or after a short recheck, so real mugshots appear without an app reopen.
+- **ShopGate:** dark-market detection returns the NPC-based fallback answer instead of discarding it (undetermined stays fail-closed); gate logging is change-only (was thousands of identical lines).
+- **Quantity input:** live refreshes no longer overwrite the field while the player is typing (end-edit clamps); `PocketShopInputFocus` ref-counts focused fields so one field blurring cannot clear the global typing state of another.
+- **Purchase status:** the status line clears when the shop view is hidden (it lives on the pane root, not the scroll) and is never shown on a hidden view.
+- **Stock:** the shop tile's item counter refreshes after a purchase without a full catalog rebuild; hidden panes skip per-second live BUY-state checks.
+- **Build:** `Directory.Build.props` falls back to `Mods\S1API.Il2Cpp.MelonLoader.dll.disabled` when the S1APILoader has moved the DLL aside (observed after a launch on the Mono "alternate" branch); dead unsafe helper + `AllowUnsafeBlocks` removed from PocketShop.
+
 ## 0.3.2 (2026-09-20) — Cash HUD feedback
 - **Cash payments now show the vanilla HUD popup:** `ChangeCashBalance` runs with `visualizeChange: true` (was `false` — cash was deducted without feedback). Black-market purchases now show "-$X" in the HUD like in-world dealer purchases. All cash refund paths (Partial Delivery, Outer Gap) are also visualized ("+$X").
 - Card payments unchanged (`CreateOnlineTransaction` has no visualize flag — the banking feed in the phone provides feedback there).

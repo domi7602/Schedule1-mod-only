@@ -8,7 +8,7 @@ using S1API.Console;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "2.0.3", "Dominik")]
+[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "2.1.1", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace Minimap;
@@ -33,10 +33,13 @@ public sealed class MinimapMod : MelonMod
         { "Police",     "#338CF2" },
         { "Dealer",     "#A44DE3" },
         { "Waypoint",   "#E14BFF" },
-        { "Deal",       "#FAC40F" },
-        { "Potential",  "#1ABD9C" },
+        { "Deal",       "#4DA3FF" },
+        { "DealClock",  "#4DA3FF" },
+        { "Potential",  "#A44DE3" },
         { "Customer",   "#2ECC70" },
         { "Property",   "#F29C12" },
+        { "PurchaseCheck", "#2ECC70" },
+        { "RegionLock", "#9AA0A6" },
         { "Shop",       "#E84D3D" },
         { "Quest",      "#E64C3C" },
         { "Vehicle",    "#3399DB" },
@@ -128,10 +131,11 @@ public sealed class MinimapMod : MelonMod
         // and the user wants the minimap visible.
         try
         {
-            if (!_hud.IsActive && Config.MinimapVisible && NetworkGuard.IsInMainScene)
-                _hud.SetHUDActive(true);
-            else if (_hud.IsActive && !Config.MinimapVisible)
-                _hud.SetHUDActive(false);
+            bool shouldShow = Config.MinimapVisible
+                && NetworkGuard.IsInMainScene
+                && (!Config.HideInMenus || !IsBlockingMenuOpen());
+            if (_hud.IsActive != shouldShow)
+                _hud.SetHUDActive(shouldShow);
         }
         catch { }
 
@@ -164,9 +168,33 @@ public sealed class MinimapMod : MelonMod
 
     public void SaveAndApply()
     {
+        // Keep saved key changes live without requiring a scene reload.
+        ParseKeyCodes();
         SaveConfig();
         _hud.ApplyLayout(Config);
-        _hud.SetHUDActive(Config.MinimapVisible);
+        bool shouldShow = Config.MinimapVisible && (!Config.HideInMenus || !IsBlockingMenuOpen());
+        _hud.SetHUDActive(shouldShow);
+    }
+
+    private static bool IsBlockingMenuOpen()
+    {
+        try
+        {
+            var phone = Il2CppScheduleOne.UI.Phone.Phone.Instance;
+            if (phone != null && (UnityEngine.Object)phone != null && phone.IsOpen)
+                return true;
+        }
+        catch { }
+
+        try
+        {
+            var menu = Il2CppScheduleOne.UI.GameplayMenu.Instance;
+            if (menu != null && (UnityEngine.Object)menu != null && menu.IsOpen)
+                return true;
+        }
+        catch { }
+
+        return false;
     }
 
     public void PrintStatusToConsole()

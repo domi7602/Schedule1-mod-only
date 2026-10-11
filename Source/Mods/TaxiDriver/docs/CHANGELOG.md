@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.8.3 (2026-10-10) — Dedicated driver safety and STOP confirmation
+
+### Fixed
+
+- Removed the nearest-bystander driver fallback entirely. Only the existing registered `taxi_driver` may board; missing/unready drivers refuse the order with an app status message.
+- Centralized the 15-second re-entry guard at the genuine native `EnterVehicle` attempt, using exact native identity instead of managed-wrapper equality. A throwing/failed attempt also starts the guard; already-proven seating and pending seat verification do not renew it.
+- Rapid reorders are refused before spawning. A driver-step failure performs ownership-checked cleanup; uncertain destruction stays tracked for explicit STOP recovery.
+- Unsafe mid-ride re-entry cancels/parks the trip rather than bypassing the cooldown. Reverse, relocation and redispatch paths honor driver-safety cancellation.
+- The dedicated driver receives native `_invincible` protection on creation/load/service preparation, with readback. A host order can revive the existing saved dead/knocked-out driver; no replacement NPC is instantiated and no regular NPC is protected or revived.
+- STOP confirmation now belongs to the same passenger-ride identity and visible app session. Phone/app close, ride changes and unrelated app actions discard both the approval and its stale instruction.
+- Service feedback (refusal / failure messages) is no longer erased by ordinary owned-taxi cleanup or a deferred destroy confirmation. It survives until the next order or a real session/save teardown. A new asynchronous failure now immediately supersedes a still-visible order-success message instead of being masked for four seconds; the protected STOP prompt is unaffected.
+
+### Verification
+
+- Existing baseline: 165 tests passed before this change. Current suite: **207 passed, 0 failed, 0 skipped**; includes pure boarding/confirmation/feedback tests and explicitly limited source-wiring checks. Relevant missing helpers, cooldown bypass, close/new-ride retention, cleanup wiring, backwards-time approval, feedback supersession and feedback-survives-cleanup checks were observed red before implementation.
+- Independent code review (fresh subagent, read-only) found no security concerns and one actionable defect: the deferred-destroy `Reset()` erased the pickup-failure feedback. That defect was fixed in this change with its own RED→GREEN regression tests; the reviewer confirmed dedicated-driver identity, cooldown ordering, recovery cancellation guards and STOP confirmation showed no other demonstrable new defects.
+- Release build against installed f12 / S1API 3.2.1 stable / S1MAPI 2.0.1: **0 warnings, 0 errors**, with normal automatic deploy enabled. Existing Shared build/deployed DLL hashes matched, so `BuildProjectReferences=false` prevented unrelated Shared/third-party redeployment. Deployed TaxiDriver DLL SHA-256 `d658f1fd230e92389dab273147eb1d66f4e70f5cf60b74ad1711c7152e5dd8bb`; DLL, PDB and JSON were read back and matched their build/source files; deployed metadata says 0.8.3.
+- Supplemental Shared regression suite: **71 passed, 0 failed**. That test project's reference triggered a same-byte Shared DLL/PDB redeploy; both were read back and matched source/build artifacts. The third-party target deployed **0** DLLs; S1API's hash remained unchanged. Version/doc-path/skill-health gates and scoped formatting verification passed.
+- New behavior **was verified in-game 2026-10-11** (Dominik): the driver-safety/STOP update passed its gameplay acceptance check in a real game session.
+
 ## 0.8.2 (2026-10-08) — Beta 8 safety pass
 
 ### Controls and retained behavior

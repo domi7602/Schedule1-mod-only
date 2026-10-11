@@ -80,12 +80,14 @@ internal static class SpikeState
     /// <summary>Earliest frame the deferred spawn may run (a frame gap is the minimum separation).</summary>
     internal static int PendingSpawnFrame;
 
-    // ---- Re-enter cooldown (freeze guard, review B2) ----
-    /// <summary>Last NPC that was boarded — re-entering the same NPC too fast is the freeze pattern.</summary>
-    internal static NPC? LastBoardedNpc;
+    /// <summary>Genuine entry attempts survive ordinary cleanup/respawn; native identity, not wrapper equality.</summary>
+    internal static readonly DriverBoardingGate DriverBoarding = new();
 
-    /// <summary><see cref="Time.unscaledTime"/> of the last successful boarding.</summary>
-    internal static float LastBoardedAt;
+    /// <summary>Plain-language service refusal/abort, displayed by TaxiApp until the next order.</summary>
+    internal static string ServiceStatus = string.Empty;
+
+    /// <summary>Monotonic revision of <see cref="ServiceStatus"/>; lets the app supersede a stale override.</summary>
+    internal static long ServiceStatusRevision;
 
     /// <summary>Finding 11: NPC with weak boarding proof (flagged in-vehicle, no slot yet) awaiting its late verdict.</summary>
     internal static NPC? SeatVerifyNpc;
@@ -185,6 +187,9 @@ internal static class SpikeState
 
     /// <summary>A passenger ride is running: the player is aboard and the NPC drives to <see cref="RideDestination"/>.</summary>
     internal static bool RideActive;
+
+    /// <summary>Monotonic passenger-ride identity; never reset with the other ride flags.</summary>
+    internal static long RideSerial;
 
     /// <summary>The player has boarded for this ride (seat fix + status label).</summary>
     internal static bool RideBoarded;
@@ -405,8 +410,25 @@ internal static class SpikeState
         SeatVerifyNpc = null;
         SeatVerifyVeh = null;
         SeatVerifyUntil = 0f;
-        // LastBoardedNpc/LastBoardedAt deliberately survive: the re-enter cooldown
-        // protects against the repeat-EnterVehicle freeze even across a respawn.
+        // DriverBoarding deliberately survives: even failed entry attempts protect
+        // against rapid repeat EnterVehicle calls across a taxi respawn.
+        // ServiceStatus deliberately survives ordinary owned-taxi cleanup/deferred
+        // destruction: it is feedback for the player, not vehicle state. It is cleared
+        // explicitly by ClearServiceStatus at the next order and at real session teardown.
         return true;
+    }
+
+    /// <summary>Sets the persistent service feedback and bumps its revision.</summary>
+    internal static void SetServiceStatus(string message)
+    {
+        ServiceStatus = message ?? string.Empty;
+        ServiceStatusRevision++;
+    }
+
+    /// <summary>Clears the persistent service feedback (next order / session teardown).</summary>
+    internal static void ClearServiceStatus()
+    {
+        ServiceStatus = string.Empty;
+        ServiceStatusRevision++;
     }
 }

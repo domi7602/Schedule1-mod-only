@@ -45,7 +45,9 @@ public sealed class MinimapConfig
     public float ZoomLevel { get; set; } = 1.75f;
     public float BackgroundOpacity { get; set; } = 0.85f;
     public string BorderColorHex { get; set; } = "#3BD882"; // Emerald accent
-    public bool ShowCompassRing { get; set; } = false; // Only on Circle
+    public bool ShowMapBorder { get; set; } = true;
+    public float BorderThickness { get; set; } = 4f;
+    public bool ShowCompassRing { get; set; } = false; // Optional compass outline, only on Circle
 
     // Performance & Range Filtering
     public float MaxEntityRange { get; set; } = 140f; // Max detection range in meters
@@ -64,6 +66,16 @@ public sealed class MinimapConfig
     public bool ShowShopBlips { get; set; } = true;
     public bool ShowQuestBlips { get; set; } = true;
     public bool ShowVehicleBlips { get; set; } = true;
+    public bool ShowSewerKeyBlips { get; set; } = true;
+    // Deprecated: customer portraits are now automatic (portrait when available, else symbol).
+    // Kept only so old config.json files still load. No longer read by the mod.
+    [Obsolete("Automatic portraits — use ShowKnownCustomers / ShowPotentialCustomers / ShowActiveDeals instead.")]
+    public bool ShowCustomerNames { get; set; } = false;
+    [Obsolete("Automatic portraits — use ShowKnownCustomers / ShowPotentialCustomers / ShowActiveDeals instead.")]
+    public bool ShowCustomerPortraits { get; set; } = true;
+    public bool ShowPurchaseChecks { get; set; } = true;
+    public bool ShowRegionalLocks { get; set; } = true;
+    public bool HideInMenus { get; set; } = false;
 
     // DayCounter Options
     public bool Time24H { get; set; } = true;

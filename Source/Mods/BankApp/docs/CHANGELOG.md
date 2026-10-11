@@ -7,6 +7,7 @@ All notable changes to the BankApp mod will be documented in this file.
 - **Removed:** the Transaction pane and its "< Back" button, the `SetTab`/`BankTab` tab switching, `BankNavigation` and the `BankTab` enum, and the Overview action tiles that navigated to the pane. `HistoryGrouping`/`LabelFor` stay — the activity list still uses them.
 - **Unchanged:** every money path. The preview still uses `TransferMath.ComputeQuote`, execution still calls `BankService.DepositCash`/`WithdrawCash` (fee formulas, weekly limits, rollback, `NetworkGuard.IsInMainScene`, the vanilla ATM counter sync), `BankAppInputFocus` still guards the amount field, the storage format (`BankState`/`BankTransaction`/`bank_slot_*.json`) is untouched, and `BankSoundService`/`BankAppConfig` behave exactly as before. Close and Escape stay with the phone.
 - Touch targets are ≥44dp and still scaled through `UITheme.Dp`.
+- **Verified in-game 2026-10-11** (Dominik): the single-screen UI and the v0.4.5 withdrawal fix were confirmed in a real game session.
 
 ## 0.4.5 (2026-10-04) — Withdraw "Inventory full" fix
 - **Root cause:** `WithdrawCash` gated withdrawals on a slot-capacity model (`freeSlots × cash-StackLimit`). Vanilla cash `StackLimit` is **1**, so the model computed ~$1 of room per free slot and rejected legit withdrawals (e.g. $5 with 4 free slots) with "Inventory full!".

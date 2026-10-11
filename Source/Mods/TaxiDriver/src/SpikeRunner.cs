@@ -434,6 +434,8 @@ internal static class SpikeRunner
     /// </summary>
     private static bool TryFreeSpotRescue(LandVehicle veh, VehicleAgent agent, string context)
     {
+        if (!SpikeState.PollingActive)
+            return false;
         if (_freeSpotRescues >= MaxFreeSpotRescuesPerRide)
         {
             Mod.Log.Warn(
@@ -823,8 +825,15 @@ internal static class SpikeRunner
         }
         catch (Exception ex)
         {
+            string message = SpikeState.ServiceStatus.Length > 0
+                ? SpikeState.ServiceStatus
+                : $"Taxi dispatch failed at step {step}; please try again later.";
             SpikeState.ResetAutoRun();
-            Mod.Log.Error($"[taxi-call] automatic pickup flow aborted at step {step}: {ex.Message}");
+            bool cleaned = SpikeCommands.Cleanup("automatic pickup failed", explicitRetry: false);
+            SpikeState.SetServiceStatus(cleaned
+                ? message
+                : message + " Taxi cleanup is pending or uncertain — use STOP and check the log.");
+            Mod.Log.Error($"[taxi-call] automatic pickup flow aborted at step {step}: {ex.Message}; cleanupConfirmed={cleaned}");
         }
     }
 
@@ -908,6 +917,8 @@ internal static class SpikeRunner
         // Paket G (2026-09-29): the driver belongs at the wheel every frame too — a
         // driverless taxi never reaches its destination ("der Fahrer ist ausgestiegen").
         SpikeCommands.EnsureDriverSeat(veh);
+        if (!SpikeState.RideActive)
+            return; // a refused driver re-entry ended/parked the ride
 
         // Paket A (2026-09-29): waiting for the first destination pick — no arrival
         // verdict yet (without this gate "riding but not dispatched" would read as
@@ -1008,6 +1019,7 @@ internal static class SpikeRunner
         // driver beats burning recovery #1/#2 on navigation re-dispatches into the void.
         if (SpikeCommands.EnsureDriverSeat(veh))
         {
+            if (!SpikeState.PollingActive) return;
             SpikeState.StuckRecoveries--;
             ArmProgressWindow(veh);
             return;
@@ -1121,6 +1133,8 @@ internal static class SpikeRunner
             // Deactivate can eject the NPC. Re-seat now, not on the next TickRide,
             // where boarding could interrupt an already running reverse manoeuvre.
             SpikeCommands.EnsureDriverSeat(veh);
+            if (!SpikeState.PollingActive)
+                return false; // driver safety stopped this recovery; never release its brakes
             veh.BrakesApplied = false;
             veh.HandbrakeApplied = false;
 
@@ -1177,6 +1191,7 @@ internal static class SpikeRunner
         finally { _recoveryOwnsNavigation = false; }
         if (SpikeCommands.EnsureDriverSeat(veh))
         {
+            if (!SpikeState.PollingActive) return true;
             _startupArmed = true;
             _startupAt = Time.unscaledTime;
             return true;
@@ -1349,6 +1364,8 @@ internal static class SpikeRunner
     /// <summary>Fresh <c>Navigate</c> dispatch with settings=null and a new measurement window.</summary>
     internal static void ReDispatch(VehicleAgent agent, Vector3 target, string why)
     {
+        if (!SpikeState.PollingActive)
+            return; // a driver safety abort cannot be undone by an older recovery stack
         float now = Time.unscaledTime;
         SpikeState.PollingActive = true;
         SpikeState.NavTarget = target;
@@ -1939,6 +1956,7 @@ internal static class SpikeRunner
         SpikeState.CancelPendingSpawn();
         SpikeState.ResetAutoRun();
         SpikeState.StandSpawnPosition = null;
+        SpikeState.ClearServiceStatus();
     }
 
     /// <summary>Used by the mod teardown so a quit never leaves the runner half-alive.</summary>
@@ -1947,5 +1965,6 @@ internal static class SpikeRunner
         SpikeState.PollingActive = false;
         SpikeState.CancelPendingSpawn();
         SpikeState.ResetAutoRun();
+        SpikeState.ClearServiceStatus();
     }
 }

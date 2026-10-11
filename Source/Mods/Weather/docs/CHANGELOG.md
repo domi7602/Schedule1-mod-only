@@ -13,6 +13,7 @@
 - **Kept from the previous unreleased iteration:** eased bars/ring, animated hero icons (sun rotation, gentle bobbing) and MIXED on ties.
 - **Behaviour unchanged:** lifecycle (single `_active` instance, `WeatherManager.OnWeatherChanged` dispatched once, per-frame snapshot poll, nothing destroyed on close), nine-row no-scroll layout and the no-persistence, no-gameplay-impact scope.
 - All anchors are documented as canvas fractions measured off the reference design (400:750 aspect), so the layout maps 1:1 onto the phone canvas at any resolution.
+- **Verified in-game 2026-10-11** (Dominik): the mockup rebuild was confirmed in a real game session.
 
 ## 0.3.0 (2026-09-26)
 - **Minimal dark/glass redesign (visual only):** neutral charcoal canvas with no dominant-colour tint anywhere — the hero is a plain two-layer glass card (outer rounded rect in white 14%, base inset 2 Dp in white 6%, radius 12) plus fake elevation (a slightly larger dark rounded shadow rect at 25% alpha) and a thin light rim. The header accent strip, the sky-gradient sprite and the icon glow of the previous iteration are all gone.

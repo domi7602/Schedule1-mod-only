@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <LangVersion>12</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <!-- Unity-free core files sit FLAT in src/ since the src/Core -> src flatten; listed
+         explicitly. Excluded: the Unity-dependent runtime files and LEDSettingsStore.cs
+         (namespace PropertyLEDs, the S1Mods.Shared-backed I/O adapter). -->
+    <Compile Include="../../Mods/PropertyLEDs/src/GeometryMath.cs" Link="Core/GeometryMath.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/Layouts.cs" Link="Core/Layouts.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/LEDSettings.cs" Link="Core/LEDSettings.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/LEDState.cs" Link="Core/LEDState.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/SaveDebounce.cs" Link="Core/SaveDebounce.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/SlotSession.cs" Link="Core/SlotSession.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/StateCodec.cs" Link="Core/StateCodec.cs" />
+  </ItemGroup>
+</Project>

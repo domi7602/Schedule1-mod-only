@@ -31,7 +31,17 @@
     Unity/IL2CPP and are covered by the compile-only integration build instead.
   -->
   <ItemGroup>
-    <Compile Include="..\..\Mods\BusinessIncome\src\Core\**\*.cs" />
+    <!-- Core files sit FLAT in src/ since the src/Core -> src flatten — list them
+         explicitly (a src\**\*.cs glob would pull the Unity/IL2CPP runtime glue into
+         these tests). -->
+    <Compile Include="..\..\Mods\BusinessIncome\src\FinancialOutcomes.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\LegacyMigration.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutCodec.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutLedger.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutScheduler.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutSettlementEngine.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutWindowPlanner.cs" />
+    <Compile Include="..\..\Mods\BusinessIncome\src\Seams.cs" />
     <Compile Include="..\..\Mods\BusinessIncome\src\PayoutState.cs" />
   </ItemGroup>
 

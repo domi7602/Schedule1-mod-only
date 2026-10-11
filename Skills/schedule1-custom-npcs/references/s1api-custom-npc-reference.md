@@ -245,6 +245,12 @@ builder.WithSchedule(plan =>
 
 ## Runtime Responsibilities
 
+### Health flag compatibility and ownership
+
+Do not assume a successful S1API health-property assignment changed the native flag. The checked-in `NPC.IsInvincible` wrapper looks up `Invincible` (plus generated backing-field spellings); an installed proxy exposing only `_invincible` makes that wrapper silently no-op. Inspect the installed NPCHealth surface and require a readback. When the wrapper cannot address the actual field, use the verified generated field explicitly and document the compatibility scope in the workspace compatibility record.
+
+Apply protection only to the exact registered custom-NPC instance, on creation and after load; re-check it before service mutations. A dead/knocked-out existing NPC can be restored through the verified native `Revive()` on the host, with an immediate health-state readback and clear refusal if recovery is not confirmed. Never recover an unrelated NPC or instantiate a replacement behind the user's back. Cache registration identity for hot paths and clear it by managed owner identity on destruction, so an old instance's teardown cannot erase a newer registration.
+
 ### Standard order
 
 ```csharp

@@ -20,8 +20,11 @@ public enum BlipType
 {
     Police,
     ActiveDeal,
+    AcceptedDealClock,
     PotentialCustomer,
     KnownCustomer,
+    PurchaseCheck,
+    RegionLock,
     Dealer,
     Waypoint,
     Property,
@@ -29,7 +32,8 @@ public enum BlipType
     Shop,
     Quest,
     Vehicle,
-    GenericDot
+    GenericDot,
+    SewerKey
 }
 
 public sealed class MinimapBlips
@@ -40,6 +44,9 @@ public sealed class MinimapBlips
         public BlipType Type;
         public Color Color;
         public string Label;
+        public bool ShowLabel;
+        public string BadgeGlyph;
+        public Sprite? Portrait;
         public float CustomScale;
         public bool IsPulsing;
         public bool IsCritical; // Whether it should be edge-clamped when out of view
@@ -50,13 +57,19 @@ public sealed class MinimapBlips
         public GameObject Root;
         public RectTransform Rect;
         public Image Icon;
+        public Text NameLabel;
+        public Text BadgeGlyph;
+        public Image PortraitImage;
         public CanvasGroup Group;
 
-        public PooledBlip(GameObject root, RectTransform rect, Image icon, CanvasGroup group)
+        public PooledBlip(GameObject root, RectTransform rect, Image icon, Text nameLabel, Text badgeGlyph, Image portraitImage, CanvasGroup group)
         {
             Root = root;
             Rect = rect;
             Icon = icon;
+            NameLabel = nameLabel;
+            BadgeGlyph = badgeGlyph;
+            PortraitImage = portraitImage;
             Group = group;
         }
     }
@@ -73,6 +86,63 @@ public sealed class MinimapBlips
     public void SetPalette(System.Collections.Generic.Dictionary<string, string>? palette)
     {
         _palette = palette;
+    }
+
+    /// <summary>
+    /// Hides every pooled blip. Called while the player is not yet resolved
+    /// (spawn/loading) so no stale-position dot flashes at the map centre.
+    /// </summary>
+    public void HideAll()
+    {
+        for (int i = 0; i < _pool.Count; i++)
+        {
+            var pooled = _pool[i];
+            if (pooled.Root != null && pooled.Root.activeSelf)
+                pooled.Root.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Adds the un-collected world sewer keys as pulsing gold key blips.
+    /// <para>
+    /// The keys are tiny world pickups — nearly impossible to find by eye — so this is
+    /// the whole point of the feature: a pulsing, distance-independent landmark for
+    /// each one still out there. Vanilla spawns the key at the position chosen by
+    /// <c>SewerManager.RandomSewerKeyLocationIndex</c>; the actual live pickup object
+    /// (RandomWorldSewerKeyPickup) is preferred when present, because that is the
+    /// object that disappears when the key is taken.
+    /// </para>
+    /// </summary>
+    private void UpdateSewerKeys(MinimapConfig config)
+    {
+        if (!config.ShowSewerKeyBlips) return;
+
+        SewerManager? manager;
+        try { manager = SewerManager.Instance; }
+        catch { return; }
+        if (manager == null || manager.Pointer == IntPtr.Zero || manager.WasCollected) return;
+
+        // 1. Live pickup object — the authoritative position while it is still out there.
+        try
+        {
+            if (manager.IsRandomWorldKeyCollected) return;
+            var pickup = manager.RandomWorldSewerKeyPickup;
+            if (pickup != null && pickup.Pointer != IntPtr.Zero && !pickup.WasCollected)
+            {
+                Vector3 keyPos = pickup.transform.position;
+                _activeBlips.Add(new BlipInfo
+                {
+                    WorldPos = keyPos,
+                    Type = BlipType.SewerKey,
+                    Color = PaletteColor("SewerKey", new Color(0.99f, 0.85f, 0.20f, 1f)), // Gold
+                    Label = "Sewer Key",
+                    CustomScale = 1.45f,
+                    IsPulsing = true,
+                    IsCritical = true // Edge-clamp: it must stay visible even from across the map
+                });
+            }
+        }
+        catch { }
     }
 
     private static Color PaletteColor(string key, Color fallback)
@@ -115,9 +185,110 @@ public sealed class MinimapBlips
             group.blocksRaycasts = false;
             group.interactable = false;
 
+            Font? font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            Text nameLabel = CreatePoolText(obj.transform, "CustomerName", new Vector2(108f, 18f), new Vector2(0f, -13f), font, 9, FontStyle.Normal);
+            Text badgeGlyph = CreatePoolText(obj.transform, "BadgeGlyph", new Vector2(20f, 20f), Vector2.zero, font, 13, FontStyle.Bold);
+            Image portrait = CreatePoolPortrait(obj.transform, 26f);
+            nameLabel.gameObject.SetActive(false);
+            badgeGlyph.gameObject.SetActive(false);
+            portrait.gameObject.SetActive(false);
+
             obj.SetActive(false);
-            _pool.Add(new PooledBlip(obj, rt, img, group));
+            _pool.Add(new PooledBlip(obj, rt, img, nameLabel, badgeGlyph, portrait, group));
         }
+    }
+
+    private static Text CreatePoolText(Transform parent, string name, Vector2 size, Vector2 position, Font? font, int fontSize, FontStyle style)
+    {
+        GameObject obj = new GameObject(name, Il2CppType.Of<RectTransform>());
+        obj.transform.SetParent(parent, false);
+        RectTransform rect = obj.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0.5f, 0.5f);
+        rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.anchoredPosition = position;
+        rect.sizeDelta = size;
+        Text text = obj.AddComponent<Text>();
+        if (font != null) text.font = font;
+        text.fontSize = fontSize;
+        text.fontStyle = style;
+        text.alignment = TextAnchor.MiddleCenter;
+        text.color = Color.white;
+        text.supportRichText = false;
+        text.horizontalOverflow = HorizontalWrapMode.Overflow;
+        text.verticalOverflow = VerticalWrapMode.Overflow;
+        text.raycastTarget = false;
+        return text;
+    }
+
+    private static string ResolveCustomerName(Customer cust)
+    {
+        try
+        {
+            var npc = cust.NPC;
+            if (npc != null && (UnityEngine.Object)npc != null)
+            {
+                string full = npc.FullName;
+                if (!string.IsNullOrWhiteSpace(full)) return full;
+            }
+        }
+        catch { }
+        return "Customer";
+    }
+
+    /// <summary>Mugshot sprite for the customer's NPC, or null when unavailable (early save load).</summary>
+    private static Sprite? ResolveCustomerPortrait(Customer cust)
+    {
+        try
+        {
+            var npc = cust.NPC;
+            if (npc != null && (UnityEngine.Object)npc != null)
+            {
+                var mug = npc.MugshotSprite;
+                if (mug != null && mug.Pointer != IntPtr.Zero && !mug.WasCollected)
+                    return mug;
+            }
+        }
+        catch { }
+        return null;
+    }
+
+    /// <summary>
+    /// Builds a round NPC portrait badge: a circular mask root whose child Image carries the
+    /// mugshot sprite. The portrait is centered on the marker position and REPLACES the
+    /// normal icon when shown (single visual per customer). Returns the inner Image
+    /// (the part that is shown/hidden per frame); the mask root stays active but draws
+    /// nothing on its own (showMaskGraphic = false).
+    /// </summary>
+    private static Image CreatePoolPortrait(Transform parent, float diameter)
+    {
+        GameObject rootObj = new GameObject("Portrait", Il2CppType.Of<RectTransform>());
+        rootObj.transform.SetParent(parent, false);
+        RectTransform rootRt = rootObj.GetComponent<RectTransform>();
+        rootRt.anchorMin = new Vector2(0.5f, 0.5f);
+        rootRt.anchorMax = new Vector2(0.5f, 0.5f);
+        rootRt.pivot = new Vector2(0.5f, 0.5f);
+        rootRt.anchoredPosition = Vector2.zero;
+        rootRt.sizeDelta = new Vector2(diameter, diameter);
+
+        Image maskImg = rootObj.AddComponent<Image>();
+        maskImg.sprite = MinimapTextures.GetCircleMask();
+        maskImg.color = Color.white;
+        maskImg.raycastTarget = false;
+        Mask mask = rootObj.AddComponent<Mask>();
+        mask.showMaskGraphic = false;
+
+        GameObject imgObj = new GameObject("Mugshot", Il2CppType.Of<RectTransform>());
+        imgObj.transform.SetParent(rootObj.transform, false);
+        RectTransform imgRt = imgObj.GetComponent<RectTransform>();
+        imgRt.anchorMin = Vector2.zero;
+        imgRt.anchorMax = Vector2.one;
+        imgRt.offsetMin = Vector2.zero;
+        imgRt.offsetMax = Vector2.zero;
+        Image portrait = imgObj.AddComponent<Image>();
+        portrait.raycastTarget = false;
+        portrait.preserveAspect = true;
+        return portrait;
     }
 
     public void InvalidateLandmarkCache()
@@ -156,6 +327,89 @@ public sealed class MinimapBlips
                                 CustomScale = 1.15f,
                                 IsPulsing = false,
                                 IsCritical = true // Always clamp owned bases
+                            });
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        // 1b. Green purchase checks — unowned but purchasable properties
+        if (config.ShowPurchaseChecks)
+        {
+            try
+            {
+                var unowned = Property.UnownedProperties;
+                if (unowned != null)
+                {
+                    int count = unowned.Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        var prop = unowned[i];
+                        if (prop == null || (UnityEngine.Object)prop == null)
+                            continue;
+
+                        bool canBuy;
+                        try { canBuy = prop.CanBePurchased(); }
+                        catch { canBuy = false; }
+                        bool isOwned;
+                        try { isOwned = prop.IsOwned; }
+                        catch { isOwned = false; }
+
+                        if (!MinimapFeatureRules.ShouldShowPurchaseCheck(canBuy, isOwned))
+                            continue;
+
+                        _staticLandmarks.Add(new BlipInfo
+                        {
+                            WorldPos = prop.transform.position,
+                            Type = BlipType.PurchaseCheck,
+                            Color = PaletteColor("PurchaseCheck", new Color(0.18f, 0.80f, 0.44f, 1f)), // Green check
+                            Label = prop.PropertyName ?? "Property",
+                            BadgeGlyph = "\u2713", // check mark
+                            CustomScale = 1.15f,
+                            IsPulsing = false,
+                            IsCritical = true
+                        });
+                    }
+                }
+            }
+            catch { }
+        }
+
+        // 1c. Gray regional locks — regions the player has not unlocked yet
+        if (config.ShowRegionalLocks)
+        {
+            try
+            {
+                if (Map.Instance != null && (UnityEngine.Object)Map.Instance != null)
+                {
+                    var regions = Map.Instance.Regions;
+                    if (regions != null)
+                    {
+                        int rCount = regions.Length;
+                        for (int i = 0; i < rCount; i++)
+                        {
+                            var region = regions[i];
+                            if (region == null)
+                                continue;
+                            if (!MinimapFeatureRules.ShouldShowRegionLock(region.IsUnlocked))
+                                continue;
+
+                            var bounds = region.RegionBounds;
+                            if (bounds == null || (UnityEngine.Object)bounds == null)
+                                continue;
+
+                            _staticLandmarks.Add(new BlipInfo
+                            {
+                                WorldPos = bounds.transform.position,
+                                Type = BlipType.RegionLock,
+                                Color = PaletteColor("RegionLock", new Color(0.60f, 0.63f, 0.65f, 1f)), // Gray
+                                Label = region.Name ?? "Locked Region",
+                                BadgeGlyph = "\uD83D\uDD12", // lock
+                                CustomScale = 1.10f,
+                                IsPulsing = false,
+                                IsCritical = false
                             });
                         }
                     }
@@ -222,6 +476,9 @@ public sealed class MinimapBlips
             _activeBlips.Add(_staticLandmarks[s]);
         }
 
+        // World sewer keys (tiny pickups — pulsing gold key blips, edge-clamped)
+        UpdateSewerKeys(config);
+
         float maxRangeSqr = config.MaxEntityRange * config.MaxEntityRange;
 
         // 3. Fast Scan Active NPCs via NPCManager.NPCRegistry (0-allocation List iteration)
@@ -277,26 +534,35 @@ public sealed class MinimapBlips
                         bool isAtLocation = cust.IsAtDealLocation();
                         bool awaitingSample = cust.awaitingSample;
                         bool recommended = cust.HasBeenRecommended;
+                        string custName = ResolveCustomerName(cust);
+                        var marker = MinimapFeatureRules.ResolveCustomerMarker(
+                            isAwaiting, isAtLocation, awaitingSample || recommended, config.ShowKnownCustomers);
 
-                        // Active Deal (Critical!)
-                        if (isAwaiting || isAtLocation)
+                        // Simplified customer look: portrait when available, else normal symbol.
+                        // No extra name rendering — one visual per customer.
+                        Sprite? custPortrait = ResolveCustomerPortrait(cust);
+
+                        if (marker == MinimapMarkerKind.AcceptedDealClock)
                         {
                             if (config.ShowActiveDeals)
                             {
                                 _activeBlips.Add(new BlipInfo
                                 {
                                     WorldPos = pos,
-                                    Type = BlipType.ActiveDeal,
-                                    Color = PaletteColor("Deal", new Color(0.98f, 0.77f, 0.06f, 1f)), // Gold
-                                    Label = "Deal Meeting",
+                                    Type = BlipType.AcceptedDealClock,
+                                    Color = PaletteColor("DealClock", new Color(0.30f, 0.64f, 1f, 1f)), // Blue clock
+                                    Label = custName,
+                                    ShowLabel = false,
+                                    Portrait = custPortrait,
+                                    BadgeGlyph = "\u23F1", // stopwatch
                                     CustomScale = 1.30f,
                                     IsPulsing = true,
                                     IsCritical = true // Always clamp active deals
                                 });
                             }
                         }
-                        // Potential Customer for Free Samples
-                        else if (awaitingSample || recommended)
+                        // Potential Customer for Free Samples — purple highlight
+                        else if (marker == MinimapMarkerKind.PotentialCustomer)
                         {
                             if (config.ShowPotentialCustomers)
                             {
@@ -304,8 +570,10 @@ public sealed class MinimapBlips
                                 {
                                     WorldPos = pos,
                                     Type = BlipType.PotentialCustomer,
-                                    Color = PaletteColor("Potential", new Color(0.10f, 0.74f, 0.61f, 1f)), // Turquoise
-                                    Label = "Potential Customer",
+                                    Color = PaletteColor("Potential", new Color(0.64f, 0.30f, 0.89f, 1f)), // Purple highlight
+                                    Label = custName,
+                                    ShowLabel = false,
+                                    Portrait = custPortrait,
                                     CustomScale = 1.05f,
                                     IsPulsing = false,
                                     IsCritical = false
@@ -313,14 +581,16 @@ public sealed class MinimapBlips
                             }
                         }
                         // Known Customer
-                        else if (config.ShowKnownCustomers)
+                        else if (marker == MinimapMarkerKind.KnownCustomer)
                         {
                             _activeBlips.Add(new BlipInfo
                             {
                                 WorldPos = pos,
                                 Type = BlipType.KnownCustomer,
                                 Color = PaletteColor("Customer", new Color(0.18f, 0.80f, 0.44f, 1f)), // Emerald Green
-                                Label = "Customer",
+                                Label = custName,
+                                ShowLabel = false,
+                                Portrait = custPortrait,
                                 CustomScale = 0.95f,
                                 IsPulsing = false,
                                 IsCritical = false
@@ -643,8 +913,11 @@ public sealed class MinimapBlips
             {
                 BlipType.Police => MinimapTextures.GetBlipPolice(),
                 BlipType.ActiveDeal => MinimapTextures.GetBlipDeal(),
+                BlipType.AcceptedDealClock => MinimapTextures.GetBlipDeal(),
                 BlipType.PotentialCustomer => MinimapTextures.GetBlipPotential(),
                 BlipType.KnownCustomer => MinimapTextures.GetBlipDealer(),
+                BlipType.PurchaseCheck => MinimapTextures.GetBlipProperty(),
+                BlipType.RegionLock => MinimapTextures.GetBlipDot(),
                 BlipType.Dealer => MinimapTextures.GetBlipDealer(),
                 BlipType.Waypoint => MinimapTextures.GetBlipQuest(),
                 BlipType.Property => MinimapTextures.GetBlipProperty(),
@@ -652,6 +925,7 @@ public sealed class MinimapBlips
                 BlipType.Shop => MinimapTextures.GetBlipShop(),
                 BlipType.Quest => MinimapTextures.GetBlipQuest(),
                 BlipType.Vehicle => MinimapTextures.GetBlipVehicle(),
+                BlipType.SewerKey => MinimapTextures.GetBlipSewerKey(),
                 _ => MinimapTextures.GetBlipDot()
             };
 
@@ -663,6 +937,66 @@ public sealed class MinimapBlips
             float finalDimension = baseSize * info.CustomScale * pulseMult;
 
             pooled.Rect.sizeDelta = new Vector2(finalDimension, finalDimension);
+
+            // Portrait replaces the normal icon (one visual per customer).
+            // Pooling: always reset both states so reused blips never keep old images.
+            bool hasPortrait = info.Portrait != null;
+            pooled.Icon.enabled = !hasPortrait;
+            if (pooled.PortraitImage != null)
+            {
+                if (pooled.PortraitImage.gameObject.activeSelf != hasPortrait)
+                    pooled.PortraitImage.gameObject.SetActive(hasPortrait);
+                if (hasPortrait)
+                {
+                    pooled.PortraitImage.sprite = info.Portrait;
+                    pooled.PortraitImage.color = Color.white;
+                    // Match portrait size to the marker so it replaces the icon 1:1.
+                    var portraitRoot = pooled.PortraitImage.transform.parent as RectTransform;
+                    if (portraitRoot != null)
+                        portraitRoot.sizeDelta = new Vector2(finalDimension, finalDimension);
+                }
+            }
+
+            // Optional glyph badge (clock / check / lock).
+            // With portrait: small badge at the bottom-right portrait edge, drawn above it.
+            // Without portrait: centered badge inside the marker.
+            bool hasGlyph = !string.IsNullOrEmpty(info.BadgeGlyph);
+            if (pooled.BadgeGlyph != null)
+            {
+                if (pooled.BadgeGlyph.gameObject.activeSelf != hasGlyph)
+                    pooled.BadgeGlyph.gameObject.SetActive(hasGlyph);
+                if (hasGlyph)
+                {
+                    pooled.BadgeGlyph.text = info.BadgeGlyph;
+                    pooled.BadgeGlyph.color = Color.white;
+                    if (hasPortrait)
+                    {
+                        pooled.BadgeGlyph.rectTransform.sizeDelta = new Vector2(finalDimension * 0.65f, finalDimension * 0.65f);
+                        pooled.BadgeGlyph.rectTransform.anchoredPosition = new Vector2(finalDimension * 0.35f, -finalDimension * 0.35f);
+                        pooled.BadgeGlyph.transform.SetAsLastSibling();
+                    }
+                    else
+                    {
+                        pooled.BadgeGlyph.rectTransform.sizeDelta = new Vector2(finalDimension, finalDimension);
+                        pooled.BadgeGlyph.rectTransform.anchoredPosition = Vector2.zero;
+                    }
+                }
+            }
+
+            // Optional name label under the marker (hidden while a portrait is shown).
+            bool hasLabel = !hasPortrait && info.ShowLabel && !string.IsNullOrWhiteSpace(info.Label);
+            if (pooled.NameLabel != null)
+            {
+                if (pooled.NameLabel.gameObject.activeSelf != hasLabel)
+                    pooled.NameLabel.gameObject.SetActive(hasLabel);
+                if (hasLabel)
+                {
+                    pooled.NameLabel.text = info.Label;
+                    pooled.NameLabel.color = info.Color;
+                    pooled.NameLabel.rectTransform.anchoredPosition = new Vector2(0f, -(finalDimension * 0.5f + 9f));
+                }
+            }
+
             pooled.Group.alpha = isOutOfBounds ? 0.80f : 1.0f;
         }
     }

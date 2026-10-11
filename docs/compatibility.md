@@ -25,18 +25,30 @@ This page records which game and framework versions each mod was built against a
 - The installed S1MAPI `GltfImporter.AttachMesh` builds GLB mesh nodes with `MeshFilter` + `MeshRenderer` and assigns per-submesh materials. Unity 2022.3.62f2 proxies expose `MeshFilter.sharedMesh`, `SkinnedMeshRenderer.sharedMesh`, `Mesh.vertexCount`, `Mesh.subMeshCount`, and `Mesh.GetIndexCount(int) -> uint`; TaxiDriver uses these to reject renderers without vertices or indexed geometry. This verifies available API surface, not what renders in-game.
 - **Build compatibility only:** these signatures and a successful compile do not prove patch invocation order, save/scene behavior, GLB appearance, vehicle lifecycle, fares, or passenger safety in-game. Do not claim complete Beta-8 compatibility without runtime evidence.
 
+## TaxiDriver dedicated-driver build/deploy evidence (2026-10-10)
+
+- Source/deployed metadata: **0.8.3**. Command: `dotnet build Source/Mods/TaxiDriver/src/TaxiDriver.csproj -c Release --no-restore -p:BuildProjectReferences=false`, with automatic deploy enabled (no `S1NoDeploy` switch). Result: **0 warnings, 0 errors**.
+- The unchanged Shared build and deployed DLLs matched SHA-256 `4e16b6e4e966652a04a532e8e573406c7cbc3ab8063da30bc969b7fe56f79e34`; skipping project-reference builds avoided unrelated Shared/third-party redeployment.
+- Installed S1API stable 3.2.1 SHA-256: `85b218ff0ac3d18ec03e2a959f13ce13c596d38d46ab78f7908ec9fa7533c6e3`. The latest pre-fix game log reports game 0.4.7f12 / Unity 2022.3.62f2 and TaxiDriver 0.8.2. This is not a post-fix runtime load check.
+- Built/deployed TaxiDriver DLL SHA-256: `d658f1fd230e92389dab273147eb1d66f4e70f5cf60b74ad1711c7152e5dd8bb`. DLL, PDB and JSON were read back from the actual game directories and matched build/source files. `UserData/TaxiDriver/mod.json` reports 0.8.3.
+- A read-only independent code review found one actionable defect (deferred-destroy `Reset()` erased the pickup-failure feedback); it was fixed with its own RED→GREEN regression tests. No security concerns and no other demonstrable new defects.
+- `dotnet test Source/Tests/TaxiDriver.Tests/TaxiDriver.Tests.csproj -c Release --no-restore`: **207 passed, 0 failed, 0 skipped**. This covers deterministic boarding/confirmation/feedback decisions plus explicitly limited wiring checks, not native invincibility/revival, seat timing or complete gameplay compatibility.
+- Supplemental Shared suite: **71 passed, 0 failed**. Its ProjectReference triggered a same-byte Shared DLL/PDB redeploy (both read back and matched); the third-party target copied 0 DLLs and S1API's hash remained unchanged. This is separate from the narrowly scoped TaxiDriver build above.
+- Dominik reported the previous driver's killability followed by another NPC appearing in the taxi. The new fix has not been re-tested in-game; do not label its gameplay acceptance verified.
+
 ## Verification matrix
 
 "Verified" means a functional check in a real game session, recorded in the mod's changelog or the inventory in `AGENTS.md`. No automated in-game test exists; GitHub-hosted CI cannot run the game.
 
-The rows below record the game version each check ran on. The installed runtime is v0.4.7f12. Older live checks remain historical; no TaxiDriver gameplay check has been run against the current f12 source changes.
+The rows below record the game version each check ran on. The installed runtime is v0.4.7f12. Older live checks remain historical; the TaxiDriver driver-safety update was gameplay-checked on this runtime on 2026-10-11.
 
 | Mod | Version | Verified on | Date | Needs S1API | Needs S1MAPI | Notes |
 |---|---|---|---|---|---|---|
+| PropertyLEDs | 0.1.0 | — | — | yes | no | Experimental independent implementation. Beam geometry + 33 imported rooms across 11 properties (2026-10-11, reference-ported lines); in-game visual confirmation and phone/lifecycle verification are open; see its implementation-status document. |
 | NotesApp | 1.0.3 | v0.4.6f13 | 2026-09-15 | yes | no | |
 | CalculatorApp | 0.2.3 | v0.4.6f13 | 2026-09-15 | yes | no | |
-| PotScanner | 0.7.0 | v0.4.6f13 | 2026-09-15 | yes | no | Core dashboard verified 2026-09-15; v0.7.0 is a view rewrite on the shared palette — verification open. |
-| BankApp | 0.4.4 | v0.4.6f13 | 2026-09-15 | yes | no | |
+| PotScanner | 0.7.0 | v0.4.7f12 | 2026-10-11 | yes | no | Core dashboard verified 2026-09-15; the v0.7.0 shared-palette view rewrite was verified in-game 2026-10-11. |
+| BankApp | 0.5.0 | v0.4.7f12 | 2026-10-11 | yes | no | The single-screen UI (v0.5.0) and the v0.4.5 withdrawal-cap fix were verified in-game 2026-10-11; v0.4.4 was verified 2026-09-15. |
 | CustomSkateboard | 1.1.5 | v0.4.6f13 | 2026-09-15 | yes | no | |
 | MoreSaveSlots | 1.0.12 | v0.4.6f13 | 2026-09-15 | yes (`S1API.Utils.EventHelper`) | no | Harmony patches on the save menus. |
 | BusinessIncome | 0.1.6 | v0.4.6f13 | 2026-09-19 | yes | no | |
@@ -44,12 +56,13 @@ The rows below record the game version each check ran on. The installed runtime 
 | StackLimitMod | 0.1.7 | v0.4.6f13 | 2026-09-20 | yes | no | v0.1.6 verified 2026-09-20; v0.1.7 adds ingredient stacking — verification open. |
 | AutoPackagingStation | 0.3.3 | v0.4.6f13 | 2026-09-20 | yes | yes (`S1MAPI.Gltf.GltfLoader`) | |
 | HitmanPhone | 0.2.9 | v0.4.7f6 (beta) | 2026-09-24 | yes | no | v0.2.9 adds a `NPCDeathPatch` for the 0.4.7 `NPCHealth` change; v0.2.8 was verified on v0.4.6f13 (2026-09-15). |
-| Weather | 0.4.0 | — | — | yes | no | In-game verification open (0.4.0 = rebuild to the approved mockup; no version of this mod has been verified in-game yet). |
+| Weather | 0.4.0 | v0.4.7f12 | 2026-10-11 | yes | no | The v0.4.0 mockup rebuild was verified in-game 2026-10-11. |
 | MessagesPlus | 0.4.5 | v0.4.7f12 | 2026-10-10 | yes (`S1API.Lifecycle`, `S1API.UI`) | no | v0.4.5 dark-mode polish verified in-game 2026-10-10 (relationship bar vivid via `ThemeRelationshipBar`, order-popup buttons/inputs dark, same-frame `OnLateUpdate` healing without delay); v0.4.0 whole-app dark mode verified 2026-09-30. |
 | ProductAppQoL | 0.1.0 | v0.4.7f12 | 2026-10-10 | no | no | **Verified in-game 2026-10-10** (tap = ±$1, hold = repeat; typed input unaffected). Confirmed vanilla behaviour: the asking-price −/+ buttons are gamepad-only (`InputValueRamp`) — dead buttons for mouse/keyboard players. |
-| Minimap | 2.0.3 | v0.4.7f12 | 2026-10-10 | no | no | v2.0.3 map-key collision fix **verified in-game 2026-10-10**: the minimap no longer appears "only while the map is open" (old default `ToggleKey: "M"` toggled it with the map and the flipped state was saved); config migration (M→N + visibility re-enable) ran clean, day header/map texture/blips render. The v2.0.2 archive-restore baseline is otherwise still unverified. |
-| TaxiDriver | 0.8.2 | v0.4.7f6 (beta; historical) | 2026-09-25 | yes | yes (`S1MAPI.Gltf.GltfLoader`) | Earlier drive/visual checks only. No-deploy Release build against installed f12/Beta.8 references passed 2026-10-08 (0 warnings/errors); no current in-game test. |
-| StorageScanner | 0.1.1 | — | — | yes | no | v0.1.0 never ran a scan (readiness gate blocked on `IsContentCulled`); v0.1.1 fix deployed 2026-10-04, in-game verification open. |
+| Minimap | 2.1.1 | v0.4.7f12 | 2026-10-11 | no | no | v2.0.3 map-key collision fix **verified in-game 2026-10-10**: the minimap no longer appears "only while the map is open" (old default `ToggleKey: "M"` toggled it with the map and the flipped state was saved); config migration (M→N + visibility re-enable) ran clean, day header/map texture/blips render. The tabbed settings app was **verified in-game 2026-10-11**; palette-picker + zoom-row follow-ups were deployed the same day (picker look pending; portrait-badge look still open). The v2.0.2 archive-restore baseline is otherwise still unverified. |
+| TaxiDriver | 0.8.3 | v0.4.7f12 | 2026-10-11 | yes | yes (`S1MAPI.Gltf.GltfLoader`) | Driver-safety/STOP update: 207 tests passed and the f12/S1API 3.2.1-stable Release was built/deployed 2026-10-10 (0 warnings/errors); gameplay verified in-game 2026-10-11. Earlier drive/visual checks were historical f6. |
+| StorageScanner | 0.2.0 | v0.4.7f12 | 2026-10-11 | yes | no | v0.1.0 never ran a scan (readiness gate blocked on `IsContentCulled`); v0.1.1 fix deployed 2026-10-04; v0.2.0 verified in-game 2026-10-11. |
+| PhoneScrollFix | 2.0.0 | v0.4.7f12 | 2026-10-11 | yes | no | v2.0.0 hover appearance **verified in-game 2026-10-11** (user: "jetzt ist das vanilla"): the vanilla non-maskable `Outline` hover highlight is a slim clipped ring (sprite replace + `Image.maskable = true`) and the scroll viewport Mask is a stencil-free `RectMask2D`. Root cause live-confirmed via S1MCP + in-mod field watcher; scene-reload re-apply not separately re-tested. |
 
 ## Known version-drift risks
 

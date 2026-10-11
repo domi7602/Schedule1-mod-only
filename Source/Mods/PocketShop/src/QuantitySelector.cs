@@ -151,7 +151,7 @@ public class QuantitySelector
         _quantity = target;
         if (_inputField != null)
         {
-            _inputField.text = _quantity.ToString();
+            _inputField.SetTextWithoutNotify(_quantity.ToString());
         }
         OnChanged?.Invoke(_quantity);
     }
@@ -173,7 +173,7 @@ public class QuantitySelector
             _quantity = 1;
         }
 
-        if (_inputField != null) _inputField.SetTextWithoutNotify(_quantity.ToString());
+        WriteDisplay();
         SetInteractable(stock.CanBuy(1));
     }
 
@@ -185,13 +185,25 @@ public class QuantitySelector
         int clamped = Mathf.Clamp(newQty, 1, cap);
         if (_quantity == clamped) return;
         _quantity = clamped;
-        if (_inputField != null) _inputField.text = _quantity.ToString();
+        WriteDisplay(force: true);
         OnChanged?.Invoke(_quantity);
     }
 
     public void RefreshDisplay()
     {
-        if (_inputField != null) _inputField.text = _quantity.ToString();
+        WriteDisplay();
+    }
+
+    /// <summary>
+    /// Writes the current quantity into the input field. Regular UI refreshes must never
+    /// overwrite an actively edited field — the player's typed text wins until end-edit;
+    /// explicit +/- / SetQuantity actions force the write.
+    /// </summary>
+    private void WriteDisplay(bool force = false)
+    {
+        if (_inputField == null) return;
+        if (!force && _inputField.isFocused) return;
+        _inputField.SetTextWithoutNotify(_quantity.ToString());
     }
 
     public void ChangeBy(int delta)
@@ -202,7 +214,7 @@ public class QuantitySelector
         if (newQty > cap) newQty = cap;
         if (newQty == _quantity) return;
         _quantity = newQty;
-        if (_inputField != null) _inputField.text = _quantity.ToString();
+        WriteDisplay(force: true);
         SoundService.PlayButtonClick();
         OnChanged?.Invoke(_quantity);
     }
@@ -218,7 +230,7 @@ public class QuantitySelector
         }
         if (newQty == _quantity) return;
         _quantity = newQty;
-        if (_inputField != null) _inputField.text = _quantity.ToString();
+        WriteDisplay(force: true);
         SoundService.PlayButtonClick();
         OnChanged?.Invoke(_quantity);
     }

@@ -29,7 +29,7 @@ The mods are kept in a single repository so they can share the common library, b
 | Component | Version | Notes |
 |---|---|---|
 | **Schedule I** | **v0.4.6f13** (Steam default branch) | Most mods were verified in-game on this version (September 2026). |
-| **Schedule I** | v0.4.7f12 (current runtime; Steam build 25796331; checked 2026-10-08) | Unity 2022.3.62f2. Earlier live checks are historical; TaxiDriver no-deploy Release build passed against these local references (0 warnings/errors), but gameplay verification remains open. See [`docs/compatibility.md`](docs/compatibility.md). |
+| **Schedule I** | v0.4.7f12 (current runtime; Steam build 25796331; checked 2026-10-08) | Unity 2022.3.62f2. Earlier live checks are historical; the TaxiDriver no-deploy Release build passed against these local references (0 warnings/errors), and the 2026-10-11 in-game round (TaxiDriver driver-safety update, PotScanner, BankApp, Weather, StorageScanner) ran on this runtime. See [`docs/compatibility.md`](docs/compatibility.md). |
 | **MelonLoader** | 0.7.3 | IL2CPP build, `net6` runtime. |
 | **S1API** | 3.2.1-beta.8 (deployed runtime) | Loaded by the f12 session. The deployed DLL is the local PR #353 compatibility build documented for f11; its f12 patch/gameplay compatibility is not assumed. See `AGENTS.md` and [`docs/compatibility.md`](docs/compatibility.md). |
 | **S1MAPI** | 2.0.1 (source pin) | Required only by `AutoPackagingStation` and `TaxiDriver` (GLB model loading). |
@@ -46,9 +46,9 @@ Status legend: **Active** = released and verified in-game · **Active ¹** = cod
 | [**NotesApp**](Source/Mods/NotesApp/) | Phone | 1.0.3 | Active | In-game notepad with real-time search, pinning, quick in-game timestamps and keyboard shortcuts. Notes are saved atomically per save slot. |
 | [**CalculatorApp**](Source/Mods/CalculatorApp/) | Phone | 0.2.3 | Active | Decimal-precision calculator with live cash/bank quick-insert chips, clipboard support and a searchable history. |
 | [**PotScanner**](Source/Mods/PotScanner/) | Phone | 0.7.0 | Active | Monitors every grow pot across your properties: filter tabs (thirsty / ready / empty), quality ratings, Water-All and Auto-Water, plus `pot` console commands — in the shared BankApp-style palette. |
-| [**BankApp**](Source/Mods/BankApp/) | Phone | 0.5.0 | Active ¹ | Mobile banking dashboard: deposit and withdraw cash via quick-amount chips, weekly ATM-limit progress and slot-isolated transaction history. |
-| [**PocketShop**](Source/Mods/PocketShop/) | Phone | 0.3.2 | Active | Shop from your phone. Follows each shop's vanilla payment type (cash vs. card), enforces level locks and offers a quantity picker and item detail view. |
-| [**Weather**](Source/Mods/Weather/) | Phone | 0.4.0 | Active ¹ | Read-only weather dashboard: accent-bordered hero card with an intensity pill and ring gauge over nine live condition rows that tint themselves while active. |
+| [**BankApp**](Source/Mods/BankApp/) | Phone | 0.5.0 | Active | Mobile banking dashboard: deposit and withdraw cash via quick-amount chips, weekly ATM-limit progress and slot-isolated transaction history. |
+| [**PocketShop**](Source/Mods/PocketShop/) | Phone | 0.3.3 | Active | Shop from your phone. Follows each shop's vanilla payment type (cash vs. card), enforces level locks and offers a quantity picker and item detail view. |
+| [**Weather**](Source/Mods/Weather/) | Phone | 0.4.0 | Active | Read-only weather dashboard: accent-bordered hero card with an intensity pill and ring gauge over nine live condition rows that tint themselves while active. |
 | [**MessagesPlus**](Source/Mods/MessagesPlus/) | Phone / QoL | 0.4.5 | Active ¹ | Sticky search band under the vanilla title (live name search, category chips, unread counter) plus a "⋯" menu with Clear Read / Clear All and a **permanent whole-app dark mode**. |
 | [**ProductAppQoL**](Source/Mods/ProductAppQoL/) | Phone / QoL | 0.1.0 | Active | Mouse/touch support for the Product app's asking-price −/+ buttons (tap = ±$1, hold = repeat with acceleration) — vanilla wires them gamepad-only via `InputValueRamp`. |
 | [**HitmanPhone**](Source/Mods/HitmanPhone/) | Gameplay | 0.2.9 | Active | Bounty contracts via the Messages app: anonymous callers, Polaroid evidence dead-drops, police heat and journal quests. |
@@ -57,9 +57,11 @@ Status legend: **Active** = released and verified in-game · **Active ¹** = cod
 | [**AutoPackagingStation**](Source/Mods/AutoPackagingStation/) | Gameplay | 0.3.3 | Active | Placeable automated packaging line (conveyor belt, weighted quality mixing, auto-unpack) with a 2×2 footprint, unlocked at Hustler I rank. |
 | [**MoreSaveSlots**](Source/Mods/MoreSaveSlots/) | QoL | 1.0.12 | Active | Raises the save-slot count from 5 to 25 (configurable) with paginated menus and inline save renaming. |
 | [**StackLimitMod**](Source/Mods/StackLimitMod/) | QoL | 0.1.7 | Active | Configurable stack limits (default 40, 1–9999) for agriculture items (soil, seeds, baggies, jars, fertiliser, harvested crops); weapons and ammo always keep their vanilla limits. |
-| [**TaxiDriver**](Source/Mods/TaxiDriver/) | Developer | 0.8.2 | Experimental | Phone-app-only taxi service with its own NPC driver, autonomous navigation, GLB visuals, fare meter and owned-vehicle cleanup. No-deploy f12/Beta-8 Release build passed; in-game verification remains open. |
-| [**Minimap**](Source/Mods/Minimap/) | QoL | 2.0.3 | Active | Minimap & Unified HUD: dealer/police/customer markers, heat ring, health bar, waypoints and a phone settings app with per-blip toggles and colours. v2.0.3 fixes the map-key collision that made the minimap visible only while the map was open (verified in-game 2026-10-10). |
-| [**StorageScanner**](Source/Mods/StorageScanner/) | Phone | 0.2.0 | Active ¹ | Read-only overview of every storage container across your owned properties: per-item totals, property filter chips, live search and an explicit incomplete-data banner. |
+| [**TaxiDriver**](Source/Mods/TaxiDriver/) | Developer | 0.8.3 | Experimental | Phone-app-only taxi service with its own NPC driver, autonomous navigation, GLB visuals, fare meter and owned-vehicle cleanup. No-deploy f12/Beta-8 Release build passed; the driver-safety update was verified in-game 2026-10-11. |
+| [**Minimap**](Source/Mods/Minimap/) | QoL | 2.1.1 | Active | Minimap & Unified HUD: dealer/police/customer markers, heat ring, health bar, waypoints and a phone settings app with per-blip toggles, colours, shape/corner/rotation/opacity/border controls and rebindable keys. v2.1.1 shows NPC portrait images on customer markers (instead of text names); the same line of updates also added purple potential highlights, a blue accepted-deal clock, green purchase checks, gray regional locks and a 0.1–12 zoom range. The tabbed settings app was verified in-game 2026-10-11; colour pickers now use a swatch palette, and zoom is set via hotkeys / console. |
+| [**StorageScanner**](Source/Mods/StorageScanner/) | Phone | 0.2.0 | Active | Read-only overview of every storage container across your owned properties: per-item totals, property filter chips, live search and an explicit incomplete-data banner. |
+| [**PropertyLEDs**](Source/Mods/PropertyLEDs/docs/README.md) | Visual / Phone | 0.1.0 | Experimental | Independently developed room/property RGB LEDs, phone controls and layout surveying tools. Segment-beam geometry plus 33 imported rooms across 11 properties (2026-10-11, reference-ported lines, visual confirmation open); not a completed release. |
+| [**PhoneScrollFix**](Source/Mods/PhoneScrollFix/) | Phone / QoL | 2.0.0 | Active | Fixes the white hover plate on phone home-screen app icons: the vanilla non-maskable `Outline` highlight is turned into a slim clipped frame and the scroll viewport uses a stencil-free `RectMask2D`. Hover appearance verified in-game 2026-10-11. |
 
 Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not built or shipped): BackpackMod, DayCounter, HomelessMod, ProfitTracker, SnackVendor, TVBrowser, `_DiagPerfCounter`. Each mod folder contains its own documentation (`Source/Mods/<Mod>/docs/README.md`) and version history (`Source/Mods/<Mod>/docs/CHANGELOG.md`).
 
@@ -87,7 +89,7 @@ Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not 
     </td>
     <td align="center" width="25%">
       <img src="Source/Mods/PocketShop/assets/pocketshop_icon.png" width="64" alt="PocketShop icon"><br>
-      <b>PocketShop</b> · v0.3.2<br>
+      <b>PocketShop</b> · v0.3.3<br>
       <sub>Order from every shop through the phone, vanilla payment rules.</sub><br>
       <a href="Source/Mods/PocketShop/docs/README.md">Docs</a> · <a href="Source/Mods/PocketShop/docs/CHANGELOG.md">Changelog</a>
     </td>

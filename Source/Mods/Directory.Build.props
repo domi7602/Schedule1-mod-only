@@ -117,6 +117,13 @@
       <HintPath>$(GameDir)\UserLibs\S1API.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <!-- S1APILoader v2.5+ self-loads S1API and moves the Mods DLL aside to "*.disabled" while the
+         game runs (observed when the game was launched on the Mono "alternate" branch). Fall back
+         to that file so mod builds keep working until the DLL is renamed back. -->
+    <Reference Include="S1API" Condition="!Exists('$(ModsDir)\S1API.Il2Cpp.MelonLoader.dll') And !Exists('$(GameDir)\UserLibs\S1API.dll') And Exists('$(ModsDir)\S1API.Il2Cpp.MelonLoader.dll.disabled')">
+      <HintPath>$(ModsDir)\S1API.Il2Cpp.MelonLoader.dll.disabled</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="S1MAPI" Condition="Exists('$(GameDir)\UserLibs\S1MAPI_Il2Cpp.dll')">
       <HintPath>$(GameDir)\UserLibs\S1MAPI_Il2Cpp.dll</HintPath>
       <Private>False</Private>

@@ -1,5 +1,22 @@
 # TaxiDriver verification
 
+## Driver-safety and STOP regression pass, 2026-10-10
+
+The current suite has **207 passing tests** (baseline before this fix: 165). `DriverBoardingGateTests` exercises exact native identity, strict re-entry timing, failed-attempt reservation, invalid clocks and non-extending refusal. `StopConfirmationTests` exercises same-ride approval, three-second expiry, close/hidden synchronization, new rides, invalid/backwards clocks and immediate non-ride STOP. `ServiceFeedbackTests` exercises override expiry, immediate supersession by a new failure, protection of the STOP prompt, empty-status and same-revision no-ops, and invalid-clock fail-closed behaviour.
+
+`DriverSafetySourceContractTests`, `StopConfirmationSourceContractTests` and `ServiceFeedbackSourceContractTests` are structural wiring checks, not native runtime reproductions. They verify that the app and native helpers invoke the tested seams, that bystander selection is absent and that cleanup no longer erases the service feedback. They cannot prove invincibility, revival, seat timing, safe world exits or real NPC appearance in Unity.
+
+### In-game acceptance (new fixes: not yet run)
+
+- Attack the dedicated driver: protection should prevent death/knockout; no replacement or regular NPC should take the wheel.
+- Use the prior test save where the driver was killed: CALL TAXI should restore that same registered driver or refuse clearly, never borrow someone else.
+- CALL TAXI → STOP → CALL TAXI within 15 seconds of the last genuine entry: expect a remaining-wait message, no new taxi from the refused order, and no cooldown bypass warning.
+- Reorder after the window expires: normal pickup and a single driver should work.
+- During a ride, STOP once → close/reopen phone quickly → STOP once: expect a fresh confirmation. Repeat by closing only the app.
+- Confirm STOP twice without closing: cancellation/ownership-checked cleanup should still work.
+- Force a missing driver during the cooldown: expect cancelled navigation and parked taxi; native E exit and STOP remain available. No old reverse/redispatch may restart it.
+- Save/menu/load cycle: only the registered driver receives protection and no old confirmation can cancel the next ride.
+
 ## Unit tests (pure logic)
 
 The extracted Unity-free logic is covered by `Source/Tests/TaxiDriver.Tests`

@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>PropertyLEDs</AssemblyName>
+    <RootNamespace>PropertyLEDs</RootNamespace>
+  </PropertyGroup>
+</Project>

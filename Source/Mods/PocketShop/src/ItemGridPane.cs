@@ -22,6 +22,7 @@ public class ItemGridPane
     private RectTransform _content = null!;
     private Text _statusText = null!;
     private bool _disposed;
+    private bool _isActive = true;
     private const float StatusBarHeight = 22f;
     private static readonly Color StatusOk = new(0.24f, 0.82f, 0.44f, 1f);
     private static readonly Color StatusError = new(0.90f, 0.45f, 0.45f, 1f);
@@ -99,6 +100,13 @@ public class ItemGridPane
             if (_scrollGO.Pointer != IntPtr.Zero && !_scrollGO.WasCollected) _scrollGO.SetActive(active);
         }
         catch { }
+        _isActive = active;
+        if (!active)
+        {
+            // The status line lives on the pane root, not under the scroll object — hiding the
+            // scroll alone would leave a purchase message floating over the directory view.
+            ShowStatus(string.Empty, true);
+        }
     }
 
     /// <summary>
@@ -206,6 +214,9 @@ public class ItemGridPane
     public void ShowStatus(string message, bool success)
     {
         if (_statusText == null) return;
+        // Never leave purchase feedback on a hidden view: while the shop pane is not active
+        // the message is dropped, so it cannot linger over the directory or the next shop.
+        if (!_isActive) message = string.Empty;
         _statusText.text = message ?? string.Empty;
         _statusText.color = success ? StatusOk : StatusError;
     }

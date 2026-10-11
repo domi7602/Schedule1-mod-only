@@ -164,4 +164,51 @@ public sealed class PurchaseRulesTests
         Assert.False(PurchaseRules.BalanceDeltaMatches(1f, float.PositiveInfinity, -1f));
         Assert.False(PurchaseRules.BalanceDeltaMatches(1f, 0f, float.NegativeInfinity));
     }
+
+    [Fact]
+    public void BalanceObservationDistinguishesUnchangedConfirmedAndMismatch()
+    {
+        // The deferred bank transaction has not been applied yet.
+        Assert.Equal(BalanceObservation.Unchanged, PurchaseRules.ClassifyBalanceObservation(100f, 100f, -50f));
+        // The exact expected charge was observed.
+        Assert.Equal(BalanceObservation.Confirmed, PurchaseRules.ClassifyBalanceObservation(100f, 50f, -50f));
+        // The exact expected refund was observed.
+        Assert.Equal(BalanceObservation.Confirmed, PurchaseRules.ClassifyBalanceObservation(50f, 100f, 50f));
+        // The balance moved, but not by the expected amount.
+        Assert.Equal(BalanceObservation.Mismatch, PurchaseRules.ClassifyBalanceObservation(100f, 80f, -50f));
+        // A zero delta that never moved stays unchanged, never confirmed.
+        Assert.Equal(BalanceObservation.Unchanged, PurchaseRules.ClassifyBalanceObservation(100f, 100f, 0f));
+    }
+
+    [Fact]
+    public void BalanceObservationRejectsNonFiniteValuesAsMismatch()
+    {
+        Assert.Equal(BalanceObservation.Mismatch, PurchaseRules.ClassifyBalanceObservation(float.NaN, 1f, -1f));
+        Assert.Equal(BalanceObservation.Mismatch, PurchaseRules.ClassifyBalanceObservation(1f, float.PositiveInfinity, -1f));
+        Assert.Equal(BalanceObservation.Mismatch, PurchaseRules.ClassifyBalanceObservation(1f, 0f, float.NaN));
+    }
+
+    [Fact]
+    public void AppliedBankTransactionMatchesOnlySameTitleExactAmountAndPlausibleTime()
+    {
+        const string title = "PocketShop Order";
+        float sentAt = 12.0f;
+
+        Assert.True(PurchaseRules.MatchesAppliedBankTransaction(title, -33f, sentAt, title, -33f, 12.1f));
+        Assert.False(PurchaseRules.MatchesAppliedBankTransaction(title, -33f, sentAt, "PocketShop Refund", -33f, 12.1f));
+        Assert.False(PurchaseRules.MatchesAppliedBankTransaction(title, -33f, sentAt, title, -34f, 12.1f));
+        Assert.False(PurchaseRules.MatchesAppliedBankTransaction(title, -33f, sentAt, title, -33f, sentAt - 5f));
+        Assert.False(PurchaseRules.MatchesAppliedBankTransaction(title, float.NaN, sentAt, title, -33f, 12.1f));
+        Assert.False(PurchaseRules.MatchesAppliedBankTransaction(title, -33f, sentAt, title, -33f, float.NaN));
+    }
+
+    [Fact]
+    public void ConfirmationWindowExpiresOnlyAfterTheBoundedWait()
+    {
+        Assert.False(PurchaseRules.IsConfirmationExpired(10f, 12.5f, 5f));
+        Assert.True(PurchaseRules.IsConfirmationExpired(10f, 15f, 5f));
+        Assert.True(PurchaseRules.IsConfirmationExpired(10f, 16f, 5f));
+        Assert.False(PurchaseRules.IsConfirmationExpired(float.NaN, 16f, 5f));
+        Assert.False(PurchaseRules.IsConfirmationExpired(10f, 16f, 0f));
+    }
 }

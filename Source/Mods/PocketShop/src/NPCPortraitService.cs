@@ -14,9 +14,25 @@ namespace PocketShop.Services;
 /// </summary>
 public static class NPCPortraitService
 {
-    private static readonly Dictionary<string, Sprite> _cache = new();
+    /// <summary>One cached avatar. Fallback entries may be re-resolved later — real portraits never.</summary>
+    private sealed class AvatarEntry
+    {
+        public Sprite Sprite = null!;
+        public bool IsFallback;
+        public float NextRecheckAt;
+    }
+
+    private static readonly Dictionary<string, AvatarEntry> _cache = new();
     private static readonly HashSet<Sprite> _proceduralSprites = new();
     private static Sprite? _circleSprite;
+    private static int _lastRegistryCount = -1;
+
+    /// <summary>
+    /// A fallback cached while the NPC registry was still loading must not hide a real mugshot
+    /// that becomes available later. Fallbacks are re-checked at most this often (per entry)
+    /// and are dropped entirely when the registry count changes.
+    /// </summary>
+    private const float FallbackRecheckIntervalSeconds = 5f;
 
     public static Sprite GetCircleSprite(int size = 64)
     {
@@ -53,24 +69,98 @@ public static class NPCPortraitService
     public static Sprite GetAvatar(string shopCode, string shopName, int size = 128)
     {
         string key = $"{shopCode}_{shopName}_{size}";
-        if (_cache.TryGetValue(key, out var cached) && cached != null && cached.Pointer != IntPtr.Zero && !cached.WasCollected)
+
+        int registryCount = ReadRegistryCount();
+        if (registryCount != _lastRegistryCount)
         {
-            return cached;
+            _lastRegistryCount = registryCount;
+            // The registry changed (save finished loading): fallbacks cached earlier may now
+            // resolve to a real mugshot. Real portraits are never invalidated.
+            DropFallbackEntries();
+        }
+
+        if (_cache.TryGetValue(key, out var cached) && cached != null && IsAlive(cached.Sprite))
+        {
+            bool mayRecheck = cached.IsFallback && registryCount > 0
+                && Time.realtimeSinceStartup >= cached.NextRecheckAt;
+            if (!mayRecheck)
+            {
+                return cached.Sprite;
+            }
+
+            var refreshed = TryGetNpcMugshot(shopCode, shopName);
+            if (IsAlive(refreshed))
+            {
+                _cache[key] = new AvatarEntry { Sprite = refreshed!, IsFallback = false };
+                return refreshed!;
+            }
+
+            // Still no mugshot: keep the existing fallback and re-check later (no new texture).
+            cached.NextRecheckAt = Time.realtimeSinceStartup + FallbackRecheckIntervalSeconds;
+            return cached.Sprite;
         }
 
         // 1. Try to fetch the real 3D NPC MugshotSprite from the game
         var npcSprite = TryGetNpcMugshot(shopCode, shopName);
-        if (npcSprite != null && npcSprite.Pointer != IntPtr.Zero && !npcSprite.WasCollected)
+        if (IsAlive(npcSprite))
         {
-            _cache[key] = npcSprite;
-            return npcSprite;
+            _cache[key] = new AvatarEntry { Sprite = npcSprite!, IsFallback = false };
+            return npcSprite!;
         }
 
         // 2. Fallback to crisp procedural themed icon (e.g. Gas-Mart, Boutique)
         var iconSprite = CreateThemedStoreIcon(shopCode, shopName, size);
-        _cache[key] = iconSprite;
+        _cache[key] = new AvatarEntry
+        {
+            Sprite = iconSprite,
+            IsFallback = true,
+            NextRecheckAt = Time.realtimeSinceStartup + FallbackRecheckIntervalSeconds
+        };
         _proceduralSprites.Add(iconSprite);
         return iconSprite;
+    }
+
+    private static bool IsAlive(Sprite? sprite)
+    {
+        return sprite != null && sprite.Pointer != IntPtr.Zero && !sprite.WasCollected;
+    }
+
+    private static int ReadRegistryCount()
+    {
+        try
+        {
+            return NPCManager.InstanceExists && NPCManager.NPCRegistry != null
+                ? NPCManager.NPCRegistry.Count
+                : 0;
+        }
+        catch
+        {
+            return _lastRegistryCount < 0 ? 0 : _lastRegistryCount;
+        }
+    }
+
+    /// <summary>
+    /// Drops every fallback cache entry so the next request re-resolves it. The old sprites stay
+    /// in <see cref="_proceduralSprites"/> (live UI may still show them) until <see cref="Reset"/>.
+    /// </summary>
+    private static void DropFallbackEntries()
+    {
+        if (_cache.Count == 0) return;
+
+        List<string>? fallbacks = null;
+        foreach (var pair in _cache)
+        {
+            if (pair.Value.IsFallback)
+            {
+                (fallbacks ??= new List<string>()).Add(pair.Key);
+            }
+        }
+        if (fallbacks == null) return;
+
+        for (int i = 0; i < fallbacks.Count; i++)
+        {
+            _cache.Remove(fallbacks[i]);
+        }
     }
 
     private static Sprite? TryGetNpcMugshot(string shopCode, string shopName)
@@ -442,6 +532,7 @@ public static class NPCPortraitService
         }
         _proceduralSprites.Clear();
         _cache.Clear();
+        _lastRegistryCount = -1;
 
         if (_circleSprite != null)
         {

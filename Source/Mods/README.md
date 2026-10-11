@@ -24,6 +24,7 @@ Source/Mods/
 ├── NotesApp/                   Phone: notes
 ├── PocketShop/                 Phone: shop from anywhere
 ├── PotScanner/                 Phone: grow-pot monitor
+├── PropertyLEDs/               Experimental: RGB ceiling strips + phone + measured layouts
 ├── StackLimitMod/              Configurable stack limits
 ├── TaxiDriver/                 Feasibility spike: NPC-driven taxi (developer tool)
 └── Weather/                    Phone: weather dashboard

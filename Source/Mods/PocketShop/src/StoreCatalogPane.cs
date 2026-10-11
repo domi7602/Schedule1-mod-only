@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MelonLoader;
 using PocketShop.Services;
 using S1API.UI;
 using S1API.Utils;
@@ -22,6 +23,15 @@ public class StoreCatalogPane
     private GameObject? _rootPanel;
     private bool _disposed;
 
+    // Deferred sizing state (bug: first open read RectTransform.rect.height before Unity
+    // had produced a valid viewport height, so the tiles kept their minimum size and a
+    // black band stayed below them; the second open happened to see valid values).
+    private RectTransform? _viewportRt;
+    private RectTransform? _contentRt;
+    private readonly List<LayoutElement> _rowElements = new();
+    private readonly List<LayoutElement> _cardElements = new();
+    private bool _sizingPending;
+
     public StoreCatalogPane(RectTransform parent)
     {
         _parent = parent;
@@ -35,6 +45,11 @@ public class StoreCatalogPane
         if (_disposed) return;
         DestroyOwnedObject(_rootPanel);
         _rootPanel = null;
+        _viewportRt = null;
+        _contentRt = null;
+        _rowElements.Clear();
+        _cardElements.Clear();
+        _sizingPending = false;
 
         _rootPanel = new GameObject("StoreCatalogRoot");
         _rootPanel.transform.SetParent(_parent, false);
@@ -69,7 +84,7 @@ public class StoreCatalogPane
         contentRt.anchorMax = new Vector2(1f, 1f);
         contentRt.pivot = new Vector2(0.5f, 1f);
         contentRt.anchoredPosition = Vector2.zero;
-        contentRt.sizeDelta = new Vector2(0f, Mathf.Max(vrt.rect.height, UITheme.Dp(105f)));
+        contentRt.sizeDelta = new Vector2(0f, UITheme.Dp(105f));
 
         var vlg = contentGO.AddComponent<VerticalLayoutGroup>();
         vlg.spacing = UITheme.Dp(6f);
@@ -79,6 +94,9 @@ public class StoreCatalogPane
         vlg.childForceExpandWidth = true;
         vlg.childForceExpandHeight = false;
         scrollRect.content = contentRt;
+
+        _viewportRt = vrt;
+        _contentRt = contentRt;
 
         var shops = FilterShops(ShopCatalog.Shops);
         if (shops.Count == 0)
@@ -92,13 +110,6 @@ public class StoreCatalogPane
         const int columns = 4;
         int rows = (shops.Count + columns - 1) / columns;
         float minRowHeight = UITheme.Dp(105f);
-        float rowSpacing = UITheme.Dp(6f);
-        float verticalPadding = UITheme.Dp(12f);
-        float viewportHeight = Mathf.Max(0f, vrt.rect.height);
-        float rowHeight = Mathf.Max(minRowHeight,
-            (viewportHeight - verticalPadding - rowSpacing * Mathf.Max(0, rows - 1)) / rows);
-        float contentHeight = verticalPadding + rowSpacing * Mathf.Max(0, rows - 1) + rowHeight * rows;
-        contentRt.sizeDelta = new Vector2(0f, Mathf.Max(viewportHeight, contentHeight));
 
         for (int r = 0; r < rows; r++)
         {
@@ -106,9 +117,10 @@ public class StoreCatalogPane
             rowGO.transform.SetParent(contentGO.transform, false);
             var rowLE = rowGO.AddComponent<LayoutElement>();
             rowLE.minHeight = minRowHeight;
-            rowLE.preferredHeight = rowHeight;
+            rowLE.preferredHeight = minRowHeight;
             rowLE.flexibleWidth = 1f;
             rowLE.flexibleHeight = 0f;
+            _rowElements.Add(rowLE);
 
             var rowHlg = rowGO.AddComponent<HorizontalLayoutGroup>();
             rowHlg.spacing = UITheme.Dp(6f);
@@ -124,7 +136,7 @@ public class StoreCatalogPane
                 if (idx < shops.Count)
                 {
                     var shop = shops[idx];
-                    BuildStoreCard(rowGO.transform, shop, rowHeight);
+                    BuildStoreCard(rowGO.transform, shop, minRowHeight);
                 }
                 else
                 {
@@ -133,6 +145,75 @@ public class StoreCatalogPane
                 }
             }
         }
+
+        ApplyRowSizing(rows);
+    }
+
+    /// <summary>
+    /// Applies the tile height for the current viewport. The row height is derived from the
+    /// UNFILTERED grid (so search results keep the same tile size) and written explicitly to
+    /// every row and card. While Unity has not yet produced a valid viewport height (first
+    /// open) the calculation is deferred — <see cref="EnsureLayout"/> finalizes it later.
+    /// </summary>
+    private void ApplyRowSizing(int filteredRows)
+    {
+        if (_viewportRt == null || _contentRt == null) return;
+
+        float viewportHeight = _viewportRt.rect.height;
+        if (viewportHeight <= 1f)
+        {
+            _sizingPending = true;
+            return;
+        }
+
+        const int columns = 4;
+        int totalRows = Mathf.Max(1, (ShopCatalog.Shops.Count + columns - 1) / columns);
+        float minRowHeight = UITheme.Dp(105f);
+        float rowSpacing = UITheme.Dp(6f);
+        float verticalPadding = UITheme.Dp(12f);
+
+        float rowHeight = Mathf.Max(minRowHeight,
+            (viewportHeight - verticalPadding - rowSpacing * Mathf.Max(0, totalRows - 1)) / totalRows);
+        float contentHeight = verticalPadding + rowSpacing * Mathf.Max(0, filteredRows - 1) + rowHeight * filteredRows;
+
+        _contentRt.sizeDelta = new Vector2(0f, Mathf.Max(viewportHeight, contentHeight));
+        for (int i = 0; i < _rowElements.Count; i++)
+        {
+            _rowElements[i].minHeight = minRowHeight;
+            _rowElements[i].preferredHeight = rowHeight;
+        }
+        for (int i = 0; i < _cardElements.Count; i++)
+        {
+            _cardElements[i].minHeight = minRowHeight;
+            _cardElements[i].preferredHeight = rowHeight;
+        }
+
+        if (_sizingPending)
+        {
+            _sizingPending = false;
+            MelonLogger.Msg($"[PocketShop] directory layout finalized after first-open: viewport={viewportHeight:0.#} rows={filteredRows} rowHeight={rowHeight:0.#}");
+        }
+    }
+
+    /// <summary>
+    /// Cheap per-frame check (called by the app) that finalizes the deferred directory sizing
+    /// as soon as Unity provides a valid viewport height. A no-op once the layout is applied.
+    /// </summary>
+    public void EnsureLayout()
+    {
+        if (_disposed || !_sizingPending) return;
+        if (!IsOwnedObjectAlive(_rootPanel)) return;
+        try
+        {
+            var shops = FilterShops(ShopCatalog.Shops);
+            if (shops.Count == 0)
+            {
+                _sizingPending = false;
+                return;
+            }
+            ApplyRowSizing((shops.Count + 3) / 4);
+        }
+        catch { }
     }
 
     /// <summary>Live search filter over the store tiles (name or code, case-insensitive).</summary>
@@ -172,8 +253,10 @@ public class StoreCatalogPane
         var card = UIFactory.Panel($"StoreCard_{shop.ShopCode}", parent, cardColor);
         var cardLE = card.AddComponent<LayoutElement>();
         cardLE.flexibleWidth = 1f;
-        cardLE.preferredHeight = UITheme.Dp(105f);
-        cardLE.minHeight = UITheme.Dp(105f);
+        cardLE.flexibleHeight = 0f;
+        cardLE.preferredHeight = Mathf.Max(rowH, UITheme.Dp(105f));
+        cardLE.minHeight = Mathf.Max(rowH, UITheme.Dp(105f));
+        _cardElements.Add(cardLE);
 
         var cardVlg = card.AddComponent<VerticalLayoutGroup>();
         cardVlg.spacing = 0f;
@@ -239,6 +322,12 @@ public class StoreCatalogPane
         nameTxt.color = Color.white;
         nameTxt.raycastTarget = false;
         nameTxt.horizontalOverflow = HorizontalWrapMode.Wrap;
+        nameTxt.verticalOverflow = VerticalWrapMode.Truncate;
+        // Long shop names wrap inside the banner and take the free space above the count
+        // line; truncation prevents distortion/overflow instead of squeezing the tile.
+        var nameLE = nameTxt.gameObject.AddComponent<LayoutElement>();
+        nameLE.flexibleHeight = 1f;
+        nameLE.minHeight = UITheme.Dp(12f);
 
         string subLabel;
         if (locked) subLabel = "LOCKED";

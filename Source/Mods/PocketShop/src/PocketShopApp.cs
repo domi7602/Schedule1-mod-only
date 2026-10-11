@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using MelonLoader;
 using MelonLoader.Utils;
+using Il2CppScheduleOne.NPCs;
 using PocketShop.Config;
 using PocketShop.Services;
 using PocketShop.UI;
@@ -11,6 +12,7 @@ using S1API.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 using UITheme = S1Mods.Shared.UITheme;
+using EPaymentType = Il2CppScheduleOne.UI.Shop.ShopInterface.EPaymentType;
 
 namespace PocketShop;
 
@@ -57,6 +59,7 @@ public sealed class PocketShopApp : PhoneApp
     private float _lastStatsRefreshTime;
     private InputField _searchField = null!;
     private string _searchQuery = string.Empty;
+    private bool _registryWasReady;
 
     // Fix (Bug-Audit 2026-09-10): the phone re-instantiates this app per scene load and the old
     // per-instance handler stayed subscribed to MelonEvents.OnUpdate forever, while ItemGridPane's
@@ -224,6 +227,14 @@ public sealed class PocketShopApp : PhoneApp
 
         if (open)
         {
+            // Deferred card payments finish asynchronously (the bank RPC applies on a later
+            // server tick): drain their results while the app is open so the status line and
+            // the stock refresh stay in sync.
+            while (PurchaseService.TryDequeueCompletedPurchase(out var deferred))
+            {
+                HandlePurchaseResult(deferred);
+            }
+
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 // The search field owns the first Escape (same behaviour as the Taxi app);
@@ -244,6 +255,19 @@ public sealed class PocketShopApp : PhoneApp
                 _lastStatsRefreshTime = Time.unscaledTime;
                 RefreshStats();
             }
+
+            // Bug 1 (icons first open): if the NPC registry loaded AFTER the app was
+            // opened (InitializeSaveable runs asynchronously), the directory still
+            // shows the fallback procedural icons. Rebuild once when it becomes ready.
+            if (!_registryWasReady && _viewMode == ViewMode.Directory && NPCRegistryIsReady())
+            {
+                _registryWasReady = true;
+                _directoryPane?.Build();
+            }
+
+            // Bug 4 (layout first open): finalize the deferred directory sizing as soon as
+            // Unity provides a valid viewport height. Cheap no-op once applied.
+            _directoryPane?.EnsureLayout();
         }
     }
 
@@ -254,6 +278,28 @@ public sealed class PocketShopApp : PhoneApp
         ShopCatalog.RetryIfEmpty();
         SetViewMode(ViewMode.Directory);
         RefreshStats();
+        // Bug 1 (icons first open): the NPC registry may not be loaded yet when the
+        // first app-open happens — TryGetNpcMugshot then returns null and the fallback
+        // procedural icons are cached. On the second open the registry is ready and the
+        // real mugshots appear. Force a directory rebuild on open so the correct icons
+        // are picked up as soon as the registry is available.
+        _registryWasReady = NPCRegistryIsReady();
+        if (_registryWasReady && _directoryPane != null)
+        {
+            _directoryPane.Build();
+        }
+    }
+
+    private static bool NPCRegistryIsReady()
+    {
+        try
+        {
+            return NPCManager.InstanceExists && NPCManager.NPCRegistry != null && NPCManager.NPCRegistry.Count > 0;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     protected override void OnCreatedUI(GameObject container)
@@ -356,6 +402,7 @@ public sealed class PocketShopApp : PhoneApp
         cashVlg.childAlignment = TextAnchor.MiddleCenter;
         _cashChipText = S1API.UI.UIFactory.Text("Txt", "CASH $—", cashPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
         _cashChipText.color = new Color(0.35f, 0.92f, 0.58f, 1f);
+        _cashChipText.horizontalOverflow = HorizontalWrapMode.Overflow;
         _cashChipText.raycastTarget = false;
 
         // Card chip
@@ -373,6 +420,7 @@ public sealed class PocketShopApp : PhoneApp
         cardVlg.childAlignment = TextAnchor.MiddleCenter;
         _cardChipText = S1API.UI.UIFactory.Text("Txt", "CARD $—", cardPanel.transform, UITheme.Sp(10), TextAnchor.MiddleCenter, FontStyle.Bold);
         _cardChipText.color = new Color(0.30f, 0.85f, 0.95f, 1f);
+        _cardChipText.horizontalOverflow = HorizontalWrapMode.Overflow;
         _cardChipText.raycastTarget = false;
     }
 
@@ -387,14 +435,17 @@ public sealed class PocketShopApp : PhoneApp
     {
         if (_cleanupComplete) return;
         RefreshStats();
-        _gridPane?.ShowStatus(result.Message, result.IsSuccess);
+        // A pending card payment is not an error: show it neutrally (positive tone) until the
+        // deferred confirmation reports the real outcome.
+        _gridPane?.ShowStatus(result.Message, result.IsSuccess || result.IsPending);
         if (result.IsSuccess && result.Item != null)
         {
-            // Bug-Audit 2026-09-12: only refresh BUY-state left the visible card stale
+            // Bug-Audit 2026-09-12: only refreshing BUY-state left the visible card stale
             // (badge + QuantitySelector max). Notify the matching grid card so it
             // re-clamps its selector and redraws the stock badge in sync with the
             // live listing that PurchaseService just decremented.
             _gridPane?.NotifyStockChanged(result.Item.ItemId);
+            _gridPane?.RefreshAllBuyStates();
         }
         else
         {
@@ -523,7 +574,74 @@ public sealed class PocketShopApp : PhoneApp
             _statsLabel.text = $"CHOOSE A SHOP  ·  {ShopCatalog.Shops.Count} STORES";
         }
 
-        _gridPane?.RefreshAllBuyStates();
+        UpdatePaymentChipHints();
+
+        // Only the visible shop list needs live BUY-state checks; the hidden grid is
+        // refreshed when it is shown again (avoids per-second live reads of hidden items).
+        if (_viewMode == ViewMode.ShopDetail)
+        {
+            _gridPane?.RefreshAllBuyStates();
+        }
+    }
+
+    /// <summary>
+    /// Marks the account used by the current shop's vanilla payment rule on the balance chips:
+    /// "CASH $x •" = cash is charged, "CARD $y •" = bank is charged. With PreferCash/PreferOnline
+    /// the preferred account carries the dot and the alternative stays available (undimmed).
+    /// In the directory (no active shop) both chips stay plain.
+    /// </summary>
+    private void UpdatePaymentChipHints()
+    {
+        bool showHint = _viewMode == ViewMode.ShopDetail;
+        bool cashMarked = false;
+        bool cardMarked = false;
+        bool cashAvailable = true;
+        bool cardAvailable = true;
+
+        if (showHint)
+        {
+            var shops = ShopCatalog.Shops;
+            if (_activeShopIndex >= 0 && _activeShopIndex < shops.Count)
+            {
+                switch (shops[_activeShopIndex].PaymentType)
+                {
+                    case EPaymentType.Cash:
+                        cashMarked = true;
+                        cardAvailable = false;
+                        break;
+                    case EPaymentType.Online:
+                        cardMarked = true;
+                        cashAvailable = false;
+                        break;
+                    case EPaymentType.PreferCash:
+                        cashMarked = true;
+                        break;
+                    case EPaymentType.PreferOnline:
+                        cardMarked = true;
+                        break;
+                    default:
+                        // Unknown rule: no hint (purchases are rejected fail-closed).
+                        break;
+                }
+            }
+        }
+
+        ApplyChipHint(_cashChipText, cashMarked, cashAvailable);
+        ApplyChipHint(_cardChipText, cardMarked, cardAvailable);
+    }
+
+    private static void ApplyChipHint(Text? chip, bool marked, bool available)
+    {
+        if (chip == null) return;
+        try
+        {
+            // Strip a previous marker before re-adding so the label never accumulates dots.
+            string text = (chip.text ?? string.Empty).TrimEnd(' ', '•');
+            chip.text = marked ? text + " •" : text;
+            var c = chip.color;
+            chip.color = new Color(c.r, c.g, c.b, available ? 1f : 0.45f);
+        }
+        catch { }
     }
 
     private static Sprite BuildIconSprite()

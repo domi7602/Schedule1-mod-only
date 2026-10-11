@@ -439,6 +439,7 @@ public static class MinimapTextures
     private static Sprite? _blipShopSprite;
     private static Sprite? _blipSleepingBagSprite;
     private static Sprite? _blipVehicleSprite;
+    private static Sprite? _blipSewerKeySprite;
 
     public static Sprite GetBlipDeal(int size = 44)
     {
@@ -646,5 +647,65 @@ public static class MinimapTextures
         tex.Apply();
         _blipVehicleSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
         return _blipVehicleSprite;
+    }
+
+    /// <summary>
+    /// Classic skeleton-key silhouette (round bow + shaft + teeth) for the world
+    /// sewer keys. White rim so it reads on any map surface.
+    /// </summary>
+    public static Sprite GetBlipSewerKey(int size = 40)
+    {
+        if (_blipSewerKeySprite != null) return _blipSewerKeySprite;
+
+        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        tex.filterMode = FilterMode.Bilinear;
+
+        Color32[] pixels = new Color32[size * size];
+        float half = size * 0.5f;
+
+        // Key geometry (all in normalized units): bow centre (0.36,0.64) r=0.17,
+        // shaft from the bow to the upper-right, two teeth at the end.
+        for (int y = 0; y < size; y++)
+        {
+            float ny = (float)y / size;
+            for (int x = 0; x < size; x++)
+            {
+                float nx = (float)x / size;
+                Color32 fill = new Color32(0, 0, 0, 0);
+
+                // 1. Bow (ring): outer radius 0.17, hole radius 0.075
+                float bowDx = nx - 0.36f;
+                float bowDy = ny - 0.64f;
+                float bowDist = Mathf.Sqrt(bowDx * bowDx + bowDy * bowDy);
+                if (bowDist <= 0.17f && bowDist >= 0.075f)
+                    fill = new Color32(255, 255, 255, 255);
+
+                // 2. Shaft: diagonal band from the bow rim towards (0.72,0.28)
+                //    distance to the line through those two points:
+                Vector2 a = new Vector2(0.36f, 0.64f);
+                Vector2 b = new Vector2(0.72f, 0.28f);
+                Vector2 ab = b - a;
+                float lenSqr = ab.sqrMagnitude;
+                float t = Mathf.Clamp01(((new Vector2(nx, ny) - a).x * ab.x + (new Vector2(nx, ny) - a).y * ab.y) / lenSqr);
+                Vector2 proj = a + ab * t;
+                float lineDist = Vector2.Distance(new Vector2(nx, ny), proj);
+                if (lineDist <= 0.045f && t > 0.12f && t <= 1f)
+                    fill = new Color32(255, 255, 255, 255);
+
+                // 3. Teeth: two short cross-bars near the tip
+                bool tooth1 = ny <= proj.y + 0.001f && ny >= proj.y - 0.10f && nx >= 0.62f && nx <= 0.72f && Mathf.Abs(ny - (0.28f + 0.02f)) <= 0.045f;
+                bool tooth2 = ny <= proj.y + 0.001f && ny >= proj.y - 0.10f && nx >= 0.68f && nx <= 0.78f && Mathf.Abs(ny - (0.28f + 0.02f)) <= 0.045f;
+                if (tooth1 || tooth2)
+                    fill = new Color32(255, 255, 255, 255);
+
+                pixels[y * size + x] = fill;
+            }
+        }
+
+        tex.SetPixels32(pixels);
+        tex.Apply();
+        _blipSewerKeySprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
+        return _blipSewerKeySprite;
     }
 }

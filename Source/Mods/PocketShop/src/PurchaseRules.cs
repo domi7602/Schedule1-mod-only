@@ -41,6 +41,21 @@ public enum PaymentAccount
     Bank
 }
 
+/// <summary>
+/// One observation of a money balance against an expected delta. The bank path needs this
+/// tri-state: a ServerRpc transaction is applied on a later network tick, so "not moved yet"
+/// (Unchanged) is neither success nor failure until the bounded confirmation window ends.
+/// </summary>
+public enum BalanceObservation
+{
+    /// <summary>The balance has not changed yet; a deferred transaction may still apply.</summary>
+    Unchanged,
+    /// <summary>The observed change equals the expected representable delta exactly.</summary>
+    Confirmed,
+    /// <summary>The balance moved, but not by the expected amount (or was unreadable).</summary>
+    Mismatch
+}
+
 /// <summary>Pure validation shared by the live purchase path and UI stock/price presentation.</summary>
 public static class PurchaseRules
 {
@@ -149,6 +164,54 @@ public static class PurchaseRules
         if (!float.IsFinite(expectedAfter) || expectedAfter.Equals(before)) return false;
         return after.Equals(expectedAfter)
             && (expectedDelta < 0f ? after < before : after > before);
+    }
+
+    /// <summary>
+    /// Classifies one balance observation against the expected money delta. Used by the
+    /// deferred bank confirmation: a ServerRpc-delivered transaction is applied on the
+    /// server's next network tick, so "Unchanged" must be re-checked (bounded), never
+    /// treated as failure or success by itself.
+    /// </summary>
+    public static BalanceObservation ClassifyBalanceObservation(float before, float after, float expectedDelta)
+    {
+        if (!float.IsFinite(before) || !float.IsFinite(after) || !float.IsFinite(expectedDelta))
+            return BalanceObservation.Mismatch;
+        if (after.Equals(before))
+            return BalanceObservation.Unchanged;
+        return BalanceDeltaMatches(before, after, expectedDelta)
+            ? BalanceObservation.Confirmed
+            : BalanceObservation.Mismatch;
+    }
+
+    /// <summary>
+    /// True when a bank transaction captured from the vanilla MoneyManager matches the
+    /// transaction this purchase initiated: same title, exactly the applied amount, and
+    /// not older than the send time (small clock tolerance for ordering only — the
+    /// amount comparison itself stays exact, no money tolerance).
+    /// </summary>
+    public static bool MatchesAppliedBankTransaction(
+        string expectedTitle, float expectedAmount, float sentAt,
+        string observedTitle, float observedAmount, float observedAt)
+    {
+        if (!float.IsFinite(expectedAmount) || !float.IsFinite(sentAt)
+            || !float.IsFinite(observedAmount) || !float.IsFinite(observedAt))
+            return false;
+        if (!string.Equals(expectedTitle ?? string.Empty, observedTitle ?? string.Empty, StringComparison.Ordinal))
+            return false;
+        if (!observedAmount.Equals(expectedAmount))
+            return false;
+        return observedAt >= sentAt - AppliedTransactionClockToleranceSeconds;
+    }
+
+    /// <summary>Clock-order tolerance for captured-vs-sent timestamps; money amounts stay exact.</summary>
+    public const float AppliedTransactionClockToleranceSeconds = 0.25f;
+
+    /// <summary>True once the bounded confirmation window (realtime seconds) has elapsed.</summary>
+    public static bool IsConfirmationExpired(float startedAt, float now, float windowSeconds)
+    {
+        if (!float.IsFinite(startedAt) || !float.IsFinite(now) || !float.IsFinite(windowSeconds) || windowSeconds <= 0f)
+            return false;
+        return now - startedAt >= windowSeconds;
     }
 
 }

@@ -1,10 +1,10 @@
-# TaxiDriver 0.8.2 — TaxiApp service, no keyboard controls
+# TaxiDriver 0.8.3 — Dedicated driver safety and TaxiApp service
 
 TaxiDriver is a Schedule I taxi service controlled through the in-game phone app.
-The current local target is Schedule I **0.4.7f12**, S1API **3.2.1-beta.8**,
-and S1MAPI **2.0.1**. The no-deploy Release build passed on 2026-10-08 against
-the installed references (0 warnings, 0 errors); no TaxiDriver in-game test was
-run. The app displays the calculated fare. A clean return from S1API's void Money
+The current local build target is Schedule I **0.4.7f12**, installed S1API **3.2.1 stable**,
+and S1MAPI **2.0.1**. The Release build and automatic TaxiDriver deploy passed on
+2026-10-10 (0 warnings, 0 errors); 192 regression/source-wiring tests pass.
+New driver-safety and STOP behavior still needs an in-game acceptance pass. The app displays the calculated fare. A clean return from S1API's void Money
 methods does not confirm a balance change; the settlement summary labels returned,
 unknown and unpaid amounts separately. **Keine Behauptung vollständiger Beta-8-Kompatibilität ohne passenden Build
 beziehungsweise Laufzeittest.**
@@ -27,6 +27,14 @@ Current service path:
 **F12 drücken | Kein Vanilla-Fahrzeug wird übernommen.**
 
 ## TaxiApp service flow
+
+### Dedicated driver safety
+
+Only the registered `taxi_driver` may drive. The service never borrows a regular NPC or creates a replacement driver. It applies and reads back the driver's native invincibility flag on creation/load and before an order. A host can restore the existing driver if an older save left him dead or knocked out; unavailable/unconfirmed recovery refuses the order.
+
+A genuine entry attempt starts a strict 15-second re-entry cooldown even if the native call fails. A rapid reorder shows the remaining wait and does not spawn another taxi. If the driver leaves during that cooldown, the trip is stopped and the taxi remains parked for vanilla E exit / STOP cleanup; recovery does not bypass the guard.
+
+STOP during a passenger ride needs two presses within three seconds on the same ride. Closing/hiding the app or phone, starting another ride, or performing another app action discards confirmation.
 
 Press **CALL TAXI** in the phone app. It uses the existing
 `SpikeCommands.CallTaxi` → `SpikeRunner.TickAutoRun` path: spawn at the fixed

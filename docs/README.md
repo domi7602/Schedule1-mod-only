@@ -17,4 +17,6 @@
 | [`../AGENTS.md`](../AGENTS.md) | AI agents | Bootstrap file: setup, authoritative mod inventory, agent workflows. |
 | [`../THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md) | Everyone | Third-party components and their licenses. |
 
+PropertyLEDs development and acceptance tracking: [`README`](../Source/Mods/PropertyLEDs/docs/README.md) · [`milestones`](../Source/Mods/PropertyLEDs/docs/implementation-status.md). It is experimental until measured layouts and in-game checks pass.
+
 Per-mod documentation lives next to the code: `Source/Mods/<ModName>/docs/README.md` (features, configuration, usage) and `Source/Mods/<ModName>/docs/CHANGELOG.md` (version history).
