@@ -76,7 +76,7 @@ Release/           Release ZIP output
 | **BusinessIncome** | ✅ active (v0.1.6, **Verified 2026-09-19**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | host authority, slot isolation, console |
 | **StackLimitMod** | ✅ active (v0.1.7; v0.1.6 **Verified 2026-09-20**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` | Harmony, Registry, agriculture-only |
 | **Minimap** | ✅ active (v2.1.1, key-collision fix **Verified 2026-10-10** — minimap stays visible outside the map, migration ran clean; blips/day-header render confirmed from screenshot; startup green dot no longer appears; **tabbed settings app Verified 2026-10-11**, palette pickers + zoom-row removal deployed the same day) | `Mods/Minimap/` | `Minimap.dll` | HUD overlay, blip pool, settings PhoneApp, waypoints |
-| **AutoPackagingStation** | ✅ active (v0.3.3, **Verified 2026-09-20**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable, SafeStorage, GLB |
+| **AutoPackagingStation** | ✅ active (v0.4.7, **Verified 2026-10-15, owner-confirmed tested session**; 66 tests; Release deployed, retirement-scoped review PASS; multiplayer/legacy migration unverified) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable, SafeStorage, GLB |
 | **HitmanPhone** | ✅ active (v0.2.9, beta **Verified 2026-09-24**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Messages/NPC/Items/Quests |
 | **MessagesPlus** | ✅ active (v0.4.5, dark mode **verified in-game 2026-10-09**; v0.4.0 sweep **verified 2026-09-30**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | vanilla-Messages patches + permanent whole-app dark mode |
 | **ProductAppQoL** | ✅ active (v0.1.0, **Verified 2026-10-10**) | `Mods/ProductAppQoL/` | `ProductAppQoL.dll` | Product app: asking-price −/+ buttons respond to mouse/touch (tap = ±$1, hold = repeat) — vanilla wires them gamepad-only via `InputValueRamp` (dead buttons for PC players) |
@@ -135,9 +135,9 @@ Release/           Release ZIP output
 - Configurable stack limit (default 40) for agricultural + ingredient categories only; weapon/ammo/clothing/cash veto; dual discovery (definition scan + `Registry` hook) with a `BaseItemInstance.get_StackLimit` postfix; restore on unload; `apply_report.json` + `stack` console.
 - v0.1.6 was the IL2CPP fix (`is` checks are useless on proxies — `TryCast<T>()`), proven via apply_report + the 2026-09-20 session. History: `Source/Mods/StackLimitMod/docs/CHANGELOG.md`.
 
-**AutoPackagingStation v0.3.3 (2026-09-13):**
-- 4×4 animated packaging line (2×2 footprint, E-interactable, Hustler-I gate): atomic 2-phase pack engine, weighted quality mixing, auto-unpack canvas mirror, native slot sync, PackUp with refund; all mutations host-guarded.
-- **Verified 2026-09-20.** History: `Source/Mods/AutoPackagingStation/docs/CHANGELOG.md`.
+**AutoPackagingStation v0.4.7 (2026-10-15):**
+- Industrial automated packaging station (2×2m footprint, E-interactable, Hustler-I gate): native `PackSingleInstance` pack engine, chance-based freshness bonus, auto-unpack canvas mirror, restore-safe native slot sync, save schema v2 (`UnpackageMode`, `PendingRefunds`), PackUp with refund + pending-refund queue; all mutations host-guarded.
+- **Verified 2026-10-15, owner-confirmed tested session.** Native prefab/network graph and owned cauldron footprint retained; no late PackagingStation injection. The v0.4.6 collider A/B restored native E/canvas interaction by retaining native placed collider geometry. Version 0.4.7 retires the temporary read-only Awake observer, interaction/collider dumps and diagnostic bookkeeping, without adding replacement interaction listeners. 66/66 tests, Release 0 warnings/errors, retirement-scoped review PASS; deployed DLL/PDB/metadata matched. The v0.4.7 session log matches the installed DLL hash and confirms fresh setup, native canvas, Pack/Unpack and mode mirroring; the owner subsequently confirmed everything tested in-game worked. Additional actions were not itemized; separate multiplayer and 0.4.1 cauldron-save migration acceptance remain unverified. History: `Source/Mods/AutoPackagingStation/docs/CHANGELOG.md`.
 
 **HitmanPhone v0.2.9 (2026-09-15):**
 - Bounty contracts via phone messages (anonymous callers): kill → Polaroid evidence → dead-drop payout; police heat, journal quests, 3-day expiry, slot-isolated save; `KnockOut` patch + double-drop latch + orphan-quest cleanup.

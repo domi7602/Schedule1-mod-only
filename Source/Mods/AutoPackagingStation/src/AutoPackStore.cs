@@ -38,6 +38,13 @@ public class AutoPackStationSaveData
     public SlotItemData? OutputProduct { get; set; }
     public string State { get; set; } = "Idle";
     public float Progress { get; set; } = 0f;
+
+    /// <summary>
+    /// v2 (bug-audit 2026-10-13, BUG-006): the unpackage mode was runtime-only and
+    /// silently reset to Package on every load. Old saves without this field
+    /// deserialize to false (Package) — the documented pre-v2 default.
+    /// </summary>
+    public bool UnpackageMode { get; set; } = false;
 }
 
 /// <summary>
@@ -105,8 +112,19 @@ public class AutoPackStationRuntimeData
 /// </summary>
 public class AutoPackModSaveData
 {
-    public int SaveVersion { get; set; } = 1;
+    public int SaveVersion { get; set; } = 2;
     public List<AutoPackStationSaveData> Stations { get; set; } = new();
+
+    /// <summary>
+    /// v2 (bug-audit 2026-10-13, BUG-002): items that could not be returned to the
+    /// player (inventory full) when a station was destroyed by a non-PackUp path.
+    /// They are re-offered on every load until taken — nothing is ever dropped.
+    /// Re-review 2026-10-13 (Befund 2): they only survive SUCCESSFUL saves. A save
+    /// abort (BUG-005: partial data rejected) keeps the previous file, so refunds
+    /// queued in this session live in RAM until the next successful save — a crash
+    /// before that point loses them.
+    /// </summary>
+    public List<SlotItemData> PendingRefunds { get; set; } = new();
 }
 
 /// <summary>
@@ -117,6 +135,7 @@ public static class AutoPackStore
     private static readonly List<AutoPackStationController> _activeStations = new();
     private static readonly Dictionary<string, AutoPackStationRuntimeData> _runtimeData = new();
     private static readonly Dictionary<string, AutoPackStationSaveData> _stagedSaveData = new();
+    private static readonly List<SlotItemData> _pendingRefunds = new();
     private static string _lastKnownSlot = "";
 
     public static IReadOnlyList<AutoPackStationController> ActiveStations => _activeStations;
@@ -161,7 +180,34 @@ public static class AutoPackStore
     public static bool RemoveRuntimeData(string guid)
     {
         if (string.IsNullOrEmpty(guid)) return false;
+        // A station that is gone must not keep a staged save record alive —
+        // otherwise OnSaveComplete would resurrect it on the next load (bug-audit
+        // 2026-10-13, BUG-005).
+        _stagedSaveData.Remove(guid);
         return _runtimeData.Remove(guid);
+    }
+
+    /// <summary>
+    /// Bug-audit 2026-10-13 (BUG-002): queue one item instance that could not be
+    /// returned to the player so it survives the destruction and is re-offered on
+    /// the next load. Nothing is ever dropped.
+    /// </summary>
+    public static void QueuePendingRefund(SlotItemData item)
+    {
+        if (item == null || item.Quantity <= 0 || string.IsNullOrEmpty(item.ItemId)) return;
+        _pendingRefunds.Add(item);
+        Mod.Log.Warn($"Queued {item.Quantity}x '{item.ItemId}' as pending refund (inventory full).");
+    }
+
+    /// <summary>
+    /// Returns all queued refunds and clears the queue. The caller re-queues
+    /// whatever still does not fit, so no item can be lost.
+    /// </summary>
+    public static List<SlotItemData> DrainPendingRefunds()
+    {
+        var drained = new List<SlotItemData>(_pendingRefunds);
+        _pendingRefunds.Clear();
+        return drained;
     }
 
     /// <summary>
@@ -254,6 +300,7 @@ public static class AutoPackStore
             _activeStations.Clear();
             _runtimeData.Clear();
             _stagedSaveData.Clear();
+            _pendingRefunds.Clear();
         }
         catch (Exception ex)
         {
@@ -272,6 +319,20 @@ public static class AutoPackStore
             Mod.Log.Info($"Loading AutoPackagingStation state from {Path.GetFileName(path)}...");
 
             var data = SafeStorage.LoadSafe<AutoPackModSaveData>(path, new AutoPackModSaveData(), Mod.Log);
+
+            // v2 (BUG-002): requeue undelivered refunds from the previous session.
+            if (data?.PendingRefunds != null && data.PendingRefunds.Count > 0)
+            {
+                for (int i = 0; i < data.PendingRefunds.Count; i++)
+                {
+                    if (data.PendingRefunds[i] != null && data.PendingRefunds[i].Quantity > 0)
+                    {
+                        _pendingRefunds.Add(data.PendingRefunds[i]);
+                    }
+                }
+                Mod.Log.Info($"Re-queued {_pendingRefunds.Count} pending refund entr(ies) from save.");
+            }
+
             if (data == null || data.Stations == null || data.Stations.Count == 0)
             {
                 Mod.Log.Info("No saved AutoPackagingStations found in active save slot.");
@@ -332,7 +393,7 @@ public static class AutoPackStore
         SlotItemData? savedProd = rData.InputProduct;
         SlotItemData? savedOut = rData.OutputProduct;
 
-        var station = stationController.GetComponent<PackagingStation>() ?? stationController.GetComponentInParent<PackagingStation>();
+        var station = AutoPackagingStation.Entities.AutoPackStationController.ResolveNativeStation(stationController.gameObject);
         if (station != null && station.Pointer != IntPtr.Zero && station.InputSlots != null && station.InputSlots.Count >= 2 && station.OutputSlots != null && station.OutputSlots.Count >= 1)
         {
             // InputSlots[0] -> pkgSlot
@@ -409,7 +470,8 @@ public static class AutoPackStore
             InputPackaging = savedPkg,
             OutputProduct = savedOut,
             State = rData.State.ToString(),
-            Progress = rData.PackagingProgress
+            Progress = rData.PackagingProgress,
+            UnpackageMode = rData.UnpackageMode
         };
     }
 
@@ -425,7 +487,8 @@ public static class AutoPackStore
             InputPackaging = rData.InputPackaging,
             OutputProduct = rData.OutputProduct,
             State = rData.State.ToString(),
-            Progress = rData.PackagingProgress
+            Progress = rData.PackagingProgress,
+            UnpackageMode = rData.UnpackageMode
         };
     }
 
@@ -439,6 +502,8 @@ public static class AutoPackStore
         rData.InputPackaging = data.InputPackaging;
         rData.OutputProduct = data.OutputProduct;
         rData.PackagingProgress = data.Progress;
+        // v2 (BUG-006): restore the unpackage mode (pre-v2 saves default to Package).
+        rData.UnpackageMode = data.UnpackageMode;
         if (Enum.TryParse<StationState>(data.State, true, out var parsed))
         {
             rData.State = parsed;
@@ -499,9 +564,12 @@ public static class AutoPackStore
 
             var rootData = new AutoPackModSaveData
             {
-                SaveVersion = 1,
-                Stations = new List<AutoPackStationSaveData>()
+                SaveVersion = 2,
+                Stations = new List<AutoPackStationSaveData>(),
+                PendingRefunds = new List<SlotItemData>(_pendingRefunds)
             };
+
+            var seenGuids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             // Clean up destroyed pointers and gather active data
             for (int i = _activeStations.Count - 1; i >= 0; i--)
@@ -516,18 +584,38 @@ public static class AutoPackStore
                 try
                 {
                     var stationData = CreateSaveData(station);
+                    // Bug-audit 2026-10-13 (BUG-005): an empty or duplicated GUID makes the
+                    // whole dataset untrustworthy — keep the previous save file instead.
+                    if (string.IsNullOrEmpty(stationData.Guid) || !seenGuids.Add(stationData.Guid))
+                    {
+                        Mod.Log.Error($"OnSaveComplete aborted: duplicate/empty station GUID '{stationData.Guid}'. Previous save file kept.");
+                        return;
+                    }
                     rootData.Stations.Add(stationData);
                 }
                 catch (Exception ex)
                 {
-                    Mod.Log.Warn($"Failed to serialize station [{station.StationGuid}]: {ex.Message}");
+                    // Bug-audit 2026-10-13 (BUG-005): a failed serialization must never
+                    // replace a complete save with a partial one — abort and keep the file.
+                    Mod.Log.Error($"OnSaveComplete aborted: serialization of station [{station.StationGuid}] failed: {ex.Message}. Previous save file kept.");
+                    return;
                 }
+            }
+
+            // Bug-audit 2026-10-13 (BUG-005): staged records (loaded, controller not yet
+            // matched) must survive a save that happens mid-restore. GUIDs already covered
+            // by an active station are skipped — the active data is fresher.
+            foreach (var kvp in _stagedSaveData)
+            {
+                if (kvp.Value == null || string.IsNullOrEmpty(kvp.Key)) continue;
+                if (!seenGuids.Add(kvp.Key)) continue;
+                rootData.Stations.Add(kvp.Value);
             }
 
             bool success = SafeStorage.SaveAtomic(path, rootData, Mod.Log);
             if (success)
             {
-                Mod.Log.Info($"Successfully saved {rootData.Stations.Count} station(s) atomically.");
+                Mod.Log.Info($"Successfully saved {rootData.Stations.Count} station(s) atomically (SaveVersion 2, {_pendingRefunds.Count} pending refund(s)).");
             }
             else
             {

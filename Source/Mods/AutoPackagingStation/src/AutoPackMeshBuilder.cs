@@ -175,9 +175,15 @@ public static class AutoPackMeshBuilder
     }
 
     /// <summary>
-    /// Builds the full 4x4 industrial station visual hierarchy and links parts to the controller.
+    /// Builds the full industrial station visual hierarchy and links parts to the
+    /// controller. Bug-audit 2026-10-13 (BUG-013): the controller may be NULL — the
+    /// placement ghost only needs visuals. The old ghost flow attached a full
+    /// controller, destroyed it afterwards, and its OnDestroy destroyed the instanced
+    /// materials the ghost renderers still used (pink/missing ghost materials).
+    /// (BUG-014): the build is idempotent — a re-run clears previously generated
+    /// children of AutoPack_VisualRoot first instead of stacking duplicate models.
     /// </summary>
-    public static void BuildStationVisuals(GameObject root, AutoPackStationController controller)
+    public static void BuildStationVisuals(GameObject root, AutoPackStationController? controller)
     {
         if (root == null || root.Pointer == IntPtr.Zero) return;
 
@@ -186,6 +192,20 @@ public static class AutoPackMeshBuilder
         if (existingRoot != null && existingRoot.Pointer != IntPtr.Zero)
         {
             visualRoot = existingRoot.gameObject;
+            // Idempotent rebuild (BUG-014): drop previously generated children.
+            try
+            {
+                var t = visualRoot.transform;
+                for (int i = t.childCount - 1; i >= 0; i--)
+                {
+                    var child = t.GetChild(i);
+                    if (child != null && child.Pointer != IntPtr.Zero) GameObject.Destroy(child.gameObject);
+                }
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"BuildStationVisuals idempotent clear failed: {ex.Message}");
+            }
         }
         else
         {
@@ -239,11 +259,11 @@ public static class AutoPackMeshBuilder
                             instMat.shader = urpShader;
                             instMat.name = "AutoPack_GLB_Conveyor_Inst";
                             renderer.material = instMat;
-                            controller.RegisterConveyorVisual(renderer, instMat);
+                            controller?.RegisterConveyorVisual(renderer, instMat);
                         }
                     }
                     var piston = glbModel.transform.Find("AutoPack_PneumaticPress_Head") ?? glbModel.transform.Find("PneumaticPress_Head");
-                    if (piston != null && piston.Pointer != IntPtr.Zero) controller.RegisterPistonVisual(piston);
+                    if (piston != null && piston.Pointer != IntPtr.Zero) controller?.RegisterPistonVisual(piston);
                     var led = glbModel.transform.Find("AutoPack_Status_LED_Beacon") ?? glbModel.transform.Find("Status_LED_Beacon");
                     if (led != null && led.Pointer != IntPtr.Zero)
                     {
@@ -255,7 +275,7 @@ public static class AutoPackMeshBuilder
                             var instLedMat = srcLedMat != null && srcLedMat.Pointer != IntPtr.Zero ? new Material(srcLedMat) : CreateLedMaterialInstance();
                             instLedMat.shader = urpShader;
                             renderer.material = instLedMat;
-                            controller.RegisterLedVisual(renderer, instLedMat, light);
+                            controller?.RegisterLedVisual(renderer, instLedMat, light);
                         }
                     }
 
@@ -324,7 +344,7 @@ public static class AutoPackMeshBuilder
             conveyorRenderer.material = conveyorMat;
 
             // Register conveyor renderer & material with controller
-            controller.RegisterConveyorVisual(conveyorRenderer, conveyorMat);
+            controller?.RegisterConveyorVisual(conveyorRenderer, conveyorMat);
 
             // Conveyor Guard Rails (Left & Right)
             var railL = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -430,7 +450,7 @@ public static class AutoPackMeshBuilder
             StripCollider(stampPlate);
             SetMaterial(stampPlate, GetPistonMaterial());
 
-            controller.RegisterPistonVisual(pistonRoot.transform);
+            controller?.RegisterPistonVisual(pistonRoot.transform);
 
             // 5. Intake Hopper (Rear - Z < 0) & Output Chute (Front - Z > 0)
             var intakeHopper = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -469,7 +489,7 @@ public static class AutoPackMeshBuilder
             ledLight.intensity = 1.2f;
             ledLight.color = Color.green;
 
-            controller.RegisterLedVisual(ledRenderer, ledMat, ledLight);
+            controller?.RegisterLedVisual(ledRenderer, ledMat, ledLight);
 
             // 7. Control Console Terminal (Side-mounted)
             var consoleGo = GameObject.CreatePrimitive(PrimitiveType.Cube);

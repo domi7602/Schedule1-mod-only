@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Reflection;
 using AutoPackagingStation.Entities;
 using AutoPackagingStation.Persistence;
 using Il2CppInterop.Runtime;
@@ -23,7 +24,9 @@ namespace AutoPackagingStation.Items;
 /// </summary>
 public static class AutoPackagingItemFactory
 {
-    private static bool _isRegistered = false;
+    private static NativeBuildableItemDef? _preparedDefinition;
+    private static BuildableItem? _preparedPrefab;
+    private static bool _ghostPrepared;
     private static int _injectRetryCount = 0;
     private const int MaxInjectRetries = 10;
 
@@ -32,34 +35,33 @@ public static class AutoPackagingItemFactory
     /// </summary>
     public static void RegisterItem()
     {
-        // Gatekeeper-fix 2026-08-29: was `if (_isRegistered) return;` which left the mod
-        // silently broken after a Registry reset (patch-day, save-slot switch, dynamic reload).
-        // Now we also re-verify the item actually exists in the Registry — if not, we retry.
         string itemId = Mod.CurrentConfig.StationItemId;
-        if (_isRegistered && GameRegistry.ItemExists(itemId)) return;
-        _isRegistered = false; // re-arm in case previous registration was lost (registry reset)
-
         try
         {
-            // itemId hoisted to outer guard (Gatekeeper-fix 2026-08-29); do not redeclare.
             if (GameRegistry.ItemExists(itemId))
             {
-                Mod.Log.Info($"Item '{itemId}' already exists in Registry.");
-                _isRegistered = true;
+                var existing = GameRegistry.GetItem(itemId)?.TryCast<NativeBuildableItemDef>();
+                if (!IsReadyDefinition(existing))
+                    Mod.Log.Error($"Registration refused: item '{itemId}' exists but is not our fully prepared definition/prefab.");
                 return;
             }
 
             Mod.Log.Info($"Registering custom buildable 4x4 item '{itemId}'...");
 
-            // Look for existing buildable base item to inherit GridItem and 4x4 footprint tiles
-            string[] candidateBases = new[] { "packagingstation", "packagingstationmk2", "cauldron", "brickpress", "dryingrack", "pot", "storage" };
+            // Preserve the serialized PackagingStation/FishNet graph. A foreign machine
+            // plus a late AddComponent has no registered network behaviour or native slots.
+            string[] candidateBases = new[] { "packagingstation", "packagingstationmk2" };
             string? baseId = null;
             foreach (var candidate in candidateBases)
             {
                 if (GameRegistry.ItemExists(candidate))
                 {
                     var def = GameRegistry.GetItem(candidate);
-                    if (def != null && def.Pointer != IntPtr.Zero && def.TryCast<NativeBuildableItemDef>() != null)
+                    var native = def != null && def.Pointer != IntPtr.Zero ? def.TryCast<NativeBuildableItemDef>() : null;
+                    var prefab = native?.BuiltItem;
+                    var nativeStation = prefab != null && prefab.Pointer != IntPtr.Zero
+                        ? prefab.GetComponent<Il2CppScheduleOne.ObjectScripts.PackagingStation>() : null;
+                    if (nativeStation != null && nativeStation.Pointer != IntPtr.Zero)
                     {
                         baseId = candidate;
                         break;
@@ -75,37 +77,52 @@ public static class AutoPackagingItemFactory
             }
             else
             {
-                Mod.Log.Info("Creating Auto-Packaging Station builder from scratch...");
-                builder = BuildableItemCreator.CreateBuilder();
+                Mod.Log.Warn("Registration deferred: no native PackagingStation donor is available.");
+                return;
             }
 
             builder.WithBasicInfo(
                        itemId,
                        Mod.CurrentConfig.StationDisplayName,
-                       "Industrial 4x4 automated packaging station. Automatically feeds raw product through an animated pneumatic conveyor system with +5% freshness quality bonus.",
+                       "Industrial automated packaging station. Automatically feeds raw product through an animated pneumatic conveyor system. Freshness bonus: each packaging cycle has a small chance (configurable, default 5%) to upgrade the output quality by one tier.",
                        S1API.Items.ItemCategory.Furniture)
                    .WithPricing(Mod.CurrentConfig.StationPurchasePrice, 0.5f)
-                   .WithIcon(AutoPackMeshBuilder.GetOrCreateIconSprite())
-                   .WithGhostVisual((Transform parent) =>
-                   {
-                       var ghost = CreateGhostPrefab();
-                       ghost.transform.SetParent(parent, false);
-                       ghost.name = "AutoPackagingStation_Ghost";
-                       return ghost;
-                   }, replaceExistingVisual: true);
+                   .WithIcon(AutoPackMeshBuilder.GetOrCreateIconSprite());
 
             // Bug 3 Fix: Level-gate — Tier 3 packaging machine requires Hustler rank
             // (after Tier 1 "packagingstation" StreetRat, Tier 2 "packagingstationmk2" Peddler)
             builder.WithRequiredRank(new S1API.Leveling.FullRank(S1API.Leveling.Rank.Hustler, 1));
 
-            var built = builder.Build();
+            var packagingDefinition = GameRegistry.GetItem(baseId)?.TryCast<NativeBuildableItemDef>();
+            var cauldronDefinition = GameRegistry.GetItem("cauldron")?.TryCast<NativeBuildableItemDef>();
+            if (packagingDefinition == null || cauldronDefinition == null)
+            {
+                Mod.Log.Warn("Registration deferred: packaging and cauldron donors are both required.");
+                return;
+            }
+            // Compose before publishing any definition/ghost, without touching either donor.
+            var ownedPrefab = AutoPackPrefabComposer.Compose(packagingDefinition, cauldronDefinition);
+            // Narrow S1API 3.2.1 compatibility bridge: its public builder cannot
+            // assign BuiltItem, but the verified private getter exposes the unpublished
+            // definition. Missing/drifted signatures abort BEFORE publication.
+            var nativeDefinition = typeof(BuildableItemDefinitionBuilder)
+                .GetProperty("BuildableDefinition", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.GetValue(builder) as NativeBuildableItemDef
+                ?? throw new InvalidOperationException("S1API buildable-definition bridge is unavailable.");
+            nativeDefinition.BuiltItem = ownedPrefab;
+            _preparedDefinition = nativeDefinition;
+            _preparedPrefab = ownedPrefab;
+            _ghostPrepared = false;
+            RegisterPreparedGhost(itemId);
+            _ghostPrepared = true;
+            // Even if Build throws AFTER native publication, the only published
+            // definition already has its owned prefab AND ghost. A retry accepts
+            // exact prepared identity only, not the mere presence of an item ID.
+            builder.Build();
+            if (!IsReadyDefinition(GameRegistry.GetItem(itemId)?.TryCast<NativeBuildableItemDef>()))
+                throw new InvalidOperationException("Published definition differs from the prepared definition.");
 
-            // Bug 1 Fix: Expand GridItem footprint from inherited 1x1 to 2x2 tiles
-            // so the placement system blocks overlapping tiles (prevents clipping into shelves).
-            ExpandFootprintTo2x2(built);
-
-            _isRegistered = true;
-            Mod.Log.Info($"Successfully registered '{itemId}' (2x2 footprint, Hustler I rank-gated).");
+            Mod.Log.Info($"Successfully registered '{itemId}' (native '{baseId}' behavior + cauldron 4x4 footprint, Hustler I rank-gated).");
         }
         catch (Exception ex)
         {
@@ -113,8 +130,44 @@ public static class AutoPackagingItemFactory
         }
     }
 
+    private static bool IsReadyDefinition(NativeBuildableItemDef? definition)
+    {
+        var prefab = definition?.BuiltItem;
+        return RegistrationPolicy.CanReuse(
+            definition != null && _preparedDefinition != null && definition.Pointer == _preparedDefinition.Pointer,
+            prefab != null && _preparedPrefab != null && prefab.Pointer == _preparedPrefab.Pointer,
+            _ghostPrepared);
+    }
+
+    private static void RegisterPreparedGhost(string itemId)
+    {
+        var runtime = typeof(BuildableItemDefinitionBuilder).Assembly
+            .GetType("S1API.Internal.Building.BuildableGhostRuntime");
+        var register = runtime?.GetMethod("RegisterVisual", BindingFlags.Static | BindingFlags.NonPublic,
+            null, new[] { typeof(string), typeof(Func<Transform, GameObject>), typeof(bool) }, null)
+            ?? throw new InvalidOperationException("S1API ghost-registration bridge is unavailable.");
+        Func<Transform, GameObject> factory = parent =>
+        {
+            var ghost = CreateGhostPrefab();
+            ghost.transform.SetParent(parent, false);
+            ghost.name = "AutoPackagingStation_Ghost";
+            return ghost;
+        };
+        register.Invoke(null, new object[] { itemId, factory, false });
+    }
+
+    public static void ShutdownPrefabCache()
+    {
+        _ghostPrepared = false;
+        _preparedDefinition = null;
+        _preparedPrefab = null;
+        AutoPackPrefabComposer.Shutdown();
+    }
+
     public static void OnSaveInfoLoaded()
     {
+        // Fresh load: re-arm the bounded shop-injection retry budget (bug-audit 2026-10-13, BUG-017).
+        _injectRetryCount = 0;
         RegisterItem();
     }
 
@@ -127,7 +180,7 @@ public static class AutoPackagingItemFactory
         {
             string itemId = Mod.CurrentConfig.StationItemId;
             var def = GameRegistry.GetItem(itemId);
-            if (def == null || def.Pointer == IntPtr.Zero) return;
+            if (def == null || def.Pointer == IntPtr.Zero || !IsReadyDefinition(def.TryCast<NativeBuildableItemDef>())) return;
 
             var storable = def.TryCast<NativeStorableItemDef>();
             if (storable == null || storable.Pointer == IntPtr.Zero) return;
@@ -135,14 +188,11 @@ public static class AutoPackagingItemFactory
             var shops = ShopInterface.AllShops;
             if (shops == null || shops.Count == 0)
             {
-                if (_injectRetryCount < MaxInjectRetries)
-                {
-                    _injectRetryCount++;
-                    MelonCoroutines.Start(DelayedShopRetry());
-                }
+                ScheduleShopRetry("shop list empty");
                 return;
             }
-            _injectRetryCount = 0;
+
+            bool targetShopSeen = false;
 
             for (int i = 0; i < shops.Count; i++)
             {
@@ -153,6 +203,7 @@ public static class AutoPackagingItemFactory
                 string name = (shop.ShopName ?? string.Empty).ToLowerInvariant();
 
                 if (!code.Contains("hardware") && !name.Contains("hardware") && !code.Contains("dan") && !name.Contains("dan") && !code.Contains("hank") && !name.Contains("hank")) continue;
+                targetShopSeen = true;
 
                 var listings = shop.Listings;
                 if (listings == null) continue;
@@ -188,11 +239,30 @@ public static class AutoPackagingItemFactory
                 Mod.Log.Info($"Injected '{itemId}' into hardware shop listing ('{shop.ShopName}').");
                 continue;
             }
+
+            // Bug-audit 2026-10-13 (BUG-017): success is per TARGET shop — retry until at
+            // least one hardware shop was processed, not merely until any shop exists.
+            if (targetShopSeen)
+            {
+                _injectRetryCount = MaxInjectRetries;
+            }
+            else
+            {
+                ScheduleShopRetry("no target hardware shop found yet");
+            }
         }
         catch (Exception ex)
         {
             Mod.Log.Warn($"Failed to inject hardware store listing: {ex.Message}");
         }
+    }
+
+    private static void ScheduleShopRetry(string reason)
+    {
+        if (_injectRetryCount >= MaxInjectRetries) return;
+        _injectRetryCount++;
+        Mod.Log.Debug($"InjectHardwareStoreListing: {reason} — retry {_injectRetryCount}/{MaxInjectRetries} in 2s.");
+        MelonCoroutines.Start(DelayedShopRetry());
     }
 
     private static IEnumerator DelayedShopRetry()
@@ -203,29 +273,35 @@ public static class AutoPackagingItemFactory
 
     /// <summary>
     /// Creates a visual ghost prefab for placement preview.
+    /// 2026-10-14: Baut NUR die Mod-Visuals (kein Controller, keine Logik). Der
+    /// Native-Ghost ist die Instanz unseres isolierten BuiltItem-Prefabs — S1API hängt
+    /// diese Visuals per WithGhostVisual darunter (replaceExistingVisual:false, damit
+    /// die GridItem-Footprint-Anzeige sichtbar bleibt). KEIN BoxCollider hier: Der
+    /// Native-Ghost bringt seine eigenen Collider/Tasks mit — ein zweiter Collider auf
+    /// unserem Visual-Root hat Raycast/Platzierung gestört.
     /// </summary>
     public static GameObject CreateGhostPrefab()
     {
         var root = new GameObject("AutoPackagingStation_GhostRoot");
 
-        // 2x2 Footprint Box Collider — matches 2m visual (H4: former 4x4 claim was inaccurate vs cloned 1x1 footprint tiles)
-        var box = root.AddComponent(Il2CppType.Of<BoxCollider>()).Cast<BoxCollider>();
-        box.center = new Vector3(0f, 0.70f, 0f);
-        box.size = new Vector3(2.0f, 1.40f, 2.0f);
-
-        // Build procedural visuals
-        var dummyController = root.AddComponent(Il2CppType.Of<AutoPackStationController>()).Cast<AutoPackStationController>();
-        AutoPackMeshBuilder.BuildStationVisuals(root, dummyController);
-        GameObject.Destroy(dummyController);
-        // Orphan AudioSource added by Awake — remove (M3)
-        var orphanAudio = root.GetComponent<AudioSource>();
-        if (orphanAudio != null && orphanAudio.Pointer != IntPtr.Zero) GameObject.Destroy(orphanAudio);
+        // Build visuals WITHOUT a controller (bug-audit 2026-10-13, BUG-013): the old
+        // flow attached a full AutoPackStationController (Awake side effects: GUID,
+        // AudioSource) and destroyed it again — its OnDestroy destroyed the instanced
+        // conveyor/LED materials the ghost renderers still used (pink/missing materials).
+        // A ghost needs visuals only: no runtime data, no game logic, no material teardown.
+        AutoPackMeshBuilder.BuildStationVisuals(root, null);
 
         return root;
     }
 
     /// <summary>
-    /// Configures a placed station GameObject in the game world with 4x4 box collider, visual mesh, and controller.
+    /// Configures placed visuals/controller while retaining native colliders and interaction.
+    /// 2026-10-14 (Platzierungs-Ghost fehlt + falsches Objekt beim Platzieren): Das vom
+    /// Spiel übergebene Objekt ist die Instanz unseres isolierten BuiltItem-Prefabs —
+    /// das vormals vermisste Setup (kein Controller, keine Mod-Visuals, keine
+    /// Interaktion) lief, weil BuildableItem.Start für UNSERE Item-ID ggf. vor oder
+    /// ohne Mod-Registrierung feuerte. SetupPlacedStation verifiziert jetzt die
+    /// Item-ID, versteckt das Vanilla-Erbe und meldet Erfolg/Misserfolg ins Log.
     /// </summary>
     public static void SetupPlacedStation(GameObject go, AutoPackStationSaveData? data = null)
     {
@@ -233,17 +309,44 @@ public static class AutoPackagingItemFactory
 
         try
         {
-            // 1. Configure 4x4 BoxCollider
-            var box = go.GetComponent<BoxCollider>() ?? go.AddComponent(Il2CppType.Of<BoxCollider>()).Cast<BoxCollider>();
-            box.center = new Vector3(0f, 0.70f, 0f);
-            box.size = new Vector3(2.0f, 1.40f, 2.0f);
-            box.enabled = true;
+            // 0. Entry-Diagnose (2026-10-14): vorher war unklar, ob der Hook feuert.
+            string entryName = string.Empty;
+            try { entryName = go.name ?? string.Empty; } catch { }
+            Mod.Log.Info($"SetupPlacedStation entry: object='{entryName}'.");
 
-            // 2. Ensure PackagingStation component and CameraPosition transform
-            var station = go.GetComponent<Il2CppScheduleOne.ObjectScripts.PackagingStation>() ?? go.GetComponentInChildren<Il2CppScheduleOne.ObjectScripts.PackagingStation>(true);
+            // 0. Verify this GameObject really is OUR station (Item-ID check) — sonst
+            // richten wir versehentlich eine Vanilla-Station als Mod-Station ein.
+            bool isOurs = false;
+            try
+            {
+                var buildableCheck = go.GetComponent<Il2CppScheduleOne.EntityFramework.BuildableItem>();
+                var instCheck = buildableCheck != null && buildableCheck.Pointer != IntPtr.Zero ? buildableCheck.ItemInstance : null;
+                string idCheck = instCheck != null && instCheck.Pointer != IntPtr.Zero && instCheck.Definition != null
+                    ? instCheck.Definition.ID ?? string.Empty : string.Empty;
+                isOurs = string.Equals(idCheck, Mod.CurrentConfig.StationItemId, StringComparison.OrdinalIgnoreCase)
+                    && instCheck != null && IsReadyDefinition(instCheck.Definition?.TryCast<NativeBuildableItemDef>());
+                if (!isOurs)
+                {
+                    Mod.Log.Debug($"SetupPlacedStation skipped: GameObject '{go.name}' carries item '{idCheck}', not '{Mod.CurrentConfig.StationItemId}'.");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Debug($"SetupPlacedStation ID/ownership check failed: {ex.Message}");
+                return;
+            }
+
+            // Collider A/B: keep every inherited native collider unchanged. The previous
+            // full-model root collider could intercept selection before the child IntObj.
+            // No replacement collider or custom E-input path is introduced here.
+
+            // Do not add a NetworkBehaviour after spawn: keep the inherited native graph.
+            var station = go.GetComponent<Il2CppScheduleOne.ObjectScripts.PackagingStation>();
             if (station == null || station.Pointer == IntPtr.Zero)
             {
-                station = go.AddComponent(Il2CppType.Of<Il2CppScheduleOne.ObjectScripts.PackagingStation>()).Cast<Il2CppScheduleOne.ObjectScripts.PackagingStation>();
+                Mod.Log.Error($"Setup refused for '{entryName}': native PackagingStation is missing. No runtime NetworkBehaviour was added.");
+                return;
             }
 
             if (station != null && station.Pointer != IntPtr.Zero)
@@ -273,75 +376,20 @@ public static class AutoPackagingItemFactory
                 }
             }
 
-            // 2b. Bug 2 Fix: Ensure InteractableObject exists for E-key storage interaction.
-            // The native PackagingStation expects an InteractableObject component to trigger
-            // its canvas (storage/slot UI). Without it, pressing E on the Kessel does nothing.
-            if (station != null && station.Pointer != IntPtr.Zero)
+            // Native PackagingStation.Awake owns its hover/start listeners. Do not add
+            // another anonymous listener on both BuildEvents and Start (double invocation).
+            // The native station's interactable may live on a child, not the root.
+            // Keep its existing wiring and require ownership before changing its range.
+            var interactable = station?.IntObj;
+            if (interactable == null || interactable.Pointer == IntPtr.Zero)
+                interactable = go.GetComponentInChildren<Il2CppScheduleOne.Interaction.InteractableObject>(true);
+            if (interactable == null || interactable.Pointer == IntPtr.Zero || !interactable.transform.IsChildOf(go.transform))
             {
-                try
-                {
-                    var interactable = go.GetComponent<Il2CppScheduleOne.Interaction.InteractableObject>();
-                    if (interactable == null || interactable.Pointer == IntPtr.Zero)
-                    {
-                        interactable = go.AddComponent(Il2CppType.Of<Il2CppScheduleOne.Interaction.InteractableObject>()).Cast<Il2CppScheduleOne.Interaction.InteractableObject>();
-                        Mod.Log.Info("Added InteractableObject to AutoPackagingStation for E-key interaction.");
-                    }
-
-                    // Configure the interactable
-                    interactable.SetMessage("Open Packaging Station");
-                    interactable.MaxInteractionRange = Mod.CurrentConfig.InteractionRange;
-                    interactable.Priority = 0;
-                    interactable.LimitInteractionAngle = false;
-
-                    // Wire up E-key interaction — native PackagingStation.Interacted() opens the canvas.
-                    // v0.2.9 fix: the old guard (`Instance != null && !activeSelf`) silently skipped the
-                    // call while the canvas singleton was still null (lazy scene init — it stays null
-                    // until the first vanilla station UI opens), leaving the E-prompt dead.
-                    // New guard: only skip when THIS station's canvas is already open.
-                    S1API.Utils.EventHelper.AddListener(
-                        new Action(() =>
-                        {
-                            try
-                            {
-                                if (station.Pointer != IntPtr.Zero)
-                                {
-                                    var canvas = Il2CppScheduleOne.UI.Stations.PackagingStationCanvas.Instance;
-                                    bool openForThisStation = canvas != null && canvas.Pointer != IntPtr.Zero
-                                        && canvas.gameObject.activeSelf
-                                        && canvas.Station != null && canvas.Station.Pointer == station.Pointer;
-                                    if (!openForThisStation)
-                                    {
-                                        Mod.Log.Info("E-interact: calling PackagingStation.Interacted().");
-                                        station.Interacted();
-                                        // Post-check: if the canvas is still not showing, surface why.
-                                        try
-                                        {
-                                            var post = Il2CppScheduleOne.UI.Stations.PackagingStationCanvas.Instance;
-                                            if (post == null || post.Pointer == IntPtr.Zero || !post.gameObject.activeSelf)
-                                            {
-                                                Mod.Log.Warn($"E-interact: canvas did not open after Interacted() (Instance null: {post == null}, active: {post?.gameObject.activeSelf}).");
-                                            }
-                                        }
-                                        catch { }
-                                    }
-                                }
-                                else
-                                {
-                                    Mod.Log.Warn("E-interact: station pointer is zero (collected?).");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Mod.Log.Error($"InteractableObject onInteractStart error: {ex.Message}");
-                            }
-                        }),
-                        interactable.onInteractStart);
-                }
-                catch (Exception ex)
-                {
-                    Mod.Log.Warn($"InteractableObject setup failed (non-fatal): {ex.Message}");
-                }
+                Mod.Log.Error("Setup refused: native PackagingStation interaction is missing or references a foreign object.");
+                return;
             }
+            Mod.Log.Info($"[autopack-setup] native interaction resolved on '{interactable.gameObject.name}'.");
+            interactable.MaxInteractionRange = Mod.CurrentConfig.InteractionRange;
 
             // 3. Attach AutoPackStationController
             var controller = go.GetComponent<AutoPackStationController>() ?? go.AddComponent(Il2CppType.Of<AutoPackStationController>()).Cast<AutoPackStationController>();
@@ -375,104 +423,11 @@ public static class AutoPackagingItemFactory
             }
 
             AutoPackStore.RegisterStation(controller);
-            Mod.Log.Info($"Configured 4x4 AutoPackagingStation [{controller.StationGuid}] in world.");
+            Mod.Log.Info($"Configured AutoPackagingStation [{controller.StationGuid}] in world (controller + visuals + native interaction).");
         }
         catch (Exception ex)
         {
             Mod.Log.Error($"SetupPlacedStation error: {ex}");
-        }
-    }
-
-    /// <summary>
-    /// Bug 1 Fix: Expands the GridItem footprint from the inherited 1x1 to 2x2 tiles,
-    /// matching the 2x2m physical footprint. This prevents tile overlap (e.g. clipping into shelves).
-    /// Grid tile size is 0.5m per tile — a 2x2m station occupies 4x4 tiles (2x2 in each axis).
-    /// </summary>
-    private static void ExpandFootprintTo2x2(S1API.Items.Buildable.BuildableItemDefinition? built)
-    {
-        try
-        {
-            if (built == null) { Mod.Log.Warn("ExpandFootprint: built definition is null."); return; }
-
-            // Access the native definition directly from the registry (the builder already registered it).
-            string itemId = Mod.CurrentConfig.StationItemId;
-            var nativeDef = GameRegistry.GetItem(itemId)?.TryCast<NativeBuildableItemDef>();
-            if (nativeDef == null || nativeDef.Pointer == IntPtr.Zero)
-            {
-                Mod.Log.Warn("ExpandFootprint: Native definition not found in Registry.");
-                return;
-            }
-
-            var builtItem = nativeDef.BuiltItem;
-            if (builtItem == null || builtItem.Pointer == IntPtr.Zero)
-            {
-                Mod.Log.Warn("ExpandFootprint: BuiltItem is null on native definition.");
-                return;
-            }
-
-            var gridItem = builtItem.GetComponent<Il2CppScheduleOne.EntityFramework.GridItem>();
-            if (gridItem == null || gridItem.Pointer == IntPtr.Zero)
-            {
-                Mod.Log.Warn("ExpandFootprint: No GridItem on BuiltItem — skipping footprint expansion.");
-                return;
-            }
-
-            var pairs = gridItem.CoordinateFootprintTilePairs;
-            if (pairs == null || pairs.Count == 0)
-            {
-                Mod.Log.Warn("ExpandFootprint: CoordinateFootprintTilePairs is empty — cannot expand.");
-                return;
-            }
-
-            // Clone the template tile from the first pair
-            var templateTile = pairs[0].footprintTile;
-            if (templateTile == null || templateTile.Pointer == IntPtr.Zero)
-            {
-                Mod.Log.Warn("ExpandFootprint: Template FootprintTile is null.");
-                return;
-            }
-
-            // Build 2x2 grid: coordinates (0,0), (1,0), (0,1), (1,1) at 0.5m spacing
-            const float tileSpacing = 0.5f;
-            int[,] coords = new int[,] { { 0, 0 }, { 1, 0 }, { 0, 1 }, { 1, 1 } };
-
-            // Keep existing pair for (0,0), add (1,0), (0,1), (1,1)
-            for (int i = 1; i < 4; i++)
-            {
-                int x = coords[i, 0];
-                int y = coords[i, 1];
-
-                // Check if already exists
-                bool exists = false;
-                for (int p = 0; p < pairs.Count; p++)
-                {
-                    if (pairs[p].coord.x == x && pairs[p].coord.y == y) { exists = true; break; }
-                }
-                if (exists) continue;
-
-                // Clone tile under same parent
-                var parent = templateTile.transform.parent;
-                var newTileGo = UnityEngine.Object.Instantiate(templateTile.gameObject, parent);
-                newTileGo.name = $"FootprintTile_{x}_{y}";
-                newTileGo.transform.localPosition = new Vector3(x * tileSpacing, 0f, y * tileSpacing);
-                newTileGo.SetActive(true);
-
-                var newTile = newTileGo.GetComponent<Il2CppScheduleOne.Tiles.FootprintTile>();
-                if (newTile == null || newTile.Pointer == IntPtr.Zero) continue;
-                newTile.X = x;
-                newTile.Y = y;
-
-                var pair = new Il2CppScheduleOne.Tiles.CoordinateFootprintTilePair();
-                pair.coord = new Il2CppScheduleOne.Tiles.Coordinate(x, y);
-                pair.footprintTile = newTile;
-                pairs.Add(pair);
-            }
-
-            Mod.Log.Info($"ExpandFootprint: Expanded to {pairs.Count} footprint tiles (2x2).");
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Warn($"ExpandFootprintTo2x2 failed (non-fatal, 1x1 fallback): {ex.Message}");
         }
     }
 

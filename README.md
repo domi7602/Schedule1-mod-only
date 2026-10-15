@@ -54,7 +54,7 @@ Status legend: **Active** = released and verified in-game · **Active ¹** = cod
 | [**HitmanPhone**](Source/Mods/HitmanPhone/) | Gameplay | 0.2.9 | Active | Bounty contracts via the Messages app: anonymous callers, Polaroid evidence dead-drops, police heat and journal quests. |
 | [**CustomSkateboard**](Source/Mods/CustomSkateboard/) | Gameplay | 1.1.5 | Active | Adds the *Pro Cyber Skateboard* with tuned carving and jump physics, anti-gravel suspension and purchase through Jeff Gilmore. |
 | [**BusinessIncome**](Source/Mods/BusinessIncome/) | Gameplay | 0.1.6 | Active | Daily passive income for owned businesses with multiplayer host authority, deterministic variance and a `biz` console dashboard. |
-| [**AutoPackagingStation**](Source/Mods/AutoPackagingStation/) | Gameplay | 0.3.3 | Active | Placeable automated packaging line (conveyor belt, weighted quality mixing, auto-unpack) with a 2×2 footprint, unlocked at Hustler I rank. |
+| [**AutoPackagingStation**](Source/Mods/AutoPackagingStation/) | Gameplay | 0.4.7 | Active (owner-confirmed 2026-10-15) | Placeable automated packaging line (conveyor belt, native `PackSingleInstance` packaging, auto-unpack, chance-based freshness bonus) with a 2×2 footprint, unlocked at Hustler I rank. Multiplayer and legacy migration remain unverified. |
 | [**MoreSaveSlots**](Source/Mods/MoreSaveSlots/) | QoL | 1.0.12 | Active | Raises the save-slot count from 5 to 25 (configurable) with paginated menus and inline save renaming. |
 | [**StackLimitMod**](Source/Mods/StackLimitMod/) | QoL | 0.1.7 | Active | Configurable stack limits (default 40, 1–9999) for agriculture items (soil, seeds, baggies, jars, fertiliser, harvested crops); weapons and ammo always keep their vanilla limits. |
 | [**TaxiDriver**](Source/Mods/TaxiDriver/) | Developer | 0.8.3 | Experimental | Phone-app-only taxi service with its own NPC driver, autonomous navigation, GLB visuals, fare meter and owned-vehicle cleanup. No-deploy f12/Beta-8 Release build passed; the driver-safety update was verified in-game 2026-10-11. |
@@ -96,7 +96,7 @@ Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not 
   </tr>
   <tr>
     <td align="center" width="25%">
-      <b>AutoPackagingStation</b> · v0.3.3<br>
+      <b>AutoPackagingStation</b> · v0.4.7<br>
       <sub>Automated packaging line with conveyor and quality mixing.</sub><br>
       <a href="Source/Mods/AutoPackagingStation/docs/README.md">Docs</a> · <a href="Source/Mods/AutoPackagingStation/docs/CHANGELOG.md">Changelog</a>
     </td>

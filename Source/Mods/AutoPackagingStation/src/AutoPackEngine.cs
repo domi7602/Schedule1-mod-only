@@ -32,7 +32,7 @@ public static class AutoPackEngine
     {
         if (controller == null || controller.Pointer == IntPtr.Zero) return;
 
-        var station = controller.GetComponent<PackagingStation>() ?? controller.GetComponentInParent<PackagingStation>();
+        var station = AutoPackStationController.ResolveNativeStation(controller.gameObject);
         bool isNativeStation = (station != null && station.Pointer != IntPtr.Zero);
 
         var rData = AutoPackStore.GetRuntimeData(controller.StationGuid);
@@ -60,7 +60,8 @@ public static class AutoPackEngine
             }
             else if (isNativeStation)
             {
-                success = ExecutePackagingTransaction(station!);
+                // Bug-audit 2026-10-13 (BUG-004/BUG-008): native PackSingleInstance path.
+                success = ExecuteNativePack(station!);
             }
             else
             {
@@ -88,7 +89,12 @@ public static class AutoPackEngine
 
     /// <summary>
     /// Checks if a native PackagingStation has valid inputs and output capacity to start packaging.
-    /// Slot 0 = Packaging, Slot 1 = Product.
+    /// Bug-audit 2026-10-13 (BUG-008): readiness is delegated to the NATIVE state machine
+    /// (GetState(EMode.Package) == CanBegin) — exactly the check the vanilla Begin button
+    /// performs. It validates product/packaging compatibility (EState.Mismatch), quantities
+    /// (InsufficentProduct) and output capacity (OutputSlotFull) with the game's own rules,
+    /// so invalid combinations can no longer consume packaging material. The out-IDs are
+    /// informational (readout/logging).
     /// </summary>
     public static bool CanStationPackage(PackagingStation station, out string outputItemId, out string packagingId)
     {
@@ -96,50 +102,29 @@ public static class AutoPackEngine
         packagingId = string.Empty;
 
         if (station == null || station.Pointer == IntPtr.Zero) return false;
-        var inputSlots = station.InputSlots;
-        var outputSlots = station.OutputSlots;
-        if (inputSlots == null || inputSlots.Count < 2 || outputSlots == null || outputSlots.Count < 1) return false;
-
-        var pkgSlot = inputSlots[0];
-        var prodSlot = inputSlots[1];
-        var outSlot = outputSlots[0];
-
-        if (pkgSlot == null || pkgSlot.Pointer == IntPtr.Zero || pkgSlot.ItemInstance == null || pkgSlot.ItemInstance.Pointer == IntPtr.Zero || pkgSlot.Quantity <= 0)
-            return false;
-
-        if (prodSlot == null || prodSlot.Pointer == IntPtr.Zero || prodSlot.ItemInstance == null || prodSlot.ItemInstance.Pointer == IntPtr.Zero || prodSlot.Quantity <= 0)
-            return false;
-
-        var prodDef = prodSlot.ItemInstance.Definition;
-        var pkgDef = pkgSlot.ItemInstance.Definition;
-        if (prodDef == null || prodDef.Pointer == IntPtr.Zero || pkgDef == null || pkgDef.Pointer == IntPtr.Zero)
-            return false;
-
-        var pkgDefObj = pkgDef.TryCast<PackagingDefinition>();
-        int requiredProductQty = (pkgDefObj != null && pkgDefObj.Quantity > 0) ? pkgDefObj.Quantity : 1;
-        if (prodSlot.Quantity < requiredProductQty)
-            return false;
-
-        string rawItemId = prodDef.ID ?? string.Empty;
-        packagingId = pkgDef.ID ?? string.Empty;
-        if (string.IsNullOrEmpty(rawItemId) || string.IsNullOrEmpty(packagingId))
-            return false;
-
-        outputItemId = ResolvePackagedItemId(rawItemId, packagingId);
-        if (string.IsNullOrEmpty(outputItemId))
-            return false;
-
-        // Check output slot capacity & matching item
-        if (outSlot != null && outSlot.Pointer != IntPtr.Zero && outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero && outSlot.Quantity > 0)
+        try
         {
-            var outDef = outSlot.ItemInstance.Definition;
-            if (outDef == null || outDef.Pointer == IntPtr.Zero || outDef.ID != outputItemId)
-                return false;
-
-            int stackLimit = outDef.StackLimit;
-            if (outSlot.Quantity >= stackLimit)
+            if (station.GetState(PackagingStation.EMode.Package) != PackagingStation.EState.CanBegin)
                 return false;
         }
+        catch (Exception ex)
+        {
+            Mod.Log.Debug($"CanStationPackage GetState threw: {ex.Message}");
+            return false;
+        }
+
+        try
+        {
+            var inputSlots = station.InputSlots;
+            if (inputSlots != null && inputSlots.Count >= 2)
+            {
+                if (inputSlots[0] != null && inputSlots[0].ItemInstance != null && inputSlots[0].ItemInstance.Definition != null)
+                    packagingId = inputSlots[0].ItemInstance.Definition.ID ?? string.Empty;
+                if (inputSlots[1] != null && inputSlots[1].ItemInstance != null && inputSlots[1].ItemInstance.Definition != null)
+                    outputItemId = inputSlots[1].ItemInstance.Definition.ID ?? string.Empty;
+            }
+        }
+        catch { }
 
         return true;
     }
@@ -221,296 +206,117 @@ public static class AutoPackEngine
     }
 
     /// <summary>
-    /// Executes atomic 2-phase packaging directly on the native PackagingStation slots:
-    /// Deducts required product quantity from Product slot (InputSlots[1]), deducts 1 from Packaging slot (InputSlots[0]),
-    /// and adds packaged product to Output slot (OutputSlots[0]).
+    /// Re-review 2026-10-13 (Befund 3): legacy rData fallback — rolls the freshness bonus
+    /// against the committed OUTPUT stack tier, so both paths share the same population.
     /// </summary>
-    public static bool ExecutePackagingTransaction(PackagingStation station)
+    private static void ApplyFreshnessBonusToBuffer(SlotItemData? output)
+    {
+        try
+        {
+            float p = Mathf.Clamp(Mod.CurrentConfig.FreshnessBonusMultiplier, 0f, 1f);
+            if (p <= 0f || output == null || output.Quantity <= 0) return;
+            int oldTier = (output.QualityTier >= 0 && output.QualityTier <= QualityBonusPolicy.MaxTier) ? output.QualityTier : 2;
+            float roll = UnityEngine.Random.value;
+            int newTier = QualityBonusPolicy.ApplyFreshnessUpgrade(oldTier, p, roll);
+            if (newTier != oldTier)
+            {
+                output.QualityTier = newTier;
+                output.QualityValue = PackagingMath.TierToQualityValue(newTier);
+                Mod.Log.Info($"[AutoPack Engine] Freshness bonus (buffer): output quality tier {oldTier} -> {newTier} (roll {roll:F3} < {p:F3}).");
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Debug($"ApplyFreshnessBonusToBuffer skipped: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Bug-audit 2026-10-13 (BUG-004/BUG-008): the packaging step delegates to the NATIVE
+    /// vanilla conversion (PackagingStation.PackSingleInstance — the server-side step the
+    /// vanilla Mk1 station uses) — one native call per unit, batched up to MaxBatchSize,
+    /// with the vanilla readiness state re-checked before EVERY call (symmetric to
+    /// ExecuteNativeUnpack).
+    /// The old hand-rolled transaction could return success without producing output
+    /// (second GetDefaultInstance failure after deducting inputs), relied on heuristic
+    /// item-ID resolution, and its rollback did not restore a blended output quality.
+    /// The native path owns the transaction, the output instance and the
+    /// product/packaging compatibility rules — none of those failure modes remain.
+    /// </summary>
+    public static bool ExecuteNativePack(PackagingStation station)
     {
         if (!IsHostOrSingleplayer()) return false;
         if (station == null || station.Pointer == IntPtr.Zero) return false;
 
-        var inputSlots = station.InputSlots;
-        var outputSlots = station.OutputSlots;
-        if (inputSlots == null || inputSlots.Count < 2 || outputSlots == null || outputSlots.Count < 1) return false;
-
-        var pkgSlot = inputSlots[0];
-        var prodSlot = inputSlots[1];
-        var outSlot = outputSlots[0];
-
-        if (outSlot == null || outSlot.Pointer == IntPtr.Zero)
-            return false;
-
-        if (pkgSlot == null || pkgSlot.Pointer == IntPtr.Zero || pkgSlot.ItemInstance == null || pkgSlot.ItemInstance.Pointer == IntPtr.Zero || pkgSlot.Quantity <= 0)
-            return false;
-
-        if (prodSlot == null || prodSlot.Pointer == IntPtr.Zero || prodSlot.ItemInstance == null || prodSlot.ItemInstance.Pointer == IntPtr.Zero || prodSlot.Quantity <= 0)
-            return false;
-
-        var prodInst = prodSlot.ItemInstance;
-        var pkgInst = pkgSlot.ItemInstance;
-        var prodDef = prodInst.Definition;
-        var pkgDef = pkgInst.Definition;
-        if (prodDef == null || prodDef.Pointer == IntPtr.Zero || pkgDef == null || pkgDef.Pointer == IntPtr.Zero)
-            return false;
-
-        var packagingDefObj = pkgDef.TryCast<PackagingDefinition>();
-        int requiredProductQty = (packagingDefObj != null && packagingDefObj.Quantity > 0) ? packagingDefObj.Quantity : 1;
-        if (prodSlot.Quantity < requiredProductQty) return false;
-
-        string rawItemId = prodDef.ID ?? string.Empty;
-        string packagingId = pkgDef.ID ?? string.Empty;
-        string outputItemId = ResolvePackagedItemId(rawItemId, packagingId);
-        if (string.IsNullOrEmpty(outputItemId)) return false;
-
-        // Compute feasible batch size respecting MaxBatchSize (H6)
-        int configuredBatch = Mathf.Clamp(Mod.CurrentConfig.MaxBatchSize, 1, 20);
-        int maxByProductNative = prodSlot!.Quantity / Math.Max(1, requiredProductQty);
-        int maxByPackagingNative = pkgSlot!.Quantity;
-        int currentOutQty = (outSlot != null && outSlot.Pointer != IntPtr.Zero && outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero) ? outSlot.Quantity : 0;
-        string currentOutId = (outSlot != null && outSlot.ItemInstance != null && outSlot.ItemInstance.Definition != null) ? outSlot.ItemInstance.Definition.ID : string.Empty;
-        int outStackLimit = 20;
-        try
+        int batch = Mathf.Clamp(Mod.CurrentConfig.MaxBatchSize, 1, 20);
+        int executed = 0;
+        for (int i = 0; i < batch; i++)
         {
-            var outDefProbe = GameRegistry.GetItem(outputItemId);
-            if (outDefProbe != null && outDefProbe.Pointer != IntPtr.Zero) outStackLimit = outDefProbe.StackLimit;
-            else if (!string.IsNullOrEmpty(currentOutId))
-            {
-                var curDef = GameRegistry.GetItem(currentOutId);
-                if (curDef != null && curDef.Pointer != IntPtr.Zero) outStackLimit = curDef.StackLimit;
-            }
-        }
-        catch { }
-        int maxByOutputNative = outStackLimit - currentOutQty;
-        // Validate output slot item match / capacity before batch calc
-        if (currentOutQty > 0)
-        {
-            if (outSlot == null || outSlot.Pointer == IntPtr.Zero || outSlot.ItemInstance == null || outSlot.ItemInstance.Pointer == IntPtr.Zero) return false;
-            var curOutDef = outSlot.ItemInstance.Definition;
-            if (curOutDef == null || curOutDef.Pointer == IntPtr.Zero || curOutDef.ID != outputItemId)
-                return false;
-            if (currentOutQty >= outStackLimit)
-                return false;
-        }
-        int feasibleNative = Math.Min(Math.Min(maxByProductNative, maxByPackagingNative), maxByOutputNative);
-        if (feasibleNative <= 0) return false;
-        int batchSizeNative = Math.Max(1, Math.Min(configuredBatch, feasibleNative));
-        int deductProductNative = requiredProductQty * batchSizeNative;
-
-        // Transaction snapshot: restore inputs/output on a mid-commit failure (item-loss fix)
-        int snapProdQty = prodSlot.Quantity;
-        var snapProdInst = prodSlot.ItemInstance;
-        int snapPkgQty = pkgSlot.Quantity;
-        var snapPkgInst = pkgSlot.ItemInstance;
-        var snapOutInst = outSlot!.ItemInstance;
-        int snapOutQty = (snapOutInst != null && snapOutInst.Pointer != IntPtr.Zero) ? outSlot.Quantity : 0;
-
-        // Bug-Audit 2026-09-12 (HIGH): Pre-Flight the output instance before touching inputs.
-        // Phase 2 below can silently swallow output creation when the target definition or
-        // GetDefaultInstance returns null, leaving the inputs deducted with nothing produced.
-        // Resolving the probe here short-circuits that loss path and the catch block can
-        // restore the snapshot cleanly.
-        bool outputWillBeCreatedFresh = snapOutInst == null || snapOutInst.Pointer == IntPtr.Zero || snapOutInst.WasCollected;
-        if (outputWillBeCreatedFresh)
-        {
-            var targetDef = GameRegistry.GetItem(outputItemId);
-            if (targetDef == null || targetDef.Pointer == IntPtr.Zero || targetDef.WasCollected)
-            {
-                Mod.Log?.Warn($"Packaging aborted in pre-flight: output definition '{outputItemId}' not resolvable.");
-                return false;
-            }
             try
             {
-                var probe = targetDef.GetDefaultInstance(1);
-                if (probe == null || probe.Pointer == IntPtr.Zero || probe.WasCollected)
-                {
-                    Mod.Log?.Warn($"Packaging aborted in pre-flight: output definition '{outputItemId}' could not build an instance.");
-                    return false;
-                }
+                if (station.GetState(PackagingStation.EMode.Package) != PackagingStation.EState.CanBegin)
+                    break;
             }
             catch (Exception ex)
             {
-                Mod.Log?.Warn($"Packaging pre-flight threw for '{outputItemId}': {ex.Message}");
-                return false;
+                Mod.Log.Warn($"Native pack pre-check threw: {ex.Message}");
+                break;
             }
-        }
-
-        try
-        {
-            // Quality calculation with freshness bonus — unified with fallback path via PackagingMath (H5)
-            EQuality upgradedQuality = EQuality.Standard;
-            {
-                float bonusMultiplier = Mathf.Max(0f, Mod.CurrentConfig.FreshnessBonusMultiplier);
-                float baseQuality = 0.55f;
-                var qInst = prodInst.TryCast<QualityItemInstance>();
-                if (qInst != null && qInst.Pointer != IntPtr.Zero)
-                {
-                    baseQuality = (int)qInst.Quality switch { 0 => 0.20f, 1 => 0.35f, 2 => 0.55f, 3 => 0.80f, _ => 0.95f };
-                }
-                float upgradedVal = Mathf.Clamp01(baseQuality * (1f + bonusMultiplier));
-                int upgradedTier = PackagingMath.ComputeQualityTier(upgradedVal);
-                upgradedQuality = (EQuality)upgradedTier;
-            }
-
-            // Phase 2: Deduct inputs & add output — batch-aware (H6)
-            // 1. Deduct Product
-            if (prodSlot.Quantity > deductProductNative)
-            {
-                prodSlot.ChangeQuantity(-deductProductNative);
-            }
-            else
-            {
-                prodSlot.ClearStoredInstance();
-            }
-
-            // 2. Deduct Packaging
-            if (pkgSlot.Quantity > batchSizeNative)
-            {
-                pkgSlot.ChangeQuantity(-batchSizeNative);
-            }
-            else
-            {
-                pkgSlot.ClearStoredInstance();
-            }
-
-            // 3. Add to Output slot
-            if (outSlot!.ItemInstance == null || outSlot.Quantity <= 0)
-            {
-                var targetDef = GameRegistry.GetItem(outputItemId);
-                if (targetDef != null && targetDef.Pointer != IntPtr.Zero)
-                {
-                    var newInst = targetDef.GetDefaultInstance(1);
-                    if (newInst != null && newInst.Pointer != IntPtr.Zero)
-                    {
-                        var newQInst = newInst.TryCast<QualityItemInstance>();
-                        if (newQInst != null && newQInst.Pointer != IntPtr.Zero)
-                        {
-                            newQInst.Quality = upgradedQuality;
-                        }
-                        var newProdInst = newInst.TryCast<ProductItemInstance>();
-                        if (newProdInst != null && newProdInst.Pointer != IntPtr.Zero)
-                        {
-                            if (packagingDefObj != null && packagingDefObj.Pointer != IntPtr.Zero)
-                            {
-                                newProdInst.SetPackaging(packagingDefObj);
-                            }
-                            else
-                            {
-                                newProdInst.PackagingID = packagingId;
-                            }
-                        }
-                        outSlot.SetStoredItem(newInst);
-                        if (batchSizeNative > 1)
-                        {
-                            outSlot.ChangeQuantity(batchSizeNative - 1);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // Bug-Audit 2026-09-12 (Round 3): the stack-and-stamp path only incremented
-                // the quantity, leaving the existing stack's quality untouched. A cheap
-                // Standard-tier batch added to a Premium-tier stack was sold at Premium
-                // prices (and vice versa), distorting the economy. Apply a weighted
-                // tier-mix using TierToQualityValue so each unit is averaged, then map
-                // back to the closest tier.
-                try
-                {
-                    int oldQty = outSlot.Quantity;
-                    int newQty = batchSizeNative;
-                    if (oldQty > 0 && newQty > 0)
-                    {
-                        var existingQInst = outSlot.ItemInstance as QualityItemInstance;
-                        int oldTier = 2;
-                        float oldValue = 0.55f;
-                        if (existingQInst != null && existingQInst.Pointer != IntPtr.Zero && !existingQInst.WasCollected)
-                        {
-                            try { oldTier = (int)existingQInst.Quality; } catch { oldTier = 2; }
-                            oldValue = PackagingMath.TierToQualityValue(oldTier);
-                        }
-                        float newValue = PackagingMath.TierToQualityValue((int)upgradedQuality);
-                        float blended = (oldQty * oldValue + newQty * newValue) / (oldQty + newQty);
-                        int blendedTier = PackagingMath.ComputeQualityTier(blended);
-                        if (existingQInst != null && existingQInst.Pointer != IntPtr.Zero && !existingQInst.WasCollected)
-                        {
-                            existingQInst.Quality = (EQuality)blendedTier;
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MelonLoader.MelonLogger.Warning($"Output quality mix skipped: {ex.Message}");
-                }
-                outSlot.ChangeQuantity(batchSizeNative);
-            }
-
-            // Notify listeners
-            prodSlot.onItemDataChanged?.Invoke();
-            prodSlot.onItemInstanceChanged?.Invoke();
-            pkgSlot.onItemDataChanged?.Invoke();
-            pkgSlot.onItemInstanceChanged?.Invoke();
-            outSlot.onItemDataChanged?.Invoke();
-            outSlot.onItemInstanceChanged?.Invoke();
 
             try
             {
-                station.UpdatePackagingVisuals();
-                station.UpdateProductVisuals();
+                station.PackSingleInstance();
+                executed++;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Mod.Log.Error($"[AutoPack Engine] Native PackSingleInstance() threw: {ex.Message}");
+                break;
+            }
+        }
 
-            Mod.Log.Info($"[AutoPack Engine] Packaged {deductProductNative}x '{rawItemId}' + {batchSizeNative}x '{packagingId}' -> {batchSizeNative}x '{outputItemId}' (Quality: {upgradedQuality}).");
+        if (executed > 0)
+        {
+            ApplyFreshnessBonus(station);
+            try { station.UpdatePackagingVisuals(); station.UpdateProductVisuals(); } catch { }
+            Mod.Log.Info($"[AutoPack Engine] Native PackSingleInstance executed {executed}x this cycle (batch max {batch}).");
             return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Bug-audit 2026-10-13 (BUG-010): chance-based one-tier freshness upgrade on the
+    /// output stack (QualityBonusPolicy is unit-tested). Rolls once per successful cycle.
+    /// </summary>
+    private static void ApplyFreshnessBonus(PackagingStation station)
+    {
+        try
+        {
+            float p = Mathf.Clamp(Mod.CurrentConfig.FreshnessBonusMultiplier, 0f, 1f);
+            if (p <= 0f) return;
+
+            var outputSlots = station.OutputSlots;
+            if (outputSlots == null || outputSlots.Count < 1) return;
+            var outSlot = outputSlots[0];
+            if (outSlot == null || outSlot.Pointer == IntPtr.Zero || outSlot.ItemInstance == null || outSlot.ItemInstance.Pointer == IntPtr.Zero) return;
+
+            var qInst = outSlot.ItemInstance.TryCast<QualityItemInstance>();
+            if (qInst == null || qInst.Pointer == IntPtr.Zero) return;
+
+            int oldTier = (int)qInst.Quality;
+            float roll = UnityEngine.Random.value;
+            int newTier = QualityBonusPolicy.ApplyFreshnessUpgrade(oldTier, p, roll);
+            if (newTier != oldTier)
+            {
+                qInst.Quality = (EQuality)newTier;
+                Mod.Log.Info($"[AutoPack Engine] Freshness bonus: output quality tier {oldTier} -> {newTier} (roll {roll:F3} < {p:F3}).");
+                try { station.UpdateProductVisuals(); } catch { }
+            }
         }
         catch (Exception ex)
         {
-            // Revert to the snapshotted slot state so inputs aren't lost without output
-            try
-            {
-                if (prodSlot != null && prodSlot.Pointer != IntPtr.Zero && snapProdInst != null && snapProdInst.Pointer != IntPtr.Zero)
-                {
-                    if (prodSlot.ItemInstance == null || prodSlot.ItemInstance.Pointer == IntPtr.Zero || prodSlot.ItemInstance.Pointer != snapProdInst.Pointer)
-                        prodSlot.SetStoredItem(snapProdInst);
-                    if (prodSlot.Quantity != snapProdQty)
-                        prodSlot.ChangeQuantity(snapProdQty - prodSlot.Quantity);
-                    prodSlot.onItemDataChanged?.Invoke();
-                    prodSlot.onItemInstanceChanged?.Invoke();
-                }
-                if (pkgSlot != null && pkgSlot.Pointer != IntPtr.Zero && snapPkgInst != null && snapPkgInst.Pointer != IntPtr.Zero)
-                {
-                    if (pkgSlot.ItemInstance == null || pkgSlot.ItemInstance.Pointer == IntPtr.Zero || pkgSlot.ItemInstance.Pointer != snapPkgInst.Pointer)
-                        pkgSlot.SetStoredItem(snapPkgInst);
-                    if (pkgSlot.Quantity != snapPkgQty)
-                        pkgSlot.ChangeQuantity(snapPkgQty - pkgSlot.Quantity);
-                    pkgSlot.onItemDataChanged?.Invoke();
-                    pkgSlot.onItemInstanceChanged?.Invoke();
-                }
-                if (outSlot != null && outSlot.Pointer != IntPtr.Zero)
-                {
-                    if (snapOutInst == null || snapOutInst.Pointer == IntPtr.Zero || snapOutQty <= 0)
-                    {
-                        if (outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero)
-                            outSlot.ClearStoredInstance();
-                    }
-                    else
-                    {
-                        if (outSlot.ItemInstance == null || outSlot.ItemInstance.Pointer == IntPtr.Zero || outSlot.ItemInstance.Pointer != snapOutInst.Pointer)
-                            outSlot.SetStoredItem(snapOutInst);
-                        if (outSlot.Quantity != snapOutQty)
-                            outSlot.ChangeQuantity(snapOutQty - outSlot.Quantity);
-                    }
-                    outSlot.onItemDataChanged?.Invoke();
-                    outSlot.onItemInstanceChanged?.Invoke();
-                    try { station.UpdatePackagingVisuals(); station.UpdateProductVisuals(); } catch { }
-                }
-            }
-            catch (Exception revertEx)
-            {
-                Mod.Log.Warn($"ExecutePackagingTransaction revert failed: {revertEx.Message}");
-            }
-            Mod.Log.Error($"ExecutePackagingTransaction on station error: {ex}");
-            return false;
+            Mod.Log.Debug($"ApplyFreshnessBonus skipped: {ex.Message}");
         }
     }
 
@@ -552,8 +358,19 @@ public static class AutoPackEngine
         }
         string packagingId = inputPkg.ItemId;
 
-        var pkgDefObj = GameRegistry.GetItem(packagingId)?.TryCast<PackagingDefinition>();
-        int requiredProductQty = (pkgDefObj != null && pkgDefObj.Quantity > 0) ? pkgDefObj.Quantity : 1;
+        // Bug-audit 2026-10-13 (BUG-008): strict combo validation for the legacy rData
+        // fallback path. The old code fell back to the raw product ID and a guessed
+        // quantity of 1 when no PackagingDefinition existed, so invalid combinations
+        // consumed packaging material. A packaged product keeps its product item ID and
+        // carries the packaging on the instance (native item model) — no ID heuristics.
+        if (!ValidatePackagingCombo(inputProd.ItemId, packagingId, out var pkgDefObj))
+        {
+            rData.State = StationState.Blocked;
+            Mod.Log.Warn($"Phase 1 abort: invalid product/packaging combination '{inputProd.ItemId}' + '{packagingId}'.");
+            return false;
+        }
+        int requiredProductQty = (pkgDefObj!.Quantity > 0) ? pkgDefObj.Quantity : 1;
+        string outputItemId = inputProd.ItemId;
 
         if (inputProd == null || inputProd.Quantity < requiredProductQty || string.IsNullOrEmpty(inputProd.ItemId))
         {
@@ -568,7 +385,7 @@ public static class AutoPackEngine
         int maxByOutputCap = 20;
         try
         {
-            var defProbe = GameRegistry.GetItem(ResolvePackagedItemId(inputProd.ItemId, packagingId));
+            var defProbe = GameRegistry.GetItem(outputItemId);
             if (defProbe != null && defProbe.Pointer != IntPtr.Zero) maxByOutputCap = defProbe.StackLimit;
         }
         catch { }
@@ -580,16 +397,9 @@ public static class AutoPackEngine
         if (feasible <= 0) return false;
         int batchSize = Math.Max(1, Math.Min(configuredBatch, feasible));
 
-        // Resolve target output item ID
-        string outputItemId = ResolvePackagedItemId(inputProd.ItemId, packagingId);
-
-        if (string.IsNullOrEmpty(outputItemId))
-        {
-            Mod.Log.Debug($"Phase 1 abort: Packaged item ID for '{inputProd.ItemId}' + '{packagingId}' not found in registry.");
-            return false;
-        }
-
-        // Check output slot capacity
+        // Check output slot capacity (outputItemId was resolved above: the packaged
+        // product keeps its product item ID and carries the packaging on the instance —
+        // native item model, no ID heuristics)
         if (outputSlot != null && outputSlot.Quantity > 0)
         {
             if (outputSlot.ItemId != outputItemId || outputSlot.PackagingId != packagingId)
@@ -632,13 +442,14 @@ public static class AutoPackEngine
 
         try
         {
-            // 1. Calculate Quality with +5% Freshness Bonus
-            float bonusMultiplier = Mathf.Max(0f, Mod.CurrentConfig.FreshnessBonusMultiplier);
-            float baseQuality = Mathf.Clamp01(inputProd.QualityValue);
-            float upgradedQuality = Mathf.Clamp01(baseQuality * (1.0f + bonusMultiplier));
-
-            // Derive quality tier
-            int upgradedTier = PackagingMath.ComputeQualityTier(upgradedQuality);
+            // 1. Base quality (re-review 2026-10-13, Befund 3): the buffer is committed
+            // with the INPUT batch tier; the freshness bonus is rolled AFTERWARDS against
+            // the FINAL output stack tier — exactly like the native path rolls against the
+            // produced output stack. (The old "qualityValue * (1 + bonus)" value math never
+            // crossed a tier boundary, and rolling pre-commit against the input tier skewed
+            // the bonus distribution vs native.)
+            int inputTier = (inputProd.QualityTier >= 0 && inputProd.QualityTier <= QualityBonusPolicy.MaxTier) ? inputProd.QualityTier : 2;
+            float baseQuality = PackagingMath.TierToQualityValue(inputTier);
 
             // 2. Clone mix-effects 1:1
             var clonedEffects = new List<string>();
@@ -676,8 +487,8 @@ public static class AutoPackEngine
                     ItemId = outputItemId,
                     ItemName = PackagingMath.FormatPackagedName(inputProd.ItemName, packagingId),
                     Quantity = batchSize,
-                    QualityValue = upgradedQuality,
-                    QualityTier = upgradedTier,
+                    QualityValue = baseQuality,
+                    QualityTier = inputTier,
                     PackagingId = packagingId,
                     MixEffects = clonedEffects
                 };
@@ -687,11 +498,14 @@ public static class AutoPackEngine
                 int oldQty = outputSlot.Quantity;
                 float oldQual = outputSlot.QualityValue;
                 outputSlot.Quantity += batchSize;
-                outputSlot.QualityValue = ((oldQty * oldQual) + (batchSize * upgradedQuality)) / (oldQty + batchSize);
+                outputSlot.QualityValue = ((oldQty * oldQual) + (batchSize * baseQuality)) / (oldQty + batchSize);
                 outputSlot.QualityTier = PackagingMath.ComputeQualityTier(outputSlot.QualityValue);
             }
 
-            Mod.Log.Info($"[AutoPack Atomic Commit] Packaged {deductProduct}x '{inputProd.ItemId}' -> {batchSize}x '{outputItemId}' (Quality: {baseQuality:P0} -> {upgradedQuality:P0} [+{Mod.CurrentConfig.FreshnessBonusMultiplier:P0} bonus], Effects: {clonedEffects.Count}).");
+            Mod.Log.Info($"[AutoPack Atomic Commit] Packaged {deductProduct}x '{inputProd.ItemId}' -> {batchSize}x '{outputItemId}' (base tier {inputTier}, Effects: {clonedEffects.Count}).");
+
+            // 6. Freshness bonus against the final output stack (same population as native)
+            ApplyFreshnessBonusToBuffer(rData.OutputProduct);
             return true;
         }
         catch (Exception ex)
@@ -732,40 +546,56 @@ public static class AutoPackEngine
 
     // ComputeQualityTier moved to PackagingMath.cs (testable, no S1API deps).
 
-    public static string ResolvePackagedItemId(string rawItemId, string packagingId)
+    /// <summary>
+    /// Strict product+packaging validation (bug-audit 2026-10-13, BUG-008). The old
+    /// heuristic name resolver ("{raw}_{pkg}", "_jar", "_brick", "_baggie") fell back to
+    /// the raw product ID and thereby accepted invalid combinations, consuming packaging
+    /// material for nothing. Per the native item model a packaged product keeps its
+    /// product item ID and carries the packaging on the instance — so there is nothing
+    /// to "resolve" beyond validation:
+    ///  1. the packaging MUST be a real PackagingDefinition,
+    ///  2. the product MUST be a real ProductDefinition,
+    ///  3. when the product declares ValidPackaging, the packaging must be part of it.
+    /// Fallback path only — the native path delegates to GetState/PackSingleInstance.
+    /// </summary>
+    public static bool ValidatePackagingCombo(string rawItemId, string packagingId, out PackagingDefinition? packagingDef)
     {
-        if (string.IsNullOrEmpty(rawItemId)) return string.Empty;
-        string raw = rawItemId.ToLowerInvariant().Trim();
-        string pkg = (packagingId ?? string.Empty).ToLowerInvariant().Trim();
+        packagingDef = null;
+        if (string.IsNullOrEmpty(rawItemId) || string.IsNullOrEmpty(packagingId)) return false;
 
-        // 1. Check direct combinations
-        string combo = $"{raw}_{pkg}";
-        if (GameRegistry.ItemExists(combo)) return combo;
+        var pkg = GameRegistry.GetItem(packagingId)?.TryCast<PackagingDefinition>();
+        if (pkg == null || pkg.Pointer == IntPtr.Zero) return false;
 
-        // 2. Check canonical packaging names
-        if (pkg.Contains("jar"))
+        var prod = GameRegistry.GetItem(rawItemId)?.TryCast<Il2CppScheduleOne.Product.ProductDefinition>();
+        if (prod == null || prod.Pointer == IntPtr.Zero) return false;
+
+        try
         {
-            string jarId = $"{raw}_jar";
-            if (GameRegistry.ItemExists(jarId)) return jarId;
+            var valid = prod.ValidPackaging;
+            if (valid != null && valid.Length > 0)
+            {
+                bool compatible = false;
+                for (int i = 0; i < valid.Length; i++)
+                {
+                    var candidate = valid[i];
+                    if (candidate == null || candidate.Pointer == IntPtr.Zero) continue;
+                    if (candidate.Pointer == pkg.Pointer || string.Equals(candidate.ID, packagingId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        compatible = true;
+                        break;
+                    }
+                }
+                if (!compatible) return false;
+            }
         }
-        if (pkg.Contains("brick") || pkg.Contains("box"))
+        catch (Exception ex)
         {
-            string brickId = $"{raw}_brick";
-            if (GameRegistry.ItemExists(brickId)) return brickId;
-        }
-        if (pkg.Contains("bag") || pkg.Contains("baggie"))
-        {
-            string bagId = $"{raw}_baggie";
-            if (GameRegistry.ItemExists(bagId)) return bagId;
-            string bagId2 = $"{raw}_bag";
-            if (GameRegistry.ItemExists(bagId2)) return bagId2;
+            Mod.Log.Debug($"ValidatePackagingCombo ValidPackaging check threw: {ex.Message}");
+            return false;
         }
 
-        // 3. Fallback: Raw product item definition ID itself
-        if (GameRegistry.ItemExists(rawItemId)) return rawItemId;
-        if (GameRegistry.ItemExists(raw)) return raw;
-
-        return rawItemId;
+        packagingDef = pkg;
+        return true;
     }
 
     // FormatPackagedName moved to PackagingMath.cs (testable, no S1API deps).

@@ -19,13 +19,16 @@
   </ItemGroup>
 
   <!--
-    Link the pure-logic source file directly from the mod. Avoids pulling in
-    the mod's S1API/MelonLoader/Unity references — PackagingMath is a
-    self-contained static class with no external dependencies.
-    (2026-09-10: path fixed — file sits flat in src\, not in src\Engine\.)
+    Link pure-logic source files directly from the mod. Avoids pulling in
+    the mod's S1API/MelonLoader/Unity references — PackagingMath,
+    AutoPackPolicies and AutoPackConfig are self-contained with no external
+    dependencies.
+    (2026-09-10: path fixed — files sit flat in src\, not in src\Engine\.)
   -->
   <ItemGroup>
     <Compile Include="..\..\Mods\AutoPackagingStation\src\PackagingMath.cs" />
+    <Compile Include="..\..\Mods\AutoPackagingStation\src\AutoPackPolicies.cs" />
+    <Compile Include="..\..\Mods\AutoPackagingStation\src\AutoPackConfig.cs" />
   </ItemGroup>
 
 </Project>

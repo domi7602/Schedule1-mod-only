@@ -62,11 +62,25 @@ public class AutoPackStationController : MonoBehaviour
     private bool _savedBeginButtonActive = false;
     private string _savedInstructionText = string.Empty;
     private StationReadout? _shownReadout;
+    // Bug-audit 2026-10-13 (BUG-018): remember the cursor state from the frame the
+    // station UI opened and restore exactly that on close — the old code force-locked
+    // the cursor and could swallow other menus that were open before/after.
+    private CursorLockMode _savedCursorLockMode = CursorLockMode.None;
+    private bool _savedCursorVisible = true;
     // Bug-Audit 2026-09-12 (Round 4): reentrancy guard for F-Key PackUp. Input.GetKeyDown
     // is edge-triggered but PackUpStation triggers Destroy_Server + Destroy which can
     // schedule a second dispatch within the same frame from the network layer in MP.
     // Without this flag, two PackUps race on the same station and we double-refund.
     private bool _packingUp = false;
+    // Bug-audit 2026-10-13 (BUG-002/BUG-003): set right before the destroy phase of a
+    // successful PackUp. OnDestroy must NOT refund again — the items already went to
+    // the player and a second pass would duplicate them.
+    private bool _packUpHandled = false;
+    // Bug-audit 2026-10-13 (BUG-015): resolve the native PackagingStation once and
+    // revalidate periodically instead of GetComponent-ping every frame per station.
+    private PackagingStation? _cachedStation;
+    private float _stationCacheAge = 999f;
+    private const float StationCacheRevalidateSeconds = 2.0f;
 
     private enum StatusHeadline { Packing, Unpacking, OutputFull, WaitingForPackaging, WaitingForInput, Blocked, Idle }
 
@@ -111,6 +125,42 @@ public class AutoPackStationController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Bug-audit 2026-10-13 (BUG-011): one canonical lookup for the native
+    /// PackagingStation — self, then children, then parents. The factory used
+    /// GetComponentInChildren while the controller/engine only checked self+parents,
+    /// so a station living on a child object silently fell back to the rData path.
+    /// </summary>
+    public static Il2CppScheduleOne.ObjectScripts.PackagingStation? ResolveNativeStation(GameObject? go)
+    {
+        if (go == null || go.Pointer == IntPtr.Zero) return null;
+        try
+        {
+            var station = go.GetComponent<PackagingStation>()
+                ?? go.GetComponentInChildren<PackagingStation>(true)
+                ?? go.GetComponentInParent<PackagingStation>();
+            return station != null && station.Pointer != IntPtr.Zero && !station.WasCollected ? station : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>Cached variant used by the per-frame Update path (BUG-015).</summary>
+    private PackagingStation? ResolveStationCached(float dt)
+    {
+        _stationCacheAge += dt;
+        if (_cachedStation != null && _cachedStation.Pointer != IntPtr.Zero && !_cachedStation.WasCollected
+            && _stationCacheAge < StationCacheRevalidateSeconds)
+        {
+            return _cachedStation;
+        }
+        _cachedStation = ResolveNativeStation(gameObject);
+        _stationCacheAge = 0f;
+        return _cachedStation;
+    }
+
     private void Awake()
     {
         EnsureGuid();
@@ -144,7 +194,7 @@ public class AutoPackStationController : MonoBehaviour
     {
         try
         {
-            var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
+            var station = ResolveNativeStation(gameObject);
             if (station == null || station.Pointer == IntPtr.Zero) return;
 
             var inputSlots = station.InputSlots;
@@ -160,71 +210,89 @@ public class AutoPackStationController : MonoBehaviour
             var prodSlot = inputSlots[1];
             var outSlot = outputSlots[0];
 
-            // 1. Input Packaging — clear if data empty to avoid ghost items (H3)
+            // 1. Input Packaging (bug-audit 2026-10-13, BUG-001): a filled native slot is
+            // the source of truth and must never be overwritten or cleared by empty or
+            // stale records (RestorePolicy is unit-tested). The old code cleared the slot
+            // whenever the record was empty, which wiped saved items when Start() ran
+            // after the staged restore had already consumed the runtime copies.
             if (pkgSlot != null && pkgSlot.Pointer != IntPtr.Zero)
             {
-                if (pkgData != null && pkgData.Quantity > 0 && !string.IsNullOrEmpty(pkgData.ItemId))
+                bool pkgNativeFilled = pkgSlot.ItemInstance != null && pkgSlot.ItemInstance.Pointer != IntPtr.Zero && pkgSlot.Quantity > 0;
+                bool pkgRecordFilled = pkgData != null && pkgData.Quantity > 0 && !string.IsNullOrEmpty(pkgData.ItemId);
+                var pkgAction = RestorePolicy.Decide(pkgRecordFilled, pkgNativeFilled);
+                bool pkgSettled = true;
+                if (pkgAction == RestoreAction.WriteFromRecord)
                 {
-                    var pkgDef = GameRegistry.GetItem(pkgData.ItemId);
-                    if (pkgDef != null && pkgDef.Pointer != IntPtr.Zero)
+                    var pkgDef = GameRegistry.GetItem(pkgData!.ItemId);
+                    var inst = (pkgDef != null && pkgDef.Pointer != IntPtr.Zero) ? pkgDef.GetDefaultInstance(pkgData.Quantity) : null;
+                    if (inst != null && inst.Pointer != IntPtr.Zero)
                     {
-                        var inst = pkgDef.GetDefaultInstance(pkgData.Quantity);
-                        if (inst != null && inst.Pointer != IntPtr.Zero)
-                        {
-                            pkgSlot.SetStoredItem(inst);
-                            pkgSlot.onItemDataChanged?.Invoke();
-                            pkgSlot.onItemInstanceChanged?.Invoke();
-                            // Duplication fix: native restore succeeded — drop the rData copy so stale runtime data can't pay out twice
-                            rData.InputPackaging = null;
-                        }
+                        pkgSlot.SetStoredItem(inst);
+                        pkgSlot.onItemDataChanged?.Invoke();
+                        pkgSlot.onItemInstanceChanged?.Invoke();
+                    }
+                    else
+                    {
+                        // Write failed: keep the runtime copy so the refund fallback can still pay it out.
+                        pkgSettled = false;
+                        Mod.Log.Warn($"RestoreNativeSlots [{_stationGuid}]: could not materialize packaging '{pkgData.ItemId}' — kept runtime copy.");
                     }
                 }
-                else
+                else if (pkgNativeFilled)
                 {
-                    pkgSlot.ClearStoredInstance();
-                    pkgSlot.onItemDataChanged?.Invoke();
-                    pkgSlot.onItemInstanceChanged?.Invoke();
+                    Mod.Log.Debug($"RestoreNativeSlots [{_stationGuid}]: packaging slot keeps its native items (record empty/stale).");
                 }
+                // Duplication fix (H2): once the native slot is the truth (written or
+                // already filled) drop the runtime copy so stale runtime data can never
+                // pay out a second refund on destroy.
+                if (pkgSettled) rData.InputPackaging = null;
             }
 
-            // 2. Input Product
+            // 2. Input Product (BUG-001: same RestorePolicy rules as the packaging slot)
             if (prodSlot != null && prodSlot.Pointer != IntPtr.Zero)
             {
-                if (prodData != null && prodData.Quantity > 0 && !string.IsNullOrEmpty(prodData.ItemId))
+                bool prodNativeFilled = prodSlot.ItemInstance != null && prodSlot.ItemInstance.Pointer != IntPtr.Zero && prodSlot.Quantity > 0;
+                bool prodRecordFilled = prodData != null && prodData.Quantity > 0 && !string.IsNullOrEmpty(prodData.ItemId);
+                var prodAction = RestorePolicy.Decide(prodRecordFilled, prodNativeFilled);
+                bool prodSettled = true;
+                if (prodAction == RestoreAction.WriteFromRecord)
                 {
-                    var prodDef = GameRegistry.GetItem(prodData.ItemId);
-                    if (prodDef != null && prodDef.Pointer != IntPtr.Zero)
+                    var prodDef = GameRegistry.GetItem(prodData!.ItemId);
+                    var inst = (prodDef != null && prodDef.Pointer != IntPtr.Zero) ? prodDef.GetDefaultInstance(prodData.Quantity) : null;
+                    if (inst != null && inst.Pointer != IntPtr.Zero)
                     {
-                        var inst = prodDef.GetDefaultInstance(prodData.Quantity);
-                        if (inst != null && inst.Pointer != IntPtr.Zero)
+                        var qInst = inst.TryCast<NativeQualityItemInst>();
+                        if (qInst != null && qInst.Pointer != IntPtr.Zero)
                         {
-                            var qInst = inst.TryCast<NativeQualityItemInst>();
-                            if (qInst != null && qInst.Pointer != IntPtr.Zero)
-                            {
-                                qInst.Quality = (EQuality)prodData.QualityTier;
-                            }
-                            prodSlot.SetStoredItem(inst);
-                            prodSlot.onItemDataChanged?.Invoke();
-                            prodSlot.onItemInstanceChanged?.Invoke();
-                            // Duplication fix: native restore succeeded — drop the rData copy so stale runtime data can't pay out twice
-                            rData.InputProduct = null;
+                            qInst.Quality = (EQuality)prodData.QualityTier;
                         }
+                        prodSlot.SetStoredItem(inst);
+                        prodSlot.onItemDataChanged?.Invoke();
+                        prodSlot.onItemInstanceChanged?.Invoke();
+                    }
+                    else
+                    {
+                        prodSettled = false;
+                        Mod.Log.Warn($"RestoreNativeSlots [{_stationGuid}]: could not materialize product '{prodData.ItemId}' — kept runtime copy.");
                     }
                 }
-                else
+                else if (prodNativeFilled)
                 {
-                    prodSlot.ClearStoredInstance();
-                    prodSlot.onItemDataChanged?.Invoke();
-                    prodSlot.onItemInstanceChanged?.Invoke();
+                    Mod.Log.Debug($"RestoreNativeSlots [{_stationGuid}]: product slot keeps its native items (record empty/stale).");
                 }
+                if (prodSettled) rData.InputProduct = null;
             }
 
-            // 3. Output Product
+            // 3. Output Product (BUG-001: same RestorePolicy rules as the input slots)
             if (outSlot != null && outSlot.Pointer != IntPtr.Zero)
             {
-                if (outData != null && outData.Quantity > 0 && !string.IsNullOrEmpty(outData.ItemId))
+                bool outNativeFilled = outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero && outSlot.Quantity > 0;
+                bool outRecordFilled = outData != null && outData.Quantity > 0 && !string.IsNullOrEmpty(outData.ItemId);
+                var outAction = RestorePolicy.Decide(outRecordFilled, outNativeFilled);
+                bool outSettled = true;
+                if (outAction == RestoreAction.WriteFromRecord)
                 {
-                    var outDef = GameRegistry.GetItem(outData.ItemId);
+                    var outDef = GameRegistry.GetItem(outData!.ItemId);
                     if (outDef != null && outDef.Pointer != IntPtr.Zero)
                     {
                         var inst = outDef.GetDefaultInstance(outData.Quantity);
@@ -254,17 +322,24 @@ public class AutoPackStationController : MonoBehaviour
                             outSlot.SetStoredItem(inst);
                             outSlot.onItemDataChanged?.Invoke();
                             outSlot.onItemInstanceChanged?.Invoke();
-                            // Duplication fix: native restore succeeded — drop the rData copy so stale runtime data can't pay out twice
-                            rData.OutputProduct = null;
+                        }
+                        else
+                        {
+                            outSettled = false;
+                            Mod.Log.Warn($"RestoreNativeSlots [{_stationGuid}]: could not materialize output '{outData.ItemId}' — kept runtime copy.");
                         }
                     }
+                    else
+                    {
+                        outSettled = false;
+                        Mod.Log.Warn($"RestoreNativeSlots [{_stationGuid}]: output definition '{outData.ItemId}' missing — kept runtime copy.");
+                    }
                 }
-                else
+                else if (outNativeFilled)
                 {
-                    outSlot.ClearStoredInstance();
-                    outSlot.onItemDataChanged?.Invoke();
-                    outSlot.onItemInstanceChanged?.Invoke();
+                    Mod.Log.Debug($"RestoreNativeSlots [{_stationGuid}]: output slot keeps its native items (record empty/stale).");
                 }
+                if (outSettled) rData.OutputProduct = null;
             }
 
             try
@@ -284,7 +359,7 @@ public class AutoPackStationController : MonoBehaviour
     {
         try
         {
-            var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
+            var station = ResolveNativeStation(gameObject);
             if (station != null && station.Pointer != IntPtr.Zero)
             {
                 if (station.PackagingSlotPosition != null && station.PackagingSlotPosition.Pointer != IntPtr.Zero)
@@ -348,6 +423,7 @@ public class AutoPackStationController : MonoBehaviour
             var renderers = gameObject.GetComponentsInChildren<Renderer>(true);
             if (renderers == null) return;
             var visualRoot = transform.Find("AutoPack_VisualRoot");
+            var footprintRoot = transform.Find(Items.AutoPackPrefabComposer.FootprintRootName);
             for (int i = 0; i < renderers.Length; i++)
             {
                 var r = renderers[i];
@@ -355,6 +431,9 @@ public class AutoPackStationController : MonoBehaviour
 
                 // If the renderer is part of our mod visuals -> leave it on
                 if (visualRoot != null && visualRoot.Pointer != IntPtr.Zero && r.transform.IsChildOf(visualRoot))
+                    continue;
+                // Preserve the native footprint presentation; the game controls visibility.
+                if (footprintRoot != null && footprintRoot.Pointer != IntPtr.Zero && r.transform.IsChildOf(footprintRoot))
                     continue;
                 if (r.gameObject.name.StartsWith("AutoPack"))
                     continue;
@@ -401,11 +480,21 @@ public class AutoPackStationController : MonoBehaviour
                     return;
                 }
 
+                // Bug-audit 2026-10-13 (BUG-002/BUG-003): a successful PackUpStation already
+                // returned every item — refunding again here would duplicate them.
+                if (_packUpHandled)
+                {
+                    AutoPackStore.RemoveRuntimeData(_stationGuid);
+                    return;
+                }
+
                 var inv = PlayerInventory.Instance;
                 var rData = AutoPackStore.GetRuntimeData(_stationGuid);
-                var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
+                var station = ResolveNativeStation(gameObject);
 
-                if (inv != null && inv.Pointer != IntPtr.Zero)
+                bool canDeliver = inv != null && inv.Pointer != IntPtr.Zero;
+                // Collection runs regardless of player-inventory availability — anything
+                // that cannot be delivered right now becomes a pending refund (BUG-002).
                 {
                     var itemsToRefund = new List<Il2CppScheduleOne.ItemFramework.ItemInstance>();
                     bool hadNativePackaging = false;
@@ -571,17 +660,31 @@ public class AutoPackStationController : MonoBehaviour
                         }
                     }
 
-                    // Add items if inventory fits
+                    // Add items if inventory fits; everything else becomes a persisted
+                    // pending refund (bug-audit 2026-10-13, BUG-002). The old code logged a
+                    // warning and dropped the item — with a full inventory up to N items
+                    // were lost forever. Now nothing is ever dropped.
                     for (int i = 0; i < itemsToRefund.Count; i++)
                     {
                         var item = itemsToRefund[i];
-                        if (inv.CanItemFitInInventory(item, 1))
+                        if (item == null || item.Pointer == IntPtr.Zero) continue;
+                        if (canDeliver && inv!.CanItemFitInInventory(item, 1))
                         {
                             inv.AddItemToInventory(item);
                         }
                         else
                         {
-                            Mod.Log.Warn($"Dismantle OnDestroy: Inventory full, could not return item '{item.Definition?.ID}'.");
+                            Mod.Log.Warn($"Dismantle OnDestroy: Inventory full — queueing '{item.Definition?.ID}' as pending refund.");
+                            var qTier = item.TryCast<NativeQualityItemInst>();
+                            var prodInst = item.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
+                            AutoPackStore.QueuePendingRefund(new SlotItemData
+                            {
+                                ItemId = item.Definition?.ID ?? string.Empty,
+                                ItemName = item.Definition?.Name ?? item.Definition?.ID ?? string.Empty,
+                                Quantity = 1,
+                                QualityTier = (int)(qTier != null && qTier.Pointer != IntPtr.Zero ? qTier.Quality : EQuality.Standard),
+                                PackagingId = prodInst?.PackagingID ?? string.Empty
+                            });
                         }
                     }
                 }
@@ -656,7 +759,7 @@ public class AutoPackStationController : MonoBehaviour
         {
             float dt = Time.deltaTime;
             var rData = AutoPackStore.GetRuntimeData(_stationGuid);
-            var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
+            var station = ResolveStationCached(dt);
             bool isNativeStation = (station != null && station.Pointer != IntPtr.Zero);
 
             bool canStart = isNativeStation
@@ -706,8 +809,12 @@ public class AutoPackStationController : MonoBehaviour
             {
                 if (!_wasCanvasOpen)
                 {
+                    Mod.Log.Info($"[autopack-ui] native canvas opened for station {_stationGuid}; inputSlots={station?.InputSlots?.Count ?? 0}, outputSlotPresent={station?.OutputSlot != null}.");
                     // Save original state on first open frame
                     _shownReadout = null;
+                    // Bug-audit 2026-10-13 (BUG-018): remember the pre-open cursor state.
+                    _savedCursorLockMode = Cursor.lockState;
+                    _savedCursorVisible = Cursor.visible;
                     try
                     {
                         if (canvas.BeginButton != null && canvas.BeginButton.Pointer != IntPtr.Zero)
@@ -794,19 +901,22 @@ public class AutoPackStationController : MonoBehaviour
                     }
                 }
                 catch { }
-                // Only relock if no other station canvas or menu is keeping cursor unlocked
-                bool shouldRelock = true;
+                // Bug-audit 2026-10-13 (BUG-018): restore EXACTLY the cursor state from the
+                // frame this station UI opened. The old code force-locked and hid the cursor,
+                // which swallowed the state of any other menu. Still skip the restore while
+                // another station canvas is open.
+                bool otherCanvasOpen = false;
                 try
                 {
                     var nextCanvas = PackagingStationCanvas.Instance;
                     if (nextCanvas != null && nextCanvas.Pointer != IntPtr.Zero && nextCanvas.gameObject.activeSelf)
-                        shouldRelock = false;
+                        otherCanvasOpen = true;
                 }
                 catch { }
-                if (shouldRelock)
+                if (!otherCanvasOpen)
                 {
-                    Cursor.lockState = CursorLockMode.Locked;
-                    Cursor.visible = false;
+                    Cursor.lockState = _savedCursorLockMode;
+                    Cursor.visible = _savedCursorVisible;
                 }
             }
 
@@ -895,7 +1005,11 @@ public class AutoPackStationController : MonoBehaviour
         int packaging = pkgSlot != null && pkgSlot.Pointer != IntPtr.Zero && pkgSlot.ItemInstance != null && pkgSlot.ItemInstance.Pointer != IntPtr.Zero ? pkgSlot.Quantity : 0;
         int product = prodSlot != null && prodSlot.Pointer != IntPtr.Zero && prodSlot.ItemInstance != null && prodSlot.ItemInstance.Pointer != IntPtr.Zero ? prodSlot.Quantity : 0;
         int output = outSlot != null && outSlot.Pointer != IntPtr.Zero && outSlot.ItemInstance != null && outSlot.ItemInstance.Pointer != IntPtr.Zero ? outSlot.Quantity : 0;
-        int outputLimit = output > 0 && outSlot!.ItemInstance.Definition != null ? outSlot.ItemInstance.Definition.StackLimit : int.MaxValue;
+        int outputLimit = int.MaxValue;
+        if (output > 0 && outSlot != null && outSlot.ItemInstance != null && outSlot.ItemInstance.Definition != null)
+        {
+            outputLimit = outSlot.ItemInstance.Definition.StackLimit;
+        }
 
         bool unpack = rData.UnpackageMode;
         int percent = rData.State == StationState.Packaging ? Mathf.Clamp(Mathf.FloorToInt(rData.PackagingProgress * 100f), 0, 99) : 0;
@@ -1159,7 +1273,7 @@ public class AutoPackStationController : MonoBehaviour
         var inv = PlayerInventory.Instance;
         if (inv == null || inv.Pointer == IntPtr.Zero) return false;
 
-        var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
+        var station = ResolveNativeStation(gameObject);
         if (station != null && station.Pointer != IntPtr.Zero)
         {
             var outputSlots = station.OutputSlots;
@@ -1522,6 +1636,92 @@ public class AutoPackStationController : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Bug-audit 2026-10-13 (BUG-002): deliver queued pending refunds to the player on
+    /// load. Whatever still does not fit (or whose definition is missing) is re-queued,
+    /// so no item can ever be lost. Wired to GameLifecycle.OnLoadComplete in Mod.cs.
+    /// Re-review 2026-10-13 (Befund 4): at most MaxDeliverPerLoad unit instances are
+    /// materialized per load to avoid a frame spike from a large refund backlog — the
+    /// rest is re-queued and delivered on the next interaction or load.
+    /// </summary>
+    public static void DeliverPendingRefunds()
+    {
+        const int MaxDeliverPerLoad = 20;
+        try
+        {
+            var pending = AutoPackStore.DrainPendingRefunds();
+            if (pending.Count == 0) return;
+
+            var inv = PlayerInventory.Instance;
+            if (inv == null || inv.Pointer == IntPtr.Zero)
+            {
+                for (int i = 0; i < pending.Count; i++) AutoPackStore.QueuePendingRefund(pending[i]);
+                return;
+            }
+
+            int delivered = 0;
+            int budget = MaxDeliverPerLoad;
+            for (int i = 0; i < pending.Count; i++)
+            {
+                var p = pending[i];
+                if (p == null || p.Quantity <= 0 || string.IsNullOrEmpty(p.ItemId)) continue;
+                var def = GameRegistry.GetItem(p.ItemId);
+                if (def == null || def.Pointer == IntPtr.Zero)
+                {
+                    Mod.Log.Warn($"Pending refund: definition '{p.ItemId}' missing — kept in queue.");
+                    AutoPackStore.QueuePendingRefund(p);
+                    continue;
+                }
+
+                int given = 0;
+                while (given < p.Quantity)
+                {
+                    if (budget <= 0) break; // per-load budget exhausted — rest stays queued
+                    var inst = def.GetDefaultInstance(1);
+                    if (inst == null || inst.Pointer == IntPtr.Zero) break;
+                    var qInst = inst.TryCast<NativeQualityItemInst>();
+                    if (qInst != null && qInst.Pointer != IntPtr.Zero) qInst.Quality = (EQuality)p.QualityTier;
+                    var prodInst = inst.TryCast<Il2CppScheduleOne.Product.ProductItemInstance>();
+                    if (prodInst != null && prodInst.Pointer != IntPtr.Zero && !string.IsNullOrEmpty(p.PackagingId))
+                    {
+                        var pkgDef = GameRegistry.GetItem(p.PackagingId)?.TryCast<Il2CppScheduleOne.Product.Packaging.PackagingDefinition>();
+                        if (pkgDef != null && pkgDef.Pointer != IntPtr.Zero) prodInst.SetPackaging(pkgDef);
+                        else prodInst.PackagingID = p.PackagingId;
+                    }
+                    if (!inv.CanItemFitInInventory(inst, 1)) break;
+                    inv.AddItemToInventory(inst);
+                    given++;
+                    budget--;
+                }
+
+                if (given < p.Quantity)
+                {
+                    string reason = budget <= 0 ? "per-load budget exhausted" : "inventory full";
+                    Mod.Log.Warn($"Pending refund: {reason} — re-queuing {p.Quantity - given}x '{p.ItemId}'.");
+                    AutoPackStore.QueuePendingRefund(new SlotItemData
+                    {
+                        ItemId = p.ItemId,
+                        ItemName = p.ItemName,
+                        Quantity = p.Quantity - given,
+                        QualityValue = p.QualityValue,
+                        QualityTier = p.QualityTier,
+                        PackagingId = p.PackagingId,
+                        MixEffects = p.MixEffects
+                    });
+                }
+                else
+                {
+                    delivered += given;
+                }
+            }
+            if (delivered > 0) Mod.Log.Info($"Delivered {delivered} pending refund item(s) to the player.");
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Error($"DeliverPendingRefunds error: {ex}");
+        }
+    }
+
     private void PackUpStation()
     {
         // Bug-Audit 2026-09-12 (Round 4): reentrancy guard (see field declaration).
@@ -1544,7 +1744,7 @@ public class AutoPackStationController : MonoBehaviour
             if (inv == null || inv.Pointer == IntPtr.Zero) return;
 
             var rData = AutoPackStore.GetRuntimeData(_stationGuid);
-            var station = GetComponent<PackagingStation>() ?? GetComponentInParent<PackagingStation>();
+            var station = ResolveNativeStation(gameObject);
             // Duplication fix: with a LIVE native station the slots are the single source of truth — never fall back to stale rData
             bool hasLiveNativeStation = (station != null && station.Pointer != IntPtr.Zero);
 
@@ -1888,18 +2088,21 @@ public class AutoPackStationController : MonoBehaviour
                 }
             }
 
-            // Clear runtime data BEFORE Destroy so OnDestroy does not duplicate items
+            // Clear runtime data BEFORE Destroy so OnDestroy does not duplicate items.
+            // _packUpHandled (bug-audit 2026-10-13, BUG-002/BUG-003) tells OnDestroy that
+            // every item already went to the player — no second refund pass there.
             rData.InputProduct = null;
             rData.InputPackaging = null;
             rData.OutputProduct = null;
             AutoPackStore.RemoveRuntimeData(_stationGuid);
             AutoPackStore.UnregisterStation(this);
+            _packUpHandled = true;
 
             // Bug-Audit 2026-09-12 (CRITICAL): prefer the Vanilla dismantle RPC so the Buildable
             // registry, grid placement and network state are torn down cleanly. Raw
             // GameObject.Destroy leaked a ghost placement and caused item duplication on
-            // Save/Load. As a last-resort fallback for environments without a BuildableItem
-            // (e.g. dev/editor spawns), keep the raw Destroy so the controller can still clean up.
+            // Save/Load. Fallback chain (bug-audit 2026-10-13, BUG-003): BuildableItem.Destroy()
+            // first (same teardown minus the network RPC), raw Destroy last (dev/editor spawns).
             if (vanillaDismantle && buildable != null)
             {
                 try
@@ -1908,8 +2111,16 @@ public class AutoPackStationController : MonoBehaviour
                 }
                 catch (Exception ex)
                 {
-                    Mod.Log.Warn($"BuildableItem.Destroy_Server failed: {ex.Message}. Falling back to raw Destroy.");
-                    UnityEngine.Object.Destroy(gameObject);
+                    Mod.Log.Warn($"BuildableItem.Destroy_Server failed: {ex.Message}. Falling back to BuildableItem.Destroy().");
+                    try
+                    {
+                        buildable.Destroy();
+                    }
+                    catch (Exception ex2)
+                    {
+                        Mod.Log.Warn($"BuildableItem.Destroy failed: {ex2.Message}. Falling back to raw Destroy.");
+                        UnityEngine.Object.Destroy(gameObject);
+                    }
                 }
             }
             else
