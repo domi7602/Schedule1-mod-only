@@ -59,12 +59,27 @@ public class DriverSafetySourceContractTests
         Assert.Contains("if (!SpikeState.PollingActive)", reverse);
     }
 
+    /// <summary>
+    /// Resolves a mod source file by name from the src root, searching the domain
+    /// subfolders (src/&lt;Domain&gt;/&lt;File&gt;.cs) as well as the root itself. Keeping the
+    /// lookup layout-independent means a source reorganization does not invalidate
+    /// every contract test that reads a file.
+    /// </summary>
     internal static string ReadSource(string name)
     {
         for (DirectoryInfo? dir = new DirectoryInfo(AppContext.BaseDirectory); dir != null; dir = dir.Parent)
         {
-            string path = Path.Combine(dir.FullName, "Source", "Mods", "TaxiDriver", "src", name);
-            if (File.Exists(path)) return File.ReadAllText(path);
+            string root = Path.Combine(dir.FullName, "Source", "Mods", "TaxiDriver", "src");
+            if (!Directory.Exists(root)) continue;
+
+            string direct = Path.Combine(root, name);
+            if (File.Exists(direct)) return File.ReadAllText(direct);
+
+            string[] matches = Directory.GetFiles(root, name, SearchOption.AllDirectories);
+            if (matches.Length == 1) return File.ReadAllText(matches[0]);
+            if (matches.Length > 1)
+                throw new IOException($"Ambiguous TaxiDriver source name '{name}': {string.Join(", ", matches)}");
+            throw new FileNotFoundException("TaxiDriver source file not found", name);
         }
         throw new FileNotFoundException("TaxiDriver source root not found", name);
     }

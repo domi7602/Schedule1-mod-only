@@ -328,6 +328,32 @@ plus `Exception.Message`, e.g.
   `NPC.Health.IsDead`, and the seat result is proven with the `LandVehicle.Seats`
   dump plus `GetFirstFreeSeat()`.
 
+## Source layout
+
+`src/` is organized by domain (same convention as `WorldLook`) so the ~58 sources stay
+navigable. All files share the single `namespace TaxiDriver`, so folders are pure grouping —
+moving a file never changes a type name.
+
+| Folder | Contents |
+|---|---|
+| `src/` (root) | `Mod.cs` (MelonMod entry) · `TaxiTuning.cs` (global constants) |
+| `src/Runtime/` | Per-frame service driver and shared state: `SpikeRunner`, `SpikeCommands`, `SpikeState`, `TaxiAI`, `TaxiStand`, `TaxiLifecycle` |
+| `src/App/` | Phone app UI: `TaxiApp`, `HeroView`, `HeroSnapshot`, `ServiceFeedback`, `StopConfirmation` |
+| `src/Console/` | Read-only `taxi ...` console diagnostics: `TaxiConsoleCommand`, `TaxiConsolePolicy` |
+| `src/Dispatch/` | Destination catalog and selection: `TaxiDestinations`, `DestinationFilter`, `DestinationSelectionPolicy` |
+| `src/Navigation/` | Arrival/recovery verdicts and budgets: `Navigation*`, `PatrolStartPolicy`, `RecoveryRecurrencePolicy`, `TerminalRescuePolicy` |
+| `src/Roads/` | Road keeping and driveable-target placement: `RoadKeeper`, `RoadTarget`, `Road*Policy` |
+| `src/Driving/` | Native vehicle control: `NativeActuator*`, `CruiseSpeed*`, `BrakeHoldPolicy`, `ReversePedalPolicy` |
+| `src/Traffic/` | Scoped native flag swaps: `TrafficLightPatch`, `TrafficLightPolicy`, `PrivateFlagsScope` |
+| `src/Fares/` | Meter, billing and settlement: `FareLedger`, `FareMeter`, `FarePayment`, `MeterSettlement`, `BalanceReadbackPolicy` |
+| `src/Occupancy/` | Driver and passenger seats: `TaxiDriverNPC`, `DriverBoardingGate`, `Passenger*`, `RideLocks`, `RideProtectionPolicy` |
+| `src/Lifecycle/` | Ownership, cleanup and callback plumbing: `CallbackLease`, `CleanupGuard`, `OwnedSubscriptions`, `VehicleOwnershipLedger`, `DeadTaxiCleanup` |
+| `src/Visuals/` | GLB model swap: `TaxiVisual`, `TaxiVisualPolicy` |
+
+`Source/Tests/TaxiDriver.Tests/TaxiDriver.Tests.csproj` links the Unity-free policies via
+`Compile Include`; its paths mirror this layout, and `DriverSafetySourceContractTests.ReadSource`
+resolves a file name across the folders so contracts survive future moves.
+
 ## Build & deploy
 
 ```
