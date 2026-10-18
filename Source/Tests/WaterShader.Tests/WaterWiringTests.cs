@@ -50,6 +50,24 @@ public sealed class WaterWiringTests
     }
 
     [Fact]
+    public void ReferenceBranchAppliesTheClarityLookBeforeReturning()
+    {
+        string source = Source();
+        Assert.Contains("ReferenceWaterLook.Apply(new NativeWaterLookMaterial(clone))", source);
+        int branchStart = source.IndexOf("if (Reference != null && Reference.TryConfigure(clone, _waterY))", StringComparison.Ordinal);
+        Assert.True(branchStart >= 0, "the reference branch is gone");
+        int branchReturn = source.IndexOf("return;", branchStart, StringComparison.Ordinal);
+        Assert.True(branchReturn > branchStart, "the reference branch must still return early");
+        int clarityIndex = source.IndexOf("ReferenceWaterLook.Apply(", StringComparison.Ordinal);
+        // Block membership, not file order: the call has to sit INSIDE the reference branch, so
+        // moving it down into the vanilla fallback below cannot keep this test green.
+        Assert.InRange(clarityIndex, branchStart, branchReturn);
+        int vanillaIndex = source.IndexOf("WaterLookRecipe.Apply(", StringComparison.Ordinal);
+        Assert.True(vanillaIndex > branchReturn,
+            "the vanilla recipe must stay the fallback behind the reference branch");
+    }
+
+    [Fact]
     public void ApprovedClearShallowsRecipeUsesTestedPolicyAndWriteOnlyMaterialAdapter()
     {
         string source = Source();

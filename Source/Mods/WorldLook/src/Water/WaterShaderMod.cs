@@ -140,6 +140,7 @@ namespace WaterShader
                 if (Reference != null && Reference.TryConfigure(clone, _waterY))
                 {
                     _log("[water-shader] reference material configured; vanilla recipe skipped");
+                    _log(ReferenceWaterLook.Apply(new NativeWaterLookMaterial(clone)));
                     return;
                 }
                 _log(WaterLookRecipe.Apply(new NativeWaterLookMaterial(clone)));

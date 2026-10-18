@@ -13,5 +13,6 @@
     <Compile Include="../../Mods/WorldLook/src/Water/WaterSession.cs" Link="WaterSession.cs" />
     <Compile Include="../../Mods/WorldLook/src/Water/WaterLookRecipe.cs" Link="WaterLookRecipe.cs" />
     <Compile Include="../../Mods/WorldLook/src/Water/ReferenceWaterPolicy.cs" Link="ReferenceWaterPolicy.cs" />
+    <Compile Include="../../Mods/WorldLook/src/Water/ReferenceWaterLook.cs" Link="ReferenceWaterLook.cs" />
   </ItemGroup>
 </Project>
