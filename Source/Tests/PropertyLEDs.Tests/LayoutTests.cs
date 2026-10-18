@@ -1,6 +1,7 @@
 using Xunit;
 using PropertyLEDs.Core;
 namespace PropertyLEDs.Tests;
+
 public class LayoutTests
 {
     [Fact]

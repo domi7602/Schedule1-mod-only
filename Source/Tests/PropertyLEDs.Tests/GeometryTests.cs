@@ -2,6 +2,7 @@ using Xunit;
 using PropertyLEDs.Core;
 using System.Numerics;
 namespace PropertyLEDs.Tests;
+
 public class GeometryTests
 {
     internal static LEDPath Open(params LEDPoint[] points) => new() { Points = points.ToList() };

@@ -1,6 +1,7 @@
 using PropertyLEDs.Core;
 using Xunit;
 namespace PropertyLEDs.Tests;
+
 public class StateTests
 {
     [Fact]

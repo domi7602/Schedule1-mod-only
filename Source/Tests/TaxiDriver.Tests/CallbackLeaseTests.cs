@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using Xunit;
 namespace TaxiDriver.Tests;
+
 public class CallbackLeaseTests
 {
     [MethodImpl(MethodImplOptions.NoInlining)]

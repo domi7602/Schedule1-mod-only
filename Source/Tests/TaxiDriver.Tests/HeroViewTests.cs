@@ -1,5 +1,6 @@
 using Xunit;
 namespace TaxiDriver.Tests;
+
 public class HeroViewTests
 {
     private static HeroSnapshot Riding => new(true, false, false, false, true, false, false,

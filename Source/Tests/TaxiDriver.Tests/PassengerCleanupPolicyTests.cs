@@ -2,6 +2,7 @@ using System;
 using TaxiDriver;
 using Xunit;
 namespace TaxiDriver.Tests;
+
 public class PassengerCleanupPolicyTests
 {
     private static readonly IntPtr Taxi = new(123);

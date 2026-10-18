@@ -1,5 +1,6 @@
 using Xunit;
 namespace TaxiDriver.Tests;
+
 public class DestinationIdentityWiringTests
 {
     [Fact]
