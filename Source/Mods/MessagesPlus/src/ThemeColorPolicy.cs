@@ -14,7 +14,9 @@ internal enum ThemeRole
     MonochromeIcon,
     ProtectedContent,
     StatusIndicator,
-    OutgoingContent
+    OutgoingContent,
+    PopupSurface,
+    PopupText
 }
 
 /// <summary>RGB-only value used by the theme state policy; alpha is always preserved separately.</summary>
@@ -40,6 +42,16 @@ internal static class ThemeColorPolicy
             return false;
 
         if (SameRgb(current, target)) return false;
+        // Popup fills have a narrower neutral gate than the permissive app sweep.
+        // Re-check it even after tracking: a new accent must not be overwritten.
+        if (role == ThemeRole.PopupSurface)
+            return (hasState && SameRgb(current, lastTheme)) || IsPopupNeutralSurface(current);
+        if (role == ThemeRole.PopupText)
+        {
+            float min = MathF.Min(current.R, MathF.Min(current.G, current.B));
+            float max = MathF.Max(current.R, MathF.Max(current.G, current.B));
+            return (hasState && SameRgb(current, lastTheme)) || (max <= 0.62f && max - min <= 0.08f);
+        }
         if (!hasState) return true;
 
         // A prior theme color means a semantic-role change (or an interrupted theme
@@ -49,6 +61,13 @@ internal static class ThemeColorPolicy
         // Vanilla restoring the original surface/text color is the one safe signal
         // that the theme should be re-applied. Other external colors are preserved.
         return SameRgb(current, original);
+    }
+
+    public static bool IsPopupNeutralSurface(ThemeRgb color)
+    {
+        float min = MathF.Min(color.R, MathF.Min(color.G, color.B));
+        float max = MathF.Max(color.R, MathF.Max(color.G, color.B));
+        return min >= 0.45f && max - min <= 0.08f;
     }
 
     private static bool SameRgb(ThemeRgb left, ThemeRgb right) =>

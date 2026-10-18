@@ -76,6 +76,31 @@ Source: `src/tools/game_state_tools.py`, `Handlers/GameStateCommandHandler.cs`.
 - **Outdated fields removed from this doc:** the previous revision showed `build_index`, `is_multiplayer`, `is_host`, `game_version` — none of these exist in the current source (`game_version` is commented out as TODO).
 **Errors:** `-32000` "Failed to get game state" (`data.details`).
 
+### Wire-only methods (1.0.4) — no `s1_*` client tool wrapper yet
+Added in S1MCPServer 1.0.4 (main-thread handlers, never fast path). Call them with the raw
+JSON-RPC protocol (`mcp_client.py`-style); no `S1MCPClient` tool schema exists yet, so
+Hermes-connector `s1_*` names do not apply.
+
+- **`get_time_of_day`** — params none. `TimeManager` is a NetworkSingleton that only exists
+  in a loaded world: in the main menu the response is `{available:false, reason:"..."}`.
+  When available: `time_minutes` (0-1439, minutes since midnight), `elapsed_days`,
+  `display` (`GetMinutesToDisplayTime`). Errors: `-32000`.
+- **`set_time_of_day`** — params `time` (hours 0-24, float) OR `minutes` (0-1439, int);
+  validated on the double BEFORE the int cast (an out-of-range double would silently cast
+  to int.MinValue otherwise). Calls the host-authoritative `SetTime_Server`, then reports
+  `applied_minutes`, `readback_minutes`, `changed` (readback == applied) and a `note`
+  whenever `changed` is false (non-host client). Errors: `-32602` invalid params, `-32000`.
+- **`get_weather`** — params none, read-only. Reads the nine native weights from
+  `EnvironmentManager._currentWeatherConditions` (same members S1API's WeatherRuntime
+  mirrors): `conditions.sunny/cloudy/rainy/stormy/snowy/foggy/windy/hail/sleet`, floats
+  0-1. Main menu → `available:false`. Never selects sequences or triggers effects.
+- **`list_mods`** — params none, purely managed. `total_count` + `mods[]` with
+  `name/version/author/type` from `MelonMod.RegisteredMelons`, sorted by name. Works from
+  the main menu (true functional test of the set).
+
+**Errors:** all three world-bound handlers return a clean `{available:false, reason}` in the
+menu instead of erroring — a crash-free answer is the contract.
+
 ### `s1_capture_logs` → `capture_logs`
 Source: `src/tools/log_tools.py`, `Handlers/LogCommandHandler.cs`. Reads `MelonEnvironment.MelonLoaderDirectory/Latest.log` with `FileShare.ReadWrite`. If the file is > 256 KB and neither `first_n_lines` nor `from_timestamp` is set, only the **last 256 KB** are read (tail seek).
 **Params:**
@@ -321,6 +346,19 @@ Source: `src/tools/debug_tools.py (handle_s1_inspect_object)`, `Handlers/Debug/D
 - When enabled, `ModLogger.Debug` / `ModLogger.DebugPayload` write `[DEBUG]` lines including raw request/response JSON, **truncated to 500 chars** (`ModLogger.MaxPayloadLogChars = 500`). Info/Warn lifecycle lines (TCP server start, client connect/disconnect, Main scene loaded) are always logged.
 - Prefs are read once in `OnInitializeMelon` (`MelonPreferences.Load()`) — changing the cfg requires a game restart.
 - Use it when diagnosing the bridge itself (payload dumps show the exact wire JSON); turn it off afterwards to avoid Latest.log spam.
+
+### 3.5 Ack phase drift (observed live 2026-10-16)
+- After any response that travelled the **error path** (e.g. a validation failure from a wrong parameter name), the server's read phase shifts: it reads the client's next **ack frame as a request** (`Method name is empty` / ID-mismatch warnings), and every subsequent response comes back with a stale `id` (observed cascade of `id: 3`).
+- Counter-probe result: sending *no* ack gets total silence (the server only reads the next frame after the 10 s wait); sending acks works only until the first error-path response. Root cause is the single sequential read loop in `TcpServer.HandleClient`, not ack support itself.
+- Practice: keep the session clean, use exact parameter names (no validation-error probing), and if responses come back with a stale `id`, kill the connection and reconnect fresh — the phase shift does not self-heal.
+- Accept loop detail (`TcpServer.AcceptLoop`): the listener is stopped and restarted around every accepted client, so a connect can land in the restart window and hang. Wait ~10 s and retry (3 attempts spaced ~8 s worked).
+- After a reconnect was accepted at 15:30:45 the log went silent and the next exchange reset — suspect a paused main thread (game in background). If the bridge stalls right after connect, bring the game window to the foreground and retry.
+
+### 3.6 Discovery pitfalls: scan caps and how to get the real path (observed live 2026-10-16)
+- `find_gameobjects` is **scan-capped**: a live call returned `total_scanned: 2000` with `count: 0` for `name_pattern: "Environment"` — but the object *does* exist. On a scene as large as Schedule I's `Main`, a `count: 0` result is **not** evidence of absence. Never conclude "the object isn't there" from a zero result.
+- `inspect_component` takes `object_name` (resolved directly, independent of the scan) and returns **`game_object_path`** — the authoritative hierarchy. That is how `@Managers/@EnvironmentFX/GlobalVolume` was found, and it proved a mod's root-name filter (`EnvironmentFX`) could never match because `EnvironmentFX` is a *child* of `@Managers`, not a scene root.
+- `find_gameobjects` accepts `name_pattern`, `tag`, `layer`, `component_type`, plus active-state filters; `inspect_component` accepts `component_type` (partial match), `object_name`, `max_depth`. Prefer `inspect_component` with an explicit `object_name` when you need ground truth about one object — it costs one call and cannot be defeated by the scan cap.
+- Reading a URP `Volume` this way also answers the profile question without touching it: `m_InternalProfile: "null"` + `profile == sharedProfile` means the game has **not** instantiated its volume profile (so a mod must not read `volume.profile`).
 
 ---
 

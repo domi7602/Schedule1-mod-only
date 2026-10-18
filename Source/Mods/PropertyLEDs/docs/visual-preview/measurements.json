@@ -1,0 +1,82 @@
+{
+  "image": [
+    1672,
+    941
+  ],
+  "screen_bounds": [
+    691,
+    188,
+    982,
+    780
+  ],
+  "reference_property_card": [
+    704,
+    247,
+    968,
+    297
+  ],
+  "reference_scope_card": [
+    704,
+    303,
+    968,
+    352
+  ],
+  "reference_preview": [
+    706,
+    362,
+    966,
+    405
+  ],
+  "reference_power_card": [
+    704,
+    579,
+    968,
+    628
+  ],
+  "reference_presets": [
+    704,
+    640,
+    968,
+    678
+  ],
+  "samples": {
+    "695,415": [
+      10,
+      15,
+      22
+    ],
+    "840,254": [
+      15,
+      29,
+      42
+    ],
+    "705,271": [
+      21,
+      38,
+      52
+    ],
+    "850,383": [
+      238,
+      170,
+      56
+    ],
+    "922,602": [
+      1,
+      214,
+      254
+    ]
+  },
+  "native_dp": {
+    "SelectorHeight": 63.0,
+    "SliderHeadingHeight": 22.0,
+    "SliderTrackHeight": 26.0,
+    "PreviewHeight": 54.0,
+    "ActionHeight": 48.0,
+    "PowerHeight": 60.0,
+    "AdvancedHeight": 28.0,
+    "Gap": 8.0,
+    "Padding": 0.0,
+    "SliderHeight": 48.0
+  },
+  "collapsed_budget": 524.0
+}

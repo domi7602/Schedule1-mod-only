@@ -1,0 +1,12 @@
+{
+  "name": "GoldenHour",
+  "author": "Dominik",
+  "version": "0.1.5",
+  "description": "Golden-hour look bias, weighted by the in-game clock: warm at 06:00 and 18:00, released at noon and at night. Multiplicative tint over sky sun glow, sun light color, ambient Trilight, fog color and GlobalVolume colorFilter. Ctrl+Shift+F7 toggles; originals restored on toggle-off/scene-exit/shutdown.",
+  "status": "experimental",
+  "inGameVerify": "open",
+  "manualTrigger": "Ctrl+Shift+F7 (Main scene only; game focused; uGUI input-field guard)",
+  "reportPath": "none (runtime mod; state reported via MelonLoader log)",
+  "limitations": "Biases only — no absolute overrides; the clock scales strength (full at 06:00/18:00, zero at noon and night). Fog is not enabled; fog density is untouched and fog color is skipped while RenderSettings.fog is false (Main). The volume colorFilter bias is skipped whenever the game did not instantiate its own volume profile. Unreadable time releases the bias instead of painting gold. 0.1.5 in-game verify is open.",
+  "removal": "With game closed, remove Mods/GoldenHour.dll and optional PDB; optionally delete UserData/GoldenHour. Keep Shared and other mods."
+}

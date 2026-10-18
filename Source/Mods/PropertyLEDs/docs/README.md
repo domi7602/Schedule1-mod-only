@@ -4,7 +4,7 @@ Room-by-room RGB LED strips along the ceiling and wall edges of your owned prope
 businesses, controlled from a dedicated phone app. Developed independently for *Schedule I*
 (MelonLoader, IL2CPP, S1API). No code, models or textures from any existing LED mod are used.
 
-> **Status: experimental (v0.1.0).** The mod builds, deploys and ships a complete settings,
+> **Status: experimental (v0.1.6, room bar and color preview removed 2026-10-17, In-Game-Verify open).** The mod builds, deploys and ships a complete settings,
 > rendering, phone and diagnostics implementation. It deliberately contains **no built-in room
 > coordinates**: until a room has been measured and marked verified in the layout catalog, no
 > persistent LED geometry is placed there. See
@@ -17,9 +17,16 @@ businesses, controlled from a dedicated phone app. Developed independently for *
   AssetBundles, no colliders, one material per room group.
 - **Property-wide colour** with optional **per-room overrides**: a property default plus any number
   of rooms that deviate from it.
-- **Phone app** *Property LEDs*: property and room selectors, hue / saturation / colour-intensity /
-  brightness sliders, a white preset, an on/off switch, "Use property color" (drops a room override)
-  and a live state/geometry indicator.
+- **Phone app** *Property LEDs*: compact property/room cards, **Color** (rainbow colour bar, no
+  degrees), **Saturation** (white to strong colour, percentage) and **Brightness** (0–5).
+  **Advanced** opens the retained **Color intensity** control; every fresh app open starts collapsed.
+  A selected-RGB preview, white preset, on/off switch, "Use property color" (drops a room override)
+  remain. The normal information footer is removed: measured available height is distributed across
+  the controls with bounded growth. Loading/failure messages appear inline only when needed;
+  small screens retain scrolling. All original slider ranges and edit semantics are retained.
+  The English mockup-inspired UI has been compiled, tested and compared in a rendered HTML preview
+    ([visual comparison](visual-preview/README.md)). Native rendering and hit testing await authorized
+    deployment and a game check. Only the stateful switch changes power; there is no duplicate power button.
 - **Console command** `led` for measurement, preview, export and manual control (see
   [`diagnostics.md`](diagnostics.md)).
 - **Saved per save slot** (`settings_slot_{n}.json`, atomic writes with `.bak`, 1 s debounce).
@@ -48,6 +55,8 @@ businesses, controlled from a dedicated phone app. Developed independently for *
 3. Pick a scope: **Property default** (all rooms without their own override) or a single room.
 4. Move a slider, press **White**, or switch **LEDs ON/OFF**. Changes apply to the world
    immediately and are written to disk at most once per second.
+   Open **Advanced** for **Color intensity** when needed; opening/closing this panel changes only
+   the view and never resets a saved value or enables the LEDs.
 5. Use **Use property color** on a room to drop its override so it follows the property again.
 
 A room only shows LEDs once its geometry has been measured and marked verified in `layouts.json`
@@ -92,7 +101,7 @@ A room only shows LEDs once its geometry has been measured and marked verified i
 - Unsupported `FormatVersion`, corrupt files and duplicate `(PropertyId, RoomId)` pairs are refused
   without modifying the file.
 
-## Known limitations (v0.1.0)
+## Known limitations
 
 - No room layouts ship with the mod yet; every property has to be measured in game first.
 - No realtime Unity lights: the strips are emissive only, so nearby surfaces are not tinted.

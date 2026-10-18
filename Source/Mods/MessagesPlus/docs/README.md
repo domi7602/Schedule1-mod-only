@@ -20,7 +20,7 @@ The destructive actions live behind the **"..." menu** instead of sitting perman
 
 **Clear All** hides every visible **customer** conversation via `MSGConversation.SetEntryVisibility(false)`. **Clear Read** does the same, but only for conversations whose `MSGConversation.Read` flag is `true` (unknown read state = kept).
 
-- **Permanent Messages-app dark mode (`AppTheme`):** always ON — the toggle is gone (the config field is kept for schema stability and a stale `false` self-heals at startup). It recolours the injected band/menu/dialogs and the app shell (page backgrounds, inbox rows, chat bubbles + tails, dialogue header) — one-time per graphic with cached originals; avatars, badges, the unread dot, and product sprites stay untouched. The dead-drop/order and counter-offer menus keep their vanilla colors.
+- **Permanent Messages-app dark mode (`AppTheme`):** always ON — the toggle is gone (the config field is kept for schema stability and a stale `false` self-heals at startup). It recolours the injected band/menu/dialogs and the app shell (page backgrounds, inbox rows, chat bubbles + tails, dialogue header) — one-time per graphic with cached originals; avatars, badges, the unread dot, and product sprites stay untouched. Neutral deal-time popup, response, order and counter-offer surfaces/labels follow the dark palette. Clock sectors/hand, icons, colored accents/prices and native interactions remain protected; active menus receive scoped same-frame healing.
 - **Customer-only:** supplier and dealer threads and threads with unknown/empty categories are never touched (conservative filter: `Categories` contains Customer AND neither Supplier nor Dealer — null/empty categories mean non-customer).
 - **View-only search/filter (`InboxView`):** the search/filter view only toggles entry GameObjects and never mutates save state. It only restores hides it owns (rows hidden by vanilla are left alone) and re-applies itself from a throttled 1 s tick while active (vanilla can re-show entries on its own events). Zero cost with the default view. Search/filter reset when the app closes.
 - **One-time legacy restore:** threads deleted/hidden by MessagesPlus v0.1.x are un-hidden again on the next save load (they are still hidden inside the game save — `MSGConversationData.IsHidden`): every `Trashed`/`Purged` record from the old `UserData/MessagesPlus/trash_*.json[.bak]` files plus every hidden supplier/dealer thread (safety net). Processed legacy files are renamed to `*.restored`.
@@ -52,6 +52,10 @@ Clear All, Clear Read, the un-hide actions in the "Show hidden" panel, and the l
 - Pass (a): `UserData/MessagesPlus/trash_*.json` + `trash_*.json.bak` (all slots) — every `Trashed`/`Purged` record is matched (Id → Index+Name → name-only fallback for `Index < 0` records) and its conversation un-hidden; each processed file is renamed to `<name>.restored`.
 - Pass (b) safety net: every hidden Supplier/Dealer conversation in `MessagesApp.Conversations`/`ActiveConversations` is un-hidden. Customer threads are never un-hidden here (they stay hidden on purpose).
 - Both passes are host-only (they mutate save state).
+
+## Verification status
+
+**v0.4.6: Verified, owner-confirmed; confirmation recorded 2026-10-15.** Dominik confirmed the version works in-game, closing the popup/response dark-mode repair acceptance item. The original test date and individual actions were not supplied; no new independent log or visual check was performed.
 
 ## In-game test notes
 

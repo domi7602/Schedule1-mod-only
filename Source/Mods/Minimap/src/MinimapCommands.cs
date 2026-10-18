@@ -294,7 +294,7 @@ public sealed class MinimapConsoleCommand : BaseConsoleCommand
         Print("<color=#ffffff>minimap blips <police|dealers|properties|quests|clamp> <on|off></color> - Filter POI blips");
         Print("<color=#ffffff>minimap wp <add|del|list|clear> [name] [hex]</color> - Manage waypoints (M4)");
         Print("<color=#ffffff>minimap status</color> - Display live settings and state");
-        Print("<color=#ffffff>Hotkeys: [M] Toggle HUD, [ / ] Zoom In/Out, Drag & Drop with mouse</color>");
+        Print("<color=#ffffff>No keyboard visibility toggle. Zoom: configured keys or keypad +/-. Drag & Drop with mouse</color>");
     }
 
     /// <summary>

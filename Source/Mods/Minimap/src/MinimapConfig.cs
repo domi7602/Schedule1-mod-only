@@ -92,12 +92,8 @@ public sealed class MinimapConfig
 
     // Hotkeys & General
     public bool MinimapVisible { get; set; } = true;
-    // v2.0.3: "N", not "M" — M is the game's own MAP key. With "M" every map
-    // open/close toggled the minimap and the flipped state got saved, which made
-    // the minimap appear "only while the map is open" (see CHANGELOG 2.0.3).
-    // Not listed on the game's shortcut keys (M=map, T=messages, J=journal).
-    // Rebindable here (config.json) if it ever collides with your bindings.
-    public string ToggleKey { get; set; } = "N";
+    // Legacy schema/migration sentinel only. Keyboard visibility toggling is removed.
+    public string ToggleKey { get; set; } = "None";
     public string ZoomInKey { get; set; } = "RightBracket";
     public string ZoomOutKey { get; set; } = "LeftBracket";
 }

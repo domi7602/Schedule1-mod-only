@@ -1,0 +1,12 @@
+{
+  "name": "WorldLook",
+  "author": "Dominik",
+  "version": "0.1.0",
+  "description": "One world-look mod: clock-weighted warm light, the reference water surface, and a manual rendering probe. Merged from GoldenHour, WaterShader and GraphicsProbe so the game loads one DLL instead of three.",
+  "status": "experimental",
+  "inGameVerify": "open",
+  "manualTrigger": "Ctrl+Shift+F7 toggles the light bias. Ctrl+Shift+F8 captures a read-only rendering report. Water applies itself on the Main scene.",
+  "reportPath": "UserData/GraphicsProbe/latest.json for a manual probe capture; light state is in the MelonLoader log",
+  "limitations": "Light bias is a mild warm shift at 06:00 and 18:00 and is released at noon and at night. Fog is not enabled. The probe does not scan on scene load; it runs only on the manual chord. Water still targets only Main/Map/StylizedWater2_Ocean. In-Game-Verify open.",
+  "removal": "With the game closed, remove Mods/WorldLook.dll, Mods/s1reference.bundle and the optional PDB. Also remove any leftover GoldenHour.dll, WaterShader.dll and GraphicsProbe.dll so the old look does not load beside this one. Keep Shared."
+}

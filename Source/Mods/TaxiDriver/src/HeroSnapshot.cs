@@ -21,4 +21,7 @@ internal readonly record struct HeroSnapshot(
     bool ToPlayerPolling,
     string Destination,
     int Fare,
-    string Override);
+    string Override,
+    string DropOff = "",
+    string ActiveTripName = "",
+    bool HasActiveTrip = false);

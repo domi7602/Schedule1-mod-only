@@ -46,6 +46,7 @@ internal static class SpikeState
     internal static Vector3 NavStartPosition;
     internal static float NavStartDistance;
     internal static float NavStartTime;
+    internal static readonly NavigationRecoveryBudget NavigationRecovery = new();
     internal static float LastHeartbeat;
     internal static bool NavEverAutoDriving;
 
@@ -215,6 +216,9 @@ internal static class SpikeState
     /// <summary>The place the player picked (the drop-off may sit elsewhere).</summary>
     internal static Vector3? RideGoal;
 
+    // Resolver identity, independent of the route's reachable/fallback rebound.
+    internal static Vector3? RideResolvedArrival;
+
     /// <summary>Drop-off rule that won ("direct" / "lot entry" / "direct (loose)").</summary>
     internal static string RideDropOff = string.Empty;
 
@@ -277,6 +281,7 @@ internal static class SpikeState
         NavStartPosition = Vector3.zero;
         NavStartDistance = 0f;
         NavStartTime = 0f;
+        NavigationRecovery.Reset();
         LastHeartbeat = 0f;
         NavEverAutoDriving = false;
         NavRetried = false;
@@ -339,6 +344,7 @@ internal static class SpikeState
     {
         RideDestination = null;
         RideGoal = null;
+        RideResolvedArrival = null;
         RideDestinationName = NoDestinationName;
         RideDestinationKind = string.Empty;
         RideDropOff = string.Empty;
@@ -392,6 +398,7 @@ internal static class SpikeState
             return false;
         }
 
+        NativeActuatorPatch.ResetIntent();
         VehicleOwnership.ResetAfterConfirmedDeath();
         DestroyVerifyDeadline = 0f;
         DestroyVerifyAfterFrame = 0;

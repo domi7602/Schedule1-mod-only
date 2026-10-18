@@ -28,7 +28,7 @@ public static class BuildInfo
     public const string Name = "S1MCPServer";
     public const string Description = "MCP Server for Schedule I - Enables agentic LLM access to game objects";
     public const string Author = "SirTidez";
-    public const string Version = "1.0.1";
+    public const string Version = "1.0.4";
 }
 
 public class S1MCPServer : MelonMod
@@ -37,6 +37,7 @@ public class S1MCPServer : MelonMod
     private ResponseQueue? _responseQueue;
     private TcpServer? _tcpServer;
     private CommandRouter? _commandRouter;
+    private ServerStatus? _serverStatus;
 
     public override void OnInitializeMelon()
     {
@@ -61,11 +62,19 @@ public class S1MCPServer : MelonMod
         _commandQueue = new CommandQueue();
         _responseQueue = new ResponseQueue();
 
+        // Shared runtime state, reported by the `status` command
+        _serverStatus = new ServerStatus(_commandQueue, _responseQueue);
+
         // Initialize command router (will be set up in Phase 2)
-        _commandRouter = new CommandRouter(_responseQueue);
+        _commandRouter = new CommandRouter(_responseQueue, _serverStatus);
 
         // Initialize and start TCP server
-        _tcpServer = new TcpServer(_commandQueue, _responseQueue, port: 8765);
+        _tcpServer = new TcpServer(
+            _commandQueue,
+            _responseQueue,
+            _serverStatus,
+            tryHandleDirectly: _commandRouter.TryHandleDirectly,
+            port: 8765);
         _tcpServer.Start();
 
         ModLogger.Info("S1MCPServer ready - waiting for Main scene");

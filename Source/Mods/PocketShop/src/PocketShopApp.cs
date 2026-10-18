@@ -82,7 +82,7 @@ public sealed class PocketShopApp : PhoneApp
         MelonEvents.OnUpdate.Subscribe(DispatchUpdate);
         _staticSubscribed = true;
         base.OnCreated();
-        MelonLogger.Msg("Registered with S1API PhoneApp system (v0.3.2).");
+        MelonLogger.Msg($"Registered with S1API PhoneApp system (v{Mod.Version}).");
     }
 
     protected override void OnDestroyed()

@@ -7,8 +7,12 @@ namespace S1MCPServer.Handlers;
 
 /// <summary>
 /// Handles handshake and system-level commands.
+///
+/// Thread-safe by construction (plain dictionaries and strings, no Unity objects), so it is
+/// marked <see cref="IThreadSafeCommandHandler"/> and answers on the server thread: a client
+/// can complete its handshake even while the game is paused and the main thread is idle.
 /// </summary>
-public class HandshakeCommandHandler : ICommandHandler
+public class HandshakeCommandHandler : ICommandHandler, IThreadSafeCommandHandler
 {
     private readonly ResponseQueue _responseQueue;
     private readonly CommandRouter _commandRouter;
@@ -105,7 +109,7 @@ public class HandshakeCommandHandler : ICommandHandler
             {
                 ["status"] = "connected",
                 ["server_name"] = "S1MCPServer",
-                ["version"] = "1.0.0",
+                ["version"] = global::S1MCPServer.BuildInfo.Version,
                 ["total_methods"] = availableMethods.Count,
                 ["available_methods"] = availableMethods,
                 ["method_categories"] = methodCategories,

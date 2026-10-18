@@ -1,0 +1,30 @@
+[
+  {
+    "name": "power switch changes state",
+    "passed": true
+  },
+  {
+    "name": "advanced expands",
+    "passed": true
+  },
+  {
+    "name": "advanced collapses without resetting intensity",
+    "passed": true
+  },
+  {
+    "name": "color edit enables positive brightness",
+    "passed": true
+  },
+  {
+    "name": "zero brightness edit keeps explicit off",
+    "passed": true
+  },
+  {
+    "name": "one power action",
+    "passed": true
+  },
+  {
+    "name": "no redundant power button",
+    "passed": true
+  }
+]

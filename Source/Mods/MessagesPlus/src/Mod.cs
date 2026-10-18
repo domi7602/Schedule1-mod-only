@@ -4,7 +4,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(MessagesPlus.Mod), "MessagesPlus", "0.4.5", "Dominik")]
+[assembly: MelonInfo(typeof(MessagesPlus.Mod), "MessagesPlus", "0.4.6", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace MessagesPlus;
@@ -44,7 +44,7 @@ public class Mod : MelonMod
             Log.Info("Dark mode is permanent — config forced to ON.");
         }
 
-        // 2. Harmony patches on MessagesApp plus vanilla UI preservation for the
+        // 2. Harmony patches on MessagesApp plus scoped dark theming for the
         //    deal-window popup. PatchGuard keeps failures non-fatal across updates.
         MessagesAppPatch.ApplyAll(HarmonyInstance, Log);
         DealWindowSelectorPatch.ApplyAll(HarmonyInstance, Log);
@@ -59,7 +59,7 @@ public class Mod : MelonMod
 
         // (Dark-mode same-frame healing runs in OnLateUpdate — see there.)
 
-        Log.Info("MessagesPlus v0.4.4 initialized (search band [name + message text] + category chips + unread counter + ... menu with Clear Read/All + permanent app dark mode + whole-app sweep + vanilla order/counter-offer menus + legacy restore).");
+        Log.Info("MessagesPlus v0.4.6 initialized (search band [name + message text] + category chips + unread counter + ... menu with Clear Read/All + permanent app dark mode + whole-app sweep + scoped dark order/response menus + legacy restore).");
     }
 
     /// <summary>

@@ -242,74 +242,44 @@ public static class ProtocolHandler
     /// Reads a message from a stream (length prefix + JSON).
     /// </summary>
     /// <param name="stream">The stream to read from.</param>
+    /// <param name="cancellationToken">Cancels the read (used when the connection is superseded or the server stops).</param>
     /// <returns>The JSON message string.</returns>
     /// <exception cref="IOException">Thrown if stream read fails.</exception>
-    public static async Task<string> ReadMessageAsync(Stream stream)
+    /// <exception cref="EndOfStreamException">Thrown when the peer closed the connection.</exception>
+    public static async Task<string> ReadMessageAsync(Stream stream, CancellationToken cancellationToken = default)
     {
         Utils.ModLogger.Debug("ReadMessageAsync: Starting to read message from stream");
-        
-        // Check if stream is readable
+
         if (!stream.CanRead)
         {
             Utils.ModLogger.Error("ReadMessageAsync: Stream is not readable");
             throw new IOException("Stream is not readable");
         }
-        
-        // For NetworkStream, check if readable
-        if (stream is System.Net.Sockets.NetworkStream networkStream)
-        {
-            if (!networkStream.CanRead)
-            {
-                Utils.ModLogger.Error("ReadMessageAsync: Network stream is not readable");
-                throw new IOException("Network stream is not readable");
-            }
-            Utils.ModLogger.Debug($"ReadMessageAsync: Network stream is readable (CanRead: {networkStream.CanRead})");
-        }
-        
+
         // Read 4-byte length prefix
         byte[] lengthBuffer = new byte[4];
         Utils.ModLogger.Debug("ReadMessageAsync: Reading 4-byte length prefix...");
-        int bytesRead = await stream.ReadAsync(lengthBuffer, 0, 4);
+        int bytesRead = await stream.ReadAsync(lengthBuffer, 0, 4, cancellationToken);
         Utils.ModLogger.Debug($"ReadMessageAsync: Read {bytesRead} bytes for length prefix");
         
+        // A zero-length read on a TCP stream means EOF: the peer is gone.
+        // It does NOT mean "the client is waiting for a response" - a waiting client
+        // simply sends nothing, so the read BLOCKS instead of returning 0. Treating
+        // EOF as "no data" (via the old CanRead check, which stays true after EOF)
+        // sent the caller into an endless 200ms retry loop and locked the server
+        // against every new connection.
         if (bytesRead == 0)
         {
-            // Check if stream is still readable
-            if (stream is System.Net.Sockets.NetworkStream networkStream2 && networkStream2.CanRead)
-            {
-                Utils.ModLogger.Debug("ReadMessageAsync: Read 0 bytes but stream is still readable - client may be waiting for response");
-                // In request-response pattern, 0 bytes after sending a request is normal
-                // The client is waiting for our response. Don't treat this as an error immediately.
-                // Wait a bit longer to see if client sends another request
-                await Task.Delay(100); // Wait a bit longer
-                
-                // Try reading again
-                bytesRead = await stream.ReadAsync(lengthBuffer, 0, 4);
-                Utils.ModLogger.Debug($"ReadMessageAsync: After wait, read {bytesRead} bytes");
-            }
-            
-            if (bytesRead == 0)
-            {
-                // Final check - if still readable, this might be normal in request-response pattern
-                if (stream is System.Net.Sockets.NetworkStream networkStream3 && networkStream3.CanRead)
-                {
-                    Utils.ModLogger.Debug("ReadMessageAsync: Still 0 bytes but stream readable - treating as normal (client waiting for response)");
-                    // Don't throw error - let the caller handle this
-                    // The connection is still active, just no data yet
-                    throw new IOException("No data available (client may be waiting for response)");
-                }
-                else
-                {
-                    Utils.ModLogger.Error("ReadMessageAsync: Stream returned 0 bytes (EOF/closed)");
-                    throw new IOException("Stream closed or EOF reached (read 0 bytes)");
-                }
-            }
+            Utils.ModLogger.Debug("ReadMessageAsync: Read 0 bytes on length prefix (EOF) - client is gone");
+            throw new EndOfStreamException("Client closed the connection (EOF on length prefix)");
         }
         
         if (bytesRead != 4)
         {
-            Utils.ModLogger.Error($"ReadMessageAsync: Failed to read message length (got {bytesRead} bytes instead of 4)");
-            throw new IOException($"Failed to read message length (got {bytesRead} bytes instead of 4)");
+            // A TCP read may legitimately return fewer bytes than requested
+            // (the prefix can arrive split). Keep reading until it is complete.
+            Utils.ModLogger.Debug($"ReadMessageAsync: Partial length prefix ({bytesRead}/4 bytes) - reading the remainder");
+            await ReadExactAsync(stream, lengthBuffer, bytesRead, 4 - bytesRead, cancellationToken);
         }
 
         int messageLength = BitConverter.ToInt32(lengthBuffer, 0);
@@ -330,13 +300,13 @@ public static class ProtocolHandler
         {
             readAttempts++;
             Utils.ModLogger.Debug($"ReadMessageAsync: Read attempt {readAttempts}, reading {messageLength - totalBytesRead} bytes...");
-            bytesRead = await stream.ReadAsync(messageBuffer, totalBytesRead, messageLength - totalBytesRead);
+            bytesRead = await stream.ReadAsync(messageBuffer, totalBytesRead, messageLength - totalBytesRead, cancellationToken);
             Utils.ModLogger.Debug($"ReadMessageAsync: Read {bytesRead} bytes in attempt {readAttempts}");
             
             if (bytesRead == 0)
             {
                 Utils.ModLogger.Error($"ReadMessageAsync: Stream closed before message complete (read {totalBytesRead}/{messageLength} bytes)");
-                throw new IOException($"Stream closed before message complete (read {totalBytesRead}/{messageLength} bytes)");
+                throw new EndOfStreamException($"Stream closed before message complete (read {totalBytesRead}/{messageLength} bytes)");
             }
             totalBytesRead += bytesRead;
         }
@@ -353,7 +323,7 @@ public static class ProtocolHandler
     /// <param name="stream">The stream to write to.</param>
     /// <param name="json">The JSON message string.</param>
     /// <exception cref="IOException">Thrown if stream write fails.</exception>
-    public static async Task WriteMessageAsync(Stream stream, string json)
+    public static async Task WriteMessageAsync(Stream stream, string json, CancellationToken cancellationToken = default)
     {
         Utils.ModLogger.Debug($"WriteMessageAsync: Starting to write message ({json.Length} chars)");
         
@@ -365,15 +335,65 @@ public static class ProtocolHandler
 
         // Write length prefix
         Utils.ModLogger.Debug("WriteMessageAsync: Writing 4-byte length prefix...");
-        await stream.WriteAsync(lengthBytes, 0, 4);
+        await stream.WriteAsync(lengthBytes, 0, 4, cancellationToken);
         Utils.ModLogger.Debug("WriteMessageAsync: Length prefix written");
 
         // Write JSON message
         Utils.ModLogger.Debug($"WriteMessageAsync: Writing {jsonBytes.Length} bytes of JSON message...");
-        await stream.WriteAsync(jsonBytes, 0, jsonBytes.Length);
+        await stream.WriteAsync(jsonBytes, 0, jsonBytes.Length, cancellationToken);
         Utils.ModLogger.Debug("WriteMessageAsync: JSON message written, flushing...");
-        await stream.FlushAsync();
+        await stream.FlushAsync(cancellationToken);
         Utils.ModLogger.Debug("WriteMessageAsync: Message written and flushed successfully");
+    }
+
+    /// <summary>
+    /// Reads exactly <paramref name="count"/> bytes into <paramref name="buffer"/>,
+    /// continuing across partial reads. Throws <see cref="EndOfStreamException"/> if the
+    /// peer closes the connection before the requested bytes arrive.
+    /// </summary>
+    private static async Task ReadExactAsync(Stream stream, byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+        int read = 0;
+        while (read < count)
+        {
+            int chunk = await stream.ReadAsync(buffer, offset + read, count - read, cancellationToken);
+            if (chunk == 0)
+            {
+                throw new EndOfStreamException($"Client closed the connection mid-frame ({read}/{count} bytes of the remainder read)");
+            }
+            read += chunk;
+        }
+    }
+
+    /// <summary>
+    /// Checks whether a raw JSON message is a request (it carries a "method" property).
+    /// Client acknowledgments have no "method" and must not be deserialized as requests.
+    /// </summary>
+    public static bool TryGetMethod(string json, out string method)
+    {
+        method = null;
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.ValueKind != JsonValueKind.Object)
+            {
+                return false;
+            }
+            if (!doc.RootElement.TryGetProperty("method", out var methodElement))
+            {
+                return false;
+            }
+            if (methodElement.ValueKind != JsonValueKind.String)
+            {
+                return false;
+            }
+            method = methodElement.GetString();
+            return !string.IsNullOrEmpty(method);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 }
 

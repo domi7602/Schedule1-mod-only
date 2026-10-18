@@ -35,8 +35,8 @@ internal static class AppHeaderBuilder
         hlg.childForceExpandHeight = false;
         hlg.childAlignment = TextAnchor.MiddleLeft;
 
-        // Back button (left) — same muted style as the close button, no loud color plate.
-        backButton = BuildIconButton(header.transform, "<", new Color(0.13f, 0.17f, 0.24f, 1f), new Color(0.78f, 0.83f, 0.90f, 1f), 26f, onBack);
+        // Back button (left) — same muted style as the close button, drawn chevron icon.
+        backButton = BuildIconButton(header.transform, "Back", new Color(0.13f, 0.17f, 0.24f, 1f), new Color(0.78f, 0.83f, 0.90f, 1f), 26f, onBack, icon: HeaderIcons.ChevronLeft());
 
         // Title (no emoji glyphs — Arial renders them as blank boxes)
         BuildTitle(header.transform);
@@ -44,8 +44,8 @@ internal static class AppHeaderBuilder
         // Live search
         var search = BuildSearchField(header.transform, onSearchChanged);
 
-        // X close button: compact dark anthracite-red with a subtle red edge.
-        BuildIconButton(header.transform, "X", new Color(0.26f, 0.12f, 0.13f, 1f), Color.white, 26f, onClose, redEdge: true);
+        // X close button: compact dark anthracite-red with a subtle red edge, drawn X icon.
+        BuildIconButton(header.transform, "Close", new Color(0.26f, 0.12f, 0.13f, 1f), Color.white, 26f, onClose, redEdge: true, icon: HeaderIcons.Close());
 
         return search;
     }
@@ -153,17 +153,31 @@ internal static class AppHeaderBuilder
         border.effectColor = new Color(0.35f, 0.45f, 0.62f, 0.35f);
         border.effectDistance = new Vector2(1f, -1f);
 
+        // Magnifier icon at the left edge (drawn sprite, muted like the placeholder).
+        var magGO = new GameObject("SearchIcon");
+        magGO.transform.SetParent(go.transform, false);
+        var magRt = magGO.AddComponent<RectTransform>();
+        magRt.anchorMin = new Vector2(0f, 0.5f);
+        magRt.anchorMax = new Vector2(0f, 0.5f);
+        magRt.pivot = new Vector2(0f, 0.5f);
+        magRt.sizeDelta = new Vector2(UITheme.Dp(13f), UITheme.Dp(13f));
+        magRt.anchoredPosition = new Vector2(UITheme.Dp(9f), 0f);
+        var magImg = magGO.AddComponent<Image>();
+        magImg.sprite = HeaderIcons.Magnifier();
+        magImg.color = new Color(0.55f, 0.60f, 0.68f, 1f);
+        magImg.raycastTarget = false;
+
         var field = go.AddComponent<InputField>();
         field.targetGraphic = bgImg;
 
         var text = S1API.UI.UIFactory.Text("Text", string.Empty, go.transform, UITheme.Sp(13), TextAnchor.MiddleLeft);
-        Stretch(text.rectTransform, 12f, 30f);
+        Stretch(text.rectTransform, 28f, 30f);
         text.color = new Color(0.92f, 0.94f, 0.97f, 1f);
         text.supportRichText = false;
         text.raycastTarget = false;
 
         var placeholder = S1API.UI.UIFactory.Text("Placeholder", "Search...", go.transform, UITheme.Sp(13), TextAnchor.MiddleLeft);
-        Stretch(placeholder.rectTransform, 12f, 30f);
+        Stretch(placeholder.rectTransform, 28f, 30f);
         placeholder.color = new Color(0.55f, 0.60f, 0.68f, 1f);
         placeholder.supportRichText = false;
         placeholder.raycastTarget = false;
@@ -219,8 +233,10 @@ internal static class AppHeaderBuilder
     /// <summary>
     /// Compact square-ish control (back / close). Muted dark plate of the shared control
     /// height; the close button gets a subtle red edge instead of a saturated red fill.
+    /// With <paramref name="icon"/> the control shows a drawn sprite (tinted <paramref name="fg"/>)
+    /// instead of a text glyph.
     /// </summary>
-    private static GameObject BuildIconButton(Transform parent, string label, Color bg, Color fg, float widthDp, Action onClick, bool redEdge = false)
+    private static GameObject BuildIconButton(Transform parent, string label, Color bg, Color fg, float widthDp, Action onClick, bool redEdge = false, Sprite? icon = null)
     {
         var panel = S1API.UI.UIFactory.Panel($"Btn_{label}", parent, bg);
         var btn = panel.AddComponent<Button>();
@@ -237,6 +253,24 @@ internal static class AppHeaderBuilder
             var edge = panel.AddComponent<Outline>();
             edge.effectColor = new Color(0.78f, 0.30f, 0.30f, 0.55f);
             edge.effectDistance = new Vector2(1f, -1f);
+        }
+
+        if (icon != null)
+        {
+            var iconGO = new GameObject("Icon");
+            iconGO.transform.SetParent(panel.transform, false);
+            var iRt = iconGO.AddComponent<RectTransform>();
+            iRt.anchorMin = new Vector2(0.5f, 0.5f);
+            iRt.anchorMax = new Vector2(0.5f, 0.5f);
+            iRt.pivot = new Vector2(0.5f, 0.5f);
+            iRt.sizeDelta = new Vector2(UITheme.Dp(14f), UITheme.Dp(14f));
+            iRt.anchoredPosition = Vector2.zero;
+            var iImg = iconGO.AddComponent<Image>();
+            iImg.sprite = icon;
+            iImg.color = fg;
+            iImg.raycastTarget = false;
+            S1API.Utils.ButtonUtils.AddListener(btn, onClick);
+            return panel;
         }
 
         var vlg = panel.AddComponent<VerticalLayoutGroup>();

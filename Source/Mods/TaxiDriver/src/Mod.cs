@@ -6,7 +6,7 @@ using S1Mods.Shared;
 using UnityEngine;
 using UnityEngine.UI;
 
-[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "0.8.3", "Dominik")]
+[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "0.8.18", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace TaxiDriver;
@@ -16,8 +16,16 @@ public class Mod : MelonMod
     /// <summary>Shared logger — prefixes every line with [TaxiDriver].</summary>
     internal static ModLogger Log { get; } = new("TaxiDriver");
 
+    /// <summary>Session gate: callbacks captured from an earlier initialization cannot restart.</summary>
+    internal static TaxiLifecycle Lifecycle { get; } = new();
+
     public override void OnInitializeMelon()
     {
+        if (!Lifecycle.Initialize())
+        {
+            Log.Warn("[taxi-lifecycle] initialization refused while shutdown cleanup is running.");
+            return;
+        }
         TaxiLog.Load();
 
         // IL2CPP registration: the TaxiApp search field's typing guard (phoneapp
@@ -34,10 +42,22 @@ public class Mod : MelonMod
 
         // Passenger rides fail closed unless every required input/trunk patch installs.
         RideLocks.Apply();
+        NativeActuatorPatch.Apply();
+        CruiseSpeedPatch.Apply();
+        // The 0.8.11 wheel-sweep traffic-light hook is DISABLED (0.8.17): it threw a
+        // native->managed NullReferenceException hundreds of times per second in live
+        // IL2CPP gameplay (Latest.log 2026-10-14), starving the VehicleAgent of sweep
+        // results so the taxi never reached its parked pickup state. Native traffic
+        // behavior is retained until the trampoline-safe wiring is proven in-game.
+        // TrafficLightPatch.Remove() stays in the teardown path as a no-op guard.
+        // TrafficLightPatch.Apply(); // DISABLED, see above
 
         // Beta 8 exposes OnPreLoad and OnPreSceneChange on the installed API.
         // Clear the picker before a save switch and cancel deferred work before
         // scene changes; the live scene callback handles the post-unload verdict.
+        // Defensive removal first: a partial initialization must never double-hook.
+        GameLifecycle.OnPreLoad -= OnPreLoad;
+        GameLifecycle.OnPreSceneChange -= OnPreSceneChange;
         GameLifecycle.OnPreLoad += OnPreLoad;
         GameLifecycle.OnPreSceneChange += OnPreSceneChange;
         Log.Info("GameLifecycle.OnPreLoad and OnPreSceneChange hooked; picker, pending work and ride state are cleared at lifecycle boundaries.");
@@ -69,6 +89,8 @@ public class Mod : MelonMod
 
     private static void OnPreLoad()
     {
+        if (!Lifecycle.AcceptingWork)
+            return;
         bool taxiTracked = !ReferenceEquals(SpikeState.Vehicle, null) ||
                            SpikeState.VehicleOwnership.TrackedPointer != IntPtr.Zero;
         if (taxiTracked && !SpikeCommands.Cleanup("save/load boundary", explicitRetry: false))
@@ -80,6 +102,8 @@ public class Mod : MelonMod
 
     private static void OnPreSceneChange()
     {
+        if (!Lifecycle.AcceptingWork)
+            return;
         SpikeRunner.OnPreSceneChange();
     }
 
@@ -91,9 +115,31 @@ public class Mod : MelonMod
 
     private static void Teardown(string reason)
     {
-        MelonEvents.OnUpdate.Unsubscribe(SpikeRunner.Update);
-        SpikeRunner.Shutdown();
-        Log.Info($"SpikeRunner.Update unsubscribed from MelonEvents.OnUpdate ({reason}).");
+        (string Label, Action Run)[] cleanup =
+        {
+            ("quiesce updates and deferred work", () =>
+            {
+                MelonEvents.OnUpdate.Unsubscribe(SpikeRunner.Update);
+                SpikeRunner.Shutdown();
+            }),
+            ("settle the fare meter once", () => FareMeter.Stop($"session teardown ({reason})")),
+            ("stop patrol", () => TaxiAI.StopPatrol($"session teardown ({reason})")),
+            ("stop owned taxi navigation/actions", () => SpikeCommands.StopVehicleForShutdown($"session teardown ({reason})")),
+            ("restore owned trunk", RideLocks.UnlockTrunk),
+            ("release passenger ride state", SpikeState.ResetRide),
+            ("reset managed drive state", SpikeRunner.ResetDrivingState),
+            ("finalize owned navigation callbacks", () => { SpikeState.NextNavOrder(); }),
+        };
+        (string Label, Action Run)[] finalization =
+        {
+            ("remove actuator hook", () => { NativeActuatorPatch.Remove(); }),
+            ("remove cruise hook", () => { CruiseSpeedPatch.Remove(); }),
+            ("remove traffic-light hook", () => { TrafficLightPatch.Remove(); }),
+            ("remove ride protection hooks", () => { RideLocks.Remove(); }),
+            ("remove diagnostic hooks", () => { SpikeTrace.Remove(); }),
+        };
+        Lifecycle.Shutdown(cleanup, finalization, SpikeCommands.ReportCleanupFailure);
+        Log.Info($"[taxi-lifecycle] teardown complete ({reason}) — work quiesced, meter settled once, owned taxi retained; hooks removed last.");
     }
 }
 

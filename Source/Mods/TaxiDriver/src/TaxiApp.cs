@@ -83,6 +83,9 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     private static readonly string[] FilterLabels = { "All", "Homes", "Deals", "Places" };
 
     // ---- UI refs ------------------------------------------------------------
+    private readonly OwnedSubscriptions _updateSubscriptions = new();
+    private readonly OwnedSubscriptions _rowSubscriptions = new();
+    private readonly OwnedSubscriptions _appSubscriptions = new();
     private GameObject? _mainBG;
     private RectTransform? _listContent;
     private Text? _heroTitle;
@@ -157,20 +160,45 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     {
         base.OnCreated();
 
-        MelonEvents.OnUpdate.Unsubscribe(Update);
-        MelonEvents.OnUpdate.Subscribe(Update);
+        _updateSubscriptions.Clear();
+        var lease = new CallbackLease<bool>(Mod.Lifecycle.Guard<bool>(_ => Update()));
+        LemonAction listener = lease.Invoke;
+        _updateSubscriptions.Add(listener, MelonEvents.OnUpdate,
+            (action, source) => source.Subscribe(action),
+            (action, source) => { lease.Release(); source.Unsubscribe(action); },
+            _ => lease.Release());
     }
 
     protected override void OnDestroyed()
     {
+        // S1API destroys the panel in base.OnDestroyed: release helper roots first,
+        // even if Unity's overloaded null says these managed wrappers are dead.
+        _rowSubscriptions.Clear();
+        _appSubscriptions.Clear();
+        _updateSubscriptions.Clear();
         ClearStopConfirmation();
-        MelonEvents.OnUpdate.Unsubscribe(Update);
+        _destRows.Clear();
+        _destSnapshot.Clear();
+        _filterChips.Clear();
+        _rowWidths.Clear();
+        _mainBG = null;
+        _listContent = null;
+        _searchInput = null;
+        _searchClearGo = null;
+        _heroTitle = _heroMeta = _heroValue = null;
+        _callButton = _stopButton = _clearButton = null;
+        _callFill = _stopFill = _clearFill = null;
+        _callLabel = _callSub = _stopLabel = _stopSub = _clearLabel = _countText = null;
         base.OnDestroyed();
     }
 
     /// <summary>Builds the landscape dashboard (background panel starts hidden).</summary>
     protected override void OnCreatedUI(GameObject container)
     {
+        _rowSubscriptions.Clear();
+        _appSubscriptions.Clear();
+        _heroSnapshot = default;
+        _actionSignature = _clearSignature = int.MinValue;
         var containerRt = container.GetComponent<RectTransform>();
         if (containerRt != null)
         {
@@ -379,7 +407,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         _callSub.color = Color.white;
         _callSub.raycastTarget = false;
         AnchorRect(_callSub.rectTransform, 0.06f, 0.06f, 0.94f, 0.42f);
-        ButtonUtils.AddListener(_callButton, OnCallTaxiPressed);
+        OwnButton(_callButton, OnCallTaxiPressed);
 
         var stopCard = CreateCard("StopPanel", panel.transform, CardFillSoft, out _stopFill, raycastTarget: true, radius: ChipRadius);
         _stopButton = stopCard.AddComponent<Button>();
@@ -392,7 +420,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         _stopSub.color = TextDim;
         _stopSub.raycastTarget = false;
         AnchorRect(_stopSub.rectTransform, 0.06f, 0.06f, 0.94f, 0.42f);
-        ButtonUtils.AddListener(_stopButton, OnStopPressed);
+        OwnButton(_stopButton, OnStopPressed);
     }
 
     /// <summary>Filter band (Dp28): 4 category chips + place count + clear chip.</summary>
@@ -432,7 +460,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
 
             _filterChips[key] = (chipFill, lbl, btn);
             string captured = key;
-            ButtonUtils.AddListener(btn, () => SetFilter(captured));
+            OwnButton(btn, () => SetFilter(captured));
         }
 
         _countText = UIFactory.Text("PlaceCount", string.Empty, panel.transform, UITheme.Sp(10), TextAnchor.MiddleRight);
@@ -454,7 +482,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         _clearLabel.color = TextDim;
         _clearLabel.raycastTarget = false;
         AnchorRect(_clearLabel.rectTransform, 0.03f, 0f, 0.97f, 1f);
-        ButtonUtils.AddListener(_clearButton, OnClearPressed);
+        OwnButton(_clearButton, OnClearPressed);
 
         RefreshFilterChips();
     }
@@ -526,12 +554,11 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         clearLabel.color = TextDim;
         clearLabel.raycastTarget = false;
         AnchorRect(clearLabel.rectTransform, 0.03f, 0f, 0.97f, 1f);
-        ButtonUtils.AddListener(clearButton, OnSearchClearPressed);
+        OwnButton(clearButton, OnSearchClearPressed);
         _searchClearGo = clearCard;
         _searchClearGo.SetActive(false);
 
-        EventHelper.RemoveListener(OnSearchQueryChanged, _searchInput.onValueChanged);
-        EventHelper.AddListener(OnSearchQueryChanged, _searchInput.onValueChanged);
+        OwnSearchListener(_searchInput, OnSearchQueryChanged);
 
         // Rule 5: the typing guard lives on the band and dies with it (OnDisable
         // resets Controls.IsTyping).
@@ -602,7 +629,10 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         if (scroll != null)
         {
             scroll.vertical = true;
+            scroll.inertia = false;
+            scroll.velocity = Vector2.zero;
             scroll.movementType = ScrollRect.MovementType.Clamped;
+            Mod.Log.Info("[ui] destination scrolling: inertia=False, movement=Clamped; card transitions=None.");
         }
 
         _nameColumnWidth = UITheme.ActualWidth - 2f * UITheme.Dp(8f) - 2f * UITheme.Dp(10f) - UITheme.Dp(60f) - UITheme.Dp(8f);
@@ -619,13 +649,14 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     /// </summary>
     private void RebuildDestinationList()
     {
-        if (_listContent == null)
-            return;
-
-        UIFactory.ClearChildren(_listContent);
+        _rowSubscriptions.Clear(); // always before destruction, including fake-null content
         _destRows.Clear();
         _destSnapshot.Clear();
         _rowWidths.Clear();
+        if (!IsAlive(_listContent))
+            return;
+
+        UIFactory.ClearChildren(_listContent);
 
         string query = _searchQuery.Trim();
         string standName = $"Taxi-Stand ({TaxiStand.StandName})";
@@ -710,7 +741,9 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         var row = CreateCard($"Dest_{key}", _listContent, CardFill, out var fill, raycastTarget: true, radius: CardRadius);
         var le = row.AddComponent<LayoutElement>();
         le.preferredHeight = UITheme.Dp(44f);
-        le.minHeight = UITheme.Dp(30f);
+        le.minHeight = UITheme.Dp(44f);
+        le.flexibleHeight = 0f;
+        le.layoutPriority = 1;
         var btn = row.AddComponent<Button>();
         btn.transition = Selectable.Transition.None;
 
@@ -743,7 +776,7 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         tagLe.flexibleWidth = 0f;   // tag keeps its width, the name gets the rest
 
         string captured = key;
-        ButtonUtils.AddListener(btn, () => OnDestinationPressed(captured));
+        OwnButton(btn, () => OnDestinationPressed(captured), rows: true);
         _destRows[captured] = (row.GetComponent<Image>(), fill, nameTxt, tagTxt, highlight);
     }
 
@@ -760,12 +793,23 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
     /// <summary>Highlight pass: the picked destination gets the blue selection rim + raised fill.</summary>
     private void RefreshDestinationHighlight()
     {
-        string selected = SpikeState.RideDestinationName;
+        Vector3? goal = SpikeState.RideGoal;
+        DestinationSelection? selected = SpikeState.RideDestinationPicked && goal.HasValue
+            ? new DestinationSelection(SpikeState.RideDestinationName, SpikeState.RideDestinationKind,
+                new DestinationPoint(goal.Value.x, goal.Value.y, goal.Value.z)) : null;
 
         foreach (KeyValuePair<string, (Image Rim, Image Fill, Text Label, Text Tag, string Highlight)> entry in _destRows)
         {
-            bool isSelected = entry.Value.Highlight.Length > 0 &&
-                              string.Equals(entry.Value.Highlight, selected, StringComparison.Ordinal);
+            DestinationSelection? candidate = null;
+            if (_destSnapshot.TryGetValue(entry.Key, out var destination))
+                candidate = new DestinationSelection(destination.Name, destination.Kind,
+                    new DestinationPoint(destination.Goal.x, destination.Goal.y, destination.Goal.z));
+            else if (entry.Key == "STAND")
+            {
+                Vector3 stand = TaxiStand.StandCoordinate;
+                candidate = new DestinationSelection("Taxi-Stand", "stand", new DestinationPoint(stand.x, stand.y, stand.z));
+            }
+            bool isSelected = candidate.HasValue && DestinationSelectionPolicy.IsSelected(selected, candidate.Value);
 
             // Change guards only: an unconditional Set forces a canvas rebuild for every row.
             Color rim = isSelected ? SelectionAccent : CardBorder;
@@ -912,82 +956,19 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             SpikeState.NavToPlayer && SpikeState.PollingActive,
             destination,
             FareMeter.CalculatedTotal,
-            overrideText);
+            overrideText,
+            SpikeState.RideDropOff,
+            SpikeState.ActiveTripName,
+            SpikeState.ActiveTripPoint.HasValue);
         if (snapshot == _heroSnapshot)
             return;
         _heroSnapshot = snapshot;
 
-        string title;
-        string meta;
-        string value = string.Empty;
-        Color valueColor = TextMuted;
-
-        if (SpikeState.RideActive)
-        {
-            if (SpikeState.RideAwaitingDestination)
-            {
-                title = "ON BOARD";
-                meta = "Pick a destination below";
-            }
-            else if (SpikeState.RideArrived)
-            {
-                title = SpikeState.NavGaveUp ? "COULDN'T GET THERE" : "ARRIVED";
-                meta = SpikeState.NavGaveUp
-                    ? "Press E to get out — or STOP to despawn"
-                    : "Press E to exit the taxi";
-                value = $"FARE ${FareMeter.CalculatedTotal}";
-                valueColor = ValueInk;
-            }
-            else
-            {
-                // Package 7: while driving, the hero names the ACTIVE trip —
-                // the picker may have been cleared or re-picked since dispatch.
-                string trip = SpikeState.ActiveTripPoint.HasValue && SpikeState.ActiveTripName.Length > 0
-                    ? SpikeState.ActiveTripName
-                    : destination;
-                bool showing = SpikeState.RideDestinationPicked || trip != destination;
-                title = showing ? $"RIDING TO {trip.ToUpperInvariant()}" : "RIDING";
-                string dropOff = ShortDropOff(SpikeState.RideDropOff);
-                meta = showing
-                    ? (string.IsNullOrEmpty(dropOff) ? "On the way" : $"Drop-off: {dropOff}")
-                    : "On the way";
-                value = $"FARE ${FareMeter.CalculatedTotal}";
-                valueColor = ValueInk;
-            }
-        }
-        else if (SpikeState.RideAwaitingBoard)
-        {
-            title = "BOARD NOW";
-            meta = "Press E to get in";
-            value = SpikeState.RideDestinationPicked ? $"TO {destination}" : "Or pick a destination below";
-        }
-        else if (SpikeState.AutoToPlayer || (SpikeState.NavToPlayer && SpikeState.PollingActive))
-        {
-            title = "TAXI ON THE WAY";
-            meta = "Driving to your position — wait outside";
-            if (SpikeState.RideDestinationPicked)
-                value = $"NEXT: {destination}";
-        }
-        else if (SpikeState.AutoRunning || SpikeState.PendingSpawnCode != null)
-        {
-            title = "SPAWNING…";
-            meta = "The taxi is being dispatched";
-        }
-        else if (SpikeState.Vehicle != null)
-        {
-            title = "TAXI WAITING";
-            meta = "Press STOP to despawn it";
-            value = SpikeState.RideDestinationPicked ? $"TO {destination}" : "No destination picked";
-        }
-        else
-        {
-            title = "CALL A TAXI";
-            meta = "Orders a cab to your position";
-            value = SpikeState.RideDestinationPicked ? $"TO {destination}" : "No destination picked";
-        }
-
-        if (overrideText.Length > 0)
-            meta = overrideText;
+        HeroText view = HeroView.Build(snapshot);
+        string title = view.Title;
+        string meta = view.Meta;
+        string value = view.Value;
+        Color valueColor = view.IsFare ? ValueInk : TextMuted;
 
         if (_heroTitle!.text != title)
         {
@@ -1001,15 +982,6 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
             _heroValue.text = value;
             _heroValue.color = valueColor;
         }
-    }
-
-    /// <summary>Drops the parenthesised detail from a drop-off sentence ("lot entry (nearest…)").</summary>
-    private static string ShortDropOff(string? dropOff)
-    {
-        if (string.IsNullOrEmpty(dropOff))
-            return string.Empty;
-        int paren = dropOff.IndexOf('(');
-        return paren > 0 ? dropOff.Substring(0, paren).Trim() : dropOff;
     }
 
     /// <summary>Shrinks the hero title to its band (computed once per text change, no per-frame best-fit).</summary>
@@ -1086,10 +1058,15 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         }
         ClearStopConfirmation();
 
+        long statusBeforeStop = SpikeState.ServiceStatusRevision;
         bool stopped = SpikeCommands.Stop();
         if (stopped)
         {
             SetStatusOverride("Ride cancelled — taxi removed safely.");
+        }
+        else if (SpikeState.ServiceStatusRevision != statusBeforeStop)
+        {
+            SetStatusOverride(SpikeState.ServiceStatus);
         }
         else if (SpikeState.VehicleOwnership.DestroyPending)
         {
@@ -1256,6 +1233,40 @@ public sealed class TaxiApp : S1API.PhoneApp.PhoneApp
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
     }
+
+    /// <summary>Fresh forwarding delegates avoid S1API's global delegate-key deduplication.
+    /// Capture the event now: never read onClick from a dead Unity component at disposal.</summary>
+    private void OwnButton(Button button, Action callback, bool rows = false)
+    {
+        var lease = new CallbackLease<bool>(Mod.Lifecycle.Guard<bool>(_ => callback()));
+        Action listener = lease.Invoke;
+        UnityEngine.Events.UnityEvent evt = button.onClick;
+        (rows ? _rowSubscriptions : _appSubscriptions).Add(listener, evt,
+            (action, source) => EventHelper.AddListener(action, source),
+            (action, source) => { lease.Release(); EventHelper.RemoveListener(action, source); },
+            action => { lease.Release(); ForgetButtonListener(action); });
+    }
+
+    private void OwnSearchListener(InputField input, Action<string> callback)
+    {
+        var lease = new CallbackLease<string>(Mod.Lifecycle.Guard(callback));
+        Action<string> listener = lease.Invoke;
+        UnityEngine.Events.UnityEvent<string> evt = input.onValueChanged;
+        _appSubscriptions.Add(listener, evt,
+            (action, source) => EventHelper.AddListener(action, source),
+            (action, source) => { lease.Release(); EventHelper.RemoveListener(action, source); },
+            action => { lease.Release(); ForgetSearchListener(action); });
+    }
+
+    // Installed S1API generic removal deletes its static dictionary AFTER native
+    // removal. If the captured event died, removing the identical delegate through
+    // a fresh empty event completes helper deletion without reading a dead component.
+    // Non-generic removal already deletes its dictionary before the native call.
+    private static void ForgetButtonListener(Action listener) =>
+        EventHelper.RemoveListener(listener, new Button.ButtonClickedEvent());
+
+    private static void ForgetSearchListener(Action<string> listener) =>
+        EventHelper.RemoveListener(listener, new InputField.OnChangeEvent());
 }
 
 // ---------------------------------------------------------------------------

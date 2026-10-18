@@ -36,6 +36,13 @@ GameReferences/decompiled/
 __pycache__/
 *.pyc
 Thumbs.db
+
+# Rollback backups of deployed DLLs (binaries + manifests) — local only.
+# `*.dll`/`*.pdb` were already ignored; the manifest.json/mod.json inside
+# still surfaced the directory as untracked.
+/.backups/
+# Stray Windows shell folder (only desktop.ini) — never part of the repo.
+/Saved Games/
 # Release packages
 Release/*.zip
 

@@ -1,0 +1,10 @@
+{
+  "name": "WaterShader",
+  "author": "Dominik",
+  "version": "0.2.0",
+  "description": "Reference water shader prototype: authored URP shader (S1Mods/ReferenceWater) in an AssetBundle with scene-depth transmission, scene-color refraction and a real planar reflection from one owned disabled camera. Cached Main/Map/StylizedWater2_Ocean discovery unchanged.",
+  "status": "experimental",
+  "inGameVerify": "open",
+  "limitations": "In-Game-Verify open: reflection appearance and orientation, shoreline/oblique-clip behaviour, measured reflection cost and FPS are unverified. Shader fragment support and the AssetBundle round-trip are proven (isSupported=True, passCount=1) but that is not visual or GPU acceptance. Fail-closed to the vanilla recipe on every failure path; WaterSession.cs is byte-identical. Deferred: the stale-bind branch clears the reflection silently (no log line) until the next Main scene load. Prior 0.1.1 smooth play owner-confirmed; reload/shutdown and quantitative frametimes open.",
+  "removal": "With the game closed, remove Mods/WaterShader.dll and Mods/s1reference.bundle. Keep Shared and other mods."
+}

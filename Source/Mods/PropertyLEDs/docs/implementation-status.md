@@ -1,6 +1,6 @@
 # PropertyLEDs — implementation and verification status
 
-Last update: **2026-10-11** (tube→beam geometry switch; motel lines re-anchored and corners confirmed in game by the owner; vanilla coverage import: 11 properties / 33 rooms — per-property visual confirmation open; catalog audit diagnostic added).
+Last update: **2026-10-17** (v0.1.6 removes the phone Room/Scope card, color preview, and "Use property color" button. Edits apply to the property color. Saved room overrides are not deleted. 90 tests, review PASS. In-Game-Verify open. Prior 0.1.5 spacing/palette and 0.1.4 owner UI acceptance are historical. Geometry and coverage history below is unchanged.)
 Scope: independently developed mod for *Schedule I* (MelonLoader, IL2CPP, S1API 3.2.1). No source,
 mesh or texture of any existing LED mod was used; the functional brief supplied by the owner is the
 acceptance specification.
@@ -78,7 +78,88 @@ The settings file additionally seeds per-property settings (owner's motel colour
 imported coverage is visible immediately; both previous files are backed up as
 `layouts.json.bak-2026-10-11-pre-import` / `settings_slot_1.json.bak-2026-10-11-pre-import`.
 
-## Verified offline (with real tool output)
+## Full-height layout 0.1.4 (2026-10-13)
+
+- Owner-approved scope only: remove footer information/icon and ordinary coverage/status text;
+  preserve palette, drawn icons, English captions, selectors, all settings and LED geometry.
+- Baseline Latest.log: 0.1.3 measured viewport 596 x 960.8, content 839.1, collapsed. The freed
+  bottom band gives an 88.5% viewport: 1062.9 at native height 1201. Minimum stack remains
+  524/580 dp; measured extra height stretches real cached controls/gaps, not a blank spacer.
+- Priority-10 native contracts, direct content sizing and unconstrained ContentSizeFitter avoid
+  preferred-size cycles. Controls cap at 1.5x, gaps at 3x; oversized outliers intentionally stop
+  growing. Smaller/expanded overflow remains scrollable and does not shrink below usable minima.
+- Reapply when actual viewport measurement or Advanced/inline-state visibility changes. Cached
+  rect reads converge after stale first-open dimensions; no per-frame scan or repeated rebuild.
+- Inline errors/loading/no-anchor/unverified-placement warnings remain only when needed. Edit
+  errors survive routine refresh until a successful edit. Ordinary footer data is not retained.
+- Unity Slider.UpdateVisuals sets cross-axis handle anchors to 0..1 (official uGUI source inspected).
+  Fixed-height handle parents and zero cross-axis delta prevent ovals under responsive sizing.
+- 80 tests pass. Compile-only Release: 0 warnings/errors. 15 browser checks, zero JS exceptions,
+  collapsed/expanded/small-expanded screenshots; see visual-preview/README.md. Not native evidence.
+- Breadcrumb: viewport/content/expected, advanced/inline, selector/preview/slider/power/actions/gap
+  and overflow. Native first-open, convergence/reopen, circular handles, lower actions, scrolling,
+  input and persistence remain pending. The existing switch silhouette is not redesigned.
+- No deployment, game launch, commit, push or UserData writes. Catalog hash remains
+  07bbc5620ea3eac1d45e736af5dd76c377565ca39dd2481bc6ee72a0d75f5f11.
+
+## English mockup correction 0.1.3 (2026-10-13)
+
+- Reference measured and compared to a rendered HTML preview, not just a label-only revision.
+  See [visual comparison](visual-preview/README.md) for artifacts, exact deltas and limitations.
+- Three normal sliders; retained intensity is under Advanced. Four indices, ranges and values are
+  unchanged. One button-backed stateful power switch replaces the former power action.
+- Drawn raster icons, icon tiles, outlined navy cards, subtle selected-color border, capsule gradient
+  alpha and round slider handles. Factory mask graphics are hidden to avoid a white switch plate.
+- Actual property layout counts and inheritance scope only; no Saved assertion without runtime evidence.
+- All current labels/tests/docs are English. Historical control-label mentions are rendered in English
+  below for consistency; those historical reports do not verify this release.
+- 64 tests, compile-only Release: 0 warnings/errors. Seven browser interaction checks pass;
+  no JavaScript exceptions. Source contracts do not instantiate Unity controls.
+- Collapsed/expanded budgets are 524/580 dp; late native measurements remain authoritative.
+- No deployment, game launch, runtime settings/catalog edits, commit or push.
+- Native acceptance: first-open and reopened text/card bounds, hue endpoints/saturation updates,
+  round native handles/gradient alpha, real selectors/power, disabled inheritance, edit auto-enable
+  including brightness 0, no duplicate listeners, scope-only navigation, slot round-trip and cleanup.
+
+## Simplified colour UI 0.1.2 (2026-10-12)
+
+- Only the approved control simplification was added: **Color** uses an inclusive 0–1 rainbow
+  track (red at both ends) without degrees; **Saturation** shows 0–100% and a white-to-selected-hue
+  gradient; **Brightness** keeps 0–5. The existing RGB swatch still reflects the effective selection.
+- **Advanced** shows the existing **Color intensity** slider (index 2, 0–1, percentage).
+  Its panel is built once, collapsed on every fresh open and toggled using SetActive. Layout is
+  forced immediately after toggling; content remains scrollable. Opening the panel does not apply
+  settings, auto-enable LEDs or discard values; scope navigation remains view-only.
+- Cached procedural gradient sprites/textures are released in OnDestroyed, never OnPhoneClosed.
+  No per-frame hierarchy/scene discovery, new native lights or changes to LED runtime were added.
+- 58 tests pass: three existing default-budget cases now prove 560 dp collapsed; seven added
+  cases prove the 620 dp expanded budget and source wiring. Observed RED -> GREEN for each slice.
+  The expanded stack can exceed the 79% viewport; scrolling, not overlap, is the intended behavior.
+- Compile-only Release build with `-p:S1NoDeploy=true -p:BuildProjectReferences=false`:
+  0 warnings / 0 errors. No deployment, game start, commit, push or UserData changes.
+- The prior log records 35 valid catalog rooms and the older UI viewport at 602.6 × 948.8.
+  These are baseline observations, not rendering evidence for the simplified build.
+- Native acceptance is still open: inspect full rainbow visibility at 0/1 and middle hues,
+  white-to-colour Saturation, no degree label, three normal sliders, Advanced open/close and
+  expanded footer reachability; reopen must collapse without losing intensity. Check scope
+  switching never enables LEDs or writes settings; test edits, inheritance and save/reload.
+  Expected breadcrumb: `Phone layout: viewport=...`, `advanced=False/True` and matching
+  `expected=...` (560/620 dp × captured scale), actual content and scroll overflow.
+
+## UI structure update 0.1.1 (2026-10-12) — historical build report
+
+- Only the approved structure option was implemented: 68 dp selector cards, independent caption/name/context,
+  fixed arrow hit boxes, readable slider typography and consistent compact spacing. Dark palette, swatch,
+  actions/status text, slider mechanics, edits/inheritance/navigation and lifecycle ownership remain unchanged.
+- 51 tests pass (44 existing + 7 new pure sizing/source-contract cases). The 576 dp sizing contract fits
+  the existing 79% scroll viewport at the 1201-unit phone baseline; this is arithmetic, not a native render.
+- Release compiled with `-p:S1NoDeploy=true -p:BuildProjectReferences=false`: 0 warnings / 0 errors.
+  No game start, deployment or UserData changes were performed.
+- Runtime breadcrumb: `[PropertyLEDs] Phone layout: viewport=...`, including actual content height,
+  expected budget, card height and scroll overflow. Verify first open and reopen, long names/arrow bounds,
+  inheritance-row visibility and smaller-viewport scrolling after authorized deployment.
+
+## Historical offline checks (before 0.1.1)
 
 | Check | Result |
 |---|---|

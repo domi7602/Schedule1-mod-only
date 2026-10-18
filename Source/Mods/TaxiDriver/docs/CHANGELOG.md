@@ -1,5 +1,133 @@
 # Changelog
 
+## 0.8.18 (2026-10-15) — Terminal relocation rescue and balance readback
+
+- Terminal rescue no longer skips the guarded relocation when the car is on the vehicle graph. The 2026-10-15 `Latest.log` proved the old gate wrong: the ride "taxi to Sweatshop" gave up **106.7 m from the target** at `(40.1, 0.6, 52.5)` with `car is on the vehicle graph but still stuck ... no teleport needed, giving up`, while the car sat motionless (reverse moved 3.1 m, re-dispatch idle for 7.4 s). Graph membership only proves a route exists, not that the car can reach it. `TerminalRescuePolicy` now decides: graph state never vetoes the attempt, only the spent one-shot rescue budget does (`NavigationRecovery.TryLastRescue`, unchanged). The attempt runs the existing guarded `RoadKeeper.TryRescueStartup` (supported free spot, ground snap, oriented-box clearance, occupancy check, road-aligned rotation), then re-dispatches. The recurrence-branch redispatch stays unchanged — the same log showed it recovering 72 m without intervention (`no supported free point` → re-dispatch → progress).
+- Settlements now log a balance readback: `FareMeter.Charge` reads net worth (S1API `Money.GetNetWorth`, cash + online) before the money calls and logs the observed movement after (`[meter] balance readback for $N: net worth X -> Y (observed Z, charged $N) — movement matches/does not match the charged amount`). `BalanceReadbackPolicy` formats the verdict (tolerance $0.51 for float noise); the readback is log evidence only — never proof of causation, never retries or corrects a payment, and a skipped/unreadable read never blocks settlement. The `payment calls returned ... (balance movement unverified)` wording is unchanged (a void return is still no proof); the readback line adds the observed numbers next to it.
+- 498 tests pass (489 baseline + 7 policy + 2 wiring contracts; RED observed before wiring). Release built/deployed with 0 warnings/errors after game-closed and Shared-match checks; installed DLL hash-matched. Gameplay verification open: rerun `ParkingGarage` → `taxi to Sweatshop` and confirm (a) the terminal stall at `(40.1, 0.6, 52.5)` now attempts `attempting teleport recovery` instead of giving up, and (b) `[meter] balance readback` lines appear with movement matching the charged fares.
+
+## 0.8.17 (2026-10-14) — Traffic-light hook disabled after live NRE
+
+- The 0.8.11 wheel-sweep traffic-light hook (`TrafficLightPatch.Apply`, private scoped `DriveFlags` copy on `VehicleAgent.GetWheelSweepCollision`) is DISABLED. Root cause, proven by your 2026-10-14 `Latest.log`: the hook threw a native->managed `NullReferenceException` hundreds of times per second from the first pickup navigation onward, starving the `VehicleAgent` of sweep results. Consequences in that session: the taxi never reached its parked pickup state, rolled on without an active order after the give-up (idle guard stopped after 3 attempts), and could be player-driven because the passenger input gate only engages in `RidePassengerMode`. `TrafficLightPolicy`, the hook class and its unit tests remain in the tree for a trampoline-safe rework; `TrafficLightPatch.Remove()` stays in the teardown path as a no-op guard. Native traffic-light stopping behavior is restored (as before 0.8.11). Cruise, actuator, ride locks and packages 1–5 are unchanged.
+- Parent reran 489 tests (0 failed/skipped). `TrafficLightWiringTests` now pins the disabled state per active source line. Release built/deployed with 0 warnings/errors after game-closed and Shared-match checks. Installed DLL/PDB/mod.json read back and hash-matched; DLL SHA-256 `035ddaa65ba814c79529026acf5cd47036d5016b66b77b47932cc6f3701af964`.
+- Gameplay verification open: confirm no `GetWheelSweepCollision` ERROR spam, pickup stops at the player position, and the player cannot drive the taxi during an active ride. The 0.8.16 deinit expectations (`[taxi-lifecycle] teardown complete`, single meter line, no despawn) still apply at quit.
+
+## 0.8.16 (2026-10-13) — Deinitialization lifecycle
+
+- Deinitialization now runs a one-shot, exception-isolated teardown: the shutdown gate closes before work and cannot reopen mid-cleanup; update/deferred/native callbacks quiesce first (nav orders invalidated, pending spawn/auto-run/seat-verify/settle/lot-dump cleared); the fare meter settles exactly once (claim before report IO, no retry on failed/unknown reports); patrol/navigation/actions stop; only owned trunk components are restored; no foreign seat/player mutation, remote exit or blind occupied-taxi despawn. Harmony hooks (actuator, cruise, traffic-light, ride protection, trace) are removed last via the installed `Harmony.UnpatchSelf`, so a later re-init can re-apply them; pre-teardown callback generations stay inert after re-init. Repeat/reentrant deinit is a no-op; partial init is tolerated.
+- Parent reran 489 tests (0 failed/skipped); independent focused review PASS. Release built/deployed with 0 warnings/errors after game-closed and Shared-match checks. Installed DLL/PDB/mod.json read back and hash-matched; DLL SHA-256 `e3752ad1d95f91842aed08e685e2465acd08fa5cc361404fd6b8f135eaa515e7`.
+- In-game verification open and pending the joint test: expect `[taxi-lifecycle] teardown complete (quit/deinit)`, at most one `[meter] ride ended (session teardown …)` line and no taxi despawn/seat changes on quit. Harmony finalizer execution, MelonEvents unsubscribe symmetry and S1API event removal are source-verified only. Minor non-blocking: the teardown-complete log also prints on the second (no-op) teardown call, and the park intent is reset by hook removal in the same frame, making the parked log line optimistic at quit. Fare rules, recovery budgets, road/traffic patches, destination identity, seat/STOP safety and package-4 listener leases unchanged.
+
+## 0.8.15 (2026-10-13) — Destination identity and app subscription lifecycle
+
+- Logical destination identity (name/kind/exact goal) is separate from physical route identity. A different destination sharing the running route updates picker/RideGoal/active-trip metadata without redispatch or order/budget/fare reset; reachable/fallback coordinates remain authoritative. Repeated same picks are no-ops while driving; give-up permits fresh dispatch. Hero rendering uses only its complete snapshot, including drop-off and active-trip state. Owned row, persistent/search and update listener identities are released before row/base-app destruction; forwarding leases sever callback targets and helper removal handles dead events/partial registration.
+- Parent reran 464 tests (0 failed/skipped); independent focused review PASS. Release built/deployed with 0 warnings/errors after game-closed and Shared-match checks. Installed DLL/PDB/mod.json read back and hash-matched; DLL SHA-256 `c7cf35c2c1c3197e5e705576f6988dff0c8ae47be1cef569055fad8a2860cd8c`.
+- IL2CPP/gameplay verification open: shared-drop-off selection, recovery-only hero refresh and actual helper-root counts across search/filter/reopen/scene teardown untested. If native removal and empty-event fallback both throw, helper entries may remain, but released forwarding leases no longer retain the app. Static UI, fares, recovery, seat/STOP safety, road and native patches unchanged.
+
+## 0.8.14 (2026-10-13) — Multiplayer seats and STOP occupancy safety
+
+- Passenger seating uses only verified vacant or exact-local native identities. Driver reservation requires raw reference absence (ReferenceEquals), independently of Unity overloaded null/seat occupancy. Failed seating stops navigation and attempts only safe local exit; new, ongoing, idempotent and reroute paths honor failure. STOP removes/verifies NPC occupants, then proves all player/seat/registry occupancy empty before consuming destruction attempts; occupied/unreadable/stale aggregate state reports Waiting for passengers and retains the taxi. CurrentVehicle is compared against the vehicle NetworkObject pointer. Existing ambiguous retry, fares, navigation, road and native patches unchanged.
+- Parent reran 436 tests (0 failed/skipped). Independent package review identified a P2 Unity-null reservation gap; observed RED/GREEN repair and focused independent re-review PASS closed it. Release built/deployed with 0 warnings/errors after game-closed and Shared-match checks. Installed DLL/PDB/mod.json read back and hash-matched; DLL SHA-256 `42b6c91f224b9e71946faf3b5a341ce794c6a79210a74b462c6cd7345959b35d`.
+- Multiplayer/gameplay verification open. Unreadable registry/seat state or stale aggregate occupancy conservatively retains the taxi until a later explicit STOP confirms vacancy. No forced remote-player exit.
+
+## 0.8.13 (2026-10-13) — Supported road-snap slope correction
+
+- XZ projection now interpolates original 3D route elevation. Hard placement requires filtered static support within +/-0.75 m, eight-corner measured chassis clearance at the proposed heading, root-to-bottom offset plus 0.05 m, and no foreign collider overlap. Offset candidates are reprojected onto the route; unsafe candidates are rejected before placement/progress bookkeeping. Existing bounded recovery, fares, native driving and package1 remain unchanged.
+- Parent reran 404 tests (0 failed/skipped); independent read-only review PASS. Release built/deployed with 0 warnings/errors after game-closed/Shared-match checks. Installed DLL/PDB/mod.json read back and hash-matched; DLL SHA-256 `5f38fa1b4e735fcd6bacdf1d51fbc9b2acaa9414de9177ffe2f9fe58517958da`.
+- Gameplay verification open: conservative world-AABB clearance may reject valid sloped/crowded spots; a single support probe is not proof of wheel support or semantic road identity.
+
+## 0.8.12 (2026-10-13) — Navigation arrival/start-grace/terminal-state fixes
+
+- Patrol and ride verdicts share one arrival policy (`NavigationArrivalPolicy`, 10 m radius). The loose 25 m patrol terminal allowance is removed, so a final-waypoint stop between 10 m and 25 m no longer ends patrol as ARRIVED while the ride verdict reports GAVE UP. Standing uses absolute signed speed: reverse motion at the last waypoint no longer qualifies as standing.
+- The unconfirmed, matching-order 8 s patrol start self-test now blocks the ordinary stall watchdog for its full grace (`PatrolStartPolicy.ShouldWait`); static-obstacle (2.5 s) and ordinary (5 s) stall recovery can no longer preempt it. Arrival, the operation deadline and upstream drive-start proof sampling remain ahead of the wait gate.
+- `BeginNavigationOperation()` clears stale terminal state (`NavGaveUp`, `RideArrived`, callback verdict) via `NavigationTerminalPolicy` at genuinely new Go/patrol dispatches only; recovery redispatch does not call it, so the 4-episode recovery cap, 90 s meaningful-progress deadline and recovery budgets survive unchanged.
+- Independent read-only review PASS (10 m consistency, abs speed, gate ordering, new-op-only reset). Parent reran the full suite: 361 tests passed, 0 failed/skipped; Release compile-only build 0 warnings/errors. Pure/source tests do not exercise Unity orchestration; in-game verification open.
+
+## 0.8.11 (2026-10-13) — Taxi-only native IgnoreTrafficLights
+
+- At the proven GetWheelSweepCollision consumer, supply a physically private DriveFlags copy with IgnoreTrafficLights=true only for the exact owned host-side autonomous taxi with an active order and no player driver. Copy all nine other settings verbatim; restore the original reference in postfix/finalizer, including partial-write failure. Shared flags are never mutated; patrol resets/redispatch settings are copied afresh.
+- Native f12 instruction assertions prove only TrafficLight obstacle hits are skipped by this flag in the wheel-sweep branch. Generic hit filtering, native turn/destination reductions, cruise, recovery and fares are unchanged. A separate forward-raycast branch does not consume the flag; actual signal behavior on that branch remains unverified. See `traffic-light-native-evidence.md`.
+- Parent reviewed code and reran native instruction assertions and all 324 tests (0 failed/skipped). Release built/deployed with 0 warnings/errors after confirming no game process and matching Shared hashes. Installed DLL/PDB/mod.json read back and hash-matched; DLL SHA-256 `54598bbbfc3b5c4632fb6323927512653a704993406b3e555c9088e7aa3c36b5`.
+- In-game verification open: Harmony dispatch, signal crossing, generic collision handling and per-call allocation cost unverified. Check `[traffic-lights] healthy=True`, `phase=consume-private-copy` and `phase=restored-original`.
+
+## 0.8.10 (2026-10-13) — Recurring-stall recovery quick wins
+
+- Retain recovery history across reverse/redispatch. Reverse displacement proves movement, not escape. A repeated stall within 6 m XZ without 4 m of new eligible approach to the fixed operation goal switches to the existing collision-checked free-spot rescue instead of repeating the reverse ladder.
+- Clear local recovery history only after fresh forward approach with active autonomous driving, signed speed >=2.5 km/h and positive sampled throttle. Reverse, unpowered coasting, artificial placement and previously visited ground cannot earn reset credit. These gates are not wheel-actuation proof; closest-goal progress remains conservative on detours.
+- Recurring recovery spends the existing operation budget before side effects, releases patrol, re-seats the dedicated driver and honors safety aborts before relocation. Preserve four-episode operation cap, 90-second meaningful-progress deadline, rescue budgets, normal steering/cruise, fares and static destination UI.
+- Subagent observed assertion RED-to-GREEN regressions; parent reviewed runtime wiring/policy and reran 316 tests (0 failed/skipped). Release built/deployed with 0 warnings/errors; installed DLL/PDB/mod.json read back and hash-matched. DLL SHA-256 `a726dee56b0ba4b8abd83ebcc4c4c8a0eb1779fe07dbbce80bf3b5521cb9182e`.
+- Gameplay verification open. Expected branch breadcrumb: `[nav] recurring stall ... checked free-spot rescue instead of reverse.` Safe-spot availability and successful route escape are not established by pure/source tests.
+
+## 0.8.9 (2026-10-13) — Static destination list
+
+- Disable destination ScrollRect inertia and initialize velocity to zero; retain clamped scrolling and existing instant/no-transition buttons. Pin destination cards to 44 Dp with zero flexible height and an explicit layout priority.
+- Owner reported transient animation-like card changes while scrolling. Source inspection found no card tween/Animator; inertia was inherited from ScrollRect defaults and row height was not fixed. These are static-UI safeguards, not a proven root cause or visually verified flicker repair. Search, filters, destination selection, taxi navigation and fares are unchanged.
+- Two source regression tests observed assertion RED then GREEN. Full suite: 297 passed, 0 failed/skipped. Release built/deployed with 0 warnings/errors; installed DLL/PDB/mod.json hash-matched. DLL SHA-256: `d9ee62c46abc2ffb4c68a4a69040671db6f1d270d727adc16cb49dc4d8cb8fa7`.
+- In-game scroll appearance remains open. Startup UI breadcrumb: `[ui] destination scrolling: inertia=False, movement=Clamped; card transitions=None.` Native phone opening/closing and search caret behavior are not modified.
+
+## 0.8.8 (2026-10-13) — Native physics-consumer reverse and park inputs
+
+### Fixed
+- Replace generic render-Update reverse/handbrake output writes with an exact-owned LandVehicle.ApplyThrottle prefix. Installed f12 disassembly proves this is the FixedUpdate physics consumer: currentThrottle is consumed here, while handbrakeOverride with overrideControls selects actual wheel braking. HandbrakeApplied/BrakesApplied/IsReversing are resultant flags, not actuator requests.
+- During supervised recovery, supply currentThrottle=-0.7 and no handbrake; during explicit parked intent with no active order, supply zero throttle and handbrakeOverride=true. Snapshot and restore all changed inputs through postfix and idempotent exception finalizer, including partial-write rollback. Leave ordinary AI, native steering, cruise50, recovery durations/budgets and fares unchanged.
+- Require exact vehicle ownership, host authority, unpaused state and no player driver. Refuse new service if the complete consumer hook is unhealthy. Park intent is pointer-scoped and released on dispatch/control change/reset.
+- Throttled `[actuator]` diagnostics report inputs before/at/after consumption and restoration, wheel torque/ground state, signed speed, yaw and steering. Reverse verdict samples native state before our StopReversing call and explicitly labels displacement as unproven escape.
+
+### Verification
+- Owner 0.8.7 traces reproduced zero reverse displacement despite a stored negative throttle, repeated forward/back cycles and rolling despite hand=true. Native-input/timing investigation identifies a control-boundary defect, not a proven complete explanation of turn geometry.
+- Assertion RED-to-GREEN regression tests cover command selection, hostile render writes, normal/exception restoration, partial writes and ownership/control exclusions. Parent reran full suite: 295 passed, 0 failed/skipped. Nine installed-native byte contracts passed; pure/source tests do not execute Unity physics.
+- Release built/deployed as 0.8.8 after confirming no game process and matching Shared hashes: 0 warnings/errors. Installed DLL/PDB/mod.json read back and hash-matched; DLL SHA-256 `47c267c9be0681377df0fb1843fc98c5298e6fe36b250424e0be0b7de04018e6`. Version sync: 19 mods, 0 drift.
+- Native hook activation, park deceleration and escape from the Barn turn remain unverified. Positive-speed watchdog decisions and the callback-Complete/10.8 m arrival mismatch are separate findings, intentionally unchanged. Check `[actuator] healthy=True` and prefix-consume/postfix-consumed wheel readbacks in a fresh session.
+
+## 0.8.7 (2026-10-13) — Taxi-only 50 km/h cruise target
+
+### Changed
+- Set the owned taxi's autonomous forward base cruising target to 50 km/h through a VehicleAgent.UpdateSpeed postfix. Native turn, obstacle and destination reductions still execute afterward; 50 km/h is a base target, not a forced actual speed.
+- Keep traffic, player-driven vehicles, reversing/recovery windows, stopped/invalid targets and explicit native speed overrides unchanged. No shared DriveFlags, global speed constants, throttle or velocity are modified.
+- Reapply on native base-speed calculation so patrol flag resets and redispatches cannot silently restore the old base. Remove the hook on teardown. Log `[cruise]` initialization and per-order native/base/actual speed values.
+
+### Verification
+- Installed f12 GameAssembly disassembly confirms targetSpeed uses the same unconverted km/h units as Speed_Kmh at the throttle PID and that native reductions follow the base-speed calculation.
+- Actual assertion RED-to-GREEN coverage for cruise selection, safety exclusions and lifecycle wiring; parent reran the full suite: 281 passed, 0 failed/skipped.
+- Release built/deployed as 0.8.7 with 0 warnings/errors after confirming the game was closed and Shared hashes matched. Installed DLL/PDB/metadata read back and hash-matched; TaxiDriver.dll SHA-256: `c45aadddfad1573cd72178fd1c2abf765e67e85bfaf942a01d3167f85fcfe2b4`. Version sync: 19 mods, 0 drift.
+- Native gameplay and Harmony-hook activation remain pending; tests do not execute Unity. On a fresh game session, inspect `[cruise]` initialization and `targetBase=50.0 km/h` per-order breadcrumbs, then check actual straight-road speed and native braking.
+
+## 0.8.6 (2026-10-13) — Reverse recovery that moves the car; standstill brake hold
+
+### Fixed
+- The recovery reverse now drives the game's own pedal path (`LandVehicle.currentThrottle`, negative throttle + reverse gear flag) while its supervised window is pending. Root cause evidence: the game's `StartReverse()` manoeuvre provably often ends without moving the car — Latest.log 2026-10-13 recorded 4x "reverse attempt N did not move the car" with the rear clear, escalating to free-spot rescues and a give-up 213 m short of "Storage Unit".
+- The reverse pedal is keyed on the pending re-dispatch window, not on a call site: post-reverse re-dispatch, give-up and STOP all release throttle and reverse gear on the next tick — a reverse left engaged must never keep driving the car.
+- Standstill brake hold: `LandVehicle.HandbrakeApplied` provably reverts to False within ~1 s of every park (probe hand=False one second after "brakes + handbrake set" at 08:19:17 and after the give-up park at 08:21:57; "brake action ineffective — the taxi keeps rolling" at -1.4 km/h with brakes set). A per-frame hold re-asserts the game's handbrake flag while the mod has parked the car — never against an active order (the supervised reverse must roll free) and never against the player at the wheel.
+- Reverse decisions log measured drive state (autoDriving/agentRev/vehRev/thr/brakes/hand/speed) and the measured displacement per attempt, so the next triage can prove whether the game kept the mod's reverse throttle.
+
+### Verification
+- Regression tests observed RED before the fix (missing policy files, then failing wiring contracts); the suite now reports 261 passing tests covering both policies and their SpikeRunner wiring.
+- Compiled and deployed as 0.8.6 (hash-verified). In-game acceptance pending. Expected breadcrumbs: `[patrol] ... reversing ... (autoDriving=... thr=...)`, `[patrol] reverse manoeuvre moved X m ...` / `did not move the car (moved X m ...)`, `[hold] the game cleared the handbrake ...`.
+- Open risk: whether the game keeps `currentThrottle` against its own throttle loop. If the reverse breadcrumbs show `thr=0.0`, the pedal is being overwritten and the next iteration must drive the wheels directly.
+
+## 0.8.5 (2026-10-12) — Progress-aware navigation timeout
+
+### Fixed
+- Replaced the hard 90-second trip cutoff with a 90-second no-progress timeout. Fresh closest-ever approach of at least 2 m renews the timer; redispatch, reversing, rescues and road corrections cannot buy time. Operation-wide recovery limits and pause accounting remain intact.
+- Artificial observations consume only artificial approach, preserving accumulated genuine fractional progress between road corrections.
+- Navigation failure logs report the actual timeout and operation recovery episodes without claiming the taxi never moved. Fare-end reporting distinguishes give-up, failed/stopped navigation, stopping short and arrival; payment mechanics are unchanged.
+
+### Verification
+- Live 0.8.4 Barn test reproduced premature termination at Ray's Real Estate, 82 m short, with $77 reported and a misleading arrived verdict.
+- Regression tests observed RED before fixes; current suite has 249 passing tests. Independent review caught the mixed artificial/genuine-progress defect, now covered by five additional RED-to-GREEN cases.
+- A legitimate detour with no closest-ever goal approach for 90 seconds can still time out. Native gameplay acceptance of 0.8.5 remains pending.
+
+## 0.8.4 (2026-10-12) — Bounded recovery and dead-taxi teardown
+
+### Fixed
+- Recovery episodes consume an operation-wide attempt budget before reverse/rescue branches. Redispatch cannot renew the absolute 90-second deadline; paused time remains excluded and terminal graph rescue is one-shot. Vanilla steering and navigation settings are unchanged.
+- Confirmed taxi death invalidates callbacks and stops the existing fare meter without another charge, then releases trunk/patrol and managed runtime state before clearing ownership. Cleanup steps are exception-isolated; incomplete teardown retains the reference for retry. Invalid-handle and deferred-destroy paths cannot bypass this teardown.
+
+### Verification
+- 230 tests passed (0 failed/skipped), including 23 new pure-helper and source-contract regression cases. Missing runtime wiring and helper behavior were observed RED before implementation; source contracts do not prove Unity/native gameplay.
+- Independent read-only review found no actionable defects. Release build/deploy passed with 0 warnings/errors against installed f12 references. BuildProjectReferences=false prevented unrelated Shared/third-party redeployment after checking Shared hashes matched. Installed DLL/PDB/JSON were read back and matched; metadata reports 0.8.4. TaxiDriver DLL SHA-256: `76efc091bb362fc30265aec91901cf46189b5e90b1848f1418d657829f7d8e0b`. Gameplay acceptance for these fixes remains open; prior driver-safety verification applies to 0.8.3 only.
+
+
 ## 0.8.3 (2026-10-10) — Dedicated driver safety and STOP confirmation
 
 ### Fixed

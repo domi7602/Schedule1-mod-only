@@ -15,7 +15,7 @@ namespace MessagesPlus;
 /// Patched methods:
 ///   MSGConversation.CreateUI/RenderMessage/RenderPlayerMessage
 ///                    — refresh the affected conversation's known surfaces.
-///   CreateResponseUI — register the vanilla response subtree without recoloring it.
+///   CreateResponseUI — immediately theme neutral response surfaces and labels.
 ///   Start           — inject the MessagesPlus toolbar + confirmation modal (once per app instance).
 ///   SetOpen(bool)   — re-inject when the app is opened; on close, reset the modal and search/filter view.
 ///   Loaded()        — one-time legacy restore (idempotent) + re-inject after conversations load.
@@ -102,7 +102,7 @@ public static class MessagesAppPatch
         {
             MessagesPlusConfig? cfg = ModConfig<MessagesPlusConfig>.Instance;
             if (cfg == null || !cfg.DarkMode) return;
-            AppTheme.PreserveConversationResponseArea(__instance);
+            AppTheme.ThemeConversationResponseArea(__instance);
         }
         catch (Exception ex)
         {

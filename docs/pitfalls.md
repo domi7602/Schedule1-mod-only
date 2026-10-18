@@ -42,6 +42,52 @@
 
 ---
 
+### 1.7 Diagnostic Coverage Must Fail Closed
+
+A field-level catch must not leave an empty discovery result labeled complete. In the
+GraphicsProbe static review, a throwing outer scene-count provider retained
+`fieldErrors.scenes` but initially bypassed coverage/error accounting. Forward such
+failures into the bounded discovery-error path as well as retaining field evidence;
+keep unrelated settings/environment observations. The linked policy regression is
+executable evidence for that boundary, **not native Unity runtime verification**.
+Use shared material/profile references for diagnostics; do not call lazy instancing
+or renderer-resolution accessors merely to inventory rendering state.
+
+### 1.8 Bounded Discovery Can Still Starve Important Evidence
+
+A 50,000-node cap does not guarantee useful coverage: the 2026-10-16 GraphicsProbe
+0.1.1 gameplay report exhausted it in two early NPC roots, missed all cameras and
+retained only particle false positives. Read scene/root admission and native renderer
+types before interpreting empty sections. Admit roots before descendants, rotate
+bounded breadth work fairly and reserve separate scan/record allowances for surface-like
+and particle/line/trail matches. Keep both categories explicitly unconfirmed. Spread
+requested captures over cooperative main-thread slices, cancel retained references on
+scene transitions, and measure active work separately from wall/finalization duration.
+Neither a pure traversal test nor a requested millisecond budget proves native frame
+performance; individual native getters and final report IO can still hitch. Test
+acquisition failures through actual managed collector orchestration, not source strings
+alone: clear stale array/cursor bounds before acquiring a new batch, and distinguish
+unknown scene counts from successfully observed zero scenes in aggregate sections.
+
+### 1.9 Rendering State Is Rewritten Every Frame (GoldenHour, measured 2026-10-17)
+The game's day/night grading rewrites `RenderSettings.sun.color` (and ambient/fog state)
+**every frame** — a mod write is overwritten within ~16 ms. Measured via S1MCP: the sun color
+drifts continuously with the time-of-day curve (e.g. `0.985047 → 0.985153` over 0.3 s at noon).
+Consequences for any mod that writes lighting/render state:
+- A once-per-second reapply cadence **loses every frame race** and the change never shows on
+  screen. Write in `OnLateUpdate` every frame (after the game's Update writes) or patch the
+  game's own writer.
+- Never blend from a stale snapshot of the value: the game drifts it, so rebase onto its
+  current value (detect your own writes by value) or the parameter freezes at toggle-time
+  values and a later restore drags it back hours. A strength change is not game drift: the
+  blend at the previous strength is still our write. Adopting it freezes the old tint.
+  See `Source/Mods/WorldLook/src/Lighting/BaselinePolicy.cs`.
+- `Sun.intensity` follows the day/night curve too (0 at 06:00, ~1.7 at noon, ~2.6 at 18:00 in
+  the Main scene) — a biased sun **color** is invisible while intensity is 0 (dawn/dusk).
+- URP `Volume` `colorFilter` is only writable when the game instantiated its own profile
+  (`volume.profile != volume.sharedProfile`); otherwise the shared asset would be mutated.
+  `RenderSettings.fog == false` in the Main scene — fog writes have no target.
+
 ## 2. Battle-Tested Gotchas & Solutions Matrix
 
 | Context / Mod | Problem / Gotcha | Cause | Verified Solution |
@@ -76,11 +122,17 @@
 | **AutoPackagingStation** | Stuck in `Blocked` / `NoPackaging` | State machine didn't cover edge cases after reload | `ApplySaveData` forces `Idle` when inputs are present. |
 | **AutoPackagingStation** | Probe rejection at quantities > 1 | `CanItemFitInInventory` multiplied quantities quadratically | Always 1-unit probe (`GetDefaultInstance(1)`), add in loop. |
 | **S1MCP** | Freeze on large log files (ANR) | 700k lines `Latest.log` read synchronously | `Stream.Seek(-Math.Min(Length, 256*1024), SeekOrigin.End)` — read only the last 256 KB window. |
-| **S1MCP** | Bridge resets/timeouts after a handful of calls; methods "not found" | Bridge speaks **flat** JSON-RPC method names and gets flaky under rapid sequences | Use flat names (`list_npcs`, no `tools/call`); handshake first, don't build critical sequences on it. |
+| **S1MCP** | Bridge resets/timeouts after a handful of calls; methods "not found" | **Fixed in 1.0.2/1.0.3 (verified 2026-10-17, 7/7 integration checks in the main menu):** dead/half-open clients no longer block new connections (accept loop replaces them, EOF is EOF, `.Connected` no longer used as liveness), and `handshake`/`status`/`list_methods`/`heartbeat` answer on the server thread (`IThreadSafeCommandHandler` fast path) without game focus — proven by `inline_requests` in `status`. Legacy rule still applies: flat method names (`list_npcs`, no `tools/call`), handshake first. |
 | **Build system** | 16x parallel PowerShell spawn | `Directory.Build.targets` fired `DeployThirdParty` on every mod | Bound to `Shared.dll`, mutex switched to session-local. |
 | **Build system** | `dotnet format a.csproj b.csproj` → "Unrecognized command or argument" | `dotnet format` accepts exactly one project per call | Run it per project; the sln-level `--verify-no-changes` call is fine. |
 | **Build system** | `package-release.ps1` for several mods in parallel fails with file locks | All mods share the `Shared` build outputs | Package serially per mod, or one run with `-Mod All` (internal serial). |
 | **Deploy** | Game quit leaves `Schedule I.exe` as an unkillable zombie; mod DLLs stay file-locked | IL2CPP process stuck in uninterruptible kernel wait (Task Manager/`taskkill`/`Stop-Process` all fail) | Rename trick: `<Mod>.dll` → `<Mod>.dll.zombie`, copy the new DLL in; clean `.zombie` residue after reboot. On a hanging console **restart**, never shut down — Fast Startup hibernates the zombie and can bugcheck `0x12B` on next boot. |
 | **Deploy** | `-c Release` silently overwrites the deployed DEBUG DLL in the game dir | Auto-deploy always force-copies (`SkipUnchangedFiles=false`) | Only build Release with `-p:S1NoDeploy=true` when the Debug DLL must survive. |
 | **IL2CPP code** | `Il2CppSystem.Collections.List<T>` unresolved in mod code | Lives in the il2cpp assembly, outside the default alias | `extern alias il2cpp;` — or keep the data on the managed side as `List<T>`. |
+| **URP volume (IL2CPP)** | The mod's volume parameter never applies and the log blames a missing component | The `GlobalVolume` was looked up by filtering scene **roots** on `EnvironmentFX` — but the live path is `@Managers/@EnvironmentFX/GlobalVolume`, i.e. `EnvironmentFX` is a child of `@Managers`, not a root. The filter matched nothing, so the volume was never reached and the "no ColorAdjustments" warning was a red herring | Filter roots on a token that actually is a root (`Managers`) and keep the deep child lookup for the rest. Verified live 2026-10-16 via S1MCP `inspect_component`: `game_object_path = @Managers/@EnvironmentFX/GlobalVolume`. |
+| **URP volume (IL2CPP)** | `HasInstantiatedProfile()` reports `unknown` / the profile gate never runs | Same root cause as above — the gate sits *after* the lookup, so an unreachable volume means the gate is never evaluated and the diagnostic stays empty | Read the gate immediately after the volume is resolved, and let the failure message name the path actually searched so a dead lookup cannot masquerade as a policy skip. |
+| **URP volume (IL2CPP)** | Is it safe to write `volume.profile`? | In this game **no**: live evidence shows `m_InternalProfile == null` and `profile == sharedProfile`, i.e. the game never instantiates its own profile. Reading `.profile` would create the clone and decouple the game's day/night grading | Gate on `Volume.HasInstantiatedProfile()` and skip the volume key entirely when the game did not instantiate it — the other parameters carry the look. |
 | **Console commands** | A `^` character in a mod console command never appears | `^` (VK 220/0xDC) is a dead key: `^`+Space emits Backspace | Use an alias without `^`, or paste the command. |
+| **URP volume (IL2CPP)** | A mod's `ColorAdjustments` write has no visible effect | `VolumeParameter` values only contribute when the component is `active` **and** the parameter's `overrideState` is set — otherwise the write is a silent no-op | Force `adjustments.active = true` and `adjustments.colorFilter.overrideState = true` before writing, capture both first, and restore them on the way out. |
+| **URP volume (IL2CPP)** | Day/night grading freezes after the mod touches a `GlobalVolume` | Reading `Volume.profile` **instantiates** the profile (`m_InternalProfile`); the VolumeManager then blends from that clone instead of `sharedProfile`, decoupling the game's own per-frame colorFilter writes | Only use `volume.profile` when `volume.HasInstantiatedProfile()` is true (then the clone is what the game itself writes into). Otherwise skip the volume key entirely — never let the mod create the clone. `HasInstantiatedProfile()` exists in the installed `Unity.RenderPipelines.Core.Runtime.dll` (verified 2026-10-16). |
+| **URP volume (IL2CPP)** | Volume cache silently loses the restore target | Gating "is this volume usable" on `Volume.weight > 0` drops the cached component while the profile instance still carries the mod's tint | Keep the cache valid as long as the object lives and is enabled/global/active; do not gate on `weight`. |

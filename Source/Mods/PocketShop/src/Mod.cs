@@ -1,18 +1,23 @@
 using System;
+using System.Reflection;
 using MelonLoader;
 using Il2CppInterop.Runtime.Injection;
 using PocketShop.Config;
 using PocketShop.Services;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(PocketShop.Mod), "PocketShop", "0.3.3", "Dominik")]
+[assembly: MelonInfo(typeof(PocketShop.Mod), "PocketShop", "0.3.6", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace PocketShop;
 
 public class Mod : MelonMod
 {
-    public const string Version = "0.3.3";
+    /// Single source of truth: the MelonInfo assembly attribute, which bump-version.ps1 writes.
+    /// The previous const literal drifted to 0.3.3 while MelonInfo was already 0.3.6, so the
+    /// init log reported a version that was never built (same bug class HitmanPhone fixed in 0.1.3).
+    public static readonly string Version =
+        typeof(Mod).Assembly.GetCustomAttribute<MelonInfoAttribute>()?.Version ?? "0.0.0";
     public static ModLogger Log { get; private set; } = null!;
 
     public override void OnInitializeMelon()

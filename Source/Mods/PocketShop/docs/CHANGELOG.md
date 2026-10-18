@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.6 (2026-10-12) — Chips back to plain labels
+- **Removed the drawn banknote/card icons from the CASH/CARD chips** (user feedback: the small strokes read as clutter, not as icons). Chips are back to the plain `CASH $…` / `CARD $…` labels at the original widths (105/90 and 120/100 dp); `ApplyChipHint` is back to the label-only signature. Chevron, X and magnifier icons stay.
+
+## 0.3.5 (2026-10-12) — Drawn header icons (no text glyphs)
+- **Header icons:** back button shows a drawn chevron, close button a clean drawn "X" (both were Arial text glyphs "<"/"X"), the search field gets a magnifier icon at its left edge (text/placeholder inset accordingly), and the CASH/CARD chips get a banknote/card icon tinted like their label — including the dimming state of the payment-rule hint (`ApplyChipHint` now syncs icon color/alpha with the label). All icons are procedural white-alpha sprites (`HeaderIcons`, 3x3 supersampled for smooth edges), tinted via `Image.color` — no emoji glyphs, no asset bundle.
+- Chips widened slightly (cash 105→120 dp, card 120→136 dp preferred) to fit icon + label.
+
+## 0.3.4 (2026-10-12) — Deterministic grid: equal tiles, straight columns, first-open sizing
+- **Store directory: perfect 4xN grid.** Tiles are anchored to equal-width column bands with explicit y offsets — no `HorizontalLayoutGroup` in the grid anymore. Layout groups can never produce equal tiles here: `LayoutUtility` resolves a child's preferred size to the **MAX** over all `ILayoutElement` components, so the shop-name `Text`'s measured width always beat `LayoutElement` overrides and the columns ended up ragged (wide tiles for long names like "Gas-Mart (Central)", narrow ones for short names). Now every tile has exactly the same size and every column edge is a straight line; the bands self-adapt to width changes without recomputation.
+- **Store directory: first open shows the stretched layout.** Tile heights are recomputed whenever the measured viewport height changes (`EnsureLayout` tracks the applied height) instead of trusting the first measurement — the first read can be a stale pre-layout value that the old code applied permanently, which is why only the second open looked right. Log evidence: the previous `directory layout finalized after first-open` breadcrumb never appeared in `Latest.log`, i.e. the one-shot path had already latched a wrong height. New breadcrumb: `directory layout applied: viewport=… rows=… tile=…`.
+- **Item grid: equal 5-column tiles.** Same anchored-band treatment (uniform gap/2 insets, rows keep their fixed `Dp(175)` height); the per-row `HorizontalLayoutGroup` and the empty-cell spacers are gone — empty cells simply stay empty.
+
 ## 0.3.3 (2026-10-11) — Payment confirmation, transaction lock, layout & header fixes
 - **Card payments fixed (root cause):** `CreateOnlineTransaction` is a FishNet **ServerRpc** — the balance changes only when the server applies it on a later network tick, so the old immediate read-back could never succeed: every card purchase ended in "Transaction uncertain" + `VERIFY TX` (log evidence: 28 cash purchases, 0 card). Bank payments are now confirmed **deferred** — the purchase waits (bounded, 5 s) for the exact balance delta or for a Harmony-recorded `ReceiveOnlineTransaction` (new `BankTransactionObserver`), then delivers. Cash stays fully synchronous.
 - **Tri-state confirmation:** `BalanceObservation` (Unchanged / Confirmed / Mismatch) — "not moved yet" is re-checked until the bounded window ends and is never treated as success or failure by itself.

@@ -6,6 +6,11 @@
     <DefineConstants>$(DefineConstants);IL2CPPMELON</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Read-only actuator diagnostics use the live WheelCollider interop API. -->
+    <Reference Include="UnityEngine.VehiclesModule">
+      <HintPath>$(Il2CppAssemblies)/UnityEngine.VehiclesModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <!-- `taxi probe` reads VehicleAgent.roadSeeker/generalSeeker, whose Seeker type
          lives in the A*-interop assembly (not referenced by Directory.Build.props). -->
     <Reference Include="Il2CppAstarPathfindingProject" Condition="Exists('$(Il2CppAssemblies)\Il2CppAstarPathfindingProject.dll')">

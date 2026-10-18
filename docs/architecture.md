@@ -31,6 +31,61 @@ Source/Mods/<ModName>/
 - Harmony patches use `PatchGuard` and must tolerate game-version signature drift.
 - IL2CPP `MonoBehaviour` types require the public `IntPtr` constructor.
 
+## GraphicsProbe rendering discovery boundary
+
+GraphicsProbe is a diagnostic-only first slice for the graphics-overhaul feasibility
+study. Its only intended state change is writing its own report under UserData.
+Runtime rendering configuration, camera requests and water-name/material heuristics
+are observations, not proof of rendered passes or confirmed water identity. World
+discovery remains capture-driven and bounded. The coverage repair must admit
+roots across enumerated loaded scenes before descending through large hierarchies,
+advance fairly within bounded breadth levels and spread native reads cooperatively
+across frames. Idle updates do not discover scene objects. Scene transitions discard
+in-flight work; only a completed capture may replace the persisted report. Separate
+surface-like and particle/line/trail lexical buckets retain their own scan and record
+budgets; neither category establishes actual water identity. A single tagged-camera
+hint, if used, has explicit provenance and does not replace inactive-camera discovery.
+No S1API gameplay API, Harmony hook, shader bundle or extracted game asset is needed
+by the diagnostic itself; it uses the existing Shared dependency for safe report IO.
+The scope, real-game acceptance gates and exclusions are recorded in
+[`graphics-probe-plan.md`](graphics-probe-plan.md). Version 0.1.1 supplied partial
+native evidence (report IO and active URP) but failed gameplay coverage; its evidence
+does not verify the repaired traversal or its frame-time behavior. Overall acceptance
+remains **In-Game-Verify open** pending a fresh real-game report and log.
+
+## WaterShader render-path boundary (0.2.0)
+
+WaterShader 0.1.x replaced only the evidenced Main/Map/StylizedWater2_Ocean material
+slot, cloning the game's existing shader/material rather than transporting shader
+programs. **That material-only boundary is deliberately superseded as of 0.2.0.** The
+owner approved moving beyond material tuning after the material-only recipes (0.1.2
+natural coast, 0.1.3 clear shallows) stayed visually close to vanilla and never
+revealed the bottom near the shore. 0.2.0 ships an authored URP shader
+(`S1Mods/ReferenceWater`) in `s1reference.bundle` together with a real planar-reflection
+render path. See [the reference target](../Source/Mods/WorldLook/docs/history/water-reference-target.md)
+and [the prototype slice](../Source/Mods/WorldLook/docs/history/water-reference-prototype.md).
+
+Preserved unchanged: exact singleton/direct-child discovery (`Map.instance` →
+`StylizedWater2_Ocean`), the cached binding, the owned-clone material slot,
+ownership-aware restore, slow bounded retries, and byte-identical `WaterSession.cs`.
+No world or renderer scans are reintroduced.
+
+New and bounded: one mod-owned disabled reflection camera and one aspect-preserving
+render target (long side ≤ 512 px), driven from the single main gameplay camera through
+`RenderPipelineManager.beginCameraRendering`. The reentrancy gate closes before the
+nested `UniversalRenderPipeline.RenderSingleCamera`. The global culling sense is
+intentionally **not** flipped — the mirrored-pose camera is a proper rotation
+(`LookRotation`), so flipping it renders the reflection inside-out (a review-caught
+defect, fixed and test-pinned before release).
+
+Every failure path restores the clone's original shader and falls back to the vanilla
+recipe; the reflection path never destroys the session-owned material or writes the
+native slot. Material inspection evidence is in
+[WaterShader material evidence](../Source/Mods/WorldLook/docs/history/water-material-evidence.md).
+A passing shader-property or AssetBundle test is not visual or GPU performance
+acceptance: the look, shoreline clipping and reflection cost stay **In-Game-Verify
+open**.
+
 ## AutoPackagingStation native prefab composition
 
 AutoPackagingStation clones the complete native packaging prefab to retain its serialized station/network graph, and transplants only footprint geometry from an owned cauldron clone before any live placement. It does not add a native `PackagingStation` after spawn. Templates remain active-self beneath an inactive persistent cache, reused across registration retries and released on mod deinitialization.

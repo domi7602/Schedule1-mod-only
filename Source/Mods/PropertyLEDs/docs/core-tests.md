@@ -6,6 +6,14 @@ Command:
 dotnet test Source/Tests/PropertyLEDs.Tests/PropertyLEDs.Tests.csproj -c Release
 ```
 
+Result on 2026-10-17 after removing the room bar and color preview (0.1.6):
+
+```text
+Passed!  - Failed: 0, Passed: 90, Skipped: 0, Total: 90
+```
+
+Release build 0 warnings / 0 errors, then deployed. Native rendering is not covered.
+
 Result on 2026-10-10 (local .NET SDK 8.0.425, `net6.0`):
 
 ```text
@@ -27,6 +35,67 @@ Passed!  - Failed: 0, Passed: 44, Skipped: 0, Total: 44, Duration: ~136 ms
 The test project links the Unity-free sources directly (an explicit `<Compile Include>` list — the
 files sit flat in `src/` since the `src/Core/` flatten, there is no `Core/` subfolder), so it runs
 everywhere — no game installation, no IL2CPP, no MelonLoader.
+
+Result on 2026-10-12 after the UI structure update (0.1.1):
+
+```text
+Passed!  - Failed: 0, Passed: 51, Skipped: 0, Total: 51, Duration: 108 ms
+```
+
+Seven additional cases followed observed RED -> GREEN cycles: three pure layout-budget cases
+(750, 1201 and 1500-unit phones) plus four source-wiring contracts for cards, factory mask-root
+arrow bounds, grouped slider typography and measured-layout wiring. The tests do not instantiate
+Unity components, render a phone or exercise pointer input.
+
+Result on 2026-10-12 after the approved simplified colour UI (0.1.2):
+
+```text
+Passed!  - Failed: 0, Passed: 58, Skipped: 0, Total: 58, Duration: 101 ms
+```
+
+Vertical RED -> GREEN evidence: the three default budget cases first failed with 576 dp instead
+of 560 dp; three expanded cases failed because the state-aware budget was absent; each of four
+new source contracts failed before its native wiring was implemented (advanced panel, plain English
+labels/no degrees, rainbow track/cleanup, saturation track/cache). The final budgets are 560/620 dp
+at scale 1, with ten/eleven active outer children. Source contracts verify built-once SetActive,
+fresh-open collapse, retained intensity slots, no Apply in the toggle, rebuild/measurement wiring,
+unchanged ranges and cached gradient resources. These do not prove Unity rendering or pointer input.
+Compile-only Release build: 0 warnings / 0 errors, no deployment.
+
+Result on 2026-10-13 after the English mockup correction (0.1.3):
+
+```text
+Passed! - Failed: 0, Passed: 64, Skipped: 0, Total: 64
+```
+
+English-label and Advanced tests were observed failing before localization correction. New mockup
+contracts failed before the corresponding view work: stateful single power action, drawn icons/cards,
+new compact geometry, hidden factory mask/rounded gradient alpha, readable disabled inheritance.
+Pure budgets now use 524/580 dp, with nine/ten outer children. The earlier draft expectation of
+594/647 was a test arithmetic error (100 dp too large), corrected against the explicit component sum.
+After rendering, selector height/gaps were increased from 60/5 to 63/8 dp in another observed
+seven-case RED -> GREEN cycle, bringing the top cards and preview closer to reference measurements.
+Existing value/range, auto-enable/zero-brightness, persistence and inheritance tests still pass.
+Browser verification adds seven passing demonstration interaction checks and zero JS exceptions;
+it does not exercise the native PhoneApp. Compile-only build: 0 warnings / 0 errors, no deployment.
+
+Result on 2026-10-13 after footer removal and responsive full-height layout (0.1.4):
+
+```text
+Passed! - Failed: 0, Passed: 80, Skipped: 0, Total: 80
+```
+
+Observed RED -> GREEN: 1201-unit measured sizing failed at 839.1 instead of 1062.9; the footer
+removal, cached sizing/state application and constrained circular-handle source contracts each
+failed before their implementation. Additional regression coverage checks 750/1201/1500 phones,
+collapsed/expanded sums, small-screen overflow, conditional inline-state height, extreme growth
+caps, stale-first-open convergence and stable no-rebuild decisions. Replaced obsolete footer
+contracts rather than reintroducing status text to satisfy them. One assertion initially straddled
+float rounding at 1062.885; it now uses a 0.01-unit absolute tolerance.
+
+80 tests pass; compile-only Release build has 0 warnings/errors. 15 browser demonstration checks
+pass with zero JS exceptions. These tests link pure sizing code and inspect native source wiring;
+they do not create Unity controls or prove pointer input, masks, native layout or persistence.
 
 ## What is covered
 

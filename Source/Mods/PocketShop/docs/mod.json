@@ -1,6 +1,6 @@
 {
   "name": "PocketShop",
   "author": "Dominik",
-  "version": "0.3.3",
+  "version": "0.3.6",
   "description": "In-game phone app for Schedule I: shop directory, item catalog with vanilla payment rules (cash/bank, auto-detected per shop), live search, deferred card-payment confirmation and purchase status."
 }

@@ -2,13 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using MelonLoader;
 using S1API.Console;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "2.1.1", "Dominik")]
+[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "2.3.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace Minimap;
@@ -23,7 +24,7 @@ public sealed class MinimapMod : MelonMod
     public MinimapWaypoints Waypoints => _hud.Waypoints;
 
     private string _configPath = "";
-    private KeyCode _toggleKeyCode = KeyCode.N;
+    private bool? _lastTracedVisibility;
     private KeyCode _zoomInKeyCode = KeyCode.RightBracket;
     private KeyCode _zoomOutKeyCode = KeyCode.LeftBracket;
 
@@ -87,6 +88,7 @@ public sealed class MinimapMod : MelonMod
         LoadConfig();
         LoadBlipPalette();
         ParseKeyCodes();
+        TraceVisibility("startup");
 
         _log.Info("Minimap initialized. Console commands 'minimap' and 'map' ready.");
         TryRegisterHashPlugin();
@@ -124,6 +126,12 @@ public sealed class MinimapMod : MelonMod
         if (!_hud.IsCreated)
             return;
 
+        TraceVisibility("update:unattributed");
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            try { _log.Info($"[MinimapVisibility] Map key M pressed; visible={Config.MinimapVisible}; {VisibilityContext()}"); } catch { }
+        }
+
         // Self-heal (2026-09-13): the DontDestroyOnLoad canvas gets silently
         // deactivated when the game does a data-only reload (arrest/bust, save
         // reload, cutscene) — OnSceneWasUnloaded deactivates it and no matching
@@ -139,14 +147,9 @@ public sealed class MinimapMod : MelonMod
         }
         catch { }
 
-        // Hotkey Toggle (respects input field focus)
+        // Zoom hotkeys only; visibility is controlled explicitly in settings/console.
         if (!HotkeyManager.IsInputFieldFocused())
         {
-            if (Input.GetKeyDown(_toggleKeyCode))
-            {
-                ToggleMinimap();
-            }
-
             if (Input.GetKeyDown(_zoomInKeyCode) || Input.GetKeyDown(KeyCode.KeypadPlus))
             {
                 _hud.AdjustZoom(Config, 0.25f);
@@ -223,15 +226,12 @@ public sealed class MinimapMod : MelonMod
             {
                 Config = loaded;
 
-                // Migration (v2.0.3): the old default toggle key "M" IS the game's map
-                // key, so every map open/close flipped the minimap along with it — and
-                // the flipped state was saved, leaving the minimap "visible only while
-                // the map is open". Move old "M" configs to the new default "N" and
-                // un-freeze the visibility flag (the minimap should stay on the HUD).
-                if (string.Equals(Config.ToggleKey, "M", StringComparison.OrdinalIgnoreCase))
+                // Retire all legacy visibility hotkeys and recover their persisted off state once.
+                // The retained None sentinel preserves later deliberate settings/console choices.
+                if (!string.Equals(Config.ToggleKey, "None", StringComparison.OrdinalIgnoreCase))
                 {
-                    _log.Info("Migrating ToggleKey 'M' -> 'N' (M is the game's own map key) and re-enabling the minimap.");
-                    Config.ToggleKey = "N";
+                    _log.Info("[MinimapVisibility] Keyboard visibility toggle removed; legacy off state recovered.");
+                    Config.ToggleKey = "None";
                     Config.MinimapVisible = true;
                     SaveConfig();
                 }
@@ -281,10 +281,11 @@ public sealed class MinimapMod : MelonMod
         catch { }
     }
 
-    public void SaveConfig()
+    public void SaveConfig([CallerMemberName] string caller = "unknown")
     {
         try
         {
+            TraceVisibility("save:" + caller);
             SafeStorage.SaveAtomic(_configPath, Config, _log);
         }
         catch (Exception ex)
@@ -293,9 +294,46 @@ public sealed class MinimapMod : MelonMod
         }
     }
 
+    /// <summary>Diagnostic only: records changes without forcing visibility or changing config.</summary>
+    public void TraceVisibility(string source)
+    {
+        bool current = Config.MinimapVisible;
+        if (_lastTracedVisibility.HasValue && _lastTracedVisibility.Value == current) return;
+        try
+        {
+            string previous = _lastTracedVisibility.HasValue ? _lastTracedVisibility.Value.ToString() : "initial";
+            _log.Info($"[MinimapVisibility] change {previous}->{current}; source={source}; toggle=disabled; hideInMenus={Config.HideInMenus}; {VisibilityContext()}");
+            _lastTracedVisibility = current;
+        }
+        catch { } // Diagnostics must never disrupt input handling or persistence.
+    }
+
+    private string VisibilityContext()
+    {
+        string phone = "unavailable", menu = "unavailable", map = "unavailable";
+        try
+        {
+            var instance = Il2CppScheduleOne.UI.Phone.Phone.Instance;
+            if (instance != null) phone = instance.IsOpen.ToString();
+        }
+        catch { }
+        try
+        {
+            var instance = Il2CppScheduleOne.UI.GameplayMenu.Instance;
+            if (instance != null) menu = instance.IsOpen.ToString();
+        }
+        catch { }
+        try
+        {
+            var instance = Il2CppScheduleOne.UI.Phone.Map.MapApp.Instance;
+            if (instance != null) map = instance.gameObject.activeInHierarchy.ToString();
+        }
+        catch { }
+        return $"frame={Time.frameCount}; phone={phone}; gameplayMenu={menu}; mapObjectActive={map}; hudActive={_hud.IsActive}; inputFocused={HotkeyManager.IsInputFieldFocused()}";
+    }
+
     private void ParseKeyCodes()
     {
-        if (Enum.TryParse<KeyCode>(Config.ToggleKey, true, out var k)) _toggleKeyCode = k;
         if (Enum.TryParse<KeyCode>(Config.ZoomInKey, true, out var inK)) _zoomInKeyCode = inK;
         if (Enum.TryParse<KeyCode>(Config.ZoomOutKey, true, out var outK)) _zoomOutKeyCode = outK;
     }

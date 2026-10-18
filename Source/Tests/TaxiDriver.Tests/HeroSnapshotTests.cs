@@ -37,6 +37,14 @@ public class HeroSnapshotTests
         Assert.NotEqual(Base(5, "Motel"), Base(6, "Motel"));
 
     [Fact]
+    public void DrivingDisplayDependenciesAreInTheChangeGuard()
+    {
+        Assert.NotNull(typeof(HeroSnapshot).GetProperty("DropOff"));
+        Assert.NotNull(typeof(HeroSnapshot).GetProperty("ActiveTripName"));
+        Assert.NotNull(typeof(HeroSnapshot).GetProperty("HasActiveTrip"));
+    }
+
+    [Fact]
     public void OverrideChange_Rerenders() =>
         Assert.NotEqual(Base() with { Override = "Taxi ordered." }, Base());
 }

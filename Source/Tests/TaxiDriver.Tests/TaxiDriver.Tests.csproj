@@ -25,6 +25,27 @@
     Unity-free logic is extracted.
   -->
   <ItemGroup>
+    <Compile Include="../../Mods/TaxiDriver/src/MeterSettlement.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/TaxiLifecycle.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/DestinationSelectionPolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/HeroView.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/OwnedSubscriptions.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/CallbackLease.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/PassengerCleanupPolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/PassengerSeatPolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/RoadSnapSafetyPolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/RoadProjectionPolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/NavigationTerminalPolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/PatrolStartPolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/NavigationArrivalPolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/PrivateFlagsScope.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/TrafficLightPolicy.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\DeadTaxiCleanup.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\NavigationEndReason.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/RecoveryRecurrencePolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/TerminalRescuePolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/BalanceReadbackPolicy.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\NavigationRecoveryBudget.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\StopConfirmation.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\ServiceFeedback.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\DriverBoardingGate.cs" />
@@ -32,6 +53,11 @@
     <Compile Include="..\..\Mods\TaxiDriver\src\NavigationCallbackPolicy.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\VehicleOwnershipLedger.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\RideProtectionPolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/NativeActuatorPolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/NativeActuatorScope.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/ReversePedalPolicy.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\BrakeHoldPolicy.cs" />
+    <Compile Include="..\..\Mods\TaxiDriver\src\CruiseSpeedPolicy.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\TaxiVisualPolicy.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\TaxiConsolePolicy.cs" />
     <Compile Include="..\..\Mods\TaxiDriver\src\DestinationFilter.cs" />

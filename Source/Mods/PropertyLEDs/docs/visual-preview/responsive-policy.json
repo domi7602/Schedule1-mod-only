@@ -1,0 +1,23 @@
+{
+  "native_dp": {
+    "SelectorHeight": 63.0,
+    "SliderHeadingHeight": 22.0,
+    "SliderTrackHeight": 26.0,
+    "PreviewHeight": 54.0,
+    "ActionHeight": 48.0,
+    "PowerHeight": 60.0,
+    "AdvancedHeight": 28.0,
+    "Gap": 8.0,
+    "Padding": 0.0,
+    "InlineStateHeight": 32.0,
+    "SliderHeight": 48.0
+  },
+  "native_frame": [
+    655,
+    1201
+  ],
+  "viewport_fraction": 0.885,
+  "control_growth_cap": 1.5,
+  "gap_growth_cap": 3,
+  "source": "namespace PropertyLEDs.Core;\n\n/// <summary>Pure minimum and bounded responsive sizing; no native or settings dependencies.</summary>\npublic static class AppLayout\n{\n    public const float SelectorHeight = 63f;\n    public const float SliderHeadingHeight = 22f;\n    public const float SliderTrackHeight = 26f;\n    public const float SliderHeight = SliderHeadingHeight + SliderTrackHeight;\n    public const float PreviewHeight = 54f;\n    public const float ActionHeight = 48f;\n    public const float PowerHeight = 60f;\n    public const float AdvancedHeight = 28f;\n    public const float Gap = 8f;\n    public const float Padding = 0f;\n\n    public readonly record struct Sizing(float Selector, float Preview, float Slider, float Advanced,\n        float Power, float Action, float Gap, float Content);\n\n    public const float InlineStateHeight = 32f;\n\n    public static bool ShouldApply(float width, float height, float appliedWidth, float appliedHeight, bool dirty) =>\n        float.IsFinite(width) && float.IsFinite(height) && width > 1 && height > 1 &&\n        (dirty || System.Math.Abs(width - appliedWidth) > 0.5f || System.Math.Abs(height - appliedHeight) > 0.5f);\n\n    public static Sizing Measure(float viewport, float scale, bool expanded, bool inlineState)\n    {\n        // Stretch usable controls, not a spacer. Keep minimum hit areas on small screens.\n        float state = inlineState ? InlineStateHeight * scale : 0;\n        int gaps = 8 + (expanded ? 1 : 0) + (inlineState ? 1 : 0);\n        float minimum = ContentHeight(scale, expanded) + state + (inlineState ? Gap * scale : 0);\n        float stretch = System.Math.Clamp((viewport - state) / (minimum - state), 1f, 1.5f);\n        float gap = System.Math.Clamp(Gap * scale * stretch + System.Math.Max(0, viewport - state - (minimum - state) * stretch) / gaps,\n            Gap * scale, Gap * scale * 3f);\n        float content = (minimum - state - gaps * Gap * scale) * stretch + gaps * gap + state;\n        return new(SelectorHeight * scale * stretch, PreviewHeight * scale * stretch,\n            SliderHeight * scale * stretch, AdvancedHeight * scale * stretch,\n            PowerHeight * scale * stretch, ActionHeight * scale * stretch, gap, content);\n    }\n\n    // Two cards, preview, three sliders, advanced row, power card, presets: nine children.\n    public static float ContentHeight(float scale) => ContentHeight(scale, false);\n\n    public static float ContentHeight(float scale, bool advancedExpanded) =>\n        (2 * SelectorHeight + PreviewHeight + 3 * SliderHeight + ActionHeight + AdvancedHeight + PowerHeight +\n         8 * Gap + 2 * Padding + (advancedExpanded ? SliderHeight + Gap : 0)) * scale;\n}\n"
+}

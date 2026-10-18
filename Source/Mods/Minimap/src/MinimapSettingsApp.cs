@@ -126,12 +126,23 @@ public sealed class MinimapSettingsApp : PhoneApp
     private readonly System.Collections.Generic.List<GameObject> _palettePanels = new();
     private GameObject? _openPalette;
 
+    // Compact rows; only the outer scroll region fills the remaining screen.
+    private GameObject? _resetColorsMask;
+    private readonly System.Collections.Generic.List<GameObject> _columnPairs = new();
+    private float _appliedViewportHeight = -1f;
+
     // Phase 2 tab navigation: pages built once, switched via SetActive (never destroyed).
     private int _activeTab;
     private readonly System.Collections.Generic.List<GameObject> _tabPages = new();
     private readonly System.Collections.Generic.List<Image> _tabButtonImages = new();
 
     private MinimapMod Mod => MinimapMod.Instance ?? throw new InvalidOperationException("Minimap mod not running");
+
+    // ── Unified control palette: neutral dark controls, emerald = active/commit,
+    // muted warm dark = destructive reset. Steel-blue buttons are gone. ──
+    private static readonly Color ControlColor = new(0.16f, 0.19f, 0.24f, 1f);
+    private static readonly Color TabActiveColor = new(0.16f, 0.42f, 0.24f, 1f);
+    private static readonly Color ResetColor = new(0.22f, 0.14f, 0.12f, 1f);
 
     // ── Color defaults per category (hex, mirrors MinimapBlips defaults) ──
     private static readonly (string Key, string Label, string DefaultHex)[] ColorDefs =
@@ -169,17 +180,14 @@ public sealed class MinimapSettingsApp : PhoneApp
         _mainBG = UIFactory.Panel("MinimapSettings_BG", container.transform, new Color(0.07f, 0.08f, 0.11f, 1f), fullAnchor: true);
         _mainBG.SetActive(false);
 
-        var vlg = _mainBG.AddComponent<VerticalLayoutGroup>();
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = true;
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
+        // Root chrome uses anchors, not preferred-size negotiation from nested groups.
 
         // 2. Header
         var header = UIFactory.Panel("Header", _mainBG.transform, new Color(0.10f, 0.12f, 0.16f, 1f));
         var headerLe = header.AddComponent<LayoutElement>();
         headerLe.preferredHeight = UITheme.Dp(36f);
         headerLe.minHeight = UITheme.Dp(36f);
+        PinTopBand(header, 0f, 36f);
         var title = UIFactory.Text("Title", "MINIMAP SETTINGS", header.transform, UITheme.Sp(13), TextAnchor.MiddleCenter, FontStyle.Bold);
         // UIFactory.Text creates a default 100x100 RectTransform. Stretch the title
         // across the header; otherwise it wraps into tiny stacked fragments.
@@ -213,9 +221,7 @@ public sealed class MinimapSettingsApp : PhoneApp
 
         var scrollObj = _settingsScroll.gameObject;
 
-        var scrollLe = scrollObj.AddComponent<LayoutElement>();
-        scrollLe.minHeight = 1f;
-        scrollLe.flexibleHeight = 1f;
+        PinScrollRegion(scrollObj);
 
         _settingsScroll.vertical = true;
         _settingsScroll.horizontal = false;
@@ -272,7 +278,9 @@ public sealed class MinimapSettingsApp : PhoneApp
     private void AddChoiceRow(Transform parent, string label, Func<string> get, Action cycle)
     {
         var row = UIFactory.Panel($"Choice_{label}", parent, new Color(0.11f, 0.13f, 0.18f, 1f));
-        row.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(30f);
+        var rowLe = row.AddComponent<LayoutElement>();
+        rowLe.preferredHeight = UITheme.Dp(28f);
+        RegisterStretchable(parent, rowLe);
         var layout = row.AddComponent<HorizontalLayoutGroup>();
         layout.spacing = UITheme.Dp(6f);
         layout.childAlignment = TextAnchor.MiddleLeft;
@@ -286,7 +294,7 @@ public sealed class MinimapSettingsApp : PhoneApp
         value.color = new Color(0.65f, 0.86f, 0.69f, 1f);
         value.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
         var (mask, button, _) = UIFactory.RoundedButtonWithLabel($"Change_{label}", "Change", row.transform,
-            new Color(0.13f, 0.30f, 0.42f, 1f), UITheme.Dp(64f), UITheme.Dp(24f), (int)UITheme.Sp(10), Color.white);
+            ControlColor, UITheme.Dp(64f), UITheme.Dp(24f), (int)UITheme.Sp(10), Color.white);
         var changeLe = mask.GetComponent<LayoutElement>();
         if (changeLe == null) changeLe = mask.AddComponent<LayoutElement>();
         changeLe.preferredWidth = UITheme.Dp(64f);
@@ -296,13 +304,16 @@ public sealed class MinimapSettingsApp : PhoneApp
             value.text = get();
             Mod.SaveAndApply();
         });
+        ConfigureRowColumns(row);
         _inputSyncActions.Add(() => value.text = get());
     }
 
     private void AddFloatRow(Transform parent, string label, Func<float> get, Action<float> set, float min, float max, string format)
     {
         var row = UIFactory.Panel($"Number_{label}", parent, new Color(0.11f, 0.13f, 0.18f, 1f));
-        row.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(30f);
+        var rowLe = row.AddComponent<LayoutElement>();
+        rowLe.preferredHeight = UITheme.Dp(28f);
+        RegisterStretchable(parent, rowLe);
         var layout = row.AddComponent<HorizontalLayoutGroup>();
         layout.spacing = UITheme.Dp(5f);
         layout.childAlignment = TextAnchor.MiddleLeft;
@@ -317,7 +328,7 @@ public sealed class MinimapSettingsApp : PhoneApp
         input.gameObject.AddComponent<LayoutElement>().preferredWidth = UITheme.Dp(72f);
         input.gameObject.GetComponent<LayoutElement>().preferredHeight = UITheme.Dp(24f);
         var (mask, button, _) = UIFactory.RoundedButtonWithLabel($"Set_{label}", "Set", row.transform,
-            new Color(0.13f, 0.30f, 0.42f, 1f), UITheme.Dp(48f), UITheme.Dp(24f), (int)UITheme.Sp(10), Color.white);
+            ControlColor, UITheme.Dp(48f), UITheme.Dp(24f), (int)UITheme.Sp(10), Color.white);
         var setLe = mask.GetComponent<LayoutElement>();
         if (setLe == null) setLe = mask.AddComponent<LayoutElement>();
         setLe.preferredWidth = UITheme.Dp(48f);
@@ -329,13 +340,16 @@ public sealed class MinimapSettingsApp : PhoneApp
             input.text = get().ToString(format, CultureInfo.InvariantCulture);
             Mod.SaveAndApply();
         });
+        ConfigureRowColumns(row);
         _inputSyncActions.Add(() => input.text = get().ToString(format, CultureInfo.InvariantCulture));
     }
 
     private void AddKeybindRow(Transform parent, string label, Func<string> get, Action<string> set)
     {
         var row = UIFactory.Panel($"Key_{label}", parent, new Color(0.11f, 0.13f, 0.18f, 1f));
-        row.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(30f);
+        var rowLe = row.AddComponent<LayoutElement>();
+        rowLe.preferredHeight = UITheme.Dp(28f);
+        RegisterStretchable(parent, rowLe);
         var layout = row.AddComponent<HorizontalLayoutGroup>();
         layout.spacing = UITheme.Dp(5f);
         layout.childAlignment = TextAnchor.MiddleLeft;
@@ -350,7 +364,7 @@ public sealed class MinimapSettingsApp : PhoneApp
         input.gameObject.AddComponent<LayoutElement>().preferredWidth = UITheme.Dp(90f);
         input.gameObject.GetComponent<LayoutElement>().preferredHeight = UITheme.Dp(24f);
         var (mask, button, _) = UIFactory.RoundedButtonWithLabel($"SetKey_{label}", "Set", row.transform,
-            new Color(0.13f, 0.30f, 0.42f, 1f), UITheme.Dp(48f), UITheme.Dp(24f), (int)UITheme.Sp(10), Color.white);
+            ControlColor, UITheme.Dp(48f), UITheme.Dp(24f), (int)UITheme.Sp(10), Color.white);
         var setLe = mask.GetComponent<LayoutElement>();
         if (setLe == null) setLe = mask.AddComponent<LayoutElement>();
         setLe.preferredWidth = UITheme.Dp(48f);
@@ -362,6 +376,7 @@ public sealed class MinimapSettingsApp : PhoneApp
             input.text = code.ToString();
             Mod.SaveAndApply();
         });
+        ConfigureRowColumns(row);
         _inputSyncActions.Add(() => input.text = get());
     }
 
@@ -394,7 +409,9 @@ public sealed class MinimapSettingsApp : PhoneApp
         Action<string> commitHex)
     {
         var row = UIFactory.Panel(rowName, parent, new Color(0.11f, 0.13f, 0.18f, 1f));
-        row.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(30f);
+        var rowLe = row.AddComponent<LayoutElement>();
+        rowLe.preferredHeight = UITheme.Dp(28f);
+        RegisterStretchable(parent, rowLe);
         var layout = row.AddComponent<HorizontalLayoutGroup>();
         layout.spacing = UITheme.Dp(6f);
         layout.childAlignment = TextAnchor.MiddleLeft;
@@ -419,7 +436,7 @@ public sealed class MinimapSettingsApp : PhoneApp
 
         // Dropdown toggle.
         var (dropMask, dropBtn, _) = UIFactory.RoundedButtonWithLabel($"Dropdown_{rowName}", "\u25BC", row.transform,
-            new Color(0.13f, 0.30f, 0.42f, 1f), UITheme.Dp(44f), UITheme.Dp(24f), (int)UITheme.Sp(10), Color.white);
+            ControlColor, UITheme.Dp(44f), UITheme.Dp(24f), (int)UITheme.Sp(10), Color.white);
         var dropLe = dropMask.GetComponent<LayoutElement>();
         if (dropLe == null) dropLe = dropMask.AddComponent<LayoutElement>();
         dropLe.preferredWidth = UITheme.Dp(44f);
@@ -483,6 +500,7 @@ public sealed class MinimapSettingsApp : PhoneApp
 
         ButtonUtils.AddListener(dropBtn, () => TogglePalette(panel));
         SyncPreview(previewImage, getHex());
+        ConfigureRowColumns(row);
         _inputSyncActions.Add(() => SyncPreview(previewImage, getHex()));
     }
 
@@ -522,6 +540,7 @@ public sealed class MinimapSettingsApp : PhoneApp
             panel.SetActive(opening);
             if (opening) _openPalette = panel;
             RefreshSettingsLayout();
+            ApplyPageStretch();
         }
         catch (Exception ex)
         {
@@ -536,6 +555,7 @@ public sealed class MinimapSettingsApp : PhoneApp
             panel.SetActive(false);
             if (_openPalette == panel) _openPalette = null;
             RefreshSettingsLayout();
+            ApplyPageStretch();
         }
         catch { }
     }
@@ -567,14 +587,21 @@ public sealed class MinimapSettingsApp : PhoneApp
     {
         var footer = UIFactory.Panel("FooterActions", parent, Color.clear);
         var le = footer.AddComponent<LayoutElement>();
-        le.preferredHeight = UITheme.Dp(40f);
+        le.preferredHeight = UITheme.Dp(44f);
+        var footerRt = footer.GetComponent<RectTransform>();
+        footerRt.anchorMin = Vector2.zero;
+        footerRt.anchorMax = new Vector2(1f, 0f);
+        footerRt.pivot = new Vector2(0.5f, 0f);
+        footerRt.offsetMin = new Vector2(UITheme.Dp(8f), 0f);
+        footerRt.offsetMax = new Vector2(-UITheme.Dp(8f), UITheme.Dp(44f));
 
         var hlg = footer.AddComponent<HorizontalLayoutGroup>();
         hlg.spacing = UITheme.Dp(8f);
         hlg.childAlignment = TextAnchor.MiddleCenter;
         hlg.childForceExpandWidth = false;
         hlg.childControlWidth = true;
-        hlg.childControlHeight = false;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandHeight = false;
 
         var (saveMask, saveBtn, _) = UIFactory.RoundedButtonWithLabel("SaveBtn", "Save & Apply", footer.transform,
             new Color(0.16f, 0.42f, 0.24f, 1f), UITheme.Dp(120f), UITheme.Dp(30f), (int)UITheme.Sp(12), new Color(0.92f, 0.95f, 0.93f, 1f));
@@ -598,7 +625,9 @@ public sealed class MinimapSettingsApp : PhoneApp
         });
 
         var (resetMask, resetBtn, _) = UIFactory.RoundedButtonWithLabel("ResetColorsBtn", "Reset Colors", footer.transform,
-            new Color(0.35f, 0.18f, 0.10f, 1f), UITheme.Dp(110f), UITheme.Dp(30f), (int)UITheme.Sp(12), new Color(0.98f, 0.90f, 0.85f, 1f));
+            ResetColor, UITheme.Dp(110f), UITheme.Dp(30f), (int)UITheme.Sp(12), new Color(0.95f, 0.86f, 0.82f, 1f));
+        _resetColorsMask = resetMask;
+        resetMask.SetActive(_activeTab == 2);
         var resetLe = resetMask.GetComponent<LayoutElement>();
         if (resetLe == null) resetLe = resetMask.AddComponent<LayoutElement>();
         resetLe.preferredWidth = UITheme.Dp(110f);
@@ -622,12 +651,13 @@ public sealed class MinimapSettingsApp : PhoneApp
     // Phase 2: tab pages (each short enough for ~one landscape screen)
     // ─────────────────────────────────────────────────────────
 
-    private static readonly string[] TabNames = { "Karte", "Marker", "Farben", "Erweitert" };
+    private static readonly string[] TabNames = { "Map", "Markers", "Colors", "Advanced" };
 
     private void BuildTabBar(Transform parent)
     {
         var bar = UIFactory.Panel("TabBar", parent, new Color(0.10f, 0.12f, 0.16f, 1f));
         bar.AddComponent<LayoutElement>().preferredHeight = UITheme.Dp(36f);
+        PinTopBand(bar, 36f, 36f);
         var hlg = bar.AddComponent<HorizontalLayoutGroup>();
         hlg.spacing = UITheme.Dp(6f);
         hlg.padding = new RectOffset((int)UITheme.Dp(8f), (int)UITheme.Dp(8f), (int)UITheme.Dp(4f), (int)UITheme.Dp(4f));
@@ -641,7 +671,7 @@ public sealed class MinimapSettingsApp : PhoneApp
         {
             int index = i;
             var (mask, button, _) = UIFactory.RoundedButtonWithLabel($"Tab_{TabNames[i]}", TabNames[i], bar.transform,
-                new Color(0.11f, 0.13f, 0.18f, 1f), 100f, UITheme.Dp(28f), (int)UITheme.Sp(11), Color.white);
+                ControlColor, 100f, UITheme.Dp(28f), (int)UITheme.Sp(11), Color.white);
             var tabLe = mask.GetComponent<LayoutElement>();
             if (tabLe == null) tabLe = mask.AddComponent<LayoutElement>();
             tabLe.flexibleWidth = 1f;
@@ -655,7 +685,9 @@ public sealed class MinimapSettingsApp : PhoneApp
     private void ShowPage(int index)
     {
         if (index < 0 || index >= _tabPages.Count) return;
+        CloseOpenPalette();
         _activeTab = index;
+        if (_resetColorsMask != null) _resetColorsMask.SetActive(index == 2);
         for (int i = 0; i < _tabPages.Count; i++)
         {
             var page = _tabPages[i];
@@ -666,10 +698,9 @@ public sealed class MinimapSettingsApp : PhoneApp
         {
             var img = _tabButtonImages[b];
             if (img != null && !img.WasCollected)
-                img.color = b == index
-                    ? new Color(0.16f, 0.42f, 0.24f, 1f)   // active tab: green
-                    : new Color(0.13f, 0.30f, 0.42f, 1f);  // inactive tab: steel blue
+                img.color = b == index ? TabActiveColor : ControlColor; // active tab: emerald, inactive: neutral dark
         }
+        ApplyPageStretch();
         if (_settingsScroll != null && !_settingsScroll.WasCollected)
             _settingsScroll.verticalNormalizedPosition = 1f;
     }
@@ -683,53 +714,84 @@ public sealed class MinimapSettingsApp : PhoneApp
         vlg.childControlHeight = true;
         vlg.childForceExpandWidth = true;
         vlg.childForceExpandHeight = false;
-        vlg.padding = new RectOffset((int)UITheme.Dp(8f), (int)UITheme.Dp(8f), (int)UITheme.Dp(6f), (int)UITheme.Dp(20f));
+        vlg.padding = new RectOffset((int)UITheme.Dp(8f), (int)UITheme.Dp(8f), (int)UITheme.Dp(6f), (int)UITheme.Dp(6f));
         vlg.spacing = UITheme.Dp(4f);
         page.SetActive(false);
         _tabPages.Add(page);
         return page.transform;
     }
 
-    private static Transform CreateColumn(Transform parent, string name)
+    private static void PinTopBand(GameObject go, float top, float height)
     {
-        var col = UIFactory.Panel(name, parent, Color.clear);
-        var colLe = col.AddComponent<LayoutElement>();
-        colLe.flexibleWidth = 1f;
-        var vlg = col.AddComponent<VerticalLayoutGroup>();
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = true;
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
-        vlg.spacing = UITheme.Dp(4f);
-        return col.transform;
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0f, 1f);
+        rt.anchorMax = Vector2.one;
+        rt.pivot = new Vector2(0.5f, 1f);
+        rt.offsetMin = new Vector2(0f, -UITheme.Dp(top + height));
+        rt.offsetMax = new Vector2(0f, -UITheme.Dp(top));
+    }
+
+    private static void PinScrollRegion(GameObject scrollObj)
+    {
+        var rt = scrollObj.GetComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = new Vector2(0f, UITheme.Dp(44f));
+        rt.offsetMax = new Vector2(0f, -UITheme.Dp(72f));
+    }
+
+    private (Transform Left, Transform Right) CreateColumnPair(Transform page, string name)
+    {
+        var pair = UIFactory.Panel(name, page, Color.clear);
+        pair.AddComponent<LayoutElement>().layoutPriority = 100;
+        _columnPairs.Add(pair);
+        Transform MakeColumn(string columnName, int index)
+        {
+            var col = UIFactory.Panel(columnName, pair.transform, Color.clear);
+            var rt = col.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(index * 0.5f, 0f);
+            rt.anchorMax = new Vector2((index + 1) * 0.5f, 1f);
+            rt.offsetMin = new Vector2(index == 0 ? 0f : UITheme.Dp(4f), 0f);
+            rt.offsetMax = new Vector2(index == 0 ? -UITheme.Dp(4f) : 0f, 0f);
+            var stack = col.AddComponent<VerticalLayoutGroup>();
+            stack.childControlWidth = true;
+            stack.childControlHeight = true;
+            stack.childForceExpandWidth = true;
+            stack.childForceExpandHeight = false;
+            stack.spacing = UITheme.Dp(4f);
+            return col.transform;
+        }
+        return (MakeColumn(name + "_Left", 0), MakeColumn(name + "_Right", 1));
     }
 
     private void BuildMapPage()
     {
         var page = CreatePage("Page_Map");
-        AddSectionLabel(page, "MAP");
-        AddToggle(page, "Minimap Visible", () => Get().MinimapVisible, v => Get().MinimapVisible = v);
-        AddChoiceRow(page, "Shape", () => Get().Shape.ToString(), () =>
+        var (appearance, behavior) = CreateColumnPair(page, "MapColumns");
+        AddSectionLabel(appearance, "APPEARANCE");
+        AddSectionLabel(behavior, "BEHAVIOR");
+        AddToggle(behavior, "Minimap Visible", () => Get().MinimapVisible, v => Get().MinimapVisible = v);
+        AddChoiceRow(appearance, "Shape", () => Get().Shape.ToString(), () =>
         {
             Get().Shape = (MinimapShape)(((int)Get().Shape + 1) % 3);
         });
-        AddChoiceRow(page, "Screen Corner", () => Get().AnchorPosition.ToString(), () =>
+        AddChoiceRow(behavior, "Screen Corner", () => Get().AnchorPosition.ToString(), () =>
         {
             Get().HasCustomPosition = false;
             Get().AnchorPosition = (MinimapAnchor)(((int)Get().AnchorPosition + 1) % 4);
         });
-        AddChoiceRow(page, "Map Rotation", () => Get().RotationMode.ToString(), () =>
+        AddChoiceRow(behavior, "Map Rotation", () => Get().RotationMode.ToString(), () =>
         {
             Get().RotationMode = Get().RotationMode == MinimapRotation.FollowPlayer
                 ? MinimapRotation.NorthUp : MinimapRotation.FollowPlayer;
         });
 
-        AddFloatRow(page, "Map Size (140-350)", () => Get().MapSize, v => Get().MapSize = v, 140f, 350f, "0");
-        AddFloatRow(page, "Opacity (0-1)", () => Get().BackgroundOpacity, v => Get().BackgroundOpacity = MinimapFeatureRules.ClampOpacity(v),
+        AddFloatRow(appearance, "Map Size", () => Get().MapSize, v => Get().MapSize = v, 140f, 350f, "0");
+        AddFloatRow(appearance, "Opacity", () => Get().BackgroundOpacity, v => Get().BackgroundOpacity = MinimapFeatureRules.ClampOpacity(v),
             0f, 1f, "0.00");
-        AddFloatRow(page, "Border Width (0-12)", () => Get().BorderThickness, v => Get().BorderThickness = MinimapFeatureRules.ClampBorderThickness(v),
+        AddFloatRow(appearance, "Border Width", () => Get().BorderThickness, v => Get().BorderThickness = MinimapFeatureRules.ClampBorderThickness(v),
             0f, MinimapFeatureRules.MaximumBorderThickness, "0.0");
-        AddToggle(page, "Map Border", () => Get().ShowMapBorder, v => Get().ShowMapBorder = v);
+        AddToggle(behavior, "Map Border", () => Get().ShowMapBorder, v => Get().ShowMapBorder = v);
     }
 
     private void BuildMarkerPage()
@@ -737,16 +799,7 @@ public sealed class MinimapSettingsApp : PhoneApp
         var page = CreatePage("Page_Marker");
         AddSectionLabel(page, "MARKER FILTERS");
 
-        var cols = UIFactory.Panel("MarkerColumns", page, Color.clear);
-        var colsHlg = cols.AddComponent<HorizontalLayoutGroup>();
-        colsHlg.spacing = UITheme.Dp(8f);
-        colsHlg.childAlignment = TextAnchor.UpperLeft;
-        colsHlg.childControlWidth = true;
-        colsHlg.childForceExpandWidth = true;
-        colsHlg.childControlHeight = true;
-        colsHlg.childForceExpandHeight = false;
-
-        var colA = CreateColumn(cols.transform, "MarkerColA");
+        var (colA, colB) = CreateColumnPair(page, "MarkerColumns");
         AddToggle(colA, "Police", () => Get().ShowPoliceBlips, v => Get().ShowPoliceBlips = v);
         AddToggle(colA, "Dealers", () => Get().ShowDealerBlips, v => Get().ShowDealerBlips = v);
         AddToggle(colA, "Active Deals", () => Get().ShowActiveDeals, v => Get().ShowActiveDeals = v);
@@ -754,47 +807,156 @@ public sealed class MinimapSettingsApp : PhoneApp
         AddToggle(colA, "Customers", () => Get().ShowKnownCustomers, v => Get().ShowKnownCustomers = v);
         AddToggle(colA, "Properties", () => Get().ShowPropertyBlips, v => Get().ShowPropertyBlips = v);
 
-        var colB = CreateColumn(cols.transform, "MarkerColB");
         AddToggle(colB, "Shops", () => Get().ShowShopBlips, v => Get().ShowShopBlips = v);
         AddToggle(colB, "Quests", () => Get().ShowQuestBlips, v => Get().ShowQuestBlips = v);
         AddToggle(colB, "Vehicles", () => Get().ShowVehicleBlips, v => Get().ShowVehicleBlips = v);
         AddToggle(colB, "Sewer Keys", () => Get().ShowSewerKeyBlips, v => Get().ShowSewerKeyBlips = v);
         AddToggle(colB, "Waypoints", () => Get().ShowWaypoints, v => Get().ShowWaypoints = v);
 
-        AddToggle(page, "Purchase Checks", () => Get().ShowPurchaseChecks, v => Get().ShowPurchaseChecks = v);
-        AddToggle(page, "Regional Locks", () => Get().ShowRegionalLocks, v => Get().ShowRegionalLocks = v);
+        AddToggle(colA, "Purchase Checks", () => Get().ShowPurchaseChecks, v => Get().ShowPurchaseChecks = v);
+        AddToggle(colB, "Regional Locks", () => Get().ShowRegionalLocks, v => Get().ShowRegionalLocks = v);
     }
 
     private void BuildColorsPage()
     {
         var page = CreatePage("Page_Colors");
-        AddSectionLabel(page, "BLIP COLORS");
-
-        foreach (var def in ColorDefs)
+        var (left, right) = CreateColumnPair(page, "ColorColumns");
+        AddSectionLabel(left, "PEOPLE & DEALS");
+        AddSectionLabel(right, "PLACES & HUD");
+        for (int i = 0; i < ColorDefs.Length; i++)
         {
-            AddColorRow(page, def.Label, def.DefaultHex, def.Key);
+            var def = ColorDefs[i];
+            AddColorRow(i < 7 ? left : right, def.Label, def.DefaultHex, def.Key);
         }
-        AddBorderColorRow(page);
+        AddBorderColorRow(right);
     }
 
     private void BuildAdvancedPage()
     {
         var page = CreatePage("Page_Advanced");
-        AddSectionLabel(page, "KEYBOARD SHORTCUTS (Unity KeyCode names)");
-        AddKeybindRow(page, "Toggle", () => Get().ToggleKey, v => Get().ToggleKey = v);
-        AddKeybindRow(page, "Zoom In", () => Get().ZoomInKey, v => Get().ZoomInKey = v);
-        AddKeybindRow(page, "Zoom Out", () => Get().ZoomOutKey, v => Get().ZoomOutKey = v);
+        var (keys, hud) = CreateColumnPair(page, "AdvancedColumns");
+        AddSectionLabel(keys, "KEYBOARD (Unity KeyCode names)");
+        AddKeybindRow(keys, "Zoom In", () => Get().ZoomInKey, v => Get().ZoomInKey = v);
+        AddKeybindRow(keys, "Zoom Out", () => Get().ZoomOutKey, v => Get().ZoomOutKey = v);
 
-        AddSectionLabel(page, "HUD");
-        AddToggle(page, "Health Bar", () => Get().ShowHealthBar, v => Get().ShowHealthBar = v);
-        AddToggle(page, "Compass Outline", () => Get().ShowCompassRing, v => Get().ShowCompassRing = v);
-        AddToggle(page, "Drag to Reposition", () => Get().AllowDragging, v => Get().AllowDragging = v);
-        AddToggle(page, "Hide in Menus", () => Get().HideInMenus, v => Get().HideInMenus = v);
+        AddSectionLabel(hud, "HUD");
+        AddToggle(hud, "Health Bar", () => Get().ShowHealthBar, v => Get().ShowHealthBar = v);
+        AddToggle(hud, "Compass Outline", () => Get().ShowCompassRing, v => Get().ShowCompassRing = v);
+        AddToggle(hud, "Drag to Reposition", () => Get().AllowDragging, v => Get().AllowDragging = v);
+        AddToggle(hud, "Hide in Menus", () => Get().HideInMenus, v => Get().HideInMenus = v);
     }
 
     // ─────────────────────────────────────────────────────────
     // Row builders
     // ─────────────────────────────────────────────────────────
+
+    // Compact row sizing takes precedence over nested layout groups' preferred sizes.
+    private void RegisterStretchable(Transform parent, LayoutElement le)
+    {
+        le.layoutPriority = 100;
+        le.minHeight = le.preferredHeight;
+        le.flexibleHeight = 0f;
+    }
+
+    private static float NaturalStackHeight(RectTransform pageRt)
+    {
+        var stack = pageRt.GetComponent<VerticalLayoutGroup>();
+        if (stack == null) return 0f;
+        float height = stack.padding.top + stack.padding.bottom;
+        int visible = 0;
+        for (int childIndex = 0; childIndex < pageRt.childCount; childIndex++)
+        {
+            var child = pageRt.GetChild(childIndex);
+            if (!child.gameObject.activeSelf) continue;
+            var le = child.GetComponent<LayoutElement>();
+            height += le != null && le.preferredHeight >= 0f ? le.preferredHeight : 0f;
+            visible++;
+        }
+        return height + stack.spacing * Mathf.Max(0, visible - 1);
+    }
+
+    private void ApplyPageStretch()
+    {
+        try
+        {
+            if (_settingsScroll == null || _settingsScroll.WasCollected || _settingsScroll.viewport == null) return;
+            float vh = _settingsScroll.viewport.rect.height;
+            if (vh <= 1f) return;
+            foreach (var pair in _columnPairs)
+            {
+                float height = 0f;
+                var pageRt = pair.GetComponent<RectTransform>();
+                for (int childIndex = 0; childIndex < pageRt.childCount; childIndex++)
+                {
+                    var child = pageRt.GetChild(childIndex);
+                    height = Mathf.Max(height, NaturalStackHeight(child.GetComponent<RectTransform>()));
+                }
+                var le = pair.GetComponent<LayoutElement>();
+                le.minHeight = le.preferredHeight = height;
+                le.flexibleHeight = 0f;
+            }
+            foreach (var page in _tabPages)
+            {
+                var rt = page.GetComponent<RectTransform>();
+                float natural = NaturalStackHeight(rt);
+                var le = page.GetComponent<LayoutElement>() ?? page.AddComponent<LayoutElement>();
+                le.layoutPriority = 100;
+                le.minHeight = le.preferredHeight = Mathf.Max(vh, natural);
+                le.flexibleHeight = 0f;
+                if (page.activeSelf)
+                    MelonLogger.Msg($"[MinimapSettings] Compact layout: page={page.name}, viewport={vh:F1}, natural={natural:F1}, target={le.preferredHeight:F1}, columns=2");
+            }
+            _appliedViewportHeight = vh;
+            RefreshSettingsLayout();
+        }
+        catch (Exception ex)
+        {
+            MelonLogger.Warning($"[MinimapSettings] Compact layout failed: {ex}");
+        }
+    }
+
+    // Fixed label/value/action bands prevent text preferred widths from shifting controls.
+    private static void ConfigureRowColumns(GameObject row)
+    {
+        var group = row.GetComponent<HorizontalLayoutGroup>();
+        if (group != null) group.enabled = false;
+        var rt = row.GetComponent<RectTransform>();
+        for (int i = 0; i < rt.childCount; i++)
+        {
+            var child = rt.GetChild(i);
+            var cr = child.GetComponent<RectTransform>();
+            if (cr == null) continue;
+            var text = child.GetComponent<Text>();
+            if (text != null) { text.horizontalOverflow = HorizontalWrapMode.Wrap; text.verticalOverflow = VerticalWrapMode.Truncate; }
+            bool label = child.name == "Label";
+            bool value = child.name == "Value" || child.name.StartsWith("Value_") || child.name.StartsWith("KeyInput_");
+            bool preview = child.name == "Preview";
+            cr.anchorMin = new Vector2(label || value ? 0f : 1f, 0.5f);
+            cr.anchorMax = new Vector2(value || (label && row.name.StartsWith("Toggle_")) ? 1f : cr.anchorMin.x, 0.5f);
+            cr.pivot = new Vector2(0.5f, 0.5f);
+            float h = UITheme.Dp(24f);
+            if (label)
+            {
+                bool wide = row.name.StartsWith("Toggle_") || row.name.StartsWith("Color_") || row.name == "MapBorderColor";
+                cr.anchorMax = new Vector2(wide ? 1f : 0f, 0.5f);
+                cr.offsetMin = new Vector2(UITheme.Dp(6f), -h / 2f);
+                float labelRight = row.name.StartsWith("Toggle_") ? -34f : -104f;
+                cr.offsetMax = new Vector2(UITheme.Dp(wide ? labelRight : 118f), h / 2f);
+            }
+            else if (value)
+            {
+                cr.offsetMin = new Vector2(UITheme.Dp(124f), -h / 2f);
+                cr.offsetMax = new Vector2(-UITheme.Dp(76f), h / 2f);
+            }
+            else
+            {
+                float right = preview ? 76f : 6f;
+                float width = preview || child.name == "CheckBg" ? 22f : 64f;
+                cr.offsetMin = new Vector2(-UITheme.Dp(right + width), -h / 2f);
+                cr.offsetMax = new Vector2(-UITheme.Dp(right), h / 2f);
+            }
+        }
+    }
 
     private void AddSectionLabel(Transform parent, string text)
     {
@@ -802,6 +964,7 @@ public sealed class MinimapSettingsApp : PhoneApp
         lbl.color = new Color(0.55f, 0.60f, 0.70f, 1f);
         var le = lbl.gameObject.AddComponent<LayoutElement>();
         le.preferredHeight = UITheme.Dp(22f);
+        RegisterStretchable(parent, le);
     }
 
     private void AddToggle(Transform parent, string label, Func<bool> get, Action<bool> set)
@@ -809,6 +972,7 @@ public sealed class MinimapSettingsApp : PhoneApp
         var row = UIFactory.Panel($"Toggle_{label}", parent, new Color(0.11f, 0.13f, 0.18f, 1f));
         var le = row.AddComponent<LayoutElement>();
         le.preferredHeight = UITheme.Dp(28f);
+        RegisterStretchable(parent, le);
 
         var hlg = row.AddComponent<HorizontalLayoutGroup>();
         hlg.childAlignment = TextAnchor.MiddleLeft;
@@ -848,6 +1012,7 @@ public sealed class MinimapSettingsApp : PhoneApp
 
         // Safe IL2CPP wiring (Rule 6): Toggle.onValueChanged is a UnityEvent<bool>.
         S1API.Utils.EventHelper.AddListener(_ => row2.Commit(), tg.onValueChanged);
+        ConfigureRowColumns(row);
     }
 
     private void AddColorRow(Transform parent, string label, string defaultHex, string key)
@@ -947,12 +1112,21 @@ public sealed class MinimapSettingsApp : PhoneApp
                 _mainBG.SetActive(open);
                 if (open)
                 {
-                    RebuildSettingsLayout();
                     SyncFromConfig();
+                    RebuildSettingsLayout();
                 }
             }
 
             if (!open) return;
+
+            // Self-healing viewport fill: re-apply when the measured viewport height changes
+            // (the first measurement after open can be a stale pre-layout value).
+            if (_settingsScroll != null && !_settingsScroll.WasCollected && _settingsScroll.viewport != null)
+            {
+                float vh = _settingsScroll.viewport.rect.height;
+                if (vh > 1f && Mathf.Abs(vh - _appliedViewportHeight) > 0.5f)
+                    ApplyPageStretch();
+            }
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
@@ -984,6 +1158,7 @@ public sealed class MinimapSettingsApp : PhoneApp
             if (_scrollContent != null)
                 LayoutRebuilder.ForceRebuildLayoutImmediate(_scrollContent);
             Canvas.ForceUpdateCanvases();
+            ApplyPageStretch();
             if (_settingsScroll != null)
                 _settingsScroll.verticalNormalizedPosition = 1f;
 
@@ -1057,6 +1232,7 @@ public sealed class MinimapSettingsApp : PhoneApp
         {
             if (_toggle == null || _toggle.WasCollected) return;
             _set(_toggle.isOn);
+            MinimapMod.Instance?.TraceVisibility("settings:" + _label);
             try { MinimapMod.Instance?.SaveAndApply(); } catch { }
         }
     }

@@ -3,6 +3,149 @@
 All notable changes to PropertyLEDs are documented here. Format: Keep a Changelog;
 versioning: SemVer.
 
+## 0.1.6 (2026-10-17)
+
+### Changed
+
+- The phone no longer shows the Room / Scope card, the color preview bar, or the
+  "Use property color" button. Slider edits apply to the property color. Saved
+  per-room overrides are not deleted and still win on those rooms.
+
+## 0.1.5 (2026-10-17)
+
+### Changed
+
+- Phone controls use the Phase-1 sizes: selector 68, slider heading/track 24/28, preview 58,
+  actions 52, power 64, advanced 32, gap 12, padding 4. Slider indices, ranges and edit
+  semantics are unchanged.
+- Palette is the authorized deeper set: background `(0.035, 0.055, 0.075)`, surface
+  `(0.07, 0.11, 0.145)`, accent `(0.15, 0.72, 0.88)`, border `(0.18, 0.28, 0.36)`.
+- Each slider block has a translucent group fill `(0.06, 0.09, 0.12, 0.45)`. The power card
+  fill is `(0.08, 0.13, 0.17)`, lifted off the normal surface. The power switch is still the
+  only on/off control.
+- Inline status color follows the message: unverified placement is warm yellow, a message
+  containing "failed" is red, everything else stays neutral. Color is applied on every call.
+- Selector text windows stay 36-56 / 14-37 / 1-15. Inflating every band by 3 dp per edge
+  would overlap the caption and the name inside a card that only grew by 5 dp. The taller
+  card is the extra air.
+- Opening Advanced now exceeds the 88.5% scroll viewport by about 2-4 dp (minimum 666 at
+  scale 1). That state scrolls. Collapsed content (602) still fits and still stretches.
+  Controls are not shrunk below their minimum.
+
+### Verification
+
+- 90 tests passed. Compile-only Release build: 0 warnings / 0 errors. Independent scoped
+  review PASS, no blocking findings.
+- In-game visual acceptance is open. Tests do not prove native gradients, pointer input,
+  reopen behavior or scrolling.
+- Geometry, capture flow and settings schema were not changed.
+
+## 0.1.4 (2026-10-13)
+
+### Changed
+
+- Remove the bottom information icon and normal coverage/scope footer. Extend the scroll viewport
+  from 80% to 88.5% of the phone height, ending at a 1.5% bottom margin. Loading, unavailable anchors,
+  unverified-placement warnings and actual edit/refresh errors remain in an unobtrusive inline row
+  only when needed; inactive state messages reserve no height.
+- Distribute real measured available height proportionally across selector cards, RGB preview,
+  slider breathing room, Advanced, power and preset rows plus group gaps. Explicit priority-10
+  minimum/preferred contracts drive cached native controls; content height is set directly with the
+  factory ContentSizeFitter unconstrained, avoiding a feedback loop. Controls grow at most 1.5x and
+  gaps at most 3x; exceptionally oversized viewports stop at those bounds rather than inventing spacers.
+- Preserve usable minimum heights and scrolling when expanded or small-screen content exceeds the
+  viewport. Reapply only on material measured width/height or state changes; stale first-open rects
+  converge, without scene discovery, hierarchy scans or per-frame canvas force updates.
+- Keep selector text centered and slider handles circular while controls stretch. Unity Slider drives
+  cross-axis handle anchors to 0..1, so its parent now has a fixed 23 dp height and handle height delta
+  is zero. No switch-silhouette redesign or runtime/control/slot/geometry changes are bundled.
+
+### Verification
+
+- Observed RED -> GREEN for measured 1201-unit sizing (839.1 -> 1062.9 content), footer removal,
+  native sizing/state wiring and circular-handle constraints. 80 tests pass, including smaller/larger,
+  collapsed/expanded, sum-of-contracts, overflow and convergence cases. Compile-only Release build:
+  0 warnings / 0 errors, S1NoDeploy=true and BuildProjectReferences=false.
+- Updated offline visual comparison uses the owner's current screenshot and the responsive native
+  policy. 15 browser demonstration checks pass; CDP captured collapsed, expanded and small-expanded
+  screenshots with zero JavaScript exceptions. Browser rendering is not Unity acceptance.
+- Next runtime breadcrumb includes viewport/content/expected, Advanced/inline state, selector,
+  preview, slider, power, action and gap sizes plus overflow. First-open/reopen, native circles,
+  switch mask, pointer input and scrolling still need authorized deployment and in-game acceptance.
+- No deploy, game start, commit, push or UserData writes. Catalog SHA-256 remains
+  07bbc5620ea3eac1d45e736af5dd76c377565ca39dd2481bc6ee72a0d75f5f11.
+
+
+## 0.1.3 (2026-10-13)
+
+### Changed
+
+- Correct the earlier localization mistake: all current UI labels, source and tests are English.
+  Normal controls are Color, Saturation and Brightness; Color intensity remains under Advanced.
+- Rebuild the phone view around the supplied mockup: bulb/title/subtitle, compact outlined navy
+  selector cards and icon tiles, house/layers icons, rounded selected-color preview with a subtle
+  selected-color border, rainbow/white-to-color tracks, round handles and drawn row/action icons.
+- Preserve real previous/next scope selection rather than introducing a nonfunctional dropdown.
+  Use one stateful power switch as the sole on/off action; no dead gear or duplicate power button.
+  White and Use property color remain functional; disabled inheritance text/icons stay legible.
+  The footer shows actual selected-property layout coverage and scope, not an unproven Saved claim.
+- Preserve all four ranges/indices/settings, edit auto-enable, zero-brightness and inheritance rules.
+  No runtime lighting, catalog, settings, other mods or Shared files changed. Native assets are
+  destruction-owned; reopen sync, fresh-open Advanced collapse and immediate layout rebuild remain.
+- Fixed layout budgets: 524 dp collapsed / 580 dp expanded, nine/ten active outer children.
+  The viewport remains scrollable and measured until native first-open layout converges.
+
+### Verification
+
+- Observed RED -> GREEN for English labels/Advanced, mockup/power/layout contracts, round gradient
+  alpha/hidden factory mask, and inheritance disabled-state wiring. 64 tests pass; compile-only
+  Release build uses S1NoDeploy=true and BuildProjectReferences=false (0 warnings / 0 errors).
+- Measured the supplied 1672 x 941 PNG and rendered the 291 x 592 phone crop beside a browser
+  preview using the native sizing constants and icon predicates. Seven browser interaction checks
+  pass with zero JavaScript exceptions. See visual-preview/README.md for geometry deltas and limits.
+- HTML is not Unity evidence. The flatter palette, no glow, extra selector context, /5 readout position
+  and intentional simplified controls still differ from the reference. Native masks, gradients,
+  pointer input, first-open/reopen and persistence acceptance remain open. No deployment, game
+  start, commit, push or UserData writes.
+
+## 0.1.2 (2026-10-12)
+
+### Changed
+
+- Simplify the approved colour controls: **Color** replaces Hue with a full rainbow track
+  (red at both endpoints, no degree readout); **Saturation** uses a
+  white-to-selected-colour track and percentage; **Brightness** retains the 0–5 range/readout.
+  The preview still shows the selected RGB. Property/scope cards, actions and footer are unchanged.
+- Move the existing Color intensity control to **Color intensity** under **Advanced**.
+  Build the panel once, toggle it with SetActive and rebuild cached scroll content immediately.
+  Every fresh app open starts collapsed; toggling and scope navigation never apply settings.
+  All four original slider indices, values, callbacks, inheritance, persistence and edit-auto-enable
+  semantics remain intact. Procedural gradient sprites/textures are released only on destruction.
+- Dynamic sizing is 560 dp collapsed / 620 dp expanded (10/11 active outer children).
+  Layout breadcrumbs include the expanded state and matching expected budget; scrolling remains enabled.
+  The previous-session log measured the compact viewport at 602.6 × 948.8, not this new UI.
+- Strict vertical RED -> GREEN cycles: updated three collapsed-budget cases and added seven cases
+  (three expanded-budget and four source-wiring cases). All 58 tests pass; no-deploy Release build
+  reports 0 warnings/errors. Native rendering, pointer input, scrolling and reopen acceptance remain
+  pending. No deployment, game start or runtime settings/catalog edits were performed.
+
+## 0.1.1 (2026-10-12)
+
+### Changed
+
+- Phone UI structure only: property/room captions, names and context now share compact 68 dp
+  cards with fixed anchored arrow hit boxes. Larger captions/names and slider labels/live values
+  replace the tiny detached captions; palette, colour preview, actions and status semantics stay unchanged.
+- Group each slider heading with its unchanged 32 dp track; use consistent 4 dp content gaps,
+  6 dp padding and high-priority fixed heights to prevent preferred-text-size inflation.
+  The 576 dp stack fits the existing 79% viewport at the measured 1201-unit phone baseline
+  (sizing calculation, not native-rendering evidence). Scrolling remains available on smaller viewports.
+- Rebuild on open and report cached measured viewport/content dimensions when they change via
+  `Phone layout: viewport=...`, without scene discovery or per-frame rebuilding. Native visual,
+  hit-test and reopen verification remain open; this build was not deployed.
+- Seven test cases added using observed RED -> GREEN cycles; 51 tests pass, and compile-only
+  Release build reports 0 warnings/errors. Settings, layouts, navigation and LED runtime are untouched.
+
 ## Unreleased
 
 ### Changed

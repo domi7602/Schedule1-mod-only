@@ -4,6 +4,10 @@
 
 ---
 
+## Verification status
+
+**v0.1.7: Verified, owner-confirmed; confirmation recorded 2026-10-15.** Dominik confirmed the version works in-game, closing ingredient-stacking acceptance. The original test date and individual actions were not supplied; no new independent log check was performed.
+
 ## 🌟 Features (v0.1.7)
 
 - **Configurable Global Stack Limit**:

@@ -1,4 +1,4 @@
-# Minimap v2.0.2
+# Minimap
 
 High-performance customizable Minimap & Unified DayCounter HUD for **Schedule I v0.4.7** (TVGS, IL2CPP, MelonLoader 0.7.3).
 
@@ -23,7 +23,7 @@ High-performance customizable Minimap & Unified DayCounter HUD for **Schedule I 
 
 | Key | Action |
 |-----|--------|
-| `M` | Toggle HUD visibility |
+| None | No keyboard HUD visibility toggle; use settings or `minimap toggle` explicitly |
 | `]` / `Keypad +` | Zoom in |
 | `[` / `Keypad -` | Zoom out |
 | Mouse drag (cursor unlocked) | Move HUD |

@@ -17,6 +17,11 @@
                                               Version tragen)
       3. AGENTS.md                         -> "| **<Mod>** ... (vX.Y.Z ..."
       4. AGENTS.md                         -> "**<Mod> vX.Y.Z (...):**" (Detail-Header, falls vorhanden)
+      5. docs/compatibility.md             -> Verification matrix, Versionszelle
+                                              ("Verified on"/"Date" werden bewusst nicht geprueft)
+      6. Mod-Code selbst                   -> keine zweite Versionsquelle: keine Version-named
+                                              Felder mit abweichendem Literal, keine Log-Strings,
+                                              die eine alte Release-Version desselben Mods nennen
 
     Fehlt eine Mod in README.md oder AGENTS.md, gilt das ebenfalls als Drift.
     Exit 1 bei Drift (CI/pre-commit-tauglich), 0 wenn alles synchron ist.
@@ -164,6 +169,100 @@ foreach ($mod in $mods) {
             if ($readmeExtraDrift.Count -gt 0) { $problems += ("{0} : README.md (weitere Nennung)={1} != code={2}" -f $name, ($readmeExtraDrift -join ','), $expected) }
             if ($agents -ne $expected) { $problems += ("{0} : AGENTS.md={1} != code={2}" -f $name, $(if ($agents) { $agents } else { 'fehlt' }), $expected) }
             if ($agentsHeader -and $agentsHeader -ne $expected) { $problems += ("{0} : AGENTS.md detail header={1} != code={2}" -f $name, $agentsHeader, $expected) }
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# 6. docs/compatibility.md -> Verification matrix.
+#    Prueft wird nur die Versionszelle gegen den Code. "Verified on"/"Date" bleiben
+#    bewusst ungeprueft: die Matrix dokumentiert, WELCHE Version WANN geprueft wurde,
+#    und ein Pruefdatum darf aelter sein als der Release der aktuellen Version.
+#    Eine Matrix-Zeile, die eine Version nennt, die es im Code nicht gibt, ist Drift —
+#    bump-version.ps1 schreibt die Matrix namlich NICHT mit.
+# ---------------------------------------------------------------------------
+$compatPath = Join-Path $workspaceRoot 'docs/compatibility.md'
+if (-not (Test-Path -LiteralPath $compatPath)) {
+    $warnings += 'docs/compatibility.md fehlt -> Matrix-Check uebersprungen.'
+} else {
+    $compatText = [System.IO.File]::ReadAllText($compatPath, [System.Text.Encoding]::UTF8)
+    $section = [regex]::Match($compatText, '(?m)^## Verification matrix\r?\n(.*?)(?=^##\s|\z)', 'Singleline')
+    if (-not $section.Success) {
+        $warnings += 'docs/compatibility.md : Abschnitt "## Verification matrix" nicht gefunden -> Matrix-Check uebersprungen.'
+    } else {
+        $matrixByMod = @{}
+        foreach ($line in ($section.Groups[1].Value -split "\r?\n")) {
+            $m = [regex]::Match($line, '^\|\s*([A-Za-z_][\w]*)\s*\|\s*v?(' + $rxSemVer + ')\s*\|')
+            if ($m.Success) { $matrixByMod[$m.Groups[1].Value] = $m.Groups[2].Value }
+        }
+        foreach ($mod in $mods) {
+            $name = $mod.Name
+            $code = Get-CodeVersion -ModDir $mod.FullName
+            if (-not $matrixByMod.ContainsKey($name)) {
+                $problems += "$name : keine Zeile in der Verification matrix von docs/compatibility.md."
+                continue
+            }
+            if ($code -and $matrixByMod[$name] -ne $code.Version) {
+                $problems += ("{0} : compatibility.md matrix={1} != code={2}" -f $name, $matrixByMod[$name], $code.Version)
+            }
+        }
+    }
+}
+
+# ---------------------------------------------------------------------------
+# 7. Versions-Quellen im Mod-Code selbst.
+#    bump-version.ps1 schreibt nur MelonInfo bzw. Constants.ModVersion. Jede andere
+#    Version im Code ist eine zweite Quelle und driftet still: PocketShop meldete
+#    "initialized (v0.3.3)" und "PhoneApp system (v0.3.2)", waehrend MelonInfo langst
+#    0.3.6 sagte — drei Versionsangaben fuer einen Mod in einem Log. Geprueft wird:
+#      a) ein Feld/const mit "Version" im Namen, dessen Literal nicht der Code-Version
+#         entspricht (PotScanner: ModVersion IST die Code-Version -> kein Befund),
+#      b) jeder String-Literal ausserhalb von Kommentaren, der eine Version nennt, die
+#         dieser Mod laut CHANGELOG schon released hat, aber nicht die aktuelle ist.
+#    Kommentare sind ausdruecklich erlaubt: "v0.3.1 fuehrte X ein" ist Dokumentation.
+# ---------------------------------------------------------------------------
+$rxBlockComment = [regex]'/\*[\s\S]*?\*/'
+$rxLineComment  = [regex]'//[^\r\n]*'
+$rxVersionField = [regex]('\b(?:const|static\s+readonly|string)\s+(\w*[Vv]ersion\w*)\s*=\s*"(' + $rxSemVer + ')"')
+$rxQuotedString = [regex]'"[^"\r\n]*"'
+
+foreach ($mod in $mods) {
+    $name = $mod.Name
+    $code = Get-CodeVersion -ModDir $mod.FullName
+    if (-not $code) { continue }   # bereits als Drift gemeldet
+    $expected = $code.Version
+
+    $stale = @()
+    $changelogPath = Join-Path $mod.FullName 'docs/CHANGELOG.md'
+    if (Test-Path -LiteralPath $changelogPath) {
+        $clText = [System.IO.File]::ReadAllText($changelogPath, [System.Text.Encoding]::UTF8)
+        $stale = @([regex]::Matches($clText, '(?m)^##\s+(' + $rxSemVer + ')') |
+                   ForEach-Object { $_.Groups[1].Value } |
+                   Where-Object { $_ -ne $expected } | Sort-Object -Unique)
+    }
+
+    $srcDir = Join-Path $mod.FullName 'src'
+    foreach ($f in (Get-ChildItem -LiteralPath $srcDir -Filter '*.cs' -Recurse -File -ErrorAction SilentlyContinue |
+                    Where-Object { $_.FullName -notmatch '[\\/](obj|bin)[\\/]' })) {
+        $raw = [System.IO.File]::ReadAllText($f.FullName, [System.Text.Encoding]::UTF8)
+        $codeOnly = $rxLineComment.Replace($rxBlockComment.Replace($raw, ''), '')
+        $rel = $f.FullName.Substring($mod.FullName.Length).TrimStart('\', '/')
+
+        foreach ($fm in $rxVersionField.Matches($codeOnly)) {
+            if ($fm.Groups[2].Value -ne $expected) {
+                $problems += ("{0} : {1} haelt {2}={3} != code={4} (zweite Versionsquelle im Code)" -f `
+                              $name, $rel, $fm.Groups[1].Value, $fm.Groups[2].Value, $expected)
+            }
+        }
+
+        if ($stale.Count -eq 0) { continue }
+        foreach ($qm in $rxQuotedString.Matches($codeOnly)) {
+            foreach ($vm in [regex]::Matches($qm.Value, $rxSemVer)) {
+                if ($stale -contains $vm.Value) {
+                    $problems += ("{0} : {1} nennt v{2} (alt; Code-Version ist {3}) in: {4}" -f `
+                                  $name, $rel, $vm.Value, $expected, $qm.Value)
+                }
+            }
         }
     }
 }

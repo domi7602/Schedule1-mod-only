@@ -149,6 +149,13 @@ function Update-ModVersion {
                 $rx = [regex]"v\d+\.\d+\.\d+(-[\w\.]+)?"
                 $newLine = $rx.Replace($line, "v$NewVersion", 1)
                 if ($newLine -ne $line) { $agentsChanged = $true; $changed += "AGENTS.md matrix -> v$NewVersion" }
+                # 2026-10-15: Ein Bump schreibt nur die Versionszelle um, NIE das Pruefdatum.
+                # Die Verified-Aussage in derselben Zeile gehoert damit weiter zur VORIGEN
+                # Version. Ohne Hinweis entsteht still ein "Verified"-Badge fuer eine Version,
+                # die nie im Spiel geprueft wurde (PocketShop: 0.3.2 -> 0.3.6, Datum 2026-09-20).
+                if ($newLine -ne $line -and $line -match "Verified[^\r\n]*?\d{4}-\d{2}-\d{2}") {
+                    Write-Warning "  [$ModName] AGENTS.md-Matrixzeile traegt 'Verified <datum>' — das Datum belegt die VORIGE Version, die Zeile nennt jetzt v$NewVersion. Verifikationsstatus fuer v$NewVersion pruefen und in docs/compatibility.md dokumentieren (check-version-sync prueft die Matrix-Version, nicht das Datum)."
+                }
                 $newLines += $newLine
             } elseif ($line -match "^\*\*$escapedMod v\d") {
                 # 2026-09-14: Detail-Header in der "Mod Details"-Sektion

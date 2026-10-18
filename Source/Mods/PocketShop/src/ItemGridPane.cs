@@ -271,40 +271,37 @@ public class ItemGridPane
     {
         const int columns = 5;
         int rows = (items.Count + columns - 1) / columns;
+        float gap = UITheme.Dp(6f);
         for (int r = 0; r < rows; r++)
         {
             var rowGO = new GameObject($"Row_{r}");
             rowGO.transform.SetParent(_content, false);
+            rowGO.AddComponent<RectTransform>();
             var rowLE = rowGO.AddComponent<LayoutElement>();
             rowLE.flexibleWidth = 1f;
             rowLE.preferredHeight = UITheme.Dp(175f);
             rowLE.minHeight = UITheme.Dp(175f);
 
-            var rowHlg = rowGO.AddComponent<HorizontalLayoutGroup>();
-            rowHlg.spacing = UITheme.Dp(6f);
-            rowHlg.padding = new RectOffset(0, 0, 0, 0);
-            rowHlg.childControlWidth = true;
-            rowHlg.childControlHeight = true;
-            rowHlg.childForceExpandWidth = true;
-            rowHlg.childForceExpandHeight = false;
-            rowHlg.childAlignment = TextAnchor.UpperLeft;
-
+            // Equal-width column bands (deterministic, no HorizontalLayoutGroup): every
+            // tile spans exactly 1/columns of the row minus a uniform gap/2 inset on each
+            // side, so all tiles share one size and the columns form straight lines. A
+            // HorizontalLayoutGroup lets the item-name text width leak into the tile
+            // widths (LayoutUtility resolves preferred sizes to the MAX over all
+            // ILayoutElement components, so Text beats LayoutElement overrides).
             for (int c = 0; c < columns; c++)
             {
                 int idx = r * columns + c;
-                if (idx < items.Count)
-                {
-                    var item = items[idx];
-                    var card = new ItemCard(item);
-                    _cards.Add(card);
-                    card.OnPurchaseResult += res => OnPurchaseResult?.Invoke(res);
-                    card.Build(rowGO.transform);
-                }
-                else
-                {
-                    var spacer = UIFactory.Panel("Spacer", rowGO.transform, Color.clear);
-                    spacer.AddComponent<LayoutElement>().flexibleWidth = 1f;
-                }
+                if (idx >= items.Count) break;
+                var item = items[idx];
+                var card = new ItemCard(item);
+                _cards.Add(card);
+                card.OnPurchaseResult += res => OnPurchaseResult?.Invoke(res);
+                var cardGO = card.Build(rowGO.transform);
+                var cardRt = (RectTransform)cardGO.transform;
+                cardRt.anchorMin = new Vector2(c / (float)columns, 0f);
+                cardRt.anchorMax = new Vector2((c + 1) / (float)columns, 1f);
+                cardRt.offsetMin = new Vector2(gap * 0.5f, 0f);
+                cardRt.offsetMax = new Vector2(-gap * 0.5f, 0f);
             }
         }
     }

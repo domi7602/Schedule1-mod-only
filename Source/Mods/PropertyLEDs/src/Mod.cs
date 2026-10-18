@@ -3,7 +3,7 @@ using MelonLoader;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(PropertyLEDs.Mod), "PropertyLEDs", "0.1.0", "Dominik")]
+[assembly: MelonInfo(typeof(PropertyLEDs.Mod), "PropertyLEDs", "0.1.6", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace PropertyLEDs;
@@ -20,7 +20,7 @@ public sealed class Mod : MelonMod
         GameLifecycle.OnLoadComplete += AfterLoad;
         GameLifecycle.OnPreSceneChange += BeforeSceneChange;
         GameLifecycle.OnSaveComplete += AfterSave;
-        Log.Info("Initialized (v0.1.0). External verified layouts only; realtime lighting disabled.");
+        Log.Info("Initialized (v0.1.6). External verified layouts only; realtime lighting disabled.");
     }
 
     public override void OnUpdate() => Guard("Debounce tick", LEDRuntime.Tick);

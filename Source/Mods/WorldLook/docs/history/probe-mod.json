@@ -1,0 +1,12 @@
+{
+  "name": "GraphicsProbe",
+  "author": "Dominik",
+  "version": "0.1.3",
+  "description": "Experimental read-only rendering snapshots. Ctrl+Shift+F8; reports in UserData/GraphicsProbe/latest.json. In-Game-Verify open.",
+  "status": "experimental",
+  "inGameVerify": "open",
+  "manualTrigger": "Ctrl+Shift+F8 (game focused; selected uGUI/TMP text-input guard)",
+  "reportPath": "UserData/GraphicsProbe/latest.json",
+  "limitations": "Bounded SceneManager-enumerable loaded scenes only; DontDestroyOnLoad may be outside scope. Lexical candidates are unconfirmed; no main-camera or depth-buffer guarantee.",
+  "removal": "With game closed, remove Mods/GraphicsProbe.dll and optional PDB; optionally delete UserData/GraphicsProbe. Keep Shared and other mods."
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "name": "power switch changes state",
+    "passed": true
+  },
+  {
+    "name": "advanced expands",
+    "passed": true
+  },
+  {
+    "name": "expanded content fills viewport",
+    "passed": true
+  },
+  {
+    "name": "advanced collapses without resetting intensity",
+    "passed": true
+  },
+  {
+    "name": "color edit enables positive brightness",
+    "passed": true
+  },
+  {
+    "name": "zero brightness edit keeps explicit off",
+    "passed": true
+  },
+  {
+    "name": "one power action",
+    "passed": true
+  },
+  {
+    "name": "no redundant power button",
+    "passed": true
+  },
+  {
+    "name": "normal footer absent",
+    "passed": true
+  },
+  {
+    "name": "collapsed fills measured viewport",
+    "passed": true
+  },
+  {
+    "name": "small expanded viewport scrolls",
+    "passed": true
+  },
+  {
+    "name": "huge viewport growth bounded",
+    "passed": true
+  },
+  {
+    "name": "inline error visible",
+    "passed": true
+  },
+  {
+    "name": "inline state releases space",
+    "passed": true
+  },
+  {
+    "name": "native1201 budget",
+    "passed": true
+  }
+]

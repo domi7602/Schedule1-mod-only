@@ -1,7 +1,7 @@
 {
   "name": "PropertyLEDs",
   "author": "Dominik",
-  "version": "0.1.0",
+  "version": "0.1.6",
   "description": "Independently developed room-by-room RGB ceiling LEDs for owned properties and businesses, with a phone app for per-property and per-room colour control. Experimental: rooms appear once their layout has been measured and marked verified.",
   "requires": ["S1API"]
 }

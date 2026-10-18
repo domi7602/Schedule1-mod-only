@@ -9,9 +9,8 @@ using S1Mods.Shared;
 namespace MessagesPlus;
 
 /// <summary>
-/// Preserves the deal-window popup's vanilla appearance whenever it changes state.
-/// The popup is excluded from app-wide dark-theme passes, and previously themed
-/// colors under its explicit Container root are restored when first registered.
+/// Themes neutral deal-time surfaces immediately after either native open path.
+/// Explicit clock-sector/hand references retain art, colour and interaction state.
 /// </summary>
 public static class DealWindowSelectorPatch
 {
@@ -31,7 +30,7 @@ public static class DealWindowSelectorPatch
         }
         else
         {
-            log.Warn("DealWindowSelectorPatch: SetIsOpen(bool, MSGConversation, Action<EDealWindow>) not found — popup will not be registered for vanilla-color preservation.");
+            log.Warn("DealWindowSelectorPatch: SetIsOpen(bool, MSGConversation, Action<EDealWindow>) not found — popup immediate dark-theme hook unavailable (LateUpdate fallback remains).");
         }
 
         // Defensive: the bool-only overload (no managed callers in 0.4.7f7, but
@@ -91,8 +90,7 @@ public static class DealWindowSelectorPatch
             if (selector == null || !NetworkGuard.IsAlive(selector)) return;
             if (!NetworkGuard.IsAlive(selector.Container)) return;
 
-            // Keep the game's own order/deal popup in its native light theme.
-            AppTheme.PreserveVanillaSubtree(selector.Container);
+            AppTheme.RefreshDealWindow(selector);
         }
         catch (Exception ex)
         {

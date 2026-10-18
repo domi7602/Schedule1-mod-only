@@ -16,6 +16,7 @@
     <!-- Unity-free core files sit FLAT in src/ since the src/Core -> src flatten; listed
          explicitly. Excluded: the Unity-dependent runtime files and LEDSettingsStore.cs
          (namespace PropertyLEDs, the S1Mods.Shared-backed I/O adapter). -->
+    <Compile Include="../../Mods/PropertyLEDs/src/AppLayout.cs" Link="Core/AppLayout.cs" />
     <Compile Include="../../Mods/PropertyLEDs/src/GeometryMath.cs" Link="Core/GeometryMath.cs" />
     <Compile Include="../../Mods/PropertyLEDs/src/Layouts.cs" Link="Core/Layouts.cs" />
     <Compile Include="../../Mods/PropertyLEDs/src/LEDSettings.cs" Link="Core/LEDSettings.cs" />

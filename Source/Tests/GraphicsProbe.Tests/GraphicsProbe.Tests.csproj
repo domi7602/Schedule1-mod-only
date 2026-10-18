@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <LangVersion>12</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <Compile Include="../../Mods/WorldLook/src/Probe/RenderingSnapshot.cs" Link="RenderingSnapshot.cs" />
+    <Compile Include="../../Mods/WorldLook/src/Probe/RendererScanBudget.cs" Link="RendererScanBudget.cs" />
+    <Compile Include="../../Mods/WorldLook/src/Probe/CooperativeCapture.cs" Link="CooperativeCapture.cs" />
+    <Compile Include="../../Mods/WorldLook/src/Probe/FairTraversal.cs" Link="FairTraversal.cs" />
+    <Compile Include="../../Mods/WorldLook/src/Probe/WaterHeuristics.cs" Link="WaterHeuristics.cs" Condition="Exists('../../Mods/WorldLook/src/Probe/WaterHeuristics.cs')" />
+    <Compile Include="../../Mods/WorldLook/src/Probe/CaptureSchedule.cs" Link="CaptureSchedule.cs" Condition="Exists('../../Mods/WorldLook/src/Probe/CaptureSchedule.cs')" />
+    <Compile Include="../../Mods/WorldLook/src/Probe/ReportPolicy.cs" Link="ReportPolicy.cs" Condition="Exists('../../Mods/WorldLook/src/Probe/ReportPolicy.cs')" />
+    <Compile Include="../../Mods/WorldLook/src/Probe/IntrospectionPolicy.cs" Link="IntrospectionPolicy.cs" Condition="Exists('../../Mods/WorldLook/src/Probe/IntrospectionPolicy.cs')" />
+  </ItemGroup>
+</Project>

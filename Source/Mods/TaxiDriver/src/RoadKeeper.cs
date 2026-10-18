@@ -37,8 +37,6 @@ internal static class RoadKeeper
     /// <summary>Corridor half-width before the soft lane assist starts nudging (metres).</summary>
     private const float SoftMarginMeters = 3f;
 
-    /// <summary>Corridor half-width after which the hard snap-back fires (metres).</summary>
-    private const float HardMarginMeters = 5f;
 
     /// <summary>
     /// How far the car may sit BELOW the route line before it counts as "in a
@@ -118,10 +116,8 @@ internal static class RoadKeeper
 
             float drop = closest.y - position.y;
             bool inDitch = drop > MaxDropMeters;
-            bool hard =
-                lateral > HardMarginMeters ||
-                (inDitch && lateral > SoftMarginMeters) ||
-                (lateral > SoftMarginMeters && SteepGroundBelow(position));
+            bool hard = RoadSnapSafetyPolicy.NeedsHardCorrection(lateral, drop,
+                lateral > SoftMarginMeters && SteepGroundBelow(position));
 
             if (hard)
             {
@@ -175,25 +171,16 @@ internal static class RoadKeeper
             Vector3 a = points[i];
             Vector3 b = points[i + 1];
 
-            Vector3 ab = b - a;
-            ab.y = 0f;
-            float abSqr = ab.sqrMagnitude;
-            if (abSqr < 1e-6f)
+            if (!RoadProjectionPolicy.TryProject(
+                    new(a.x, a.y, a.z), new(b.x, b.y, b.z), new(position.x, position.y, position.z),
+                    out var projected, out var tangent, out float distance))
                 continue;
-
-            Vector3 ap = position - a;
-            ap.y = 0f;
-            float t = Mathf.Clamp01(Vector3.Dot(ap, ab) / abSqr);
-
-            Vector3 p = a + ab * t;
-            float dx = position.x - p.x;
-            float dz = position.z - p.z;
-            float dSqr = dx * dx + dz * dz;
+            float dSqr = distance * distance;
             if (dSqr < bestSqr)
             {
                 bestSqr = dSqr;
-                closest = p;
-                direction = ab.normalized;
+                closest = new Vector3(projected.X, projected.Y, projected.Z);
+                direction = new Vector3(tangent.X, 0f, tangent.Z);
             }
         }
 
@@ -247,8 +234,9 @@ internal static class RoadKeeper
         // A snap onto an occupied spot (parked car, lamp, other NPC car) wedges the taxi
         // INTO that object - the opposite of the job. Look for free road first; with no
         // free spot, leave the car to the game's own driving (and its stuck recovery).
-        Vector3 target = closest;
-        if (!TryFindFreeSpot(veh, closest, direction, out target))
+        if (!SpikeCommands.HasAuthority() || !SpikeCommands.IsOwnedTaxi(veh))
+            return;
+        if (!TryFindFreeSpot(veh, closest, direction, out Vector3 target, out Quaternion rotation))
         {
             if (Time.unscaledTime >= _nextBlockedLogAt)
             {
@@ -262,10 +250,6 @@ internal static class RoadKeeper
         }
 
         HardSnaps++;
-        Quaternion rotation = direction.sqrMagnitude > 1e-4f
-            ? Quaternion.LookRotation(direction, Vector3.up)
-            : veh.transform.rotation;
-
         Mod.Log.Warn(
             $"[road] HARD SNAP #{HardSnaps} back onto the road (lateral {TaxiDestinations.Num(lateral)} m" +
             $"{(inDitch ? $", {TaxiDestinations.Num(drop)} m below the road = ditch" : string.Empty)}) — " +
@@ -280,29 +264,139 @@ internal static class RoadKeeper
     /// Static and dynamic colliders count; triggers and the taxi itself do not.
     /// </summary>
     internal static bool TryFindFreeSpot(LandVehicle veh, Vector3 closest, Vector3 direction, out Vector3 spot,
-        bool skipOrigin = false)
+        out Quaternion rotation, bool skipOrigin = false, bool useCorridor = true)
     {
+        spot = default;
+        rotation = Quaternion.identity;
+        if (!SpikeCommands.HasAuthority() || !SpikeCommands.IsOwnedTaxi(veh))
+            return false;
         Vector3 flatDir = new Vector3(direction.x, 0f, direction.z);
-        if (flatDir.sqrMagnitude < 1e-4f)
-            flatDir = Vector3.forward;
+        if (!Finite(closest) || !Finite(flatDir) || flatDir.sqrMagnitude < 1e-4f)
+            return false;
         flatDir.Normalize();
-        Quaternion rot = Quaternion.LookRotation(flatDir, Vector3.up);
 
-        spot = closest;
-        if (!skipOrigin && IsFree(veh, closest, rot))
-            return true;
-
-        foreach (float offset in SnapAlongOffsets)
+        // Preserve the existing bounded origin / +/-4 / +/-8 search. Each offset is
+        // reprojected onto the real 3D route, not extrapolated at the origin's height.
+        for (int i = -1; i < SnapAlongOffsets.Length; i++)
         {
-            Vector3 candidate = closest + flatDir * offset;
-            if (IsFree(veh, candidate, rot))
+            if (i == -1 && skipOrigin)
+                continue;
+            Vector3 candidate = closest + flatDir * (i == -1 ? 0f : SnapAlongOffsets[i]);
+            Vector3 tangent = flatDir;
+            if (useCorridor)
             {
+                var agent = veh.Agent;
+                if (agent == null || !TryGetCorridor(agent, candidate, out candidate, out tangent, out _))
+                    continue;
+            }
+            // Clamped end projections must not defeat a rescue's skip-origin request.
+            if (skipOrigin && Vector3.Distance(candidate, closest) < 0.5f)
+                continue;
+            Quaternion candidateRotation = Quaternion.LookRotation(tangent, Vector3.up);
+            if (TrySupportedSpot(veh, candidate, candidateRotation, out spot))
+            {
+                rotation = candidateRotation;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool TrySupportedSpot(LandVehicle veh, Vector3 projected, Quaternion rotation, out Vector3 spot)
+    {
+        spot = default;
+        try
+        {
+            if (!SpikeCommands.HasAuthority() || !SpikeCommands.IsOwnedTaxi(veh) || !Finite(projected) ||
+                !TryGetPlacementBounds(veh, rotation, out Vector3 minOffset, out Vector3 maxOffset))
+                return false;
+            float proximity = RoadSnapSafetyPolicy.SupportProximityMeters;
+            RaycastHit[] hits = Physics.RaycastAll(projected + Vector3.up * proximity, Vector3.down,
+                proximity * 2f, ~0, QueryTriggerInteraction.Ignore);
+            // RaycastAll has no ordering guarantee; prefer support closest to road
+            // elevation, not the highest nearby unrelated surface.
+            Array.Sort(hits, (a, b) => Mathf.Abs(a.point.y - projected.y).CompareTo(Mathf.Abs(b.point.y - projected.y)));
+            foreach (var hit in hits)
+            {
+                var collider = hit.collider;
+                if (collider == null || collider.Pointer == IntPtr.Zero || collider.WasCollected ||
+                    hit.transform == null || !Finite(hit.point) || !Finite(hit.normal) || hit.normal.sqrMagnitude < 1e-6f)
+                    continue;
+                if (!RoadSnapSafetyPolicy.IsSafeSupport(collider.isTrigger, collider.attachedRigidbody != null,
+                        collider.GetComponentInParent<Il2CppScheduleOne.NPCs.NPC>() != null ||
+                        collider.GetComponentInParent<Il2CppScheduleOne.PlayerScripts.Player>() != null,
+                        collider.GetComponentInParent<Il2CppScheduleOne.Vehicles.LandVehicle>() != null,
+                        hit.transform.IsChildOf(veh.transform), Vector3.Angle(hit.normal, Vector3.up)))
+                    continue;
+                float rootY = veh.transform.position.y;
+                if (!RoadSnapSafetyPolicy.TryRootHeight(projected.y, hit.point.y, rootY, rootY + minOffset.y,
+                        supported: true, free: true, out float targetY))
+                    continue;
+                Vector3 candidate = new Vector3(projected.x, targetY, projected.z);
+                bool free = IsPlacementFree(veh, candidate, minOffset, maxOffset);
+                if (!RoadSnapSafetyPolicy.TryRootHeight(projected.y, hit.point.y, rootY, rootY + minOffset.y,
+                        supported: true, free: free, out _))
+                    continue;
                 spot = candidate;
                 return true;
             }
         }
-
+        catch (Exception)
+        {
+            // Unknown support, bounds or ancestry: never relocate blind.
+        }
         return false;
+    }
+
+    private static bool Finite(Vector3 value) => RoadProjectionPolicy.Finite(new(value.x, value.y, value.z));
+
+    private static bool TryGetPlacementBounds(LandVehicle veh, Quaternion rotation, out Vector3 min, out Vector3 max)
+    {
+        min = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+        max = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+        // The existing spawn/rescue uses the deterministic boundingBox, not renderer
+        // bounds. Measure ALL eight corners at the proposed heading: two opposite
+        // world corners can understate a rotated box, and current roll/pitch must not
+        // become clearance for a proposed upright placement.
+        var box = veh.boundingBox;
+        if (box == null || box.Pointer == IntPtr.Zero || box.WasCollected || box.transform == null)
+            return false;
+        Vector3 half = box.size * 0.5f;
+        if (!Finite(half) || half.x <= 0f || half.y <= 0f || half.z <= 0f)
+            return false;
+        var root = veh.transform;
+        Span<System.Numerics.Vector3> offsets = stackalloc System.Numerics.Vector3[8];
+        for (int i = 0; i < 8; i++)
+        {
+            Vector3 corner = box.center + new Vector3((i & 1) == 0 ? -half.x : half.x,
+                (i & 2) == 0 ? -half.y : half.y, (i & 4) == 0 ? -half.z : half.z);
+            Vector3 offset = box.transform.TransformPoint(corner) - root.position;
+            offsets[i] = new(offset.x, offset.y, offset.z);
+        }
+        Quaternion current = root.rotation;
+        if (!RoadSnapSafetyPolicy.TryPlacementBounds(offsets,
+                new(current.x, current.y, current.z, current.w),
+                new(rotation.x, rotation.y, rotation.z, rotation.w), out var measuredMin, out var measuredMax))
+            return false;
+        min = new Vector3(measuredMin.X, measuredMin.Y, measuredMin.Z);
+        max = new Vector3(measuredMax.X, measuredMax.Y, measuredMax.Z);
+        return true;
+    }
+
+    private static bool IsPlacementFree(LandVehicle veh, Vector3 position, Vector3 minOffset, Vector3 maxOffset)
+    {
+        // Conservative world AABB of the measured chassis at the candidate rotation.
+        // Unlike the legacy spawn probe this has no guessed footprint/root offset.
+        var hits = Physics.OverlapBox(position + (minOffset + maxOffset) * 0.5f,
+            (maxOffset - minOffset) * 0.5f, Quaternion.identity, ~0, QueryTriggerInteraction.Ignore);
+        foreach (var hit in hits)
+        {
+            if (hit == null || hit.Pointer == IntPtr.Zero || hit.WasCollected || hit.transform == null)
+                return false;
+            if (!hit.transform.IsChildOf(veh.transform))
+                return false;
+        }
+        return true;
     }
 
     internal static bool IsFree(LandVehicle? veh, Vector3 position, Quaternion rotation)
@@ -341,6 +435,10 @@ internal static class RoadKeeper
             Mod.Log.Warn("[taxi-recovery] road correction refused: vehicle is not a live TaxiDriver-owned taxi on the host.");
             return;
         }
+
+        // Record before touching native state, including partial/fallback placement.
+        // Corrections never count as driving progress or renew the operation deadline.
+        SpikeRunner.ObserveArtificialPlacement(position);
 
         try
         {
@@ -442,22 +540,28 @@ internal static class RoadKeeper
         Vector3 position = veh.transform.position;
         Vector3 closest = position;
         Vector3 direction = veh.transform.forward;
-        if (TryGetCorridor(agent, position, out Vector3 road, out Vector3 tangent, out _))
+        bool hasCorridor = TryGetCorridor(agent, position, out Vector3 road, out Vector3 tangent, out _);
+        if (hasCorridor)
         {
-            // Keep the vehicle's current ground clearance when using a road-surface point.
-            closest = new Vector3(road.x, position.y, road.z);
+            closest = road;
             direction = tangent;
         }
-        if (!TryFindFreeSpot(veh, closest, direction, out Vector3 spot,
-                skipOrigin: Vector3.Distance(closest, position) < 0.5f))
+        else
         {
-            Mod.Log.Warn($"[patrol] {context} rescue: TryFindFreeSpot found no free point; no blind teleport.");
+            // Retain the bounded local fallback when the route is not available;
+            // anchor its support search to measured chassis bottom, never a tall ray.
+            if (!TryGetPlacementBounds(veh, veh.transform.rotation, out Vector3 bottom, out _))
+                return false;
+            closest.y = position.y + bottom.y;
+        }
+        float dx = closest.x - position.x;
+        float dz = closest.z - position.z;
+        if (!TryFindFreeSpot(veh, closest, direction, out Vector3 spot, out Quaternion rotation,
+                skipOrigin: dx * dx + dz * dz < 0.25f, useCorridor: hasCorridor))
+        {
+            Mod.Log.Warn($"[patrol] {context} rescue: TryFindFreeSpot found no supported free point; no blind teleport.");
             return false;
         }
-        Vector3 flatDirection = new Vector3(direction.x, 0f, direction.z);
-        if (flatDirection.sqrMagnitude < 1e-4f)
-            flatDirection = Vector3.forward;
-        Quaternion rotation = Quaternion.LookRotation(flatDirection.normalized, Vector3.up);
         if (HasObstacle(veh, spot, rotation))
         {
             if (!HasObstacle(veh, spot, rotation, rear: true))
@@ -468,29 +572,10 @@ internal static class RoadKeeper
                 return false;
             }
         }
-        // Reject gaps, steep ground and excessive height changes before placement.
-        RaycastHit[] groundHits = Physics.RaycastAll(spot + Vector3.up * 2f, Vector3.down,
-            5f, ~0, QueryTriggerInteraction.Ignore);
-        Array.Sort(groundHits, (a, b) => a.distance.CompareTo(b.distance));
-        bool grounded = false;
-        float groundY = 0f;
-        foreach (var ground in groundHits)
-        {
-            if (ground.collider == null || ground.collider.attachedRigidbody != null ||
-                (ground.transform != null && ground.transform.IsChildOf(veh.transform)) ||
-                Vector3.Angle(ground.normal, Vector3.up) > MaxSlopeDegrees)
-                continue;
-            groundY = ground.point.y;
-            grounded = true;
-            break;
-        }
-        if (!grounded || !SpikeCommands.TryGetVehicleBoxWorldBounds(veh, out Vector3 boxMin, out _))
-        {
-            Mod.Log.Warn($"[patrol] {context} rescue: no safe ground at free point; not relocating.");
-            return false;
-        }
-        spot.y = groundY + (position.y - boxMin.y) + 0.05f;
-        if (!IsFree(veh, spot, rotation))
+        // Recheck the measured footprint at the final (possibly reversed) heading.
+        if (!TryGetPlacementBounds(veh, rotation, out Vector3 minOffset, out Vector3 maxOffset) ||
+            !IsPlacementFree(veh, spot, minOffset, maxOffset) ||
+            !SpikeCommands.HasAuthority() || !SpikeCommands.IsOwnedTaxi(veh))
             return false;
         ApplyPosition(veh, spot, rotation, zeroVelocity: true);
         Physics.SyncTransforms();

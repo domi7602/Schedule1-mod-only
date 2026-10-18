@@ -804,21 +804,32 @@ internal static class SpikeCommands
         if (veh == null)
             return false;
 
-        VehicleSeat? driverSeat = FindSeat(veh, driver: true);
+        VehicleSeat? driverSeat = null;
+        Player? local = null;
         bool reserved = false;
         try
         {
-            if (driverSeat != null)
-            {
-                driverSeat.Occupant = Player.Local; // pre-reserve: EnterVehicle must not take the driver seat
-                reserved = true;
-            }
+            local = Player.Local;
+            if (local == null || local.Pointer == IntPtr.Zero || local.WasCollected)
+                return RefusePassengerRide(veh, "local player identity is unreadable");
+            if (veh.LocalPlayerIsInVehicle)
+                return EnsurePassengerSeat(veh);
+            if (FindSeat(veh, driver: false) == null)
+                return RefusePassengerRide(veh, "no safe passenger seat is available");
+            driverSeat = FindSeat(veh, driver: true);
+            if (driverSeat == null)
+                return RefusePassengerRide(veh, "driver seat is occupied or unverified");
+            Player? driverOccupant = driverSeat.Occupant;
+            bool driverOccupantPresent = !ReferenceEquals(driverOccupant, null);
+            if (!PassengerSeatPolicy.CanReserveDriverSeat(driverOccupantPresent, driverSeat.isOccupied))
+                return RefusePassengerRide(veh, "driver seat is occupied or unverified");
+            driverSeat.Occupant = local; // only a proven vacant driver seat may be temporarily reserved
+            reserved = true;
             veh.EnterVehicle();
         }
         catch (Exception ex)
         {
-            Mod.Log.Error($"LandVehicle.EnterVehicle() failed: {ex.Message}");
-            return false;
+            return RefusePassengerRide(veh, $"boarding failed ({ex.Message})");
         }
         finally
         {
@@ -826,7 +837,9 @@ internal static class SpikeCommands
             {
                 try
                 {
-                    driverSeat!.Occupant = null;
+                    Player? occupant = driverSeat!.Occupant;
+                    if (occupant != null && local != null && !occupant.WasCollected && occupant.Pointer == local.Pointer)
+                        driverSeat.Occupant = null; // never release somebody else's seat
                 }
                 catch (Exception ex)
                 {
@@ -835,8 +848,8 @@ internal static class SpikeCommands
             }
         }
 
-        // Seat fix + driver proof (the NPC at the wheel keeps driving).
-        EnsurePassengerSeat(veh);
+        if (!EnsurePassengerSeat(veh))
+            return false;
         bool inVehicle = veh.LocalPlayerIsInVehicle;
         Print($"LandVehicle.EnterVehicle() returned. LocalPlayerIsInVehicle={inVehicle} " +
               $"IsOccupied={veh.IsOccupied} DriverPlayer={SafeDriverPlayerName(veh)}");
@@ -1278,7 +1291,7 @@ internal static class SpikeCommands
 
     /// <summary>
     /// First seat matching the request: the driver seat (<paramref name="driver"/>=true),
-    /// or the first free passenger seat (falls back to the first non-driver seat).
+    /// or a verified local-existing/vacant passenger seat; never a foreign/unknown seat.
     /// Never <c>GetFirstFreeSeat()</c> — that returns the DRIVER seat while an NPC is at
     /// the wheel (NPCs are invisible to the seat system).
     /// </summary>
@@ -1286,34 +1299,22 @@ internal static class SpikeCommands
     {
         try
         {
-            Il2CppReferenceArray<VehicleSeat>? seats = veh.Seats;
-            if (seats == null)
-                return null;
-
-            VehicleSeat? fallback = null;
-            for (int i = 0; i < seats.Length; i++)
+            var seats = veh.Seats;
+            if (seats == null) return null;
+            if (driver)
             {
-                VehicleSeat? seat = seats[i];
-                if (seat == null || seat.Pointer == IntPtr.Zero)
-                    continue;
-                if (seat.isDriverSeat != driver)
-                    continue;
-                fallback ??= seat;
-                if (driver)
-                    return seat;
-
-                // passenger: prefer a seat no Player holds
-                try
+                for (int i = 0; i < seats.Length; i++)
                 {
-                    if (seat.Occupant == null)
+                    VehicleSeat? seat = seats[i];
+                    if (seat != null && seat.Pointer != IntPtr.Zero && !seat.WasCollected && seat.isDriverSeat)
                         return seat;
                 }
-                catch (Exception ex)
-                {
-                    Mod.Log.Warn($"VehicleSeat.Occupant read failed in FindSeat: {ex.Message}");
-                }
+                return null;
             }
-            return fallback;
+            Player? local = Player.Local;
+            if (local == null || local.Pointer == IntPtr.Zero || local.WasCollected) return null;
+            int index = PassengerSeatPolicy.Select(seats.Length, i => ReadPassengerSeat(seats[i]), local.Pointer);
+            return index < 0 ? null : seats[index];
         }
         catch (Exception ex)
         {
@@ -1323,77 +1324,88 @@ internal static class SpikeCommands
     }
 
     /// <summary>
-    /// Per-frame passenger seat fix (the seating trap in <see cref="Ride"/>): while the
-    /// local player is recorded as the driver (<c>DriverPlayer == Player.Local</c> or
-    /// <c>localPlayerSeat.isDriverSeat</c>), move them to a passenger seat — driver seat
-    /// released, passenger seat reserved, <c>localPlayerSeat</c> repointed and
-    /// <c>LocalPlayerIsDriver = false</c> — then log the <c>DriverPlayer == null</c> proof
-    /// once per move. Called every frame from the ride kernel; no-op when already riding
-    /// as a passenger.
+    /// Per-frame passenger seat fix: reserve only a verified vacant/local passenger
+    /// seat, then release only the exact local driver occupant. A failed proof stops
+    /// the ride and exits only the local host via the existing safety path.
     /// </summary>
-    internal static void EnsurePassengerSeat(LandVehicle veh)
+    internal static bool EnsurePassengerSeat(LandVehicle veh)
     {
+        if (!HasAuthority() || !IsOwnedTaxi(veh)) return false;
         try
         {
             Player? local = Player.Local;
-            bool localIsDriver = false;
-            try
-            {
-                Player? driverPlayer = veh.DriverPlayer;
-                localIsDriver = driverPlayer != null && local != null && driverPlayer.Pointer == local.Pointer;
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"LandVehicle.DriverPlayer read failed in EnsurePassengerSeat: {ex.Message}");
-            }
+            if (local == null || local.Pointer == IntPtr.Zero || local.WasCollected)
+                return RefusePassengerRide(veh, "local player identity is unreadable");
+            VehicleSeat? localSeat = veh.localPlayerSeat;
+            Player? driver = veh.DriverPlayer;
+            bool driverPresent = !ReferenceEquals(driver, null);
+            if (!veh.LocalPlayerIsInVehicle || localSeat == null || localSeat.Pointer == IntPtr.Zero || localSeat.WasCollected)
+                return RefusePassengerRide(veh, "local passenger seat is unverified");
+            if (driverPresent && (driver!.Pointer == IntPtr.Zero || driver.WasCollected || driver.Pointer != local.Pointer))
+                return RefusePassengerRide(veh, "another player holds the driver seat");
 
+            bool localIsDriver = veh.LocalPlayerIsDriver || localSeat.isDriverSeat || driverPresent;
             if (!localIsDriver)
             {
-                VehicleSeat? localSeat = null;
-                try
-                {
-                    localSeat = veh.localPlayerSeat;
-                }
-                catch (Exception ex)
-                {
-                    Mod.Log.Warn($"LandVehicle.localPlayerSeat read failed in EnsurePassengerSeat: {ex.Message}");
-                }
-
-                if (localSeat == null || localSeat.Pointer == IntPtr.Zero)
-                    return;
-                try
-                {
-                    localIsDriver = localSeat.isDriverSeat;
-                }
-                catch (Exception ex)
-                {
-                    Mod.Log.Warn($"VehicleSeat.isDriverSeat read failed in EnsurePassengerSeat: {ex.Message}");
-                }
+                PassengerSeatSnapshot seated = ReadPassengerSeat(localSeat);
+                if (seated.OccupantPresent && PassengerSeatPolicy.CanUse(seated, local.Pointer)) return true;
+                return RefusePassengerRide(veh, "local passenger occupancy is unverified");
             }
-
-            if (!localIsDriver)
-                return;
 
             VehicleSeat? driverSeat = FindSeat(veh, driver: true);
             VehicleSeat? passengerSeat = FindSeat(veh, driver: false);
             if (driverSeat == null || passengerSeat == null)
-            {
-                Mod.Log.Warn("[ride] passenger seat fix skipped — driver or passenger seat not found (see `taxi status`).");
-                return;
-            }
+                return RefusePassengerRide(veh, "no safe passenger seat is available");
+            Player? driverOccupant = driverSeat.Occupant;
+            if (!(driverOccupant != null && !driverOccupant.WasCollected && driverOccupant.Pointer == local.Pointer) ||
+                !PassengerSeatPolicy.CanUse(ReadPassengerSeat(passengerSeat), local.Pointer))
+                return RefusePassengerRide(veh, "seat occupancy changed or is unreadable");
 
-            driverSeat.Occupant = null;
+            // Claim the verified target BEFORE releasing the local driver seat.
+            // No foreign player identity is ever cleared or overwritten.
             passengerSeat.Occupant = local;
+            driverSeat.Occupant = null;
             veh.localPlayerSeat = passengerSeat;
             veh.LocalPlayerIsDriver = false;
-            Mod.Log.Info(
-                $"[ride] passenger seat fix applied — player moved off the driver seat; " +
-                $"DriverPlayer={SafeDriverPlayerName(veh)} (null proves the NPC keeps the wheel).");
+            PassengerSeatSnapshot moved = ReadPassengerSeat(passengerSeat);
+            if (!ReferenceEquals(veh.DriverPlayer, null) || veh.LocalPlayerIsDriver || !moved.OccupantPresent ||
+                !PassengerSeatPolicy.CanUse(moved, local.Pointer))
+                return RefusePassengerRide(veh, "passenger seat move could not be verified");
+            Mod.Log.Info("[ride] passenger seat fix applied — exact local player moved; no player driver remains.");
+            return true;
         }
         catch (Exception ex)
         {
-            Mod.Log.Warn($"[ride] passenger seat fix failed: {ex.Message}");
+            return RefusePassengerRide(veh, $"passenger occupancy is unreadable ({ex.Message})");
         }
+    }
+
+    private static PassengerSeatSnapshot ReadPassengerSeat(VehicleSeat? seat)
+    {
+        try
+        {
+            if (seat == null || seat.Pointer == IntPtr.Zero || seat.WasCollected) return default;
+            Player? occupant = seat.Occupant;
+            bool present = !ReferenceEquals(occupant, null);
+            bool readable = !present || (occupant!.Pointer != IntPtr.Zero && !occupant.WasCollected);
+            return new PassengerSeatSnapshot(seat.isDriverSeat, readable, present,
+                readable && present ? occupant!.Pointer : IntPtr.Zero, seat.isOccupied);
+        }
+        catch { return default; } // unreadable is never vacant
+    }
+
+    private static bool RefusePassengerRide(LandVehicle veh, string reason)
+    {
+        EndRide("passenger seat refused");
+        CleanupGuard.Run("StopDriving(seat refusal)", () => SpikeRunner.StopDriving(reason), ReportCleanupFailure);
+        ParkCar(veh, reason);
+        try
+        {
+            if (veh.LocalPlayerIsInVehicle) veh.ExitVehicle(); // native local exit only; never force remote players out
+            if (!SafePlayerInVehicle(veh)) SafeExitGroundSnap(veh);
+        }
+        catch (Exception ex) { Mod.Log.Warn($"[ride] safe local exit after seat refusal failed: {ex.Message}"); }
+        return RefuseService($"Ride refused: {reason}. Taxi navigation stopped; use E to exit if still seated.");
     }
 
     /// <summary>Readable <c>DriverPlayer</c> value for logs (the name, or "null" for NPC-only/no driver).</summary>
@@ -1430,10 +1442,10 @@ internal static class SpikeCommands
         if (!RequireOwnedTaxi(veh, $"start ride ({caller})"))
             return false;
 
-        if (!RideLocks.Patched)
+        if (!RideLocks.Patched || !NativeActuatorPatch.Healthy)
         {
             RideProtectionPatch missing = RideProtectionPolicy.Missing(RideLocks.Installed);
-            Mod.Log.Error($"[ride] passenger ride refused: required input/trunk protection is incomplete (missing={missing}).");
+            Mod.Log.Error($"[ride] passenger ride refused: required protection is incomplete (missing={missing}, actuatorHealthy={NativeActuatorPatch.Healthy}).");
             EndRide("protection incomplete", stopNavigation: false);
             ParkCar(veh, "ride protection unavailable");
             if (SafePlayerInVehicle(veh))
@@ -1459,6 +1471,9 @@ internal static class SpikeCommands
             return false;
         }
 
+        if (!EnsurePassengerSeat(veh))
+            return false;
+
         // Idempotency: a second board event in the same frame must not open a
         // second ride. Same-thread Update makes this check sufficient. Placed
         // AFTER the preconditions so a refused start never leaves a phantom
@@ -1473,7 +1488,6 @@ internal static class SpikeCommands
         SpikeState.RideArrived = false;
         SpikeState.RideAwaitingBoard = false;
         RideLocks.LockTrunk(veh);
-        EnsurePassengerSeat(veh);
 
         // Paket A (2026-09-29): no destination pick, no drive. The old default
         // (RideDestination ?? ROAD A) is gone — it silently drove to stale targets.
@@ -1600,9 +1614,8 @@ internal static class SpikeCommands
 
         try
         {
-            veh.BrakesApplied = true;
-            veh.HandbrakeApplied = true;
-            Mod.Log.Info($"[park] {reason} — brakes + handbrake set, navigation off.");
+            NativeActuatorPatch.RequestPark(veh);
+            Mod.Log.Info($"[park] {reason} — park intent recorded for ApplyThrottle, navigation off; braking requires native readback.");
         }
         catch (Exception ex)
         {
@@ -1648,18 +1661,14 @@ internal static class SpikeCommands
         // taxi spawns on that street-side entry on every call-taxi run.
         if (normalized == "STAND")
         {
-            if (IsDuplicatePick(TaxiStand.StandCoordinate, caller))
-                return true;
-
-            SpikeState.RideGoal = TaxiStand.StandCoordinate;
-            SpikeState.RideDestination = TaxiStand.StandCoordinate;
-            SpikeState.RideDestinationName = "Taxi-Stand";
-            SpikeState.RideDestinationKind = "stand";
-            SpikeState.RideDropOff = "stand entry";
-            SpikeState.RideDropOffLot = TaxiStand.StandName;
-            SpikeState.RideDestinationPicked = true;
-            Print($"{caller}: ride destination = taxi stand {Fmt(TaxiStand.StandCoordinate)}.");
-            return ApplyDestinationToRunningRide(caller);
+            return ToDestination(new TaxiDestinations.Destination
+            { Name = "Taxi-Stand", Kind = "stand", Goal = TaxiStand.StandCoordinate }, caller,
+                new TaxiDestinations.Arrival
+                {
+                    Point = TaxiStand.StandCoordinate,
+                    Kind = "stand entry",
+                    LotName = TaxiStand.StandName
+                });
         }
 
         // Stage 3d: the legacy hand-read coordinates still work (the phone app's
@@ -1668,20 +1677,12 @@ internal static class SpikeCommands
         if (normalized == "ROAD A" || normalized == "ROAD B")
         {
             Vector3 legacy = normalized == "ROAD A" ? RideTargetRoadA : RideTargetRoadB;
-            if (IsDuplicatePick(legacy, caller))
-                return true;
-
             Mod.Log.Warn(
                 $"{caller}: '{normalized}' is a legacy hand-read coordinate {Fmt(legacy)} — " +
                 "prefer a named place from `taxi pois`.");
-            SpikeState.RideGoal = legacy;
-            SpikeState.RideDestination = legacy;
-            SpikeState.RideDestinationName = normalized + " (legacy)";
-            SpikeState.RideDestinationKind = "legacy";
-            SpikeState.RideDropOff = "legacy coordinate";
-            SpikeState.RideDropOffLot = string.Empty;
-            SpikeState.RideDestinationPicked = true;
-            return ApplyDestinationToRunningRide(caller);
+            return ToDestination(new TaxiDestinations.Destination
+            { Name = normalized + " (legacy)", Kind = "legacy", Goal = legacy }, caller,
+                new TaxiDestinations.Arrival { Point = legacy, Kind = "legacy coordinate" });
         }
 
         // Everything else is a catalog name or index (`taxi pois`).
@@ -1808,14 +1809,14 @@ internal static class SpikeCommands
 
             if (veh.BrakesApplied)
             {
-                veh.BrakesApplied = false;
-                Print("[diag] BrakesApplied set to false.");
+                NativeActuatorPatch.ReleasePark(veh);
+                Print("[diag] Park intent released; native braking output is not rewritten.");
             }
 
             if (veh.HandbrakeApplied)
             {
-                veh.HandbrakeApplied = false;
-                Print("[diag] HandbrakeApplied set to false.");
+                NativeActuatorPatch.ReleasePark(veh);
+                Print("[diag] Park intent released; native handbrake output is not rewritten.");
             }
 
             if (!agent.enabled)
@@ -1911,6 +1912,7 @@ internal static class SpikeCommands
         SpikeState.NavStartPosition = veh.transform.position;
         SpikeState.NavStartDistance = startDistance;
         SpikeState.NavStartTime = Time.unscaledTime;
+        SpikeRunner.BeginNavigationOperation();
         SpikeState.LastHeartbeat = Time.unscaledTime;
         SpikeState.NavEverAutoDriving = false;
         SpikeState.NavRetried = !useSettings;
@@ -1978,57 +1980,57 @@ internal static class SpikeCommands
     /// its held catalog snapshot and comes in here — no second scene walk, no
     /// shifted index. Console keeps using <see cref="To"/> (fresh resolve).
     /// </summary>
-    internal static bool ToDestination(TaxiDestinations.Destination destination, string caller)
+    internal static bool ToDestination(TaxiDestinations.Destination destination, string caller,
+        TaxiDestinations.Arrival? directArrival = null)
     {
         if (destination == null)
             return false;
-
-        if (!TaxiDestinations.ResolveArrival(destination, out TaxiDestinations.Arrival arrival))
-            return false;
-
-        // Review 2026-10-02: a repeat pick of the same point never restarts the drive.
-        if (IsDuplicatePick(arrival.Point, caller))
-            return true;
-
-        SpikeState.RideGoal = destination.Goal;
-        SpikeState.RideDestination = arrival.Point;
-        SpikeState.RideDestinationName = destination.Name;
-        SpikeState.RideDestinationKind = destination.Kind;
-        SpikeState.RideDropOff = arrival.Kind;
-        SpikeState.RideDropOffLot = arrival.LotName;
-        SpikeState.RideDestinationPicked = true;
-
-        Print(
-            $"{caller}: destination = {destination.Name} [{destination.Kind}] goal={TaxiDestinations.Fmt(destination.Goal)} " +
-            $"-> drop-off {arrival.Kind} at {TaxiDestinations.Fmt(arrival.Point)} — {arrival.Reason}.");
+        TaxiDestinations.Arrival arrival;
+        if (directArrival != null) arrival = directArrival;
+        else if (!TaxiDestinations.ResolveArrival(destination, out arrival)) return false;
 
         bool riding = SpikeState.RideActive || SpikeState.RideBoarded || SpikeState.RidePassengerMode;
+        bool driving = SpikeState.PollingActive || TaxiAI.Active || SpikeState.NavReDispatchAt > 0f;
+        DestinationSelection? current = SpikeState.RideDestinationPicked && SpikeState.RideGoal.HasValue
+            ? new DestinationSelection(SpikeState.RideDestinationName, SpikeState.RideDestinationKind,
+                PickPoint(SpikeState.RideGoal.Value)) : null;
+        Vector3? actual = SpikeState.ActiveTripPoint.HasValue ? SpikeState.NavTarget : null;
+        var result = DestinationSelectionPolicy.Select(current,
+            SpikeState.RideResolvedArrival.HasValue ? PickPoint(SpikeState.RideResolvedArrival.Value) : null,
+            actual.HasValue ? PickPoint(actual.Value) : null, SpikeState.RideDropOff, SpikeState.RideDropOffLot,
+            new DestinationSelection(destination.Name, destination.Kind, PickPoint(destination.Goal)),
+            PickPoint(arrival.Point), arrival.Kind, arrival.LotName, riding, driving, SpikeState.NavGaveUp);
+        if (result.Mode == DestinationPickMode.NoOp)
+        {
+            Print($"{caller}: duplicate pick ignored — already heading to {destination.Name}.");
+            return true;
+        }
+
+        Vector3 routePoint = new(result.RoutePoint.X, result.RoutePoint.Y, result.RoutePoint.Z);
+        SpikeState.RideGoal = destination.Goal;
+        SpikeState.RideResolvedArrival = arrival.Point;
+        SpikeState.RideDestination = routePoint;
+        SpikeState.RideDestinationName = result.Selection.Name;
+        SpikeState.RideDestinationKind = result.Selection.Kind;
+        SpikeState.RideDropOff = result.DropOff;
+        SpikeState.RideDropOffLot = result.Lot;
+        SpikeState.RideDestinationPicked = true;
+        Print($"{caller}: destination = {destination.Name} [{destination.Kind}] goal={TaxiDestinations.Fmt(destination.Goal)} " +
+            $"-> drop-off {result.DropOff} at {TaxiDestinations.Fmt(routePoint)} — pick={result.Mode}.");
+
+        if (result.Mode == DestinationPickMode.MetadataOnly)
+        {
+            SpikeState.ActiveTripName = result.ActiveName;
+            SpikeState.ActiveTripPoint = routePoint;
+            return true; // no new order, recovery operation, patrol or fare start
+        }
         if (riding)
             return ReRoute(caller);
-
         Print($"{caller}: takes effect on the NEXT ride (no ride is running).");
         return true;
     }
 
-    /// <summary>
-    /// Review 2026-10-02: a repeat pick of the SAME destination while its dispatch is
-    /// still running is a no-op — the old behaviour restarted patrol + route for every
-    /// tap (six restarts in 25 s in the 2026-10-01 test log). A pick after a give-up or
-    /// for a different point re-dispatches normally.
-    /// </summary>
-    private static bool IsDuplicatePick(Vector3 point, string caller)
-    {
-        bool riding = SpikeState.RideActive || SpikeState.RideBoarded || SpikeState.RidePassengerMode;
-        bool driving = SpikeState.PollingActive || TaxiAI.Active || SpikeState.NavReDispatchAt > 0f;
-        if (!riding || !driving || SpikeState.NavGaveUp || !SpikeState.RideDestination.HasValue)
-            return false;
-
-        if (Vector3.Distance(point, SpikeState.RideDestination.Value) > 1f)
-            return false;
-
-        Print($"{caller}: duplicate pick ignored — already heading to {SpikeState.RideDestinationName} {Fmt(point)}.");
-        return true;
-    }
+    private static DestinationPoint PickPoint(Vector3 point) => new(point.x, point.y, point.z);
 
     /// <summary>Re-dispatches the running ride to the current ride destination.</summary>
     internal static bool ReRoute(string caller)
@@ -2063,6 +2065,9 @@ internal static class SpikeCommands
     /// </summary>
     private static bool StartRideDrive(NPC? npc, LandVehicle? veh, Vector3 destination, string caller)
     {
+        if (veh == null || !EnsurePassengerSeat(veh))
+            return false;
+
         // A dispatch means the wait is over (Paket A: ride started mid-ride by the picker).
         SpikeState.RideAwaitingDestination = false;
 
@@ -2111,10 +2116,7 @@ internal static class SpikeCommands
             {
                 if (veh.isParked)
                     veh.ExitPark(false);
-                if (veh.BrakesApplied)
-                    veh.BrakesApplied = false;
-                if (veh.HandbrakeApplied)
-                    veh.HandbrakeApplied = false;
+                NativeActuatorPatch.ReleasePark(veh);
             }
             catch (Exception ex)
             {
@@ -2141,6 +2143,7 @@ internal static class SpikeCommands
             SpikeState.ActiveTripName = SpikeState.RideDestinationName;
             SpikeState.ActiveTripPoint = resolvedTarget;
             SpikeState.NavStartTime = Time.unscaledTime;
+            SpikeRunner.BeginNavigationOperation();
             SpikeState.NavStartPosition = veh.transform.position;
             SpikeState.NavStartDistance = Vector3.Distance(veh.transform.position, resolvedTarget);
             SpikeState.NavEverAutoDriving = false;
@@ -2240,10 +2243,10 @@ internal static class SpikeCommands
             return false;
         ReconcileDeadTaxi();
 
-        if (!RideLocks.Patched)
+        if (!RideLocks.Patched || !NativeActuatorPatch.Healthy)
         {
             RideProtectionPatch missing = RideProtectionPolicy.Missing(RideLocks.Installed);
-            Mod.Log.Error($"[taxi-call] refused: passenger input/trunk protection is incomplete (missing={missing}). No taxi was spawned.");
+            Mod.Log.Error($"[taxi-call] refused: required passenger/actuator protection is incomplete (missing={missing}, actuatorHealthy={NativeActuatorPatch.Healthy}). No taxi was spawned.");
             return false;
         }
 
@@ -2474,6 +2477,8 @@ internal static class SpikeCommands
     /// <summary>Stops taxi navigation and releases ride state when Main unloads, without blind teleporting.</summary>
     internal static void AbortForSceneUnload(string reason)
     {
+        if (!Mod.Lifecycle.AcceptingWork)
+            return;
         SpikeState.CancelPendingSpawn();
         SpikeState.ResetAutoRun();
         SpikeState.ResetPicker();
@@ -2500,14 +2505,47 @@ internal static class SpikeCommands
         catch (Exception ex) { Mod.Log.Warn($"[taxi-recovery] stop during scene unload failed: {ex.Message}"); }
         try
         {
-            veh.BrakesApplied = true;
-            veh.HandbrakeApplied = true;
+            NativeActuatorPatch.RequestPark(veh);
         }
         catch (Exception ex)
         {
             Mod.Log.Warn($"[taxi-recovery] parking during scene unload failed: {ex.Message}");
         }
         Mod.Log.Info($"[taxi-recovery] active trip cancelled before scene unload ({reason}); owned taxi retained and parked.");
+    }
+
+    /// <summary>
+    /// Session teardown stop: exact owned taxi only, host authority required. Stop the
+    /// agent and hold the car; never destroy it, never move seats and never reset the
+    /// ownership ledger. Occupied taxis are retained, not despawned.
+    /// </summary>
+    internal static void StopVehicleForShutdown(string reason)
+    {
+        LandVehicle? veh = SpikeState.Vehicle;
+        if (ReferenceEquals(veh, null))
+            return;
+        if (!HasAuthority() || !IsOwnedTaxi(veh))
+        {
+            Mod.Log.Warn($"[taxi-lifecycle] shutdown vehicle stop refused: ownership={ClassifyTaxiVehicle(veh)} authority={HasAuthority()}; no foreign/uncertain vehicle was changed.");
+            return;
+        }
+
+        try
+        {
+            veh.Agent?.StopReversing();
+        }
+        catch (Exception ex) { Mod.Log.Warn($"[taxi-lifecycle] StopReversing failed ({reason}): {ex.Message}"); }
+        try
+        {
+            veh.Agent?.StopNavigating();
+        }
+        catch (Exception ex) { Mod.Log.Warn($"[taxi-lifecycle] StopNavigating failed ({reason}): {ex.Message}"); }
+        try
+        {
+            NativeActuatorPatch.RequestPark(veh);
+            Mod.Log.Info($"[taxi-lifecycle] {reason} — exact owned taxi parked and navigation stopped; vehicle/occupants/ownership retained.");
+        }
+        catch (Exception ex) { Mod.Log.Warn($"[taxi-lifecycle] park request failed ({reason}): {ex.Message}"); }
     }
 
     internal static bool Cleanup(string reason = "cleanup", bool explicitRetry = false)
@@ -2530,6 +2568,10 @@ internal static class SpikeCommands
         VehicleOwnershipKind initialOwnership = ClassifyTaxiVehicle(initialVeh);
         if (initialOwnership == VehicleOwnershipKind.None || initialOwnership == VehicleOwnershipKind.Invalid)
         {
+            // ReconcileDeadTaxi already attempted dependent teardown above. If it
+            // failed, an invalid native handle must not bypass its retained ownership.
+            if (SpikeState.VehicleOwnership.TrackedPointer != IntPtr.Zero)
+                return false;
             bool reset = SpikeState.Reset();
             if (!reset)
                 Mod.Log.Error("[taxi-cleanup] invalid vehicle state could not be safely cleared; reference retained.");
@@ -2700,6 +2742,18 @@ internal static class SpikeCommands
                     ok = false;
                 }
 
+                if (ok && liveBeforeDestroy)
+                {
+                    PlayerOccupancy occupancy = ReadPlayerOccupancy(veh);
+                    if (occupancy != PlayerOccupancy.Empty)
+                    {
+                        RefuseService(occupancy == PlayerOccupancy.Occupied
+                            ? "Waiting for passengers to exit — taxi remains tracked. Press STOP after they leave."
+                            : "Waiting for passengers — occupancy is unreadable or not yet cleared; taxi remains tracked. Press STOP after exit is confirmed.");
+                        ok = false; // do not consume even the first destruction attempt
+                    }
+                }
+
                 if (ok && !liveBeforeDestroy)
                 {
                     destroyConfirmed = SpikeState.VehicleOwnership.ClearAfterConfirmedDeath(destroyPointer, isAlive: false);
@@ -2709,10 +2763,12 @@ internal static class SpikeCommands
                         ok = false;
                     }
                 }
-                else if (ok && !SpikeState.VehicleOwnership.TryBeginDestroy(
-                    destroyPointer, isAlive: true, explicitRetry: explicitRetry))
+                else if (ok && !PassengerCleanupPolicy.TryBeginDestroy(
+                    SpikeState.VehicleOwnership, destroyPointer, alive: true, explicitRetry: explicitRetry,
+                    occupancy: ReadPlayerOccupancy(veh)))
                 {
-                    Mod.Log.Error("[taxi-cleanup] destroy refused by the ownership ledger (not owned, pending, or retry limit reached); handle retained.");
+                    RefuseService("Waiting for passengers or destruction verification — taxi remains tracked; no destroy call issued.");
+                    Mod.Log.Error("[taxi-cleanup] destroy refused by player occupancy or the ownership ledger; handle retained.");
                     ok = false;
                 }
                 else if (ok)
@@ -2784,7 +2840,34 @@ internal static class SpikeCommands
         bool alive;
         try { alive = NetworkGuard.IsAlive(veh); }
         catch { return false; }
-        if (alive || !ownership.ClearAfterConfirmedDeath(tracked, isAlive: false))
+        if (alive)
+            return false;
+
+        // Keep ownership/reference retryable until every dependent cleanup has
+        // completed. Never touch the dead vehicle's Agent or submit another payment.
+        if (!DeadTaxiCleanup.Run(
+            () =>
+            {
+                SpikeState.NextNavOrder(); // invalidate stale callbacks before side effects
+                SpikeState.PollingActive = false;
+                SpikeState.NavToPlayer = false;
+                SpikeState.NavReDispatchAt = 0f;
+            },
+            () => FareMeter.Stop("vehicle gone"),
+            RideLocks.UnlockTrunk,
+            () => TaxiAI.StopPatrol("vehicle gone"),
+            () =>
+            {
+                SpikeRunner.ResetDrivingState();
+                RoadKeeper.Reset();
+                SpikeState.ResetRide();
+                SpikeState.ResetAutoRun();
+                SpikeState.CancelPendingSpawn();
+                SpikeState.SeatVerifyNpc = null;
+                SpikeState.SeatVerifyVeh = null;
+                SpikeState.SeatVerifyUntil = 0f;
+            },
+            ReportCleanupFailure))
             return false;
 
         if (SceneGate.IsInMainScene)
@@ -2817,17 +2900,11 @@ internal static class SpikeCommands
             catch { alive = true; }
         }
 
-        if (!alive && ownership.ResolveDestroy(tracked, isAlive: false))
+        if (!alive)
         {
-            SpikeState.DestroyVerifyAfterFrame = 0;
-            SpikeState.DestroyVerifyDeadline = 0f;
-            try { TaxiDriverNPC.ReturnToStand(); }
-            catch (Exception ex) { Mod.Log.Warn($"[taxi-cleanup] ReturnToStand after confirmed destroy failed: {ex.Message}"); }
-
-            if (SpikeState.Reset())
-                Mod.Log.Info("[taxi-cleanup] native vehicle death confirmed; TaxiDriver state cleared.");
-            else
-                Mod.Log.Error("[taxi-cleanup] vehicle death confirmed but state reset refused; reference retained for inspection.");
+            // Use the same ordered cleanup as unexpected native death. A failed
+            // dependency keeps the pending token/reference for a safe later attempt.
+            ReconcileDeadTaxi();
             return;
         }
 
@@ -2842,10 +2919,55 @@ internal static class SpikeCommands
         }
     }
 
-    /// <summary>
-    /// Removes every NPC from <c>LandVehicle.OccupantNPCs</c> and reports whether the
-    /// list is empty afterwards — the gate for a safe <c>DestroyVehicle</c>.
-    /// </summary>
+    /// <summary>Fresh all-player seat and network-object proof; native aggregate uncertainty never spends a destruction attempt.</summary>
+    private static PlayerOccupancy ReadPlayerOccupancy(LandVehicle veh)
+    {
+        try
+        {
+            // Seats store Player only. NPCs are independently removed/verified by
+            // Cleanup; IsOccupied alone is never evidence of a remote player.
+            var seats = veh.Seats;
+            if (seats == null || seats.Length == 0) return PlayerOccupancy.Unknown;
+            for (int i = 0; i < seats.Length; i++)
+            {
+                PassengerSeatSnapshot seat = ReadPassengerSeat(seats[i]);
+                if (!seat.Readable) return PlayerOccupancy.Unknown;
+                if (seat.OccupantPresent || seat.IsOccupied) return PlayerOccupancy.Occupied;
+            }
+            var occupants = veh.OccupantPlayers;
+            if (occupants == null) return PlayerOccupancy.Unknown;
+            if (occupants.Count > 0) return PlayerOccupancy.Occupied;
+
+            // CurrentVehicle is a NetworkObject, NOT a LandVehicle pointer.
+            // Check the complete registered player list as an independent guard
+            // against a seat/connection update that has not caught up yet.
+            var networkObject = veh.NetworkObject;
+            var players = Player.PlayerList;
+            if (networkObject == null || networkObject.Pointer == IntPtr.Zero || networkObject.WasCollected ||
+                players == null || players.Count == 0) return PlayerOccupancy.Unknown;
+            for (int i = 0; i < players.Count; i++)
+            {
+                Player? player = players[i];
+                if (player == null || player.Pointer == IntPtr.Zero || player.WasCollected) return PlayerOccupancy.Unknown;
+                var current = player.CurrentVehicle;
+                bool present = !ReferenceEquals(current, null);
+                bool readable = !present || (current!.Pointer != IntPtr.Zero && !current.WasCollected);
+                PlayerOccupancy observed = PassengerCleanupPolicy.ObserveCurrentVehicle(readable, present,
+                    present && readable ? current!.Pointer : IntPtr.Zero, networkObject.Pointer);
+                if (observed != PlayerOccupancy.Empty) return observed;
+            }
+            // Native DestroyVehicle refuses this aggregate bit. A stale bit after
+            // NPC teardown is uncertainty, not proof that another player is seated.
+            return PassengerCleanupPolicy.FinalizeEmptyPlayerProof(veh.LocalPlayerIsInVehicle, veh.IsOccupied);
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[taxi-cleanup] player occupancy read failed: {ex.Message}");
+            return PlayerOccupancy.Unknown;
+        }
+    }
+
+    /// <summary>Removes NPC occupants and verifies their independent array before the player/destruction gates.</summary>
     private static bool ClearNpcOccupants(LandVehicle veh)
     {
         var occupants = veh.OccupantNPCs;
@@ -3688,6 +3810,15 @@ internal static class SpikeTrace
         Mod.Log.Info(Patched
             ? "taxi trace OFF — prefixes stay installed but are silent (`taxi trace on` re-enables the lines)."
             : "taxi trace OFF.");
+    }
+
+    /// <summary>Removes the diagnostic prefixes during session teardown.</summary>
+    internal static void Remove()
+    {
+        _logging = false;
+        try { _harmony?.UnpatchSelf(); }
+        catch (Exception ex) { Mod.Log.Warn($"[trace] removing diagnostic hooks failed: {ex.Message}"); }
+        finally { _harmony = null; Patched = false; }
     }
 
     // ------------------------------------------------------------ prefixes

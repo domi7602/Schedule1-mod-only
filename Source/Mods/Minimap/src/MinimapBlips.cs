@@ -61,6 +61,32 @@ public sealed class MinimapBlips
         public Text BadgeGlyph;
         public Image PortraitImage;
         public CanvasGroup Group;
+        public readonly RectTransform NameRect;
+        public readonly RectTransform BadgeRect;
+        public readonly RectTransform PortraitRect;
+        public readonly GameObject NameObject;
+        public readonly GameObject BadgeObject;
+        public readonly GameObject PortraitObject;
+        // IL2CPP Color/Vector2 proxies lack managed IEquatable<T>; scalar tuple
+        // equality avoids boxing/native Equals calls in the per-frame policy.
+        public AppliedValue<BlipType> IconType;
+        public AppliedValue<(float, float, float, float)> IconColor;
+        public AppliedValue<(float, float)> Position;
+        public AppliedValue<float> Dimension;
+        public AppliedValue<bool> IconEnabled;
+        public AppliedValue<bool> PortraitActive;
+        public AppliedValue<IntPtr> PortraitSprite;
+        public AppliedValue<float> PortraitDimension;
+        public AppliedValue<bool> BadgeActive;
+        public AppliedValue<string> BadgeText;
+        public AppliedValue<(float, float)> BadgeSize;
+        public AppliedValue<(float, float)> BadgePosition;
+        public AppliedValue<bool> BadgeOverPortrait;
+        public AppliedValue<bool> NameActive;
+        public AppliedValue<string> NameText;
+        public AppliedValue<(float, float, float, float)> NameColor;
+        public AppliedValue<(float, float)> NamePosition;
+        public AppliedValue<float> Alpha;
 
         public PooledBlip(GameObject root, RectTransform rect, Image icon, Text nameLabel, Text badgeGlyph, Image portraitImage, CanvasGroup group)
         {
@@ -71,6 +97,13 @@ public sealed class MinimapBlips
             BadgeGlyph = badgeGlyph;
             PortraitImage = portraitImage;
             Group = group;
+            // Resolve wrapper-safe components once, never through a Transform cast.
+            NameRect = nameLabel.GetComponent<RectTransform>();
+            BadgeRect = badgeGlyph.GetComponent<RectTransform>();
+            PortraitRect = portraitImage.transform.parent.GetComponent<RectTransform>();
+            NameObject = nameLabel.gameObject;
+            BadgeObject = badgeGlyph.gameObject;
+            PortraitObject = portraitImage.gameObject;
         }
     }
 
@@ -78,6 +111,13 @@ public sealed class MinimapBlips
     private readonly List<PooledBlip> _pool = new(PoolSize);
     private readonly List<BlipInfo> _activeBlips = new(PoolSize);
     private Transform? _blipContainer;
+    private long _snapshotGeneration;
+    private readonly Vector2[] _mapPositions = new Vector2[PoolSize];
+    // Scalar calibration key: do not retain gameplay wrappers across scene changes.
+    private readonly AppliedValue<(long Snapshot, int Converter,
+        (float, float, float) Origin, (float, float, float) Edge,
+        float Dimensions, float Factor)>[] _projectionKeys = new AppliedValue<(long, int,
+        (float, float, float), (float, float, float), float, float)>[PoolSize];
 
     // ── M6 palette: maps category key → hex; consulted at blip build time ──
     private static System.Collections.Generic.Dictionary<string, string>? _palette;
@@ -165,6 +205,7 @@ public sealed class MinimapBlips
     {
         _blipContainer = blipContainer;
         _pool.Clear();
+        Array.Clear(_projectionKeys, 0, _projectionKeys.Length);
 
         for (int i = 0; i < PoolSize; i++)
         {
@@ -288,6 +329,7 @@ public sealed class MinimapBlips
         Image portrait = imgObj.AddComponent<Image>();
         portrait.raycastTarget = false;
         portrait.preserveAspect = true;
+        portrait.color = Color.white;
         return portrait;
     }
 
@@ -469,6 +511,7 @@ public sealed class MinimapBlips
 
         _lastDynamicScanTime = now;
         _activeBlips.Clear();
+        _snapshotGeneration++;
 
         // Add static landmarks
         for (int s = 0; s < _staticLandmarks.Count; s++)
@@ -829,6 +872,33 @@ public sealed class MinimapBlips
         float clampRadiusSqr = clampRadius * clampRadius;
 
         float timeSin = Mathf.Sin(Time.time * 6f) * 0.15f;
+        bool followPlayer = config.RotationMode == MinimapRotation.FollowPlayer;
+        float rad = playerYaw * Mathf.Deg2Rad;
+        float cos = followPlayer ? Mathf.Cos(rad) : 1f;
+        float sin = followPlayer ? Mathf.Sin(rad) : 0f;
+
+        var converter = MapPositionUtility.Instance;
+        if (converter == null || converter.Pointer == IntPtr.Zero || converter.WasCollected
+            || (UnityEngine.Object)converter == null)
+            converter = null;
+        int converterId = converter != null ? converter.GetInstanceID() : 0;
+        Vector3 origin = Vector3.zero;
+        Vector3 edge = Vector3.zero;
+        float dimensions = 0f;
+        float factor = 0f;
+        if (converter != null)
+        {
+            // Recalculate/calibration can change on the same utility instance.
+            // Observe once per frame, rather than pinning stale live converter state.
+            var originPoint = converter.OriginPoint;
+            var edgePoint = converter.EdgePoint;
+            if (originPoint != null) origin = originPoint.position;
+            if (edgePoint != null) edge = edgePoint.position;
+            dimensions = converter.MapDimensions;
+            factor = converter.conversionFactor;
+        }
+        var projectionKey = (_snapshotGeneration, converterId,
+            (origin.x, origin.y, origin.z), (edge.x, edge.y, edge.z), dimensions, factor);
 
         for (int i = 0; i < poolCount; i++)
         {
@@ -841,26 +911,22 @@ public sealed class MinimapBlips
             }
 
             var info = _activeBlips[i];
-            Vector2 itemMapPos = Vector2.zero;
-
-            // Map world pos to 2D Map coordinate
-            if (MapPositionUtility.Instance != null && (UnityEngine.Object)MapPositionUtility.Instance != null)
+            // The world position is already a 1s snapshot. Project each slot once
+            // per rebuild/calibration change, including fallback -> real converter.
+            if (_projectionKeys[i].NeedsUpdate(projectionKey))
             {
-                itemMapPos = MapPositionUtility.Instance.GetMapPosition(info.WorldPos);
+                _mapPositions[i] = converter != null
+                    ? converter.GetMapPosition(info.WorldPos)
+                    : new Vector2(info.WorldPos.x * 2.5f, info.WorldPos.z * 2.5f);
+                _projectionKeys[i].Commit(projectionKey);
             }
-            else
-            {
-                itemMapPos = new Vector2(info.WorldPos.x * 2.5f, info.WorldPos.z * 2.5f);
-            }
+            Vector2 itemMapPos = _mapPositions[i];
 
             Vector2 offset = (itemMapPos - playerMapPos) * zoomFactor;
 
             // Rotate offset if FollowPlayer mode
-            if (config.RotationMode == MinimapRotation.FollowPlayer)
+            if (followPlayer)
             {
-                float rad = playerYaw * Mathf.Deg2Rad;
-                float cos = Mathf.Cos(rad);
-                float sin = Mathf.Sin(rad);
                 offset = new Vector2(offset.x * cos - offset.y * sin, offset.x * sin + offset.y * cos);
             }
 
@@ -906,98 +972,156 @@ public sealed class MinimapBlips
             if (!pooled.Root.activeSelf)
                 pooled.Root.SetActive(true);
 
-            pooled.Rect.anchoredPosition = finalPos;
-
-            // Select matching sprite
-            Sprite sprite = info.Type switch
+            // Caches belong to UI slots, not entities: reuse/cull/hide/reopen compares
+            // against what was actually applied. Never commit before a native setter.
+            var positionKey = (finalPos.x, finalPos.y);
+            if (pooled.Position.NeedsUpdate(positionKey))
             {
-                BlipType.Police => MinimapTextures.GetBlipPolice(),
-                BlipType.ActiveDeal => MinimapTextures.GetBlipDeal(),
-                BlipType.AcceptedDealClock => MinimapTextures.GetBlipDeal(),
-                BlipType.PotentialCustomer => MinimapTextures.GetBlipPotential(),
-                BlipType.KnownCustomer => MinimapTextures.GetBlipDealer(),
-                BlipType.PurchaseCheck => MinimapTextures.GetBlipProperty(),
-                BlipType.RegionLock => MinimapTextures.GetBlipDot(),
-                BlipType.Dealer => MinimapTextures.GetBlipDealer(),
-                BlipType.Waypoint => MinimapTextures.GetBlipQuest(),
-                BlipType.Property => MinimapTextures.GetBlipProperty(),
-                BlipType.SleepingBag => MinimapTextures.GetBlipSleepingBag(),
-                BlipType.Shop => MinimapTextures.GetBlipShop(),
-                BlipType.Quest => MinimapTextures.GetBlipQuest(),
-                BlipType.Vehicle => MinimapTextures.GetBlipVehicle(),
-                BlipType.SewerKey => MinimapTextures.GetBlipSewerKey(),
-                _ => MinimapTextures.GetBlipDot()
-            };
+                pooled.Rect.anchoredPosition = finalPos;
+                pooled.Position.Commit(positionKey);
+            }
 
-            pooled.Icon.sprite = sprite;
-            pooled.Icon.color = info.Color;
+            if (pooled.IconType.NeedsUpdate(info.Type))
+            {
+                Sprite sprite = info.Type switch
+                {
+                    BlipType.Police => MinimapTextures.GetBlipPolice(),
+                    BlipType.ActiveDeal => MinimapTextures.GetBlipDeal(),
+                    BlipType.AcceptedDealClock => MinimapTextures.GetBlipDeal(),
+                    BlipType.PotentialCustomer => MinimapTextures.GetBlipPotential(),
+                    BlipType.KnownCustomer => MinimapTextures.GetBlipDealer(),
+                    BlipType.PurchaseCheck => MinimapTextures.GetBlipProperty(),
+                    BlipType.RegionLock => MinimapTextures.GetBlipDot(),
+                    BlipType.Dealer => MinimapTextures.GetBlipDealer(),
+                    BlipType.Waypoint => MinimapTextures.GetBlipQuest(),
+                    BlipType.Property => MinimapTextures.GetBlipProperty(),
+                    BlipType.SleepingBag => MinimapTextures.GetBlipSleepingBag(),
+                    BlipType.Shop => MinimapTextures.GetBlipShop(),
+                    BlipType.Quest => MinimapTextures.GetBlipQuest(),
+                    BlipType.Vehicle => MinimapTextures.GetBlipVehicle(),
+                    BlipType.SewerKey => MinimapTextures.GetBlipSewerKey(),
+                    _ => MinimapTextures.GetBlipDot()
+                };
+                pooled.Icon.sprite = sprite;
+                pooled.IconType.Commit(info.Type);
+            }
+            var colorKey = (info.Color.r, info.Color.g, info.Color.b, info.Color.a);
+            if (pooled.IconColor.NeedsUpdate(colorKey))
+            {
+                pooled.Icon.color = info.Color;
+                pooled.IconColor.Commit(colorKey);
+            }
 
             float pulseMult = info.IsPulsing ? (1.0f + timeSin) : 1.0f;
             float baseSize = (info.Type == BlipType.GenericDot) ? 10f : 15f;
             float finalDimension = baseSize * info.CustomScale * pulseMult;
-
-            pooled.Rect.sizeDelta = new Vector2(finalDimension, finalDimension);
+            if (pooled.Dimension.NeedsUpdate(finalDimension))
+            {
+                pooled.Rect.sizeDelta = new Vector2(finalDimension, finalDimension);
+                pooled.Dimension.Commit(finalDimension);
+            }
 
             // Portrait replaces the normal icon (one visual per customer).
-            // Pooling: always reset both states so reused blips never keep old images.
             bool hasPortrait = info.Portrait != null;
-            pooled.Icon.enabled = !hasPortrait;
-            if (pooled.PortraitImage != null)
+            if (pooled.IconEnabled.NeedsUpdate(!hasPortrait))
             {
-                if (pooled.PortraitImage.gameObject.activeSelf != hasPortrait)
-                    pooled.PortraitImage.gameObject.SetActive(hasPortrait);
-                if (hasPortrait)
+                pooled.Icon.enabled = !hasPortrait;
+                pooled.IconEnabled.Commit(!hasPortrait);
+            }
+            if (pooled.PortraitActive.NeedsUpdate(hasPortrait))
+            {
+                pooled.PortraitObject.SetActive(hasPortrait);
+                pooled.PortraitActive.Commit(hasPortrait);
+            }
+            if (hasPortrait)
+            {
+                IntPtr portraitPointer = info.Portrait!.Pointer;
+                if (pooled.PortraitSprite.NeedsUpdate(portraitPointer))
                 {
                     pooled.PortraitImage.sprite = info.Portrait;
-                    pooled.PortraitImage.color = Color.white;
-                    // Match portrait size to the marker so it replaces the icon 1:1.
-                    var portraitRoot = pooled.PortraitImage.transform.parent as RectTransform;
-                    if (portraitRoot != null)
-                        portraitRoot.sizeDelta = new Vector2(finalDimension, finalDimension);
+                    pooled.PortraitSprite.Commit(portraitPointer);
+                }
+                if (pooled.PortraitDimension.NeedsUpdate(finalDimension))
+                {
+                    pooled.PortraitRect.sizeDelta = new Vector2(finalDimension, finalDimension);
+                    pooled.PortraitDimension.Commit(finalDimension);
                 }
             }
 
-            // Optional glyph badge (clock / check / lock).
-            // With portrait: small badge at the bottom-right portrait edge, drawn above it.
-            // Without portrait: centered badge inside the marker.
+            // Optional glyph badge (clock / check / lock), above the portrait.
             bool hasGlyph = !string.IsNullOrEmpty(info.BadgeGlyph);
-            if (pooled.BadgeGlyph != null)
+            if (pooled.BadgeActive.NeedsUpdate(hasGlyph))
             {
-                if (pooled.BadgeGlyph.gameObject.activeSelf != hasGlyph)
-                    pooled.BadgeGlyph.gameObject.SetActive(hasGlyph);
-                if (hasGlyph)
+                pooled.BadgeObject.SetActive(hasGlyph);
+                pooled.BadgeActive.Commit(hasGlyph);
+            }
+            bool badgeOverPortrait = hasGlyph && hasPortrait;
+            if (pooled.BadgeOverPortrait.NeedsUpdate(badgeOverPortrait))
+            {
+                if (badgeOverPortrait) pooled.BadgeRect.SetAsLastSibling();
+                pooled.BadgeOverPortrait.Commit(badgeOverPortrait);
+            }
+            if (hasGlyph)
+            {
+                if (pooled.BadgeText.NeedsUpdate(info.BadgeGlyph))
                 {
                     pooled.BadgeGlyph.text = info.BadgeGlyph;
-                    pooled.BadgeGlyph.color = Color.white;
-                    if (hasPortrait)
-                    {
-                        pooled.BadgeGlyph.rectTransform.sizeDelta = new Vector2(finalDimension * 0.65f, finalDimension * 0.65f);
-                        pooled.BadgeGlyph.rectTransform.anchoredPosition = new Vector2(finalDimension * 0.35f, -finalDimension * 0.35f);
-                        pooled.BadgeGlyph.transform.SetAsLastSibling();
-                    }
-                    else
-                    {
-                        pooled.BadgeGlyph.rectTransform.sizeDelta = new Vector2(finalDimension, finalDimension);
-                        pooled.BadgeGlyph.rectTransform.anchoredPosition = Vector2.zero;
-                    }
+                    pooled.BadgeText.Commit(info.BadgeGlyph);
+                }
+                Vector2 badgeSize = hasPortrait
+                    ? new Vector2(finalDimension * 0.65f, finalDimension * 0.65f)
+                    : new Vector2(finalDimension, finalDimension);
+                Vector2 badgePosition = hasPortrait
+                    ? new Vector2(finalDimension * 0.35f, -finalDimension * 0.35f)
+                    : Vector2.zero;
+                var badgeSizeKey = (badgeSize.x, badgeSize.y);
+                var badgePositionKey = (badgePosition.x, badgePosition.y);
+                if (pooled.BadgeSize.NeedsUpdate(badgeSizeKey))
+                {
+                    pooled.BadgeRect.sizeDelta = badgeSize;
+                    pooled.BadgeSize.Commit(badgeSizeKey);
+                }
+                if (pooled.BadgePosition.NeedsUpdate(badgePositionKey))
+                {
+                    pooled.BadgeRect.anchoredPosition = badgePosition;
+                    pooled.BadgePosition.Commit(badgePositionKey);
                 }
             }
 
             // Optional name label under the marker (hidden while a portrait is shown).
             bool hasLabel = !hasPortrait && info.ShowLabel && !string.IsNullOrWhiteSpace(info.Label);
-            if (pooled.NameLabel != null)
+            if (pooled.NameActive.NeedsUpdate(hasLabel))
             {
-                if (pooled.NameLabel.gameObject.activeSelf != hasLabel)
-                    pooled.NameLabel.gameObject.SetActive(hasLabel);
-                if (hasLabel)
+                pooled.NameObject.SetActive(hasLabel);
+                pooled.NameActive.Commit(hasLabel);
+            }
+            if (hasLabel)
+            {
+                if (pooled.NameText.NeedsUpdate(info.Label))
                 {
                     pooled.NameLabel.text = info.Label;
+                    pooled.NameText.Commit(info.Label);
+                }
+                if (pooled.NameColor.NeedsUpdate(colorKey))
+                {
                     pooled.NameLabel.color = info.Color;
-                    pooled.NameLabel.rectTransform.anchoredPosition = new Vector2(0f, -(finalDimension * 0.5f + 9f));
+                    pooled.NameColor.Commit(colorKey);
+                }
+                Vector2 labelPosition = new Vector2(0f, -(finalDimension * 0.5f + 9f));
+                var labelPositionKey = (labelPosition.x, labelPosition.y);
+                if (pooled.NamePosition.NeedsUpdate(labelPositionKey))
+                {
+                    pooled.NameRect.anchoredPosition = labelPosition;
+                    pooled.NamePosition.Commit(labelPositionKey);
                 }
             }
 
-            pooled.Group.alpha = isOutOfBounds ? 0.80f : 1.0f;
+            float alpha = isOutOfBounds ? 0.80f : 1.0f;
+            if (pooled.Alpha.NeedsUpdate(alpha))
+            {
+                pooled.Group.alpha = alpha;
+                pooled.Alpha.Commit(alpha);
+            }
         }
     }
 

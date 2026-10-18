@@ -357,4 +357,19 @@ internal static class RideLocks
         TrunkInteractables.Clear();
         Mod.Log.Info($"[ride] trunk unlocked: {restored} InteractableObject component(s) re-enabled.");
     }
+
+    /// <summary>Guaranteed hook finalization after restoration; a later re-init applies fresh hooks.</summary>
+    internal static void Remove()
+    {
+        try { _harmony?.UnpatchSelf(); }
+        catch (Exception ex) { Mod.Log.Warn($"[ride] removing protection hooks failed; disabled hooks stay inert: {ex.Message}"); }
+        finally
+        {
+            _harmony = null;
+            _installed = RideProtectionPatch.None;
+            _applyAttempted = false;
+            _inputGateErrorLogged = false;
+            _trunkGateErrorLogged = false;
+        }
+    }
 }

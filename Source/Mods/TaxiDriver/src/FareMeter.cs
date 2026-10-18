@@ -190,6 +190,9 @@ internal static class FareMeter
     /// </summary>
     internal static void Tick(Il2CppScheduleOne.Vehicles.LandVehicle veh)
     {
+        if (!Mod.Lifecycle.AcceptingWork)
+            return;
+
         // Double guard: only THE taxi (SpikeState.Vehicle) during an active
         // passenger ride is metered — your own cars are never charged.
         if (!_active || veh == null)
@@ -285,6 +288,7 @@ internal static class FareMeter
         }
 
         int returnedBefore = _paymentStatus.ReturnedDollars;
+        float netWorthBefore = ReadNetWorthSafe();
         PaymentOutcome outcome;
         try
         {
@@ -304,6 +308,7 @@ internal static class FareMeter
             int unknown = Math.Max(0, dollars - returnedThisAttempt);
             _paymentStatus.RecordUnknown(unknown);
             Mod.Log.Warn($"[meter] payment result is unknown for ${dollars} ({ex.GetType().Name}: {ex.Message}); the fare was consumed and no retry will be made.");
+            if (isHost) LogBalanceReadback(dollars, netWorthBefore);
             return;
         }
 
@@ -333,6 +338,39 @@ internal static class FareMeter
                     $"[meter] payment calls returned for ${outcome.CountedDollars} (balance movement unverified); a post-payment step failed ({outcome.CaughtType}: {outcome.CaughtMessage}).");
             }
         }
+
+        if (isHost && !outcome.NotHost && !outcome.CashReadFailed) LogBalanceReadback(dollars, netWorthBefore);
+    }
+
+    /// <summary>
+    /// Best-effort net-worth read (cash + online, S1API Money.GetNetWorth) for the
+    /// settlement readback. An unreadable state logs a warning and returns NaN —
+    /// never blocks or changes a payment.
+    /// </summary>
+    private static float ReadNetWorthSafe()
+    {
+        try
+        {
+            return Money.GetNetWorth();
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[meter] balance readback unavailable — net worth read failed ({ex.GetType().Name}: {ex.Message}).");
+            return float.NaN;
+        }
+    }
+
+    /// <summary>
+    /// Logs the observed net-worth movement around one settlement attempt. Evidence
+    /// for the log only (BalanceReadbackPolicy): never proves causation, never
+    /// retries or corrects a payment.
+    /// </summary>
+    private static void LogBalanceReadback(int dollars, float netWorthBefore)
+    {
+        float netWorthAfter = ReadNetWorthSafe();
+        if (float.IsNaN(netWorthBefore) || float.IsNaN(netWorthAfter))
+            return;
+        Mod.Log.Info($"[meter] balance readback for ${dollars}: {BalanceReadbackPolicy.Describe(netWorthBefore, netWorthAfter, dollars)}");
     }
 
     /// <summary>Warns once when this process does not have host authority.</summary>
@@ -442,10 +480,12 @@ internal static class FareMeter
     /// <summary>Stops the meter and reports the total (arrival, exit, STOP). Idempotent.</summary>
     internal static void Stop(string reason)
     {
-        if (!_active)
-            return;
+        MeterSettlement.Stop(ref _active, () => ReportSettlement(reason));
+    }
 
-        _active = false;
+    /// <summary>Runs at most once for the consumed meter: fare values survive reporting failures.</summary>
+    private static void ReportSettlement(string reason)
+    {
         int calculated = _calculatedTotal;
         int minutes = (int)_ledger.MovingMinutes;
         FareConfig cfg = Config;

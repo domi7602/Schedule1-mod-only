@@ -1,5 +1,45 @@
 # Changelog
 
+## 2.3.3 (2026-10-12) — Remove keyboard visibility toggle
+- Latest.log recorded N at 11:40:34 changing visible true to false via save:ToggleMinimap, followed by M without re-enabling. Remove keyboard visibility toggling entirely, including its parsed key and settings rebind row; zoom input and explicit settings/console visibility controls remain.
+- Keep ToggleKey only as a legacy schema/migration sentinel (None). On first load with any legacy key, set None, recover MinimapVisible=true and save atomically; later deliberate off choices with None remain unchanged. Existing hidden N configuration will recover on the next launch.
+- Visibility diagnostics now report toggle=disabled. Regression source guards observed RED (3 failures) then GREEN; full suite 61 passed. Console help no longer advertises the removed M visibility hotkey (additional guard observed RED then GREEN). Source guards do not execute Unity input or establish in-game verification.
+
+## 2.3.2 (2026-10-12) — Conservative blip-render workload reduction
+- The renderer previously projected every unchanged 1-second entity snapshot each frame and recalculated player-yaw sine/cosine for every marker. Cache projected positions for the existing 64 slots, invalidating on every snapshot rebuild, native converter identity/fallback transition, and same-instance origin/edge/dimension/conversion-factor changes. Observe converter calibration once per frame; continue calculating player offset, zoom, shape/clamping and rotation each frame.
+- Cache successfully applied per-slot sprite type, colours, dimensions, enabled/child-active state, portrait sprite, glyph/name text and geometry, and alpha. Skip identical native UI writes without suppressing pulse changes; retain actual child state over culling/hide/reopen and compare it on pool reuse. Resolve text/portrait RectTransforms once with GetComponent, replacing the unsafe portrait-parent managed cast. White portrait/glyph tint is initialized once. Live IL2CPP Color/Vector2 proxy declarations lack managed IEquatable<T>; cache their scalar tuples instead to avoid boxed managed equality. A dedicated source guard was observed RED then GREEN.
+- Preserve all marker categories, selection/priority, range rules, 64-marker capacity, 1-second dynamic / 10-second landmark cadence, visibility diagnostics/toggle/menu policy and compact two-column settings. Customer scanning remains unchanged.
+- Pure applied-state/cache regression tests were observed RED (5 failures) then GREEN; source-wiring guards were observed RED (3 failures) then GREEN. Full Minimap suite: 58 passed, 0 failed/skipped. Release build: 0 warnings/errors. Built/deployed DLL hashes match; runtime visual/lifecycle verification is pending. No live FPS, Unity CPU/GPU or GC performance measurement was performed; workload reductions are not an FPS claim.
+
+## 2.3.1 (2026-10-12) — Visibility diagnostics (not a disappearance fix)
+- Investigate the reported permanent disappearance after opening the phone map: stored config was false while its previous backup was true; ToggleKey was N and HideInMenus false. Pressing N restored visibility. These facts establish a persisted off state, not the original trigger.
+- Add change-only `[MinimapVisibility]` breadcrumbs with source, frame, parsed toggle key, phone/menu/map object state and HUD state. Trace settings switches by label, save callers via CallerMemberName, startup state and otherwise-unattributed update changes. Log M-key and configured-toggle-key presses separately.
+- Diagnostics do not change visibility decisions, key bindings or stored settings. Guards cover wiring only; diagnosis remains pending a live reproduction.
+
+## 2.3.0 (2026-10-12) — Compact two-column settings
+- Approved organization pass: Map has APPEARANCE and BEHAVIOR columns; Markers uses equal-width bands, Colors has two columns of seven pickers (including border color), Advanced separates keyboard and HUD controls. Existing settings callbacks and palette persistence are retained.
+- Anchor the header and tabs at the top, footer at the bottom, and scroll region between them. Remove root preferred-size negotiation that previously left a 238.3-high viewport and a large unused lower area.
+- Rows remain compact at 28 dp with fixed label/value/action bands; section headers remain 22 dp. Priority-100 height contracts prevent nested controls' preferred sizes from inflating rows. Expand content only when an inline palette actually needs more space.
+- Reset Colors appears only on the Colors tab. Tab switches collapse the open palette, rebuild the active page and reset scroll to the top. Preserve the neutral/emerald palette without new icons or visual effects.
+- Add source-wiring regression guards (red before implementation); live rendering and interaction verification remain pending. Runtime breadcrumb: `Compact layout: page=..., viewport=..., natural=..., target=..., columns=2`.
+
+## 2.2.3 (2026-10-12) — Fix IL2CPP child enumeration in settings stretch
+- Runtime v2.2.2 still failed: `Il2CppSystem.Object` could not be cast to `UnityEngine.Transform`. The typed foreach over a RectTransform inserts that managed cast even though the explicit RectTransform casts were removed.
+- Traverse children with childCount/GetChild(index) instead; retain the existing stretch calculations. Log `Stretch applied: page=..., viewport=..., natural=..., target=...` for runtime verification.
+- Add a source-level regression guard for this IL2CPP enumeration pattern (observed failing before the fix). Pure tests do not substitute for a live UI check.
+
+## 2.2.2 (2026-10-12) — Fix page-stretch IL2CPP cast crash (found via live S1MCP log capture)
+- **Bug (live-verified via S1MCP `capture_logs`):** the v2.2.1 stretch threw every frame — `Unable to cast object of type 'UnityEngine.Transform' to type 'UnityEngine.RectTransform'` — because IL2CPP wrapper objects do not support a direct `(RectTransform)transform` cast. The exception aborted `ApplyPageStretch` before the viewport height could be applied, so the stretch never happened.
+- **Fix:** resolve the transforms via `GetComponent<RectTransform>()` (page + child) instead of casting. Same one-shot S1MCP connection pattern used for the diagnosis: the bridge's stale client slot and the queued duplicate response from a timed-out attempt desync the ack framing — fresh connection per query avoids it.
+
+## 2.2.1 (2026-10-12) — Settings pages fill the viewport (PocketShop-style stretch)
+- **No more dead black space below the settings rows (user request):** every tab page now stretches to the scroll viewport height like the PocketShop store directory — rows register as vertically flexible (`RegisterStretchable`), and `ApplyPageStretch` sets each page's preferred height to the viewport (never below its natural content height), so the page's VerticalLayoutGroup distributes the extra space across the rows. Map / Markers / Advanced now fit one screen without scrolling; Colors (14 rows) keeps scrolling naturally.
+- Same self-healing pattern as PocketShop v0.3.4: the per-frame `Update` check re-applies whenever the measured viewport height changes (first measurement after open can be a stale pre-layout value). Palette open/close re-runs the stretch so the dropdown panel stays reachable.
+
+## 2.2.0 (2026-10-12) — Settings app: unified control palette, English tabs
+- **Unified colour scheme (user choice, "dezent"):** one control palette replaces the mixed steel-blue/green/brown controls — inactive tabs and all Change/Set/▼ buttons are now the same neutral dark (`ControlColor`), the active tab and Save & Apply stay emerald, and Reset Colors is a muted warm dark instead of saturated brown. The palette is defined once at class level instead of per-row literals.
+- **Tab names in English** (`Map / Markers / Colors / Advanced`) — the tabs were German while every other label in the app is English.
+
 ## Unreleased
 - **Settings phone app: user-verified 2026-10-11** — the tabbed layout (Karte / Marker / Farben / Erweitert) works in-game. Two same-day follow-ups from that test (deployed 2026-10-11, look pending):
   - colour rows are now **palette pickers** — a preview swatch plus a ▼ dropdown opening the shared 16-colour palette (`MinimapFeatureRules.ColorPalette`) instead of manual hex entry; picked colours apply and persist immediately (full hex stays editable via `blip_colors.json` / `config.json`);

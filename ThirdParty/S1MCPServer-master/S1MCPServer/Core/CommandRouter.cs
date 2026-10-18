@@ -3,6 +3,7 @@ using System.Linq;
 using S1MCPServer.Handlers;
 using S1MCPServer.Handlers.Debug;
 using S1MCPServer.Models;
+using S1MCPServer.Server;
 using S1MCPServer.Utils;
 
 namespace S1MCPServer.Core;
@@ -13,11 +14,13 @@ namespace S1MCPServer.Core;
 public class CommandRouter
 {
     private readonly ResponseQueue _responseQueue;
+    private readonly ServerStatus _status;
     private readonly Dictionary<string, ICommandHandler> _handlers = new();
 
-    public CommandRouter(ResponseQueue responseQueue)
+    public CommandRouter(ResponseQueue responseQueue, ServerStatus status)
     {
         _responseQueue = responseQueue;
+        _status = status;
         InitializeHandlers();
     }
 
@@ -30,6 +33,7 @@ public class CommandRouter
         _handlers["handshake"] = new HandshakeCommandHandler(_responseQueue, this);
         _handlers["list_methods"] = new HandshakeCommandHandler(_responseQueue, this);
         _handlers["heartbeat"] = new HandshakeCommandHandler(_responseQueue, this);
+        _handlers["status"] = new StatusCommandHandler(_responseQueue, _status);
         
         // Phase 2 handlers
         _handlers["get_npc"] = new NPCCommandHandler(_responseQueue);
@@ -42,6 +46,10 @@ public class CommandRouter
         _handlers["list_properties"] = new PropertyCommandHandler(_responseQueue);
         _handlers["get_property"] = new PropertyCommandHandler(_responseQueue); // Game properties (buildings)
         _handlers["get_game_state"] = new GameStateCommandHandler(_responseQueue);
+        _handlers["get_time_of_day"] = new TimeCommandHandler(_responseQueue);
+        _handlers["set_time_of_day"] = new TimeCommandHandler(_responseQueue);
+        _handlers["get_weather"] = new WeatherCommandHandler(_responseQueue);
+        _handlers["list_mods"] = new ModsCommandHandler(_responseQueue);
 
         // Phase 3 handlers (write operations)
         _handlers["teleport_npc"] = new NPCCommandHandler(_responseQueue);
@@ -108,6 +116,41 @@ public class CommandRouter
     public List<string> GetAvailableMethods()
     {
         return _handlers.Keys.ToList();
+    }
+
+    /// <summary>
+    /// Attempts to handle a request on the CALLING thread, for handlers marked
+    /// <see cref="IThreadSafeCommandHandler"/>. Returns false when the request must go
+    /// through the main-thread command queue instead.
+    ///
+    /// This is what keeps the client able to handshake, list methods and read
+    /// <c>status</c> while the game is paused and the main-thread queue is not draining.
+    /// </summary>
+    public bool TryHandleDirectly(Request request)
+    {
+        if (string.IsNullOrEmpty(request.Method)) return false;
+        if (!_handlers.TryGetValue(request.Method, out var handler)) return false;
+        if (handler is not IThreadSafeCommandHandler) return false;
+
+        // _handlers is written only by InitializeHandlers() from the constructor, so this
+        // read-only lookup is safe from any thread. The handler itself must be thread-safe.
+        try
+        {
+            handler.Handle(request);
+            _status.OnInlineRequest(request.Method);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ModLogger.Error($"TryHandleDirectly failed for '{request.Method}': {ex.Message}");
+            _responseQueue.EnqueueResponse(ProtocolHandler.CreateErrorResponse(
+                request.Id,
+                -32603, // Internal error
+                "Internal error while handling the request inline",
+                new { details = ex.Message }
+            ));
+            return true; // handled here - do not also queue it on the main thread
+        }
     }
 
     /// <summary>

@@ -11,9 +11,9 @@ using UnityEngine.UI;
 namespace MessagesPlus;
 
 /// <summary>
-/// Dark mode — recolors the VANILLA Messages app shell so the app (not every
-/// popup it can open) goes dark: page backgrounds, inbox rows, chat bubbles, and
-/// the dialogue header. Order and counter-offer menus retain their vanilla colors.
+/// Dark mode — recolors the vanilla Messages shell and neutral order-menu
+/// surfaces/text. Clock sectors/hands, portraits, product art and meaningful
+/// state colours retain their native appearance.
 /// Graphics are themed once per instance ID and original colors are cached — a
 /// light restore can still return the game's exact appearance.
 ///
@@ -62,6 +62,7 @@ internal static class AppTheme
     private static readonly Dictionary<int, Graphic> _protectedGraphics = new();
     private static readonly List<Transform> _ownRoots = new();
     private static readonly List<Transform> _vanillaRoots = new();
+    private static readonly List<Transform> _popupRoots = new();
     private static readonly List<int> _scratchIds = new();
     private static readonly HashSet<int> _lightBubbleTextIds = new();
 
@@ -75,7 +76,8 @@ internal static class AppTheme
     private static float _nextCachePruneTime;
     private static bool _diagStatusLogged;
     private static bool _diagVividLogged;
-    private static Transform? _orderPopupRoot;
+    private static bool _diagDealTimeLogged;
+    private static bool _diagResponseLogged;
     private static int _fullPassCount;
     private static int _passNew;
     private static int _passRepaired;
@@ -122,7 +124,7 @@ internal static class AppTheme
             if (ConversationUtils.IsAlive(current))
             {
                 ProtectConversationStatus(current!);
-                PreserveResponseArea(current!);
+                ThemeResponseArea(current!);
             }
 
             ThemePageBackgrounds(app);
@@ -192,6 +194,7 @@ internal static class AppTheme
             TintEntry(conv);
             TintBubbles(conv);
             TintChatBodyBackground(conv);
+            ThemeConversationResponseArea(conv);
         }
         catch (Exception ex)
         {
@@ -199,18 +202,17 @@ internal static class AppTheme
         }
     }
 
-    /// <summary>Registers response/counter-offer UI immediately after vanilla creates it.</summary>
-    public static void PreserveConversationResponseArea(MSGConversation conv)
+    /// <summary>Themes response UI immediately after vanilla creates or renders it.</summary>
+    public static void ThemeConversationResponseArea(MSGConversation conv)
     {
         if (!ConversationUtils.IsAlive(conv)) return;
         try
         {
-            ProtectConversationStatus(conv);
-            PreserveResponseArea(conv);
+            ThemeResponseArea(conv);
         }
         catch (Exception ex)
         {
-            Mod.Log?.Debug($"AppTheme response protection: {ex.Message}");
+            Mod.Log?.Debug($"AppTheme response theme: {ex.Message}");
         }
     }
 
@@ -467,36 +469,48 @@ internal static class AppTheme
         catch (Exception ex) { Mod.Log?.Debug($"AppTheme relationship bar: {ex.Message}"); }
     }
 
-    /// <summary>
-    /// Dark-themes the order/counter-offer popups' flat surfaces: the vanilla
-    /// white quantity/price buttons and input fields clash with the dark theme.
-    /// The broad sweep skips them because their node names trip the content-name
-    /// guard ("item", "product", ...), so this pass handles the popup subtrees
-    /// explicitly: flat neutral-light fills go dark (CardAlt), content art
-    /// (icons, locks, stars, portraits) is never touched, coloured accents keep
-    /// their colours, and texts follow the normal text theming.
-    /// Verified live via S1MCP 2026-10-10: Messages/Container/{CounterofferInterface,
-    /// DealWindowSelector}, incrementor templates under CounterofferInterface/
-    /// Incrementors/{PriceIncrementor, QuantityIncrementor}.
-    /// </summary>
+    /// <summary>Theme the panel, not the clock's sprite multipliers or state controls.</summary>
+    public static void RefreshDealWindow(DealWindowSelector selector)
+    {
+        if (!NetworkGuard.IsAlive(selector) || !NetworkGuard.IsAlive(selector.Container)) return;
+        try
+        {
+            ProtectClockArt(selector.MorningButton);
+            ProtectClockArt(selector.AfternoonButton);
+            ProtectClockArt(selector.NightButton);
+            ProtectClockArt(selector.LateNightButton);
+            ProtectClockArt(selector.CurrentTimeArm);
+            ThemePopupSubtree(selector.Container.transform);
+            LogScopedPass(selector.Container, "deal-time", ref _diagDealTimeLogged);
+        }
+        catch (Exception ex) { Mod.Log?.Debug($"AppTheme deal-time pass: {ex.Message}"); }
+    }
+
+    private static void ProtectClockArt(Component? art)
+    {
+        // These native field references bound protection to the four interactive
+        // clock sectors (including overlays/captions) and the hand, never the panel.
+        if (NetworkGuard.IsAlive(art)) PreserveVanillaSubtree(art!.gameObject);
+    }
+
     private static void ThemeOrderPopups(MessagesApp app)
     {
         try
         {
-            Transform? root = app.transform;
-            if (!NetworkGuard.IsAlive(root)) return;
-            Transform? container = FindDirectChild(root!, "Container");
-            if (!NetworkGuard.IsAlive(container)) return;
-
-            ThemePopupSubtree(FindDirectChild(container!, "CounterofferInterface"));
-            ThemePopupSubtree(FindDirectChild(container!, "DealWindowSelector"));
+            var counteroffer = app.CounterofferInterface;
+            if (NetworkGuard.IsAlive(counteroffer) && NetworkGuard.IsAlive(counteroffer!.Container))
+                ThemePopupSubtree(counteroffer.Container.transform);
+            var order = app.PhoneShopInterface;
+            if (NetworkGuard.IsAlive(order) && NetworkGuard.IsAlive(order!.Container))
+                ThemePopupSubtree(order.Container.transform);
+            if (NetworkGuard.IsAlive(app.DealWindowSelector)) RefreshDealWindow(app.DealWindowSelector);
         }
         catch (Exception ex) { Mod.Log?.Debug($"AppTheme order popups: {ex.Message}"); }
     }
 
     /// <summary>
-    /// Same-frame dark-mode healing for the open order popup. Called from Unity's
-    /// Canvas.willRenderCanvases (before the UI paints), so vanilla resets of the
+    /// Same-frame dark-mode healing for visible order and response roots. Called
+    /// from Mod.OnLateUpdate (before the UI paints), so vanilla resets of the
     /// popup's value texts/colours (e.g. the item-limit counter on +/- clicks) are
     /// repaired in the very frame they happen — no visible polling delay.
     /// </summary>
@@ -505,53 +519,34 @@ internal static class AppTheme
         try
         {
             if (!NetworkGuard.IsAlive(app)) return;
-            Transform? popup = ResolveOrderPopupRoot();
-            if (popup == null) return;
-            ThemePopupSubtree(popup);
-            TintDarkTextsIn(popup.gameObject);
+            DealWindowSelector? selector = app.DealWindowSelector;
+            if (NetworkGuard.IsAlive(selector) && NetworkGuard.IsAlive(selector!.Container) &&
+                selector.Container.activeInHierarchy)
+                RefreshDealWindow(selector);
+
+            MSGConversation? current = app.currentConversation;
+            if (ConversationUtils.IsAlive(current) && NetworkGuard.IsAlive(current!.responseContainer) &&
+                current.responseContainer.gameObject.activeInHierarchy)
+                ThemeConversationResponseArea(current);
+
+            // Direct native field references also cover the counter-offer and
+            // dead-drop order windows: no scene search or whole-app scan per frame.
+            var counteroffer = app.CounterofferInterface;
+            if (NetworkGuard.IsAlive(counteroffer) && NetworkGuard.IsAlive(counteroffer!.Container) &&
+                counteroffer.Container.activeInHierarchy)
+                ThemePopupSubtree(counteroffer.Container.transform);
+            var order = app.PhoneShopInterface;
+            if (NetworkGuard.IsAlive(order) && NetworkGuard.IsAlive(order!.Container) &&
+                order.Container.activeInHierarchy)
+                ThemePopupSubtree(order.Container.transform);
         }
         catch (Exception ex) { Mod.Log?.Debug($"AppTheme fast popup pass: {ex.Message}"); }
-    }
-
-    /// <summary>
-    /// Resolves the currently open order popup's root (a direct child of the app's
-    /// "Container") by walking up from the unique "ItemLimit" summary label — so
-    /// the popup is found regardless of which window hosts it. Cached: the marker
-    /// search is a scene search and only runs when the popup opens or its root died.
-    /// Returns null while no order popup is open.
-    /// </summary>
-    private static Transform? ResolveOrderPopupRoot()
-    {
-        try
-        {
-            if (NetworkGuard.IsAlive(_orderPopupRoot)) return _orderPopupRoot;
-            _orderPopupRoot = null;
-
-            GameObject? marker = null;
-            try { marker = GameObject.Find("ItemLimit"); } catch { /* popup closed */ }
-            if (!NetworkGuard.IsAlive(marker)) return null;
-
-            Transform? t = marker!.transform;
-            for (int depth = 0; depth < 12 && NetworkGuard.IsAlive(t); depth++)
-            {
-                Transform? parent = null;
-                try { parent = t!.parent; } catch { break; }
-                if (!NetworkGuard.IsAlive(parent)) break;
-                if (parent!.name == "Container")
-                {
-                    _orderPopupRoot = t;
-                    return t;
-                }
-                t = parent;
-            }
-        }
-        catch { /* popup not resolvable this frame */ }
-        return null;
     }
 
     private static void ThemePopupSubtree(Transform? root)
     {
         if (!NetworkGuard.IsAlive(root)) return;
+        RegisterPopupRoot(root!);
         try
         {
             Image[] images = root!.GetComponentsInChildren<Image>(true);
@@ -563,32 +558,97 @@ internal static class AppTheme
                 try
                 {
                     if (IsOwnedByMod(img!.transform) || IsVanillaSubtree(img.transform)) continue;
-                    string name = img.name.ToLowerInvariant();
-                    if (name.Contains("avatar") || name.Contains("portrait") || name.Contains("icon") ||
-                        name.Contains("logo") || name.Contains("star") || name.Contains("lock") ||
-                        name.Contains("product") || name.Contains("shade")) continue;
-                    if (!IsNeutralLightSurface(img.color)) continue; // coloured accents keep their look
-                    TintGraphic(img, GamePalette.CardAlt, ThemeRole.InboxRowBackground);
+                    if (ProtectPopupArt(img)) continue;
+                    TintPopupGraphic(img);
                 }
                 catch { /* invalid proxy */ }
             }
         }
         catch (Exception ex) { Mod.Log?.Debug($"AppTheme popup subtree: {ex.Message}"); }
+        TintDarkTextsIn(root!.gameObject);
     }
 
-    private static Transform? FindDirectChild(Transform parent, string name)
+    private static void LogScopedPass(GameObject root, string scope, ref bool logged)
     {
-        try
+        if (logged || !root.activeInHierarchy) return;
+        int graphics = 0, buttons = 0;
+        foreach (GraphicThemeState state in _graphics.Values)
+            if (NetworkGuard.IsAlive(state.Graphic) && IsWithin(state.Graphic.transform, root.transform)) graphics++;
+        foreach (SelectableThemeState state in _selectables.Values)
+            if (NetworkGuard.IsAlive(state.Selectable) && IsWithin(state.Selectable.transform, root.transform)) buttons++;
+        logged = true;
+        Mod.Log?.Info($"[AppTheme] scoped-dark scope={scope} root='{root.name}' trackedGraphics={graphics} colorTintButtons={buttons}; policy=neutral-only, clock/art excluded.");
+    }
+
+    private static void RegisterPopupRoot(Transform root)
+    {
+        for (int i = _popupRoots.Count - 1; i >= 0; i--)
         {
-            int count = parent.childCount;
-            for (int i = 0; i < count; i++)
-            {
-                Transform? child = parent.GetChild(i);
-                if (NetworkGuard.IsAlive(child) && child!.name == name) return child;
-            }
+            if (!NetworkGuard.IsAlive(_popupRoots[i])) { _popupRoots.RemoveAt(i); continue; }
+            if (SameObject(_popupRoots[i], root)) return;
         }
-        catch { }
-        return null;
+        _popupRoots.Add(root);
+    }
+
+    private static bool IsPopupSubtree(Transform target)
+    {
+        for (int i = _popupRoots.Count - 1; i >= 0; i--)
+        {
+            if (!NetworkGuard.IsAlive(_popupRoots[i])) { _popupRoots.RemoveAt(i); continue; }
+            if (IsWithin(target, _popupRoots[i])) return true;
+        }
+        return false;
+    }
+
+    private static bool ProtectPopupArt(Image image)
+    {
+        string name = image.name.ToLowerInvariant();
+        string sprite = image.sprite == null ? string.Empty : image.sprite.name.ToLowerInvariant();
+        bool art = IsProtectedContentName(name) || name.Contains("icon") || name.Contains("logo") ||
+                   name.Contains("star") || name.Contains("lock") || name.Contains("shade") ||
+                   name.Contains("hand") || name.Contains("arm") ||
+                   (sprite.Length > 0 && !sprite.Contains("rectangle") &&
+                    !sprite.Contains("rounded") && sprite != "uisprite" && sprite != "background");
+        if (!art) return false;
+        int id = image.GetInstanceID();
+        if (TryGetGraphicState(id, image, out GraphicThemeState? state))
+        {
+            RestoreGraphicIfThemeOwned(state!, preserveCurrentAlpha: true);
+            _graphics.Remove(id);
+        }
+        _protectedGraphics[id] = image;
+        return true;
+    }
+
+    private static void TintPopupGraphic(Image image)
+    {
+        // Only neutral flat fills. Coloured button states are meaningful even
+        // when the base Image is white; do not multiply them by a dark base tint.
+        bool ownTint = TryGetGraphicState(image.GetInstanceID(), image, out GraphicThemeState? state) &&
+                       SameRgb(image.color, state!.LastTheme);
+        if (!ThemeColorPolicy.IsPopupNeutralSurface(ToThemeRgb(image.color)) && !ownTint) return;
+        Selectable[] parents = image.GetComponentsInParent<Selectable>(true);
+        for (int i = 0; i < parents.Length; i++)
+        {
+            Selectable? selectable = parents[i];
+            if (!NetworkGuard.IsAlive(selectable) || !SameObject(selectable!.targetGraphic, image)) continue;
+            if (!selectable.interactable) return;
+            if (selectable.transition != Selectable.Transition.ColorTint) continue;
+            bool tracked = TryGetSelectableState(selectable.GetInstanceID(), selectable, out _);
+            if (!tracked && !IsNeutralColorBlock(selectable.colors)) return;
+            if (tracked && !IsNeutralColorBlock(selectable.colors) && !IsDarkThemeColorBlock(selectable.colors)) return;
+            // ColorBlock already drives the CanvasRenderer tint. Darkening the
+            // Image multiplier as well would apply the palette twice and muddy it.
+            int id = image.GetInstanceID();
+            if (TryGetGraphicState(id, image, out GraphicThemeState? graphicState))
+            {
+                RestoreGraphicIfThemeOwned(graphicState!, preserveCurrentAlpha: true);
+                _graphics.Remove(id);
+            }
+            ThemeSelectable(selectable, ThemeRole.PopupSurface);
+            return;
+        }
+        TintGraphic(image, GamePalette.CardAlt, ThemeRole.PopupSurface);
     }
 
     private static void RegisterConversationProtections()
@@ -741,13 +801,13 @@ internal static class AppTheme
 
     private static void ClearTracking()
     {
-        _orderPopupRoot = null;
         _graphics.Clear();
         _selectables.Clear();
         _protectedGraphics.Clear();
         _lightBubbleTextIds.Clear();
         _ownRoots.Clear();
         _vanillaRoots.Clear();
+        _popupRoots.Clear();
         _scratchIds.Clear();
         _nextCachePruneTime = 0f;
     }
@@ -1305,15 +1365,16 @@ internal static class AppTheme
                        $"surface='{_diagLastChatNode}'");
     }
 
-    /// <summary>Preserves the vanilla response/counter-offer menu and its original colors.</summary>
-    private static void PreserveResponseArea(MSGConversation conv)
+    /// <summary>Themes neutral response surfaces/text without excluding the entire menu.</summary>
+    private static void ThemeResponseArea(MSGConversation conv)
     {
         try
         {
             RectTransform? container = conv.responseContainer;
             if (container != null && NetworkGuard.IsAlive(container))
             {
-                PreserveVanillaSubtree(container.gameObject);
+                ThemePopupSubtree(container);
+                LogScopedPass(container.gameObject, "responses", ref _diagResponseLogged);
             }
         }
         catch { /* response UI may not exist yet */ }
@@ -1606,13 +1667,15 @@ internal static class AppTheme
 
     private static void TintIfDarkText(Graphic text)
     {
+        bool popup = IsPopupSubtree(text.transform);
         if (IsOwnedByMod(text.transform) || IsVanillaSubtree(text.transform) ||
-            IsProtectedText(text) || IsInsideDisabledSelectable(text)) return;
+            (!popup && IsProtectedText(text)) || IsInsideDisabledSelectable(text)) return;
         try { if (_lightBubbleTextIds.Contains(text.GetInstanceID())) return; } catch { return; }
         Color c;
         try { c = text.color; } catch { return; }
         if (c.a <= 0.02f || !IsDarkNeutral(c)) return;
-        TintGraphic(text, GamePalette.TextPrimary, ThemeRole.PrimaryText);
+        ThemeRole role = popup ? ThemeRole.PopupText : ThemeRole.PrimaryText;
+        TintGraphic(text, GamePalette.TextPrimary, role);
     }
 
     // A locked/disabled vanilla button keeps its own state label colors.
@@ -1750,9 +1813,10 @@ internal static class AppTheme
 
     private static bool IsSupportedThemeColor(ThemeRole role, Color current) => role switch
     {
+        ThemeRole.PopupSurface => ThemeColorPolicy.IsPopupNeutralSurface(ToThemeRgb(current)),
         ThemeRole.PageBackground or ThemeRole.Header or ThemeRole.InboxRowBackground or ThemeRole.IncomingBubble =>
             IsNeutralLightSurface(current),
-        ThemeRole.PrimaryText or ThemeRole.SecondaryText or ThemeRole.MonochromeIcon => IsDarkNeutral(current),
+        ThemeRole.PrimaryText or ThemeRole.SecondaryText or ThemeRole.MonochromeIcon or ThemeRole.PopupText => IsDarkNeutral(current),
         _ => false
     };
 
@@ -1765,6 +1829,9 @@ internal static class AppTheme
         {
             Transform transform = graphic!.transform;
             if (IsOwnedByMod(transform) || IsVanillaSubtree(transform)) return;
+            // Generic app passes must never override the narrower popup policy.
+            if (role != ThemeRole.PopupSurface && IsPopupSubtree(transform) &&
+                graphic.TryCast<Image>() != null) return;
             int id = graphic.GetInstanceID();
             if (IsProtectedGraphic(id, graphic)) return;
 
