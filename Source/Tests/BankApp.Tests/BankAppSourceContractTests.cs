@@ -9,14 +9,26 @@ namespace BankApp.Tests;
 /// </summary>
 public sealed class BankAppSourceContractTests
 {
+    /// <summary>
+    /// Resolves the shipped view from the src root, searching the domain subfolders
+    /// (src/&lt;Domain&gt;/BankApp.cs) as well as the root itself, so a source reorganization
+    /// does not invalidate the contract. The ambiguity guard keeps it pinned to one file.
+    /// </summary>
     private static string AppSource()
     {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-        while (directory != null)
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory != null; directory = directory.Parent)
         {
-            string candidate = Path.Combine(directory.FullName, "Source", "Mods", "BankApp", "src", "BankApp.cs");
-            if (File.Exists(candidate)) return File.ReadAllText(candidate);
-            directory = directory.Parent;
+            string root = Path.Combine(directory.FullName, "Source", "Mods", "BankApp", "src");
+            if (!Directory.Exists(root)) continue;
+
+            string direct = Path.Combine(root, "BankApp.cs");
+            if (File.Exists(direct)) return File.ReadAllText(direct);
+
+            string[] matches = Directory.GetFiles(root, "BankApp.cs", SearchOption.AllDirectories);
+            if (matches.Length == 1) return File.ReadAllText(matches[0]);
+            if (matches.Length > 1)
+                throw new IOException($"Ambiguous BankApp source name 'BankApp.cs': {string.Join(", ", matches)}");
+            throw new FileNotFoundException("BankApp source file not found", "BankApp.cs");
         }
         throw new FileNotFoundException("Run these repository layout guards from a repository build output.");
     }

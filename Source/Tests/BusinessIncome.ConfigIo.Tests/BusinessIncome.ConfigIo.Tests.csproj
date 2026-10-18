@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -24,26 +24,26 @@
        against real files. Only native game/environment boundaries are shimmed.
        Native lifecycle and actual bank settlement still require gameplay tests. -->
   <ItemGroup>
-    <Compile Include="..\..\Mods\Shared\src\SafeStorage.cs" Link="Production\SafeStorage.cs" />
-    <!-- Core files sit FLAT in src/ since the src/Core -> src flatten; listed explicitly. -->
-    <Compile Include="..\..\Mods\BusinessIncome\src\FinancialOutcomes.cs" Link="Production\Core\FinancialOutcomes.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\LegacyMigration.cs" Link="Production\Core\LegacyMigration.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutCodec.cs" Link="Production\Core\PayoutCodec.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutLedger.cs" Link="Production\Core\PayoutLedger.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutScheduler.cs" Link="Production\Core\PayoutScheduler.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutSettlementEngine.cs" Link="Production\Core\PayoutSettlementEngine.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutWindowPlanner.cs" Link="Production\Core\PayoutWindowPlanner.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\Seams.cs" Link="Production\Core\Seams.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutState.cs" Link="Production\PayoutState.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutRuntime.cs" Link="Production\PayoutRuntime.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\PayoutStateStore.cs" Link="Production\PayoutStateStore.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\IncomeEngine.cs" Link="Production\IncomeEngine.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\RevenueCalculator.cs" Link="Production\RevenueCalculator.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\BusinessData.cs" Link="Production\BusinessData.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\BusinessRevenueLine.cs" Link="Production\BusinessRevenueLine.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\ConfigJsonStore.cs" Link="Production\ConfigJsonStore.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\ConfigSidecarData.cs" Link="Production\ConfigSidecarData.cs" />
-    <Compile Include="..\..\Mods\BusinessIncome\src\BusinessIncomeConfig.cs" Link="Production\BusinessIncomeConfig.cs" />
+    <Compile Include="..\..\Mods\Shared\src\Persistence\SafeStorage.cs" Link="Production\SafeStorage.cs" />
+    <!-- Paths mirror the mod's src/<Domain>/ layout (WorldLook convention). -->
+    <Compile Include="../../Mods/BusinessIncome/src/Core/FinancialOutcomes.cs" Link="Production\Core\FinancialOutcomes.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Core/LegacyMigration.cs" Link="Production\Core\LegacyMigration.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Core/PayoutCodec.cs" Link="Production\Core\PayoutCodec.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Core/PayoutLedger.cs" Link="Production\Core\PayoutLedger.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Core/PayoutScheduler.cs" Link="Production\Core\PayoutScheduler.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Core/PayoutSettlementEngine.cs" Link="Production\Core\PayoutSettlementEngine.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Core/PayoutWindowPlanner.cs" Link="Production\Core\PayoutWindowPlanner.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Core/Seams.cs" Link="Production\Core\Seams.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Models/PayoutState.cs" Link="Production\PayoutState.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Persistence/PayoutRuntime.cs" Link="Production\PayoutRuntime.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Persistence/PayoutStateStore.cs" Link="Production\PayoutStateStore.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Services/IncomeEngine.cs" Link="Production\IncomeEngine.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Services/RevenueCalculator.cs" Link="Production\RevenueCalculator.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Models/BusinessData.cs" Link="Production\BusinessData.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Models/BusinessRevenueLine.cs" Link="Production\BusinessRevenueLine.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Persistence/ConfigJsonStore.cs" Link="Production\ConfigJsonStore.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/Persistence/ConfigSidecarData.cs" Link="Production\ConfigSidecarData.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/BusinessIncomeConfig.cs" Link="Production\BusinessIncomeConfig.cs" />
   </ItemGroup>
 
 </Project>

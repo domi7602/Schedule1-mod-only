@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Text.RegularExpressions;
 using Xunit;
 
@@ -6,17 +8,32 @@ namespace StorageScanner.Tests;
 /// <summary>Source configuration guards, not a substitute for Unity rendering tests.</summary>
 public sealed class PhoneLayoutContractTests
 {
-    private static string AppSource()
+    /// <summary>
+    /// Resolves a mod source file by name from the src root, searching the domain
+    /// subfolders (src/&lt;Domain&gt;/&lt;File&gt;.cs) as well as the root itself. Keeping the
+    /// lookup layout-independent means a source reorganization does not invalidate
+    /// every contract test that reads a file.
+    /// </summary>
+    private static string ReadSource(string name)
     {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-        while (directory != null)
+        for (DirectoryInfo? dir = new DirectoryInfo(AppContext.BaseDirectory); dir != null; dir = dir.Parent)
         {
-            string candidate = Path.Combine(directory.FullName, "Source", "Mods", "StorageScanner", "src", "StorageScannerApp.cs");
-            if (File.Exists(candidate)) return File.ReadAllText(candidate);
-            directory = directory.Parent;
+            string root = Path.Combine(dir.FullName, "Source", "Mods", "StorageScanner", "src");
+            if (!Directory.Exists(root)) continue;
+
+            string direct = Path.Combine(root, name);
+            if (File.Exists(direct)) return File.ReadAllText(direct);
+
+            string[] matches = Directory.GetFiles(root, name, SearchOption.AllDirectories);
+            if (matches.Length == 1) return File.ReadAllText(matches[0]);
+            if (matches.Length > 1)
+                throw new IOException($"Ambiguous StorageScanner source name '{name}': {string.Join(", ", matches)}");
+            throw new FileNotFoundException("StorageScanner source file not found", name);
         }
-        throw new FileNotFoundException("Run these repository layout guards from a repository build output.");
+        throw new FileNotFoundException("StorageScanner source root not found", name);
     }
+
+    private static string AppSource() => ReadSource("StorageScannerApp.cs");
 
     [Fact]
     public void FixedHeight_OverridesLayoutGroupFlexibleHeight()

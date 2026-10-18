@@ -8,27 +8,36 @@ namespace AutoPackagingStation.Tests;
 // They do NOT execute Unity/FishNet or establish in-game initialization success.
 public sealed class NativeStationWiringTests
 {
-    private static string FactorySource()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir != null)
-        {
-            var path = Path.Combine(dir.FullName, "Source", "Mods", "AutoPackagingStation", "src", "AutoPackagingItemFactory.cs");
-            if (File.Exists(path)) return File.ReadAllText(path);
-            dir = dir.Parent;
-        }
-        throw new FileNotFoundException("Repository source not found.");
-    }
+    private static string FactorySource() => ModSource("AutoPackagingItemFactory.cs");
 
-    private static bool RepoSourceFileExists(string fileName)
+    private static bool RepoSourceFileExists(string fileName) => FindSourceFile(fileName) != null;
+
+    /// <summary>
+    /// Resolves a mod source file by name from the src root, searching the domain
+    /// subfolders (src/&lt;Domain&gt;/&lt;File&gt;.cs) as well as the root itself. Keeping the
+    /// lookup layout-independent means a source reorganization does not invalidate
+    /// every contract test that reads a file.
+    /// </summary>
+    private static string? FindSourceFile(string fileName)
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null)
         {
-            if (File.Exists(Path.Combine(dir.FullName, "Source", "Mods", "AutoPackagingStation", "src", fileName))) return true;
+            string root = Path.Combine(dir.FullName, "Source", "Mods", "AutoPackagingStation", "src");
+            if (Directory.Exists(root))
+            {
+                string direct = Path.Combine(root, fileName);
+                if (File.Exists(direct)) return File.ReadAllText(direct);
+
+                string[] matches = Directory.GetFiles(root, fileName, SearchOption.AllDirectories);
+                if (matches.Length == 1) return File.ReadAllText(matches[0]);
+                if (matches.Length > 1)
+                    throw new IOException($"Ambiguous AutoPackagingStation source name '{fileName}': {string.Join(", ", matches)}");
+                return null;
+            }
             dir = dir.Parent;
         }
-        return false;
+        return null;
     }
 
     [Fact]
@@ -50,17 +59,8 @@ public sealed class NativeStationWiringTests
         Assert.True(ghost >= 0 && ghost < publish);
     }
 
-    private static string ModSource(string fileName)
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir != null)
-        {
-            var path = Path.Combine(dir.FullName, "Source", "Mods", "AutoPackagingStation", "src", fileName);
-            if (File.Exists(path)) return File.ReadAllText(path);
-            dir = dir.Parent;
-        }
-        throw new FileNotFoundException(fileName);
-    }
+    private static string ModSource(string fileName) =>
+        FindSourceFile(fileName) ?? throw new FileNotFoundException(fileName);
 
     [Fact]
     public void StartupVersionUsesReleaseMetadata()

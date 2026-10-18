@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\Mods\MessagesPlus\src\ThemeColorPolicy.cs" Link="ThemeColorPolicy.cs" />
+    <Compile Include="../../Mods/MessagesPlus/src/Theme/ThemeColorPolicy.cs" Link="ThemeColorPolicy.cs" />
   </ItemGroup>
 
   <ItemGroup>

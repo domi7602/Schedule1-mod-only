@@ -5,11 +5,26 @@ namespace PropertyLEDs.Tests;
 // Source contracts only: these do not exercise IL2CPP rendering or hit testing.
 public sealed class AppLayoutWiringTests
 {
+    /// <summary>
+    /// Resolves the shipped app view from the src root, searching the domain subfolders
+    /// (src/&lt;Domain&gt;/PropertyLEDsApp.cs) as well as the root itself, so a source
+    /// reorganization does not invalidate the contract. The ambiguity guard keeps it pinned
+    /// to exactly one file.
+    /// </summary>
     private static string Source()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null && !File.Exists(Path.Combine(dir.FullName, "AGENTS.md"))) dir = dir.Parent;
-        return File.ReadAllText(Path.Combine(dir!.FullName, "Source", "Mods", "PropertyLEDs", "src", "PropertyLEDsApp.cs"));
+        string root = Path.Combine(dir!.FullName, "Source", "Mods", "PropertyLEDs", "src");
+
+        string direct = Path.Combine(root, "PropertyLEDsApp.cs");
+        if (File.Exists(direct)) return File.ReadAllText(direct);
+
+        string[] matches = Directory.GetFiles(root, "PropertyLEDsApp.cs", SearchOption.AllDirectories);
+        if (matches.Length == 1) return File.ReadAllText(matches[0]);
+        if (matches.Length > 1)
+            throw new IOException($"Ambiguous PropertyLEDs source name 'PropertyLEDsApp.cs': {string.Join(", ", matches)}");
+        throw new FileNotFoundException("PropertyLEDs source file not found", "PropertyLEDsApp.cs");
     }
 
     [Fact]
@@ -109,8 +124,8 @@ public sealed class AppLayoutWiringTests
         Assert.Contains("var block = UIFactory.Panel(caption + \"Control\", parent, new Color(0.06f, 0.09f, 0.12f, 0.45f));", source);
         Assert.DoesNotContain("UIFactory.Panel(caption + \"Control\", parent, Color.clear)", source);
         Assert.Contains("Row(block.transform, caption + \"Heading\", AppLayout.SliderHeadingHeight)", source);
-        Assert.Contains("Label(\"Caption\", caption, heading.transform, 16)", source);
-        Assert.Contains("Label(\"Value\", \"...\", heading.transform, 16, FontStyle.Bold)", source);
+        Assert.Contains("Label(\"Caption\", caption, heading.transform, AppLayout.FontSliderCaption)", source);
+        Assert.Contains("Label(\"Value\", \"...\", heading.transform, AppLayout.FontSliderValue, FontStyle.Bold)", source);
         Assert.Contains("UIFactory.Panel(\"Slider\" + index, block.transform, Color.clear)", source);
         Assert.Contains("Height(root, AppLayout.SliderTrackHeight);", source);
         Assert.Contains("layout.spacing = 0;", source);
@@ -123,9 +138,9 @@ public sealed class AppLayoutWiringTests
         Assert.Contains("prev.transform.parent.GetComponent<RectTransform>()", source);
         Assert.Contains("following.transform.parent.GetComponent<RectTransform>()", source);
         Assert.Contains("text.horizontalOverflow = HorizontalWrapMode.Wrap;", source);
-        Assert.Contains("SelectorBand(heading, 36, 56);", source);
-        Assert.Contains("SelectorBand(label, 14, 37);", source);
-        Assert.Contains("SelectorBand(context, 1, 15);", source);
+        Assert.Contains("SelectorBand(heading, AppLayout.SelectorCaptionBandBottom, AppLayout.SelectorCaptionBandTop);", source);
+        Assert.Contains("SelectorBand(label, AppLayout.SelectorLabelBandBottom, AppLayout.SelectorLabelBandTop);", source);
+        Assert.Contains("SelectorBand(context, AppLayout.SelectorContextBandBottom, AppLayout.SelectorContextBandTop);", source);
         Assert.Contains("UITheme.Dp(bottom - AppLayout.SelectorHeight / 2));", source);
         Assert.DoesNotContain("SelectorBandExtra", source);
         Assert.DoesNotContain("text.gameObject.AddComponent<RectMask2D>()", source);
@@ -136,9 +151,9 @@ public sealed class AppLayoutWiringTests
     {
         var source = Source();
         Assert.DoesNotContain("Caption(content,", source);
-        Assert.Contains("Label(name + \"Caption\", caption, card.transform, 14", source);
-        Assert.Contains("Label(name + \"Label\", \"...\", card.transform, 18", source);
-        Assert.Contains("Label(name + \"Context\", \"\", card.transform, 12", source);
+        Assert.Contains("Label(name + \"Caption\", caption, card.transform, AppLayout.FontSelectorCaption", source);
+        Assert.Contains("Label(name + \"Label\", \"...\", card.transform, AppLayout.FontSelectorLabel", source);
+        Assert.Contains("Label(name + \"Context\", \"\", card.transform, AppLayout.FontSelectorContext", source);
         Assert.Contains("out _propertyLabel, out _propertyContext", source);
         Assert.DoesNotContain("BuildSelector(content, \"Room\"", source);
         Assert.Contains("prev.transform.parent.GetComponent<RectTransform>()", source);

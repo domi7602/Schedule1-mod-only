@@ -15,7 +15,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Mods\Minimap\src\AppliedValue.cs" Link="AppliedValue.cs" />
-    <Compile Include="..\..\Mods\Minimap\src\MinimapFeatureRules.cs" Link="MinimapFeatureRules.cs" Condition="Exists('..\..\Mods\Minimap\src\MinimapFeatureRules.cs')" />
+    <Compile Include="../../Mods/Minimap/src/Blips/AppliedValue.cs" Link="AppliedValue.cs" />
+    <Compile Include="../../Mods/Minimap/src/Core/MinimapFeatureRules.cs" Link="MinimapFeatureRules.cs" Condition="Exists('../../Mods/Minimap/src/Core/MinimapFeatureRules.cs')" />
   </ItemGroup>
 </Project>

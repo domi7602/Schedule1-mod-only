@@ -13,7 +13,20 @@ public sealed class OrderThemeWiringTests
         // Optional read-only snapshot root lets the same contracts be exercised
         // against git's original source without replacing anyone's working files.
         string sourceRoot = Environment.GetEnvironmentVariable("MESSAGESPLUS_SOURCE_ROOT") ?? root!.FullName;
-        return File.ReadAllText(Path.Combine(sourceRoot, "Source", "Mods", "MessagesPlus", "src", name));
+        string src = Path.Combine(sourceRoot, "Source", "Mods", "MessagesPlus", "src");
+
+        // Resolve from the src root, searching the domain subfolders
+        // (src/<Domain>/<File>.cs) as well as the root itself. Keeping the lookup
+        // layout-independent means a source reorganization does not invalidate the
+        // contract tests that read a file.
+        string direct = Path.Combine(src, name);
+        if (File.Exists(direct)) return File.ReadAllText(direct);
+
+        string[] matches = Directory.GetFiles(src, name, SearchOption.AllDirectories);
+        if (matches.Length == 1) return File.ReadAllText(matches[0]);
+        if (matches.Length > 1)
+            throw new IOException($"Ambiguous MessagesPlus source name '{name}': {string.Join(", ", matches)}");
+        throw new FileNotFoundException("MessagesPlus source file not found", name);
     }
 
     private static string Method(string source, string signature)

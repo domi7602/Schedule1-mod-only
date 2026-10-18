@@ -12,6 +12,12 @@ namespace Minimap.Tests;
 /// </summary>
 public sealed class MinimapConfigContractTests
 {
+    /// <summary>
+    /// Resolves a repository file. Mod sources are looked up by file name from the
+    /// src root, searching the domain subfolders (src/&lt;Domain&gt;/&lt;File&gt;.cs) as
+    /// well as the root itself, so a source reorganization does not invalidate
+    /// these layout guards.
+    /// </summary>
     private static string RepoFile(params string[] parts)
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
@@ -19,6 +25,20 @@ public sealed class MinimapConfigContractTests
         {
             string candidate = Path.Combine(directory.FullName, Path.Combine(parts));
             if (File.Exists(candidate)) return File.ReadAllText(candidate);
+
+            string root = Path.Combine(directory.FullName, "Source", "Mods", "Minimap", "src");
+            if (parts.Length > 0 && parts[^1].EndsWith(".cs", StringComparison.Ordinal) && Directory.Exists(root))
+            {
+                string name = parts[^1];
+                string direct = Path.Combine(root, name);
+                if (File.Exists(direct)) return File.ReadAllText(direct);
+
+                string[] matches = Directory.GetFiles(root, name, SearchOption.AllDirectories);
+                if (matches.Length == 1) return File.ReadAllText(matches[0]);
+                if (matches.Length > 1)
+                    throw new IOException($"Ambiguous Minimap source name '{name}': {string.Join(", ", matches)}");
+            }
+
             directory = directory.Parent;
         }
         throw new FileNotFoundException($"Run these repository layout guards from a repository build output. Missing: {string.Join("/", parts)}");

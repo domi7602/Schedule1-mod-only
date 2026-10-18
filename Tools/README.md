@@ -35,6 +35,7 @@ PowerShell 7 helper scripts for building, checking, releasing and setting up the
 | `bootstrap-game-references.ps1` | Decompiles `<GameDir>\MelonLoader\Il2CppAssemblies` with `ilspycmd` (installed into `.cache/tools/`) into the git-ignored `GameReferences/decompiled/`. Research aid only. |
 | `mods-cleanup-inventory.ps1` | Inventories `<GameDir>\Mods\` and, with `-Apply`, moves runtime-DLL duplicates into `MelonLoader\_archived\` (reversible move, `-WhatIf` by default). |
 | `backup-to-d.ps1` | Robocopy mirror of the game folder, saves and this workspace to a backup drive (`-TargetRoot`, default `D:\Schedule 1\Backups`). Maintainer convenience, machine-specific. |
+| `build-upload-sets.ps1` | `[-Mod <Name>] [-OutDir <dir>] [-MaxFiles 20]` — writes per-mod review/upload **copies** to `.scratch/gpt-uploads/<Mod>/`, capped at `MaxFiles` files each, so a whole mod fits an external reviewer's attachment limit. Mods above the limit are emitted as one block-bundle per `src/` domain folder (each original file verbatim in its own block, `// from:` marker, file-scoped `namespace` converted to block form, `extern alias` hoisted). Never touches the repo sources; idempotent; writes `UEBERSICHT.md` with the bundle map. |
 
 ## Conventions
 

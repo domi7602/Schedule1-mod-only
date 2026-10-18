@@ -4,11 +4,26 @@ namespace Minimap.Tests;
 
 public sealed class BlipPerformanceWiringTests
 {
-    private static string Source()
+    private static string Source() => ReadSource("MinimapBlips.cs");
+
+    /// <summary>
+    /// Resolves a mod source file by name from the src root, searching the domain
+    /// subfolders (src/&lt;Domain&gt;/&lt;File&gt;.cs) as well as the root itself.
+    /// </summary>
+    private static string ReadSource(string name)
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null && !File.Exists(Path.Combine(dir.FullName, "AGENTS.md"))) dir = dir.Parent;
-        return File.ReadAllText(Path.Combine(dir!.FullName, "Source", "Mods", "Minimap", "src", "MinimapBlips.cs"));
+        string root = Path.Combine(dir!.FullName, "Source", "Mods", "Minimap", "src");
+
+        string direct = Path.Combine(root, name);
+        if (File.Exists(direct)) return File.ReadAllText(direct);
+
+        string[] matches = Directory.GetFiles(root, name, SearchOption.AllDirectories);
+        if (matches.Length == 1) return File.ReadAllText(matches[0]);
+        if (matches.Length > 1)
+            throw new IOException($"Ambiguous Minimap source name '{name}': {string.Join(", ", matches)}");
+        throw new FileNotFoundException("Minimap source file not found", name);
     }
 
     [Fact]

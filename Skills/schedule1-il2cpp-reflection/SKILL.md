@@ -248,7 +248,7 @@ public static List<object> Materialize(object il2cppCollection) {
 
 ## 9. References
 
-- `Source/Mods/Shared/src/TypeResolver.cs` — production wrapper (uses §5 + §6)
+- `Source/Mods/Shared/src/Patching/TypeResolver.cs` — production wrapper (uses §5 + §6)
 - Live source of patterns above: decompiled `CustomLoadingScreens/CustomLoadingScreens.Utils/RuntimeReflection.cs` and `CustomLoadingScreens/CustomLoadingScreens.Integrations.Interop/RuntimeInterop.cs` (decompile kept transiently under `.scratch/mod-decompile/_decompiled/` - NOT part of the repo, regenerate on demand)
 - S1API may already wrap most of this - always check the in-repo `S1API/Internal/Utils` source before rolling your own.
 - Harmony 2.x docs: `[HarmonyPrepare]` + `[HarmonyTargetMethod]` for runtime target resolution (see `schedule1-modding` §5)

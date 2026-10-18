@@ -5,11 +5,26 @@ namespace PropertyLEDs.Tests;
 // Source contracts supplement pure sizing tests; no native Unity execution.
 public sealed class ResponsiveLayoutWiringTests
 {
+    /// <summary>
+    /// Resolves the shipped app view from the src root, searching the domain subfolders
+    /// (src/&lt;Domain&gt;/PropertyLEDsApp.cs) as well as the root itself, so a source
+    /// reorganization does not invalidate the contract. The ambiguity guard keeps it pinned
+    /// to exactly one file.
+    /// </summary>
     private static string Source()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null && !File.Exists(Path.Combine(dir.FullName, "AGENTS.md"))) dir = dir.Parent;
-        return File.ReadAllText(Path.Combine(dir!.FullName, "Source/Mods/PropertyLEDs/src/PropertyLEDsApp.cs"));
+        string root = Path.Combine(dir!.FullName, "Source", "Mods", "PropertyLEDs", "src");
+
+        string direct = Path.Combine(root, "PropertyLEDsApp.cs");
+        if (File.Exists(direct)) return File.ReadAllText(direct);
+
+        string[] matches = Directory.GetFiles(root, "PropertyLEDsApp.cs", SearchOption.AllDirectories);
+        if (matches.Length == 1) return File.ReadAllText(matches[0]);
+        if (matches.Length > 1)
+            throw new IOException($"Ambiguous PropertyLEDs source name 'PropertyLEDsApp.cs': {string.Join(", ", matches)}");
+        throw new FileNotFoundException("PropertyLEDs source file not found", "PropertyLEDsApp.cs");
     }
 
     [Fact]

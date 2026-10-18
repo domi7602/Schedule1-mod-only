@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\Mods\PocketShop\src\PurchaseRules.cs" />
+    <Compile Include="../../Mods/PocketShop/src/Services/PurchaseRules.cs" />
+    <Compile Include="../../Mods/PocketShop/src/UI/StoreGridLayout.cs" />
   </ItemGroup>
 </Project>

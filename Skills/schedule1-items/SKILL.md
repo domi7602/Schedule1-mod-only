@@ -149,8 +149,8 @@ Need to… ?
 * In-Repo Architecture: `Skills/schedule1-game-systems/references/09-Inventory-ItemFramework.md`
 * Decompiled Game Reference: `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/ItemFramework/`
 * Live Mod Implementations:
-  - `Source/Mods/StackLimitMod/src/StackLimitEngine.cs`
-  - `Source/Mods/BankApp/src/BankService.cs`
-  - `Source/Mods/PocketShop/src/PurchaseService.cs`
+  - `Source/Mods/StackLimitMod/src/Engine/StackLimitEngine.cs`
+  - `Source/Mods/BankApp/src/Services/BankService.cs`
+  - `Source/Mods/PocketShop/src/Services/PurchaseService.cs`
   - `Source/Archive/HomelessMod/src/StreetPropertyManager.cs`
   - `Source/Archive/BackpackMod/src/BackpackStorageManager.cs`

@@ -14,8 +14,14 @@ public class UIThemeDiagnosticTests
         string? source = null;
         while (directory != null)
         {
-            string candidate = Path.Combine(directory.FullName, "Source", "Mods", "Shared", "src", "UITheme.cs");
-            if (File.Exists(candidate)) { source = File.ReadAllText(candidate); break; }
+            string root = Path.Combine(directory.FullName, "Source", "Mods", "Shared", "src");
+            if (Directory.Exists(root))
+            {
+                // Layout-independent: UITheme.cs lives in a domain subfolder (src/UI/UITheme.cs).
+                string path = Assert.Single(Directory.GetFiles(root, "UITheme.cs", SearchOption.AllDirectories));
+                source = File.ReadAllText(path);
+                break;
+            }
             directory = directory.Parent;
         }
         Assert.NotNull(source);
