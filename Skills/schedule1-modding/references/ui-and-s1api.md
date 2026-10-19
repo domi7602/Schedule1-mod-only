@@ -65,16 +65,20 @@ int   sp = S1Mods.Shared.UITheme.Sp(14);    // fonts
 
 ## 3. In-Game Console Commands (S1API)
 
-Register custom commands via S1API `BaseConsoleCommand` (accessible in-game via the dev console `~`):
+Inherit from S1API `BaseConsoleCommand` to auto-register a command. Check the current definition in `ThirdParty/S1API/S1API/Console/BaseConsoleCommand.cs`; it requires properties and `ExecuteCommand(List<string>)`, not an invented registration attribute or `Execute(string[])`. Opening the developer console still depends on the game settings/key binding.
 ```csharp
+using System.Collections.Generic;
 using S1API.Console;
 
-[ConsoleCommand("mymod", "Control MyMod settings")]
-public class MyModCommand : BaseConsoleCommand
+public sealed class MyModCommand : BaseConsoleCommand
 {
-    public override void Execute(string[] args)
+    public override string CommandWord => "mymod";
+    public override string CommandDescription => "Control MyMod settings";
+    public override string ExampleUsage => "mymod status";
+
+    public override void ExecuteCommand(List<string> args)
     {
-        // Execute command logic
+        // Handle and validate the command arguments here.
     }
 }
 ```

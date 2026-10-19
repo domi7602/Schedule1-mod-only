@@ -1,0 +1,800 @@
+MINIMAP SUCHMODUS
+Implementierungsplan für die Suche nach dem Kanalschlüssel
+
+Stand: 18. Oktober 2026
+Arbeitsgrundlage: zwölf hochgeladene Dateien; Minimap-Version 2.3.3 laut MinimapMod.cs.
+Zielabhängigkeit: S1API 3.2.1. Tatsächliche Spiel-, Loader-, Framework- und Referenzversionen werden in Phase 0 festgehalten.
+Dokumentstatus: umsetzbarer Plan mit Prüfstellen; noch kein Implementierungs-, Build- oder Spieltestnachweis.
+Adressat: Dominik und der Entwickler oder Coding-Agent, der die Erweiterung umsetzt.
+
+1. ZIEL UND ERSTE AUSLIEFERUNG
+
+Die vorhandene Minimap wird um einen freiwilligen Suchmodus für den bereits im Spiel vorhandenen Kanalschlüssel erweitert.
+
+Der Spieler aktiviert den Suchmodus, nimmt in der Minimap-Handy-App einen Hinweis an, erreicht ein grobes Suchgebiet und findet den Schlüssel durch Aufmerksamkeit in der Spielwelt. Die Mod bestätigt den Fund anhand eines verlässlich gelesenen Spielzustands. Das bestehende Aufheben des Schlüssels bleibt die eigentliche Spielhandlung und der Schlüssel die Belohnung.
+
+Der erste Umfang enthält genau eine Aufgabenart. Er benötigt eine kleine Zustandsverwaltung und ein Suchgebiets-Overlay. Ein allgemeines Missionsframework wird daraus erst dann entwickelt, wenn eine weitere tatsächlich umgesetzte Aufgabenart gemeinsame Anforderungen nachweist.
+
+Verbindliche Produktentscheidungen:
+- Der neue Suchmodus ist optional und bei alten Konfigurationen standardmäßig ausgeschaltet.
+- Die Suche hat kein Zeitlimit.
+- Ein angenommener Hinweis kann zurückgestellt und später fortgesetzt werden.
+- Die Aufgabe kann abgebrochen und erneut angenommen werden; für denselben Zielzustand bleibt dasselbe Gebiet erhalten.
+- Der normale Weg zum Aufheben des Gegenstands bleibt maßgeblich.
+- Die Aufgabe ist mit ausgeblendeter Minimap und geschlossenem Telefon weiter aktiv.
+- Das Suchgebiet verrät keine exakte Schlüsselposition. Entfernung und Richtung zum Schlüssel werden ebenfalls nicht ausgegeben.
+- Der Abschluss folgt dem aktuell geladenen Spielzustand. Eine neuere Zusatzdatei darf einen älteren Spielstand nicht fälschlich als erledigt behandeln.
+- Es gibt zunächst eine verständliche Grundbeschreibung pro geprüftem Gebiet. Weitere Hilfestufen sind eine spätere Erweiterung.
+- Die erste vollständige Abnahme gilt für Singleplayer. Mehrspieler benötigt eine bestätigte Sitzungs-, Welt- und Fundstatuszuordnung; ohne diesen Nachweis bleibt die Suchaufgabe dort ausdrücklich nicht verfügbar.
+
+Vorgeschlagenes Auslieferungsziel:
+Eine aktualisierte Minimap-DLL im vorhandenen Projekt, zusammen mit den tatsächlich benötigten bisherigen Mod-Abhängigkeiten und einer kurzen Installations- und Testdokumentation. Gebietsdaten sollen für diesen kleinen Umfang nach Möglichkeit in der Mod enthalten sein. Das fertige Release-Paket wird erst nach bestandenem Build und Spieltest als spielbar bezeichnet.
+
+2. BELEGTE AUSGANGSLAGE
+
+2.1 Bereits im Quelltext vorhanden
+
+MinimapBlips.cs:
+- Liest in UpdateSewerKeys den Kanalmanager, IsRandomWorldKeyCollected und die Position von RandomWorldSewerKeyPickup.
+- Baut aus dieser Position einen exakten, pulsierenden und als kritisch markierten Schlüsselmarker.
+- Verwendet einen Darstellungspool mit 64 Einträgen.
+- Baut dynamische Marker ungefähr im Sekundentakt neu auf; statische Landmarken werden seltener geprüft.
+- Entfernt manche entfernten Ziele bereits vor der späteren Randbehandlung.
+Fundstellen: insbesondere Zeilen 110–115, 156–183, 197–202, 505–523 und 545–547. [Q1]
+
+MinimapHUD.cs:
+- Verwendet ein vorhandenes Kartenbild, einen maskierten Ausschnitt und eine Welt-zu-Karte-Umrechnung.
+- Unterstützt drei Kartenformen und zwei Rotationsmodi.
+- Beendet seine Aktualisierung bei nicht aktivem HUD.
+- Ruft die Marker-Erfassung erst im HUD-Update auf.
+Fundstellen: insbesondere Zeilen 249–307, 930–968 und 977–1016. [Q2]
+
+MinimapMod.cs:
+- Enthält den zentralen Lebenszyklus der Mod.
+- Beendet OnUpdate vor Erstellung des HUD.
+- Dokumentiert Daten-Neuladen, bei dem nicht immer eine passende Szeneninitialisierung folgt.
+- Speichert globale Darstellungseinstellungen über die vorhandenen Shared-Helfer.
+Fundstellen: insbesondere Zeilen 12, 80–86, 97–163 und 284–295. [Q3]
+
+MinimapSettingsApp.cs:
+- Stellt bereits eine S1API-Handy-App bereit.
+- Verwendet die Seiten Map, Markers, Colors und Advanced.
+- Enthält bestehende Regeln für Ereignisbehandlung und UI-Lebensdauer.
+- Verwendet an einzelnen Stellen feste Seitenindizes, beispielsweise für das Zurücksetzen der Farben.
+Fundstellen: insbesondere Zeilen 29–35, 654–715 und 1118–1155. [Q4]
+
+MinimapWaypoints.cs:
+- Verwaltet maximal 16 persönliche Wegpunkte.
+- Unterscheidet Dateien anhand einer Slotnummer.
+- Enthält ein problematisches JSON-Muster: öffentliche Datenfelder werden ohne Aktivierung der Feldserialisierung geschrieben und gelesen.
+Fundstellen: insbesondere Zeilen 16–20, 116, 123–170 und 198–282. [Q5]
+
+Minimap(2).csproj:
+- Enthält nur SDK, AssemblyName und RootNamespace.
+- Belegt allein weder Target-Framework noch Referenzpfade oder eine S1API-Version.
+Fundstelle: gesamte Datei, Zeilen 1–6. [Q6]
+
+2.2 Versionsbezug
+
+Das offizielle Release S1API 3.2.1 nennt Schedule I 0.4.7 als Zielversion. Die tatsächlich installierte Spiel-Buildnummer muss deshalb erfasst werden. Aus der S1API-Versionsnummer allein folgt keine geprüfte Kompatibilität dieser Minimap mit beliebigen Spielständen oder Spielversionen. [Q8]
+
+Die Minimap verwendet direkte IL2CPP-Spielzugriffe. Die dazugehörigen generierten Spielreferenzen müssen zum geprüften Spielbuild passen. Eine nur gegen vereinfachte Ersatztypen erfolgreiche Kompilierung ist dafür kein Nachweis. [Q1, Q2, Q6]
+
+2.3 Offene Tatsachen
+
+Vor Implementierung beziehungsweise Freigabe zu bestätigen:
+- Tatsächliches Target-Framework, Unity-Version, MelonLoader-Version und vollständiger Referenzsatz.
+- Implementierungen der verwendeten S1Mods.Shared-Helfer.
+- Belastbare Erkennung von fertig geladenen Welten und von Daten-Neuladen.
+- Dauerhafte Identität einer Welt, auch bei Wiederverwendung desselben Slots.
+- Verlässliche Bindung an den tatsächlichen Weltschlüssel.
+- Semantik und Aktualisierung des Fundstatus vor und nach dem Aufheben sowie beim Laden.
+- Zahl und Zugänglichkeit der möglichen Schlüssel-Fundorte.
+- Semantik von Weltzustand und Fundstatus in Host- und Client-Sitzungen.
+
+Der Kommentar zu RandomSewerKeyLocationIndex ist kein Beleg dafür, dass der vorhandene Ablauf diesen Index tatsächlich liest. Eine Zielkennung darf erst auf diesen Wert gestützt werden, wenn Zugriff und Bedeutung geprüft wurden. [Q1]
+
+3. PHASE 0 – PROJEKT UND SPIELZUGRIFF PRÜFEN
+
+Ziel: Ein reproduzierbarer Ausgangsbuild und ein schriftlich bestätigter Vertrag für die wenigen benötigten Spieldaten.
+
+3.1 Projekt vervollständigen
+
+Benötigte Unterlagen:
+- Tatsächliche Projekt- oder Solution-Datei.
+- Zugehörige Directory.Build.props, Directory.Build.targets und weitere importierte Builddateien, soweit verwendet.
+- Relevante S1Mods.Shared-Quellen oder die tatsächlich referenzierte Bibliothek.
+- Exakt verwendete S1API-3.2.1-Referenzen.
+- Passende MelonLoader-, Unity- und generierte IL2CPP-Spielreferenzen.
+- Ein erfolgreicher Buildlog der Ausgangsversion.
+- Eine sichere lokale Testumgebung mit einem Spielstand vor und nach dem Schlüsselfund.
+
+Die Uploadnamen mit dem Zusatz (2) werden ihren realen Projektdateien zugeordnet. Sie werden nicht zusätzlich als doppelte Quelltexte in das Projekt übernommen.
+
+3.2 Ausgangsversion festhalten
+
+- Quellstand über einen eigenen Entwicklungszweig oder einen gleichwertigen wiederherstellbaren Stand sichern.
+- Unveränderte Ausgangsversion gegen die echten Referenzen bauen.
+- Minimap, Handy-App, vorhandene Schlüsselanzeige, Wegpunkte und Laden kurz im Spiel prüfen.
+- Start- und Reload-Logs als Vergleich festhalten.
+- Tatsächliche Spiel-, API-, Loader- und Framework-Versionen dokumentieren.
+- Ausgangswerte für CPU-Zeit, Speicher und Ressourcenanzahl in einer definierten Testszene erfassen.
+
+3.3 Kleine Diagnose des Schlüsselzustands
+
+In einer ausdrücklich dafür vorgesehenen Entwicklerdiagnose werden die vorhandenen Lesezugriffe beobachtet:
+- Vor dem Fund: Ist der Manager gültig? Ist das Pickup gültig? Welchen Wert hat der fachliche Fundstatus?
+- Beim Aufheben: Wann ändert sich der Fundstatus im Verhältnis zum Verschwinden des Pickup?
+- Nach dem Fund: Bleibt der Status ohne Pickup zuverlässig lesbar?
+- Beim Laden eines Spielstands vor dem Fund: Wann sind Status und Zielposition belastbar?
+- Beim Laden eines Spielstands nach dem Fund: Welche Zwischenzustände treten auf?
+- Beim Daten-Neuladen: Welche bestätigten Signale grenzen den alten und neuen Ladezustand ab?
+- Beim Wechsel in einen neuen Spielstand im selben Slot: Wie lässt sich die neue Welt eindeutig unterscheiden?
+
+Wichtig: WasCollected am IL2CPP-Wrapper ist ein Gültigkeitsmerkmal, kein spielerischer Fundnachweis. Für den fachlichen Zustand wird nur ein tatsächlich bestätigtes Spielsignal verwendet. [Q1]
+
+Ergebnis dieser Phase:
+Ein kurzes Schnittstellenblatt benennt für jede benötigte Information den belegten Zugriff, Gültigkeitsbedingungen, Zeitpunkt der Verfügbarkeit und Verhalten bei Fehlern. Unbekanntes bleibt als konkrete offene Prüfung dokumentiert.
+
+Abnahme:
+- Ausgangsmod baut und startet.
+- Vorher-/Nachherzustand des Schlüssels ist beobachtet.
+- Spielstandidentität und Ladebereitschaft sind ausreichend belegt.
+- Singleplayer kann verlässlich von nicht freigegebenen Sitzungen unterschieden werden.
+- Ein kuratiertes Testgebiet ist im Spiel erreichbar und enthält den tatsächlichen Schlüssel.
+
+Ohne diese Ergebnisse kann ein reines Logikmodell vorbereitet werden. Ein als vollständig spielbar bezeichnetes Release bleibt davon abhängig.
+
+4. ARCHITEKTUR UND ZUSTÄNDIGKEITEN
+
+Es werden fünf kleine Verantwortlichkeiten vorgesehen. Die Dateinamen sind Vorschläge für eigene Mod-Komponenten und keine behaupteten S1API-Klassen.
+
+4.1 MinimapSearchController.cs
+
+Besitzt den angenommenen Hinweis, die Bindung an Welt und Ziel, den aktuell abgeleiteten Aufgabenstatus und die Übergänge. Das einfache Zustandsmodell kann zunächst in derselben Datei bleiben.
+
+Verarbeitet ausschließlich klar beschriebene Beobachtungen und Benutzeraktionen. Ist unabhängig von HUD-Sichtbarkeit und geöffneter App. Gibt einen schlichten Darstellungszustand mit Revisionsnummer aus.
+
+4.2 MinimapSearchGameAccess.cs
+
+Bündelt die wenigen direkten Spielzugriffe:
+- Sitzungsart und Ladebereitschaft.
+- Bestätigte Welt- und Zielbindung.
+- Fachlicher Fundstatus.
+- Gültige Zielposition, solange für eine offene Suche verfügbar.
+- Gültige Spielerposition.
+
+Liefert Datenwerte und Verfügbarkeitsangaben. Lang lebende Spiellogik hält keine Unity-Objekte oder IL2CPP-Wrapper als dauerhafte Identität.
+
+Alle Unity-/IL2CPP-Lesezugriffe verbleiben im bestätigten Hauptthread-Ablauf der Mod.
+
+4.3 MinimapSearchStore.cs
+
+Liest und schreibt eine kleine, versionierte Zusatzdatei für die persönliche Hinweisverwaltung der bestätigten Welt. Verwendet die geprüfte Speicherinfrastruktur oder einen kleinen ausdrücklich geprüften Ersatz, falls deren Fehlerverhalten nicht ausreicht.
+
+Die Datei des Suchmodus ist von Konfiguration und persönlichen Wegpunkten getrennt.
+
+4.4 MinimapSearchAreas.cs
+
+Enthält eine überschaubare Liste geprüfter Gebiete mit stabiler Kennung, Weltgeometrie, gültiger Höhenlage und passendem Beschreibungstext.
+
+Die Datei wird angelegt, wenn die Gebietsliste über das eine Entwicklungsgebiet hinausgeht. Für den allerersten Versuch dürfen die wenigen Gebietsdaten beim Controller stehen, solange die Zuständigkeit klar bleibt.
+
+4.5 MinimapSearchOverlay.cs
+
+Besitzt ausschließlich das Suchgebiets-Overlay und seine wiederverwendeten UI-Ressourcen. Nutzt dieselbe Kartenprojektion und denselben Transformationsbezug wie die vorhandene Karte.
+
+Die Handy-App sendet Aktionen an den Controller. Das HUD stellt dessen Snapshot dar. Die Anzeige bestimmt weder Abschluss noch Speicherzustand.
+
+5. ZUSTANDSMODELL UND SPIELREGELN
+
+Verfügbarkeit und Aufgabenfortschritt werden getrennt geführt. So bleibt eine Aufgabe erhalten, wenn ein Manager vorübergehend fehlt.
+
+5.1 Verfügbarkeit
+
+Deaktiviert:
+Der Benutzer hat den optionalen Suchmodus ausgeschaltet.
+
+Welt wird geprüft:
+Laden, Weltwechsel oder eine für die Entscheidung nötige Information ist unklar.
+
+Bereit:
+Die benötigten Informationen gehören bestätigt zur aktuellen Welt und sind gültig.
+
+Nicht verfügbar:
+Die Sitzung ist noch nicht unterstützt oder der bekannte Zielort passt zu keinem freigegebenen Suchgebiet. Die Oberfläche erklärt kurz den zutreffenden Grund.
+
+5.2 Aufgabenstatus
+
+Hinweis verfügbar:
+Schlüssel bestätigt ungesammelt, ausreichende Ziel- und Gebietsdaten vorhanden, Hinweis nicht angenommen.
+
+Suche aktiv:
+Hinweis angenommen und passendes stabiles Gebiet vorhanden.
+
+Schlüssel gefunden:
+Der aktuell geladene und freigegebene Spielzustand bestätigt den Fund.
+
+Bereits gefunden:
+Darstellungsvariante, wenn der Schlüssel beim ersten verlässlichen Abgleich schon eingesammelt ist. Sie behauptet keinen gerade durch die Mod beobachteten Erfolg.
+
+Im Suchgebiet:
+Nur abgeleitete Anzeige während einer aktiven Suche. Wird anhand gültiger Position und Höhenlage berechnet und nicht als dauerhafter Fortschritt gespeichert.
+
+5.3 Verbindliche Übergänge
+
+- Eine Annahme ist erst erfolgreich, wenn ein ungefundener Schlüssel und ein passendes Gebiet bestätigt sind.
+- Mehrfaches Anklicken von Annehmen erzeugt nur einen Vorgang.
+- Gebiet betreten oder verlassen verändert ausschließlich die Anzeige.
+- Ein fehlendes Pickup bei weiterhin falschem Fundstatus ist ein unklarer Zustand, kein Erfolg.
+- Ein bestätigter wahrer Fundstatus kann auch ohne Pickup gültig sein; genau das muss Phase 0 nachweisen.
+- Bei ungültigem Manager, fehlender Weltbindung oder Ladezustand wird keine neue Schlussfolgerung gezogen.
+- Ein laufender Vorgang bleibt bei vorübergehender Unverfügbarkeit erhalten.
+- Jeder bestätigte Ladebeginn eröffnet einen neuen Beobachtungsabschnitt, auch wenn Welt- und Zielkennung gleich bleiben. Die bisherigen Vergleichswerte für Fundübergänge werden verworfen. Die erste verlässliche Beobachtung nach Ladeabschluss gleicht ausschließlich den Zustand ab und erzeugt keine Erfolgsmeldung. Erst spätere bestätigte Änderungen innerhalb desselben ununterbrochenen Beobachtungsabschnitts können einen neuen Fund melden.
+- Ein echter Wechsel von bestätigt ungeholt zu bestätigt geholt in derselben gültigen Sitzung beendet eine aktive Suche und erzeugt höchstens eine kurze Abschlussmeldung.
+- Ist die Welt beim ersten Abgleich bereits erledigt, erscheint ein sachlicher Status ohne nachträgliche Erfolgsanimation.
+- Wird der Schlüssel nach einer Unterbrechung als gefunden vorgefunden, wird der Status abgeglichen; eine eindeutige Zuschreibung zum Spieler erfolgt nur bei belegter Grundlage.
+- Nach dem Laden eines älteren Saves mit ungesammeltem Schlüssel wird die Aufgabe wieder aktiv, wenn der Hinweis derselben Welt angenommen bleibt; andernfalls wird sie wieder verfügbar.
+- Abbrechen nimmt die Annahme zurück. Es setzt keinen Weltzustand zurück und ändert nicht das Gebiet.
+- Deaktivieren des Modus erhält Annahme und Gebiet. Beim erneuten Aktivieren wird erst der geladene Weltzustand geprüft.
+
+Für einen späteren Koop-Modus gilt zusätzlich: Ein globaler Weltfundstatus beweist nicht, dass der lokale Spieler den Schlüssel aufgenommen hat. Die Formulierung und Zuständigkeit müssen zu den geprüften Daten passen.
+
+6. SUCHGEBIETE UND HINWEISE
+
+6.1 Empfohlene Variante
+
+Eine kleine Liste kuratierter Gebiete wird unabhängig von der aktuellen Schlüsselposition definiert. Der tatsächliche Zielort entscheidet anschließend nur darüber, welches geprüfte Gebiet passt.
+
+Jedes Gebiet enthält:
+- Stabile Gebietskennung und Definitionsversion.
+- Weltmittelpunkt und Radius oder eine entsprechend geprüfte einfache Fläche.
+- Zulässige Höhenlage beziehungsweise zusätzliche Raumzuordnung, soweit verlässlich verfügbar.
+- Einen verständlichen Grundhinweis.
+- Eine geprüfte Ortsbezeichnung oder Zugangsbeschreibung, die das Gebiet auch außerhalb des sichtbaren Minimap-Ausschnitts auffindbar macht.
+- Verifizierte Abdeckung der zugeordneten Fundstellen.
+
+Der Zielpunkt liegt mit einem angemessenen Innenabstand innerhalb des Gebiets. Der Mittelpunkt wird nicht aus der exakten Pickup-Position gebildet.
+
+6.2 Warum kein laufend neu versetzter Kreis
+
+Bei wiederholtem Abbrechen, Annehmen oder Laden darf keine neue Zufallsfläche entstehen. Mehrere unterschiedliche Flächen könnten über ihre Schnittmenge den geheimen Fundort verraten. Das Gebiet bleibt für dieselbe Welt-, Ziel- und Definitionsbindung stabil.
+
+6.3 Umgang mit unbekannten Fundorten
+
+Für einen unbekannten Fundort wird kein beliebiger Kreis und kein erfundener Umgebungsbeschreibungstext erzeugt. Der Hinweis ist vorerst nicht verfügbar.
+
+Ein interner Prototyp darf ausdrücklich nur einen bekannten Testfall abdecken. Für eine allgemeine Veröffentlichung müssen die relevanten möglichen Fundorte erfasst und ihren Gebieten zugeordnet sein.
+
+Die vorhandenen Dateien allein liefern noch keinen Nachweis dieser vollständigen Abdeckung. Das gehört zur praktischen Untersuchung.
+
+6.4 Gebietsbetreten
+
+Für die reine Anzeige Im Suchgebiet werden X/Z-Ausdehnung und passende Höhenlage geprüft. Eine kleine Eintritts-/Austrittstoleranz kann späteres Flackern an der Grenze verhindern; die Werte werden am realen Gebiet abgestimmt.
+
+Die Anzeige behauptet keinen Sichtkontakt zum Gegenstand. Es wird kein räumlicher Besuch allein aufgrund gleicher X/Z-Werte auf einer anderen Etage bestätigt.
+
+6.5 Informationsumfang
+
+Erste Version:
+- Grobes Gebiet.
+- Verständlicher Grundhinweis.
+- Status außerhalb beziehungsweise innerhalb des Gebiets.
+- Fachlicher Fundabschluss.
+
+Eine optionale Zielrichtung darf später auf das Gebiet zeigen, wenn es außerhalb des sichtbaren Ausschnitts liegt. Für die erste Version nennt der Grundhinweis einen geprüften Stadtteil, einen eindeutig erkennbaren Ort oder einen passenden Zugang. So lässt sich das Gebiet aus der Entfernung finden; sobald es im Minimap-Ausschnitt liegt, unterstützt die Fläche die Suche. Eine Anzeige des Suchgebiets auf der nativen großen Telefonkarte wird durch diesen Entwurf nicht vorausgesetzt. Eine Richtung oder Meterzahl zum tatsächlichen Schlüssel ist kein Bestandteil des Suchmodus.
+
+Spätere Hilfestufen beschreiben geprüftes Gelände oder Zugänge. Sie werden bewusst vom Spieler angefordert. Automatische Warm/Kalt-Hinweise sind für den ersten Umfang nicht erforderlich.
+
+7. SPEICHERUNG UND LADEN ÄLTERER SPIELSTÄNDE
+
+7.1 Gespeicherte Informationen
+
+Die Zusatzdatei enthält ausschließlich:
+- Schema-Version.
+- Bestätigte Weltbindung.
+- Bestätigte Ziel-/Spawnbindung.
+- Ob der Hinweis angenommen ist.
+- Kennung und Version des zugeordneten Gebiets.
+- Bei erforderlicher Rekonstruktion die geprüfte feste Geometrie.
+- Optional bereits angeforderte Hinweisstufe, wenn eine solche Funktion später eingeführt wird.
+
+Die normale Mod-Konfiguration speichert den globalen Suchmodus-Schalter. Sie speichert keine weltbezogenen Entdeckungen.
+
+7.2 Keine zweite Wahrheit über den Schlüsselfund
+
+Ob der Schlüssel gefunden wurde, wird aus dem aktuell geladenen Spiel abgeleitet. Ein abgeschlossener Zustand aus einer älteren Zusatzdatei ist kein Beweis.
+
+Annahme und Gebiet dürfen im MVP als persönliche Hinweisverwaltung einer Welt über das Zurückladen eines älteren Spielstands hinweg erhalten bleiben. Das ist eine ausdrückliche Semantik des Entwurfs.
+
+Soll auch die Hinweisannahme exakt auf jede ältere Save-Revision zurückgesetzt werden, braucht es eine verifizierte Anbindung an den jeweiligen nativen Speicherstand. Eine externe Datei mit bloßer Weltkennung kann diese Transaktion nicht automatisch abbilden.
+
+Die erste Version verspricht deshalb:
+- Korrekte Fundanzeige passend zum geladenen Spiel.
+- Stabile persönliche Hinweisannahme und Gebietszuteilung für dieselbe Welt.
+- Keine falsche Erledigung aufgrund später gespeicherter Moddaten.
+
+7.3 Weltwechsel und Schreibreihenfolge
+
+- Jeder geladene Datensatz ist an eine bestätigte Welt gebunden.
+- Ein ausstehender Schreibvorgang behält seinen bereits aufgelösten Zielpfad.
+- Beim Wechsel von Welt A nach B werden ausstehende A-Daten höchstens in die A-Datei geschrieben.
+- Während eines Writes wird nicht nochmals der gerade aktive Slot als Ziel ermittelt.
+- Laufzeitreferenzen und Beobachtungshistorie der alten Welt werden verworfen.
+- Auch beim Laden einer anderen Save-Revision derselben Welt wird die Beobachtungshistorie zurückgesetzt. Die erste bestätigte Beobachtung nach Ladeabschluss ist eine neue Ausgangsbasis und kein Ereignis des gerade erfolgten Aufhebens.
+- Solange die neue Identität unklar ist, wird weder fremder Zustand angezeigt noch eine Datei unter einem Standardnamen geschrieben.
+
+Slotnummer, Spielername oder Unity-Instanzadresse allein ersetzen keine bestätigte Weltidentität.
+
+7.4 Lesen und Validieren
+
+Prüfen:
+- Unterstützte Schema-Version.
+- Passende Welt- und Zielbindung.
+- Gültige Gebietskennung.
+- Endliche Koordinaten.
+- Positiver plausibler Radius und passende Höhenwerte.
+- Zielabdeckung nach wieder gültigem Weltzugriff.
+
+Eine beschädigte Datei wird erhalten und diagnostiziert. Eine unbekannte neuere Schema-Version wird nicht still mit Standardwerten überschrieben. Der Suchmodus darf in diesem Fall erst nach einem klaren Wiederherstellungsweg erneut persistent schreiben.
+
+7.5 Schreiben
+
+- Geänderte Daten schreiben, nicht pro Frame.
+- Annahme, Abbruch und bestätigte Kontextwechsel sind konkrete Speicheranlässe.
+- Atomisches Ersetzen und Backupverhalten der eingesetzten Infrastruktur müssen geprüft sein.
+- Eine Dirty-Markierung wird erst nach bestätigt erfolgreichem Schreiben gelöscht.
+- Ein Schreibfehler wird begrenzt protokolliert und verständlich angezeigt; die laufende Sitzung kann ihren Zustand im Speicher behalten.
+- Ein verzögerter Write darf nach Weltwechsel keine neuen Daten überschreiben.
+
+7.6 Vorhandenen Wegpunktfehler getrennt reparieren
+
+Die DTO-Felder in MinimapWaypoints.cs werden mit den gezeigten Standardoptionen nicht automatisch von System.Text.Json verarbeitet. Microsoft dokumentiert dieses Verhalten. [Q5, Q9]
+
+Die kleine Reparatur legt eindeutig fest, welche Daten serialisiert werden, und verwendet beim Lesen passende Regeln. Bereits verlorene Informationen in leeren Objekten können dadurch nicht rekonstruiert werden. Eine vorhandene brauchbare Sicherung wird nur nach Prüfung herangezogen; Werte werden nicht erfunden.
+
+Abnahme:
+Name, Koordinaten und Farbe eines Wegpunkts stimmen nach Speichern und erneutem Lesen exakt überein. Suchdaten erhalten eigene Tests und werden nicht als besondere Benutzerwegpunkte gespeichert.
+
+8. RENDERING UND SCHUTZ VOR EXAKTEN MARKERN
+
+8.1 Zentrale Anzeigeentscheidung
+
+Die Mod unterscheidet:
+- Bisherige Anzeige gemäß bestehender Einstellung, wenn Suchmodus ausgeschaltet.
+- Suchmodus mit unterdrückten exakten Schlüsselmarkern, wenn eingeschaltet.
+
+Die bisherige Einstellung zur Schlüsselanzeige bleibt gespeichert. Ein bewusstes Ausschalten des Suchmodus stellt ihre Wirkung wieder her.
+
+Im eingeschalteten Suchmodus bleiben exakte Schlüsselmarker auch vor der Aufgabenannahme, nach Abbruch und während vorübergehend unklarer Daten unterdrückt. Eine interne Störung schaltet nicht selbsttätig auf die präzise Anzeige zurück.
+
+8.2 Bereits aufgebaute Marker berücksichtigen
+
+UpdateSewerKeys fügt den exakten Marker in den dynamischen Snapshot ein; dieser kann bis zum nächsten Scan bestehen bleiben. Ein Moduswechsel benötigt deshalb sofortige Filterung beim Rendern oder gezielte Invalidierung einschließlich bereits sichtbarer Poolobjekte. [Q1]
+
+Die Abnahme betrachtet den ersten gezeichneten Frame nach einem Moduswechsel. Ein kurzes Aufblitzen der exakten Position ist bereits ein Fehler.
+
+Die Unterdrückung gilt für alle von dieser Mod erzeugten Schlüsselanzeigen. Ob andere Mods oder die native Karte unabhängig zusätzliche Informationen zeigen, ist ein getrennt zu prüfender Kompatibilitätspunkt.
+
+8.3 Overlay
+
+Das Suchgebiet erhält eine eigene wiederverwendete Ebene zwischen Kartenbild und normalen Markern. Es belegt weder einen der 64 Blippoolplätze noch einen der 16 persönlichen Wegpunkte.
+
+Weltmittelpunkt und ausreichend viele Randpunkte werden durch den vorhandenen Welt-zu-Karte-Konverter abgebildet. Eine Weltkreisfläche darf nicht ohne Prüfung als gleich großer Bildschirmkreis behandelt werden.
+
+Für eine nachgewiesen affine Projektion kann eine einfache gecachte Darstellung genügen. Andernfalls stellt ein kleiner maskierbarer Umrissrenderer die projizierte Fläche dar. Die konkrete Unity-Umsetzung wird gegen die vorhandenen IL2CPP-Referenzen geprüft; neue native Signaturen werden nicht vorausgesetzt.
+
+Die Verschiebung zum Spieler, Zoom und Rotation werden genau einmal in derselben Bezugskette wie die Karte angewendet.
+
+8.4 Randbehandlung
+
+Die bestehende Kartenmaske schneidet nicht sichtbare Teile der Fläche ab. Der Mittelpunkt des Gebiets wird nicht an den Kartenrand verschoben.
+
+Teilweise sichtbares Gebiet:
+Nur der tatsächliche Schnitt mit dem Kartenausschnitt erscheint.
+
+Vollständig außerhalb:
+Keine falsche Fläche am Rand. Ein späterer separater Richtungsmarker darf ausschließlich auf das Gebiet verweisen.
+
+Fehlender Spieler oder Kartenkonverter:
+Kein Overlay an einer Ersatz- oder Nullposition.
+
+8.5 Aktualisierung und Ressourcen
+
+- Gebietsdaten beziehungsweise Projektionsgeometrie ändern sich nur bei Gebietswechsel, veränderter Kalibrierung oder neuer Karteninstanz.
+- Normale Spielerbewegung verwendet vorhandene Ressourcen und Transformationen.
+- Text wird nur bei tatsächlich geändertem Darstellungszustand aktualisiert.
+- UI-Objekte, Materialien und Texturen werden beim Ende ihres bestätigten Lebenszyklus bereinigt.
+- Mehrfaches Laden erzeugt keine zusätzlichen Overlay-Instanzen.
+
+9. HANDY-APP UND BEDIENUNG
+
+9.1 Neue Seite Hinweise
+
+Die neue Seite wird so ergänzt, dass bestehende Seitenindizes beziehungsweise deren Verwendung geprüft bleiben. Besonders die farbbezogenen Aktionen dürfen nicht versehentlich auf eine andere Seite zeigen. [Q4]
+
+Die Seite zeigt:
+- Schalter für den optionalen Suchmodus.
+- Einen verfügbaren Hinweis oder einen klaren Status.
+- Annehmen beziehungsweise Abbrechen passend zum aktuellen Zustand.
+- Den Grundhinweis der angenommenen Aufgabe.
+- Bereits gefunden oder Suche abgeschlossen, sobald dies zum aktuellen Weltzustand passt.
+- Einen verständlichen Zustand während des Ladens oder bei fehlender Unterstützung.
+
+9.2 Verhalten der Bedienelemente
+
+- Annahme ist bei unklaren Daten nicht erfolgreich und erzeugt keinen provisorischen Zielpunkt.
+- Doppelklick wird wie ein einzelner Klick behandelt.
+- Abbrechen beendet nur die Annahme.
+- Schließen der App unterbricht die Aufgabe nicht.
+- Wiederöffnen zeigt den vorhandenen Zustand und erzeugt keine neue Suche.
+- Modus ausschalten erhält eine bestehende Annahme zur späteren Fortsetzung.
+- Vor einer späteren persönlichen Finderbehauptung wird der Ursprung des Fundsignals geprüft.
+
+9.3 HUD-Information
+
+Die Karte zeigt das Suchgebiet und höchstens eine kurze Statuszeile. Längere Texte stehen in der App. Ein zusätzlicher Erfolgshinweis ist kurz und wird nur bei einem passenden beobachteten Übergang ausgelöst.
+
+Neue Anzeigen übernehmen das vorhandene Änderungsprinzip von AppliedValue, soweit es für die jeweilige UI-Eigenschaft passt. [Q7]
+
+9.4 Lebensdauer der Oberfläche
+
+Neue Aktionen werden nicht bei jedem Öffnen zusätzlich registriert. Eine alte App-Instanz darf nach einem Reload keine zweite Aktion auslösen. Die Bereinigung folgt dem geprüften Lebenszyklus der vorhandenen PhoneApp-Anbindung.
+
+10. KONKRETE DATEIZUORDNUNG
+
+MinimapMod.cs:
+Suchdienst erstellen, vor dem bestehenden HUD-Guard aktualisieren, bestätigte Lade-/Weltwechsel behandeln, Ressourcen und ausstehende Writes geordnet beenden.
+
+MinimapConfig(2).cs:
+Einen optionalen globalen Suchmodus-Schalter ergänzen. Alte Konfigurationen erhalten einen definierten Standard ohne Datenverlust.
+
+MinimapFeatureRules(2).cs:
+Die zentrale Regel für exakte Schlüsselanzeige und Suchmodus ergänzen. Neue Aufgabenregeln können im eigenen Suchmodul bleiben, damit diese Datei nicht zum Sammelort sämtlicher Spiellogik wird.
+
+MinimapBlips.cs:
+Exakte Schlüsselanzeige durch die zentrale Modusentscheidung sperren und bestehende Snapshots/Poolobjekte beim Umschalten sicher berücksichtigen.
+
+MinimapHUD.cs:
+Overlay einhängen, korrekt transformieren und im UI-Lebenszyklus entfernen. Suchfortschritt wird hier nur dargestellt.
+
+MinimapSettingsApp.cs:
+Seite Hinweise, Aktionen, Lade-/Fehlerstatus und aktuelle Fortschrittsanzeige ergänzen. Seitenindex- und Listenerverhalten prüfen.
+
+MinimapWaypoints.cs:
+Die eigene kleine Serialisierungsreparatur durchführen. Keine Suchaufgabe in persönliche Wegpunkte umwandeln.
+
+MinimapCommands.cs:
+Nur die wenigen benötigten Entwicklerdiagnosen für Status und bestätigte Weltbindung vorsehen. Produktionsbefehle dürfen keinen frei benutzbaren Fund- oder Belohnungspfad erzeugen. Diagnosen mit exakten Positionen bleiben ausdrücklich entwicklungsbezogen und standardmäßig aus.
+
+MinimapTextures.cs:
+Nur ändern, wenn die gewählte Overlaydarstellung eine neue gecachte Textur benötigt. Ein rein geometrisch gezeichneter Suchbereich braucht keine neue Bitmapdatei.
+
+Neue Dateien:
+MinimapSearchController.cs, MinimapSearchGameAccess.cs, MinimapSearchStore.cs, MinimapSearchOverlay.cs; MinimapSearchAreas.cs bei wachsender Gebietsliste.
+
+Projektdatei und Imports:
+Tatsächliche Buildreferenzen und Einbindung neuer Quellen prüfen. Keine doppelten Uploadkopien, keine geratenen Referenzpfade.
+
+11. UMSETZUNGSREIHENFOLGE MIT ABNAHME
+
+Arbeitspaket 0 – Ausgangslage
+Abhängigkeiten: vollständige Projektunterlagen und lokaler Spielzugriff.
+Ergebnis: reproduzierbarer Ausgangsbuild, Versionsliste, bestätigter Datenvertrag und ein Testgebiet.
+Abnahme: die in Abschnitt 3 beschriebenen Nachweise liegen vor.
+
+Arbeitspaket 1 – Speichergrundlage
+Abhängigkeit: Paket 0.
+Ergebnis: separate Wegpunktreparatur und eindeutig serialisierbares Suchdatenmodell.
+Abnahme: echte Datenrundläufe, beschädigte Datei, Schreibfehler und Schemaabweichung sind gezielt geprüft.
+
+Arbeitspaket 2 – Zustände und Gebietszuordnung
+Abhängigkeit: Datenvertrag aus Paket 0.
+Ergebnis: reine Entscheidungslogik für Verfügbarkeit, Annahme, Abbruch, Fund und Rückkehr zu älteren Weltzuständen.
+Abnahme: falscher Fund durch Nähe, fehlendes Pickup oder ungültigen Manager ist ausgeschlossen; Gebiete bleiben stabil.
+
+Arbeitspaket 3 – Weltzugriff und Lebenszyklus
+Abhängigkeiten: Pakete 1 und 2.
+Ergebnis: Controller läuft unabhängig vom HUD, erkennt bestätigte Welt-/Ladewechsel, beginnt auch beim Neuladen derselben Welt einen neuen Beobachtungsabschnitt und lädt passende persönliche Daten.
+Abnahme: HUD aus, Telefon zu, Hauptmenü, Daten-Neuladen und Weltwechsel erzeugen korrekte Zustände.
+
+Arbeitspaket 4 – Anzeige und Handy-App
+Abhängigkeit: Paket 3.
+Ergebnis: vollständiger Ablauf vom Annehmen bis zum Fund mit Suchgebiet und Status.
+Abnahme: kein exakter Marker im Suchmodus; Fläche ist korrekt maskiert und transformiert; App-Aktionen wirken genau einmal.
+
+Arbeitspaket 5 – Inhalte und Zugänglichkeit
+Abhängigkeiten: Pakete 0 und 4.
+Ergebnis: geprüfte Gebietsliste und zutreffende Hinweistexte für den freigegebenen Umfang.
+Abnahme: jeder unterstützte Fundort liegt im richtigen Gebiet, ist erreichbar und wird durch den Hinweis sinnvoll beschrieben.
+
+Arbeitspaket 6 – Regression, Laufzeit und Performance
+Abhängigkeiten: Pakete 1 bis 5.
+Ergebnis: ausgefüllte Testmatrix, Fehlerkorrekturen und dokumentierte verbleibende Grenzen.
+Abnahme: alle verbindlichen Fälle des freigegebenen Betriebsmodus bestehen.
+
+Arbeitspaket 7 – Release
+Abhängigkeit: Paket 6.
+Ergebnis: Release-Build, erforderliche Moddateien, Installationshinweise, Änderungsbeschreibung und Testprotokoll.
+Abnahme: saubere Testinstallation lädt genau die erwartete Modversion, Suchablauf und Deaktivierung funktionieren.
+
+Sinnvoll parallel:
+- Reine Zustands-/Speicherlogik und die Erfassung sinnvoller Gebiete.
+- Nach festgelegtem Darstellungszustand: Overlay und Handy-App.
+Sequenziell:
+- Datenvertrag vor belastbarer Weltanbindung.
+- Korrekte Zustände vor UI-Fertigstellung.
+- Laufzeitabnahme vor Releasekennzeichnung.
+
+12. VERBINDLICHE TESTMATRIX
+
+T01 – Bisherige Konfiguration
+Ausgangslage: alte config.json ohne Suchmodus-Feld.
+Aktion: neue Version starten.
+Erwartung: Suchmodus ausgeschaltet; bestehende Einstellungen bleiben wirksam.
+
+T02 – Hinweis noch nicht angenommen
+Ausgangslage: Suchmodus ein, gültige offene Schlüsselwelt.
+Aktion: Karte und App öffnen.
+Erwartung: Hinweis verfügbar, kein aktives Gebiet, kein exakter Schlüsselmarker.
+
+T03 – Annahme
+Ausgangslage: bestätigter ungesammelter Schlüssel und passendes Gebiet.
+Aktion: zweimal schnell Annehmen.
+Erwartung: genau eine aktive Suche, eine stabile Gebietszuordnung und kein doppelter Write-/Meldungsablauf.
+
+T04 – Annahme während Laden
+Ausgangslage: Weltidentität oder Manager unklar.
+Aktion: Annahme versuchen.
+Erwartung: keine erfolgreiche Annahme, kein Ziel an Nullkoordinaten, verständlicher Status.
+
+T05 – Gebiet betreten und verlassen
+Ausgangslage: aktive Suche, Fundstatus falsch.
+Aktion: mehrfach über die Gebietsgrenze laufen.
+Erwartung: passende Statusänderung ohne Abschluss, neues Gebiet oder doppelte Annahme.
+
+T06 – Andere Höhenlage
+Ausgangslage: gleiche X/Z-Nähe, aber falsche Etage beziehungsweise Höhe.
+Aktion: an der Stelle vorbeigehen.
+Erwartung: keine unberechtigte räumliche Bestätigung; niemals Fundabschluss.
+
+T07 – Echter Fund
+Ausgangslage: aktiv und bestätigt ungeholt.
+Aktion: Schlüssel über die normale Spielinteraktion aufnehmen.
+Erwartung: nach bestätigtem Spielsignal abgeschlossen, Overlay entfernt, höchstens eine Abschlussmeldung.
+
+T08 – Bereits vorher gefunden
+Ausgangslage: geladener Save mit eingesammeltem Schlüssel.
+Aktion: Suchmodus aktivieren.
+Erwartung: bereits gefunden, keine neue Suche und keine nachträgliche Erfolgsanimation.
+
+T09 – Pickup verschwindet
+Ausgangslage: aktive Suche, fachlicher Fundstatus weiterhin falsch.
+Aktion: kontrolliert Pickup-Verfügbarkeit verlieren.
+Erwartung: Zustand unklar, kein Erfolg, kein Ersatzschlüssel und kein neues Gebiet.
+
+T10 – Wrapper ungültig
+Ausgangslage: aktive Suche.
+Aktion: Manager wird ungültig, WasCollected oder Nullpointer beziehungsweise Ausnahme.
+Erwartung: keine Schlussfolgerung über den Fund; begrenzte Diagnose; spätere gültige Beobachtung setzt fort.
+
+T11 – Gleiche Welt erneut laden
+Ausgangslage: angenommene Suche mit gespeichertem Gebiet.
+Aktion: Spiel beenden und denselben offenen Stand laden.
+Erwartung: nach bestätigtem Kontext gleiche Annahme und identisches Gebiet.
+
+T12 – Älteren Save nach späterem Fund laden
+Ausgangslage: Schlüssel wurde gefunden; anschließend Save derselben Welt vor dem Fund laden.
+Aktion: Ladeabschluss abwarten.
+Erwartung: wieder offene Suche bei erhaltener Annahme, sonst Hinweis verfügbar; keine fälschliche Erledigung.
+
+T13 – Andere Zielbindung
+Ausgangslage: gespeichertes Gebiet gehört nicht zum bestätigten aktuellen Schlüssel.
+Aktion: Zustand laden.
+Erwartung: keine Suche am alten Ort; konservativer Abgleich und nur ein belegtes neues Angebot.
+
+T14 – Wechsel von Welt A nach B
+Ausgangslage: A hat ungespeicherte Änderungen.
+Aktion: B laden.
+Erwartung: A-Write bleibt an A gebunden; keine Daten, Marker oder Erfolgsmeldungen aus A in B.
+
+T15 – Neuer Spielstand im selben Slot
+Ausgangslage: alte Welt und neue Welt teilen dieselbe Slotnummer.
+Aktion: neue Welt starten.
+Erwartung: keine Übernahme des alten Vorgangs aufgrund der Slotnummer.
+
+T16 – HUD verborgen und Telefon geschlossen
+Ausgangslage: aktive Suche.
+Aktion: Karte ausblenden, Telefon schließen, Schlüssel aufnehmen.
+Erwartung: fachlicher Zustand wird weiter abgeglichen; beim Wiederöffnen korrekt und ohne doppelte Meldung.
+
+T17 – Abbrechen und erneut annehmen
+Ausgangslage: aktive offene Suche.
+Aktion: abbrechen und später neu annehmen.
+Erwartung: kein Erfolg, gleiches Gebiet, exakter Marker bleibt bei eingeschaltetem Suchmodus verborgen.
+
+T18 – Suchmodus aus und wieder ein
+Ausgangslage: angenommene Suche.
+Aktion: Modus ausschalten und wieder einschalten.
+Erwartung: bisherige Anzeige nur beim bewussten Ausschalten; Annahme erhalten; vor neuer Suchanzeige Weltabgleich.
+
+T19 – Erster Frame nach Moduswechsel
+Ausgangslage: exakter Schlüsselmarker bereits sichtbar und im Snapshot.
+Aktion: Suchmodus einschalten.
+Erwartung: kein verbleibender oder aufblitzender exakter Marker.
+
+T20 – Kartenformen und Transformationen
+Ausgangslage: bekannte Testgeometrie.
+Aktion: drei Formen, beide Rotationsmodi, Größen- und Zoomgrenzen sowie mehrere Blickrichtungen prüfen.
+Erwartung: identischer Weltbezug, korrekte Maskierung, keine doppelte Rotation oder Verschiebung.
+
+T21 – Gebiet am Kartenrand
+Ausgangslage: Suchgebiet teilweise beziehungsweise vollständig außerhalb.
+Aktion: Spieler um den Ausschnitt bewegen.
+Erwartung: geometrisch korrektes Abschneiden; keine an den Rand versetzte Fläche.
+
+T22 – Viele andere Marker
+Ausgangslage: volle beziehungsweise überfüllte normale Markeranzeige.
+Aktion: aktive Suche darstellen.
+Erwartung: Suchfläche bleibt unabhängig vom 64er-Pool verfügbar; persönliche Wegpunktkapazität unverändert.
+
+T23 – Defekte oder neuere Zusatzdatei
+Ausgangslage: beschädigte Datei oder unbekannte Schema-Version.
+Aktion: laden.
+Erwartung: keine falsche Erledigung, kein stiller Verlust durch Überschreiben, klarer Wiederherstellungsstatus.
+
+T24 – Schreibfehler
+Ausgangslage: gültige aktive Suche, Schreiben schlägt kontrolliert fehl.
+Aktion: Hinweisannahme speichern.
+Erwartung: Dirty-Zustand bleibt erhalten; Meldung behauptet keinen gespeicherten Fortschritt; spätere Wiederholung schreibt in dieselbe Welt.
+
+T25 – Wiederholtes Laden und App-Öffnen
+Ausgangslage: stabiler Spielstand.
+Aktion: fünf vollständige Ladezyklen und wiederholtes Öffnen/Schließen der App.
+Erwartung: keine zusätzlichen Overlay-Instanzen, keine vervielfachten Aktionen oder dauerhaft anwachsenden eigenen UI-Ressourcen.
+
+T26 – Nicht freigegebene Mehrspielersitzung
+Ausgangslage: Host oder Client ohne vollständigen Nachweis.
+Aktion: Suchfunktion aufrufen.
+Erwartung: klar nicht verfügbar; kein als persönlicher Fund ausgegebener globaler Zustand. Die allgemeine Minimap bleibt separat regressionsgeprüft.
+
+T27 – Rückbau
+Ausgangslage: aktive offene Suche.
+Aktion: Suchmodus deaktivieren; anschließend vorherige Modversion mit passenden Sicherungen wiederherstellen.
+Erwartung: keine von der Suchmod erzeugten Weltänderungen, keine veränderten Schlüssel-Spawns und keine beschädigten persönlichen Wegpunkte.
+
+T28 – Fernorientierung
+Ausgangslage: passendes Suchgebiet liegt vollständig außerhalb des Minimap-Ausschnitts.
+Aktion: Hinweis in der App lesen und das Gebiet aus der Entfernung aufsuchen.
+Erwartung: die geprüfte Orts- oder Zugangsbeschreibung ermöglicht die Orientierung; keine unbelegte große Kartenansicht oder exakte Zielposition wird benötigt. Im sichtbaren Ausschnitt erscheint anschließend das korrekte Gebiet.
+
+T29 – Bereits abgeschlossenen Stand derselben Welt laden
+Ausgangslage: offene Suche mit bestätigt ungesammeltem Schlüssel.
+Aktion: einen anderen Save derselben Welt laden, in dem der Schlüssel bereits gefunden wurde.
+Erwartung: neue Beobachtung beginnt mit dem Ladeabschluss; erster Abgleich zeigt bereits gefunden und erzeugt keine erneute Erfolgsmeldung. Es wird kein Fundübergang über die Ladegrenze hinweg verglichen.
+
+13. TESTMETHODEN UND PERFORMANCE
+
+13.1 Reine Tests
+
+Sinnvoll sind Tests für:
+- Zustandsübergänge einschließlich unbekannter Daten.
+- Versionierte Datenrundläufe und Validierung.
+- Weltzuordnung und auf den ursprünglichen Kontext gebundene Writes.
+- Stabile Gebietszuordnung.
+- Sichtbarkeitsregeln für exakte Schlüsselmarker.
+- Mathematische Projektion mit unabhängig berechneten Erwartungswerten.
+
+Nicht sinnvoll sind Tests, die lediglich dieselbe interne Funktion erneut aufrufen und deren Ergebnis gegen sich selbst vergleichen.
+
+13.2 Laufzeitprüfungen
+
+Nur reale Spielprüfungen belegen:
+- Tatsächliche Semantik des Schlüsselstatus.
+- Ladebereitschaft und Reinitialisierung.
+- IL2CPP- und UI-Kompatibilität.
+- Korrekte Karte und Maskierung.
+- Erreichbarkeit der Orte.
+- Verhalten nach echtem Aufheben und Laden.
+- Netzwerkverhalten, wenn später freigegeben.
+
+13.3 Geplanter Aktualisierungstakt
+
+Als Startwert wird der einzelne Schlüsselzustand mit ungefähr vier Prüfungen pro Sekunde gelesen. Dieser Wert ist eine Implementierungsentscheidung, keine Messung des vorhandenen Spiels. Bestätigte Ereignisse können später bei nachgewiesenem Nutzen ergänzen.
+
+Erwartetes Reaktionsziel:
+Nach einem im Spiel bereits gültig verfügbaren Fundsignal aktualisiert sich der Status normalerweise innerhalb einer halben Sekunde. Ladezeiten und verzögerte Bereitstellung des Spiels werden separat betrachtet.
+
+Keine neue vollständige NPC-Suche, keine Objektsuche über die ganze Szene und kein Dateizugriff pro Frame.
+
+13.4 Vergleich
+
+Mit und ohne Suchmodus werden dieselbe Szene, Kameraposition, Auflösung und Einstellungen verwendet. Ladephasen werden von normalen Spielphasen getrennt.
+
+Erfasst werden:
+- Zusätzliche CPU-Zeit der eigenen Aktualisierung.
+- Verwaltete Allokationen im stationären Zustand.
+- Zahl eigener Overlay-/UI-Ressourcen vor und nach Reloads.
+- Sichtbare Frametimespitzen beim Annehmen, Umschalten und Speichern.
+
+Ziel ist keine zusätzliche laufende Speicherallokation der eigenen Suchlogik im stabilen Zustand und keine kontinuierliche Zunahme eigener UI-Ressourcen. Ein Millisekundenbudget wird nach der Baseline auf der tatsächlichen Testhardware festgelegt. Ein nicht gemessener FPS-Wert wird nicht als Ergebnis angegeben.
+
+14. MEHRSPIELER ALS EIGENE FREIGABE
+
+Die lokale Hinweisverwaltung benötigt möglicherweise keine eigenen Netzwerkpakete, wenn alle benötigten Daten bereits korrekt auf dem Client ankommen. Das darf erst nach Tests entschieden werden.
+
+Vor Freigabe zu klären:
+- Globale oder persönliche Bedeutung des Fundstatus.
+- Verlässliche Identität der betretenen Welt und ihres Hosts.
+- Verhalten, wenn ein anderer Spieler den Schlüssel aufnimmt.
+- Verhalten von spätem Beitritt, Trennen und erneutem Beitritt.
+- Erneutes Laden durch den Host.
+- Meldungstexte ohne falsche persönliche Zuschreibung.
+
+Ein eigener RPC- oder Belohnungspfad wird nicht vorsorglich eingeführt. Falls bestehende bestätigte Replikation genügt, wird sie genutzt. Falls nicht, bleibt die Funktion bis zu einer gesondert geplanten Lösung in diesem Kontext gesperrt.
+
+15. RISIKEN UND RÜCKBAU
+
+Größte Risiken:
+- Verwechslung von ungültigem Wrapper und echtem Fund.
+- Veralteter Zustand während Daten-Neuladen.
+- Verwechslung von Welten mit gleicher Slotnummer.
+- Exakte Positionsanzeige über bereits aufgebaute Marker.
+- Unpassender Kreis aufgrund falscher Projektionsannahmen.
+- Unzutreffende Hinweise oder unvollständige Abdeckung der möglichen Fundorte.
+- Doppelte UI-Listener und Ressourcen nach Reloads.
+- Sidecar-Schreibfehler oder unpassende Schema-Versionen.
+
+Rückbau:
+- Suchmodus per Einstellung deaktivieren.
+- Such-Overlay und eigene Laufzeitressourcen geordnet entfernen.
+- Vorherige Minimap-DLL aus dem gesicherten Stand wiederherstellen.
+- Bei Bedarf die gesicherten eigenen Konfigurations- und Wegpunktdateien gezielt zurückspielen.
+- Persönliche Suchdaten können archiviert bleiben; sie steuern keinen nativen Schlüsselzustand.
+- Ein vollständiger Suchdaten-Reset wird später nur als ausdrückliche Benutzeraktion angeboten, nicht als allgemeine Fehlerreaktion.
+
+16. DEFINITION FERTIG
+
+Die erste Version ist fertig, wenn:
+- Sie gegen die bestätigten echten Abhängigkeiten baut und im Zielspiel lädt.
+- Der freiwillige Ablauf von Hinweisannahme bis tatsächlichem Fund funktioniert.
+- Der Suchmodus weder vor Annahme noch während Fehlern die genaue Position anzeigt.
+- Das Gebiet bei Wiederannahme und erneutem Laden stabil bleibt.
+- Die laufende Suche unabhängig von HUD und App aktualisiert wird.
+- Ein älterer Save nach späterem Fund wieder als offen behandelt wird.
+- Unterschiedliche Welten und wiederverwendete Slots keine Daten vermischen.
+- Die neue Zusatzdatei und die reparierten Wegpunkte zuverlässig gespeichert werden.
+- Nicht unterstützte Sitzungen verständlich behandelt werden.
+- Die verbindliche Testmatrix für den freigegebenen Umfang bestanden ist.
+- Performance und Ressourcenverhalten praktisch überprüft wurden.
+- Installation, Deaktivierung, verbleibende Grenzen und die getesteten Versionen dokumentiert sind.
+- Das Release-Paket eine geprüfte DLL und nur die tatsächlich benötigten auslieferbaren Moddateien enthält. Spielassemblies oder Entwicklungsreferenzen werden nicht als Laufzeitpaket mitgeliefert.
+
+17. SPÄTERE ERWEITERUNGEN
+
+Nach erfolgreicher erster Suche:
+1. Weitere kuratierte Erkundungsaufgaben mit denselben Zustands- und Speicherregeln.
+2. Freiwillig angeforderte zusätzliche Hinweise.
+3. Checkpoint-Runden und persönliche Bestzeiten mit ausdrücklich festgelegtem Zeitverhalten.
+4. Liefer-Touren nach bestätigtem echten Lieferabschluss.
+5. Dealer-Versorgung nach bestätigtem Bestands- und Abholzugriff.
+6. Mehrspielerfreigabe nach eigenständiger Prüfung.
+
+Ein nächstes Feature wird erst begonnen, wenn der erste Suchablauf seinen praktischen Spielwert gezeigt hat. Der sinnvollste erste Entwicklungsauftrag bleibt Phase 0: Ausgangsbuild und belastbarer Schlüssel-/Ladevertrag.
+
+18. QUELLEN UND NACHWEISGRENZEN
+
+Q1 – Hochgeladene MinimapBlips.cs, insbesondere Zeilen 110–115, 156–183, 197–202, 505–523 und 545–547.
+Q2 – Hochgeladene MinimapHUD.cs, insbesondere Zeilen 249–307 und 930–1016.
+Q3 – Hochgeladene MinimapMod.cs, insbesondere Zeilen 12, 80–86 und 97–163.
+Q4 – Hochgeladene MinimapSettingsApp.cs, insbesondere Zeilen 29–35, 654–715 und 1118–1155.
+Q5 – Hochgeladene MinimapWaypoints.cs, insbesondere Zeilen 16–20, 116, 123–170 und 198–282.
+Q6 – Hochgeladene Minimap(2).csproj, Zeilen 1–6.
+Q7 – Hochgeladene AppliedValue.cs und MinimapFeatureRules(2).cs.
+Q8 – Offizielles Release S1API 3.2.1:
+https://github.com/ifBars/S1API/releases/tag/v3.2.1
+Q9 – Microsoft Learn, Include fields:
+https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/fields
+
+Die Quellen belegen die beschriebenen Ausgangsfunktionen und die genannten Abhängigkeitshinweise. Neue Zustände, Dateinamen, Prüftakte, Produktregeln und Arbeitspakete in diesem Dokument sind Entwurfsentscheidungen. Nicht belegte Spielzugriffe werden erst nach Phase 0 festgelegt. Der Plan enthält keine erfundenen S1API-Funktionen und keine fertige Implementierung.
+

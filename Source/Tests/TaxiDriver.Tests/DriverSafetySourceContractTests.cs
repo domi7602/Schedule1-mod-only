@@ -64,6 +64,12 @@ public class DriverSafetySourceContractTests
     /// subfolders (src/&lt;Domain&gt;/&lt;File&gt;.cs) as well as the root itself. Keeping the
     /// lookup layout-independent means a source reorganization does not invalidate
     /// every contract test that reads a file.
+    ///
+    /// Consolidated bundles hold several former files in one compilation unit,
+    /// each delimited by machine markers. When <paramref name="name"/> names a
+    /// merged original, the section that came from it is returned, so the
+    /// section-based contracts keep reading exactly that file's original content
+    /// (the surrounding bundle must never leak into an assertion).
     /// </summary>
     internal static string ReadSource(string name)
     {
@@ -71,6 +77,9 @@ public class DriverSafetySourceContractTests
         {
             string root = Path.Combine(dir.FullName, "Source", "Mods", "TaxiDriver", "src");
             if (!Directory.Exists(root)) continue;
+
+            string? section = ReadConsolidatedSection(root, name);
+            if (section != null) return section;
 
             string direct = Path.Combine(root, name);
             if (File.Exists(direct)) return File.ReadAllText(direct);
@@ -82,6 +91,43 @@ public class DriverSafetySourceContractTests
             throw new FileNotFoundException("TaxiDriver source file not found", name);
         }
         throw new FileNotFoundException("TaxiDriver source root not found", name);
+    }
+
+    /// <summary>
+    /// Returns the marker-delimited section a consolidated bundle kept for the
+    /// original file <paramref name="name"/>, or null when no bundle carries it.
+    /// </summary>
+    private static string? ReadConsolidatedSection(string root, string name)
+    {
+        string start = $"// ==== TaxiDriver section: {name} ====";
+        string end = $"// ==== end TaxiDriver section: {name} ====";
+        foreach (string file in Directory.GetFiles(root, "*.cs", SearchOption.AllDirectories))
+        {
+            string text = File.ReadAllText(file);
+            int at = text.IndexOf(start, StringComparison.Ordinal);
+            if (at < 0) continue;
+            int body = text.IndexOf('\n', at) + 1;
+            int stop = text.IndexOf(end, body, StringComparison.Ordinal);
+            if (stop < 0)
+                throw new IOException($"Unterminated TaxiDriver section '{name}' in {file}");
+            return UnindentSection(text.Substring(body, stop - body));
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// A bundle keeps each section inside a block namespace, so its body carries
+    /// exactly one extra 4-space indent level. Strip that level so callers see the
+    /// original file content again (preprocessor directives stay at column 0, as
+    /// the repo's formatter keeps them).
+    /// </summary>
+    private static string UnindentSection(string section)
+    {
+        string[] lines = section.Split('\n');
+        for (int i = 0; i < lines.Length; i++)
+            if (lines[i].StartsWith("    ", StringComparison.Ordinal))
+                lines[i] = lines[i].Substring(4);
+        return string.Join("\n", lines);
     }
 
     internal static string Section(string source, string start, string end)

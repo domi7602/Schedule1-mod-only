@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.7 (2026-10-18)
+- Size four equal columns for three visible rows independently of shop/search count; extra rows scroll. Subtle non-interactive cells complete the last row into a rectangle.
+- Reserve two shop-name lines with font-metric headroom and a separate item-count line. Names/IDs, palette, header and purchases are unchanged. Replace the unsafe RectTransform cast with component lookup.
+- Owner screenshot/Latest.log show 14 shops across four rows. 52 tests pass with observed behavioral RED/GREEN. Independent scoped review and name-band delta review PASS; Release deployed with 0 warnings/errors and DLL/PDB/metadata hashes matched. Native visual and scroll acceptance remain open.
+
 ## 0.3.6 (2026-10-12) — Chips back to plain labels
 - **Removed the drawn banknote/card icons from the CASH/CARD chips** (user feedback: the small strokes read as clutter, not as icons). Chips are back to the plain `CASH $…` / `CARD $…` labels at the original widths (105/90 and 120/100 dp); `ApplyChipHint` is back to the label-only signature. Chevron, X and magnifier icons stay.
 

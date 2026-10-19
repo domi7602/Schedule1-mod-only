@@ -102,7 +102,7 @@ public static class BuildingStore
 - `schedule1-troubleshooting/references/save-load-timing.md` + `schedule1-persistence/references/safestorage-atomic.md` — verified hook order, atomic writes
 - `schedule1-s1api/references/saveables.md` — S1API `Saveable`/`[SaveableField]` alternative (persist inside the save game; constraint table: no Il2Cpp refs in fields)
 - `schedule1-grid/SKILL.md` + `references/build-update-patching.md` — virtual root, DontDestroyOnLoad, anti-dupe, Harmony guards
-- Real implementations: `Source/Mods/AutoPackagingStation/src/Persistence/AutoPackStore.cs` (full 3-layer), `Source/Mods/TaxiDriver/` (deterministic GLB rebuild on scene load, no geometry persistence needed), `Source/Archive/HomelessMod/src/StreetPropertyManager.cs` (street items + virtual root)
+- Real implementations: `Source/Mods/AutoPackagingStation/src/AutoPackStore.cs` (full 3-layer), `Source/Mods/TaxiDriver/` (deterministic GLB rebuild on scene load, no geometry persistence needed), `Source/Archive/HomelessMod/src/StreetPropertyManager.cs` (street items + virtual root)
 
 ---
 

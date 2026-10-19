@@ -1,6 +1,6 @@
 using MelonLoader;
 
-[assembly: MelonInfo(typeof(WorldLook.WorldLookMod), "WorldLook", "0.1.1", "Dominik")]
+[assembly: MelonInfo(typeof(WorldLook.WorldLookMod), "WorldLook", "0.1.2", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace WorldLook;

@@ -31,10 +31,10 @@ public class RecoveryLoopSourceContractTests
     public void StartupAndPatrolRecovery_UseTheSameOperationBudget()
     {
         string startup = Section("private static bool TickStartupRecovery", "private static void TickPatrolSupervision");
-        Assert.Contains("if (!TryBeginRecovery(agent, veh)) return true;", startup);
+        Assert.Contains("if (!TryBeginRecovery(agent, veh, maneuverPlanned: true)) return true;", startup);
         string patrol = Section("private static void TickPatrolSupervision", "private static void TickReDispatch");
-        Assert.Contains("if (!TryBeginRecovery(veh.Agent, veh)) return;", patrol);
-        Assert.Equal(2, patrol.Split("TryBeginRecovery(veh.Agent, veh)").Length - 1);
+        Assert.Contains("if (!TryBeginRecovery(veh.Agent, veh, maneuverPlanned: true)) return;", patrol);
+        Assert.Equal(2, patrol.Split("TryBeginRecovery(veh.Agent, veh,").Length - 1);
     }
 
     [Fact]

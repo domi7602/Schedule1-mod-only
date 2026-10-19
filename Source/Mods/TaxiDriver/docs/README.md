@@ -1,6 +1,8 @@
-# TaxiDriver — Traffic-light hook disabled; safe lifecycle otherwise unchanged
+# TaxiDriver — Bounded reverse supervision
 
-Current installed build: see `mod.json`. The 0.8.11 wheel-sweep traffic-light hook is DISABLED after a live native->managed NullReferenceException (hundreds per second, Latest.log 2026-10-14) starved the VehicleAgent of sweep results; the taxi never reached its parked pickup state. Native traffic-light stopping is restored. Parent reran 489 tests; release built/deployed with 0 warnings/errors; installed DLL/PDB/mod.json hash-matched (`035ddaa65ba814c79529026acf5cd47036d5016b66b77b47932cc6f3701af964`). Confirm in-game: no GetWheelSweepCollision ERROR spam, pickup stops at the player, player cannot drive during an active ride. 0.8.16 deinit expectations still apply at quit. Details: CHANGELOG 0.8.17. Earlier build/test evidence below is historical.
+Release 0.8.19: exactly 19 production C# files plus the existing csproj. Parent reran 605 tests; nonincremental Release compile has 0 warnings/errors; final independent delta review PASS. Operation, reverse and native-order lifetimes are separate; failed stop forbids follow-up; current Complete waits for readable halt/proximity before arrival or boarding. Fare rules, native driving, -0.7 pedal and 1.5/3-second reverse windows are retained. Deployment and evidence: `reverse-recovery-verification.md`. **In-Game-Verify open**; the coarse rear sphere probe and native braking/callback semantics remain gameplay limitations.
+
+Prior 0.8.17 evidence (historical). The 0.8.11 wheel-sweep traffic-light hook is DISABLED after a live native->managed NullReferenceException (hundreds per second, Latest.log 2026-10-14) starved the VehicleAgent of sweep results; the taxi never reached its parked pickup state. Native traffic-light stopping is restored. Parent reran 489 tests; release built/deployed with 0 warnings/errors; installed DLL/PDB/mod.json hash-matched (`035ddaa65ba814c79529026acf5cd47036d5016b66b77b47932cc6f3701af964`). Confirm in-game: no GetWheelSweepCollision ERROR spam, pickup stops at the player, player cannot drive during an active ride. 0.8.16 deinit expectations still apply at quit. Details: CHANGELOG 0.8.17. Earlier build/test evidence below is historical.
 
 Prior 0.8.16 evidence (historical). Deinitialization now runs a one-shot, exception-isolated teardown: the shutdown gate closes before work and cannot reopen mid-cleanup; update/deferred/native callbacks quiesce first (nav orders invalidated, pending spawn/auto-run/seat-verify/settle/lot-dump cleared); the fare meter settles exactly once (claim before report IO, no retry on failed/unknown reports); patrol/navigation/actions stop; only owned trunk components are restored; no foreign seat/player mutation, remote exit or blind occupied-taxi despawn. Harmony hooks (actuator, cruise, traffic-light, ride protection, trace) are removed last via the installed `Harmony.UnpatchSelf`, so a later re-init can re-apply them; pre-teardown callback generations stay inert after re-init. Repeat/reentrant deinit is a no-op; partial init is tolerated. Parent reran 489 tests (0 failed/skipped); independent focused review PASS. Release built/deployed with 0 warnings/errors after game-closed and Shared-match checks. Installed DLL/PDB/mod.json read back and hash-matched; DLL SHA-256 `e3752ad1d95f91842aed08e685e2465acd08fa5cc361404fd6b8f135eaa515e7`. In-game verification open and pending the joint test: expect `[taxi-lifecycle] teardown complete (quit/deinit)`, at most one `[meter] ride ended (session teardown …)` line and no taxi despawn/seat changes on quit. Harmony finalizer execution, MelonEvents unsubscribe symmetry and S1API event removal are source-verified only. Minor non-blocking: the teardown-complete log also prints on the second (no-op) teardown call, and the park intent is reset by hook removal in the same frame, making the parked log line optimistic at quit. Fare rules, recovery budgets, road/traffic patches, destination identity, seat/STOP safety and package-4 listener leases unchanged. Earlier build/test evidence below is historical.
 
@@ -10,7 +12,7 @@ Prior 0.8.14 evidence (historical). Passenger seating uses only verified vacant 
 
 Prior 0.8.13 evidence (historical). XZ projection now interpolates original 3D route elevation. Hard placement requires filtered static support within +/-0.75 m, eight-corner measured chassis clearance at the proposed heading, root-to-bottom offset plus 0.05 m, and no foreign collider overlap. Offset candidates are reprojected onto the route; unsafe candidates are rejected before placement/progress bookkeeping. Existing bounded recovery, fares, native driving and package1 remain unchanged. Parent reran 404 tests (0 failed/skipped); independent read-only review PASS. Release built/deployed with 0 warnings/errors after game-closed/Shared-match checks. Installed DLL/PDB/mod.json read back and hash-matched; DLL SHA-256 `5f38fa1b4e735fcd6bacdf1d51fbc9b2acaa9414de9177ffe2f9fe58517958da`. Gameplay verification open: conservative world-AABB clearance may reject valid sloped/crowded spots; a single support probe is not proof of wheel support or semantic road identity. Earlier test/build numbers below are historical.
 
-Current native IgnoreTrafficLights update supplies a private flags copy only at the owned autonomous taxi's wheel-sweep consumer and restores the original reference after each call. Generic obstacles, turn/destination braking, recovery and fares retain their settings. Parent reran 324 tests and native instruction assertions; Release built/deployed clean with installed DLL/PDB/metadata hash-matched. Gameplay verification remains open: a separate forward-raycast branch does not consume the flag, so not every possible signal stop is proven eliminated. See `traffic-light-native-evidence.md` for evidence and allocation limitations.
+Prior 0.8.11 evidence (historical; hook disabled since 0.8.17). The native IgnoreTrafficLights update supplied a private flags copy only at the owned autonomous taxi's wheel-sweep consumer and restores the original reference after each call. Generic obstacles, turn/destination braking, recovery and fares retain their settings. Parent reran 324 tests and native instruction assertions; Release built/deployed clean with installed DLL/PDB/metadata hash-matched. Gameplay verification remains open: a separate forward-raycast branch does not consume the flag, so not every possible signal stop is proven eliminated. See `traffic-light-native-evidence.md` for evidence and allocation limitations.
 
 Prior 0.8.10 evidence (historical). The recurring-stall quick wins retain local history through reverse/redispatch and use the existing checked free-spot rescue on recurrence within 6 m without 4 m of fresh eligible forward goal approach. The whole-operation recovery cap, no-progress deadline, rescue budgets and fares remain unchanged. Parent reran 316 tests; Release built/deployed with 0 warnings/errors and hash-matched installed DLL/PDB/metadata. Gameplay escape/arrival verification is open; closest-goal progress is conservative on detours. The startup/build evidence below is historical unless explicitly dated otherwise.
 
@@ -330,29 +332,32 @@ plus `Exception.Message`, e.g.
 
 ## Source layout
 
-`src/` is organized by domain (same convention as `WorldLook`) so the ~58 sources stay
-navigable. All files share the single `namespace TaxiDriver`, so folders are pure grouping —
-moving a file never changes a type name.
+`src/` contains **19 hand-maintained C# files plus `TaxiDriver.csproj`** at its root,
+so the entire productive source fits a 20-file external review. Existing type namespaces,
+identities, inherited build rules and asset paths are unchanged. Bundled sections keep
+separate namespace-local imports; section markers preserve original source-contract scope.
 
-| Folder | Contents |
+| Files | Responsibility |
 |---|---|
-| `src/` (root) | `Mod.cs` (MelonMod entry) · `TaxiTuning.cs` (global constants) |
-| `src/Runtime/` | Per-frame service driver and shared state: `SpikeRunner`, `SpikeCommands`, `SpikeState`, `TaxiAI`, `TaxiStand`, `TaxiLifecycle` |
-| `src/App/` | Phone app UI: `TaxiApp`, `HeroView`, `HeroSnapshot`, `ServiceFeedback`, `StopConfirmation` |
-| `src/Console/` | Read-only `taxi ...` console diagnostics: `TaxiConsoleCommand`, `TaxiConsolePolicy` |
-| `src/Dispatch/` | Destination catalog and selection: `TaxiDestinations`, `DestinationFilter`, `DestinationSelectionPolicy` |
-| `src/Navigation/` | Arrival/recovery verdicts and budgets: `Navigation*`, `PatrolStartPolicy`, `RecoveryRecurrencePolicy`, `TerminalRescuePolicy` |
-| `src/Roads/` | Road keeping and driveable-target placement: `RoadKeeper`, `RoadTarget`, `Road*Policy` |
-| `src/Driving/` | Native vehicle control: `NativeActuator*`, `CruiseSpeed*`, `BrakeHoldPolicy`, `ReversePedalPolicy` |
-| `src/Traffic/` | Scoped native flag swaps: `TrafficLightPatch`, `TrafficLightPolicy`, `PrivateFlagsScope` |
-| `src/Fares/` | Meter, billing and settlement: `FareLedger`, `FareMeter`, `FarePayment`, `MeterSettlement`, `BalanceReadbackPolicy` |
-| `src/Occupancy/` | Driver and passenger seats: `TaxiDriverNPC`, `DriverBoardingGate`, `Passenger*`, `RideLocks`, `RideProtectionPolicy` |
-| `src/Lifecycle/` | Ownership, cleanup and callback plumbing: `CallbackLease`, `CleanupGuard`, `OwnedSubscriptions`, `VehicleOwnershipLedger`, `DeadTaxiCleanup` |
-| `src/Visuals/` | GLB model swap: `TaxiVisual`, `TaxiVisualPolicy` |
+| `Mod.cs` | MelonMod entry and tuning constants |
+| `TaxiApp.cs`, `TaxiInteractionPolicies.cs` | Phone UI and pure interaction/selection/seat policies |
+| `TaxiConsoleCommand.cs` | Read-only console diagnostics |
+| `SpikeCommands.cs`, `SpikeRunner.cs`, `SpikeState.cs` | Service operations, supervision and shared state |
+| `TaxiAI.cs`, `TaxiDestinations.cs`, `TaxiStand.cs` | Native patrol adapter, destinations and stand |
+| `RoadNavigation.cs` | RoadKeeper and RoadTarget adapters |
+| `DrivingPatches.cs`, `DrivingPolicies.cs` | Native scoped patches and Unity-free driving decisions |
+| `TaxiDriverNPC.cs`, `RideLocks.cs` | Dedicated driver and passenger protections |
+| `FareMeter.cs`, `FareDomain.cs` | Meter, ledger, payment and one-shot settlement |
+| `TaxiLifecycle.cs` | Lifecycle, callback leases, ownership and cleanup policies |
+| `TaxiVisual.cs` | Renderer-gated GLB presentation |
 
-`Source/Tests/TaxiDriver.Tests/TaxiDriver.Tests.csproj` links the Unity-free policies via
-`Compile Include`; its paths mirror this layout, and `DriverSafetySourceContractTests.ReadSource`
-resolves a file name across the folders so contracts survive future moves.
+`Source/Tests/TaxiDriver.Tests/TaxiDriver.Tests.csproj` links the four Unity-free bundles
+as a deduplicated set. `DriverSafetySourceContractTests.ReadSource` extracts the current
+marker-delimited original section for bundled types; it never reads an archived source copy.
+The mechanical midpoint retained all 498 baseline tests and passed the Release build with
+0 warnings/errors. Reconstruction verified every original section, and per-type IL comparison
+found only compiler-generated field-data address-label differences. Functional changes are
+recorded separately in `reverse-recovery-verification.md`.
 
 ## Build & deploy
 

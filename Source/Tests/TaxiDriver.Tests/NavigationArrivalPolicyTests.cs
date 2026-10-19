@@ -46,7 +46,8 @@ public class NavigationArrivalPolicyTests
         string runner = DriverSafetySourceContractTests.ReadSource("SpikeRunner.cs");
         Assert.Contains("ArrivalThresholdMeters = NavigationArrivalPolicy.ArrivalMeters", runner);
         Assert.Contains("NavigationArrivalPolicy.IsWithinArrival(distance)", runner);
-        Assert.Contains("NavigationArrivalPolicy.IsStandingAtArrival(atLastWaypoint, distance, speed)", runner);
+        // Review D1: the single supervised arrival decision replaced the loose proximity check.
+        Assert.Contains("SupervisedArrivalPolicy.IsConfirmedArrival(", runner);
         Assert.DoesNotContain("PatrolLooseArrivalMeters", runner);
     }
 }

@@ -14,7 +14,7 @@ public class NavigationProgressRegressionTests
         string runner = DriverSafetySourceContractTests.ReadSource("SpikeRunner.cs");
         Assert.Contains("ObserveNavigationProgress();", runner);
         Assert.Contains("_operationProgressTarget = SpikeState.NavTarget;", runner);
-        Assert.Contains("NavReDispatchAt <= 0f && !agent.IsReversing", runner);
+        Assert.Contains("!SpikeState.Reverse.Active && !agent.IsReversing", runner);
         string road = DriverSafetySourceContractTests.ReadSource("RoadKeeper.cs");
         Assert.Contains("SpikeRunner.ObserveArtificialPlacement(position);", road);
     }

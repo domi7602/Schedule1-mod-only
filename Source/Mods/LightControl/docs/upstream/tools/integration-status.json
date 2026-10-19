@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "mod_implemented": false,
+  "allowed_artifact_kinds": ["core-only", "diagnostics", "development"],
+  "release_blockers": [
+    "Native Lampen-, Eingabe-, Telefon-, Speicher- und Netzwerkadapter sind noch nicht vollständig integriert.",
+    "Die Zielinstallation und ihre konkreten Laufzeitreferenzen sind nicht bestätigt.",
+    "Die Pflichtprüfungen T01 bis T18 sind nicht im Zielspiel ausgeführt."
+  ]
+}

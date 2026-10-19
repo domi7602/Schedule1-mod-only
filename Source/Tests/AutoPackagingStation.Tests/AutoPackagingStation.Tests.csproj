@@ -26,8 +26,8 @@
     (2026-09-10: path fixed — files sit flat in src\, not in src\Engine\.)
   -->
   <ItemGroup>
-    <Compile Include="../../Mods/AutoPackagingStation/src/Engine/PackagingMath.cs" />
-    <Compile Include="../../Mods/AutoPackagingStation/src/Engine/AutoPackPolicies.cs" />
+    <Compile Include="../../Mods/AutoPackagingStation/src/PackagingMath.cs" />
+    <Compile Include="../../Mods/AutoPackagingStation/src/AutoPackPolicies.cs" />
     <Compile Include="../../Mods/AutoPackagingStation/src/AutoPackConfig.cs" />
   </ItemGroup>
 

@@ -1,0 +1,8 @@
+bin/
+obj/
+artifacts/
+references/
+*.user
+*.suo
+__pycache__/
+*.pyc

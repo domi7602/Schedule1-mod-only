@@ -14,7 +14,7 @@ public sealed class AppLayoutTests
         float collapsed = AppLayout.ContentHeight(scale, false);
         float expanded = AppLayout.ContentHeight(scale, true);
         Assert.Equal(AppLayout.ContentHeight(scale), collapsed);
-        Assert.Equal(516f * scale, expanded, 2);
+        Assert.Equal(538f * scale, expanded, 2);
         Assert.Equal((AppLayout.SliderHeight + AppLayout.Gap) * scale, expanded - collapsed, 2);
     }
 
@@ -25,7 +25,7 @@ public sealed class AppLayoutTests
     public void MinimumCollapsedControlStackFitsOriginalPhoneViewport(float phoneHeight, float scale)
     {
         float height = AppLayout.ContentHeight(scale);
-        Assert.Equal(452f * scale, height, 2);
+        Assert.Equal(472f * scale, height, 2);
         Assert.True(height <= phoneHeight * 0.885f, $"content {height} exceeds scroll viewport {phoneHeight * 0.885f}");
     }
 }

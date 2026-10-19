@@ -1,0 +1,294 @@
+{
+  "files": [
+    {
+      "archive": "LightControl/.gitignore",
+      "role": "source",
+      "sha256": "8aa8277e5a97a5ea8145608f3a6d6b873eb889c9c4bb97a262c8a5c6cd2f97de",
+      "source": ".gitignore"
+    },
+    {
+      "archive": "LightControl/CHANGELOG.txt",
+      "role": "source",
+      "sha256": "6ec7ac9073ca7661db758a763f9014d0e4a61551f8006d767f2ea10da05de19c",
+      "source": "CHANGELOG.txt"
+    },
+    {
+      "archive": "LightControl/Directory.Build.props",
+      "role": "source",
+      "sha256": "b30492525dd22f35a110b0008b9de11c353cd996f85d43d7500b19518831be69",
+      "source": "Directory.Build.props"
+    },
+    {
+      "archive": "LightControl/LICENSE.txt",
+      "role": "source",
+      "sha256": "e9595390d0d0083d7debbb4a99f6363758e9b382831d716d1d8ff4b0ec14d2e7",
+      "source": "LICENSE.txt"
+    },
+    {
+      "archive": "LightControl/NuGet.Config",
+      "role": "source",
+      "sha256": "857d4b11e8888550defaa114d8540b4c103c50f5c446cda9ed85250fa24642ab",
+      "source": "NuGet.Config"
+    },
+    {
+      "archive": "LightControl/README_DE.txt",
+      "role": "source",
+      "sha256": "6542563c33025e9963c1cf816182343ba90efe279156096c3458005a2df48870",
+      "source": "README_DE.txt"
+    },
+    {
+      "archive": "LightControl/global.json",
+      "role": "source",
+      "sha256": "13b739ded333873904bbb093dbe5d0878630f233d45ed76f1f63955dff14a5a7",
+      "source": "global.json"
+    },
+    {
+      "archive": "LightControl/assets/config.defaults.json",
+      "role": "source",
+      "sha256": "9b88bda03479e9ca139a2b5bdd1c875c26d38828f7be6ed73994370301ae0146",
+      "source": "assets/config.defaults.json"
+    },
+    {
+      "archive": "LightControl/assets/lang/de.json",
+      "role": "source",
+      "sha256": "c340710db9d7f920790ce534acd8c8a400a7e35dcddf5000b45b16c88ee31181",
+      "source": "assets/lang/de.json"
+    },
+    {
+      "archive": "LightControl/assets/lang/en.json",
+      "role": "source",
+      "sha256": "7c6aeb25bb260d527ced41912ccf1e78e357da2fec8bc1ceb522c7963e6d15f2",
+      "source": "assets/lang/en.json"
+    },
+    {
+      "archive": "LightControl/assets/lang/es.json",
+      "role": "source",
+      "sha256": "74f7a356f35d36009743414849ac61bc6aebe03af6ef39906953c0231d14c8f6",
+      "source": "assets/lang/es.json"
+    },
+    {
+      "archive": "LightControl/assets/lang/fr.json",
+      "role": "source",
+      "sha256": "ef6bbba6dcebc6291c7de2019e6586f4056b70c6c3534626946f6bf1edcb499b",
+      "source": "assets/lang/fr.json"
+    },
+    {
+      "archive": "LightControl/assets/lang/it.json",
+      "role": "source",
+      "sha256": "19464d08bfcf9cd6cc0cd60cfd2374602aa764261337ec1e087c382254121a33",
+      "source": "assets/lang/it.json"
+    },
+    {
+      "archive": "LightControl/assets/lang/pl.json",
+      "role": "source",
+      "sha256": "b2cce2d6644788e547812d7f508721184792763358ee9a111870f4f848179365",
+      "source": "assets/lang/pl.json"
+    },
+    {
+      "archive": "LightControl/assets/lang/pt.json",
+      "role": "source",
+      "sha256": "db24e3b735fa4db29b7051a65ce6162ece9a26c41eec53fb3e749b2018880005",
+      "source": "assets/lang/pt.json"
+    },
+    {
+      "archive": "LightControl/assets/lang/ru.json",
+      "role": "source",
+      "sha256": "9a72a6ea5d8cc9077cac33b6597c92f15bb1294df150100e725bb2390517f8f9",
+      "source": "assets/lang/ru.json"
+    },
+    {
+      "archive": "LightControl/docs/ACCEPTANCE.md",
+      "role": "source",
+      "sha256": "2d59adbc3af2409601ed44b8074af26e47cc6d6e5d41a03848aba295ec38f6b3",
+      "source": "docs/ACCEPTANCE.md"
+    },
+    {
+      "archive": "LightControl/docs/API_EVIDENCE.md",
+      "role": "source",
+      "sha256": "02fe780f5a8f6f9afe78c788801010e5315e65c70deaafe7687b40e5ba889096",
+      "source": "docs/API_EVIDENCE.md"
+    },
+    {
+      "archive": "LightControl/docs/BUILD.md",
+      "role": "source",
+      "sha256": "0881b13d85f1354163c8a28bfc5132856d95a770dc1102c62b038c2509c872b0",
+      "source": "docs/BUILD.md"
+    },
+    {
+      "archive": "LightControl/docs/BUILD_ENVIRONMENT.json",
+      "role": "source",
+      "sha256": "385ad7ab494e8584cbd816732b45bf85b9d8774a82a59503d702814b3482f33a",
+      "source": "docs/BUILD_ENVIRONMENT.json"
+    },
+    {
+      "archive": "LightControl/docs/COMPATIBILITY.md",
+      "role": "source",
+      "sha256": "945544f848825812e411f599129b3524aaac432a3b3109c0cc132d10fcf6938a",
+      "source": "docs/COMPATIBILITY.md"
+    },
+    {
+      "archive": "LightControl/docs/DIAGNOSTICS.md",
+      "role": "source",
+      "sha256": "d8a538667cd74f83b602ae5f271182d1be6b2b19d5484f34423a521aca2263fb",
+      "source": "docs/DIAGNOSTICS.md"
+    },
+    {
+      "archive": "LightControl/docs/IMPLEMENTATION_BRIEF.txt",
+      "role": "source",
+      "sha256": "38d4513b2cf137428c1a527ccc0359fabe767c5e88930da32d37e992fedc8b53",
+      "source": "docs/IMPLEMENTATION_BRIEF.txt"
+    },
+    {
+      "archive": "LightControl/docs/LOCALIZATION.md",
+      "role": "source",
+      "sha256": "7434b5c33cc1c9b0e2d8f2cb94f0067e8c1f67f72e5b710ae3baa0aa69beac4b",
+      "source": "docs/LOCALIZATION.md"
+    },
+    {
+      "archive": "LightControl/docs/LOCAL_TEST_INPUTS.md",
+      "role": "source",
+      "sha256": "e1ee541d77b4502518ea8175775d415bfa871dd49470a05d6ab7e9f785b3e968",
+      "source": "docs/LOCAL_TEST_INPUTS.md"
+    },
+    {
+      "archive": "LightControl/docs/REQUIREMENTS.md",
+      "role": "source",
+      "sha256": "d22d4ec30e628324c3f5fd64d71336db9d6c76217c6c592ff3800e46f9a3f561",
+      "source": "docs/REQUIREMENTS.md"
+    },
+    {
+      "archive": "LightControl/docs/STATUS.md",
+      "role": "source",
+      "sha256": "987d0262da00f1635b04b45564ce9b5384cbd1fa4a60c21943bd4b22690649a8",
+      "source": "docs/STATUS.md"
+    },
+    {
+      "archive": "LightControl/docs/TESTREPORT.md",
+      "role": "source",
+      "sha256": "d9b78af4e19822b08bacf27ee5abc9731ca16047b53d6aaae841d34843619679",
+      "source": "docs/TESTREPORT.md"
+    },
+    {
+      "archive": "LightControl/packaging/development-files.txt",
+      "role": "source",
+      "sha256": "e1953a45d8c6f44fdbedc033a7e3a7e0ddec31959ee765fe1918d7b63fe471d9",
+      "source": "packaging/development-files.txt"
+    },
+    {
+      "archive": "LightControl/src/LightControl.Core/Domain.cs",
+      "role": "source",
+      "sha256": "0fe21cdab2296e64da375e3a3658555b52af70ffb623769937e1d0148e9ecdb5",
+      "source": "src/LightControl.Core/Domain.cs"
+    },
+    {
+      "archive": "LightControl/src/LightControl.Core/JsonStatePersistence.cs",
+      "role": "source",
+      "sha256": "4efbf9f8cbcbc09a200d14d9e9822a12d7d9f4b6de332a1f7447b926836ce33a",
+      "source": "src/LightControl.Core/JsonStatePersistence.cs"
+    },
+    {
+      "archive": "LightControl/src/LightControl.Core/LightControl.Core.csproj",
+      "role": "source",
+      "sha256": "551d2806384dc481b15bd9162c304ac2ad2bb0620f4aac7f8d7fcce4f826837d",
+      "source": "src/LightControl.Core/LightControl.Core.csproj"
+    },
+    {
+      "archive": "LightControl/src/LightControl.Core/LightStateStore.cs",
+      "role": "source",
+      "sha256": "ca47332b92a5c88a83aaa3cf8a46ff965a76236f43524e9dd681480a87206218",
+      "source": "src/LightControl.Core/LightStateStore.cs"
+    },
+    {
+      "archive": "LightControl/src/LightControl.Core/Protocol.cs",
+      "role": "source",
+      "sha256": "b87852de656c9e56d316af05746e856a55df0323615d3274db99940a4e072df9",
+      "source": "src/LightControl.Core/Protocol.cs"
+    },
+    {
+      "archive": "LightControl/src/LightControl.Core/README.md",
+      "role": "source",
+      "sha256": "2f4b9affdcba2eb00bbcee8144364ad61087a289e280b232b72011baf20852c7",
+      "source": "src/LightControl.Core/README.md"
+    },
+    {
+      "archive": "LightControl/src/LightControl.Core/VisualResolver.cs",
+      "role": "source",
+      "sha256": "d4dd8c155509c27ab7cba56835e01c9177a8209ab7a727d9986202cedfc0aa62",
+      "source": "src/LightControl.Core/VisualResolver.cs"
+    },
+    {
+      "archive": "LightControl/src/LightControl.Diagnostics/DiagnosticMod.cs",
+      "role": "source",
+      "sha256": "5a3f6dac09b3b7bf241792e98a8d7dc1310a756c9da9e102bc4211f9d08852f4",
+      "source": "src/LightControl.Diagnostics/DiagnosticMod.cs"
+    },
+    {
+      "archive": "LightControl/src/LightControl.Diagnostics/LightControl.Diagnostics.csproj",
+      "role": "source",
+      "sha256": "8f456293cbf7b85be85c47fb82987d6c279c5a84297af61b5b69da80199c3ec4",
+      "source": "src/LightControl.Diagnostics/LightControl.Diagnostics.csproj"
+    },
+    {
+      "archive": "LightControl/tests/LightControl.Core.Tests/LightControl.Core.Tests.csproj",
+      "role": "source",
+      "sha256": "ec03cb4058a510cb939b65eb318e80fcab3abd0ecc8496aad1a555aadbcdcc96",
+      "source": "tests/LightControl.Core.Tests/LightControl.Core.Tests.csproj"
+    },
+    {
+      "archive": "LightControl/tests/LightControl.Core.Tests/Program.cs",
+      "role": "source",
+      "sha256": "25aa904b0efb1402f1bcf19638770990fcbe90823d4fd24005b1c65efc8957ef",
+      "source": "tests/LightControl.Core.Tests/Program.cs"
+    },
+    {
+      "archive": "LightControl/tests/packaging/test_packaging.py",
+      "role": "source",
+      "sha256": "8f898820477ccc2915d9ec000efdfe51da8e1016ef8b5494b2e7df63d3202680",
+      "source": "tests/packaging/test_packaging.py"
+    },
+    {
+      "archive": "LightControl/tools/BUILD_CORE.cmd",
+      "role": "source",
+      "sha256": "2ba75075ce0f79c14e44ec664fd3c81b543f912614660684c062044fb1675e9e",
+      "source": "tools/BUILD_CORE.cmd"
+    },
+    {
+      "archive": "LightControl/tools/COLLECT_DIAGNOSTICS.cmd",
+      "role": "source",
+      "sha256": "676f58fefee695bd4619fd7c5b8e99bcc22689ba2ef7b2bc13e6fcc2177391ee",
+      "source": "tools/COLLECT_DIAGNOSTICS.cmd"
+    },
+    {
+      "archive": "LightControl/tools/build.ps1",
+      "role": "source",
+      "sha256": "690481307a85f524ce5ab9e787852168c0144aa8673fd2eb0cfcddae5f6fc921",
+      "source": "tools/build.ps1"
+    },
+    {
+      "archive": "LightControl/tools/collect-diagnostics.ps1",
+      "role": "source",
+      "sha256": "ff1d2aed56d76243cb5e123a9242b8a68e7b9be33d21c98fe7494f6f32de1512",
+      "source": "tools/collect-diagnostics.ps1"
+    },
+    {
+      "archive": "LightControl/tools/create-development-manifest.py",
+      "role": "source",
+      "sha256": "8358227a76cbb03b6f3331784c04815864e7bf553747d95b22988f5e266099a6",
+      "source": "tools/create-development-manifest.py"
+    },
+    {
+      "archive": "LightControl/tools/integration-status.json",
+      "role": "source",
+      "sha256": "a7dde2a76a182009d6246d6226e368ce6b575b8c3ec9507a72d08bcc0e5bcaf1",
+      "source": "tools/integration-status.json"
+    },
+    {
+      "archive": "LightControl/tools/package.py",
+      "role": "source",
+      "sha256": "e1e9d84c8dccdade335b721076d94c71735b09285674633126599292bbedb6e8",
+      "source": "tools/package.py"
+    }
+  ],
+  "kind": "development",
+  "schema_version": 1
+}

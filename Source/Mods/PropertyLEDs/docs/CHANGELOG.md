@@ -3,6 +3,11 @@
 All notable changes to PropertyLEDs are documented here. Format: Keep a Changelog;
 versioning: SemVer.
 
+## 0.1.7 (2026-10-18)
+- Centralize the phone typography ramp and increase selector names, slider labels/values, buttons, help text and subtitle. Increase the corresponding selector bands and control heights without changing palette, slider ranges, settings or lighting.
+- Minimum content budget is now 472 dp collapsed / 538 dp expanded; small screens retain scrolling. Room bar and color preview remain removed.
+- 94 tests pass (typography RED/GREEN observed). Independent scoped review PASS; Release deployed with 0 warnings/errors and DLL/PDB/metadata hashes matched; the installed layout catalog hash is unchanged. Native readability, clipping and pointer acceptance remain open.
+
 ## 0.1.6 (2026-10-17)
 
 ### Changed

@@ -21,50 +21,19 @@
   <!--
     Link the pure-logic source files directly from the mod so the test project
     stays free of MelonLoader/Unity/S1API references (same pattern as
-    AutoPackagingStation.Tests and CalculatorApp.Tests). Extend the list as more
-    Unity-free logic is extracted.
+    AutoPackagingStation.Tests and CalculatorApp.Tests).
+
+    The mod's src/ is consolidated: each bundle file holds several former
+    per-type files, one per block namespace, so the four bundles below are the
+    complete, deduplicated set of Unity-free sources (the Unity/Harmony/S1API
+    bundles - Mod.cs, RoadNavigation.cs, DrivingPatches.cs - and the twelve
+    unchanged app/runtime files stay out of this host).
   -->
   <ItemGroup>
-    <!-- Paths mirror the mod's src/<Domain>/ layout (WorldLook convention). -->
-    <Compile Include="../../Mods/TaxiDriver/src/Runtime/TaxiLifecycle.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/App/HeroSnapshot.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/App/HeroView.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/App/ServiceFeedback.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/App/StopConfirmation.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Console/TaxiConsolePolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Dispatch/DestinationFilter.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Dispatch/DestinationSelectionPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Navigation/NavigationArrivalPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Navigation/NavigationCallbackPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Navigation/NavigationEndReason.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Navigation/NavigationRecoveryBudget.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Navigation/NavigationTerminalPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Navigation/PatrolStartPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Navigation/RecoveryRecurrencePolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Navigation/TerminalRescuePolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Roads/RoadProjectionPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Roads/RoadSnapSafetyPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Driving/BrakeHoldPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Driving/CruiseSpeedPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Driving/NativeActuatorPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Driving/NativeActuatorScope.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Driving/ReversePedalPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Traffic/PrivateFlagsScope.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Traffic/TrafficLightPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Fares/BalanceReadbackPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Fares/FareLedger.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Fares/FarePayment.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Fares/MeterSettlement.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Occupancy/DriverBoardingGate.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Occupancy/PassengerCleanupPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Occupancy/PassengerSeatPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Occupancy/RideProtectionPolicy.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Lifecycle/CallbackLease.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Lifecycle/CleanupGuard.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Lifecycle/DeadTaxiCleanup.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Lifecycle/OwnedSubscriptions.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Lifecycle/VehicleOwnershipLedger.cs" />
-    <Compile Include="../../Mods/TaxiDriver/src/Visuals/TaxiVisualPolicy.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/TaxiInteractionPolicies.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/DrivingPolicies.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/FareDomain.cs" />
+    <Compile Include="../../Mods/TaxiDriver/src/TaxiLifecycle.cs" />
   </ItemGroup>
 
 </Project>

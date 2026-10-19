@@ -24,12 +24,10 @@
     free of UnityEngine / Il2CppScheduleOne / MelonLoader.
   -->
   <ItemGroup>
-    <Compile Include="../../Mods/HitmanPhone/src/Scheduling/BountyCallSchedulerConstants.cs" />
-    <Compile Include="../../Mods/HitmanPhone/src/Scheduling/BountyBudget.cs" />
-    <Compile Include="../../Mods/HitmanPhone/src/Persistence/BountySaveData.cs" />
-    <Compile Include="../../Mods/HitmanPhone/src/Scheduling/BountyCallSchedulePlan.cs" />
-    <Compile Include="../../Mods/HitmanPhone/src/Tracking/BountyTrackerService.cs" />
-    <Compile Include="../../Mods/HitmanPhone/src/Evidence/BountyEvidenceMatcher.cs" />
+    <Compile Include="../../Mods/HitmanPhone/src/BountyCallPlan.cs" />
+    <Compile Include="../../Mods/HitmanPhone/src/BountySaveData.cs" />
+    <Compile Include="../../Mods/HitmanPhone/src/BountyTrackerService.cs" />
+    <Compile Include="../../Mods/HitmanPhone/src/BountyEvidenceMatcher.cs" />
   </ItemGroup>
 
 </Project>

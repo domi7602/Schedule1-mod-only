@@ -1,0 +1,83 @@
+namespace PropertyLEDs.Core;
+
+/// <summary>Pure minimum and bounded responsive sizing; no native or settings dependencies.</summary>
+public static class AppLayout
+{
+    // Typography ramp in reference dp; UITheme.Sp scales each value to the phone canvas.
+    // Every visible label size is declared once here and referenced by the app builders, so a
+    // too-small value or a text band that cannot hold its text is caught by a pure test.
+    public const int FontTitle = 23;
+    public const int FontSubtitle = 11;
+    public const int FontSelectorCaption = 15;
+    public const int FontSelectorLabel = 20;
+    public const int FontSelectorContext = 13;
+    public const int FontSliderCaption = 17;
+    public const int FontSliderValue = 17;
+    public const int FontPowerLabel = 17;
+    public const int FontPowerDetail = 12;
+    public const int FontButton = 14;
+    public const int FontInlineState = 12;
+
+    // Selector text bands in dp measured from the card bottom (the app converts them to
+    // centre-relative offsets). Each band must be taller than the ramp size it carries, and
+    // the three bands must stack without overlapping inside SelectorHeight.
+    public const float SelectorCaptionBandBottom = 43f;
+    public const float SelectorCaptionBandTop = 65f;
+    public const float SelectorLabelBandBottom = 18f;
+    public const float SelectorLabelBandTop = 42f;
+    public const float SelectorContextBandBottom = 1f;
+    public const float SelectorContextBandTop = 17f;
+
+    public const float SelectorHeight = 74f;
+    public const float SliderHeadingHeight = 26f;
+    public const float SliderTrackHeight = 28f;
+    public const float SliderHeight = SliderHeadingHeight + SliderTrackHeight;
+    public const float PreviewHeight = 58f;
+    public const float ActionHeight = 54f;
+    public const float PowerHeight = 68f;
+    public const float AdvancedHeight = 34f;
+    public const float Gap = 12f;
+    public const float Padding = 4f;
+
+    public readonly record struct Sizing(float Selector, float Preview, float Slider, float Advanced,
+        float Power, float Action, float Gap, float Content);
+
+    public const float InlineStateHeight = 32f;
+
+    public static bool ShouldApply(float width, float height, float appliedWidth, float appliedHeight, bool dirty) =>
+        float.IsFinite(width) && float.IsFinite(height) && width > 1 && height > 1 &&
+        (dirty || System.Math.Abs(width - appliedWidth) > 0.5f || System.Math.Abs(height - appliedHeight) > 0.5f);
+
+    public static Sizing Measure(float viewport, float scale, bool expanded, bool inlineState)
+    {
+        // Stretch usable controls, not a spacer. Keep minimum hit areas on small screens.
+        float state = inlineState ? InlineStateHeight * scale : 0;
+        int gaps = 6 + (expanded ? 1 : 0) + (inlineState ? 1 : 0);
+        float minimum = ContentHeight(scale, expanded) + state + (inlineState ? Gap * scale : 0);
+        float stretch = System.Math.Clamp((viewport - state) / (minimum - state), 1f, 1.5f);
+        float gap = System.Math.Clamp(Gap * scale * stretch + System.Math.Max(0, viewport - state - (minimum - state) * stretch) / gaps,
+            Gap * scale, Gap * scale * 3f);
+        float content = (minimum - state - gaps * Gap * scale) * stretch + gaps * gap + state;
+        return new(SelectorHeight * scale * stretch, PreviewHeight * scale * stretch,
+            SliderHeight * scale * stretch, AdvancedHeight * scale * stretch,
+            PowerHeight * scale * stretch, ActionHeight * scale * stretch, gap, content);
+    }
+
+    public readonly record struct Tone(float R, float G, float B, float A);
+
+    public static Tone InlineColor(string? message)
+    {
+        if (!string.IsNullOrEmpty(message) && message.Contains("Unverified", System.StringComparison.Ordinal))
+            return new(0.95f, 0.78f, 0.28f, 1f);
+        if (!string.IsNullOrEmpty(message) && message.Contains("failed", System.StringComparison.OrdinalIgnoreCase))
+            return new(0.91f, 0.29f, 0.27f, 1f);
+        return new(0.80f, 0.85f, 0.90f, 1f);
+    }
+
+    // Property card, three sliders, advanced row, power card, presets: seven children.
+    public static float ContentHeight(float scale) => ContentHeight(scale, false);
+
+    public static float ContentHeight(float scale, bool advancedExpanded) =>
+        (SelectorHeight + 3 * SliderHeight + ActionHeight + AdvancedHeight + PowerHeight +
+         6 * Gap + 2 * Padding + (advancedExpanded ? SliderHeight + Gap : 0)) * scale;
+}

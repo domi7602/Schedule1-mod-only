@@ -10,13 +10,10 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2"><PrivateAssets>all</PrivateAssets></PackageReference>
-    <Compile Include="../../Mods/WorldLook/src/Probe/RenderingSnapshot.cs" Link="RenderingSnapshot.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Probe/RendererScanBudget.cs" Link="RendererScanBudget.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Probe/CooperativeCapture.cs" Link="CooperativeCapture.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Probe/FairTraversal.cs" Link="FairTraversal.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Probe/WaterHeuristics.cs" Link="WaterHeuristics.cs" Condition="Exists('../../Mods/WorldLook/src/Probe/WaterHeuristics.cs')" />
-    <Compile Include="../../Mods/WorldLook/src/Probe/CaptureSchedule.cs" Link="CaptureSchedule.cs" Condition="Exists('../../Mods/WorldLook/src/Probe/CaptureSchedule.cs')" />
-    <Compile Include="../../Mods/WorldLook/src/Probe/ReportPolicy.cs" Link="ReportPolicy.cs" Condition="Exists('../../Mods/WorldLook/src/Probe/ReportPolicy.cs')" />
-    <Compile Include="../../Mods/WorldLook/src/Probe/IntrospectionPolicy.cs" Link="IntrospectionPolicy.cs" Condition="Exists('../../Mods/WorldLook/src/Probe/IntrospectionPolicy.cs')" />
+    <!-- Pure, Unity-free probe logic. The former per-type files are consolidated into domain
+         bundles; each original body is preserved verbatim in its own block namespace. -->
+    <Compile Include="../../Mods/WorldLook/src/RenderingSnapshot.cs" Link="RenderingSnapshot.cs" />
+    <Compile Include="../../Mods/WorldLook/src/ProbeCapturePolicies.cs" Link="ProbeCapturePolicies.cs" />
+    <Compile Include="../../Mods/WorldLook/src/ProbeReportPolicies.cs" Link="ProbeReportPolicies.cs" />
   </ItemGroup>
 </Project>

@@ -15,7 +15,14 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="../../Mods/Minimap/src/Blips/AppliedValue.cs" Link="AppliedValue.cs" />
-    <Compile Include="../../Mods/Minimap/src/Core/MinimapFeatureRules.cs" Link="MinimapFeatureRules.cs" Condition="Exists('../../Mods/Minimap/src/Core/MinimapFeatureRules.cs')" />
+    <Compile Include="../../Mods/Minimap/src/AppliedValue.cs" Link="AppliedValue.cs" />
+    <Compile Include="../../Mods/Minimap/src/MinimapFeatureRules.cs" Link="MinimapFeatureRules.cs" Condition="Exists('../../Mods/Minimap/src/MinimapFeatureRules.cs')" />
+    <Compile Include="../../Mods/Minimap/src/MinimapJson.cs" Link="MinimapJson.cs" />
+    <Compile Include="../../Mods/Minimap/src/WaypointStore.cs" Link="WaypointStore.cs" />
+    <Compile Include="../../Mods/Minimap/src/SearchObservationGate.cs" Link="SearchObservationGate.cs" Condition="Exists('../../Mods/Minimap/src/SearchObservationGate.cs')" />
+    <Compile Include="../../Mods/Minimap/src/SearchModel.cs" Link="SearchModel.cs" />
+    <Compile Include="../../Mods/Minimap/src/SearchArea.cs" Link="SearchArea.cs" />
+    <Compile Include="../../Mods/Minimap/src/SearchRecord.cs" Link="SearchRecord.cs" />
+    <Compile Include="../../Mods/Minimap/src/SearchController.cs" Link="SearchController.cs" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,15 @@
 # WorldLook
 
+## 0.1.2 (2026-10-18)
+
+- **Reverts the shore-foam tweak from 0.1.1.** That was scope creep on my side: the owner asked for clarity, not less foam, and the change was nearly inert anyway. The shader gates foam through `smoothstep(0.35, 0.9, foamBand)`, so foam only *starts* below `0.65 × _FoamDepth` and only *saturates* below `0.10 × _FoamDepth` — dropping `_FoamDepth` 0.35 → 0.28 moved the onset from 22.7 cm to 18.2 cm of eye-space thickness, a hairline either way. `_FoamDepth` and `_FoamStrength` are no longer written at all and stay at the shader's own defaults.
+- **Adds the real remaining clarity lever: `_ShallowTint` red 0.35 → 0.50.** Everything seen *through* the surface is `sceneColor * lerp(_ShallowTint, _DeepTint, absorb) * 2.0`. At the old red that gain kept red at only ~47 % of green in the shallows (~39 % at mid depth), which is why the bottom flattened into teal and read as "not clear" rather than as an absorption problem. Green and blue stay untouched so the palette keeps its character, and `_DeepTint` is not written at all.
+- The recipe therefore writes exactly three values now: `_Absorption` 0.38, `_RippleStrength` 0.45, `_ShallowTint` (0.50, 0.75, 0.75). Reflection, sun, deep tint and foam remain the owner-approved shader defaults.
+- Still no shader or bundle rebuild — material property values only. The colour write goes through the same `HasProperty`-guarded, Unity-free path as the floats.
+- Tests were rewritten rather than merely extended: a pin that the foam values are *not* written (including the shader defaults it falls back to, parsed from the shader so they cannot drift), a semantic pin that the shallow-tint red rises without overtaking green and with green/blue/alpha unchanged, and the shader-declaration parse now covers the `Color` declaration too. 1 143 tests in the suite; the drop from 1 152 is the smaller tables (the float subset theory went 16 → 8 cases).
+- **Open question, honestly flagged:** the percentages above are arithmetic on the shader's raw literals. The game runs a Linear colour space, so if Unity converts the un-annotated `Color` default sRGB→linear on this shader-swap path, the effective baseline is redder than 0.35 suggests and the figures shift. The direction of the change and its safety hold under either model — but the numbers do not, so they should be confirmed by reading the unwritten `_DeepTint` off the configured clone via S1MCP. Independent review: PASS-with-nits; both actionable nits fixed before deploy (the foam-defaults pin above, and an upper bound on the tint red).
+- In-Game-Verify open.
+
 ## 0.1.1 (2026-10-18)
 
 - The reference water reads clearer. `ReferenceWaterLook` writes four material properties onto the owned clone right after the reference shader is bound: `_Absorption` 0.55 → 0.38, `_RippleStrength` 0.55 → 0.45, `_FoamDepth` 0.35 → 0.28, `_FoamStrength` 0.8 → 0.68.

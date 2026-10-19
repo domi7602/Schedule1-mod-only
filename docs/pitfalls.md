@@ -16,7 +16,7 @@
 
 ### 1.2 Responsive UI ("Method 3": `UITheme`)
 - S1API phone canvases are high-DPI and rotated 90° — fixed pixel sizes are unreadable on different resolutions.
-- **Single source of truth:** `S1Mods.Shared.UITheme` (`Source/Mods/Shared/src/UI/UITheme.cs`). Mod UI elements use `UITheme.Sp(...)`, `UITheme.Dp(...)`, and `UITheme.Scale`.
+- **Single source of truth:** `S1Mods.Shared.UITheme` (`Source/Mods/Shared/src/UITheme.cs`). Mod UI elements use `UITheme.Sp(...)`, `UITheme.Dp(...)`, and `UITheme.Scale`.
 - **Non-Destructive PhoneApp Lifecycle:** Never call `Object.Destroy()` or destructive UI clears in `OnPhoneClosed()` — only `_mainBG.SetActive(false)`. Otherwise the dreaded **"Transparent Phone"** bug occurs on the next open.
 - **Rule 10/11:** `OnCreated()` fires only 1× per scene (S1API `HomeScreen_Start_Patch`), `OnPhoneClosed()` on every close. **Never** unsubscribe `MelonEvents.OnUpdate` subscriptions in `OnPhoneClosed()`, otherwise the app becomes unoperable on the second open.
 
@@ -81,7 +81,7 @@ Consequences for any mod that writes lighting/render state:
   current value (detect your own writes by value) or the parameter freezes at toggle-time
   values and a later restore drags it back hours. A strength change is not game drift: the
   blend at the previous strength is still our write. Adopting it freezes the old tint.
-  See `Source/Mods/WorldLook/src/Lighting/BaselinePolicy.cs`.
+  See `Source/Mods/WorldLook/src/BaselinePolicy.cs`.
 - `Sun.intensity` follows the day/night curve too (0 at 06:00, ~1.7 at noon, ~2.6 at 18:00 in
   the Main scene) — a biased sun **color** is invisible while intensity is 0 (dawn/dusk).
 - URP `Volume` `colorFilter` is only writable when the game instantiated its own profile

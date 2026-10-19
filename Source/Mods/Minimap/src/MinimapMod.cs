@@ -9,7 +9,7 @@ using S1API.Console;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "2.3.3", "Dominik")]
+[assembly: MelonInfo(typeof(Minimap.MinimapMod), "Minimap", "2.3.4-dev.1", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace Minimap;
@@ -20,6 +20,7 @@ public sealed class MinimapMod : MelonMod
 
     private readonly ModLogger _log = new("Minimap");
     private readonly MinimapHUD _hud;
+    private readonly MinimapSearchDevelopment _searchDevelopment;
     public MinimapConfig Config { get; private set; } = new();
     public MinimapWaypoints Waypoints => _hud.Waypoints;
 
@@ -72,6 +73,7 @@ public sealed class MinimapMod : MelonMod
     public MinimapMod()
     {
         _hud = new MinimapHUD(_log);
+        _searchDevelopment = new MinimapSearchDevelopment(_log);
     }
 
     public override void OnInitializeMelon()
@@ -92,7 +94,16 @@ public sealed class MinimapMod : MelonMod
 
         _log.Info("Minimap initialized. Console commands 'minimap' and 'map' ready.");
         TryRegisterHashPlugin();
+        _searchDevelopment.Initialize();
     }
+
+    public override void OnDeinitializeMelon()
+    {
+        _searchDevelopment.Dispose();
+        Instance = null;
+    }
+
+    public void SearchDevelopmentCommand(List<string> args) => _searchDevelopment.Command(args);
 
     public override void OnSceneWasInitialized(int buildIndex, string sceneName)
     {
@@ -123,6 +134,7 @@ public sealed class MinimapMod : MelonMod
 
     public override void OnUpdate()
     {
+        _searchDevelopment.Tick();
         if (!_hud.IsCreated)
             return;
 

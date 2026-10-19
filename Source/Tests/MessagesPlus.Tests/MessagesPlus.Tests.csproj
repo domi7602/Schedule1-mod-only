@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="../../Mods/MessagesPlus/src/Theme/ThemeColorPolicy.cs" Link="ThemeColorPolicy.cs" />
+    <Compile Include="../../Mods/MessagesPlus/src/ThemeColorPolicy.cs" Link="ThemeColorPolicy.cs" />
   </ItemGroup>
 
   <ItemGroup>

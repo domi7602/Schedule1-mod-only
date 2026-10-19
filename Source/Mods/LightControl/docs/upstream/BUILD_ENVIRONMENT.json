@@ -1,0 +1,22 @@
+{
+  "record_date": "2026-10-18",
+  "artifact_version": "0.1.0-dev.1",
+  "environment": "Linux x64 workspace, no Schedule I installation",
+  "requested_target": "Windows x64 / Schedule I IL2CPP / net6.0",
+  "sdk_pinned": "6.0.428",
+  "compiler_commands_found": [],
+  "checked_commands": ["dotnet", "csc", "mcs", "msbuild"],
+  "official_sdk_download_attempt": {
+    "url": "https://builds.dotnet.microsoft.com/dotnet/Sdk/6.0.428/dotnet-sdk-6.0.428-linux-x64.tar.gz",
+    "http_status": 403,
+    "download_succeeded": false
+  },
+  "csharp_build": "not-run",
+  "csharp_behavior_tests": "not-run",
+  "powershell_runtime_tests": "not-run",
+  "game_runtime_tests": "not-run",
+  "mod_dll_created": false,
+  "diagnostic_dll_created": false,
+  "core_dll_created": false,
+  "release_approved": false
+}

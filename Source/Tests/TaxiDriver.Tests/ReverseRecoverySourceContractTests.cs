@@ -50,7 +50,7 @@ public class ReverseRecoverySourceContractTests
         Assert.Contains("SpikeCommands.HasAuthority()", patch);
         Assert.Contains("__instance!.DriverPlayer != null", patch);
         Assert.Contains("Time.timeScale == 0f", patch);
-        Assert.Contains("SpikeState.NavReDispatchAt > 0f", patch);
+        Assert.Contains("SpikeState.Reverse.IsCurrentFor(SpikeState.OperationId, SpikeState.NavOrder, Time.unscaledTime)", patch);
         Assert.Contains("NativeActuatorScope.Begin(", patch);
         Assert.Contains("state.Scope?.Dispose();", patch);
         Assert.Contains("return __exception;", patch);

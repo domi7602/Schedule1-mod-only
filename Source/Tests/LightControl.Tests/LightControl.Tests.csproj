@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12</LangVersion>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>LightControl.Core.Tests</AssemblyName>
+    <RootNamespace>LightControl.Core.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- The pure core is linked as source, not referenced as a project: the mod project
+         (src/LightControl.csproj) pulls in the Unity/MelonLoader game references and would
+         drag them into this game-free console host. -->
+    <Compile Include="../../Mods/LightControl/src/Domain.cs" Link="Core/Domain.cs" />
+    <Compile Include="../../Mods/LightControl/src/JsonStatePersistence.cs" Link="Core/JsonStatePersistence.cs" />
+    <Compile Include="../../Mods/LightControl/src/LightStateStore.cs" Link="Core/LightStateStore.cs" />
+    <Compile Include="../../Mods/LightControl/src/Protocol.cs" Link="Core/Protocol.cs" />
+    <Compile Include="../../Mods/LightControl/src/VisualResolver.cs" Link="Core/VisualResolver.cs" />
+    <!-- Runtime-used pure policies (Unity-free) for the in-game adapter: native baseline
+         ownership, native GUID identity, save-slot gating, bounded scan cadence and UI cycling. -->
+    <Compile Include="../../Mods/LightControl/src/NativePolicies.cs" Link="Core/NativePolicies.cs" />
+    <Compile Include="../../Mods/LightControl/src/PropertyOwnershipPolicy.cs" Link="Core/PropertyOwnershipPolicy.cs" />
+    <Compile Include="../../Mods/LightControl/src/SceneScanBudget.cs" Link="Core/SceneScanBudget.cs" />
+    <Compile Include="../../Mods/LightControl/src/LightPointerDedupe.cs" Link="Core/LightPointerDedupe.cs" />
+    <Compile Include="../../Mods/LightControl/src/LampIdentityPolicy.cs" Link="Core/LampIdentityPolicy.cs" />
+    <Compile Include="../../Mods/LightControl/src/PersistenceSlotPolicy.cs" Link="Core/PersistenceSlotPolicy.cs" />
+    <Compile Include="../../Mods/LightControl/src/ScanCadence.cs" Link="Core/ScanCadence.cs" />
+    <Compile Include="../../Mods/LightControl/src/UiSelectionPolicy.cs" Link="Core/UiSelectionPolicy.cs" />
+    <!-- Runtime-used pure policy for the LED-surface-only correction: the lamp's own emitting
+         material slot is recoloured through an owned clone; no Unity Light is ever written. -->
+    <Compile Include="../../Mods/LightControl/src/LedSurfacePolicy.cs" Link="Core/LedSurfacePolicy.cs" />
+    <!-- Runtime-used pure ownership/source-choice/release policy for the LED-surface clone
+         lifecycle: the clone source stays the native material and a clone is destroyed only
+         once the renderer is proven not to reference it. -->
+    <Compile Include="../../Mods/LightControl/src/LedSurfaceOwnership.cs" Link="Core/LedSurfaceOwnership.cs" />
+  </ItemGroup>
+</Project>

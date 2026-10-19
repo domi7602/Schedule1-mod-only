@@ -24,8 +24,8 @@
     free of UnityEngine / Il2CppScheduleOne.
   -->
   <ItemGroup>
-    <Compile Include="../../Mods/StorageScanner/src/Core/StorageScannerCore.cs" />
-    <Compile Include="../../Mods/StorageScanner/src/App/StorageScannerController.cs" />
+    <Compile Include="../../Mods/StorageScanner/src/StorageScannerCore.cs" />
+    <Compile Include="../../Mods/StorageScanner/src/StorageScannerController.cs" />
   </ItemGroup>
 
 </Project>

@@ -10,15 +10,11 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2"><PrivateAssets>all</PrivateAssets></PackageReference>
-    <Compile Include="../../Mods/WorldLook/src/Lighting/Argb.cs" Link="Argb.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Lighting/BaselinePolicy.cs" Link="BaselinePolicy.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Lighting/BlendPolicy.cs" Link="BlendPolicy.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Lighting/DaylightPolicy.cs" Link="DaylightPolicy.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Lighting/GoldenHourTargets.cs" Link="GoldenHourTargets.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Lighting/SnapshotStore.cs" Link="SnapshotStore.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Lighting/TogglePolicy.cs" Link="TogglePolicy.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Lighting/ReapplyPolicy.cs" Link="ReapplyPolicy.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Lighting/VolumeFlagPolicy.cs" Link="VolumeFlagPolicy.cs" />
-    <Compile Include="../../Mods/WorldLook/src/Lighting/VolumeProfilePolicy.cs" Link="VolumeProfilePolicy.cs" />
+    <!-- Pure, Unity-free lighting logic. The former per-type files are consolidated into domain
+         bundles; each original body is preserved verbatim in its own block namespace. -->
+    <Compile Include="../../Mods/WorldLook/src/BaselinePolicy.cs" Link="BaselinePolicy.cs" />
+    <Compile Include="../../Mods/WorldLook/src/LightingMath.cs" Link="LightingMath.cs" />
+    <Compile Include="../../Mods/WorldLook/src/LightingVolume.cs" Link="LightingVolume.cs" />
+    <Compile Include="../../Mods/WorldLook/src/LightingCadence.cs" Link="LightingCadence.cs" />
   </ItemGroup>
 </Project>

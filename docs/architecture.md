@@ -31,6 +31,25 @@ Source/Mods/<ModName>/
 - Harmony patches use `PatchGuard` and must tolerate game-version signature drift.
 - IL2CPP `MonoBehaviour` types require the public `IntPtr` constructor.
 
+## LightControl first gameplay test boundary
+
+LightControl builds one `LightControl.dll` from its pure state model and a native grow-light
+adapter, with a phone app for color/intensity, original reset and applying the selected state to
+supported registered lamps. Storage is owned JSON through SafeStorage, isolated by active save
+slot. The latest owner request supersedes the earlier surface-only selection: **the LED panel and
+its emitted illumination must share the chosen color**. The source correction retains dev.4's
+native-material identity and owned-clone panel path, and adds guarded color/intensity overrides
+only for the exact lamp's own `ToggleableLight.lightSources` references. Both outputs use one resolved
+model instruction. Native light baselines are handed back in Update and re-sampled in LateUpdate;
+Original/teardown restore only still-owned outputs, preserving foreign native changes.
+Plant materials, growth, electricity, switch state, transforms, cone/range and native culling remain
+untouched. Plants naturally appearing color-lit is intended. FullSpectrum/halogen panels, fixed
+world lamps, room/group control, direct interaction and multiplayer transport are outside this slice.
+Build and pure-policy checks do not verify visible effects, native material swaps, discovery,
+reload persistence or performance. Consult the installed-version record rather than assuming a
+source change has already been deployed.
+See the [LightControl docs](../Source/Mods/LightControl/docs/README.md) for current evidence.
+
 ## GraphicsProbe rendering discovery boundary
 
 GraphicsProbe is a diagnostic-only first slice for the graphics-overhaul feasibility

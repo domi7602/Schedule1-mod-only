@@ -67,6 +67,8 @@ string path = SafeStorage.GetUserDataPath("MyMod", $"state_slot_{slot}.json");
 
 * **Never** use `File.WriteAllText` or `File.Copy(file, bak) + File.WriteAllText(tmp) + File.Replace`.
 * **Always** pass non-null fallback to `LoadSafe<T>` where `T:class`.
+* Clear dirty/saved markers only when the atomic writer returns `true`. Freeze both snapshot and destination before clearing a view or resolving another slot; failed old-slot IO must never be retried to the new slot. See [frozen writes and personal-intent persistence](references/frozen-writes.md).
+* `LoadTextSafe` recovers from text-read failures, not a later JSON/schema parse failure. Explicitly validate a backup before using it; preserve/quarantine unrecoverable or newer-schema sources instead of silently overwriting defaults.
 * Corruption test: corrupt `UserData/MyMod/state_slot_1.json` → restart → `.bak` auto-loads.
 
 ---
@@ -170,10 +172,10 @@ ModConfig<MyConfig>.Initialize("MyMod", Log,
 * In-Repo Architecture: `Skills/schedule1-game-systems/references/02-Save-Persistence.md`
 * Framework Source: `ThirdParty/S1API/S1API/Lifecycle/`
 * Live Mod Implementations:
-  - `Source/Mods/Shared/src/Persistence/SafeStorage.cs`
-  - `Source/Mods/CalculatorApp/src/State/CalculatorState.cs`
+  - `Source/Mods/Shared/src/SafeStorage.cs`
+  - `Source/Mods/CalculatorApp/src/CalculatorState.cs`
   - `Source/Mods/NotesApp/src/NotesApp.cs`
-  - `Source/Mods/BankApp/src/Services/TransactionHistoryService.cs`
-  - `Source/Mods/BusinessIncome/src/Persistence/PayoutStateStore.cs`
+  - `Source/Mods/BankApp/src/TransactionHistoryService.cs`
+  - `Source/Mods/BusinessIncome/src/PayoutStateStore.cs`
   - `Source/Archive/HomelessMod/src/StreetPropertyManager.cs`
-  - `Source/Mods/MoreSaveSlots/src/Services/SaveRenameService.cs`
+  - `Source/Mods/MoreSaveSlots/src/SaveRenameService.cs`

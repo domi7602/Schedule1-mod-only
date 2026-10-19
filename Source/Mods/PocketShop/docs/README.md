@@ -4,10 +4,12 @@
 
 ---
 
-## 🌟 Features (v0.3.2)
+## 🌟 Features (v0.3.7)
+
+Current layout update: 52 tests pass; in-game acceptance is open.
 
 - **2-Level Navigation**:
-  - **Level 1 (Store Directory)**: 4×3 grid with all city merchants, themed vector icons and merchant portraits.
+  - **Level 1 (Store Directory)**: Fixed four-column grid sized for three visible rows, with additional scrollable rows, equal-sized tiles and subtle non-interactive fillers completing the last row. Shop names stay inside a fixed two-line band; themed vector icons and merchant portraits are retained.
   - **Level 2 (Item Grid)**: 5-column item grid with prices, stock, image and quantity selector.
 - **🔒 Level & Rank Requirement Enforcement**:
   - Automatically respects vanilla item lock requirements (`RequiresLevelToPurchase` / `RequiredRank`).

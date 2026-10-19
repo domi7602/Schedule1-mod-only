@@ -34,15 +34,12 @@
     <!-- Paths mirror the mod's src/<Domain>/ layout (WorldLook convention). List them
          explicitly (a src/**/*.cs glob would pull the Unity/IL2CPP runtime glue into
          these tests). -->
-    <Compile Include="../../Mods/BusinessIncome/src/Core/FinancialOutcomes.cs" />
-    <Compile Include="../../Mods/BusinessIncome/src/Core/LegacyMigration.cs" />
-    <Compile Include="../../Mods/BusinessIncome/src/Core/PayoutCodec.cs" />
-    <Compile Include="../../Mods/BusinessIncome/src/Core/PayoutLedger.cs" />
-    <Compile Include="../../Mods/BusinessIncome/src/Core/PayoutScheduler.cs" />
-    <Compile Include="../../Mods/BusinessIncome/src/Core/PayoutSettlementEngine.cs" />
-    <Compile Include="../../Mods/BusinessIncome/src/Core/PayoutWindowPlanner.cs" />
-    <Compile Include="../../Mods/BusinessIncome/src/Core/Seams.cs" />
-    <Compile Include="../../Mods/BusinessIncome/src/Models/PayoutState.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/FinancialOutcomes.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/PayoutCodec.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/PayoutLedger.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/PayoutPolicies.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/PayoutSettlementEngine.cs" />
+    <Compile Include="../../Mods/BusinessIncome/src/PayoutState.cs" />
   </ItemGroup>
 
   <!--
@@ -50,20 +47,20 @@
     revenue/config test files compile once those files land. Condition on Exists so a
     mid-flight tree still builds.
   -->
-  <ItemGroup Condition="Exists('../../Mods/BusinessIncome/src/Models/BusinessData.cs')">
-    <Compile Include="../../Mods/BusinessIncome/src/Models/BusinessData.cs" />
+  <ItemGroup Condition="Exists('../../Mods/BusinessIncome/src/BusinessData.cs')">
+    <Compile Include="../../Mods/BusinessIncome/src/BusinessData.cs" />
   </ItemGroup>
-  <ItemGroup Condition="Exists('../../Mods/BusinessIncome/src/Models/BusinessRevenueLine.cs')">
-    <Compile Include="../../Mods/BusinessIncome/src/Models/BusinessRevenueLine.cs" />
+  <ItemGroup Condition="Exists('../../Mods/BusinessIncome/src/BusinessRevenueLine.cs')">
+    <Compile Include="../../Mods/BusinessIncome/src/BusinessRevenueLine.cs" />
   </ItemGroup>
-  <ItemGroup Condition="Exists('../../Mods/BusinessIncome/src/Persistence/ConfigSidecarData.cs')">
-    <Compile Include="../../Mods/BusinessIncome/src/Persistence/ConfigSidecarData.cs" />
+  <ItemGroup Condition="Exists('../../Mods/BusinessIncome/src/ConfigSidecarData.cs')">
+    <Compile Include="../../Mods/BusinessIncome/src/ConfigSidecarData.cs" />
   </ItemGroup>
-  <ItemGroup Condition="Exists('../../Mods/BusinessIncome/src/BusinessIncomeConfig.cs') AND Exists('../../Mods/BusinessIncome/src/Persistence/ConfigSidecarData.cs')">
+  <ItemGroup Condition="Exists('../../Mods/BusinessIncome/src/BusinessIncomeConfig.cs') AND Exists('../../Mods/BusinessIncome/src/ConfigSidecarData.cs')">
     <Compile Include="../../Mods/BusinessIncome/src/BusinessIncomeConfig.cs" />
   </ItemGroup>
-  <ItemGroup Condition="Exists('../../Mods/BusinessIncome/src/Services/RevenueCalculator.cs') AND Exists('../../Mods/BusinessIncome/src/Models/BusinessData.cs')">
-    <Compile Include="../../Mods/BusinessIncome/src/Services/RevenueCalculator.cs" />
+  <ItemGroup Condition="Exists('../../Mods/BusinessIncome/src/RevenueCalculator.cs') AND Exists('../../Mods/BusinessIncome/src/BusinessData.cs')">
+    <Compile Include="../../Mods/BusinessIncome/src/RevenueCalculator.cs" />
   </ItemGroup>
 
   <!--

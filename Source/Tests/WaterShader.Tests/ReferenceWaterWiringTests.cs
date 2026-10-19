@@ -12,7 +12,7 @@ public sealed class ReferenceWaterWiringTests
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
         while (directory != null && !File.Exists(Path.Combine(directory.FullName, "AGENTS.md"))) directory = directory.Parent;
-        return File.ReadAllText(Path.Combine(directory!.FullName, "Source/Mods/WorldLook/src/Water/ReferenceWaterRuntime.cs"));
+        return File.ReadAllText(Path.Combine(directory!.FullName, "Source/Mods/WorldLook/src/ReferenceWaterRuntime.cs"));
     }
 
     [Fact]

@@ -6,7 +6,7 @@ using PocketShop.Config;
 using PocketShop.Services;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(PocketShop.Mod), "PocketShop", "0.3.6", "Dominik")]
+[assembly: MelonInfo(typeof(PocketShop.Mod), "PocketShop", "0.3.7", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace PocketShop;

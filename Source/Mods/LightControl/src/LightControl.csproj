@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>LightControl</AssemblyName>
+    <RootNamespace>LightControl</RootNamespace>
+    <!-- The shared Source/Mods/Directory.Build.props disables implicit usings; the imported
+         LightControl sources were written against them. -->
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Description>Tint and brighten a grow lamp's own emitting LED panel and the light it emits from the in-game phone; both always use the same color. Emitted intensity is relative to the lamp's own native intensity, plant materials are never modified, and slot-scoped storage restores the original.</Description>
+    <!-- Default to no deploy so an accidental solution build cannot install this unfinished,
+         not-yet-in-game-verified build. Override with -p:S1NoDeploy=false when explicitly authorized. -->
+    <S1NoDeploy Condition="'$(S1NoDeploy)' == ''">true</S1NoDeploy>
+  </PropertyGroup>
+</Project>

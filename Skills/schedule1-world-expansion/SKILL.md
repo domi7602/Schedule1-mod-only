@@ -45,6 +45,7 @@ Use this runbook to coordinate world geometry, properties, navigation, NPCs, and
 ## References
 
 - `references/world-expansion-pipeline.md` — staged architecture and evidence-backed checks.
+- `references/hyland-smoke-shop-property.md` — static decompile notes on runtime `Property`/`Business` registration, ownership lists, property load/save hooks, procedural world build, native material/model cloning and embedded meshes (no AssetBundles).
 - `../schedule1-grid/SKILL.md` — build mode, placement, and grid safety.
 - `../schedule1-interiors/SKILL.md` — interior construction and doors.
 - `../schedule1-custom-npcs/SKILL.md` — S1API NPC definitions, schedules, and lifecycle.

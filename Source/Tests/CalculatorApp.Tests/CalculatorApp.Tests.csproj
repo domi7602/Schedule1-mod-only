@@ -19,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="../../Mods/CalculatorApp/src/Engine/CalculatorEngine.cs" />
-    <Compile Include="../../Mods/CalculatorApp/src/State/CalculatorState.cs" />
+    <Compile Include="../../Mods/CalculatorApp/src/CalculatorEngine.cs" />
+    <Compile Include="../../Mods/CalculatorApp/src/CalculatorState.cs" />
   </ItemGroup>
 
 </Project>

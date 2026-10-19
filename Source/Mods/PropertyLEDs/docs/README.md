@@ -4,7 +4,7 @@ Room-by-room RGB LED strips along the ceiling and wall edges of your owned prope
 businesses, controlled from a dedicated phone app. Developed independently for *Schedule I*
 (MelonLoader, IL2CPP, S1API). No code, models or textures from any existing LED mod are used.
 
-> **Status: experimental (v0.1.6, room bar and color preview removed 2026-10-17, In-Game-Verify open).** The mod builds, deploys and ships a complete settings,
+> **Status: experimental (v0.1.7, larger phone typography; 94 tests pass, In-Game-Verify open).** The mod builds, deploys and ships a complete settings,
 > rendering, phone and diagnostics implementation. It deliberately contains **no built-in room
 > coordinates**: until a room has been measured and marked verified in the layout catalog, no
 > persistent LED geometry is placed there. See
@@ -17,16 +17,16 @@ businesses, controlled from a dedicated phone app. Developed independently for *
   AssetBundles, no colliders, one material per room group.
 - **Property-wide colour** with optional **per-room overrides**: a property default plus any number
   of rooms that deviate from it.
-- **Phone app** *Property LEDs*: compact property/room cards, **Color** (rainbow colour bar, no
+- **Phone app** *Property LEDs*: a property selector with larger readable labels, **Color** (rainbow colour bar, no
   degrees), **Saturation** (white to strong colour, percentage) and **Brightness** (0–5).
   **Advanced** opens the retained **Color intensity** control; every fresh app open starts collapsed.
-  A selected-RGB preview, white preset, on/off switch, "Use property color" (drops a room override)
-  remain. The normal information footer is removed: measured available height is distributed across
+  The white preset and on/off switch remain. The room selector, RGB preview and inheritance button
+  were removed in 0.1.6; phone edits target the property default. Measured available height is distributed across
   the controls with bounded growth. Loading/failure messages appear inline only when needed;
   small screens retain scrolling. All original slider ranges and edit semantics are retained.
   The English mockup-inspired UI has been compiled, tested and compared in a rendered HTML preview
-    ([visual comparison](visual-preview/README.md)). Native rendering and hit testing await authorized
-    deployment and a game check. Only the stateful switch changes power; there is no duplicate power button.
+    ([visual comparison](visual-preview/README.md)). Native rendering and hit testing still need
+    a game check. Only the stateful switch changes power; there is no duplicate power button.
 - **Console command** `led` for measurement, preview, export and manual control (see
   [`diagnostics.md`](diagnostics.md)).
 - **Saved per save slot** (`settings_slot_{n}.json`, atomic writes with `.bak`, 1 s debounce).
@@ -52,12 +52,12 @@ businesses, controlled from a dedicated phone app. Developed independently for *
 
 1. Buy a property or business, load the save and open the phone.
 2. Open **Property LEDs**. The property selector lists only properties/businesses you actually own.
-3. Pick a scope: **Property default** (all rooms without their own override) or a single room.
+3. Pick a property. Phone controls edit its **Property default**; saved room overrides are retained.
 4. Move a slider, press **White**, or switch **LEDs ON/OFF**. Changes apply to the world
    immediately and are written to disk at most once per second.
    Open **Advanced** for **Color intensity** when needed; opening/closing this panel changes only
    the view and never resets a saved value or enables the LEDs.
-5. Use **Use property color** on a room to drop its override so it follows the property again.
+5. Room-specific controls are not exposed in the current phone UI; saved overrides remain supported by the runtime.
 
 A room only shows LEDs once its geometry has been measured and marked verified in `layouts.json`
 (see [`diagnostics.md`](diagnostics.md)). Everything else stays fully configurable.

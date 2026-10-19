@@ -24,9 +24,9 @@
     BankAppSourceContractTests additionally reads BankApp.cs as text for practical UI guards.
   -->
   <ItemGroup>
-    <Compile Include="../../Mods/BankApp/src/Logic/TransferMath.cs" Link="Production/Logic/TransferMath.cs" />
-    <Compile Include="../../Mods/BankApp/src/Logic/BankNavigation.cs" Link="Production/Logic/HistoryGrouping.cs" />
-    <Compile Include="../../Mods/BankApp/src/Models/BankTransaction.cs" Link="Production/Models/BankTransaction.cs" />
+    <Compile Include="../../Mods/BankApp/src/TransferMath.cs" Link="Production/Logic/TransferMath.cs" />
+    <Compile Include="../../Mods/BankApp/src/BankNavigation.cs" Link="Production/Logic/HistoryGrouping.cs" />
+    <Compile Include="../../Mods/BankApp/src/BankTransaction.cs" Link="Production/Models/BankTransaction.cs" />
   </ItemGroup>
 
 </Project>

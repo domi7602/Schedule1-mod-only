@@ -9,7 +9,7 @@ public class RuntimeWiringTests
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null && !Directory.Exists(Path.Combine(dir.FullName, "Source", "Mods"))) dir = dir.Parent;
         Assert.NotNull(dir);
-        string path = Path.Combine(dir!.FullName, "Source", "Mods", "WorldLook", "src", "Lighting", name);
+        string path = Path.Combine(dir!.FullName, "Source", "Mods", "WorldLook", "src", name);
         Assert.True(File.Exists(path), "Missing runtime file: " + name);
         return File.ReadAllText(path);
     }

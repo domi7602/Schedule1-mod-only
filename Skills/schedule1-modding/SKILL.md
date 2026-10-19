@@ -44,6 +44,9 @@ AGENTS.md           Single source of truth for mod inventory & current status
 ## 2. Core Workflows
 
 ### A. Creating a New Mod
+
+Plan for **15–20 hand-maintained production files total (C# sources plus csproj)** so the complete mod source fits the owner's 20-attachment external review limit. This is a target, not a minimum; small mods should stay smaller. Tests, assets, metadata/docs, shared build files, dependencies and generated bin/obj do not count toward the source metric. Check the count before adding production files; group related helpers by domain and agree an exception or generated upload bundle before exceeding 20. Never hide code, delete tests or create arbitrary giant files to meet the target. Existing mods require separate authorization for consolidation. Any additional attached overview still consumes an attachment slot; explain inherited build context in the accompanying message when needed.
+
 Run the scaffolding script from the workspace root:
 ```pwsh
 pwsh Tools/new-mod.ps1 -Name "MyNewMod" -Author "Dominik" -Version "<X.Y.Z>"

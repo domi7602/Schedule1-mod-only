@@ -109,4 +109,5 @@ Need live game interaction?
 ## 5. References
 
 - [Tool Signatures & JSON-RPC Schema](references/tool-signatures.md)
+- [Bounded sewer-key observations](references/sewer-key-observation.md)
 - [Live Debugging Runbook](references/live-debugging.md)

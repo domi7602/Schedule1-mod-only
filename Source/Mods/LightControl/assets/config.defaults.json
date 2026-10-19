@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "enabled": true,
+  "language": "auto",
+  "phoneAppEnabled": true,
+  "includeWorldLights": true,
+  "interactionRangeMeters": 4,
+  "rainbowEnabled": true,
+  "rainbowCyclesPerMinute": 6,
+  "discoBpm": 120
+}
+

@@ -1,0 +1,460 @@
+IMPLEMENTIERUNGSPLAN: LICHTSTEUERUNG FÜR SCHEDULE I
+Vom eigenständigen Projekt zur geprüften, herunterladbaren Mod-ZIP
+
+Stand: 18. Oktober 2026
+Arbeitsname: LightControl
+Zielpaket: LightControl-1.0.0-IL2CPP.zip
+Dokumentstatus: vollständiger Implementierungsauftrag. Die Mod, ihr Build und ihre Spieltests sind mit diesem Dokument noch nicht ausgeführt.
+
+1. VERBINDLICHES PROJEKTZIEL
+
+Entwickle eine eigenständige Lichtsteuerungsmod für Schedule I. Nutze den beschriebenen Funktionsumfang von GrowLightColors als Referenz und implementiere die Lösung mit eigenem Quelltext, eigener Zustandsverwaltung und eigener Oberfläche.
+
+Das Endergebnis ist eine installierbare ZIP mit einer tatsächlich erzeugten Release-DLL, allen erforderlichen mitzuliefernden Laufzeitdateien, deutscher Installationsanleitung, konkreten Kompatibilitätsangaben und einem nachvollziehbaren Testbericht. Ein Quellcodearchiv allein erfüllt dieses Ziel nicht.
+
+Der Arbeitsname LightControl dient zur eindeutigen Benennung der geplanten Dateien. Lege dafür eine eigene Mod-Kennung und einen eigenen Namensraum fest. Behaupte keine Kompatibilität oder gemeinsame Speicherdaten mit der Referenzmod.
+
+Veröffentlichungsergebnis: ein direkt herunterladbares Installationspaket. Ein separates Quellcodearchiv ist eine sinnvolle zusätzliche Übergabe.
+
+2. TECHNISCHER RAHMEN UND BELEGSTATUS
+
+Zielplattform: Windows und der IL2CPP-Zweig von Schedule I.
+Geplante Grundlage: MelonLoader 0.7.3, C#/.NET 6 und S1 API Forked 3.2.1 von ifBars.
+Die tatsächlichen Versionen und Buildreferenzen werden in Arbeitspaket AP-00 bestätigt.
+
+S1API 3.2.1 wurde für Schedule I 0.4.7 veröffentlicht. Die Releasebeschreibung nennt eine abschließende Prüfung mit 0.4.7f12; daraus folgt keine Zusicherung für beliebige andere Spielbuilds. [S2]
+
+Die konkrete Unity-Version und Renderpipeline müssen aus der Zielinstallation ermittelt werden. Unity-2022.3-Dokumentation ist eine technische Grundlage, solange diese Versionsfamilie für die Installation bestätigt wird.
+
+Die öffentliche S1API-Dokumentation beschreibt Telefon-Apps, Grundstücksabfragen, Eingaben, Platzierungsereignisse und ein Speichersystem. Die einzelnen verwendeten Member müssen gegen die tatsächlich eingesetzte 3.2.1-Assembly beziehungsweise ihren Quellstand geprüft werden. Die Dokumentation ist nicht durchgehend versionsgebunden. [S3, S4, S5, S6, S7]
+
+Konkreter bekannter Widerspruch: Der Schnellstart nennt OnSaveLoaded; die API-Referenz dokumentiert OnLoadComplete. Den tatsächlich vorhandenen Vertrag prüfen und nicht aus einem Beispiel übernehmen. [S8, S9]
+
+Noch nicht abschließend belegt sind die für diese Mod erforderlichen nativen Lampeneingriffe, dauerhaften Lampeninstanzkennungen, Raumzuordnungen und der allgemeine Nachrichtentransport. Führe sie als offene Integrationsaufgaben.
+
+3. FUNKTIONSUMFANG DER VERSION 1.0
+
+Die Referenz beschreibt direkte Farbauswahl über Interaktion, bei schaltbaren Lampen mit Sprint-Modifikator; Originalfarbe, Weiß, Rot, Orange, Gelb, Grün, Cyan, Blau, Lila, Rosa und Regenbogen; Intensitätsstufen 10/25/50/75/100/150/200 Prozent; eine Telefon-App mit Einzel-, Raum-, Gruppen- und Immobiliensteuerung; Speicherung, Multiplayer und temporäre Disco pro Immobilie oder Karte. Lichtquelle und leuchtende Oberfläche sollen gemeinsam reagieren. Ausgenommen sind insbesondere Ampeln, Fahrzeuge, Taschenlampe und gehaltene oder eingelagerte Gegenstände. [S1]
+
+Setze für diese Anforderungen nummerierte Einträge im Anforderungskatalog an. Jede Anforderung erhält eine Implementierungsstelle, einen Prüffall und einen Status.
+
+Pflicht-Lampenfamilien sind Halogen-, LED- und Vollspektrumpflanzenlampen, Zeltbeleuchtung, Steh- und Wandlampen sowie Deckenleuchten, Neonröhren, Hängeleuchten, Laternen, Straßenlampen, Strahler, Leuchtreklamen und Automatenbeleuchtung. [S1] Die Abdeckung muss anhand tatsächlich vorhandener Exemplare geprüft werden.
+
+Feste Entscheidungen für den Nachbau:
+- Visuelle Farb- und Helligkeitsänderungen beeinflussen keine Wachstums- oder Versorgungswerte. Absichtlich ausgelöste native Schaltaktionen verhalten sich wie ihre normalen Spielaktionen.
+- Ein erneutes Platzieren nach tatsächlichem Aufnehmen und Neuerzeugen beginnt mit der Standardeinstellung. Das reine Weiterbestehen oder Bewegen derselben Instanz erhält ihren Zustand.
+- Gruppenänderungen betreffen die zum Änderungszeitpunkt vorhandenen Gruppenmitglieder. Neue Objekte erhalten zunächst ihre Standardeinstellung.
+- Eine neu platzierte Lampe erhält den Standard-Grundzustand und nimmt gleichzeitig an einem aktiven Bereichseffekt teil. Frühere dauerhafte Gruppenänderungen werden nicht nachträglich auf sie angewendet.
+- Grundstücksdisco hat innerhalb ihrer Immobilie Vorrang vor weltweiter Disco.
+- Eine Farbänderung während Disco aktualisiert die dauerhafte Auswahl; sichtbar wird sie nach Ende des überlagernden Effekts.
+- Helligkeitsänderungen gelten unmittelbar auch während eines Effekts.
+- Mod-Clients synchronisieren mit einem Mod-Host. Ohne Mod-Host ist ausschließlich ein deutlich angezeigter lokaler Darstellungsmodus vorgesehen.
+- Lokale Lampenzustände ohne Mod-Host gelten in Version 1.0 nur für die aktuelle Sitzung. Sie werden weder in gemeinsame Speicherdaten übernommen noch später automatisch an einen Mod-Host übertragen. Persönliche Bedien- und Spracheinstellungen dürfen unabhängig davon in der Konfiguration bestehen bleiben.
+- Teilnehmer ohne Mod müssen kompatibel bleiben. Zusätzliche Farb- und Helligkeitsdarstellung wird ihnen ohne belegte native Replikation nicht zugesichert.
+- Grundstücksbesitz wird entsprechend dem tatsächlichen gemeinsamen Spielmodell geprüft. Ein Grundstücksbesitz-Flag beweist keine individuelle Spielerberechtigung.
+- Temporäre Effekte werden nicht als dauerhaft laufende Effekte gespeichert.
+
+Plane Deutsch und Englisch von Beginn an über Sprachschlüssel; ergänze für vollständige Sprachabdeckung Französisch, Spanisch, Portugiesisch, Italienisch, Polnisch und Russisch. [S1] Die Qualität der Übersetzungen erhält einen gesonderten Prüfstatus.
+
+Optional nach Version 1.0: automatische Updatehinweise, freie Farbeingabe, Presets, eigene Gruppeneditoren, feinere Multiplayer-Rechte und Mono-Unterstützung. Diese Erweiterungen sind keine Voraussetzung für die hier definierte erste Release-ZIP.
+
+4. ARBEITSREGELN FÜR DEN ENTWICKLER ODER CODING-AGENTEN
+
+Arbeite die Pakete bis zur Auslieferung ab. Eine Planung oder ein kompilierbares Grundgerüst ist ein Zwischenstand.
+
+Nutze geprüfte S1API-Verträge für geeignete Standardaufgaben. Kapsle erforderliche direkte Spielzugriffe in kleinen Integrationsbereichen. Erfinde keine Spielklassen, Methoden, Ereignisse, Signaturen, Objektpfade oder Netzwerkfunktionen.
+
+Jede spielabhängige Integration bekommt einen Beleg: konkrete Referenzversion, tatsächlich vorhandener Typ beziehungsweise Member und passende Laufzeitbeobachtung. Ein Stub, ein konstanter Ersatzwert oder ein abgefangener Fehler ist kein Funktionsnachweis.
+
+Führe bei fehlenden Informationen unabhängige Arbeit weiter. Frage gebündelt nach genau den Dateien oder Beobachtungen, die den nächsten Integrationsschritt ermöglichen. Fordere keinen vollständigen Spielordner an.
+
+Berichte pro Meilenstein:
+- Was vollständig umgesetzt wurde.
+- Welche Dateien geändert wurden.
+- Welche Prüfungen tatsächlich liefen und mit welchem Ergebnis.
+- Welche konkrete Anforderung noch offen ist.
+- Welche Eingabe für den nächsten Schritt benötigt wird.
+
+Ändere den vereinbarten Funktionsumfang nicht stillschweigend, um einen Build erfolgreich nennen zu können. Kennzeichne Zwischenpakete als Testversion oder ungetesteten Build, solange Pflichtprüfungen fehlen.
+
+5. AP-00: UMGEBUNG, REFERENZEN UND TECHNISCHE NACHWEISE
+
+Eingaben:
+- Aktueller Startlog mit erkennbarer Spiel-, Loader- und API-Version.
+- Angabe des tatsächlich gestarteten Spielzweigs.
+- Verfügbare Projektdateien, falls bereits ein Projekt existiert.
+- Dateiliste der relevanten Buildreferenzen; danach gezielt die tatsächlich benötigten Dateien.
+- Möglichkeit für lokale Build- und Spieltests.
+
+Arbeiten:
+1. Bestätige Spielbuild, IL2CPP, Loader, S1API, Unity-Version und Ziel-Framework.
+2. Lege eine Versionsmatrix für Build und Laufzeit an.
+3. Bestimme die konkreten Referenzen für S1API, MelonLoader, Unity und erforderliche Spiel-/Interop-Typen.
+4. Prüfe Lade-, Speicher- und Szenenwechselverträge der tatsächlichen API.
+5. Untersuche je eine Pflanzenlampe, schaltbare Lampe und feste Weltleuchte.
+6. Erfasse Lichtkomponenten, leuchtende Materialplätze, Shader, Schalter, Objektidentität und dynamische Aktualisierungen.
+7. Prüfe früh einen geeigneten Transport für spätere Host-/Client-Nachrichten.
+8. Halte fehlende Nachweise ausdrücklich offen; sie sperren die jeweilige Integration und später die Releasefreigabe.
+
+Geplante Ergebnisse im Projekt:
+- docs/COMPATIBILITY.md mit Versionsmatrix.
+- docs/API_EVIDENCE.md mit geprüften Integrationspunkten.
+- docs/REQUIREMENTS.md mit allen Pflichtanforderungen.
+- Eine gezielte Diagnosemöglichkeit für die untersuchten Lampen.
+
+Abnahme:
+Die Buildgrundlage ist konkret. Für jeden kritischen Integrationsbereich ist ein belegter Weg oder eine präzise offene Aufgabe dokumentiert. Ein allgemeiner Hinweis auf S1API genügt nicht als Nachweis der vollständigen Integration.
+
+6. AP-01: PROJEKT UND REPRODUZIERBARER BUILDABLAUF
+
+Lege ein eigenes C#-Projekt mit festgelegtem SDK, Zielframework, Mod-Version und Paketversionen an. Lokale Referenzpfade müssen konfigurierbar sein.
+
+Trenne Entwicklungsreferenzen von auszuliefernden Dateien. Spiel- und Interop-Assemblies werden zum Bauen verwendet und nicht in das spätere Installationspaket übernommen.
+
+Ordne jede tatsächliche Laufzeitabhängigkeit genau einem Bereitstellungsweg zu: durch Spiel oder Loader vorhanden, ausdrücklich separat zu installieren oder zulässig im Paket mitzuliefern. Prüfe diese Zuordnung auch für indirekte Paketabhängigkeiten. Eine verwendete Fremdbibliothek darf nicht versehentlich fehlen, weil die Paketliste nur selbst entwickelte Dateien aufführt.
+
+Richte einen dokumentierten Release-Build und einen getrennten Paketierungsschritt ein. Ein Buildfehler muss den Paketierungsschritt abbrechen. Eine alte DLL im Ausgabeordner darf nicht versehentlich als Ergebnis des neuen Builds verpackt werden.
+
+Halte den Quellstand, verwendete Werkzeuge, Referenzversionen, Buildkonfiguration und Ergebnisdateien fest. Reproduzierbar bedeutet hier zunächst: derselbe dokumentierte Quellstand lässt sich mit denselben Voraussetzungen erneut erfolgreich bauen. Byteidentische Ergebnisse werden nur nach tatsächlicher Prüfung zugesichert.
+
+Abnahme:
+- Der Release-Build endet erfolgreich und erzeugt eine echte verwaltete Mod-Assembly.
+- Die konkrete erzeugte DLL wird im vorgesehenen Spiel geladen.
+- Initialisierung und mindestens ein Wechsel vom Spiel ins Menü und zurück funktionieren.
+- Der Ladevorgang benötigt keine versteckten Dateien aus einem Entwicklerverzeichnis.
+
+7. AP-02: LAMPENREGISTER UND INSTANZIDENTITÄT
+
+Erstelle ein zentrales Register logischer Leuchten. Eine logische Leuchte kann mehrere reale Lichtquellen und Materialflächen besitzen. Rein leuchtende Materialien sind ein eigener unterstützter Fall, wenn sich ihre Integration bestätigen lässt.
+
+Ein Registereintrag enthält:
+- Eine dauerhafte Kennung beziehungsweise einen dokumentierten Ersatzschlüssel.
+- Referenzen auf momentan vorhandene Spielobjekte.
+- Typ und unterstützte Funktionen.
+- Zuordnung zu Immobilie und gegebenenfalls Schaltgruppe.
+- Visuelle Bestandteile und die für sie geprüfte Anpassungsstrategie.
+- Lebenszyklusstatus und Zugehörigkeit zur aktuellen Sitzung.
+
+Die ItemId aus BuildEventArgs bezeichnet laut Dokumentation die Gegenstandsdefinition. Sie ist keine eindeutige Kennung einer platzierten Lampeninstanz. [S10]
+
+Priorisiere eine nachweislich gespeicherte native Instanzkennung. Für feste Weltleuchten ohne geeignete Kennung entwickle ein gesondertes Verfahren mit Kollisionserkennung und Versionsstrategie. Eine unsichere Wiedererkennung darf keine andere Lampe überschreiben.
+
+Baue den Bestand nach bestätigtem Ladeabschluss auf und ergänze ihn über geeignete Platzierungsereignisse. Prüfe, ob Ereignisse auf Host, Client und beim Laden tatsächlich alle relevanten Fälle erfassen. Nutze eine begrenzte Nachkontrolle nur zum Schließen nachgewiesener Lücken.
+
+Unterscheide Ausblenden, vorübergehendes Entladen, Bewegen und echte Entfernung. Ein fehlender Renderer beweist nicht, dass die Lampe gelöscht wurde.
+
+Abnahme:
+Zwei identische, unterschiedlich eingestellte Lampen bleiben nach Bewegen, Speichern, Laden und Wiederbeitritt eindeutig. Echte Entfernung, Neuplatzierung und Sitzungswechsel hinterlassen keine falschen Zuordnungen.
+
+8. AP-03: ZUSTANDSMODELL UND VISUELLE ANWENDUNG
+
+Trenne drei Ebenen:
+1. Aktuelles Ergebnis des Spiels einschließlich Schaltung und Animation.
+2. Gewählte dauerhafte Einstellung der Mod.
+3. Aktuell wirksamer temporärer Effekt.
+
+Alle Eingaben verändern dieselbe zentrale Zustandsverwaltung. Die Oberfläche liest diesen Zustand; sie rekonstruiert ihn nicht aus bereits veränderten Lichtwerten.
+
+Entwickle pro bestätigter Lampenfamilie einen Adapter. Er ordnet Lichtquellen, Materialplätze und Spielaktualisierungen zuverlässig zu.
+
+Wende Intensität als Faktor auf den unveränderten aktuellen Spielwert an. Verwende niemals den bereits skalierten Ausgabewert erneut als Grundlage. Erhalte die unterschiedlichen Ausgangshelligkeiten mehrerer Bestandteile und vorhandenes Flackern.
+
+Behandle Farbe und Emissionshelligkeit getrennt. Erhalte relevante Texturen und die Ausgangsintensität emissiver Materialien. Die konkreten Shaderparameter werden aus dem tatsächlichen Material ermittelt. Unity-Lichtwerte und Materialemission sind getrennte Steuerungen. [S11, S12]
+
+Vergleiche MaterialPropertyBlocks mit kontrollierten Materialinstanzen in der bestätigten Renderpipeline. PropertyBlocks sind laut Unity 2022.3 nicht SRP-Batcher-kompatibel. Eigene Materialinstanzen benötigen eine klare Freigabe. [S13, S14]
+
+Originalstellung und Deaktivierung entfernen den eigenen Einfluss, ohne einen veralteten Einschaltzustand wiederherzustellen. Erhalte andere Materialeigenschaften und entferne ausschließlich selbst erzeugte Ressourcen.
+
+Prüfe gebackene Beleuchtung gesondert: Laufzeitänderungen eines Mixed Light ändern seinen Echtzeitanteil, nicht die gebackene Beleuchtung. Dokumentiere die tatsächlich unterstützte visuelle Wirkung. [S15]
+
+Abnahme:
+Der erste Pflanzenlampentyp und eine schaltbare Lampe bestehen Farbwechsel, Intensitätsänderung, Originalstellung, Ein/Aus, dynamisches Verhalten und Rückbau. Relevante Gameplaywerte werden unter vergleichbaren Bedingungen gegen einen Lauf ohne diese visuellen Änderungen geprüft.
+
+9. AP-04: DIREKTE INTERAKTION
+
+Binde die Bedienung an verifizierte Spielaktionen. E und Shift sind Standardbelegungen, keine Annahme über unveränderliche physische Tasten.
+
+Ermittle aus dem anvisierten Bestandteil die registrierte logische Leuchte. Beachte Sichtblockaden, Reichweite und Eingabekontext.
+
+Prüfe die tatsächliche Anbindung vorhandener Lampeninteraktionen. Eine dokumentierte Interaktionshilfe für mod-eigene Objekte beweist keine konfliktfreie Übernahme eines vorhandenen Spielobjekts. [S16]
+
+Eine Mod-Aktion darf genau einmal ausgelöst werden. Unterdrücke konkurrierende native Aktionen nur im eindeutig erkannten Mod-Fall. Normale Schaltung und Aufnehmen bleiben verfügbar.
+
+Abnahme:
+- Ein Tastendruck erzeugt einen Farbwechsel.
+- Halten der Taste erzeugt keine ungewollte Wiederholung.
+- Texteingabe, Telefonbedienung und Menüs verändern keine anvisierte Lampe.
+- Sichtblockaden und Reichweite werden eingehalten.
+- Sprint-Modifikator und normale Interaktion führen zum festgelegten Ergebnis.
+- Verschiedene Collider derselben Lampe führen zur gleichen Zielinstanz.
+
+10. AP-05: SPEICHERUNG UND SITZUNGSWECHSEL
+
+Nutze den verifizierten Speicherweg der Zielversion. Halte Mod-Daten eindeutig am aktiven Spielstand und speichere das Format mit eigener Versionskennung.
+
+Persistiere Lampenkennung, Farbmodus, Intensitätsfaktor und tatsächlich benötigte dauerhafte Parameter. Laufende Animationsergebnisse und Unity-Objektreferenzen werden nicht serialisiert.
+
+Lade Daten und registriere Objekte als getrennte Schritte. Einstellungen für noch nicht verfügbare Objekte werden vorgemerkt. Verwerfe solche Einträge nicht allein aufgrund vorübergehender Unsichtbarkeit.
+
+Prüfe die Fehlerbehandlung des gewählten Speicherwegs: vollständiges Schreiben, Wiederherstellbarkeit, beschädigte Eingaben und Umgang mit neueren unbekannten Datenformaten. Ergänze eine eigene Absicherung nur, wenn der verifizierte Weg die Anforderungen nicht erfüllt.
+
+Ein Lesefehler darf nicht automatisch einen leeren Speicherstand über vorhandene Daten schreiben. Host und Clients erhalten klar getrennte Zuständigkeiten.
+
+Nur der Mod-Host schreibt den maßgeblichen gemeinsamen Lampenzustand. Ein lokaler Darstellungsmodus führt in Version 1.0 keine dauerhafte lokale Lampendatenbank. Aktualisierungen erhalten Einstellungen für ausdrücklich unterstützte Vorgängerformate; nicht unterstützte Formate werden gemeldet und nicht stillschweigend ersetzt.
+
+Abnahme:
+- Mehrere vollständige Ladezyklen erhalten Einstellungen.
+- Spielstand A und B beeinflussen sich nicht.
+- Neuplatzierung, Entfernung und nicht auflösbare Kennungen werden korrekt behandelt.
+- Ungültige Daten führen zu kontrolliertem Verhalten.
+- Entfernen der Mod erlaubt das normale Laden des Testspielstands.
+
+11. AP-06: WEITERE LAMPEN, IMMOBILIEN UND TELEFON
+
+Erweitere die geprüften Lampenadapter systematisch anhand des Anforderungskatalogs. Führe eine Abdeckungsliste pro Lampenfamilie mit Beispielen und Testergebnis.
+
+Bestimme Immobilien bevorzugt über tatsächliche Objektbeziehungen, danach über bestätigte Schaltgruppen und erst dann über räumliche Prüfungen. Ein dokumentiertes Grundstücksbesitz-Flag beschreibt Grundstücksbesitz; daraus nicht ungeprüft individuelle Spielerrechte ableiten. [S4]
+
+Ordne Raumgruppen zunächst anhand der tatsächlich belegten Schalter-Leuchten-Zuordnung zu. Unklare Fälle erhalten eine nachvollziehbare Sammelgruppe. Plane keine unbestätigte allgemeine Raum-API ein.
+
+Baue die Telefon-App auf das bestehende Zustandsmodell. Eigene UI-Aktionen verwenden denselben Änderungsweg wie die direkte Interaktion.
+
+Die Oberfläche bietet die erforderlichen Auswahl-, Gruppen-, Farb-, Helligkeits- und Schaltfunktionen. Unterschiedliche Einstellungen einer Gruppe werden als gemischt angezeigt. Eine geschlossene App hält keine unnötig laufende vollständige UI-Aktualisierung aufrecht.
+
+Immobilien ohne entsprechenden Spielstandbesitz bleiben sichtbar und für die gewöhnliche Immobiliensteuerung gesperrt. Ein-/Ausschalten erfolgt ausschließlich über tatsächlich unterstützte native Spielaktionen. Ein reiner Darstellungswert darf keine erfolgreich ausgeführte Schaltaktion vortäuschen.
+
+Fernbedienung arbeitet mit dem Register vorhandener Leuchten und dem tatsächlichen Spielzustand. Prüfe separat, ob Inhalte bei Entfernung nur ausgeblendet oder tatsächlich entladen werden.
+
+Abnahme:
+Direkte Interaktion und Telefon zeigen denselben Zustand. Bestehende Schaltgruppen und alle verpflichtenden Lampenfamilien funktionieren. Entfernung, Neuerwerb einer Immobilie und erneutes Öffnen der App erzeugen keine doppelten Einträge oder falsche Freigaben.
+
+12. AP-07: MULTIPLAYER
+
+Voraussetzung ist ein tatsächlich belegter, mit der Zielversion funktionierender Transport. Diese Arbeit kann bereits während der frühen Diagnose als kleiner Nachweis vorbereitet werden.
+
+Der Host hält den maßgeblichen Zustand. Ein Client sendet eine Änderungsanforderung; der Host prüft Ziel, Werte, Sitzung und Zulässigkeit, übernimmt die Änderung und verteilt sie mit einer eindeutigen Versionsnummer.
+
+Lege Mod-Erkennung, Protokollversion, Verbindungsereignisse und den Umgang mit nicht unterstützten Teilnehmern fest. Sende keine unbestätigten Nachrichtenformate blind an Vanilla-Teilnehmer.
+
+Ein vollständiger Zustandsabgleich beim Beitritt enthält Grundzustände und temporäre Effekte. Spätere Änderungen dürfen nicht durch einen älteren Abgleich überschrieben werden. Behandle noch nicht registrierte Objekte, erneuten Beitritt und Sitzungswechsel.
+
+Gruppenänderungen werden zusammenhängend verarbeitet; Netzwerkereignisse dürfen keine endlosen gegenseitigen Wiederholungen auslösen.
+
+Abnahme:
+- Mod-Host und Mod-Client sehen bestätigte Änderungen.
+- Gleichzeitige Änderungen enden auf demselben Hostzustand.
+- Beitritt und Wiederbeitritt übernehmen den aktuellen Stand.
+- Teilnehmer ohne Mod können weiterhin mitspielen.
+- Ein Host ohne Mod führt zum vereinbarten lokalen Modus.
+- Versionsabweichungen und unbekannte Objektkennungen führen zu kontrolliertem Verhalten.
+- Der tatsächliche vorgesehene Verbindungsweg wird getestet; eine reine lokale Simulation wird als solche gekennzeichnet.
+
+Die S1API-Releaseprüfung allein ist kein Nachweis der Netzwerkfunktion dieser Mod. Der finale 3.2.1-Releasepass hat reale Steam-Verbindungen nicht erneut geprüft. [S2]
+
+13. AP-08: REGENBOGEN, DISCO UND KONFIGURATION
+
+Berechne Animationen aus einer abgestimmten Zeitbasis, Effektparametern und einem stabilen Ausgangswert für die Farbverteilung. Übertrage Änderungen des Effekts und notwendige Korrekturen; keine fortlaufenden Farbwerte für jedes Bild.
+
+Berechne die wirksame Farbe aus Grundzustand und Effektpriorität. Die gewählte dauerhafte Farbe bleibt während temporärer Effekte unverändert gespeichert beziehungsweise wird durch eine manuelle Änderung gezielt aktualisiert.
+
+Prüfe alle in Abschnitt 3 festgelegten Überlappungsregeln. Bereits ausgeschaltete Leuchten werden durch einen Farbeffekt nicht aktiviert. Neue und entfernte Bereichsteilnehmer werden zeitnah korrekt übernommen.
+
+Ziel für eine erforderliche ergänzende Teilnehmernachkontrolle: Änderungen spätestens innerhalb von fünf Sekunden übernehmen. Bevorzuge vollständige bestätigte Ereignisse; führe die Nachkontrolle begrenzt und ohne vollständigen Scan pro Bild aus.
+
+Lege sinnvolle Grenzen für Geschwindigkeiten, Intensität und Reichweite fest. Ungültige, nicht endliche oder außerhalb des erlaubten Bereichs liegende Werte werden kontrolliert behandelt.
+
+Implementiere Konfiguration mit dokumentierten Standardwerten, Deaktivierung und Sprachwahl. Erzeuge Standarddateien beim ersten Start, soweit externe Dateien erforderlich sind.
+
+Abnahme:
+Effektstart, Effektende, manuelle Änderungen, ausgeschaltete Leuchten, Bereichswechsel und späterer Beitritt funktionieren. Beim Deaktivieren verschwinden eigene visuelle Eingriffe. Animationen verursachen keine laufenden Speichervorgänge.
+
+14. AP-09: GESAMTABNAHME UND PERFORMANCE
+
+Erzeuge vor dieser Abnahme aus dem festgehaltenen Quellstand einen frischen Releasekandidaten. Halte seine DLL und ihren SHA-256-Hash unverändert für alle folgenden Prüfungen und die spätere Paketierung bereit. Ein Neubuild mit verändertem DLL-Hash ist ein neuer Kandidat und durchläuft die Abnahme erneut.
+
+Pflichtprüfungen:
+T01 Laden der echten Release-DLL im Zielspiel.
+T02 Eine Aktion pro Tastendruck einschließlich geänderter Belegung.
+T03 Individuelle Originalwerte nach vollständigem Farbzyklus.
+T04 Farb- und Emissionsdarstellung je Pflicht-Lampenfamilie.
+T05 Intensität ohne kumulative Skalierung; vorhandenes Flackern bleibt erhalten.
+T06 Vergleich relevanter Gameplaywerte unter gleichen Bedingungen.
+T07 Zwei identische Lampen, Bewegen, Speichern und erneutes Laden.
+T08 Aufnehmen, Neuplatzieren, echte Entfernung und vorübergehendes Entladen.
+T09 Wechsel zwischen zwei Spielständen sowie mehrfacher Menüwechsel.
+T10 Nah- und Fernsteuerung der Telefon-App.
+T11 Eindeutige Gruppen- und Immobilienzuordnung.
+T12 Gleichzeitige Multiplayer-Änderung und vollständiger Beitrittsabgleich.
+T13 Unterstützte gemischte Sitzung sowie Host ohne Mod.
+T14 Überlappende Effekte und Grundfarbänderung während Disco.
+T15 Ungültige beziehungsweise beschädigte Mod-Daten.
+T16 Deaktivierung, Aktualisierung und Deinstallation.
+T17 Ressourcenentwicklung über wiederholte Lade- und Platzierungsvorgänge.
+T18 Installation und Start ausschließlich aus dem endgültigen Archiv.
+
+Dokumentiere je Prüfung Voraussetzungen, kurze Schritte, erwartetes Ergebnis, tatsächliches Ergebnis, geprüfte Mod-Version und verwendeten DLL-Hash. Nicht ausgeführte Prüfungen erhalten den Status offen, niemals bestanden.
+
+T18 ist die abschließende Prüfung aus AP-11. Ihr Ergebnis wird nach Erzeugen des Archivs außerhalb der ZIP mit deren endgültigem Hash festgehalten. Der interne Testbericht enthält den vorher geprüften DLL-Stand und kann T18 bis dahin als ausstehende Archivprüfung ausweisen.
+
+Vorgeschlagene anfängliche Performanceziele, keine gemessenen Leistungsangaben:
+- Bei einer definierten Szene mit 250 registrierten Leuchten höchstens ungefähr 0,5 ms zusätzliche Hauptthreadzeit im 95. Perzentil für statische Einstellungen.
+- Im entsprechenden Animationstest zunächst höchstens ungefähr 1 ms.
+- Keine vollständige Objektsuche pro Bild.
+- Keine Materialneuerzeugung bei jedem Farbwechsel.
+- Kein mit der Bildrate wachsender Netzwerk- oder Speicherverkehr.
+- Keine stetig zunehmenden eigenen Materialien oder Ereignisbindungen nach wiederholtem Laden.
+
+Halte Anzahl registrierter Leuchten, tatsächlich sichtbare Lichtquellen, Schatten, Tageszeit, Kamera, Grafikoptionen und Testsystem fest. Vergleiche Hauptthread- und GPU-Auswirkungen getrennt. Zusätzliche Kosten absichtlich eingeschalteter nativer Lichter werden gesondert ausgewiesen.
+
+Passe Budgets anhand eines dokumentierten Ausgangslaufs begründet an. Verändere ein Ziel nicht stillschweigend, um einen Test als bestanden auszugeben.
+
+15. AP-10: GEPRÜFTEN BINÄRSTAND PAKETIEREN
+
+Übernimm exakt die in AP-09 erfolgreich geprüfte Release-DLL und die dazugehörigen Laufzeitdateien. Prüfe ihre Hashes gegen den Testbericht. Der Paketierungsschritt kompiliert nicht erneut und verwendet keine anderswo erzeugte DLL. Ein erforderlicher Neubuild mit verändertem DLL-Hash führt zu einem neuen Kandidaten für AP-09.
+
+Fülle ein zuvor leeres Paketverzeichnis über eine ausdrückliche Dateiliste. Prüfe, dass jede enthaltene Laufzeitdatei tatsächlich benötigt wird und dass alle benötigten Dateien enthalten sind.
+
+Geplanter Inhalt:
+- Mods/LightControl.dll: echte erzeugte Mod-Assembly.
+- README_DE.txt: Voraussetzungen, Installation, erster Start, Bedienung, Aktualisierung und Deinstallation.
+- CHANGELOG.txt: Stand der ausgelieferten Version.
+- COMPATIBILITY.txt: tatsächlich geprüfte Spiel-, Loader- und S1API-Versionen sowie konkrete Einschränkungen.
+- TESTREPORT.txt: verständliche Zusammenfassung der ausgeführten Abnahmetests mit geprüfter DLL-Kennung.
+- BUILDINFO.txt: Mod-Version, Quellstand, Zielplattform, Werkzeuge und Buildkonfiguration.
+- SHA256SUMS.txt: Prüfsummen der übrigen enthaltenen Dateien.
+- LICENSE.txt beziehungsweise zusätzliche Lizenzhinweise für eigene und tatsächlich mitgelieferte Bestandteile.
+- Weitere mitzuliefernde Laufzeitdateien ausschließlich, wenn die konkrete Implementierung sie benötigt; ihre Herkunft und Lizenzbedingungen werden dokumentiert.
+
+Passe die endgültigen Pfade an das tatsächlich geprüfte Ladeverhalten an. Nutze keine leeren Beispielordner. MelonLoader und S1API werden in dieser Planung als separat zu installierende Voraussetzungen behandelt.
+
+Ausschließen:
+- Spiel- und generierte Spiel-Interop-DLLs.
+- Nur zum Entwickeln verwendete Unity- und Spielreferenzen.
+- Persönliche Spielstände und Konfigurationen.
+- Zugangsdaten, Benutzerpfade und ungefilterte private Sitzungslogs.
+- Alte Builds, temporäre Dateien, Diagnoseprogramme und nicht benötigte Paketabhängigkeiten.
+- Nicht bestätigte Zusatzdateien, die lediglich aus einem Buildordner mitkopiert wurden.
+
+Erzeuge daraus LightControl-1.0.0-IL2CPP.zip. Prüfe die Archivintegrität und sichere Dateipfade. Entpacke in ein neues leeres Verzeichnis und vergleiche Inhalt und Prüfsummen mit der vorgesehenen Dateiliste.
+
+16. AP-11: INSTALLATION AUS GENAU DER AUSLIEFERUNGS-ZIP
+
+Nutze eine saubere Testinstallation mit den dokumentierten Voraussetzungen und einer Kopie des Testspielstands.
+
+Installiere ausschließlich anhand der beigelegten Anleitung und ausschließlich mit den Dateien aus der endgültigen ZIP. Zusätzliche Dateien aus dem Entwicklungsprojekt dürfen keine Voraussetzung sein.
+
+Prüfe:
+- Erststart ohne bestehende Mod-Konfiguration.
+- Tatsächliche Mod-Version und DLL-Hash.
+- Einen vollständigen Ablauf aus direkter Bedienung, Telefon, Speicherung und erneutem Laden.
+- Den zugesagten Multiplayerbetrieb.
+- Aktualisierung einer vorherigen Testversion ohne doppelte Mod-DLLs.
+- Erhalt von Lampenzuständen und Konfiguration bei ausdrücklich unterstützten Vorgängerformaten; kontrollierte Meldung bei nicht unterstützten Formaten.
+- Deinstallation mit anschließendem normalem Spielstart.
+
+Dokumentiere das abschließende Installationsergebnis außerhalb der ZIP und ordne es deren endgültigem SHA-256-Hash zu. Ergänze dieses Ergebnis nicht nachträglich im internen TESTREPORT.txt, weil das die gerade geprüfte ZIP ändern würde.
+
+Wenn sich aus einem anderen Grund eine Paketdatei danach ändert, erzeuge Archiv und Prüfsummen erneut und wiederhole den Installationstest. Ein geänderter DLL-Hash führt zusätzlich zu einem neuen Releasekandidaten und erneuter Abnahme gemäß AP-09. Ordne den internen Testbericht eindeutig der enthaltenen DLL und das externe Installationsergebnis eindeutig der endgültigen ZIP zu.
+
+Berechne den SHA-256-Hash der abschließend bereitgestellten ZIP und nenne ihn außerhalb des Archivs. SHA256SUMS.txt enthält nicht seine eigene Prüfsumme; vermeide zirkuläre Prüfsummenangaben.
+
+17. ARBEITSABLAUF OHNE LOKALEN SPIELZUGRIFF DES LLM
+
+Ein Browser-Chat kann den vollständigen Auftrag koordinieren. Kläre früh, welche Ausführungsumgebungen tatsächlich verfügbar sind.
+
+Fall A: LLM mit Projekt-, Compiler- und Spielzugriff.
+Das LLM bearbeitet Dateien, baut, führt verfügbare Prüfungen aus und erstellt das Paket. Für nicht selbst beobachtbare Spiel- oder Mehrspielertests werden gezielte Nutzertests eingesetzt.
+
+Fall B: LLM mit Dateierstellung und Compiler, aber ohne Spiel.
+Das LLM kann mit passenden Referenzen eine reale DLL erzeugen. Du führst die vorgegebenen Spieltests aus und sendest relevante Ergebnisse, Logs und gegebenenfalls Aufnahmen zurück.
+
+Fall C: LLM mit Dateierstellung, aber ohne passenden Compiler.
+Das LLM erstellt das vollständige Projekt und den Buildablauf. Du oder eine geeignete Buildumgebung baut das Projekt. Die tatsächliche DLL und das Buildprotokoll werden für Prüfung und Paketierung zurückgegeben.
+
+Fall D: Reiner Textchat ohne Dateierstellung und ohne Compiler.
+Dieser Chat kann Anleitung und Projektinhalt liefern. Für reale Dateien, Kompilierung und einen Download wird eine zusätzliche Ausführungs- beziehungsweise Dateiumgebung benötigt. Dies früh einplanen; die Existenz einer herunterladbaren DLL darf nicht behauptet werden.
+
+Fordere pro Meilenstein kleine Belegpakete an:
+- Build: vollständige konkrete Fehlermeldungen oder Erfolgsmeldung mit Ergebnisdatei.
+- Funktion: Testnummer, beobachtetes Ergebnis und relevante Logstellen.
+- Darstellung: gezielt erforderlicher Screenshot oder kurzer Clip.
+- Release: tatsächlich erzeugte DLL und benötigte mitzuliefernde Laufzeitdateien, falls extern gebaut.
+
+Während einer Rückmeldung können Zustandsmodell, Konfiguration, Dokumentation, Paketierung und andere bereits belegte Integrationen fortgesetzt werden. Unbestätigte Spielzugriffe bleiben als offene Aufgaben bestehen.
+
+18. ABSCHLUSSKRITERIEN UND ÜBERGABE
+
+Das Projekt gilt als vollständig, wenn:
+- Alle Pflichtanforderungen umgesetzt und ihren Tests zugeordnet sind.
+- Der frische Release-Build erfolgreich ist.
+- Alle zugesagten Laufzeitfunktionen ihre Abnahme bestanden haben.
+- Die Versions- und Abhängigkeitsangaben zur tatsächlichen Prüfung passen.
+- Die getestete DLL genau der ausgelieferten DLL entspricht.
+- Das endgültige Archiv erfolgreich entpackt und daraus installiert wurde.
+- Das Paket alle erforderlichen mitzuliefernden Laufzeitdateien enthält und separate Voraussetzungen eindeutig nennt.
+- Installation, Aktualisierung, Deinstallation und Datenablage verständlich beschrieben sind.
+- Ein echter Downloadlink zum endgültigen Archiv vorliegt.
+
+Die Abschlussantwort enthält:
+1. Downloadlink und Dateiname der Installations-ZIP.
+2. Dateigröße, Mod-Version und SHA-256-Hash.
+3. Geprüfte Spiel-, Loader- und S1API-Versionen.
+4. Kurze Installationsschritte.
+5. Zusammenfassung der tatsächlich bestandenen Tests.
+6. Konkrete verbleibende Einschränkungen.
+7. Optional einen getrennten Quellcode-Download.
+
+Fehlt eine Pflichtprüfung, ist das Paket eine entsprechend gekennzeichnete Testversion. Eine herunterladbare Testversion kann als Zwischenstand nützlich sein; der hier vereinbarte Releaseabschluss bleibt offen.
+
+19. QUELLEN UND GRENZEN
+
+Die Quellen wurden für diesen Plan am 18. Oktober 2026 ausgewertet. Die Referenzmod beschreibt ein Produktverhalten; daraus wird keine Kenntnis ihres Quelltexts abgeleitet. Die hier beschriebenen Architektur-, Prioritäts-, Paketierungs- und Testentscheidungen sind eigene Empfehlungen.
+
+[S1] GrowLightColors, Funktionsbeschreibung
+https://www.nexusmods.com/schedule1/mods/2883
+
+[S2] S1API 3.2.1, Release und Kompatibilität
+https://github.com/ifBars/S1API/releases/tag/v3.2.1
+
+[S3] S1API PhoneApp
+https://ifbars.github.io/S1API/api/S1API.PhoneApp.PhoneApp.html
+
+[S4] S1API Immobilien
+https://ifbars.github.io/S1API/api/S1API.Property.PropertyManager.html
+https://ifbars.github.io/S1API/api/S1API.Property.PropertyWrapper.html
+
+[S5] S1API Eingaben
+https://ifbars.github.io/S1API/api/S1API.Input.Controls.html
+
+[S6] S1API Platzierungsereignisse
+https://ifbars.github.io/S1API/api/S1API.Building.BuildEvents.html
+
+[S7] S1API Speichersystem
+https://ifbars.github.io/S1API/docs/save-system.html
+
+[S8] S1API Schnellstart
+https://ifbars.github.io/S1API/docs/quickstart.html
+
+[S9] S1API GameLifecycle
+https://ifbars.github.io/S1API/api/S1API.Lifecycle.GameLifecycle.html
+
+[S10] S1API BuildEventArgs
+https://ifbars.github.io/S1API/api/S1API.Building.BuildEventArgs.html
+
+[S11] Unity 2022.3 Light
+https://docs.unity3d.com/2022.3/Documentation/ScriptReference/Light.html
+
+[S12] Unity 2022.3 Emission
+https://docs.unity3d.com/2022.3/Documentation/Manual/StandardShaderMaterialParameterEmission.html
+
+[S13] Unity 2022.3 MaterialPropertyBlock
+https://docs.unity3d.com/2022.3/Documentation/ScriptReference/MaterialPropertyBlock.html
+
+[S14] Unity 2022.3 Renderer.material
+https://docs.unity3d.com/2022.3/Documentation/ScriptReference/Renderer-material.html
+
+[S15] Unity 2022.3 Mixed Lights
+https://docs.unity3d.com/2022.3/Documentation/Manual/LightMode-Mixed.html
+
+[S16] S1API InteractionPrompt
+https://ifbars.github.io/S1API/api/S1API.Interaction.InteractionPrompt.html

@@ -17,13 +17,13 @@
          single PropertyLEDs.Core namespace); listed explicitly. Excluded: the Unity-dependent
          runtime files and Persistence/LEDSettingsStore.cs (namespace PropertyLEDs, the
          S1Mods.Shared-backed I/O adapter). -->
-    <Compile Include="../../Mods/PropertyLEDs/src/Core/AppLayout.cs" Link="Core/AppLayout.cs" />
-    <Compile Include="../../Mods/PropertyLEDs/src/Core/GeometryMath.cs" Link="Core/GeometryMath.cs" />
-    <Compile Include="../../Mods/PropertyLEDs/src/Core/Layouts.cs" Link="Core/Layouts.cs" />
-    <Compile Include="../../Mods/PropertyLEDs/src/Core/LEDSettings.cs" Link="Core/LEDSettings.cs" />
-    <Compile Include="../../Mods/PropertyLEDs/src/Core/LEDState.cs" Link="Core/LEDState.cs" />
-    <Compile Include="../../Mods/PropertyLEDs/src/Core/SaveDebounce.cs" Link="Core/SaveDebounce.cs" />
-    <Compile Include="../../Mods/PropertyLEDs/src/Core/SlotSession.cs" Link="Core/SlotSession.cs" />
-    <Compile Include="../../Mods/PropertyLEDs/src/Core/StateCodec.cs" Link="Core/StateCodec.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/AppLayout.cs" Link="Core/AppLayout.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/GeometryMath.cs" Link="Core/GeometryMath.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/Layouts.cs" Link="Core/Layouts.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/LEDSettings.cs" Link="Core/LEDSettings.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/LEDState.cs" Link="Core/LEDState.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/SaveDebounce.cs" Link="Core/SaveDebounce.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/SlotSession.cs" Link="Core/SlotSession.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/StateCodec.cs" Link="Core/StateCodec.cs" />
   </ItemGroup>
 </Project>

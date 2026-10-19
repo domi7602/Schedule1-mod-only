@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>LightControl.Diagnostics</AssemblyName>
+    <RootNamespace>LightControl.Diagnostics</RootNamespace>
+    <Description>Read-only integration diagnostics. This is not the LightControl gameplay mod.</Description>
+    <LightControlReferenceDirectory Condition="'$(LightControlReferenceDirectory)' == ''">$(MSBuildThisFileDirectory)../../references</LightControlReferenceDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MelonLoader">
+      <HintPath>$(LightControlReferenceDirectory)/MelonLoader.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <Target Name="RequireRealLoaderReference" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(LightControlReferenceDirectory)/MelonLoader.dll')" Text="The real MelonLoader 0.7.3 net6 MelonLoader.dll is required. Set LightControlReferenceDirectory. No substitute assembly is provided." />
+  </Target>
+</Project>

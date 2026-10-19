@@ -9,7 +9,7 @@ public class RuntimeWiringTests
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null && !Directory.Exists(Path.Combine(dir.FullName, "Source", "Mods"))) dir = dir.Parent;
         Assert.NotNull(dir);
-        string path = Path.Combine(dir!.FullName, "Source", "Mods", "WorldLook", "src", "Probe", name);
+        string path = Path.Combine(dir!.FullName, "Source", "Mods", "WorldLook", "src", name);
         Assert.True(File.Exists(path), "Missing runtime file: " + name);
         return File.ReadAllText(path);
     }
@@ -26,13 +26,13 @@ public class RuntimeWiringTests
         Assert.Contains("DiscoveryTruncated = true;", error);
         Assert.Contains("_errorCount++;", error);
         Assert.Contains("if (_errors.Count < 64)", error);
-        Assert.Contains("discoveryTruncated={snapshot.DiscoveryTruncated}", Source("Mod.cs"));
+        Assert.Contains("discoveryTruncated={snapshot.DiscoveryTruncated}", Source("GraphicsProbeMod.cs"));
     }
 
     [Fact]
     public void LogAndReportVersionComeFromMelonIdentity()
     {
-        string mod = Source("Mod.cs");
+        string mod = Source("GraphicsProbeMod.cs");
         int initializeStart = mod.IndexOf("public void OnInitializeMelon(string version)", StringComparison.Ordinal);
         int initializeEnd = mod.IndexOf("public void OnSceneWasInitialized(", initializeStart, StringComparison.Ordinal);
         Assert.True(initializeStart >= 0 && initializeEnd > initializeStart);
@@ -76,7 +76,7 @@ public class RuntimeWiringTests
     [Fact]
     public void UpdateOnlyPollsChordAndScheduleAndFinallyReleasesCapture()
     {
-        string source = Source("Mod.cs");
+        string source = Source("GraphicsProbeMod.cs");
         Assert.Contains("OnSceneWasInitialized", source);
         Assert.Contains("KeyCode.F8", source);
         Assert.Contains("KeyCode.LeftControl", source);
@@ -124,7 +124,7 @@ public class RuntimeWiringTests
         Assert.Contains("_roots = null", snapshot);
         Assert.Contains("_components = null", snapshot);
         Assert.DoesNotContain("private void Walk(", snapshot);
-        string mod = Source("Mod.cs");
+        string mod = Source("GraphicsProbeMod.cs");
         Assert.Contains("new CooperativeCapture(", mod);
         Assert.Contains("_capture.StepFrame()", mod);
         Assert.Contains("OnSceneWasLoaded", mod);
@@ -148,7 +148,7 @@ public class RuntimeWiringTests
         Assert.Contains("NOT an atomic frozen-frame snapshot", snapshot);
         Assert.Contains("_roots.Length, _rootQuota", snapshot);
         Assert.Contains("ReportPolicy.MaxPendingRoots / Math.Max(1, _sceneLimit)", snapshot);
-        string mod = Source("Mod.cs");
+        string mod = Source("GraphicsProbeMod.cs");
         foreach (string hook in new[] { "OnSceneWasLoaded", "OnSceneWasUnloaded", "OnSceneWasInitialized" })
         {
             int hookStart = mod.IndexOf("public void " + hook, StringComparison.Ordinal);
@@ -166,7 +166,7 @@ public class RuntimeWiringTests
     [Fact]
     public void RuntimeHasNoKnownMutatingOrLazyAllocationApis()
     {
-        string all = string.Join("\n", new[] { Source("Mod.cs"), Source("RenderingSnapshot.cs"), Source("ObjectReader.cs"), Source("EnvironmentReader.cs") });
+        string all = string.Join("\n", new[] { Source("GraphicsProbeMod.cs"), Source("RenderingSnapshot.cs"), Source("ObjectReader.cs"), Source("EnvironmentReader.cs") });
         Assert.DoesNotMatch(@"\.materials?\b|FindObjectsOfTypeAll|FindObjectsOfType|HarmonyPatch|\bInstantiate\s*\(|\bDestroy\s*\(|new\s+RenderTexture|\.profile\b|\.scriptableRenderer\b|\bGetRenderer\s*\(", all);
         Assert.DoesNotContain("S1API", all);
     }

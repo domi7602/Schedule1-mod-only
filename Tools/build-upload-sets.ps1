@@ -158,10 +158,15 @@ foreach ($m in $modDirs) {
     if ($files.Count + 1 -le $MaxFiles) {
         # verbatim: eine Ausgabedatei pro Quelldatei
         $names = @($files | ForEach-Object { $_.Name })
-        $dup = $names | Group-Object | Where-Object Count -gt 1
-        if ($dup) { throw "$($m.Name): duplicate basenames, cannot flatten: $($dup.Name -join ', ')" }
+        $duplicates = @($names | Group-Object | Where-Object Count -gt 1 | ForEach-Object Name)
+        $usedNames = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
         foreach ($f in $files) {
-            Copy-Item $f.Full (Join-Path $dest $f.Name)
+            # Keep content verbatim; disambiguate e.g. Lighting/Mod.cs and Probe/Mod.cs.
+            $outputName = if ($f.Name -in $duplicates) { $f.Rel.Replace('/', '__') } else { $f.Name }
+            if (-not $usedNames.Add($outputName)) {
+                throw "$($m.Name): colliding upload filename: $outputName"
+            }
+            Copy-Item $f.Full (Join-Path $dest $outputName)
         }
     }
     else {

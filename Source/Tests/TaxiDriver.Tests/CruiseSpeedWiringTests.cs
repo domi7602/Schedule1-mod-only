@@ -34,7 +34,7 @@ public class CruiseSpeedWiringTests
         Assert.Contains("SpikeState.PollingActive || TaxiAI.Active", source);
         Assert.Contains("__instance.AutoDriving", source);
         Assert.Contains("veh.DriverPlayer != null", source);
-        Assert.Contains("__instance.IsReversing || SpikeState.NavReDispatchAt > 0f", source);
+        Assert.Contains("__instance.IsReversing || SpikeState.Reverse.Active", source);
         Assert.Contains("flags.OverrideSpeed", source);
         Assert.Contains("CruiseSpeedPolicy.BaseTargetKmh(", source);
         Assert.Contains("__instance.targetSpeed = target;", source);

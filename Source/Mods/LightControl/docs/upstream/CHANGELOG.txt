@@ -1,0 +1,13 @@
+0.1.0-dev.1 – 2026-10-18
+Entwicklungszwischenstand, keine installierbare Lichtsteuerungsmod.
+
+- Eigenständigen Zustands-/Effektkern und transportneutrale Protokolllogik angelegt.
+- Versionierte JSON-Datenverwaltung und fachliche C#-Prüffälle ergänzt.
+- Read-only-Diagnosehelfer für MelonLoader als Quelltext angelegt.
+- Acht Sprachressourcen und Konfigurationsvorgaben vorbereitet.
+- Frischen Buildablauf, sichere Paketierung und Freigabesperren vorbereitet.
+- S1API 3.2.1 und MelonLoader 0.7.3 am jeweiligen Quellstand untersucht.
+
+Nicht erfolgt: C#-Kompilierung, Installation einer eigenen DLL, Spieltest,
+Steam-Multiplayerprüfung und Releasefreigabe. Konkrete Prüfergebnisse stehen
+in docs/TESTREPORT.md; keine nicht ausgeführte Prüfung gilt als bestanden.
