@@ -81,8 +81,12 @@ public class Mod : MelonMod
         GameLifecycle.OnLoadComplete -= OnLoadComplete;
         try
         {
+            // S1API initializes these fields with no-op delegates; removing only our handlers
+            // preserves that initializer. Keep native delegate subtraction unchanged.
+#pragma warning disable CS8601 // Delegate.Remove is nullable; S1API's initializer remains subscribed.
             S1API.GameTime.TimeManager.OnDayPass -= OnDayPass;
             S1API.GameTime.TimeManager.OnHourPass -= OnHourPass;
+#pragma warning restore CS8601
         }
         catch { }
     }

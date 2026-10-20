@@ -55,8 +55,9 @@ public class IntrospectionPolicyTests
         => Assert.Null(IntrospectionPolicy.NormalizeComponents(new double[0]));
 
     [Fact]
+    // Deliberately violate the non-null API contract to exercise its defensive guard.
     public void NormalizeComponentsRejectsMissingTuples()
-        => Assert.Null(IntrospectionPolicy.NormalizeComponents(null));
+        => Assert.Null(IntrospectionPolicy.NormalizeComponents(null!));
 
     [Fact]
     public void PlanIndicesClampsDegenerateInputs()

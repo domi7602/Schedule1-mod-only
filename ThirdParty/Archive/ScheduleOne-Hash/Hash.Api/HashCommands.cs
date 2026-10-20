@@ -10,7 +10,8 @@ public static class HashCommands
 
     private static readonly List<string[]> _pending = new List<string[]>();
 
-    private static Action<string, string, string, string> _declare;
+    // Bound lazily in Bind(); stays null while the Hash bridge type is absent.
+    private static Action<string, string, string, string>? _declare;
 
     private static bool _bound;
 
@@ -38,7 +39,7 @@ public static class HashCommands
         }
     }
 
-    public static void Add(string word, string description, string example = null)
+    public static void Add(string word, string description, string? example = null)
     {
         if (!string.IsNullOrEmpty(word))
         {
@@ -57,11 +58,13 @@ public static class HashCommands
         }
     }
 
-    private static void Safely(string word, string description, string example)
+    private static void Safely(string word, string? description, string? example)
     {
         try
         {
-            _declare(word, description ?? "", example ?? "", Owner);
+            // Both callers establish a bound delegate before invoking Safely. Keep the original
+            // invocation and catch semantics; nullable annotations do not change emitted code.
+            _declare!(word, description ?? "", example ?? "", Owner);
         }
         catch
         {
@@ -76,7 +79,7 @@ public static class HashCommands
         }
         try
         {
-            Type type = Type.GetType("Hash.Bridge.HashBridge, Hash", throwOnError: false);
+            Type? type = Type.GetType("Hash.Bridge.HashBridge, Hash", throwOnError: false);
             if (type == null)
             {
                 return;

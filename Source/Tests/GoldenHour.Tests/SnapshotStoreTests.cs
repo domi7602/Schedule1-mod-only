@@ -67,7 +67,8 @@ public class SnapshotStoreTests
     {
         var store = new SnapshotStore();
         store.Update("", new Argb(0.5f, 0.5f, 0.5f, 1f));
-        store.Update(null, new Argb(0.5f, 0.5f, 0.5f, 1f));
+        // Deliberately violate the non-null API contract to exercise its defensive guard.
+        store.Update(null!, new Argb(0.5f, 0.5f, 0.5f, 1f));
         Assert.Equal(0, store.Count);
     }
 
