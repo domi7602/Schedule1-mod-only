@@ -6,7 +6,7 @@ This repository builds on, and in some places vendors, third-party components. T
 
 | Component | Version in repository | License | Location / notes |
 |---|---|---|---|
-| **S1API** by ifBars and contributors | 3.2.0 (+4 commits, submodule pin `1bbf3f0`) | MIT — see `ThirdParty/S1API/LICENSE` | Git submodule `ThirdParty/S1API/` (source: [ifBars/S1API](https://github.com/ifBars/S1API)). Runtime deployed as `Mods/S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.dll`; the deployed runtime at the time of the last verification was the prebuilt 3.2.1-beta.5. Not redistributed in release ZIPs — players install it separately. |
+| **S1API** by ifBars and contributors | 3.2.1 stable (submodule pin `a4cbdd9`) | MIT — see `ThirdParty/S1API/LICENSE` | Git submodule `ThirdParty/S1API/` (source: [ifBars/S1API](https://github.com/ifBars/S1API)). Runtime deployed as `Mods/S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll`. Runtime evidence is tracked in `AGENTS.md` and `docs/compatibility.md`. Not redistributed in release ZIPs — players install it separately. |
 | **S1MAPI** | 2.0.1 (submodule pin `89b8d01`) | GPL-3.0 — see `ThirdParty/S1MAPI/LICENSE` | Git submodule `ThirdParty/S1MAPI/` (fork [domi7602/S1MAPI](https://github.com/domi7602/S1MAPI)). Runtime `UserLibs/S1MAPI_Il2Cpp.dll`, used by AutoPackagingStation and TaxiDriver. Not redistributed in release ZIPs. |
 | **MelonLoader** | 0.7.3 | Apache-2.0 | External mod loader, not vendored — install from [melonwiki.xyz](https://melonwiki.xyz/). |
 | **HarmonyX** (`0Harmony.dll`) | ships with MelonLoader 0.7.3 | MIT | Referenced from `<GameDir>\MelonLoader\net6\`, used for runtime patching. |
@@ -37,4 +37,4 @@ Kept under `ThirdParty/Archive/` for reference. None of them is part of the prod
 
 ---
 
-*Last updated: 2026-10-01.* When adding a third-party dependency, update this file, `ThirdParty/README.md` and the deploy policy `ThirdParty/.deployignore` together.
+*Last updated: 2026-10-01.* When adding a third-party dependency, update this file, `ThirdParty/README.md` and the deploy policy `ThirdParty/.deployallow` together.

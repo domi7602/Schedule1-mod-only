@@ -76,7 +76,7 @@ foreach ($modDir in $targetMods) {
     }
 
     Write-Host "`n--> Building $modName (v$version)..." -ForegroundColor Yellow
-    dotnet build $csprojPath -c Release --nologo | Out-Null
+    dotnet build $csprojPath -c Release --nologo -p:S1NoDeploy=true | Out-Null
     if ($LASTEXITCODE -ne 0) {
         Write-Error "[$modName] dotnet build fehlgeschlagen (exit $LASTEXITCODE) — Mod wird uebersprungen."
         $failedMods += $modName
@@ -142,6 +142,18 @@ foreach ($modDir in $targetMods) {
         $bundles = Get-ChildItem -Path $assetsDir -Filter '*.bundle' -File
         foreach ($b in $bundles) {
             Copy-Item -Path $b.FullName -Destination $stagingModsDir -Force
+        }
+    }
+
+    # Mirror GLB deployment: models belong under Mods/<Mod>/, not Mods/.
+    if (Test-Path $assetsDir) {
+        $models = @(Get-ChildItem -LiteralPath $assetsDir -Filter '*.glb' -File)
+        if ($models.Count -gt 0) {
+            $modelDir = Join-Path $stagingModsDir $modName
+            New-Item -ItemType Directory -Path $modelDir -Force | Out-Null
+            foreach ($model in $models) {
+                Copy-Item -LiteralPath $model.FullName -Destination $modelDir -Force
+            }
         }
     }
 

@@ -9,7 +9,44 @@ PowerShell 7 helper scripts for building, checking, releasing and setting up the
 | `build-all.ps1` | Builds `Source/Mods/S1Mods.sln` (`-Config Release` by default); regenerates the SLN first if it is missing. Deploys into the game directory unless `S1NoDeploy=true`. |
 | `gen-sln.ps1` | Regenerates `S1Mods.sln` from all `*.csproj` under `Source/Mods/` and `Source/Tests/` with deterministic MD5-based project GUIDs. Run after adding or removing a project; CI verifies the committed SLN matches. |
 | `new-mod.ps1` | Scaffolds `Source/Mods/<Name>/` with `src/` (csproj + `Mod.cs`), `docs/` (`mod.json`, `README.md`, `CHANGELOG.md`), `assets/` and `tests/`. |
-| `deploy-thirdparty.ps1` | Called by `Directory.Build.targets` when `Shared` builds: copies whitelisted third-party DLLs from `ThirdParty/` into `<GameDir>\Mods\` according to `ThirdParty/.deployignore`. Uses a mutex so parallel MSBuild invocations do not race. |
+| `deploy-thirdparty.ps1` | Called by `Directory.Build.targets` when `Shared` builds: copies whitelisted third-party DLLs from `ThirdParty/` into `<GameDir>\Mods\` according to `ThirdParty/.deployallow`. Uses a mutex so parallel MSBuild invocations do not race. |
+
+`build-all.ps1 -NoDeploy` disables deployment; an existing `S1NoDeploy=true` environment setting is also respected. `-GameDir` overrides the installation path consistently for mod and third-party copies, and `-DotnetPath` selects the SDK host. The active SDK must support C# 12.
+
+`check-deploy-preflight.ps1 [-GameDir <path>] [-Json]` is a read-only gate: rejects a missing/unsafe installation, a running game, or an unreadable process state. MSBuild deployment targets and the standalone third-party deploy call it before copying. The third-party deploy requires explicit allowlist entries, shares the per-install mutex with normal mod deployment, and checks SHA-256. Every nonempty pattern must match. Existing differing DLLs and workspace-mod name collisions are refused before copying; upgrades require explicit owner-managed handling, not deleting an installed DLL as an automatic workaround. Emptying the allowlist is not an uninstall.
+
+`deploy-mod.ps1` deploys one project at a time and records absolute source/destination paths,
+SHA256 hashes, configuration, Git revision and dirty state. Latest receipts live under
+`<GameDir>/UserData/.deploy/receipts/`; overwritten-file backups live under
+`<GameDir>/UserData/.deploy/backups/`. Backups never recursively include saves/configuration.
+Identical artifacts are checked but not rewritten. In-process copy/verification failure
+attempts to restore only this project's touched targets; failed restores are reported, not
+called success. Keep backups until the corresponding build is accepted; there is no automatic
+retention cleanup.
+
+This is **not** an all-solution transaction, crash recovery or protection from arbitrary
+external writers. A process kill/power loss needs manual recovery from verified backups;
+already-deployed projects are not rolled back if a later project fails. A game launched after
+preflight remains a race: keep it closed until deployment completes. Stale artifacts need
+explicit review; no automatic deletion of previous mod assets or third-party DLLs is authorized.
+
+## Tests
+
+`pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/test-all.ps1 -Selection pure` runs game-free xUnit suites and the LightControl console host. Use `-Selection all` to include game-required suites; missing game references then fail rather than silently skipping them. `-ListOnly` prints classification, `-Configuration Debug|Release` selects the configuration, and `-DotnetPath` overrides SDK resolution. Every test build disables deployment. CI and the pre-push hook use this same runner; a successful console run is separate from xUnit test discovery.
+
+## Tooling regression tests
+
+Run `pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/Tests/bump-version.Tests.ps1`
+and `pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/Tests/deploy.Tests.ps1`,
+plus `pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/Tests/test-all.Tests.ps1`,
+`pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/Tests/deploy-mod.Tests.ps1` and
+`pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/Tests/skills-health.Tests.ps1`.
+CI discovers and runs all of these suites.
+They use disposable fixtures outside the repository, not real mod versions or the game
+installation. The version tool preflights metadata before writes and preserves prior
+acceptance as history; an already-open row keeps its evidence unchanged. Ambiguous plain
+`Verified` text outside supported labels requires manual status reconciliation and aborts
+without writing (for example PotScanner's mixed current/core acceptance label).
 
 ## Repository checks (CI, pre-commit and pre-push)
 
@@ -17,6 +54,7 @@ PowerShell 7 helper scripts for building, checking, releasing and setting up the
 |---|---|
 | `check-version-sync.ps1` | Verifies that the code version (`MelonInfo` attribute or `Constants.ModVersion`) matches `docs/mod.json`, the mod table in `README.md` and the inventory row (plus detail header) in `AGENTS.md`. Exit 1 on drift. |
 | `check-doc-paths.ps1` | Verifies that every repository path referenced in Markdown (root docs, `docs/`, `Skills/`, `ThirdParty/README.md`, `GameReferences/README.md`) exists. Exit 1 on dead references. |
+| `check-skills-health.ps1` | Static health scan of `Skills/`: frontmatter, reference verification headers, duplicate reference filenames, stale pinned versions, broken relative links, CRLF line endings. Exit 1 only on FAIL-level findings; warnings exit 0. |
 | `bump-version.ps1` | `-Mod <Name> -Version x.y.z [-DryRun]` — updates code, `mod.json`, `CHANGELOG.md` header, `AGENTS.md` and `README.md` in one step. The only supported way to change a version. |
 
 ## Release

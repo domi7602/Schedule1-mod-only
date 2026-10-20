@@ -128,10 +128,20 @@ foreach ($mod in $mods) {
     $readmeExtra = @()
     if (Test-Path -LiteralPath $readmePath) {
         $rxBold = [regex]('(\*\*|<b>)' + $escaped + '(\*\*|</b>)')
+        # Die Mod-Tabellenzeile wird ueber ihre Versionszelle geprueft. Der Rest
+        # der Zeile ist Prosa (auch historische Versionsnennungen) und darf
+        # keinen zweiten Versionszwang erzeugen.
+        $rxTableLine = '^\|\s*\[?\*\*' + $escaped + '\*\*[^\r\n|]*\|'
         $rxVer = [regex]('\bv?(' + $rxSemVer + ')\b')
         foreach ($line in [System.IO.File]::ReadAllLines($readmePath, [System.Text.Encoding]::UTF8)) {
             if (-not $rxBold.IsMatch($line)) { continue }
-            foreach ($vm in $rxVer.Matches($line)) { $readmeExtra += $vm.Groups[1].Value }
+            if ($line -match $rxTableLine) { continue }
+            foreach ($vm in $rxVer.Matches($line)) {
+                # Explicit historical/prior annotations are documentation, not drift.
+                $prefix = $line.Substring(0, $vm.Index)
+                if ($prefix -match '(?i)(prior|historical[^;|]{0,40})\s*$') { continue }
+                $readmeExtra += $vm.Groups[1].Value
+            }
         }
     }
     $agents = Get-FirstMatch -Path $agentsPath `
@@ -179,7 +189,8 @@ foreach ($mod in $mods) {
 #    bewusst ungeprueft: die Matrix dokumentiert, WELCHE Version WANN geprueft wurde,
 #    und ein Pruefdatum darf aelter sein als der Release der aktuellen Version.
 #    Eine Matrix-Zeile, die eine Version nennt, die es im Code nicht gibt, ist Drift —
-#    bump-version.ps1 schreibt die Matrix namlich NICHT mit.
+#    bump-version.ps1 schreibt nur die aktuelle Zeile dieser Matrix mit (historische
+#    Abschnitte und Verified-on/Date bleiben unangetastet).
 # ---------------------------------------------------------------------------
 $compatPath = Join-Path $workspaceRoot 'docs/compatibility.md'
 if (-not (Test-Path -LiteralPath $compatPath)) {
@@ -193,7 +204,11 @@ if (-not (Test-Path -LiteralPath $compatPath)) {
         $matrixByMod = @{}
         foreach ($line in ($section.Groups[1].Value -split "\r?\n")) {
             $m = [regex]::Match($line, '^\|\s*([A-Za-z_][\w]*)\s*\|\s*v?(' + $rxSemVer + ')\s*\|')
-            if ($m.Success) { $matrixByMod[$m.Groups[1].Value] = $m.Groups[2].Value }
+            if ($m.Success) {
+                $rowMod = $m.Groups[1].Value
+                if (-not $matrixByMod.ContainsKey($rowMod)) { $matrixByMod[$rowMod] = @() }
+                $matrixByMod[$rowMod] = @($matrixByMod[$rowMod]) + $m.Groups[2].Value
+            }
         }
         foreach ($mod in $mods) {
             $name = $mod.Name
@@ -202,8 +217,12 @@ if (-not (Test-Path -LiteralPath $compatPath)) {
                 $problems += "$name : keine Zeile in der Verification matrix von docs/compatibility.md."
                 continue
             }
-            if ($code -and $matrixByMod[$name] -ne $code.Version) {
-                $problems += ("{0} : compatibility.md matrix={1} != code={2}" -f $name, $matrixByMod[$name], $code.Version)
+            if (@($matrixByMod[$name]).Count -gt 1) {
+                $problems += ("{0} : {1} Zeilen in der Verification matrix von docs/compatibility.md (erwartet genau 1, mehrdeutig)." -f $name, @($matrixByMod[$name]).Count)
+                continue
+            }
+            if ($code -and $matrixByMod[$name][0] -ne $code.Version) {
+                $problems += ("{0} : compatibility.md matrix={1} != code={2}" -f $name, $matrixByMod[$name][0], $code.Version)
             }
         }
     }
@@ -286,7 +305,7 @@ if ($problems.Count -eq 0) {
 Write-Host ("Version-Drift in {0} Mod(s):" -f @($problems | ForEach-Object { $_.Split(' ')[0] } | Sort-Object -Unique).Count) -ForegroundColor Red
 foreach ($p in $problems) { Write-Host "  - $p" -ForegroundColor Yellow }
 Write-Host ''
-Write-Host 'Fix (schreibt MelonInfo + mod.json + CHANGELOG + AGENTS.md + README.md):' -ForegroundColor DarkGray
+Write-Host 'Fix (schreibt MelonInfo + mod.json + CHANGELOG + AGENTS.md + README.md + compatibility.md-Matrixzeile):' -ForegroundColor DarkGray
 Write-Host '  pwsh Tools/bump-version.ps1 -Mod <Name> -Version <Code-Version>' -ForegroundColor DarkGray
 Write-Host 'Nach dem Fix pruefen: pwsh Tools/check-version-sync.ps1' -ForegroundColor DarkGray
 exit 1
