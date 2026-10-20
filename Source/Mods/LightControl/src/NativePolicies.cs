@@ -438,3 +438,78 @@ namespace LightControl.Core
     }
     // ==== end LightControl section: NativeMaterialIdentity.cs ====
 }
+
+namespace LightControl.Core
+{
+    // ==== LightControl section: PanelFamilyPolicy.cs ====
+    /// <summary>
+    /// Which native on/off panel pairs this build may recolour. Unity-free.
+    /// The LED pair is the placeable LED grow light. The halogen pair is the built-in light of a
+    /// grow tent (<c>halogen light on mat</c> / <c>halogen light off mat</c> in sharedassets0).
+    /// Full-spectrum and every other name stay rejected.
+    /// </summary>
+    public static class PanelFamilyPolicy
+    {
+        public const string LedOn = "ledlight_light_on";
+        public const string LedOff = "ledlight_light_off";
+        public const string HalogenOn = "halogen light on mat";
+        public const string HalogenOff = "halogen light off mat";
+        public const string GrowTentItemId = "growtent";
+
+        public static bool IsVerifiedPair(string? onName, string? offName)
+        {
+            string on = Strip(onName);
+            string off = Strip(offName);
+            return Pair(on, off, LedOn, LedOff) || Pair(on, off, HalogenOn, HalogenOff);
+        }
+
+        public static bool IsVerifiedPanelName(string? name)
+        {
+            string stripped = Strip(name);
+            return string.Equals(stripped, LedOn, StringComparison.Ordinal)
+                || string.Equals(stripped, LedOff, StringComparison.Ordinal)
+                || string.Equals(stripped, HalogenOn, StringComparison.Ordinal)
+                || string.Equals(stripped, HalogenOff, StringComparison.Ordinal);
+        }
+
+        /// <summary>Only a grow tent contributes its built-in light. A loose pot does not.</summary>
+        public static bool IsGrowTent(string? itemId) =>
+            string.Equals(itemId?.Trim(), GrowTentItemId, StringComparison.OrdinalIgnoreCase);
+
+        private static bool Pair(string on, string off, string expectedOn, string expectedOff) =>
+            string.Equals(on, expectedOn, StringComparison.Ordinal)
+            && string.Equals(off, expectedOff, StringComparison.Ordinal);
+
+        private static string Strip(string? name)
+        {
+            string value = (name ?? string.Empty).Trim();
+            int suffix = value.IndexOf(" (Instance)", StringComparison.Ordinal);
+            return suffix >= 0 ? value.Substring(0, suffix) : value;
+        }
+    }
+    // ==== end LightControl section: PanelFamilyPolicy.cs ====
+}
+
+namespace LightControl.Core
+{
+    // ==== LightControl section: DestroyedPropertyPolicy.cs ====
+    /// <summary>
+    /// The prologue RV is never tracked. It is only playable in the prologue, and after that quest
+    /// it explodes while its lights stay alive, so waiting for <c>IsDestroyed</c> is the wrong gate.
+    /// A normal owned property is tracked. Unity-free.
+    /// </summary>
+    public static class DestroyedPropertyPolicy
+    {
+        public const string ProloguePropertyCode = "rv";
+
+        public static bool IsPrologueOnly(string? propertyCode, bool isRvInstance)
+        {
+            if (isRvInstance) return true;
+            return string.Equals(propertyCode?.Trim(), ProloguePropertyCode, StringComparison.OrdinalIgnoreCase);
+        }
+
+        public static bool IsPermanentlyGone(bool lampDestroyed, bool parentUntracked) =>
+            lampDestroyed || parentUntracked;
+    }
+    // ==== end LightControl section: DestroyedPropertyPolicy.cs ====
+}

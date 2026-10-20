@@ -18,6 +18,7 @@ public sealed class LightStateStore
     private string? _saveId;
     private SessionMode _mode;
     private long _revision;
+    private long _catalogRevision;
     private long _minimumSnapshotRevision;
     private double _lastHostTime;
     private bool _hasSession;
@@ -29,6 +30,8 @@ public sealed class LightStateStore
     public string SaveId { get { lock (_gate) { EnsureSession(); return _saveId!; } } }
     public SessionMode Mode { get { lock (_gate) { EnsureSession(); return _mode; } } }
     public long Revision { get { lock (_gate) { EnsureSession(); return _revision; } } }
+    /// <summary>Changes when the visible lamp list or property assignment changes, even if color state does not.</summary>
+    public long CatalogRevision { get { lock (_gate) { EnsureSession(); return _catalogRevision; } } }
     public EffectState Effects { get { lock (_gate) { EnsureSession(); return _effects; } } }
     public bool NeedsSnapshot { get { lock (_gate) { EnsureSession(); return _mode == SessionMode.Client && (!_hasSnapshot || _minimumSnapshotRevision > _revision); } } }
     public double LastHostTimeSeconds { get { lock (_gate) { EnsureSession(); return _lastHostTime; } } }
@@ -68,6 +71,7 @@ public sealed class LightStateStore
         _sessionId = Guid.Empty;
         _saveId = null;
         _revision = 0;
+        _catalogRevision = 0;
         _minimumSnapshotRevision = 0;
         _lastHostTime = 0;
         _hasSession = false;
@@ -93,6 +97,7 @@ public sealed class LightStateStore
                     throw new InvalidOperationException("Persistent/logical identity collision. Explicitly rebind a verified unloaded instance.");
                 if (old.PropertyId != lamp.PropertyId || old.GroupId != lamp.GroupId)
                     throw new InvalidOperationException("Move an existing instance explicitly before updating its registration.");
+                if (old.Presence != lamp.Presence) _catalogRevision++;
                 _registrations[lamp.Identity.Key] = old.SetPresence(lamp.Presence);
                 return null;
             }
@@ -109,6 +114,7 @@ public sealed class LightStateStore
             }
             _registrations.Add(lamp.Identity.Key, lamp);
             _runtimeToLogical.Add(lamp.RuntimeInstanceId, lamp.Identity.Key);
+            _catalogRevision++;
             if (!introduceState) return null;
             var entry = new LampStateEntry(lamp.Identity, LampBaseState.Default);
             _states.Add(lamp.Identity.Key, entry);
@@ -123,6 +129,7 @@ public sealed class LightStateStore
             EnsureMutable();
             var existing = RequiredRegistration(identity);
             _registrations[identity.Key] = existing.SetPresence(LampPresence.TemporarilyUnloaded);
+            _catalogRevision++;
         }
     }
 
@@ -145,6 +152,7 @@ public sealed class LightStateStore
             _runtimeToLogical.Remove(existing.RuntimeInstanceId);
             _runtimeToLogical[newRuntimeInstanceId] = identity.Key;
             _registrations[identity.Key] = replacement;
+            _catalogRevision++;
         }
     }
 
@@ -156,6 +164,7 @@ public sealed class LightStateStore
             var existing = RequiredRegistration(identity);
             var moved = existing.Relocate(propertyId, groupId);
             _registrations[identity.Key] = moved;
+            _catalogRevision++;
         }
     }
 
@@ -173,6 +182,7 @@ public sealed class LightStateStore
             if (_registrations.Remove(identity.Key, out var registration))
                 _runtimeToLogical.Remove(registration.RuntimeInstanceId);
             _states.Remove(identity.Key);
+            _catalogRevision++;
             return CommitDelta(hostTimeSeconds, Array.Empty<LampStateEntry>(), new[] { identity }, null);
         }
     }
@@ -188,6 +198,16 @@ public sealed class LightStateStore
             identity.ValidateSession(_sessionId);
             if (_registrations.Remove(identity.Key, out var registration))
                 _runtimeToLogical.Remove(registration.RuntimeInstanceId);
+        }
+    }
+
+    public string[] AvailableTargetKeys(LampSelection selection)
+    {
+        if (selection is null) throw new ArgumentNullException(nameof(selection));
+        lock (_gate)
+        {
+            EnsureSession();
+            return SelectTargets(selection).Select(lamp => lamp.Identity.Key).ToArray();
         }
     }
 
@@ -297,6 +317,13 @@ public sealed class LightStateStore
                 var next = command.Kind == CommandKind.CycleColor ? previous.NextColor() : command.Change!.Apply(previous);
                 return new LampStateEntry(target.Identity, next);
             }).ToArray();
+            bool changed = false;
+            foreach (var update in updates)
+            {
+                var previous = _states.TryGetValue(update.Identity.Key, out var existing) ? existing.State : LampBaseState.Default;
+                if (update.State != previous) { changed = true; break; }
+            }
+            if (!changed) return new(CommandStatus.Unchanged, _revision);
         }
         else
         {
@@ -316,7 +343,10 @@ public sealed class LightStateStore
     private static bool NeedsTargets(ControlCommand command) => command.Kind is CommandKind.SetState or CommandKind.CycleColor;
 
     private LampRegistration[] SelectTargets(LampSelection selection) =>
-        _registrations.Values.Where(selection.Includes).OrderBy(lamp => lamp.Identity.Key, StringComparer.Ordinal).ToArray();
+        _registrations.Values
+            .Where(lamp => lamp.Presence == LampPresence.Available && selection.Includes(lamp))
+            .OrderBy(lamp => lamp.Identity.Key, StringComparer.Ordinal)
+            .ToArray();
 
     private StateDelta CommitDelta(double time, IEnumerable<LampStateEntry> upserts, IEnumerable<LampIdentity> removed, EffectState? effects)
     {

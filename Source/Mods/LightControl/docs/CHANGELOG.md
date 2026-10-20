@@ -1,5 +1,51 @@
 # LightControl
 
+## 0.1.0-dev.13 (2026-10-19) — split controls
+
+- The phone list stays on the left, under property headers. The selected lamp's color, brightness and copy actions stay visible on the right.
+- A tap sets that lamp immediately. Brightness is a direct step, not a cycle. Original color keeps brightness. Reset lamp restores original color and 100%.
+- Apply to property copies color and brightness onto the currently available lamps of that property. All properties is the separate world copy. A changed target list is rejected instead of applied.
+- Temporarily unloaded lamps stay registered, but a state command no longer recolours them. That is a deliberate change from the old "every registration is a target" rule.
+- Save pending, save failed and saved are separate from the action message. An unchanged open app no longer rebuilds its signature every frame.
+
+## 0.1.0-dev.12 (2026-10-19) — property groups
+
+- Tents and Lamps chips are gone. Every property is a header, and its lamps sit under that header, the same split PotScanner uses.
+- A lamp row no longer repeats the property name. Apply still copies the selected color to every tracked lamp.
+
+## 0.1.0-dev.11 (2026-10-19) — palette matches the lamp
+
+- The dots use the same primaries the lamp emits. The old UI reds and the mustard yellow were duller than the light.
+- The gray ring is gone. Only the selected dot keeps a blue ring. Rainbow is a hue wheel, not a second purple.
+
+## 0.1.0-dev.10 (2026-10-19) — color palette
+
+- The cycle button is a row of color dots. Tap one to set the selected lamp, then Apply copies that color.
+- The active color has a blue ring. Original is the gray dot, rainbow is the violet one.
+
+## 0.1.0-dev.9 (2026-10-19) — list gets the height
+
+- Filter chips and the bottom buttons no longer stretch. The lamp list takes the leftover space.
+- The brightness button shows the percent, not the long heading.
+
+## 0.1.0-dev.8 (2026-10-19) — landscape lamp list
+
+- The phone opens landscape, like PotScanner. Lamps are a scrolling list with a color swatch, not Prev/Next.
+- Chips filter All / Tents / Lamps, plus a property chip when more than one property is owned. Apply then copies onto that property only.
+- 148/148 console checks. In-game verify open.
+
+## 0.1.0-dev.7 (2026-10-19) — prologue RV is not tracked
+
+- The RV is prologue-only, so its lights are never listed. Exclusion is by property code `rv` and the RV type, not by the explosion flag.
+- Motel and other owned properties stay tracked. 147/147 console checks. In-game verify open.
+
+## 0.1.0-dev.6 (2026-10-19) — grow tents and exploded RV
+
+- Grow tents are now controllable. Their built-in light is a child halogen toggle (`halogen light on/off mat`), not a placed LED `GrowLight`, so the old scan never listed them. The app shows them as "Grow tent".
+- Full-spectrum lights stay untouched.
+- The two quest LED lights were removed once the RV reported itself destroyed. Superseded by 0.1.0-dev.7.
+- 147/147 console checks. In-game verify open.
+
 ## 0.1.0-dev.5 (2026-10-18) — synchronized LED panel + emitted light
 
 Parent reran **143/143** console checks; independent targeted review **PASS**.

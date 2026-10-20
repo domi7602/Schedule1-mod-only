@@ -22,7 +22,7 @@ internal static class Program
             ("C08 Permanent removal and replacement use default state", Replacement),
             ("C09 Move preserves base state and changes effective scope", MoveScope),
             ("C10 New group members do not inherit previous group edits", GroupNewcomer),
-            ("C11 Existing unloaded group members remain targets", UnloadedGroup),
+            ("C11 Temporarily unloaded lamps are not state-command targets", UnloadedGroup),
             ("C12 Group authorization is atomic", DeniedGroup),
             ("C13 Authorization cannot reenter a mutation", ReentrantAuthorization),
             ("C14 Authorization exceptions preserve all state", FailingAuthorization),
@@ -154,7 +154,15 @@ internal static class Program
             ("C140 Emitted intensity scales each level against its own baseline", CoupledIntensityLevels),
             ("C141 An external write after late-update is preserved", CoupledExternalWritePreserved),
             ("C142 One failed source cannot block another lamp's cleanup", CoupledFailureIsolation),
-            ("C143 Runtime couples the panel with the lamp's own native light", CoupledWiring)
+            ("C143 Runtime couples the panel with the lamp's own native light", CoupledWiring),
+            ("C144 Verified panel pairs are LED and grow-tent halogen only", PanelFamilies),
+            ("C145 The prologue RV is never tracked, even while it still exists", DestroyedParentProperty),
+            ("C146 Only a grow tent contributes a built-in light", GrowTentItemGate),
+            ("C147 Runtime drops exploded-RV lamps and registers grow-tent lights", TentAndRvWiring),
+            ("C148 The lamp list keeps the selected row when the filter still shows it", LampListFilter),
+            ("C149 A palette pick sets that color instead of cycling", ColorPalettePick),
+            ("C150 Lamps stay under the property they were first seen in", PropertyGroups),
+            ("A01-A20 Selection, available targets, preview and save notices", PlanRules)
         };
         int failures = 0;
         Console.WriteLine($"LightControl.Core behavioral checks | runtime {Environment.Version} | {tests.Length} cases");
@@ -288,9 +296,11 @@ internal static class Program
     }
     private static void UnloadedGroup()
     {
+        // Deliberate change: a state command no longer recolours a lamp that is only registered, not available.
         var store = Store(); store.Register(Lamp("one")); store.MarkTemporarilyUnloaded(Id("one"));
-        Set(store, LampSelection.Group("P1", "G1"), ColorMode.Cyan);
-        Equal(ColorMode.Cyan, store.GetBaseState(Id("one")).Color);
+        Equal(CommandStatus.UnknownTarget, Set(store, LampSelection.Group("P1", "G1"), ColorMode.Cyan).Status);
+        Equal(LampBaseState.Default, store.GetBaseState(Id("one")));
+        Equal(0, store.AvailableTargetKeys(LampSelection.Group("P1", "G1")).Length);
     }
     private static void DeniedGroup()
     {
@@ -1193,8 +1203,8 @@ internal static class Program
         // Only the verified LED panel material family is ever touched.
         Equal(true, source.Contains("ledlight_light_off", StringComparison.Ordinal));
         Equal(true, source.Contains("ledlight_light_on", StringComparison.Ordinal));
-        // Registration is gated on the native LEDLight on/off material pair, so an unverified
-        // family (FullSpectrum, halogen) is never recoloured.
+        // Registration is gated on the verified panel pairs (LED, and the grow-tent halogen pair).
+        // Full-spectrum is still rejected.
         Equal(true, source.Contains("IsVerifiedLedFamily", StringComparison.Ordinal));
         Equal(true, source.Contains("LedFamilyOnMaterial", StringComparison.Ordinal));
         Equal(true, source.Contains("LedFamilyOffMaterial", StringComparison.Ordinal));
@@ -1219,7 +1229,7 @@ internal static class Program
     {
         string source = ReadSource("LightControlApp.cs");
         Equal(true, source.Contains("LED panel and emitted light use the same color", StringComparison.Ordinal));
-        Equal(true, source.Contains("LAMP BRIGHTNESS", StringComparison.Ordinal));
+        Equal(true, source.Contains("SetIntensity", StringComparison.Ordinal));
         // The obsolete surface-only claims are gone.
         Equal(false, source.Contains("room lighting unchanged", StringComparison.Ordinal));
         Equal(false, source.Contains("LED surface only", StringComparison.Ordinal));
@@ -1740,6 +1750,183 @@ internal static class Program
         Equal(true, source.Contains("ReadLampSwitch", StringComparison.Ordinal));
     }
 
+    private static void PanelFamilies()
+    {
+        Equal(true, PanelFamilyPolicy.IsVerifiedPair("ledlight_light_on", "ledlight_light_off"));
+        Equal(true, PanelFamilyPolicy.IsVerifiedPair("ledlight_light_on (Instance)", "ledlight_light_off (Instance)"));
+        Equal(true, PanelFamilyPolicy.IsVerifiedPair("halogen light on mat", "halogen light off mat"));
+        Equal(true, PanelFamilyPolicy.IsVerifiedPanelName("halogen light off mat"));
+        // Full-spectrum and a swapped halogen pair are not a verified family.
+        Equal(false, PanelFamilyPolicy.IsVerifiedPair("fullspectrum_light_on", "fullspectrum_light_off"));
+        Equal(false, PanelFamilyPolicy.IsVerifiedPair("halogen light off mat", "halogen light on mat"));
+        Equal(false, PanelFamilyPolicy.IsVerifiedPair("ledlight_light_on", "halogen light off mat"));
+        Equal(false, PanelFamilyPolicy.IsVerifiedPanelName("fullspectrum_light_on"));
+        Equal(false, PanelFamilyPolicy.IsVerifiedPanelName(null));
+    }
+
+    private static void DestroyedParentProperty()
+    {
+        // The RV is prologue-only. Its lights are not tracked, destroyed or not.
+        Equal(true, DestroyedPropertyPolicy.IsPrologueOnly("rv", false));
+        Equal(true, DestroyedPropertyPolicy.IsPrologueOnly("RV", false));
+        Equal(true, DestroyedPropertyPolicy.IsPrologueOnly(" rv ", false));
+        Equal(true, DestroyedPropertyPolicy.IsPrologueOnly("motelroom", true));
+        Equal(false, DestroyedPropertyPolicy.IsPrologueOnly("motelroom", false));
+        Equal(false, DestroyedPropertyPolicy.IsPrologueOnly(null, false));
+        Equal(false, DestroyedPropertyPolicy.IsPrologueOnly("  ", false));
+        // A destroyed lamp is still removed. An ordinary live lamp is not.
+        Equal(true, DestroyedPropertyPolicy.IsPermanentlyGone(false, true));
+        Equal(true, DestroyedPropertyPolicy.IsPermanentlyGone(true, false));
+        Equal(false, DestroyedPropertyPolicy.IsPermanentlyGone(false, false));
+    }
+
+    private static void GrowTentItemGate()
+    {
+        Equal(true, PanelFamilyPolicy.IsGrowTent("growtent"));
+        Equal(true, PanelFamilyPolicy.IsGrowTent("GrowTent"));
+        Equal(false, PanelFamilyPolicy.IsGrowTent("plasticpot"));
+        Equal(false, PanelFamilyPolicy.IsGrowTent("moisturepreservingpot"));
+        Equal(false, PanelFamilyPolicy.IsGrowTent("airpot"));
+        Equal(false, PanelFamilyPolicy.IsGrowTent(null));
+        Equal(false, PanelFamilyPolicy.IsGrowTent("  "));
+    }
+
+    private static void LampListFilter()
+    {
+        Equal(true, UiSelectionPolicy.Matches("Grow tent", "motel", UiSelectionPolicy.LampListFilter.All, null));
+        Equal(true, UiSelectionPolicy.Matches("Grow tent", "motel", UiSelectionPolicy.LampListFilter.Tents, "motel"));
+        Equal(false, UiSelectionPolicy.Matches("Grow lamp", "motel", UiSelectionPolicy.LampListFilter.Tents, null));
+        Equal(false, UiSelectionPolicy.Matches("Grow tent", "barn", UiSelectionPolicy.LampListFilter.All, "motel"));
+        Equal(true, UiSelectionPolicy.Matches("Grow lamp", "barn", UiSelectionPolicy.LampListFilter.Lamps, "barn"));
+        Equal(false, UiSelectionPolicy.Matches("Grow tent", "barn", UiSelectionPolicy.LampListFilter.Lamps, null));
+        var visible = new[] { 2, 5, 8 };
+        Equal(5, UiSelectionPolicy.KeepOrFirst(5, visible));
+        Equal(2, UiSelectionPolicy.KeepOrFirst(1, visible));
+        Equal(-1, UiSelectionPolicy.KeepOrFirst(0, Array.Empty<int>()));
+        string app = ReadSource("LightControlApp.cs");
+        Equal(true, app.Contains("EOrientation.Horizontal", StringComparison.Ordinal));
+        Equal(true, app.Contains("ScrollableVerticalList", StringComparison.Ordinal));
+    }
+
+    private static void ColorPalettePick()
+    {
+        string app = ReadSource("LightControlApp.cs");
+        Equal(true, app.Contains("LightRuntime.SetColor", StringComparison.Ordinal));
+        Equal(true, app.Contains("UiSelectionPolicy.ColorCount", StringComparison.Ordinal));
+        Equal(true, app.Contains("new Color(1f, 0f, 0f)", StringComparison.Ordinal));
+        Equal(true, app.Contains("new Color(1f, 1f, 0f)", StringComparison.Ordinal));
+        Equal(false, app.Contains("GamePalette.Red", StringComparison.Ordinal));
+        Equal(false, app.Contains("CycleColor(_selection)", StringComparison.Ordinal));
+        string runtime = ReadSource("LightRuntime.cs");
+        Equal(true, runtime.Contains("public static bool SetColor", StringComparison.Ordinal));
+    }
+
+    private static void PropertyGroups()
+    {
+        var ordered = new List<int>();
+        var groups = new List<UiSelectionPolicy.PropertyGroup>();
+        UiSelectionPolicy.GroupByProperty(
+            new[] { 0, 1, 2 },
+            new[] { "motel", "barn", "Motel" },
+            new[] { "Motel Room", "Barn", "Motel Room" },
+            ordered,
+            groups);
+        Equal(3, ordered.Count);
+        Equal(0, ordered[0]);
+        Equal(1, ordered[1]);
+        Equal(2, ordered[2]);
+        Equal(3, groups.Count);
+        Equal("Motel Room", groups[0].Name);
+        Equal(1, groups[0].Count);
+        Equal("Barn", groups[1].Name);
+        Equal("Motel Room", groups[2].Name);
+
+        UiSelectionPolicy.GroupByProperty(
+            new[] { 4 },
+            new string?[] { null },
+            new string?[] { "  " },
+            ordered,
+            groups);
+        Equal(1, groups.Count);
+        Equal("Unknown", groups[0].Name);
+        Equal(4, ordered[0]);
+
+        string app = ReadSource("LightControlApp.cs");
+        Equal(true, app.Contains("GroupByProperty", StringComparison.Ordinal));
+        Equal(false, app.Contains("\"Tents\"", StringComparison.Ordinal));
+        Equal(false, app.Contains("\"Lamps\"", StringComparison.Ordinal));
+    }
+
+    private static void PlanRules()
+    {
+        var visible = new[] { "a", "b", "c" };
+        Equal("b", UiSelectionPolicy.ResolveSelection("b", visible, false));
+        Equal("b", UiSelectionPolicy.ResolveSelection("b", new[] { "a", "c" }, false));
+        Equal(null, UiSelectionPolicy.ResolveSelection("b", new[] { "a", "c" }, true));
+        Equal("a", UiSelectionPolicy.ResolveSelection(null, visible, false));
+        Equal(false, UiSelectionPolicy.SelectionVisible("b", new[] { "a", "c" }));
+
+        var store = Store();
+        store.Register(Lamp("one", "A"));
+        store.Register(Lamp("two", "A"));
+        store.Register(Lamp("three", "B"));
+        long revision = store.Revision;
+        long catalog = store.CatalogRevision;
+        store.Move(Id("one"), "B");
+        Equal(revision, store.Revision);
+        NotEqual(catalog, store.CatalogRevision);
+        var propertyB = store.AvailableTargetKeys(LampSelection.Property("B"));
+        Equal(true, propertyB.Contains(Id("one").Key));
+        Equal(false, store.AvailableTargetKeys(LampSelection.Property("A")).Contains(Id("one").Key));
+
+        store.MarkTemporarilyUnloaded(Id("three"));
+        Equal(false, store.AvailableTargetKeys(LampSelection.World()).Contains(Id("three").Key));
+        Set(store, LampSelection.World(), ColorMode.Red);
+        Equal(LampBaseState.Default.Color, store.GetBaseState(Id("three")).Color);
+        Equal(ColorMode.Red, store.GetBaseState(Id("one")).Color);
+
+        var shown = store.AvailableTargetKeys(LampSelection.Property("B"));
+        store.MarkTemporarilyUnloaded(Id("one"));
+        var current = store.AvailableTargetKeys(LampSelection.Property("B"));
+        Equal(false, UiSelectionPolicy.SameKeySet(shown, current));
+
+        long before = store.Revision;
+        var same = Command(store, ControlCommand.Set(LampSelection.Lamp(Id("two")), new(ColorMode.Red)));
+        Equal(CommandStatus.Unchanged, same.Status);
+        Equal(before, store.Revision);
+
+        var kept = new LampBaseState(ColorMode.Green, IntensityLevel.Percent150);
+        Equal(IntensityLevel.Percent150, new LampChange(ColorMode.Blue).Apply(kept).Intensity);
+        Equal(ColorMode.Green, new LampChange(intensity: IntensityLevel.Percent25).Apply(kept).Color);
+        var reset = UiSelectionPolicy.OriginalReset();
+        Equal(ColorMode.Original, reset.Color);
+        Equal(IntensityLevel.Percent100, reset.Intensity);
+
+        Equal(UiSelectionPolicy.SaveNotice.Blocked, UiSelectionPolicy.ClassifySave(true, true, false, 2, 2, true));
+        Equal(UiSelectionPolicy.SaveNotice.WriteFailed, UiSelectionPolicy.ClassifySave(true, false, true, 3, 2, true));
+        Equal(UiSelectionPolicy.SaveNotice.Pending, UiSelectionPolicy.ClassifySave(true, false, false, 3, 2, true));
+        Equal(UiSelectionPolicy.SaveNotice.Saved, UiSelectionPolicy.ClassifySave(true, false, false, 3, 3, false));
+        Equal(true, UiSelectionPolicy.ActionMessageVisible(10, 13.9));
+        Equal(false, UiSelectionPolicy.ActionMessageVisible(10, 14));
+
+        var ordered = new List<int>();
+        var groups = new List<UiSelectionPolicy.PropertyGroup>();
+        UiSelectionPolicy.GroupByProperty(new[] { 0, 1 }, new[] { "p1", "p2" }, new[] { "Motel Room", "Motel Room" }, ordered, groups);
+        Equal(2, groups.Count);
+    }
+
+    private static void TentAndRvWiring()
+    {
+        string source = ReadSource("LightRuntime.cs");
+        Equal(true, source.Contains("PanelFamilyPolicy", StringComparison.Ordinal));
+        Equal(true, source.Contains("DestroyedPropertyPolicy", StringComparison.Ordinal));
+        Equal(true, source.Contains("TryRegisterGrowTent", StringComparison.Ordinal));
+        Equal(true, source.Contains("IsParentPropertyDestroyed", StringComparison.Ordinal));
+        Equal(true, source.Contains("halogen light on mat", StringComparison.Ordinal) || source.Contains("PanelFamilyPolicy.HalogenOn", StringComparison.Ordinal));
+        // Full-spectrum is still not a supported panel name in the runtime gate.
+        Equal(false, source.Contains("fullspectrum_light_on", StringComparison.Ordinal));
+    }
+
     /// <summary>Update phase of one coupled frame: hand both owned native properties back.</summary>
     private static void UpdateFrame(FakeLamp lamp)
     {
@@ -1916,7 +2103,8 @@ internal static class Program
     {
         string persist = Tail(ReadSource("LightRuntime.cs"), "private static void Persist()");
         // The saved revision advances only after a successful write, so a failed I/O retries.
-        Equal(true, persist.Contains("if (_storage.Save(_persistence)) _savedRevision = revision;", StringComparison.Ordinal));
+        Equal(true, persist.Contains("_savedRevision = revision;", StringComparison.Ordinal));
+        Equal(true, persist.Contains("LastSaveFailed = true;", StringComparison.Ordinal));
         Equal(false, persist.Contains("_savedRevision = _store.Revision;", StringComparison.Ordinal));
     }
     private static void DeinitWiring()
@@ -1957,8 +2145,7 @@ internal static class Program
     private static void AppFailureWiring()
     {
         string source = ReadSource("LightControlApp.cs");
-        Equal(true, source.Contains("private void Act(Func<bool> action)", StringComparison.Ordinal));
-        Equal(true, source.Contains("if (!applied)", StringComparison.Ordinal));
+        Equal(true, source.Contains("private void Act(Func<string, LightRuntime.LampActionResult> action)", StringComparison.Ordinal));
         Equal(true, source.Contains("That change was not applied", StringComparison.Ordinal));
     }
     private static void PersistenceStatusWiring()

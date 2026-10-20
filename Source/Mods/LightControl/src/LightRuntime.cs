@@ -85,6 +85,12 @@ internal sealed class OwnedLamp
     public string Key = string.Empty;
     public LampIdentity? Identity;
     public GrowLight? GrowLight;
+    /// <summary>The grow tent whose built-in light this record drives, when there is no separate GrowLight.</summary>
+    public Pot? Container;
+    /// <summary>Direct toggle for a grow-tent built-in light. Placeable lamps resolve theirs from <see cref="GrowLight"/>.</summary>
+    public ToggleableLight? Toggle;
+    /// <summary>Phone-app noun: "Grow lamp" or "Grow tent".</summary>
+    public string Kind = "Grow lamp";
     public string? PropertyCode;
     public int Generation;
     public bool Available;
@@ -115,6 +121,7 @@ internal sealed class OwnedLamp
 internal sealed class PendingLamp
 {
     public GrowLight? GrowLight;
+    public Pot? Container;
     public string? PropertyCode;
 }
 
@@ -196,13 +203,11 @@ internal static class LightRuntime
     private const string LedFamilyOffMaterial = "ledlight_light_off";
 
     /// <summary>
-    /// The only material names this build recolours: the LEDLight panel's verified on/off pair.
-    /// Both were read from <c>sharedassets0.assets</c> and both carry an HDR <c>_EmissionColor</c>
-    /// (off: 2.505, 0.1749, 12.358 - the violet panel in the shipped prefab). Every other grow-lamp
-    /// family (FullSpectrum, halogen) is unverified and is skipped with one log line rather than
-    /// guessed at.
+    /// The only material names this build recolours: the LEDLight panel pair and the grow-tent
+    /// halogen pair (<c>halogen light on mat</c> / <c>halogen light off mat</c>). Full-spectrum
+    /// stays rejected. The names live in <see cref="PanelFamilyPolicy"/>.
     /// </summary>
-    private static readonly string[] SupportedPanelMaterials = { LedFamilyOnMaterial, LedFamilyOffMaterial };
+    private static readonly string[] SupportedPanelMaterials = { LedFamilyOnMaterial, LedFamilyOffMaterial, PanelFamilyPolicy.HalogenOn, PanelFamilyPolicy.HalogenOff };
 
     private static readonly Stopwatch Clock = new();
     private static readonly Dictionary<string, OwnedLamp> Lamps = new(StringComparer.Ordinal);
@@ -272,6 +277,18 @@ internal static class LightRuntime
     /// <summary>True when the initial lamp-data read failed, so this session cannot persist.</summary>
     public static bool StorageBlocked => _persistence?.Gate == PersistenceGate.Blocked;
 
+    public static Guid SessionId => Ready && _store != null ? _store.SessionId : Guid.Empty;
+
+    public static long CatalogRevision => Ready && _store != null ? _store.CatalogRevision : 0;
+
+    public static long SavedRevision => _savedRevision;
+
+    public static bool LastSaveFailed { get; private set; }
+
+    public static bool SaveConfirmed { get; private set; }
+
+    public static double ClockSeconds => Now;
+
     /// <summary>Monotonic, session-relative time. Never derived from Unity's scaled clock.</summary>
     private static double Now => Clock.Elapsed.TotalSeconds;
 
@@ -337,6 +354,8 @@ internal static class LightRuntime
 
         BeginScan();
         _savedRevision = store.Revision;
+        LastSaveFailed = false;
+        SaveConfirmed = false;
         _nextAutosave = Now + AutosaveIntervalSeconds;
         Log.Info($"Host session ready; a bounded grow-lamp scan was started (gate '{persistence.Gate}').");
     }
@@ -399,8 +418,11 @@ internal static class LightRuntime
         try
         {
             var growLight = args.GameObject.GetComponent<GrowLight>();
-            if (growLight is null) return;
-            if (TryRegister(growLight)) Log.Info($"Registered newly placed grow lamp ({Order.Count} total).");
+            if (growLight != null && TryRegister(growLight))
+                Log.Info($"Registered newly placed grow lamp ({Order.Count} total).");
+            var pot = args.GameObject.GetComponent<Pot>();
+            if (pot != null && TryRegisterGrowTent(pot))
+                Log.Info($"Registered newly placed grow tent ({Order.Count} total).");
         }
         catch (Exception ex) { Log.Warn("Newly placed buildable could not be inspected", ex); }
     }
@@ -451,15 +473,9 @@ internal static class LightRuntime
         {
             var lamp = Order[index];
             if (lamp.Identity is null) continue;
-            if (IsGenuinelyDestroyed(lamp.GrowLight))
+            if (IsPermanentlyGone(lamp))
             {
-                try { _store.RemovePermanently(lamp.Identity, Now); }
-                catch (Exception ex) { Log.Warn("Removing a destroyed grow lamp failed", ex); }
-                foreach (var surface in lamp.Surfaces) ReleaseOwned(surface);
-                foreach (var source in lamp.Lights) RestoreLightSource(source);
-                Order.RemoveAt(index);
-                Lamps.Remove(lamp.Key);
-                Log.Info($"Removed a destroyed grow lamp ({Order.Count} left).");
+                RemoveDestroyed(lamp);
                 continue;
             }
             if (!IsControllable(lamp))
@@ -510,9 +526,7 @@ internal static class LightRuntime
     /// </summary>
     private static void ApplyLamp(OwnedLamp lamp, VisualInstruction instruction)
     {
-        ToggleableLight? toggle;
-        try { toggle = lamp.GrowLight!.Light; }
-        catch (Exception ex) { LogWarnOnce("read the grow-lamp toggle", ex); return; }
+        ToggleableLight? toggle = ResolveToggle(lamp);
         if (!NetworkGuard.IsAlive(toggle)) return;
 
         bool on;
@@ -974,9 +988,24 @@ internal static class LightRuntime
     }
 
     /// <summary>
+    /// Family gate: LED grow lights and the grow-tent halogen pair. Full-spectrum stays rejected.
+    /// <see cref="IsVerifiedLedFamily"/> remains the LED half so that pair cannot drift.
+    /// </summary>
+    private static bool IsVerifiedFamily(ToggleableLight toggle)
+    {
+        if (IsVerifiedLedFamily(toggle)) return true;
+        try
+        {
+            string? on = NetworkGuard.IsAlive(toggle.lightOnMat) ? toggle.lightOnMat!.name : null;
+            string? off = NetworkGuard.IsAlive(toggle.lightOffMat) ? toggle.lightOffMat!.name : null;
+            return PanelFamilyPolicy.IsVerifiedPair(on, off);
+        }
+        catch { return false; }
+    }
+
+    /// <summary>
     /// Family gate: only a lamp whose native <c>ToggleableLight</c> carries exactly the verified
-    /// LEDLight on/off material pair is ever registered or recoloured. This is what keeps an
-    /// unverified family (FullSpectrum, halogen) completely untouched instead of guessed at.
+    /// LEDLight on/off material pair passes this half. Full-spectrum is never accepted here.
     /// </summary>
     private static bool IsVerifiedLedFamily(ToggleableLight toggle)
     {
@@ -1125,6 +1154,284 @@ internal static class LightRuntime
         catch { return false; }
     }
 
+    private static bool IsAnchorDestroyed(Il2CppScheduleOne.EntityFramework.BuildableItem? item)
+    {
+        if (!NetworkGuard.IsAlive(item)) return false;
+        try { return item!.IsDestroyed; }
+        catch { return false; }
+    }
+
+    /// <summary>
+    /// The prologue RV is never a tracked property. Its lights stay in the world after the
+    /// explosion, so exclusion is by property identity, not by <c>IsDestroyed</c>.
+    /// </summary>
+    private static bool IsParentPropertyDestroyed(Il2CppScheduleOne.EntityFramework.BuildableItem? item)
+    {
+        if (!NetworkGuard.IsAlive(item)) return false;
+        NativeProperty? property;
+        try { property = item!.ParentProperty; }
+        catch { return false; }
+        if (!NetworkGuard.IsAlive(property)) return false;
+        string? code = null;
+        bool isRv = false;
+        try { code = property!.propertyCode; }
+        catch { }
+        try
+        {
+            var rv = property!.TryCast<Il2CppScheduleOne.Property.RV>();
+            isRv = NetworkGuard.IsAlive(rv);
+        }
+        catch { }
+        return DestroyedPropertyPolicy.IsPrologueOnly(code, isRv);
+    }
+
+    private static Il2CppScheduleOne.EntityFramework.BuildableItem? LiveAnchor(OwnedLamp lamp)
+    {
+        if (NetworkGuard.IsAlive(lamp.GrowLight)) return lamp.GrowLight;
+        if (NetworkGuard.IsAlive(lamp.Container)) return lamp.Container;
+        return null;
+    }
+
+    private static bool IsPermanentlyGone(OwnedLamp lamp)
+    {
+        bool lampDestroyed = IsAnchorDestroyed(lamp.GrowLight) || IsAnchorDestroyed(lamp.Container);
+        bool parentDestroyed = IsParentPropertyDestroyed(LiveAnchor(lamp));
+        return DestroyedPropertyPolicy.IsPermanentlyGone(lampDestroyed, parentDestroyed);
+    }
+
+    private static void RemoveDestroyed(OwnedLamp lamp)
+    {
+        if (lamp.Identity is not null && _store is not null)
+        {
+            try { _store.RemovePermanently(lamp.Identity, Now); }
+            catch (Exception ex) { Log.Warn("Removing a destroyed grow lamp failed", ex); }
+        }
+        foreach (var surface in lamp.Surfaces) ReleaseOwned(surface);
+        foreach (var source in lamp.Lights) RestoreLightSource(source);
+        Order.Remove(lamp);
+        Lamps.Remove(lamp.Key);
+        if (!string.IsNullOrEmpty(lamp.Key)) PendingCoupling.Remove(lamp.Key);
+        Log.Info($"Removed an untracked grow lamp ({Order.Count} left).");
+    }
+
+    private static ToggleableLight? ResolveToggle(OwnedLamp lamp)
+    {
+        if (NetworkGuard.IsAlive(lamp.Toggle)) return lamp.Toggle;
+        if (!NetworkGuard.IsAlive(lamp.GrowLight)) return null;
+        try { return lamp.GrowLight!.Light; }
+        catch { return null; }
+    }
+
+    /// <summary>
+    /// Registers the built-in light of an owned grow tent. The tent is a <c>Pot</c> with item id
+    /// <c>growtent</c>; its halogen light is a child <c>ToggleableLight</c>, not a placed
+    /// <c>GrowLight</c>, so the ordinary lamp scan never sees it.
+    /// </summary>
+    private static bool TryRegisterGrowTent(Pot? pot)
+    {
+        if (!Ready || _store is null) return false;
+        if (!NetworkGuard.IsAlive(pot)) return false;
+        if (IsAnchorDestroyed(pot) || IsParentPropertyDestroyed(pot))
+        {
+            // Drop a tent that was registered before the property exploded.
+            return false;
+        }
+
+        string guidText;
+        bool destroyed;
+        bool initialized;
+        string? itemId;
+        try
+        {
+            guidText = pot!.GUID.ToString();
+            destroyed = pot.IsDestroyed;
+            initialized = pot.Initialized;
+            itemId = pot.ItemInstance?.Definition?.ID;
+        }
+        catch (Exception ex) { LogWarnOnce("read native grow-tent identity", ex); return false; }
+        if (destroyed || !initialized || !PanelFamilyPolicy.IsGrowTent(itemId)) return false;
+
+        var native = LampIdentityPolicy.FromNativeGuid(guidText);
+        LampIdentity? identity = native.Identity;
+        if (!native.Accepted || identity is null) return false;
+        if (IsParentPropertyDestroyed(pot))
+        {
+            if (Lamps.TryGetValue(identity.Key, out var stale)) RemoveDestroyed(stale);
+            return false;
+        }
+        if (!TryReadOwnedPropertyCode(pot, out string propertyCode)) return false;
+
+        var toggle = FindBuiltInToggle(pot);
+        if (!NetworkGuard.IsAlive(toggle))
+        {
+            LogUnverifiedTentLight(pot!);
+            return false;
+        }
+
+        if (Lamps.TryGetValue(identity.Key, out var known))
+        {
+            if (known.Available) return false;
+            known.Container = pot;
+            known.Toggle = toggle;
+            known.Kind = "Grow tent";
+            return RebindTent(known, toggle!, propertyCode);
+        }
+
+        var surfaces = CollectSurfaces(toggle!, ActiveSurfacePointers(null));
+        var lights = CollectLightSources(toggle!, ActiveLightPointers(null));
+        bool on;
+        try { on = toggle!.isOn; }
+        catch { on = false; }
+        LampCouplingState coupling = NativeCouplingPolicy.Decide(surfaces.Count > 0, lights.Count > 0, on);
+        if (coupling == LampCouplingState.Pending)
+        {
+            MarkPendingCoupling(identity.Key, null, propertyCode, pot);
+            return false;
+        }
+        if (coupling == LampCouplingState.Unsupported)
+        {
+            ReportUnsupportedCoupling(identity.Key);
+            return false;
+        }
+
+        var registration = new LampRegistration(identity, RuntimeInstanceId(identity, 0), propertyCode);
+        try { _store.Register(registration, Now); }
+        catch (Exception ex) { Log.Warn("Grow tent registration rejected", ex); return false; }
+
+        var lamp = new OwnedLamp
+        {
+            Key = identity.Key,
+            Identity = identity,
+            Container = pot,
+            Toggle = toggle,
+            Kind = "Grow tent",
+            PropertyCode = propertyCode,
+            Generation = 0,
+            Available = true
+        };
+        foreach (var surface in surfaces) lamp.Surfaces.Add(surface);
+        foreach (var source in lights) lamp.Lights.Add(source);
+        Lamps.Add(lamp.Key, lamp);
+        PendingCoupling.Remove(lamp.Key);
+        ClearUnsupportedCoupling(lamp.Key);
+        Order.Add(lamp);
+        Order.Sort(static (left, right) => string.CompareOrdinal(left.Key, right.Key));
+        return true;
+    }
+
+    private static bool RebindTent(OwnedLamp lamp, ToggleableLight toggle, string propertyCode)
+    {
+        if (lamp.Identity is null || _store is null) return false;
+        var surfaces = CollectSurfaces(toggle, ActiveSurfacePointers(lamp));
+        var lights = CollectLightSources(toggle, ActiveLightPointers(lamp));
+        bool on;
+        try { on = toggle.isOn; }
+        catch { on = false; }
+        LampCouplingState coupling = NativeCouplingPolicy.Decide(surfaces.Count > 0, lights.Count > 0, on);
+        if (coupling != LampCouplingState.Ready)
+        {
+            if (coupling == LampCouplingState.Pending)
+                MarkPendingCoupling(lamp.Identity.Key, null, propertyCode, lamp.Container);
+            else ReportUnsupportedCoupling(lamp.Identity.Key);
+            return false;
+        }
+        lamp.Surfaces.Clear();
+        foreach (var surface in surfaces) lamp.Surfaces.Add(surface);
+        lamp.Lights.Clear();
+        foreach (var source in lights) lamp.Lights.Add(source);
+        lamp.Toggle = toggle;
+        lamp.PropertyCode = propertyCode;
+        lamp.Available = true;
+        lamp.Kind = "Grow tent";
+        if (!Order.Contains(lamp)) Order.Add(lamp);
+        PendingCoupling.Remove(lamp.Key);
+        ClearUnsupportedCoupling(lamp.Key);
+        try { _store.RebindTemporarilyUnloaded(lamp.Identity, RuntimeInstanceId(lamp.Identity, lamp.Generation)); }
+        catch (Exception ex) { Log.Warn("Grow tent rebind rejected", ex); return false; }
+        return true;
+    }
+
+    /// <summary>Bounded child walk for the tent's one verified built-in toggle. Never a scene-wide query.</summary>
+    private static ToggleableLight? FindBuiltInToggle(Pot pot)
+    {
+        Transform? root;
+        try { root = pot.transform; }
+        catch { return null; }
+        if (!NetworkGuard.IsAlive(root)) return null;
+        var queue = new Queue<Transform>();
+        queue.Enqueue(root!);
+        int visited = 0;
+        while (queue.Count > 0 && visited < 64)
+        {
+            Transform? node;
+            try { node = queue.Dequeue(); }
+            catch { continue; }
+            if (!NetworkGuard.IsAlive(node)) continue;
+            visited++;
+            ToggleableLight? toggle = null;
+            try { toggle = node!.GetComponent<ToggleableLight>(); }
+            catch { }
+            if (NetworkGuard.IsAlive(toggle) && IsVerifiedFamily(toggle!)) return toggle;
+            int children;
+            try { children = node!.childCount; }
+            catch { children = 0; }
+            for (int index = 0; index < children && queue.Count < 64; index++)
+            {
+                try { queue.Enqueue(node!.GetChild(index)); }
+                catch { }
+            }
+        }
+        return null;
+    }
+
+    private static bool _tentLightLogged;
+
+    /// <summary>One line when a grow tent has no verified built-in toggle, so the next log names the real materials.</summary>
+    private static void LogUnverifiedTentLight(Pot pot)
+    {
+        if (_tentLightLogged) return;
+        _tentLightLogged = true;
+        string on = "<none>";
+        string off = "<none>";
+        Transform? root;
+        try { root = pot.transform; }
+        catch { root = null; }
+        if (NetworkGuard.IsAlive(root))
+        {
+            var queue = new Queue<Transform>();
+            queue.Enqueue(root!);
+            int visited = 0;
+            while (queue.Count > 0 && visited < 64)
+            {
+                Transform? node;
+                try { node = queue.Dequeue(); }
+                catch { continue; }
+                if (!NetworkGuard.IsAlive(node)) continue;
+                visited++;
+                ToggleableLight? toggle = null;
+                try { toggle = node!.GetComponent<ToggleableLight>(); }
+                catch { }
+                if (NetworkGuard.IsAlive(toggle))
+                {
+                    try { on = toggle!.lightOnMat != null ? toggle.lightOnMat.name : "<null>"; }
+                    catch { on = "<unreadable>"; }
+                    try { off = toggle!.lightOffMat != null ? toggle.lightOffMat.name : "<null>"; }
+                    catch { off = "<unreadable>"; }
+                    break;
+                }
+                int children;
+                try { children = node!.childCount; }
+                catch { children = 0; }
+                for (int index = 0; index < children && queue.Count < 64; index++)
+                {
+                    try { queue.Enqueue(node!.GetChild(index)); }
+                    catch { }
+                }
+            }
+        }
+        Log.Info($"A grow tent was found, but its built-in light is not a verified panel pair (on '{on}', off '{off}'). It is left untouched.");
+    }
+
     /// <summary>
     /// True while the lamp is alive, owned by the player, and both coupled outputs are still live: a
     /// resolvable emitting LED panel slot <i>and</i> a resolvable native light source. Coupled control
@@ -1133,8 +1440,10 @@ internal static class LightRuntime
     /// </summary>
     private static bool IsControllable(OwnedLamp lamp)
     {
-        if (!NetworkGuard.IsAlive(lamp.GrowLight)) return false;
-        if (!IsOwnedByPlayer(lamp.GrowLight!, lamp.PropertyCode)) return false;
+        var anchor = LiveAnchor(lamp);
+        if (anchor == null) return false;
+        if (IsParentPropertyDestroyed(anchor)) return false;
+        if (!IsOwnedByPlayer(anchor, lamp.PropertyCode)) return false;
         bool surface = false;
         foreach (var owned in lamp.Surfaces)
             if (NetworkGuard.IsAlive(owned.Renderer)) { surface = true; break; }
@@ -1149,10 +1458,10 @@ internal static class LightRuntime
     /// its live <c>IsOwned</c> flag or by appearing in the native owned-property list. A lamp without
     /// a live, owned parent property is never controlled.
     /// </summary>
-    private static bool IsOwnedByPlayer(GrowLight growLight, string? cachedCode)
+    private static bool IsOwnedByPlayer(Il2CppScheduleOne.EntityFramework.BuildableItem item, string? cachedCode)
     {
         NativeProperty? property;
-        try { property = growLight.ParentProperty; }
+        try { property = item.ParentProperty; }
         catch { return false; }
         if (!NetworkGuard.IsAlive(property)) return false;
 
@@ -1169,11 +1478,11 @@ internal static class LightRuntime
     }
 
     /// <summary>Reads the live property code of an owned parent property, or fails.</summary>
-    private static bool TryReadOwnedPropertyCode(GrowLight growLight, out string propertyCode)
+    private static bool TryReadOwnedPropertyCode(Il2CppScheduleOne.EntityFramework.BuildableItem item, out string propertyCode)
     {
         propertyCode = string.Empty;
         NativeProperty? property;
-        try { property = growLight.ParentProperty; }
+        try { property = item.ParentProperty; }
         catch { return false; }
         if (!NetworkGuard.IsAlive(property)) return false;
         try
@@ -1417,6 +1726,13 @@ internal static class LightRuntime
             {
                 var growLight = node!.GetComponent<GrowLight>();
                 if (growLight != null && TryRegister(growLight)) _scanFoundCount++;
+                string? nodeName = null;
+                try { nodeName = node!.name; } catch { }
+                if (nodeName != null && (nodeName.Contains("GrowTent") || nodeName.Contains("Grow Tent")))
+                {
+                    var pot = node!.GetComponent<Pot>();
+                    if (pot != null && TryRegisterGrowTent(pot)) _scanFoundCount++;
+                }
             }
             catch (Exception ex)
             {
@@ -1468,6 +1784,11 @@ internal static class LightRuntime
         var native = LampIdentityPolicy.FromNativeGuid(guidText);
         LampIdentity? identity = native.Identity;
         if (!native.Accepted || identity is null) return false;
+        if (IsParentPropertyDestroyed(growLight!))
+        {
+            if (Lamps.TryGetValue(identity.Key, out var stale)) RemoveDestroyed(stale);
+            return false;
+        }
         if (!TryReadOwnedPropertyCode(growLight!, out string propertyCode)) return false;
 
         if (Lamps.TryGetValue(identity.Key, out var known))
@@ -1516,10 +1837,10 @@ internal static class LightRuntime
     /// and is never used to enable or switch on the lamp; it is retried at a bounded cadence instead. The
     /// set is capped so an unreadable fixture cannot grow it without bound.
     /// </summary>
-    private static void MarkPendingCoupling(string key, GrowLight growLight, string? propertyCode)
+    private static void MarkPendingCoupling(string key, GrowLight? growLight, string? propertyCode, Pot? container = null)
     {
         if (!PendingCoupling.ContainsKey(key) && PendingCoupling.Count >= PendingCouplingCap) return;
-        PendingCoupling[key] = new PendingLamp { GrowLight = growLight, PropertyCode = propertyCode };
+        PendingCoupling[key] = new PendingLamp { GrowLight = growLight, Container = container, PropertyCode = propertyCode };
     }
 
     /// <summary>
@@ -1566,7 +1887,16 @@ internal static class LightRuntime
         {
             if (!PendingCoupling.TryGetValue(key, out var entry)) continue;
             var growLight = entry.GrowLight;
-            if (!NetworkGuard.IsAlive(growLight) || IsGenuinelyDestroyed(growLight)) (stale ??= new()).Add(key);
+            var container = entry.Container;
+            bool lightDead = !NetworkGuard.IsAlive(growLight) || IsGenuinelyDestroyed(growLight);
+            bool tentDead = container is null || !NetworkGuard.IsAlive(container) || IsAnchorDestroyed(container) || IsParentPropertyDestroyed(container);
+            if (container is not null)
+            {
+                if (tentDead) (stale ??= new()).Add(key);
+                else TryRegisterGrowTent(container);
+            }
+            else if (lightDead || IsParentPropertyDestroyed(growLight))
+                (stale ??= new()).Add(key);
             else TryRegister(growLight);
         }
         if (stale is null) return;
@@ -1593,21 +1923,27 @@ internal static class LightRuntime
     /// </summary>
     private static List<OwnedSurface> CollectSurfaces(GrowLight growLight, IReadOnlyCollection<long> alreadyOwned)
     {
-        var candidates = new List<OwnedSurface>();
-        var pointers = new List<long>();
         ToggleableLight? toggle;
         try { toggle = growLight.Light; }
-        catch (Exception ex) { LogWarnOnce("read the grow-lamp toggle", ex); return candidates; }
+        catch (Exception ex) { LogWarnOnce("read the grow-lamp toggle", ex); return new(); }
+        if (!NetworkGuard.IsAlive(toggle)) return new();
+        return CollectSurfaces(toggle!, alreadyOwned);
+    }
+
+    private static List<OwnedSurface> CollectSurfaces(ToggleableLight toggle, IReadOnlyCollection<long> alreadyOwned)
+    {
+        var candidates = new List<OwnedSurface>();
+        var pointers = new List<long>();
         if (!NetworkGuard.IsAlive(toggle)) return candidates;
 
         // Family gate first: an unverified grow-lamp family is never registered, so its panel,
         // housing and materials stay exactly as the game built them.
-        if (!IsVerifiedLedFamily(toggle!))
+        if (!IsVerifiedFamily(toggle!))
         {
             if (!_familySkipLogged)
             {
                 _familySkipLogged = true;
-                Log.Info("A grow lamp is outside the verified LEDLight panel family; it is left completely untouched.");
+                Log.Info("A grow lamp is outside the verified LED and grow-tent halogen families; it is left completely untouched.");
             }
             return candidates;
         }
@@ -1659,13 +1995,18 @@ internal static class LightRuntime
     /// </summary>
     private static List<OwnedLightSource> CollectLightSources(GrowLight growLight, IReadOnlyCollection<long> alreadyOwned)
     {
-        var candidates = new List<OwnedLightSource>();
-        var pointers = new List<long>();
         ToggleableLight? maybeToggle;
         try { maybeToggle = growLight.Light; }
-        catch (Exception ex) { LogWarnOnce("read the grow-lamp toggle", ex); return candidates; }
-        if (!NetworkGuard.IsAlive(maybeToggle)) return candidates;
-        ToggleableLight toggle = maybeToggle!;
+        catch (Exception ex) { LogWarnOnce("read the grow-lamp toggle", ex); return new(); }
+        if (!NetworkGuard.IsAlive(maybeToggle)) return new();
+        return CollectLightSources(maybeToggle!, alreadyOwned);
+    }
+
+    private static List<OwnedLightSource> CollectLightSources(ToggleableLight toggle, IReadOnlyCollection<long> alreadyOwned)
+    {
+        var candidates = new List<OwnedLightSource>();
+        var pointers = new List<long>();
+        if (!NetworkGuard.IsAlive(toggle)) return candidates;
 
         Il2CppReferenceArray<OptimizedLight>? sources;
         try { sources = toggle.lightSources; }
@@ -1719,8 +2060,17 @@ internal static class LightRuntime
         if (_persistence.Gate != PersistenceGate.Ready) return;
         long revision = _store.Revision;
         if (revision == _savedRevision) return;
-        if (_storage.Save(_persistence)) _savedRevision = revision;
-        else Log.Warn("Lamp data was not written; existing storage is retained and the next autosave retries.");
+        if (_storage.Save(_persistence))
+        {
+            _savedRevision = revision;
+            LastSaveFailed = false;
+            SaveConfirmed = true;
+        }
+        else
+        {
+            LastSaveFailed = true;
+            Log.Warn("Lamp data was not written; existing storage is retained and the next autosave retries.");
+        }
     }
 
     // ---------------------------------------------------------------------------------------
@@ -1728,34 +2078,166 @@ internal static class LightRuntime
     // ---------------------------------------------------------------------------------------
 
     /// <summary>A read-only view of one registered lamp for the phone app.</summary>
-    public readonly record struct LampView(int Index, int Count, string Label, ColorMode Color, IntensityLevel Intensity);
+    public readonly record struct LampView(
+        int Index,
+        int Count,
+        string Label,
+        ColorMode Color,
+        IntensityLevel Intensity,
+        string Kind,
+        string PropertyCode,
+        string PropertyName,
+        string Key);
 
     public static bool TryGetLamp(int index, out LampView view)
     {
         view = default;
-        if (!Ready || _store is null || Order.Count == 0) return false;
-        int position = UiSelectionPolicy.WrapIndex(index, Order.Count);
-        var lamp = Order[position];
+        if (!Ready || _store is null || index < 0 || index >= Order.Count) return false;
+        var lamp = Order[index];
         if (lamp.Identity is null) return false;
         LampBaseState state;
         try { state = _store.GetBaseState(lamp.Identity); }
         catch { return false; }
-        view = new LampView(position, Order.Count, $"Grow lamp {position + 1} of {Order.Count}", state.Color, state.Intensity);
+        string code = lamp.PropertyCode ?? string.Empty;
+        string name = ReadPropertyName(lamp, code);
+        view = new LampView(index, Order.Count, $"{lamp.Kind} {index + 1}", state.Color, state.Intensity, lamp.Kind, code, name, lamp.Identity.Key);
         return true;
+    }
+
+    /// <summary>Copies the selected lamp onto every lamp of one owned property. Other properties stay put.</summary>
+    public static bool ApplyToProperty(int index, string? propertyCode)
+    {
+        if (!TryGetLamp(index, out var view)) return false;
+        if (string.IsNullOrWhiteSpace(propertyCode)) return false;
+        return Execute(ControlCommand.Set(
+            LampSelection.Property(propertyCode.Trim()),
+            new LampChange(view.Color, view.Intensity))).Succeeded;
+    }
+
+    private static string ReadPropertyName(OwnedLamp lamp, string code)
+    {
+        var anchor = LiveAnchor(lamp);
+        if (NetworkGuard.IsAlive(anchor))
+        {
+            try
+            {
+                var property = anchor!.ParentProperty;
+                if (NetworkGuard.IsAlive(property))
+                {
+                    string name = property!.PropertyName;
+                    if (!string.IsNullOrWhiteSpace(name)) return name.Trim();
+                }
+            }
+            catch { /* the code is still a usable label */ }
+        }
+        return string.IsNullOrWhiteSpace(code) ? "Property" : code.Trim();
+    }
+
+    public readonly record struct LampActionResult(CommandStatus Status, int AppliedCount)
+    {
+        public bool Succeeded => Status is CommandStatus.Applied or CommandStatus.Unchanged;
+        public static LampActionResult Rejected => new(CommandStatus.UnknownTarget, 0);
+    }
+
+    public readonly record struct CopyPreview(Guid SessionId, string SourceKey, string? PropertyCode, ColorMode Color, IntensityLevel Intensity, string[] TargetKeys);
+
+    public static bool TryBuildPreview(string sourceKey, bool world, out CopyPreview preview)
+    {
+        preview = default;
+        if (!Ready || _store is null) return false;
+        if (Find(sourceKey) is not OwnedLamp lamp || lamp.Identity is null) return false;
+        string code = (lamp.PropertyCode ?? string.Empty).Trim();
+        if (!world && code.Length == 0) return false;
+        LampBaseState state;
+        try { state = _store.GetBaseState(lamp.Identity); }
+        catch { return false; }
+        string[] keys;
+        try
+        {
+            keys = _store.AvailableTargetKeys(world ? LampSelection.World() : LampSelection.Property(code));
+        }
+        catch { return false; }
+        preview = new CopyPreview(_store.SessionId, lamp.Identity.Key, world ? null : code, state.Color, state.Intensity, keys);
+        return true;
+    }
+
+    public static LampActionResult ApplyPreview(CopyPreview shown, bool world)
+    {
+        if (!TryBuildPreview(shown.SourceKey, world, out var current)) return LampActionResult.Rejected;
+        if (!UiSelectionPolicy.PreviewMatches(
+            shown.SessionId, shown.SourceKey, shown.PropertyCode, shown.Color, shown.Intensity, shown.TargetKeys,
+            current.SessionId, current.SourceKey, current.PropertyCode, current.Color, current.Intensity, current.TargetKeys))
+            return new LampActionResult(CommandStatus.StaleRevision, 0);
+        var selection = world ? LampSelection.World() : LampSelection.Property(current.PropertyCode!);
+        return Execute(ControlCommand.Set(selection, new LampChange(current.Color, current.Intensity)));
+    }
+
+    public static LampActionResult SetColor(string key, ColorMode color)
+    {
+        if (!Enum.IsDefined(typeof(ColorMode), color)) return LampActionResult.Rejected;
+        if (!TryState(key, out var lamp, out var state)) return LampActionResult.Rejected;
+        if (state.Color == color) return new LampActionResult(CommandStatus.Unchanged, 1);
+        return Execute(ControlCommand.Set(LampSelection.Lamp(lamp.Identity!), new LampChange(color: color)));
+    }
+
+    public static LampActionResult SetIntensity(string key, IntensityLevel level)
+    {
+        if (!Enum.IsDefined(typeof(IntensityLevel), level)) return LampActionResult.Rejected;
+        if (!TryState(key, out var lamp, out var state)) return LampActionResult.Rejected;
+        if (state.Intensity == level) return new LampActionResult(CommandStatus.Unchanged, 1);
+        return Execute(ControlCommand.Set(LampSelection.Lamp(lamp.Identity!), new LampChange(intensity: level)));
+    }
+
+    public static LampActionResult ResetLamp(string key)
+    {
+        if (!TryState(key, out var lamp, out _)) return LampActionResult.Rejected;
+        var reset = UiSelectionPolicy.OriginalReset();
+        return Execute(ControlCommand.Set(LampSelection.Lamp(lamp.Identity!), new LampChange(reset.Color, reset.Intensity)));
+    }
+
+    private static OwnedLamp? Find(string key)
+    {
+        for (int i = 0; i < Order.Count; i++)
+        {
+            if (string.Equals(Order[i].Key, key, StringComparison.Ordinal) || Order[i].Identity?.Key == key)
+                return Order[i];
+        }
+        return null;
+    }
+
+    private static bool TryState(string key, out OwnedLamp lamp, out LampBaseState state)
+    {
+        state = LampBaseState.Default;
+        var found = Find(key);
+        if (found?.Identity is not LampIdentity identity || !Ready || _store is null)
+        {
+            lamp = found ?? new OwnedLamp();
+            return false;
+        }
+        lamp = found;
+        try { state = _store.GetBaseState(identity); return true; }
+        catch { return false; }
+    }
+
+    /// <summary>Sets the selected lamp to one palette color without cycling. Intensity stays.</summary>
+    public static bool SetColor(int index, ColorMode color)
+    {
+        if (!TryGetLamp(index, out var view)) return false;
+        return SetColor(view.Key, color).Succeeded;
     }
 
     /// <summary>Advances the selected lamp's color through all eleven core modes.</summary>
     public static bool CycleColor(int index)
     {
         if (!TryGetLamp(index, out var view)) return false;
-        return Execute(ControlCommand.Set(LampSelection.Lamp(Order[view.Index].Identity!), new LampChange(color: UiSelectionPolicy.NextColor(view.Color))));
+        return Execute(ControlCommand.Set(LampSelection.Lamp(Order[view.Index].Identity!), new LampChange(color: UiSelectionPolicy.NextColor(view.Color)))).Succeeded;
     }
 
     /// <summary>Advances the selected lamp's intensity through all seven core levels.</summary>
     public static bool CycleIntensity(int index)
     {
         if (!TryGetLamp(index, out var view)) return false;
-        return Execute(ControlCommand.Set(LampSelection.Lamp(Order[view.Index].Identity!), new LampChange(intensity: UiSelectionPolicy.NextIntensity(view.Intensity))));
+        return Execute(ControlCommand.Set(LampSelection.Lamp(Order[view.Index].Identity!), new LampChange(intensity: UiSelectionPolicy.NextIntensity(view.Intensity)))).Succeeded;
     }
 
     /// <summary>Restores the selected lamp to the model default: original color, 100%.</summary>
@@ -1763,14 +2245,14 @@ internal static class LightRuntime
     {
         if (!TryGetLamp(index, out var view)) return false;
         var reset = UiSelectionPolicy.OriginalReset();
-        return Execute(ControlCommand.Set(LampSelection.Lamp(Order[view.Index].Identity!), new LampChange(reset.Color, reset.Intensity)));
+        return Execute(ControlCommand.Set(LampSelection.Lamp(Order[view.Index].Identity!), new LampChange(reset.Color, reset.Intensity))).Succeeded;
     }
 
     /// <summary>Copies the selected lamp's state onto every supported owned lamp.</summary>
     public static bool ApplyToAll(int index)
     {
         if (!TryGetLamp(index, out var view)) return false;
-        return Execute(ControlCommand.Set(LampSelection.World(), new LampChange(view.Color, view.Intensity)));
+        return Execute(ControlCommand.Set(LampSelection.World(), new LampChange(view.Color, view.Intensity))).Succeeded;
     }
 
     /// <summary>
@@ -1778,22 +2260,23 @@ internal static class LightRuntime
     /// verified sender: the authorization callback only ever sees the frozen target set of the pure
     /// model and always runs outside a mutation.
     /// </summary>
-    private static bool Execute(ControlCommand command)
+    private static LampActionResult Execute(ControlCommand command)
     {
-        if (!Ready || _store is null) return false;
+        if (!Ready || _store is null) return LampActionResult.Rejected;
         RecheckOwnership();
         try
         {
             var request = new ClientCommand(LightLimits.ProtocolVersion, _store.SessionId, Guid.NewGuid(), _store.Revision, command);
             var result = _store.ExecuteHost(request, LocalSenderId, _ => true, Now);
-            if (result.Status != CommandStatus.Applied)
+            if (result.Status is not (CommandStatus.Applied or CommandStatus.Unchanged))
             {
                 Log.Warn($"Local command was not applied: {result.Status}.");
-                return false;
+                return new LampActionResult(result.Status, 0);
             }
-            return true;
+            int count = result.Status == CommandStatus.Applied ? result.Delta?.Upserts.Count ?? 0 : 0;
+            return new LampActionResult(result.Status, count);
         }
-        catch (Exception ex) { Log.Warn("Local host command failed", ex); return false; }
+        catch (Exception ex) { Log.Warn("Local host command failed", ex); return LampActionResult.Rejected; }
     }
 
     /// <summary>Demotes any active lamp whose property is no longer owned, before a command is applied.</summary>

@@ -148,7 +148,7 @@ public sealed class CommandAuthorizationContext
 public enum CommandStatus
 {
     Applied, Duplicate, WrongMode, WrongProtocol, WrongSession, StaleRevision,
-    UnknownTarget, Denied, AuthorizationFailed, CapacityExceeded, RevisionExhausted
+    UnknownTarget, Denied, AuthorizationFailed, CapacityExceeded, RevisionExhausted, Unchanged
 }
 
 public sealed record CommandResult(CommandStatus Status, long Revision, StateDelta? Delta = null);
