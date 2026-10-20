@@ -8,5 +8,5 @@ namespace S1Mods.Shared;
 public static class SharedVersion
 {
     /// <summary>Current Shared library version (semver).</summary>
-    public const string Current = "1.1.0";
+    public const string Current = "1.2.0";
 }

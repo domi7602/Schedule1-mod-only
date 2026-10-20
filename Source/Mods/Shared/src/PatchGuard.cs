@@ -14,16 +14,47 @@ public static class PatchGuard
 {
     private static int _patchesApplied;
     private static int _patchesFailed;
+    private static readonly object _failedGate = new();
+    private static readonly System.Collections.Generic.List<string> _failedTargets = new();
 
     public static int PatchesApplied => Volatile.Read(ref _patchesApplied);
     public static int PatchesFailed => Volatile.Read(ref _patchesFailed);
     public static int TotalPatches => PatchesApplied + PatchesFailed;
+
+    /// <summary>
+    /// Names of the patch targets that did not apply, in registration order.
+    /// Counters alone tell you *how many* broke; this tells you *which* feature is gone
+    /// after a game update. Consumed by <see cref="Diagnostics.StartupReport"/>.
+    /// </summary>
+    public static System.Collections.Generic.IReadOnlyList<string> FailedTargets
+    {
+        get
+        {
+            lock (_failedGate)
+            {
+                return _failedTargets.ToArray();
+            }
+        }
+    }
+
+    private static void RecordFailure(string target)
+    {
+        if (string.IsNullOrEmpty(target)) return;
+        lock (_failedGate)
+        {
+            if (!_failedTargets.Contains(target)) _failedTargets.Add(target);
+        }
+    }
 
     /// <summary>Resets the global patch counters.</summary>
     public static void ResetStats()
     {
         Interlocked.Exchange(ref _patchesApplied, 0);
         Interlocked.Exchange(ref _patchesFailed, 0);
+        lock (_failedGate)
+        {
+            _failedTargets.Clear();
+        }
     }
 
     /// <summary>
@@ -63,6 +94,7 @@ public static class PatchGuard
         if (harmony == null)
         {
             Interlocked.Increment(ref _patchesFailed);
+            RecordFailure(original?.Name ?? "harmony==null");
             // Gatekeeper-fix 2026-08-29: only log via the provided `log` to avoid double-logging
             // (was: log?.Error + MelonLoader.MelonLogger.Error). Consistent with the other
             // paths in this file (lines 78, 116) which only use log?.Warn.
@@ -74,6 +106,7 @@ public static class PatchGuard
         {
             Interlocked.Increment(ref _patchesFailed);
             string name = original?.Name ?? "unknown";
+            RecordFailure(name);
             log?.Warn($"PatchGuard: No HarmonyMethod provided for '{name}' — no-op, skipped.");
             return false;
         }
@@ -81,6 +114,7 @@ public static class PatchGuard
         if (original == null)
         {
             Interlocked.Increment(ref _patchesFailed);
+            RecordFailure("target==null");
             log?.Warn("PatchGuard: Target method is null (possibly removed by game patch). Patch skipped.");
             return false;
         }
@@ -96,6 +130,7 @@ public static class PatchGuard
         catch (Exception ex)
         {
             Interlocked.Increment(ref _patchesFailed);
+            RecordFailure(targetDesc);
             log?.Error($"PatchGuard: Patch for '{targetDesc}' failed (feature safely disabled): {ex.Message}");
             // Gatekeeper-fix 2026-08-29 (diagnostic fallback only): some ModLogger implementations
             // swallow errors during very-early Init (before their sink is fully wired). The throw
@@ -125,6 +160,7 @@ public static class PatchGuard
         if (method == null)
         {
             Interlocked.Increment(ref _patchesFailed);
+            RecordFailure($"{targetType?.Name ?? "Unknown"}.{methodName}");
             log?.Warn($"PatchGuard: Method '{targetType?.Name}.{methodName}' not found. Signature may have changed after a game patch.");
             return false;
         }

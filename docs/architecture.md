@@ -29,7 +29,24 @@ Source/Mods/<ModName>/
 - Persistence is slot-aware and uses `SafeStorage` plus `SaveSlots`.
 - Multiplayer mutations must use `NetworkGuard` authority checks.
 - Harmony patches use `PatchGuard` and must tolerate game-version signature drift.
+- Hook bodies report failures through `Diagnostics.ErrorOnce` (first hit logged, repeats counted)
+  and each mod prints one `Diagnostics.StartupReport` block after patching, so a half-broken
+  post-update state is visible in the first lines of `Latest.log` instead of being silent.
 - IL2CPP `MonoBehaviour` types require the public `IntPtr` constructor.
+
+## HitmanPhone audit-repair boundary
+
+HitmanPhone's candidate repair is explicitly singleplayer-only, not a host-authoritative
+multiplayer feature. A confirmed load binds identity and write destination; gameplay only
+marks bounty state dirty. Save-start freezes a snapshot and save-complete checks the native
+result/destination before checkpoint-bound sidecar IO through SafeStorage. Unknown world
+fingerprints pause the mod rather than adopting the newest bounty file. Compatibility and
+backup copies require both matching identity and content fingerprint. This is a provisional
+engine/sidecar consistency design, not an atomic cross-filesystem transaction or native
+save/load acceptance. Item registration, evidence delivery/receipts and journal rebind
+remain local to HitmanPhone; no mod-to-mod dependencies are introduced. See the
+[verification record](../Source/Mods/HitmanPhone/docs/audit-repair-verification.md) for
+tested pure/source behavior and the still-open native pipeline checks.
 
 ## LightControl first gameplay test boundary
 
