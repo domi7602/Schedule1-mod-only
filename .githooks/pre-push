@@ -1,37 +1,52 @@
 #!/bin/sh
-# Pre-push hook: full local validation (Release build without deploy + all tests).
+# Pre-push hook: game-free tests always; Release build + game-required tests
+# when Schedule I is installed.
 #
-# Why here and not in CI: the mods compile against Schedule I's IL2CPP
-# assemblies, which exist only on a machine with the game installed, so
-# GitHub-hosted CI skips the build and the game-dependent tests
-# (see .github/workflows/ci.yml). This hook closes that gap locally.
+# Tools/test-all.ps1 is the single test entry point (same as CI). It classifies
+# every Source/Tests project, runs xunit suites and the LightControl console
+# host, and fails on anything it cannot classify. Plain `dotnet test` on the
+# solution misses that console host, so it is no longer used here.
 #
-# The build runs with S1NoDeploy=true, so it is compile-only and safe while
-# the game is running. Machines without the game skip gracefully.
+# The build runs with S1NoDeploy=true, so it is compile-only and safe while the
+# game is running. Machines without the game still run the game-free suites.
 #
 # Install via: git config core.hooksPath .githooks
 # Bypass with: git push --no-verify
 
 set -e
 
+cd "$(git rev-parse --show-toplevel)"
+
 # Prefer the user-local .NET SDK (AGENTS.md: agent shells may only see the
-# runtime host); fall back to whatever 'dotnet' resolves to.
+# runtime host); fall back to whatever 'dotnet' resolves to. The runner gets the
+# same explicit path instead of resolving its own.
 DOTNET="$USERPROFILE/.dotnet/dotnet.exe"
 if [ ! -f "$DOTNET" ]; then
   DOTNET="dotnet"
 fi
 
+export S1NoDeploy=true
+
 GAME_DIR="${SCHEDULE1_PATH:-C:/Program Files (x86)/Steam/steamapps/common/Schedule I}"
-if [ ! -f "$GAME_DIR/MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll" ]; then
-  echo "[pre-push] Schedule I assemblies not found ($GAME_DIR) - skipping build/tests."
-  echo "[pre-push] Set \$SCHEDULE1_PATH or push from a machine with the game for full validation."
+GAME_PROBE="$GAME_DIR/MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll"
+
+run_tests() {
+  pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/test-all.ps1 \
+    -Selection "$1" -Configuration Release -DotnetPath "$DOTNET"
+}
+
+if [ ! -f "$GAME_PROBE" ]; then
+  echo "[pre-push] Schedule I assemblies not found ($GAME_DIR)."
+  echo "[pre-push] Running game-free tests only; build and game-required tests are skipped."
+  run_tests pure
+  echo "[pre-push] OK (game-free)."
   exit 0
 fi
 
 echo "[pre-push] Release build (compile only, no game deploy) ..."
 "$DOTNET" build Source/Mods/S1Mods.sln -c Release -p:S1NoDeploy=true --nologo
 
-echo "[pre-push] Tests (all projects in S1Mods.sln) ..."
-"$DOTNET" test Source/Mods/S1Mods.sln -c Release --no-build --nologo
+echo "[pre-push] Tests (all Source/Tests projects, including the console host) ..."
+run_tests all
 
 echo "[pre-push] OK."

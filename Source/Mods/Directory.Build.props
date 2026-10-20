@@ -108,7 +108,7 @@
       <HintPath>$(Il2CppAssemblies)\UnityEngine.AssetBundleModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <!-- Local runtime: S1API 3.2.1-beta.8 wrapper in Mods (assembly name "S1API") OR UserLibs fallback. -->
+    <!-- Runtime S1API wrapper in Mods (assembly name "S1API") OR UserLibs fallback; pinned version: AGENTS.md. -->
     <Reference Include="S1API" Condition="Exists('$(ModsDir)\S1API.Il2Cpp.MelonLoader.dll')">
       <HintPath>$(ModsDir)\S1API.Il2Cpp.MelonLoader.dll</HintPath>
       <Private>False</Private>

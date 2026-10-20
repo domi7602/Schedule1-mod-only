@@ -1,0 +1,19 @@
+# .deployallow — explicit allowlist for automatic ThirdParty deployment.
+#
+# Empty by default: NO third-party DLL is deployed automatically. This is
+# intentional; the previous .deployignore approach defaulted to "deploy
+# everything not listed", which put all 268 ThirdParty DLLs into Mods\.
+#
+# One pattern per line, POSIX glob relative to ThirdParty/, forward slashes:
+#   *      any characters except /
+#   **     any characters including /
+#   **/    zero or more directories
+#   ?      one character except /
+#
+# Examples (do NOT uncomment without reviewing the actual DLL):
+#   MyMod/dist/MyMod.dll
+#   MyMod/**/*.dll
+#
+# Missing or malformed allowlists fail the deploy. Lines starting with # and
+# blank lines are ignored. Duplicate target file names are rejected because
+# Mods\ is flat.

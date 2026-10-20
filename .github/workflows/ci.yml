@@ -38,9 +38,9 @@ jobs:
       # The mods compile against Schedule I's IL2CPP assemblies
       # (<GameDir>\MelonLoader\Il2CppAssemblies). Those exist only where the game
       # is installed (developer machine / self-hosted runner), never on
-      # GitHub-hosted runners. Build + Shared.Tests therefore run only when the
-      # assemblies are present; everything else (restore, format, pure-logic
-      # tests, SLN determinism, version sync, doc paths) runs always.
+      # GitHub-hosted runners. Build + game-required tests therefore run only
+      # when the assemblies are present; everything else (restore, format,
+      # game-free tests, SLN determinism, version sync, doc paths) runs always.
       # Path resolution mirrors Directory.Build.props: SCHEDULE1_PATH, else default.
       - name: Detect game assemblies
         id: detect
@@ -57,50 +57,104 @@ jobs:
           }
 
       - name: Restore
-        run: dotnet restore Source/Mods/S1Mods.sln
+        shell: pwsh
+        run: |
+          $dotnet = (Get-Command dotnet -ErrorAction Stop).Source
+          Write-Host "dotnet: $dotnet"
+          & $dotnet restore Source/Mods/S1Mods.sln
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Check formatting (dotnet format --verify-no-changes)
-        run: dotnet format Source/Mods/S1Mods.sln --verify-no-changes --verbosity diagnostic
-
-      # These test projects link pure C# source files and need no game assemblies.
-      - name: Run pure-logic tests (AutoPackagingStation, CalculatorApp, BusinessIncome, StorageScanner, BankApp, GraphicsProbe)
+        shell: pwsh
         run: |
-          dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release --nologo
-          dotnet test Source/Tests/CalculatorApp.Tests/CalculatorApp.Tests.csproj -c Release --nologo
-          dotnet test Source/Tests/BusinessIncome.Tests/BusinessIncome.Tests.csproj -c Release --nologo
-          dotnet test Source/Tests/BusinessIncome.ConfigIo.Tests/BusinessIncome.ConfigIo.Tests.csproj -c Release --nologo
-          dotnet test Source/Tests/StorageScanner.Tests/StorageScanner.Tests.csproj -c Release --nologo
-          dotnet test Source/Tests/BankApp.Tests/BankApp.Tests.csproj -c Release --nologo
-          dotnet test Source/Tests/GraphicsProbe.Tests/GraphicsProbe.Tests.csproj -c Release --nologo
+          $dotnet = (Get-Command dotnet -ErrorAction Stop).Source
+          & $dotnet format Source/Mods/S1Mods.sln --verify-no-changes --verbosity diagnostic
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      # Tools/test-all.ps1 classifies every Source/Tests project from its csproj
+      # and fails on anything it cannot classify. Pure selection = game-free
+      # xunit suites plus the LightControl console host; game-required suites
+      # are reported as skipped, never silently omitted.
+      #
+      # S1NoDeploy is also exported here for the MSBuild children, but the runner
+      # passes -p:S1NoDeploy=true explicitly because the environment alone is not
+      # a reliable contract.
+      - name: Run game-free tests (Tools/test-all.ps1 -Selection pure)
+        env:
+          S1NoDeploy: "true"
+        shell: pwsh
+        run: |
+          $dotnet = (Get-Command dotnet -ErrorAction Stop).Source
+          pwsh -NoProfile -File Tools/test-all.ps1 -Selection pure -Configuration Release -DotnetPath $dotnet
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Build solution (Release, no deploy)
         if: steps.detect.outputs.has-game == 'true'
         env:
           # CI must never write into a local game installation (self-hosted runner).
           S1NoDeploy: "true"
-        run: dotnet build Source/Mods/S1Mods.sln -c Release --no-restore --nologo
-
-      - name: Run all test projects
-        if: steps.detect.outputs.has-game == 'true'
         shell: pwsh
         run: |
-          if (-not (Test-Path -LiteralPath "Source/Tests")) {
-            Write-Host "Source/Tests not found - skip."
-            exit 0
+          $dotnet = (Get-Command dotnet -ErrorAction Stop).Source
+          & $dotnet build Source/Mods/S1Mods.sln -c Release --no-restore --nologo -p:S1NoDeploy=true
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      # Same runner as above, now including the game-required suites
+      # (Shared.Tests). Every project is selected by classification, including
+      # console hosts that plain 'dotnet test' would skip.
+      - name: Run all test projects (Tools/test-all.ps1 -Selection all)
+        if: steps.detect.outputs.has-game == 'true'
+        env:
+          S1NoDeploy: "true"
+        shell: pwsh
+        run: |
+          $dotnet = (Get-Command dotnet -ErrorAction Stop).Source
+          pwsh -NoProfile -File Tools/test-all.ps1 -Selection all -Configuration Release -DotnetPath $dotnet
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      # Durable runner regression suites (Tools/Tests/*.Tests.ps1). They are plain
+      # pwsh scripts, not Pester: each drives a copy of the tool it covers inside a
+      # disposable scratch repo and uses fake installs, so no game is required.
+      # Every suite is run, exit codes are aggregated explicitly, and the step
+      # fails if any suite failed (a bare pwsh call does not propagate failure).
+      - name: Run tool regression suites (Tools/Tests/*.Tests.ps1)
+        shell: pwsh
+        run: |
+          $scratch = Join-Path $env:LOCALAPPDATA "hermes\cache\scratch\tool-tests"
+          $null = New-Item -ItemType Directory -Path $scratch -Force
+          $suites = @(Get-ChildItem -LiteralPath "Tools/Tests" -Filter "*.Tests.ps1" -File | Sort-Object Name)
+          if ($suites.Count -eq 0) {
+            Write-Error "No tool regression suites found under Tools/Tests."
+            exit 1
           }
-          $failed = $false
-          Get-ChildItem -Path "Source/Tests" -Recurse -Filter "*.csproj" | ForEach-Object {
-            dotnet test $_.FullName -c Release --nologo
-            if ($LASTEXITCODE -ne 0) { $failed = $true }
+          $failed = @()
+          foreach ($suite in $suites) {
+            Write-Host "=== $($suite.Name) ==="
+            $suiteScratch = Join-Path $scratch $suite.BaseName
+            # Only suites that declare -ScratchRoot get it; a bare pwsh -File call
+            # would otherwise swallow the switch silently.
+            $tokens = $null; $errors = $null
+            $ast = [System.Management.Automation.Language.Parser]::ParseFile($suite.FullName, [ref]$tokens, [ref]$errors)
+            $declared = @()
+            if ($ast.ParamBlock) { $declared = @($ast.ParamBlock.Parameters.Name.VariablePath.UserPath) }
+            $suiteArgs = @("-NoProfile", "-File", $suite.FullName)
+            if ($declared -contains "ScratchRoot") { $suiteArgs += @("-ScratchRoot", $suiteScratch) }
+            & pwsh @suiteArgs
+            $code = $LASTEXITCODE
+            Write-Host "--- $($suite.Name): exit $code"
+            if ($code -ne 0) { $failed += "$($suite.Name) (exit $code)" }
           }
-          if ($failed) { exit 1 }
-          Write-Host "All test projects passed."
+          if ($failed.Count -gt 0) {
+            Write-Error ("Tool regression suite(s) failed: " + ($failed -join ", "))
+            exit 1
+          }
+          Write-Host "All $($suites.Count) tool regression suites passed."
 
       - name: Note skipped game-dependent steps
         if: steps.detect.outputs.has-game != 'true'
         shell: pwsh
         run: |
-          Write-Host "Schedule I is not installed on this runner: solution build and Shared.Tests were skipped."
+          Write-Host "Schedule I is not installed on this runner: solution build and game-required tests were skipped."
           Write-Host "Full validation needs the game assemblies (build locally or on a self-hosted runner). See DEVELOPERS.md."
 
       # The runner checks out with LF while gen-sln.ps1 writes CRLF; compare with
@@ -111,6 +165,10 @@ jobs:
         run: |
           $before = ((Get-Content -LiteralPath "Source/Mods/S1Mods.sln" -Raw) -replace "`r?`n", "`n")
           pwsh Tools/gen-sln.ps1
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "Tools/gen-sln.ps1 failed (exit $LASTEXITCODE)."
+            exit $LASTEXITCODE
+          }
           $after = ((Get-Content -LiteralPath "Source/Mods/S1Mods.sln" -Raw) -replace "`r?`n", "`n")
           if ($before -cne $after) {
             Write-Error "S1Mods.sln is not deterministic. Run: pwsh Tools/gen-sln.ps1 and commit the result."

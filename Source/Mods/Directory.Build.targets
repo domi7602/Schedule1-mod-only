@@ -1,54 +1,49 @@
 <Project>
   <!-- Deploy convention (since 2026-09 reinstall): -->
   <!--   <GameDir>\Mods\              -> DLL + PNGs + Bundles (only loadable by MelonLoader) -->
+  <!--   <GameDir>\Mods\<Mod>\        -> GLB meshes (MelonLoader scans only DLLs) -->
   <!--   <GameDir>\UserData\<Mod>\    -> mod.json (metadata) + <Mod>.pdb (debug symbols) -->
-  <!-- SkipUnchangedFiles=false forces deploy on every build (fix for stale DLLs in GameDir). -->
   <!-- Build without deploy (CI, compile-only checks): -p:S1NoDeploy=true  or  $env:S1NoDeploy='true'. -->
-  <Target Name="DeployMod" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And Exists('$(TargetPath)')">
-    <PropertyGroup>
-      <_DeployDir>$(ModsDir)</_DeployDir>
-      <_UserLibsDir>$(GameDir)\UserLibs</_UserLibsDir>
-      <_ModDataDir>$(UserDataDir)\$(MSBuildProjectName)</_ModDataDir>
-      <_PdbPath>$([System.IO.Path]::ChangeExtension('$(TargetPath)', '.pdb'))</_PdbPath>
-    </PropertyGroup>
-    <MakeDir Directories="$(_DeployDir)" Condition="!Exists('$(_DeployDir)')" />
-    <MakeDir Directories="$(_ModDataDir)" Condition="!Exists('$(_ModDataDir)')" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="false" />
-    <Copy SourceFiles="$(_PdbPath)" DestinationFolder="$(_ModDataDir)" SkipUnchangedFiles="false" Condition="Exists('$(_PdbPath)')" />
-    <ItemGroup>
-      <_Pngs Include="$(MSBuildProjectDirectory)\*.png;$(MSBuildProjectDirectory)\..\assets\*.png" />
-      <_Bundles Include="$(MSBuildProjectDirectory)\..\assets\*.bundle" Condition="Exists('$(MSBuildProjectDirectory)\..\assets')" />
-      <_Glbs Include="$(MSBuildProjectDirectory)\..\assets\*.glb" Condition="Exists('$(MSBuildProjectDirectory)\..\assets')" />
-      <_Json Include="$(MSBuildProjectDirectory)\..\docs\mod.json" Condition="Exists('$(MSBuildProjectDirectory)\..\docs\mod.json')" />
-    </ItemGroup>
-    <Copy SourceFiles="@(_Pngs)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="false" Condition="'@(_Pngs)' != ''" />
-    <Copy SourceFiles="@(_Bundles)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="false" Condition="'@(_Bundles)' != ''" />
-    <!-- GLB meshes do NOT land in Mods\ (MelonLoader scans only DLLs) — data subfolder Mods\<Mod>\, runtime paths resolved there. -->
-    <Copy SourceFiles="@(_Glbs)" DestinationFolder="$(_DeployDir)\$(MSBuildProjectName)" SkipUnchangedFiles="false" Condition="'@(_Glbs)' != ''" />
-    <Copy SourceFiles="@(_Json)" DestinationFiles="$(_ModDataDir)\mod.json" SkipUnchangedFiles="false" Condition="'@(_Json)' != ''" />
-    <Message Importance="high" Text="Deployed $(MSBuildProjectName) -> $(_DeployDir) (+ json/pdb -> $(_ModDataDir))" />
+  <!--
+    Every write into the install goes through Tools/deploy-mod.ps1. The script derives the
+    complete per-project file plan (DLL, PDB, mod.json, icons, bundles, GLBs), runs
+    check-deploy-preflight.ps1 inside a per-install mutex, backs up only the targets it
+    overwrites (<GameDir>\UserData\.deploy\backups\), verifies SHA256 after each copy and
+    writes a receipt with exact paths/hashes + git revision and dirty state
+    (<GameDir>\UserData\.deploy\receipts\<Mod>.json). An in-process failure restores the
+    touched targets from the verified backup; there is no cross-process crash atomicity.
+  -->
+  <PropertyGroup>
+    <S1NoDeploy Condition="'$(NoDeploy)' == 'true'">true</S1NoDeploy>
+    <_S1DeployModScript>$(MSBuildThisFileDirectory)..\..\Tools\deploy-mod.ps1</_S1DeployModScript>
+    <_S1DeployThirdPartyScript>$(MSBuildThisFileDirectory)..\..\Tools\deploy-thirdparty.ps1</_S1DeployThirdPartyScript>
+    <!-- Pass the exact GameDir the build resolved (property > SCHEDULE1_PATH > default),
+         without a trailing separator before the closing quote. -->
+    <_S1EffectiveGameDir>$([System.IO.Path]::TrimEndingDirectorySeparator('$(GameDir)'))</_S1EffectiveGameDir>
+    <!-- The deploy script owns plan derivation; these are the conventional inputs. -->
+    <_S1DeployProjectDir>$(MSBuildProjectDirectory)</_S1DeployProjectDir>
+    <_S1DeployAssetsDir>$(MSBuildProjectDirectory)\..\assets</_S1DeployAssetsDir>
+    <_S1DeployModJson>$(MSBuildProjectDirectory)\..\docs\mod.json</_S1DeployModJson>
+  </PropertyGroup>
+
+  <Target Name="DeployMod" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And '$(MSBuildProjectName)' != 'Shared' And Exists('$(TargetPath)')">
+    <Exec Command="pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(_S1DeployModScript)&quot; -GameDir &quot;$(_S1EffectiveGameDir)&quot; -ProjectName &quot;$(MSBuildProjectName)&quot; -Configuration &quot;$(Configuration)&quot; -TargetPath &quot;$(TargetPath)&quot; -ProjectDir &quot;$(_S1DeployProjectDir)&quot; -AssetsDir &quot;$(_S1DeployAssetsDir)&quot; -ModJsonPath &quot;$(_S1DeployModJson)&quot;" />
   </Target>
 
-  <!-- Shared.dll is not transitively propagated (Private=false) — deploy explicitly. -->
+  <!-- Shared.dll is not transitively propagated (Private=false) — deploy it once, explicitly,
+       through the same receipt/rollback path as every other project. -->
   <Target Name="DeployShared" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And '$(MSBuildProjectName)' == 'Shared' And Exists('$(TargetPath)')">
-    <PropertyGroup>
-      <_DeployDir>$(ModsDir)</_DeployDir>
-    </PropertyGroup>
-    <MakeDir Directories="$(_DeployDir)" Condition="!Exists('$(_DeployDir)')" />
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_DeployDir)" SkipUnchangedFiles="false" />
-    <Message Importance="high" Text="Deployed Shared (forced) -> $(_DeployDir)" />
+    <Exec Command="pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(_S1DeployModScript)&quot; -GameDir &quot;$(_S1EffectiveGameDir)&quot; -ProjectName &quot;Shared&quot; -Configuration &quot;$(Configuration)&quot; -TargetPath &quot;$(TargetPath)&quot; -ProjectDir &quot;$(_S1DeployProjectDir)&quot; -AssetsDir &quot;$(_S1DeployAssetsDir)&quot; -ModJsonPath &quot;$(_S1DeployModJson)&quot;" />
   </Target>
 
   <!--
-    ThirdParty deploy: iterate all *.dll under ThirdParty/ and copy
-    them force-deploy to <GameDir>\Mods\ (whitelist via ThirdParty/.deployignore).
-    Runs only once with Shared, since all mods depend on Shared.
+    ThirdParty deploy: opt-in only, deliberately separate from the mod plan.
+    Tools/deploy-thirdparty.ps1 reads the explicit allowlist ThirdParty/.deployallow
+    (empty by default), re-runs the game-running preflight itself, and verifies
+    SHA256 after each copy. Runs only once with Shared, since all mods depend on Shared.
   -->
   <Target Name="DeployThirdParty" AfterTargets="Build" Condition="'$(S1NoDeploy)' != 'true' And '$(MSBuildProjectName)' == 'Shared' And Exists('$(TargetPath)')">
-    <PropertyGroup>
-      <_TpScript>$(MSBuildThisFileDirectory)..\..\Tools\deploy-thirdparty.ps1</_TpScript>
-    </PropertyGroup>
-    <Message Importance="low" Text="[DeployThirdParty] running $(_TpScript)..." />
-    <Exec Command="pwsh -NoProfile -ExecutionPolicy Bypass -File &quot;$(_TpScript)&quot;" />
+    <Message Importance="low" Text="[DeployThirdParty] running $(_S1DeployThirdPartyScript)..." />
+    <Exec Command="pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(_S1DeployThirdPartyScript)&quot; -GameDir &quot;$(_S1EffectiveGameDir)&quot;" />
   </Target>
 </Project>
