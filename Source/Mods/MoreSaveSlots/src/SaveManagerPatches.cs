@@ -63,9 +63,11 @@ public static class LoadManager_RefreshSaveInfo_Patch
             int totalSlots = PaginationController.TotalSlots;
             SaveManager.SAVE_SLOT_COUNT = totalSlots;
 
-            string rawContainer = SaveManager.Instance?.IndividualSavesContainerPath;
-            string fallbackPlayers = SaveManager.Instance?.PlayersSavePath;
-            string savesContainerPath = rawContainer;
+            // Both properties are read through SaveManager.Instance?., so the results are maybe-null
+            // until the IsNullOrEmpty checks below establish them.
+            string? rawContainer = SaveManager.Instance?.IndividualSavesContainerPath;
+            string? fallbackPlayers = SaveManager.Instance?.PlayersSavePath;
+            string? savesContainerPath = rawContainer;
 
             if (string.IsNullOrEmpty(savesContainerPath))
             {
@@ -207,7 +209,10 @@ public static class LoadManager_RefreshSaveInfo_Patch
                     }
                 }
 
-                saveArray[i] = info;
+                // Null is the documented representation of an empty slot in SaveGames (the delete
+                // path clears entries with null as well), but the interop array's element type is
+                // non-nullable for every T, so the nullability has to be asserted here.
+                saveArray[i] = info!;
             }
 
             LoadManager.SaveGames = saveArray;

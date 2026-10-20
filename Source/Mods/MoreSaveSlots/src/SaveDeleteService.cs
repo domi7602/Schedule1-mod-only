@@ -40,7 +40,8 @@ public static class SaveDeleteService
             if (string.IsNullOrEmpty(savePath))
             {
                 // Fallback via SaveManager container path
-                string container = SaveManager.Instance?.IndividualSavesContainerPath;
+                // SaveManager.Instance is optional (?. yields string?) — the path itself may be null/unset.
+                string? container = SaveManager.Instance?.IndividualSavesContainerPath;
                 if (!string.IsNullOrEmpty(container))
                 {
                     string slotDirName = $"{SaveManager.SAVE_GAME_PREFIX}{slotIndex + 1}";

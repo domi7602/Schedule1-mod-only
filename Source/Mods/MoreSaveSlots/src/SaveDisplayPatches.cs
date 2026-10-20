@@ -267,10 +267,8 @@ public static class SaveDisplay_Patches
                         MelonLogger.Warning($"[MoreSaveSlots] Refresh: slot {slotNumber} inline buttons threw, card stays visible: {exBtn.Message}");
                     }
                 }
-                else
-                {
-                    try { UpdateSlotNumberText(slotRt, slotNumber); } catch { }
-                }
+                // A missing slot card has no label to update. The old else branch only threw
+                // into its own empty catch; do not call the non-null helper in that branch.
             }
 
             try { PaginationController.UpdateUILabel(); }

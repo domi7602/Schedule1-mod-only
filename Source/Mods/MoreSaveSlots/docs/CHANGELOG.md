@@ -1,5 +1,8 @@
 # Changelog
 
+## Maintenance (unreleased; no gameplay acceptance claimed)
+- Correct nullable path annotations and document native empty-slot array semantics. Remove a missing-card label call whose only effect was an exception swallowed by its local catch; live-card UI behavior is unchanged.
+
 ## 1.0.12 (2026-09-13) — S-05: dead DEL/EDIT buttons (invisible modals) fixed
 S-05 fix "dead DEL/EDIT buttons": The rename/delete modals selected an arbitrary, unsorted canvas via `FindObjectsByType<Canvas>()[0]` — if they landed behind the menu canvas they opened invisibly and their fullscreen dimmer swallowed all clicks (menu appeared dead, ESC healed it). Now: (1) `UIHelper.FindDialogCanvas()` selects the canvas of the SaveDisplay UI stack (fallback: root canvas with highest `sortingOrder`), (2) each modal gets its own sorting overlay (`overrideSorting`, `sortingOrder` 1000) + its own `GraphicRaycaster`, (3) `SetAsLastSibling` on re-open. Click handlers were never broken — the routing behind them was.
 
