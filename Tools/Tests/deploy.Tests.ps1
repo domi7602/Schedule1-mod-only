@@ -15,9 +15,18 @@ New-Item -ItemType Directory -Path $root -Force | Out-Null
 $script:Passed = 0
 $script:Failed = 0
 function Assert-True {
-    param([bool]$Condition, [string]$Name)
+    param([bool]$Condition, [string]$Name, [string]$Detail = '')
     if ($Condition) { Write-Host "PASS  $Name" -ForegroundColor Green; $script:Passed++ }
-    else { Write-Host "FAIL  $Name" -ForegroundColor Red; $script:Failed++ }
+    else {
+        Write-Host "FAIL  $Name" -ForegroundColor Red
+        # Child output is the only clue when an assertion fails on a machine that
+        # differs from the author's (CI runner, clean box). Print the tail only.
+        if ($Detail) {
+            $tail = @($Detail -split "`r?`n" | Where-Object { $_ -ne '' } | Select-Object -Last 12)
+            foreach ($line in $tail) { Write-Host "      $line" -ForegroundColor DarkGray }
+        }
+        $script:Failed++
+    }
 }
 
 function New-FakeInstall {
@@ -346,16 +355,20 @@ Copy-Item -LiteralPath $buildAllPath -Destination (Join-Path $fakeRepo 'Tools\bu
 Copy-Item -LiteralPath $preflightPath -Destination (Join-Path $fakeRepo 'Tools\check-deploy-preflight.ps1')
 & $dotnet new sln -n S1Mods -o (Join-Path $fakeRepo 'Source\Mods') --force 2>&1 | Out-Null
 $fakeBuildAll = Join-Path $fakeRepo 'Tools\build-all.ps1'
+$fakeSln = Join-Path $fakeRepo 'Source\Mods\S1Mods.sln'
+# Precondition: without the scratch solution every e2e assertion below fails for
+# the same uninteresting reason, so assert it on its own.
+Assert-True (Test-Path -LiteralPath $fakeSln) 'build-all e2e: fake solution created' -Detail ((& $dotnet --version 2>&1 | Out-String) + "sln: $fakeSln")
 
 $buildNoDeploy = Invoke-Child -Script $fakeBuildAll -Arguments @('-NoDeploy')
-Assert-True ($buildNoDeploy.ExitCode -eq 0 -and $buildNoDeploy.Output -match 'disabled \(NoDeploy\)') 'build-all e2e: -NoDeploy builds without deploy'
+Assert-True ($buildNoDeploy.ExitCode -eq 0 -and $buildNoDeploy.Output -match 'disabled \(NoDeploy\)') 'build-all e2e: -NoDeploy builds without deploy' -Detail $buildNoDeploy.Output
 
 $fakeBuildGame = New-FakeInstall 'build-game'
 $buildDefault = Invoke-Child -Script $fakeBuildAll -Arguments @('-GameDir', $fakeBuildGame)
-Assert-True ($buildDefault.ExitCode -eq 0 -and $buildDefault.Output -match 'enabled \(default\)') 'build-all e2e: auto-deploy default still builds'
+Assert-True ($buildDefault.ExitCode -eq 0 -and $buildDefault.Output -match 'enabled \(default\)') 'build-all e2e: auto-deploy default still builds' -Detail $buildDefault.Output
 
 $buildBadGame = Invoke-Child -Script $fakeBuildAll -Arguments @('-GameDir', (Join-Path $root 'not-a-game'))
-Assert-True ($buildBadGame.ExitCode -ne 0 -and $buildBadGame.Output -match 'preflight failed') 'build-all e2e: preflight failure aborts before build'
+Assert-True ($buildBadGame.ExitCode -ne 0 -and $buildBadGame.Output -match 'preflight failed') 'build-all e2e: preflight failure aborts before build' -Detail $buildBadGame.Output
 
 # Real MSBuild import: destination overrides must not escape the validated root.
 $targetGame = New-FakeInstall 'target-game'
