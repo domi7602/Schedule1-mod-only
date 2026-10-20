@@ -83,11 +83,10 @@ namespace WaterShader
     /// recipe moves only what makes the water read clearer:
     ///  - lower absorption, so the refracted bottom survives over more real water thickness;
     ///  - a calmer surface, so that bottom is smeared less;
-    ///  - a less red-crushed shallow tint, so the bottom keeps its own colour instead of
-    ///    flattening into teal.
+    ///  - a shallow tint whose channels stay near 0.5, so the shader's *2 transmission gain
+    ///    does not lift the bottom into a pale cream wash.
     /// The deep tint, the rest of the palette, reflection, sun and the shore foam are
-    /// deliberately NOT written: the owner approved those, so this stays a clarity change and
-    /// not a recolour. Foam in particular was narrowed in 0.1.1 as a side effect and reverted
+    /// deliberately NOT written. Foam was narrowed in 0.1.1 as a side effect and reverted
     /// in 0.1.2 — the shader's own smoothstep gate, not our value, is what sizes it.
     /// Every write is HasProperty-guarded and Unity-free, so a shader revision that drops a
     /// name degrades to "that value is not applied" instead of faulting the render path.
@@ -96,27 +95,24 @@ namespace WaterShader
     {
         private static readonly (string name, float value)[] Floats =
         {
-            // Absorption is the dominant clarity lever: the shader attenuates the refracted
-            // bottom by 1 - exp(-thickness * _Absorption) over ACTUAL water thickness, so a
-            // lower density is what makes the bottom read further out. 0.55 -> 0.38.
-            ("_Absorption", 0.38f),
+            // Absorption is the dominant depth lever: the shader attenuates the refracted
+            // bottom by 1 - exp(-thickness * _Absorption) and raises alpha with the same
+            // term. 0.55 -> 0.38 still looked veiled within a couple of metres; 0.22 keeps
+            // the bottom readable further out without dropping to the shader minimum.
+            ("_Absorption", 0.22f),
             // A calmer surface smears the refracted bottom less.
             ("_RippleStrength", 0.45f),
         };
 
         private static readonly (string name, float r, float g, float b)[] Colors =
         {
-            // Everything seen THROUGH the surface is multiplied by
-            // lerp(_ShallowTint, _DeepTint, absorb) * 2.0, so this tint decides whether the bottom
-            // keeps its own colour or flattens into teal. On the shader's raw literals the old red of
-            // 0.35 left red at ~47 % of green in the shallows; 0.50 brings that to ~67 % while green
-            // and blue stay put, and the deep tint is not written at all.
-            // Caveat: the game runs a Linear colour space, so IF Unity converts the shader's
-            // un-annotated Color default sRGB->linear on this swap path, the effective baseline is
-            // redder than 0.35 suggests and those percentages shift. The direction of the change and
-            // its safety hold under both models; the absolute figures do not. Resolve by reading the
-            // unwritten _DeepTint off the configured clone via S1MCP.
-            ("_ShallowTint", 0.50f, 0.75f, 0.75f),
+            // Everything seen THROUGH the surface is sceneColor * lerp(shallow, deep, absorb) * 2.0.
+            // The 0.1.2 tint (0.50, 0.75, 0.75) therefore gained (1.0, 1.5, 1.5): green and blue
+            // lifted sand toward pale cream. Channels near 0.5 keep that gain near the bottom's
+            // own colour, with only a small cool bias so it still reads as water. Red stays above
+            // the shader default 0.35 so the old teal crush does not come back. Deep tint is not
+            // written. The shader still composites a 0.35 alpha floor; this value cannot remove it.
+            ("_ShallowTint", 0.46f, 0.52f, 0.55f),
         };
 
         internal static string Apply(IWaterLookMaterial material)

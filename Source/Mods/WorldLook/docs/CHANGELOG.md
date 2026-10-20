@@ -1,5 +1,13 @@
 # WorldLook
 
+## 0.1.3 (2026-10-20)
+
+- The 0.1.2 water still read creamy. The shader multiplies everything seen through the surface by `lerp(_ShallowTint, _DeepTint, absorb) * 2.0`. The old tint `(0.50, 0.75, 0.75)` therefore gained `(1.0, 1.5, 1.5)` and lifted the bottom toward pale cream. The new tint `(0.46, 0.52, 0.55)` keeps that gain near the bottom's own colour, with only a small cool bias.
+- `_Absorption` 0.38 → 0.22, so the dark deep tint and the extra opacity arrive later. `_RippleStrength` stays 0.45. Deep tint, reflection, sun and shore foam are still not written.
+- Still no shader or bundle rebuild. The shader's own alpha floor (`0.35 + absorb * 0.65`) remains, so ankle-deep water is not glass. This step removes the pale wash, not that floor.
+- Tests first: the old pin that green and blue must stay at 0.75 failed on purpose, then the recipe moved. WaterShader.Tests: 1 144 passed.
+- In-Game-Verify open.
+
 ## 0.1.2 (2026-10-18)
 
 - **Reverts the shore-foam tweak from 0.1.1.** That was scope creep on my side: the owner asked for clarity, not less foam, and the change was nearly inert anyway. The shader gates foam through `smoothstep(0.35, 0.9, foamBand)`, so foam only *starts* below `0.65 × _FoamDepth` and only *saturates* below `0.10 × _FoamDepth` — dropping `_FoamDepth` 0.35 → 0.28 moved the onset from 22.7 cm to 18.2 cm of eye-space thickness, a hairline either way. `_FoamDepth` and `_FoamStrength` are no longer written at all and stay at the shader's own defaults.

@@ -7,21 +7,21 @@ namespace WaterShader.Tests;
 
 /// <summary>
 /// Pins the reference-water look step. Two things are protected here: the values only ever
-/// move toward "clearer", and the parts the owner approved — the deep tint, the rest of the
-/// palette, reflection, sun and the shore foam — are NOT written, so this stays a clarity
-/// change and not a recolour.
+/// move toward "clearer", and the parts left at the shader defaults — the deep tint, reflection,
+/// sun and the shore foam — are NOT written. The shallow tint is written, but only to stop the
+/// *2 transmission gain from washing the bottom into pale cream.
 /// </summary>
 public sealed class ReferenceWaterLookTests
 {
     private static readonly (string name, float value)[] ApprovedFloats =
     {
-        ("_Absorption", 0.38f),
+        ("_Absorption", 0.22f),
         ("_RippleStrength", 0.45f),
     };
 
     private static readonly (string name, float r, float g, float b)[] ApprovedColors =
     {
-        ("_ShallowTint", 0.50f, 0.75f, 0.75f),
+        ("_ShallowTint", 0.46f, 0.52f, 0.55f),
     };
 
     /// <summary>
@@ -86,13 +86,12 @@ public sealed class ReferenceWaterLookTests
     }
 
     [Fact]
-    public void RaisesTheShallowTintRedAndKeepsGreenAndBlue()
+    public void KeepsShallowTransmissionNearTheBottomInsteadOfAPaleWash()
     {
-        // Everything seen THROUGH the surface is multiplied by lerp(_ShallowTint, _DeepTint,
-        // absorb) * 2.0. At the old red the gain kept red well below green, which is what made the
-        // bottom flatten into teal and read as "not clear" rather than as an absorption problem.
-        // Raising red restores the bottom's own colour; green and blue stay, so the palette
-        // character is preserved.
+        // transmitted = sceneColor * lerp(_ShallowTint, _DeepTint, absorb) * 2.0.
+        // A channel at the shader's 0.75 becomes a 1.5 gain and lifts sand toward pale cream.
+        // Clear means each shallow channel stays near 0.5, so that gain stays near the bottom's
+        // own colour. Red still has to stay above the teal-crushing shader default.
         var material = new TestMaterial();
 
         ReferenceWaterLook.Apply(material);
@@ -100,12 +99,31 @@ public sealed class ReferenceWaterLookTests
         var shaderDefault = TestMaterial.ShaderTintDefaults["_ShallowTint"];
         var written = material.ColorWrites["_ShallowTint"];
         Assert.True(written.r > shaderDefault.r,
-            $"shallow tint red {written.r} must be above the shader default to read clearer");
+            $"shallow tint red {written.r} must stay above the teal-crushing shader default");
+        Assert.True(written.g < shaderDefault.g,
+            $"shallow tint green {written.g} at the shader default washes to 1.5 and reads creamy");
+        Assert.True(written.b < shaderDefault.b,
+            $"shallow tint blue {written.b} at the shader default washes to 1.5 and reads creamy");
+        Assert.InRange(written.r * 2f, 0.85f, 1.15f);
+        Assert.InRange(written.g * 2f, 0.85f, 1.15f);
+        Assert.InRange(written.b * 2f, 0.85f, 1.15f);
         Assert.True(written.r <= written.g,
-            $"shallow tint red {written.r} must not overtake green {written.g} - less red-crushed, not red-dominant");
-        Assert.Equal(shaderDefault.g, written.g);
-        Assert.Equal(shaderDefault.b, written.b);
+            $"shallow tint red {written.r} must not overtake green {written.g}");
         Assert.Equal(1f, written.alpha);
+    }
+
+    [Fact]
+    public void LowersAbsorptionBelowTheStepThatStillReadCreamy()
+    {
+        // 0.38 still pulled the dark blue deep tint and the extra opacity in within a couple of
+        // metres. Clearer means that veil arrives later, without dropping to the shader minimum.
+        var material = new TestMaterial();
+
+        ReferenceWaterLook.Apply(material);
+
+        Assert.True(material.FloatWrites.TryGetValue("_Absorption", out float absorption));
+        Assert.True(absorption < 0.30f, $"absorption {absorption} is still the step that read creamy");
+        Assert.InRange(absorption, 0.05f, 4.0f);
     }
 
     [Fact]
@@ -206,7 +224,7 @@ public sealed class ReferenceWaterLookTests
 
             string diagnostic = ReferenceWaterLook.Apply(material);
 
-            Assert.Equal("[water-shader] reference clarity applied: _Absorption=0.38 _ShallowTint=(0.5,0.75,0.75)", diagnostic);
+            Assert.Equal("[water-shader] reference clarity applied: _Absorption=0.22 _ShallowTint=(0.46,0.52,0.55)", diagnostic);
             Assert.Single(material.FloatWrites);
             Assert.Single(material.ColorWrites);
         }
