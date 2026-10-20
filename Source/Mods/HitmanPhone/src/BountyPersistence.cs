@@ -61,22 +61,31 @@ namespace HitmanPhone.Persistence
             IncludeFields = true
         };
 
-        private static int _lastKnownSlot = -1;
+        private static readonly BountyCheckpointSession Session = new();
+        private static string _worldPath = "";
+        private static string _nativeSavePath = "";
+        private static string _baselineJson = "";
+        private static string _baselineFingerprint = "";
+        public static bool IsSaving => Session.Saving;
+
+        public static void BindContext(int slot, string identity, string worldPath)
+        {
+            if (slot < 0 || string.IsNullOrWhiteSpace(identity) || string.IsNullOrWhiteSpace(worldPath))
+                throw new InvalidOperationException("Unconfirmed HitmanPhone load context.");
+            Session.Bind(identity, SafeStorage.GetUserDataPath(ModFolder, string.Format(SlotFileNamePattern, slot)));
+            _worldPath = BountyWorldCheckpoint.ResolveDirectory(worldPath);
+        }
+
+        public static void ClearContext()
+        {
+            Session.Bind("", "");
+            _worldPath = _nativeSavePath = "";
+            _baselineJson = _baselineFingerprint = "";
+        }
 
         /// <summary>Active slot number, or -1 if not currently loaded.
         /// Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15).</summary>
-        public static int ActiveSlotNumber
-        {
-            get
-            {
-                int slot = SaveSlots.GetActiveSlotNumber();
-                if (slot >= 0)
-                {
-                    _lastKnownSlot = slot;
-                }
-                return _lastKnownSlot;
-            }
-        }
+        public static int ActiveSlotNumber => SaveSlots.GetActiveSlotNumber();
 
         /// <summary>Best-effort read of the active save slot suffix. Returns null if slot &lt; 0.</summary>
         public static string? ActiveSlotSuffix
@@ -101,7 +110,7 @@ namespace HitmanPhone.Persistence
                 try
                 {
                     var info = S1Persistence.LoadManager.Instance?.ActiveSaveInfo;
-                    if (info == null) return "";
+                    if (info == null || info.SaveSlotNumber < 0 || string.IsNullOrWhiteSpace(info.SavePath) || info.DateCreated.Ticks <= 0) return "";
 
                     return string.Join("|",
                         info.SavePath ?? "",
@@ -115,157 +124,161 @@ namespace HitmanPhone.Persistence
             }
         }
 
-        /// <summary>Audit L6 (2026-09-01): the legacy migration needs to run exactly once per session.</summary>
-        private static bool _migrationChecked;
+        public static string? GetSaveFilePath() => string.IsNullOrEmpty(Session.Path) ? null : Session.Path;
 
-        public static string? GetSaveFilePath()
-        {
-            string? slot = ActiveSlotSuffix;
-            if (slot == null) return null;
-            string path = SafeStorage.GetUserDataPath(ModFolder, string.Format(SlotFileNamePattern, slot));
-            if (!_migrationChecked && int.TryParse(slot, out int s) && s >= 0)
-            {
-                _migrationChecked = true;
-                TryMigrateLegacy(path);
-            }
-            return path;
-        }
+        private static string CheckpointDirectory => SafeStorage.GetUserDataPath(ModFolder,
+            System.IO.Path.Combine("checkpoints", Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+                System.Text.Encoding.UTF8.GetBytes(Session.Identity)))));
+
+        private static string CheckpointPath(string fingerprint) => Path.Combine(CheckpointDirectory, fingerprint + ".json");
 
         public static BountySaveData Load()
         {
-            string? path = GetSaveFilePath();
-            if (string.IsNullOrEmpty(path))
-            {
-                Log.Debug("No valid save slot active yet. Returning empty state.");
-                return NewStateForActiveSave();
-            }
-            BountySaveData data = SafeStorage.LoadSafe<BountySaveData>(path, null, Log, FieldJsonOptions);
-            if (data == null)
-            {
-                Log.Info($"No existing save found at '{path}'. Starting with empty state.");
-                return NewStateForActiveSave();
-            }
+            if (string.IsNullOrEmpty(Session.Identity)) throw new InvalidOperationException("No bound bounty context.");
+            string fingerprint = BountyWorldCheckpoint.Fingerprint(_worldPath);
+            var loaded = LoadCore(fingerprint);
+            // Retain the loaded baseline in RAM, so the first explicit save can also
+            // archive the older world checkpoint without a write during load/migration.
+            _baselineFingerprint = fingerprint;
+            loaded.WorldCheckpoint = fingerprint;
+            _baselineJson = System.Text.Json.JsonSerializer.Serialize(loaded, FieldJsonOptions);
+            return loaded;
+        }
 
-            string currentIdentity = ActiveSaveIdentity;
-            if (!string.IsNullOrEmpty(currentIdentity) &&
-                !string.IsNullOrEmpty(data.SaveIdentity) &&
-                !string.Equals(data.SaveIdentity, currentIdentity, StringComparison.Ordinal))
+        private static BountySaveData LoadCore(string fingerprint)
+        {
+            string checkpoint = CheckpointPath(fingerprint);
+            foreach (string candidate in new[] { checkpoint, Session.Path })
             {
-                Log.Info("Save identity changed in the same slot — treating this as a new game " +
-                         "and discarding old HitmanPhone contract state.");
-                var fresh = NewStateForActiveSave();
-                Save(fresh);
-                return fresh;
+                if (!File.Exists(candidate) && !File.Exists(candidate + ".bak")) continue;
+                try
+                {
+                    var restored = ReadValidated(candidate, fingerprint);
+                    Log.Info($"[checkpoint] restored {fingerprint.Substring(0, 12)} for the confirmed world from '{candidate}'.");
+                    return restored;
+                }
+                catch (InvalidDataException ex)
+                {
+                    Log.Warn($"[checkpoint] candidate not usable for this world: {ex.Message}");
+                }
             }
+            // Once checkpoint mode exists, an unknown world must never inherit the latest
+            // state. A failed native/mod save gap stays visible instead of losing a reward.
+            if (Directory.Exists(CheckpointDirectory))
+                throw new InvalidDataException("No bounty snapshot matches this world checkpoint. Original data retained.");
 
-            // One-time migration for state written before SaveIdentity existed.
-            if (string.IsNullOrEmpty(data.SaveIdentity) && !string.IsNullOrEmpty(currentIdentity))
+            string path = Session.Path;
+            if (!File.Exists(path) && !File.Exists(path + ".bak"))
             {
-                data.SaveIdentity = currentIdentity;
-                Save(data);
-                Log.Info("Adopted existing bounty state for the current vanilla save identity.");
+                string legacy = SafeStorage.GetUserDataPath(ModFolder, LegacyFileName);
+                if (!File.Exists(legacy)) return new BountySaveData { SaveIdentity = Session.Identity };
+                path = legacy; // read-only migration; never move/delete old data
             }
-
-            NormalizeLoadedState(data);
-
-            Log.Info($"Loaded BountySaveData from '{path}': " +
-                     $"{data.Active.Count} active, {data.History.Count} historical contracts.");
+            var data = ReadValidated(path);
+            if (!string.IsNullOrEmpty(data.SaveIdentity) && data.SaveIdentity != Session.Identity)
+            {
+                Log.Warn("[checkpoint] Different save identity: starting fresh in memory; prior file retained until an explicit world save.");
+                return new BountySaveData { SaveIdentity = Session.Identity };
+            }
+            if (!string.IsNullOrEmpty(data.WorldCheckpoint))
+                throw new InvalidDataException("Checkpoint archive missing; refusing to apply an unconfirmed bounty state.");
+            data.SaveIdentity = Session.Identity;
+            Log.Warn("[checkpoint] Legacy bounty data imported in memory. Its old world alignment cannot be proven; no source files changed.");
             return data;
         }
 
-        /// <summary>
-        /// Field-level defaults keep old saves fully compatible (see the budget-terms
-        /// block in <see cref="BountyContract"/>), but an explicit JSON null (or a
-        /// hand-edited file) must never NRE the scheduler/tracker — normalize here.
-        /// </summary>
-        private static void NormalizeLoadedState(BountySaveData data)
+        private static BountySaveData ReadValidated(string path, string? expectedFingerprint = null)
         {
-            data.KillEvents ??= new System.Collections.Generic.List<BountyKillRecord>();
-            if (data.CallSchedule == null) data.CallSchedule = new BountyCallScheduleState();
-            data.CallSchedule.Slots ??= new System.Collections.Generic.List<BountyCallSlot>();
-            data.LastUsedDropId ??= "";
-            foreach (var c in data.Active)
+            // Loading never repairs/overwrites sources. A backup/compatibility copy is
+            // accepted only if both its world fingerprint and identity are exact.
+            Exception? error = null;
+            foreach (string candidate in new[] { path, path + ".bak" })
             {
-                c.AssignedDropName ??= "";
-                c.RewardTier ??= "";
+                if (!File.Exists(candidate)) continue;
+                try
+                {
+                    var data = System.Text.Json.JsonSerializer.Deserialize<BountySaveData>(File.ReadAllText(candidate), FieldJsonOptions)
+                        ?? throw new InvalidDataException("Null bounty data.");
+                    BountySaveValidation.Normalize(data);
+                    if (expectedFingerprint != null && !BountySaveValidation.MatchesCheckpoint(data, Session.Identity, expectedFingerprint))
+                        throw new InvalidDataException("Bounty identity/checkpoint mismatch.");
+                    if (candidate != path && expectedFingerprint == null)
+                        throw new InvalidDataException("Legacy backup alignment is unconfirmed; manual recovery required.");
+                    return data;
+                }
+                catch (Exception ex) { error = ex; }
             }
-            foreach (var c in data.History)
-            {
-                c.AssignedDropName ??= "";
-                c.RewardTier ??= "";
-            }
+            throw new InvalidDataException($"Cannot safely load bounty data '{path}'. Original and backup retained.", error);
         }
 
-        private static BountySaveData NewStateForActiveSave()
-            => new() { SaveIdentity = ActiveSaveIdentity };
+        /// <summary>Gameplay changes remain in RAM until a confirmed native world save.</summary>
+        public static void PersistCurrent() => Session.MarkDirty();
 
+        // Kept for DEBUG reset callers: this deliberately does not write through.
         public static bool Save(BountySaveData data)
         {
-            if (data == null)
-            {
-                Log.Warn("Refusing to save null BountySaveData.");
-                return false;
-            }
-            if (string.IsNullOrEmpty(data.SaveIdentity))
-                data.SaveIdentity = ActiveSaveIdentity;
-            string? path = GetSaveFilePath();
-            if (string.IsNullOrEmpty(path))
-            {
-                Log.Warn("Cannot save BountySaveData: no active save slot (slot < 0).");
-                return false;
-            }
-            bool ok = SafeStorage.SaveAtomic(path, data, Log, FieldJsonOptions);
-            if (ok) Log.Info($"Saved BountySaveData to '{path}'.");
-            return ok;
+            if (data == null || data.SaveIdentity != Session.Identity) return false;
+            Session.MarkDirty();
+            return true;
         }
 
-        /// <summary>
-        /// BUGFIX (2026-08-31, v0.1.3): write-through persistence. Until now the ONLY
-        /// Save() call site was the /hitman_reset test command — accepted contracts,
-        /// evidence spawns and completions lived in RAM only, so every game restart
-        /// silently wiped them (Active=0 on next load, no polaroid on target kill,
-        /// orphaned journal quest). Call after EVERY contract state transition:
-        /// accept, evidence spawn, receipt/complete, expiry, forfeit.
-        /// </summary>
-        public static void PersistCurrent()
+        public static void PrepareCheckpoint()
         {
-            try
-            {
-                var save = Mod.Instance?.Save;
-                if (save == null) return;
-                Save(save);
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"PersistCurrent failed: {ex.Message}");
-            }
+            var data = Mod.Instance?.Save ?? throw new InvalidOperationException("No bounty state loaded.");
+            if (data.SaveIdentity != Session.Identity || ActiveSaveIdentity != Session.Identity)
+                throw new InvalidOperationException("Bounty save identity changed before checkpoint.");
+            if (!string.IsNullOrEmpty(_baselineJson) && !File.Exists(CheckpointPath(_baselineFingerprint)) &&
+                !SafeStorage.SaveTextAtomic(CheckpointPath(_baselineFingerprint), _baselineJson, Log))
+                throw new IOException("Could not preserve the previously loaded bounty checkpoint.");
+            if (!HitmanPhoneTime.TryGetSnapshot(out int day, out _, out _))
+                throw new InvalidOperationException("No valid game clock at save-start.");
+            data.LastSaveDay = day;
+            Session.Prepare(System.Text.Json.JsonSerializer.Serialize(data, FieldJsonOptions));
+            Log.Info("[checkpoint] save-start snapshot frozen; bounty mutations paused.");
         }
 
-        /// <summary>
-        /// One-time migration: if a legacy global file exists and no slot file does,
-        /// move it to the active slot. Then delete the legacy file so we never re-migrate.
-        /// </summary>
-        private static void TryMigrateLegacy(string slotPath)
+        public static void CaptureDefaultNativeSavePath()
         {
-            string legacy = SafeStorage.GetUserDataPath(ModFolder, LegacyFileName);
-            if (!File.Exists(legacy)) return;
-            if (File.Exists(slotPath))
+            _nativeSavePath = "";
+            var lm = S1Persistence.LoadManager.Instance;
+            if (lm == null || !lm.IsGameLoaded || lm.IsLoading || ActiveSaveIdentity != Session.Identity) return;
+            CaptureNativeSavePath(lm.LoadedGameFolderPath);
+        }
+
+        public static void CaptureNativeSavePath(string path)
+        {
+            _nativeSavePath = "";
+            if (string.IsNullOrEmpty(Session.Identity) || !SaveStateGuard.IsSingleplayer) return;
+            var info = S1Persistence.LoadManager.Instance?.ActiveSaveInfo;
+            if (info == null || string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(info.SavePath)) return;
+            string expected = BountyWorldCheckpoint.ResolveDirectory(info.SavePath);
+            string actual = BountyWorldCheckpoint.ResolveDirectory(path);
+            if (string.Equals(expected, actual, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(_worldPath, actual, StringComparison.OrdinalIgnoreCase) && ActiveSaveIdentity == Session.Identity)
             {
-                // Slot file exists already — drop the legacy one to avoid future confusion.
-                try { File.Delete(legacy); }
-                catch (Exception ex) { Log.Warn($"Failed to delete legacy file '{legacy}': {ex.Message}"); }
-                return;
+                _nativeSavePath = _worldPath;
+                Log.Info($"[checkpoint] native save destination verified: loaded='{_worldPath}', info='{info.SavePath}', request='{path}'.");
             }
-            try
+            else
+                Log.Error($"[checkpoint] save destination mismatch: loaded='{_worldPath}', info='{info.SavePath}', request='{path}'; commit refused.");
+        }
+
+        public static bool CommitCheckpoint(bool nativeSaveSucceeded)
+        {
+            return Session.Commit(ActiveSaveIdentity, nativeSaveSucceeded && !string.IsNullOrEmpty(_nativeSavePath), (path, frozen) =>
             {
-                SafeStorage.EnsureDirectoryForFile(slotPath);
-                File.Move(legacy, slotPath);
-                Log.Info($"Migrated legacy bounty data '{legacy}' → '{slotPath}'.");
-            }
-            catch (Exception ex)
-            {
-                Log.Warn($"Failed to migrate legacy bounty data '{legacy}': {ex.Message}");
-            }
+                string fingerprint = BountyWorldCheckpoint.Fingerprint(_nativeSavePath);
+                var data = System.Text.Json.JsonSerializer.Deserialize<BountySaveData>(frozen, FieldJsonOptions)!;
+                data.WorldCheckpoint = fingerprint;
+                string json = System.Text.Json.JsonSerializer.Serialize(data, FieldJsonOptions);
+                // Keep each world checkpoint separately, so rolling the vanilla world back
+                // selects its corresponding contract/evidence state instead of the newest one.
+                if (!SafeStorage.SaveTextAtomic(CheckpointPath(fingerprint), json, Log)) return false;
+                if (!SafeStorage.SaveTextAtomic(path, json, Log)) return false;
+                _nativeSavePath = "";
+                Log.Info($"[checkpoint] committed {fingerprint.Substring(0, 12)}; native save complete.");
+                return true;
+            });
         }
     }
     // ==== end HitmanPhone section: Persistence/BountyPersistence.cs ====

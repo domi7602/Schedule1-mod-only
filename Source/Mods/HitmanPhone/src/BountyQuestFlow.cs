@@ -245,9 +245,11 @@ namespace HitmanPhone.Bounty
 #if (IL2CPPMELON)
     using S1NPC = Il2CppScheduleOne.NPCs.NPC;
     using S1PlayerInventory = Il2CppScheduleOne.PlayerScripts.PlayerInventory;
+    using S1DeadDrop = Il2CppScheduleOne.Economy.DeadDrop;
 #elif MONOMELON
     using S1NPC = ScheduleOne.NPCs.NPC;
     using S1PlayerInventory = ScheduleOne.PlayerScripts.PlayerInventory;
+    using S1DeadDrop = ScheduleOne.Economy.DeadDrop;
 #endif
 
 
@@ -284,9 +286,21 @@ namespace HitmanPhone.Bounty
             Interlocked.Increment(ref _deathsObserved);
 
             if (npc == null) return;
+            if (!HitmanPhone.SaveStateGuard.IsReady) return;
             if (Mod.Instance == null || Mod.Instance.Save == null) return;
 
             string npcId = npc.ID ?? string.Empty;
+
+            // HP-09: a fatal death of an already-known bounty target upgrades the
+            // recorded knockout to a confirmed death, independent of photo delivery (the
+            // contract may already be completed). Runs BEFORE the 5s debounce so a kill
+            // shortly after the KO is not swallowed. No second photo, no new drop
+            // window, no reward — it only corrects the tracker record.
+            if (fatal && !string.IsNullOrEmpty(npcId))
+            {
+                TryUpgradeKillToDeath(npcId);
+            }
+
             if (Time.time - _lastClearTime > 5f)
             {
                 _recentlyHandledNpcIds.Clear();
@@ -300,14 +314,28 @@ namespace HitmanPhone.Bounty
 
             var save = Mod.Instance.Save;
 
+            // HP-13: recognition needs a valid in-game time snapshot; an invalid read
+            // must never be treated as minute zero.
+            if (!HitmanPhoneTime.TryGetSnapshot(out _, out _, out long now))
+            {
+                Mod.Log.Warn("[Bounty] in-game time unavailable — elimination not recognized this tick.");
+                return;
+            }
+
             // Find an Active contract whose TargetNpcId matches this NPC's ID, OR whose
             // already-cached TargetNpcInstanceId matches the runtime InstanceID.
+            // A contract whose elimination is already recognized (AwaitingDrop) is never
+            // recognized a second time — re-recognizing it after a load is exactly what
+            // produced duplicate photos and a repeated Lethal escalation (HP-05).
             BountyContract? match = null;
             for (int i = 0; i < save.Active.Count; i++)
             {
                 var c = save.Active[i];
                 if (c.Status != EBountyStatus.Active) continue;
-                if (c.EvidenceSpawned) continue;
+                if (c.EvidenceSpawned || c.AwaitingDrop) continue;
+                // HP-13: a target eliminated after its execution deadline must not be
+                // recognized — it must not spawn a photo nor open a fresh drop window.
+                if (!BountyDeadlinePolicy.IsEligible(c, now)) continue;
                 if (!string.IsNullOrEmpty(c.TargetNpcId) && c.TargetNpcId == npc.ID)
                 {
                     match = c;
@@ -336,19 +364,56 @@ namespace HitmanPhone.Bounty
 
             Interlocked.Increment(ref _matchesFound);
 
-            var polaroid = BountyEvidenceItemRegistry.Spawn(match.EvidenceToken);
+            // Recognition: the elimination is a FACT from here on, independent of whether
+            // the polaroid physically fits right now (HP-04). Persist the recognized
+            // state, record the takedown and start quest/heat progress exactly once —
+            // the old code returned before all of this whenever the inventory was full.
+            match.AwaitingDrop = true;
+            RecordKillEvent(match, npcId, fatal);
+            BountyJournalBridge.AdvanceToDeadDrop(match.Id);
+            BountyHeatService.OnBountyKilled(match);
+
+            // Delivery is a separate step. If the photo does not fit, leave a pending
+            // delivery that is serviced later WITHOUT a second attack and WITHOUT a
+            // second heat escalation (HP-04/HP-05).
+            if (!TryDeliverEvidence(match, npcId))
+            {
+                match.PendingEvidenceDelivery = true;
+                Mod.Log.Warn($"[Bounty#{match.Id}] elimination recognized for '{npc.ID}' (fatal={fatal}) but the " +
+                             "polaroid cannot be handed over yet — delivery deferred, no second attack needed.");
+            }
+            else
+            {
+                Mod.Log.Info($"[Bounty#{match.Id}] Polaroid spawned for target '{npc.ID}' " +
+                             $"(instance={npc.GetInstanceID()}); awaiting dead-drop validation.");
+            }
+
+            BountyPersistence.PersistCurrent(); // evidence state must survive a game restart
+        }
+
+        /// <summary>
+        /// Hand the recognized contract's polaroid to the player. Deliberately does NOT
+        /// record the kill, start heat, or advance the journal — those belong to
+        /// recognition, so a deferred/repair delivery can never re-trigger kill heat
+        /// (HP-04/HP-05). Starts the post-photo drop window only on an ACTUAL hand-over.
+        /// Returns false when the photo cannot be created or does not fit right now.
+        /// </summary>
+        private static bool TryDeliverEvidence(BountyContract contract, string npcId)
+        {
+            if (contract == null) return false;
+
+            var polaroid = BountyEvidenceItemRegistry.Spawn(contract.EvidenceToken);
             if (polaroid == null)
             {
-                // Audit M8 (2026-09-01): the target watchdog re-calls OnNpcDied every
-                // 1.5s while the NPC stays unconscious — without a throttle this warn
-                // spams the log once per poll when the registry is broken.
+                // Audit M8 (2026-09-01): the target watchdog re-calls this every 1.5s
+                // while the registry is broken — throttle the warn to avoid log spam.
                 if (Time.realtimeSinceStartup - _lastSpawnFailWarn > 30f)
                 {
                     _lastSpawnFailWarn = Time.realtimeSinceStartup;
-                    Mod.Log.Warn($"Polaroid definition not registered; cannot spawn evidence for " +
-                                 $"target={npc.ID} (instance={npc.GetInstanceID()}).");
+                    Mod.Log.Warn("Polaroid definition not registered; cannot deliver evidence for " +
+                                 $"target='{npcId}' (contract #{contract.Id}).");
                 }
-                return;
+                return false;
             }
 
             try
@@ -357,47 +422,102 @@ namespace HitmanPhone.Bounty
                 if (inv == null || inv.Pointer == IntPtr.Zero || inv.WasCollected)
                 {
                     Mod.Log.Warn("PlayerInventory.Instance is unavailable; cannot add polaroid.");
-                    return;
+                    return false;
                 }
                 if (!inv.CanItemFitInInventory(polaroid, 1))
                 {
-                    Mod.Log.Warn($"PlayerInventory full; cannot fit polaroid for target '{npc.ID}'. Not consuming kill latch.");
-                    return;
+                    return false; // caller defers the delivery — the elimination is not lost
                 }
                 inv.AddItemToInventory(polaroid);
                 if (!string.IsNullOrEmpty(npcId))
                 {
                     _recentlyHandledNpcIds.Add(npcId);
                 }
-                match.EvidenceSpawned = true;
-                // Audit H1 (2026-09-01): AwaitingDrop survives save loads — the
-                // receipt gate and the cross-session fallback key off THIS flag, not
-                // off EvidenceSpawned (which is reset below so a lost polaroid can
-                // be re-earned by killing the target again).
-                match.AwaitingDrop = true;
-                // Tracker + two-phase deadlines (budget/dead-drop update): the
-                // polaroid is confirmed in the player's hands right now — record the
-                // takedown (KO vs. fatal death kept apart) and start the post-photo
-                // drop window.
-                RecordKillEvent(match, npcId, fatal);
-                EnsureDropWindowStarted(match);
+                contract.EvidenceSpawned = true;
+                contract.PendingEvidenceDelivery = false;
+                // The short drop window starts at the first ACTUAL hand-over, never at
+                // recognition or accept time (HP-04).
+                EnsureDropWindowStarted(contract);
                 Interlocked.Increment(ref _polaroidsSpawned);
-                BountyPersistence.PersistCurrent(); // v0.1.3: evidence state must survive a game restart
-
-                // Advance the quest journal objective
-                BountyJournalBridge.AdvanceToDeadDrop(match.Id);
-
-                // Phase G: a matched kill immediately sets the player's pursuit to
-                // Lethal. The evidence/payout flow continues independently.
-                BountyHeatService.OnBountyKilled(match);
-
-                Mod.Log.Info($"[Bounty#{match.Id}] Polaroid spawned for target '{npc.ID}' " +
-                             $"(instance={npc.GetInstanceID()}); awaiting dead-drop validation.");
+                return true;
             }
             catch (Exception ex)
             {
                 Mod.Log.Error($"Adding polaroid to inventory failed: {ex}");
+                return false;
             }
+        }
+
+        /// <summary>
+        /// HP-04/HP-05: service deferred/repair deliveries. Called from the target
+        /// watchdog tick and safe to call at any time. No attack, no kill record, no
+        /// heat escalation, no new drop window beyond the one the hand-over starts.
+        /// </summary>
+        public static void TryDeliverPendingEvidence()
+        {
+            if (!HitmanPhone.SaveStateGuard.IsReady) return;
+            var save = Mod.Instance?.Save;
+            if (save == null) return;
+            if (!HitmanPhoneTime.TryGetSnapshot(out _, out _, out long now)) return;
+            if (_evidenceReconciliationPending) ReconcileEvidenceOnLoad();
+
+            for (int i = 0; i < save.Active.Count; i++)
+            {
+                var c = save.Active[i];
+                if (c.Status != EBountyStatus.Active) continue;
+                if (!c.PendingEvidenceDelivery || c.EvidenceSpawned) continue;
+                // Duplicate guard: if the photo is actually present after all (e.g. the
+                // inventory finished restoring after the load-time reconciliation ran),
+                // do NOT issue a repair copy — just clear the pending flag.
+                var presence = GetEvidencePresence(c);
+                if (presence == EvidencePresence.Unknown) continue;
+                if (presence == EvidencePresence.Present)
+                {
+                    c.EvidenceSpawned = true;
+                    c.PendingEvidenceDelivery = false;
+                    BountyPersistence.PersistCurrent();
+                    continue;
+                }
+                // Never deliver for a contract that has run out of time; the expiry
+                // poller retires it instead.
+                if (!BountyDeadlinePolicy.IsEligible(c, now)) continue;
+                if (TryDeliverEvidence(c, c.TargetNpcId))
+                {
+                    BountyPersistence.PersistCurrent();
+                    Mod.Log.Info($"[Bounty#{c.Id}] deferred polaroid delivered after space became available " +
+                                 "(no second attack, no new heat).");
+                }
+            }
+        }
+
+        /// <summary>
+        /// HP-09: upgrade an existing knockout record for a known bounty target to a
+        /// confirmed death. Independent of photo delivery and of the contract's own
+        /// status (it may already be Completed/Expired) — the record itself proves the
+        /// target was a bounty elimination, so unrelated NPCs stay excluded.
+        /// Idempotent: a record that is already Died=true is left untouched. Never
+        /// spawns a photo, starts a drop window, or pays a reward.
+        /// </summary>
+        public static bool TryUpgradeKillToDeath(string npcId)
+        {
+            if (string.IsNullOrEmpty(npcId)) return false;
+            var save = Mod.Instance?.Save;
+            if (save?.KillEvents == null) return false;
+            if (!HitmanPhoneTime.TryGetSnapshot(out int day, out _, out long sum)) return false;
+
+            for (int i = 0; i < save.KillEvents.Count; i++)
+            {
+                var e = save.KillEvents[i];
+                if (e == null || !string.Equals(e.TargetNpcId, npcId, StringComparison.OrdinalIgnoreCase)) continue;
+                if (e.Died) return false; // already confirmed — upgrade exactly once
+                e.Died = true;
+                e.Day = day;
+                e.MinuteSum = sum;
+                BountyPersistence.PersistCurrent();
+                Mod.Log.Info($"[Bounty] Tracker upgraded '{npcId}' to confirmed death (post-KO).");
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -534,57 +654,165 @@ namespace HitmanPhone.Bounty
         /// begins at receipt, never at accept. Idempotent. Legacy contracts without
         /// an offer-time window (DropWindowMinutes ≤ 0) keep their old single
         /// deadline: no retroactive short window is imposed on old saves.
+        ///
+        /// HP-13: a receipt after the execution deadline must NOT open a fresh valid
+        /// window — the contract's fate is decided by the shared deadline rule, not by
+        /// the hand-over. Uses a valid in-game time snapshot; an invalid read never
+        /// starts a window from "minute zero".
         /// </summary>
         public static void EnsureDropWindowStarted(BountyContract c)
         {
             if (c == null || c.DropDueStarted) return;
             if (c.DropWindowMinutes <= 0) return;
+            if (!HitmanPhoneTime.TryGetSnapshot(out _, out _, out long now))
+            {
+                Mod.Log.Warn($"[Bounty#{c.Id}] drop window not started: in-game time unavailable.");
+                return;
+            }
+            if (!BountyDeadlinePolicy.IsExecutionPhaseEligible(c, now)) return;
             c.DropDueStarted = true;
-            c.DropDueMinSum = HitmanPhoneTime.CurrentMinuteSum() + c.DropWindowMinutes;
+            c.DropDueMinSum = now + c.DropWindowMinutes;
             Mod.Log.Info($"[Bounty#{c.Id}] Drop window started: {c.DropWindowMinutes} min " +
                          $"(due min-sum {c.DropDueMinSum}, drop '{c.AssignedDropName}').");
         }
 
         /// <summary>
-        /// BUGFIX (2026-08-31): Clear the one-way EvidenceSpawned latch on Active
-        /// contracts after every save load. The flag exists to prevent duplicate
-        /// polaroids within one session, but persisted across loads it bricked
-        /// contracts whose evidence item was lost (inventory full at spawn, item
-        /// dropped, older save) — every later kill of the target then silently
-        /// early-outed and no polaroid ever spawned again. Fresh session = fresh
-        /// chance; a duplicate polaroid is harmless because the dead-drop receipt
-        /// completes the contract exactly once.
+        /// HP-05: reconcile the persisted evidence state with the ACTUAL world after a
+        /// confirmed load. The old implementation blindly cleared EvidenceSpawned for
+        /// every active contract, so a still-present photo could be spawned a second
+        /// time and re-escalate the pursuit on every reload.
         ///
-        /// Audit H1 (2026-09-01): the receipt gate and the cross-session fallback
-        /// no longer read EvidenceSpawned — they read <see cref="BountyContract.AwaitingDrop"/>,
-        /// which is NOT reset here, so depositing a pre-reload polaroid still pays out.
-        /// Call from SaveStateGuard.OnLoadComplete.
+        /// New rule, per active contract that carries any evidence state:
+        ///   • a polaroid for this contract exists (inventory or any dead drop) → keep
+        ///     EvidenceSpawned set; no duplicate, no new pursuit.
+        ///   • no polaroid exists but the elimination was recognized (AwaitingDrop) →
+        ///     mark a pending delivery; the photo is re-issued WITHOUT a new kill and
+        ///     WITHOUT new heat.
+        ///   • otherwise reset the transient flag.
+        ///
+        /// Call from the confirmed load-complete path (SaveStateGuard).
         /// </summary>
-        public static void ResetEvidenceFlags()
+        private static bool _evidenceReconciliationPending;
+
+        public static void ReconcileEvidenceOnLoad()
         {
-            if (Mod.Instance?.Save == null) return;
-            int reset = 0;
-            for (int i = 0; i < Mod.Instance.Save.Active.Count; i++)
+            var save = Mod.Instance?.Save;
+            if (save == null) return;
+
+            int present = 0, repair = 0, reset = 0, unknown = 0;
+            for (int i = 0; i < save.Active.Count; i++)
             {
-                var c = Mod.Instance.Save.Active[i];
-                if (c.Status == EBountyStatus.Active && c.EvidenceSpawned)
+                var c = save.Active[i];
+                if (c.Status != EBountyStatus.Active) continue;
+                if (!c.EvidenceSpawned && !c.AwaitingDrop && !c.PendingEvidenceDelivery) continue;
+
+                var presence = GetEvidencePresence(c);
+                if (presence == EvidencePresence.Unknown)
+                {
+                    unknown++;
+                    continue; // incomplete/ambiguous is not proof that the photo is lost
+                }
+                if (presence == EvidencePresence.Present)
+                {
+                    c.EvidenceSpawned = true;
+                    c.PendingEvidenceDelivery = false;
+                    present++;
+                }
+                else if (c.AwaitingDrop)
+                {
+                    // Elimination recognized but the photo is genuinely gone: re-issue
+                    // through the pending-delivery path (no new kill, no new heat).
+                    c.EvidenceSpawned = false;
+                    c.PendingEvidenceDelivery = true;
+                    repair++;
+                }
+                else
                 {
                     c.EvidenceSpawned = false;
+                    c.PendingEvidenceDelivery = false;
                     reset++;
                 }
             }
-            if (reset > 0)
+
+            _evidenceReconciliationPending = unknown > 0;
+            if (present > 0 || repair > 0 || reset > 0)
             {
-                Mod.Log.Info($"[Bounty] Reset EvidenceSpawned on {reset} active contract(s) after load " +
-                             "(evidence item can re-spawn on next target death).");
+                Mod.Log.Info($"[Bounty] Evidence reconciled after load: {present} present, " +
+                             $"{repair} pending re-delivery, {reset} reset.");
             }
+        }
+
+        /// <summary>
+        /// Back-compat alias for the old load hook name. It no longer performs a blanket
+        /// EvidenceSpawned reset — it reconciles against real evidence (HP-05).
+        /// </summary>
+        public static void ResetEvidenceFlags() => ReconcileEvidenceOnLoad();
+
+        /// <summary>
+        /// True when a polaroid for this contract is physically present in the player's
+        /// inventory or in any registered dead drop. Uses the same token/legacy matching
+        /// as the payout, so a photo the payout could find is never treated as lost.
+        /// </summary>
+        private static EvidencePresence GetEvidencePresence(BountyContract c)
+        {
+            var result = EvidencePresence.Unknown;
+            try
+            {
+                var inv = S1PlayerInventory.Instance;
+                if (inv != null && inv.Pointer != IntPtr.Zero && !inv.WasCollected)
+                {
+                    var slots = inv.GetAllInventorySlots();
+                    if (slots != null)
+                    {
+                        result = EvidencePresence.Missing;
+                        for (int i = 0; i < slots.Count; i++)
+                        {
+                            var slot = slots[i];
+                            if (slot == null) { result = EvidencePresence.Unknown; continue; }
+                            var inst = slot.ItemInstance;
+                            if (inst != null) result = BountyEvidenceMatcher.MergePresence(result, BountyReceiptService.ObserveEvidenceForContract(c, inst));
+                            if (result == EvidencePresence.Present) return result;
+                        }
+                    }
+                }
+
+                var drops = S1DeadDrop.DeadDrops;
+                if (drops != null && drops.Count > 0)
+                {
+                    for (int d = 0; d < drops.Count; d++)
+                    {
+                        var drop = drops[d];
+                        if (drop == null || drop.Pointer == IntPtr.Zero || drop.WasCollected) { result = EvidencePresence.Unknown; continue; }
+                        var entity = drop.Storage;
+                        if (entity == null || entity.Pointer == IntPtr.Zero || entity.WasCollected) { result = EvidencePresence.Unknown; continue; }
+                        var slots = entity.ItemSlots;
+                        if (slots == null) { result = EvidencePresence.Unknown; continue; }
+                        for (int i = 0; i < slots.Count; i++)
+                        {
+                            var slot = slots[i];
+                            if (slot == null) { result = EvidencePresence.Unknown; continue; }
+                            var inst = slot.ItemInstance;
+                            if (inst != null) result = BountyEvidenceMatcher.MergePresence(result, BountyReceiptService.ObserveEvidenceForContract(c, inst));
+                            if (result == EvidencePresence.Present) return result;
+                        }
+                    }
+                }
+                else result = EvidencePresence.Unknown;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"[Bounty#{c.Id}] evidence presence check failed: {ex.Message}");
+                return EvidencePresence.Unknown;
+            }
+            return result;
         }
 
         /// <summary>
         /// Migrates pre-token contracts and clears transient Unity instance IDs after
         /// a load. Awaiting legacy contracts retain their old photo ID for matching;
         /// new evidence uses its persistent token, so IDs cannot collide across sessions.
-        /// Call from SaveStateGuard.OnLoadComplete.
+        /// Also reconciles the persisted evidence state against the real world (HP-05).
+        /// Call from the confirmed load-complete path (SaveStateGuard).
         /// </summary>
         public static void InvalidatePersistedInstanceIds()
         {
@@ -595,6 +823,7 @@ namespace HitmanPhone.Bounty
                 Mod.Log.Info($"[Bounty] Migrated {migrated} saved evidence field(s) after load; old photos remain bound only to their active contracts.");
                 BountyPersistence.PersistCurrent();
             }
+            ReconcileEvidenceOnLoad();
         }
     }
     // ==== end HitmanPhone section: Contracts/BountyService.cs ====

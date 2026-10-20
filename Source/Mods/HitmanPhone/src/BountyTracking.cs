@@ -42,32 +42,60 @@ namespace HitmanPhone.Bounty
             if (Time.time < _nextTick) return;
             _nextTick = Time.time + 1.5f; // Poll every 1.5s (very cheap, 0-allocation)
 
+            // Singleplayer-only + confirmed-load gate.
+            if (!HitmanPhone.SaveStateGuard.IsReady) return;
             if (Mod.Instance?.Save == null) return;
+
+            // HP-04: service deferred/repair photo deliveries first. This is independent
+            // of the target's state, so a full inventory at the kill no longer needs a
+            // second attack (or a still-unconscious target) to get the photo.
+            BountyService.TryDeliverPendingEvidence();
+
+            if (!HitmanPhoneTime.TryGetSnapshot(out _, out _, out long now)) return;
 
             for (int i = 0; i < Mod.Instance.Save.Active.Count; i++)
             {
                 var c = Mod.Instance.Save.Active[i];
 
                 if (c.Status != EBountyStatus.Active) continue;
-                if (c.EvidenceSpawned) continue; // We already gave the player the polaroid
 
                 try
                 {
                     var npc = S1NPCManager.GetNPC(c.TargetNpcId);
-                    // Bug-Audit 2026-09-12: `!npc.IsConscious` fired on KO too — awarding a kill
-                    // for a non-lethal takedown and escalating to Lethal pursuit. NPCHealth.IsDead
-                    // distinguishes the two via the game's own state, and onDieOrKnockedOut is
-                    // wired to the same flag.
-                    // Knockout, death, or unconsciousness all satisfy elimination.
-                    if (npc != null && npc.Health != null
-                        && npc.Health.Pointer != IntPtr.Zero && !npc.Health.WasCollected
-                        && (npc.Health.IsDead || npc.Health.IsKnockedOut || !npc.IsConscious))
+                    if (npc == null) continue;
+
+                    // Bug-Audit 2026-09-12: `!npc.IsConscious` fired on KO too. NPCHealth.IsDead
+                    // distinguishes the two via the game's own state.
+                    bool dead = false;
+                    bool down = false;
+                    var health = npc.Health;
+                    if (health != null && health.Pointer != IntPtr.Zero && !health.WasCollected)
                     {
-                        // Trigger the existing polaroid logic. Fatal = the game's own
-                        // Health.IsDead; a knockout/unconsciousness records
-                        // "ausgeschaltet" only (tracker semantics).
-                        BountyService.OnNpcDied(npc, fatal: npc.Health.IsDead);
+                        dead = health.IsDead;
+                        down = health.IsKnockedOut || !npc.IsConscious;
                     }
+
+                    // HP-05: a contract whose elimination is already recognized must never
+                    // be re-recognized — re-recognition after a load produced a duplicate
+                    // photo with the same token AND a repeated Lethal escalation. A later
+                    // fatal death is still recorded (HP-09), but only the tracker record:
+                    // never a second photo, drop window or reward.
+                    if (c.EvidenceSpawned || c.AwaitingDrop || c.PendingEvidenceDelivery)
+                    {
+                        if (dead) BountyService.TryUpgradeKillToDeath(c.TargetNpcId);
+                        continue;
+                    }
+
+                    if (!down) continue;
+
+                    // HP-13: never recognize an elimination past the execution deadline —
+                    // a late knockout must not open a fresh valid drop window.
+                    if (!BountyDeadlinePolicy.IsEligible(c, now)) continue;
+
+                    // Trigger the existing polaroid logic. Fatal = the game's own
+                    // Health.IsDead; a knockout/unconsciousness records
+                    // "ausgeschaltet" only (tracker semantics).
+                    BountyService.OnNpcDied(npc, fatal: dead);
                 }
                 catch { }
             }

@@ -63,6 +63,13 @@ namespace HitmanPhone.Bounty
 
         /// <summary>Hard cap on simultaneously active bounty contracts.</summary>
         public const int MaxActiveContracts = 3;
+
+        /// <summary>
+        /// HP-10: how often a single planned slot may fail to deliver before it is
+        /// given up (bounded retry — a transient caller/send failure never burns
+        /// the call permanently, an unfixable one never loops forever).
+        /// </summary>
+        public const int MaxDeliveryAttempts = 5;
     }
     // ==== end HitmanPhone section: Scheduling/BountyCallSchedulerConstants.cs ====
 }
@@ -236,10 +243,10 @@ namespace HitmanPhone.Bounty
         /// At most one slot is due per call — same-day double calls spread over
         /// successive ticks.
         /// </summary>
-        public static BountyCallSlot PeekDue(BountyCallScheduleState state, int today, int nowMinuteOfDay)
+        public static BountyCallSlot? PeekDue(BountyCallScheduleState state, int today, int nowMinuteOfDay)
         {
             if (state?.Slots == null) return null;
-            BountyCallSlot best = null;
+            BountyCallSlot? best = null;
             for (int i = 0; i < state.Slots.Count; i++)
             {
                 var s = state.Slots[i];
@@ -347,6 +354,343 @@ namespace HitmanPhone.Bounty
             }
             return last;
         }
+
+        // ------------------------------------------------------------------
+        // HP-11 — plan change detection (persist even when nothing is due) and
+        // HP-12 — real per-day quota / minimum-gap enforcement on top of the
+        // plan, both derived from the ACTUAL deliveries recorded on each slot
+        // (DispatchedMinSum). Pure, so Source/Tests/HitmanPhone.Tests covers it.
+        // ------------------------------------------------------------------
+
+        private static long MinSum(int day, int minuteOfDay) => day * 1440L + minuteOfDay;
+
+        /// <summary>
+        /// HP-11: cheap content fingerprint of the plan. The scheduler compares it
+        /// before/after a planning pass and checkpoints when it changed — even when
+        /// no offer became due — so generation, horizon extension, silent
+        /// cancellation and reschedule survive a reload instead of being re-rolled.
+        /// A tick that mutates nothing yields the same value (no rewrite).
+        /// </summary>
+        public static long PlanFingerprint(BountyCallScheduleState state)
+        {
+            unchecked
+            {
+                long h = 1469598103934665603L; // FNV-1a offset basis
+                void Mix(long v) { h ^= v; h *= 1099511628211L; }
+                if (state == null) return h;
+                Mix(state.GeneratedThroughDay);
+                if (state.Slots != null)
+                {
+                    Mix(state.Slots.Count);
+                    for (int i = 0; i < state.Slots.Count; i++)
+                    {
+                        var s = state.Slots[i];
+                        if (s == null) { Mix(-1); continue; }
+                        Mix(s.Day);
+                        Mix(s.MinuteOfDay);
+                        Mix(s.CallerIndex);
+                        Mix(s.Dispatched ? 1 : 0);
+                        Mix(s.Cancelled ? 1 : 0);
+                        Mix(s.DispatchedMinSum);
+                        Mix(s.DispatchAttempts);
+                    }
+                }
+                return h;
+            }
+        }
+
+        /// <summary>Day of a slot's ACTUAL delivery (falls back to the planned day for legacy slots).</summary>
+        private static int DeliveryDay(BountyCallSlot s)
+            => s.DispatchedMinSum > 0 ? (int)(s.DispatchedMinSum / 1440L) : s.Day;
+
+        /// <summary>Minute-of-day of a slot's ACTUAL delivery (falls back to the planned minute).</summary>
+        private static int DeliveryMinute(BountyCallSlot s)
+            => s.DispatchedMinSum > 0 ? (int)(s.DispatchedMinSum % 1440L) : s.MinuteOfDay;
+
+        /// <summary>HP-12: how many offers were ACTUALLY delivered on <paramref name="day"/>.</summary>
+        public static int DispatchedCountOnDay(BountyCallScheduleState state, int day)
+        {
+            if (state?.Slots == null) return 0;
+            int n = 0;
+            for (int i = 0; i < state.Slots.Count; i++)
+            {
+                var s = state.Slots[i];
+                if (s == null || !s.Dispatched || s.Cancelled) continue;
+                if (DeliveryDay(s) == day) n++;
+            }
+            return n;
+        }
+
+        /// <summary>HP-12: minute-of-day of the latest ACTUAL delivery on <paramref name="day"/>, or -1.</summary>
+        public static int LastDispatchMinuteOnDay(BountyCallScheduleState state, int day)
+        {
+            if (state?.Slots == null) return -1;
+            int last = -1;
+            for (int i = 0; i < state.Slots.Count; i++)
+            {
+                var s = state.Slots[i];
+                if (s == null || !s.Dispatched || s.Cancelled) continue;
+                if (DeliveryDay(s) != day) continue;
+                int m = DeliveryMinute(s);
+                if (m > last) last = m;
+            }
+            return last;
+        }
+
+        /// <summary>
+        /// HP-12: whether another offer may ACTUALLY be delivered right now,
+        /// enforcing the daily quota and the minimum gap between real deliveries.
+        /// Deferred/rescheduled slots that never reached the player never count.
+        /// </summary>
+        public static bool CanDispatchNow(
+            BountyCallScheduleState state, int day, int nowMinuteOfDay, out string reason)
+        {
+            reason = string.Empty;
+            if (state?.Slots == null) return true;
+            if (DispatchedCountOnDay(state, day) >= BountyCallSchedulerConstants.MaxOffersPerDay)
+            {
+                reason = "daily offer quota reached";
+                return false;
+            }
+            int last = LastDispatchMinuteOnDay(state, day);
+            if (last >= 0 && nowMinuteOfDay - last < BountyCallSchedulerConstants.MinGapMinutesBetweenSameDayCalls)
+            {
+                reason = "minimum gap since the last delivery not reached";
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// HP-12: true when (day, minuteOfDay) can host <paramref name="exclude"/>
+        /// without breaking the per-day quota or the same-day minimum gap against
+        /// every other live slot of the WHOLE plan.
+        /// </summary>
+        public static bool IsFreeSlot(
+            BountyCallScheduleState state, int day, int minuteOfDay, BountyCallSlot? exclude)
+        {
+            if (state?.Slots == null) return true;
+            int count = 0;
+            for (int i = 0; i < state.Slots.Count; i++)
+            {
+                var s = state.Slots[i];
+                if (s == null || s.Cancelled) continue;
+                if (ReferenceEquals(s, exclude)) continue;
+                if (s.Day != day) continue;
+                count++;
+                // A dispatched slot is spaced against its ACTUAL delivery time, a
+                // planned one against its planned time.
+                int occupiedMinute = s.Dispatched ? DeliveryMinute(s) : s.MinuteOfDay;
+                if (Math.Abs(occupiedMinute - minuteOfDay) <
+                    BountyCallSchedulerConstants.MinGapMinutesBetweenSameDayCalls)
+                    return false;
+            }
+            return count < BountyCallSchedulerConstants.MaxOffersPerDay;
+        }
+
+        /// <summary>
+        /// HP-12: move a blocked slot to the earliest free appointment across the
+        /// whole plan (respecting quota + minimum gap); cancels the slot when no
+        /// room exists inside the horizon. Blocked offers are deferred, never
+        /// piled up — sleeping / day change / blockades can never cause an
+        /// offer avalanche.
+        /// </summary>
+        public static bool RescheduleToFreeSlot(
+            BountyCallSlot slot, BountyCallScheduleState state,
+            int today, int nowMinuteOfDay, int throughDayExclusive, Random rng)
+        {
+            if (slot == null) return false;
+            if (rng == null) throw new ArgumentNullException(nameof(rng));
+
+            for (int day = today; day < throughDayExclusive; day++)
+            {
+                int lo = EarliestMinuteOfDay;
+                if (day == today) lo = Math.Max(lo, nowMinuteOfDay + MinLeadMinutesToday);
+                int hi = LatestMinuteOfDay;
+                if (lo >= hi) continue;
+
+                // Deterministic scan first (stable, RNG-independent), then a random
+                // probe so the reschedule does not always land on the same minute.
+                for (int minute = lo; minute < hi; minute += 15)
+                {
+                    if (IsFreeSlot(state, day, minute, slot))
+                    {
+                        slot.Day = day;
+                        slot.MinuteOfDay = minute;
+                        slot.Cancelled = false;
+                        return true;
+                    }
+                }
+                for (int attempt = 0; attempt < 8; attempt++)
+                {
+                    int minute = rng.Next(lo, hi);
+                    if (IsFreeSlot(state, day, minute, slot))
+                    {
+                        slot.Day = day;
+                        slot.MinuteOfDay = minute;
+                        slot.Cancelled = false;
+                        return true;
+                    }
+                }
+            }
+            slot.Cancelled = true;
+            return false;
+        }
+
+        /// <summary>
+        /// HP-10: defer a FAILED delivery attempt. The slot stays retryable and is
+        /// never consumed, until the bounded attempt budget is used up.
+        /// </summary>
+        public static bool DeferFailedDispatch(
+            BountyCallSlot slot, BountyCallScheduleState state,
+            int today, int nowMinuteOfDay, int throughDayExclusive, Random rng)
+        {
+            if (slot == null) return false;
+            slot.DispatchAttempts++;
+            if (slot.DispatchAttempts >= BountyCallSchedulerConstants.MaxDeliveryAttempts)
+            {
+                slot.Cancelled = true;
+                return false;
+            }
+            return RescheduleToFreeSlot(slot, state, today, nowMinuteOfDay, throughDayExclusive, rng);
+        }
+
+        /// <summary>
+        /// HP-10: confirm a CONFIRMED delivery — stamp the ACTUAL delivery time
+        /// (the basis for the HP-12 quota/gap enforcement) and consume the slot
+        /// exactly once. The planned Day/MinuteOfDay stay untouched.
+        /// </summary>
+        public static void ConfirmDispatch(BountyCallSlot slot, int day, int minuteOfDay)
+        {
+            if (slot == null) return;
+            slot.Dispatched = true;
+            slot.DispatchedMinSum = MinSum(day, minuteOfDay);
+        }
     }
     // ==== end HitmanPhone section: Scheduling/BountyCallSchedulePlan.cs ====
+}
+
+namespace HitmanPhone.Bounty
+{
+    // ==== HitmanPhone section: Scheduling/BountyCallLifecycle.cs ====
+    using System;
+    using System.Collections.Generic;
+    using HitmanPhone.Persistence;
+
+    /// <summary>
+    /// HP-15: pure caller-cooldown merge. A later, longer cooldown must never be
+    /// shortened by a subsequent shorter one (e.g. a 14-day player-death lock
+    /// followed by a 3-day decline lock keeps the 14 days).
+    /// </summary>
+    public static class BountyCallerCooldown
+    {
+        /// <summary>
+        /// Later of the existing cooldown end and (currentDay + days). Returns the
+        /// merged end day; callers persist the merged value.
+        /// </summary>
+        public static int MergeEnd(int currentDay, int existingUntil, int days)
+            => Math.Max(existingUntil, currentDay + days);
+    }
+
+    /// <summary>Lifecycle status of a single caller offer on the shared thread (R-04).</summary>
+    public enum BountyOfferStatus
+    {
+        Open = 0,
+        Accepted = 1,
+        Declined = 2,
+        Superseded = 3
+    }
+
+    /// <summary>
+    /// R-04: one caller offer with a stable identity. Exactly one offer is OPEN at
+    /// a time on the shared caller thread; a newer offer supersedes an unanswered
+    /// predecessor so its stale Accept/Decline buttons can never resolve a deal
+    /// that no longer exists. Pure (no game types) so it is unit-testable.
+    /// </summary>
+    public sealed class BountyOffer
+    {
+        public string OfferId = "";
+        public int CallerIndex;
+        public string TargetNpcId = "";
+        public BountyOfferStatus Status = BountyOfferStatus.Open;
+
+        public bool IsOpen => Status == BountyOfferStatus.Open;
+    }
+
+    /// <summary>Pure decision rules for the shared-thread offer lifecycle (R-04).</summary>
+    public static class BountyOfferPolicy
+    {
+        /// <summary>Single-use: only an OPEN offer may be resolved.</summary>
+        public static bool CanResolve(BountyOffer? offer) => offer != null && offer.IsOpen;
+
+        /// <summary>
+        /// Supersede a still-open predecessor when a new offer is posted. Returns
+        /// true when the predecessor was actually invalidated (so the caller can
+        /// log/observe the displacement).
+        /// </summary>
+        public static bool Supersede(BountyOffer? previous)
+        {
+            if (previous == null || !previous.IsOpen) return false;
+            previous.Status = BountyOfferStatus.Superseded;
+            return true;
+        }
+
+        /// <summary>
+        /// A message that is not itself a new offer (e.g. the drop-window warning)
+        /// must NOT be posted bare while an offer is open — that replaces the
+        /// decision buttons and strands the pending deal. Returns true when the
+        /// open offer's responses must be re-attached.
+        /// </summary>
+        public static bool MustPreserveOpenOfferResponses(BountyOffer? current)
+            => current != null && current.IsOpen;
+    }
+
+    /// <summary>Outcome of evaluating a captured offer against the live world (R-05).</summary>
+    public enum BountyAcceptDecision
+    {
+        Accept = 0,
+        StaleSave = 1,
+        TargetGone = 2,
+        TargetNotEligible = 3
+    }
+
+    /// <summary>
+    /// R-05: pure accept-time validity rules. An elimination that happened BEFORE
+    /// the accept — or that a different actor caused — must not be credited to a
+    /// fresh contract, so the target is re-resolved by stable id and its
+    /// eligibility (alive AND conscious) re-checked at accept time.
+    /// </summary>
+    public static class BountyAcceptPolicy
+    {
+        public static bool IsEligibleTarget(bool resolved, bool isDead, bool isUnconscious)
+            => resolved && !isDead && !isUnconscious;
+
+        public static BountyAcceptDecision Decide(bool saveMatches, bool targetResolved, bool targetEligible)
+        {
+            if (!saveMatches) return BountyAcceptDecision.StaleSave;
+            if (!targetResolved) return BountyAcceptDecision.TargetGone;
+            if (!targetEligible) return BountyAcceptDecision.TargetNotEligible;
+            return BountyAcceptDecision.Accept;
+        }
+    }
+
+    /// <summary>Result of trying to deliver an offer to the player (HP-10).</summary>
+    public enum BountyOfferDelivery
+    {
+        Delivered = 0,
+        NoCaller = 1,
+        SendFailed = 2,
+        Blocked = 3
+    }
+
+    /// <summary>
+    /// HP-10: pure dispatch bookkeeping. Only a CONFIRMED delivery may consume the
+    /// planned slot and count as a successful call; every other outcome leaves the
+    /// slot retryable.
+    /// </summary>
+    public static class BountyOfferDispatchPolicy
+    {
+        public static bool ConsumesSlot(BountyOfferDelivery result)
+            => result == BountyOfferDelivery.Delivered;
+    }
 }

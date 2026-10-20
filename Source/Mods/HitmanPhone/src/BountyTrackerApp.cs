@@ -101,7 +101,9 @@ public sealed class BountyTrackerApp : PhoneApp
 
     private const float RefreshIntervalSeconds = 1f;
     private float _nextRefreshAt;
-    private string _renderedKey = string.Empty;
+    // R07: the rendered key is committed only after a successful rebuild, so a
+    // transient UI failure with unchanged data is retried instead of sticking.
+    private readonly TrackerRenderGate _renderGate = new();
 
     // Fix (Bug-Audit pattern, cf. CalculatorApp/BankApp/PotScanner): the phone
     // re-instantiates this app per scene load and per-instance MelonEvents.OnUpdate
@@ -229,8 +231,8 @@ public sealed class BountyTrackerApp : PhoneApp
         {
             ScheduleRefresh();
             string key = BuildRenderKey();
-            if (key != _renderedKey)
-                Rebuild();
+            if (_renderGate.NeedsRebuild(key))
+                Rebuild(key);
         }
     }
 
@@ -239,10 +241,11 @@ public sealed class BountyTrackerApp : PhoneApp
     {
         try
         {
+            if (!SaveStateGuard.IsReady) return "status|" + SaveStateGuard.StatusMessage;
             var save = Mod.Instance?.Save;
             if (save == null) return "no-save";
             var snap = BountyTrackerService.Build(save);
-            string key = $"{snap.ConfirmedDead}|{snap.OnlyOut}|{snap.ContractsCompleted}|";
+            string key = $"{snap.ConfirmedDead}|{snap.OnlyOut}|{snap.ContractsCompleted}|review:{save.Active.Exists(c => c.RewardPaymentUncertain)}|";
             for (int i = 0; i < snap.Rows.Count; i++)
             {
                 var r = snap.Rows[i];
@@ -259,7 +262,8 @@ public sealed class BountyTrackerApp : PhoneApp
 
     private void OnAppOpened()
     {
-        Rebuild();
+        _renderGate.Reset();
+        Rebuild(BuildRenderKey());
     }
 
     /// <summary>
@@ -271,13 +275,17 @@ public sealed class BountyTrackerApp : PhoneApp
         _nextRefreshAt = Time.realtimeSinceStartup + RefreshIntervalSeconds;
     }
 
-    /// <summary>Rebuild the summary and the target rows from the current save.</summary>
-    private void Rebuild()
+    /// <summary>
+    /// Rebuild the summary and the target rows from the current save. The render
+    /// key is committed only after the whole render succeeded (R07): a transient
+    /// UI failure with unchanged data stays pending and is retried next tick.
+    /// </summary>
+    private void Rebuild(string renderKey)
     {
         ScheduleRefresh();
-        _renderedKey = BuildRenderKey();
         try
         {
+            // Cannot render right now — leave the key pending so the next tick retries.
             if (_listContent == null || _listContent.WasCollected) return;
             var save = Mod.Instance?.Save;
 
@@ -288,9 +296,19 @@ public sealed class BountyTrackerApp : PhoneApp
                 if (child != null && !child.WasCollected) UnityEngine.Object.Destroy(child.gameObject);
             }
 
+            if (!SaveStateGuard.IsReady)
+            {
+                _summaryLabel.text = string.IsNullOrEmpty(SaveStateGuard.StatusMessage)
+                    ? "HitmanPhone paused while saving/loading."
+                    : SaveStateGuard.StatusMessage;
+                _renderGate.Commit(renderKey);
+                return;
+            }
+
             if (save == null)
             {
                 _summaryLabel.text = "No contract history yet.";
+                _renderGate.Commit(renderKey);
                 return;
             }
 
@@ -299,6 +317,8 @@ public sealed class BountyTrackerApp : PhoneApp
                 ? "No contract history yet."
                 : $"{snap.Rows.Count} targets \u00b7 {snap.ConfirmedDead} confirmed dead \u00b7 " +
                   $"{snap.OnlyOut} out of action \u00b7 {snap.ContractsCompleted} contracts completed";
+            if (save.Active.Exists(c => c.RewardPaymentUncertain))
+                _summaryLabel.text += "\nPAYMENT REVIEW REQUIRED — automatic retry disabled.";
 
             for (int i = 0; i < snap.Rows.Count; i++)
             {
@@ -307,11 +327,14 @@ public sealed class BountyTrackerApp : PhoneApp
 
             var rect = _listContent as RectTransform;
             if (rect != null) rect.sizeDelta = new Vector2(0f, rect.sizeDelta.y);
+
+            _renderGate.Commit(renderKey);   // committed only after a successful render
         }
         catch (Exception ex)
         {
             Mod.Log.Warn($"[TrackerApp] Rebuild failed: {ex.Message}");
             if (_summaryLabel != null) _summaryLabel.text = "History unavailable right now.";
+            // No commit: the key stays pending, so the next tick retries (R07).
         }
     }
 
@@ -348,7 +371,7 @@ public sealed class BountyTrackerApp : PhoneApp
             UITheme.Sp(12), TextAnchor.MiddleLeft, FontStyle.Bold);
         name.color = GamePalette.TextPrimary;
 
-        string timeText = row.Day > 0 || row.MinuteSum > 0
+        string timeText = row.HasElimination
             ? BountyTrackerService.FormatEventTime(row.Day, row.MinuteSum)
             : "No elimination recorded";
         if (row.ContractCompleted) timeText += "  \u00b7  contract completed";
@@ -358,10 +381,14 @@ public sealed class BountyTrackerApp : PhoneApp
 
         // Right: the explicit status distinction (Rule 20: plain words, no debug).
         // An open contract wins: the target is still being hunted.
-        string statusText = row.ContractActive ? "ACTIVE" : row.Died ? "Confirmed dead" : "Out of action";
+        string statusText = row.ContractActive ? "ACTIVE"
+            : !row.HasElimination ? "No event recorded"
+            : row.Died ? "Confirmed dead" : "Out of action";
         var status = UIFactory.Text("Status", statusText, card.transform,
             UITheme.Sp(10), TextAnchor.MiddleRight, FontStyle.Bold);
-        status.color = row.ContractActive ? GamePalette.Teal : row.Died ? GamePalette.Red : GamePalette.Orange;
+        status.color = row.ContractActive ? GamePalette.Teal
+            : !row.HasElimination ? GamePalette.TextMuted
+            : row.Died ? GamePalette.Red : GamePalette.Orange;
         var sre = status.gameObject.AddComponent<LayoutElement>();
         sre.preferredWidth = UITheme.Dp(96f);
         sre.flexibleWidth = 0f;

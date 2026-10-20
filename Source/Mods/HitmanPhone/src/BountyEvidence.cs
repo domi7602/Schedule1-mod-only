@@ -65,7 +65,53 @@ namespace HitmanPhone.Items
         /// <summary>Definition needed to deserialize polaroids saved by older versions.</summary>
         public static S1ItemFramework.IntegerItemDefinition? LegacyDefinition { get; private set; }
 
-        public static bool IsRegistered => IsAlive(Definition) && IsAlive(LegacyDefinition);
+        /// <summary>
+        /// True only when both definitions exist AND were verified present inside the
+        /// native <see cref="S1Registry"/>. Object liveness alone is NOT proof of
+        /// registration (HP-02 part B: the old check reported success for a definition
+        /// whose native injection had silently failed, and never retried).
+        /// </summary>
+        public static bool IsRegistered =>
+            IsAlive(Definition) && IsAlive(LegacyDefinition) && _registrationVerified &&
+            RegistryHasItem(ItemId) && RegistryHasItem(LegacyItemId);
+
+        /// <summary>Bounded retry budget per registry lifecycle (HP-02: retry transient failures).</summary>
+        private const int MaxRegistrationAttempts = 5;
+
+        private static bool _registrationVerified;
+        private static int _registrationAttempts;
+        private static bool _retryExhaustedLogged;
+        private static bool _unverifiedSpawnWarned;
+        private static long _nextRegistrationAttempt;
+
+        /// <summary>
+        /// HP-02: re-establish registration against the CURRENT registry lifecycle.
+        /// The native Registry drops runtime-added items on scene teardown
+        /// (<c>RemoveRuntimeItems</c>), so verification must be re-proven per scene and
+        /// not cached for the whole session. Wire this to the main-scene-loaded /
+        /// pre-load lifecycle in Mod.
+        /// </summary>
+        public static bool OnMainSceneLoaded()
+        {
+            InvalidateRegistration();
+            return EnsureRegistered();
+        }
+
+        public static void InvalidateRegistration()
+        {
+            _registrationVerified = false;
+            _registrationAttempts = 0;
+            _retryExhaustedLogged = false;
+            _unverifiedSpawnWarned = false;
+            _nextRegistrationAttempt = Environment.TickCount64 + 1000;
+        }
+
+        public static void TickRegistration()
+        {
+            if (!S1Mods.Shared.NetworkGuard.IsInMainScene || Environment.TickCount64 < _nextRegistrationAttempt) return;
+            _nextRegistrationAttempt = Environment.TickCount64 + 1000;
+            if (!IsRegistered) EnsureRegistered(); // bounded by MaxRegistrationAttempts
+        }
 
         /// <summary>
         /// IL2CPP-safe liveness check for the cached Unity objects. A scene change
@@ -75,22 +121,39 @@ namespace HitmanPhone.Items
         /// </summary>
         private static bool IsAlive(UnityEngine.Object? obj)
         {
+            try
+            {
 #if (IL2CPPMELON)
-            return obj != null && obj.Pointer != System.IntPtr.Zero && !obj.WasCollected;
+                return obj != null && obj.Pointer != System.IntPtr.Zero && !obj.WasCollected;
 #else
-            return obj != null;
+                return obj != null;
 #endif
+            }
+            catch { return false; }
         }
 
         /// <summary>
-        /// Registers the polaroid in the game registry if it has not been registered yet.
-        /// Idempotent — calling it twice is a no-op.
+        /// Idempotent, VERIFIED registration (HP-02). Returns true only when both
+        /// polaroid definitions are present in the native registry. Creation and
+        /// registration are separate facts here: a created-but-unregistered definition
+        /// keeps <see cref="IsRegistered"/> false and is retried (bounded) on the next
+        /// lifecycle call, instead of being cached as a false success.
         /// </summary>
-        public static void Register()
+        public static bool EnsureRegistered()
         {
-            if (IsRegistered) return;
-            Definition = null;
-            LegacyDefinition = null;
+            if (IsRegistered) return true;
+
+            if (_registrationAttempts >= MaxRegistrationAttempts)
+            {
+                if (!_retryExhaustedLogged)
+                {
+                    _retryExhaustedLogged = true;
+                    Mod.Log.Error($"Polaroid registration unverified after {MaxRegistrationAttempts} attempts; " +
+                                  "waiting for the next scene lifecycle before retrying.");
+                }
+                return false;
+            }
+            _registrationAttempts++;
 
             if (!IsAlive(IconSprite))
             {
@@ -102,50 +165,87 @@ namespace HitmanPhone.Items
                 }
             }
 
+            bool currentOk = TryCreateAndRegister(ItemId, out var current);
+            // Keep the old definition registered so saved legacy polaroids can be
+            // deserialized after upgrading to the token-based item ID.
+            bool legacyOk = TryCreateAndRegister(LegacyItemId, out var legacy);
+            Definition = current;
+            LegacyDefinition = legacy;
+            _registrationVerified = currentOk && legacyOk;
+
+            if (_registrationVerified)
+            {
+                Mod.Log.Info($"Polaroid definitions registered and verified in the native registry " +
+                             $"(current='{ItemId}', legacy='{LegacyItemId}', " +
+                             $"icon={(IconSprite != null ? "loaded" : "missing")}).");
+            }
+            else
+            {
+                Mod.Log.Warn($"Polaroid registration NOT verified (attempt {_registrationAttempts}/{MaxRegistrationAttempts}): " +
+                             $"current={currentOk}, legacy={legacyOk}. Retrying on the next lifecycle call.");
+            }
+            return _registrationVerified;
+        }
+
+        /// <summary>
+        /// Creates one definition and reports whether it was verified in the native
+        /// registry. Existing entries are reused; the cached definition is the same
+        /// definition resolved by ID, not an unregistered duplicate template.
+        /// </summary>
+        private static bool TryCreateAndRegister(string id, out S1ItemFramework.IntegerItemDefinition? def)
+        {
+            def = null;
             try
             {
-                Definition = CreateDefinition(ItemId);
-                // Keep the old definition registered so saved legacy polaroids can
-                // be deserialized after upgrading to the token-based item ID.
-                LegacyDefinition = CreateDefinition(LegacyItemId);
-                Mod.Log.Info($"Polaroid definitions registered (current='{ItemId}', legacy='{LegacyItemId}', " +
-                             $"icon={(IconSprite != null ? "loaded" : "missing")}).");
+                S1ItemFramework.IntegerItemDefinition? Lookup()
+                {
+                    var registered = S1Registry.GetItem(id);
+                    if (!IsAlive(registered)) return null;
+#if IL2CPPMELON
+                    return registered.TryCast<S1ItemFramework.IntegerItemDefinition>();
+#else
+                    return registered as S1ItemFramework.IntegerItemDefinition;
+#endif
+                }
+                if (RegistryHasItem(id))
+                {
+                    def = Lookup();
+                    return IsAlive(def);
+                }
+                var created = ScriptableObject.CreateInstance<S1ItemFramework.IntegerItemDefinition>();
+                created.hideFlags = HideFlags.HideAndDontSave;
+                created.DefaultValue = 0;
+
+                TrySetReflected(created, "ID", id);
+                TrySetReflected(created, "Name", ItemName);
+                TrySetReflected(created, "Description", ItemDescription);
+                TrySetReflected(created, "StackLimit", 1);
+                TrySetReflected(created, "BasePurchasePrice", 0f);
+                TrySetReflected(created, "ResellMultiplier", 0f);
+                TrySetReflected(created, "Icon", IconSprite);
+                TrySetCategory(created, S1API.Items.ItemCategory.Decoration);
+                if (!RegisterIntoNativeRegistry(created, id)) return false;
+                def = Lookup();
+                return IsAlive(def);
             }
             catch (Exception ex)
             {
-                Definition = null;
-                LegacyDefinition = null;
-                Mod.Log.Error($"Failed to register Polaroid item definitions: {ex}");
+                Mod.Log.Error($"Failed to create/register Polaroid definition '{id}': {ex}");
+                return false;
             }
-        }
-
-        private static S1ItemFramework.IntegerItemDefinition CreateDefinition(string id)
-        {
-            var def = ScriptableObject.CreateInstance<S1ItemFramework.IntegerItemDefinition>();
-            def.hideFlags = HideFlags.HideAndDontSave;
-            def.DefaultValue = 0;
-
-            TrySetReflected(def, "ID", id);
-            TrySetReflected(def, "Name", ItemName);
-            TrySetReflected(def, "Description", ItemDescription);
-            TrySetReflected(def, "StackLimit", 1);
-            TrySetReflected(def, "BasePurchasePrice", 0f);
-            TrySetReflected(def, "ResellMultiplier", 0f);
-            TrySetReflected(def, "Icon", IconSprite);
-            TrySetCategory(def, S1API.Items.ItemCategory.Decoration);
-            RegisterIntoNativeRegistry(def);
-            return def;
         }
 
         /// <summary>Spawn a version-2 polaroid carrying a persistent evidence token.</summary>
         public static S1ItemFramework.IntegerItemInstance? Spawn(int evidenceToken)
         {
-            if (!IsRegistered)
+            if (!EnsureRegistered())
             {
-                // First spawn in this session, or a cached definition was destroyed;
-                // register both current and legacy definitions before continuing.
-                Mod.Log.Debug("Polaroid definitions were unavailable — attempting lazy re-registration.");
-                Register();
+                if (!_unverifiedSpawnWarned)
+                {
+                    _unverifiedSpawnWarned = true;
+                    Mod.Log.Warn("Polaroid delivery deferred: both item IDs must be verified before spawning savable evidence.");
+                }
+                return null;
             }
 
             if (Definition == null || !IsAlive(Definition))
@@ -153,6 +253,7 @@ namespace HitmanPhone.Items
                 Mod.Log.Warn("Polaroid Spawn() failed: Definition is still null or destroyed after re-registration.");
                 return null;
             }
+
             if (evidenceToken <= 0)
             {
                 Mod.Log.Error($"Polaroid Spawn() rejected invalid evidence token {evidenceToken}.");
@@ -165,7 +266,7 @@ namespace HitmanPhone.Items
 
         // --- helpers ---
 
-        private static void TrySetReflected(object target, string propName, object value)
+        private static void TrySetReflected(object target, string propName, object? value)
         {
             try
             {
@@ -248,19 +349,25 @@ namespace HitmanPhone.Items
         }
 
         /// <summary>
-        /// Best-effort native registry injection. We try <c>Registry.AddItem</c> / <c>Register</c>
-        /// via reflection because the accessor naming varies between patches. If nothing works
-        /// the spec still falls back to manual spawning — the item is registered only so
-        /// that ID-based lookups in <see cref="S1Registry"/> resolve; direct spawning works
-        /// without registration.
+        /// Native registry injection with VERIFIED success (HP-02). The native
+        /// <see cref="S1Registry"/> exposes <c>AddToRegistry(ItemDefinition)</c> and the
+        /// static <c>ItemExists(string)</c> / <c>GetItem(string)</c> lookups; we add the
+        /// definition and then prove it resolves. A method call that merely did not
+        /// throw is NOT success — the old code returned a live object and reported
+        /// registration as done. Direct spawning still works without a registry entry,
+        /// so a failure here is reported, not fatal.
         /// </summary>
-        private static void RegisterIntoNativeRegistry(S1ItemFramework.IntegerItemDefinition def)
+        private static bool RegisterIntoNativeRegistry(S1ItemFramework.ItemDefinition def, string id)
         {
             try
             {
+                // Idempotent: if the id already resolves (survived a scene change),
+                // never add a second registry entry.
+                if (RegistryHasItem(id)) return true;
+
                 var registryType = typeof(S1Registry);
                 string[] candidates = { "AddToRegistry", "AddItemToRegistry", "Register", "AddItem", "Add" };
-                bool added = false;
+                bool invoked = false;
                 foreach (string name in candidates)
                 {
                     var mi = registryType.GetMethod(name,
@@ -268,27 +375,65 @@ namespace HitmanPhone.Items
                         binder: null,
                         types: new[] { typeof(S1ItemFramework.ItemDefinition) },
                         modifiers: null);
-                    if (mi != null)
-                    {
-                        object? instance = mi.IsStatic ? null : S1Registry.Instance;
-                        if (!mi.IsStatic && instance == null) continue;
+                    if (mi == null) continue;
 
-                        mi.Invoke(instance, new object[] { def });
-                        added = true;
-                        Mod.Log.Info($"Polaroid registered via {registryType.Name}.{name}().");
-                        break;
-                    }
+                    object? instance = mi.IsStatic ? null : S1Registry.Instance;
+                    if (!mi.IsStatic && instance == null) continue;
+
+                    mi.Invoke(instance, new object[] { def });
+                    invoked = true;
+                    Mod.Log.Debug($"Polaroid '{id}' added via {registryType.Name}.{name}().");
+                    break;
                 }
-                if (!added)
+
+                if (!invoked)
                 {
-                    Mod.Log.Warn("No known Registry.Add method found — polaroid will still spawn " +
-                                 "directly via IntegerItemInstance(definition, qty, value).");
+                    Mod.Log.Warn($"No known {registryType.Name} add method found for '{id}' — " +
+                                 "polaroid will still spawn directly via " +
+                                 "IntegerItemInstance(definition, qty, value).");
+                    return false;
                 }
+
+                if (RegistryHasItem(id)) return true;
+                Mod.Log.Warn($"Polaroid '{id}' add call completed but the registry does not resolve it yet.");
+                return false;
             }
             catch (Exception ex)
             {
-                Mod.Log.Warn($"Native registry injection failed (non-fatal): {ex.Message}");
+                Mod.Log.Warn($"Native registry injection failed for '{id}' (non-fatal): {ex.Message}");
+                return false;
             }
+        }
+
+        /// <summary>
+        /// Authoritative registry lookup used as the only acceptable registration
+        /// signal: <c>Registry.ItemExists(string)</c>, with a non-generic
+        /// <c>Registry.GetItem(string)</c> fallback. Returns false when neither API is
+        /// reachable — an unverifiable registration is reported as NOT registered.
+        /// </summary>
+        private static bool RegistryHasItem(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return false;
+            try
+            {
+                var registryType = typeof(S1Registry);
+                var exists = registryType.GetMethod("ItemExists",
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
+                    binder: null, types: new[] { typeof(string) }, modifiers: null);
+                if (exists != null && exists.ReturnType == typeof(bool))
+                    return (bool)(exists.Invoke(null, new object[] { id }) ?? false);
+
+                var get = registryType.GetMethod("GetItem",
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
+                    binder: null, types: new[] { typeof(string) }, modifiers: null);
+                if (get != null && !get.IsGenericMethod)
+                    return get.Invoke(null, new object[] { id }) != null;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Debug($"Registry lookup for '{id}' failed: {ex.Message}");
+            }
+            return false;
         }
     }
     // ==== end HitmanPhone section: Evidence/BountyEvidenceItemRegistry.cs ====
@@ -349,6 +494,14 @@ namespace HitmanPhone.Bounty
         private static bool _hookAliveLogged;
 
         /// <summary>
+        /// HP-03 re-entrancy latch: consuming a polaroid writes the slot again and
+        /// re-fires the storage hooks. The nested scan would re-walk the same container
+        /// while our outer scan already covers every item, so the nested event is
+        /// dropped instead of being processed twice.
+        /// </summary>
+        private static int _scanActive;
+
+        /// <summary>
         /// Audit (2026-09-10, HIGH): host-authority guard for the payout path.
         /// Storage write hooks fire on host AND clients in multiplayer — without
         /// this gate both sides ran TryValidateAndPay (double ChangeCashBalance
@@ -369,154 +522,197 @@ namespace HitmanPhone.Bounty
         public static int PayoutAmountIssuedTotal => Volatile.Read(ref _payoutAmountIssuedTotal);
 
         /// <summary>
-        /// Entry point from <see cref="DeadDropPatch"/> (postfix on
-        /// StorageEntity.ContentsChanged). v0.1.6: the dead-drop UI fills slots via
-        /// SetStoredInstance and never calls InsertItem (proven by the 0.1.5 live
-        /// test), so instead of waiting for a single insert we inventory the
-        /// dead-drop storage on every change and try to pay out any polaroid that
-        /// matches an active contract. Idempotent: a payout removes the contract
-        /// from Active, so repeated change events cannot double-pay.
+        /// Entry point from <see cref="DeadDropPatch"/> (postfix on the dead-drop
+        /// storage write paths). We inventory the whole storage on every change and pay
+        /// out every polaroid that matches an active contract.
+        ///
+        /// HP-03: the scan no longer stops at the first matching photo. A photo bound to
+        /// another contract's assigned drop (or one whose deadline has passed) is
+        /// recorded and left where it is, while later valid evidence in the same
+        /// container is still paid — the old <c>return</c> after the first hit silently
+        /// blocked every valid deposit behind it.
+        ///
+        /// Idempotent: a payout moves the contract from Active to History, so repeated
+        /// change events cannot double-pay.
         /// </summary>
         public static void OnStorageContentsChanged(S1StorageEntity entity)
         {
             if (entity == null) return;
-            // Audit (2026-09-10, HIGH): only the host may validate/pay/consume —
-            // client-side payout dupes the reward and its consume never replicates.
-            // Bug-Audit 2026-09-12 (Audit-Runde 2): this gate blocked the CLIENT from ever
-            // getting a payout. The host's local Save only knows the host's contracts, so
-            // the client-side save (which tracks contracts accepted on this client) never
-            // sees the AwaitingDrop-flag and returns early. Fix: the client may validate
-            // and pay using its OWN Save; the host keeps validating for any contract not
-            // already claimed by a client (e.g. contracts accepted on the host itself).
-            // ChangeCashBalance syncs the player balance through FishNet, so the money
-            // moves correctly on the client; the consume (ClearStoredInstance on the slot
-            // inside the dead-drop StorageEntity) is also local to the client. In practice
-            // most clients own their contracts, so this unblocks the main flow.
-            bool isHost = IsHostOrSingleplayer();
-            if (!isHost && Mod.Instance?.Save == null) return;
-            Interlocked.Increment(ref _receiptsSeen);
+            // Singleplayer-only + confirmed-load gate (SaveStateGuard.IsReady includes
+            // the SP check). A multiplayer client never reaches the payout path.
+            if (!HitmanPhone.SaveStateGuard.IsReady) return;
+            // Host-authority guard (see the class note): clients may only pay for
+            // contracts in their OWN save; without one the payout is aborted.
+            if (!IsHostOrSingleplayer() && Mod.Instance?.Save == null) return;
 
-            // v0.1.7 diagnostic: one-shot proof that the write hooks are wired and
-            // firing at all (v0.1.6 failed silently — hook armed but never invoked).
-            if (!_hookAliveLogged)
+            // HP-03: drop nested events caused by our own consume write.
+            if (Interlocked.CompareExchange(ref _scanActive, 1, 0) != 0) return;
+            try
             {
-                _hookAliveLogged = true;
-                Mod.Log.Info("[Receipt] Storage write hook alive — first storage event observed.");
-            }
+                Interlocked.Increment(ref _receiptsSeen);
 
-            // v0.1.8: skip the scan entirely when no contract awaits evidence.
-            // Storage writes are frequent (every inventory move in any UI fires 2-3
-            // of our hooks in singleplayer — server + observers RPC both run locally),
-            // so without this gate the log fills with no-op scans and dead-drop lookups.
-            // Audit H1 (2026-09-01): gate on AwaitingDrop (survives reloads), NOT on
-            // EvidenceSpawned (reset on every load) — otherwise a pre-reload polaroid
-            // deposit is gated off and never pays out.
-            var saveEarly = Mod.Instance?.Save;
-            if (saveEarly != null)
-            {
-                bool awaiting = false;
-                for (int i = 0; i < saveEarly.Active.Count; i++)
+                // v0.1.7 diagnostic: one-shot proof that the write hooks are wired.
+                if (!_hookAliveLogged)
                 {
-                    var c = saveEarly.Active[i];
-                    if (c.Status == EBountyStatus.Active && c.AwaitingDrop) { awaiting = true; break; }
+                    _hookAliveLogged = true;
+                    Mod.Log.Info("[Receipt] Storage write hook alive — first storage event observed.");
                 }
-                if (!awaiting) return;
-            }
 
-            var drop = DeadDropIdentifier.FindOwningDeadDrop(entity);
-            if (drop == null) return; // some other storage changed — not our concern
-
-            string dropName;
-            try { dropName = drop.DeadDropName ?? "?"; }
-            catch { dropName = "?"; }
-            Mod.Log.Debug($"[Receipt] DeadDrop '{dropName}' contents changed — scanning inventory.");
-
-            var items = GetAllItemsSafe(entity);
-            if (items == null)
-            {
-                Mod.Log.Warn("[Receipt] could not enumerate storage contents.");
-                return;
-            }
-            for (int i = 0; i < items.Count; i++)
-            {
-                var item = items[i];
-                if (item == null) continue;
-                var matches = TryValidateAndPay(drop, entity, item);
-                if (matches == null || matches.Count == 0) continue;
-
-                // Apply side effects for every matched contract.
-                string dropGuid = DeadDropIdentifier.GetGuidString(drop);
-                int encodedId = ReadIntValue(item);
-                bool isLegacyItem = IsLegacyPolaroid(item);
+                // v0.1.8: skip the scan when no contract awaits evidence. Gate on
+                // AwaitingDrop (survives reloads), NOT on EvidenceSpawned (audit H1).
                 var save = Mod.Instance?.Save;
+                if (save != null)
+                {
+                    bool awaiting = false;
+                    for (int i = 0; i < save.Active.Count; i++)
+                    {
+                        var c = save.Active[i];
+                        if (c.Status == EBountyStatus.Active && c.AwaitingDrop) { awaiting = true; break; }
+                    }
+                    if (!awaiting) return;
+                }
+
+                var drop = DeadDropIdentifier.FindOwningDeadDrop(entity);
+                if (drop == null) return; // some other storage changed — not our concern
+
+                string dropName;
+                try { dropName = drop.DeadDropName ?? "?"; }
+                catch { dropName = "?"; }
+                Mod.Log.Debug($"[Receipt] DeadDrop '{dropName}' contents changed — scanning inventory.");
+
+                var items = GetAllItemsSafe(entity);
+                if (items == null)
+                {
+                    Mod.Log.Warn("[Receipt] could not enumerate storage contents.");
+                    return;
+                }
                 if (save == null) return;
-                bool anyPayoutFailed = false;
-                bool anyPayout = false;
-                for (int m = 0; m < matches.Count; m++)
+
+                // HP-13: the payout decision needs a valid in-game time snapshot. An
+                // invalid read must never be treated as "minute zero" — defer instead.
+                if (!HitmanPhoneTime.TryGetSnapshot(out _, out _, out long now))
                 {
-                    var match = matches[m];
-                    // First confirmed sighting of the polaroid anywhere (inventory or
-                    // this drop) starts the post-photo drop window (two-phase
-                    // deadlines). Idempotent, legacy contracts unaffected.
-                    BountyService.EnsureDropWindowStarted(match);
-                    if (!string.IsNullOrEmpty(match.RequiredDropId) &&
-                        !string.Equals(dropGuid, match.RequiredDropId, StringComparison.OrdinalIgnoreCase))
+                    Mod.Log.Warn("[Receipt] in-game time unavailable — payout deferred.");
+                    return;
+                }
+
+                string dropGuid = DeadDropIdentifier.GetGuidString(drop);
+
+                // Build the pure scan plan: every polaroid in the container decided
+                // independently (HP-03 — a rejected photo must not stop the scan).
+                var scanItems = new System.Collections.Generic.List<DepositScanItem>(items.Count);
+                for (int i = 0; i < items.Count; i++)
+                {
+                    var item = items[i];
+                    if (item == null) continue;
+                    if (!TryReadEvidence(item, out bool evidence, out int value, out bool legacy) || !evidence) continue;
+                    var matches = TryValidateAndPay(save, drop, item, now);
+                    if (matches == null || matches.Count == 0) continue;
+                    scanItems.Add(new DepositScanItem
                     {
-                        Interlocked.Increment(ref _receiptsMismatched);
-                        Mod.Log.Warn($"Receipt: contract {match.Id} requires drop {match.RequiredDropId}, " +
-                                     $"got {dropGuid}.");
-                        continue;
+                        ItemIndex = i,
+                        EncodedValue = value,
+                        IsLegacy = legacy,
+                        Matched = matches,
+                    });
+                }
+
+                var plan = BountyDepositPolicy.PlanScan(scanItems, dropGuid, now);
+                for (int i = 0; i < plan.WrongDrop.Count; i++)
+                {
+                    Interlocked.Increment(ref _receiptsMismatched);
+                    Mod.Log.Warn($"Receipt: contract {plan.WrongDrop[i].Id} requires drop " +
+                                 $"{plan.WrongDrop[i].RequiredDropId}, got {dropGuid}.");
+                }
+                for (int i = 0; i < plan.Expired.Count; i++)
+                {
+                    Interlocked.Increment(ref _receiptsMismatched);
+                    Mod.Log.Warn($"Receipt: contract {plan.Expired[i].Id} is past its deadline; not paying.");
+                }
+
+                if (plan.Items.Count == 0)
+                {
+                    if (plan.WrongDrop.Count > 0)
+                    {
+                        // The photo STAYS where it is — no payout AND no evidence loss
+                        // (the player can move it to the assigned drop).
+                        Mod.Log.Info($"[Receipt] polaroid kept in '{dropName}' — matched contract(s) require their assigned drop.");
+                    }
+                    else
+                    {
+                        Mod.Log.Debug($"[Receipt] scan of '{dropName}' found no payable polaroid ({items.Count} items).");
+                    }
+                    return;
+                }
+
+                bool paidAny = false;
+                for (int p = 0; p < plan.Items.Count; p++)
+                {
+                    var itemPlan = plan.Items[p];
+                    bool anyPaid = false;
+                    bool anyFailed = false;
+                    for (int m = 0; m < itemPlan.Pay.Count; m++)
+                    {
+                        var match = itemPlan.Pay[m];
+                        // First confirmed sighting of the polaroid anywhere starts the
+                        // post-photo drop window. A late delivery cannot open a fresh
+                        // window: EnsureDropWindowStarted checks the execution deadline
+                        // before it starts anything (HP-13).
+                        BountyService.EnsureDropWindowStarted(match);
+
+                        if (!save.Active.Contains(match) || !HitmanPhoneTime.TryGetSnapshot(out _, out _, out long liveNow) ||
+                            !BountyDeadlinePolicy.IsEligible(match, liveNow))
+                        {
+                            anyFailed = true;
+                            continue;
+                        }
+                        // Native-call uncertainty is retained for manual review. Only
+                        // a preflight failure can be retried automatically.
+                        if (!IssueReward(match))
+                        {
+                            Mod.Log.Warn($"[Bounty#{match.Id}] Payout not completed; photo retained. " +
+                                         (match.RewardPaymentUncertain ? "Manual balance review required; no automatic retry." : "Preflight can retry on a later storage event."));
+                            anyFailed = true;
+                            continue;
+                        }
+
+                        match.Status = EBountyStatus.Completed;
+                        match.RequiredDropId ??= dropGuid;
+                        match.PendingEvidenceDelivery = false;
+                        save.LastUsedDropId = dropGuid; // next offer avoids this drop (variety)
+                        save.Active.Remove(match);
+                        save.History.Add(match);
+                        anyPaid = true;
+                        Interlocked.Increment(ref _receiptsMatched);
+                        Mod.Log.Info($"[Bounty#{match.Id}] Receipt matched for target '{match.TargetNpcId}' " +
+                                     $"(drop={dropGuid}). Reward=${match.RewardCash}.");
+
+                        BountyHeatService.OnBountyCompleted(match);
+                        BountyJournalBridge.CompleteQuest(match.Id);
+                        int callerIdx = ResolveCallerIndex(match.CallerId);
+                        if (callerIdx >= 0)
+                        {
+                            BountyCallScheduler.CooldownCaller(callerIdx,
+                                BountyCallSchedulerConstants.CallerCooldownDaysAfterDecline);
+                        }
                     }
 
-                    // Audit H4: pay FIRST, transition AFTER. A failed payout leaves the
-                    // contract Active so the next storage event retries.
-                    if (!IssueReward(match))
+                    // Consume only the exact photo that paid cleanly; a partial failure
+                    // leaves the deposit for the next event (no half-finished booking).
+                    if (anyPaid && !anyFailed && itemPlan.Consume)
                     {
-                        Mod.Log.Warn($"[Bounty#{match.Id}] Payout failed — contract stays Active, " +
-                                     "deposit will be retried on the next storage event.");
-                        anyPayoutFailed = true;
-                        continue;
-                    }
-
-                    match.Status = EBountyStatus.Completed;
-                    match.RequiredDropId ??= dropGuid;
-                    save.LastUsedDropId = dropGuid; // next offer avoids this drop (variety)
-                    save.Active.Remove(match);
-                    save.History.Add(match);
-                    anyPayout = true;
-                    Interlocked.Increment(ref _receiptsMatched);
-                    Mod.Log.Info($"[Bounty#{match.Id}] Receipt matched for target '{match.TargetNpcId}' " +
-                                 $"(drop={dropGuid}). Reward=${match.RewardCash}.");
-
-                    BountyHeatService.OnBountyCompleted(match);
-                    BountyJournalBridge.CompleteQuest(match.Id);
-                    int callerIdx = ResolveCallerIndex(match.CallerId);
-                    if (callerIdx >= 0)
-                    {
-                        BountyCallScheduler.CooldownCaller(callerIdx,
-                            BountyCallSchedulerConstants.CallerCooldownDaysAfterDecline);
+                        paidAny = true;
+                        ConsumePolaroids(entity, itemPlan.EncodedValue, itemPlan.IsLegacy);
                     }
                 }
 
-                // Persist once after the batch (cheaper than per-contract) unless a
-                // payout failed mid-batch — in that case skip persistence so the failed
-                // contract remains visible in Active for the next retry.
-                if (anyPayout && !anyPayoutFailed)
-                {
-                    BountyPersistence.PersistCurrent();
-                    // One polaroid covers the whole matched group (single kill → single evidence).
-                    ConsumePolaroids(entity, encodedId, isLegacyItem);
-                }
-                else if (!anyPayout)
-                {
-                    // Every matched contract was rejected (wrong assigned drop): the
-                    // polaroid STAYS where it is — no payout AND no evidence loss
-                    // (plan constraint; the player can move it to the assigned drop).
-                    Mod.Log.Info($"[Receipt] polaroid kept in '{dropName}' — matched contract(s) require their assigned drop.");
-                }
-                return; // one payout-group per storage event
+                // Persist once after the whole batch (dirty-tracking marks the checkpoint).
+                if (paidAny) BountyPersistence.PersistCurrent();
             }
-            Mod.Log.Debug($"[Receipt] scan of '{dropName}' found no payable polaroid ({items.Count} items).");
+            finally
+            {
+                Interlocked.Exchange(ref _scanActive, 0);
+            }
         }
 
         /// <summary>
@@ -551,7 +747,7 @@ namespace HitmanPhone.Bounty
                 for (int i = 0; i < count; i++)
                 {
                     var item = getItem.Invoke(raw, new object?[] { i }) as S1ItemInstance;
-                    result.Add(item);
+                    if (item != null) result.Add(item);
                 }
                 return result;
             }
@@ -563,13 +759,17 @@ namespace HitmanPhone.Bounty
         }
 
         /// <summary>
-        /// Validate one scanned item against the active contracts and pay out on a
-        /// match. Returns the list of contracts that were paid (empty list = miss).
+        /// Match one scanned item against the active contracts. Returns the list of
+        /// contracts this photo belongs to (null/empty = miss).
         ///
         /// Match strategy:
-        ///   - exact: polaroid Value matches a contract's TargetNpcInstanceId → that one.
-        ///   - fallback: Value==0 (cross-session loss) → all awaiting contracts on the
-        ///     same TargetNpcId. Mixed NPC ids are refused (ambiguous) and logged.
+        ///   - exact: the polaroid Value equals a contract's persistent evidence token
+        ///     (or, for a legacy photo, its preserved old instance id).
+        ///   - fallback: Value==0 (cross-session loss) → all awaiting migrated contracts
+        ///     on the same target. Mixed target ids are refused (ambiguous) and logged.
+        ///
+        /// HP-13: <paramref name="nowMinSum"/> is passed through to the matcher, so a
+        /// contract whose governing deadline has passed never matches and is never paid.
         ///
         /// The caller is responsible for issuing side effects (IssueReward, journal
         /// completion, heat drop, cooldown) per contract and for consuming ONE polaroid
@@ -577,19 +777,11 @@ namespace HitmanPhone.Bounty
         /// on the same head — the kill produced one body).
         /// </summary>
         public static System.Collections.Generic.List<BountyContract>? TryValidateAndPay(
-            S1DeadDrop drop, S1StorageEntity entity, S1ItemInstance item)
+            BountySaveData save, S1DeadDrop drop, S1ItemInstance item, long nowMinSum)
         {
-            if (drop == null || entity == null || item == null) return null;
-            if (!IsPolaroid(item)) return null;
-
-            if (Mod.Instance?.Save == null) return null;
-            var save = Mod.Instance.Save;
-
-            // The item definition identifies its format: v2 values are durable tokens;
-            // legacy values are old session-specific Unity IDs (or zero after data loss).
-            int encodedValue = ReadIntValue(item);
-            bool isLegacyItem = IsLegacyPolaroid(item);
-            var matches = BountyEvidenceMatcher.Match(save, encodedValue, isLegacyItem);
+            if (save == null || drop == null || item == null) return null;
+            if (!TryReadEvidence(item, out bool evidence, out int encodedValue, out bool isLegacyItem) || !evidence) return null;
+            var matches = BountyEvidenceMatcher.Match(save, encodedValue, isLegacyItem, nowMinSum);
             if (matches == null || matches.Count == 0)
             {
                 Interlocked.Increment(ref _receiptsMismatched);
@@ -613,8 +805,9 @@ namespace HitmanPhone.Bounty
         /// transaction record in the banking ledger — no paper trail. The 0.1.8
         /// CreateOnlineTransaction path (typed S1API call) is kept in git history.
         ///
-        /// Audit H4 (2026-09-01): returns true only on a confirmed payout so the
-        /// caller can hold the contract transition until the money actually moved.
+        /// A normal void API return is not native balance proof. An exception may
+        /// have happened after a cash mutation: preserve the claim, forbid retry,
+        /// and require manual review rather than risking a duplicate payout.
         /// </summary>
         private static bool IssueReward(BountyContract contract)
         {
@@ -625,21 +818,35 @@ namespace HitmanPhone.Bounty
                     Mod.Log.Warn("MoneyManager.Instance is null (no gameplay MoneyManager yet?) — payout skipped.");
                     return false;
                 }
-
-                S1API.Money.Money.ChangeCashBalance(
-                    contract.RewardCash, visualizeChange: true, playCashSound: true);
-
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"Payout preflight unavailable; no money call attempted: {ex.Message}");
+                return false;
+            }
+            var outcome = BountyRewardSettlement.TryPay(contract,
+                amount => S1API.Money.Money.ChangeCashBalance(amount, visualizeChange: true, playCashSound: true));
+            BountyPersistence.PersistCurrent();
+            if (outcome != RewardAttempt.Paid)
+            {
+                if (outcome == RewardAttempt.Uncertain)
+                    Mod.Log.Error($"[Bounty#{contract.Id}] cash call failed with unknown effect; claim/photo retained. Automatic retry disabled; manual balance review required.");
+                return false;
+            }
+            // The runtime-used settlement seam already marked Completed. A later
+            // logging/counter failure must not turn this into a retryable claim.
+            try
+            {
                 Interlocked.Increment(ref _payoutsIssued);
                 Interlocked.Add(ref _payoutAmountIssuedTotal, (int)Math.Round(contract.RewardCash));
                 Mod.Log.Info($"[Bounty#{contract.Id}] Payout ${contract.RewardCash} in CASH via ChangeCashBalance " +
                              "(dirty money — no ledger record).");
-                return true;
             }
             catch (Exception ex)
             {
-                Mod.Log.Error($"IssueReward failed: {ex}");
-                return false;
+                Mod.Log.Warn($"[Bounty#{contract.Id}] paid; payout observability failed: {ex.Message}");
             }
+            return true;
         }
 
         /// <summary>Consumes only the exact photo that was just validated.</summary>
@@ -654,9 +861,8 @@ namespace HitmanPhone.Bounty
                     var slot = slots[i];
                     if (slot == null) continue;
                     var inst = slot.ItemInstance;
-                    if (inst == null || !IsPolaroid(inst)) continue;
-                    if (IsLegacyPolaroid(inst) != isLegacyItem) continue;
-                    if (ReadIntValue(inst) != encodedValue) continue;
+                    if (inst == null || !TryReadEvidence(inst, out bool evidence, out int value, out bool legacy) || !evidence) continue;
+                    if (legacy != isLegacyItem || value != encodedValue) continue;
 
                     slot.ClearStoredInstance();
                     Mod.Log.Info($"[Receipt] Consumed polaroid evidence value {encodedValue}.");
@@ -724,16 +930,43 @@ namespace HitmanPhone.Bounty
 
         internal static bool MatchesEvidenceForContract(BountyContract contract, S1ItemInstance item)
         {
-            if (contract == null || item == null || !IsPolaroid(item)) return false;
-            int value = ReadIntValue(item);
-            if (IsLegacyPolaroid(item))
+            return ObserveEvidenceForContract(contract, item) == EvidencePresence.Present;
+        }
+
+        internal static EvidencePresence ObserveEvidenceForContract(BountyContract contract, S1ItemInstance item)
+        {
+            var save = Mod.Instance?.Save;
+            if (save == null || contract == null) return EvidencePresence.Unknown;
+            if (!TryReadEvidence(item, out bool evidence, out int value, out bool legacy)) return EvidencePresence.Unknown;
+            return evidence ? BountyEvidenceMatcher.ObserveForContract(save, contract, value, legacy) : EvidencePresence.Missing;
+        }
+
+        internal static bool TryReadEvidence(S1ItemInstance item, out bool evidence, out int value, out bool legacy)
+        {
+            evidence = false;
+            value = 0;
+            legacy = false;
+            string? id = ReadDefinitionId(item);
+            if (string.IsNullOrEmpty(id)) return false;
+            legacy = string.Equals(id, BountyEvidenceItemRegistry.LegacyItemId, StringComparison.OrdinalIgnoreCase);
+            evidence = legacy || string.Equals(id, BountyEvidenceItemRegistry.ItemId, StringComparison.OrdinalIgnoreCase);
+            if (!evidence) return true;
+            try
             {
-                int legacyId = contract.LegacyTargetInstanceId;
-                if (legacyId == 0 && contract.EvidenceToken <= 0)
-                    legacyId = contract.TargetNpcInstanceId;
-                return legacyId != 0 && value == legacyId;
+#if IL2CPPMELON
+                var integer = item.TryCast<S1IntegerItemInstance>();
+#else
+                var integer = item as S1IntegerItemInstance;
+#endif
+                if (integer == null) return false;
+                value = integer.Value; // a failed read must never masquerade as legacy zero
+                return true;
             }
-            return contract.EvidenceToken > 0 && value == contract.EvidenceToken;
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"Evidence value unavailable; scan deferred: {ex.Message}");
+                return false;
+            }
         }
 
         private static string? ReadDefinitionId(S1ItemInstance item)

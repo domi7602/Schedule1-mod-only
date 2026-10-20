@@ -19,32 +19,29 @@ namespace HitmanPhone.Bounty;
 /// via Complete()/Fail()/Expire() — we use it directly without wrapping it in
 /// QuestWrapper.
 ///
-/// BUGFIX v0.1.2 (2026-08-31): v0.1.1 resolved quests via
-/// QuestManager.GetQuestByGuid(contract.Id) — but S1API treats the string passed
-/// to CreateQuest as an INTERNAL ID only; it is not the lookup key. Proven
-/// pattern (HomelessQuestline.cs, Gatekeeper-fix H1/L7): CreateQuest takes the
-/// internal id while lookups resolve by quest TITLE. So resolution is now:
-///   1. session dictionary (instances we created this session — also the
+/// v0.3.0 (HP-06 / HP-07): resolution and cleanup were rebuilt around a stable,
+/// deterministic quest GUID, verified against the actual S1API 3.2.1 source:
+///   • QuestManager.CreateQuest&lt;T&gt;(guid) IGNORES its guid argument.
+///   • QuestManager.GetQuestByGuid(guid) matches S1Quest.StaticGUID.
+///   • The game persists each quest's StaticGUID and QuestPatches restores it on
+///     load (active quests only), so StaticGUID is the durable quest identity.
+/// The bridge therefore derives a GUID deterministically from the contract id
+/// (no new save field), writes it onto the quest at creation, and resolves by
+/// GUID first. Resolution order:
+///   1. session dictionary (instances we created this session — the in-session
 ///      tie-breaker when two contracts share one target NPC),
-///   2. GetQuestByName(reconstructed title) for restored quests,
-///   3. GetQuestByName("Hitman Contract") — a restored quest loses its
-///      transient contract id, so its dynamic Title renders the generic form
-///      until we re-adopt (InitContractId) it,
-///   4. re-create via RegisterBountyQuest as last resort.
-/// The session dictionary is cleared on every save load (ResetSessionCache)
-/// because restored quest instances are new objects.
+///   2. QuestManager.GetQuestByGuid(deterministic guid) — restored quests,
+///   3. GetQuestByName(reconstructed title) — legacy quests created before the
+///      GUID binding existed; the occupancy guard (IsQuestBoundToOtherContract)
+///      stops a same-target sibling from stealing the owner's quest,
+///   4. fresh creation (rebind pass only).
+/// An unbound quest is NOT adopted and NOT treated as an orphan: a wrong binding
+/// or a fabricated completion is worse than none (HP-07). The session dictionary
+/// is cleared on every save load (ResetSessionCache).
 ///
-/// BUGFIX v0.2.6 (2026-09-14): same-target contract groups (supported since
-/// the v0.2.5 group payout) made the audit-M3 fail-safe refuse EVERY rebind:
-/// with 2+ restored contracts the generic-title adoption was blocked entirely
-/// and the retry window spammed warnings on every game start. Resolution is
-/// now group-aware: when ALL unbound active contracts share one TargetNpcId
-/// the OLDEST adopts the restored generic quest and the siblings get FRESH
-/// quests (RegisterBountyQuest); mixed-target groups stay refused (genuinely
-/// ambiguous — a wrong binding is worse than none) with damped logging. A
-/// session-dictionary occupancy guard (IsQuestBoundToOtherContract) keeps
-/// siblings from stealing the owner's freshly adopted quest via the title
-/// lookup — the M3 wrong-binding bug through the back door.
+/// HP-06: objectives are addressed structurally (index 0 elimination, index 1
+/// dead drop), never by a display string — the first objective embeds the target
+/// name and cannot be matched by a fixed literal.
 ///
 /// Skill reference: <c>schedule1-game-systems/references/03-Dialogue-Quest.md</c>.
 /// </summary>
@@ -66,21 +63,6 @@ public static class BountyJournalBridge
 
     /// <summary>Session-scoped quest instances keyed by contract id. Cleared on save load.</summary>
     private static readonly System.Collections.Generic.Dictionary<string, Quest> SessionQuests = new();
-
-    /// <summary>Unbound active contracts (no SessionQuests binding), oldest first.</summary>
-    private static System.Collections.Generic.List<BountyContract> CollectUnboundActiveContracts()
-    {
-        var list = new System.Collections.Generic.List<BountyContract>();
-        var save = Mod.Instance?.Save;
-        if (save == null) return list;
-        for (int i = 0; i < save.Active.Count; i++)
-        {
-            var c = save.Active[i];
-            if (c.Status != EBountyStatus.Active) continue;
-            if (!SessionQuests.ContainsKey(c.Id)) list.Add(c);
-        }
-        return list;
-    }
 
     /// <summary>
     /// v0.2.6 occupancy check: true when the quest instance is already bound to a
@@ -105,15 +87,6 @@ public static class BountyJournalBridge
         }
         return false;
     }
-
-    /// <summary>
-    /// A restored BountyQuest renders the generic title ("Hitman Contract") exactly
-    /// while its _contractId is unset — and only HitmanPhone sets it via
-    /// InitContractId, so "not in the session dictionary" IS "generic/unowned".
-    /// (The title itself is unreachable: protected on the S1API base, and the
-    /// underlying S1Quest field is internal to the S1API assembly.)
-    /// </summary>
-    private static bool IsGenericBountyQuest(Quest quest) => !IsQuestBoundToAnyContract(quest);
 
     /// <summary>
     /// v0.2.6: enumerate every live managed BountyQuest wrapper via the internal
@@ -143,6 +116,84 @@ public static class BountyJournalBridge
             Mod.Log.Warn($"[Journal] EnumerateLiveBountyQuests failed: {ex.Message}");
         }
         return result;
+    }
+
+    /// <summary>
+    /// Stable, deterministic quest GUID for a contract. S1API 3.2.1's
+    /// QuestManager.CreateQuest ignores the string it is handed (verified against
+    /// the 3.2.1 source) and GetQuestByGuid matches S1Quest.StaticGUID, which the
+    /// game persists per quest and QuestPatches restores on load. Deriving a
+    /// well-formed GUID from the contract id and writing it onto the quest at
+    /// creation makes the binding both stable across sessions and resolvable by
+    /// GUID — no new save field, no display-text match.
+    /// </summary>
+    internal static string ComputeContractQuestGuid(string contractId)
+    {
+        // FNV-1a (two lanes) -> 16 deterministic bytes -> a valid GUID string.
+        const ulong prime = 0x100000001B3UL;
+        ulong a = 0xCBF29CE484222325UL;
+        ulong b = 0x84222325CBF29CE4UL;
+        string key = "HitmanPhone.Bounty.Quest|" + (contractId ?? string.Empty);
+        for (int i = 0; i < key.Length; i++)
+        {
+            a = (a ^ key[i]) * prime;
+            b = (b ^ (key[i] + 0x9E3779B97F4A7C15UL)) * prime;
+        }
+        var bytes = new byte[16];
+        for (int i = 0; i < 8; i++) bytes[i] = (byte)(a >> (8 * i));
+        for (int i = 0; i < 8; i++) bytes[8 + i] = (byte)(b >> (8 * i));
+        return new Guid(bytes).ToString();
+    }
+
+    /// <summary>The native S1Quest behind an S1API wrapper (internal field → reflection).</summary>
+    private static object? GetNativeQuest(Quest wrapper)
+    {
+        try
+        {
+            return typeof(Quest).GetField("S1Quest",
+                BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(wrapper);
+        }
+        catch { return null; }
+    }
+
+    /// <summary>Write the deterministic GUID onto the quest so save/load keeps the binding.</summary>
+    private static bool TryBindPersistentGuid(Quest wrapper, string guid)
+    {
+        try
+        {
+            var native = GetNativeQuest(wrapper);
+            if (native == null) return false;
+            var t = native.GetType();
+            var prop = t.GetProperty("StaticGUID", BindingFlags.Public | BindingFlags.Instance);
+            if (prop != null && prop.CanWrite) { prop.SetValue(native, guid); return true; }
+            var field = t.GetField("StaticGUID",
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (field != null) { field.SetValue(native, guid); return true; }
+            Mod.Log.Warn("[Journal] Quest StaticGUID is not writable; GUID binding unavailable.");
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[Journal] TryBindPersistentGuid failed: {ex.Message}");
+        }
+        return false;
+    }
+
+    /// <summary>Read the persisted quest GUID (null when the quest carries none).</summary>
+    private static string? TryReadPersistentGuid(Quest wrapper)
+    {
+        try
+        {
+            var native = GetNativeQuest(wrapper);
+            if (native == null) return null;
+            var t = native.GetType();
+            var prop = t.GetProperty("StaticGUID", BindingFlags.Public | BindingFlags.Instance);
+            if (prop != null) return prop.GetValue(native) as string;
+            var field = t.GetField("StaticGUID",
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            if (field != null) return field.GetValue(native) as string;
+        }
+        catch { /* best-effort */ }
+        return null;
     }
 
     /// <summary>
@@ -193,6 +244,10 @@ public static class BountyJournalBridge
                 if (quest != null)
                 {
                     rebound++;
+                    // HP-07: rebuild the whole journal phase from the contract — a
+                    // contract in its delivery phase must not reappear with the
+                    // default (execution) objectives.
+                    ApplyJournalPhase(quest, IsDropPhase(contract));
                     Mod.Log.Info($"[Journal] Rebound active contract '{contract.Id}' " +
                                  $"to target '{contract.TargetNpcName ?? contract.TargetNpcId}'.");
                 }
@@ -225,8 +280,14 @@ public static class BountyJournalBridge
     }
 
     /// <summary>
-    /// Completed or removed contracts leave restored generic quests behind in QuestManager.
-    /// Clean them up so they don't linger on the HUD as duplicate 'Hitman Contract' entries.
+    /// Bring restored/stale bounty quests back in line with the contract record.
+    ///
+    /// HP-07: an unbound quest is NOT automatically an orphan, and a quest must
+    /// never be reported as a successful completion that never happened. Only a
+    /// quest whose persistent GUID maps to a real contract is touched, and it then
+    /// receives exactly that contract's TRUE terminal state. A quest that maps to
+    /// no contract is left alone — the explicit '/hitman_cleanup' command handles
+    /// genuine leftovers.
     /// </summary>
     public static void CleanupOrphanBountyQuests()
     {
@@ -236,25 +297,63 @@ public static class BountyJournalBridge
             for (int i = 0; i < liveQuests.Count; i++)
             {
                 var q = liveQuests[i];
-                if (q == null) continue;
-                if (!IsQuestBoundToAnyContract(q))
-                {
-                    Mod.Log.Info("[Journal] Cleaning up orphan/stale bounty quest.");
-                    try
-                    {
-                        q.Complete();
-                    }
-                    catch (Exception ex)
-                    {
-                        Mod.Log.Debug($"CleanupOrphanBountyQuests: Complete threw: {ex.Message}");
-                    }
-                }
+                if (q == null || IsQuestBoundToAnyContract(q)) continue;
+                var contract = FindContractByQuestGuid(q);
+                if (contract != null) ApplyContractState(q, contract);
             }
         }
         catch (Exception ex)
         {
             Mod.Log.Warn($"[Journal] CleanupOrphanBountyQuests failed: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Apply a mapped contract's TRUE terminal state to its restored quest. Never
+    /// invents a success: an Active/Offered contract is owned by the rebind pass,
+    /// not by cleanup.
+    /// </summary>
+    private static void ApplyContractState(Quest quest, BountyContract contract)
+    {
+        try
+        {
+            switch (contract.Status)
+            {
+                case EBountyStatus.Completed:
+                    Mod.Log.Info($"[Journal] Restored quest matches completed contract '{contract.Id}'.");
+                    quest.Complete();
+                    break;
+                case EBountyStatus.Failed:
+                    quest.Fail();
+                    break;
+                case EBountyStatus.Expired:
+                    quest.Expire();
+                    break;
+                case EBountyStatus.Forfeited:
+                    quest.Cancel();
+                    break;
+                default:
+                    break;   // Active/Offered: the rebind pass owns these
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Debug($"[Journal] ApplyContractState failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>Reverse lookup: the contract whose deterministic GUID this quest carries.</summary>
+    private static BountyContract? FindContractByQuestGuid(Quest quest)
+    {
+        string? guid = TryReadPersistentGuid(quest);
+        if (string.IsNullOrEmpty(guid)) return null;
+        var save = Mod.Instance?.Save;
+        if (save == null) return null;
+        for (int i = 0; i < save.Active.Count; i++)
+            if (save.Active[i] != null && ComputeContractQuestGuid(save.Active[i].Id) == guid) return save.Active[i];
+        for (int i = 0; i < save.History.Count; i++)
+            if (save.History[i] != null && ComputeContractQuestGuid(save.History[i].Id) == guid) return save.History[i];
+        return null;
     }
 
     /// <summary>
@@ -330,8 +429,9 @@ public static class BountyJournalBridge
         try
         {
             CreatingContractId = contract.Id;
-            // QuestManager.CreateQuest<T>(guid) registers a mod quest. The string is
-            // an internal id — lookups must go by TITLE (see class comment).
+            // QuestManager.CreateQuest<T>(guid) registers a mod quest but IGNORES the
+            // guid argument in S1API 3.2.1 — the real identity is S1Quest.StaticGUID,
+            // which we bind below (see class comment).
             var q = QuestManager.CreateQuest<BountyQuest>(contract.Id);
             CreatingContractId = null;
 
@@ -342,6 +442,10 @@ public static class BountyJournalBridge
             }
 
             ((BountyQuest)q).InitContractId(contract.Id);
+            // Deterministic persistent GUID — the string handed to CreateQuest is
+            // ignored by S1API 3.2.1, so this is what GetQuestByGuid resolves after a
+            // reload (QuestPatches restores StaticGUID together with the quest).
+            TryBindPersistentGuid(q, ComputeContractQuestGuid(contract.Id));
             SessionQuests[contract.Id] = q;
             Mod.Log.Info($"[Journal] Registered bounty quest for '{contract.TargetNpcId}'.");
             return q;
@@ -372,12 +476,38 @@ public static class BountyJournalBridge
             return null;
         }
 
-        // 2) Title lookup — S1API resolves quests by TITLE (HomelessMod pattern).
-        //    v0.2.6: occupancy guard — in a same-target group the owner's quest
-        //    personalises its title the moment it is adopted, and every sibling
-        //    reconstructs the SAME title. Without this guard a sibling would
-        //    steal (InitContractId) the owner's freshly adopted quest and
-        //    re-create the exact M3 wrong-binding bug through the back door.
+        // 2) Stable deterministic GUID binding. QuestManager.GetQuestByGuid matches
+        //    S1Quest.StaticGUID (S1API 3.2.1); we wrote that GUID at creation, so the
+        //    same lookup resolves the restored quest after a save load — with no
+        //    dependence on a display title.
+        try
+        {
+            if (QuestManager.GetQuestByGuid(ComputeContractQuestGuid(contractId)) is BountyQuest byGuid)
+            {
+                if (IsQuestBoundToOtherContract(byGuid, contractId))
+                {
+                    Mod.Log.Debug($"[Journal] GUID quest for '{contractId}' already bound elsewhere — leaving it alone.");
+                }
+                else
+                {
+                    byGuid.InitContractId(contractId);
+                    SessionQuests[contractId] = byGuid;
+                    Mod.Log.Info($"[Journal] Bound contract '{contractId}' via persistent quest GUID.");
+                    return byGuid;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[Journal] ResolveQuest(guid) failed: {ex.Message}");
+        }
+
+        // 3) Title lookup fallback — legacy quests created before the GUID binding
+        //    existed, or a restored quest the game titled before we adopted it.
+        //    Occupancy guard: in a same-target group the owner's quest personalises
+        //    its title the moment it is adopted, and every sibling reconstructs the
+        //    SAME title; without this guard a sibling would steal the owner's quest
+        //    (the M3 wrong-binding bug through the back door).
         string title = BuildTitle(contract);
         try
         {
@@ -402,38 +532,17 @@ public static class BountyJournalBridge
             Mod.Log.Warn($"[Journal] ResolveQuest(title='{title}') failed: {ex.Message}");
         }
 
-        // 3) Re-adopt any available unbound generic restored quest from EnumerateLiveBountyQuests.
-        try
+        // 4) Fresh creation (rebind pass only). An unbound quest is NOT orphaned, so
+        //    we never adopt an arbitrary BountyQuest here (HP-07) — a wrong binding
+        //    is worse than none.
+        if (_inRebindPass)
         {
-            var liveQuests = EnumerateLiveBountyQuests();
-            for (int q = 0; q < liveQuests.Count; q++)
+            var fresh = CreateQuestForContract(contract);
+            if (fresh != null)
             {
-                var candidate = liveQuests[q];
-                if (candidate == null) continue;
-                if (!IsQuestBoundToAnyContract(candidate))
-                {
-                    candidate.InitContractId(contractId);
-                    SessionQuests[contractId] = candidate;
-                    candidate.SyncDisplayTitle();
-                    Mod.Log.Info($"[Journal] Re-adopted generic quest for '{contractId}' ({contract.TargetNpcName ?? contract.TargetNpcId}).");
-                    return candidate;
-                }
+                Mod.Log.Info($"[Journal] Fresh quest registered for unbound contract '{contractId}'.");
+                return fresh;
             }
-
-            // 4) Fresh quest registration if no restored generic quest exists
-            if (_inRebindPass)
-            {
-                var fresh = CreateQuestForContract(contract);
-                if (fresh != null)
-                {
-                    Mod.Log.Info($"[Journal] Fresh quest registered for unbound contract '{contractId}'.");
-                    return fresh;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Warn($"[Journal] ResolveQuest(generic/fresh) failed: {ex.Message}");
         }
 
         return null;
@@ -517,31 +626,47 @@ public static class BountyJournalBridge
             Mod.Log.Warn($"[Journal] AdvanceToDeadDrop: no live quest for '{contractId}'.");
             return;
         }
+        ApplyJournalPhase(q, dropPhase: true);
+        Mod.Log.Info($"[Journal] Bounty '{contractId}' → Objective advanced to Dead-Drop.");
+    }
+
+    /// <summary>True once the polaroid was received: the contract is in its delivery phase.</summary>
+    private static bool IsDropPhase(BountyContract contract) =>
+        contract.AwaitingDrop || contract.DropDueStarted;
+
+    /// <summary>
+    /// Apply the journal objective state from the CONTRACT phase (HP-06 / HP-07).
+    ///
+    /// Objectives are addressed STRUCTURALLY — BountyQuest.OnCreated adds the
+    /// elimination objective first (index 0) and the dead-drop objective second
+    /// (index 1). The first objective embeds the target name ("Eliminate &lt;NPC&gt;
+    /// and collect the polaroid"), so an exact display-string comparison can never
+    /// match; the old code left the first step open while starting the second.
+    /// The contract is authoritative: after a load the whole journal state is
+    /// reconstructed from it rather than trusted from a stale UI snapshot.
+    /// </summary>
+    private static void ApplyJournalPhase(Quest quest, bool dropPhase)
+    {
         try
         {
-            if (q.QuestEntries == null) return;
-            for (int i = 0; i < q.QuestEntries.Count; i++)
+            if (quest.QuestEntries == null || quest.QuestEntries.Count < 2) return;
+            var eliminate = quest.QuestEntries[0];
+            var drop = quest.QuestEntries[1];
+            if (eliminate == null || drop == null) return;
+
+            if (dropPhase)
             {
-                var entry = q.QuestEntries[i];
-                if (entry == null) continue;
-                try
-                {
-                    if (entry.Title == "Eliminate the target and collect the polaroid" && entry.State != S1API.Quests.Constants.QuestState.Completed)
-                    {
-                        entry.Complete();
-                    }
-                    else if (entry.Title == "Drop the polaroid at the assigned dead drop" && entry.State != S1API.Quests.Constants.QuestState.Completed)
-                    {
-                        entry.Begin();
-                    }
-                }
-                catch { }
+                if (eliminate.State != S1API.Quests.Constants.QuestState.Completed) eliminate.Complete();
+                if (drop.State == S1API.Quests.Constants.QuestState.Inactive) drop.Begin();
             }
-            Mod.Log.Info($"[Journal] Bounty '{contractId}' → Objective advanced to Dead-Drop.");
+            else if (eliminate.State == S1API.Quests.Constants.QuestState.Inactive)
+            {
+                eliminate.Begin();
+            }
         }
         catch (Exception ex)
         {
-            Mod.Log.Warn($"AdvanceToDeadDrop '{contractId}' failed: {ex.Message}");
+            Mod.Log.Warn($"[Journal] ApplyJournalPhase failed: {ex.Message}");
         }
     }
 }

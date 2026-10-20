@@ -10,15 +10,17 @@ using System.Reflection;
 
 #if (IL2CPPMELON)
 using S1StorageEntity = Il2CppScheduleOne.Storage.StorageEntity;
+using S1SaveManager = Il2CppScheduleOne.Persistence.SaveManager;
 using S1NPC = Il2CppScheduleOne.NPCs.NPC;
 using S1NPCHealth = Il2CppScheduleOne.NPCs.NPCHealth;
 #elif MONOMELON
 using S1StorageEntity = ScheduleOne.Storage.StorageEntity;
+using S1SaveManager = ScheduleOne.Persistence.SaveManager;
 using S1NPC = ScheduleOne.NPCs.NPC;
 using S1NPCHealth = ScheduleOne.NPCs.NPCHealth;
 #endif
 
-[assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.2.9", "Dominik")]
+[assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.3.0-dev.1", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace HitmanPhone;
@@ -56,9 +58,8 @@ public class Mod : MelonMod
         string version = GetType().Assembly.GetCustomAttribute<MelonInfoAttribute>()?.Version ?? "?";
         Log.Info($"initialized (v{version}) — Phase J: slot-switch detection enabled.");
 
-        // Polaroid registration is intentionally lazy on first Spawn() — the native
-        // Registry.Instance and asset pipelines aren't fully online at OnInitializeMelon
-        // time, so eager registration fails; lazy-then-cache works on every spawn thereafter.
+        // Definitions are verified in the Main/pre-load lifecycle, before gameplay.
+        // Initialization alone is too early for the native registry/assets.
 
         // Audit (2026-09-10): explicit PatchGuard patch for S1NPC.OnDie — the old
         // blind PatchAll was all-or-nothing and invisible to PatchGuard stats.
@@ -103,6 +104,12 @@ public class Mod : MelonMod
         PatchGuard.TryPatch(HarmonyInstance, typeof(S1StorageEntity), "SetItemSlotQuantity_Internal",
             postfix: new HarmonyMethod(typeof(DeadDropPatch), nameof(DeadDropPatch.PostfixSetItemSlotQuantity)), log: Log);
 
+        PatchGuard.TryPatch(HarmonyInstance, typeof(S1SaveManager), "Save",
+            prefix: new HarmonyMethod(typeof(NativeSaveCheckpointPatch), nameof(NativeSaveCheckpointPatch.PrefixDefault)),
+            parameterTypes: Type.EmptyTypes, log: Log);
+        PatchGuard.TryPatch(HarmonyInstance, typeof(S1SaveManager), "Save",
+            prefix: new HarmonyMethod(typeof(NativeSaveCheckpointPatch), nameof(NativeSaveCheckpointPatch.Prefix)),
+            parameterTypes: new[] { typeof(string) }, log: Log);
         SaveStateGuard.TrySubscribeLifecycle();
 #if DEBUG
         BountyTestCommands.Register();
@@ -112,6 +119,14 @@ public class Mod : MelonMod
     public override void OnDeinitializeMelon()
     {
         SaveStateGuard.TryUnsubscribeLifecycle();
+        HarmonyInstance.UnpatchSelf();
+    }
+
+    public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+    {
+        base.OnSceneWasLoaded(buildIndex, sceneName);
+        if (string.Equals(sceneName, "Main", StringComparison.OrdinalIgnoreCase))
+            BountyEvidenceItemRegistry.OnMainSceneLoaded();
     }
 
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
@@ -119,6 +134,7 @@ public class Mod : MelonMod
         base.OnSceneWasUnloaded(buildIndex, sceneName);
         if (string.Equals(sceneName, "Main", StringComparison.OrdinalIgnoreCase))
         {
+            SaveStateGuard.Suspend();
             BountyJournalBridge.ResetSessionCache();
             BountyTrackerApp.TearDownForSceneUnload();
         }
@@ -133,6 +149,14 @@ public class Mod : MelonMod
     /// </summary>
     public override void OnUpdate()
     {
+        SaveStateGuard.Tick();
+        BountyEvidenceItemRegistry.TickRegistration();
+        if (!SaveStateGuard.IsReady)
+        {
+            if (NetworkGuard.IsInMainScene && !SaveStateGuard.IsSingleplayer)
+                BountyConversationRouter.NotifyMultiplayerUnsupportedOnce();
+            return;
+        }
         try
         {
             BountyCallScheduler.Tick();
@@ -147,5 +171,20 @@ public class Mod : MelonMod
             // ex.Message made tick-loop failures undiagnosable.
             Log.Warn($"Mod.OnUpdate tick exception (swallowed): {ex}");
         }
+    }
+}
+
+internal static class NativeSaveCheckpointPatch
+{
+    public static void PrefixDefault()
+    {
+        try { BountyPersistence.CaptureDefaultNativeSavePath(); }
+        catch (Exception ex) { Mod.Log.Error($"[checkpoint] default native save-path capture failed: {ex}"); }
+    }
+
+    public static void Prefix(string __0)
+    {
+        try { BountyPersistence.CaptureNativeSavePath(__0); }
+        catch (Exception ex) { Mod.Log.Error($"[checkpoint] native save-path capture failed: {ex}"); }
     }
 }

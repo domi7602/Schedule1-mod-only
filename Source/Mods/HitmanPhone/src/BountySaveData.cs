@@ -22,6 +22,9 @@ public class BountySaveData
     /// </summary>
     public string SaveIdentity = "";
 
+    /// <summary>Native JSON checkpoint fingerprint; empty only for legacy imports.</summary>
+    public string WorldCheckpoint = "";
+
     public List<BountyContract> Active = new();
     public List<BountyContract> History = new();
 
@@ -69,15 +72,15 @@ public class BountySaveData
 [Serializable]
 public class BountyContract
 {
-    public string Id;
-    public string CallerId;
-    public string CallerStyle; // "cold" | "threatening" | "desperate"
-    public string TargetNpcId;
+    public string Id = "";
+    public string CallerId = "";
+    public string CallerStyle = ""; // "cold" | "threatening" | "desperate"
+    public string TargetNpcId = "";
     public int TargetNpcInstanceId; // Session-only Unity InstanceID used to resolve the live target
     public int EvidenceToken; // Persistent key encoded in newly spawned polaroids
     public int LegacyTargetInstanceId; // Old-format evidence id, preserved only for active awaiting contracts
     public bool AllowLegacyZeroEvidence; // Compatibility for migrated old photos whose value was lost
-    public string TargetNpcName;     // cached display name at offer time
+    public string TargetNpcName = "";     // cached display name at offer time
     public float RewardCash;
 
     /// <summary>
@@ -100,18 +103,31 @@ public class BountyContract
     /// <summary>
     /// Session-spanning latch: "a polaroid for this contract exists somewhere
     /// (inventory or dead drop) and the dead-drop receipt must watch for it".
-    /// Unlike <see cref="EvidenceSpawned"/> — which is reset on every load so a
-    /// lost polaroid can be re-earned — this flag SURVIVES reloads. It drives
+    /// Both this flag and <see cref="EvidenceSpawned"/> survive reloads. Missing
+    /// evidence is reconciled separately from a fresh elimination. This flag drives
     /// the receipt scan gate and the cross-session fallback (2026-09-01 audit H1:
     /// gating on EvidenceSpawned made any reload silently kill the payout).
     /// </summary>
     public bool AwaitingDrop;
 
+    /// <summary>
+    /// HP-04/HP-05: the elimination is recognized (<see cref="AwaitingDrop"/> is set)
+    /// but the polaroid has NOT been handed over yet — the inventory was full at the
+    /// kill, or a load-time reconciliation found no photo for a contract that still
+    /// awaits evidence. Serviced by <c>BountyService.TryDeliverPendingEvidence</c>
+    /// without a second attack, without a second photo, and without re-triggering
+    /// kill heat. Survives reload like <see cref="AwaitingDrop"/>.
+    /// </summary>
+    public bool PendingEvidenceDelivery;
+    // A native payment exception cannot prove that cash was unchanged. Keep the
+    // claim/photo for manual review; never retry or expire it automatically.
+    public bool RewardPaymentUncertain;
+
     // Optional: which Drop-Position the caller wants the photo deposited at.
     // Null = "any drop". If specified, only that exact drop pays out.
     // Since the budget-terms update the assigned dead drop is written here at
     // OFFER time, so the offer message can name it before the player accepts.
-    public string RequiredDropId;
+    public string? RequiredDropId;
 
     // ------------------------------------------------------------------
     // Budget-derived terms + fixed drop window (added 2026-10 by the
@@ -129,13 +145,13 @@ public class BountyContract
     public float TargetWeeklySpend;
 
     /// <summary>"low" | "mid" | "high" | "" (unknown/legacy). Fixed at offer time.</summary>
-    public string RewardTier;
+    public string RewardTier = "";
 
     /// <summary>
     /// Display name of <see cref="RequiredDropId"/>, cached at offer time so
     /// messages and the tracker never need live dead-drop lookups.
     /// </summary>
-    public string AssignedDropName;
+    public string AssignedDropName = "";
 
     /// <summary>
     /// Post-photo drop-window due point as absolute in-game minutes
@@ -167,12 +183,12 @@ public class BountyContract
 [Serializable]
 public class BountyKillRecord
 {
-    public string TargetNpcId;  // stable game NPC id
-    public string TargetName;   // display name at kill time
+    public string TargetNpcId = "";  // stable game NPC id
+    public string TargetName = "";   // display name at kill time
     public int Day;             // in-game day of the elimination
     public long MinuteSum;      // day*1440 + minute-of-day, for ordering
     public bool Died;           // true = game confirmed death (Health.IsDead); false = knockout/unconscious only
-    public string ContractId;   // bounty contract that triggered the record
+    public string ContractId = "";   // bounty contract that triggered the record
 }
 
 /// <summary>
@@ -186,8 +202,24 @@ public class BountyCallSlot
     public int Day;
     public int MinuteOfDay;
     public int CallerIndex;
-    public bool Dispatched; // offer actually sent
+    public bool Dispatched; // offer actually DELIVERED (HP-10: never set on a failed send)
     public bool Cancelled;  // slot skipped (missed while offline / no caller available at generation time)
+
+    /// <summary>
+    /// HP-10/HP-12: absolute in-game minute sum (day*1440 + minute-of-day) when the
+    /// offer was ACTUALLY delivered to the player; 0 = not delivered yet. This is
+    /// the basis for the real per-day offer quota and the minimum-gap enforcement;
+    /// the planned <see cref="Day"/>/<see cref="MinuteOfDay"/> stay untouched.
+    /// </summary>
+    public long DispatchedMinSum;
+
+    /// <summary>
+    /// HP-10: consecutive failed delivery attempts for this slot. The slot stays
+    /// retryable until the bounded attempt budget
+    /// (<c>BountyCallSchedulerConstants.MaxDeliveryAttempts</c>) is used up, so a
+    /// transient caller/send failure never burns the call permanently.
+    /// </summary>
+    public int DispatchAttempts;
 }
 
 /// <summary>

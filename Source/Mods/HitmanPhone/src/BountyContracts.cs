@@ -67,8 +67,7 @@ namespace HitmanPhone.Bounty
             if (nowMs - _lastTickRealtime < TickThrottleMs) return;
             _lastTickRealtime = nowMs;
 
-            int day = HitmanPhoneTime.CurrentDay();
-            if (day < 0 || !NetworkGuard.IsInMainScene) return;
+            if (!SaveStateGuard.IsReady || !HitmanPhoneTime.TryGetSnapshot(out int day, out _, out long now)) return;
 
             int batched = 0;
             // Audit M6 (2026-09-01): expired contracts now LEAVE Active (moved to
@@ -77,39 +76,17 @@ namespace HitmanPhone.Bounty
             for (int i = save.Active.Count - 1; i >= 0; i--)
             {
                 var c = save.Active[i];
-                if (c.Status != EBountyStatus.Active) continue;
-                if (c.DeadlineDay <= 0) continue;
-
-                // Two-phase deadlines (budget/dead-drop update):
-                //   1. Execution phase — the polaroid is not in confirmed player
-                //      possession yet: the classic day-based DeadlineDay applies
-                //      (kill + delivery).
-                //   2. Drop phase — the first confirmed receipt of the polaroid
-                //      started the short budget-scaled drop window (minute
-                //      precision); it replaces the execution deadline from that
-                //      moment on.
-                if (c.DropDueStarted)
+                if (c.Status != EBountyStatus.Active || c.RewardPaymentUncertain) continue;
+                if (BountyDeadlinePolicy.IsEligible(c, now))
                 {
-                    long remaining = HitmanPhoneTime.MinutesUntil(c.DropDueMinSum);
-                    if (remaining > 0)
+                    long remaining = BountyDeadlinePolicy.DueMinSum(c) - now;
+                    if (c.DropDueStarted && !c.DropWarningSent && remaining > 0 && remaining <= DropWarningThresholdMinutes)
                     {
-                        if (!c.DropWarningSent && remaining <= DropWarningThresholdMinutes)
-                        {
-                            c.DropWarningSent = true;
-                            BountyPersistence.PersistCurrent();
-                            WarnDropWindow(c, (int)remaining);
-                        }
-                        continue;
+                        c.DropWarningSent = true;
+                        BountyPersistence.PersistCurrent();
+                        WarnDropWindow(c, (int)remaining);
                     }
-                    // Drop window missed → same failure transition as a missed
-                    // execution deadline (below).
-                }
-                else
-                {
-                    // Boundary: DeadlineDay = OfferedAtDay + ContractDeadlineDays and the quest
-                    // journal promises exactly that many days ("Time limit: {Deadline-Offered}").
-                    // Expire when the deadline day is REACHED (>=), not the day after (>).
-                    if (day < c.DeadlineDay) continue;
+                    continue;
                 }
                 {
                     c.Status = EBountyStatus.Expired;
@@ -323,9 +300,15 @@ namespace HitmanPhone.Bounty
             Interlocked.Increment(ref _pursuitSetActive);
             try
             {
-                local.CrimeData.SetPursuitLevel(PursuitLevel.Investigating);
-                Mod.Log.Info($"[Heat] Accepted bounty #{contract.Id} on '{contract.TargetNpcId}'. " +
-                             $"PursuitLevel set to Investigating.");
+                bool awaitingDrop = false;
+                var save = Mod.Instance?.Save;
+                if (save != null)
+                    foreach (var active in save.Active)
+                        if (active.Status == EBountyStatus.Active && active.AwaitingDrop) awaitingDrop = true;
+                var level = (PursuitLevel)BountyRuntimeRules.AcceptedPursuit(
+                    (int)local.CrimeData.CurrentPursuitLevel, awaitingDrop);
+                local.CrimeData.SetPursuitLevel(level);
+                Mod.Log.Info($"[Heat] Accepted bounty #{contract.Id} on '{contract.TargetNpcId}'; pursuit retained/escalated to {level}.");
             }
             catch (Exception ex)
             {
@@ -444,8 +427,8 @@ namespace HitmanPhone.Bounty
     /// </summary>
     public static class PlayerDeathWatchdog
     {
-        private static int _aliveFrameCounter;
-        private static bool _wasAlive = true;
+        private static long _nextDeathPoll;
+        private static bool? _wasAlive;
 
         private static int _deathsDetected;
         private static int _failuresDispatched;
@@ -458,10 +441,10 @@ namespace HitmanPhone.Bounty
         /// </summary>
         public static void Tick()
         {
-            // Throttle: ~60 frames at 60 fps == once per second.
-            int fc = Volatile.Read(ref _aliveFrameCounter);
-            if (fc < 60) { Interlocked.Increment(ref _aliveFrameCounter); return; }
-            Interlocked.Exchange(ref _aliveFrameCounter, 0);
+            if (!SaveStateGuard.IsReady) return;
+            long now = Environment.TickCount64;
+            if (now < _nextDeathPoll) return;
+            _nextDeathPoll = now + 1000;
 
             Player? local = null;
             try { local = Player.Local; }
@@ -476,12 +459,12 @@ namespace HitmanPhone.Bounty
                 return;
             }
 
-            bool wasAlive = _wasAlive;
+            bool? wasAlive = _wasAlive;
             _wasAlive = alive;
 
             // Rising-edge detection: `wasAlive=true, alive=false` is the transition
             // (alive → dead) — the player just died.
-            if (wasAlive && !alive)
+            if (wasAlive == true && !alive)
             {
                 Interlocked.Increment(ref _deathsDetected);
                 DispatchAllActiveToFailed("player_died");
@@ -494,6 +477,7 @@ namespace HitmanPhone.Bounty
         /// </summary>
         public static void DispatchAllActiveToFailed(string reason)
         {
+            if (!SaveStateGuard.IsReady) return;
             var save = Mod.Instance?.Save;
             if (save == null) return;
             int dispatched = 0;
@@ -504,6 +488,7 @@ namespace HitmanPhone.Bounty
             {
                 var c = save.Active[i];
                 if (c.Status != EBountyStatus.Active) continue;
+                if (c.RewardPaymentUncertain) continue; // retain unresolved cash claim/photo for manual review
                 c.Status = EBountyStatus.Forfeited; // distinguishes from timeout / cancelled
                 save.Active.RemoveAt(i);
                 save.History.Add(c);
@@ -567,8 +552,8 @@ namespace HitmanPhone.Bounty
         /// </summary>
         public static void Reset()
         {
-            _wasAlive = true;
-            Volatile.Write(ref _aliveFrameCounter, 0);
+            _wasAlive = null; // first readable observation establishes the loaded baseline
+            _nextDeathPoll = 0;
         }
     }
     // ==== end HitmanPhone section: Contracts/PlayerDeathWatchdog.cs ====

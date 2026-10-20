@@ -168,10 +168,15 @@ namespace HitmanPhone
 
         public override void ExecuteCommand(List<string> args)
         {
-            if (Mod.Instance == null) return;
-            Mod.Log.Warn("HitmanPhone: wiping BountySaveData for current slot.");
-            Mod.Instance.Save = new BountySaveData();
-            BountyPersistence.Save(Mod.Instance.Save);
+            if (Mod.Instance == null || !SaveStateGuard.IsReady) return;
+            var reset = BountySaveValidation.CreateReset(Mod.Instance.Save);
+            if (!BountyPersistence.Save(reset))
+            {
+                Mod.Log.Warn("HitmanPhone: reset refused; bound save context changed.");
+                return;
+            }
+            Mod.Instance.Save = reset;
+            Mod.Log.Warn("HitmanPhone: reset in memory; use a normal world save to commit this checkpoint.");
         }
     }
 
@@ -406,127 +411,26 @@ namespace HitmanPhone
     /// </summary>
     public static class HitmanPhoneTime
     {
-        // Audit L3 (2026-09-01): CurrentDay is called from every scheduler tick —
-        // resolve the member infos ONCE instead of per call (per-frame reflection
-        // churn). The IL2CPP stub type never changes within a session.
-        private static PropertyInfo? _elapsedDaysProp;
-        private static FieldInfo? _elapsedDaysField;
-        private static bool _membersResolved;
-
-        // Audit (2026-09-10): CurrentDay is called from every scheduler/expiry tick
-        // (i.e. every OnUpdate frame) — cache the resolved day and refresh at most
-        // once per second so the hot loop avoids interop reflection + boxing per
-        // frame (same _nextTick throttle shape as BountyTargetWatchdog). No
-        // OnDayPass-style event exists in this mod to hook instead; day-granular
-        // bounty deadlines tolerate a 1s-stale day. First call resolves immediately.
-        private static int _cachedDay;
-        private static float _nextRefreshRealtime;
-        private static bool _hasCachedDay;
-
-        private static void ResolveMembers()
+        /// <summary>One main-thread time sample; no cached day is mixed with a fresh clock.</summary>
+        public static bool TryGetSnapshot(out int day, out int minute, out long sum)
         {
-            if (_membersResolved) return;
-            _membersResolved = true;
-            try
-            {
-                var type = typeof(S1Time);
-                _elapsedDaysProp = type.GetProperty("ElapsedDays",
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                _elapsedDaysField = type.GetField("_ElapsedDays_k__BackingField",
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"HitmanPhoneTime member resolution failed: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Elapsed in-game days (whole days). Falls back to 0 when TimeManager is
-        /// not yet initialised (e.g. before the player enters the gameplay scene).
-        /// Throttled: the interop read runs at most once per second, otherwise the
-        /// cached value is returned.
-        /// </summary>
-        public static int CurrentDay()
-        {
-            try
-            {
-                float now = Time.realtimeSinceStartup;
-                if (_hasCachedDay && now < _nextRefreshRealtime) return _cachedDay;
-                int day = ResolveDayUncached();
-                _cachedDay = day;
-                _hasCachedDay = true;
-                _nextRefreshRealtime = now + 1.0f;
-                return day;
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"HitmanPhoneTime.CurrentDay failed: {ex.Message}");
-                return _hasCachedDay ? _cachedDay : 0;
-            }
-        }
-
-        /// <summary>
-        /// Uncached interop read of ElapsedDays (property, else backing field).
-        /// </summary>
-        private static int ResolveDayUncached()
-        {
+            day = minute = -1;
+            sum = -1;
             try
             {
                 var tm = S1Time.Instance;
-                if (tm == null) return 0;
-                ResolveMembers();
-                // ElapsedDays is exposed via property in newer patches; the backing
-                // field is the fallback.
-                if (_elapsedDaysProp != null && _elapsedDaysProp.CanRead)
-                {
-                    var v = _elapsedDaysProp.GetValue(tm);
-                    if (v is int d) return d;
-                }
-                if (_elapsedDaysField != null)
-                {
-                    var v = _elapsedDaysField.GetValue(tm);
-                    if (v is int d2) return d2;
-                }
-                return 0;
+                if (tm == null || !S1Mods.Shared.NetworkGuard.IsInMainScene) return false;
+                return BountyRuntimeRules.TryTimeSnapshot(() => tm.ElapsedDays,
+                    () => S1Time.GetMinSumFrom24HourTime(tm.CurrentTime), out day, out minute, out sum);
             }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"HitmanPhoneTime.ResolveDayUncached failed: {ex.Message}");
-                return 0;
-            }
+            catch { return false; }
         }
 
-        // ------------------------------------------------------------------
-        // Minute-precision helpers (drop windows + call plan). TimeManager's
-        // CurrentTime is the game's 24-hour int (1330 = 13:30); the static
-        // GetMinSumFrom24HourTime converts it to minutes-of-day (proven in the
-        // 0.4.7 stub decompile).
-        // ------------------------------------------------------------------
-
-        /// <summary>Current minute-of-day (0..1399). 0 on failure.</summary>
-        public static int CurrentMinuteOfDay()
-        {
-            try
-            {
-                var tm = S1Time.Instance;
-                if (tm == null) return 0;
-                return S1Time.GetMinSumFrom24HourTime(tm.CurrentTime);
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"HitmanPhoneTime.CurrentMinuteOfDay failed: {ex.Message}");
-                return 0;
-            }
-        }
-
-        /// <summary>
-        /// Absolute in-game minute sum (day*1440 + minute-of-day) — the game's own
-        /// GameDateTime.GetMinSum() convention. Base for drop-window due points.
-        /// </summary>
+        public static void Reset() { } // no session-spanning time cache remains
+        public static int CurrentDay() => TryGetSnapshot(out int day, out _, out _) ? day : -1;
+        public static int CurrentMinuteOfDay() => TryGetSnapshot(out _, out int minute, out _) ? minute : -1;
         public static long MinuteSum(int day, int minuteOfDay) => day * 1440L + minuteOfDay;
-
-        public static long CurrentMinuteSum() => MinuteSum(CurrentDay(), CurrentMinuteOfDay());
+        public static long CurrentMinuteSum() => TryGetSnapshot(out _, out _, out long sum) ? sum : -1;
 
         /// <summary>Minutes remaining until the given absolute minute sum (negative when past).</summary>
         public static long MinutesUntil(long dueMinSum) => dueMinSum - CurrentMinuteSum();
@@ -560,185 +464,199 @@ namespace HitmanPhone
 #endif
 
 
-    /// <summary>
-    /// Phase J — Slot-Load Detection (Skill Rule #16).
-    ///
-    /// <c>GameLifecycle.OnPreLoad</c> fires for **both** real save-slot switches
-    /// AND same-slot Menu→Game scene reloads. A naive
-    /// <c>Save = BountyPersistence.Load()</c> in <c>OnPreLoad</c> would wipe placed
-    /// items on every menu-return. We cache the last-known slot number and only
-    /// trigger a full reload when the slot actually changed.
-    ///
-    /// Sentinel value <c>-2</c> means "never initialised" — the very first load
-    /// fires a full reload so that the player sees their previous bounty state on
-    /// save-game start.
-    /// </summary>
+    /// <summary>Only a completed load installs a world-bound bounty context.</summary>
     public static class SaveStateGuard
     {
-        private const string ActiveSlotKey = "hitman_active_slot";
-
-        /// <summary>Cached last-known save slot. <c>-2</c> = "uninitialised".</summary>
-        private static int _lastKnownSlot = -2;
-
         private static bool _subscribed;
+        private static bool _loaded;
+        private static bool _pendingLoad;
+        private static long _loadDeadline;
+        private static bool _saveFailed;
+        private static int _slot = -1;
+        public static int SlotSwitches { get; private set; }
+        public static int SameSlotReloads { get; private set; }
+        public static string StatusMessage { get; private set; } = "Waiting for a loaded singleplayer world.";
 
-        /// <summary>Count of times a real slot switch was detected.</summary>
-        private static int _slotSwitches;
-        /// <summary>Count of times a same-slot menu reload was detected.</summary>
-        private static int _sameSlotReloads;
+        public static bool IsSingleplayer
+        {
+            get
+            {
+                try
+                {
+                    if (!NetworkGuard.IsHostOrSingleplayer()) return false;
+#if IL2CPPMELON
+                    var lobby = Il2CppScheduleOne.DevUtilities.Singleton<Il2CppScheduleOne.Networking.Lobby>.Instance;
+                    if (lobby != null && lobby.IsInLobby) return false;
+                    if (Il2CppScheduleOne.PlayerScripts.Player.PlayerList.Count > 1) return false;
+#endif
+                    return true;
+                }
+                catch { return false; }
+            }
+        }
 
-        public static int SlotSwitches => Volatile.Read(ref _slotSwitches);
-        public static int SameSlotReloads => Volatile.Read(ref _sameSlotReloads);
+        public static bool IsReady
+        {
+            get
+            {
+                if (!IsSingleplayer)
+                {
+                    StatusMessage = "HitmanPhone is singleplayer only. Multiplayer contracts and payouts are disabled.";
+                    return false;
+                }
+                if (!_loaded || _saveFailed || BountyPersistence.IsSaving || !NetworkGuard.IsInMainScene) return false;
+                try
+                {
+                    var lm = S1Persistence.LoadManager.Instance;
+                    return lm != null && lm.IsGameLoaded && !lm.IsLoading &&
+                        Mod.Instance.Save.SaveIdentity == BountyPersistence.ActiveSaveIdentity;
+                }
+                catch { return false; }
+            }
+        }
 
-        /// <summary>
-        /// Subscribe to the GameLifecycle hooks. Idempotent.
-        /// </summary>
         public static void TrySubscribeLifecycle()
         {
             if (_subscribed) return;
             _subscribed = true;
             GameLifecycle.OnPreLoad += OnPreLoad;
+            GameLifecycle.OnPreSceneChange += Suspend;
             GameLifecycle.OnLoadComplete += OnLoadComplete;
-            GameLifecycle.OnSaveInfoLoaded += OnSaveInfoLoaded;
-            LogSubscriptionsOnce();
+            GameLifecycle.OnSaveStart += OnSaveStart;
+            GameLifecycle.OnSaveComplete += OnSaveComplete;
+            // OnSaveInfoLoaded is metadata/menu activity, never a context switch.
         }
 
-        /// <summary>
-        /// Unsubscribe — called from Mod.OnDeinitializeMelon.
-        /// </summary>
         public static void TryUnsubscribeLifecycle()
         {
             GameLifecycle.OnPreLoad -= OnPreLoad;
+            GameLifecycle.OnPreSceneChange -= Suspend;
             GameLifecycle.OnLoadComplete -= OnLoadComplete;
-            GameLifecycle.OnSaveInfoLoaded -= OnSaveInfoLoaded;
+            GameLifecycle.OnSaveStart -= OnSaveStart;
+            GameLifecycle.OnSaveComplete -= OnSaveComplete;
             _subscribed = false;
+            Suspend();
         }
 
-        private static bool _subscribedLogged;
-        private static void LogSubscriptionsOnce()
+        public static void Tick()
         {
-            if (_subscribedLogged) return;
-            _subscribedLogged = true;
-            Mod.Log.Debug("SaveStateGuard subscribed to GameLifecycle hooks.");
+            if (!_pendingLoad) return;
+            if (Environment.TickCount64 > _loadDeadline)
+            {
+                _pendingLoad = false;
+                StatusMessage = "HitmanPhone paused: loaded world identity did not become available; see log.";
+                Mod.Log.Error("[context] timed out waiting for the completed load context.");
+                return;
+            }
+            try
+            {
+                var lm = S1Persistence.LoadManager.Instance;
+                if (lm != null && lm.IsGameLoaded && !lm.IsLoading && SaveSlots.GetActiveSlotNumber() >= 0)
+                    TryInstallContext();
+            }
+            catch { /* bounded readiness retry, no gameplay mutation */ }
         }
 
-        /// <summary>
-        /// Called by <see cref="GameLifecycle"/> just before load. Resolve the new slot
-        /// before it actually loads so we can compare with our cached value.
-        /// </summary>
+        public static void Suspend()
+        {
+            _pendingLoad = false;
+            _loaded = false;
+            _saveFailed = false;
+            BountyPersistence.ClearContext();
+            BountyJournalBridge.ResetSessionCache();
+            HitmanPhoneTime.Reset();
+            PlayerDeathWatchdog.Reset();
+            BountyCallScheduler.ResetDayLatch();
+            BountyConversationRouter.InvalidateOpenOffer();
+            BountyExpiryService.ResetDayLatch();
+            StatusMessage = "Waiting for the world to finish loading.";
+        }
+
         private static void OnPreLoad()
         {
-            int newSlot = ResolveActiveSlotSafe();
-            int oldSlot = _lastKnownSlot;
-
-            if (oldSlot == -2)
-            {
-                // First-time init: do a full reload so the player sees their previous
-                // bounty state on save-game start.
-                TriggerFullReload(newSlot, reason: "init");
-                _lastKnownSlot = newSlot;
-                return;
-            }
-
-            if (newSlot == -1)
-            {
-                // Audit L8 (2026-09-01): never cache -1 and never reload on it — a
-                // permanently-unready LoadManager would otherwise wedge the guard in
-                // "same slot" forever after one init reload. OnSaveInfoLoaded
-                // reconciles the cache once the real slot is known.
-                Mod.Log.Debug("[SaveStateGuard] LoadManager not ready — preload skipped, waiting for OnSaveInfoLoaded.");
-                return;
-            }
-
-            if (newSlot != oldSlot)
-            {
-                // Real slot switch: cache old, do a full reload.
-                Mod.Log.Info($"[SaveStateGuard] Slot switch detected: {oldSlot} → {newSlot}. " +
-                             $"Full save reload.");
-                TriggerFullReload(newSlot, reason: "slot_switch");
-                Interlocked.Increment(ref _slotSwitches);
-                _lastKnownSlot = newSlot;
-            }
-            else
-            {
-                // Same slot, Menu → Game scene reload: don't touch Save state. We just
-                // need to reset the death-watchdog so a corpse-load doesn't fire a
-                // spurious rising-edge (Phase H).
-                Mod.Log.Debug($"[SaveStateGuard] Same-slot reload ({newSlot}) — keeping bounty state.");
-                Interlocked.Increment(ref _sameSlotReloads);
-                PlayerDeathWatchdog.Reset();
-            }
+            Suspend();
+            HitmanPhone.Items.BountyEvidenceItemRegistry.InvalidateRegistration();
+            HitmanPhone.Items.BountyEvidenceItemRegistry.EnsureRegistered();
         }
 
-        /// <summary>
-        /// Called once the load completed. Used to refresh Save to the new slot's contents.
-        /// </summary>
         private static void OnLoadComplete()
         {
-            // BUGFIX (2026-08-31): every completed load gets fresh runtime state.
-            // The journal bridge's session dictionary must go (restored quests are
-            // new objects) and the persisted EvidenceSpawned latch is released so
-            // contracts whose polaroid was lost become completable again.
-            Bounty.BountyJournalBridge.ResetSessionCache();
-            Bounty.BountyService.ResetEvidenceFlags();
-            // Old saves used session-only Unity IDs in contracts and photos. Migration
-            // preserves those IDs only for active legacy evidence, assigns durable
-            // tokens, and clears the transient target IDs to prevent cross-session collisions.
-            Bounty.BountyService.InvalidatePersistedInstanceIds();
-            // Audit M1 (2026-09-01): drop realtimeSinceStartup grace keys old saves
-            // still carry — the grace window is in-memory only now.
-            Bounty.BountyHeatService.PurgePersistedHeatKeys();
-
-            // Restored journal quests are new objects and BountyQuest._contractId is
-            // runtime-only. Rebind them after the save and journal systems finished
-            // loading so the target name/objective is visible again after restart.
-            if (!Bounty.BountyJournalBridge.RebindActiveQuests())
-                Bounty.BountyJournalBridge.ScheduleRebindRetries();
-        }
-
-        /// <summary>
-        /// Save-data updated: re-read the file. The engine fires this on real save-info
-        /// changes (e.g. user slots into a save) which is the cleanest place to react.
-        /// </summary>
-        private static void OnSaveInfoLoaded()
-        {
             if (Mod.Instance == null) return;
-            Mod.Instance.Save = BountyPersistence.Load();
-            int slot = ResolveActiveSlotSafe();
-            _lastKnownSlot = slot == -1 ? _lastKnownSlot : slot;
+            Suspend();
+            _pendingLoad = true;
+            _loadDeadline = Environment.TickCount64 + 15000;
+            TryInstallContext();
         }
 
-        /// <summary>
-        /// Force a full bounty-state reload from disk. Called when a real slot switch is
-        /// detected so that active contracts from the previous slot don't bleed through.
-        /// </summary>
-        private static void TriggerFullReload(int newSlot, string reason)
+        private static void TryInstallContext()
         {
-            if (Mod.Instance == null) return;
-            var prev = Mod.Instance.Save;
-            Mod.Log.Info($"[SaveStateGuard] Full reload ({reason}). " +
-                         $"Active contract count before: {prev?.Active.Count ?? -1}.");
-            Mod.Instance.Save = BountyPersistence.Load();
-            int after = Mod.Instance.Save.Active.Count;
-            Mod.Log.Info($"[SaveStateGuard] Reload done. Active contract count after: {after}.");
-
-            // Reset subsystems so we don't carry over runtime state from the previous slot.
-            PlayerDeathWatchdog.Reset();
-            BountyHeatService.ResetActiveCounters();
-            // Audit M5 (2026-09-01): day latches must not survive a slot switch —
-            // otherwise the new save gets no offer and no expiry check on day one.
-            BountyCallScheduler.ResetDayLatch();
-            BountyExpiryService.ResetDayLatch();
+            if (!IsSingleplayer)
+            {
+                _pendingLoad = false;
+                StatusMessage = "HitmanPhone is singleplayer only. Multiplayer contracts and payouts are disabled.";
+                Mod.Log.Warn("[context] " + StatusMessage);
+                return;
+            }
+            try
+            {
+                var lm = S1Persistence.LoadManager.Instance;
+                int slot = SaveSlots.GetActiveSlotNumber();
+                string identity = BountyPersistence.ActiveSaveIdentity;
+                if (lm == null || !lm.IsGameLoaded || lm.IsLoading || slot < 0 || string.IsNullOrEmpty(identity))
+                {
+                    return; // preserve the original deadline across readiness retries
+                }
+                _pendingLoad = false;
+                string world = lm.LoadedGameFolderPath;
+                BountyPersistence.BindContext(slot, identity, world);
+                Mod.Instance.Save = BountyPersistence.Load(); // ALWAYS reload, including A -> A
+                if (_slot == slot) SameSlotReloads++; else SlotSwitches++;
+                _slot = slot;
+                _loaded = true;
+                StatusMessage = "";
+                BountyHeatService.ResetActiveCounters();
+                BountyService.InvalidatePersistedInstanceIds();
+                BountyHeatService.PurgePersistedHeatKeys();
+                if (!BountyJournalBridge.RebindActiveQuests()) BountyJournalBridge.ScheduleRebindRetries();
+                Mod.Log.Info($"[context] ready slot={slot}, active={Mod.Instance.Save.Active.Count}, history={Mod.Instance.Save.History.Count}; checkpoint mode.");
+            }
+            catch (Exception ex)
+            {
+                _pendingLoad = false;
+                _loaded = false;
+                StatusMessage = "HitmanPhone paused: load/checkpoint mismatch. Original data retained; see log.";
+                Mod.Log.Error($"[context] load refused: {ex}");
+            }
         }
 
-        /// <summary>
-        /// Ask the LoadManager for the active save slot. Returns -1 if it isn't ready yet.
-        /// We swallow all exceptions because the load manager is fussy during transitions.
-        /// Sonde: S1Mods.Shared.SaveSlots (Konsolidierung 2026-09-15).
-        /// </summary>
-        private static int ResolveActiveSlotSafe()
+        private static void OnSaveStart()
         {
-            return SaveSlots.GetActiveSlotNumber();
+            if (!_loaded || !IsSingleplayer) return;
+            try { BountyPersistence.PrepareCheckpoint(); }
+            catch (Exception ex)
+            {
+                _saveFailed = true;
+                StatusMessage = "HitmanPhone paused: checkpoint preparation failed; see log.";
+                Mod.Log.Error($"[checkpoint] preparation failed: {ex}");
+            }
+        }
+
+        private static void OnSaveComplete()
+        {
+            if (!_loaded || !IsSingleplayer || !BountyPersistence.IsSaving) return;
+            try
+            {
+                if (!BountyPersistence.CommitCheckpoint(!S1Persistence.SaveManager.SaveError))
+                    throw new InvalidOperationException("Native save or bounty checkpoint write failed.");
+                _saveFailed = false;
+                StatusMessage = "";
+            }
+            catch (Exception ex)
+            {
+                _saveFailed = true;
+                StatusMessage = "HitmanPhone paused: checkpoint failed. Do not reload; retry a world save and check the log.";
+                Mod.Log.Error($"[checkpoint] NOT committed; frozen state retained: {ex}");
+            }
         }
     }
     // ==== end HitmanPhone section: Runtime/SaveStateGuard.cs ====

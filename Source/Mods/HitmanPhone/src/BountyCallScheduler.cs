@@ -65,23 +65,55 @@ public static class BountyCallScheduler
         if (nowMs - _lastTickRealtime < TickThrottleMs) return;
         _lastTickRealtime = nowMs;
 
-        int day = HitmanPhoneTime.CurrentDay();
-        if (day < 0 || !NetworkGuard.IsInMainScene) return;
-        int nowMin = HitmanPhoneTime.CurrentMinuteOfDay();
+        // Singleplayer-only readiness gate (singleplayer + loaded save + main
+        // scene). Multiplayer is unsupported and explicitly blocked here, never
+        // run as a host-shared service (R-02 product decision).
+        if (!BountyCallGate.IsReady)
+        {
+            if (BountyCallGate.IsMultiplayerSession) BountyConversationRouter.NotifyMultiplayerUnsupportedOnce();
+            return;
+        }
+
+        // R-03: ONE consistent time sample (day + minute from the same reading) —
+        // never a cached day combined with a fresh clock.
+        if (!HitmanPhoneTime.TryGetSnapshot(out int day, out int nowMin, out _)) return;
+        if (day < 0) return;
 
         if (save.CallSchedule == null) save.CallSchedule = new BountyCallScheduleState();
-        BountyCallSchedulePlan.EnsurePlannedThrough(
-            save.CallSchedule, day, nowMin,
-            day + BountyCallSchedulerConstants.PlanLeadDays,
-            BountyDialogTemplates.CallerPool.Count, Rng);
+        var plan = save.CallSchedule;
+        int horizon = day + BountyCallSchedulerConstants.PlanLeadDays;
 
-        var slot = BountyCallSchedulePlan.PeekDue(save.CallSchedule, day, nowMin);
-        if (slot == null) return;
+        // HP-11: fingerprint the plan before the pass so a mutation without a due
+        // call (generation, horizon extension, silent cancellation) is still
+        // checkpointed and never re-rolled after a reload.
+        long fingerprintBefore = BountyCallSchedulePlan.PlanFingerprint(plan);
+
+        BountyCallSchedulePlan.EnsurePlannedThrough(
+            plan, day, nowMin, horizon, BountyDialogTemplates.CallerPool.Count, Rng);
+
+        var slot = BountyCallSchedulePlan.PeekDue(plan, day, nowMin);
+        if (slot == null)
+        {
+            PersistIfPlanChanged(plan, fingerprintBefore);
+            return;
+        }
+
+        // HP-12: the plan caps offers per day and their spacing at GENERATION
+        // time; a rescheduled or backlogged slot must additionally be checked
+        // against the REAL deliveries before it is allowed to ring.
+        if (!BountyCallSchedulePlan.CanDispatchNow(plan, day, nowMin, out string dispatchBlocked))
+        {
+            BountyCallSchedulePlan.RescheduleToFreeSlot(slot, plan, day, nowMin, horizon, Rng);
+            Interlocked.Increment(ref _offersDeferred);
+            BountyPersistence.PersistCurrent();
+            Mod.Log.Debug($"BountyCallScheduler: call deferred — {dispatchBlocked} (day={day}).");
+            return;
+        }
 
         // Contract cap: the planned call is deferred, not lost.
         if (save.Active.Count >= BountyCallSchedulerConstants.MaxActiveContracts)
         {
-            BountyCallSchedulePlan.Reschedule(slot, day, nowMin, Rng);
+            BountyCallSchedulePlan.RescheduleToFreeSlot(slot, plan, day, nowMin, horizon, Rng);
             Interlocked.Increment(ref _offersDeferred);
             BountyPersistence.PersistCurrent();
             Mod.Log.Debug($"BountyCallScheduler: call deferred (active cap {BountyCallSchedulerConstants.MaxActiveContracts}).");
@@ -91,7 +123,7 @@ public static class BountyCallScheduler
         // Caller availability: the slot's caller first, then any off-cooldown one.
         if (!TryPickCaller(save, day, slot.CallerIndex, out int chosenIndex))
         {
-            BountyCallSchedulePlan.Reschedule(slot, day, nowMin, Rng);
+            BountyCallSchedulePlan.RescheduleToFreeSlot(slot, plan, day, nowMin, horizon, Rng);
             Interlocked.Increment(ref _offersSkippedCooldown);
             BountyPersistence.PersistCurrent();
             Mod.Log.Debug($"BountyCallScheduler: call deferred — all callers on cooldown for day={day}.");
@@ -102,7 +134,7 @@ public static class BountyCallScheduler
         var target = TargetSelector.PickRandom();
         if (target == null)
         {
-            BountyCallSchedulePlan.Reschedule(slot, day, nowMin, Rng);
+            BountyCallSchedulePlan.RescheduleToFreeSlot(slot, plan, day, nowMin, horizon, Rng);
             Interlocked.Increment(ref _offersDeferred);
             BountyPersistence.PersistCurrent();
             Mod.Log.Debug($"BountyCallScheduler: call deferred — no eligible target for day={day}.");
@@ -119,14 +151,37 @@ public static class BountyCallScheduler
             style, callerName, BountyQuest.FormatName(target.ID), TargetSelector.GetRegionName(target),
             terms.RewardCash, terms.DropName, BountyBudget.WindowHoursFor(terms.RewardTier));
 
-        BountyCallSchedulePlan.ConfirmDispatch(slot);
-        BountyConversationRouter.SendOffer(save, chosenIndex, target, body, terms);
+        // HP-10: only a CONFIRMED delivery consumes the slot and counts as a call.
+        // A missing caller wrapper or a caught SendTextMessage failure leaves the
+        // slot retryable instead of burning the call forever.
+        var delivery = BountyConversationRouter.SendOffer(save, chosenIndex, target, body, terms);
+        if (!BountyOfferDispatchPolicy.ConsumesSlot(delivery))
+        {
+            BountyCallSchedulePlan.DeferFailedDispatch(slot, plan, day, nowMin, horizon, Rng);
+            Interlocked.Increment(ref _offersDeferred);
+            BountyPersistence.PersistCurrent();
+            Mod.Log.Warn($"[BountyScheduler] offer delivery failed ({delivery}) on day {day} — slot kept retryable.");
+            return;
+        }
 
+        BountyCallSchedulePlan.ConfirmDispatch(slot, day, nowMin);
         Interlocked.Increment(ref _offersMade);
         BountyPersistence.PersistCurrent();
         Mod.Log.Info($"[BountyScheduler] Day {day} {HitmanPhoneTime.To24HourTime(nowMin):D4}: " +
                      $"'{callerName}' offering bounty on '{target.ID}' ({style}, ${terms.RewardCash:N0}, " +
                      $"drop '{terms.DropName}', {BountyBudget.WindowHoursFor(terms.RewardTier)}h window).");
+    }
+
+    /// <summary>
+    /// HP-11: checkpoint the plan when this pass mutated it without producing a
+    /// due call. An unchanged tick leaves the fingerprint identical and writes
+    /// nothing.
+    /// </summary>
+    private static void PersistIfPlanChanged(BountyCallScheduleState plan, long fingerprintBefore)
+    {
+        if (BountyCallSchedulePlan.PlanFingerprint(plan) == fingerprintBefore) return;
+        BountyPersistence.PersistCurrent();
+        Mod.Log.Debug("BountyCallScheduler: call plan changed without a due call — checkpointed.");
     }
 
     /// <summary>
@@ -231,12 +286,19 @@ public static class BountyCallScheduler
         if (Mod.Instance == null || Mod.Instance.Save == null) return;
         string id = $"caller_{BountyDialogTemplates.GetCallerName(callerIndex).ToLowerInvariant()}";
         int day = HitmanPhoneTime.CurrentDay();
-        Mod.Instance.Save.CallerCooldowns[id] = day + days;
+        if (day < 0) return; // invalid time sample — never write a bogus cooldown
+        var cooldowns = Mod.Instance.Save.CallerCooldowns;
+        int existing = cooldowns.TryGetValue(id, out int until) ? until : int.MinValue;
+        // HP-15: keep the LATER of the existing and the new cooldown end — a short
+        // decline lock must never shorten an already-running 14-day death lock.
+        int merged = BountyCallerCooldown.MergeEnd(day, existing, days);
+        cooldowns[id] = merged;
         // Audit (2026-09-10): cooldowns must survive a game restart (was RAM-only) —
         // every other state transition persists; PersistCurrent is null-guarded and
         // exception-swallowed, so this is safe/reentrant on all caller paths.
         BountyPersistence.PersistCurrent();
-        Mod.Log.Debug($"Caller cooldown applied: {id} until day {day + days}.");
+        Mod.Log.Debug($"Caller cooldown applied: {id} until day {merged} " +
+                      $"(previous {(existing == int.MinValue ? "none" : existing.ToString())}, +{days}d).");
     }
 
     /// <summary>
@@ -269,8 +331,9 @@ public static class BountyCallScheduler
             string body = BountyDialogTemplates.BuildForStyle(
                 style, callerName, BountyQuest.FormatName(target.ID), TargetSelector.GetRegionName(target),
                 terms.RewardCash, terms.DropName, BountyBudget.WindowHoursFor(terms.RewardTier));
-            BountyConversationRouter.SendOffer(Mod.Instance.Save, callerIndex, target, body, terms);
-            Mod.Log.Info($"[BountyScheduler] Force-offer: '{callerName}' on '{target.ID}' (${terms.RewardCash:N0}, drop '{terms.DropName}').");
+            var delivery = BountyConversationRouter.SendOffer(Mod.Instance.Save, callerIndex, target, body, terms);
+            Mod.Log.Info($"[BountyScheduler] Force-offer: '{callerName}' on '{target.ID}' " +
+                         $"(${terms.RewardCash:N0}, drop '{terms.DropName}') — delivery={delivery}.");
         }
         catch (Exception ex)
         {
@@ -288,4 +351,21 @@ public static class BountyCallScheduler
     {
         _lastTickRealtime = 0;
     }
+}
+
+/// <summary>
+/// Singleplayer-only readiness gate for the whole caller / offer lifecycle
+/// (HP-10/11/12/15, R-04/05). Delegates to the central
+/// <see cref="SaveStateGuard.IsReady"/> gate (singleplayer + loaded save +
+/// checkpoint not saving + main scene) so the caller system runs under exactly
+/// the same conditions as the rest of the mod and is explicitly blocked in
+/// multiplayer — never run as a host-shared service.
+/// </summary>
+internal static class BountyCallGate
+{
+    /// <summary>True when the caller system may run (singleplayer + save loaded).</summary>
+    public static bool IsReady => SaveStateGuard.IsReady;
+
+    /// <summary>True when the block is caused by a real multiplayer session.</summary>
+    public static bool IsMultiplayerSession => !SaveStateGuard.IsSingleplayer;
 }

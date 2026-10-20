@@ -24,6 +24,7 @@ namespace HitmanPhone.Bounty
     // ==== HitmanPhone section: Callers/BountyConversationRouter.cs ====
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using HitmanPhone.Persistence;
     using MelonLoader;
     using S1API.Messaging;
@@ -52,6 +53,28 @@ namespace HitmanPhone.Bounty
     /// </summary>
     public static class BountyConversationRouter
     {
+        // ------------------------------------------------------------------
+        // R-04: shared-thread offer lifecycle. All textual callers use ONE NPC
+        // thread, so exactly one offer may be OPEN at a time; a newer offer
+        // supersedes an unanswered predecessor and a resolved offer can never be
+        // resolved twice. These are session-only (a reload voids offers through
+        // the existing stale-save guard, see OnAccept).
+        // ------------------------------------------------------------------
+        private static readonly object OfferLock = new();
+        private static BountyOffer? _openOffer;
+        private static Response[]? _openOfferResponses;
+        private static int _offerSeq;
+        private static int _mpNoticeSent;
+
+        /// <summary>R-04: stable identity of the currently open offer (empty when none).</summary>
+        public static string OpenOfferId
+        {
+            get { lock (OfferLock) return _openOffer?.OfferId ?? ""; }
+        }
+
+        private static string NewOfferId()
+            => "hitman-offer-" + Interlocked.Increment(ref _offerSeq).ToString("X8");
+
         /// <summary>
         /// Stable id used by the S1API Response wrapper. We just keep it as a unique key
         /// for the conversation so the Player can't trigger the wrong step.
@@ -67,13 +90,38 @@ namespace HitmanPhone.Bounty
         /// thread — the player sees the message from "Ghost"/"Jackal"/etc. even though
         /// it is hosted on the target's conversation.
         /// </summary>
-        public static void SendOffer(BountySaveData save, int callerIndex, S1NPC target, string body, BountyOfferTerms terms)
+        public static BountyOfferDelivery SendOffer(BountySaveData save, int callerIndex, S1NPC target, string body, BountyOfferTerms terms)
         {
-            if (target == null) return;
+            if (target == null) return BountyOfferDelivery.SendFailed;
+
+            // Singleplayer-only gate: never post offers in an unsupported MP session.
+            if (!BountyCallGate.IsReady)
+            {
+                if (BountyCallGate.IsMultiplayerSession) NotifyMultiplayerUnsupportedOnce();
+                return BountyOfferDelivery.Blocked;
+            }
+
+            // R-04: a new offer supersedes any still-open predecessor on the shared
+            // thread, so its stale Accept/Decline buttons can no longer resolve.
+            var offer = new BountyOffer
+            {
+                OfferId = NewOfferId(),
+                CallerIndex = callerIndex,
+                TargetNpcId = target.ID,
+                Status = BountyOfferStatus.Open
+            };
 
             // Built up-front (pure, no side effects) so both the S1API host path and
             // the native fallback tier below can reuse the same response set.
-            var responses = BuildResponses(save, callerIndex, target, body, terms);
+            var responses = BuildResponses(save, callerIndex, target, body, terms, offer);
+            lock (OfferLock)
+            {
+                if (BountyOfferPolicy.Supersede(_openOffer))
+                    Mod.Log.Debug($"[BountyRouter] previous offer '{_openOffer!.OfferId}' superseded by '{offer.OfferId}'.");
+                _openOffer = offer;
+                _openOfferResponses = responses;
+            }
+
             var hostWrapper = GetCallerWrapper();
 #if DEBUG
             // Beta 0.4.7f6 / S1API 3.2.1-beta.2: HitmanCallerNPC never instantiates
@@ -97,7 +145,7 @@ namespace HitmanPhone.Bounty
                     }
                     else if (SendOfferViaNativeConversation(target, body, responses, responseDelay: 1f))
                     {
-                        return;
+                        return BountyOfferDelivery.Delivered;
                     }
                     else
                     {
@@ -114,17 +162,88 @@ namespace HitmanPhone.Bounty
             if (hostWrapper == null)
             {
                 Mod.Log.Warn($"SendOffer: no S1API wrapper found for HitmanCallerNPC ('{HitmanCallerNPC.NPC_ID}').");
-                return;
+                ClearOpenOffer(offer);
+                return BountyOfferDelivery.NoCaller;
             }
 
             try
             {
                 hostWrapper.SendTextMessage(body, responses, responseDelay: 1f, network: true);
                 Mod.Log.Info($"[BountyRouter] Sent offer regarding '{target.ID}' from caller {callerIndex}.");
+                return BountyOfferDelivery.Delivered;
             }
             catch (Exception ex)
             {
                 Mod.Log.Error($"SendTextMessage threw for HitmanCallerNPC: {ex}");
+                ClearOpenOffer(offer);
+                return BountyOfferDelivery.SendFailed;
+            }
+        }
+
+        /// <summary>R-04: drop the open offer when its delivery failed (nothing to answer).</summary>
+        private static void ClearOpenOffer(BountyOffer offer)
+        {
+            lock (OfferLock)
+            {
+                if (ReferenceEquals(_openOffer, offer))
+                {
+                    _openOffer = null;
+                    _openOfferResponses = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// R-04: single-use resolution of an offer. Marks the offer with a terminal
+        /// status and clears the shared-thread slot so no second click can resolve.
+        /// </summary>
+        private static void MarkResolved(BountyOffer offer, BountyOfferStatus status)
+        {
+            lock (OfferLock)
+            {
+                offer.Status = status;
+                if (ReferenceEquals(_openOffer, offer))
+                {
+                    _openOffer = null;
+                    _openOfferResponses = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// R-04: invalidate any open offer (e.g. on scene unload / slot switch) so a
+        /// stale decision cannot resolve against a replaced save.
+        /// </summary>
+        public static void InvalidateOpenOffer()
+        {
+            lock (OfferLock)
+            {
+                BountyOfferPolicy.Supersede(_openOffer);
+                _openOffer = null;
+                _openOfferResponses = null;
+            }
+        }
+
+        /// <summary>
+        /// R-02 decision: multiplayer is explicitly unsupported — display that to the
+        /// player once (log + best-effort caller message) instead of silently running
+        /// as a host-shared service.
+        /// </summary>
+        public static void NotifyMultiplayerUnsupportedOnce()
+        {
+            if (Interlocked.Exchange(ref _mpNoticeSent, 1) != 0) return;
+            Mod.Log.Warn("[BountyRouter] Multiplayer is not supported — bounty calls are disabled in this session.");
+            try
+            {
+                var host = GetCallerWrapper();
+                if (host == null) return;
+                host.SendTextMessage(
+                    "[HitmanPhone]: This service is single-player only. Bounty calls are disabled in multiplayer.",
+                    network: false);
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"Multiplayer notice failed: {ex.Message}");
             }
         }
 
@@ -235,27 +354,27 @@ namespace HitmanPhone.Bounty
         /// (de-DE "18.000" parsed as 18) and the style templates carry no "$" at
         /// all, so the parser always fell back to $10k.
         /// </summary>
-        private static Response[] BuildResponses(BountySaveData save, int callerIndex, S1NPC target, string body, BountyOfferTerms terms)
+        private static Response[] BuildResponses(BountySaveData save, int callerIndex, S1NPC target, string body, BountyOfferTerms terms, BountyOffer offer)
         {
             var accept = new Response
             {
                 Label = BountyDialogTemplates.AcceptLabel,
                 Text = BountyDialogTemplates.AcceptText,
-                OnTriggered = () => OnAccept(save, callerIndex, target, body, terms)
+                OnTriggered = () => OnAccept(save, callerIndex, target, terms, offer)
             };
 
             var decline = new Response
             {
                 Label = BountyDialogTemplates.DeclineLabel,
                 Text = BountyDialogTemplates.DeclineText,
-                OnTriggered = () => OnDecline(save, callerIndex)
+                OnTriggered = () => OnDecline(save, callerIndex, offer)
             };
 
             var info = new Response
             {
                 Label = BountyDialogTemplates.MoreInfoLabel,
                 Text = BountyDialogTemplates.MoreInfoText,
-                OnTriggered = () => OnMoreInfo(save, callerIndex, target, body, terms)
+                OnTriggered = () => OnMoreInfo(save, callerIndex, target, body, terms, offer)
             };
 
             return new[] { accept, decline, info };
@@ -277,36 +396,48 @@ namespace HitmanPhone.Bounty
 #endif
         }
 
-        private static void OnAccept(BountySaveData capturedSave, int callerIndex, S1NPC target, string body, BountyOfferTerms terms)
+        private static void OnAccept(BountySaveData capturedSave, int callerIndex, S1NPC target, BountyOfferTerms terms, BountyOffer offer)
         {
             try
             {
+                // R-04: single-use — a superseded/answered offer can never resolve.
+                if (!BountyOfferPolicy.CanResolve(offer))
+                {
+                    Mod.Log.Warn("OnAccept: offer is no longer open (superseded/answered) — ignored.");
+                    return;
+                }
+                // Singleplayer-only readiness gate (SaveStateGuard.IsReady).
+                if (!BountyCallGate.IsReady)
+                {
+                    Mod.Log.Warn("OnAccept: not ready (singleplayer gate) — offer ignored.");
+                    return;
+                }
+
                 // Audit H3 (2026-09-01): the captured `save` object can be stale by
                 // the time the player clicks — a full reload / slot switch replaces
                 // Mod.Instance.Save, and a contract added to the old object was
-                // silently lost by the next PersistCurrent. Resolve at click time
-                // and void the offer when the save object changed.
-                // v0.2.1 (Bug 3): voiding is no longer silent — the caller tells the
-                // player the offer is off (SendOfferExpiredNotice).
+                // silently lost by the next PersistCurrent. Resolve at click time.
+                // R-05: additionally re-resolve the target by its STABLE id and
+                // re-check its fachliche eligibility (alive AND conscious) at ACCEPT
+                // time — an elimination before the accept (or by another actor) must
+                // not be credited to the new contract.
                 var save = Mod.Instance?.Save;
-                if (save == null)
+                bool saveMatches = save != null && ReferenceEquals(save, capturedSave);
+                var liveTarget = saveMatches ? ResolveLiveTarget(target) : null;
+                bool resolved = liveTarget != null;
+                bool eligible = resolved && IsTargetEligibleForFreshContract(liveTarget!);
+                var decision = BountyAcceptPolicy.Decide(saveMatches, resolved, eligible);
+                if (decision != BountyAcceptDecision.Accept)
                 {
-                    Mod.Log.Warn("OnAccept: no save state — offer voided.");
+                    Mod.Log.Warn($"OnAccept: offer voided ({decision}).");
+                    MarkResolved(offer, BountyOfferStatus.Declined);
                     SendOfferExpiredNotice(callerIndex);
                     return;
                 }
-                if (!ReferenceEquals(save, capturedSave))
-                {
-                    Mod.Log.Warn("OnAccept: save state changed since the offer (reload/slot switch) — stale offer voided.");
-                    SendOfferExpiredNotice(callerIndex);
-                    return;
-                }
-                if (!IsTargetAlive(target))
-                {
-                    Mod.Log.Warn("OnAccept: bounty target is no longer alive (scene change?) — offer voided.");
-                    SendOfferExpiredNotice(callerIndex);
-                    return;
-                }
+
+                // Single-use: consume the offer before any side effect so a double
+                // click can never create two contracts.
+                MarkResolved(offer, BountyOfferStatus.Accepted);
 
                 string id = NewContractId();
                 int now = HitmanPhoneTime.CurrentDay();
@@ -316,10 +447,10 @@ namespace HitmanPhone.Bounty
                     Id = id,
                     CallerId = $"caller_{BountyDialogTemplates.GetCallerName(callerIndex).ToLowerInvariant()}",
                     CallerStyle = BountyDialogTemplates.StyleForCallerIndex(callerIndex),
-                    TargetNpcId = target.ID,
-                    TargetNpcInstanceId = target.GetInstanceID(),
-                    EvidenceToken = BountyEvidenceMatcher.AllocateEvidenceToken(save),
-                    TargetNpcName = BountyQuest.FormatName(target.ID),
+                    TargetNpcId = liveTarget!.ID,
+                    TargetNpcInstanceId = liveTarget.GetInstanceID(),
+                    EvidenceToken = BountyEvidenceMatcher.AllocateEvidenceToken(save!),
+                    TargetNpcName = BountyQuest.FormatName(liveTarget.ID),
                     RewardCash = terms.RewardCash,
                     OfferedAtDay = now,
                     DeadlineDay = now + BountyCallSchedulerConstants.ContractDeadlineDays,
@@ -337,7 +468,7 @@ namespace HitmanPhone.Bounty
                     DropDueStarted = false
                 };
 
-                save.Active.RemoveAll(c => c.Status == EBountyStatus.Offered && c.CallerId == contract.CallerId);
+                save!.Active.RemoveAll(c => c.Status == EBountyStatus.Offered && c.CallerId == contract.CallerId);
                 save.Active.Add(contract);
                 BountyPersistence.PersistCurrent(); // v0.1.3: contract must survive a game restart (was RAM-only)
 
@@ -355,7 +486,7 @@ namespace HitmanPhone.Bounty
 #if DEBUG
                     // Same missing-caller workaround as SendOffer (tier 1).
                     if (host == null)
-                        host = S1API.Entities.NPC.Get(target.ID);
+                        host = S1API.Entities.NPC.Get(liveTarget.ID);
 #endif
                     if (host != null)
                     {
@@ -378,7 +509,7 @@ namespace HitmanPhone.Bounty
                 {
                     // best-effort confirmation message
                 }
-                Mod.Log.Info($"[BountyRouter] Accepted: id={id} target={target.ID} reward=${terms.RewardCash:N0} deadline={contract.DeadlineDay} drop={terms.DropName}.");
+                Mod.Log.Info($"[BountyRouter] Accepted: id={id} target={liveTarget.ID} reward=${terms.RewardCash:N0} deadline={contract.DeadlineDay} drop={terms.DropName}.");
             }
             catch (Exception ex)
             {
@@ -386,10 +517,62 @@ namespace HitmanPhone.Bounty
             }
         }
 
-        private static void OnDecline(BountySaveData capturedSave, int callerIndex)
+        /// <summary>
+        /// R-05: resolve the live native target by its STABLE id (not just the
+        /// captured reference) and return null when it can no longer be resolved.
+        /// </summary>
+        private static S1NPC? ResolveLiveTarget(S1NPC? captured)
+        {
+            if (!IsTargetAlive(captured)) return null;
+            try
+            {
+                string id = captured!.ID;
+                return HitmanPhone.Persistence.TargetResolveHelper.FindById(id) ?? captured;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"ResolveLiveTarget failed: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// R-05: a target is eligible for a FRESH contract only while it is alive
+        /// AND conscious. A knockout/death that happened before the accept — or
+        /// caused by someone else — must not be credited to the new contract.
+        /// </summary>
+        private static bool IsTargetEligibleForFreshContract(S1NPC target)
         {
             try
             {
+                if (target.Health != null && target.Health.IsDead) return false;
+                if (!target.IsConscious) return false;
+                if (target.Health != null && target.Health.IsKnockedOut) return false;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"target eligibility check failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        private static void OnDecline(BountySaveData capturedSave, int callerIndex, BountyOffer offer)
+        {
+            try
+            {
+                // R-04: single-use — ignore a click on a superseded/answered offer.
+                if (!BountyOfferPolicy.CanResolve(offer))
+                {
+                    Mod.Log.Warn("OnDecline: offer is no longer open (superseded/answered) — ignored.");
+                    return;
+                }
+                // Singleplayer-only readiness gate (SaveStateGuard.IsReady).
+                if (!BountyCallGate.IsReady)
+                {
+                    Mod.Log.Warn("OnDecline: not ready (singleplayer gate) — offer ignored.");
+                    return;
+                }
                 // Same stale-save guard as OnAccept (audit H3): CooldownCaller writes
                 // Mod.Instance.Save, so a decline on a stale offer would cool down the
                 // caller in the WRONG (new) save. Void it like the other responses.
@@ -397,9 +580,11 @@ namespace HitmanPhone.Bounty
                 if (save == null || !ReferenceEquals(save, capturedSave))
                 {
                     Mod.Log.Warn("OnDecline: save state changed since the offer — stale offer voided.");
+                    MarkResolved(offer, BountyOfferStatus.Declined);
                     SendOfferExpiredNotice(callerIndex);
                     return;
                 }
+                MarkResolved(offer, BountyOfferStatus.Declined);
                 BountyCallScheduler.CooldownCaller(callerIndex, BountyCallSchedulerConstants.CallerCooldownDaysAfterDecline);
                 Mod.Log.Info($"[BountyRouter] Caller {callerIndex} declined; cooldown {BountyCallSchedulerConstants.CallerCooldownDaysAfterDecline}d.");
             }
@@ -409,10 +594,22 @@ namespace HitmanPhone.Bounty
             }
         }
 
-        private static void OnMoreInfo(BountySaveData capturedSave, int callerIndex, S1NPC target, string body, BountyOfferTerms terms)
+        private static void OnMoreInfo(BountySaveData capturedSave, int callerIndex, S1NPC target, string body, BountyOfferTerms terms, BountyOffer offer)
         {
             try
             {
+                // R-04: only an OPEN offer can be asked about; a stale click is ignored.
+                if (!BountyOfferPolicy.CanResolve(offer))
+                {
+                    Mod.Log.Warn("OnMoreInfo: offer is no longer open (superseded/answered) — ignored.");
+                    return;
+                }
+                // Singleplayer-only readiness gate (SaveStateGuard.IsReady).
+                if (!BountyCallGate.IsReady)
+                {
+                    Mod.Log.Warn("OnMoreInfo: not ready (singleplayer gate) — ignored.");
+                    return;
+                }
                 // Same stale-save guard as OnAccept (audit H3): the re-attached
                 // responses must bind the CURRENT save object, not the one from
                 // offer time.
@@ -420,6 +617,7 @@ namespace HitmanPhone.Bounty
                 if (save == null || !ReferenceEquals(save, capturedSave))
                 {
                     Mod.Log.Warn("OnMoreInfo: save state changed since the offer — stale offer voided.");
+                    MarkResolved(offer, BountyOfferStatus.Declined);
                     SendOfferExpiredNotice(callerIndex);
                     return;
                 }
@@ -455,7 +653,7 @@ namespace HitmanPhone.Bounty
                 // replaced the offer's Accept/Decline buttons — after asking
                 // "Who is the target?" the player could neither accept nor decline.
                 // Re-attach the full response set so the decision stays available.
-                host.SendTextMessage(followUp, BuildResponses(save, callerIndex, target, body, terms),
+                host.SendTextMessage(followUp, BuildResponses(save, callerIndex, target, body, terms, offer),
                     responseDelay: 1f, network: true);
                 Mod.Log.Info($"[BountyRouter] More-info sent for '{target.ID}' (responses re-attached).");
             }
@@ -512,9 +710,26 @@ namespace HitmanPhone.Bounty
             if (host == null) return;
             string caller = BountyDialogTemplates.GetCallerName(callerIndex < 0 ? 0 : callerIndex);
             string where = string.IsNullOrEmpty(dropName) ? "the dead-drop" : dropName;
-            host.SendTextMessage(
-                $"[{caller}]: {remainingMinutes} minutes left. Get that photo to {where} before the window closes.",
-                network: true);
+            string text =
+                $"[{caller}]: {remainingMinutes} minutes left. Get that photo to {where} before the window closes.";
+
+            // R-04: never post a bare message while an offer still awaits a decision
+            // on the shared thread — that would replace the Accept/Decline buttons
+            // and strand the pending deal. Re-attach the open offer's responses.
+            Response[]? keep = null;
+            lock (OfferLock)
+            {
+                if (BountyOfferPolicy.MustPreserveOpenOfferResponses(_openOffer)) keep = _openOfferResponses;
+            }
+            if (keep != null)
+            {
+                host.SendTextMessage(text, keep, responseDelay: 1f, network: true);
+                Mod.Log.Debug("[BountyRouter] drop-window warning re-attached the open offer's responses (R-04).");
+            }
+            else
+            {
+                host.SendTextMessage(text, network: true);
+            }
         }
     }
     // ==== end HitmanPhone section: Callers/BountyConversationRouter.cs ====
