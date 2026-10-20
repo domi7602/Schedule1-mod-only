@@ -356,6 +356,13 @@ Copy-Item -LiteralPath $preflightPath -Destination (Join-Path $fakeRepo 'Tools\c
 & $dotnet new sln -n S1Mods -o (Join-Path $fakeRepo 'Source\Mods') --force 2>&1 | Out-Null
 $fakeBuildAll = Join-Path $fakeRepo 'Tools\build-all.ps1'
 $fakeSln = Join-Path $fakeRepo 'Source\Mods\S1Mods.sln'
+# SDK 10 defaults `dotnet new sln` to the .slnx template, so a runner with a newer
+# default SDK creates S1Mods.slnx and every e2e assertion below fails on a missing
+# file. Ask for the classic format explicitly; SDK 8 rejects the switch, in which
+# case its (already classic) output from the call above is correct.
+if (-not (Test-Path -LiteralPath $fakeSln)) {
+    & $dotnet new sln -n S1Mods -o (Join-Path $fakeRepo 'Source\Mods') --force --format sln 2>&1 | Out-Null
+}
 # Precondition: without the scratch solution every e2e assertion below fails for
 # the same uninteresting reason, so assert it on its own.
 Assert-True (Test-Path -LiteralPath $fakeSln) 'build-all e2e: fake solution created' -Detail ((& $dotnet --version 2>&1 | Out-String) + "sln: $fakeSln")
