@@ -1,5 +1,7 @@
 # Bounded sewer-key observations
 
+> UNVERIFIED as an end-to-end gameplay workflow; individual native observations below have limited scope and do not establish a playable search feature.
+
 Use this workflow to establish native facts before implementing Minimap search behavior. These reads do not establish a playable search feature or validate a curated area.
 
 - Obtain permission for a disposable world and loading it; back it up before first use. A permission to create another world does not authorize overwriting an existing slot. Distinguish the zero-based `list_saves.slot_index` from the displayed save-slot number. Prefer the actual visible slot button, checking that the corresponding slot is empty, over an unverified indexed method.

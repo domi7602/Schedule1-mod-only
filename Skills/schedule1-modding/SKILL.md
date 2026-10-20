@@ -35,7 +35,7 @@ AGENTS.md           Single source of truth for mod inventory & current status
 **Deploy Convention (since 2026-09):**
 - `<GameDir>\Mods\` → Loadables for MelonLoader (`*.dll`, `*.png`, `*.bundle`)
 - `<GameDir>\UserData\<ModName>\` → Metadata and debug symbols (`mod.json`, `<ModName>.pdb`)
-- ThirdParty DLLs auto-deployed via `Tools/deploy-thirdparty.ps1` with whitelist in `ThirdParty/.deployignore`.
+- ThirdParty DLLs auto-deployed via `Tools/deploy-thirdparty.ps1` with whitelist in `ThirdParty/.deployallow`.
 
 **Sync rule:** After creating, renaming, removing, or changing the status of any mod, update `AGENTS.md` and the mod's `CHANGELOG.md` in the same change. `AGENTS.md` must never drift from reality.
 

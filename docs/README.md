@@ -3,6 +3,7 @@
 | Document | Audience | Content |
 |---|---|---|
 | [`../README.md`](../README.md) | Players | Mod overview, compatibility, installation, download. |
+| [`repository-maintenance.md`](repository-maintenance.md) | Maintainers | Repository maintenance status and the consolidated open in-game checklist. |
 | [`compatibility.md`](compatibility.md) | Players, developers | Toolchain versions and the per-mod verification matrix. |
 | [`troubleshooting.md`](troubleshooting.md) | Players | Log location, installation checklist, common symptoms, how to report bugs. |
 | [`../DEVELOPERS.md`](../DEVELOPERS.md) | Developers | Getting started, build, test, format, debugging, creating a mod. |

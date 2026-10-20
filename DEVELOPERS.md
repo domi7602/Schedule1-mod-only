@@ -44,21 +44,22 @@ Working from more than one machine? See [`docs/working-across-devices.md`](docs/
 | Requirement | Version | Notes |
 |---|---|---|
 | Windows | 10/11 | The build references DLLs from the installed game; PowerShell scripts assume Windows paths. |
-| .NET SDK | 6.0 or newer (8.0 is used on the maintainer's machines) | Mods target `net6.0`; CI pins `6.0.x`. |
-| PowerShell | 7+ | All `Tools/*.ps1` scripts (`#Requires -Version 7` where applicable). |
-| Schedule I | v0.4.7f11 (current runtime; older verifications on v0.4.6f13 / v0.4.7f6 / v0.4.7f9) | Provides `MelonLoader\Il2CppAssemblies\*.dll` and `MelonLoader\net6\*.dll` referenced by `Directory.Build.props`. |
+| .NET SDK | 8.0+ (8.0.425 user-local on the maintainer machine) | Mods target `net6.0`, but `LangVersion` 12 needs the C# 12 compiler that ships with SDK 8 — a 6.0 SDK cannot build the solution. CI installs the 8.0.x SDK plus the 6.0.x runtime. |
+| PowerShell | 7+ (`pwsh`) | All `Tools/*.ps1` scripts (`#Requires -Version 7` where applicable). Windows execution policy can block script execution (the effective policy depends on machine/user/host scope), so invoke them explicitly as `pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/<script>.ps1` from any shell. |
+| Schedule I | v0.4.7f12 (current runtime; older verifications on v0.4.6f13 / v0.4.7f6 / v0.4.7f9 / v0.4.7f11) | Provides `MelonLoader\Il2CppAssemblies\*.dll` and `MelonLoader\net6\*.dll` referenced by `Directory.Build.props`. |
 | MelonLoader | 0.7.3 | Must be installed into the game directory. |
-| S1API | 3.2.x | Referenced from `<GameDir>\Mods\S1API.Il2Cpp.MelonLoader.dll` (fallback `UserLibs\S1API.dll`). Source is pinned as submodule under `ThirdParty/S1API/`. |
+| S1API | 3.2.1 stable (submodule `ThirdParty/S1API` at commit `a4cbdd9` = tag `v3.2.1`) | Referenced from `<GameDir>\Mods\S1API.Il2Cpp.MelonLoader.dll` (fallback `UserLibs\S1API.dll`). Source is pinned as submodule under `ThirdParty/S1API/`. |
 | S1MAPI | 2.0.1 | Referenced from `<GameDir>\UserLibs\S1MAPI_Il2Cpp.dll` when present; needed by `AutoPackagingStation` and `TaxiDriver`. |
 
-Without the game assemblies the solution does **not** compile. CI on GitHub-hosted runners therefore only runs restore, formatting, the two pure-logic test projects, solution determinism and the documentation checks (see [CI](#formatting-and-repository-checks)).
+Without the game assemblies the solution does **not** compile. CI on GitHub-hosted runners therefore only runs restore, formatting, the game-independent test projects, solution determinism and the documentation checks (see [CI](#formatting-and-repository-checks)).
 
 ## Build
 
 ```pwsh
 # Whole solution (Release) — also deploys into the game directory
 dotnet build Source/Mods/S1Mods.sln -c Release
-pwsh Tools/build-all.ps1                       # same, regenerates the SLN if missing
+pwsh Tools/build-all.ps1                       # preflight + build/deploy; SDK fallback
+pwsh Tools/build-all.ps1 -NoDeploy             # compile only, no installation changes
 
 # Single mod
 dotnet build Source/Mods/NotesApp/src/NotesApp.csproj -c Release
@@ -69,7 +70,7 @@ dotnet build Source/Mods/S1Mods.sln -c Release -p:S1NoDeploy=true
 
 ### What a build deploys
 
-`Source/Mods/Directory.Build.targets` copies build output after every successful build (`SkipUnchangedFiles=false`, so there are no stale DLLs):
+`Source/Mods/Directory.Build.targets` invokes the hash-verified `Tools/deploy-mod.ps1` after successful builds unless deployment is disabled. Changed targets are backed up; identical files need no rewrite. Receipts and bounded rollback details: `Tools/README.md`.
 
 | Destination | Files |
 |---|---|
@@ -77,7 +78,7 @@ dotnet build Source/Mods/S1Mods.sln -c Release -p:S1NoDeploy=true
 | `<GameDir>\Mods\<Mod>\` | `*.glb` models (MelonLoader only scans DLLs in `Mods\`, data lives in a sub-folder) |
 | `<GameDir>\UserData\<Mod>\` | `mod.json`, `<Mod>.pdb` |
 
-`mod.json` and `.pdb` files never go into `Mods\` — MelonLoader would try to load them. The `Shared` project additionally triggers `Tools/deploy-thirdparty.ps1`, which copies whitelisted third-party DLLs (policy: `ThirdParty/.deployignore`).
+`mod.json` and `.pdb` files never go into `Mods\` — MelonLoader would try to load them. `UserData\` is mod/loader state, not game saves: the build deploys `mod.json`/PDB there, and mods add their own configuration and slot-scoped persistence sidecars at runtime (for example `UserData\HitmanPhone\bounties_slot_1.json` plus its `.bak`; MelonLoader preferences such as `MelonPreferences.cfg` also live at the `UserData\` root). The game's **native** save files are not there but in `%USERPROFILE%\AppData\LocalLow\TVGS\Schedule I\Saves` (Windows-user-local, never in git). The `Shared` project additionally triggers `Tools/deploy-thirdparty.ps1`, which copies whitelisted third-party DLLs (policy: `ThirdParty/.deployallow`).
 
 ### Solution file
 
@@ -85,7 +86,7 @@ dotnet build Source/Mods/S1Mods.sln -c Release -p:S1NoDeploy=true
 
 ## Test
 
-Three xUnit projects live in `Source/Tests/`:
+`Source/Tests/` holds the test projects: mostly xUnit suites, plus one dependency-free console host (`LightControl.Tests`, an `Exe` whose `Program.cs` runs its own checks — plain `dotnet test` does not run it). `gen-sln.ps1` picks up every `*.csproj` there. Suites that need no game assemblies run in CI; the rest need the installed game. The table lists the shared and game-free suites:
 
 | Project | Scope | Needs game assemblies |
 |---|---|---|
@@ -94,12 +95,17 @@ Three xUnit projects live in `Source/Tests/`:
 | `Shared.Tests` | `SafeStorage`, `SaveSlots`, `PatchGuard`, `ModLogger`, `SafeInvoker`, `TypeResolver` | yes (references MelonLoader / Unity DLLs from the installed game) |
 
 ```pwsh
-# Everything (requires the game for Shared.Tests)
-dotnet test Source/Mods/S1Mods.sln -c Release
+# Everything, including the console host (requires the game for Shared.Tests)
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/test-all.ps1 -Selection all
 
-# Pure-logic suites only (run anywhere, also in CI)
-dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release
-dotnet test Source/Tests/CalculatorApp.Tests/CalculatorApp.Tests.csproj -c Release
+# Game-free suites and console host (also used in CI)
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/test-all.ps1 -Selection pure
+
+# Inspect the complete discovered project list without running tests
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/test-all.ps1 -ListOnly
+
+# A targeted test build must also disable deployment
+dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release -p:S1NoDeploy=true
 ```
 
 Mod folders may contain a `tests/` directory for isolated notes or fixtures; real test projects belong in `Source/Tests/` so `gen-sln.ps1` picks them up.
@@ -174,7 +180,12 @@ The code is the single source of truth; the script synchronises `MelonInfo`, the
 
 - **Log:** `<GameDir>\MelonLoader\Latest.log`. Mods log with a `[<ModName>]` prefix via `S1Mods.Shared.ModLogger`.
   ```pwsh
+  # PowerShell 7
   Get-Content "$env:SCHEDULE1_PATH\MelonLoader\Latest.log" -Tail 200 | Select-String 'ERROR|Exception|\[NotesApp\]'
+  ```
+  ```bash
+  # bash (Git Bash) — MSYS-style /c/ path to the default Steam install
+  tail -n 200 "/c/Program Files (x86)/Steam/steamapps/common/Schedule I/MelonLoader/Latest.log" | grep -E 'ERROR|Exception|\[NotesApp\]'
   ```
 - **Symbols:** builds produce portable PDBs that are deployed to `UserData\<Mod>\`, so stack traces in the log carry file and line information.
 - **Debug vs. Release:** some diagnostics (for example HitmanPhone test commands) are compiled only in `Debug`. A `-c Release` build overwrites the deployed Debug DLL unless `-p:S1NoDeploy=true` is passed.

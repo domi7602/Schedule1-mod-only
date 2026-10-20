@@ -1,6 +1,6 @@
 # Hyland Smoke Shop — Custom-Property & Map-Expansion Pattern Notes
 
-> Evidence scope: static decompile of a user-provided third-party assembly (`HylandSmokeShop.dll`),
+> UNVERIFIED in game. Evidence scope: static decompile of a user-provided third-party assembly (`HylandSmokeShop.dll`),
 > SHA-256 `0a76e5651c60c4e033c77828a445aaa80d8564a7af573059c4dd4781ac422896` (6,845,952 bytes),
 > decompiled 2026-10-18 with `ilspycmd` 9.1.0.7988 (ICSharpCode.Decompiler 9.1.0.7988) to a scratch
 > directory only. **None of this was run in game**, no DLL was loaded into the game, and no runtime
@@ -14,14 +14,14 @@ This note generalises the observed structure into checks for the staged world-ex
 
 ## Assembly identity (observed)
 
-- Single MelonLoader host: `HylandSmokeShop.Main : MelonMod` (`[assembly: MelonInfo(typeof(Main), "Hyland Smoke Shop", "0.3.0-rc.15", "Hyland Mods", null)]`, `[assembly: MelonGame("TVGS", "Schedule I")]`).
+- Single MelonLoader host: `HylandSmokeShop.Main : MelonMod` (`[assembly: MelonInfo(typeof(Main), "Hyland Smoke Shop", "0.3.0-rc.15", "Hyland Mods", null)]`, `[assembly: MelonGame("TVGS", "Schedule I")]`). <!-- skills-health: version-evidence (observed MelonInfo metadata from the decompiled third-party assembly) -->
 - `[assembly: HarmonyDontPatchAll]` is declared, so MelonLoader does **not** auto-patch; the host calls
   `HarmonyInstance.PatchAll(typeof(Main).Assembly)` itself in `OnLateInitializeMelon` (plus an explicit
   `CustomerSafetyHooks.Install(...)`). A mod that declares `HarmonyDontPatchAll` must install its own
   patches or none apply.
 - Build shape: `netcoreapp6.0`, `LangVersion 12.0`, `AllowUnsafeBlocks`, ~358 types, one root namespace
   `HylandSmokeShop`.
-- Metadata is internally inconsistent: `MelonInfo` version `0.3.0-rc.15` vs `AssemblyInformationalVersion`
+- Metadata is internally inconsistent: `MelonInfo` version `0.3.0-rc.15` vs `AssemblyInformationalVersion` <!-- skills-health: version-evidence (observed conflicting assembly metadata; not a dependency pin) -->
   `0.3.0-rc.7` — do not read a single "the version" from one field.
 
 ## Dependency surface (observed)

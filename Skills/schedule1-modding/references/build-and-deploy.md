@@ -33,9 +33,11 @@ Every workspace mod's `.csproj` is implicitly wrapped by `Source/Mods/Directory.
    - `<ModName>.pdb` → `<GameDir>\UserData\<ModName>\<ModName>.pdb`
 3. **ThirdParty DLLs**:
    - `Directory.Build.targets` invokes `Tools/deploy-thirdparty.ps1`.
-   - Copies whitelisted DLLs under `ThirdParty/` to `<GameDir>\Mods\` based on `ThirdParty/.deployignore`.
+   - Copies whitelisted DLLs under `ThirdParty/` to `<GameDir>\Mods\` based on `ThirdParty/.deployallow`.
 
-The deploy step uses `<Copy ... SkipUnchangedFiles="false" />` to force deploy on every build.
+The targets call `Tools/deploy-mod.ps1` for each project. The helper compares SHA256
+content, copies changed files, and records every planned artifact (including unchanged files).
+See `Tools/README.md` for receipt locations, backups and bounded rollback guarantees.
 
 ---
 
@@ -64,19 +66,19 @@ B. **`local.build.props`** (persists on disk; should be gitignored):
 
 ---
 
-## 4. ⚠ SkipUnchangedFiles Trap (FIXED since 2026-08-20)
+## 4. Artifact identity, not timestamps
 
-**Historical:** The deploy target used `SkipUnchangedFiles="true"` — when the produced DLL was byte-identical to the deployed version, it was not re-copied → you were testing against stale code.
-
-**Current state (2026-08-20):** `Source/Mods/Directory.Build.targets` now uses **`SkipUnchangedFiles="false"`** for DLL + PNG + mod.json → every `dotnet build` force-deploys. The trap no longer exists.
+The old MSBuild copy flow forced every copy to avoid timestamp/size-based skipping.
+The current helper instead compares SHA256: byte-identical files are already the right
+artifact and need no rewrite. Matching timestamps alone are not proof of identity.
 
 **If a stale DLL is still suspected:**
 ```pwsh
 dotnet clean Source\Mods\<Name>\src\<Name>.csproj
 dotnet build  Source\Mods\<Name>\src\<Name>.csproj -c Release
-# or delete the deployed DLL and rebuild
-Remove-Item "$env:SCHEDULE1_PATH\Mods\<Name>.dll"
-dotnet build  Source\Mods\<Name>\src\<Name>.csproj -c Release
+# Compare the built and installed DLL hashes; do not delete the installed DLL first.
+Get-FileHash "Source/Mods/<Name>/src/bin/Release/<TargetFramework>/<Name>.dll"
+Get-FileHash "$env:SCHEDULE1_PATH/Mods/<Name>.dll"
 ```
 
 **Version bump (since 2026-08-20):** Never edit 4 files manually — `Tools/bump-version.ps1` updates `Mod.cs` (MelonInfo) + `Source/Mods/<Mod>/docs/mod.json` + `Source/Mods/<Mod>/docs/CHANGELOG.md` + `AGENTS.md`. **Not truly atomic:** the 3 documented regex pitfalls (version-sync.md §3) produce duplicate CHANGELOG entries in some formats — always read the post-bump CHANGELOG and clean up; run the Feature-Diff Gate first (`schedule1-modding` §2.C).
@@ -96,7 +98,7 @@ pwsh Tools/bump-version.ps1 -Mod <Name> -Version <X.Y.Z> -DryRun # preview
 | **S1MAPI** | ✅ active | `ThirdParty/S1MAPI/` | Procedural meshes, GLTF loader, interior tools |
 | **S1MCPServer** | ✅ active | `ThirdParty/S1MCPServer-master/` → `Mods\S1MCPServer-IL2CPP.dll` | Live TCP introspection (:8765) |
 | **Sideload** | ❌ removed | Removed on 2026-09-10 (commit `37e7a5d`) | Deprecated, unused |
-| **Hash** | deprecated | `ThirdParty/Archive/ScheduleOne-Hash/` (undeployed) | Kept for reference only |
+| **Hash** | deprecated | `ThirdParty/Archive/ScheduleOne-Hash/` (no DLL deploy) | Only `Hash.Api/HashCommands.cs` remains source-linked in BusinessIncome and PotScanner |
 
 ---
 
@@ -118,7 +120,7 @@ pwsh Tools/bump-version.ps1 -Mod <Name> -Version <X.Y.Z> -DryRun # preview
 After every successful build, verify before launching the game:
 
 1. **DLL exists** in `<GameDir>\Mods\<Name>.dll`
-2. **Timestamp** of DLL ≥ timestamp of `bin/Release/<TargetFramework>/<Name>.dll` (deploy happened)
+2. **SHA256 equality** between the built DLL and installed DLL; unchanged files may retain old timestamps
 3. **`mod.json` exists** in `<GameDir>\UserData\<Name>\mod.json`
 4. **`<Name>.pdb` exists** in `<GameDir>\UserData\<Name>\<Name>.pdb`
 5. **Icon PNG exists** in `<GameDir>\Mods\` if the mod ships one
@@ -169,7 +171,9 @@ dotnet build Source\Mods\MyMod\src\MyMod.csproj -c Release
 
 ## 10. Multi-PC-Workflow (Laptop ↔ Desktop)
 
-Linear workflow on `main`, no feature branches. Saves and save data (`<GameDir>\UserData\<Mod>\*.json`) stay PC-local — only source code and docs are synced.
+Linear workflow on `main`, no feature branches. Native saves live under the Windows user's
+`AppData/LocalLow/TVGS/Schedule I/Saves`; `<GameDir>/UserData` contains mod sidecars, configuration
+and deployed metadata. Both stay PC-local — only source code and docs are synced.
 
 **First-time setup on a new PC** (clone repo, then):
 ```pwsh
@@ -181,11 +185,11 @@ dotnet build Source/Mods/S1Mods.sln -c Release
 
 **Daily switch:**
 - Session start: `git pull`
-- Session end: `git add -A && git commit && git push`
+- Session end: inspect the diff, stage only the explicitly approved files/hunks, then commit/push only with owner authorization.
 
 **`local.build.props`** are gitignored (`ThirdParty/S1API/local.build.props`, `ThirdParty/S1MAPI/local.build.props`) and generated by `setup-workspace.ps1` from the `*.example` templates. For the standard Steam path `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` the default is sufficient; for a different library location interactive prompt or `-GameDir "<path>"`.
 
-**What is NOT synchronized:** `<GameDir>\Mods\*.dll` (build artifacts, locally produced by `dotnet build`), `<GameDir>\UserData\*` (saves), `bin/`/`obj/`.
+**What is NOT synchronized:** `<GameDir>\Mods\*.dll` (build artifacts, locally produced by `dotnet build`), `<GameDir>\UserData\*` (mod sidecars/configuration/metadata), `bin/`/`obj/`.
 
 ---
 

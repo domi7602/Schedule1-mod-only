@@ -74,6 +74,7 @@ When you get a question, run this mental check:
 | GLTF models / vehicle / own NPC driver? | `Source/Mods/TaxiDriver/` | `schedule1-s1mapi` + `schedule1-game-systems/references/07-Vehicle.md` |
 | Mockup-based restyle workflow (measure + headless diff)? | `Source/Mods/Weather/` | `schedule1-phoneapp` Rule 14 |
 | Read-only storage overview / readiness gates? | `Source/Mods/StorageScanner/` | `schedule1-items` |
+| Is a downloaded third-party mod safe/compatible? | `Skills/schedule1-knowledge/references/third-party-mod-triage.md` | `references/third-party-mod-patterns.md` |
 
 ---
 
@@ -114,6 +115,10 @@ D. **Inspect S1API wrappers:**
 
 E. **Review patterns from third-party decompiles:**
    - Use `references/third-party-mod-patterns.md` for static observations and pitfalls; verify current APIs live and do not copy third-party code.
+
+F. **Triage a downloaded mod, or check one against our own mods:**
+   - Follow `references/third-party-mod-triage.md`: package inventory → decompile → structural sweep → targeted body reads → risk scan → compatibility check. It also lists the cheap-to-lose pitfalls (scratch paths for native tools, ASCII file names, `UserLibs` vs `Mods`, embedded resources vs disk paths).
+   - Report source-level findings and runtime verification as separate statements.
 
 ---
 

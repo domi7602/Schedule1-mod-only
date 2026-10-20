@@ -79,7 +79,7 @@ string path = SafeStorage.GetUserDataPath("MyMod", $"state_slot_{slot}.json");
 
 **Robust Derivation (canonical code in [`references/slot-isolation.md`](references/slot-isolation.md)):**
 
-Triple IL2CPP Guard (`loadMgr != null && Pointer != IntPtr.Zero && !WasCollected` × 2 Levels) + `SaveSlotNumber >= 0` (menu/transition can report `-1` — never write `slot_-1.json`) + `_lastKnownSlot` fallback + `TryMigrateLegacy` (legacy global file → slot file, once).
+Use triple IL2CPP guards (`loadMgr != null && Pointer != IntPtr.Zero && !WasCollected` × 2 levels), `SaveSlotNumber >= 0`, a completed-load identity and a destination bound to that identity. Never use `_lastKnownSlot` to authorize an unknown-context write: it may describe another world. Treat the older suffix helper reference as historical naming mechanics, not authoritative identity binding. Read legacy data without moving/deleting/rewriting its source until context and validation are confirmed; a menu/save-info scan is not a completed world load.
 
 `Load()` / `Save()` / `GetStateFilePath()` must all use the slot suffix. `Reset()` clears `_cachedState` + snapshot fields on `OnPreLoad` / `OnSceneWasUnloaded`.
 
@@ -100,6 +100,31 @@ GameLifecycle.OnLoadComplete += () => StreetPropertyManager.LoadAndSpawnStreetIt
 
 * No `Save()` in `Place()` / `PackUp()` — else Alt+F4 reverts inventory but disk keeps item → infinite dupe.
 * Save file: `UserData/HomelessMod/street_items_slot_{n}.json` (`StreetPropertyManager.cs:148`).
+
+### 5.1 Economy/evidence sidecars: checkpoint and unknown-effect boundaries
+
+- Do not equate an atomic JSON write, a matching save identity or `OnSaveComplete` alone
+  with an engine/sidecar transaction. Freeze both state and bound destination at save-start;
+  verify native success/destination before commit. Compare the exact world checkpoint when
+  recovering a primary/backup file: same identity can still be a different rolled-back world.
+- Verify both native `Save()` overload capture and actual property/event ordering in-game.
+  Normalize only proven path forms; do not weaken identity/path gates after a transient read
+  error. Start a bounded load deadline once, and retry installation without resetting it.
+- Treat content fingerprints as a provisional consistency design until real load/save
+  roundtrips prove stability. Exclude metadata timestamp churn, but account explicitly for
+  foreign root sidecars and load-time native rewrites; unknown content must not silently
+  choose the latest mod state. Initial legacy alignment cannot be reconstructed from nothing.
+- Separate Missing, Present and Unknown evidence. A failed read is not an integer zero or
+  proof of absence; ambiguous legacy photos and incomplete scans must defer repair rather
+  than duplicate it. Make receipt, repair and cleanup use the same compatibility policy.
+- Latch a payment attempt before calling a fallible native provider. An exception may be
+  after cash mutation: retain an explicit unresolved claim/photo and disable blind retry,
+  expiry and forfeiture pending balance review. A normal void return still is not an
+  independently observed balance change. Keep post-payment logging outside the retry decision.
+- Trace lifecycle/retry/status helpers to real callsites, including before readiness gates.
+  Green pure helpers do not prove that startup registration or unsupported-state UI runs.
+  The HitmanPhone audit verification record separates source/delegate evidence from still-open
+  native acceptance; do not promote its candidate checkpoint design as gameplay-proven.
 
 ---
 

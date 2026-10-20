@@ -1,5 +1,7 @@
 # Frozen writes and personal-intent persistence
 
+> UNVERIFIED for native save/load roundtrips; policy and fault-injection tests are distinct from runtime acceptance. See the mod-specific verification record before applying these rules.
+
 Use these rules for waypoint/bookmark/search stores whose current view changes with the loaded world.
 
 ## Failed writes and context changes
@@ -16,7 +18,7 @@ Use these rules for waypoint/bookmark/search stores whose current view changes w
 - A validated backup plus a corrupt primary is not automatically writable: the atomic writer may rotate that corrupt primary over the only good backup before replacing it. Keep recovered rows read-only until explicit repair/clear, or implement a separately verified quarantine/recovery transaction.
 - Parse and validate into a candidate before replacing committed visible state. If neither primary nor backup validates, preserve/quarantine the source, show a storage fault and avoid silently overwriting it with an empty/default view. A newer unknown schema requires read-only handling, not "repair" into the old schema.
 - Bound useful rows and label lengths; reject nonfinite coordinates, validate canonical colors, normalize names before duplicate checks, and make untrusted labels safe for their rendering context. Test the load boundary as well as Add; an Add-only cap does not bound a tampered file.
-- A field-only DTO needs consistent `IncludeFields` options or JSON inclusion attributes; property-based DTOs avoid that dependency. `JsonSerializerOptions.IncludeFields` exists on .NET 6. Test the actual production serializer; do not infer correctness from an empty object's successful serialization. Do not invent data lost into `[{}]`.
+- A field-only DTO needs consistent `IncludeFields` options or JSON inclusion attributes; property-based DTOs avoid that dependency. `JsonSerializerOptions.IncludeFields` exists on .NET 6. Test the actual production serializer; do not infer correctness from an empty object's successful serialization. Do not invent data lost into `[{}]`. <!-- skills-health: version-evidence (framework API availability floor for this serialization advice, not a current toolchain pin) -->
 - Persist personal acceptance/cancellation separately from observed native completion. `accepted=false` is a cancellation, NOT an older world's uncollected-key flag. Native rollback to an uncollected state reopens a search only when its personal accepted record is true.
 
 ## Tests and evidence

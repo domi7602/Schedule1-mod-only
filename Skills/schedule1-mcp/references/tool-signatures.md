@@ -76,7 +76,7 @@ Source: `src/tools/game_state_tools.py`, `Handlers/GameStateCommandHandler.cs`.
 - **Outdated fields removed from this doc:** the previous revision showed `build_index`, `is_multiplayer`, `is_host`, `game_version` — none of these exist in the current source (`game_version` is commented out as TODO).
 **Errors:** `-32000` "Failed to get game state" (`data.details`).
 
-### Wire-only methods (1.0.4) — no `s1_*` client tool wrapper yet
+### Wire-only methods (1.0.4) — no `s1_*` client tool wrapper yet <!-- skills-health: version-evidence (S1MCPServer release that introduced these methods; historical provenance, not a current dependency pin) -->
 Added in S1MCPServer 1.0.4 (main-thread handlers, never fast path). Call them with the raw
 JSON-RPC protocol (`mcp_client.py`-style); no `S1MCPClient` tool schema exists yet, so
 Hermes-connector `s1_*` names do not apply.

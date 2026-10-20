@@ -17,7 +17,7 @@ The code is the single source of truth (`[assembly: MelonInfo(...)]`, or `Consta
 pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.4
 ```
 
-This updates five places atomically: the `MelonInfo` attribute, the mod's `mod.json`, a new `## 1.0.4 (YYYY-MM-DD)` header in the mod's `CHANGELOG.md` (both under `Source/Mods/<Mod>/docs/`), the inventory row (and detail header) in `AGENTS.md`, and the mod table in `README.md`. Fill in the changelog entry afterwards.
+This updates the version-bearing files sequentially (not as an atomic transaction): the `MelonInfo` attribute, the mod's `mod.json`, a new `## 1.0.4 (YYYY-MM-DD)` header in the mod's `CHANGELOG.md` (both under `Source/Mods/<Mod>/docs/`), the inventory row (and detail header) in `AGENTS.md`, and the mod table in `README.md`, plus the current row in `docs/compatibility.md`. Metadata is preflighted before writes; missing or ambiguous rows abort rather than guessing. A changed version does not inherit old gameplay acceptance: the previous version/date remains historical and the new one is marked open. Review the generated diff and fill in the changelog entry afterwards.
 
 ## 2. Run the quality gates
 
@@ -26,7 +26,7 @@ dotnet format Source/Mods/S1Mods.sln --verify-no-changes
 pwsh Tools/check-version-sync.ps1
 pwsh Tools/check-doc-paths.ps1
 dotnet build Source/Mods/S1Mods.sln -c Release -p:S1NoDeploy=true
-dotnet test  Source/Mods/S1Mods.sln -c Release
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/test-all.ps1 -Selection all
 ```
 
 Then verify the mod in-game (Main Menu → load save → use the mod → Main Menu) and record the result in the changelog and in `docs/compatibility.md`.
@@ -38,7 +38,7 @@ pwsh Tools/package-release.ps1 -Mod NotesApp      # one mod
 pwsh Tools/package-release.ps1                    # every active mod
 ```
 
-The script builds the mod in Release, fails fast if the game assemblies are missing, and writes `Release/<ModName>-v<version>.zip` (the `Release/` folder is git-ignored). The ZIP mirrors the game directory:
+The script builds the mod in Release with deployment disabled, fails fast if the game assemblies are missing, and writes `Release/<ModName>-v<version>.zip` (the `Release/` folder is git-ignored). The ZIP mirrors the game directory:
 
 ```text
 NotesApp-v1.0.4.zip
