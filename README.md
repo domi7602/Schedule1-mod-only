@@ -51,7 +51,7 @@ Status legend: **Active** = released and verified in-game · **Active ¹** = cod
 | [**Weather**](Source/Mods/Weather/) | Phone | 0.4.0 | Active | Read-only weather dashboard: accent-bordered hero card with an intensity pill and ring gauge over nine live condition rows that tint themselves while active. |
 | [**MessagesPlus**](Source/Mods/MessagesPlus/) | Phone / QoL | 0.4.6 | Active (owner-confirmed 2026-10-15) | Sticky search band under the vanilla title (live name search, category chips, unread counter) plus a "⋯" menu with Clear Read / Clear All and a **permanent whole-app dark mode**. |
 | [**ProductAppQoL**](Source/Mods/ProductAppQoL/) | Phone / QoL | 0.1.0 | Active | Mouse/touch support for the Product app's asking-price −/+ buttons (tap = ±$1, hold = repeat with acceleration) — vanilla wires them gamepad-only via `InputValueRamp`. |
-| [**HitmanPhone**](Source/Mods/HitmanPhone/) | Gameplay | 0.2.9 | Active | Bounty contracts via the Messages app: anonymous callers, Polaroid evidence dead-drops, police heat and journal quests. |
+| [**HitmanPhone**](Source/Mods/HitmanPhone/) | Gameplay | 0.3.0-dev.1 | Experimental; in-game verify open | Singleplayer-only bounty audit repair: checkpoint-bound saves, pending evidence, assigned-drop cash receipts, journal/tracker and caller fixes. |
 | [**CustomSkateboard**](Source/Mods/CustomSkateboard/) | Gameplay | 1.1.5 | Active | Adds the *Pro Cyber Skateboard* with tuned carving and jump physics, anti-gravel suspension and purchase through Jeff Gilmore. |
 | [**BusinessIncome**](Source/Mods/BusinessIncome/) | Gameplay | 0.1.6 | Active | Daily passive income for owned businesses with multiplayer host authority, deterministic variance and a `biz` console dashboard. |
 | [**AutoPackagingStation**](Source/Mods/AutoPackagingStation/) | Gameplay | 0.4.7 | Active (owner-confirmed 2026-10-15) | Placeable automated packaging line (conveyor belt, native `PackSingleInstance` packaging, auto-unpack, chance-based freshness bonus) with a 2×2 footprint, unlocked at Hustler I rank. Multiplayer and legacy migration remain unverified. |
@@ -60,9 +60,9 @@ Status legend: **Active** = released and verified in-game · **Active ¹** = cod
 | [**TaxiDriver**](Source/Mods/TaxiDriver/) | Developer | 0.8.19 | Experimental | Phone-app-only taxi service with its own NPC driver, autonomous navigation, GLB visuals, fare meter and owned-vehicle cleanup. 19 production CS + project; bounded reverse/operation/callback supervision, confirmed-halt arrival and safe failed-stop transitions. 605 tests pass; f12 Release compile clean; final delta review PASS. In-Game-Verify open; prior driver-safety verification is historical (2026-10-11). |
 | [**Minimap**](Source/Mods/Minimap/) | QoL | 2.3.4-dev.1 | Development / verify open | Waypoint safety and opt-in diagnostics; no playable search mode yet. Minimap & Unified HUD: dealer/police/customer markers, heat ring, health bar, waypoints and a phone settings app with per-blip toggles, colours, shape/corner/rotation/opacity/border controls and rebindable zoom keys (no keyboard visibility toggle). Customer markers show NPC portrait images (instead of text names); the same line of updates also added purple potential highlights, a blue accepted-deal clock, green purchase checks, gray regional locks and a 0.1–12 zoom range. The tabbed settings app was verified in-game 2026-10-11; colour pickers now use a swatch palette, and zoom is set via hotkeys / console. |
 | [**StorageScanner**](Source/Mods/StorageScanner/) | Phone | 0.2.0 | Active | Read-only overview of every storage container across your owned properties: per-item totals, property filter chips, live search and an explicit incomplete-data banner. |
-| [**LightControl**](Source/Mods/LightControl/docs/README.md) | Lighting / Phone | 0.1.0-dev.5 | Coupled LED + light test build; In-Game-Verify open | One selection controls the verified LEDLight panel and its emitted light; 143 console checks, targeted review PASS. Native material identity retained; relative native intensity and guarded Original/teardown. Plant materials untouched; colored illumination intended. FullSpectrum, halogen, world lamps and multiplayer transport excluded. |
+| [**LightControl**](Source/Mods/LightControl/docs/README.md) | Lighting / Phone | 0.1.0-dev.13 | Coupled LED + light test build; In-Game-Verify open | One selection controls the verified LEDLight panel and its emitted light; 143 console checks, targeted review PASS. Native material identity retained; relative native intensity and guarded Original/teardown. Plant materials untouched; colored illumination intended. FullSpectrum, halogen, world lamps and multiplayer transport excluded. |
 | [**PropertyLEDs**](Source/Mods/PropertyLEDs/docs/README.md) | Visual / Phone | 0.1.7 | Experimental | Independently developed room/property RGB LEDs, phone controls and layout surveying tools. Segment-beam geometry plus 33 imported rooms across 11 properties (2026-10-11, reference-ported lines, visual confirmation open); not a completed release. |
-| [**WorldLook**](Source/Mods/WorldLook/docs/README.md) | Visual | 0.1.2 | Experimental | One world-look mod: mild clock-weighted light, the reference water surface, and a manual rendering probe. Merged from GoldenHour, WaterShader and GraphicsProbe. Light look owner-confirmed 2026-10-18; manual probe capture verified 2026-10-18; water clarity iterated in 0.1.2 (`_Absorption` + `_ShallowTint` red, foam reverted; In-Game-Verify open). |
+| [**WorldLook**](Source/Mods/WorldLook/docs/README.md) | Visual | 0.1.3 | Experimental | One world-look mod: mild clock-weighted light, the reference water surface, and a manual rendering probe. Merged from GoldenHour, WaterShader and GraphicsProbe. Light look owner-confirmed 2026-10-18; manual probe capture verified 2026-10-18; water clarity iterated in 0.1.3 (`_Absorption` 0.22, shallow tint near 0.5 so the *2 gain no longer washes the bottom cream; foam still at shader defaults; In-Game-Verify open). Verification evidence is historical for v0.1.2; no acceptance for v0.1.3. |
 | [**PhoneScrollFix**](Source/Mods/PhoneScrollFix/) | Phone / QoL | 2.0.0 | Active | Fixes the white hover plate on phone home-screen app icons: the vanilla non-maskable `Outline` highlight is turned into a slim clipped frame and the scroll viewport uses a stencil-free `RectMask2D`. Hover appearance verified in-game 2026-10-11. |
 
 Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not built or shipped): BackpackMod, DayCounter, HomelessMod, ProfitTracker, SnackVendor, TVBrowser, `_DiagPerfCounter`. Each mod folder contains its own documentation (`Source/Mods/<Mod>/docs/README.md`) and version history (`Source/Mods/<Mod>/docs/CHANGELOG.md`).
@@ -103,8 +103,8 @@ Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not 
       <a href="Source/Mods/AutoPackagingStation/docs/README.md">Docs</a> · <a href="Source/Mods/AutoPackagingStation/docs/CHANGELOG.md">Changelog</a>
     </td>
     <td align="center" width="25%">
-      <b>HitmanPhone</b> · v0.2.9<br>
-      <sub>Bounty contracts, evidence dead-drops and police heat.</sub><br>
+      <b>HitmanPhone</b> · v0.3.0-dev.1<br>
+      <sub>Experimental, singleplayer-only bounty repair; gameplay acceptance open.</sub><br>
       <a href="Source/Mods/HitmanPhone/docs/README.md">Docs</a> · <a href="Source/Mods/HitmanPhone/docs/CHANGELOG.md">Changelog</a>
     </td>
     <td align="center" width="25%">
@@ -206,7 +206,7 @@ Schedule1-mod-only/
 
 ## AI Agent Skills
 
-The repository includes 22 skills under [`Skills/`](Skills/README.md) — structured runbooks and reference notes that AI coding agents (and humans) can load when working on a mod. They document the project's IL2CPP conventions, S1API/S1MAPI usage and game systems, and are kept in sync with the mods.
+The repository includes 23 skills under [`Skills/`](Skills/README.md) — structured runbooks and reference notes that AI coding agents (and humans) can load when working on a mod. They document the project's IL2CPP conventions, S1API/S1MAPI usage and game systems, and are kept in sync with the mods.
 
 | Skill | Purpose |
 |---|---|
@@ -232,6 +232,7 @@ The repository includes 22 skills under [`Skills/`](Skills/README.md) — struct
 | [`schedule1-debounced-reload`](Skills/schedule1-debounced-reload/SKILL.md) | Debounced file watching and config hot reload. |
 | [`schedule1-lifecycle-verify`](Skills/schedule1-lifecycle-verify/SKILL.md) | Verifying lifecycle event ordering against game assemblies. |
 | [`schedule1-runtime-unity-cache`](Skills/schedule1-runtime-unity-cache/SKILL.md) | Leak-free caching of runtime Unity objects. |
+| [`schedule1-mod-reversing`](Skills/schedule1-mod-reversing/SKILL.md) | Analysing third-party mod DLLs: decompile, hook inventory, compatibility. |
 
 ## Contributing
 

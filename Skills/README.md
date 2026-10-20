@@ -1,6 +1,6 @@
 # Schedule I — AI Agent Skills Index
 
-22 skills under `Skills/<skill-name>/SKILL.md` — runbooks, framework references, and
+23 skills under `Skills/<skill-name>/SKILL.md` — runbooks, framework references, and
 diagnostic guides for MelonLoader mod development. Skills record evidence and verification
 scope without pinning game or framework versions; current toolchain details live in
 [`AGENTS.md`](../AGENTS.md) and [`docs/compatibility.md`](../docs/compatibility.md).
@@ -54,6 +54,7 @@ short table for visitors.
 | [`schedule1-debounced-reload`](schedule1-debounced-reload/SKILL.md) | Debounced live reload: FileSystemWatcher debouncing, main-thread pump, config hot reload. |
 | [`schedule1-runtime-unity-cache`](schedule1-runtime-unity-cache/SKILL.md) | Leak-free caches for Texture2D/Sprite/AudioClip/Material on runtime reloads. |
 | [`schedule1-lifecycle-verify`](schedule1-lifecycle-verify/SKILL.md) | Lifecycle verification: ilspycmd runbook for S1API/native event ordering. |
+| [`schedule1-mod-reversing`](schedule1-mod-reversing/SKILL.md) | Third-party mod DLL analysis: decompile, hook inventory, compatibility check, red flags. |
 
 ## Conventions (for skill authors)
 
