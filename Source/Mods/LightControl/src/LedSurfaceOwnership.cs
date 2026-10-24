@@ -88,4 +88,30 @@ public static class LedSurfaceOwnership
         if (!writeSucceeded) return LedReleaseOutcome.Deferred;
         return LedReleaseOutcome.Restored;
     }
+
+    /// <summary>
+    /// Release proof after a restore setter reported success. A successful setter is <i>not</i> proof
+    /// on its own: the same clone can be referenced by a second slot of the same renderer, so the
+    /// adapter must re-read the whole array. Only a complete re-read that no longer references the
+    /// clone releases it; an unreadable array or a remaining reference keeps it for a bounded retry.
+    /// <para>
+    /// Scope: this proves the <i>owning renderer's</i> array no longer references the clone. It is not
+    /// a global reference count, and an arbitrary foreign renderer can never be inspected, so the
+    /// adapter must never treat it as one.
+    /// </para>
+    /// </summary>
+    public static LedReleaseOutcome ConfirmRestore(bool rereadReadable, bool stillReferencesClone)
+    {
+        if (!rereadReadable) return LedReleaseOutcome.Deferred;
+        return stillReferencesClone ? LedReleaseOutcome.Deferred : LedReleaseOutcome.Restored;
+    }
+
+    /// <summary>
+    /// True when the tracked installation slot is stale: our clone still sits in a previous slot of
+    /// the same renderer while the lamp's <c>MaterialIndex</c> now points somewhere else. The adapter
+    /// must hand that previous slot back before installing anywhere else, otherwise it forgets the
+    /// old slot and the clone stays installed (or is released while still referenced).
+    /// </summary>
+    public static bool RequiresRelocation(int installedSlot, int targetSlot) =>
+        installedSlot >= 0 && installedSlot != targetSlot;
 }

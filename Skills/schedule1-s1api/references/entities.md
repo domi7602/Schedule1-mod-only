@@ -1,179 +1,66 @@
-# S1API — Entities (NPCs)
+# S1API NPC integration map
+
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 31/36 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
+Source scope: official online documentation reviewed on 2026-10-21; installed
+S1API 3.2.1 behavior has not been tested by this package. Use the <!-- skills-health: version-evidence (S1API target requested by the owner; installed build state lives in AGENTS.md) -->
+[custom-NPC skill](../../schedule1-custom-npcs/SKILL.md) as the implementation home.
 
-`S1API.Entities` and its sub-namespaces wrap the vanilla `Il2CppScheduleOne.NPCs` system with a builder-pattern, region-aware, saveable NPC creation API.
+## Choose the entity model
 
----
+The official [NPC reference](https://ifbars.github.io/S1API/api/S1API.Entities.NPC.html)
+distinguishes physical world NPCs from non-physical phone contacts. It presents
+`IsPhysical` as a public virtual property and `ConfigurePrefab` as the prefab
+configuration hook. Identity and initial customer/relationship/schedule setup
+belong to that builder phase; runtime initialization belongs to OnCreated.
+Match these members and the builder's overloads to the exact target assembly.
 
-## 1. Quickstart
+Do not restore the old mandatory `SpawnRegions` example or invented region enums.
+Determine the actual spawn, region, navigation, and readiness contracts from the
+current NPC builder and world implementation. A region name in game design does
+not establish a property or enum member in S1API.
 
-```csharp
-using S1API.Entities;
-using S1API.Entities.NPCs;
-using S1API.Entities.Appearances;
+## Divide responsibilities
 
-public sealed class MyFirstNPC : NPC
-{
-    protected override bool IsPhysical => true;   // if true, 3D model in world
+| Concern | Responsibility |
+|---|---|
+| Identity, initial components and defaults | Target-supported prefab configuration |
+| Live subscriptions and gameplay behavior | Owning runtime NPC instance |
+| Persisted mod data | Validated save fields with stable identity |
+| Response callbacks after restore | Rebind through the supported restore lifecycle |
+| Appearance | Verified customization fields, ranges, assets, and ownership |
+| World placement and movement | Ready navigation, valid spawn point, correct authority |
 
-    protected override void ConfigurePrefab(NPCPrefabBuilder builder)
-    {
-        builder.WithIdentity(id: "my_first_npc", firstName: "John", lastName: "Doe")
-               .WithSpawnPosition(new Vector3(0, 0, 0))
-               .EnsureCustomer()   // adds customer behaviour
-               .WithCustomerDefaults(cd => {
-                   cd.WithSpending(100f, 500f)        // budget per order
-                     .WithOrdersPerWeek(1, 3);
-               });
-    }
+Do not overwrite restored customer or relationship state with defaults every
+OnLoaded. Verify whether builder defaults apply only to newly created state.
+Avoid adding customer/dealer/supplier components twice or combining roles the
+target framework treats as mutually exclusive.
 
-    protected override void OnCreated()
-    {
-        base.OnCreated();
-        Appearance.Set<CustomizationFields.Gender>(0.5f)
-                  .Set<CustomizationFields.Height>(1.0f)
-                  .Build();
-        Schedule.Enable();               // daily routine
-        Schedule.InitializeActions();
-    }
-}
-```
+## Lifetime and lookup
 
-### Recommended Learning Path
+Keep IDs rather than wrappers across world reload. Resolve the current NPC through
+a verified lookup route and handle not-yet-ready, missing, and destroyed states
+separately. The online API has readiness and lookup surfaces, but their existence
+alone does not prove that every optional subsystem is initialized.
 
-1. Basic NPC (no `IsPhysical`)
-2. Physical NPC with default appearance
-3. Physical NPC with custom appearance
-4. Dialogue, Schedule, Customer, Relationship
+Store exact delegate instances when needed for removal. Tear down the old NPC's
+subscriptions on destruction/world transition. Repeated registration should not
+create duplicate contacts, dialogues, schedules, or callbacks.
 
----
+## Appearance and behavior verification
 
-## 2. Region System
+Inspect the exact customization field type before choosing numeric ranges, asset
+paths, or color representations. Do not substitute an unverified preset enum for
+an appearance builder. Validate the expected skeleton and asset dependencies.
+For schedules, check that actions are enabled, navigation exists, and destinations
+remain reachable after reload; a scheduler flag alone cannot establish pathfinding.
 
-Each physical NPC must be assigned to a region:
+## Tests
 
-```csharp
-public class MyDocksNPC : NPC
-{
-    protected override Region[] SpawnRegions => new[] { Region.Docks };
-}
-```
+Test first spawn, existing-save restore, stable identity, repeated reload, physical
+and contact-only variants, messaging after load, appearance persistence, and
+teardown. For networked NPCs include host, client, and late join. Keep callback,
+contact, and native-object counts to detect duplicate initialization.
 
-Available regions:
-- `Region.Docks`
-- `Region.Downtown`
-- `Region.Northtown`
-- `Region.Suburbia`
-- `Region.Uptown`
-- `Region.Westville`
-- `Region.Sewers` (Cartel)
-
-NPCs spawn based on region availability (after world load).
-
----
-
-## 3. NPCPrefabBuilder
-
-```csharp
-builder.WithIdentity(id: "alice", firstName: "Alice", lastName: "Smith", middleName: "J", suffix: "PhD")
-       .WithSpawnPosition(new Vector3(10, 0, 5))
-       .WithSpawnRotation(Quaternion.Euler(0, 90, 0))
-       .WithDefaultAppearance(AppearancePresets.Casual)   // optional preset
-       .WithCustomerDefaults(cd => cd.WithSpending(200f, 800f).WithOrdersPerWeek(2, 5))
-       .WithRelationshipDefaults(rd => rd.WithStartingTier(RelationshipTier.Acquaintance))
-       .EnsureCustomer()                  // adds customer behaviour to the NPC
-       .EnsureDealer()                    // adds dealer behaviour
-       .EnsureEmployee()                  // adds employee behaviour
-```
-
----
-
-## 4. Modular Subsystems
-
-Each subsystem is a property of the NPC wrapper:
-
-| Subsystem | Access | Configure |
-|---|---|---|
-| `Appearance` | `Appearance.Set<...>(v).Build()` | Hair, body, gender, height |
-| `Schedule` | `Schedule.Enable()` + `InitializeActions()` | Daily routine, A* pathfinding |
-| `Dialogue` | `Dialogue.AddLine("...", condition)` | Voice line + trigger |
-| `Relationship` | `Relationship.SetTier(RelationshipTier.X)` | Tier (Stranger → Family) |
-| `Customer` | (via `EnsureCustomer`) | Spending, order frequency, preferences |
-| `Dealer` | (via `EnsureDealer`) | Stock, prices |
-
-```csharp
-Appearance.Set<CustomizationFields.Gender>(0f)         // 0 = male, 1 = female
-          .Set<CustomizationFields.Height>(1.1f)
-          .Set<CustomizationFields.SkinTone>(0.3f)
-          .Set<CustomizationFields.HairStyle>(3)
-          .Set<CustomizationFields.HairColor>(Color.black)
-          .Build();
-```
-
----
-
-## 5. Physical vs Non-Physical
-
-```csharp
-public class PhoneContact : NPC
-{
-    protected override bool IsPhysical => false;   // not in world, only via phone
-}
-```
-
-Non-physical NPCs are phone contacts: no 3D model, only messaging/story. Useful for quest givers who only appear in dialogue.
-
----
-
-## 6. Lifecycle
-
-```csharp
-protected override void ConfigurePrefab(NPCPrefabBuilder builder)  // REQUIRED
-protected override void OnCreated()                              // called after instantiation
-protected override void OnLoaded()                              // called after save load
-protected override void OnSaveStarted()                         // pre-save
-protected override void OnSaveCompleted()                       // post-save
-protected override void OnDestroyed()                            // final cleanup
-```
-
-**Important:** `OnCreated` runs AFTER `ConfigurePrefab`. Use `OnCreated` to register event handlers, `OnLoaded` to restore state from saved `[SaveableField]` data.
-
----
-
-## 7. Gotchas
-
-* **NPC not appearing in world?** Region is missing or `SpawnRegions` is empty. Check `S1API.Entities.NPCs.Region` enum.
-* **NPC appearing in wrong gender?** `Appearance.Set<CustomizationFields.Gender>(...)` — `0 = male`, `1 = female`.
-* **NPC not moving?** `Schedule.Enable()` + `Schedule.InitializeActions()` required for A* pathfinding.
-* **Customer not buying?** `EnsureCustomer()` + `WithCustomerDefaults(...)` both required.
-
----
-
-## 8. Workspace Reference
-
-`HomelessMod` does NOT use `S1API.Entities` NPCs (it uses `Il2CppScheduleOne.EntityFramework` directly for its procedural CampingBag). However, `S1API.Entities.NPCs.*` is the recommended path for adding new NPCs that interact with the world's economy.
-
-For the source: `ThirdParty/S1API/` (S1API.Entities and sub-namespaces; initialize the submodule first if needed).
-
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
-
-- `SetTier`
-- `Sewers`
-- `AddLine`
-- `RelationshipTier`
-- `SpawnRegions`
+Use [saveables](saveables.md) for field serialization and
+[lifecycle verification](../../schedule1-lifecycle-verify/SKILL.md) when order is unclear.

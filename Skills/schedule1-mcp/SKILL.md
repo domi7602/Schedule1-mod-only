@@ -1,113 +1,84 @@
 ---
 name: schedule1-mcp
-description: >-
-  Live game introspection, remote debugging, and agentic state manipulation for Schedule I via S1MCPServer (MCP Protocol over TCP port 8765). Use when inspecting live player data, inventories, NPC positions, spawning items, querying game scenes, capturing runtime MelonLoader logs, or diagnosing live mod behavior.
-  Keywords: S1MCP, S1MCPServer, S1MCPClient, Model Context Protocol, s1_get_player, s1_get_player_inventory, s1_capture_logs, s1_list_npcs, s1_spawn_item, s1_inspect_object, s1_get_game_state, live debugging, TCP 8765.
+description: "Discover S1MCP tools and verify their actual game effects. Keywords: S1MCP, S1MCPServer, S1MCPClient, Model Context Protocol, s1_get_player, s1_get_player_inventory, s1_capture_logs, s1_list_npcs, s1_spawn_item, s1_inspect_object, s1_get_game_state, live debugging, TCP 8765."
 ---
 
 > Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
-# Schedule I — S1MCP Live Game Introspection & Debugging Skill
+# Schedule I — S1MCP Live Inspection
 
-This skill is the runbook for **live, real-time agentic interaction with the running *Schedule I* game** using the Model Context Protocol (MCP) bridge (`ifBars/S1MCPServer`).
+## Scope and prerequisites
 
-> The current game and dependency stack is recorded in `AGENTS.md`. This skill documents the MCP endpoint and protocol only: TCP localhost:8765, JSON-RPC 2.0 over stdio.
+Follow the [working contract](../schedule1-modding/references/working-contract.md).
+Discover the tools exposed in this session and inspect their actual input schemas first.
+Record bridge identity, game process/session, scene, network role, and available methods.
+This package does not include or connect a running bridge; historical names are lookup hints.
 
----
+## Connection and schema workflow
 
-## 1. Architecture & Mental Model
+1. Confirm that the intended bridge and game process are available. Do not launch a game
+   or attach to an unrelated session merely because an old example contains that step.
+2. Prefer the installed connector. Use raw transport only with its actual framing contract
+   and only when the configured connector cannot perform the authorized operation.
+3. Compare the live tool schema with [historical signatures](references/tool-signatures.md).
+4. Use a small read-only request to establish the target process and readiness.
+5. Resolve an exact object/component before reading selected members.
+6. Bound depth, result count, elapsed duration, and retries; preserve partial/unknown results.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    AI Agent (Antigravity / Flash)            │
-│                    (Evaluates tools, queries live state)     │
-└────────────────────────────┬────────────────────────────────┘
-                             │ MCP Protocol (JSON-RPC over stdio)
-┌────────────────────────────▼────────────────────────────────┐
-│              S1MCPClient (Python MCP Server)                │
-│  - Python environment from `requirements.txt` (see repository setup).
-│  - Translates MCP tools → JSON-RPC TCP packets              │
-│  - Working Directory: `ThirdParty/S1MCPServer-master/...`   │
-└────────────────────────────┬────────────────────────────────┘
-                             │ TCP (localhost:8765, 4-byte length prefix)
-┌────────────────────────────▼────────────────────────────────┐
-│              S1MCPServer (MelonLoader Mod)           │
-│  - Background Thread: TCP Server listening on port 8765     │
-│  - Main Thread Dispatcher: Executes Unity API calls safely   │
-│  - Registered in `<Game>\Mods\S1MCPServer-IL2CPP.dll`       │
-└────────────────────────────┬────────────────────────────────┘
-                             │
-┌────────────────────────────▼────────────────────────────────┐
-│              Schedule I Game Runtime             │
-│  - PlayerInventory, PlayerClothing, NPCs, Growing, Buildings│
-└─────────────────────────────────────────────────────────────┘
-```
+## Historical names and known caveats
 
----
+These entries summarize the uploaded source notes, not a fresh live discovery.
 
-## 2. Decision Tree — When to Use S1MCP Tools
+| Historical capability | Required caution |
+|---|---|
+| `s1_get_game_state` | Fields can be placeholders; source notes mark `game_time` as a stub |
+| `s1_capture_logs` | Notes use `last_n_lines`, not `max_lines`; inspect the current schema |
+| `s1_inspect_object` | Notes use `object_name`; component inspection is separate |
+| `s1_get_player_inventory` | Notes describe hotbar enumeration, not a proven full inventory |
+| `s1_add_item_to_player`, `s1_spawn_item` | Described revision returns success from unimplemented handlers |
+| `s1_teleport_npc`, `s1_set_npc_health` | Described revision contains non-mutating stubs |
+| `s1_list_properties` | Described property enumeration is a stub |
+| `s1_list_buildings` | Absent from the described source revision; do not invent the tool |
 
-```
-Need live game interaction?
-│
-├─ Diagnosing an in-game error / crash / warning?
-│  → Call `s1_capture_logs(keyword="error", max_lines=50)` or `keyword="Exception"` (see §4)
-│
-├─ Checking player status or money / inventory?
-│  → Call `s1_get_player()` and `s1_get_player_inventory()`
-│
-├─ Testing item drop / spawning / item definition?
-│  → Call `s1_list_items(category=...)`, `s1_get_item(item_id=...)`, or `s1_spawn_item(...)`
-│
-├─ Checking NPC AI / position / health / dialogue?
-│  → Call `s1_list_npcs()`, `s1_get_npc(npc_id=...)`, `s1_teleport_npc(...)`
-│
-├─ Verifying building state / property ownership?
-│  → Call `s1_list_buildings()` or `s1_get_building(building_id=...)`
-│
-└─ Inspecting native Unity GameObject hierarchy / components?
-   → Call `s1_inspect_object(game_object_name=...)`
-```
+## Read-only diagnosis
 
----
+Start with connection/readiness, recent logs, and an exact target state.
+Do not interpret an empty search as absence when discovery is scan-capped or incomplete.
+Prefer explicit known members over broad reflection: a property getter may allocate or
+change state. Avoid scene-wide native enumeration in hot loops.
+A connected socket does not prove gameplay readiness; a valid scene name does not prove
+that the target singleton or world data is ready.
 
-## 3. Core S1MCP Tool Reference
+## Test mutations
 
-| Tool Name | Purpose | Parameters |
-|---|---|---|
-| **`s1_get_game_state`** | Current scene, version, player active, network state | None |
-| **`s1_capture_logs`** | Capture & filter MelonLoader logs directly from the game | `keyword`, `max_lines`, `log_level`, `start_time` |
-| **`s1_get_player`** | Live player position, health, cash, stamina, state | None |
-| **`s1_get_player_inventory`** | Full inventory dump (slots, quantities, item IDs) | None |
-| **`s1_teleport_player`** | Move player to coordinates `(x, y, z)` | `x`, `y`, `z` |
-| **`s1_add_item_to_player`** | Add item directly to player's inventory | `item_id`, `quantity`, `quality` |
-| **`s1_list_npcs`** | List active NPCs in the loaded scene | `filter`, `include_inactive` |
-| **`s1_get_npc`** | Get details for specific NPC (health, position, job) | `npc_id` |
-| **`s1_teleport_npc`** | Teleport NPC to coordinates | `npc_id`, `x`, `y`, `z` |
-| **`s1_set_npc_health`** | Set NPC health / conscious state | `npc_id`, `health` |
-| **`s1_list_items`** | List registered item IDs in `Registry` | `category`, `search` |
-| **`s1_get_item`** | Inspect definition (price, stack limit, category) | `item_id` |
-| **`s1_spawn_item`** | Spawn physical item in front of player or at `(x,y,z)` | `item_id`, `quantity`, `x`, `y`, `z` |
-| **`s1_list_buildings`** | List properties & business states | None |
-| **`s1_inspect_object`** | Reflectively inspect components & fields of a GameObject | `game_object_name`, `component_name` |
+Use a mutation only within the user's authorized task and an appropriate test world.
+Confirm the intended world, authority, restoration plan, and actual implemented handler.
+Capture before-state, call with the discovered schema, then read the exact changed state.
+A `success` field, silent null, or lack of error is not acceptance evidence.
+Do not use documented stubs to claim spawning, money changes, NPC movement, or health tests.
+A timeout can leave the result unknown; read back before retrying a non-idempotent action.
+Restore temporary changes and record cleanup failure explicitly.
 
----
+## Transport and failure handling
 
-## 4. The 4 Non-Negotiable S1MCP Rules
+- Do not infer current bind address, authentication, or message framing from this archive.
+- Check response/request identity. A mismatched response is not evidence for the command.
+- Reconnect after a confirmed protocol phase error; do not continue on stale IDs.
+- Distinguish unsupported parameters, unavailable tools, unready game state, and timeouts.
+- A second connection can be rejected by the historical single-client bridge; coordinate
+  ownership rather than repeatedly opening sockets.
+- Keep startup-crash triage available through preserved logs when the bridge cannot help.
+- Do not kill a process solely because a port is occupied; identify the process and session.
 
-1. **Scene Gate:** S1MCP is active only once the `Main` (gameplay) scene or `Menu` scene is loaded. Startup crashes (0–2 seconds after launch) happen before the TCP server can accept connections — use log file parsing / process isolation for startup crashes.
-2. **Never Freeze IL2CPP:** Never call `Resources.FindObjectsOfTypeAll<GameObject>()` in queries. Use `SceneManager.GetActiveScene().GetRootGameObjects()` and bounded tree traversal.
-3. **Localhost Only Security:** S1MCPServer binds strictly to `127.0.0.1:8765`. It never exposes ports externally.
-4. **Main-Thread Marshaling:** All Unity API and IL2CPP calls MUST execute on the Main Thread via `CommandRouter` and the mod's `OnUpdate` loop. Background threads only handle TCP socket I/O.
+## Verification and delivery
 
-5. **`call_method` needs the component, and only parameterless methods are reliable.** `call_method` targets a GameObject, so a component method must be named via `component_type` or the call falls through to the GameObject and returns a silent `null` (`{"value":"null","type":"null"}`) with **no** error object — never read that as "the method ran and returned null". Passing a string argument to an injected IL2CPP method also returns `null` (the handler's `object[]` conversion does not produce a managed `string`; `ReflectionEngine.InvokeMethod` swallows the binding failure). Expose primitive, **parameterless** status/mutation methods on a `[RegisterTypeInIl2Cpp]` bridge component instead of a command-string entry point. Live-verified 2026-10-10 with `PropertyLEDs_DiagnosticBridge` (`Status`), which returned its JSON state where `Execute("led status")` returned null.
+Report tool/schema identity, target world/object, request outcome, independent readback,
+observation duration, scan limits, and any retained unknowns.
+Native observations from one role or session do not establish host/client transition safety.
 
-> **Log hygiene:** `[DEBUG]` logging is **off by default** — no more Latest.log spam on agent connect. Enable only when needed via `UserData/S1MCPServer.cfg` → `[S1MCPServer] DebugLogging = true` (payload dumps truncated to 500 chars). Info/Warn lifecycle lines (connect/disconnect) always logged.
+## Read triggers
 
----
-
-## 5. References
-
-- [Tool Signatures & JSON-RPC Schema](references/tool-signatures.md)
-- [Bounded sewer-key observations](references/sewer-key-observation.md)
-- [Live Debugging Runbook](references/live-debugging.md)
+- [Tool signatures](references/tool-signatures.md): inherited schemas, stubs, wire protocol, transport incidents.
+- [Live debugging](references/live-debugging.md): bounded diagnostic sequence and test readbacks.
+- [Sewer-key observations](references/sewer-key-observation.md): identity, scan bounds, and observation continuity.
+- [Log triage](../schedule1-troubleshooting/references/logscan-and-logs.md): bridge-independent evidence.

@@ -1,124 +1,72 @@
-# Latest.log Triage & Diagnostics
+# Latest.log Triage and Diagnostic Capture
 
 > verified: PowerShell one-liners re-tested 2026-08-03; §4.3 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings in the instrumented session).
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 19 of 19 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
-The canonical method for inspecting runtime diagnostics in Schedule I is querying `<GameDir>\MelonLoader\Latest.log`. These native PowerShell commands provide fast, zero-dependency log triage without game-freeze risks.
+> Evidence scope: this is a diagnostic procedure revised from the uploaded notes.
+> Historical PowerShell/lifecycle checks are not proof that this session has run them.
 
----
+## Capture first
 
-## 1. Quick Start (PowerShell One-Liners)
+1. Locate the actual game directory and the current loader log; the historical default is
+   `MelonLoader/Latest.log` below that directory.
+2. Record file identity, timestamp, relevant mod versions, scene, and reproduction time.
+3. Copy the log before restarting or launching another session that may replace it.
+4. Preserve the complete exception block and neighboring initialization or state lines.
+5. Use a bounded tail for immediate triage, then widen only for a concrete missing clue.
 
-```pwsh
-$log = "$env:SCHEDULE1_PATH\MelonLoader\Latest.log"
+Do not delete the only log before preserving it. A new capture should be clearly separated
+from the earlier session so timestamps and process identities are not mixed.
 
-# Default: scan Latest.log for errors and warnings (last 200 lines)
-Get-Content $log -Tail 200 | Select-String -Pattern '\[ERROR\]|\[WARNING\]|Exception|WasCollected'
+## Search efficiently
 
-# Filter to a specific mod (e.g. NotesApp)
-Get-Content $log -Tail 500 | Select-String -Pattern '\[NotesApp\]'
+Use available tools such as `rg` or PowerShell `Select-String` on the preserved file.
+Search relevant mod prefixes, `Exception`, error/warning markers, `Harmony`, and collected
+object messages; the exact prefix format depends on the logger and build.
+Retrieve context around a match. Filtering only matching lines can hide the actual caller.
+For large files, distinguish a bounded tail from a full-file search in the report.
 
-# Check for IL2CPP GC collection issues or stale pointers
-Get-Content $log | Select-String -Pattern 'WasCollected|Pointer == IntPtr\.Zero|NullReferenceException'
+A first exception is a useful lead. It can be unrelated or handled, while the actual fault
+occurs later; establish its causal connection instead of automatically ignoring later errors.
+An absence of matches does not prove successful initialization or healthy gameplay.
 
-# Find the very FIRST error in the log (root cause of startup crashes)
-Get-Content $log | Select-String -Pattern '\[ERROR\]|Exception' | Select-Object -First 3
-```
+## Classify the evidence
 
----
+| Observed record | What it establishes | What remains open |
+|---|---|---|
+| Patch installation message | A registration path reported success | Target metadata, invocation, intended effect |
+| No callback logs | No matching captured log line | Logging enabled, callback reached, filter coverage |
+| Empty list after scene entry | The observed read was empty | Valid empty state, readiness, authority, correct world |
+| Native access violation | A native failure occurred | Cause, faulting module, lifetime/thread/ABI conditions |
+| Missing-member exception | A particular resolution or call failed | Which binary differs and why |
+| Clean recent tail | No detected failure in that bounded tail | Earlier failures or unlogged faults |
 
-## 2. Log Anatomy (What Each Block Means)
+## Runtime capture boundaries
 
-## 3. Log Anatomy (What Each Block Means)
+Use the bridge only if it is available and its current schema has been discovered.
+The inherited S1MCP schema uses `last_n_lines`, `first_n_lines`, and timestamp filters;
+see [bridge signatures](../../schedule1-mcp/references/tool-signatures.md).
+A source note that mentions a tail cap is not a guarantee of the installed handler's cap.
+Record truncation, dropped multiline content, and any failed reads.
 
-`Latest.log` is structured as follows, roughly:
+Keep a live follow operation bounded or cancellable. Stop it when the reproduction ends;
+a long-running tail is not itself a test result.
+Avoid logging every frame or every object. Aggregate counts/durations over a defined window
+and preserve the first distinct error with a repeat count.
 
-```
-[<HH:MM:SS.mmm>] [ModName] Info/Warning/Error: <message>
-[<HH:MM:SS.mmm>] [stack-trace-prefix-line]
-[<HH:MM:SS.mmm>]   at ...
-[<HH:MM:SS.mmm>]   at ...
-...
-```
+## Follow the relevant diagnosis
 
-**Pillars to scan for:**
-- `[MelonLoader]` banner lines = loader-level diagnostics (broken dep, IL2CPP interp issues).
-- `[<ModName>]` lines = mod-emitted messages (e.g. `[NotesApp]`).
-- `Exception:` / `at …` blocks = .NET exception stack trace.
-- `Harmony` lines = patch install/remove diagnostics.
-- Lines without prefix = MelonLoader internal messages.
+- For native crashes, preserve the crash report/dump when available and compare dependencies.
+- For lifecycle state, capture scene, world identity, role, callback time, and readiness.
+- For silent hooks, inspect owner metadata and instrument the actual hook/caller.
+- For performance, pair log evidence with measured frame/callback durations.
+- For persistence, retain the failed path, operation, exception, and write-gate state.
 
----
+See [common errors](common-errors.md), [save/load timing](save-load-timing.md), and
+[the troubleshooting workflow](../SKILL.md).
 
-## 3. Common Spike Patterns (What to Look For)
+## Deliver the finding
 
-### 3.1. Mod Init Failure (Mod never starts)
-```
-[<time>] [ModName] Error: <message>
-[<time>] Exception: ... StackOverflowException / MissingMethodException / TypeInitializationException
-```
-**Cause:** `OnInitializeMelon` threw before logging "Ready". Steps:
-1. Reproduce.
-2. Open `Latest.log` from cold boot (delete it, restart game).
-3. Find the **first** error belonging to the mod — ignore everything later.
-4. Cross-reference with `[common-errors.md](common-errors.md)`.
-
-### 3.2. Patch Silent No-Op
-```
-[<time>] [ModName] Info: Patched: <Type>.<Method> (Prefix: 1, Postfix: 0)
-[<time>] (no further logs about the patched method)
-```
-**Cause:** Patch installed but never invoked. Most likely:
-- IL2CPP method inlining — patch the caller.
-- `__instance == null` early return.
-- Scene/lifecycle condition.
-
-### 3.3. Save-Load Desync
-```
-[<time>] [S1API] Error: GameLifecycle.OnLoadComplete fired before ...
-[<time>] [ModName] Error: Property.OwnedProperties.Count == 0
-[<time>] Exception: NullReferenceException at …
-```
-**Cause:** Hooked the wrong lifecycle. Refresh on `GameLifecycle.OnLoadComplete` (verified order 2026-09-29: Scene 'Main' → `OnPreLoad` → `OnLoadComplete`; see save-load-timing.md §1). **Do NOT use `OnSaveInfoLoaded` for this — it fires 0× in the instrumented session** (older advice recommending it is historical).
-
-### 3.4. Native AV Crash (0xc0000005)
-```
-Windows Error: 0xc0000005 (Access Violation)
-(no managed stack trace in log)
-```
-**Cause:** Mod class volume too high (>5-10 MB) → IL2CPPInterop class init failure → native AV.
-**Fix:** Reduce `RegisterTypeInIl2Cpp` count, defer init, split into multiple mods.
-
-### 3.5. IL2CPP Interop Failure (0x80131506)
-```
-Windows Error: 0x80131506 (CLR Fatal Error)
-Fatal error in GC
-```
-**Cause:** A historical S1API pre-init assembly-loading crash (often NPC registration) was traced to recursive `Assembly.GetTypes()` calls in `PreRegisterAllNpcPrefabs()`. Suspect a framework/runtime mismatch and inspect the current source and deployed DLL.
-
----
-
-## 4. Worked Example: Catch the First Error
-
-```pwsh
-# Step 1: Cold-start capture
-Remove-Item "$env:SCHEDULE1_PATH\MelonLoader\Latest.log" -ErrorAction SilentlyContinue
-# Launch game, reproduce issue, Alt+F4
-
-# Step 2: Find the FIRST error in the log
-Get-Content "$env:SCHEDULE1_PATH\MelonLoader\Latest.log" | `
-    Select-String -Pattern '\[ERROR\]|Exception' | `
-    Select-Object -First 1
-```
-
-The first error is almost always the **root cause**; subsequent errors are usually secondary cascades caused by uninitialized singletons or broken state.
-
----
-
-## 5. Performance Notes
-
-* Streaming `Latest.log` with `Get-Content -Tail 200` is instantaneous even on huge log files (>100 MB).
-* To follow the log in real time during a gameplay session:
-  ```pwsh
-  Get-Content "$env:SCHEDULE1_PATH\MelonLoader\Latest.log" -Wait -Tail 50
-  ```
+State the capture interval, exact symptom, relevant log lines, confirmed versus possible
+cause, one next diagnostic step, and what the capture could not observe.
+Do not describe a static identifier search as an in-game log or behavior test.

@@ -14,14 +14,21 @@
 # shadow repo subpaths (bugfix 2026-09-16: unanchored "Mods/" silently
 # ignored every new file under Source/Mods/).
 /game source/
-/Library/
 /Temp/
 /Logs/
-/UserSettings/
 /MelonLoader/
 /Mods/
 /Plugins/
 /UserData/
+
+# Unity build cache and per-user settings. The root-anchored rules above only
+# cover the repo root, so a nested Unity project (Source/Mods/WorldLook/unity)
+# needs its own patterns. `Library/` is regenerable build trash and must never
+# reach the repo; `UserSettings/` is machine-local editor state.
+**/Library/
+**/UserSettings/
+**/Temp/
+**/Logs/
 
 # Local tooling and generated reverse-engineering references
 .cache/
@@ -45,6 +52,8 @@ Thumbs.db
 /Saved Games/
 # Release packages
 Release/*.zip
+# Local upload/attachment bundles next to a mod (e.g. Source/Mods/LightControl.zip).
+Source/Mods/*.zip
 
 # Archives
 Source/Archive/*.zip

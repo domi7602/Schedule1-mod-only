@@ -1,145 +1,60 @@
-# S1MAPI — MaterialPresets (URP-Compatible Materials)
+# S1MAPI — Materials and Rendering Ownership
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 14 of 14 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+## Evidence boundary
 
-Creating URP materials at runtime is error-prone — shader names, property keys, and render pipelines vary. `MaterialPresets` wraps the URP shader suite into 5 ready-to-use presets.
+The official S1MAPI API overview was consulted on 2026-10-21. It places material helpers in `S1MAPI.Utils` and demonstrates named helpers such as `Opaque`, `Transparent`, `Glass`, `Metal`, and `Emissive`, then passes the resulting material to `SetMaterial`. This is public documentation evidence, not proof that the deployed DLL exposes the same members.
 
----
+The original package's invented enum-style preset recipes and builder-specific preset setters are removed. Resolve exact helpers and parameters from the target assembly.
 
-## 1. The 5 Presets
+## Choose an owner before choosing a color
 
-```csharp
-public enum MaterialPreset
-{
-    Opaque,        // solid surface, no transparency
-    Transparent,   // partial transparency
-    Glass,         // refractive-style, glass-like
-    Metallic,      // metal (high specular, low roughness)
-    Emissive       // glow (emission color + intensity)
-}
-```
-
----
-
-## 2. Using via `ProceduralMeshBuilder`
-
-```csharp
-var box = new ProceduralMeshBuilder("ReflectiveFloor")
-    .AddBox(Vector3.zero, new Vector3(5, 0.1f, 5))
-    .SetMaterialPreset(MaterialPreset.Metallic)
-    .SetColor(Color.gray)
-    .Build();
-```
-
----
-
-## 3. Using Directly
-
-```csharp
-using S1MAPI.Materials;
-
-var mat = MaterialPresets.Create(MaterialPreset.Glass);
-mat.SetColor("_BaseColor", new Color(0.7f, 0.9f, 1f, 0.3f));
-mat.SetFloat("_Surface", 1f);   // URP "Transparent" surface type
-
-var renderer = box.GetComponent<Renderer>();
-renderer.material = mat;
-```
-
-### Property Setters (Common)
-
-| Method | Property | Notes |
+| Material source | Allowed use | Cleanup responsibility |
 |---|---|---|
-| `SetColor(string, Color)` | `_BaseColor` | URP main color |
-| `SetFloat(string, float)` | various | numeric properties |
-| `SetTexture(string, Texture)` | various | textures |
-| `SetVector(string, Vector4)` | various | vector properties |
+| Borrowed native/shared material | Read/reuse without mutation unless coordinated ownership is established | Never destroy the borrowed asset |
+| Explicitly cloned material for one renderer | Modify only the owned copy | Destroy the copy after its final consumer releases it |
+| Mod-owned shared material | Share among objects with intentionally identical settings | A central owner releases it after all consumers |
+| Per-renderer property override | Use only supported properties and preserve existing overrides | Restore/remove only this feature's overrides |
 
----
+Use [the canonical rendering reference](../../schedule1-3d-assets/references/urp-rendering-materials.md) for the Unity `material`/`sharedMaterial` distinction. Do not turn a read-only native material into global mutable state to avoid making a copy.
 
-## 4. Per-Preset Recipes
+## Resolve a shader and preset
 
-### Opaque
+1. Determine the target render pipeline and inspect a compatible existing material.
+2. Verify the chosen S1MAPI helper, its shader resolution, required keywords, and returned ownership.
+3. Confirm the shader exists and is supported before constructing a material.
+4. Apply only properties supported by that shader. Check the actual material result instead of assuming a preset name implies a feature.
+5. If no supported shader is available, keep a known-good appearance or disable that visual with a diagnostic. Do not fall through to a known incompatible shader.
+6. Cache a reusable material by the actual visual parameters, including shader/texture/render state, and bound that cache.
 
-```csharp
-new ProceduralMeshBuilder("PaintedWall")
-    .AddBox(Vector3.zero, size)
-    .SetColor(new Color(0.99f, 0.96f, 0.86f))   // cream — UnityEngine has NO Color.cream, use explicit RGB
-    .Build();
-// default: opaque, no emission, no transparency
-```
+## Property checklist
 
-### Transparent
+The following are common URP Lit lookup keys; verify each with the selected shader:
 
-```csharp
-new ProceduralMeshBuilder("GlassPane")
-    .AddBox(Vector3.zero, new Vector3(2, 2, 0.05f))
-    .SetMaterialPreset(MaterialPreset.Transparent)
-    .SetColor(new Color(0.7f, 0.9f, 1f, 0.3f))
-    .Build();
-```
+| Property | Purpose | Check |
+|---|---|---|
+| `_BaseColor`, `_BaseMap` | Tint and albedo | Correct color space and UVs |
+| `_Metallic`, `_Smoothness` | Surface response | Texture channel convention and shader variant |
+| `_BumpMap` | Normal texture | Linear data and normal-map keyword |
+| `_EmissionColor` | Emission | Required keyword and scene/postprocessing behavior |
 
-### Glass
+Alpha alone is not a complete transparency setup. Match surface mode, blending, depth writing, keywords, and render queue to the verified shader/helper. A preset called glass does not prove physical refraction or a particular performance cost.
 
-```csharp
-new ProceduralMeshBuilder("GlassWindow")
-    .AddBox(Vector3.zero, size)
-    .SetMaterialPreset(MaterialPreset.Glass)
-    .SetColor(new Color(0.6f, 0.85f, 1f, 0.5f))
-    .Build();
-```
+## Application and replacement
 
-`Glass` is heavier than `Transparent` — uses shader-based transparency, refracts/diffuses light. Use for windows, display cases, science equipment.
+Build the replacement material before changing renderers. Save only the original references that this feature actually replaces, track the target owner/generation, and restore conditionally so another mod's later assignment is not overwritten. On replacement failure, release the failed candidate and retain the last usable material.
 
-### Metallic
+A material does not automatically own every texture assigned to it. Track generated textures separately and release shared resources after their final consumer. Use the runtime cache skill for repeated reloads.
 
-```csharp
-new ProceduralMeshBuilder("SteelLocker")
-    .AddBox(Vector3.zero, new Vector3(1f, 2f, 0.6f))
-    .SetMaterialPreset(MaterialPreset.Metallic)
-    .SetColor(new Color(0.7f, 0.7f, 0.7f))
-    .Build();
-```
+## Performance and verification
 
-### Emissive
+Reuse stable materials where appropriate, but test changes under the actual render pipeline. Unity documents that MaterialPropertyBlock can bypass SRP batching, so do not prescribe it as an unconditional optimization. Compare allocation counts, material instances, batching, and visible results before/after.
 
-```csharp
-new ProceduralMeshBuilder("NeonSign")
-    .AddBox(Vector3.zero, new Vector3(2, 0.5f, 0.05f))
-    .SetMaterialPreset(MaterialPreset.Emissive)
-    .SetEmission(Color.cyan, intensity: 3.0f)
-    .Build();
-```
+Test independent colors on two objects sharing the original material, repeated restyles/reloads, missing shader, transparency sorting, emission at day/night, and cleanup with surviving consumers.
 
-This is the equivalent of a glowing neon sign. Use for lights, screens, magic items, status indicators.
+## Sources
 
----
-
-## 5. Limitations
-
-* **No shader customization beyond presets.** If you need a specific shader (e.g., outline shader, custom fragment), use `MaterialPresets.Create(preset)` and modify the result, or write a custom shader.
-* **No MaterialPropertyBlock reuse across presets.** Each preset creates a new Material instance.
-* **No GPU instancing by default.** For 100+ identical objects, consider `MaterialPropertyBlock` for variation.
-
----
-
-## 6. Direct Material API Beyond Presets
-
-```csharp
-using S1MAPI.Materials;
-
-// Create a material from a base preset
-var mat = MaterialPresets.Create(MaterialPreset.Opaque);
-
-// Apply additional effects
-mat.SetTexture("_BaseMap", myTexture);
-mat.SetColor("_EmissionColor", Color.cyan);
-
-// Use directly on a renderer
-renderer.material = mat;
-
-// Or use a shared material (multiple objects, one material instance)
-renderer.sharedMaterial = mat;
-```
-
-> **Gotcha:** `renderer.material` returns a clone, `renderer.sharedMaterial` is the actual instance. Use `sharedMaterial` for performance when many objects share the same look.
+- [S1MAPI API overview](https://ifbars.github.io/S1MAPI/docs/api-overview.html) — public helper catalog; inspect the deployed member contracts.
+- [Unity MaterialPropertyBlock](https://docs.unity3d.com/ScriptReference/MaterialPropertyBlock.html) — property overrides and SRP batching caveat.
+- [Unity material ownership](../../schedule1-3d-assets/references/urp-rendering-materials.md).

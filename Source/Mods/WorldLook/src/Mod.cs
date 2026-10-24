@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using Il2CppScheduleOne.DevUtilities;
 using Il2CppScheduleOne.GameTime;
+using S1API.Lifecycle;
 using S1Mods.Shared;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,293 +10,178 @@ using UnityEngine.SceneManagement;
 namespace GoldenHour;
 
 /// <summary>
-/// Golden-hour look bias (client-side, cosmetic). Ctrl+Shift+F7 toggles a warm
-/// multiplicative bias over sky sun glow, sun light color, ambient Trilight colors,
-/// fog color and the GlobalVolume ColorAdjustments colorFilter. On activation a baseline
-/// is recorded per parameter and then rebased onto the game's own drifting values (see
-/// BaselinePolicy); toggle-off, scene exit and shutdown restore the latest adopted game
-/// value for every written key.
-/// The applied strength is the configured strength scaled by the in-game clock
-/// (DaylightPolicy: full at 06:00 and 18:00, zero at noon and at night), so a constant
-/// warm multiply cannot paint noon gold. An unreadable clock releases the bias instead
-/// of painting full gold.
-/// Every activation also writes a one-shot DIAG dump (camera post-processing, volume
-/// flags, sky/render settings) to the MelonLoader log for the in-game verify.
+/// Native lighting bias coordinated by WorldLook. This module owns neither a hotkey
+/// nor configuration. Desired state survives loads; native color leases do not carry
+/// into a later scene (only unresolved, restore-only leases can remain quarantined).
 /// </summary>
 public sealed class Mod
 {
-    private const KeyCode ToggleKey = KeyCode.F7;
-
-    private readonly TogglePolicy _toggle = new();
-    private readonly SnapshotStore _store = new();
-    private ReapplyPolicy _reapply = new(1.0);
-    private SceneTargets _targets = new();
-    private ModLogger _log = new("GoldenHour");
+    private readonly ModLogger _log = new("GoldenHour");
+    private readonly SceneTargets _targets;
     private bool _initialized;
-    private string _lastSceneName = "";
-    private double _lastAppliedStrength = double.NaN;
-    private int _lastLoggedWeightBucket = int.MinValue;
-    private bool _timeUnreadLogged;
+    private bool _desiredEnabled;
+    private bool _loading;
+    private bool _active;
+    private double _warmth;
+    private double _appliedStrength;
+    private int? _sceneHandle;
+    private int? _hhmm;
+    private int? _minutes;
+    private int _readableChannels;
+    private string? _lastError;
+    private int _errors;
+    private double _nowSeconds;
+
+    public Mod() => _targets = new SceneTargets(_log);
 
     public void OnInitializeMelon()
     {
-        _log = new ModLogger("GoldenHour");
-        ModConfig<GoldenHourConfig>.Initialize("GoldenHour", _log);
-        _reapply = new ReapplyPolicy(ModConfig<GoldenHourConfig>.Instance.ReapplyIntervalSeconds);
+        if (_initialized) return;
+        GameLifecycle.OnPreLoad += OnPreLoad;
+        GameLifecycle.OnPreSceneChange += OnPreLoad;
+        GameLifecycle.OnLoadComplete += OnLoadComplete;
+        _loading = false;
         _initialized = true;
-        _log.Info("initialized — Ctrl+Shift+F7 toggles the golden-hour look (Main scene only).");
+        _log.Info("native lighting initialized — enabled state and warmth are controlled by WorldLook.");
+    }
+
+    public void SetEnabled(bool enabled, double warmth)
+    {
+        _desiredEnabled = enabled;
+        _warmth = BlendPolicy.ClampStrength(warmth);
+        if (_initialized && !enabled) ReleaseWorld();
     }
 
     public void OnUpdate()
     {
         if (!_initialized) return;
-
-        LogSceneChangeOnce();
-
-        if (!NetworkGuard.IsInMainScene)
+        try
         {
-            HandleSceneExit("left Main scene");
-            return;
+            _nowSeconds = Time.unscaledTime;
+            if (!TryGetMainScene(out Scene scene) || (_sceneHandle.HasValue && _sceneHandle != scene.handle))
+                ReleaseWorld();
+            _targets.RetryReleases(_nowSeconds);
         }
-
-        if (HotkeyFired()) OnToggleRequested();
-
-        if (!ModConfig<GoldenHourConfig>.Instance.ApplyEveryLateUpdate
-            && _toggle.IsActive
-            && _reapply.IsDue(Time.unscaledTime))
-        {
-            ApplyNow(reapply: true);
-        }
+        catch (Exception ex) { FailFrame(ex); }
     }
 
     public void OnLateUpdate()
     {
-        // Default path (0.1.4): the game's day/night grading rewrites these values
-        // every frame (measured 2026-10-17), so the bias must be re-applied per frame
-        // or it loses every frame race and never shows on screen.
-        if (_initialized
-            && ModConfig<GoldenHourConfig>.Instance.ApplyEveryLateUpdate
-            && _toggle.IsActive
-            && NetworkGuard.IsInMainScene)
-        {
-            ApplyNow(reapply: true);
-        }
-    }
-
-    private void LogSceneChangeOnce()
-    {
+        if (!_initialized) return;
         try
         {
-            Scene scene = SceneManager.GetActiveScene();
-            string name = scene.IsValid() ? scene.name : "<invalid>";
-            if (name != _lastSceneName)
+            _nowSeconds = Time.unscaledTime;
+            if (!_desiredEnabled || _loading || !TryGetMainScene(out Scene scene))
             {
-                _lastSceneName = name;
-                _log.Info($"scene '{name}' (Main guard: {NetworkGuard.IsInMainScene}).");
+                if (_active || _sceneHandle.HasValue) ReleaseWorld();
+                return;
             }
+            if (_sceneHandle.HasValue && _sceneHandle != scene.handle) ReleaseWorld();
+            _sceneHandle = scene.handle;
+
+            _hhmm = null;
+            _minutes = null;
+            bool readableTime = TryReadMinutes(out int hhmm, out int minutes);
+            if (hhmm >= 0) _hhmm = hhmm;
+            if (readableTime) _minutes = minutes;
+            // An unreadable/malformed clock releases any old tint; it never means noon
+            // or a full-strength fallback. Native lighting remains the baseline.
+            double weight = _minutes.HasValue ? DaylightPolicy.Weight(_minutes.Value) : 0.0;
+            _appliedStrength = _warmth * weight;
+            _readableChannels = _targets.Apply(scene, _appliedStrength, _nowSeconds);
+            _active = _readableChannels > 0;
         }
-        catch
-        {
-            // Best-effort breadcrumb only; a scene query can throw during teardown.
-        }
+        catch (Exception ex) { FailFrame(ex); }
     }
 
-    public void OnApplicationQuit()
+    public void OnSceneWasUnloaded(int buildIndex, string sceneName)
     {
-        HandleSceneExit("game shutting down");
-        ModConfig<GoldenHourConfig>.Flush();
+        if (!_initialized || !string.Equals(sceneName, "Main", StringComparison.Ordinal)) return;
+        ReleaseWorld();
     }
 
     public void OnDeinitializeMelon()
     {
-        // Runtime unload path (MelonLoader disable/unload): restore before teardown.
-        HandleSceneExit("mod deinitialized");
+        if (!_initialized) return;
+        _initialized = false;
+        GameLifecycle.OnPreLoad -= OnPreLoad;
+        GameLifecycle.OnPreSceneChange -= OnPreLoad;
+        GameLifecycle.OnLoadComplete -= OnLoadComplete;
+        ReleaseWorld();
+        if (_targets.PendingRestores > 0)
+            _log.Warn($"lighting shutdown has {_targets.PendingRestores} unresolved color restores; see F9/errors.");
     }
 
-    private bool HotkeyFired()
+    /// <summary>Small cached status only; taking diagnostics does not resolve native resources.</summary>
+    public Dictionary<string, object?> GetDiagnosticsSnapshot() => new()
     {
-        try
-        {
-            if (!Application.isFocused) return false;
-            if (HotkeyManager.IsInputFieldFocused()) return false;
-            bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-            bool shift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            return ctrl && shift && Input.GetKeyDown(ToggleKey);
-        }
-        catch
-        {
-            return false;
-        }
+        ["desiredEnabled"] = _desiredEnabled,
+        ["initialized"] = _initialized,
+        ["active"] = _active,
+        ["loading"] = _loading,
+        ["sceneHandle"] = _sceneHandle,
+        ["timeHhmm"] = _hhmm,
+        ["minutesSinceMidnight"] = _minutes,
+        ["timeReadable"] = _minutes.HasValue,
+        ["warmth"] = _warmth,
+        ["appliedStrength"] = _appliedStrength,
+        ["readableChannels"] = _readableChannels,
+        ["pendingRestores"] = _targets.PendingRestores,
+        ["errors"] = _errors + _targets.ErrorCount,
+        ["lastError"] = _lastError ?? _targets.LastError,
+    };
+
+    private void OnPreLoad()
+    {
+        if (!_initialized) return;
+        _loading = true;
+        ReleaseWorld();
     }
 
-    private void OnToggleRequested()
+    private void OnLoadComplete()
     {
-        try
-        {
-            if (_toggle.Toggle())
-            {
-                _store.Clear();
-                _targets.InvalidateRuntimeCache();
-                if (!_targets.Snapshot(_store, _log))
-                {
-                    _log.Warn("no parameters readable — activation aborted (fail-soft).");
-                    _toggle.Toggle();
-                }
-                else
-                {
-                    _toggle.MarkSnapshotTaken();
-                    _targets.LogDiagnostics(_log);
-                    ApplyNow(reapply: false);
-                }
-            }
-            else
-            {
-                Deactivate();
-            }
-        }
-        catch (Exception ex)
-        {
-            FailSoft(ex);
-        }
+        if (_initialized) _loading = false;
     }
 
-    private void ApplyNow(bool reapply)
+    private static bool TryGetMainScene(out Scene scene)
     {
-        try
-        {
-            GoldenHourConfig config = ModConfig<GoldenHourConfig>.Instance;
-            double configured = config.Strength;
-            bool diagnostic = config.DiagnosticStrongTint;
-
-            // The clock decides when the warm bias is visible at all. DiagnosticStrongTint
-            // is the fixed "is the URP path alive" probe and deliberately ignores the clock.
-            double weight = 1.0;
-            int minutes = -1;
-            if (!diagnostic)
-            {
-                if (TryReadMinutes(out minutes))
-                {
-                    weight = DaylightPolicy.Weight(minutes);
-                }
-                else
-                {
-                    // Fail soft: an unreadable clock must not paint full gold.
-                    weight = 0.0;
-                    if (!_timeUnreadLogged)
-                    {
-                        _timeUnreadLogged = true;
-                        _log.Warn("in-game time unreadable — warm bias released until the clock is available.");
-                    }
-                }
-            }
-
-            double strength = configured * weight;
-            if (!double.IsFinite(strength) || strength < 0.0) strength = 0.0;
-            else if (strength > 1.0) strength = 1.0;
-
-            int applied = _targets.Apply(_store, strength, diagnostic, _log, _lastAppliedStrength);
-            _lastAppliedStrength = strength;
-            _reapply.MarkApplied(Time.unscaledTime);
-            LogDaylight(reapply, applied, strength, weight, minutes);
-        }
-        catch (Exception ex)
-        {
-            FailSoft(ex);
-        }
+        scene = SceneManager.GetActiveScene();
+        return scene.IsValid() && scene.isLoaded && scene.name == "Main";
     }
 
-    private void LogDaylight(bool reapply, int applied, double strength, double weight, int minutes)
+    private static bool TryReadMinutes(out int hhmm, out int minutes)
     {
-        // Bucket the weight so the per-frame path logs on a visible change only.
-        int bucket = (int)Math.Round(weight * 20.0);
-        if (!reapply || bucket != _lastLoggedWeightBucket)
-        {
-            _lastLoggedWeightBucket = bucket;
-            if (!reapply)
-            {
-                _log.Info($"golden hour ON — bias applied to {applied}/7 parameters (strength {strength:0.00}, daylight {weight:0.00}, minutes {minutes}).");
-            }
-            else
-            {
-                _log.Info($"daylight weight {weight:0.00} at {minutes} min — applied strength {strength:0.00}.");
-            }
-        }
-    }
-
-    private static bool TryReadMinutes(out int minutes)
-    {
+        hhmm = -1;
         minutes = -1;
         try
         {
-            if (!NetworkGuard.IsAlive(NetworkSingleton<TimeManager>.Instance)) return false;
-            int current = NetworkSingleton<TimeManager>.Instance.CurrentTime;
-            if (current < 0 || current >= 1440) return false;
-            minutes = current;
-            return true;
+            TimeManager? time = NetworkSingleton<TimeManager>.Instance;
+            if (!NetworkGuard.IsAlive(time)) return false;
+            hhmm = time!.CurrentTime;
+            return DaylightPolicy.TryHhmmToMinutes(hhmm, out minutes);
         }
-        catch
-        {
-            return false;
-        }
+        catch { return false; }
     }
 
-    private void Deactivate()
+    private void ReleaseWorld()
     {
-        try
-        {
-            int restored = _targets.Restore(_store, _log);
-            _store.Clear();
-            _lastAppliedStrength = double.NaN;
-            _lastLoggedWeightBucket = int.MinValue;
-            _log.Info($"golden hour OFF — restored {restored} parameters to originals.");
-        }
-        catch (Exception ex)
-        {
-            FailSoft(ex);
-        }
+        _active = false;
+        _sceneHandle = null;
+        _appliedStrength = 0.0;
+        _readableChannels = 0;
+        _hhmm = null;
+        _minutes = null;
+        _targets.RestoreAll(_nowSeconds);
     }
 
-    private void HandleSceneExit(string reason)
+    private void FailFrame(Exception ex)
     {
-        if (!_toggle.IsActive) return;
-
-        _log.Warn("active while " + reason + " — restoring.");
-        try
+        if (_lastError != ex.Message)
         {
-            if (NetworkGuard.IsInMainScene)
-            {
-                _targets.Restore(_store, _log);
-            }
-            else
-            {
-                _targets.RestoreAssetLevel(_store, _log);
-            }
+            _lastError = ex.Message;
+            _errors++;
+            _log.Warn("lighting frame failed", ex);
         }
-        catch (Exception ex)
-        {
-            _log.Warn("restore during scene exit failed", ex);
-        }
-        _store.Clear();
-        _lastAppliedStrength = double.NaN;
-        _lastLoggedWeightBucket = int.MinValue;
-        _toggle.Toggle();
-        _targets.InvalidateRuntimeCache();
-    }
-
-    private void FailSoft(Exception ex)
-    {
-        _log.Warn("golden hour disabled after error", ex);
-        try
-        {
-            _targets.Restore(_store, _log);
-        }
-        catch (Exception restoreError)
-        {
-            _log.Warn("restore after error failed", restoreError);
-        }
-        _store.Clear();
-        _lastAppliedStrength = double.NaN;
-        _lastLoggedWeightBucket = int.MinValue;
-        if (_toggle.IsActive) _toggle.Toggle();
+        ReleaseWorld();
     }
 }

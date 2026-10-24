@@ -5,6 +5,23 @@ namespace GoldenHour.Tests;
 
 public class BlendPolicyTests
 {
+    [Theory]
+    [InlineData(double.NaN, 0.0)]
+    [InlineData(double.PositiveInfinity, 0.0)]
+    [InlineData(double.NegativeInfinity, 0.0)]
+    [InlineData(-3.0, 0.0)]
+    [InlineData(0.4, 0.4)]
+    [InlineData(5.0, 1.0)]
+    public void Warmth_is_finite_and_clamped(double requested, double expected) =>
+        Assert.Equal(expected, BlendPolicy.ClampStrength(requested));
+
+    [Fact]
+    public void Finite_HDR_channel_never_overflows_the_native_float()
+    {
+        var original = new Argb(float.MaxValue, 1f, 1f, 1f);
+        Assert.True(BlendPolicy.Blend(original, GoldenHourTargets.SunLightTint, 1.0).IsFinite);
+    }
+
     [Fact]
     public void Blend_at_full_strength_multiplies_original_by_tint()
     {

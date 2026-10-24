@@ -1,0 +1,47 @@
+{
+    "archivedAtUtc":  "2026-10-22T17:43:55.1912952Z",
+    "files":  [
+                  {
+                      "original":  "Source/Mods/WorldLook/assets/s1reference.bundle",
+                      "archive":  "Source/Archive/WorldLook/LegacyUnity/s1reference.bundle",
+                      "sha256":  "04a2afb6321e06321869740541d19ea71d017b3148592a7971beb609ad4c3a6f",
+                      "bytes":  9705
+                  },
+                  {
+                      "original":  "Source/Mods/WorldLook/unity/Assets/Editor/BuildBundles.cs",
+                      "archive":  "Source/Archive/WorldLook/LegacyUnity/Editor/BuildBundles.cs",
+                      "sha256":  "2cd7e3868f52bbb34b58daf274ca9e953274dbf16d624f99c08df8ed6b434185",
+                      "bytes":  4689
+                  },
+                  {
+                      "original":  "Source/Mods/WorldLook/unity/Assets/Editor/BuildBundles.cs.meta",
+                      "archive":  "Source/Archive/WorldLook/LegacyUnity/Editor/BuildBundles.cs.meta",
+                      "sha256":  "b9f85906372fb520830d90482e19786075d79d837adfba8a3ec428420ddaebfb",
+                      "bytes":  243
+                  },
+                  {
+                      "original":  "Source/Mods/WorldLook/unity/Assets/Editor/BuildReference.cs",
+                      "archive":  "Source/Archive/WorldLook/LegacyUnity/Editor/BuildReference.cs",
+                      "sha256":  "62b52891ae9da59b7eb5dcdf71ce4da6ae5ae703cc2212ecfed15eb3b58a60f9",
+                      "bytes":  6971
+                  },
+                  {
+                      "original":  "Source/Mods/WorldLook/unity/Assets/Editor/BuildReference.cs.meta",
+                      "archive":  "Source/Archive/WorldLook/LegacyUnity/Editor/BuildReference.cs.meta",
+                      "sha256":  "fc291cb6b0f594a6b86bc69f796875aa05a17d9f2c5b4ecd6b0ca264be1a5d45",
+                      "bytes":  243
+                  },
+                  {
+                      "original":  "Source/Mods/WorldLook/unity/Assets/Editor/ShaderDiagnostics.cs",
+                      "archive":  "Source/Archive/WorldLook/LegacyUnity/Editor/ShaderDiagnostics.cs",
+                      "sha256":  "613f37f45f7a12a691c0ad60b1132796fd3771285d8a613a7e654be4ddc7c21e",
+                      "bytes":  3957
+                  },
+                  {
+                      "original":  "Source/Mods/WorldLook/unity/Assets/Editor/ShaderDiagnostics.cs.meta",
+                      "archive":  "Source/Archive/WorldLook/LegacyUnity/Editor/ShaderDiagnostics.cs.meta",
+                      "sha256":  "04884348840e087f4d62c20ac6eef7ca86df19a90b44977a8d789cbc3d8af66d",
+                      "bytes":  243
+                  }
+              ]
+}

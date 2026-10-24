@@ -1,18 +1,3 @@
-// ---------------------------------------------------------------------------
-// Lighting/LightingMath.cs
-//
-// Mechanically consolidated from the former per-type source files. Each original
-// file keeps its own block namespace with its own using directives, so name
-// binding is unchanged; the bodies differ from the pre-consolidation sources only
-// by the block-namespace indent level. Machine markers delimit the section that
-// came from each original file so the source-contract checks and an independent
-// reconstruction proof can still read that file's exact content.
-//
-//   Lighting/Argb.cs                   -> section Argb.cs
-//   Lighting/BlendPolicy.cs            -> section BlendPolicy.cs
-//   Lighting/DaylightPolicy.cs         -> section DaylightPolicy.cs
-// ---------------------------------------------------------------------------
-
 namespace GoldenHour
 {
     // ==== WorldLook section: Argb.cs ====
@@ -20,7 +5,7 @@ namespace GoldenHour
     /// <summary>Unity-free linear RGBA value (0..1 typical, HDR channels allowed &gt; 1).</summary>
     public readonly record struct Argb(float R, float G, float B, float A)
     {
-        /// <summary>Default per-channel tolerance for "this is the value we already wrote".</summary>
+        /// <summary>Comparison tolerance for display/tests, never native write ownership.</summary>
         public const float DefaultTolerance = 0.0005f;
 
         public static Argb White { get; } = new(1f, 1f, 1f, 1f);
@@ -29,8 +14,8 @@ namespace GoldenHour
             float.IsFinite(R) && float.IsFinite(G) && float.IsFinite(B) && float.IsFinite(A);
 
         /// <summary>
-        /// Per-channel closeness test (tolerance 0.0005 by default). Used to skip redundant
-        /// writes and to detect that a value is still the one we wrote. Non-finite on either
+        /// Per-channel closeness test for display/tests (tolerance 0.0005 by default).
+        /// Ownership uses exact native readback equality instead. Non-finite on either
         /// side is never "close" — a NaN must not be treated as unchanged.
         /// </summary>
         public bool IsCloseTo(Argb other, float tolerance = DefaultTolerance) =>
@@ -54,11 +39,12 @@ namespace GoldenHour
     /// </summary>
     public static class BlendPolicy
     {
+        public static double ClampStrength(double strength) =>
+            double.IsFinite(strength) ? System.Math.Clamp(strength, 0.0, 1.0) : 0.0;
+
         public static Argb Blend(Argb original, Argb tint, double strength)
         {
-            double s = strength;
-            if (!double.IsFinite(s)) s = 0.0;
-            if (s < 0.0) s = 0.0; else if (s > 1.0) s = 1.0;
+            double s = ClampStrength(strength);
 
             return new Argb(
                 Channel(original.R, tint.R, s),
@@ -73,7 +59,7 @@ namespace GoldenHour
             if (!float.IsFinite(tint)) return original;
             double mixed = 1.0 + s * ((double)tint - 1.0);
             double scaled = (double)original * mixed;
-            if (!double.IsFinite(scaled)) return original;
+            if (!double.IsFinite(scaled) || scaled > float.MaxValue || scaled < -float.MaxValue) return original;
             return (float)scaled;
         }
     }
@@ -87,8 +73,7 @@ namespace GoldenHour
 
 
     /// <summary>
-    /// Clock weight for the warm bias. The game sun color does not track time of day, so a
-    /// constant multiply paints noon gold. Peaks at 06:00 and 18:00 and falls to zero across
+    /// Clock weight for the warm bias. Peaks at 06:00 and 18:00 and falls to zero across
     /// 90 minutes, so noon and night stay the game's own light. An out-of-range clock is not
     /// a peak: callers must treat an unreadable time as weight 0 rather than full gold.
     /// </summary>
@@ -98,6 +83,15 @@ namespace GoldenHour
         public const int EveningPeakMinutes = 18 * 60;
         public const int HalfWidthMinutes = 90;
         public const int MinutesPerDay = 1440;
+
+        /// <summary>TimeManager.CurrentTime is HHMM (1954 = 19:54), not elapsed minutes.</summary>
+        public static bool TryHhmmToMinutes(int hhmm, out int minutes)
+        {
+            minutes = -1;
+            if (hhmm < 0 || hhmm > 2359 || hhmm % 100 >= 60) return false;
+            minutes = hhmm / 100 * 60 + hhmm % 100;
+            return true;
+        }
 
         public static double Weight(int minutesSinceMidnight)
         {

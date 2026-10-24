@@ -1,78 +1,70 @@
-# FishNet SyncVar Diagnosis — Multiplayer Cache Staleness
+# FishNet SyncVar Diagnosis — Authority and Cache Staleness
 
 > verified: 2026-10-05 — decompile facts in §3 are grep-verified against `GameReferences/decompiled/Assembly-CSharp/` (older game build proxies, regenerated 2026-10-03). The onChangeCallback surface (§4 Option A) and ALL host/client runtime behaviors are **unverified** — no in-game multiplayer test was run for this document. FishNet / S1API.
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 23/30 identifier-shaped tokens resolve (5 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
-## 1. Symptom
+> Evidence scope: inherited notes describe proxy members inspected in October 2026.
+> The underlying assemblies and multiplayer traces are not bundled. Member names below
+> are search leads; current field permissions and replication behavior require verification.
 
-- In multiplayer, a mod's cached value or UI shows a **stale value** while the host shows the current one.
-- A value the mod just wrote **snaps back** to the previous value moments later (next replicated tick overwrote it).
-- The same code path works fine in singleplayer — the bug only reproduces with a second player connected.
+## Start with the concrete symptom
 
-## 2. Cause
+A client view can become stale because of a local cache, missed notification, unready world,
+wrong object identity, rejected request, prediction/reconciliation, or later replicated state.
+A value snapping back is not by itself proof of a particular SyncVar permission setting.
 
-FishNet in Schedule I is strictly **server-authoritative** (`../schedule1-game-systems/references/01-FishNet-Networking.md`, §Server Authority): clients send requests via ServerRpc, the server validates and distributes state. Every `[SyncVar]` game field exists as a `SyncVar<T>` wrapper whose writes are funneled through native accessors and replicated to clients via `ReadSyncVar`. Consequence for mods:
+## Inspect the current field path
 
-- A mod that caches a game value client-side races the replication loop — the next replicated write wins and the cache goes stale.
-- A mod that writes a SyncVar-backed value on a **client** gets overwritten (or silently stays local) depending on the field's `WritePermission`. Fields declared `WritePermission.ClientUnsynchronized` (documented game pattern) let the client change the local value while the server keeps its own state — guaranteed divergence between client view and server state.
-- Mod logic running on **both** host and client additionally double-executes game writes (see `SKILL.md` §8 "Multiplayer Host Authority").
+1. Identify the exact object, field/property, world generation, and network role.
+2. Read its declaration and generated accessors in matched game and FishNet references.
+3. Determine who may write, what requests are accepted, and how clients receive changes.
+4. Locate the available change notification or read path in the installed wrapper.
+5. Verify which path actually fires for local and replicated changes before relying on it.
 
-## 3. Verified decompile facts (grep evidence, 2026-10-05)
+Historical proxy names include `syncVar____<field>`, `sync___get_value__<field>`,
+`sync___set_value__<field>`, and per-class `ReadSyncVar` variants. They do not prove that
+every field uses the same route or that a patch on a setter sees replicated writes.
+Do not invent `onChangeCallback`, `WritePermission`, or a particular permission enum value
+if the installed source/schema does not expose it.
 
-| Fact | Evidence |
-|---|---|
-| Game classes expose `SyncVar<T> syncVar____<field>` wrapper properties (e.g. `SleepController.syncVar____IsHostReadyToProceed_k__BackingField`, `EquippedItemHandler.syncVar____user`) | `Il2CppScheduleOne/GameTime/SleepController.cs:784`, `Il2CppScheduleOne/Equipping/EquippedItemHandler.cs:146,161` |
-| Every SyncVar read/write goes through native accessor methods `sync___get_value__<field>` / `sync___set_value__<field>` (real method pointers in the interop proxies) | `SleepController.cs:632-634,975-976`, `EquippedItemHandler.cs:76-84,353-357` |
-| Replication entry point per class: `public override bool ReadSyncVar___<ClassName>(PooledReader, uint, bool)` | `SleepController.cs:1255`, `EquippedItemHandler.cs:80` |
-| The `Il2CppFishNet` decompile is **limited**: only 3 generated serializer files (`Serializing/Generated/Generated{Comparers,Readers,Writers}___Internal.cs`); the `SyncVar<T>` class itself and any `onChangeCallback` member are **NOT present** in the interop decompiles | directory listing + grep `class SyncVar` / `onChangeCallback` → 0 hits, 2026-10-05 |
+## Bounded host/client observation
 
-## 4. Diagnostic pattern (proposed)
+Label each trace with process/session, role, object identity, and elapsed timestamp.
+Do not label a host alone as offline singleplayer based only on player count.
+Record the request, host acceptance/rejection, host state, client received state, and UI cache.
+Correlate using the actual object's persistent/network identity and a request identifier
+where the protocol provides one. Clock alignment uncertainty must remain visible.
 
-**Step 1 — Tag every log line with the network role** so host and client logs can be told apart:
+Read-only observation comes first. If an authorized mutation test is necessary, use a
+controlled world, capture before-state, and restore it through the appropriate authority.
+A missing callback or timed-out read leaves a gap; it does not prove the state was unchanged.
 
-```csharp
-string role = FishNetClient.IsServerStarted ? "HOST" : (FishNetClient.IsClientStarted ? "CLIENT" : "SP");
-Logger.Msg($"[{role}] value={x}");
-```
+## Cache and UI policy
 
-**Step 2 — Log the SyncVar write path.** Two options:
+- Cache values with an explicit invalidation/update contract, not a blanket ban on caching.
+- Reconcile after verified change notifications or bounded read-through where suitable.
+- `OnLoadComplete` may initiate readiness checks; it is not a universal replication barrier.
+- Ignore late results from a previous world/session/object generation.
+- Keep client UI rendering local, while authoritative game mutations use the intended owner.
+- A local write that does not reach the host requires contract inspection; do not infer its
+  exact permission enum from that symptom alone.
 
-- **Option A (unverified surface):** subscribe a logging callback on the SyncVar change notification (`syncVar.onChangeCallback`) as FishNet's C# API would allow. This is the cleanest hook, but the onChangeCallback member was **not found** in the limited interop decompile — verify it exists first via `ilspycmd -t` on the FishNet proxy assemblies under `MelonLoader/Il2CppAssemblies/` before relying on it.
-- **Option B (verified hook points):** Harmony postfix on the native accessor `sync___set_value__<FieldName>` of the class you are diagnosing — every SyncVar write funnels through it (§3, row 2). Method names contain triple underscores; patch by exact name string. Expect the accessor to fire on **local** writes; whether it also fires on client-side replicated writes is **unverified** (§5).
+## Patch choice
 
-**Step 3 — Interpret.** Reproduce with host + client open, compare timestamped pairs: if the client log shows your value written at T and the same field re-written at T+Δ by replication (no matching local write), the SyncVar server authority is the overwriter. If the host log never shows the client's write at all, the field is `ClientUnsynchronized` / host-authority-gated and the client write was always local-only.
+Prefer a supported notification or domain hook over a generated/private accessor.
+If a native accessor must be patched, verify exact signature, call route, and patchability
+for this runtime. Do not patch a broad serialization method without scoping objects and cost.
+Instrumentation failure must remain distinguishable from game-state mutation failure.
 
-## 5. Rules
+## Required tests
 
-1. **UI updates only after `OnLoadComplete`.** Never build UI from a cache filled before save data + replication settle (`../schedule1-troubleshooting/references/save-load-timing.md` §8.4: "Race with FishNet SyncVars … defer UI updates until OnLoadComplete").
-2. **Host-authority gate game writes.** Wrap economy/world writes in `NetworkGuard.IsHostOrSingleplayer()` (schedule1-modding Rule 15, `../schedule1-game-systems/references/45-Multiplayer.md`) or the equivalent `IncomeEngine.IsHostOrSingleplayer()` check (SKILL.md §8).
-3. **Don't cache SyncVar-backed values across frames.** Read through, or re-resolve caches on `OnLoadComplete` — a stale client cache is the symptom, not the bug.
-4. **Treat `ClientUnsynchronized` writes as local-only.** A client-side write to such a field never becomes server state; don't design logic that assumes it replicated.
+Test host, connected client, late join, leave/rejoin, same-world reload, rejected request,
+rapid successive updates, and world transition while a read or request is pending.
+Observe both accepted changes and intended nonchanges. Record trace gaps and scan limits.
 
-## 6. Open questions (unverified)
+## References
 
-- Does the `SyncVar<T>` interop wrapper expose a subscribable `onChangeCallback` in the live proxy assemblies? Not decidable from the in-repo decompiles (§3, row 4) — needs an `ilspycmd` check against `MelonLoader/Il2CppAssemblies/`.
-- Do Harmony patches on `sync___set_value__<field>` thunks fire for replicated client-side writes, or only for local writes? Untested.
-- Exact replication tick rate and its ordering relative to `OnLoadComplete` — unmeasured.
-- Is patching `ReadSyncVar___<Class>` viable for write interception, or does IL2CPP final/virtual stripping block it (compare `SKILL.md` §4)? Untested.
-
----
-
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
-
-- `ClientUnsynchronized`
-- `WritePermission`
+- [Multiplayer system notes](../../schedule1-game-systems/references/45-Multiplayer.md)
+- [Networked world-state contract](../../schedule1-networked-world-state/SKILL.md)
+- [Save/load timing](save-load-timing.md)
+- [Harmony bootstrap](../../schedule1-harmony-bootstrap/SKILL.md)

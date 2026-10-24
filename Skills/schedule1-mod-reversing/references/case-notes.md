@@ -1,95 +1,73 @@
+# Inherited Case Notes — Third-Party Mod Reviews
+
 > verified 2026-10-20 — three worksteps recorded from actual decompilations; the sizes, hook counts and code references were read out of the decompiled sources. Behaviour claims were not tested in-game.
 
-# Case Notes — three mods, three quality tiers
+> Evidence scope: the original upload reports static decompilations on 2026-10-20.
+> The binaries, hashes, full decompiles, and runtime traces are not bundled here.
+> Values below preserve that historical report; they were not independently remeasured.
 
-Worked examples for the runbook. Useful as calibration: the same procedure produces very different
-verdicts depending on how the author built the mod.
+## Reported artifact overview
 
-Artifacts (local, never committed): `Documents/Schedule1-Mod-Reversing/<Mod>-<Version>/`
-with `src/` (decompile), the original ZIP and `ANALYSIS.md`.
-
-| | RealEstonia.Roguelike | FaleHouseKeys | CustomBrands |
+| Reported field | RealEstonia.Roguelike | FaleHouseKeys | CustomBrands |
 |---|---|---|---|
-| Version analysed | 0.2.1.0 | 1.0.0.0 | 1.1.1.0 |
+| Version label in prior review | 0.2.1.0 | 1.0.0.0 | 1.1.1.0 |
 | DLL size | 72 KB | 192 KB | 1.87 MB |
-| Lines of C# | 3.078 | 4.165 | 21.414 |
-| TFM | net472 | netcoreapp6.0 | netcoreapp6.0 |
-| Framework | raw IL2CPP + Harmony | Il2CppInterop + Harmony | Il2CppInterop + Harmony |
-| Hook count | 8 fixed | dynamic (name-pattern scan) | 35 fixed + 3 generated |
-| Obfuscated | no | no | no |
-| Error reporting | good | **none in release** | exemplary |
-| Installed | no | no | no |
+| Decompiled C# lines | 3,078 | 4,165 | 21,414 |
+| Target framework | net472 | netcoreapp6.0 | netcoreapp6.0 |
+| Hook description | 8 fixed | Dynamic name-pattern scan | 35 fixed plus 3 generated |
+| Installation at time of review | Reported absent | Reported absent | Reported absent |
 
-## RealEstonia.Roguelike — a small mod with a clean core
+These labels do not establish current release identity, support, or installed state.
 
-Game-mode layer over vanilla: 12 modes, perks, random events, wave combat against Cartel goons.
+## RealEstonia.Roguelike
 
-**What made it easy:** domain rules live in pure C# (`RunRules`, `CombatRules`, `RunOptions`) with
-no Unity types — the formulas were readable and testable without the game. Only `GameSession`
-(718 lines) touches the engine.
+The prior notes describe a game-mode layer with perks, events, and cartel-goon waves.
+Domain rules were separated into pure classes while an engine-facing session layer handled
+Unity interaction. That separation makes isolated rule tests practical without claiming
+all other layers are untestable.
 
-**Transferable patterns:**
-- Deterministic pricing: `FNV-1a(itemId)` as RNG salt → the same seed yields the same price list
-  across reloads, no shared RNG state, no desync.
-- `SHA256(saveFolder|gameSeed|mode)` as the state filename → one run per save × mode, free.
-- Borrowing pool objects (`GoonPool.SpawnGoon` → reset → `Despawn`) instead of instantiating NPCs.
-- NavMesh spawn ring: radius 12–20 m, min 9 m apart, every point reachable via
-  `NavMesh.CalculatePath` → waves only where the player can be reached.
+Reported ideas: deterministic pricing salt from item identity, a hashed state key combining
+save folder/seed/mode, pool reuse, and NavMesh checks for spawn positions.
+Each idea needs its own validation: stable input identity and serialization, seed/world
+replacement behavior, pool ownership, and actual path completeness for the relevant agent.
+A deterministic hash does not by itself guarantee no multiplayer desynchronization.
 
-**Risks found:** `ListingUI.Update` postfix runs per frame per listing; the perk-offer state
-blocks wave start; a day-jump check kills the run on any day change that is not exactly +1;
-goons are taken from the same pool the real cartel uses.
+Reported risks: a listing-update hook on a hot path, an offer-state gate that could block
+wave start, strict day-jump handling, and reuse of the game's cartel pool.
 
-## FaleHouseKeys — the silent one
+## FaleHouseKeys
 
-Physical property keys as items for seven owned properties, with `R` toggling the lock.
+The prior notes describe physical property keys and a dynamic scan for door/gate/property
+methods. Dynamic lookup can tolerate some type changes while still depending on names,
+signatures, and relevance gates. It is not generally robust against renaming.
+The mod reportedly remembered trigger collider enabled states and restored them later;
+that ownership/restoration pattern is a useful review target.
 
-**Key technique:** it does not patch fixed types. It scans every assembly for
-`Il2CppScheduleOne.*` types whose name contains `.Doors.` / `Gate` / `.Property.` and patches
-every method named `CanPlayerAccess`, `SetIsOpen(_Server)`, `SetGate1Open`, `SetGate2Open`,
-`AutoOpenForPlayer`, `OpenGate(s)` — with a single `object __instance, object[] __args` prefix.
-Robust against renaming; it also hooks doors it does not know about.
+Reported issues: conditional diagnostic calls, broad swallowed exceptions, periodic inventory
+sidecars, and a shared fallback when slot identity could not be read.
+Reinspect the actual binary before asserting release logging coverage or serialization support.
+Periodic snapshots and ambiguous world identity require explicit loss/duplication tests.
 
-**Second technique:** gate locking by disabling trigger colliders named `sensor`/`detector` inside
-the gate root, remembering each collider's original `enabled` value. No game API needed.
+## CustomBrands
 
-**The problem:** diagnostics are compiled away. `ReleaseLog` is `[Conditional("FALEHOUSEKEYS_DIAGNOSTICS")]`,
-`WarnPatchOnce` writes to a `HashSet` and logs nothing, `OnUpdate` swallows every exception. After a
-game update the mod can be half-dead with a clean log — this is the exact failure mode that
-`S1Mods.Shared.Diagnostics` exists to prevent.
+The prior notes describe a branding/editor/packaging system with lazy item lookup registration,
+runtime-generated meshes/icons/audio, configuration migrations, and structured diagnostics.
+Lazy registration requires recursion, idempotency, and save/registry-order checks; it is not
+an automatic guarantee of old-save compatibility.
 
-**Also:** custom items cannot live in the game save, so inventory counts are snapshotted every 10 s
-to `UserData/FaleHouseKeys/slot_<n>.json` and keys are re-created after load. No `.bak`, and a
-slot-detection fallback named `unknown_slot` merges all saves.
+Reported risks: generated iterator targets, hot-path visual/name hooks, periodic reinjection
+into shops, and NPC joint changes that could interact with animation mods.
+Generated names may change after relevant updates; they are not certain to change on every build.
 
-## CustomBrands — the professional build
+The earlier scan reported a user-initiated image-import network path and did not find telemetry.
+That is a statement about the earlier inspection scope, not a security guarantee for a new DLL.
 
-Branding system: design editor, label printer, custom packaging, sale bonuses, NPC animations.
-21k lines across 9 namespaces; the largest single block is NPC animation work.
+## Transferable lessons
 
-**Transferable patterns:**
-- **Lazy item registration** via a prefix on `Registry._GetItem`: the custom definition is created
-  at the moment somebody looks up a `cb_*` id. No migration, works in old saves.
-- **Runtime-generated assets**: 3D meshes built in code, icons rendered through a `RenderTexture`
-  (256×256, `ReadPixels`), 12 `AudioClip`s synthesised — the DLL ships no media at all.
-- **Config with a migration chain**: a `ConfigVersion` entry (6 at analysis time) that raises
-  individual values on upgrade instead of resetting the file.
-- **Visible diagnostics**: `Safe.Run(where, …)` + `Log.ErrorOnce`, patch counters exposed in a
-  startup banner, `HooksOk`/`HooksFailed`.
+1. Separate domain rules and engine adapters where that improves testability.
+2. Record actual hook outcomes and meaningful failures.
+3. Validate world identity and distinguish atomic writes from backup/recovery policy.
+4. Treat resource, collider, and mutable-state ownership as explicit contracts.
+5. Revalidate every adopted pattern against current dependencies and its own failure cases.
 
-**Risks found:** three hooks on compiler-generated iterator types (customer consume routine, meth
-animation, dealer handover) — they matched the current runtime then and break first on any rebuild;
-hot-path postfixes on `get_Name` / `ApplyVisuals`; a 60 s refresh loop re-injecting shops; NPC
-joint manipulation that can collide with other animation mods.
-
-**Privacy check:** the only network path is the user-initiated logo import (`HttpClient`, 20 s
-timeout, imgur page links rewritten to `i.imgur.com`, Google Drive links to `uc?export=download`).
-No telemetry, no update check.
-
-## Lessons that went into the workspace
-
-1. `Diagnostics.ErrorOnce` / `StartupReport` + `PatchGuard.FailedTargets` — the missing half of
-   "fail visible" (`docs/pitfalls.md` §1.4).
-2. Prefer lazy registration over cloned definitions plus sidecar restore when adding items.
-3. A `.bak` is not optional; `File.Move(overwrite: true)` is not an atomic replace.
-4. Deterministic seeding beats shared RNG state for anything that has to survive a reload.
+Use [the runbook](reversing-runbook.md) to reproduce a review from the supplied artifact.

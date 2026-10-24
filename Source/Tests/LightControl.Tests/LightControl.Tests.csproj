@@ -35,5 +35,10 @@
          lifecycle: the clone source stays the native material and a clone is destroyed only
          once the renderer is proven not to reference it. -->
     <Compile Include="../../Mods/LightControl/src/LedSurfaceOwnership.cs" Link="Core/LedSurfaceOwnership.cs" />
+    <!-- Exercise the real disk adapter and Shared file operations. Only external loader/slot
+         boundaries are shimmed in StorageTestBoundary.cs; no game or real UserData is accessed. -->
+    <Compile Include="../../Mods/LightControl/src/LightPersistence.cs" Link="Adapter/LightPersistence.cs" />
+    <Compile Include="../../Mods/Shared/src/SafeStorage.cs" Link="Adapter/SafeStorage.cs" />
+    <Compile Include="../../Mods/Shared/src/ModLogger.cs" Link="Adapter/ModLogger.cs" />
   </ItemGroup>
 </Project>

@@ -1,50 +1,72 @@
 ---
 name: schedule1-networked-world-state
-description: >-
-  Design authoritative multiplayer world edits, validated state sync, and save recovery for Schedule I.
-  Use when clients place, remove, or edit persistent world objects together.
-  Keywords: multiplayer, FishNet, authority, world state, delta, revision, snapshot, recovery journal.
+description: "Design Schedule I host authority and replicated world state. Keywords: multiplayer, FishNet, authority, world state, delta, revision, snapshot, recovery journal."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). This guidance was informed by static inspection of user-provided third-party assemblies on 2026-10-08, not runtime verification; re-check live transport/game APIs before implementation.
+> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
 # Schedule I — Networked World State
 
-Use this skill for multiplayer edits that must remain consistent across host, clients, and save/load. It complements `schedule1-persistence`, `schedule1-grid`, and `schedule1-economy`; always prefer the current FishNet/S1API surfaces and workspace patterns over a third-party transport implementation.
+Apply the [shared working contract](../schedule1-modding/references/working-contract.md).
+Prefer the verified FishNet/S1API transport and workspace infrastructure over a third-party protocol.
 
-## When to Use
+## Establish prerequisites
 
-- Replicating persistent building, placement, furniture, or world-layout edits.
-- Handling late joiners, out-of-order edits, rejected operations, or client prediction.
-- Protecting a native save plus mod-owned world data from interruption.
+1. Identify the actual transport, authenticated sender contract, session identity, and host authority.
+2. Define object identity, ownership, permissions, resource costs, and what state must be durable.
+3. Identify native-save and mod-save success signals separately; inspect their actual failure contracts.
+4. Set payload, pending-operation, fragment, retry, and retention limits from the intended game scale.
+5. Decide whether prediction is needed. Start without it when latency and UX permit.
 
-**Don't use for:** read-only sync or an ordinary single-player save with no network state.
+## Commit and replicate
 
-## Procedure
+1. Let clients submit intent; the host computes and validates resulting state and costs.
+2. Include protocol/schema version, session, stable operation ID, actor, target, action, and expected base revision.
+3. Bind authorization to the transport's sender identity. Reject mismatched, absent, or stale session identities before mutation.
+4. Deduplicate operation IDs within a bounded session-aware policy. Check permissions, inventory, geometry, and invariants.
+5. Stage a candidate state and the resource/side-effect plan. Validation alone is not rollback; provide compensation or a recoverable pending state for commit failures.
+6. Publish acceptance/revision only after required commit work succeeds. Never acknowledge a transaction whose resource mutation failed.
+7. Apply deltas only to the expected revision and validated schema. Reconstruct in a copy and validate before replacing live state.
+8. On a gap or mismatch, request a full authoritative snapshot; do not guess a merge.
+9. Send a joining client a bounded snapshot before deltas and preserve ordering while the join baseline is installed.
+10. Bound/expire fragment assemblies and reject conflicting duplicate chunks or oversized reconstruction.
 
-1. **Choose one authority.** The server/host validates and commits gameplay state. Clients submit intent; never trust a client-supplied price, ownership, inventory, or resulting world snapshot without server-side checks.
-2. **Define a bounded protocol.** Include protocol/schema version, session/lobby identity, stable request ID, actor identity, action, target identity, and the expected base revision. Set payload and fragment limits, expiry, and rate limits. Reject unknown versions and malformed identities.
-3. **Authenticate the transport envelope.** Validate the current lobby/session and sender against the transport callback’s sender, then bind that identity to the decoded request. Reject packets from absent/mismatched senders before changing state; do not rely on a player name or packet field as authentication.
-4. **Make edits idempotent and transactional.** Deduplicate request IDs. Validate ownership, permissions, geometry, item costs, and limits on the host. Apply against a copied/staged state, run invariants, and only then publish the new revision and perform side effects. A rejected edit must leave state and resources unchanged.
-5. **Prevent divergence.** For a delta, require the expected base revision and—when practical—a canonical base fingerprint. Validate protocol, reconstructed result, ordering, and domain rules before commit. On mismatch, reject and request a full authoritative snapshot rather than guessing or silently merging incompatible state.
-6. **Handle client prediction explicitly.** Keep a before-snapshot for each pending local edit. On acceptance, reconcile to the authoritative result; on rejection or timeout, restore the snapshot and refund only a cost that was actually taken. Make late replies idempotent so a delayed ACK cannot apply/refund twice.
-7. **Support joining and fragmentation safely.** Send a versioned full snapshot to a joining client before incremental edits. Bound fragment count and total bytes, expire incomplete assemblies, reject duplicate/conflicting chunks, and log/fall back to a fresh snapshot if reconstruction fails.
-8. **Protect saves with a journal when native and mod data are coupled.** Before invoking a native save, atomically write an intent containing the exact save identity and a recovery snapshot. Mark native completion only at a verified success point. On next load, compare the save path and persisted files with the intent; complete only an unambiguous recovery, otherwise stop further writes and preserve the evidence for user recovery.
-9. **Instrument state transitions.** Track accepted/rejected requests, duplicate IDs, stale revisions, delta/snapshot fallbacks, pending edits, timeouts, and save recovery outcomes. Rate-limit repeated warnings without hiding the first cause.
-10. **Verify end-to-end.** Test host-only, two clients, late join, concurrent edits, disconnect during edit/save, stale base, malformed/oversized packet, lost/delayed ACK, rejected purchase, and slot changes. Confirm exactly one durable result and no duplicated/refunded resources.
+## Prediction and ambiguous outcomes
 
-## Pitfalls
+- Track each pending operation, its owned provisional effects, and the last authoritative state.
+- On rejection, undo only that operation's provisional effects, then rebase remaining predictions.
+- A timeout is an unknown result, not proof the server rejected the request. Query/reconcile with the same operation ID before a final resource refund.
+- Ignore duplicate resolutions. A late accepted response must not apply or refund twice.
+- Do not restore an old whole-world snapshot over newer accepted changes.
 
-- A session ID is not authentication by itself; validate the actual sender and current lobby.
-- Hashes only detect divergence if serialization is canonical and all relevant state is included.
-- Never mutate live state before all checks pass. Catching an exception after partial mutation is not rollback.
-- A revision counter without gap handling does not solve out-of-order delivery.
-- Do not copy a third-party protocol, Harmony patch, or Steam transport wholesale. Its packet framing and sender hooks may be version-specific or unsafe.
-- A pending save journal must fail closed when ownership, path, or native completion is ambiguous; do not overwrite the only recoverable copy.
+## Coupled-save recovery
 
-## References
+1. Bind pending intent to the exact normalized save identity, schema, operation/revision, and recovery snapshot.
+2. Durably write intent before the native save when the two stores must agree.
+3. Mark native completion only at a success point verified for the target build.
+4. Recover automatically only when native and mod-file evidence unambiguously selects one consistent result.
+5. If identity, completion, or content is ambiguous, freeze dependent writes and preserve recoverable copies.
+6. Clear/archive recovery data only after the durable result is verified.
 
-- `references/networked-world-state.md` — protocol, reconciliation, and save-journal checks.
-- `../schedule1-persistence/SKILL.md` — `SafeStorage`, save-slot isolation, lifecycle timing.
-- `../schedule1-grid/SKILL.md` — placement validity and buildable lifecycle.
-- `../schedule1-economy/SKILL.md` — transaction ordering and host-only money mutations.
+## Verify and instrument
+
+Count accepted/rejected/duplicate requests, gaps, snapshot fallback, pending operations, timeouts,
+and recovery outcomes. Keep the first cause; rate-limit repeats.
+Test host-only, two clients, late join, concurrent edits, disconnect, retry, lost/delayed ACK,
+stale base, bad identity, malformed/oversized fragments, partial commit failure, and save interruption.
+Confirm one authoritative result, correct resource accounting, and no cross-save recovery.
+
+## Read on demand
+
+| Need | Reference |
+|---|---|
+| Protocol, reconciliation, journal, failure matrix | [Network state reference](references/networked-world-state.md) |
+| File state and write gates | [Persistence](../schedule1-persistence/SKILL.md) |
+| Placement transaction and native object choice | [Grid](../schedule1-grid/SKILL.md) |
+| Money mutation and transaction semantics | [Economy](../schedule1-economy/SKILL.md) |
+
+## Evidence and output
+
+Third-party decompiles inform the architecture only; no transport compatibility or runtime verification
+is implied. Return protocol/authority decisions, commit boundaries, recovery evidence, changed files,
+and actual multiplayer tests. Do not present a session ID or atomic sidecar file as a complete safety guarantee.

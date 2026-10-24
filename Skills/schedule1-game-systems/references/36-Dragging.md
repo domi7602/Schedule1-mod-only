@@ -1,5 +1,8 @@
 # Dragging (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 83 of 83 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 Namespace: `Il2CppScheduleOne.Dragging`.
 
@@ -12,13 +15,13 @@ Namespace: `Il2CppScheduleOne.Dragging`.
 | `PlayerTasks.Draggable` | `Clickable` | Separate class for physics-based station tasks (Pour/Mist etc.) |
 | `PlayerTasks.DraggableConstraint` | `MonoBehaviour` | Constrains task-draggable movement |
 
-## DragManager API (verified)
+## DragManager API (previously reported)
 - Tuning floats: `DragForce`, `DampingFactor`, `TorqueForce`, `TorqueDampingFactor`, `ThrowForce`, `MassInfluence`; static `DefaultDraggableOffset`; `ThrowSound` (`AudioSourceController`)
 - State: `CurrentDraggable` (prop, set protected), `IsDragging` (read-only prop), `AllDraggables`, `CurrentlyUpdating`, `lastThrownDraggable`, `lastHeldDraggable`, `_dragStartedThisFrame`
 - Flow: `IsDraggingAllowed()` → `RegisterDraggable`/`Deregister` → `StartDragging(Draggable)` → `StopDragging(Vector3 velocity)` → `GetTargetPosition()`; input poll in `UpdateInput()` (private), physics in `FixedUpdate()`
 - Replication via FishNet RPCs: `SetDragger_Server(guid, NetworkObject, pos)` / `SetDragger_Client(...)`; `SetTransformData_Server(guid, pos, rot, velocity)` / `SetTransformData_Client(...)` (observers + target variants) — replication keyed by GUID string
 
-## Draggable API (verified)
+## Draggable API (previously reported)
 - Props: `GUID` (Il2CppSystem.Guid), `InitialPosition`, `Velocity`, `Mass`, `IsBeingDragged`, `CurrentDragger` (Player)
 - Per-object multipliers: `HoldDistanceMultiplier`, `DragForceMultiplier`, `ThrowForceMultiplier`; static `DraggableInteractionRange`, `PositionDeltaToDropDraggable`
 - Companion fields: `_interactable` (`Interaction.InteractableObject` — drag is offered through the interaction system), `DragOrigin`, `_timeOnLastDragStop`, `_defaultCollisionDetectionMode`
@@ -29,17 +32,17 @@ Namespace: `Il2CppScheduleOne.Dragging`.
 ## Applications
 - Drag trash bags to containment; move crates/containers
 - Drag unconscious/bodied NPCs (via attached `Draggable`)
-- `Equippable_TrashGrabber` (Equipping): `TrashItemDraggable.IsTrashGrabberEquipped(...)` gates grabber pickup (verified cross-ref)
+- `Equippable_TrashGrabber` (Equipping): `TrashItemDraggable.IsTrashGrabberEquipped(...)` gates grabber pickup (previously reported cross-ref)
 - PlayerTasks variant: pulling pots/pourables into station slots
 
 ## Events
-- `DragManager.onThrowEvent` (`Il2CppSystem.Action`) — subscribe with `SubscribeToThrowEvent(Action)`, remove with `UnsubscribeFromThrowEvent(Action)` (verified; `lastThrownDraggable` set on throw)
+- `DragManager.onThrowEvent` (`Il2CppSystem.Action`) — subscribe with `SubscribeToThrowEvent(Action)`, remove with `UnsubscribeFromThrowEvent(Action)` (previously reported; `lastThrownDraggable` set on throw)
 - No UnityEvents declared in this namespace (grep)
 
 ## Save Participation
 - **No `ISaveable` / `SaveData` in any Dragging class** (grep over namespace) — persisted positions flow through other systems; `GUID` is the key used by replication. Which system persists dragged transforms: `unverified`.
 
-## Hook Points
+## Candidate Hook Points
 1. `DragManager.IsDraggingAllowed()` (public instance, returns bool) — prefix patch to block/allow all dragging, e.g. freeze props during events; plain method, no field accessors, safe patch target
 2. `DragManager.SubscribeToThrowEvent(Action)` — direct runtime subscribe for throw detection (no Harmony needed)
 3. `Draggable.CanStartDrag()` (protected virtual) — prefix patch for per-object drag rules (locked doors, quest items); virtual dispatch keeps it patchable

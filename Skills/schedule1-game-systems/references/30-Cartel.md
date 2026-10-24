@@ -1,7 +1,8 @@
 # Cartel (Schedule I)
 
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+
 > **Redirect stub** (consolidated 2026-10-05): mechanics, influence values (−0.075/Deal, Westville-Cap 0.5) and region unlocks live in **[`13-Regions.md`](13-Regions.md)**. This file keeps only the class register. Class-list only — not yet re-verified.
-> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 20 of 20 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
 ## Core Classes
 

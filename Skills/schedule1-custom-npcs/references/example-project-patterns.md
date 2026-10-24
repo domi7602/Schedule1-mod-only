@@ -1,169 +1,102 @@
-# Implementation Patterns
+# Custom NPC Implementation Patterns
 
 > verified: patterns consolidated 2026-10-05 (duplicates moved to canonical reference).
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 22 of 22 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
-## Purpose
+## Evidence and use
 
-This file captures reusable S1API custom NPC implementation patterns without assuming any local sample repository exists. API rules are canonical in `s1api-custom-npc-reference.md`; this file keeps only role-specific recipes and links there for full API rules instead of duplicating code blocks.
+These patterns retain the original workspace's role separation while removing unverified complete
+code examples. Read [API and lifecycle reference](s1api-custom-npc-reference.md) for current evidence,
+member lookup anchors, and phase boundaries. Each recipe is an implementation contract to bind to the
+installed API; it does not introduce replacement methods.
 
-## Pattern 1: Physical Customer NPC
+## Physical customer
 
-Use when the NPC is visible in the world, directly interactable, and participates in the customer economy.
+Declare stable physical/customer roles. In prefab configuration, assign stable identity, appearance,
+spawn position, customer defaults, relationship policy, and a route with the required deal-handling
+support. Make the customer's spending, order frequency, quality standards, affinities, and unlock
+conditions coherent with the intended progression.
 
-Recommended structure:
+After the framework creates the instance, perform its supported appearance finalization, register
+owned dialogue/event handlers, and enable the ready schedule. Test a real purchase/contract, not only
+presence in the world. Route completion, networking, and save restoration are separate checks.
 
-```csharp
-public override bool IsPhysical => true;
-public override bool IsCustomer => true;
+## Event-driven customer
 
-builder.WithIdentity(...)
-    .WithAppearanceDefaults(...)
-    .WithSpawnPosition(...)
-    .WithCustomerDefaults(...)
-    .WithRelationshipDefaults(...)
-    .WithSchedule(plan =>
-    {
-        plan.EnsureDealSignal()
-            .WalkTo(...)
-            .StayInBuilding(...);
-    });
-```
+Keep persistent defaults out of event handlers. Store the actual publisher and removable delegate,
+subscribe once per instance, and release on final teardown. A reward or message caused by an event
+needs its own idempotency/persistence rule when duplicate delivery or reload is possible.
 
-Typical runtime work:
+When a publisher changes on load, remove the old subscription before binding the new one. Do not use
+subtract/add against the current publisher as proof that all old bindings were removed.
 
-- `base.OnCreated()`
-- `Appearance.Build()`
-- `Dialogue.BuildAndRegisterContainer(...)`
-- `Dialogue.OnChoiceSelected(...)`
-- `Schedule.Enable()`
+## Dealer
 
-Extra checks:
+Declare a stable dealer role and configure its signing fee, cut, dealer type, valid home reference,
+quality policy, and any completed-deal variable before native registration. Add the target runtime's
+required contract/deal signal to the schedule; use an explicit handling slot only when the intended
+behavior needs one.
 
-- Confirm the NPC overrides `IsCustomer` with a stable, side-effect-free value.
-- Confirm the schedule includes `EnsureDealSignal()` when the customer should actively deal.
-- Keep spending, standards, and relationship requirements internally consistent.
+Wire recruitment, contract acceptance, and recommendation behavior through verified events after the
+dealer component exists. Test recruitment cost, actual delivery/contract handling, repeated callbacks,
+late-joining clients, and reload. Do not infer function from a visible dealer badge alone.
 
-→ full API rules: s1api-custom-npc-reference.md (§Prefab-time Responsibilities, §Runtime Responsibilities)
+## Non-physical story contact
 
-## Pattern 2: Event-wired Customer NPC
+Use the non-physical role for a phone/message-only contact. Provide a stable identity and an intentional
+icon/fallback. Omit world movement and schedule setup when the API's non-physical path does not need it.
+Clear conversation categories only if the role should have no customer/dealer/supplier badge.
 
-Use when customer events drive other behavior such as messages, relationship gains, recommendations, or rewards.
+Gate an introduction with saved progress or an idempotent message identity. Sending it unconditionally
+from `OnCreated` can repeat it on reload. Restore callbacks for saved response choices using the
+supported load hook, and validate missing or changed response IDs. If `SaveableField` is used, apply
+it to fields and verify the installed serializer contract.
 
-Structure: cache the delegate in a private field, subscribe in `OnCreated()` via subtract-then-add, and unsubscribe in `OnDestroyed()` with null guards.
+## NPC as a UI entry point
 
-→ full rules + full code: s1api-custom-npc-reference.md §Runtime Responsibilities › Event cleanup
+Register the dialogue route once for the instance. On the relevant choice, validate the service
+preconditions, close/exit dialogue through a supported path, and open the UI after camera and input
+ownership have transferred. A node-displayed callback that repeatedly stops its own override can
+reenter dialogue code; use the supported choice/close transition instead.
 
-Guidelines:
+The UI owns its own close/focus/cleanup path. Destroying or unloading the NPC must not leave its panel,
+camera override, cursor state, or global input gate active. Read the PhoneApp/interior input references
+when the service uses those systems.
 
-- Keep persistent customer configuration in `ConfigurePrefab(...)`, not in runtime event code.
+## Authored narrative NPC
 
-## Pattern 3: Dealer NPC
+Keep route points and authored IDs centralized, with verified world-space locations. Match schedule,
+dialogue, clothing, customer/dealer policy, and progression to the character's role. Avoid two competing
+appearance definitions or two lifecycle owners for one NPC. Use namespaced IDs for dialogue and saved
+state so another NPC cannot accidentally share them.
 
-Use when the NPC is recruitable, handles contracts, or participates in the dealer economy.
+## Conditional presence
 
-Minimum structure: `IsDealer => true` plus `builder.WithDealerDefaults(dd => dd.WithSigningFee(1000f).WithCut(0.15f).WithDealerType(DealerType.PlayerDealer).WithHomeName("North Apartments"));` in `ConfigurePrefab(...)`.
+Distinguish presence from accessibility. An early return from `OnCreated` does **not** guarantee that
+the framework has not already spawned/registered the physical NPC.
 
-Event wiring follows the same cache/subscribe/cleanup pattern as Pattern 2, using `Dealer.OnRecruited`, `Dealer.OnContractAccepted`, and `Dealer.OnRecommended` — null-check `Dealer` before wiring.
+If the NPC should exist but be locked, prefer supported relationship, dialogue, or unlock conditions.
+If the feature truly requires absence, inspect the framework's supported pre-spawn/presence lifecycle
+and persistence/network consequences, then implement an explicit authoritative transition. If no
+supported path is established, report that limit and use a reviewable gating design; do not leave a
+partially initialized registered NPC or destroy it opportunistically.
 
-→ full rules + full code: s1api-custom-npc-reference.md §Prefab-time Responsibilities › Dealer defaults (defaults) and §Runtime Responsibilities › Event cleanup (wiring)
+For state changes during play, define what happens to active dialogue, scheduled actions, messages,
+saved IDs, and client views before changing presence. Repeated activation must not duplicate the NPC.
 
-Dealer checks:
+## Project structure and implementation order
 
-- `IsDealer => true` is present.
-- Dealer defaults are configured in prefab-time code.
-- The schedule includes `EnsureDealSignal()`.
-- Use `HandleDeal(...)` when you need an explicit dealer-handling slot.
+Keep a focused class/file per role where that matches the repository. Split large role implementations
+into appearance, schedule, dialogue, economy, and lifecycle helpers without losing a single owner for
+registration and cleanup. Do not move every role into a global entrypoint or scatter one role's state
+across unrelated services.
 
-## Pattern 4: Non-physical Contact NPC
+1. Identify physical/contact role, stable identity, authority, and persistence ownership.
+2. Verify required installed API members and native prerequisites.
+3. Implement prefab configuration with coherent defaults.
+4. Implement runtime wiring and cleanup together.
+5. Implement load restoration and idempotency before adding one-time rewards/messages.
+6. Validate the role's actual gameplay behavior, then reload and host/client behavior.
 
-Use for text-message contacts, phone contacts, story contacts, and other NPCs that do not need a world entity.
-
-Recommended structure:
-
-```csharp
-public sealed class ContactNpc : NPC
-{
-    public override bool IsPhysical => false;
-
-    protected override void ConfigurePrefab(NPCPrefabBuilder builder)
-    {
-        builder.WithIdentity("contact_npc", "Unknown", "Contact")
-            .WithIcon(null);
-    }
-
-    protected override void OnCreated()
-    {
-        base.OnCreated();
-        ClearConversationCategories();
-        SendTextMessage("Hello from the contact.");
-    }
-}
-```
-
-Guidelines:
-
-- Usually skip `WithSpawnPosition(...)`.
-- Usually skip `WithSchedule(...)`.
-- Consider `ClearConversationCategories()` for contacts that should not show the default badge.
-- If message choices must survive load, implement `OnResponseLoaded(...)` and rebind callbacks there.
-
-→ base rules: s1api-custom-npc-reference.md §Minimal Patterns › Non-physical contact
-
-## Pattern 5: NPC as UI entry point
-
-Use when talking to the NPC should open a UI, app, editor, or other interface.
-
-Recommended flow:
-
-1. Register the dialogue container in `OnCreated()`.
-2. Do any required state changes in `OnChoiceSelected(...)`.
-3. End or exit dialogue safely.
-4. Open the UI after dialogue cleanup is in the correct state.
-
-This keeps camera restoration, input focus, and override lifetime under control.
-
-## Pattern 6: Styled narrative NPC
-
-Use when the NPC should feel authored rather than purely functional.
-
-Guidelines:
-
-- Store key route points in `static readonly Vector3` fields.
-- Make schedule choices reflect the character's role.
-- Write dialogue that matches the role, not generic test text.
-- Avoid maintaining two conflicting appearance definitions unless both are intentionally needed.
-
-## Pattern 7: Conditional-presence NPC
-
-Use when the NPC should only exist for certain story states, region states, or progression states.
-
-Safe approach:
-
-- Check the relevant external state early in `OnCreated()`.
-- If the NPC should not continue, stop runtime initialization cleanly.
-
-Be careful not to confuse:
-
-- "this NPC should not exist right now"
-- with
-- "this NPC should exist but not yet be interactable"
-
-If the NPC should simply be gated, prefer relationship locks, dialogue gates, or unlock conditions over destroying it.
-
-## Stable architectural conclusions
-
-1. Put one NPC class per role file under `NPCs/`.
-2. Keep role-specific logic inside the NPC class instead of bloating `Core.cs`.
-3. The most natural internal split for complex NPCs is: appearance, schedule, dialogue, customer/dealer, and event wiring.
-4. For multi-capability NPCs, keep the logic cohesive inside the role rather than scattering it across unrelated services.
-
-## Default implementation order
-
-When the request is just "make a custom NPC," default to this order:
-
-1. Decide whether it is physical or non-physical.
-2. Decide whether it is plain, customer, dealer, or UI/story focused.
-3. Write `ConfigurePrefab(...)` first.
-4. Write `OnCreated()` second.
-5. Add cleanup and save/load restoration last.
+A compile result proves the referenced surface; a runtime test proves only the exercised scenario.
+Report both with versions and leave untested paths explicit.

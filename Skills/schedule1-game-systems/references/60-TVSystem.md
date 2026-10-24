@@ -1,5 +1,8 @@
 # TV System (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 102 of 102 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 Namespace: `Il2CppScheduleOne.TV` (11 types; `TVPauseScreen` lives in `UI`).
 
@@ -46,8 +49,8 @@ Details:
 ## Save Participation
 - **None**: no ISaveable in the TV namespace. Snake/Runner/Pong scores are session-only; RunnerGame highscore persistence mechanism unverified (no PlayerPrefs reference found).
 
-## Hook Points
-1. **S1API wrapper (verified against checked-in source)**: subclass `S1API.TVApp.TVApp` (extends `Registerable`) — S1API builds the canvas and registers the app into the native `TVHomeScreen`; this is the intended custom-app path.
+## Candidate Hook Points
+1. **S1API wrapper (previously reported against checked-in source)**: subclass `S1API.TVApp.TVApp` (extends `Registerable`) — S1API builds the canvas and registers the app into the native `TVHomeScreen`; this is the intended custom-app path.
 2. **Prefix `TVInterface.CanOpen()` / `Postfix Open()`** — gate TV usage (shop hours, perks).
 3. **Postfix `TVApp.ActiveMinPass()`** — per-minute logic while a TV session is open (time-based events).
 - Subscribe `TVInterface.onPlayerAdded` to track co-op sessions.

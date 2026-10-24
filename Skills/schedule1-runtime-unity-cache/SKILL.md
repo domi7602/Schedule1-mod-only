@@ -1,216 +1,79 @@
 ---
 name: schedule1-runtime-unity-cache
-description: >-
-  Lifecycle-safe cache for runtime-created Unity objects (Texture2D, Sprite, AudioClip, Material) in MelonLoader IL2CPP mods. Use when a mod reloads content at runtime (live asset folder, hot-edit config) and needs to avoid leaking GPU memory and GameObject refs across reloads.
-  Keywords: Object.Destroy, SpriteCache, dirty flag, MarkDirty, EnsureLoaded, IDisposable, Texture2D cache, AudioClip pool, GC.Alloc-free reload.
+description: "Cache Unity resources with ownership and staged replacement. Keywords: Object.Destroy, SpriteCache, dirty flag, MarkDirty, EnsureLoaded, IDisposable, Texture2D cache, AudioClip pool, GC.Alloc-free reload."
 ---
 
 > Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
-# Schedule I — Runtime Unity-Object Cache (Leak-Free Reload)
+# Schedule I — Runtime Unity Asset Cache
 
-> **Source:** distilled from decompiling `CustomLoadingScreens` (`SpriteCache`, `SpriteLoader`). Verified 2026-08-26.
->
-> **The trap:** When you `new Texture2D(...)` or `Sprite.Create(...)` at runtime, those are **UnityEngine.Object** subclasses that live on the **native heap**, not the managed GC heap. The GC will never collect them. Forgetting to call `Object.Destroy()` causes a leak per reload: after 10 config-edits the user has 10× the texture memory allocated, plus stale Sprite refs in random fields.
->
-> **The fix:** A cache wrapper that owns its objects and destroys them deterministically when reloaded or disposed. Same pattern works for `Texture2D`, `Sprite`, `AudioClip`, `Material`, `RenderTexture`, `Mesh`.
+## Scope and prerequisites
 
----
+Follow the [working contract](../schedule1-modding/references/working-contract.md).
+Identify the cache owner, consumers, scene/session lifetime, and each resource's origin.
+Distinguish owned runtime creations from borrowed game assets and shared dependencies.
+This is an ownership contract, not a generic compiled cache implementation.
 
-## 1. The Pattern (SpriteCache-Style)
+## Required ownership model
 
-```csharp
-using System;
-using UnityEngine;
+Track a batch's assets and dependencies together: for example, sprites plus textures,
+materials plus owned textures, or audio clips plus active consumers.
+Record which resources may be destroyed, which are shared, and who detaches consumers.
+A managed reference disappearing does not itself express a Unity asset-release policy.
+Never destroy a borrowed game material or texture merely because a cache used it.
 
-namespace S1Mods.Shared.Assets;
+## Reload workflow
 
-/// <summary>
-/// Owns runtime-created Unity Objects. Rebuilds on dirty; calls Object.Destroy on old.
-/// Generic over the array type stored (Sprite[] / Texture2D[] / AudioClip[]).
-/// </summary>
-public sealed class UnityObjectCache<T> : IDisposable where T : UnityEngine.Object
-{
-    private readonly Action<string>? _log;
-    private bool _isDirty = true;
-    private string? _lastSourceKey;
-    private T[] _items = Array.Empty<T>();
-    private bool _disposed;
+1. Mark the source generation dirty and capture the current owner/session identity.
+2. Read bytes and perform pure parsing off-thread when useful and supported.
+3. Create Unity objects on the main thread, registering each newly owned object in a
+   candidate batch immediately so partial construction can be cleaned up.
+4. Validate the complete candidate, including required assets and format/size limits.
+5. Recheck generation and session before publication; discard stale candidates safely.
+6. Rebind consumers to the candidate and publish the new batch as one logical operation.
+7. Detach consumers from the previous batch, then release its owned resources in
+   dependency-safe order, after its last consumer has stopped using them.
+8. On failure, release the candidate and retain or restore the last valid active batch.
 
-    public UnityObjectCache(Action<string>? log = null) => _log = log;
+Building first can temporarily increase peak memory. If the budget cannot support that,
+choose an explicit staged/loading-state design and document the resulting availability
+trade-off. Destroying the old batch first is not a universal leak-prevention rule.
 
-    public IReadOnlyList<T> Items => _items;
-    public bool IsEmpty => _items.Length == 0;
+## Failure and concurrency rules
 
-    public void MarkDirty() => _isDirty = true;
+- A loader failure must not silently replace working assets with an empty array.
+- Do not retry every frame on an unchanged broken file; use bounded retry or a new event.
+- An event arriving during a reload remains pending after the older request completes.
+- A thread-safe reference assignment is not a transaction across consumers and resources.
+- If publication partially fails, restore prior consumer references where valid and report
+  incomplete restoration. Do not dispose a batch that still has known consumers.
+- Keep byte reading separate from Unity creation/destruction; do not move all loading
+  to a worker thread as a performance fix.
+- Stop or detach audio consumers before releasing their owned clips; await completion
+  through the supported runtime mechanism instead of blocking the main thread.
 
-    /// <summary>Re-load only if dirty or if source key changed.</summary>
-    public void EnsureLoaded(string sourceKey, Func<T[]> loader) {
-        if (_disposed) throw new ObjectDisposedException(nameof(UnityObjectCache<T>));
-        if (!_isDirty && string.Equals(_lastSourceKey, sourceKey, StringComparison.Ordinal)) return;
-        Reload(sourceKey, loader);
-    }
+## Lifetime and cleanup
 
-    private void Reload(string sourceKey, Func<T[]> loader) {
-        Clear();                                  // destroy old first — never leak
-        _lastSourceKey = sourceKey;
-        _isDirty = false;
-        try {
-            _items = loader() ?? Array.Empty<T>();
-        } catch (Exception ex) {
-            _log?.Invoke($"[{typeof(T).Name}] reload failed: {ex.Message}");
-            _items = Array.Empty<T>();
-            _isDirty = true;                      // retry next EnsureLoaded
-        }
-    }
+Use runtime-appropriate Unity destruction for owned assets; it is deferred, so measure
+memory after destruction has had an opportunity to complete.
+Do not introduce a blanket `DestroyImmediate` exception during application shutdown.
+Invalidate scene-bound consumers on scene exit and reject late asynchronous completion.
+Make cleanup idempotent and preserve useful diagnostics if native release fails.
+If a public clear operation leaves the cache reusable, it must invalidate its loaded key
+and dirty/generation state; disposal instead marks the cache terminal.
 
-    /// <summary>Destroy all currently-owned objects and reset.</summary>
-    public void Clear() {
-        for (int i = 0; i < _items.Length; i++) {
-            var obj = _items[i];
-            if (obj != null && !obj.WasCollected) {
-                try { UnityEngine.Object.Destroy(obj); }
-                catch (Exception ex) { _log?.Invoke($"[{typeof(T).Name}] destroy failed: {ex.Message}"); }
-            }
-        }
-        _items = Array.Empty<T>();
-    }
+## Verification and delivery
 
-    public void Dispose() {
-        if (_disposed) return;
-        _disposed = true;
-        Clear();
-    }
-}
-```
+Verify initial load, repeated reloads, partial creation failure, invalid input, shared
+texture ownership, multiple consumers, scene exit during load, and repeated cleanup.
+Measure peak and retained native/GPU resources over repeated cycles after settling;
+managed GC statistics alone do not establish that Unity resources were released.
+Report the ownership graph, last-good behavior, main-thread boundary, and measured limits.
 
-**Use it:**
+## References
 
-```csharp
-private readonly UnityObjectCache<Sprite> _sprites = new(msg => ModLogger.Info(msg));
-
-// From OnUpdate after debounced reload fires:
-_sprites.EnsureLoaded(
-    sourceKey: $"v1:{folderPath}:{includeTutorial}",
-    loader: () => SpriteLoader.LoadSprites(ImageCatalog.GetImageFiles(folderPath)));
-
-// Game-side field assignment — wrap managed[] into Il2CppReferenceArray<Sprite>:
-gameField.SetValue(il2cppOwner, il2cppRefArrayCtor.Invoke(new object[] { _sprites.Items.ToArray() }));
-// (see schedule1-il2cpp-reflection §3 for the ctor wrapper)
-```
-
----
-
-## 2. Critical Rules
-
-### 2a. Always destroy BEFORE rebuild, never after
-
-```csharp
-// ✅ RIGHT
-Clear();                // destroy old
-_items = loader();      // load new
-// ❌ WRONG — keeps old + new alive until Clear() at next reload
-_items = loader();
-Clear();
-```
-
-### 2b. Never store Unity Objects in a long-lived managed collection that outlives the cache
-
-```csharp
-// ❌ WRONG — texture lives as long as the dictionary, even after "removal"
-private static readonly Dictionary<string, Texture2D> _allLoaded = new();
-
-// ✅ RIGHT — use a cache wrapper; its Dispose() actually frees the textures
-private readonly UnityObjectCache<Texture2D> _allLoaded = new();
-```
-
-### 2c. Use `Object.Destroy` for runtime-created, `Object.DestroyImmediate` only in Edit mode
-
-At runtime in a build, `Object.Destroy(obj)` is correct. `DestroyImmediate` is for editor scripts and **will not flush in time** for frame-accurate teardown in IL2CPP. Exception: during `OnApplicationQuit` when no frames will run anyway, `DestroyImmediate` is safe and immediate.
-
-### 2d. Null-check before destroy — `Destroy(null)` is silently a no-op but throws `MissingReferenceException` on already-destroyed objects
-
-```csharp
-if (obj != null) {                            // managed null-check
-    try { UnityEngine.Object.Destroy(obj); }
-    catch (MissingReferenceException) { }      // already destroyed — fine
-}
-```
-
-The `obj != null` check uses Unity's overloaded `==` which handles "fake null" (destroyed but reference still alive).
-
----
-
-## 3. When the Dirty Flag Isn't Enough
-
-`UnityObjectCache<T>.EnsureLoaded` short-circuits on unchanged key. Add a generation counter when the source folder can change content without changing path:
-
-```csharp
-public void EnsureLoaded(string sourceKey, int generation, Func<T[]> loader) {
-    if (!_isDirty && _cachedGeneration == generation && string.Equals(_lastSourceKey, sourceKey, Ordinal)) return;
-    _cachedGeneration = generation;
-    Reload(sourceKey, loader);
-}
-```
-
-Pull `generation` from `Directory.GetLastWriteTimeUtc(folder).Ticks` or a `File.GetLastWriteTimeUtc` per file.
-
----
-
-## 4. Sprite-Specific Gotcha
-
-When you wrap a `Texture2D` into a `Sprite.Create(...)`, the Sprite holds an internal ref to the Texture2D. Destroying the Texture2D before the Sprite leaves a "dead" Sprite that throws on render. Always destroy in **reverse allocation order**:
-
-```csharp
-// Created: texture1, sprite1, sprite2 (both ref texture1), texture2, sprite3
-// Destroy order: sprite3, sprite2, sprite1, texture2, texture1
-// → use a single cache per "batch" (e.g. one SpriteCache owns all sprites AND the textures they reference)
-```
-
-Simplest fix: keep textures and sprites in **one cache** per "bundle", with a `BundleDisposer` that destroys sprites first, then textures.
-
----
-
-## 5. AudioClip Variant
-
-Same pattern, slightly different ownership rules:
-
-```csharp
-public sealed class AudioClipCache : IDisposable {
-    private AudioClip[] _clips = Array.Empty<AudioClip>();
-    public void Reload(string folder, AudioType type = AudioType.OGGVORBIS) {
-        Clear();
-        var files = Directory.GetFiles(folder, "*.ogg");
-        _clips = files.Select(f => {
-            // S1API has helpers; raw path:
-            var req = UnityWebRequestMultimedia.GetAudioClip($"file://{f}", type);
-            // ... handle async via coroutine or sync-blocking with SendWebRequest()
-        }).ToArray();
-    }
-    public void Clear() { foreach (var c in _clips) if (c != null) Object.Destroy(c); _clips = Array.Empty<AudioClip>(); }
-}
-```
-
-AudioClips loaded via `UnityWebRequest` need a coroutine; load asynchronously and only flip the cache atomically at completion (via `Interlocked.Exchange` on a local field, then assign to the public field — no torn reads because reference assignment is atomic).
-
----
-
-## 6. Pitfalls
-
-| Symptom | Cause | Fix |
-|---|---|---|
-| Memory grows on every config reload | Old Unity Objects not destroyed | Always `Clear()` before `loader()` |
-| "MissingReferenceException" on destroy | Object already destroyed by scene unload | try/catch around `Destroy` |
-| Sprites render as magenta after reload | Texture destroyed before Sprite | Destroy in reverse-creation order (§4) |
-| Reload blocks the main thread for 2s | Synchronous file I/O in loader | Pre-load on background thread, swap via atomic reference assignment |
-| Loader throws → cache empty forever | `_isDirty` not re-set on failure | Catch in `Reload`, set `_isDirty = true` (§1) |
-| `Array.Empty<T>()` typed wrong for `Sprite[]` | `T[]` is `Sprite[]`, but assignment fails in IL2CPP | See `schedule1-il2cpp-reflection` §3 for `Il2CppReferenceArray<T>` wrapping |
-
----
-
-## 7. References
-
-- Source: decompiled `CustomLoadingScreens/CustomLoadingScreens.LoadingScreen/SpriteCache.cs` + `SpriteLoader.cs`
-- Companion skill: `schedule1-debounced-reload` — fires the dirty signal
-- Companion skill: `schedule1-il2cpp-reflection` §3 — wrapping managed `T[]` into `Il2CppReferenceArray<T>` for game-field assignment
-- S1API: `S1API.Assets` (if present) may have wrappers — check before rolling your own
+- [Unity Object.Destroy](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Object.Destroy.html): deferred destruction semantics; match the installed engine documentation.
+- [Unity Object.DestroyImmediate](https://docs.unity3d.com/6000.0/Documentation/ScriptReference/Object.DestroyImmediate.html): editor-oriented API and runtime guidance.
+- [Unity thread context](https://docs.unity3d.com/6000.2/Documentation/Manual/async-awaitable-continuations.html): most Unity APIs require the main thread; this does not establish Awaitable availability in the game.
+- [Debounced reload](../schedule1-debounced-reload/SKILL.md): generation and retry scheduling.
+- [IL2CPP reflection](../schedule1-il2cpp-reflection/SKILL.md): verified array/member conversions.

@@ -1,4 +1,6 @@
 # Configuration (Schedule I)
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 75/76 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## Core Classes
@@ -11,9 +13,9 @@
 | `Configuration<T>` | `BaseConfiguration where T : Settings` | Generic wrapper with `DefaultSettings` / `PlatformDefaultSettings` — the underscored spellings are not members |
 | `Settings` | `PersistentSingleton<Settings>` (`ScheduleOne.DevUtilities`) | Applies/writes the real engine settings |
 
-Concrete `Configuration<T>` examples verified: `SFXConfiguration : Configuration<SFXSettings>` (Audio), `EquipConfiguration : Configuration<EquipSettings>` (Equipping). So the same pattern is used across game systems.
+Concrete `Configuration<T>` examples reported in the original notes: `SFXConfiguration : Configuration<SFXSettings>` (Audio), `EquipConfiguration : Configuration<EquipSettings>` (Equipping). So the same pattern is used across game systems.
 
-## ConfigurationService API (verified)
+## ConfigurationService API (previously reported)
 - `Configurations` property → all registered `BaseConfiguration` assets
 - `TryGetConfiguration<T>(out T)` (generic) / `TryGetConfiguration(string name, out BaseConfiguration)`
 - `GetConfigurationAndListenForChanges(Action<BaseConfiguration> callback)` — subscribe to change notifications
@@ -35,7 +37,7 @@ Data classes are plain `[Serializable]` classes; `Settings` singleton applies th
 - `Settings` also has `GetActionControlPath(string actionName)` for input display strings
 
 ## Events
-On `Settings` (verified):
+On `Settings` (previously reported):
 | Event | Kind | Trigger |
 |-------|------|---------|
 | `onDisplaySettingsApplied` | `Action` event (add/remove verified) | after display settings applied |
@@ -52,7 +54,7 @@ On `Settings` (verified):
 ## Settings UI
 - `GameSettingsWindow` (`ScheduleOne.UI.Settings`), `SettingsScreen` (`ScheduleOne.UI.MainMenu`), controls: `SettingsSlider`, `SettingsToggle`, `SettingsDropdown`, `ConfirmDisplaySettings`, `RebindActionUI` (DevUtilities, input rebinding UI)
 
-## Hook Points (Harmony)
+## Candidate Hook Points (Harmony)
 1. `ConfigurationService.GetConfigurationAndListenForChanges(...)` — usually **no patch needed**: call it directly to observe any game configuration.
 2. `Settings.ApplyDisplaySettings(DisplaySettings)` / `ApplyGraphicsSettings(...)` — postfix to enforce mod settings (e.g., clamp/override after the game applies its own).
 3. `ConfigurationServiceNetworker.ApplySettingsJson` (Target RPC) — patch to intercept/filter synced settings in multiplayer.
@@ -64,22 +66,8 @@ On `Settings` (verified):
 
 ---
 
----
+## Unresolved identifiers in the imported 2026-10-08 record
 
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+The imported scan did not resolve the following tokens within its recorded search scope. These may be placeholders, attributes from another assembly or drift candidates. Search the actual declaring assembly and version before concluding that an API was removed.
 
 - `ReloadDisplaySettings`

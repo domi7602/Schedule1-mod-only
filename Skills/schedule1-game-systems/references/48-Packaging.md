@@ -1,8 +1,10 @@
 # Packaging (Schedule I)
 
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 64/65 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep. Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable.
 
-## Core Classes (verified)
+## Core Classes (previously reported)
 
 | Class | Namespace | Hierarchy / Purpose |
 |-------|-----------|---------------------|
@@ -21,7 +23,7 @@
 
 `None`, `Basic`, `Advanced`
 
-## Process (verified classes)
+## Process (previously reported classes)
 
 1. Insert product + packaging into the station's item slots; `EState` gates the run: `CanBegin`, `MissingItems`, `InsufficentProduct` *(sic, game typo)*, `OutputSlotFull`, `Mismatch`, `PackageSlotFull`, `ProductSlotFull`.
 2. Server-side conversion via `PackagingStation.PackSingleInstance` (Mk1 auto-packages; Mk2 runs the `PackagingTool` minigame: `InsertIntoHopper`, `UpdateConveyor`, `Kick`, `SealAnim`, `CheckFinalize`).
@@ -41,7 +43,7 @@ Stealth values, police-risk effects and mixing context: see [`25-Mixing-Producti
 - `PackagingStation` persists via the Persistence layer — `PackagingStationData`, `PackagingStationConfigurationData`, `PackagingStationLoader` exist in `ScheduleOne.Persistence` (station is not `ISaveable` itself; saves via `GridItem`/`BuildableItem` data pipeline, see [`02-Save-Persistence.md`](02-Save-Persistence.md)).
 - `PackagingDefinition : StorableItemDefinition` participates in the item-definition save set.
 
-## Hook Points
+## Candidate Hook Points
 
 1. **Prefix `PackagingStation.PackSingleInstance`** — server-side interception: bypass minigame, alter output, force packaging.
 2. **Prefix `PackagingTool.CheckFinalize`** — auto-pass the Mk2 minigame or log player input.
@@ -49,22 +51,8 @@ Stealth values, police-risk effects and mixing context: see [`25-Mixing-Producti
 
 ---
 
----
+## Unresolved identifiers in the imported 2026-10-08 record
 
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+The imported scan did not resolve the following tokens within its recorded search scope. These may be placeholders, attributes from another assembly or drift candidates. Search the actual declaring assembly and version before concluding that an API was removed.
 
 - `Kick`

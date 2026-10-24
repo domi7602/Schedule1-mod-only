@@ -1,102 +1,42 @@
-# IL2CPP & Harmony Patching Guide (Schedule I)
+# IL2CPP objects and Harmony integration
 
 > **Canonical home of the WasCollected/Golden-Guard idiom (§2) and parameter-keyed sprite caches (§4)** — other files reference here. verified: 2026-08-20/21; re-checked 2026-10-05.
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 35/37 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
-Schedule I is built on Unity compiled with **IL2CPP**. Interacting with IL2CPP types via MelonLoader requires specific patterns.
+## Preconditions
 
----
+Identify the actual backend and target artifact. A managed proxy method can expose a native entry point without exposing native implementation logic. Confirm exact overloads, patchability and bridge behavior before installing a detour.
 
-## 1. Zero-Allocation Polling in IL2CPP
-In IL2CPP, crossing the managed-to-native boundary generates allocations if LINQ, enumerators (`foreach` on unhollowed collections), or boxing are used inside high-frequency loops (`OnUpdate` or frequent polling).
+## Object lifetime
 
-### Best Practices:
-* **Avoid LINQ in `Update()` / Tick loops**: Use indexed `for` loops where possible.
-* **Cache references**: Cache `FindObjectOfType`, `Component` lookups, and `Type` instances in `Awake` / `Start` / Scene load handlers.
-* **Cooldown timers**: Poll only when necessary (e.g. `_timer += Time.deltaTime; if (_timer >= 2.0f) { _timer = 0; PollData(); }`).
+Separate managed reference existence, IL2CPP wrapper validity and Unity engine object lifetime. Their checks are not interchangeable. In particular, do not assert that every non-null wrapper proves a live native object, or that an instance ID alone proves lifetime.
 
----
+Use the checks supported by the actual declared type and interop version. Inspect Pointer/WasCollected behavior before reading those members in a guard; they are not available on every object type. Where Unity equality operators apply, distinguish their semantics from System.Object/reference comparisons. Avoid retaining scene objects across unload; retain stable domain identities and resolve fresh runtime objects at the appropriate lifecycle point.
 
-## 2. Harmony Patches on IL2CPP Methods
+## Native patch contract
 
-### Declaring Harmony Patches:
-```csharp
-using HarmonyLib;
-using Il2CppScheduleOne.Growing;
+1. Identify the exact target type, method, overload and backend.
+2. Inspect how the current Harmony/interop bridge marshals arguments, including ref/out arguments even if a prefix omits them.
+3. Define instance, authority and lifecycle gates; keep unrelated calls unchanged.
+4. Choose a prefix, postfix or finalizer for the actual effect. A postfix normally observes an already executed original; it cannot retroactively veto it.
+5. Publish restoration state before temporary mutation. Restore exactly the prior owned/borrowed value on all supported exits, including exceptions.
+6. Confirm installation and exercise the actual hook. An “applied” counter is not proof that it executed.
+7. Remove only this mod's patches and event bindings at final teardown.
 
-[HarmonyPatch(typeof(GrowContainer), nameof(GrowContainer.Water))]
-internal static class Patch_GrowContainer_Water
-{
-    [HarmonyPrefix]
-    private static void Prefix(GrowContainer __instance, float amount)
-    {
-        // Execute custom pre-water logic
-    }
-}
-```
+Use [Harmony bootstrap](../../schedule1-harmony-bootstrap/SKILL.md) for discovery/results and [reflection](../../schedule1-il2cpp-reflection/SKILL.md) for missing or moving bindings.
 
-### Safety & Scene Transitions:
-* When returning to Main Menu (`MenuScreen`), objects from gameplay scenes are destroyed.
-* **The Golden Guard** (canonical idiom — use EXACTLY this everywhere):
-  ```csharp
-  if (obj == null || obj.Pointer == IntPtr.Zero || obj.WasCollected) return;
-  ```
-  (`!= null` alone can be true for dead proxies; `GetInstanceID() == 0` covers pure Unity objects but NOT collected IL2CPP wrappers.)
-* Clear cached gameplay lists on scene unload (`OnSceneWasUnloaded`).
+## Hot paths
 
----
+Cache appropriate lookups with an invalidation owner and scene/session generation. A static set of instance IDs without cleanup is unsafe when identities are reused. Bound scans by measured workload and time; avoid per-frame global enumeration. For IL2CPP collections, inspect marshalling/allocation behavior and prefer indexed traversal where appropriate. Do not label all managed foreach loops as inherently unsafe.
 
-## 3. Dealing with Unhollowed IL2CPP Collections
-* `Il2CppSystem.Collections.Generic.List<T>` is NOT `System.Collections.Generic.List<T>`.
-* When enumerating `Il2CppSystem.Collections.Generic.List<T>`, use `for (int i = 0; i < list.Count; i++)` instead of `foreach` to avoid creating garbage collection objects.
-* **Prefer plain managed collections** (`System.Collections.Generic.List<T>`) for temp buffers inside one method — they never cross into native interop and are zero-cost to iterate. Only pass Il2Cpp collections to Il2Cpp APIs.
+## Resource caches
 
----
+Key generated assets by all parameters affecting their result. Define ownership, bounded growth, eviction and consumer replacement. Use culture-independent representations for numeric keys where strings are used. A correct dictionary key does not by itself provide cleanup or lifetime safety.
 
-## 4. Sprite/Texture/Curve Caches — Key by Parameters (verified 2026-08-20/21)
+## Historical field-accessor issue
 
-Procedurally generated `Sprite`/`Texture2D`/`AnimationCurve`/`Gradient` caches must be keyed by their constructor parameters. A single `private static Sprite? _x` field shared across different radii/thicknesses silently returns the FIRST caller's asset for everyone (Minimap Rounded-vs-Square shape bug + **circle mask bug 2026-08-21**: `_circleMaskSprite/_circleBorderSprite` single-field → wrong mask after `size` change, fixed via `_circleMaskCache/_circleBorderCache` keyed `"{size}"`/`"{size}_{thickness}"` in `MinimapTextures.cs:9`).
+The uploaded notes reported an unpatchable generated stack-limit accessor. Treat that report as a reason to inspect the installed accessor and call path; do not assume every getter is patchable or every getter is a direct field accessor.
 
-```csharp
-// ❌ WRONG — two radii share one cache slot
-private static Sprite? _roundedSquareMask;
-public static Sprite GetMask(float r) { return _roundedSquareMask ??= Build(r); }
+## Verification
 
-// ✅ RIGHT — key by parameters
-private static readonly Dictionary<string, Sprite> _maskCache = new();
-public static Sprite GetMask(float r)
-{
-    string key = $"mask_{r}";
-    if (!_maskCache.TryGetValue(key, out var s)) _maskCache[key] = s = Build(r);
-    return s;
-}
-```
-
-Static `readonly AnimationCurve`/`Gradient` (CustomSkateboard) are fine when the curve is truly global; if variants exist, key them too.
-
-## 5. Field-Accessor Not Patchable (verified 2026-08-21)
-
-`BaseItemDefinition.get_DefaultStackLimit` is a C++ field accessor → `Il2CppInterop "field accessor, it can't be patched"` (`Latest.log:17:43:04.438`). Harmony postfix never fires, PatchGuard 16/16 is false-positive. **Do not patch** field accessors — verify with `ilspycmd -t Il2CppScheduleOne.Core.Items.Framework.BaseItemDefinition` first; handle via direct scan/field write (`StackLimitEngine.cs:39-68` + `BaseItemInstance.get_StackLimit` postfix instead). Reference: `StackLimitMod/Mod.cs:109` removed dead patch.
-
----
-
----
-
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
-
-- `_circleMaskSprite`
-- `_circleBorderSprite`
+Test valid target, absent target, changed overload, exception path, repeated initialization, unload/reload and unrelated instances. Record actual bridge/version evidence for native ABI-sensitive changes. Do not claim that a managed try/catch can recover every native access violation.

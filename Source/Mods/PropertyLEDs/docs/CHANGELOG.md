@@ -3,6 +3,13 @@
 All notable changes to PropertyLEDs are documented here. Format: Keep a Changelog;
 versioning: SemVer.
 
+## 0.1.8 (2026-10-20)
+- On the first actual app open after a load, select the local player's exact current owned property/business code when available; never infer it from distance. Preserve manual selection across close/reopen; outdoors or unavailable identity falls back to the existing/first owned selection.
+- Name the selected property in the power status, with the enabled/disabled state first so long names cannot hide it. The reported motel/OFF mismatch showed Greenhouse Island selected while the motel settings were enabled; no renderer/toggle repair was justified. Existing room-override and property-edit semantics are unchanged.
+- Preserve manual selection after transient refresh failures; only actual load/scene invalidation re-arms initial adoption.
+- Prevent hidden UI construction from consuming the first-open selection. Log `Phone property selection: selected=..., current=...` when resolving it.
+- 115 tests pass (pure selection/status decisions and supplementary source contracts, including observed failing hidden-construction/refresh-error guards and state-first text expectations before their fixes). Independent review and final delta re-review PASS. Forced Release build/deploy: 0 warnings/errors; installed DLL/PDB/metadata hashes match, installed metadata is 0.1.8, and both new policy/text types are present in the installed assembly. Shared and layout catalog are unchanged. Native location detection, status fitting, toggle/color/selection and save roundtrip acceptance remain In-Game-Verify open.
+
 ## 0.1.7 (2026-10-18)
 - Centralize the phone typography ramp and increase selector names, slider labels/values, buttons, help text and subtitle. Increase the corresponding selector bands and control heights without changing palette, slider ranges, settings or lighting.
 - Minimum content budget is now 472 dp collapsed / 538 dp expanded; small screens retain scrolling. Room bar and color preview remain removed.

@@ -1,0 +1,3 @@
+<Project>
+  <!-- Intentionally do not import a parent repository's build/deployment targets. -->
+</Project>

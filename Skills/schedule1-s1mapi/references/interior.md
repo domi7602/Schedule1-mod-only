@@ -1,160 +1,58 @@
-# S1MAPI — InteriorBuilder & FurnitureType
+# S1MAPI — Furnishings and Functional Prefabs
+
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 10/12 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
+## Evidence boundary
 
-`InteriorBuilder` places in-game furniture (desks, chairs, beds, …) inside custom buildings or anywhere in the world. This bridges geometry back to the game world — your procedural building can host real, interactable game objects.
+The public API consulted on 2026-10-21 places `InteriorBuilder` in `S1MAPI.Building.Interior`. It is an instance builder with furniture-specific methods and a separate prefab path. The earlier static `InteriorBuilder.Add(... FurnitureType ..., networked: ...)` signature was not established and has been removed.
 
----
+## Separate three kinds of content
 
-## 1. Quickstart
-
-```csharp
-using S1MAPI.Interior;
-
-InteriorBuilder.Add(parent: room, type: FurnitureType.Desk, position: new Vector3(0, 0.5f, 0));
-InteriorBuilder.Add(parent: room, type: FurnitureType.Chair, position: new Vector3(0.5f, 0.5f, 0.5f));
-```
-
-A desk and chair appear in the room.
-
----
-
-## 2. FurnitureType Enum
-
-```csharp
-public enum FurnitureType
-{
-    Desk,
-    Chair,
-    Bed,
-    Table,
-    Shelf,
-    Lamp,
-    Couch,
-    Stove,
-    Fridge,
-    Washer,
-    Dryer,
-    // ... 30+ types
-}
-```
-
-> The exact list varies by S1MAPI version. Verify against the deployed `UserLibs/S1MAPI_Il2cpp.dll` and the pinned `ThirdParty/S1MAPI/` submodule.
-
----
-
-## 3. The `Add` Method
-
-```csharp
-public static GameObject Add(
-    GameObject parent,
-    FurnitureType type,
-    Vector3 position,
-    Quaternion rotation = default,
-    bool interactable = true,
-    bool networked = false
-);
-```
-
-| Param | Default | Notes |
+| Content | Responsibility | Required evidence |
 |---|---|---|
-| `parent` | required | The room or scene root |
-| `type` | required | From `FurnitureType` enum |
-| `position` | required | Local pos relative to parent |
-| `rotation` | `default` (identity) | Local rotation |
-| `interactable` | `true` | Adds an interaction trigger |
-| `networked` | `false` | Sources a `NetworkPrefab` for multiplayer sync |
+| Decorative furniture mesh | Visual hierarchy and collision as needed | Mesh/material availability and ownership |
+| Procedural furniture from a building helper | Geometry placed in building-local coordinates | Actual enum/helper members and generated components |
+| Functional native prefab | Gameplay, interaction, network and persistence contracts | Registered prefab, authority, initialization and restore owner |
 
----
+The published `FurnitureType` enum is not a catalog of every game furnishing. At the consulted page it lists Table, Chair, Desk, Bookshelf, Counter, and CoffeeTable. Do not infer beds, doors, or appliances from an imagined 30-item enum.
 
-## 4. Production Patterns
+## API lookup guidance
 
-### Pattern A: Office Room
+The public interior builder lists methods such as `AddBed`, `AddChair`, `AddDesk`, `AddCustomMesh`, `AddCustomObject`, and `AddPrefab`. Resolve exact signatures and result semantics in the target assembly. Mesh-based furnishings do not automatically become functional native storage, usable computers, or networked doors.
 
-```csharp
-public void SetupOffice(GameObject room)
-{
-    InteriorBuilder.Add(room, FurnitureType.Desk, new Vector3(0, 0.5f, 0));
-    InteriorBuilder.Add(room, FurnitureType.Chair, new Vector3(0, 0.5f, -0.5f));
-    InteriorBuilder.Add(room, FurnitureType.Lamp, new Vector3(0, 1.5f, -0.5f),
-                        Quaternion.Euler(0, 90, 0));
-    InteriorBuilder.Add(room, FurnitureType.Shelf, new Vector3(2, 0.5f, 0));
-}
-```
+Source anchors to locate: `ThirdParty/S1MAPI/Building/Interior/InteriorBuilder.cs`, furniture builders, and the prefab placement implementation. Prefer searching the type name if the checkout uses another directory structure.
 
-### Pattern B: Living Room with Rotation
+## Placement workflow
 
-```csharp
-InteriorBuilder.Add(room, FurnitureType.Couch, new Vector3(0, 0.4f, 2),
-                    Quaternion.Euler(0, 180, 0));   // facing -Z
+1. Define each furnishing with a stable ID, role, parent, local position, rotation, bounds, and optional interaction.
+2. Confirm the root's coordinate convention. A local Y value is not automatically the desktop height or floor contact point.
+3. Resolve all required mesh/material/prefab resources before activating the item.
+4. Create under one owned interior root and apply the intended local transform exactly once.
+5. Inspect collision and clearance around chairs, work surfaces, storage fronts, and entrances.
+6. Add native functionality only through a verified initialization/registration path.
+7. If networked, choose server spawn and client linking explicitly; test late join and callbacks.
+8. Record restoration ownership and extra state before introducing saving.
 
-InteriorBuilder.Add(room, FurnitureType.Table, new Vector3(0, 0.4f, 3));
+## Custom buildable furniture
 
-InteriorBuilder.Add(room, FurnitureType.TV, new Vector3(0, 1.2f, 4.8f),
-                    Quaternion.Euler(0, 180, 0));   // facing -Z
-```
+An inventory item instance and a placed GameObject are different responsibilities. Do not access an assumed `transform` on an item created by a definition and treat it as a spawned furnishing. Follow the current item/buildable registration and placement path; let native restoration own registered buildables when applicable.
 
-### Pattern C: Networked Interactable
+For mod-owned furniture, record the definition ID and placement data, then use a deterministic factory during rebuild. Avoid manually spawning another copy of something the native save system already restores.
 
-```csharp
-var door = InteriorBuilder.Add(parent: room, type: FurnitureType.Door,
-                              position: new Vector3(0, 1f, 5),
-                              networked: true);
-// Now the door's state syncs across multiplayer clients
-```
+## Practical room layouts
 
----
+- Office: desk, chair, light, storage; verify chair clearance and interaction reach.
+- Lounge: seating, low table, wall display; verify line of sight and walking space.
+- Functional shop: separate decorative shell from registered storage, checkout, doors, and worker stations.
 
-## 5. Common Pitfalls
+Keep these as declarative definitions, not a fixed sequence of unexplained coordinates. Validate the layout after transforms and scale are applied.
 
-| Pitfall | Fix |
-|---|---|
-| Furniture floats | Use proper y-position (e.g., 0.5f for a desk surface) |
-| Door clips into wall | Position carefully, use `DoorBuilder` for precise doors |
-| Furniture doesn't interact | Ensure `interactable: true` |
-| Multiplayer desync | Use `networked: true` for state-synced objects |
-| Furniture not aligned | Set `rotation` explicitly |
+## Failure and verification
 
----
+Missing resources must not produce partially registered functional entities. On failure remove only owned partial output and keep the definition available for diagnosis/retry. Test duplicate IDs, repeated build, absent prefab, blocked placement, multiplayer authority, save/reload, and cleanup while shared assets remain in use.
 
-## 6. Custom Items (Not in `FurnitureType`)
+## Sources
 
-For custom furniture not in the enum, use a different builder:
-
-```csharp
-using S1API.Items.Buildable;
-
-var myCustomFurniture = new MyCustomFurniture();   // extends BuildableItemDefinition
-var instance = myCustomFurniture.GetDefaultInstance();
-instance.transform.SetParent(room.transform);
-instance.transform.localPosition = new Vector3(0, 0, 0);
-```
-
-See `../schedule1-s1api/references/items-products.md` for the `BuildableItemDefinition` pattern.
-
----
-
-## 7. Workspace Reference
-
-`HomelessMod`'s procedural SleepingBag is **not** an `InteriorBuilder.Add(...)` — it uses S1API's `BuildableItemDefinition` because it's a custom (not vanilla) furniture. For vanilla furniture in custom buildings, use `InteriorBuilder`.
-
-For the source: `ThirdParty/S1API/` (S1API.Items.Buildable; initialize the submodule first if needed).
-
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
-
-- `DoorBuilder`
-- `NetworkPrefab`
+- [Official InteriorBuilder API](https://ifbars.github.io/S1MAPI/api/S1MAPI.Building.Interior.InteriorBuilder.html).
+- [Official FurnitureType enum](https://ifbars.github.io/S1MAPI/api/S1MAPI.Building.Interior.FurnitureType.html).
+- [Item/buildable guidance](../../schedule1-items/SKILL.md) and [geometry persistence](persistence.md).

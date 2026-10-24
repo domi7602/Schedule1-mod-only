@@ -1,6 +1,7 @@
 # FishNet-Networking (Schedule I)
-> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 19/24 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 19/24 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## Version
 FishNet (Steamworks-Transport)
@@ -14,12 +15,9 @@ FishNet (Steamworks-Transport)
 | `PersistentSingleton<T>` | Cross-scene (DontDestroyOnLoad) |
 
 ## SyncVar Pattern
-```csharp
-[SyncVar(WritePermissions = WritePermission.ClientUnsynchronized)]
-public NetworkObject NPCUserObject;
-```
+The original notes mix attribute-shaped and generic `SyncVar<T>` representations. Resolve the installed FishNet version and the native declaring type before choosing either form; do not paste an attribute from this register as a compiled example.
 - `SyncVar<T>` with manual SyncAccessor + `sync___set_value`
-- No SyncLists/SyncDicts – instead manual RPCs for arrays
+- The recorded examples use manual RPCs for arrays. This is not evidence that SyncLists/SyncDicts are absent from FishNet or every game subsystem.
 
 ## RPC Naming Convention
 | Type | Server Function | Client Function |
@@ -39,7 +37,7 @@ Dual attributes (`[ObserversRpc(RunLocally=true)]` + `[TargetRpc]`) on the same 
 
 ## Time Loop
 - Server: `TimeLoop()` → waits `MinuteDuration` → `PassMinute()` → `PassMinute_Client()` (ObserversRpc)
-- Client: `TickLoop()` → every 0.5s `onTick`
+- Client: `TickLoop()` / tick callbacks are historical candidates; the imported TimeManager notes report event-name drift. Resolve the current time event and cadence via [TimeManager](17-TimeManager.md).
 - Plants grow server-side, propagated to clients via RPC
 
 ## Object Spawning
@@ -54,19 +52,9 @@ Dual attributes (`[ObserversRpc(RunLocally=true)]` + `[TargetRpc]`) on the same 
 
 ---
 
----
+## Unresolved identifiers in the imported 2026-10-08 record
 
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+The imported scan did not resolve the following tokens within its recorded search scope. These may be placeholders, attributes from another assembly or drift candidates. Search the actual declaring assembly and version before concluding that an API was removed.
 
 - `TargetRpc`
 - `ClientUnsynchronized`

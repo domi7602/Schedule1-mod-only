@@ -1,206 +1,66 @@
-# S1API — Items & Products
+# S1API item and product integration
+
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 23/26 identifier-shaped tokens resolve (1 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
+Source scope: official online documentation reviewed on 2026-10-21; installed
+S1API 3.2.1 and native item behavior have not been validated by this package. <!-- skills-health: version-evidence (S1API target requested by the owner; installed build state lives in AGENTS.md) -->
 
-Two related but distinct APIs:
-- **`S1API.Items`** — define **custom items** (anything that goes in inventory: tools, consumables, packaging, etc.)
-- **`S1API.Products`** — register products with the **mixing system** (drugs, packaging, etc.)
+## Definitions, creation, and lookup
 
----
+The official [ItemDefinition reference](https://ifbars.github.io/S1API/api/S1API.Items.ItemDefinition.html)
+presents a wrapper with identity, display metadata, stack limits, and instance
+creation. It points custom creation toward ItemCreator. Do not assume arbitrary
+definition subclasses can be constructed with an item-ID string just because an
+older example did so. Inspect the creation path and required native backing object.
 
-## 1. Items — Custom Storable Items
+The [ItemManager reference](https://ifbars.github.io/S1API/api/S1API.Items.ItemManager.html)
+provides definition lookup, listing, and registration-related operations. Match
+`GetDefinition`, registration/preservation behavior, and return values to the target
+before use. Registration and preservation across scene transitions are separate
+concerns; verify both for custom definitions loaded before save restoration.
 
-```csharp
-using S1API.Items;
-using S1API.Items.Storable;
+## Choose the correct item model
 
-public sealed class MyCustomItem : StorableItemDefinition
-{
-    public MyCustomItem() : base("my_custom_item_id")
-    {
-        // Set display properties
-        Name = "My Item";
-        Description = "A custom item I made.";
-        Category = EItemCategory.Tools;
-        StackLimit = 50;
-        Price = 99f;
-    }
-}
-```
+Separate a definition from its instances and from the world object a buildable
+creates. Distinguish ordinary storable items, quality-bearing products, packaging,
+and native buildables using actual types and supported creation methods.
+Do not copy the removed rarity-style `EItemQuality` enum or guessed category names.
+Read the actual quality/category enum on the relevant wrapper/native owner.
 
-### Registration
+For a new item, establish stable ID, display metadata, legal/category rules,
+stackability, icon ownership, supported instance construction, registration phase,
+and required shop listing behavior. Validate name collisions before mutation.
 
-```csharp
-public override void OnInitializeMelon()
-{
-    ItemManager.RegisterItem(new MyCustomItem());
-}
-```
+## Product integration
 
-### Sub-Types
+Product systems may add recipes, mixing effects, quality, packaging, and their own
+save providers. Locate the target's real registration and serialization contracts.
+Do not invent a `ProductDefinition` registration attribute or a save-provider
+signature from a generic example. If using a third-party product mod as a pattern,
+record its exact revision and recheck every framework/native call it relies on.
 
-| Type | Use for |
-|---|---|
-| `StorableItemDefinition` | Base — anything in inventory |
-| `BuildableItemDefinition` | Furniture (beds, lamps, etc.) |
-| `ClothingItemDefinition` | Wearable clothing |
-| `IngredientItemDefinition` | Mixing ingredient |
-| `QualityItemDefinition` | Quality-tier item |
-| `AdditiveItemDefinition` | Plant-grow additive |
+Persist enough identity and metadata to reconstruct the intended instance without
+reusing a stale native object. Validate quantity, quality, and packaging together;
+a product ID alone may not describe a transferable stack.
 
----
+## Inventory and buildables
 
-## 2. Quality Tier System
+Use [inventory capacity](../../schedule1-items/references/inventory-capacity.md)
+for fit and partial transfer. Do not assume a native inventory class or singleton
+is runtime-neutral just because the surrounding code uses S1API wrappers.
 
-```csharp
-public enum EItemQuality
-{
-    Trash,        // 0.0
-    Common,       // 0.2
-    Uncommon,     // 0.4
-    Rare,         // 0.6
-    Epic,         // 0.8
-    Legendary     // 1.0
-}
-```
+A buildable needs the correct prefab, identity, native components, placement, and
+persistence ownership. Reusing a vanilla storable wrapper alone does not establish
+those contracts. Follow [buildable restore](../../schedule1-persistence/references/buildable-restore.md)
+to avoid recreating objects native persistence already restores.
 
-Quality affects price and gameplay. Use `QualityItemDefinition` for items that should have a quality tier.
+## Verification
 
----
+Compile the actual creation/registration path. Test first registration, duplicate
+ID, late registration, scene transition, saved instance restore, icon lifetime,
+stacking with different metadata, missing dependency, and incompatible save data.
+For products add recipe/mixing and packaging roundtrips; for buildables add place,
+pack-up, save, reload, and native instance counts.
 
-## 3. Products — Mixing System Integration
-
-```csharp
-using S1API.Products;
-
-[ProductDefinition("my_product")]
-public class MyProduct : ProductDefinition
-{
-    public MyProduct() : base("my_product")
-    {
-        Name = "My Product";
-        Description = "Best product ever";
-        Category = EProductCategory.Drug;
-    }
-}
-```
-
-S1API auto-discovers `[ProductDefinition]`-decorated classes.
-
-### Custom Product Save Provider
-
-```csharp
-public class MyProductSaveProvider : ICustomProductSaveProvider
-{
-    public string ModId => "MyMod";
-    public void Save(SaveData data) { /* your save logic */ }
-    public void Load(SaveData data) { /* your load logic */ }
-}
-
-// Register
-ProductRegistry.RegisterSaveProvider(new MyProductSaveProvider());
-```
-
-This integrates with the save system so your custom products persist with the same save format as base game products.
-
----
-
-## 4. Item Slots / Inventory
-
-```csharp
-private static PlayerInventory Inventory => PlayerSingleton<PlayerInventory>.Instance;
-
-public void GiveItemToPlayer()
-{
-    var instance = ItemManager.GetInstance("my_custom_item_id", quantity: 1);
-    Inventory.AddItemToInventory(instance);
-}
-```
-
-For defining the in-game slot:
-- `HotbarSlot` for hotbar (max 9 slots)
-- `CashSlot` for cash (max $1,000)
-- `InventorySlotCount` / `GetFirstInventorySlotContainingProduct` for general inventory — there is no type named `InventorySlot`
-
-See the `S1Mods.Shared` `EconomyHelper.GetMaxHoldableCashCapacity()` for slot-aware cash handling.
-
----
-
-## 5. Common Recipes
-
-### Recipe A: Simple Currency
-
-```csharp
-public sealed class CoinItem : StorableItemDefinition
-{
-    public CoinItem() : base("my_coin")
-    {
-        Name = "My Coin";
-        Description = "Tokens earned by my mod";
-        Category = EItemCategory.Cash;
-        StackLimit = 10000;
-        Price = 1f;
-    }
-}
-```
-
-### Recipe B: Stackable Consumable
-
-```csharp
-public sealed class MyPotion : StorableItemDefinition
-{
-    public MyPotion() : base("my_potion")
-    {
-        Name = "Healing Potion";
-        Description = "Heals 100 HP.";
-        Category = EItemCategory.Consumable;
-        StackLimit = 99;
-        Price = 50f;
-    }
-}
-```
-
-### Recipe C: Buildable Furniture
-
-```csharp
-public sealed class MyBed : BuildableItemDefinition
-{
-    public MyBed() : base("my_bed")
-    {
-        Name = "Custom Bed";
-        Description = "Sleep in your own bed.";
-        Category = EItemCategory.Furniture;
-    }
-}
-```
-
-Buildables also need a prefab (or `MeshVault`). If you don't have one, use a vanilla prefab with a `StorableItemDefinition` wrapper.
-
----
-
-## 6. Workspace Reference
-
-`HomelessMod` uses `S1API.Items.Buildable` for the procedural SleepingBag. See `Source/Archive/SnackVendor/src/Items/SnackVendorItemFactory.cs` for a production pattern.
-
-`MoreDrugs` (ThirdParty/) uses `S1API.Products` with `ICustomProductSaveProvider` for full save integration.
-
-For source: `ThirdParty/S1API/` (S1API.Items / S1API.Products; initialize the submodule first with `git submodule update --init` if needed).
-
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
-
-- `AdditiveItemDefinition`
-- `IngredientItemDefinition`
+Historical research anchors: the current ItemCreator implementation and archived
+mod examples such as SnackVendor/MoreDrugs, only if present in the owning workspace.

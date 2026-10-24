@@ -34,7 +34,7 @@ public sealed class WaterWiringTests
         Assert.Contains("target.sharedMaterial = material", source);
         Assert.Contains("OnSceneWasUnloaded", source);
         Assert.Contains("OnDeinitializeMelon", source);
-        Assert.Contains("_session.Stop()", source);
+        Assert.Contains("_session.Stop(", source);
         Assert.Contains("Stopwatch", source);
     }
 
@@ -80,5 +80,35 @@ public sealed class WaterWiringTests
         Assert.Contains("_material.SetColor(name, new Color(r, g, b, alpha))", source);
         Assert.DoesNotContain("FloatTuning", source);
         Assert.DoesNotContain("ColorTuning", source);
+    }
+
+    [Fact]
+    public void DisabledModulePumpsCleanupButKeepsReferenceUpdatesEnabledOnly()
+    {
+        string source = Source();
+        int update = source.IndexOf("public void OnUpdate()", StringComparison.Ordinal);
+        int tick = source.IndexOf("_session.Tick(now);", update, StringComparison.Ordinal);
+        Assert.True(tick > update);
+        string beforeTick = source[update..tick];
+        Assert.Contains("if (_shutdown || _session == null) return;", beforeTick);
+        Assert.DoesNotContain("_enabled", beforeTick);
+        Assert.Contains("if (_enabled && _session.State == WaterState.Applied)", source[tick..]);
+        Assert.Contains("_session.Stop(_clock.Elapsed.TotalSeconds)", source);
+    }
+
+    [Fact]
+    public void ShutdownFencesCleanupUpdatesAndExplicitReenable()
+    {
+        string source = Source();
+        int shutdown = source.IndexOf("public void OnDeinitializeMelon()", StringComparison.Ordinal);
+        int gate = source.IndexOf("_shutdown = true;", shutdown, StringComparison.Ordinal);
+        int stop = source.IndexOf("_session?.Stop(", shutdown, StringComparison.Ordinal);
+        Assert.True(gate > shutdown && stop > gate);
+        int update = source.IndexOf("public void OnUpdate()", StringComparison.Ordinal);
+        int tick = source.IndexOf("_session.Tick(now);", update, StringComparison.Ordinal);
+        Assert.Contains("if (_shutdown ||", source[update..tick]);
+        int setEnabled = source.IndexOf("internal void SetEnabled(bool enabled)", StringComparison.Ordinal);
+        int start = source.IndexOf("_session.Start(", setEnabled, StringComparison.Ordinal);
+        Assert.Contains("if (_session == null || _shutdown) return;", source[setEnabled..start]);
     }
 }

@@ -9,8 +9,6 @@ public class GoldenHourTargetsTests
     [InlineData("sun")]
     [InlineData("skyGlow")]
     [InlineData("ambient")]
-    [InlineData("fog")]
-    [InlineData("volume")]
     public void All_tints_are_warm_ordered_r_greater_g_greater_b(string key)
     {
         var tint = Tint(key);
@@ -22,8 +20,6 @@ public class GoldenHourTargetsTests
     [InlineData("sun")]
     [InlineData("skyGlow")]
     [InlineData("ambient")]
-    [InlineData("fog")]
-    [InlineData("volume")]
     public void All_tints_are_finite_and_bounded(string key)
     {
         var tint = Tint(key);
@@ -35,25 +31,13 @@ public class GoldenHourTargetsTests
     }
 
     [Fact]
-    public void Fog_bias_is_strongest_ambient_is_gentlest()
+    public void Accepted_mild_recipe_is_preserved()
     {
-        Assert.True(GoldenHourTargets.FogTint.B < GoldenHourTargets.SunLightTint.B,
-            "fog blue reduction must be at least as strong as sun");
+        Assert.Equal(new Argb(1.06f, 1.00f, 0.94f, 1f), GoldenHourTargets.SunLightTint);
+        Assert.Equal(new Argb(1.04f, 0.97f, 0.90f, 1f), GoldenHourTargets.SkySunGlowTint);
+        Assert.Equal(new Argb(1.03f, 0.995f, 0.96f, 1f), GoldenHourTargets.AmbientTint);
         Assert.True(GoldenHourTargets.AmbientTint.R < GoldenHourTargets.SunLightTint.R,
             "ambient must shift less than the sun tint");
-    }
-
-    [Fact]
-    public void Diagnostic_tint_is_finite_and_deliberately_obvious()
-    {
-        var tint = GoldenHourTargets.DiagnosticVolumeTint;
-        Assert.True(tint.IsFinite, "diagnostic tint must be finite");
-        Assert.True(tint.R >= 1.5f || tint.B <= 0.35f,
-            "diagnostic tint must sit clearly outside the regular bounds so the URP path is unmissable");
-        Assert.True(tint.R > GoldenHourTargets.VolumeTint.R,
-            "diagnostic tint must be stronger than the production volume tint");
-        Assert.True(tint.B < GoldenHourTargets.VolumeTint.B,
-            "diagnostic tint must be more colour-shifted than the production volume tint");
     }
 
     private static Argb Tint(string key) => key switch
@@ -61,8 +45,6 @@ public class GoldenHourTargetsTests
         "sun" => GoldenHourTargets.SunLightTint,
         "skyGlow" => GoldenHourTargets.SkySunGlowTint,
         "ambient" => GoldenHourTargets.AmbientTint,
-        "fog" => GoldenHourTargets.FogTint,
-        "volume" => GoldenHourTargets.VolumeTint,
         _ => throw new System.ArgumentException(key),
     };
 }

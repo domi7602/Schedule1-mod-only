@@ -1,157 +1,82 @@
-# Input-Focus Protection & Keyboard Navigation
+# Input Focus, Keyboard Navigation, and Controller Support
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 10 of 10 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+## Evidence and use
 
-When building Phone Apps in *Schedule I*, two critical input problems occur:
-1. **The WASD & Game-Hotkey Leak**: When typing text into an `InputField` (e.g. search bar, notes editor, rename field), the base game's input system still listens for <kbd>W</kbd>, <kbd>A</kbd>, <kbd>S</kbd>, <kbd>D</kbd>, <kbd>Tab</kbd>, and number keys, causing the player character to walk around or trigger inventory hotkeys while typing.
-2. **Missing Navigation Controls**: Players expect standard desktop shortcuts (<kbd>Escape</kbd> to go back/close, <kbd>Tab</kbd> to switch focus, <kbd>Ctrl+S</kbd> to save).
+Use when typing moves the player, hotkeys leak into gameplay, a modal loses focus, or cloned controls
+respond to a controller but not a mouse. `S1API.Input.Controls.IsTyping`, IL2CPP component registration,
+and historical game input names are lookup leads requiring the installed API/interop contract.
 
----
+## Establish ownership before changing a global gate
 
-## 1. The Input-Focus Protection Hook
+Prefer the game's or repository's supported input/focus ownership mechanism. Record which app,
+control, or modal owns each acquisition and release. A control becoming unfocused must release only
+its own ownership; it must not set a shared typing/movement gate false while another owner still
+requires it.
 
-To block game controls while typing, create a dedicated `MonoBehaviour` decorated with `[RegisterTypeInIl2Cpp]` that sets `S1API.Input.Controls.IsTyping = true` while any `InputField` is focused.
+If the only verified surface is a shared boolean, inspect all writers and integrate at the correct
+coordination point. Reading the old value and restoring it later does not solve interleaved owners.
+Do not invent a public lease API, and do not ship the old unconditional `Controls.IsTyping = false`
+inside every `OnDisable` handler. Document any unresolved coordination limitation explicitly.
 
-### Crucial IL2CPP Requirement:
-> [!CAUTION]
-> Every `[RegisterTypeInIl2Cpp]` MonoBehaviour **MUST** have a public constructor taking `IntPtr ptr`:
-> ```csharp
-> public MyAppInputFocus(IntPtr ptr) : base(ptr) { }
-> ```
-> Missing this constructor will crash the IL2CPP interop bridge when instantiating the component!
+Typing ownership applies only to the active, interactable app and its currently focused supported
+text field. Handle input-field selection, modal transfer, app switch, phone close, disable, destroyed
+UI, and scene teardown. Make releases idempotent. A hidden but still-selected field must not retain
+exclusive gameplay input.
 
-### Complete InputFocus Implementation:
-```csharp
-using System;
-using MelonLoader;
-using S1API.Input;
-using UnityEngine;
-using UnityEngine.UI;
+## Runtime component and event wiring
 
-namespace MyMod.UI;
+For an IL2CPP-registered custom component, inspect the installed MelonLoader/interop registration
+pattern and required constructors. The inherited pattern includes an `IntPtr` forwarding constructor;
+verify the applicable base type and version rather than promising that one signature covers all
+runtimes. Mono and IL2CPP event/collection bridges can differ.
 
-[RegisterTypeInIl2Cpp]
-internal sealed class MyAppInputFocus : MonoBehaviour
-{
-    public MyAppInputFocus(IntPtr ptr) : base(ptr) { }
+Use the repository's verified listener adapter, historically `EventHelper` or `ButtonUtils`, and keep
+an exact removable delegate/wrapper when the binding API requires one. Do not construct a guessed
+`UnityAction` signature or repeatedly add another listener on each open.
 
-    public InputField? SearchInput;
-    public InputField? EditorInput;
+## Navigation contract
 
-    private bool _lastTyping;
+Only the visible, focused owner processes UI shortcuts. Use the installed input system and binding
+policy, including remapped controls and controller navigation.
 
-    private void Update()
-    {
-        bool typing = (SearchInput != null && SearchInput.isFocused)
-                   || (EditorInput != null && EditorInput.isFocused);
+| Intent | Priority and expected effect |
+|---|---|
+| Back/Escape | Dismiss top modal, then nested view, then app; consume at one layer |
+| Focus search | Select an active, interactable search field in this app |
+| Tab navigation | Move among the app's visible controls; preserve multiline editing policy |
+| Save shortcut | Commit permitted app state through its persistence gate; avoid duplicate actions |
+| Confirm/cancel | Act on the current modal/control only |
 
-        if (typing != _lastTyping)
-        {
-            _lastTyping = typing;
-            Controls.IsTyping = typing; // Blocks game WASD/hotkeys when true
-        }
+Historical M/T/J or Q/E bindings are debugging clues, not universally unused keys. Check actual
+bindings before filtering or reusing them. Do not suppress every game input because one text field
+needs keyboard focus.
 
-        // Tab Navigation between fields
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            if (SearchInput != null && SearchInput.isFocused && EditorInput != null)
-            {
-                EditorInput.Select();
-                EditorInput.ActivateInputField();
-            }
-            else if (EditorInput != null && EditorInput.isFocused && SearchInput != null)
-            {
-                SearchInput.Select();
-                SearchInput.ActivateInputField();
-            }
-        }
-    }
+## Mouse and controller parity
 
-    private void OnDisable()
-    {
-        _lastTyping = false;
-        Controls.IsTyping = false; // Always release game input on close
-    }
-}
-```
+A cloned control can retain a gamepad-oriented component such as an input ramp without a working
+pointer handler. Inspect the actual attached components, interfaces/adapters, event system, and
+raycast path. A namespace or type name alone does not establish how the control is driven.
 
-### Attaching the Hook in `OnCreatedUI`:
-```csharp
-protected override void OnCreatedUI(GameObject container)
-{
-    // ... build UI ...
-    var focusHook = container.AddComponent<MyAppInputFocus>();
-    focusHook.SearchInput = _searchInput;
-    focusHook.EditorInput = _noteEditorInput;
-}
-```
+Prefer a supported pointer adapter. If a narrowly scoped polling fallback is necessary, require the
+app/modal to be visible, hit-test the intended rect in the correct canvas camera, and acquire one
+interaction owner on press. Cancel on release, pointer exit if appropriate, focus loss, app close,
+modal replacement, and teardown. Guard against double execution when the original control also
+handles the same input. Test drag capture, not only a single click.
 
----
+## Text field presentation
 
-## 2. Desktop Keyboard Navigation
+Choose a single-line or multiline mode deliberately. For a notes editor, align both the text and its
+placeholder to the intended top-left position through the supported uGUI/TMP component. Do not assume
+that every factory default is centered or that every text field is the legacy `InputField` type.
+Preserve editing shortcuts and caret behavior while suppressing gameplay actions.
 
-Inside your app's `Update()` loop (when `IsOpen()` is true), wire standard keyboard shortcuts:
+## Verify
 
-```csharp
-private void Update()
-{
-    if (!IsOpen()) return;
+Type movement and hotkey characters, switch between fields and modals, close while typing/dragging,
+lose application focus, reopen, and reload the scene. Verify controller and mouse parity and ensure
+another game's/mod's input owner remains respected. Count listeners before and after repeated opens.
 
-    bool ctrl = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-
-    // 1. Escape: Back / Dismiss Modal / Close
-    if (Input.GetKeyDown(KeyCode.Escape))
-    {
-        if (_activeModal != null && _activeModal.IsOpen)
-        {
-            _activeModal.Hide();
-        }
-        else if (_currentView != ViewMode.Main)
-        {
-            SetViewMode(ViewMode.Main);
-        }
-        else
-        {
-            CloseApp();
-        }
-    }
-
-    // 2. Ctrl + F: Quick Focus Search
-    if (ctrl && Input.GetKeyDown(KeyCode.F))
-    {
-        if (_searchInput != null && _searchInput.gameObject.activeInHierarchy)
-        {
-            _searchInput.Select();
-            _searchInput.ActivateInputField();
-        }
-    }
-
-    // 3. Ctrl + S: Quick Save
-    if (ctrl && Input.GetKeyDown(KeyCode.S))
-    {
-        SaveCurrentState();
-    }
-}
-```
-
----
-
-## 3. Multiline InputField Alignment Pitfall
-
-By default, Unity uGUI centres multiline input fields vertically and horizontally, causing large text areas to render in the middle rather than starting from the top-left.
-
-**Always apply this fix when creating multiline text areas:**
-```csharp
-var inputField = inputGO.AddComponent<InputField>();
-inputField.lineType = InputField.LineType.MultiLineNewline;
-
-// Fix alignment on both textComponent and placeholder!
-if (inputField.textComponent != null)
-{
-    inputField.textComponent.alignment = TextAnchor.UpperLeft;
-}
-if (inputField.placeholder is Text placeholderText)
-{
-    placeholderText.alignment = TextAnchor.UpperLeft;
-}
-```
+Read [Lifecycle and canvas](lifecycle-and-canvas.md) for lifetime boundaries and
+[Components and uGUI](components-and-ugui.md) for modal hit testing and listener cleanup.

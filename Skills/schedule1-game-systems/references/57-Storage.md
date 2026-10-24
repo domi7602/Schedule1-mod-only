@@ -1,5 +1,8 @@
 # Storage (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 101 of 101 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 Namespace: `Il2CppScheduleOne.Storage` (+ subclasses in `ObjectScripts`, menu in `UI`).
 
@@ -45,11 +48,11 @@ No UnityEvents in the Storage namespace.
 - `WorldStorageEntity` implements **ISaveable** per instance: `GUID` (+ `RegenerateGUID`), `GetSaveData()` → `WorldStorageEntityData`, `Load(...)`, `LastContentChangeTime`; static `All` list. Plain `StorageEntity` is **not** individually saveable.
 - See 02-Save-Persistence for the folder/file layout.
 
-## Hook Points
+## Candidate Hook Points
 1. **Prefix `StorageEntity.CanItemFit(ItemInstance, int)` / `HowManyCanFit`** — custom capacity rules (e.g. backpacks, bigger containers).
 2. **Prefix `StorageEntity.InsertItem(ItemInstance, bool)`** — audit/redirect/log stored contraband.
 3. **Postfix `StorageEntity.ContentsChanged()`** — react to any storage mutation (robbery detection, quest counters).
-- **S1API wrappers (verified against checked-in source)**:
+- **S1API wrappers (previously reported against checked-in source)**:
   - `S1API.Storages.StorageManager` (static): `GetAll()`, `FindByName()`, `FindByPredicate()`
   - `S1API.Storages.StorageInstance`: `GetItems()`, `GetContentsDictionary()`, `CanItemFit()`, `AddItem()`, `RemoveItem()`, `TryRemoveQuantity()`, `RemoveAllOfDefinition()`
   - `S1API.Storage.StorageEntity`: `AddSlots()`/`RemoveSlots()`/`SetSlotCount()` (slot expansion, incl. load-time handling), `SyncCustomNameToDisplayName()`

@@ -1,5 +1,8 @@
 # Vision System (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 97 of 97 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 Namespace: `Il2CppScheduleOne.Vision` — 12 types in the decompile dump.
 
@@ -45,7 +48,7 @@ Networked: sight progress is shared via receipts so all clients see the same NPC
 - Verified influence: **light** via `LightVisibilityAffector`/`UpdateEnvironmentalVisibilityAttribute` (environmental attribute), **curfew** via `AddFlag_DisobeyingCurfew()`/`RemoveFlag_DisobeyingCurfew()` (17-TimeManager)
 - Movement speed / crouching / camouflage: gameplay-level claims — **unverified** in these classes (see 31-Clothing)
 
-## Consumers (verified users)
+## Consumers (previously reported users)
 - `NPCs\NPCAwareness` — owns `VisionCone` for NPC perception (14-NPC-Behaviour)
 - `NPCs\NPC` + `PlayerScripts\Player` — implement/hold `EntityVisibility` (ISightable)
 - `Audio\SpottedTremolo` — "spotted" tremolo SFX driven by visibility state (28-Audio)
@@ -54,7 +57,7 @@ Networked: sight progress is shared via receipts so all clients see the same NPC
 ## Save Participation
 - **None** — no ISaveable in the namespace; visibility state is transient.
 
-## Hook Points
+## Candidate Hook Points
 1. **Postfix `VisionCone.IsPlayerVisible(Player)` / `GetPlayerVisibility(Player)`** — stealth mods (camouflage, shadow blending, disguises).
 2. **Postfix `EntityVisibility.CalculateVisibility(float)`** — global or per-entity visibility multiplier.
 3. **Prefix `VisionCone.SendEventReceipt(VisionEventReceipt, EEventLevel)`** — intercept/suppress NPC "noticed me" escalations before they reach law enforcement.

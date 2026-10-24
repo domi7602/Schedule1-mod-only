@@ -4,7 +4,7 @@ Room-by-room RGB LED strips along the ceiling and wall edges of your owned prope
 businesses, controlled from a dedicated phone app. Developed independently for *Schedule I*
 (MelonLoader, IL2CPP, S1API). No code, models or textures from any existing LED mod are used.
 
-> **Status: experimental (v0.1.7, larger phone typography; 94 tests pass, In-Game-Verify open).** The mod builds, deploys and ships a complete settings,
+> **Status: experimental (v0.1.8, location-aware initial selection and property-named power status; 115 tests pass, In-Game-Verify open).** The mod builds, deploys and ships a complete settings,
 > rendering, phone and diagnostics implementation. It deliberately contains **no built-in room
 > coordinates**: until a room has been measured and marked verified in the layout catalog, no
 > persistent LED geometry is placed there. See
@@ -51,8 +51,8 @@ businesses, controlled from a dedicated phone app. Developed independently for *
 ## Usage
 
 1. Buy a property or business, load the save and open the phone.
-2. Open **Property LEDs**. The property selector lists only properties/businesses you actually own.
-3. Pick a property. Phone controls edit its **Property default**; saved room overrides are retained.
+2. Open **Property LEDs**. The property selector lists only owned properties/businesses. On the first actual opening after loading, it selects the player's exact current owned property/business if available; otherwise it falls back to the first owned entry. No nearest-property guess is used.
+3. Pick a property if needed. Manual choices survive app close/reopen within the loaded session; loading a save re-arms initial location selection. The power status names the selected property, not necessarily the room you are standing in. Phone controls edit its **Property default**; merely opening/navigating retains saved room overrides.
 4. Move a slider, press **White**, or switch **LEDs ON/OFF**. Changes apply to the world
    immediately and are written to disk at most once per second.
    Open **Advanced** for **Color intensity** when needed; opening/closing this panel changes only

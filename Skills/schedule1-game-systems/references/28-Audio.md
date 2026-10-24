@@ -1,4 +1,6 @@
 # Audio (Schedule I)
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 111/112 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## Core Classes
@@ -48,7 +50,7 @@
 ## Save Participation
 - None of the Audio classes implement `ISaveable` / `SaveData` (grep verified). Volume settings persist via the `Configuration` system (`AudioSettings` in DevUtilities), not via this namespace.
 
-## Hook Points (Harmony)
+## Candidate Hook Points (Harmony)
 1. `AudioManager.SetVolume(EAudioType, float)` — regular instance method (CallerCount 7); prefix to intercept/log/redirect all volume changes. Not a field accessor, method body does mixer work (not inlined).
 2. `MusicManager.SetTrackEnabled(string, bool)` — non-trivial instance method (CallerCount 7); gate or replace playlist behavior.
 3. `SFXManager.PlayFootstepSound(EMaterialType, float, Vector3, float)` / `PlayImpactSound(EImpactSound, Vector3, float)` — public, stateful (pool lookup), safe to postfix for custom footstep/impact sounds.
@@ -60,22 +62,8 @@
 
 ---
 
----
+## Unresolved identifiers in the imported 2026-10-08 record
 
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+The imported scan did not resolve the following tokens within its recorded search scope. These may be placeholders, attributes from another assembly or drift candidates. Search the actual declaring assembly and version before concluding that an API was removed.
 
 - `JukeboxSnapshots`

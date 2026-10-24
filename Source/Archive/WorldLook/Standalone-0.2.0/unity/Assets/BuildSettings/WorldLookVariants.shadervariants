@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!200 &20000000
+ShaderVariantCollection:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: WorldLookVariants
+  m_Shaders:
+  - first: {fileID: 4800000, guid: 491dc2ef50a60bd488bd82a2d2ce88b0, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
+      - keywords: _MAIN_LIGHT_SHADOWS
+        passType: 13
+      - keywords: _MAIN_LIGHT_SHADOWS _SHADOWS_SOFT
+        passType: 13
+      - keywords: _MAIN_LIGHT_SHADOWS_CASCADE
+        passType: 13
+      - keywords: _MAIN_LIGHT_SHADOWS_CASCADE _SHADOWS_SOFT
+        passType: 13
+      - keywords: _MAIN_LIGHT_SHADOWS_SCREEN
+        passType: 13
+      - keywords: _MAIN_LIGHT_SHADOWS_SCREEN _SHADOWS_SOFT
+        passType: 13
+      - keywords: _SHADOWS_SOFT
+        passType: 13
+  - first: {fileID: 4800000, guid: af3ea34abe1b4db2be0cc5180c7721c6, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 0

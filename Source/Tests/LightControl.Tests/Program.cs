@@ -3,8 +3,9 @@ using LightControl.Core;
 
 namespace LightControl.Core.Tests;
 
-// Dependency-free executable behavioral checks. They simulate only the pure model;
-// they do not prove a game hook, loader, rendering adapter, file write or real transport.
+// Dependency-free core, delegate and disk-adapter checks plus supplementary source contracts.
+// Fixture I/O uses the actual disk adapter/Shared writer with loader-path and slot-probe shims.
+// No native Unity execution, game hook, gameplay, rendered layout or real transport is proven.
 internal static class Program
 {
     private static readonly Guid Session = Guid.Parse("78aca78a-3f15-45e4-9c66-352a65a2a407");
@@ -164,6 +165,13 @@ internal static class Program
             ("C150 Lamps stay under the property they were first seen in", PropertyGroups),
             ("A01-A20 Selection, available targets, preview and save notices", PlanRules)
         };
+        tests = tests.Concat(AuditRuntimeChecks.Cases)
+            .Concat(PersistenceRepairChecks.Cases())
+            .Concat(NativeOwnershipChecks.Cases)
+            .Concat(DiskAdapterChecks.Cases)
+            .Concat(UiRepairChecks.Cases)
+            .Concat(ColorPickerChecks.Cases)
+            .Concat(GraphiteUiChecks.Cases).ToArray();
         int failures = 0;
         Console.WriteLine($"LightControl.Core behavioral checks | runtime {Environment.Version} | {tests.Length} cases");
         foreach (var test in tests)
@@ -175,7 +183,7 @@ internal static class Program
                 Console.WriteLine($"FAIL {test.Name}: {exception.GetType().Name}: {exception.Message}");
             }
         }
-        Console.WriteLine($"RESULT: {tests.Length - failures}/{tests.Length} passed; {failures} failed. Pure-model simulation only.");
+        Console.WriteLine($"RESULT: {tests.Length - failures}/{tests.Length} passed; {failures} failed. Core/adapter/source checks; no native-game verification.");
         return failures == 0 ? 0 : 1;
     }
 
@@ -1496,7 +1504,8 @@ internal static class Program
             string trimmed = line.Trim();
             if (trimmed.StartsWith("//", StringComparison.Ordinal)) continue;
             if (!trimmed.Contains("ReferenceEquals", StringComparison.Ordinal)) continue;
-            Equal(true, trimmed.Contains("ReferenceEquals(lamp, exclude)", StringComparison.Ordinal));
+            Equal(true, trimmed.Contains("ReferenceEquals(lamp, exclude)", StringComparison.Ordinal) ||
+                trimmed.Contains("ReferenceEquals(current, lamp)", StringComparison.Ordinal));
         }
         Equal(true, source.Contains("SameNativeMaterial", StringComparison.Ordinal));
         Equal(true, source.Contains("NativeMaterialIdentity", StringComparison.Ordinal));
@@ -1812,7 +1821,8 @@ internal static class Program
     {
         string app = ReadSource("LightControlApp.cs");
         Equal(true, app.Contains("LightRuntime.SetColor", StringComparison.Ordinal));
-        Equal(true, app.Contains("UiSelectionPolicy.ColorCount", StringComparison.Ordinal));
+        Equal(true, app.Contains("UiSelectionPolicy.PickerColorCount", StringComparison.Ordinal));
+        Equal(true, app.Contains("UiSelectionPolicy.PickerColorAt", StringComparison.Ordinal));
         Equal(true, app.Contains("new Color(1f, 0f, 0f)", StringComparison.Ordinal));
         Equal(true, app.Contains("new Color(1f, 1f, 0f)", StringComparison.Ordinal));
         Equal(false, app.Contains("GamePalette.Red", StringComparison.Ordinal));

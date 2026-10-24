@@ -118,10 +118,13 @@ internal static class SpikeRunner
     private static Vector3 _operationProgressTarget;
     private static readonly RecoveryRecurrencePolicy RecoveryRecurrence = new();
     private static bool _localRecoveryProgress;
+    private static bool _trafficWaiting;
+    private static readonly TrafficWaitBudget TrafficWait = new();
 
     // Fixed goal and best approach survive patrol handoff, reverse and redispatch.
     private static void ObserveNavigationProgress()
     {
+        _trafficWaiting = false;
         if (Time.timeScale == 0f || !SpikeState.PollingActive) return;
         try
         {
@@ -129,7 +132,23 @@ internal static class SpikeRunner
             if (veh == null) return;
             VehicleAgent? agent = veh.Agent;
             if (agent == null) return;
-            bool eligible = !SpikeState.Reverse.Active && !agent.IsReversing && !_recoveryOwnsNavigation;
+            bool trafficBlocked = TrafficLightPatch.HoldRecovery(veh);
+            bool withinArrival = NavigationArrivalPolicy.IsWithinArrival(
+                Vector3.Distance(veh.transform.position, SpikeState.NavTarget));
+            float dt = TrafficWait.Observe(trafficBlocked, Time.unscaledDeltaTime, withinArrival);
+            _trafficWaiting = dt > 0f;
+            if (_trafficWaiting)
+            {
+                // A positively classified traffic stop is neither progress nor a failed
+                // manoeuvre. Exclude only observed wait time; never refill the budget.
+                SpikeState.NavigationRecovery.ShiftPause(dt);
+                SpikeState.ProgressWindowStart += dt;
+                if (_selfTestAt > 0f) _selfTestAt += dt;
+                if (_startupAt > 0f) _startupAt += dt;
+                if (SpikeState.NavStartTime > 0f) SpikeState.NavStartTime += dt;
+                return;
+            }
+            bool eligible = !SpikeState.Reverse.Active && !agent.IsReversing && !_recoveryOwnsNavigation && !TaxiAI.NavigationBlocked;
             Vector3 position = veh.transform.position;
             SpikeState.NavigationRecovery.ObserveProgress(Time.unscaledTime,
                 Vector3.Distance(position, _operationProgressTarget), eligible);
@@ -158,6 +177,8 @@ internal static class SpikeRunner
     /// <summary>Only a genuinely new pickup/ride starts a new budget; redispatch never does.</summary>
     internal static void BeginNavigationOperation()
     {
+        _trafficWaiting = false;
+        TrafficWait.Reset();
         NavigationTerminalPolicy.Begin(ref SpikeState.NavGaveUp, ref SpikeState.RideArrived,
             ref SpikeState.NavCallbackResult);
         // A genuinely new operation: new identity (separate from the changing NavOrder),
@@ -178,6 +199,7 @@ internal static class SpikeRunner
 
     private static bool StopIfNavigationExpired(VehicleAgent agent, LandVehicle? veh, float now)
     {
+        if (_trafficWaiting) return false;
         if (!SpikeState.NavigationRecovery.HasExpired(now)) return false;
         Mod.Log.Warn($"[nav] no meaningful approach for {NavigationTimeoutSeconds:F0}s excluding pauses — stopping reverse, patrol and navigation.");
         Vector3 position = Vector3.zero;
@@ -198,8 +220,14 @@ internal static class SpikeRunner
     /// call already handled the situation (recurring rescue or terminal give-up).</returns>
     private static bool TryBeginRecovery(VehicleAgent agent, LandVehicle veh, bool maneuverPlanned)
     {
+        if (_trafficWaiting) return false;
         float now = Time.unscaledTime;
         if (StopIfNavigationExpired(agent, veh, now)) return false;
+        if (TaxiAI.NavigationBlocked)
+        {
+            TaxiAI.StopPatrol("pending release");
+            if (TaxiAI.NavigationBlocked) return false;
+        }
         _localRecoveryProgress = false;
         if (SpikeState.NavigationRecovery.TrySpend(now, TaxiAI.PathingFailureCap))
         {
@@ -311,6 +339,10 @@ internal static class SpikeRunner
     /// <summary>Managed-only drive teardown, also safe after native taxi death.</summary>
     internal static void ResetDrivingState()
     {
+        _trafficWaiting = false;
+        TrafficWait.Reset();
+        // A drive ending does not end the visual model's lifetime. Keep its wheel
+        // rest pose/angle cache while the parked taxi can be reused for another ride.
         SpikeState.ResetNavigation();
         SpikeState.Reverse.End();
         RecoveryRecurrence.Begin(float.PositiveInfinity);
@@ -428,6 +460,9 @@ internal static class SpikeRunner
             // operation exactly once.
             TickArrivalConfirmation();
             TickRide();
+            // Visual-only: imported wheel nodes follow the native wheel state of the
+            // tracked taxi. Never writes to physics; unresolvable links stay static.
+            TaxiVisual.TickWheels();
             TickIdleGuard();
             RoadKeeper.Tick();
             TickSettleLog();
@@ -596,6 +631,7 @@ internal static class SpikeRunner
     /// </summary>
     private static bool TryFreeSpotRescue(LandVehicle veh, VehicleAgent agent, string context)
     {
+        if (TaxiAI.NavigationBlocked) return false;
         if (!SpikeState.PollingActive)
             return false;
         // Never relocate the car under a player who took the wheel (brief §7.4).
@@ -1333,6 +1369,7 @@ internal static class SpikeRunner
 
     private static bool TryStartReverse(VehicleAgent agent, LandVehicle veh, float now, string reason)
     {
+        if (TaxiAI.NavigationBlocked) return false;
         // Start conditions (brief §6.3): a current ACTIVE operation, live host authority, the exact
         // owned living taxi, a healthy consumer hook and no player at the wheel.
         if (!SpikeState.PollingActive || !SpikeState.Operation.Active || !SpikeCommands.HasAuthority() ||
@@ -1770,6 +1807,7 @@ internal static class SpikeRunner
     /// <summary>Fresh <c>Navigate</c> dispatch with settings=null and a new measurement window.</summary>
     internal static void ReDispatch(VehicleAgent agent, Vector3 target, string why)
     {
+        if (TaxiAI.NavigationBlocked) return;
         if (!SpikeState.PollingActive)
             return; // a driver safety abort cannot be undone by an older recovery stack
         // Never issue a fresh autonomous navigation against a player who took the wheel (brief §7.4).
@@ -1851,6 +1889,7 @@ internal static class SpikeRunner
     /// </summary>
     private static bool TryTeleportRecovery(LandVehicle veh, VehicleAgent agent, Vector3 position, float distance)
     {
+        if (TaxiAI.NavigationBlocked) return false;
         bool lastRescueAvailable = SpikeState.NavigationRecovery.TryLastRescue(Time.unscaledTime);
         bool onGraph = false;
         try
@@ -2130,6 +2169,7 @@ internal static class SpikeRunner
     /// </summary>
     private static void TickNavigationPolling()
     {
+        if (_trafficWaiting) return;
         if (!SpikeState.PollingActive)
             return;
 
@@ -2160,6 +2200,11 @@ internal static class SpikeRunner
         float now = Time.unscaledTime;
         float elapsed = now - SpikeState.NavStartTime;
         if (StopIfNavigationExpired(agent, veh, now)) return;
+        if (TaxiAI.NavigationBlocked)
+        {
+            TaxiAI.StopPatrol("pending polling release");
+            if (TaxiAI.NavigationBlocked) return;
+        }
         if (now - SpikeState.LastHeartbeat < HeartbeatInterval)
             return;
 
@@ -2571,6 +2616,10 @@ internal static class SpikeRunner
     /// <summary>Scene transition hook: cancel queued pickup work before the active scene changes.</summary>
     internal static void OnPreSceneChange()
     {
+        // A scene reset invalidates the GLB and every cached native wheel handle; sever
+        // them now (managed-only, touches no Unity object) so no later tick can write to
+        // a transform from the unloaded scene.
+        TaxiVisual.ReleaseWheels();
         SpikeState.CancelPendingSpawn();
         SpikeState.ResetAutoRun();
         SpikeState.StandSpawnPosition = null;
@@ -2580,6 +2629,7 @@ internal static class SpikeRunner
     /// <summary>Used by the mod teardown so a quit never leaves the runner half-alive.</summary>
     internal static void Shutdown()
     {
+        TaxiVisual.ReleaseWheels();
         // Quiesce first: invalidate every live order, then every deferred dispatcher.
         // This method deliberately retains the vehicle, ownership, driver and fare proof.
         SpikeState.NextNavOrder();

@@ -1,166 +1,68 @@
 ---
 name: schedule1-interiors
-description: >-
-  Architectural runbook for creating procedural 3D interiors, custom buildings, seamless vanilla door transitions, and interactive CRT/minigame displays in Schedule I (IL2CPP / MelonLoader). Use when creating enterable buildings (Arcades, Clubs, Safehouses, Labs), hooking vanilla doors (StaticDoor, DoorKnocker, NpcSummonMenu), building procedural 3D room shells without AssetBundles, streaming spatial audio ambience, or rendering real-time pixel minigames onto in-world 3D screens (Texture2D.SetPixels32).
-  Keywords: Interior, Building, StaticDoor, DoorKnocker, NpcSummonMenu, RawArcadeSceneService, ArcadeEntranceService, IArcadeGame, Texture2D, SetPixels32, CRT, PacMan, Pinball, CabinetInteraction, AudioSource, Ambience, TeleportPlayerWithController.
+description: "Build Schedule I interiors, exits and load lifecycles. Keywords: Interior, Building, StaticDoor, DoorKnocker, NpcSummonMenu, RawArcadeSceneService, ArcadeEntranceService, IArcadeGame, Texture2D, SetPixels32, CRT, PacMan, Pinball, CabinetInteraction, AudioSource, Ambience, TeleportPlayerWithController."
 ---
 
 > Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
-# Schedule I — Interiors & Minigame Systems Skill
+# Schedule I — Interiors and In-World Screens
 
-This skill documents **how to inject custom enterable buildings, procedural 3D rooms, seamless vanilla door transitions, and interactive in-world screens/minigames** into *Schedule I* (IL2CPP; derived from older `ScheduleIArcade` and `HomelessMod` work, not yet re-verified).
+Apply the [shared working contract](../schedule1-modding/references/working-contract.md).
+Separate entrance routing, room ownership, input focus, rendering, and audio lifetimes.
 
----
+## Establish prerequisites
 
-## 1. Architecture Overview (The 4 Pillars)
+1. Inspect the target door/menu APIs, local-player movement controller, camera/input ownership, and runtime branch.
+2. Decide whether the room is local presentation, a shared world space, or a native registered property.
+3. Specify entrance, safe interior spawn, verified exit destination, and behavior when loading already inside.
+4. Select procedural geometry, imported mesh, or bundle based on required assets; inspect the actual loader.
+5. Define resource limits for mesh counts, textures, audio, and per-frame work.
 
-```mermaid
-flowchart TD
-    subgraph 1. Door Transition
-        A[Vanilla StaticDoor / DoorKnocker] -->|Harmony Postfix| B[NpcSummonMenu Injected Choice]
-        B -->|Teleport & Capture Return Pos| C[Player inside Interior]
-    end
-    subgraph 2. Procedural Room Shell
-        C --> D[Raw Scene Binary / Layout Builder]
-        D --> E[Walls, Ceilings, Floor, Trim, Lights & Colliders]
-    end
-    subgraph 3. Spatial Ambience
-        C --> F[Spatial 3D AudioSource + Dynamic MP3/WAV Stream + Fade]
-    end
-    subgraph 4. In-World Interactive Screens
-        E --> G[3D Cabinet / TV / Monitor Mesh]
-        G --> H[IArcadeGame / Pixel Buffer 60 FPS]
-        H --> I[Texture2D.SetPixels32 on Unlit Material]
-    end
-```
+## Build the interior
 
----
+1. Resolve and validate the intended entrance by stable identity or verified hierarchy, not a generic object name.
+2. Add an idempotent custom menu choice using supported event adapters; remove inherited listeners only on owned clones.
+3. Build one inactive room root with local-space geometry, explicit wall/floor collision, and usable openings.
+4. Validate all external mesh counts/indices and bounds before allocating Unity resources.
+5. Add lighting/materials with deliberate ownership and target-pipeline compatibility.
+6. Prepare navigation separately when NPCs must enter; test both directions through each doorway.
+7. Activate only completed phases; remove partial owned resources if construction fails.
 
-## 2. Pillar 1: Seamless Door Hooking & Transitions
+## Transition and focus contract
 
-To make custom buildings accessible without editing vanilla map scenes, hook existing building doors or placed entrance markers.
+- Use a verified movement/teleport path for the actual player controller. Do not assume toggling one CharacterController is sufficient in every game build or network role.
+- Capture a safe return position and relevant state before entry; maintain a tested exterior fallback.
+- Restore prior controller/input/camera state only when still owned by this transition, including exception paths.
+- Finish native menu cleanup before giving control to the interior interface.
+- On cabinet focus, acquire one owned input lease and route controls to the selected game.
+- On exit, scene change, component disable, or player replacement, release the same lease exactly once.
+- Do not force global movement enabled if another UI or gameplay system still owns the restriction.
 
-### Core Lifecycle:
-1. **Patch `StaticDoor` and `DoorKnocker`:**
-   ```csharp
-   [HarmonyPatch(typeof(StaticDoor), nameof(StaticDoor.Interacted))]
-   public static class StaticDoorPatch
-   {
-       [HarmonyPostfix]
-       public static void Postfix(StaticDoor __instance)
-       {
-           ArcadeEntranceService.Instance.NotifyVanillaStaticDoorInteracted(__instance);
-       }
-   }
-   ```
-2. **Inject Choice into `NpcSummonMenu`:**
-   * When the door UI opens, instantiate a clone of a native button (`TryInjectNativeEnterChoice`).
-   * Set text (e.g. `[ Enter Arcade ]`) and hook `Button.onClick`.
-   * Suppress conflicting vanilla door summons while entering (`_suppressDoorUntil = Time.time + 1.5f`).
-3. **Player Teleportation & State Safety:**
-   * Capture return position: `_outsideReturnPosition = player.transform.position;`
-   * Safely disable `CharacterController`, set target room position, and re-enable:
-     ```csharp
-     var cc = player.GetComponent<CharacterController>();
-     if (cc != null) cc.enabled = false;
-     player.transform.position = roomTargetPosition;
-     if (cc != null) cc.enabled = true;
-     ```
-   * Unlock cursor and restore gameplay input (`RestoreGameplayInput()`).
+## Screen and audio workflow
 
----
+1. Keep simulation separate from pixels and Unity resource access.
+2. Reuse a bounded pixel buffer; upload only changed/visible content at a measured cadence.
+3. Use an appropriate unlit/emissive presentation; skipping mipmap generation does not remove the GPU upload cost.
+4. Validate local audio paths and decode results; cancel stale loads and destroy owned clips on replacement.
+5. Limit spatial sources and shadow-casting lights; measure performance with the intended number of rooms/cabinets.
 
-## 3. Pillar 2: Procedural 3D Room Shells (No AssetBundles Required)
+## Verify
 
-Instead of compiling large `.unity` scene bundles, build room geometry dynamically via C# and binary mesh caching:
+Test enter/exit, menu cancellation, repeated interactions, load inside, missing entrance/assets,
+blocked destination, collision seams, navigation, input restoration, pause/time scale, audio failures,
+scene unload, repeated rebuilds, and supported multiplayer roles. A headless geometry or image check
+can assist development; final interaction and rendering acceptance requires the running game.
 
-1. **Binary Mesh Streaming (`runtime_meshes.bin`):**
-   * Header: Magic byte check + mesh count.
-   * Per Mesh: Vertex array `(x, y, z)`, Normals, UV coordinates, Triangles, Submeshes.
-   * Instant runtime instantiation via `new Mesh() { vertices = ..., triangles = ... }`.
-2. **Procedural Architecture Infill:**
-   * **Collision Shell (`CreateEnvironmentCollisionShell`):** Generate box colliders on exterior walls and floor to prevent players from clipping out of bounds.
-   * **Ceiling & Checkerboard Floors:** Create tiled textured quads with repeating UV scale (`mainTextureScale = new Vector2(tilesX, tilesZ)`).
-   * **Perimeter Trim & Bands:** Accent moldings along wall-floor and wall-ceiling junctions.
-   * **Interior Lighting:** Spawn `Light` components (`LightType.Point`, range 10–18m, warm/neon colors, shadow casting).
+## Read on demand
 
----
+| Trigger | Reference |
+|---|---|
+| Door/menu integration and safe return | [Door hooking](references/door-hooking.md) |
+| Mesh validation, room coordinates, collision | [Procedural room](references/procedural-room.md) |
+| Pixel buffer, upload budget, focus and cleanup | [Minigame screens](references/minigame-screens.md) |
 
-## 4. Pillar 3: Dynamic 3D In-World Screens (`Texture2D` Canvas)
+## Evidence and output
 
-Render playable minigames, video feeds, or dynamic security monitors directly onto 3D props in the game world:
-
-```csharp
-public interface IArcadeGame
-{
-    string Id { get; }
-    string DisplayName { get; }
-    Texture ScreenTexture { get; }
-    void Initialize();
-    void Start();
-    void Tick(float deltaTime);
-    void Stop();
-}
-```
-
-### High-Performance Rendering Loop (60 FPS):
-1. Allocate an in-memory pixel buffer: `Color32[] _pixels = new Color32[width * height];`
-2. Run pure C# game logic in `Tick(deltaTime)` (PacMan AI, Pinball physics, Snake/Pong).
-3. Draw primitives directly to `_pixels`:
-   ```csharp
-   public void SetPixel(int x, int y, Color32 color) => _pixels[y * width + x] = color;
-   ```
-4. Upload to GPU texture:
-   ```csharp
-   _texture.SetPixels32(_pixels);
-   _texture.Apply(false); // false = skip mipmap generation for max performance
-   ```
-5. Apply material: Use `Shader.Find("Universal Render Pipeline/Unlit")` or `Simple Lit` on the cabinet screen mesh so it glows vividly in dark rooms.
-
----
-
-## 5. Pillar 4: Cabinet Focus Mode & Input Routing
-
-To allow first-person interaction with in-world terminals or game cabinets:
-
-1. **Aim Raycast (`CabinetInteractionService`):**
-   * Cast a ray from `Camera.main.transform.position` forward (max distance 2.5m).
-   * If hitting an `ArcadeCabinet` collider, show prompt: `[E] Play Space Cadet Pinball`.
-2. **Focus Mode Transition:**
-   * On keypress <kbd>E</kbd>, save player camera orientation.
-   * Smoothly lock player movement (`PlayerMovement.CanMove = false`).
-   * Route keyboard inputs (Arrow keys, Spacebar, WASD) directly to active `IArcadeGame`.
-3. **Exit Loop:**
-   * Pressing <kbd>Escape</kbd> or <kbd>E</kbd> stops the minigame, restores `PlayerMovement.CanMove = true`, and returns camera control.
-
----
-
-## 6. Pillar 5: Spatial 3D Audio & Streaming Ambience
-
-1. Attach an `AudioSource` to the room center root:
-   ```csharp
-   var audio = roomRoot.AddComponent<AudioSource>();
-   audio.spatialBlend = 1.0f; // 100% 3D spatial sound
-   audio.rolloffMode = AudioRolloffMode.Linear;
-   audio.minDistance = 3f;
-   audio.maxDistance = 25f;
-   audio.loop = true;
-   ```
-2. Stream audio file from disk:
-   ```csharp
-   using var uwr = UnityWebRequestMultimedia.GetAudioClip("file://" + mp3Path, AudioType.MPEG);
-   yield return uwr.SendWebRequest();
-   audio.clip = DownloadHandlerAudioClip.GetContent(uwr);
-   audio.Play();
-   ```
-3. Fade volume smoothly over 1.5s upon room entry and exit.
-
----
-
-## 7. Common Gotchas & Guardrails
-
-1. **CharacterController Teleport Glitch:** Never set `transform.position` while `CharacterController.enabled == true`; Unity's physics engine will snap the player back to the exterior. Always toggle `enabled = false` → set pos → `enabled = true`.
-2. **Return Position Zero Trap:** If the player loads directly inside the room or restarts, `_outsideReturnPosition` might be null → always provide a fallback exterior coordinate (e.g. sidewalk outside the building).
-3. **Texture Mipmap Performance Penalty:** Always pass `_texture.Apply(false)` when uploading 60 FPS pixel buffers to avoid regenerating mipmaps every frame.
-4. **Input Leak to Character:** When playing an arcade game or using a terminal, always hook and disable `PlayerMovement.Instance.CanMove` so the character doesn't walk into walls while pressing arrow keys.
+Historical ScheduleIArcade/HomelessMod observations are retained as design context, not verified APIs.
+Return subsystem responsibilities, source evidence for concrete calls, changed files/assets, failure
+recovery, and playtest results. Report unperformed runtime checks explicitly.

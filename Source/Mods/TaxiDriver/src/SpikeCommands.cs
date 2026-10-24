@@ -1746,6 +1746,11 @@ internal static class SpikeCommands
     /// </summary>
     internal static bool Go(float distance, bool useSettings = true, Vector3? absoluteTarget = null, bool toPlayer = false)
     {
+        if (TaxiAI.NavigationBlocked)
+        {
+            Mod.Log.Warn("[patrol] direct navigation refused: previous patrol release is unconfirmed; use STOP to retry cleanup.");
+            return false;
+        }
         if (!EnsureAuthority())
             return false;
 
@@ -2073,10 +2078,9 @@ internal static class SpikeCommands
 
     /// <summary>
     /// Stage 4 — dispatches a ride to <paramref name="destination"/>. The GAME's own
-    /// driver is tried first (<see cref="TaxiAI.StartPatrol"/>: a runtime
-    /// <c>VehiclePatrolRoute</c> + <c>VehiclePatrolBehaviour</c> on the taxi NPC — the
-    /// clone of what drives the police car); the mod's own <c>Navigate()</c> dispatch is
-    /// the fallback. Both paths leave the polling running, so the ride kernel's arrival
+    /// registered patrol is tried first (<see cref="TaxiAI.StartPatrol"/>); no
+    /// runtime NetworkBehaviour is added. The mod's own <c>Navigate()</c> dispatch is
+    /// the fallback only after a prior lease is safely released. Both paths retain arrival
     /// verdict and the App status behave identically either way.
     /// </summary>
     private static bool StartRideDrive(NPC? npc, LandVehicle? veh, Vector3 destination, string caller)
@@ -2206,6 +2210,11 @@ internal static class SpikeCommands
             return true;
         }
 
+        if (TaxiAI.NavigationBlocked)
+        {
+            Mod.Log.Warn($"{caller}: previous patrol release is unconfirmed — no second driver dispatched; use STOP to retry cleanup.");
+            return false;
+        }
         Mod.Log.Warn(
             $"{caller}: the game's patrol driver is unavailable — using the mod's own Navigate() dispatch " +
             $"to {SpikeState.RideDestinationName}.");

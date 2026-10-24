@@ -19,6 +19,7 @@
 //   Occupancy/PassengerSeatPolicy.cs -> section PassengerSeatPolicy.cs
 //   Occupancy/RideProtectionPolicy.cs -> section RideProtectionPolicy.cs
 //   Visuals/TaxiVisualPolicy.cs    -> section TaxiVisualPolicy.cs
+//   Visuals/TaxiWheelKinematics.cs -> section TaxiWheelKinematics.cs
 //
 // ---------------------------------------------------------------------------
 
@@ -513,4 +514,194 @@ namespace TaxiDriver
         internal static bool CanCommitSwap(int usableRendererCount) => usableRendererCount > 0;
     }
     // ==== end TaxiDriver section: TaxiVisualPolicy.cs ====
+}
+
+namespace TaxiDriver
+{
+    // ==== TaxiDriver section: TaxiWheelKinematics.cs ====
+    using System;
+    using System.Collections.Generic;
+
+    /// <summary>
+    /// Planar (vehicle-frame x/z) position of one wheel, used to bind imported GLB
+    /// wheel nodes to the native wheel colliders by FINAL placement. Names are not
+    /// trusted: the asset's FL/FR/RL/RR labels and the legacy orientation comment
+    /// disagree about which end is the front, so only positions decide.
+    /// </summary>
+    internal readonly struct WheelPoint
+    {
+        internal readonly float X;
+        internal readonly float Z;
+
+        internal WheelPoint(float x, float z)
+        {
+            X = x;
+            Z = z;
+        }
+    }
+
+    /// <summary>Minimal Unity-free 3-vector for the wheel math (the tests carry no Unity reference).</summary>
+    internal readonly struct WheelVector
+    {
+        internal readonly float X;
+        internal readonly float Y;
+        internal readonly float Z;
+
+        internal WheelVector(float x, float y, float z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        internal static WheelVector Up => new WheelVector(0f, 1f, 0f);
+
+        internal static float Dot(WheelVector a, WheelVector b) => a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+
+        internal static WheelVector Cross(WheelVector a, WheelVector b) => new WheelVector(
+            a.Y * b.Z - a.Z * b.Y,
+            a.Z * b.X - a.X * b.Z,
+            a.X * b.Y - a.Y * b.X);
+    }
+
+    /// <summary>
+    /// Pure wheel-visual math for the imported taxi.glb. Rolling is derived from the
+    /// native ground velocity at the wheel (exact physics state, so it works in both
+    /// directions and at any speed), never from a guessed speed; steering comes from
+    /// the native <c>WheelCollider.steerAngle</c>. Every method is total: unreadable
+    /// input yields "no movement" instead of throwing, so a broken link degrades to a
+    /// static wheel rather than a failed drive.
+    /// </summary>
+    internal static class TaxiWheelKinematics
+    {
+        /// <summary>Below this |coordinate| a wheel is too close to the centre plane to classify.</summary>
+        internal const float MinSlotDistance = 0.05f;
+
+        /// <summary>Largest distance (metres, vehicle frame) accepted between a native wheel and its node.</summary>
+        internal const float MaxMatchDistance = 1.5f;
+
+        /// <summary>Rotation cap per frame — a physics hitch must not spin a wheel wildly.</summary>
+        internal const float MaxStepDegrees = 180f;
+
+        /// <summary>Radii below this are treated as unreadable (no rolling).</summary>
+        internal const float MinRadius = 0.05f;
+
+        internal static int SlotOf(WheelPoint p, float minDistance)
+        {
+            if (float.IsNaN(p.X) || float.IsNaN(p.Z) || float.IsInfinity(p.X) || float.IsInfinity(p.Z))
+                return -1;
+            if (Math.Abs(p.X) < minDistance || Math.Abs(p.Z) < minDistance)
+                return -1;
+
+            int slot = p.X > 0f ? 1 : 0;
+            if (p.Z > 0f)
+                slot |= 2;
+            return slot;
+        }
+
+        internal static int FindCounterpart(
+            IReadOnlyList<WheelPoint> candidates, WheelPoint native, float maxDistance)
+        {
+            if (candidates == null || candidates.Count == 0)
+                return -1;
+
+            int slot = SlotOf(native, MinSlotDistance);
+            if (slot < 0)
+                return -1;
+
+            int best = -1;
+            float bestDistance = float.MaxValue;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                if (SlotOf(candidates[i], MinSlotDistance) != slot)
+                    continue;
+
+                float dx = candidates[i].X - native.X;
+                float dz = candidates[i].Z - native.Z;
+                float distance = (float)Math.Sqrt(dx * dx + dz * dz);
+                if (distance < bestDistance)
+                {
+                    bestDistance = distance;
+                    best = i;
+                }
+            }
+
+            return bestDistance <= maxDistance ? best : -1;
+        }
+
+        internal static float SpinDegreesPerSecond(
+            WheelVector pointVelocity, WheelVector up, WheelVector axle, float radius)
+        {
+            // A rolling wheel has no material velocity at the contact point:
+            // v_centre = radius * (omega x up)  =>  omega = (up x v_centre) / radius.
+            // The rendered spin is omega projected onto the imported node's own axle,
+            // so a mirrored/flipped node axis also flips the visual direction.
+            if (!(radius > MinRadius) || float.IsInfinity(radius))
+                return 0f;
+
+            WheelVector omega = WheelVector.Cross(up, pointVelocity);
+            float radiansPerSecond = WheelVector.Dot(omega, axle) / radius;
+            if (float.IsNaN(radiansPerSecond) || float.IsInfinity(radiansPerSecond))
+                return 0f;
+
+            return radiansPerSecond * (180f / (float)Math.PI);
+        }
+
+        internal static float AdvanceSpin(
+            float spinDegrees, float degreesPerSecond, float deltaTime, float maxStepDegrees)
+        {
+            float held = Normalize(spinDegrees);
+            if (!(deltaTime > 0f) || float.IsInfinity(deltaTime))
+                return held;
+
+            float step = degreesPerSecond * deltaTime;
+            if (float.IsNaN(step) || float.IsInfinity(step))
+                return held;
+
+            float limit = Math.Abs(maxStepDegrees);
+            if (step > limit)
+                step = limit;
+            else if (step < -limit)
+                step = -limit;
+
+            return Normalize(held + step);
+        }
+
+        internal static float SteerDegrees(float steerAngleDegrees, float upSign)
+        {
+            if (float.IsNaN(steerAngleDegrees) || float.IsInfinity(steerAngleDegrees))
+                return 0f;
+            if (upSign > 0f)
+                return steerAngleDegrees;
+            if (upSign < 0f)
+                return -steerAngleDegrees;
+            return 0f; // unreadable steering axis: the wheel keeps rolling but does not steer
+        }
+
+        internal static float AxisSign(float dot, float minAbs)
+        {
+            if (float.IsNaN(dot))
+                return 0f;
+            if (dot >= minAbs)
+                return 1f;
+            if (dot <= -minAbs)
+                return -1f;
+            return 0f;
+        }
+
+        /// <summary>Wraps an angle into (−180, 180] so the accumulator cannot grow without bound.</summary>
+        internal static float Normalize(float degrees)
+        {
+            if (float.IsNaN(degrees) || float.IsInfinity(degrees))
+                return 0f;
+
+            float wrapped = degrees % 360f;
+            if (wrapped > 180f)
+                wrapped -= 360f;
+            else if (wrapped <= -180f)
+                wrapped += 360f;
+            return wrapped;
+        }
+    }
+    // ==== end TaxiDriver section: TaxiWheelKinematics.cs ====
 }

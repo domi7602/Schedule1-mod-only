@@ -1,103 +1,79 @@
-# Rigging & Bone Attachment in Schedule I
+# Rigging, Wearable Attachment, and Preview Ownership
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 7 of 7 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+## Evidence and use
 
-This document describes how 3D gear, clothing, backpacks, and hand-held objects are bound to the skeleton of the *Schedule I* player avatar.
+Use for backpacks, hats, clothing, held props, and character-menu previews. Bone names below are
+inherited lookup candidates from the workspace; they are not a guarantee for every avatar, prefab,
+customization, or game version. Confirm the current rig and the specific actor instance first.
 
----
+## Resolve the correct rig
 
-## 1. The Skeleton Hierarchy of the Schedule I Humanoid Avatar
+Common historical candidates include `Hips`, `Spine`, `Spine1`, `Spine2`, `Neck`, `Head`,
+`LeftShoulder`, `RightShoulder`, `LeftArm`, `RightArm`, `LeftForeArm`, `RightForeArm`, `LeftHand`,
+`RightHand`, and leg/foot counterparts. Backpacks historically used an upper-spine bone; headwear
+used `Head`; held props used the relevant hand. Treat these as search hints.
 
-The player avatar in *Schedule I* uses a standardized humanoid bone structure:
+1. Resolve the intended player/NPC/avatar or mannequin through its owner, not a global first match.
+2. Prefer the rig's supported bone mapping if exposed by the installed runtime.
+3. Otherwise search only that rig, collect matches, and reject ambiguous/missing results.
+4. Cache a binding for that avatar instance/generation. Invalidate it when customization rebuilds the
+   model or the scene/owner changes.
+5. Keep world-avatar, first-person, remote-player, and UI-preview bindings distinct.
 
-```text
-PlayerRoot
-└── Model / Armature
-    └── Hips
-        ├── Spine
-        │   └── Spine1
-        │       └── Spine2                  <-- Attachment point for backpacks & vests
-        │           ├── Neck
-        │           │   └── Head            <-- Attachment point for hats, masks, glasses
-        │           ├── LeftShoulder
-        │           │   └── LeftArm -> LeftForeArm -> LeftHand
-        │           └── RightShoulder
-        │               └── RightArm -> RightForeArm -> RightHand  <-- Hand items & weapons
-        ├── LeftUpLeg -> LeftLeg -> LeftFoot
-        └── RightUpLeg -> RightLeg -> RightFoot
-```
+A recursive name search returning the first match can select a nested prop or another rig. Log the
+resolved relative path and model identity during development, without making the path a permanent
+cross-version API claim.
 
----
+## Attachment contract
 
-## 2. Safely Finding Bones at Runtime
+The asset carries its intended pivot and local axes. Instantiate an owned root, parent it to the
+verified anchor using the selected local/world transform semantics, and apply a measured local pose.
+Do not reuse a historical `Spine2` offset as a universal backpack fit.
 
-Because bone paths in the mesh sometimes vary (e.g. due to avatar customization), use a recursive search:
+Rigid attachments and skinned clothing are different pipelines. Rigid props follow one bone;
+skinned clothing needs a compatible mesh, bind poses, bone mapping, and weights. Parenting a skinned
+mesh under one bone does not repair an incompatible skeleton.
 
-```csharp
-public static Transform FindBoneRecursive(Transform current, string boneName)
-{
-    if (current.name.Equals(boneName, StringComparison.OrdinalIgnoreCase))
-        return current;
+Validate idle, walking, crouching, turning, interaction poses, and all supported body customization
+ranges. Check bounds/culling as well as clipping. Record the original pose for temporary previews;
+restore that pose instead of assuming `Quaternion.identity` was the original state.
 
-    for (int i = 0; i < current.childCount; i++)
-    {
-        Transform found = FindBoneRecursive(current.GetChild(i), boneName);
-        if (found != null) return found;
-    }
-    return null;
-}
-```
+## Collider policy by role
 
-### Attaching a backpack to `Spine2`:
+Cosmetic-only wearables normally should not intercept interaction raycasts or collide with the
+wearer's controller. Inspect every collider on the owned wearable clone. Disable unwanted colliders
+immediately before scheduling their destruction; Unity destruction is deferred until later in the
+frame. Review any rigidbodies or interactive components that would recreate or rely on them.
 
-```csharp
-Transform spine2 = FindBoneRecursive(playerTransform, "Spine2");
-if (spine2 != null)
-{
-    GameObject backpack = GameObject.Instantiate(backpackPrefab);
-    backpack.transform.SetParent(spine2, false);
-    
-    // Position exactly between the shoulder blades
-    backpack.transform.localPosition = new Vector3(0f, -0.020f, -0.095f);
-    backpack.transform.localRotation = Quaternion.identity;
-    backpack.transform.localScale = Vector3.one;
-}
-```
+This policy applies to the owned cosmetic clone. Do not remove colliders from the avatar, borrowed
+prefab, gameplay equipment, dropped physical item, or unrelated child object. Interactive equipment
+needs a deliberate collision/layer/trigger policy instead of a blanket stripping function.
 
----
+## Preview controls
 
-## 3. The Zero-Collider Safety Rule (*Critical!*)
+Add rotation only inside the active preview region and only when it owns input. Resolve the installed
+input system and user bindings before assigning mouse drag or keyboard shortcuts. Q/E and raw mouse
+axes from the old example are design candidates, not guaranteed free controls.
 
-### The Problem:
-When a 3D object attached to the player (e.g. a backpack or a hat) still contains active `BoxCollider`, `MeshCollider`, or `CapsuleCollider` components:
-1. It blocks the camera raycasts → the player can no longer open doors, talk to NPCs, or pick up items.
-2. The cursor in the character or inventory menu gets stuck on the player's own backpack.
-3. The physics engine (CharacterController) collides with the player's own backpack and the player flies through the floor or gets stuck in doors.
+Cancel dragging on pointer release, focus loss, modal interruption, menu close, and teardown.
+Restore the saved preview pose when the interaction ends. A preview must not rotate or change the
+world actor unless that is the explicit feature. Create preview resources with their own ownership
+record and reuse shared borrowed assets read-only.
 
-### The Permanent Solution:
-When instantiating clothing or backpacks, **immediately remove all colliders recursively**:
+## Lifetime and checks
 
-```csharp
-public static void StripAllColliders(GameObject obj)
-{
-    Collider[] colliders = obj.GetComponentsInChildren<Collider>(true);
-    for (int i = 0; i < colliders.Length; i++)
-    {
-        UnityEngine.Object.Destroy(colliders[i]);
-    }
-}
-```
+Replace attachments atomically: validate the new rig/asset, stage the new clone, swap the owned
+binding, then release the old clone and its uniquely owned materials/meshes/textures. On failure,
+keep the last valid attachment or hide only the affected cosmetic.
 
----
+Test equip/unequip, avatar customization, menu reopening, player respawn, remote player arrival,
+scene reload, and missing bone. Verify there is one attachment per intended owner and that interaction
+rays, movement, and menu focus still work.
 
-## 4. 360° Mannequin Inspection in the Character Menu
+## Primary source
 
-In the character menu (<kbd>Tab</kbd>) the game renders a UI doll (*mannequin*). To give the player the ability to inspect new gear from all sides:
+- [Unity Object.Destroy](https://docs.unity3d.com/ScriptReference/Object.Destroy.html) documents delayed destruction.
 
-* **Mouse-drag rotation:** With the right mouse button held (<kbd>Hold RMB</kbd>), rotate the mannequin transform's Y axis based on `Input.GetAxis("Mouse X")`.
-* **Keyboard keys:** Additional rotation via <kbd>Q</kbd> (left) and <kbd>E</kbd> (right).
-* **Automatic reset:** When the character menu is closed, smoothly reset the rotation back to `Quaternion.identity`.
-
----
-
----
+For material cleanup, also read [Rendering and materials](urp-rendering-materials.md).

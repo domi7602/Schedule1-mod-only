@@ -1,39 +1,38 @@
-# Spec-First Workflow (Maker-Checker Convention)
+# Plan changes at the appropriate scope
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 5 of 5 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+## Choose the task mode
 
-> Process convention (not game-API knowledge) — extracted from `schedule1-modding` §2.D 2026-10-05 to keep the runbook skill code-focused. Verified convention 2026-08-27.
+- Review: inspect and explain; do not silently implement.
+- Plan: produce a concrete implementation plan and acceptance checks.
+- Implement: execute the requested change and its authorized verification.
+- Configured maker/checker: use the actual project's reviewer and approval requirement when present.
 
-**Rule (2026-08-27, group-chat convention with `@gatekeeper` + `@designer`):** Never start a code change just because a user reported a problem. The maker-checker chain (`@coder` writes, `@gatekeeper` reviews) requires an explicit green light after a Spec, BEFORE any `dotnet build`.
+An explicit implementation request is not automatically converted into a second permission request. Conversely, a bug report alone is not a request to deploy, publish or rewrite unrelated systems. Resolve mode from the current task and repository instructions. Do not invent @gatekeeper, @designer or @coder roles when they do not exist.
 
-## When This Applies
+## Minimum plan for risky integration changes
 
-- Bug fixes, refactors, new features touching >1 file
-- Any change to a hot path (Harmony prefix/postfix, Update loops, polling)
-- Any change to save/load lifecycle hooks (`OnPreLoad`, `OnLoadComplete`, `OnSaveComplete` — note: `OnSaveInfoLoaded` fires 0× in the instrumented session, verified 2026-09-29; treat changes to subscriptions of it as dead-code removals needing a Spec too)
+Before editing lifecycle, persistent data, payments, native detours or networked state, state:
 
-## Spec Template (paste into the chat before any code touches a file)
+1. Problem and observed evidence.
+2. Intended behavior and numbered acceptance criteria.
+3. Owners and dependencies.
+4. Relevant transitions and failure/partial-effect cases.
+5. Proposed implementation boundary and order.
+6. Verification that discriminates the fix from the old failure.
+7. Missing evidence and how it affects only the dependent work.
 
-1. **Trigger / problem** — what's broken, where, repro
-2. **Spec items as a numbered checklist** — concrete acceptance criteria, NOT aspirational
-3. **Pitfalls / edge cases** — list each one with the chosen handling (e.g. "What if X happens during a scene reload? — ResetState() before spawn cycle")
-4. **Logging / observability** — what counters or log lines prove the fix fires
-5. **Build order** — "first A (critical), then B/C/D"
-6. **Open questions** — anything ambiguous; ask before coding, not during
+For a small isolated change this can be a short working note. Do not create a multi-stage bureaucracy for a spelling correction.
 
-## Workflow
+## Implementation
 
-1. User reports problem → coder reads code, finds root cause
-2. Coder drafts Spec (template above) in the chat → gatekeeper reviews, pokes holes, suggests edge cases
-3. Spec gets explicit "green" / "spec ok, build" → coder builds in the order listed
-4. Build green → coder reports what changed, where, what to test → gatekeeper does the review
+Inspect existing changes, preserve unrelated work and implement within the agreed scope. If new evidence invalidates the plan, explain the material change and adjust. Ask only when the remaining choice changes authorization, the user's outcome or an important unresolved requirement.
 
-## Don't Do
+## Review and delivery
 
-- Don't ask "may I build?" — write the Spec, wait for green light, then build
-- Don't skip the Spec "just because it's a small fix" — small fixes have the biggest hidden regressions
-- Don't list build-order bullets that aren't in the chat (e.g. "I'll also fix X while I'm in there" — out of scope; surface it as a separate Spec if needed)
+Show what changed and why, actual checks and results, residual risks and any unexecuted manual step. Do not imply that a plan, source inspection or build is gameplay acceptance.
 
-## Live References
+## Historical context
 
-CustomSkateboard `IsInstanceTuned` early-out fix (Spec → green → build green) and HomelessMod F-key + slot-switch fix (Spec → 3 answer round → green with edge-case list → build green) both ran this way on 2026-08-27 and shipped without a revert.
+The uploaded collection recorded a group-chat maker/checker convention from 2026-08-27. That history explains the old wording but does not establish that every future Hermes session has those roles or requires another approval.

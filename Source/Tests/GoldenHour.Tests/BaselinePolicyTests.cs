@@ -8,6 +8,17 @@ public class BaselinePolicyTests
     private static readonly Argb Tint = new(1.15f, 0.97f, 0.72f, 1f);
 
     [Fact]
+    public void Small_native_drift_after_neutral_frame_is_not_frozen()
+    {
+        var baseline = new Argb(0.9f, 0.8f, 0.7f, 1f);
+        var drift = new Argb(0.9001f, 0.8001f, 0.7001f, 1f);
+        var decision = BaselinePolicy.Evaluate(baseline, drift, Tint, 0.5, baseline);
+
+        Assert.Equal(drift, decision.Baseline);
+        Assert.Equal(BlendPolicy.Blend(drift, Tint, 0.5), decision.Blended);
+    }
+
+    [Fact]
     public void Evaluate_first_apply_writes_blended_from_baseline()
     {
         var baseline = new Argb(0.9f, 0.8f, 0.7f, 1f);
@@ -44,7 +55,7 @@ public class BaselinePolicyTests
         // stays and no redundant write happens (no compounding).
         var baseline = new Argb(0.9f, 0.8f, 0.7f, 1f);
         var own = BlendPolicy.Blend(baseline, Tint, 1.0);
-        var decision = BaselinePolicy.Evaluate(baseline, own, Tint, 1.0);
+        var decision = BaselinePolicy.Evaluate(baseline, own, Tint, 1.0, own);
 
         Assert.False(decision.Write);
         Assert.Equal(baseline, decision.Baseline);
@@ -72,19 +83,14 @@ public class BaselinePolicyTests
     }
 
     [Fact]
-    public void Evaluate_coincidental_equality_treated_as_own_write_is_benign()
+    public void Evaluate_new_blend_is_not_evidence_of_ownership()
     {
-        // If the game happens to write exactly our blended value, the decision is
-        // "own write": no write, baseline unchanged. The screen already shows the
-        // intended biased value, and the next drift beyond tolerance self-heals.
-        // The value is a literal here (not produced by BlendPolicy) to mirror the
-        // game independently arriving at it.
         var baseline = new Argb(0.9f, 0.8f, 0.7f, 1f);
         var coincidental = new Argb(1.035f, 0.776f, 0.504f, 1f);
         var decision = BaselinePolicy.Evaluate(baseline, coincidental, Tint, 1.0);
 
-        Assert.False(decision.Write);
-        Assert.Equal(baseline, decision.Baseline);
+        Assert.True(decision.Write);
+        Assert.Equal(coincidental, decision.Baseline);
     }
 
     [Fact]
@@ -101,27 +107,27 @@ public class BaselinePolicyTests
         Assert.True(first.Write);
         baseline = first.Baseline;
 
-        var second = BaselinePolicy.Evaluate(baseline, first.Blended, Tint, 1.0);
+        var second = BaselinePolicy.Evaluate(baseline, first.Blended, Tint, 1.0, first.Blended);
         Assert.False(second.Write);
         Assert.Equal(baseline, second.Baseline);
 
         var drifted = new Argb(0.92f, 0.82f, 0.72f, 1f);
-        var third = BaselinePolicy.Evaluate(baseline, drifted, Tint, 1.0);
+        var third = BaselinePolicy.Evaluate(baseline, drifted, Tint, 1.0, first.Blended);
         Assert.True(third.Write);
         Assert.Equal(drifted, third.Baseline);
         Assert.Equal(0.92f * 1.15f, third.Blended.R, 4); // tint applied exactly once
     }
 
     [Fact]
-    public void Evaluate_zero_strength_adopts_drift_and_writes_current()
+    public void Evaluate_zero_strength_adopts_drift_without_redundant_write()
     {
         // strength 0 = pass-through: the blended value equals the baseline, so a
-        // drifted current means the game value is adopted and written unchanged.
+        // drifted current means the game value is adopted without writing it back.
         var baseline = new Argb(0.9f, 0.8f, 0.7f, 1f);
         var drifted = new Argb(0.95f, 0.85f, 0.75f, 1f);
         var decision = BaselinePolicy.Evaluate(baseline, drifted, Tint, 0.0);
 
-        Assert.True(decision.Write);
+        Assert.False(decision.Write);
         Assert.Equal(drifted, decision.Baseline);
         Assert.Equal(drifted, decision.Blended);
     }
@@ -133,7 +139,7 @@ public class BaselinePolicyTests
         // game drift. Adopting it would freeze the gold at noon and restore a tint.
         var baseline = new Argb(0.9f, 0.8f, 0.7f, 1f);
         var own = BlendPolicy.Blend(baseline, Tint, 1.0);
-        var decision = BaselinePolicy.Evaluate(baseline, own, Tint, 0.0, 1.0);
+        var decision = BaselinePolicy.Evaluate(baseline, own, Tint, 0.0, own);
 
         Assert.True(decision.Write);
         Assert.Equal(baseline, decision.Baseline);

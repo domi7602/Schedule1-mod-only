@@ -1,152 +1,62 @@
-# S1API — Money, GameTime, Property, Law
+# S1API money, time, property, and law
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 21 of 21 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+Source scope: official online API pages reviewed on 2026-10-21. These findings
+must be matched to the exact reference/deployed S1API assembly before use.
 
-The "core simulation" APIs. These wrap the underlying game tracking for time, money, properties, and the law/wanted system.
+## Money surface
 
----
+The official [Money reference](https://ifbars.github.io/S1API/api/S1API.Money.Money.html)
+uses `GetCashBalance`, `GetOnlineBalance`, and `GetNetWorth` methods, and exposes
+`OnBalanceChanged`. Do not assume same-named balance properties from an older sample.
+The documented cash mutation accepts amount, visualization, and sound options.
+The online transaction's third parameter is quantity, not days; its amount is
+expressed per unit. Verify provider effects and return contracts independently.
 
-## 1. Money — `S1API.Money`
+Use [economy operations](../../schedule1-economy/SKILL.md) for settlement. Cash and
+bank calls are separate effects. Never catch both transfer legs and unconditionally
+refund: the first leg may have failed before mutation, or a later exception may
+have occurred after a successful mutation. Track confirmed, partial, and unresolved
+effects and settle only the proven outstanding amount.
 
-```csharp
-using S1API.Money;
+Own balance subscriptions by app/mod lifetime. Close/reopen should not permanently
+remove a listener that is only installed at creation. Destruction/world transition
+must detach the exact prior instance's handler.
 
-Money.CashBalance          // float: current cash on hand
-Money.OnlineBalance        // float: bank balance
-Money.NetWorth             // float: cash + bank + business equity
-Money.OnBalanceChanged      // event Action
+## Time representation
 
-Money.GetCashBalance()      // same as CashBalance (method form)
-Money.GetOnlineBalance()
-Money.GetNetWorth()
+The official [TimeManager reference](https://ifbars.github.io/S1API/api/S1API.GameTime.TimeManager.html)
+defines `CurrentTime` as 24-hour HHMM. A value such as 1330 represents 13:30;
+12-hour AM/PM is a formatting choice. The reference provides conversions between
+minutes and HHMM and a separate formatted-time method.
 
-Money.ChangeCashBalance(float amount, bool visualizeChange = true, bool playCashSound = false)
-Money.CreateOnlineTransaction(string name, float unitAmount, float quantity, string note)
-```
+For validated HHMM, integer division by 100 extracts the hour. Do not subtract
+HHMM values to obtain elapsed minutes; convert to minutes and account for day
+boundaries. Clarify whether a range crosses midnight and how the game's day/sleep
+boundary affects the feature. Verify SetTime authority and network effects before
+using it for testing or gameplay changes.
 
-### Atomic Deposit / Withdraw Pattern
+The documented time callbacks include delegate fields as well as other surfaces;
+inspect member kind and delegate signature instead of assuming every callback is
+a C# event. Unsubscribe only your delegate; do not replace a shared callback field.
 
-```csharp
-// ❌ WRONG — money can be lost if the second call fails
-Money.ChangeCashBalance(-amount, true, false);
-Money.CreateOnlineTransaction("Deposit", credited, 1f, "Note");   // NPE → cash gone
+## Property and law research
 
-// ✅ RIGHT — try/catch + refund
-try
-{
-    Money.ChangeCashBalance(-amount, true, false);
-    Money.CreateOnlineTransaction("Deposit", credited, 1f, "Note");
-}
-catch
-{
-    Money.ChangeCashBalance(+amount, false, false);   // refund
-}
-```
+For properties, establish the actual ownership, business/property distinction,
+persistent identifier, and readiness before changing or displaying ownership.
+For law, determine which native/wrapper state drives pursuit, heat, wanted display,
+and consequences. Do not infer a universal 0-to-5 wanted scale or fabricate a
+GetCurrentWantedLevel helper from the UI concept.
 
-### Live Balance Updates
+Locate the supported member in the target source/API index, then trace its native
+owner and authority if necessary. Use the relevant
+[game-system guide](../../schedule1-game-systems/SKILL.md) as a research map;
+its inherited signatures still require exact-target verification.
 
-```csharp
-// Subscribe ONCE in OnCreated (idempotent: -= before +=)
-Money.OnBalanceChanged -= OnBalanceChanged;
-Money.OnBalanceChanged += OnBalanceChanged;
-```
+## Verification
 
-> ⚠ **2026-08-20:** Do NOT unsubscribe `OnBalanceChanged` inside `OnPhoneClosed` — S1API `OnCreated` fires only once per scene; the app would stop updating after the first close. Use `OnDestroyed()` for real teardown (see lifecycle.md §7).
-
----
-
-## 2. GameTime — `S1API.GameTime`
-
-```csharp
-using S1API.GameTime;
-
-TimeManager.CurrentDay       // Day enum (Monday..Sunday)
-TimeManager.ElapsedDays      // int total days
-TimeManager.CurrentTime       // int HHMM (12h format!)
-TimeManager.IsNight           // bool
-TimeManager.IsEndOfDay        // bool
-TimeManager.SleepInProgress   // bool
-TimeManager.NormalizedTime    // float 0..1
-TimeManager.Playtime          // float total seconds
-
-TimeManager.OnHourPass        // event
-TimeManager.OnDayPass         // event
-TimeManager.OnWeekPass        // event
-TimeManager.OnSleepStart      // event
-TimeManager.OnSleepEnd(int)   // event with remaining minutes
-TimeManager.OnTick            // event every in-game minute
-
-TimeManager.SetTime(int time24h)   // e.g. 1200 = noon
-TimeManager.GetFormatted12HourTime() // "3:00 PM"
-TimeManager.IsCurrentTimeWithinRange(int start24h, int end24h)
-```
-
-> **Critical:** `CurrentTime` is a **12-hour HHMM format** (e.g. 900 = 9 AM, 2100 = 9 PM). Never use `CurrentTime / 100` for hour extraction — use `GetFormatted12HourTime()` or `IsCurrentTimeWithinRange(...)`.
-
----
-
-## 3. Property — `S1API.Property`
-
-```csharp
-using S1API.Property;
-
-var all = PropertyManager.GetAllProperties();           // List<PropertyWrapper>
-var owned = PropertyManager.GetOwnedProperties();       // List<PropertyWrapper>
-var prop = PropertyManager.FindPropertyByName("Motel Room");   // null if not found
-
-prop.PropertyName    // "Motel Room"
-prop.PropertyCode    // "motel"
-prop.Price           // 5000f
-prop.IsOwned         // false
-prop.EmployeeCapacity // 3
-prop.IsPointInside(Vector3) // bool
-prop.SetOwned()
-```
-
-### Save-Load Gotcha
-
-```csharp
-// ❌ WRONG — Property.OwnedProperties is empty at OnGameplaySceneLoaded
-public override void OnSceneWasLoaded(int idx, string name)
-{
-    var owned = PropertyManager.GetOwnedProperties();   // EMPTY!
-}
-
-// ✅ RIGHT — use S1API lifecycle hook
-public override void OnInitializeMelon()
-{
-    GameLifecycle.OnLoadComplete += () =>
-    {
-        var owned = PropertyManager.GetOwnedProperties();   // populated now
-    };
-}
-```
-
----
-
-## 4. Law — `S1API.Law`
-
-The wanted-level system. Useful for:
-- Tracking player's currentwanted level
-- Triggering events when wanted level changes
-- Reading police patrols
-
-```csharp
-using S1API.Law;
-
-var wanted = LawManager.GetCurrentWantedLevel();   // 0-5
-LawManager.OnWantedLevelChanged += (newLevel) => { /* ... */ };
-```
-
-For deeper integration with police behavior, see `S1API.Law` decompile.
-
----
-
-## 5. Workspace Reference
-
-* `Money` — used by `BankApp`, `BusinessIncome`, `PocketShop`, `CalculatorApp`, `HomelessMod`
-* `GameTime` — used by `DayCounter` (in `Minimap`), `BankApp` (history timestamps), `HomelessMod` (`IsNight` check)
-* `Property` — used by `HomelessMod`, `BusinessIncome`, `PotScanner`
-* `Law` — unused by current workspace mods (potential for future police mods)
-
-For the full API surface, see the S1API source in `ThirdParty/S1API/` (S1API.Money / S1API.GameTime / S1API.Property).
+Test money failure before/after mutation, repeated subscriptions, and world switch.
+For time test midnight, noon, minute rollover, the game's sleep/day boundary, and
+cross-midnight intervals. For property/law test readiness and authority on every
+peer the mod supports. Distinguish formatting tests from native state-change tests.

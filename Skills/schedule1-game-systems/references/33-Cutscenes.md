@@ -1,5 +1,8 @@
 # Cutscenes (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 62 of 63 identifier-shaped tokens resolve (1 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 ## Core Classes (`ScheduleOne.Cutscenes`)
 
@@ -11,9 +14,9 @@
 | `IntroManager` | `Singleton<IntroManager>` | New-game intro (RV explosion, character creator handoff) |
 | `EndCutscene` | `Cutscene` | Ending / credits sequence |
 
-The whole namespace is exactly these 5 classes (no other cutscene classes in the dump). A previously listed `DemoIntro` class **does not exist** in the decompiles — removed.
+The whole namespace is exactly these 5 classes (no other cutscene classes in the dump). A previously listed `DemoIntro` class **does not exist** in the decompiles — not located in that snapshot; removal not established.
 
-## Cutscene lifecycle (verified)
+## Cutscene lifecycle (previously reported)
 - Fields: `Name`, `UseCinematicBars`, `IsPlaying` (property), `_animation`, `_state`, `_activeCameraController`
 - Flow: `Play()` (virtual) → `LateUpdate()`/`UpdateCamera()` each frame → `InvokeEnd()` → `End()` (virtual)
 - Camera: `SetActiveCameraControl(CutsceneCamera)`, `ClearActiveCameraControl(CutsceneCamera)`, `DisableActiveCameraControl()` — cutscene takes over from the FPS camera controller while active
@@ -41,8 +44,8 @@ The whole namespace is exactly these 5 classes (no other cutscene classes in the
 ## Save Participation
 - No `ISaveable` / `SaveData` in `ScheduleOne.Cutscenes` (grep verified). Cutscene state is transient; game progression is saved via the save system, not via cutscenes.
 
-## Hook Points (Harmony)
-1. `CutsceneManager.Play(string name)` — prefix/postfix to observe, block, or replace cutscenes by name (non-trivial instance method, safe patch).
+## Candidate Hook Points (Harmony)
+1. `CutsceneManager.Play(string name)` — candidate entry point. A postfix can observe resulting state; blocking or replacement needs a verified prefix/pre-mutation boundary. Resolve the exact overload, backend and side effects before claiming patchability.
 2. `Cutscene.InvokeEnd()` — postfix to fire logic exactly when any cutscene finishes (e.g., unlock after credits; `InvokeEnd` is the single funnel into `End()`).
 3. `IntroManager.PassedStep(int)` — hook tutorial step progression (used by the intro state machine).
 - S1API: `S1API.Cutscenes` exists but is a **separate mod-side cutscene system** (static `CutsceneManager`, `CutsceneHandle`, `CutsceneFrame`, `CutsceneCamera`, `CutsceneBuilder`, `CutsceneEndReason` + `Internal/Cutscenes` adapter), not a wrapper over the game's `CutsceneManager`. Use it to run your own local cutscenes; it plays one cutscene at a time.
@@ -50,8 +53,7 @@ The whole namespace is exactly these 5 classes (no other cutscene classes in the
 ## Not Implemented / Notes
 - Triggering is quest/scripted-flow driven — there is no public "trigger by id" dispatcher beyond `CutsceneManager.Play(name)`.
 - Camera behavior lives in `Cutscene.UpdateCamera()`; overriding individual shots requires scene-level work (Animation + `CutsceneCamera` components), not just code.
- Identifier-shaped tokens documented as *absent* (counted as resolved): `DemoIntro`.
- Identifier-shaped tokens documented as *absent*: `DemoIntro`.
- Identifier-shaped tokens documented as *absent*: `DemoIntro`.
- Identifier-shaped tokens documented as *absent*: `DemoIntro`.
- Identifier-shaped tokens documented as *absent*: `DemoIntro`.
+
+## Names reported absent in the original search
+
+`DemoIntro`. Absence is scoped to that search, not proof of removal from every supported version.

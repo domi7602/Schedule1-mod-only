@@ -2,7 +2,9 @@
 
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 135 of 137 identifier-shaped tokens resolve (2 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session. Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable.
 
-## Core Classes (verified)
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+
+## Core Classes (previously reported)
 
 | Class | Hierarchy | Purpose |
 |-------|-----------|---------|
@@ -20,43 +22,42 @@
 
 > `PlayerSingleton<T> : MonoBehaviour` lives in `ScheduleOne.DevUtilities` — per-local-player singleton, distinct from global `Singleton<T>`.
 
-## Events (verified on `Player`)
+## Events (previously reported on `Player`)
 
 `onArrested`, `onFreed`, `onEnterVehicle`, `onExitVehicle`, `onTased`, `onTasedEnd`, `onStruckByLightning`, `onSkateboardMounted`, `onSkateboardDismounted`, `OnFootState`, `OnThirdPersonMeshesVisibilityChanged`, plus player-lifecycle `onLocalPlayerSpawned`, `onPlayerSpawned`, `onPlayerDespawned`.
 
 `PlayerHealth` events: `onHealthChanged`, `onDie`, `onRevive`. `HotbarSlot` has an `EquipEvent` delegate.
 
-## Player API (verified highlights)
+## Player API (previously reported highlights)
 
 - Status flags as properties: `Sneaky`, `Slippery`, `Disoriented`, `Paranoid`, `Schizophrenic`, `Seizure`, `IsRagdolled`, `IsTased`, `IsArrested`, `IsUnconscious`, `IsSleeping`, `IsReadyToSleep`, `Crouched` — applied/set via `AddVariable`/`GetVariable`/`SetVariableValue` (player variables).
 - Actions: `Arrest_Server/Client`, `Free_Server/Client`, `Taze`, `Punch`, `ConsumeProduct`, `HitByLightning`, `SleepStart`/`SleepEnd`, `MountSkateboard`/`DismountSkateboard`, `Equip`/`Unequip`.
 - Queries: `GetNetworth`, `GetSearchTime`, `GetIsGrounded`, `GetEquippedItem`, `GetPlayerData`, `RecalculateCurrentProperty/Region`, `IsPointVisibleToPlayer`.
 - SyncVars (FishNet): `PlayerName`, `PlayerCode`, `CurrentVehicle`, `IsReadyToSleep`, `CameraPosition`, `CameraRotation`.
 
-## Health (verified)
+## Health (previously reported)
 
 `MaxHealth`, `HealthRecoveryPerMinute` (per-minute recovery via `MinPass`), `CurrentHealth`, `IsAlive`, `CanTakeDamage`, `TimeSinceLastDamage`, `CanRespawnInSinglePlayer`; `TakeDamage(float, bool, bool)`, `RecoverHealth`, `SetHealth`, `Die`/`SendDie`, `Revive(Vector3, Quaternion)`, `PlayBloodMist`. FishNet RPCs: TakeDamage (Observers), SendDie/Die, SendRevive/Revive.
 
 ## Energy / Sleep — corrections
 
-- **`PlayerEnergy` does NOT exist** in the decompiles — removed. No dedicated energy class anywhere; the only "energy" members are `Equippable_Cuke.BaseEnergyGain`/`MinEnergyGain` (energy-drink item). Energy *numbers* in [`17-TimeManager.md`](17-TimeManager.md) cannot be re-derived from these decompiles — treat as unverified here.
-- **`PassOutScreen` does NOT exist** in the decompiles — removed. Sleep flow runs via `SleepController : NetworkSingleton<SleepController>` (GameTime, runs `ISleepEvent`s) + `TimeManager` — details in [`17-TimeManager.md`](17-TimeManager.md).
+- **`PlayerEnergy` does NOT exist** in the decompiles — not located in that snapshot; removal not established. No dedicated energy class anywhere; the only "energy" members are `Equippable_Cuke.BaseEnergyGain`/`MinEnergyGain` (energy-drink item). Energy *numbers* in [`17-TimeManager.md`](17-TimeManager.md) cannot be re-derived from these decompiles — treat as unverified here.
+- **`PassOutScreen` does NOT exist** in the decompiles — not located in that snapshot; removal not established. Sleep flow runs via `SleepController : NetworkSingleton<SleepController>` (GameTime, runs `ISleepEvent`s) + `TimeManager` — details in [`17-TimeManager.md`](17-TimeManager.md).
 - Player stats persist through `FullPlayerData.Variables` (`Player.AddVariable`/`GetVariable`/`SetVariableValue`) — see [`61-Variables.md`](61-Variables.md).
 
-## Save participation (verified)
+## Save participation (previously reported)
 
 - `Player` implements the save pattern: `SaveFolderName`, `SaveFileName`, `InitializeSaveable()`, `GetSaveString()`, `WriteData`, `GetPlayerData`, `RequestSavePlayer` — payload is `FullPlayerData` (`BasicData`, `InventoryString`, `Appearance`, `ClothingString`, `Variables`).
 - `PlayerManager` is itself a save participant (same members) writing the player list.
 
-## Hook Points
+## Candidate Hook Points
 
 1. **Prefix `PlayerHealth.TakeDamage`** — god-mode / damage scaling (server RPC + local call paths — patch the public method).
 2. **Prefix `Player.Arrest_Server`** (and `Free_Server`) — control arrest logic server-authoritatively.
 3. **S1API:** `S1API.Entities.Player` (`IEntity`, `IHealth`): static `Local`, static event `LocalPlayerSpawned`, `OnDeath`/`OnRevive`, `Damage(int)`, `Heal(int)`, `Revive()`, `Kill()`, clothing methods. `S1API.Law.PlayerCrimeData` wraps pursuit state (`CurrentPursuitLevel`, `SetPursuitLevel`, `Escalate`, `Deescalate`, `ClearCrimes`, `GetSearchTime()`).
 
 ---
- Identifier-shaped tokens documented as *absent* (counted as resolved): `PassOutScreen`, `PlayerEnergy`.
- Identifier-shaped tokens documented as *absent*: `PassOutScreen`, `PlayerEnergy`.
- Identifier-shaped tokens documented as *absent*: `PlayerEnergy`, `PassOutScreen`.
- Identifier-shaped tokens documented as *absent*: `PassOutScreen`, `PlayerEnergy`.
- Identifier-shaped tokens documented as *absent*: `PlayerEnergy`, `PassOutScreen`.
+
+## Names reported absent in the original search
+
+`PassOutScreen`, `PlayerEnergy`. Absence is scoped to that search, not proof of removal from every supported version.

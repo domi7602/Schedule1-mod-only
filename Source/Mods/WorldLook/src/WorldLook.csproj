@@ -4,7 +4,13 @@
     <RootNamespace>WorldLook</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="../assets/embedded/worldlook-shaders.bundle" LogicalName="WorldLook.Shaders.bundle" />
     <Reference Include="Unity.RenderPipelines.Core.Runtime"><HintPath>$(Il2CppAssemblies)/Unity.RenderPipelines.Core.Runtime.dll</HintPath><Private>False</Private></Reference>
     <Reference Include="Unity.RenderPipelines.Universal.Runtime"><HintPath>$(Il2CppAssemblies)/Unity.RenderPipelines.Universal.Runtime.dll</HintPath><Private>False</Private></Reference>
   </ItemGroup>
+  <Target Name="CheckWorldLookShaderBundle" BeforeTargets="BeforeBuild">
+    <Error Condition="!Exists('$(MSBuildProjectDirectory)/../assets/embedded/worldlook-shaders.bundle') Or !Exists('$(MSBuildProjectDirectory)/../assets/embedded/shader-build.json')"
+           Text="WorldLook shader inputs are missing. Run pwsh -NoProfile -ExecutionPolicy Bypass -File Source/Mods/WorldLook/build/Build.ps1 -ShadersOnly." />
+    <Exec Command="pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)/../build/Verify-ShaderBundle.ps1&quot; -ProjectRoot &quot;$(MSBuildProjectDirectory)/..&quot;" />
+  </Target>
 </Project>

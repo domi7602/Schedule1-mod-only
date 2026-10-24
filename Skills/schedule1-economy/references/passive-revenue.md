@@ -1,70 +1,67 @@
-# Passive Revenue (BusinessIncome Reference)
+# Passive revenue and payout idempotency
+
 > verified: flow from BusinessIncome source (snapshot fix 2026-08-21); Money APIs re-verified against the installed runtime decompiles 2026-10-05.
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 9/13 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
+Inherited BusinessIncome source notes; not revalidated against the installed game
+in this package. The named helpers and old source line numbers are not API
+contracts. Find the current implementation before applying a repair.
 
-Source: `BusinessIncome/src/Services/IncomeEngine.cs` + `PayoutStateStore.cs` + `RevenueCalculator.cs` (host-authoritative, slot-idempotent).
+## Model a payout
 
-### Revenue Formula (per business)
-```
-gross = BaseIncome * PropertyMultiplier[BusinessId] * variance±15% hash(ElapsedDays, BusinessId)
-        * (1 + 0.05*employees capped 0.25)
-        * (isWeekend && WeekendBonusCategories.Contains(type) ? 1.25 : 1.0)
-costs = gross * 0.10
-net   = gross - costs
-```
-TotalNet = sum(net). If totalNet<=0 → CommitPayout(empty) + no transaction (IncomeEngine.cs:107).
+Define a payout key from confirmed world identity, the eligible day/period, and
+business identity or batch membership. Keep the calculation deterministic for the
+same key. A process-local re-entry guard does not provide persistence or rollback
+safety. Only the authoritative peer may perform the financial mutation.
 
-### Execution (IncomeEngine.cs:82 TryExecuteDailyPayout)
-```csharp
-if (!IsHostOrSingleplayer()) return false; //:84
-if (!force && IsDayPaid(day)) return false; //:90
-var (lines, totalNet) = GetDailyRevenuePreview(day, config);
-if (!lines.Any()) return false;
-if (isDryRun) return true;
+The historical business model combined base income, property multiplier,
+deterministic variation of approximately plus/minus 15 percent, an employee bonus
+of 5 percent per employee capped at 25 percent, an eligible-weekend factor of 1.25,
+and operating cost of 10 percent. Treat these as configurable mod policy; preserve
+the project's current formula and test rounding and bounds. Do not present them as
+vanilla business rules or mix additive and multiplicative versions of the formula.
 
-var ids = lines.Select(l=>l.BusinessId).ToList();
-if (commit) PayoutStateStore.MarkInMemoryPaid(day, ids); // snapshots prev:20
-try {
-  Money.CreateOnlineTransaction("Business Revenue", +totalNet, 1f, $"Daily Revenue ({lines.Count} businesses): +${totalNet:N0}");
-} catch {
-  if (commit) PayoutStateStore.RevertInMemoryPaid(day, ids); // restores snapshot:149
-  return false;
-}
-if (commit) PayoutStateStore.CommitPayout(day, ids); // SaveAtomic payout_state_slot_{n}.json:60 + clears snapshot
-if (config.EnableNotifications) SendNotification(totalNet, lines.Count);
-```
+## Execution and outcome
 
-### State Store (PayoutStateStore.cs)
-* `GetActiveSlotSuffix():23` → LoadManager.ActiveSaveInfo.SaveSlotNumber → `payout_state_slot_{n}.json` (slot-isolated)
-* `MarkInMemoryPaid`: snapshots `_pendingPrevLastPaid` + `_pendingPrevPerBusiness` Dict:20 before overwrite
-* `RevertInMemoryPaid`: restores snapshot (NOT -1) :149 — fixes 2026-08-21 double-payout
-* `CommitPayout`: SaveAtomic + clears snapshot :183
-* `IsDayPaid:93` + `IsBusinessPaid:100` per-business guard
+1. Resolve confirmed identity, eligible businesses, period, and unpaid status.
+2. Calculate a bounded preview without mutations; distinguish dry run from payout.
+3. Latch an in-flight payout before calling the money provider.
+4. Observe whether payment had no effect, its expected effect, a partial effect,
+   or an unresolved effect. Preserve pre-attempt metadata for reconciliation.
+5. Mark settled only after the financial outcome is established. Persist against
+   the compatible native checkpoint, checking the actual writer result.
+6. Send optional notifications after settlement without reopening payment on a
+   notification, sound, or logging exception.
 
-Notification: `NotificationsManager.Instance.SendNotification("Business Revenue", "+$X from N businesses", null, 5f, playSound)` + `PlayCashSound` null-checked.
+On confirmed no-effect failure, release or restore only this attempt's pending
+state. On unknown effect, retain an unresolved payout and suppress blind repetition.
+Never simply reset the paid marker after every exception: the bank may already
+have been credited. Never substitute `-1` for a prior paid-day snapshot.
 
----
+## Checkpoint and recovery
 
----
+A successfully written payout marker plus an unsaved native bank balance can lose
+income after rollback. A saved bank balance plus a missing marker can duplicate it.
+Choose and verify a native-coupled persistence design; atomic JSON alone cannot
+settle this mismatch. Compare world checkpoint as well as identity during recovery.
 
----
+A journal may retain evidence and facilitate reconciliation, but it cannot invent
+an atomic boundary across an uninstrumented provider and separate native save.
+If the provider cannot establish outcome or idempotency, expose the unresolved
+state and its recovery procedure rather than claiming exact-once delivery.
 
----
+For per-business payouts, define whether eligibility changes during a period
+create additional payable work. Avoid a single day-paid flag accidentally hiding
+unpaid businesses or allowing already-paid ones to repeat.
 
----
+## Verification
 
----
+Test no eligible businesses, zero/negative calculated totals, dry run, repeated
+same-day callbacks, multiple businesses, late business acquisition, client calls,
+and concurrent host triggers. Inject failure before/after money mutation, during
+marker publication, and after settlement notifications. Reload the same checkpoint
+and an older one; verify balances and payout evidence together.
 
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
-
-- `_pendingPrevLastPaid`
-- `MarkInMemoryPaid`
-- `RevertInMemoryPaid`
-- `_pendingPrevPerBusiness`
+Related: [purchase outcome states](atomic-purchase.md),
+[frozen writes](../../schedule1-persistence/references/frozen-writes.md), and
+[slot identity](../../schedule1-persistence/references/slot-isolation.md).

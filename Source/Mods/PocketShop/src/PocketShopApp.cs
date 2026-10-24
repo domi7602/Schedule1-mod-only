@@ -369,7 +369,7 @@ public sealed class PocketShopApp : PhoneApp
         contentLE.flexibleHeight = 1f;
         contentLE.flexibleWidth = 1f;
 
-        var contentRt = (RectTransform)contentPanel.transform;
+        var contentRt = contentPanel.GetComponent<RectTransform>();
 
         // Level 1: Directory Pane (4x3 Grid)
         _directoryPane = new StoreCatalogPane(contentRt);

@@ -15,7 +15,7 @@
 
 using MelonLoader;
 
-[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "0.8.19", "Dominik")]
+[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "0.8.22", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace TaxiDriver
@@ -63,13 +63,9 @@ namespace TaxiDriver
             RideLocks.Apply();
             NativeActuatorPatch.Apply();
             CruiseSpeedPatch.Apply();
-            // The 0.8.11 wheel-sweep traffic-light hook is DISABLED (0.8.17): it threw a
-            // native->managed NullReferenceException hundreds of times per second in live
-            // IL2CPP gameplay (Latest.log 2026-10-14), starving the VehicleAgent of sweep
-            // results so the taxi never reached its parked pickup state. Native traffic
-            // behavior is retained until the trampoline-safe wiring is proven in-game.
-            // TrafficLightPatch.Remove() stays in the teardown path as a no-op guard.
-            // TrafficLightPatch.Apply(); // DISABLED, see above
+            // Scope private flags at parameterless consumers; never detour the
+            // GetWheelSweepCollision out-parameter method that failed in 0.8.11.
+            TrafficLightPatch.Apply();
 
             // Beta 8 exposes OnPreLoad and OnPreSceneChange on the installed API.
             // Clear the picker before a save switch and cancel deferred work before

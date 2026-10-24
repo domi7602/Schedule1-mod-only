@@ -1,8 +1,10 @@
 # Product System (Schedule I)
 
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 184/190 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep. Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable.
 
-## Core Classes (verified)
+## Core Classes (previously reported)
 
 | Class | Hierarchy | Purpose |
 |-------|-----------|---------|
@@ -21,15 +23,15 @@
 
 `Mild`, `Potent`, `Overwhelming`, `Sedating`, `Calming`, `Refreshing`, `Stimulating`, `Cerebral`, `Physical`, `Psychedelic`, `Dissociative`, `Hallucinogenic`, `Focused`, `Uplifting`, `Euphoric`, `Addictive`, `HighlyAddictive`
 
-## ProductDefinition (verified)
+## ProductDefinition (previously reported)
 
 Fields: `BasePrice`, `MarketValue`, `BaseAddictiveness`, `PlayerEffectDuration`, `NPCEffectDuration`, `LawIntensityChange`, `ConsumeAnimation`, `DrugTypes`, `FunctionalProduct`, `ValidPackaging`, `Recipes`. Methods: `GetAddictiveness()`, `GetDefaultInstance()`, `GetPrice()`, `GenerateAppearanceSettings()`, `AddRecipe`, `CleanRecipes`, plus save members (`GetSaveData`, `GetSaveString`, `InitializeSaveable`, `SaveFolderName/FileName`).
 
-## ProductItemInstance (verified)
+## ProductItemInstance (previously reported)
 
 `ProductID`, `Quality`, `Quantity`, `packaging`/`PackagingID`, `AppliedPackaging`. On consumption: `ApplyEffectsToPlayer(Player)` / `ApplyEffectsToNPC(NPC)` (+ `ClearEffectsFrom*`), `GetMonetaryValue()`, `GetAddictiveness()`, `CanStackWith()`, `GetCopy()`. Physical forms: `Product_Equippable : Equippable_Viewmodel`, `Product_Stored : StoredItem`, `FunctionalProduct : Draggable`. Per-type instances: `WeedInstance`, `MethInstance`, `CocaineInstance`, `ShroomInstance` (all `: ProductItemInstance`).
 
-## ProductManager API (verified highlights)
+## ProductManager API (previously reported highlights)
 
 - Lookup: `GetRecipe(string product, string mixer)`, `GetRecipe(List<Effect> productProperties, Effect mixerProperty)`, `GetMixerMap(EDrugType)`, `GetKnownProduct(EDrugType, List<Effect>)`, `GetContractReceipts(EMapRegion, List<EContractParty>, int maxMinsAgo)`.
 - Pricing: `GetPrice(ProductDefinition)`, `static CalculateProductValue(ProductDefinition, float baseValue)`, `static CalculateProductValue(float baseValue, List<Effect> properties)`, `SetPrice` (RPC), `RefreshHighestValueProduct`.
@@ -43,43 +45,29 @@ Fields: `BasePrice`, `MarketValue`, `BaseAddictiveness`, `PlayerEffectDuration`,
 
 `MixRecipeData` (`Product`, `Mixer`, `Output` — StationRecipe persisted by ProductManager), `NewMixOperation`, `NewMixDiscoveryBox`, `DrugTypeContainer`, `ProductRecipe : MonoBehaviour`, `ProductQuantities` (quantity helpers). Combinatorics/effects live in [`25-Mixing-Production.md`](25-Mixing-Production.md) — not duplicated here.
 
-## Support Systems (verified)
+## Support Systems (previously reported)
 
 - **Visuals:** `ProductVisualsSetter` base; `WeedVisualsSetter`, `MethVisualsSetter`, `CocaineVisualsSetter`, `ShroomVisualsSetter`, `MultiTypeVisualsSetter`; appearance settings `Weed/Meth/Cocaine/ShroomAppearanceSettings`, `LiquidMethVisuals`, `ProductConsumeAnimation`.
 - **Icons:** `ProductIconManager : Singleton<ProductIconManager>` — nested `ProductIcon` (`ProductID`, `PackagingID`, `Icon`), `IconGenerator`, `RuntimeProductIconSize`, `Products`/`Packaging` lists.
 - **UI:** `ProductEntry : MonoBehaviour` — list tile with `FavouriteButton`, `ListingButton`, `onHovered`, `onListed`, color states.
 - **Properties:** `PropertyContainer`, `PropertyMethods`, `PropertyItemDefinition`, `PropertyUtility : Singleton<PropertyUtility>` (`GetPropertyData(EProperty)`, `GetDrugTypeData(EDrugType)`, `GetOrderedPropertyColors(List<Effect>)`), `static DrugTypeMethods` extension methods (`GetName`, `GetColor`, `GetNameWithRichTextColor`).
 
-## Save participation (verified)
+## Save participation (previously reported)
 
 `ProductManager` and `ProductDefinition` both implement the `InitializeSaveable()`/`GetSaveString()`/`SaveFolderName`/`SaveFileName` pattern (`Loader`, `LoadOrder`, `ShouldSaveUnderFolder`, `LocalExtraFiles/Folders`) — see [`02-Save-Persistence.md`](02-Save-Persistence.md). Instance data travels inside item-stack save data.
 
-## Hook Points
+## Candidate Hook Points
 
 1. **Postfix `ProductManager.CalculateProductValue`** (static, two overloads) — price/value manipulation for all products.
 2. **Prefix `ProductManager.GetPrice`** or postfix `ProductDefinition.GetPrice` — per-product price override.
-3. **Postfix `ProductManager.CheckDiscovery` / `DiscoverProduct`** — unlock or gate product discovery.
+3. **Postfix `ProductManager.CheckDiscovery` / `DiscoverProduct`** — observe completed discovery. To gate discovery, locate and validate a boundary before the state mutation; a postfix cannot undo already emitted rewards, saves or network events.
 4. **S1API:** `S1API.Products.ProductManager` (static: `GetPrice`, `CalculateProductValue`, `SetEffectCallback`/`SetNpcEffectCallback` + clear variants), `ProductDefinition`/`WeedDefinition`/`MethDefinition`/`ShroomDefinition`/`CocaineDefinition`, `WeedDefinitionBuilder`, `CustomProductDefinition` (`Discover`, `SetListed`, `SupportsPackaging`, `CreateInstance(quantity, quality)`), `CustomProductSaveDescriptor`/`CustomProductSaveProviderRegistry` (custom-product save integration), `ProductInstance`, `DrugType`, `Quality`, `MixReactions`, `ProductPopulator.GetPackaging(string)`, `PackagingDefinition` + `StealthLevel`.
 
 ---
 
----
+## Unresolved identifiers in the imported 2026-10-08 record
 
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+The imported scan did not resolve the following tokens within its recorded search scope. These may be placeholders, attributes from another assembly or drift candidates. Search the actual declaring assembly and version before concluding that an API was removed.
 
 - `IsMixNameValid`
 - `RpcWriter`

@@ -1,153 +1,60 @@
-# S1API — Game Systems Quick Reference
+# Research map for additional S1API systems
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 17 of 17 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+Inherited source notes; not revalidated against the installed game in this package.
+This page provides lookup targets and contracts to establish, not callable example
+signatures. Check the [official API index](https://ifbars.github.io/S1API/) and the
+exact target source/assembly before implementing a member.
 
-One-page navigators for the smaller game-system namespaces. For each, the pattern is: **read the decompile, then use the wrapper** (or fall back to vanilla if no wrapper exists).
+## Choose the system and boundary
 
----
+| Task | Search concepts | Contract to establish |
+|---|---|---|
+| Open or lock a door | Door, access, ownership, interaction | State mutation versus interaction animation, authority, persistence |
+| Work with buildings/interiors | Building, property, entrance | Spatial identity, ownership, lifecycle, interior transition |
+| Control vehicles | Vehicle, driver, occupant, navigation | Server ownership, driver/seat state, physics timing, path readiness |
+| Observe or change growing | Pot, plant, growth, harvest | Definition versus instance, elapsed time, accepted output, inventory capacity |
+| Operate stations | Station, recipe, task, configuration | Valid operating state, reserved inputs, output ownership |
+| Handle dead drops/deliveries | DeadDrop, delivery, contract | Actor identity, contents, completion, duplicate processing |
+| Add cartel or casino behavior | Cartel, region, casino, minigame | Progression and transaction ownership; supported extension points |
+| Change weather/temperature | Weather, temperature, environment | Host authority, transitions, native visual ownership, save behavior |
+| Change XP or level | Leveling, XP, reward | Per-player authority, caps, one-time reward state |
+| Show dialogue or messages | Dialogue, messaging, contact | Correct NPC/contact identity, loaded conversation, callback restoration |
 
-## 1. Doors — `S1API.Doors`
+Use [the game-system index](../../schedule1-game-systems/SKILL.md) to select the
+relevant native-system analysis. Use [world expansion](../../schedule1-world-expansion/SKILL.md)
+for connected areas and [S1MAPI](../../schedule1-s1mapi/SKILL.md) for supported map
+construction. A concept existing in the game does not guarantee a wrapper manager
+with a predictable `Get...ByID` or `Set...` method.
 
-```csharp
-using S1API.Doors;
+## Verification workflow
 
-var door = DoorManager.GetDoor(transform);   // door at a transform
-door.IsOpen = true;
-door.Lock();
-```
+1. Identify the target branch, assembly, namespace, and actual owner type.
+2. Find the intended member and inspect visibility, overload, value semantics,
+   readiness, authority, and effects. Check decompiled bodies only where they contain
+   real managed implementation rather than IL2CPP forwarding thunks.
+3. Trace current production callsites or framework examples from the same version.
+4. Wrap the required behavior in the mod's own domain boundary without exposing
+   runtime-specific types unnecessarily.
+5. Compile the real callsites and test the success, absent-object, transition,
+   duplicate-action, and relevant network failure paths.
 
-Interior doors vs property doors: covered by `S1API.Building`.
+## Console and optional integrations
 
----
+For a console command, inspect the target's actual base class, registration
+mechanism, constructor requirements, and argument/return contract. Do not assume
+an attribute or automatic discovery rule from another framework.
+Keep optional integrations such as a third-party terminal behind a verified
+availability boundary. Their local helper names are not S1API APIs.
 
-## 2. Building — `S1API.Building`
+## When wrappers do not meet the requirement
 
-```csharp
-using S1API.Building;
+Check current wrapper coverage before deciding it is absent or too slow. Measure
+hot-path cost if performance is the reason to bypass it. Isolate direct native
+access in a clearly owned branch adapter; preserve lifecycle and authority checks.
+Publish shared helpers under the mod's own namespace, not a fabricated
+`S1API.Internal.*` namespace that could collide with the framework.
 
-var building = BuildingManager.GetBuildingByID("barn");
-building.InteriorLightsEnabled = true;
-```
-
-For **building new rooms/areas** in the world, use `S1MAPI` (the sister framework) — see the `schedule1-s1mapi` skill.
-
----
-
-## 3. Vehicles — `S1API.Vehicles`
-
-```csharp
-using S1API.Vehicles;
-
-var vehicle = VehicleManager.GetVehicleByID("vehicle_id");
-vehicle.LockDoors();
-vehicle.SetOwner(Player.Local);
-```
-
-`VehicleManager.AllVehicles` lists all vehicles in the world.
-
----
-
-## 4. Growing — `S1API.Growing`
-
-```csharp
-using S1API.Growing;
-
-var plant = PotScanner.GetPlant(potGameObject);   // wraps Plant
-plant.Water();                                    // instant water
-plant.Harvest();                                  // returns product
-```
-
-For full Plant/Cycle control, see the decompile. The `entities.md` in this skill mentions plants in the context of NPCs.
-
----
-
-## 5. Stations — `S1API.Stations`
-
-Mixing stations, packaging, etc. Used by the mixing system.
-
-```csharp
-using S1API.Stations;
-
-var station = StationManager.GetStationByID("station_id");
-station.SetMixing(true);
-```
-
----
-
-## 6. DeadDrops — `S1API.DeadDrops`
-
-```csharp
-using S1API.DeadDrops;
-
-var drop = DeadDropManager.GetDeadDropByID("drop_id");
-drop.SetCashAmount(500f);
-```
-
-For the underlying game types, see `S1API.DeadDrops.Native`.
-
----
-
-## 7. Cartel — `S1API.Cartel`
-
-Cartel rank / influence / region unlock. Used by the unlocking-system progression.
-
-```csharp
-using S1API.Cartel;
-
-var cartel = CartelManager.Instance;
-cartel.UnlockRegion(Region.Docks);
-```
-
----
-
-## 8. Casino — `S1API.Casino`
-
-Casino games (slots, blackjack). Mods can place custom casino tables.
-
-```csharp
-using S1API.Casino;
-
-var casino = CasinoManager.GetCasinoByID("casino_id");
-casino.Open();
-```
-
----
-
-## 9. Weather / Temperature / Time
-
-Covered in `references/money-economy.md` (GameTime) and these one-liners:
-
-```csharp
-WeatherManager.SetWeather(Weather.Sunny);
-TemperatureManager.SetTemperature(20f);   // Celsius
-LevelingManager.GetXP(Player.Local);
-```
-
----
-
-## 10. Misc / Dialogues / Messaging
-
-```csharp
-using S1API.Dialogues;
-DialogueManager.ShowDialogue(npc, lineKey);
-
-using S1API.Messaging;
-MessageManager.SendSMS(contact, "Hello!");
-```
-
-For these less-common APIs, the decompile is the source of truth:
-`ThirdParty/S1API/` (S1API-Source, Submodule)
-
----
-
-## 11. When No S1API Wrapper Exists
-
-Some vanilla game systems have no S1API wrapper yet (rendering, exotic managers). For those:
-
-1. **Direct `Il2CppScheduleOne.*` access** — IL2CPP-bridge classes, see `GameReferences/ (locally generated decompiles, see GameReferences/README.md)`
-2. **Isolate in `internal` module** — keep public mod API clean
-3. **Wrap in an `S1API.Internal.*` namespace** if you want to share with other mods
-
-For branch compatibility concerns, see [cross-compat.md](cross-compat.md).
-
----
+Report the exact unsupported boundary and remaining verification instead of
+filling the gap with a guessed method name.

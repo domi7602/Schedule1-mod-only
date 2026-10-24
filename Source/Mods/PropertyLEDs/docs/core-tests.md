@@ -1,5 +1,12 @@
 # Automated test report — PropertyLEDs.Core
 
+## Current 0.1.8 evidence (2026-10-20)
+
+Parent-run Release suite: 115 passed, 0 failed/skipped, using `-p:S1NoDeploy=true -p:BuildProjectReferences=false`.
+Selection/status policies cover exact ordinal matching, current-property adoption, fallback, manual selection retention, missing ownership and load invalidation. Source contracts additionally pin native identity access, named status, close/load wiring and the first-actual-open gate. The hidden-construction contract failed before the `IsOpen()` guard was added, then passed. These tests do not exercise native player location, Unity labels, pointer input or renderer state; in-game acceptance remains open.
+
+## Historical evidence
+
 Command:
 
 ```pwsh

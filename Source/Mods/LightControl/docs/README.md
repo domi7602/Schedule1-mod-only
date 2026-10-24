@@ -5,10 +5,104 @@ brightness drive the lamp's own emitting LED panel *and* the light that lamp emi
 resolved color, so the panel and the light it casts match. The pure model is game-independent; the
 Unity/MelonLoader adapter is thin, guarded and only writes values it can prove and restore.
 
-Source version `0.1.0-dev.5` — **first in-game test slice**, now coupled panel + emitted-light output.
-Reviewed and tested; deployment is blocked while the game is running. The last installed build remains
-`0.1.0-dev.4` (surface only). No combined-output gameplay verification yet. Accidental solution deployment
-remains disabled by default.
+## Graphite native UI — 0.1.0-dev.19
+
+The exact checked Release build was **installed on 2026-10-22**. DLL/PDB/metadata and the three
+previous dev.18 files were hash-verified; the backup and receipt are recorded below.
+
+The approved [interactive concept](ui-mockup.html) is ported to the native phone: a 1201 x 655
+owned reference canvas, graphite table, large lamp labels, explicit color controls, brightness
+meters and ellipsis actions. The color chooser is a **5 x 2** grid with **Rainbow at bottom-right**,
+staged **Cancel / Apply**, while all seven brightness steps apply immediately. Real properties,
+lamp data and storage/scan notices replace the mockup fixtures.
+
+The view attempts Segoe UI with an Arial fallback; the owner's 2026-10-22 session confirms that a
+missing downstream font constructor prevents Segoe UI creation, so the shown native view uses Arial.
+It retains cached owned glyph assets and a sticky column heading. Unique forwarding bindings keep every Cancel/Close button independently registered
+with S1API and release callback targets during teardown. The existing 19 C# files plus project
+remain the production source budget.
+
+Parent verification: **264/264 checks**, forced Release **0 warnings / 0 errors**, scoped formatting
+clean and final independent delta review **PASS**. Owner screenshots subsequently establish the
+three-lamp list and open chooser rendering, including visible Cancel/Apply and Rainbow tenth.
+Exact font parity, click routing and wider gameplay/lifecycle acceptance remain open. Current
+evidence: [graphite-ui-verification.md](graphite-ui-verification.md).
+
+## Historical installed V4 professional list — dev.18
+
+The exact retained `0.1.0-dev.18` DLL/PDB/metadata were installed on 2026-10-22 after owner
+approval, without rebuilding. All three installed files and previous-file backups were hash-verified;
+the game was closed. Receipt and backup paths are in
+[phone-color-picker-deployment.md](phone-color-picker-deployment.md). Native UI acceptance remains open.
+
+`0.1.0-dev.18` reworks the list presentation from the owner's in-game screenshots and the accepted
+V4 preview: rows are one horizontal layout with a fixed **18 dp square** real-color marker, the lamp
+name as the primary label, the color name below it, and right-aligned **Brightness**/**Actions**
+columns shared with a single column-heading row. Selection is a restrained background tint instead of
+a text `>` prefix, property groups are plain headings, and the standing instruction paragraph became
+one compact action-feedback line. The color chooser keeps nine staged true-color tiles with one white
+ring and an empty center note.
+
+The reported hint-only footer is addressed structurally: **Back**, **Select** and the single Close
+button now declare their own preferred and minimum height, so the child-controlled footer group can
+no longer collapse them. A one-shot `[ui-layout]` line after each modal opens records the measured
+card and button rects, so the next session can separate a real layout failure from a rendering
+misread. 253 core/adapter/source checks, forced Release 0 warnings/errors, scoped format clean, and an
+independent review whose one blocking finding (a duplicate column-heading row) was fixed and
+re-verified. These checks describe the retained build; they were not rerun during installation.
+Native fit/hit testing/rendering remain open. Details:
+[phone-color-picker-verification.md](phone-color-picker-verification.md).
+
+## Historical compact picker baseline (dev.17)
+
+The exact retained `0.1.0-dev.17` DLL/PDB/metadata were installed on 2026-10-21 after separate owner
+approval, without rebuilding. All three installed hashes and prior-file backups were read back;
+76 unrelated files, four LightControl sidecars and 125 native save files were unchanged. The game
+was not started. Receipt, backup paths and the installed identity are in
+[phone-color-picker-deployment.md](phone-color-picker-deployment.md). Frozen build metadata retains
+its original compile-only label; that creation-state label is superseded by the deployment record.
+
+That installed build introduced the full-width property-grouped list and the compact color-only
+chooser. In-game observation confirmed both rendered and that the picker stages a color, but the
+Back/Select footer did not render, which is exactly what dev.18 corrects.
+
+The current source replaces the permanent selected-lamp editor with a full-width property-grouped
+list and a compact color-only chooser. A lamp's main/color area opens the nine true-color tiles;
+tile clicks only stage a choice, **Select** applies it to the captured session/lamp, and **Back**,
+outside dismissal or phone closure discards it. Original/Rainbow sources never become White merely
+by opening. The separate seven-step intensity menu retains its immediate click-to-apply behavior.
+Original, Rainbow, Reset and counted property/world copy remain under **More**, outside the chooser.
+
+Tests, actual review outcomes, retained artifacts and the singleplayer acceptance checklist are in
+[phone-color-picker-verification.md](phone-color-picker-verification.md). The accepted visual/behavioral
+contract is [phone-color-picker-design.md](phone-color-picker-design.md). The earlier implementation
+slice was compile-only; the subsequent approved installation used that exact frozen artifact.
+No game launch, save mutation, Shared/native-light/persistence change or commit was performed.
+Native layout, hit testing and rendering still need the owner's in-game check.
+
+## Historical dev.16 audit baseline
+
+The exact retained `0.1.0-dev.16` DLL/PDB/metadata were installed after separate owner approval on
+2026-10-21, without rebuilding. Destination hashes and receipt were read back; the backed-up **Tests**
+save, LightControl persistence and all 76 unrelated mod/library/plugin witness files were unchanged.
+The game was not started. Runtime loading, rendering, material destruction and actual PhoneApp fit
+remain unverified. Prior dev.15 text-clipping acceptance is historical, not acceptance of this build.
+
+The complete backup, receipt and installed hashes are in [audit-repair-verification.md](audit-repair-verification.md).
+Frozen build metadata remains byte-identical; its original compile-only label is superseded by the
+deployment record. The earlier unintended Shared receipt write is retained separately in that record.
+
+Prior dev.16 scope: landscape property-grouped list and selected-lamp editor; Original/Color/Rainbow;
+nine real-color swatches and seven intensity steps (10/25/50/75/100/150/200%). Original preserves
+brightness; Reset selects Original and 100%. Property/global copy targets currently available lamps;
+counts include the source. A stale preview must not partially apply. Clients remain read-only.
+
+See [audit-repair-verification.md](audit-repair-verification.md) for baseline, per-finding outcomes,
+source/artifact identity, tests and remaining native/container acceptance. The managed measurements in
+[resolver-microbenchmark.csv](resolver-microbenchmark.csv) are not Unity or FPS measurements.
+
+Numeric slot identity does not distinguish a new world or another player profile using the same slot
+and mod path. The schema is unchanged; no world-ID migration is invented. Shared remains unchanged.
 
 ## What is here
 
@@ -18,20 +112,24 @@ remains disabled by default.
 | `src/Mod.cs` | The one MelonLoader entry point: lifecycle wiring and a guarded callback for every hook. |
 | `src/LightRuntime.cs` | Host runtime: cooperative frame-budgeted discovery, the single coupled visual phase (LED panel + the lamp's own native light sources), ownership gate, unload/rebind and teardown/restore of every owned material clone and native light output. |
 | `src/LightPersistence.cs` | Slot-scoped atomic storage with a read-failure write gate. |
-| `src/LightControlApp.cs` | The phone app (vertical, dark palette, fixed controls). |
-| `src/Core/` | Game-independent model: state, identity, protocol, effects, JSON persistence and the runtime-used policies. No Unity, MelonLoader, S1API or Steam dependency. |
-| `src/Diagnostics/DiagnosticMod.cs.txt` | Archived, **not compiled**: the previous read-only diagnostics helper. |
+| `src/LightControlApp.cs` | Full-width landscape list, dedicated staged color chooser, immediate seven-step intensity menu and separate More actions; English dark UI. |
+| `src/` (remaining policy files) | Game-independent state, identity, protocol, JSON, visual and native policies. 19 C# files plus project total; no new assembly or dependency. |
 | `assets/` | Eight language files (42 keys each) and `config.defaults.json`. Not yet bound to any UI or runtime configuration. |
 | `docs/upstream/` | Archived legacy build configs, scripts, packaging and documentation from the imported archive. Reference only, not active. |
 
 The five cohesive native-light policy files are consolidated into one compilation unit
-(`src/Core/NativePolicies.cs`): `NativeLightPolicy`, `NativeColorPolicy`,
+(`src/NativePolicies.cs`): `NativeLightPolicy`, `NativeColorPolicy`,
 `NativeCouplingPolicy`, `NativeLightBinding` and `NativeMaterialIdentity` (with their
 step/state types). Each original keeps its own block namespace and using directives, so the
 types and their binding are unchanged; the file carries a machine-readable section marker per
 original so an independent reconstruction proof can recover each source byte-for-byte.
 
-## Scope of this test slice
+## Historical imported test-slice design (dev.5, not current acceptance)
+
+The following design notes describe the older imported implementation. Its unconditional restore,
+resource-release and no-compounding claims are specifically under repair in the audit above. They
+must not be used as evidence for the candidate. Halogen support now includes the grow-tent pair;
+property copy, landscape UI and later fixes supersede the old exclusions below.
 
 Implemented and compiling against the real game assemblies:
 
@@ -127,7 +225,7 @@ Deliberately **not** in this slice (see `verification.md` for the honest limitat
 
 ```text
 # Pure model console checks (game-free; links the Core sources):
-dotnet run -c Release --project Source/Tests/LightControl.Tests/LightControl.Tests.csproj
+dotnet run -c Release --project Source/Tests/LightControl.Tests/LightControl.Tests.csproj -p:S1NoDeploy=true -p:BuildProjectReferences=false
 
 # Compile-only mod gate (S1NoDeploy is the project default):
 dotnet build Source/Mods/LightControl/src/LightControl.csproj -c Release -p:S1NoDeploy=true -p:BuildProjectReferences=false
@@ -139,6 +237,10 @@ the owner.
 
 ## Documentation
 
+- [Interactive UI mockup](ui-mockup.html) — standalone, offline Smart-Home-style design concept at the
+  1201 x 655 phone reference size. Open the HTML file in a browser to try color selection, brightness
+  and lamp actions with in-memory demo data. This is a browser preview, not an in-game screenshot
+  or native UI acceptance evidence.
 - `docs/CHANGELOG.md` — import, adaptation and test-slice record.
 - `docs/mod.json` — machine-readable status.
 - `docs/verification.md` — build, test and limitation evidence.

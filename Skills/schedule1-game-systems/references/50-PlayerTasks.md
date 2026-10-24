@@ -2,7 +2,9 @@
 
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 80 of 80 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session. Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable.
 
-## Core Classes (verified)
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+
+## Core Classes (previously reported)
 
 | Class | Hierarchy | Purpose |
 |-------|-----------|---------|
@@ -11,7 +13,7 @@
 | `TaskManagerUI` | `Singleton<TaskManagerUI>` | Canvas UI (`inputPromptUI`, `multiGrabIndicator`) |
 | `ProgressSlider` | — (`ScheduleOne.UI`) | Progress bar for staged tasks |
 
-## Task base (verified members)
+## Task base (previously reported members)
 
 - Properties: `TaskName` (protected setter → subclasses override), `CurrentInstruction`, `TaskActive`, `Outcome` (`EOutcome`: `Cancelled`, `Success`, `Fail`).
 - Terminal methods: `Success()`, `Fail()`, `CancelTask()`, `StopTask()`.
@@ -19,7 +21,7 @@
 - Events (delegates on `Task`): `onTaskSuccess`, `onTaskFail`, `onTaskStop`.
 - Drag/click plumbing: `ClickDetectionRange`, `ClickDetectionRadius`, `ClickDetectionEnabled`, `clickablesLayerMask`, `forcedClickables`, `MultiGrabRadius`, `MultiGrabForceMultiplier`, `multiDragTargets`, `isMultiDragging`, `EnableMultiDragging(Transform, float)`, `ForceStartClick`/`ForceEndClick(Clickable)`, `UpdateDraggablePhysics`.
 
-## TaskManager (verified)
+## TaskManager (previously reported)
 
 `IsTaskActive`, `CurrentTask`, `TimeOnLastTaskEnd`, `StartTask(Task)`, `EndTask()`, `PlayTaskCompleteSound()` + `TaskCompleteSound` clip. Event: `OnTaskStarted` (`Action<Task>`).
 
@@ -41,7 +43,7 @@
 
 > `UseMixingStationTask` and the `GrowContainerPourTask → PourOntoTargetTask → PourWaterTask/PourSoilTask` chain were missing from the old list — added.
 
-## Interaction Component Kinds (verified)
+## Interaction Component Kinds (previously reported)
 
 | Component | Extends | Interaction |
 |-----------|---------|-------------|
@@ -60,8 +62,8 @@ Example in `PlayerScripts`: `WaterContainerPourable : Pourable` (refill target f
 
 None — tasks are runtime state; no `ISaveable` member anywhere in `PlayerTasks`.
 
-## Hook Points
+## Candidate Hook Points
 
 1. **Prefix `TaskManager.StartTask` / postfix `TaskManager.EndTask`** — intercept any minigame start/end; alternatively subscribe `TaskManager.OnTaskStarted` (`Action<Task>`) via interop (event field, not patchable).
-2. **Prefix `Task.Success` / `Task.Fail`** — auto-complete, force-fail or reward-modify tasks globally (fires for every task subclass).
+2. **Prefix `Task.Success` / `Task.Fail`** — candidate boundaries for task completion/failure changes. Check overrides and actual call paths; patching a base method does not prove coverage of every subclass, and reward side effects must occur once.
 3. **S1API:** no wrapper exists for tasks — patch native classes directly.

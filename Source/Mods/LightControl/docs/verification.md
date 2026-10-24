@@ -1,6 +1,16 @@
 # First test-slice verification
 
-## Current source: 0.1.0-dev.4 unified LED panel + emitted-light scope (not deployed, not in-game verified)
+## Current candidate: 0.1.0-dev.16 — compile-only audit/UI repair
+
+See [audit-repair-verification.md](audit-repair-verification.md) for the final 233/233 checks, clean
+Release build, independent delta reviews, exact retained artifact/source hashes, all twelve finding
+dispositions and remaining game acceptance. Installed dev.15 UI acceptance is historical. No mod
+binaries were deployed; an unintended Shared receipt write is explicitly documented there.
+
+The older slices below preserve their original test/design claims, including claims disproved by
+the later audit. They do not establish current native safety, material destruction or PhoneApp fit.
+
+## Historical source: 0.1.0-dev.4 unified LED panel + emitted-light scope (not deployed, not in-game verified)
 
 Owner requirement: *"der Schein sollte sich zum farblicht anpassen also zb rote lampe = roter Schein"* —
 the light a lamp casts must match the color chosen for its panel. The dev.4 native-material-identity

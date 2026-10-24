@@ -1,75 +1,131 @@
-> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 5/14 identifier-shaped tokens resolve (0 documented as absent). External-reference symbols are listed at the end of this file. Runtime behaviour is not covered by this sweep.
-
 # Networked World-State Protocol and Recovery
 
-This reference distills design checks from static inspection of the user-provided `BaseBuilder.dll`. Its custom lobby-chat transport is an example to inspect, not a recommendation to copy. Use the current Schedule I/FishNet APIs and verify the callback contracts against live assemblies.
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 5/14 identifier-shaped tokens resolve (0 documented as absent). External-reference symbols are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
-## Message envelope
+## Evidence and use
 
-Keep message schemas explicit and bounded. A request/reply should carry a protocol version, session, stable operation ID, actor/player identity, action/target, expected revision, and an accept/reject result with a reason. A state delta should carry base/target revisions, schema, changed and removed entities, and optional order data where ordering is meaningful.
+This reference retains architecture observations from the user-provided `BaseBuilder.dll` decompile.
+The binary and its runtime behavior were not revalidated during this revision. `LobbySync`,
+`WorldDelta`, `BuildRequest`, `BuildReply`, and `SaveSafety` are that mod's external-reference names,
+not Schedule I/FishNet APIs. Its lobby-chat transport is not a recommendation to copy.
 
-Before routing a decoded request:
+Bind the following contract to the installed transport, authenticated-sender callback, game
+permissions, and save lifecycle. Use existing verified workspace infrastructure where available.
 
-- Confirm the active lobby/session matches the envelope.
-- Compare the transport-provided sender identity with the packet callback and the actor identity being authorized.
-- Reject absent, mismatched, stale, or unauthorized senders before calling mutation code.
-- Limit serialized bytes, chunk count, age, and retry frequency. Expire incomplete chunk groups.
+## Bounded message envelope
 
-Static evidence: `BaseBuilder.AuthenticatedBuildingMessagePatch.Prefix` reads the transport sender, checks lobby routing, and rejects malformed packets; `LobbySync` defines request/reply/fragment prefixes and limits. These details are transport-specific and must not be copied verbatim.
+A request carries protocol/schema version, session identity, stable operation ID, actor, action,
+target, and expected base revision. A result identifies the same operation and gives an authoritative
+accepted/rejected/pending outcome with a reason and resulting revision. A delta carries base/target
+revisions plus changed/removed entities and ordering data when it affects behavior.
 
-## Host transaction and reconciliation
+Before dispatching mutation code:
 
-Treat client input as intent. On the host, validate identity, permissions, resource cost, placement rules, and the expected base revision. Build the candidate in a copy or transaction buffer; validate all resulting invariants; publish the state/revision only after validation. Cache completed request IDs so retries do not duplicate mutations.
+- Match the active session and protocol/schema.
+- Derive the sender from the transport's authenticated callback and compare it with the actor being
+  authorized. A client-supplied player ID is not authentication.
+- Enforce permissions, ownership, valid target/entity IDs, action constraints, and resource limits.
+- Bound bytes, nesting/collections, fragments, pending groups, reconstructed size, age, and retry rate.
+- Reject inconsistent duplicate fragments, malformed fields, non-finite values, and stale generations.
+- Expire incomplete groups without treating an expired request as proof that an earlier commit failed.
 
-For deltas, require the protocol and base revision to match. If a canonical fingerprint is used, canonicalize ordering and include every field that affects behavior. Apply to a copy, check the resulting fingerprint and game-specific rules, and replace live state only on success. A failed delta should request a full authoritative snapshot; it should not partially mutate or heuristically merge.
+Inherited evidence: `AuthenticatedBuildingMessagePatch.Prefix` checked sender/routing and `LobbySync`
+used message prefixes and fragment limits. The exact callbacks and limits are transport-specific.
 
-For local prediction, retain the before-state and pending resource changes per operation. Reconcile from the host response; restore/refund exactly once on rejection or expiry; ignore duplicate or late responses already resolved. Test disconnects and delayed ACKs explicitly.
+## Host commit
 
-Static evidence: `BaseBuilder.WorldDelta.Create`, `Fingerprint`, and `TryApply` use protocol/revision/hash checks and validate a reconstructed copy. `BaseBuilder.BuildRequest` and `BuildReply` carry operation/session identity and response status. `BaseBuilder.LobbySync` tracks local/late edits, accepted replies, owed kits, revisions, and snapshot/delta fallback counters. The underlying implementation has not been validated in a running session.
+Clients submit intent. The host computes the candidate state and resource effects from authoritative
+information, checks the expected revision, and validates all resulting invariants. Deduplicate the
+operation ID before applying effects; retain the result so an identical retry receives the same answer.
+Reject a reused ID with a different request payload.
+
+Stage state changes and a side-effect plan together. Inventory, currency, native object registration,
+and world records may not share an atomic API; define reservation, compensation, or recoverable pending
+state for each partial-failure boundary. Validating a copied world state does not roll back an already
+applied inventory change.
+
+Publish the accepted revision/result only after the required commit effects have succeeded. If a
+commit becomes ambiguous, retain the pending operation for reconciliation and prevent conflicting
+mutations; do not report rejection and grant a refund while the authoritative effect may still exist.
+Persist operation outcome where crash/restart recovery requires deduplication beyond process memory.
+
+Bound the deduplication store using the real retry/session/recovery horizon. Expiring an ID while its
+request can still be retried can permit a second mutation; coordinate expiry with session closure,
+acknowledged progress, or another verified replay policy.
+
+## Snapshot and delta reconciliation
+
+Apply a delta only to its expected base revision and supported schema. Reconstruct a candidate copy,
+validate entity/order invariants, and verify any canonical fingerprint before replacing live state.
+Canonicalization must include every behavior-relevant field and deterministic ordering; a content
+hash detects mismatched content but does not authenticate its sender.
+
+On a gap, corrupt delta, or incompatible base, request a full authoritative snapshot. Do not partially
+apply the delta or guess a merge. Bound snapshot size and transfer work. A joining client's baseline
+and subsequent deltas need ordering or buffering so updates are not lost during snapshot installation.
+
+Inherited evidence: `WorldDelta.Create`, `Fingerprint`, and `TryApply` reconstructed/validated copies;
+`LobbySync` tracked revision and snapshot fallback behavior. None of that establishes this game's
+current transport semantics or makes its file/message format a standard.
+
+## Prediction and unknown outcomes
+
+Track each pending operation's provisional effects and last authoritative baseline. Predicted visuals
+can be discarded independently; predicted inventory/currency requires explicit ownership and accounting.
+
+On an authoritative rejection, undo only that operation's provisional effects once, then rebase
+remaining predictions onto the current authoritative state. Do not restore an old whole-world snapshot
+over later accepted changes. A duplicate response must not apply another mutation or refund.
+
+A timeout or disconnect means the outcome can be unknown. Query/retry with the **same operation ID**
+or reconcile against authoritative state before a final resource refund. Keep late accepted responses
+resolvable and test out-of-order responses. If the session cannot provide proof, retain a recoverable
+pending state and surface that limit instead of guessing success or rejection.
 
 ## Interrupted-save recovery
 
-When mod state must stay aligned with a native save, record an atomic pending intent before native save work. Bind the intent to the normalized exact save path and a snapshot of mod state. Mark native completion only after a success signal that has been verified for the current game. At load, compare the intent with the target save and relevant native file timestamps/content:
+Coupled native and mod files need an explicit recovery transaction even in single player. An atomic
+sidecar replacement alone does not make the two stores atomic.
 
-- If the native save definitely completed and the mod file is exactly the prior copy, safely finish from the stored snapshot.
-- If the final mod data already matches, archive/clear the intent without writing again.
-- If the save path, completion point, or resulting data is ambiguous, fail closed; preserve the intent and ask for a matching full backup rather than overwriting.
-- Archive resolved/abandoned records for diagnosis; never delete the only recovery snapshot before the final state is verified.
+1. Bind an intent to the exact normalized save identity, schema, transaction/operation ID, expected
+   prior generation/hash, and proposed mod-state snapshot.
+2. Write and durably publish the intent using the repository's verified storage policy before native
+   save work begins. Preserve a validated prior copy.
+3. Mark native completion only at a success signal verified for the target build. Inspect what that
+   signal proves; a callback name or elapsed time is not sufficient evidence.
+4. At load, compare identity and native/mod content or generation evidence with the intent. Timestamps
+   can support diagnosis but should not alone establish which logical save committed.
+5. If native completion is proven and the mod file is exactly the expected prior copy, complete the
+   recorded mod snapshot through the verified write path.
+6. If the final mod data already matches the committed transaction, resolve the journal without
+   applying resource effects or writing the transaction a second time.
+7. If identity, completion, prior state, or resulting content is ambiguous, freeze dependent writes,
+   preserve all recoverable copies, and request a matching backup or further evidence.
+8. Archive/clear the intent only after the final durable state is verified. Runtime teardown must not
+   delete the sole recovery snapshot.
 
-Static evidence: `BaseBuilder.SaveSafety.Begin`, `MarkNativeComplete`, `Resolve`, and `Finish` maintain a pending intent and snapshot around native save activity. Adapt the principle to workspace `SafeStorage` and verified lifecycle hooks; do not reuse the third-party file format or assume its completion marker maps to the current game.
+Inherited evidence: `SaveSafety.Begin`, `MarkNativeComplete`, `Resolve`, and `Finish` bracketed native
+save work with pending intent and a snapshot. Adapt the principle to the canonical persistence skill;
+do not copy that third-party format or assume its marker matches the installed lifecycle.
 
-## Diagnostics and test matrix
+## Diagnostics and meaningful tests
 
-Log one clear reason for every rejection class and count stale revisions, duplicate requests, missing fragments, snapshot fallbacks, and pending edits. Include session/revision/operation IDs in diagnostics, but avoid logging credentials or sensitive player data.
+Record operation/session/revision IDs, first rejection reason, duplicate count, stale revisions,
+fragment expiry, snapshot fallback, pending outcomes, and recovery decision. Rate-limit repeated
+messages and avoid unnecessary sensitive player data.
 
-Test at minimum: host/client authority, late join, identical retry, duplicate request, stale base, missing delta, corrupted hash, invalid entity/order list, sender mismatch, oversized/incomplete fragments, rejected purchase, late response, disconnect during save, same-slot reload, slot switch, and recovery with an unrelated save path.
+| Scenario | Required property |
+|---|---|
+| Concurrent clients and stale base | One ordered authoritative result with valid invariants |
+| Identical retry / changed payload with same ID | No duplicate mutation / explicit conflict |
+| Lost or delayed ACK | No guessed final refund; same-ID reconciliation |
+| Rejection after another accepted edit | Only rejected provisional effects undone |
+| Sender/session mismatch | Refused before mutation |
+| Oversized/incomplete/conflicting fragments | Bounded memory/time and clean rejection/expiry |
+| Side effect fails during commit | Exact compensation or recoverable pending state; no false acceptance |
+| Late join during edits | Coherent baseline followed by ordered updates |
+| Crash between native and mod save | Content-backed recovery or write freeze |
+| Same-slot reload and unrelated save path | Correct identity; no cross-save recovery |
 
-## Evidence scope
-
-The observations above come from one user-provided decompiled binary and are not runtime verification. ILSpy output can contain missing-reference or unresolved-IL annotations. Confirm every field, method, transport behavior, save hook, and invariant against the current live game and a controlled multiplayer test before relying on it.
-
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-The identifiers below come from mod assemblies that are **not part of this repository**. They were read from external decompiles, so they cannot be resolved against the game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as external-reference symbols, not as game-API claims, and re-verify them against those mods before relying on them.
-
-- `AuthenticatedBuildingMessagePatch`
-- `MarkNativeComplete`
-- `BuildRequest`
-- `Fingerprint`
-- `BuildReply`
-- `LobbySync`
-- `WorldDelta`
-- `BaseBuilder`
-- `SaveSafety`
+Static decompiles and compile checks cannot establish these outcomes. Report controlled multiplayer
+and interrupted-save test results separately from source inspection.

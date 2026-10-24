@@ -1,207 +1,71 @@
-# S1API — Lifecycle Hooks & Save-Load Timing
+# S1API lifecycle and readiness
 
 > verified: instrumented run 2026-09-29 (order + OnSaveInfoLoaded = 0 firings); event set re-checked against checked-in S1API source on 2026-10-05.
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 42 of 42 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
-The most important module for **not chasing ghost bugs**. Static game lists (`Property.OwnedProperties`, `NPCManager.Registered`, `Business.OwnedBusinesses`) are populated at different times than scene callbacks fire. Use `GameLifecycle` hooks; never poll.
+Source scope: official online documentation reviewed on 2026-10-21; installed
+S1API 3.2.1 and native game behavior were not tested by this package. Inherited <!-- skills-health: version-evidence (S1API target requested by the owner; installed build state lives in AGENTS.md) -->
+session observations are identified separately below.
 
----
+## Hook selection
 
-## 1. The Hook Set
+The online [GameLifecycle reference](https://ifbars.github.io/S1API/api/S1API.Lifecycle.GameLifecycle.html)
+describes these events:
 
-```csharp
-public static class GameLifecycle
-{
-    public static event Action OnPreLoad;            // very early
-    public static event Action OnSaveInfoLoaded;     // save info parsed, lists populated
-    public static event Action OnLoadComplete;       // after scene build
-    public static event Action OnPreSceneChange;     // before scene change
-    public static event Action OnSaveStart;
-    public static event Action OnSaveComplete;
-}
-```
-
-| Hook | When | Use for |
+| Event | Documented purpose | Design implication |
 |---|---|---|
-| `OnPreLoad` | Before save data loads; also fires for same-slot Menu→Game scene reloads (modding Rule 18) | Reset caches, clear state |
-| `OnLoadComplete` | AFTER scene build | **Cache refresh, UI rebuild, attach to runtime, instantiate managers** |
-| `OnPreSceneChange` | Before scene change | Cache cleanup, unsubscribe |
-| `OnSaveStart` | When player hits save | Optional pre-save state mutations |
-| `OnSaveComplete` | After save | Diagnostic, post-save UI updates |
-| `OnSaveInfoLoaded` | **Not observed to fire** in the instrumented session (2026-09-29; see `schedule1-lifecycle-verify` section 7) | Do not rely on it for refresh without re-verification |
+| `OnPreLoad` | Before saved game data loads | Reset load-scoped state; prepare required definitions |
+| `OnLoadComplete` | After world data loads | Initialize systems needing the loaded world |
+| `OnPreSceneChange` | Before scene transition | Release transition-owned resources |
+| `OnSaveInfoLoaded` | Save metadata/menu refresh | Refresh save selection metadata, not world readiness |
+| `OnSaveStart` | Host/server starts saving | Capture the intended save boundary |
+| `OnSaveComplete` | Host/server completes saving | Observe completion under the verified save contract |
 
-> **Naming (verified 2026-10-05 against checked-in source + deployed DLL):** `GameLifecycle` exposes exactly six events: `OnPreLoad`, `OnLoadComplete`, `OnPreSceneChange`, `OnSaveInfoLoaded`, `OnSaveStart`, and `OnSaveComplete`. `OnSaveLoaded` is absent from the checked source. Refresh work goes into `OnLoadComplete`. The observed order was Scene Main loaded -> `OnPreLoad` -> `OnLoadComplete` (instrumented run 2026-09-29); re-check current runtime behavior.
+Do not invent `OnSaveLoaded` or `OnPreSave` aliases. Match event availability and
+actual forwarding to the target DLL before implementation. Save callbacks are not
+a universal host-and-client synchronization channel.
 
----
+## Own subscriptions explicitly
 
-## 2. Subscribe / Unsubscribe Pattern
+Assign every handler an owning lifetime: mod, loaded world, app instance, or native
+object. Register once for that lifetime and remove the exact delegate on teardown.
+Repeated subtract-then-add is idempotent only for the same delegate target; a new
+instance cannot remove an old instance's method subscription that way.
 
-```csharp
-public override void OnInitializeMelon()
-{
-    GameLifecycle.OnPreLoad      += OnPreLoad;        // reset caches
-    GameLifecycle.OnLoadComplete += OnLoadComplete;
-}
+On a new world generation, detach handlers from old NPCs/objects before replacing
+collections. Avoid untracked anonymous handlers when later unsubscription is
+required. Guard late callbacks with the owning generation and object validity.
+Keep lifecycle registration reachable during initialization instead of placing it
+behind readiness that the callback itself is supposed to establish.
 
-public override void OnApplicationQuit()
-{
-    GameLifecycle.OnPreLoad      -= OnPreLoad;   // defensive — avoids double-fire across multi-loads
-    GameLifecycle.OnLoadComplete -= OnLoadComplete;
-}
-```
+## Readiness and identity
 
-> **Gotcha:** If your mod doesn't unsubscribe, the handler fires **multiple times** on MelonLoader reload (e.g. dev mode). Always unsubscribe.
+A callback is a starting signal, not proof of every optional subsystem's readiness.
+Check the specific manager, collection, identity, and authority the feature needs.
+If dependencies finish later, use a bounded targeted retry with one deadline and
+cancellation on world change. Avoid a permanent whole-scene poll.
 
----
+Cache persistent IDs and reacquire scene-owned wrappers after restore. Do not reuse
+an old QuestEntry, NPC wrapper, or Unity object simply because the same slot opened.
+Filter scene cleanup to the owning world; auxiliary scenes may unload independently.
 
-## 3. The Big Three Save-Load Patterns
+## Save semantics
 
-### Pattern A: Property cache (typical for mods that show owned property lists)
+Distinguish a save request, a save-start snapshot, and a completed native checkpoint.
+For sidecars, confirm target identity and compatibility before publishing pending
+state. A completion notification alone does not make multiple files transactional.
+Use [persistence](../../schedule1-persistence/SKILL.md) for failed writes and recovery.
 
-```csharp
-private HashSet<string> _ownedPropertyCodes = new();
+## Inherited evidence and required tests
 
-private void OnLoadComplete()
-{
-    // Lists are populated by now (verified order: Scene 'Main' → OnPreLoad → OnLoadComplete).
-    _ownedPropertyCodes = new HashSet<string>(
-        PropertyManager.GetOwnedProperties()
-            .Select(p => p.PropertyCode)
-    );
-    RefreshUI();
-}
-```
+The original notes describe a 2026-09-29 trace with Main scene notification before
+`OnPreLoad`, then `OnLoadComplete`, and zero observed `OnSaveInfoLoaded` callbacks.
+The original logs and assembly identities are not bundled. Do not promote that one
+trace into a universal event order or a claim that the event never fires.
 
-### Pattern B: NPC discovery (typical for mods that track NPCs)
-
-```csharp
-private List<NPC> _npcs = new();
-
-private void OnLoadComplete()
-{
-    _npcs = NPCManager.GetAllNPCs();   // returns wrappers, not vanilla — populated by now
-    foreach (var npc in _npcs)
-    {
-        // Subscribe to NPC events HERE, not in OnPreLoad
-        npc.HealthChanged += OnNpcHealthChanged;
-    }
-}
-```
-
-### Pattern C: Quest state (typical for quest mods)
-
-```csharp
-private void OnLoadComplete()
-{
-    // ALWAYS fresh lookup — never cache Quest/QuestEntry references
-    var quest = QuestManager.GetQuestByName("Cold Concrete");
-    if (quest != null)
-    {
-        foreach (var entry in quest.Entries)
-        {
-            // iterate by Title/String match, not by index
-            if (entry.Title == "Sleep 1 night" && entry.State == EQuestState.Completed)
-            {
-                // ...
-            }
-        }
-    }
-}
-```
-
----
-
-## 4. Why `OnGameplaySceneLoaded` Is the Wrong Hook
-
-```csharp
-// ❌ DO NOT — lists are typically empty here
-public override void OnSceneWasLoaded(int buildIndex, string sceneName)
-{
-    if (sceneName != "Main") return;
-    var owned = PropertyManager.GetOwnedProperties();   // EMPTY!
-    // ...
-}
-```
-
-`OnGameplaySceneLoaded` fires **before** the save parser runs. Property/NPC/Business lists are empty for ~3 seconds.
-
-```csharp
-// ✅ DO — use S1API lifecycle hooks
-public override void OnInitializeMelon()
-{
-    GameLifecycle.OnLoadComplete += () =>
-    {
-        // Property.OwnedProperties, NPCManager.Registered, Business.OwnedBusinesses all populated
-        var owned = PropertyManager.GetOwnedProperties();
-        // ...
-    };
-}
-```
-
----
-
-## 5. Multiplayer Caveats
-
-In multiplayer:
-- Lifecycle events fire on **host + clients** but the world state may differ.
-- Use `NetworkGuard` (from `S1Mods.Shared`) or `InstanceFinder.IsServer` (Il2CppFishNet) to gate host-only logic.
-- Subscribe to `GameLifecycle.OnPreSceneChange` to clean up state before scene transitions.
-
----
-
-## 6. Lifecycle Order Cheat Sheet
-
-```
-Game Launch
-  ↓
-Scene 'Main' loads (OnSceneWasLoaded)
-  ↓
-OnPreLoad  (reset caches; ALSO fires for same-slot Menu→Game reloads)
-  ↓
-OnLoadComplete (after scene build) ← BEST for Property cache + UI init  [verified 2026-09-29]
-  ↓
-Scene playing
-  ↓
-OnPreSceneChange (before transition)
-  ↓
-OnSaveStart (player hits save)
-  ↓
-OnSaveComplete (after save)
-
-Observed: `OnSaveInfoLoaded` fired 0 times in the 2026-09-29 instrumented run.
-An earlier pipeline included an `OnSaveInfoLoaded` stage between parsing and scene construction; the instrumented run did not observe that event.
-```
-
-For deep flow diagrams, see the [`S1API.Lifecycle.GameLifecycle` source](../../../ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs).
-
----
-
-## 7. PhoneApp Lifecycle — `OnCreated` Fires ONCE per Scene (empirical, 2026-08-20)
-
-Verified against `S1API.Internal.Patches.HomeScreen_Start_Patch` (local decompile):
-
-- `HomeScreen.Start()` → S1API reflects over all `PhoneApp` subclasses → `Activator.CreateInstance` → `(IRegisterable).CreateInternal()` → **`OnCreated()`**.
-- `OnCreatedUI(container)` is called once per app creation (`SpawnUI` → `CreateAppContainer` → `OnCreatedUI`).
-- `OnPhoneClosed()` fires on **every** phone close (subscribed to `Phone.onPhoneClosed`).
-
-**Consequences (bug-hit 2026-08-20, all 5 PhoneApp mods):**
-1. `OnCreated()` is NOT the right place to expect re-invocation on every phone open.
-2. **Never unsubscribe your `MelonEvents.OnUpdate` handler (or static event handlers) inside `OnPhoneClosed()`** — the subscription dies forever until scene reload → app stays blank.
-3. Correct pattern: defensive `Unsubscribe`-before-`Subscribe` in `OnCreated()` only; hide/show via `_mainBG.SetActive(open)` in `Update()`; use `OnDestroyed()` (not `OnPhoneClosed`) for real teardown.
-4. S1API re-creates the app instance on **scene reload** (new `HomeScreen.Start`), so `OnCreated` may fire again after Main-Menu→Game transitions — the idempotent `-=`-then-`+=` in `OnCreated` handles that.
-
-```csharp
-protected override void OnCreated()
-{
-    base.OnCreated();
-    MelonEvents.OnUpdate.Unsubscribe(Update);   // idempotent (scene reload)
-    MelonEvents.OnUpdate.Subscribe(Update);
-}
-
-protected override void OnPhoneClosed()
-{
-    base.OnPhoneClosed();
-    if (_mainBG != null) _mainBG.SetActive(false);
-    // NEVER unsubscribe here — OnCreated fires only once per scene.
-}
-```
+Verify first load, same-world reload, different-world load, menu metadata refresh,
+normal save, failed save, and teardown as relevant. On multiplayer features include
+host, client, and late join. Instrument handler entry and the required state, not
+only a success message at the end of the handler.
+Use [lifecycle verification](../../schedule1-lifecycle-verify/SKILL.md) when order
+or native completion is still uncertain.

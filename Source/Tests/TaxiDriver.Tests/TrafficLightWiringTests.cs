@@ -10,11 +10,12 @@ public class TrafficLightWiringTests
     {
         string mod = DriverSafetySourceContractTests.ReadSource("Mod.cs");
         string[] modLines = mod.Split('\n');
-        Assert.DoesNotContain(modLines, line =>
-            line.TrimStart().StartsWith("TrafficLightPatch.Apply();"));
+        Assert.Contains(modLines, line =>
+            line.Trim() == "TrafficLightPatch.Apply();");
         Assert.Contains("TrafficLightPatch.Remove();", mod);
         string source = DriverSafetySourceContractTests.ReadSource("TrafficLightPatch.cs");
-        Assert.Contains("nameof(VehicleAgent.GetWheelSweepCollision)", source);
+        Assert.Contains("nameof(VehicleAgent.UpdateSweep)", source);
+        Assert.Contains("nameof(VehicleAgent.UpdateSpeedReduction)", source);
         Assert.Contains("prefix: new HarmonyMethod", source);
         Assert.Contains("postfix: new HarmonyMethod", source);
         Assert.Contains("finalizer: new HarmonyMethod", source);

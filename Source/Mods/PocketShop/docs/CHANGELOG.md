@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.9 (2026-10-24)
+- **Fixed the crash that fired in-game on 2026-10-24.** `Latest.log` 06:48:34: `ShopCatalog subscriber failed: Unable to cast object of type 'UnityEngine.Transform' to type 'UnityEngine.RectTransform'`. The item grid (`ItemGridPane.BuildRows`) and the app content root (`PocketShopApp.BuildUI`) still resolved their `RectTransform` with `(RectTransform)x.transform`, which throws on IL2CPP because `transform` is an interop proxy. Both now use `GetComponent<RectTransform>()`.
+- Root cause of the escape: the 0.3.7 cleanup replaced that cast only in `StoreCatalogPane` and pinned it with a file-scoped guard test, so the other two call sites survived. The guard now scans the whole `src` tree (`NoSourceFileCastsATransformProxyToRectTransform`, observed RED with a probe file before the fix) and the duplicated source-root lookup was folded into one helper.
+- 64 tests pass (63 + the new guard). Layout, palette, payment, gate and directory behavior are unchanged.
+
+## 0.3.8 (2026-10-20)
+- **Owner-confirmed 2026-10-20.** Dominik accepted the directory after the supplier hide. `Latest.log` shows `[PocketShop] hid 2 S1API supplier shop(s) from the phone directory`. He called PocketShop finished. Individual purchase actions were not itemized.
+
 ## 0.3.7 (2026-10-18)
 - Size four equal columns for three visible rows independently of shop/search count; extra rows scroll. Subtle non-interactive cells complete the last row into a rectangle.
 - Reserve two shop-name lines with font-metric headroom and a separate item-count line. Names/IDs, palette, header and purchases are unchanged. Replace the unsafe RectTransform cast with component lookup.

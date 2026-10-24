@@ -1,7 +1,8 @@
 # Map & Locations (Schedule I)
 
-> **Redirect stub** (consolidated 2026-10-05): region mechanics/unlocks live in **[`13-Regions.md`](13-Regions.md)**; the live-verified map-POI/S1API `MapPOIBuilder` analysis lives in the map section of **[`07-Vehicle.md`](07-Vehicle.md)** (verified 2026-09-25). This file keeps only the class register. Class-list only — not yet re-verified.
-> verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 20 of 20 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+
+> **Redirect stub** (consolidated 2026-10-05): region mechanics/unlocks live in **[`13-Regions.md`](13-Regions.md)**; the previously reported map-POI/S1API `MapPOIBuilder` analysis lives in the map section of **[`07-Vehicle.md`](07-Vehicle.md)** (previously reported 2026-09-25). This file keeps only the class register. Class-list only — not yet re-verified.
 
 ## Core Classes
 

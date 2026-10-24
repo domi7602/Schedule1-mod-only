@@ -1,5 +1,8 @@
 # Station Framework (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 105 of 105 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 Namespace: `Il2CppScheduleOne.StationFramework` — 17 types in the decompile dump.
 
@@ -53,11 +56,11 @@ No UnityEvents on `StationItem` / `StationRecipe` / `BoilingFlask`.
 - `MushroomSpawnStation` saves via its GridItem/property data path (`GetBaseData`/`GetSaveData`) — see 02-Save-Persistence.
 - `StationRecipe.IsDiscovered`/`Unlocked`: no ISaveable on `StationRecipe` in this dump; persistence path unverified (S1API wraps both flags via `SetAvailability`).
 
-## Hook Points
+## Candidate Hook Points
 1. **Prefix `StationRecipe.CalculateQuality(List<ItemInstance>)`** — inject custom quality formulas (S1API mirrors this via `QualityCalculationMethod`).
-2. **Prefix `StationItem.Initialize(StorableItemDefinition)`** — inject custom modules into stations after item init.
+2. **Postfix `StationItem.Initialize(StorableItemDefinition)`** — candidate for attaching owned modules after successful initialization; resolve the exact overload, success state and object lifetime first. Use a prefix only for work that must happen before the original.
 3. **Prefix `BoilingFlask.SetTemperature(float)`** — override the flask heat curve (pairs with 58-Temperature).
-- **S1API wrapper (verified against checked-in source)**: `S1API.Stations.ChemistryStationRecipes.CreateAndRegister(builder => ...)` / `Register(recipe)` / `GetAll()` — wraps a native `StationRecipe`; `ChemistryStationRecipe.SetAvailability(isDiscovered, isUnlocked)`.
+- **S1API wrapper (previously reported against checked-in source)**: `S1API.Stations.ChemistryStationRecipes.CreateAndRegister(builder => ...)` / `Register(recipe)` / `GetAll()` — wraps a native `StationRecipe`; `ChemistryStationRecipe.SetAvailability(isDiscovered, isUnlocked)`.
 
 ## Not Implemented / Unverified
 - No station "progress" or "process time" manager class exists in StationFramework — cooking time is owned by `BoilingFlask`/`CookableModule` consumers (25-Mixing-Production).

@@ -156,6 +156,35 @@ public sealed class LightStateStore
         }
     }
 
+    public void RebindTemporarilyUnloaded(LampIdentity identity, string newRuntimeInstanceId, string? propertyId, string? groupId,
+        Action? preparePublication = null)
+    {
+        LightLimits.Identifier(newRuntimeInstanceId, nameof(newRuntimeInstanceId));
+        lock (_gate)
+        {
+            EnsureMutable();
+            var existing = RequiredRegistration(identity);
+            if (existing.Presence != LampPresence.TemporarilyUnloaded)
+                throw new InvalidOperationException("Only a known temporarily unloaded fixture can be rebound.");
+            if (_runtimeToLogical.TryGetValue(newRuntimeInstanceId, out var other) && other != identity.Key)
+                throw new InvalidOperationException("New runtime identity already belongs to another fixture.");
+            // Validate the complete replacement before publishing any part of the transition.
+            var replacement = new LampRegistration(identity, newRuntimeInstanceId, propertyId, groupId);
+            // Native cleanup/preallocation runs before the core becomes available. If it throws,
+            // the old unloaded registration remains intact and a later rebind can retry.
+            try
+            {
+                _insideAuthorization = true;
+                preparePublication?.Invoke();
+            }
+            finally { _insideAuthorization = false; }
+            _runtimeToLogical.Remove(existing.RuntimeInstanceId);
+            _runtimeToLogical[newRuntimeInstanceId] = identity.Key;
+            _registrations[identity.Key] = replacement;
+            _catalogRevision++;
+        }
+    }
+
     public void Move(LampIdentity identity, string? propertyId, string? groupId = null)
     {
         lock (_gate)
@@ -246,7 +275,8 @@ public sealed class LightStateStore
     }
 
     public CommandResult ExecuteHost(ClientCommand request, string verifiedSenderId,
-        Func<CommandAuthorizationContext, bool> authorize, double hostTimeSeconds)
+        Func<CommandAuthorizationContext, bool> authorize, double hostTimeSeconds,
+        IReadOnlyList<string>? expectedTargetKeys = null, long? expectedCatalogRevision = null)
     {
         if (request is null) throw new ArgumentNullException(nameof(request));
         if (authorize is null) throw new ArgumentNullException(nameof(authorize));
@@ -260,8 +290,17 @@ public sealed class LightStateStore
             if (request.SessionId != _sessionId) return new(CommandStatus.WrongSession, _revision);
             if (_seenCommands.ContainsKey((verifiedSenderId, request.CommandId))) return new(CommandStatus.Duplicate, _revision);
             if (request.ExpectedRevision != _revision) return new(CommandStatus.StaleRevision, _revision);
+            if (expectedCatalogRevision.HasValue && expectedCatalogRevision.Value != _catalogRevision)
+                return new(CommandStatus.StaleRevision, _revision);
             CheckAuthorityTime(hostTimeSeconds);
             var targets = SelectTargets(request.Command.Selection);
+            if (expectedTargetKeys is not null)
+            {
+                var expected = new HashSet<string>(expectedTargetKeys, StringComparer.Ordinal);
+                if (expected.Count != expectedTargetKeys.Count ||
+                    !expected.SetEquals(targets.Select(target => target.Identity.Key)))
+                    return new(CommandStatus.StaleRevision, _revision);
+            }
             if (NeedsTargets(request.Command) && targets.Length == 0) return new(CommandStatus.UnknownTarget, _revision);
             var context = new CommandAuthorizationContext(verifiedSenderId, request.Command, targets);
             bool permitted;

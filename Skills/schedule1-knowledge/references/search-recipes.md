@@ -1,157 +1,68 @@
-# Search Recipes — Concrete Patterns
+# Targeted Search Recipes
 
 > verified: recipes tested against workspace 2026-10-05 (ilspycmd needs scoped `DOTNET_ROOT="$env:USERPROFILE\.dotnet"` — Pitfall 6 in `../schedule1-lifecycle-verify/SKILL.md`).
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 24/26 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
-Concrete patterns to use the workspace's grep/glob/ilspycmd tools efficiently. Generic advice ("search the codebase") is not actionable; these are tested recipes.
+> Evidence scope: these are research procedures, not commands already executed against
+> the user's repository. Resolve the actual root, tool version, and target assembly first.
 
----
+## 1. Find a class or member
 
-## Recipe 1: Find a Vanilla Class
+Use `rg --files` under the relevant namespace or source tree to locate a candidate file.
+Search the full declaring type, then inspect the member declaration and neighboring body.
+Record static/instance status, overloads, parameter direction/types, return type, and access.
+If only a generated IL2CPP proxy is available, limit behavior conclusions accordingly.
 
-**Goal:** Locate `<Full.Type.Name>` (e.g. `Il2CppScheduleOne.Growing.GrowContainer`) and inspect members.
+## 2. Inspect a deployed assembly
 
-```pwsh
-# Step 1: Search in-repo decompiles
-Get-ChildItem 'GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne' -Recurse -Filter 'GrowContainer*.cs' | Select-Object FullName
+Use the installed ILSpy CLI's verified type-selection option for a full type name.
+For a project decompile, the official CLI combines `-p` with `-o`; nested namespace output
+uses the separate `--nested-directories` option. Confirm local help before relying on them.
+Capture warnings and dependency-resolution failures as part of the result.
+Official reference: [ILSpyCmd](https://github.com/icsharpcode/ILSpy/blob/master/ICSharpCode.ILSpyCmd/README.md).
 
-# Step 2: Or verify live against runtime proxies:
-& (Get-Command ilspycmd -ErrorAction Stop).Source -t 'Il2CppScheduleOne.Growing.GrowContainer' `
-    "$env:SCHEDULE1_PATH\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll"
-```
+## 3. Compare source and deployment
 
----
+Record the source commit and deployed DLL hash/assembly identity. Compare the member in
+both; a source checkout with a matching marketing version can still differ from the binary.
+Locate the actual framework assembly instead of assuming a particular filename or directory.
+Use the [S1API catalog](../../schedule1-s1api/SKILL.md) for target-version context.
 
-## Recipe 2: Find a Specific Method
+## 4. Find an existing implementation
 
-```pwsh
-# Search within local decompile folder
-Select-String -Pattern 'SetMoistureAmount' -Path 'GameReferences\decompiled\Assembly-CSharp\Il2CppScheduleOne\Growing\*'
+Search `Source/Mods/` for the relevant concept, then read its caller and failure/teardown paths.
+Check whether the helper is source-linked, shared at runtime, or private to that mod.
+Inspect its contract and tests before reusing it in another world, role, or lifecycle.
+If the example moved to `Source/Archive/`, treat it as historical evidence.
 
-# Cross-reference: which systems use this method?
-Select-String -Pattern 'SetMoistureAmount' -Path 'Skills\schedule1-game-systems\references\*'
-```
+## 5. Verify a lifecycle claim
 
----
+Inspect the actual event declarations, subscription sites, and framework invocation path.
+When native game code controls invocation, managed proxy searches may not reveal its order.
+Plan a bounded trace with scene/world/role identity and relevant readiness checks.
+Use [lifecycle verification](../../schedule1-lifecycle-verify/SKILL.md); never turn an event
+name's existence or a zero-hit text search into a universal timing guarantee.
 
-## Recipe 3: Explore a Namespace
+## 6. Interpret a search result
 
-```pwsh
-# List all types under Il2CppScheduleOne.Growing
-Get-ChildItem 'GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/Growing/' | Select-Object Name
-```
-
----
-
-## Recipe 4: Understand a System
-
-```pwsh
-# 1. Open the System index
-# Skills/schedule1-game-systems/references/_index.md
-
-# 2. Read the specific System doc
-# Skills/schedule1-game-systems/references/08-Plant-Growing.md
-```
-
----
-
-## Recipe 5: Find a Workspace Mod That Already Solved It
-
-```pwsh
-# Search active mod implementations in the workspace
-Select-String -Pattern 'CanItemFitInInventory' -Path 'Source\Mods\*\src\*.cs'
-```
-
----
-
-## Recipe 6: Verify S1API Source & Methods
-
-```pwsh
-# Step 1: Inspect S1API C# source directly in the repo
-Get-ChildItem 'ThirdParty/S1API/S1API' -Recurse -Filter '*Money*.cs' | Select-Object FullName
-
-# Step 2: Verify the deployed version's signature
-& (Get-Command ilspycmd -ErrorAction Stop).Source -t 'S1API.Money.Money' `
-    "$env:SCHEDULE1_PATH\Mods\S1API.Il2Cpp.MelonLoader.dll"
-```
-
----
-
-## Recipe 7: Check a Lifecycle Hook
-
-```pwsh
-# Find lifecycle event definitions in S1API
-Select-String -Pattern 'OnPreLoad|OnLoadComplete|OnSaveInfoLoaded|OnSaveStart|OnSaveComplete|OnPreSceneChange' `
-    -Path 'ThirdParty\S1API\S1API\Lifecycle\*.cs'
-# Known 2026-10-05: OnSaveLoaded does NOT exist; OnSaveInfoLoaded fires 0x in the instrumented session (see schedule1-s1api/references/lifecycle.md)
-```
-
----
-
-## Recipe 8: Quick Log Diagnosis (PowerShell)
-
-**Canonical recipes** (one-liners, streaming, spike patterns): `schedule1-troubleshooting/references/logscan-and-logs.md`. Fast starter:
-
-```pwsh
-Get-Content "$env:SCHEDULE1_PATH\MelonLoader\Latest.log" -Tail 200 |
-    Select-String -Pattern '\[ERROR\]|\[WARNING\]|Exception|WasCollected'
-```
-
----
-
-## Anti-Patterns (Don't Do This)
-
-| Anti-pattern | Why | Do instead |
-|---|---|---|
-| Grepping 41 MB blindly | Slow, noisy | Check `Skills/schedule1-game-systems/references/_index.md` first |
-| Missing `WasCollected` check | IL2CPP proxy stays non-null after C++ destruction | Check `obj != null && obj.Pointer != IntPtr.Zero && !obj.WasCollected` |
-| Using `slot_-1.json` | Corrupts save data before load completes | Check `info.SaveSlotNumber >= 0` |
-| Calling `Resources.FindObjectsOfTypeAll` in loops | Freezes game engine at 1 FPS | Scope to active scene root game objects |
-
----
-
-## When to Read vs. Grep
-
-| Situation | Use |
+| Result | Next step |
 |---|---|
-| I have a concrete class name | `GameReferences/decompiled/Assembly-CSharp/...` or `ilspycmd -t` |
-| I need the canonical flow of a feature | Read the System doc in `Skills/schedule1-game-systems/references/` (01-64) |
-| I want to see a working mod example | Inspect `Source/Mods/<ModName>/src/` |
-| I want to verify an API signature against actual code | `ilspycmd -t` on live proxy DLL |
+| Exact type/member/signature found | Verify semantics and deployment identity |
+| Same name in a different type | Treat as a different candidate |
+| No result in generated output | Check scope, completeness, dependencies, and native boundary |
+| Capped live search returns zero | Inspect exact known paths or expand bounded coverage |
+| Example-only identifier found | Do not count it as a framework/game API |
 
----
+## 7. Build a feature research note
 
-## Sample Session (End-to-End)
+Record goal, exact unknowns, available sources, confirmed surfaces, unverified assumptions,
+existing helper contracts, and the smallest implementation/verification sequence.
+Research itself does not require deployment. When implementation is authorized, follow the
+[current build contract](../../schedule1-modding/references/build-and-deploy.md) and separate
+build-only checks from installation and gameplay acceptance.
 
-**Task:** Add a HUD that displays current cash balance + property count in real time.
+## 8. Log diagnosis
 
-1. Inspect S1API Money: `ThirdParty/S1API/S1API/Money/Money.cs`.
-2. Inspect Property system: `Skills/schedule1-game-systems/references/54-Property.md`.
-3. Check established mod pattern: `Skills/schedule1-modding/references/mod-patterns.md` (Pattern 2: HUD Overlay).
-4. Scaffold: `pwsh Tools/new-mod.ps1 -Name "CashHUD" -Author "Dominik"`.
-5. Implement following the HUD pattern; register `ModConfig<CashHudConfig>` for toggle.
-6. `dotnet build Source\Mods\CashHUD\src\CashHUD.csproj -c Release` → auto-deploy.
-7. Launch game, validate.
-
----
-
----
-
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
-
-- `CashHudConfig`
-- `CashHUD`
+Preserve the original session log and retrieve relevant context around a match.
+Use [log triage](../../schedule1-troubleshooting/references/logscan-and-logs.md) rather than
+assuming the first matching error is necessarily the root cause.

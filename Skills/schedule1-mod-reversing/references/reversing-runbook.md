@@ -1,156 +1,95 @@
+# Reversing Runbook — Reproducible Static Analysis
+
 > verified 2026-10-20 — procedure executed end-to-end on three third-party DLLs (see `case-notes.md` for the per-mod evidence). Decompile, hook inventory and compatibility checks are confirmed; no in-game behaviour was tested.
 
-# Reversing Runbook — commands and interpretation
+> Evidence scope: workflow revised from the uploaded notes. No foreign DLL was executed,
+> installed, compiled, or retested for this package. Paths and prior artifact names are
+> examples to resolve in the actual environment.
 
-Workspace root assumed. Shell is bash (git-bash on Windows) unless stated. Native tools
-(`ilspycmd`, `git`, `node`) cannot read `/tmp` or MSYS `/c/...` paths — pass
-`C:/Users/...`-style forward-slash paths to them.
+## 1. Preserve and inventory
 
-## 1. Inventory
+Record the supplied archive's name, size, SHA-256, and origin. List its entries first.
+Check path traversal, absolute paths, links, duplicate destination names, and unreasonable
+expanded size before extracting into an isolated directory.
+Preserve companion DLLs, model/texture folders, and embedded-resource information.
+A one-file archive can still depend on frameworks, configuration, or external assets.
+A large DLL can contain resources; byte size does not establish code complexity or safety.
 
-```bash
-python -c "
-import zipfile
-z=zipfile.ZipFile(r'C:/Users/pc/Downloads/SomeMod.zip')
-for i in z.infolist(): print(f'{i.file_size:>9} {i.filename}')
-"
-```
+## 2. Establish tooling and paths
 
-Read three things off the listing:
+Locate `ilspycmd` and inspect its local version/help. Resolve paths for the shell and the
+actual executable; convert MSYS-style paths where required by the observed environment.
+Use a simple staged filename only if a concrete path/tool issue requires it, while keeping
+original identity and hash. Unicode and spaces are not universally unsupported.
+Do not install or upgrade global tools as an unexamined side effect of reading a DLL.
 
-- **One entry vs. many** — a bare `SomeMod.dll` is a self-contained mod; a `Mods/` prefix or a
-  model/asset folder means the mod expects files next to it (document that, it is an install
-  requirement).
-- **Size bands** — < 200 KB: readable C#. > 1 MB: check for embedded resources first (icons,
-  sounds, design blobs); the logic is usually not proportionally bigger.
-- **Companion files** — `README.txt`, `Models/`, `UserLibs/` hints. The README is a marketing
-  document: useful for feature names, never for behaviour claims.
+## 3. Decompile with evidence retained
 
-## 2. Extract into a durable folder
+The official CLI documents `-p` for project output, `-o` for its destination, and `-t` for
+a specific fully qualified type. `--nested-directories` changes namespace layout; it does
+not replace `-p`. Check these options in the installed tool before use.
+Capture command/version, exit status, warnings, unresolved dependencies, and output count.
+Use matching reference paths when available. Preserve raw output; any cleaned reading copy
+must retain a traceable link to it and must not hide unresolved-decompilation warnings.
 
-Scratch directories are pruned; analysis output must survive.
+Official CLI source: [ILSpyCmd documentation](https://github.com/icsharpcode/ILSpy/blob/master/ICSharpCode.ILSpyCmd/README.md).
+A generated project is a navigation artifact, not evidence that it builds or is licensed
+for redistribution. Do not automatically build, load, or install it.
 
-```bash
-BASE="C:/Users/pc/Documents/Schedule1-Mod-Reversing"
-D="$BASE/<ModName>-<version>"; mkdir -p "$D"
-cp "/c/Users/pc/Downloads/<downloaded>.zip" "$D/"
-python -c "import zipfile; zipfile.ZipFile(r'$D/<downloaded>.zip').extractall(r'$D/unpacked')"
-sha256sum "$D"/unpacked/**/*.dll
-```
+## 4. Map behavior before reading bulk output
 
-Record the SHA-256 in the analysis header: it is the only unambiguous way to say later *which*
-build was analysed.
+Inspect loader metadata and entry points first, then configuration, domain rules, lifecycle,
+persistence, network/file effects, and the methods that implement the requested feature.
+Use `rg` to inventory patch attributes, explicit registration, dynamic target discovery,
+subscription sites, disk writes, external requests, and native calls.
+Read implementation bodies for every high-impact claim; names and UI strings are leads.
+Skip unrelated geometry/UI bulk initially, but include it when it affects the user's question.
 
-## 3. Decompile
+The reference set and target framework help identify backend/dependency expectations.
+They do not establish singleplayer support, current compatibility, or successful loading.
 
-```bash
-export DOTNET_ROOT="$USERPROFILE/.dotnet"; export PATH="$DOTNET_ROOT:$PATH"
-ilspycmd -p -o "$D/src" "$D/unpacked/SomeMod.dll"
-find "$D/src" -name "*.cs" | wc -l
-wc -l "$D/src"/*/*.cs | sort -n | tail -20
-```
+## 5. Build an exact hook inventory
 
-`-p` emits a whole project (`.csproj` + one file per type). The generated `.csproj` is deliberate
-evidence:
+For each hook record declaring assembly/type, original member, parameter and return types,
+patch kind, owner, installation gate, instance gate, authority gate, and failure behavior.
+Include dynamically selected targets and helper calls, not only `HarmonyPatch` attributes.
+Record whether the hook can skip original behavior, replace outputs, or retain modified state.
+A patch on a class also reaches compatible cloned instances unless its own gate excludes them.
 
-| What it shows | Reading |
+## 6. Compatibility checks
+
+Compare against references with recorded provenance for the intended game/backend.
+Search inside the exact declaring type. A class-name hit cannot verify a property, and a
+method-name hit in another type cannot verify the original target.
+Check dependencies, overloads, generic constraints, native patchability, and initialization
+conditions separately. Distinguish missing, ambiguous, unavailable-to-inspect, and matched.
+
+| Check result | Report |
 |---|---|
-| `TargetFramework` | `net472` = older MelonLoader generation; `netcoreapp6.0` = current, Il2CppInterop |
-| `<Reference Include="…">` list | which assemblies it assumed: `Assembly-CSharp`, `FishNet.Runtime`, `S1API`, `Il2CppInterop.Runtime` |
-| `<EmbeddedResource …LogicalName=…>` | assets shipped inside the DLL (this is why a 1.9 MB DLL can have 21k lines) |
-| `AllowUnsafeBlocks` | almost always true for IL2CPP mods, not a signal by itself |
+| Names found | Candidate symbols located |
+| Full signatures matched | Inspected static anchors match these reference identities |
+| No static blocker found | No blocker in the stated inspection scope; initialization untested |
+| Actual controlled initialization passed | Started under the recorded dependency set |
+| Gameplay scenario passed | Only the recorded behavior/role/scenario is accepted |
 
-If `find … -name "*.cs" | wc -l` returns a handful of files with multi-hundred-KB size, the mod
-is either asset-heavy or machine-generated — check `grep -c "class "` before reading.
+Never turn all-green symbol searches into a claim that the mod will initialize.
+A generated RPC hash or private field is a drift risk, not proof it breaks at the next build.
 
-## 4. Triage: what to read, what to skip
+## 7. Footprint and risk review
 
-Read in this order (stop when the story is clear):
+Inspect actual destination, data, trigger, timeout, and failure paths for network/file/native
+operations. Pattern scanning cannot prove the absence of hidden behavior.
+If the task includes installed-state review, identify the exact deployed file and, where
+possible, the loaded process/module. A DLL in `Mods` is not proof it is currently running.
+Keep install/uninstall and save migration separate from read-only analysis.
 
-1. `Mod.cs` / `Main.cs` — `OnInitializeMelon` holds the patch registrations; `OnUpdate` holds
-   the tick order.
-2. The file with the most lines **that is not UI** — that is where the domain logic lives.
-3. The "rules" file, if one exists (pure C# without Unity types: `…Rules.cs`, `…Config.cs`,
-   `…State.cs`). This layer is where the formulas are and the only layer that is testable.
-4. `README` claims → verify each against code; note the ones the code does not support.
+## 8. Report and retain
 
-Skip on first pass: UI layout files, mesh/model builders, animation rigs. Note their size and
-purpose, move on. They are the bulk of a big mod's lines and the least transferable knowledge.
+Deliver artifact identity, analysis scope, mechanics with file/member evidence, exact hook
+inventory, compatibility limits, concrete risk scenarios, and useful design lessons.
+Record assembly version, loader-declared version, file version, and release label separately
+when they differ; none should silently overwrite the others as the universal release truth.
+Keep necessary analysis artifacts in the user-approved durable destination.
 
-## 5. Hook inventory
-
-```bash
-cd "$D/src"
-grep -nE "Patch\(typeof|AccessTools\.(Method|PropertyGetter|Field)|HarmonyPatch\(" */*.cs | sed 's/^/  /'
-grep -c "Patch(typeof" */*.cs
-```
-
-Build a table: **target → hook kind → effect**. Two derived signals:
-
-- **Hot-path hooks:** anything named `Update`, `LateUpdate`, `get_Name`, `get_Price`, a per-item
-  UI refresh, or a registry lookup. These run continuously; flag them for measurement.
-- **Fragile targets:** hash-suffixed (`…_2166136261`), private field names, compiler-generated
-  types. Rank them; they are what breaks at the next update.
-
-Dynamic patching (scanning assemblies and patching by method name) shows up as a loop over
-`AppDomain.CurrentDomain.GetAssemblies()` + `type.GetMethods(...)` and a `harmony.Patch` inside.
-Note the name patterns it matches — that *is* the hook inventory for such a mod.
-
-## 6. Compatibility check against the current runtime
-
-This is the step that converts an analysis into a finding. `GameReferences/decompiled` is the
-local decompile of the installed `Assembly-CSharp` (regenerate with
-`pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/bootstrap-game-references.ps1`).
-
-```bash
-cd /c/Users/pc/Schedule1-mod-only/GameReferences/decompiled
-check() { printf "%-58s " "$1"; grep -rqE "$2" --include="*.cs" . && echo OK || echo MISSING; }
-check "PlayerHealth damage RPC"     "TakeDamage_3505310624"
-check "Player arrest RPC"           "Arrest_Client_2166136261"
-check "ShopListing.Price"           "public unsafe float Price"
-check "ListingUI.Update"            "public unsafe void Update\(\)"
-check "GoonPool.goons (private)"    "NativeFieldInfoPtr_goons"
-```
-
-Rules for reading the result:
-
-- **OK for every anchor** → the mod initialises on this runtime. Say exactly that, nothing more.
-- **MISSING for a hash-suffixed RPC** → the update relocated it. If the mod throws
-  `MissingMethodException` on it, it will not load at all; if it only checks for null, the feature
-  is gone.
-- **MISSING under dynamic patch-by-name** → no crash, silently reduced capability. Name the lost
-  capability, not just "one more missing".
-- **Compiler-generated names** (`…ObObObUnique`, `_PlayMethAnimation_d__27`): verify them
-  explicitly; they are the first casualty of any rebuild, even when everything else still matches.
-
-Also check the live install before claiming anything about the user's setup:
-
-```bash
-ls "/c/Program Files (x86)/Steam/steamapps/common/Schedule I/Mods/" | grep -i <name>
-```
-
-An installed DLL changes the risk conversation: it is running right now, whether or not the
-analysis is finished.
-
-## 7. Report
-
-One Markdown file per mod under `Documents/Schedule1-Mod-Reversing/<Mod>-<Version>/ANALYSIS.md`
-with the sections from `SKILL.md` §6. Include `file:line` for every risk and every formula.
-Keep the chat answer short: identity, three findings that matter, risks, reusable patterns,
-and the open in-game questions. The document is the deliverable; the chat message is the digest.
-
-## Pitfalls
-
-- **`strings` is not on this host.** Grepping a DLL for type names with `grep -c` works (raw byte
-  match on the metadata heap); do that instead of `strings`/`dotnet-ildasm`.
-- **IL2CPP decompiles look wiry.** `il2cpp_runtime_invoke` stubs mean the *real* implementation
-  is native — behaviour questions ("does `Add` replace or append?") cannot be answered from the
-  decompile. Say so instead of guessing.
-- **`object __instance, object[] __args` prefixes** are legitimate: one handler for many
-  signatures. Do not mistake them for reflection voodoo.
-- **Version claims drift.** A `README` header, an `AssemblyVersion` and a hardcoded
-  `MelonLogger.Msg("v… loaded")` string can disagree inside one DLL. Only `AssemblyVersion` /
-  the file version resource is a source of truth; a log string is whatever the author last
-  edited.
-- **Do not read the whole mod.** 21k lines of somebody else's mesh code teaches nothing
-  transferable. Read the entry point, the biggest logic file, the rules file, and the patches.
+Read [review signals](red-flags.md) for interpretation and [case notes](case-notes.md) for
+inherited examples. Do not claim runtime coverage for those inherited cases.

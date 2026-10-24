@@ -1,158 +1,31 @@
-# Version Sync — Reference & Session Notes
+# Version and release metadata synchronization
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 33 of 34 identifier-shaped tokens resolve (1 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+## Establish actual release identities
 
-Concrete, session-tested data for AGENTS.md ↔ Source version drift fixes. Read this **before** running `bump-version.ps1` on any mod.
+Inspect the current project and packaging mechanism. The uploaded workspace used MelonInfo in Mod.cs, docs/mod.json, docs/CHANGELOG.md and the AGENTS.md mod inventory. Confirm those are still the relevant files and distinguish source metadata from the artifact actually loaded in game.
 
-## 1. Source-of-truth precedence
+A version string is not a content hash. Two different binaries can carry the same version.
 
-When a mod's version disagrees across files, the canonical source is:
+## Procedure
 
-```
-[assembly: MelonInfo(typeof(<Mod>.Mod), "<Name>", "<X.Y.Z>", "Dominik")]
-```
+1. Read the diff and affected feature implementation. Separate implemented behavior, planned work and observed tests.
+2. Choose the version according to the existing repository policy and requested release scope. A documentation correction does not automatically require a code release.
+3. Inspect the actual Tools/bump-version.ps1 or equivalent. Use its supported preview mode before mutation; do not assume the script is atomic or regex-safe.
+4. Update relevant metadata consistently and preserve unrelated entries.
+5. Inspect the resulting diff for duplicate headers, bracketed version formatting, placeholder release text and accidental unrelated changes.
+6. Build and package through the verified isolated route; deploy/publish only within authorization.
+7. Record exact artifacts and checks. Commit/push only as the current task/repository authorization permits.
 
-in `Source/Mods/<Mod>/src/Mod.cs`. MelonLoader uses this at runtime, so the
-binary that ends up in `<GameDir>\Mods\` reflects *this* version — never any
-`obj/`-generated `AssemblyVersion`/`FileVersion` or any `public override string
-Version` property (no mod in this workspace uses that pattern). When the four
-files disagree, MelonInfo wins.
+## Historical regression cases to check
 
-`Source/Mods/<ModName>/docs/mod.json` is a secondary truth for Nexus/Thunderstore metadata and
-must match MelonInfo.
+The supplied notes reported older bump-script failures with custom changelog headings, bracketed versions and generic “Version bump” entries. These are useful regression fixtures, not proof the current script still fails. Check the script's behavior on copies before modifying production metadata.
 
-`AGENTS.md` matrix row is the human-facing summary. Drift here is the
-"lying in the docs" symptom.
+## Feature evidence
 
-## 2. The Feature-Diff Gate (pre-bump checklist)
+A keyword occurrence is a starting point. Inspect reachable behavior, integration and tests before describing a feature as implemented. “Verified in game” requires an actual observation with the relevant setup.
 
-1. Read the AGENTS.md description for the mod. List every feature claim.
-2. For each claim, grep the source for evidence. Useful keywords:
-   - `Spine`, `Avatar`, `MiddleSpine`, `LowerSpine` → Spine Rig Alignment
-   - `strap`, `buckle`, `harness`, `sternum` → harness system
-   - `ObjLoader`, `TryGetOrLoad`, `\.obj` → Wavefront OBJ runtime
-   - `Mannequin`, `targetRotation`, `mouseDeltaX` → 360° rotation
-   - `Tier`, `tier1`, `tier2`, `tier3`, `SlotLimit` → tier-based scaling
-   - `BuildableItem.Start`, `SetupPlacedStation` → placement hook
-   - `SafeStorage.SaveAtomic`, `slot_{`, `OnSaveComplete` → slot-isolated save
-   - `BuyFromHardwareStore`, `InjectHardwareStoreListing` → shop integration
-3. Build a table: claim → file:line evidence (or "not found").
-4. Decide: **bump + real CHANGELOG** OR **fix AGENTS.md back to honest state**.
-   Both are valid. The wrong answer is "bump without checking" — that's how
-   the drift started.
+## Acceptance
 
-Worked example from 2026-08-24 (BackpackMod INITIAL_VERSION → NEW_VERSION):
-| AGENTS.md claim | Source evidence |
-|---|---|
-| 3D Wearable Backpacks | `BackpackVisualManager.cs:158 CreateBackpackVisualInstance` |
-| Spine Rig Alignment | `BackpackVisualManager.cs:450 MiddleSpine/LowerSpine fallback` |
-| Realistic Harness & Straps | `BackpackVisualManager.cs:300-317` (CHEST STERNUM CROSS-STRAP, STRAP TENSION SLIDE BUCKLES) |
-| ObjLoader | `BackpackVisualManager.cs:170 ObjLoader.TryGetOrLoadBackpackMesh` |
-| Storage | `BackpackStorageManager.cs` (whole file) |
-| Mannequin 360 Rotation | `Patches/CharacterUIPatch.cs:78-95 mouseDeltaX * -180f` |
-| All 6 claims verified → NEW_VERSION honest. |
-
-Counter-example from same session (AutoPackagingStation INITIAL_VERSION → DOC_SYNC_VERSION):
-- AGENTS.md claimed the feature was verified on 2026-08-23 — but the entire feature
-  list was already in INITIAL_VERSION's CHANGELOG. No source evidence of work between
-  INITIAL_VERSION and NEXT_VERSION.
-- Decision: bump to **DOC_SYNC_VERSION** (not NEXT_VERSION) with explicit
-  "documentation sync, no code changes since INITIAL_VERSION" CHANGELOG entry.
-- Honest, traceable, future-proof.
-
-## 3. `bump-version.ps1` gotchas (verified 2026-08-24)
-
-The script is at `Tools/bump-version.ps1` and is generally solid, but it has
-three concrete bugs that bite when CHANGELOG headers or version formats
-deviate from the strict default.
-
-### 3.1 Custom CHANGELOG header breaks the dedup
-
-The script's regex `(?m)^# Changelog\s*\r?\n` does NOT match
-`# Changelog - <ModName>` (e.g. `# Changelog - AutoPackagingStation`).
-
-When this fails, the script **prepends a new `# Changelog` block above the
-existing file** instead of inside it. Result: file now has two `# Changelog`
-headers and a duplicate `## X.Y.Z` entry at the top.
-
-**Fix**: read the CHANGELOG after every bump; manually delete the duplicate
-block.
-
-### 3.2 Bracketed version header breaks the dedup
-
-The script's regex `## $NewVersion\b` does NOT match `## [X.Y.Z]`
-(e.g. `## [DOC_SYNC_VERSION] - 2026-08-22`).
-
-When this fails, the script prepends `## X.Y.Z (date) - Version bump.` even
-though the bracketed entry already exists.
-
-**Fix**: same as 3.1 — read after the bump, delete the duplicate.
-
-### 3.3 The `- Version bump.` placeholder is a documentation lie on first release
-
-When the prior CHANGELOG is empty or single-line (e.g.
-`## INITIAL_VERSION - Initial version.`), the script's prepended
-`## X.Y.Z (date) - Version bump.` reads as "we built a stable prior version
-that we are now bumping" — which is the opposite of the truth (the prior
-version was a stub).
-
-**Fix**: before running the script, manually write the new `## X.Y.Z (date)`
-header with real feature bullets. The script's dedup check then matches
-`## X.Y.Z\b` (no brackets) and skips prepending. Worked example for
-BackpackMod INITIAL_VERSION → NEW_VERSION in this session:
-
-```markdown
-# Changelog
-
-## NEW_VERSION (2026-08-24)
-- First public release: 3D Wearable Backpacks with Spine Rig Alignment ...
-- Realistic Harness system (chest sternum cross-strap, shoulder straps, metal buckles) ...
-- Tier system: backpack_t1 / backpack_t2 / backpack_t3 with per-tier color palettes.
-- `ObjLoader` runtime: zero-dependency Wavefront OBJ loader ...
-- `backpacks.bundle` AssetBundle pipeline for prefab-based backpack meshes.
-- Tier-based storage scaling (T1 small, T2 hiking, T3 tactical) ...
-- 360° mannequin inspection rotation in the Character menu (RMB-drag, Q/E keys).
-- ClothingSlot 10 binding: backpack renders only when actively equipped.
-- B hotkey toggles backpack storage.
-
-## INITIAL_VERSION (2026-08-21)
-- Initial version.
-```
-
-Then `pwsh Tools/bump-version.ps1 -Mod BackpackMod -Version NEW_VERSION` correctly
-detected the existing `## NEW_VERSION` header and only updated the other three
-files (`Mod.cs MelonInfo`, `mod.json`, `AGENTS.md matrix row`).
-
-## 4. Post-bump verification checklist
-
-1. `grep -n "X.Y.Z" Source/Mods/<Mod>/src/Mod.cs` → should match MelonInfo.
-2. `cat Source/Mods/<Mod>/docs/mod.json` → `version` field matches.
-3. `head -20 Source/Mods/<Mod>/docs/CHANGELOG.md` → no duplicate `# Changelog`
-   headers, no duplicate `## X.Y.Z` entries, no leftover `- Version bump.`
-   placeholder.
-4. `grep -n "<Mod>" AGENTS.md` → matrix row says `vX.Y.Z`.
-5. Optional: `dotnet build Source/Mods/<Mod>/src/<Mod>.csproj -c Release` →
-   rebuild + redeploy to `<GameDir>\Mods\` if you want the new version live.
-
-If any of these fails, fix it before committing — the bump is not "done" until
-all four agree.
-
-## 5. The ripgrep bracket-trap (tool-side, not skill-side)
-
-When using ripgrep-backed file-search tools with patterns containing `(` or `[`,
-ripgrep fails with "unclosed group/character class". Workarounds that worked:
-
-- Drop the special char when possible (`MelonInfo` instead of `MelonInfo(`).
-- Narrow scope with a file glob (`*.cs`) first, then grep inside.
-- For complex patterns, escape with `\(` (didn't fully test).
-
-This is a tool-quirk (regex engine, not the workspace). Mentioned here so the
-next agent doesn't lose 3 tool calls re-trying the same failing regex.
-
----
-
----
- Identifier-shaped tokens documented as *absent*: `BuyFromHardwareStore`.
- Identifier-shaped tokens documented as *absent*: `BuyFromHardwareStore`.
- Identifier-shaped tokens documented as *absent*: `BuyFromHardwareStore`.
- Identifier-shaped tokens documented as *absent*: `BuyFromHardwareStore`.
+The intended version is consistent across the actual consumers, release notes describe the real diff, and generated artifacts correspond to that source state. Unexecuted gameplay checks remain explicit.

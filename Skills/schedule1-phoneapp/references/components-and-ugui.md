@@ -1,200 +1,90 @@
-# uGUI Components, UIFactory & IL2CPP Rules
+# uGUI Components, List Reconciliation, and Modal Hit Testing
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 27 of 28 identifier-shaped tokens resolve (1 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+## Evidence and use
 
-This reference documents the component building blocks, 0-allocation list patterns, modal dialogs, and IL2CPP event wiring for Schedule I Phone Apps.
+Use when building phone lists, buttons, inline pickers, and modals. `S1API.UI.UIFactory`, `EventHelper`,
+and `ButtonUtils` are inherited integration anchors; inspect the installed DLL and workspace helpers
+before using exact parameters or tuple members. No helper table here is a guaranteed 3.2.1 signature. <!-- skills-health: version-evidence (S1API target requested by the owner; installed build state lives in AGENTS.md) -->
 
----
+## Choose and bind components
 
-## 1. S1API UIFactory Building Blocks
+Historical UIFactory candidates include `Panel`, `Text`, `Button`, `ButtonWithLabel`, and
+`RoundedButtonWithLabel`. Resolve the required helper and inspect which returned object owns layout,
+which owns interaction, and which owns text. A wrapper root and inner button may be different objects.
+Choose rounded or square styling to match the requested design; one workspace's NotesApp style is not
+a universal requirement.
 
-S1API provides `S1API.UI.UIFactory` with helper methods for constructing uGUI elements:
+Use a verified IL2CPP-safe listener bridge where required. Bind one handler for the lifetime of the
+control, retain its removable identity, and detach it on disposal/rebinding. Do not clear unrelated
+listeners on shared game controls. For an owned clone, inspect copied listeners and explicitly replace
+only the inherited behavior the new control must not execute.
 
-| Helper | Signature | Description |
-|---|---|---|
-| `UIFactory.Panel` | `(string name, Transform parent, Color color, bool fullAnchor = false)` | Creates a raw `GameObject` with `Image` and optional full stretch anchors. |
-| `UIFactory.Text` | `(string name, string text, Transform parent, int fontSize, TextAnchor alignment, FontStyle style = FontStyle.Normal)` | Creates a standard uGUI `Text` element. |
-| `UIFactory.Button` | `(string name, Transform parent, Color color)` | Creates a basic clickable button panel. |
-| `UIFactory.ButtonWithLabel` | `(string name, string label, Transform parent, Color bgColor, float width, float height)` | Creates a flat (square) button with centered label. No fontSize/textColor params — uses defaults. |
-| `UIFactory.RoundedButtonWithLabel` | `(string name, string label, Transform parent, Color bgColor, float width, float height, int fontSize, Color textColor)` | **Preferred for all UI.** Rounded-mask button (NotesApp style). Returns `(maskGO, btn, txt)`: maskGO has LayoutElement, btn is the inner Button, txt is the label. |
+## Scrollable-list structure
 
-> [!IMPORTANT]
-> Use `RoundedButtonWithLabel` as the standard — it matches NotesApp visual style (rounded corners, proper font sizing). `ButtonWithLabel` creates flat square buttons that look inconsistent. The return tuple: `AddListener` on `btn`, `AddPreferredHeight` on `maskGO`.
+Use a `ScrollRect` owner, a stretched viewport with the intended raycast graphic and mask, and a
+content rect with a top pivot and width tied to that viewport. A vertical layout can own row heights
+and spacing while a content-size fitter owns the vertical content extent. Avoid competing controllers
+for the same axis. Connect the viewport/content references explicitly.
 
----
+For the historical fixed-width tag plus flexible label row, allow the layout to control child widths
+without forcing every child to expand equally. Test long text, empty content, one row, enough rows to
+scroll, and the content width after the first real layout pass.
 
-## 2. Event Listener Binding (IntPtr-Safe)
+## Reconcile the complete data set
 
-> [!CAUTION]
-> In IL2CPP, calling `button.onClick.AddListener(new UnityEngine.Events.UnityAction(...))` directly often throws Marshalling / IntPtr Conversion Exceptions.
+A cache that only adds/updates incoming rows leaves removed or filtered items visible.
+Use a stable-ID reconciliation contract:
 
-### Always Use `ButtonUtils` or `EventHelper`:
-```csharp
-using S1API.Utils; // Provides EventHelper
+1. Capture a coherent data snapshot and validate uniqueness of IDs.
+2. Mark all cached rows unseen for this refresh generation.
+3. For each current item, reuse or create its row, update changed display fields, and mark it seen.
+4. Deactivate, pool, or dispose rows not seen in the new generation. Clear selection if its item left.
+5. Apply the requested ordering using stable IDs, then restore or deliberately adjust scroll position.
+6. On reuse, update the row's bound identity and action target. Do not leave a closure pointing to the
+   item that occupied the row before pooling.
+7. Dispose rows/listeners no longer owned and clear references on container teardown.
 
-// Method A: S1API EventHelper
-EventHelper.AddListener(() => OnButtonClicked(), button.onClick);
+Do not modify the dictionary during unsafe enumeration. Pool only when measured churn justifies it,
+and bound retained rows for large data sets. Virtualization may be appropriate when the data set is
+much larger than the visible viewport.
 
-// Method B: Workspace ButtonUtils helper
-public static class ButtonUtils
-{
-    public static void AddListener(Button btn, Action action)
-    {
-        EventHelper.AddListener(action, btn.onClick);
-    }
-}
+Updating existing objects reduces churn but does not establish zero allocations: formatting strings,
+snapshots, LINQ, closures, and layout rebuilds may still allocate. Profile the real refresh path and
+choose a sensible update cadence. Do not destroy/recreate an unchanged list on a timer.
 
-ButtonUtils.AddListener(myButton, () => DoSomething());
-```
+## Modal contract
 
----
+Use an app-owned full-screen overlay with a backdrop and a foreground card. Arrange them so the card
+and its controls intercept the intended pointer events before the backdrop's dismiss action. A
+sibling backdrop behind the card is often clearer than relying on bubbling through a parent button.
+Inspect the event system's actual dispatch behavior and consume the intended click once.
 
-## 3. Building High-Performance Scrollable Lists
+A `GraphicRaycaster` belongs to a canvas's graphic hit-testing setup. Adding one to an arbitrary card
+does not by itself make the card consume a parent backdrop click. Confirm the card has the appropriate
+raycast-target graphic/handler and that `CanvasGroup` raycast/interactable settings agree with its
+visible state. Avoid unnecessary nested canvases merely to hide an event-routing bug.
 
-### Structure of a ScrollRect:
-```text
-ScrollGO (ScrollRect)
-  └── Viewport (RectMask2D + Image[alpha=0] + RectTransform[0,0,1,1])
-        └── Content (RectTransform[pivot=0.5,1; anchors=0,1,1,1] + VerticalLayoutGroup + ContentSizeFitter)
-              ├── ItemRow 0
-              ├── ItemRow 1
-              └── ...
-```
+On show, acquire modal focus, select the intended first control, and block the underlying app's
+interaction through the supported mechanism. On hide, release this modal's ownership and restore a
+still-valid prior selection. Closing the phone must dismiss the modal and cancel its pending drag or
+text focus. Hidden overlays must not intercept input.
 
-### Complete Scrollable Container Code:
-```csharp
-public static GameObject CreateScrollView(Transform parent, out RectTransform contentRt)
-{
-    var scrollGO = new GameObject("ScrollView");
-    scrollGO.transform.SetParent(parent, false);
-    var sRt = scrollGO.AddComponent<RectTransform>();
-    sRt.anchorMin = Vector2.zero;
-    sRt.anchorMax = Vector2.one;
-    sRt.offsetMin = Vector2.zero;
-    sRt.offsetMax = Vector2.zero;
+## Inline pickers
 
-    var scrollRect = scrollGO.AddComponent<ScrollRect>();
-    scrollRect.scrollSensitivity = 30f;
-    scrollRect.horizontal = false;
-    scrollRect.vertical = true;
+Build reusable picker content once, then toggle the selected panel and reconcile its model. Keep one
+active picker owner where the design calls for exclusivity. Update layout participation when hidden,
+and derive expanded height from content. Avoid generating another hidden picker on every click or
+forcing every canvas to rebuild each frame.
 
-    // Viewport
-    var viewportGO = new GameObject("Viewport");
-    viewportGO.transform.SetParent(scrollGO.transform, false);
-    var vRt = viewportGO.AddComponent<RectTransform>();
-    vRt.anchorMin = Vector2.zero;
-    vRt.anchorMax = Vector2.one;
-    vRt.offsetMin = Vector2.zero;
-    vRt.offsetMax = Vector2.zero;
-    var vImg = viewportGO.AddComponent<Image>();
-    vImg.color = new Color(0, 0, 0, 0);
-    viewportGO.AddComponent<RectMask2D>();
-    scrollRect.viewport = vRt;
+## Acceptance checks
 
-    // Content
-    var contentGO = new GameObject("Content");
-    contentGO.transform.SetParent(viewportGO.transform, false);
-    contentRt = contentGO.AddComponent<RectTransform>();
-    contentRt.anchorMin = new Vector2(0, 1);
-    contentRt.anchorMax = new Vector2(1, 1);
-    contentRt.pivot = new Vector2(0.5f, 1f);
-    contentRt.offsetMin = Vector2.zero;
-    contentRt.offsetMax = Vector2.zero;
+Verify add/update/remove/reorder/filter cycles; a removed item must become noninteractive immediately.
+Test pooled-row actions, keyboard/controller focus, scroll retention, inside-card clicks, backdrop
+clicks, modal replacement, and phone close. Reopen twice and confirm one callback per action.
 
-    var vlg = contentGO.AddComponent<VerticalLayoutGroup>();
-    vlg.childControlWidth = true;
-    vlg.childControlHeight = true;
-    vlg.childForceExpandWidth = true;
-    vlg.childForceExpandHeight = false;
-    vlg.spacing = UITheme.Dp(4f);
+## Primary sources
 
-    var csf = contentGO.AddComponent<ContentSizeFitter>();
-    csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-    csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-
-    scrollRect.content = contentRt;
-    return scrollGO;
-}
-```
-
----
-
-## 4. 0-Allocation UI Updates (Non-Allocating In-Place Polling)
-
-Repeatedly destroying and re-instantiating GameObjects every 2 seconds causes severe GC frame drops and visual stutter.
-
-### Recommended Pattern: In-Place Row Cache
-1. Keep a `Dictionary<Id, RowUIRef>` storing references to the `Text`, `Image`, and `Button` components.
-2. In your update loop, update `.text` and `.fillAmount` directly on existing objects.
-3. Only instantiate rows when new items appear, and deactivate rows when items are removed.
-
-```csharp
-private readonly Dictionary<string, RowRef> _rowCache = new();
-
-public void RefreshData(List<DataModel> items)
-{
-    // Update existing rows or spawn new ones
-    foreach (var item in items)
-    {
-        if (!_rowCache.TryGetValue(item.Id, out var row))
-        {
-            row = SpawnRow(item);
-            _rowCache[item.Id] = row;
-        }
-
-        // 0-allocation updates:
-        if (row.TitleText.text != item.Title) row.TitleText.text = item.Title;
-        if (row.ValueText.text != item.FormattedValue) row.ValueText.text = item.FormattedValue;
-        row.RootObject.SetActive(true);
-    }
-}
-```
-
----
-
-## 5. Modal Dialogs & Backdrops
-
-To display confirmation dialogs, inspection cards, or prompts:
-1. Parent the modal directly to `_mainBG.transform` as a sibling to the content panel (so it renders on top).
-2. Set full-stretch anchors (`Vector2.zero` to `Vector2.one`) with a semi-transparent dark backdrop (`new Color(0, 0, 0, 0.75f)`).
-3. Add an empty `Button` or click listener on the backdrop to dismiss the modal when tapping outside.
-
-```csharp
-public class ConfirmModal
-{
-    private readonly GameObject _root;
-
-    public ConfirmModal(Transform parent, Action onConfirmed)
-    {
-        // 1. Semi-transparent Fullscreen Backdrop
-        _root = UIFactory.Panel("ModalBackdrop", parent, new Color(0, 0, 0, 0.75f), fullAnchor: true);
-        _root.SetActive(false);
-
-        // Backdrop Dismiss Click
-        var dismissBtn = _root.AddComponent<Button>();
-        dismissBtn.transition = Selectable.Transition.None;
-        ButtonUtils.AddListener(dismissBtn, () => Hide());
-
-        // 2. Centered Modal Card
-        var card = UIFactory.Panel("ModalCard", _root.transform, new Color(0.12f, 0.15f, 0.20f, 1f));
-        var cardRt = (RectTransform)card.transform;
-        cardRt.anchorMin = new Vector2(0.5f, 0.5f);
-        cardRt.anchorMax = new Vector2(0.5f, 0.5f);
-        cardRt.sizeDelta = new Vector2(UITheme.Dp(320f), UITheme.Dp(180f));
-        
-        // Block raycasts from falling through to backdrop
-        card.AddComponent<GraphicRaycaster>();
-    }
-
-    public void Show() => _root.SetActive(true);
-    public void Hide() => _root.SetActive(false);
-    public bool IsOpen => _root.activeSelf;
-}
-```
-
----
- Identifier-shaped tokens documented as *absent* (counted as resolved): `RowUIRef`.
- Identifier-shaped tokens documented as *absent*: `RowUIRef`.
- Identifier-shaped tokens documented as *absent*: `RowUIRef`.
- Identifier-shaped tokens documented as *absent*: `RowUIRef`.
- Identifier-shaped tokens documented as *absent*: `RowUIRef`.
+- [Unity Graphic Raycaster](https://docs.unity3d.com/Packages/com.unity.ugui@1.0/manual/script-GraphicRaycaster.html).
+- [Unity CanvasGroup.blocksRaycasts](https://docs.unity3d.com/ScriptReference/CanvasGroup-blocksRaycasts.html).

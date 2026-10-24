@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using Il2CppScheduleOne.Vehicles;
@@ -89,6 +90,64 @@ internal static class TaxiVisual
         internal LODGroup[] LodGroups = Array.Empty<LODGroup>();
         internal bool[] LodEnabled = Array.Empty<bool>();
     }
+
+    // ------------------------------------------------------------------
+    // Visual wheels (GLB nodes driven by native wheel state)
+    // ------------------------------------------------------------------
+
+    /// <summary>
+    /// Name prefix of the imported wheel nodes. Only the prefix is used to *collect*
+    /// candidates; which node belongs to which native wheel is decided by position,
+    /// because the asset's FL/FR/RL/RR names and the old orientation comment disagree
+    /// about which end of the car is the front.
+    /// </summary>
+    private const string GlbWheelNodePrefix = "Wheel";
+
+    /// <summary>Binding attempts before a vehicle's wheels stay static for the session (no per-frame searches).</summary>
+    private const int WheelResolveAttempts = 3;
+
+    /// <summary>Seconds between the bounded binding attempts (the native wheel list may be empty on the spawn frame).</summary>
+    private const float WheelResolveRetrySeconds = 1f;
+
+    /// <summary>
+    /// One imported wheel node bound to the native wheel it sits on. <see cref="RestRotation"/>
+    /// is the imported mounting rotation (captured once), so every frame only composes a
+    /// delta on top of it — the GLB pivot/offset is never re-guessed.
+    /// </summary>
+    private sealed class WheelLink
+    {
+        internal Transform Node = null!;
+        internal Quaternion RestRotation;
+        internal WheelCollider Collider = null!;
+        internal Wheel Native = null!;
+        internal float UpSign;
+
+        /// <summary>Sign the steering axis would need if this wheel turns out to be steered.</summary>
+        internal float SteerAxisSign;
+
+        /// <summary>Remaining bounded probes for the native steering flag (the spawn frame may precede it).</summary>
+        internal int SteerProbeTicks;
+
+        internal float SpinDegrees;
+    }
+
+    /// <summary>Frames a freshly bound wheel may spend re-reading the native steering flag (≈1 s at 60 fps).</summary>
+    private const int SteerProbeFrames = 60;
+
+    /// <summary>Cached wheel links for the current GLB swap (empty = not bound).</summary>
+    private static WheelLink[] _wheelLinks = Array.Empty<WheelLink>();
+
+    /// <summary>The vehicle the cached links belong to (identity check only, never dereferenced for state).</summary>
+    private static LandVehicle? _wheelVehicle;
+
+    /// <summary>Rigidbody used for the native point velocity (cached once — no per-frame search).</summary>
+    private static Rigidbody? _wheelBody;
+    private static GameObject? _wheelRoot;
+    private static bool _wheelBindRequested;
+
+    private static float _wheelRetryAt;
+    private static int _wheelResolveAttempts;
+    private static bool _wheelUnavailableLogged;
 
     /// <summary>
     /// GLB lookup order. First hit wins and is logged once:
@@ -511,10 +570,17 @@ internal static class TaxiVisual
         _rollback = null;
         SpikeState.VisualSwaps++;
 
+        // Visual wheel animation: bind each imported wheel node once to the native wheel
+        // that sits at the same place in the vehicle frame. Visual-only; a failure leaves
+        // the wheels static and never affects the drive.
+        ReleaseWheels();
+        _wheelBindRequested = true;
+        BindWheels(veh, parentT, glb);
+
         Trace(
             $"[visual] swap DONE: GLB '{VisualRootName}' parented under '{parentGo.name}' (renderers={glbRenderers}, colliders stripped={strippedColliders}); " +
             $"vanilla children deactivated=0, renderer-hidden(kept active)={softHidden}, untouched(no renderers)={untouched}, errors={errors}, " +
-            $"final-sweep-only renderers hidden={parentRs}; align {alignNote}; model rotated 180° about Y (nose onto vehicle +Z).");
+            $"final-sweep-only renderers hidden={parentRs}; align {alignNote}; model rotated 180° about Y; visual wheels bound={_wheelLinks.Length}.");
     }
 
     /// <summary>
@@ -532,6 +598,11 @@ internal static class TaxiVisual
         Rollback? rb = _rollback;
         _rollback = null;
         SpikeState.VisualRoot = null;
+
+        // Sever the cached wheel links FIRST and without touching any native object: the
+        // GLB (and possibly the vehicle) is on its way out, so this must not dereference
+        // a dying transform or collider.
+        ReleaseWheels();
 
         if (rb == null)
             return; // nothing was mutated yet (the failure happened before the snapshot)
@@ -749,6 +820,402 @@ internal static class TaxiVisual
             return false;
         }
     }
+
+    // ------------------------------------------------------------------
+    // Visual wheels: binding, per-frame pose, release
+    // ------------------------------------------------------------------
+
+    /// <summary>
+    /// Binds every imported wheel node once to the native wheel that sits at the same
+    /// place in the vehicle frame. Positions decide the pairing — never the node names,
+    /// never a forward-axis assumption — so a mirrored import or a 180°-rotated root is
+    /// handled by construction. The native wheel list can still be empty on the spawn
+    /// frame, so binding is retried a bounded number of times (no per-frame searches).
+    /// Any unreadable state leaves the wheels static; the drive is never affected.
+    /// </summary>
+    private static void BindWheels(LandVehicle veh, Transform vehicleFrame, GameObject glb)
+    {
+        _wheelLinks = Array.Empty<WheelLink>();
+        _wheelBody = null;
+        _wheelVehicle = veh;
+        _wheelRoot = glb;
+        _wheelResolveAttempts++;
+
+        try
+        {
+            var nodes = new List<Transform>();
+            var nodePoints = new List<WheelPoint>();
+            Transform glbT = glb.transform;
+            for (int i = 0; i < glbT.childCount; i++)
+            {
+                Transform child = glbT.GetChild(i);
+                if (child == null || child.Pointer == IntPtr.Zero)
+                    continue;
+
+                string name = child.name;
+                if (name == null || !name.StartsWith(GlbWheelNodePrefix, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                Vector3 local = vehicleFrame.InverseTransformPoint(child.position);
+                nodes.Add(child);
+                nodePoints.Add(new WheelPoint(local.x, local.z));
+            }
+
+            if (nodes.Count == 0)
+            {
+                WheelUnavailable("the imported GLB has no 'Wheel*' node");
+                return;
+            }
+
+            var nativeWheels = veh.wheels;
+            if (nativeWheels == null || nativeWheels.Count == 0)
+            {
+                ScheduleWheelRetry("the native wheel list is still empty");
+                return;
+            }
+
+            var links = new List<WheelLink>();
+            var nodeTaken = new bool[nodes.Count];
+            for (int i = 0; i < nativeWheels.Count; i++)
+            {
+                Wheel? wheel = nativeWheels[i];
+                if (wheel == null)
+                    continue;
+
+                WheelCollider? collider = wheel.wheelCollider;
+                if (collider == null || collider.Pointer == IntPtr.Zero)
+                    continue;
+
+                Vector3 nativeLocal = vehicleFrame.InverseTransformPoint(collider.transform.position);
+                int match = TaxiWheelKinematics.FindCounterpart(
+                    nodePoints,
+                    new WheelPoint(nativeLocal.x, nativeLocal.z),
+                    TaxiWheelKinematics.MaxMatchDistance);
+                if (match < 0)
+                {
+                    Trace(
+                        $"[visual] wheel {i}: no imported node near ({Vec(nativeLocal)}) within " +
+                        $"{TaxiWheelKinematics.MaxMatchDistance:0.0} m — this wheel stays static.");
+                    continue;
+                }
+
+                Transform node = nodes[match];
+                if (nodeTaken[match])
+                {
+                    // Two native wheels landed on the same imported node (bad/ambiguous
+                    // placement): driving one transform from two wheels would fight, so
+                    // the second wheel stays static instead.
+                    Trace($"[visual] wheel {i}: node '{node.name}' is already bound — this wheel stays static.");
+                    continue;
+                }
+                nodeTaken[match] = true;
+
+                bool steers = IsSteeredWheel(veh, wheel, collider);
+
+                // The steering axis is the node's own up axis; a mirrored/flipped node
+                // would steer the wrong way, so the sign comes from the real direction.
+                Vector3 upInFrame = vehicleFrame.InverseTransformDirection(node.up);
+                float steerAxisSign = TaxiWheelKinematics.AxisSign(upInFrame.y, 0.5f);
+                float upSign = steers ? steerAxisSign : 0f;
+
+                links.Add(new WheelLink
+                {
+                    Node = node,
+                    RestRotation = node.localRotation,
+                    Collider = collider,
+                    Native = wheel,
+                    UpSign = upSign,
+                    SteerAxisSign = steerAxisSign,
+                    // A wheel whose steering flag is still unset gets a short bounded
+                    // re-latch instead of a permanent "never steers".
+                    SteerProbeTicks = steers ? 0 : SteerProbeFrames,
+                });
+                Trace(
+                    $"[visual] wheel {i} bound to '{node.name}' at ({Vec(nativeLocal)}) — steers={steers}, " +
+                    $"steerAxisSign={upSign:0.#}, axleInFrame=({Vec(vehicleFrame.InverseTransformDirection(node.right))}).");
+            }
+
+            if (links.Count == 0)
+            {
+                WheelUnavailable("no imported wheel node matched a native wheel position");
+                return;
+            }
+
+            _wheelBindRequested = false;
+            _wheelLinks = links.ToArray();
+            _wheelBody = TryReadBody(veh, links[0].Collider);
+            if (_wheelBody == null)
+                Trace("[visual] no rigidbody for the wheel point velocity — visual wheels stay static (drive unaffected).");
+
+            _wheelUnavailableLogged = false;
+            Mod.Log.Info($"[visual] visual wheels bound: {links.Count} of {nativeWheels.Count} native wheels ({nodes.Count} imported nodes).");
+        }
+        catch (Exception ex)
+        {
+            ScheduleWheelRetry($"binding threw: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// One deferred binding attempt. Time-gated and attempt-capped: the spawn frame may
+    /// precede the native wheel list, and a permanently unusable vehicle must not cause
+    /// a search every frame.
+    /// </summary>
+    private static void TryDeferredWheelBind()
+    {
+        if (!_wheelBindRequested)
+            return;
+        if (_wheelResolveAttempts >= WheelResolveAttempts)
+            return;
+
+        float now = Time.unscaledTime;
+        if (now < _wheelRetryAt)
+            return;
+        _wheelRetryAt = now + WheelResolveRetrySeconds;
+
+        LandVehicle? veh = SpikeState.Vehicle;
+        GameObject? glb = SpikeState.VisualRoot;
+        if (!ReferenceEquals(veh, _wheelVehicle) || !ReferenceEquals(glb, _wheelRoot) ||
+            ReferenceEquals(veh, null) || glb == null || !S1Mods.Shared.NetworkGuard.IsAlive(glb))
+        {
+            ReleaseWheels();
+            return;
+        }
+
+        Transform? frame = ModelTransform(veh);
+        if (frame == null)
+        {
+            ReleaseWheels();
+            return;
+        }
+
+        try
+        {
+            if (!glb.transform.IsChildOf(frame))
+            {
+                ReleaseWheels();
+                return;
+            }
+        }
+        catch
+        {
+            ReleaseWheels();
+            return;
+        }
+
+        BindWheels(veh, frame, glb);
+    }
+
+    private static void ScheduleWheelRetry(string note)
+    {
+        if (_wheelResolveAttempts >= WheelResolveAttempts)
+        {
+            WheelUnavailable(note);
+            return;
+        }
+
+        _wheelRetryAt = Time.unscaledTime + WheelResolveRetrySeconds;
+        Trace(
+            $"[visual] visual wheel binding deferred ({note}) — attempt " +
+            $"{_wheelResolveAttempts}/{WheelResolveAttempts}.");
+    }
+
+    private static void WheelUnavailable(string reason)
+    {
+        ReleaseWheels();
+        _wheelLinks = Array.Empty<WheelLink>();
+        _wheelBody = null;
+        _wheelResolveAttempts = WheelResolveAttempts;
+
+        if (_wheelUnavailableLogged)
+            return;
+        _wheelUnavailableLogged = true;
+        Mod.Log.Warn(
+            $"[visual] imported wheels stay static: {reason}. " +
+            "The taxi still drives, steers and settles fares exactly as before.");
+    }
+
+    /// <summary>
+    /// Per-frame visual wheel pose from native wheel state. Read-only towards the game:
+    /// no native wheel, collider, rigidbody or vehicle transform is written. Rolling is
+    /// the native ground velocity at the wheel centre projected onto the node's own axle
+    /// (correct in both directions and at any speed); steering is the native
+    /// <c>WheelCollider.steerAngle</c> on the wheels the game marks as steered.
+    /// The mounting rotation captured at bind time is kept, so only the delta is composed.
+    /// </summary>
+    internal static void TickWheels()
+    {
+        try { TickWheelState(); }
+        catch (Exception ex) { WheelUnavailable("native visual state unreadable: " + ex.Message); }
+    }
+
+    private static void TickWheelState()
+    {
+        if (_wheelLinks.Length == 0)
+        {
+            TryDeferredWheelBind();
+            return;
+        }
+
+        LandVehicle? veh = _wheelVehicle;
+        GameObject? root = SpikeState.VisualRoot;
+        if (ReferenceEquals(veh, null) || !ReferenceEquals(veh, SpikeState.Vehicle) ||
+            root == null || root.Pointer == IntPtr.Zero)
+        {
+            ReleaseWheels();
+            return;
+        }
+
+        // Paused/unreadable time must hold the wheels exactly where they are.
+        float dt = Time.deltaTime;
+        if (!(dt > 0f) || float.IsInfinity(dt))
+            return;
+
+        Rigidbody? body = _wheelBody;
+        bool haveBody = body != null && body.Pointer != IntPtr.Zero;
+
+        // The car's own up axis (not a world constant) keeps the roll sign right on slopes.
+        WheelVector up = WheelVector.Up;
+        if (haveBody)
+        {
+            try
+            {
+                Vector3 bodyUp = body!.transform.up;
+                up = ToWheelVector(bodyUp);
+            }
+            catch
+            {
+                ReleaseWheels();
+                return;
+            }
+        }
+
+        WheelLink[] links = _wheelLinks;
+        for (int i = 0; i < links.Length; i++)
+        {
+            WheelLink link = links[i];
+            try
+            {
+                Transform? node = link.Node;
+                WheelCollider? collider = link.Collider;
+                if (node == null || node.Pointer == IntPtr.Zero || collider == null || collider.Pointer == IntPtr.Zero)
+                {
+                    ReleaseWheels();
+                    return;
+                }
+
+                if (haveBody)
+                {
+                    Vector3 velocity = body!.GetPointVelocity(node.position);
+                    float rate = TaxiWheelKinematics.SpinDegreesPerSecond(
+                        ToWheelVector(velocity),
+                        up,
+                        ToWheelVector(node.right),
+                        collider.radius);
+                    link.SpinDegrees = TaxiWheelKinematics.AdvanceSpin(
+                        link.SpinDegrees, rate, dt, TaxiWheelKinematics.MaxStepDegrees);
+                }
+
+                if (link.SteerProbeTicks > 0)
+                {
+                    // Bounded re-latch of the native steering flag (4 cheap reads for at
+                    // most ~1 s) — never a permanent search.
+                    link.SteerProbeTicks--;
+                    if (IsSteeredWheel(veh!, link.Native, collider))
+                    {
+                        link.UpSign = link.SteerAxisSign;
+                        link.SteerProbeTicks = 0;
+                    }
+                }
+
+                float steer = link.UpSign == 0f
+                    ? 0f
+                    : TaxiWheelKinematics.SteerDegrees(collider.steerAngle, link.UpSign);
+
+                node.localRotation = link.RestRotation
+                    * Quaternion.AngleAxis(steer, Vector3.up)
+                    * Quaternion.AngleAxis(link.SpinDegrees, Vector3.right);
+            }
+            catch
+            {
+                // A dying wrapper (scene reset, vehicle destroyed) must not keep the tick
+                // alive with dead proxies — drop the cache and stay quiet.
+                ReleaseWheels();
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Severs the cached wheel links. Deliberately touches NO Unity object: it runs on
+    /// rollback, scene reset and deinit, where the native vehicle and the GLB may already
+    /// be destroyed. After this the wheels are static until the next swap binds again.
+    /// </summary>
+    internal static void ReleaseWheels()
+    {
+        _wheelLinks = Array.Empty<WheelLink>();
+        _wheelVehicle = null;
+        _wheelBody = null;
+        _wheelRoot = null;
+        _wheelBindRequested = false;
+        _wheelRetryAt = 0f;
+        _wheelResolveAttempts = 0;
+    }
+
+    /// <summary>
+    /// Front wheels are the ones the game marks as steered. <c>Wheel.IsSteerWheel</c> is
+    /// the native flag; <c>LandVehicle.steerWheels</c> membership is the fallback when
+    /// that property is unreadable or still false on the spawn frame.
+    /// </summary>
+    private static bool IsSteeredWheel(LandVehicle veh, Wheel wheel, WheelCollider collider)
+    {
+        try
+        {
+            if (wheel.IsSteerWheel)
+                return true;
+        }
+        catch { /* fall through to the collider list */ }
+
+        try
+        {
+            var steered = veh.steerWheels;
+            if (steered == null)
+                return false;
+
+            for (int i = 0; i < steered.Length; i++)
+            {
+                WheelCollider candidate = steered[i];
+                if (candidate != null && candidate.Pointer == collider.Pointer)
+                    return true;
+            }
+        }
+        catch { /* unknown membership: this wheel simply does not steer */ }
+
+        return false;
+    }
+
+    private static Rigidbody? TryReadBody(LandVehicle veh, WheelCollider collider)
+    {
+        try
+        {
+            Rigidbody body = veh.Rb;
+            if (body != null && body.Pointer != IntPtr.Zero)
+                return body;
+        }
+        catch { /* fall through to the collider's body */ }
+
+        try
+        {
+            Rigidbody attached = collider.attachedRigidbody;
+            if (attached != null && attached.Pointer != IntPtr.Zero)
+                return attached;
+        }
+        catch { /* no readable body — wheels stay static */ }
+
+        return null;
+    }
+
+    private static WheelVector ToWheelVector(Vector3 v) => new WheelVector(v.x, v.y, v.z);
 
     /// <summary>
     /// World-space union of the *car body* renderers under <paramref name="root"/>:

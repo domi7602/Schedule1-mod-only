@@ -1,5 +1,8 @@
 # Temperature (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 65 of 65 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 Namespace: `Il2CppScheduleOne.Temperature` — 5 types in the decompile dump. Small, purely mathematical system.
 
@@ -46,11 +49,11 @@ No UnityEvents in the Temperature namespace.
 ## Save Participation
 - **None**: no ISaveable in the namespace. Temperature state is derived each frame from emitter positions/modes; `AirConditioner` persists only via its GridItem build data (02-Save-Persistence).
 
-## Hook Points
+## Candidate Hook Points
 1. **Prefix `TemperatureAlgorithm.GetTemperatureAtPoint(...)`** — global climate mods (seasons, weather chill; pairs with 64-Weather).
 2. **Postfix `Tiles\Tile.TileTemperature` getter** — read or offset tile temperature (grow-room simulation).
 3. **Prefix `AirConditioner.SetMode_Server(EMode)`** — restrict/log/extend device modes (server-authoritative).
-- **S1API wrappers (verified against checked-in source)**: `S1API.Temperature.TemperatureEmitter` (`FromGameObject`, `GetOrAddComponent`, `SetTemperature/SetRange/SetPosition`, `ToInfo`), `TemperatureAlgorithm.GetTemperatureAtPoint`, `TemperatureUtility` formatting, `TemperatureEmitterInfo`.
+- **S1API wrappers (previously reported against checked-in source)**: `S1API.Temperature.TemperatureEmitter` (`FromGameObject`, `GetOrAddComponent`, `SetTemperature/SetRange/SetPosition`, `ToInfo`), `TemperatureAlgorithm.GetTemperatureAtPoint`, `TemperatureUtility` formatting, `TemperatureEmitterInfo`.
 
 ## Not Implemented / Unverified
 - No "insulation" or "time of day" terms exist in the algorithm — ambient value comes only from `TemperatureEmitter.DefaultAmbientTemperature` and neighbouring emitters (old file claim removed as unverifiable).

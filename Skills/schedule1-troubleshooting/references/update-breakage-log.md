@@ -1,39 +1,50 @@
-# Update Breakage Log - What changed in the game or API?
+# Update Breakage Notes and Reverification
 
 > verified: compiled 2026-10-05 from the cited evidence files; no new in-game tests were run for this log.
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 18 of 18 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
-This is an evidence-based record of **observed** mod breakage and compatibility risks, not a release matrix. Confirmed rows cite evidence and an observation date. Expected rows come from [`docs/compatibility.md`](../../../docs/compatibility.md) and are review triggers, not established facts. Check current assemblies before applying any historical observation to the installed runtime.
+> Evidence scope: historical observations inherited from the uploaded skills. The supporting
+> original logs, decompiles, and repository documents are not bundled. This file is a list
+> of targeted checks, not a compatibility release matrix or new confirmation of those cases.
 
-## Confirmed breakages
+## Historical leads
 
-| Change or symptom | Observed impact | Evidence | Severity |
-|---|---|---|---|
-| `DialogueHandler.get_activeDialogue()` was removed | A patch targeting a method whose body references the removed accessor can fail during patch installation with `MissingMethodException`. Verify the target and its callers against current decompiles. | `references/common-errors.md` section 1 | high |
-| `OnSaveInfoLoaded` callback behavior | In the instrumented load recorded 2026-09-29, two subscribed mods observed **0 firings** through boot, save-menu open, and load. Prefer `OnPreLoad` / `OnLoadComplete` for the documented reset/refresh pattern, but verify current runtime behavior before treating the observation as universal. | `../schedule1-lifecycle-verify/SKILL.md` section 7 | high |
-| `OnSaveLoaded` API assumption | The checked-in `GameLifecycle` source exposes six events and does not define `OnSaveLoaded`; recipes using that name are invalid for the checked source. | `../schedule1-lifecycle-verify/SKILL.md` section 7 | medium |
-| Framework/runtime assembly mismatch | A framework binary that lacks the game's renamed members can cause missing-method failures during startup. Keep the source checkout and deployed DLL aligned; canonical dependency selection lives in `AGENTS.md` / `docs/compatibility.md`. | `docs/compatibility.md` (toolchain and known drift notes) | medium |
-| Excessive mod class volume | A very large mod can exhaust IL2CPPInterop class initialization signatures, fall back to a substitute, then crash natively. | `SKILL.md` section 8; `references/common-errors.md` section 4 | critical |
-| Field-accessor patch target | `BaseItemDefinition.get_DefaultStackLimit` is a field accessor that cannot be Harmony-patched; the attempted patch was removed and the limit is resolved by engine scanning instead. | `../schedule1-items/references/stacklimit-engine.md`; `SKILL.md` section 8 | medium |
+| Historical lead | What to inspect after an update | Limit |
+|---|---|---|
+| Removed `DialogueHandler` accessor | Exact declaring type, patch code references, and dependent callers | Do not assume it is absent in every game branch |
+| `OnSaveInfoLoaded` not observed in a 2026-09-29 trace | Current subscription, callback order, required readiness | Zero observations do not prove a globally dead event |
+| Assumed `OnSaveLoaded` name | Actual S1API lifecycle event surface | Do not manufacture an equivalent event |
+| Source/deployed-framework mismatch | Source commit, DLL identity/hash, loaded dependency | Source checkout alone is not the running framework |
+| Native crash after class-initialization warning | Crash diagnostics, interop compatibility, minimal reproduction | No universal DLL-size/class-count threshold established |
+| `DefaultStackLimit` accessor patch rejected | Current proxy/native binding and supported alternative | A similarly named property is not automatically patchable |
+| Appearance or NPC object-model change | Current data types, migration behavior, ragdoll/appearance call paths | Historical compatibility notes are not current declarations |
+| Branch-specific save conversion | Actual migration direction and backup/recovery contract | Preserve the original before any destructive conversion test |
 
-## Expected risks (not yet confirmed)
+## Reverification workflow
 
-| Change or risk | Potential impact | Evidence | Severity if real |
-|---|---|---|---|
-| Avatar object-model refactor (`AvatarSettings` to `AvatarObjects` / `Outfit`) | May affect NPC portraits and visual patches. | `docs/compatibility.md` (known drift risks) | medium |
-| NPC ragdoll / `NPCHealth` changes | Existing mitigation was exercised in one earlier session; other mods touching NPC death/ragdoll remain unchecked. | `docs/compatibility.md`; verification matrix | medium |
-| One-way appearance-save conversion | Back up saves before switching game branches; this is a data-loss risk, not a code breakage. | `docs/compatibility.md` (known drift risks) | high (data loss) |
+1. Preserve the installed artifact manifest, logs, and test-save copy before changing inputs.
+2. Identify the actual new game/backend/framework versions and matched proxy generation.
+3. Regenerate references only through the workspace's inspected tooling when authorized.
+4. Build affected projects without deployment using the current build contract.
+5. Check each required anchor by declaring type and full signature, not global token counts.
+6. Verify patch installation and invocation in a controlled session.
+7. Reproduce gameplay, save/load, teardown, and relevant host/client behavior.
+8. Record per-feature results and unresolved checks; do not update a verification date alone.
 
-## Update-response runbook
+When optional static tools are missing, use available build/source checks and report the gap.
+Do not automatically roll back a game version or overwrite a save from a `.bak` merely
+because a version changed. Establish compatibility and the exact backup identity first.
 
-Full runbook: [`schedule1-modding`](../../schedule1-modding/SKILL.md) section 5. Short form:
+## Add a new record
 
-1. Launch the game once so MelonLoader regenerates `MelonLoader/Il2CppAssemblies/`; stale proxies prove nothing.
-2. Run `pwsh Tools/bootstrap-game-references.ps1` to regenerate local decompiles.
-3. Run `dotnet build -c Release -p:S1NoDeploy=true` as an API-drift check.
-4. Run the available pre-flight/static analysis; if `s1interop` is unavailable, use the documented build-and-test substitute.
-5. For each patched class, inspect it with `ilspycmd` against the regenerated proxies and compare signatures.
-6. Check mod verification dates in `AGENTS.md` section 2 / `docs/compatibility.md`; re-verify affected mods against the installed runtime.
-7. Wrap risky patches in `PatchGuard` (`S1Mods.Shared`) for graceful degradation.
+Record observed date, game/backend, dependency identities, artifact hashes, reproduction,
+old/new behavior, concrete evidence path, affected scope, and whether the result is static,
+build-only, or runtime-tested. Mark hypotheses separately from confirmed changes.
+A future documentation edit must update examples and quick-reference tables with the record.
 
-After an update pass, add evidence-backed observations here. Keep unconfirmed risks explicitly marked until tested.
+## Related references
+
+- [Troubleshooting workflow](../SKILL.md)
+- [Common error families](common-errors.md)
+- [Lifecycle verification](../../schedule1-lifecycle-verify/SKILL.md)
+- [Build/deploy contract](../../schedule1-modding/references/build-and-deploy.md)

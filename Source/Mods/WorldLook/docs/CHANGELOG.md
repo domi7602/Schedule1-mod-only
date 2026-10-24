@@ -1,5 +1,39 @@
 # WorldLook
 
+## 0.3.0-dev.2 (2026-10-23)
+
+- Focused surface/glint refinement after the dev.1 midday comparison: three advected gradient-noise detail layers, footprint filtering with retained unresolved variance, and compact bounded sun glints (authored sharpness 512). Refraction/foam keep the prior gradient and the clarity recipe is retained.
+- Parent ran 1,167 water tests (0 failed/skipped); full Unity/C# build passed with 0 C# warnings/errors, no shader compiler errors/warnings in the targeted scan. Runtime C# inputs are byte-identical except the tool-generated version. Independent shader and fixture reviews PASS. Controlled binary-bundle GPU comparison passed: identical dry controls/repeated time-zero frames; matched near/far pictures show finer glints and readable submerged blocks. These synthetic Editor checks do not accept game motion or performance.
+- Installed with three hash-verified dev.1 rollback targets; DLL `410fecf7dda5f079e86807942eb18ef98168201c4a9dddea124391e3d5bd1645`, embedded bundle `29557b87609c367e3b568d84d10400d67c980581a1e3491fbd455def9794c8ef`. Post-install comparison: only DLL/PDB/metadata changed among 34 checked files; profile retained. **In-Game-Verify open** for full acceptance.
+- **First dev.2 runtime, 2026-10-23:** loader/bundle hashes match. The ON F9 preserved in `status.json.bak` confirms native sky, active reference water/native SkyState, HHMM `740` → 460 minutes, five readable lighting channels and expected neutral strength at 07:40; no module faults/errors. Subsequent OFF F9 reports clean release. Owner images at 07:59/08:17 lack a strong direct-sun highlight; glint improvement is not yet accepted. Game was already closed at collection, so no live MCP query. Full details in the current verification record.
+- **Owner-confirmed 2026-10-23:** surface stayed **"ruhig"** during slow camera movement in the reported morning test, with no noticed shimmer. This closes that scoped movement check; strong-sun appearance, measured performance and the remaining lifecycle checks are separate.
+- The pre-change source/assets/installed state are preserved in an 87-file hash-verified snapshot. [Current verification and rollback record](water-surface-verification.md). Historical dev.1 runtime evidence below does not verify this candidate.
+
+## 0.3.0-dev.1 (2026-10-22)
+
+- Canonical repository baseline: native sky/clouds/sun/moon/stars, the mild historical GoldenHour tint recipe and the current environment-only clear-water shader. The former external standalone prototype is preserved under `Source/Archive/WorldLook/Standalone-0.2.0/`.
+- Correct native HHMM conversion in the light controller. The older GoldenHour time filter and standalone sky reader both incorrectly treated HHMM as minutes; a historical visual acceptance was not a verification of that clock input.
+- One host owns F7 and module lifetime; small F9 state replaces the full F8 GraphicsProbe. Scene scanning/probe sources and tests are archived. No native skybox material replacement, extra reflection camera or global reflection uniforms.
+- Five evidenced light color channels with native drift/readback tracking and owned-write restoration. Water reads native SkyState/ambient/weather inputs on bounded cadences. Water recipe and shader composition retain the clearer 0.2.0 candidate values.
+- One JSON startup profile: Enabled, LightingEnabled, WaterEnabled, Warmth. The new warmth strength is distinct from the retired cloud-light setting. Existing valid files are not auto-rewritten; invalid reads disable the session's look and preserve the input.
+- Independent review found and closed a disabled-water cleanup defect: OFF now permits bounded restore-only retries after transient native failure, without allocating or reapplying. Five regressions observed RED before repair.
+- Full Unity/C# build passed with 0 warnings/errors; parent ran 1,293 tests (104 lighting, 1,166 water, 23 settings), final independent delta review PASS, solution format/version/doc/SLN checks passed. Candidate installed with hash-verified backup; DLL SHA-256 `79721251dd863862b027d08d4064b47a197dd8a9527c98f84bf43f6457391c27`. Profile enables light/water with mild Warmth 1.0. [Evidence and rollback](native-baseline-verification.md). **In-Game-Verify open**; prior prototype screenshots do not accept this candidate.
+- **2026-10-23, first candidate runtime:** loaded DLL/bundle identities match; log confirms reference-water application and one OFF/material-release transition. F9 reports native sky, both modules OFF, no module fault flags or pending lighting restores. Morning screenshots (07:25/07:44) show more visible submerged detail in the first and stronger surface reflections in the second; both are dark, with AN/AUS labels inferred from sequence rather than supplied by the owner. No live MCP capture (game already closed). Full visual acceptance, active-light readback, re-enable and reload checks remain open; see the verification record.
+- **2026-10-23, midday follow-up:** 13:55/14:08 images reveal clear submerged geometry but broad soft highlight bands in the first, versus more distinct surface/glints in the second. A fresh run again confirms application and clean reported OFF; F9 was captured while OFF, so active lighting is still unverified. A focused surface-normal/highlight refinement is proposed pending approval; no code, shader or installed-state changes made. Details and limitations are in the verification record.
+
+## 0.1.5 (2026-10-20)
+
+- The comb stripes were two straight cosines. The wave field now bends on a slow warp and uses four directions whose frequencies do not lock into parallel teeth. Clarity, tint, absorption and foam are unchanged.
+- Bundle rebuilt, 9 705 bytes, SHA-256 `04a2afb6321e06321869740541d19ea71d017b3148592a7971beb609ad4c3a6f`. Diagnose: `isSupported=True`, `passCount=1`, `messages=0`, fragment pass compiled.
+- **Owner-confirmed 2026-10-20.** Dominik accepted the water look on 0.1.5 after a Main-scene session. `Latest.log` shows WorldLook v0.1.5 loaded and the reference shader bound on `Main/Map/StylizedWater2_Ocean` with `_Absorption=0.1`, `_RippleStrength=0.28`, `_ShallowTint=(0.46,0.52,0.55)`. Individual actions were not itemized. This closes the water acceptance item. The 2026-10-18 light look and manual probe records stay their own.
+
+## 0.1.4 (2026-10-20)
+
+- The blue plate was not the tint. The shader covered the water with `alpha = 0.35 + absorb * 0.65` and dyed with raw absorb, so a few metres were already an opaque sheet. Material values could not lift that. The fragment now delays the dye (`pow(absorb, 2.2)`) and keeps alpha near clear until that dye is high (`0.04 + dye * 0.85`). Refraction smear `0.035 → 0.012`, downward reflection bias `0.08 → 0.02`.
+- Recipe follows the new curve: `_Absorption` 0.22 → 0.10, `_RippleStrength` 0.45 → 0.28. Shallow tint stays `(0.46, 0.52, 0.55)`. Foam, deep tint and sun are not written.
+- Bundle rebuilt with Unity 2022.3.62f2. `s1reference.bundle` 9 510 bytes, SHA-256 `7bbc68ea52bc3fd3948c295051e9893ddd6baab73f0ab28205c74649b60479c0`. Diagnose: `isSupported=True`, `passCount=1`, `messages=0`, fragment pass compiled.
+- WaterShader.Tests: 1 145 passed. In-Game-Verify open. Deep ocean should still darken; harbor water should show the bottom.
+
 ## 0.1.3 (2026-10-20)
 
 - The 0.1.2 water still read creamy. The shader multiplies everything seen through the surface by `lerp(_ShallowTint, _DeepTint, absorb) * 2.0`. The old tint `(0.50, 0.75, 0.75)` therefore gained `(1.0, 1.5, 1.5)` and lifted the bottom toward pale cream. The new tint `(0.46, 0.52, 0.55)` keeps that gain near the bottom's own colour, with only a small cool bias.

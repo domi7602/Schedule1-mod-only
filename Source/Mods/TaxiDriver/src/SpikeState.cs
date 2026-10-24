@@ -513,6 +513,9 @@ internal static class SpikeState
         LastVehicleCode = null;
         LastSpawnPosition = Vector3.zero;
         VisualRoot = null;
+        // The GLB and its cached wheel links died with the vehicle: sever them without
+        // touching any (already dying) native object.
+        TaxiVisual.ReleaseWheels();
         SettleCheckAt = 0f;
         SettleCheckVehicle = null;
         CancelPendingSpawn();

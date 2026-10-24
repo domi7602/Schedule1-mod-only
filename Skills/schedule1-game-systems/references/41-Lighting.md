@@ -1,5 +1,8 @@
 # Lighting (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 76 of 76 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 Namespace: `Il2CppScheduleOne.Lighting` — plain MonoBehaviour components, **no manager/singleton**.
 
@@ -18,7 +21,7 @@ Namespace: `Il2CppScheduleOne.Lighting` — plain MonoBehaviour components, **no
 | `ShadowLODController` | `MonoBehaviour` | Soft/hard shadow distance LOD for `_lights` |
 | `ReflectionProbeUpdater` | `MonoBehaviour` | Queued, throttled reflection-probe rendering |
 
-## Key APIs (verified)
+## Key APIs (previously reported)
 - `LightExposureNode`: `GetTotalExposure(out float growSpeedMultiplier) → float`, `AddSource(UsableLightSource, float lightAmount)`, `RemoveSource(UsableLightSource)`, `OnDrawGizmos()` — the plant-growth light pipeline; `UsableLightSource` only carries `GrowSpeedMultiplier`/`isEmitting`.
 - `LightTimer`: `StartTime`, `EndTime`, `StartTimeOffset`, `toggleableLights` (`List<Misc.ToggleableLight>`); `Awake()`, `Start()`, virtual `UpdateState()`, `SetState(bool on)`.
 - `PoliceLight`: `SetIsOn(bool)`, `FixedUpdate()`, `CycleCoroutine()`; fields `IsOn`, `RedMeshes`/`BlueMeshes`, `RedLights`/`BlueLights`, `Siren`, `CycleDuration`, on/off materials (`RedOnMat` …), `RedBrightnessCurve`/`BlueBrightnessCurve`, `LightBrightness`.
@@ -38,7 +41,7 @@ Namespace: `Il2CppScheduleOne.Lighting` — plain MonoBehaviour components, **no
 ## Save Participation
 - **No `ISaveable` / `SaveData` in the Lighting namespace** (grep). Light on/off state persists via the owning buildables (e.g. `GrowLight` as `ProceduralGridItem`, doors/lamps as `ToggleableLight` consumers), not via these components.
 
-## Hook Points
+## Candidate Hook Points
 1. **Postfix `LightExposureNode.GetTotalExposure(out float)`** — modify computed grow-light exposure (custom lamps, buff/debuff growth) — note the `out float` is filled before the postfix runs, so overwrite the outer arg; plain method, patchable.
 2. **Postfix `LightExposureNode.AddSource(...)` / `RemoveSource(...)`** — track which lamps feed which plant nodes (light auditing, quest logic).
 3. **Prefix `LightTimer.SetState(bool)`** — force/override scheduled light windows (curfew blackouts, custom timers).

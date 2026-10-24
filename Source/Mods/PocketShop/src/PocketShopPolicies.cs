@@ -363,3 +363,30 @@ namespace PocketShop.UI
     }
 }
 // ==== END original: Source/Mods/PocketShop/src/UI/StoreGridLayout.cs ====
+
+namespace PocketShop.Services
+{
+    using System;
+
+    /// <summary>
+    /// Decides which registered shops belong on the phone directory.
+    /// S1API custom suppliers register a real <c>ShopInterface</c>, but their shop name and
+    /// code are a raw id (<c>s1api_supplier_…</c>), not a store the player should browse.
+    /// The prefix is the one <c>SupplierRuntimeIds.ShopNamePrefix</c> writes.
+    /// </summary>
+    public static class ShopDirectoryPolicy
+    {
+        public const string S1ApiSupplierPrefix = "s1api_supplier_";
+
+        public static bool IsHiddenS1ApiSupplier(string? shopName, string? shopCode)
+        {
+            return StartsWithSupplierPrefix(shopName) || StartsWithSupplierPrefix(shopCode);
+        }
+
+        private static bool StartsWithSupplierPrefix(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return false;
+            return value.Trim().StartsWith(S1ApiSupplierPrefix, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+}

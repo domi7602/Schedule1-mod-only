@@ -1,219 +1,79 @@
 ---
 name: schedule1-debounced-reload
-description: >-
-  Debounced live-reload pattern for MelonLoader mods in Schedule I. Use when a mod needs to react to file or folder changes (config hot-edit, user asset drop, MelonPreferences.cfg watcher) without thrashing the main thread.
-  Keywords: FileSystemWatcher, debounce, TryConsumeScheduledReload, OnUpdate, main-thread pump, config hot-reload, ImageFolderWatcher, PreferencesFileWatcher.
+description: "Debounce config reloads with retries and clean shutdown. Keywords: FileSystemWatcher, debounce, TryConsumeScheduledReload, OnUpdate, main-thread pump, config hot-reload, ImageFolderWatcher, PreferencesFileWatcher."
 ---
 
 > Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
-# Schedule I — Debounced Live-Reload Pattern
+# Schedule I — Debounced Reload
 
-> **Source:** distilled from decompiling `CustomLoadingScreens` (DooDesch). Verified 2026-08-26.
->
-> **The trap:** `FileSystemWatcher` fires multiple events per logical change (Create + Changed + sometimes Renamed, plus double-fires from text editors using "atomic save" via temp file). A naive handler re-reads the file 5× per save, allocating GC pressure on the main thread and potentially corrupting state mid-read.
->
-> **The fix:** Watcher only sets a `DateTime?` flag (debounced 150–250ms). The actual reload happens once, on the **main thread**, driven by `OnUpdate()`. No locks, no allocations on the hot path.
+## Scope and prerequisites
 
----
+Follow the [working contract](../schedule1-modding/references/working-contract.md).
+Identify the watched paths, their owner, valid input schema, reload cost, and scene lifetime.
+Reuse a tested workspace watcher if its current contract meets these requirements.
+This is a design and validation contract; no drop-in watcher is claimed to be compiled.
 
-## 1. The 3 Components
+## Responsibilities
 
-```
-┌──────────────────────┐    FileSystemWatcher     ┌──────────────────────────────┐
-│  External change     │ ───────────────────────▶ │  DebouncedWatcher            │
-│  (user saves file)   │   fires 1-5× per save    │  • sets _reloadDueUtc        │
-└──────────────────────┘                          │  • lock-free                 │
-                                                  │  • no allocation per event   │
-                                                  └──────────────┬───────────────┘
-                                                                 │ TryConsumeScheduledReload()
-                                                                 ▼
-                                                  ┌──────────────────────────────┐
-                                                  │  MelonMod.OnUpdate()         │
-                                                  │  main-thread pump            │
-                                                  │  • single reload per debounce│
-                                                  │  • catches exceptions safely │
-                                                  └──────────────────────────────┘
-```
+| Component | Responsibility |
+|---|---|
+| Watcher callback | Record that input may have changed; never touch Unity objects |
+| Scheduler | Coalesce events, retain generations, bound retries, and handle shutdown |
+| Loader | Read and validate a candidate without replacing the active state |
+| Main-thread publisher | Check generation, publish the candidate, release old owned resources |
 
----
+File events are notifications, not proof of a complete, readable, valid file.
+A delay reduces duplicate work but cannot guarantee that an editor has finished writing.
 
-## 2. Reusable Implementation
+## Workflow
 
-Drop-in template (not yet part of Shared - copy as `DebouncedFileWatcher.cs` into your mod or into `Source/Mods/Shared/src/`):
+1. Validate the directory and filters; create a mod-owned directory only when that is
+   part of the task. Otherwise report an inactive watcher and define recovery.
+2. Register change, create, delete, rename, and error handlers before enabling events.
+3. On notification, update a generation and an elapsed-time deadline under one consistent
+   synchronization policy. A small lock is acceptable; do not describe it as lock-free.
+4. Consume due work through the main-thread pump without holding the scheduler lock
+   during file I/O, parsing, or Unity operations.
+5. Read and validate a candidate. Keep the last valid configuration or asset batch intact.
+6. If a newer event arrives during loading, retain that pending generation; do not let
+   completion of an older reload clear it.
+7. Publish only if the request still belongs to the current scene/session and generation.
+8. Log a bounded success/failure summary and expose the actual watcher/reload state.
 
-```csharp
-using System;
-using System.IO;
+## Timing and recovery
 
-namespace S1Mods.Shared.IO;
+- Use an elapsed-time source for deadlines; wall-clock changes must not delay a reload
+  indefinitely or trigger it early. Validate negative/overflowing configuration values.
+- Treat a locked or temporarily incomplete file as retryable with a bounded backoff.
+- Treat persistent validation failure as visible rejected input; do not retry every frame.
+- A retry must preserve newer pending work and terminate at the configured limit.
+- A continuous stream of edits may postpone trailing-edge debounce. Define a maximum
+  latency only when needed and still validate input before accepting it.
+- A watcher `Error` can mean lost events or stopped monitoring. Mark the snapshot suspect,
+  schedule a bounded rescan, and recreate the watcher if required by the observed error.
+- Do not infer full-folder content changes solely from the directory modification time.
 
-/// <summary>
-/// Debounced wrapper around FileSystemWatcher. Watcher events only stamp
-/// _reloadDueUtc; the actual reload runs on the main thread when
-/// TryConsumeScheduledReload() returns true. Lock-protected but allocation-free
-/// on the hot path (just two DateTime reads/writes).
-/// </summary>
-public sealed class DebouncedFileWatcher : IDisposable
-{
-    private readonly object _lock = new();
-    private readonly FileSystemWatcher? _watcher;
-    private readonly TimeSpan _debounce;
-    private readonly string? _filter;
-    private DateTime? _reloadDueUtc;
-    private bool _disposed;
+## Shutdown and ownership
 
-    /// <param name="directory">Directory to watch. If null/unwatchable, watcher is a no-op.</param>
-    /// <param name="filter">Optional filename filter (e.g. "MelonPreferences.cfg"). Null = "*.*".</param>
-    /// <param name="debounceMs">Coalesce window. 150-300ms is typical.</param>
-    /// <param name="includeSubdirectories">True for image-asset folders, false for single-file watchers.</param>
-    public DebouncedFileWatcher(string directory, string? filter, int debounceMs = 250, bool includeSubdirectories = false)
-    {
-        _debounce = TimeSpan.FromMilliseconds(debounceMs);
-        _filter = filter;
-        if (string.IsNullOrWhiteSpace(directory) || !Directory.Exists(directory)) return;
+Set the terminal state under the same synchronization policy used by callbacks.
+Ignore late callbacks, cancel pending generations, disable events, detach handlers, and
+release the watcher. Report inactive after disposal; a non-null disposed reference is not
+an active watcher. Repeated disposal must be harmless.
+Main-thread operations remain on the main thread; background work handles bytes and pure
+parsing only unless a particular API is explicitly documented as thread safe.
 
-        try {
-            _watcher = new FileSystemWatcher(directory, filter ?? "*.*") {
-                NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.CreationTime,
-                IncludeSubdirectories = includeSubdirectories,
-                EnableRaisingEvents = true,
-            };
-            _watcher.Changed += OnChanged;
-            _watcher.Created += OnChanged;
-            _watcher.Deleted += OnChanged;
-            _watcher.Renamed += OnRenamed;
-        } catch (Exception) {
-            _watcher?.Dispose();
-            _watcher = null;          // silent degrade — caller checks IsActive
-        }
-    }
+## Verification and delivery
 
-    public bool IsActive => _watcher != null;
+Exercise duplicate events, atomic rename saves, partial writes, locked and invalid input,
+continuous edits, an event during loading, watcher error/rescan, and disposal races.
+Verify that a failed reload retains the last valid state and does not flood logs or frames.
+Measure reload cost and allocation behavior before making performance claims.
 
-    private void OnChanged(object _, FileSystemEventArgs __) => Schedule();
-    private void OnRenamed(object _, RenamedEventArgs __) => Schedule();
+## References
 
-    public void Schedule() {
-        lock (_lock) {
-            _reloadDueUtc = DateTime.UtcNow + _debounce;
-        }
-    }
-
-    /// <summary>Call from MelonMod.OnUpdate(). Returns true exactly once per debounce window.</summary>
-    public bool TryConsumeScheduledReload() {
-        lock (_lock) {
-            if (!_reloadDueUtc.HasValue || DateTime.UtcNow < _reloadDueUtc.Value) return false;
-            _reloadDueUtc = null;
-            return true;
-        }
-    }
-
-    public void Dispose() {
-        if (_disposed) return;
-        _disposed = true;
-        if (_watcher == null) return;
-        try {
-            _watcher.EnableRaisingEvents = false;
-            _watcher.Changed -= OnChanged;
-            _watcher.Created -= OnChanged;
-            _watcher.Deleted -= OnChanged;
-            _watcher.Renamed -= OnRenamed;
-            _watcher.Dispose();
-        } catch { /* swallow on shutdown */ }
-    }
-}
-```
-
----
-
-## 3. Wiring into a MelonMod
-
-```csharp
-private DebouncedFileWatcher? _configWatcher;
-private DebouncedFileWatcher? _assetWatcher;
-
-public override void OnInitializeMelon() {
-    var userData = MelonEnvironment.UserDataDirectory;
-    _configWatcher = new DebouncedFileWatcher(
-        directory: Path.Combine(userData, "MyMod"),
-        filter: "config.json",
-        debounceMs: 250);
-    _assetWatcher = new DebouncedFileWatcher(
-        directory: Path.Combine(userData, "MyMod", "Assets"),
-        filter: null,
-        debounceMs: 500,
-        includeSubdirectories: true);
-}
-
-public override void OnUpdate() {
-    if (_configWatcher?.TryConsumeScheduledReload() == true)
-        ReloadConfig();
-    if (_assetWatcher?.TryConsumeScheduledReload() == true)
-        MarkAssetCacheDirty();        // defer actual work — see schedule1-runtime-unity-cache
-}
-
-public override void OnApplicationQuit() {
-    _configWatcher?.Dispose(); _configWatcher = null;
-    _assetWatcher?.Dispose(); _assetWatcher = null;
-}
-```
-
----
-
-## 4. The Two Common Cases
-
-### 4a. MelonPreferences.cfg hot-reload
-
-```csharp
-var path = Path.Combine(MelonEnvironment.UserDataDirectory, "MelonPreferences.cfg");
-var dir  = Path.GetDirectoryName(path);
-var watcher = new DebouncedFileWatcher(dir, "MelonPreferences.cfg", debounceMs: 150);
-// On consume: call MelonPreferences.Load() then re-read all entries into your cached values.
-```
-
-Note: 150ms (not 250ms) because MelonPreferences writes are atomic and the user expects fast response.
-
-### 4b. User asset drop-folder
-
-```csharp
-var watcher = new DebouncedFileWatcher(
-    Path.Combine(MelonEnvironment.UserDataDirectory, "MyMod", "Images"),
-    filter: null,
-    debounceMs: 500,
-    includeSubdirectories: true);
-// On consume: re-scan folder, rebuild sprite cache (don't do this on the FSW thread).
-```
-
-500ms because image loads are heavier and the user typically drops several files at once.
-
----
-
-## 5. Pitfalls
-
-| Symptom | Cause | Fix |
-|---|---|---|
-| Reload fires multiple times per save | No debounce — FSW double-fires on atomic-rename saves | `_reloadDueUtc` flag (§2) |
-| Reload never fires | Watcher disposed too early, or directory didn't exist | Check `IsActive`, log a warning if false |
-| Reload runs on FSW thread → throws | File still being written by editor | Always reload from `OnUpdate`, never from FSW callback |
-| Reload throws → next reload blocked | Exception in handler keeps `_reloadDueUtc` null forever | Wrap reload body in try/catch; on failure, **call `Schedule()` again** to retry next tick |
-| GC pressure from FSW events | `FileSystemEventArgs` allocated per event | Debounce converts N events → 1 reload — single allocation per debounce window |
-| Watcher fires during shutdown → ObjectDisposed | Race with `OnApplicationQuit` | Set `_disposed` flag; null-check before each access |
-
-**The retry-on-failure rule is the most-missed:** if the user saves while the file is locked, you must reschedule, not silently swallow.
-
----
-
-## 6. When NOT to Use
-
-- **One-shot reads** (e.g. settings at startup): no watcher needed.
-- **Very large files** (100MB+): reload is expensive — consider a generation counter (`File.GetLastWriteTimeUtc`) and skip reload if timestamp unchanged.
-- **Cross-process notifications** (IPC): use named pipes or a memory-mapped file instead.
-
----
-
-## 7. References
-
-- Source of pattern: decompiled `CustomLoadingScreens/CustomLoadingScreens.Config/ImageFolderWatcher.cs` + `PreferencesFileWatcher.cs` (kept under `.scratch/mod-decompile/_decompiled/`)
-- Companion skill: `schedule1-runtime-unity-cache` — for what to do AFTER the debounce fires (rebuild Texture/Sprite/AudioClip caches with proper `Object.Destroy` lifecycle)
-- Companion skill: `schedule1-modding` §5 — main-thread pump rules
+- [.NET FileSystemWatcher](https://learn.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher): events, filtering, and notification limitations.
+- [.NET Error event](https://learn.microsoft.com/en-us/dotnet/api/system.io.filesystemwatcher.error): lost-event and monitoring-failure handling.
+- [.NET Stopwatch](https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.stopwatch): elapsed-time measurement; select a target-runtime-supported API.
+- [Runtime asset cache](../schedule1-runtime-unity-cache/SKILL.md): candidate publication and resource cleanup.
+- [Persistence](../schedule1-persistence/SKILL.md): durable configuration writes and recovery.

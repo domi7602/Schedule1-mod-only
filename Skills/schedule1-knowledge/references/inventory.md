@@ -1,107 +1,62 @@
-# Knowledge-Base & Code Reference Inventory
+# Workspace Evidence Inventory
 
 > verified: repository inventory re-measured 2026-10-05; decompiles regenerated 2026-10-05 with ilspycmd in project mode; spot-check set passed.
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 68 of 68 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
-The inventory of code references, decompiles, framework sources, and game system analyses available directly in the repository workspace. **Use this when researching game mechanics, APIs, and vanilla behavior.**
+> Evidence scope: directory names are inherited from the uploaded workspace notes.
+> This package contains skills and references, not the game decompiles, framework sources,
+> active mod repository, or original evidence files described below.
 
----
+## Locate before reading
 
-## 1. Frameworks & Third-Party Libraries (In-Repo Sources)
+Identify the workspace root through the current task/environment. Check the relevant path
+before using it; do not search unrelated user locations to compensate for missing inputs.
+Record source commit, binary identity/hash, backend, and decompile provenance when available.
 
-| Path | Contents | Purpose & Usage |
-|------|----------|-----------------|
-| `ThirdParty/S1API/S1API/` | Full S1API C# source tree | Reference for PhoneApp, Saveables, Registry, Items, UI, NPCs, Quests, GameTime; compare with deployed DLLs |
-| — (MoreDrugs: source not in repo) | Deployed DLL only (`DrugExpansion_Il2cpp.dll`) | Reference for Custom Product Save Provider & Item Expansion |
-| `ThirdParty/S1MCPServer-master/` | C# Source of S1MCP | Reference for Live Runtime Introspection & TCP Server :8765 |
-| `ThirdParty/Archive/PhoneScroll/` | Documentation (DLL retired 2026-09-16) | Reference for Phone Home Screen scrolling (Closed Source, V4LEXL) |
-| `<GameDir>/Mods/` | Runtime deployed DLLs | Live assemblies loaded by MelonLoader |
-| `<GameDir>/Plugins/` | `S1APILoader.MelonLoader.dll` | S1API lifecycle bootstrap plugin |
+| Expected path | Useful evidence | Limit |
+|---|---|---|
+| `GameReferences/decompiled/Assembly-CSharp/` | Game/proxy types and member signatures | Generated IL2CPP bodies usually hide native behavior |
+| `ThirdParty/S1API/` | Framework implementation at a known commit | May differ from deployed framework DLLs |
+| `ThirdParty/S1MAPI/` | Mapping/building/import implementation | Availability and current API require inspection |
+| `ThirdParty/S1MCPServer-master/` | Bridge schemas and handlers | Local modifications may differ from public source and running bridge |
+| `Source/Mods/` | Current workspace implementations and tests | A copied pattern is not automatically safe for a new lifetime/authority model |
+| `Source/Archive/` | Historical implementations | Not an active compatibility guarantee |
+| `AGENTS.md`, `docs/compatibility.md` | Workspace environment and dependency choices | Not included by default in this skill package |
+| Actual game's `MelonLoader/Il2CppAssemblies/` | Generated interop bindings for that installation | Match their generation to the running game |
+| Actual game's `Mods/`, `Plugins/`, `UserLibs/` | Deployed artifacts | File presence is distinct from loaded-module identity |
 
----
+## Curated system entry points
 
-## 2. Game-Reference — Decompiles (Vanilla Schedule I Source)
+Read the [systems index](../../schedule1-game-systems/references/_index.md) before opening
+individual notes. The collection groups 64 system topics; it is not proof that every
+possible system or every native implementation detail is covered.
 
-### 2.1. Assembly-CSharp (★ In-Repo Decompile: ~2100+ files)
+| Topic | Examples in the collection |
+|---|---|
+| Production and growing | Growing, mixing, products, drug effects |
+| Money and trade | Money, businesses, customers, dark market |
+| World and navigation | Regions, property, doors, map, vehicles |
+| NPCs and communication | Behavior, employees, dialogue/quest, messaging |
+| Player and inventory | Player, item framework, equipping, storage |
+| Environment | Weather, lighting, audio, temperature |
+| Infrastructure | Networking, persistence, time, configuration, variables |
 
-`GameReferences/decompiled/Assembly-CSharp/` contains the full IL2CPP-aware decompile of *Schedule I* (generated 2026-10-07; regenerate after updates, see `GameReferences/README.md`). Organized by namespace:
+## Evidence provenance
 
-```
-GameReferences/decompiled/Assembly-CSharp/
-├── Assembly-CSharp.csproj               (for IDE navigation)
-├── Il2Cpp/                              (interop primitives)
-├── Il2CppScheduleOne/                   (★ ~87 sub-namespaces; game core)
-│   ├── Audio/ AvatarFramework/ Building/ Calling/ Cartel/ Casino/ Clothing/
-│   ├── Combat/ Configuration/ Dialogue/ Doors/ Dragging/ Economy/ Effects/
-│   ├── Employees/ EntityFramework/ Equipping/ Events/ Gamepad/ GameTime/
-│   ├── Growing/ Heatmap/ Input/ Interaction/ ItemFramework/ Law/ Levelling/
-│   ├── Lighting/ Management/ Map/ Materials/ Math/ Messaging/ Misc/ Money/
-│   ├── Networking/ NPCs/ Noise/ ObjectScripts/ Packaging/ Persistence/
-│   ├── PlayerScripts/ PlayerTasks/ Police/ Polling/ Product/ Property/
-│   ├── Quests/ Reporting/ ScriptableObjects/ Skating/ State/ Storage/
-│   ├── StationFramework/ Temperature/ Tiles/ Tools/ Trash/ TV/ UI/
-│   ├── Variables/ Vehicles/ Vision/ VoiceOver/ Weather/
-├── Il2CppFishNet/                       (FishNet networking core)
-├── Il2CppFishySteamworks/               (Steam transport layer)
-└── Il2CppLiquidVolumeFX/ ...            (visual rendering components)
-```
+For each inspected file record whether it is original source, a generated proxy, a native
+analysis output, a static note, or a runtime trace. A timestamp on a note is not sufficient
+without the identity of the artifact it describes.
+A symbol-count sweep checks lexical coverage only; it does not verify overloads, relationships,
+call order, authorization, or gameplay behavior.
 
-**Quick-Lookup tips:**
-- Search via ripgrep (`grep_search` or `rg`):
-  ```pwsh
-  rg "class GrowContainer" "GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/Growing"
-  ```
-- Game namespaces use the IL2CPP prefix `Il2CppScheduleOne.<Area>` (e.g. `Il2CppScheduleOne.Growing`, `Il2CppScheduleOne.Persistence`).
-- `Assembly-CSharp-firstpass` contains native plugins and first-pass Unity assemblies.
+## Tool discovery
 
----
+Locate the actual `ilspycmd` executable and inspect its help/version before use.
+Treat `s1interop`, diagnostic mods, and a live S1MCP connector as optional capabilities.
+Use [search recipes](search-recipes.md) for targeted reads and
+[bridge guidance](../../schedule1-mcp/SKILL.md) for session/schema checks.
 
-## 3. Game Systems Architecture (64 In-Repo Analyses)
+## Missing input
 
-Curated architecture reference documents located in `Skills/schedule1-game-systems/references/`:
-
-- **Index & Quick Reference:** `Skills/schedule1-game-systems/references/_index.md`
-- **System Guide:** `Skills/schedule1-game-systems/references/README.md`
-
-| Category | Reference Files |
-|----------|-----------------|
-| **Core Gameplay** | `08-Plant-Growing.md`, `25-Mixing-Production.md`, `53-ProductSystem.md`, `37-DrugEffects.md` |
-| **Economy & Trade** | `23-Economy-Money.md`, `11-Business-Laundering.md`, `19-Customer-Budget.md`, `04-DarkMarket.md` |
-| **World & Map** | `13-Regions.md`, `43-MapAndLocations.md`, `54-Property.md`, `10-Building-Construction.md`, `35-Doors.md` |
-| **NPCs & Dialogue** | `14-NPC-Behaviour.md`, `38-Employees.md`, `03-Dialogue-Quest.md`, `34-Delivery.md` |
-| **Law & Enforcement** | `12-Heat-Pursuit-Law.md`, `51-Police.md`, `30-Cartel.md`, `46-Noise.md` |
-| **Player & Character** | `49-Player.md`, `24-Avatar-CharacterCreator.md`, `09-Inventory-ItemFramework.md`, `39-Equipping.md`, `55-Skateboard.md` |
-| **UI & Phone** | `06-UI-Phone-HUD.md`, `42-ManagementUI.md`, `22-DevConsole.md`, `44-Messaging.md` |
-| **Infrastructure** | `01-FishNet-Networking.md`, `02-Save-Persistence.md`, `17-TimeManager.md`, `32-Configuration.md`, `61-Variables.md` |
-| **Environment & Audio** | `64-Weather.md`, `41-Lighting.md`, `28-Audio.md`, `58-Temperature.md`, `18-Trash-Recycling.md` |
-| **Progression & Minigames** | `20-XP-Leveling.md`, `21-Casino-Gambling.md`, `15-Sewer.md`, `16-Graffiti.md`, `60-TVSystem.md` |
-
----
-
-## 4. Live Runtime Tools & Diagnostics
-
-| Tool | Location / Usage | Purpose |
-|------|------------------|---------|
-| **S1MCP Bridge** | `ThirdParty/S1MCPServer-master/` (TCP port 8765) | Live game inspection, scene hierarchy queries, object reflection, log streaming |
-| **ILSpy CLI (`ilspycmd`)** | Global dotnet tool: `ilspycmd` | Decompile live game assemblies in `<GameDir>/MelonLoader/Il2CppAssemblies/` |
-| **MelonLoader Logs** | `<GameDir>/MelonLoader/Latest.log` | Real-time diagnostic log stream with exception backtraces and warning patterns |
-| **DiagPerfCounter** | `Source/Archive/_DiagPerfCounter/` | In-game diagnostic reflection dump (archived 2026-09-20, obsolete — ilspycmd/S1MCP cover this) |
-
----
-
-## Quick-Reference: "I need to …"
-
-- **Find a vanilla game class or method** → `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/<Area>/`
-- **Understand a game system's logic and fields** → `Skills/schedule1-game-systems/references/XX-<System>.md`
-- **Check S1API public interfaces or implementations** → `ThirdParty/S1API/S1API/`
-- **Inspect live game state or spawn items** → `Skills/schedule1-mcp/SKILL.md` (S1MCP TCP :8765)
-- **Check save-game format & persistence events** → `Skills/schedule1-game-systems/references/02-Save-Persistence.md` + `Skills/schedule1-persistence/SKILL.md`
-- **Check MelonLoader log for errors or GC issues** → `schedule1-troubleshooting/references/logscan-and-logs.md` (canonical one-liners + spike patterns)
-
----
-
----
-
----
-
----
+If a necessary referenced file is absent, identify the exact missing evidence and continue
+independent analysis. Do not manufacture APIs or claim verification from the curated note.

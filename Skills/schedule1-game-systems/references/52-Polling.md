@@ -2,11 +2,13 @@
 
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 45 of 45 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session. Decompiles are IL2CPP interop stubs — hierarchy/signatures verified, method bodies not readable.
 
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+
 ## What it actually is (resolved speculation)
 
 An **online community-poll HTTP client** — not a game-world mechanic. The old draft claimed "NPCs express opinions", "results affect game world?" and "NetworkSingleton sync": **all removed** — none of it exists in the decompiles.
 
-## Core Classes (verified)
+## Core Classes (previously reported)
 
 | Class | Hierarchy | Purpose |
 |-------|-----------|---------|
@@ -17,7 +19,7 @@ An **online community-poll HTTP client** — not a game-world mechanic. The old 
 | `PollResponseWrapper` | plain object | HTTP JSON envelope: `success`, `data` |
 | `PollPanel` | `MonoBehaviour` (`ScheduleOne.UI.Polling`) | Poll UI |
 
-## PollManager (verified members)
+## PollManager (previously reported members)
 
 - `static string ServerUrl` (settable field), nested enum `EPollSubmissionResult { InProgress, Success, Failed }`.
 - Properties: `ActivePoll`, `ConfirmedPoll` (public get / private set), `SubmissionResult`, `SubmisssionFailedMesssage` *(sic, triple-s typo in )*.
@@ -34,7 +36,7 @@ An **online community-poll HTTP client** — not a game-world mechanic. The old 
 
 None — no `ISaveable`. Submission state persists via `RecordSubmission`/`TryGetExistingPollResponse` (storage mechanism **unverified**); `PollResponseWrapper` is an HTTP response DTO, not a save file.
 
-## Hook Points
+## Candidate Hook Points
 
 1. **Subscribe `PollManager.onActivePollReceived` / `onConfirmedPollReceived`** — react to new polls and announced results (no patch needed).
 2. **Prefix `PollManager.SelectPollResponse`** — auto-vote / force a specific response index.

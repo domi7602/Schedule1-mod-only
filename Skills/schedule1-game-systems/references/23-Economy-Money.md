@@ -1,6 +1,8 @@
 # Economy/Money (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 4 of 7 identifier-shaped tokens resolve (3 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 ## Money Types
 | Type | Description |
@@ -17,17 +19,17 @@
 5. **Recycler** (Trash converted to money, $0–$10 per item)
 6. **Quests** (Variable monetary rewards)
 
-## Known Exploits
+## Inherited economy observations to reproduce
 1. **Pawn Shop Negotiation Bug**: `playerOffer <= lastShopOffer` → immediately accepted
 2. **Zero-Fee Laundering**: $1,000 Cash → $1,000 Online, no cut taken
 3. **Contract Bonus Stacking**: Up to +65% extra (Curfew + Rain + Quick + Quality)
-4. **ATM**: `WeeklyDepositLimit` (10,000$) — the SCREAMING_SNAKE constant name does not exist on the installed runtime
+4. **ATM**: `WeeklyDepositLimit` (10,000$) — the SCREAMING_SNAKE constant name does not exist in the original source snapshot
 
 ## MoneyManager (NetworkSingleton)
 - `onlineBalance` (SyncVar, WritePermission ClientUnsynchronized)
 - `lifetimeEarnings` (SyncVar)
 - `cashBalance` (local via CashInstance in PlayerInventory)
-- `ChangeCashBalance(float change, bool visualizeChange = true, bool playCashSound = false)` — plus `ChangeOnlineBalanceCommand(...)` and `ChangeLifetimeEarnings(float change)`. There are **no** `AddFunds()` / `RemoveFunds()` / `ChangeOnlineBalance()` members; use `ChangeCashBalance` for cash and the online command for the bank balance.
+- `ChangeCashBalance(float change, bool visualizeChange = true, bool playCashSound = false)` — plus `ChangeOnlineBalanceCommand(...)` and `ChangeLifetimeEarnings(float change)`. The recorded native-owner search did not find `AddFunds()` / `RemoveFunds()` / `ChangeOnlineBalance()`. That says nothing about similarly named S1API wrappers. Resolve the exact owner, version, return contract and authority before choosing a mutation. See [payment contracts](../../schedule1-economy/SKILL.md).
 - Daily net worth check triggered per `onDayPass`
 
 ## Net Worth (for Achievements)
@@ -40,7 +42,7 @@
 ---
 
 ---
- Identifier-shaped tokens documented as *absent*: `ChangeOnlineBalance`, `RemoveFunds`, `AddFunds`.
- Identifier-shaped tokens documented as *absent*: `AddFunds`, `RemoveFunds`, `ChangeOnlineBalance`.
- Identifier-shaped tokens documented as *absent*: `RemoveFunds`, `ChangeOnlineBalance`, `AddFunds`.
- Identifier-shaped tokens documented as *absent*: `AddFunds`, `RemoveFunds`, `ChangeOnlineBalance`.
+
+## Names reported absent in the original search
+
+`AddFunds`, `ChangeOnlineBalance`, `RemoveFunds`. Absence is scoped to that search, not proof of removal from every supported version.

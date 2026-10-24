@@ -1,136 +1,42 @@
-# S1Mods.Shared & Architecture Guidelines
+# Architecture and project helpers
 
 > verified: API rules 2026-08-20/21 + 2026-09-11 audit; §1/§5 deduplicated to canonical homes 2026-10-05.
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 44/45 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
-`S1Mods.Shared` is the central core library shared across all mods in the workspace (`Source/Mods/Shared/`).
+## Scope
 
----
+The supplied workspace uses a Shared library and named helpers such as SafeStorage, ModConfig, UITheme, PatchGuard and HotkeyManager. Their current implementations are not part of this package. Treat names as lookup targets, not guaranteed signatures.
 
-## 1. SafeStorage (`SafeStorage.cs`)
-Handles fault-tolerant atomic JSON persistence with automatic backup and crash recovery.
+## Inspect before reuse
 
-```csharp
-using S1Mods.Shared;
+For each helper determine its actual owner, accessibility, arguments/results, threading rules, mutation behavior and cleanup contract. Check its project reference and deployed dependency. Do not add a new helper with a similar name to avoid understanding the existing one.
 
-// Atomic save with .bak rotation (JSON object)
-SafeStorage.SaveAtomic(filePath, myObject, Mod.Log);
+## Persistence
 
-// Text atomic (e.g. Game.json, config.json)
-SafeStorage.SaveTextAtomic(filePath, jsonString, Mod.Log);
+Use the existing atomic writer when its actual contract meets the requirement. Confirm whether failure is returned or thrown, how backups are rotated, which reads perform deserialization, and whether schema validation is separate. “Atomic file replacement” does not make multiple files or native save plus sidecar one transaction.
 
-// Safe load with fallback to .bak if primary JSON is corrupted
-var data = SafeStorage.LoadSafe<MyData>(filePath, fallback: new MyData(), log: Mod.Log);
-string txt = SafeStorage.LoadTextSafe(filePath, fallback: "", log: Mod.Log);
-```
+Read [persistence](../../schedule1-persistence/SKILL.md) and its relevant reference. Bind destination and snapshot before asynchronous work or state clearing. Keep failed and unsupported loads distinguishable from new data.
 
-* Prevents data corruption during sudden game crashes or alt-F4 — writes `.tmp` → `Copy .bak` → `Move .tmp → target`.
-* **Mandatory for:** mod configs, player notes, calculator history, persistent states, **and** `Game.json` renames (`MoreSaveSlots/SaveRenameService.cs:69` migrated 2026-08-21 from `File.Copy/Write/Replace` to `SaveTextAtomic`), `MoreSaveSlotsConfig.cs:54`.
-* **Slot-Isolation & Slot -1 Guard (2026-09-11 Standard):** every per-save file must be `slot_{SaveSlotNumber}.json`, guarded by the Triple IL2CPP Guard + `SaveSlotNumber >= 0` (never `slot_-1.json`), plus `TryMigrateLegacy`. **Canonical implementation + full code:** [`../../schedule1-persistence/references/slot-isolation.md`](../../schedule1-persistence/references/slot-isolation.md) — edit there, not here.
+## Configuration
 
-## 2. InputFocus Protection (`NotesAppInputFocus` / `HotkeyManager`)
-When user focuses on an `InputField` or `TMP_InputField`, vanilla player movement (WASD, hotbars, phone toggles) must be suspended.
+Separate global preferences from world/player state. Validate configuration and retain last-known-good values after a failed reload. The inherited collection reported mapping failures for some ModConfig collection properties; test the current serializer before choosing scalar TOML versus a JSON sidecar. TOML as a format is not universally unable to represent collections.
 
-* Implement an `IInputFocus` or subscribe to `HotkeyManager.IsInputFieldFocused()`.
-* On focus enter: Block character input & pause hotkey routing.
-* On focus exit / submit / cancel: Restore normal game input.
+Give each field one persistence owner. Avoid serializing the same scalar in two stores or applying a stale sidecar over a deliberate user change. Confirm an empty collection is a valid user choice rather than ignoring it.
 
----
+## Input and UI
 
-## 3. ModConfig & MelonPreferences
-Use `ModConfig<T>` to bind strongly-typed C# models to `UserData/MelonPreferences.cfg` or per-mod `config.json`.
+Route input focus through the actual project's coordinator. A single component must not unconditionally clear a shared typing flag owned by another active input. Tie event handlers to the concrete UI instance lifetime and include final disposal. Removing the new instance's handler does not remove an old instance's handler.
 
-**Backend guidance:** `MelonPreferences.cfg` = the global TOML backend `ModConfig<T>` binds to (user-tunable scalars, hot-reloadable via `schedule1-debounced-reload`). The per-mod `config.json`/JSON sidecar (`ConfigJsonStore`) is for data TOML cannot hold (`Dictionary`/`List`) — don't mix: one source of truth per data kind, scalars → TOML, collections → JSON sidecar.
+Read [PhoneApp](../../schedule1-phoneapp/SKILL.md) for creation, rebuild, close/reopen and final teardown.
 
-* Store user configurable keys (e.g., toggle HUD, custom hotkeys, scale, opacity).
-* Validate values upon loading (clamp numeric ranges, fallback to defaults on null).
+## Domain and integration boundaries
 
-### ⚠️ TOML Limitation — canonical (empirical, 2026-08-20)
-`ModConfig<T>` (MelonPreferences) **cannot persist `Dictionary<K,V>` / `List<T>` properties** — `CreateEntry` throws "not TOML-mappable" and the property is silently dropped (logged once). Example: `BusinessIncomeConfig.PropertyMultipliers` was reset every restart.
+Keep pricing, identity and state transitions independently understandable; wrap game calls at a small boundary whose outcomes can be observed. A thin boundary is not permission to invent success semantics. Keep Unity object access on its required thread and isolate only operations that are truly thread-safe.
 
-**Fix pattern — JSON sidecar via SafeStorage:**
-```csharp
-// Services/ConfigJsonStore.cs
-public static class ConfigJsonStore
-{
-    private static readonly string SavePath = SafeStorage.GetUserDataPath("MyMod", "config_extra.json");
+## Economy and network
 
-    public static void ApplyToConfig(MyConfig cfg)  // merge dictionaries after ModConfig.Initialize
-    {
-        var stored = SafeStorage.LoadSafe<MyConfig>(SavePath, null, Mod.Log);
-        if (stored?.MyDict != null && stored.MyDict.Count > 0) cfg.MyDict = stored.MyDict;
-    }
+Use [economy](../../schedule1-economy/SKILL.md) for confirmed effects and compensation. Distinguish local player's resources from host-authoritative shared world state. A transaction spans its real participants; a try/catch is not an atomicity guarantee.
 
-    public static void Save(MyConfig cfg) => SafeStorage.SaveAtomic(SavePath, cfg, Mod.Log);
-}
-```
-Call `ApplyToConfig(ModConfig<T>.Instance)` right after `ModConfig<T>.Initialize(...)` and `ConfigJsonStore.Save(...)` after every `SetAndSave`.
+## Acceptance
 
----
-
-## 4. ModLogger & PatchGuard
-* **`ModLogger`**: Namespaced, structured logging (`[ModName] [INFO/WARN/ERROR]`).
-* **`PatchGuard`**: Wraps Harmony patches to handle IL2CPP version shifts safely without hard crashing the game runtime if a target method signature changed in a minor game patch.
-
----
-
-## 5. Transaction Ordering for Money/Economy — see canonical
-
-**Canonical source:** [`../../schedule1-economy/references/atomic-purchase.md`](../../schedule1-economy/references/atomic-purchase.md) (PocketShop purchase flow) + [`../../schedule1-economy/references/passive-revenue.md`](../../schedule1-economy/references/passive-revenue.md) (BusinessIncome snapshot ordering). Summary of the rules:
-
-1. **Memory-first + snapshot revert**: mark paid in memory (snapshotting previous state), execute the transaction in try/catch, revert to the **snapshot** on failure (never `-1`), persist to disk only after success.
-2. **Atomic purchase**: validate & price → pre-create ALL instances → pay in its own try/catch (**never refund if payment never executed**) → transfer in its own try/catch (refund via the opposite ledger on failure) → decrement stock last.
-3. **Host authority**: passive income / balance writes wrapped in `NetworkGuard.IsHostOrSingleplayer()` — never book on clients (2–4× payout in co-op).
-
-Why-snapshot evidence (2026-08-21 `PayoutStateStore.cs:20-21/:149-160`) and full code live in the canonical files — edit there, not here.
-
----
-
-## 6. IL2CPP Native Lifecycle & WasCollected Guards (2026-09-11 Standard)
-
-In IL2CPP modding, C# object instances act as proxies over native C++ objects. When Unity destroys an object in C++, the managed proxy may still exist in memory!
-* Checking `myComponent != null` can return `true` even if the C++ object was collected.
-* Accessing fields on a dead proxy triggers native unhandled exceptions (`0xc0000005` access violation).
-* **The Golden Guard:**
-  ```csharp
-  if (obj == null || obj.Pointer == IntPtr.Zero || obj.WasCollected) return;
-  ```
-Apply this guard in `OnUpdate()`, button listeners, polling loops, and async callbacks.
-
----
-
-## 7. Static Event Dispatchers & Leak Prevention (2026-09-11 Standard)
-
-**The Trap:** Ephemeral UI classes (e.g., PhoneApp panels, item cards, list rows) subscribing instance methods to static game events:
-```csharp
-Money.OnBalanceChanged += this.UpdateBalance; // LEAK! Keeps old app instances in memory across scene transitions
-```
-When the scene unloads or the phone closes, the static event still holds the delegate. On next trigger, it invokes code on a collected C++ object → crash or zombie updates.
-
-**The Solution:**
-1. Use static event dispatchers in your mod root / service layer.
-2. Maintain a weak or managed list of active listeners that clears on `OnSceneWasUnloaded` or `OnDestroy()`.
-3. Defensive unsubscribe: always `-=` before `+=` in `OnCreated()`.
-4. Wrap listener execution in individual `try/catch` blocks so one failing subscriber does not break others.
-
----
-
----
-
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
-
-- `IInputFocus`
+A reader can identify every persistent field's owner, every runtime object's lifetime, each external call's failure semantics and the source evidence for reused helpers. Missing contracts remain explicit rather than hidden behind helper names.

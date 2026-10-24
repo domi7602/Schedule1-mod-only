@@ -9,8 +9,29 @@
 > binary; treat them as evidence about that binary, not as current game truth, and re-verify every
 > API against the live game before adapting anything. No third-party code or assets are copied here.
 
-This note generalises the observed structure into checks for the staged world-expansion pipeline
-(`SKILL.md` → Procedure). It is a companion to `world-expansion-pipeline.md`.
+> Inherited evidence record, not re-decompiled or run during this revision. Evidence scope: the original
+> static decompile of a user-provided third-party assembly (`HylandSmokeShop.dll`),
+> SHA-256 `0a76e5651c60c4e033c77828a445aaa80d8564a7af573059c4dd4781ac422896` (6,845,952 bytes),
+> decompiled 2026-10-18 with `ilspycmd` 9.1.0.7988 (ICSharpCode.Decompiler 9.1.0.7988) to a scratch
+> directory only. **None of this was run in game**, no DLL was loaded into the game, and no runtime
+> behaviour is claimed. ILSpy emitted unresolved-IL annotations on many bodies, so a decompiled
+> method may be incomplete. Identifiers, field names and coordinates below are read from that one
+> binary; treat them as evidence about that binary, not as current game truth, and re-verify every
+> API against the live game before adapting anything. No third-party code or assets are copied here.
+
+This note retains the original case evidence for the [staged expansion pipeline](world-expansion-pipeline.md).
+It records what one binary appeared to do, including fragile implementation choices. Observation does
+not endorse a recipe; apply the current ownership, authority, and persistence contracts before adapting it.
+
+## Navigation
+
+- [Assembly identity](#assembly-identity-observed) and [dependency surface](#dependency-surface-observed)
+- [Lifecycle](#lifecycle-and-ordering-observed-maincs)
+- [Property registration](#custom-property-registration-observed-integrationmakeproperty)
+- [Ownership/load hooks](#ownership-lists-and-load-hooks-observed-smokerealty--patches)
+- [Save scope](#save-scope-observed-shopsavescope)
+- [Geometry and materials](#world-build-and-map-expansion-observed-shopworldbuild)
+- [Adaptation cautions](#adaptation-cautions-unverified--fragile)
 
 ## Assembly identity (observed)
 
@@ -81,9 +102,11 @@ A runtime `Il2CppScheduleOne.Property.Property` is created from scratch, not clo
 - Registration is manual: `Property.Properties.Add(property)`, `Business.Businesses.Add(business)`, then
   `SmokeRealty.SyncOwnership(world, state)`.
 
-**Take-away:** a runtime `Property` must have its backing fields, colliders, contents container,
-spawn points, docks and the static registry lists populated explicitly; the vanilla serialised prefab
-does this in the editor and does not run for a code-created property.
+**Adaptation rule:** a code-created property needs the native initialization/registration contract
+that a valid serialized instance normally satisfies. This binary populated it manually, including
+fragile backing fields. Do not generalize its exact fields, nullable collections, mirrored business,
+or registry mutations to every runtime. Inspect the installed native construction/load path and use
+supported initialization where available; verify the full save, UI, ownership, and delivery behavior.
 
 ## Ownership lists and load hooks (observed, `SmokeRealty` + patches)
 
@@ -141,8 +164,10 @@ state file is separate from the vanilla property save.
   (`Assembly.GetManifestResourceStream`) using a custom format (part count; per part: name, vertex count,
   triangle count, vertices/normals/UVs, indices) into `new Mesh { vertices=..., normals=..., uv=...,
   triangles=... }`. PNG icons are likewise embedded and decoded to `Sprite`.
-- Net effect: **no AssetBundle** is needed for procedural/interior geometry; the cost is a bespoke binary
-  mesh format and reliance on runtime name lookups for native assets.
+- For this observed geometry/material approach, the binary used no AssetBundle. That does not establish
+  that every interior, animation, effect, or new shader can use the same route. Existing shaders can be
+  selected from code; new shader programs require a compatible build/asset path. Custom binary readers
+  also require bounded counts, valid indices/attributes, and partial-resource cleanup.
 
 ## Doors and interaction prompts (observed, `ShopDoor`, `ShopInteractions`)
 
@@ -167,8 +192,9 @@ state file is separate from the vanilla property save.
 - `LocalStoragePatches` prefixes `ItemSlot.SetStoredItem/SetQuantity/ChangeQuantity/SetPlayerFilter/
   RemoveLock/ClearStoredInstance/ApplyLock` for owned slots and gates mutation through
   `ShopReplication.CanEditSlot(ptr)` (host authority), with a postfix calling `Net.StockChanged()`.
-  This is the same "pointer-keyed ownership + host gate" idea as the workspace's networked-world-state
-  rules.
+  This illustrates a host gate around owned slots. Pointer values alone are not durable identity or
+  proof of liveness; a new implementation also needs session/generation ownership, removal on teardown,
+  and protection against pointer reuse.
 
 ## IDs, names and phone/shop display evidence (observed)
 
@@ -204,8 +230,16 @@ state file is separate from the vanilla property save.
   properties; a mod relying on them must re-verify the names per game build.
 - `Resources.FindObjectsOfTypeAll` name lookups for native materials/models and the `"storageunit"`
   loading-dock scan are string/keyed against the current game content.
-- `ShopSaveScope` uses raw `File.WriteAllText`/`File.Move` rather than the workspace's `SafeStorage`;
-  adopt the atomic + `.bak` pattern instead.
+- `ShopSaveScope` uses raw `File.WriteAllText`/`File.Move` rather than the workspace's verified storage
+  policy. Atomic sidecar replacement plus a validated backup is necessary where that policy requires
+  it, but does not make native and mod saves a single transaction. Coordinate recovery journals and
+  native completion evidence when their state must agree.
+- The observed save barrier and prefixes that skip native load/save bodies are high-coupling choices,
+  not recommended drop-in patches. Replacing those methods requires preserving their complete current
+  contract, including failure/cleanup paths; one backing flag is not proof the save state machine is safe.
+- Borrow native materials/meshes read-only or create tracked owned copies. Name-only first-match
+  searches can select a wrong generation or asset. Bound scans, verify source identity and shader
+  compatibility, and release newly baked meshes and decoded sprites/textures on failure/teardown.
 - ILSpy unresolved-IL annotations mean some bodies (notably `Geometry.Product`, `ShopUI` rendering and
   several `ShopRuntime` paths) are only partially reconstructed here. Nothing above is runtime-verified;
   confirm placement, ownership, doors, saves, host/client replication and cleanup in a controlled test.

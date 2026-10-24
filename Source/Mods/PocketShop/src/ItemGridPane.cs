@@ -297,7 +297,7 @@ public class ItemGridPane
                 _cards.Add(card);
                 card.OnPurchaseResult += res => OnPurchaseResult?.Invoke(res);
                 var cardGO = card.Build(rowGO.transform);
-                var cardRt = (RectTransform)cardGO.transform;
+                var cardRt = cardGO.GetComponent<RectTransform>();
                 cardRt.anchorMin = new Vector2(c / (float)columns, 0f);
                 cardRt.anchorMax = new Vector2((c + 1) / (float)columns, 1f);
                 cardRt.offsetMin = new Vector2(gap * 0.5f, 0f);

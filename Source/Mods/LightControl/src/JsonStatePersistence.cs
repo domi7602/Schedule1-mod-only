@@ -20,6 +20,31 @@ public enum PersistenceError { None, InvalidJson, UnsupportedSchema, WrongSave, 
 public sealed record PersistenceLoadResult(bool Success, PersistenceError Error, string Detail);
 
 /// <summary>
+/// Classification of one JSON document against this save, produced without touching the store
+/// or the write gate. The load policy needs this to tell "corrupt" (backup recovery may be
+/// attempted) apart from "unknown schema" or "foreign save" (the data is intact and must be
+/// retained, so no backup is ever substituted).
+/// </summary>
+public enum PersistenceDataStatus { Valid = 0, CorruptJson = 1, UnsupportedSchema = 2, WrongSave = 3, InvalidState = 4 }
+
+/// <summary>Pure inspection result: validated states only when <see cref="Status"/> is Valid.</summary>
+public sealed record PersistenceDataCheck(PersistenceDataStatus Status, string Detail, IReadOnlyList<PersistedLampState> States)
+{
+    public static PersistenceDataCheck Invalid(PersistenceDataStatus status, string detail) =>
+        new(status, detail, Array.Empty<PersistedLampState>());
+
+    /// <summary>The gate error this classification maps to; <see cref="PersistenceError.None"/> only when valid.</summary>
+    public PersistenceError Error => Status switch
+    {
+        PersistenceDataStatus.Valid => PersistenceError.None,
+        PersistenceDataStatus.UnsupportedSchema => PersistenceError.UnsupportedSchema,
+        PersistenceDataStatus.WrongSave => PersistenceError.WrongSave,
+        PersistenceDataStatus.CorruptJson => PersistenceError.InvalidJson,
+        _ => PersistenceError.InvalidState
+    };
+}
+
+/// <summary>
 /// Versioned JSON DATA API. It deliberately does not perform disk I/O or use a guessed
 /// S1API hook. A verified save integration must read the exact current save, distinguish
 /// missing data from read failure, then persist the complete generated string with its
@@ -59,8 +84,19 @@ public sealed class JsonStatePersistence
 
     /// <summary>Use when the provider cannot read data. No serialization is permitted afterwards.</summary>
     public PersistenceLoadResult ReportReadFailure()
+        => ReportLoadFailure(PersistenceError.InvalidState, "Storage read failed. Lamp-data writes are blocked.");
+
+    /// <summary>
+    /// Blocks the write gate with a caller-supplied classification and detail, so the adapter can
+    /// preserve the exact reason (unsupported schema, foreign save, unreadable backup) instead of
+    /// collapsing every refusal into one message. An explicit read failure always blocks, even
+    /// after a successful load: continuing to write over storage that just failed a read would
+    /// risk losing the only good copy.
+    /// </summary>
+    public PersistenceLoadResult ReportLoadFailure(PersistenceError error, string detail)
     {
-        lock (_gate) return Fail(PersistenceError.InvalidState, "Storage read failed. Lamp-data writes are blocked.");
+        lock (_gate)
+            return Fail(error == PersistenceError.None ? PersistenceError.InvalidState : error, detail);
     }
 
     /// <summary>A failed initial load may be retried with actually recovered valid JSON.</summary>
@@ -70,54 +106,70 @@ public sealed class JsonStatePersistence
         {
             if (_state == PersistenceGate.Ready)
                 return new(false, PersistenceError.AlreadyLoaded, "Initial load already completed; no state was replaced and the valid write gate is retained.");
-            if (json is null || json.Length > LightLimits.MaxJsonBytes || Encoding.UTF8.GetByteCount(json) > LightLimits.MaxJsonBytes)
-                return Fail(PersistenceError.InvalidJson, "JSON is absent or exceeds the size limit.");
-            try
+            var check = Inspect(json, _saveId);
+            return check.Status == PersistenceDataStatus.Valid
+                ? Restore(check.States)
+                : Fail(check.Error, check.Detail);
+        }
+    }
+
+    /// <summary>
+    /// Classifies one JSON document against <paramref name="expectedSaveId"/> without touching the
+    /// store or the write gate. The three "intact but not ours" outcomes (unsupported schema,
+    /// foreign save) are reported separately from corruption so the load policy can refuse to
+    /// substitute a backup for data it must retain.
+    /// </summary>
+    public static PersistenceDataCheck Inspect(string json, string expectedSaveId)
+    {
+        if (expectedSaveId is null) throw new ArgumentNullException(nameof(expectedSaveId));
+        if (json is null || json.Length > LightLimits.MaxJsonBytes || Encoding.UTF8.GetByteCount(json) > LightLimits.MaxJsonBytes)
+            return PersistenceDataCheck.Invalid(PersistenceDataStatus.CorruptJson, "JSON is absent or exceeds the size limit.");
+        try
+        {
+            using var document = JsonDocument.Parse(json, new JsonDocumentOptions
             {
-                using var document = JsonDocument.Parse(json, new JsonDocumentOptions
-                {
-                    AllowTrailingCommas = false,
-                    CommentHandling = JsonCommentHandling.Disallow,
-                    MaxDepth = 16
-                });
-                var root = document.RootElement;
-                RequireUniqueObject(root);
-                int schema = RequiredInt(root, "schemaVersion");
-                if (schema != LightLimits.SaveSchemaVersion)
-                    return Fail(PersistenceError.UnsupportedSchema, $"Unsupported save schema {schema}. Existing data must be retained.");
-                RequireProperties(root, "schemaVersion", "saveId", "lamps");
-                string saveId = RequiredString(root, "saveId");
-                LightLimits.Identifier(saveId, "saveId");
-                if (!string.Equals(saveId, _saveId, StringComparison.Ordinal))
-                    return Fail(PersistenceError.WrongSave, "Saved lamp data belongs to another game save.");
-                var lamps = root.GetProperty("lamps");
-                if (lamps.ValueKind != JsonValueKind.Array || lamps.GetArrayLength() > LightLimits.MaxLamps)
-                    return Fail(PersistenceError.InvalidState, "Lamp collection is invalid or exceeds the capacity limit.");
-                var states = new List<PersistedLampState>();
-                var seen = new HashSet<string>(StringComparer.Ordinal);
-                foreach (var lamp in lamps.EnumerateArray())
-                {
-                    RequireProperties(lamp, "identity", "colorMode", "intensityPercent");
-                    var identity = lamp.GetProperty("identity");
-                    RequireProperties(identity, "kind", "scheme", "schemeVersion", "value");
-                    var persistent = new PersistentLampId((PersistentIdentityKind)RequiredInt(identity, "kind"),
-                        RequiredString(identity, "scheme"), RequiredInt(identity, "schemeVersion"), RequiredString(identity, "value"));
-                    var state = new LampBaseState((ColorMode)RequiredInt(lamp, "colorMode"),
-                        (IntensityLevel)RequiredInt(lamp, "intensityPercent"));
-                    if (!seen.Add(persistent.CanonicalKey))
-                        return Fail(PersistenceError.InvalidState, "Duplicate persistent lamp identity.");
-                    states.Add(new(persistent, state));
-                }
-                return Restore(states);
-            }
-            catch (JsonException)
+                AllowTrailingCommas = false,
+                CommentHandling = JsonCommentHandling.Disallow,
+                MaxDepth = 16
+            });
+            var root = document.RootElement;
+            RequireUniqueObject(root);
+            int schema = RequiredInt(root, "schemaVersion");
+            if (schema != LightLimits.SaveSchemaVersion)
+                return PersistenceDataCheck.Invalid(PersistenceDataStatus.UnsupportedSchema,
+                    $"Unsupported save schema {schema}. Existing data must be retained.");
+            string saveId = RequiredString(root, "saveId");
+            LightLimits.Identifier(saveId, "saveId");
+            if (!string.Equals(saveId, expectedSaveId, StringComparison.Ordinal))
+                return PersistenceDataCheck.Invalid(PersistenceDataStatus.WrongSave, "Saved lamp data belongs to another game save.");
+            RequireProperties(root, "schemaVersion", "saveId", "lamps");
+            var lamps = root.GetProperty("lamps");
+            if (lamps.ValueKind != JsonValueKind.Array || lamps.GetArrayLength() > LightLimits.MaxLamps)
+                return PersistenceDataCheck.Invalid(PersistenceDataStatus.InvalidState, "Lamp collection is invalid or exceeds the capacity limit.");
+            var states = new List<PersistedLampState>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var lamp in lamps.EnumerateArray())
             {
-                return Fail(PersistenceError.InvalidJson, "Malformed JSON. Lamp-data writes are blocked.");
+                RequireProperties(lamp, "identity", "colorMode", "intensityPercent");
+                var identity = lamp.GetProperty("identity");
+                RequireProperties(identity, "kind", "scheme", "schemeVersion", "value");
+                var persistent = new PersistentLampId((PersistentIdentityKind)RequiredInt(identity, "kind"),
+                    RequiredString(identity, "scheme"), RequiredInt(identity, "schemeVersion"), RequiredString(identity, "value"));
+                var state = new LampBaseState((ColorMode)RequiredInt(lamp, "colorMode"),
+                    (IntensityLevel)RequiredInt(lamp, "intensityPercent"));
+                if (!seen.Add(persistent.CanonicalKey))
+                    return PersistenceDataCheck.Invalid(PersistenceDataStatus.InvalidState, "Duplicate persistent lamp identity.");
+                states.Add(new(persistent, state));
             }
-            catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or KeyNotFoundException or FormatException or OverflowException)
-            {
-                return Fail(PersistenceError.InvalidState, "Invalid or incomplete save data. Lamp-data writes are blocked.");
-            }
+            return new(PersistenceDataStatus.Valid, "Lamp data passed schema, save-id and content validation.", states);
+        }
+        catch (JsonException)
+        {
+            return PersistenceDataCheck.Invalid(PersistenceDataStatus.CorruptJson, "Malformed JSON. Lamp-data writes are blocked.");
+        }
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or KeyNotFoundException or FormatException or OverflowException)
+        {
+            return PersistenceDataCheck.Invalid(PersistenceDataStatus.InvalidState, "Invalid or incomplete save data. Lamp-data writes are blocked.");
         }
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using PropertyLEDs.Core;
 using S1Mods.Shared;
+using NativePlayer = Il2CppScheduleOne.PlayerScripts.Player;
 
 namespace PropertyLEDs;
 
@@ -21,6 +22,7 @@ internal static class LEDRuntime
     private const double OwnershipRetrySeconds = 1.0;
     private static int _ownershipRetries;
     private static double _nextOwnershipRetryAt;
+    private static bool _currentPropertyWarned;
 
     internal static bool Ready => _loaded && _store != null && _store.SlotMatches;
     internal static int Revision { get; private set; }
@@ -50,6 +52,38 @@ internal static class LEDRuntime
     internal static LEDSettings GetSettings(string propertyId, string? roomId = null)
         => ValidTarget(propertyId, roomId) && _store != null
             ? _store.GetEffective(propertyId, roomId) : new LEDSettings();
+
+    /// <summary>
+    /// Exact identity of the property/business the local player is inside, from the game's own
+    /// state (<c>Player.Local.CurrentProperty/CurrentBusiness</c> → <c>PropertyCode</c>).
+    /// Returns null when the player is outdoors, before spawn, or when the native read fails.
+    /// Deliberately never derived from positions: a distance guess could edit the wrong LEDs.
+    /// </summary>
+    internal static string? CurrentPropertyId()
+    {
+        if (!Ready || !NetworkGuard.IsInMainScene) return null;
+        try
+        {
+            var player = NativePlayer.Local;
+            if (!PropertyRegistry.NativeAlive(player)) return null;
+            var property = player!.CurrentProperty;
+            if (PropertyRegistry.NativeAlive(property) && !string.IsNullOrWhiteSpace(property!.PropertyCode))
+                return property.PropertyCode;
+            // Businesses have their own native identity; the property getter can stay null for them.
+            var business = player.CurrentBusiness;
+            if (PropertyRegistry.NativeAlive(business) && !string.IsNullOrWhiteSpace(business!.PropertyCode))
+                return business.PropertyCode;
+        }
+        catch (Exception ex)
+        {
+            if (!_currentPropertyWarned)
+            {
+                _currentPropertyWarned = true;
+                Mod.Log.Warn("Current property identity unavailable; the phone keeps its existing selection. " + ex.Message);
+            }
+        }
+        return null;
+    }
 
     internal static bool HasOverride(string propertyId, string? roomId)
         => ValidTarget(propertyId, roomId) && !string.IsNullOrWhiteSpace(roomId) && _store is { ReadOnly: false } &&
@@ -165,6 +199,7 @@ internal static class LEDRuntime
     {
         _ownershipRetries = MaxOwnershipRetries; // no retries until the next load arms them
         _nextOwnershipRetryAt = 0;
+        _currentPropertyWarned = false;
         // Captured-slot flush occurs BEFORE resetting scene references or the loaded state.
         _store?.Reset();
         _loaded = false;

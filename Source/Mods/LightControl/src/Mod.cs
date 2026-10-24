@@ -4,7 +4,7 @@ using S1API.Building;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(LightControl.Mod), "LightControl", "0.1.0-dev.13", "LightControl Project")]
+[assembly: MelonInfo(typeof(LightControl.Mod), "LightControl", "0.1.0-dev.19", "LightControl Project")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace LightControl;
@@ -37,12 +37,11 @@ public sealed class Mod : MelonMod
         Log.Info("Initialized. Host/singleplayer grow-lamp tint and brightness from the phone app, slot-scoped storage, original restoration. The lamp's own LED panel and the light it emits are always driven together from the same color, so both match. Plant materials are never modified.");
     }
 
-    // Update only steps the bounded scan and the debounced autosave; the single visual phase is
-    // late-update, which tints the lamp's own LED surface from a freshly sampled native baseline.
-    // Neither path is ever executed inside the other, and no Unity light is written.
-    public override void OnUpdate() => Guard("Update phase (bounded scan and autosave only)", LightRuntime.UpdatePhase);
+    // Update restores owned native outputs, steps bounded discovery and retries persistence.
+    // LateUpdate applies the shared instruction to the lamp's own panel and native light sources.
+    public override void OnUpdate() => Guard("Update phase (owned restore, bounded scan and autosave)", LightRuntime.UpdatePhase);
 
-    public override void OnLateUpdate() => Guard("Late-update phase (apply LED surface output)", LightRuntime.LateUpdatePhase);
+    public override void OnLateUpdate() => Guard("Late-update phase (apply coupled lamp output)", LightRuntime.LateUpdatePhase);
 
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
     {

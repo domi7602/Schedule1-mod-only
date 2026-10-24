@@ -1,124 +1,114 @@
-# Method 3: Responsive UI & Canvas-Scaling (`UITheme`)
+# Responsive Phone Layout and Theme Reconciliation
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 18 of 18 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+## Evidence and use
 
-In *Schedule I*, S1API instantiates phone app containers on high-resolution uGUI Canvases that are often rotated by 90° (`Quaternion.Euler(0, 0, 90)`). Using fixed integer pixel dimensions (e.g. `14pt` font, `40px` button) results in unreadable, microscopic, or overflowing layouts across different resolutions.
+Use for unreadable text, clipped layouts, mockup matching, phone icon sizing, and dark-theme flashing.
+Historical workspace helpers lived in `Source/Mods/Shared/src/UITheme.cs`, with wrappers in NotesApp,
+PotScanner, CalculatorApp, and PocketShop. Those files are external source anchors, not bundled APIs.
+Inspect the supplied checkout and helper signatures before depending on them.
 
-**Method 3 (`UITheme`)** is the standard mathematical engine used across all verified workspace mods (`NotesApp`, `PotScanner`, `CalculatorApp`, `PocketShop`).
+## Measure before scaling
 
----
+Read the actual container rect after layout has valid dimensions, plus its canvas/scaler and rotation.
+Use the relevant local coordinate space; screenshot pixels and local UI units are not interchangeable.
+A 90-degree historical phone orientation is a clue to inspect, not permission to swap width/height
+unconditionally. Recompute or invalidate metrics when the container or orientation changes.
 
-## 1. Core UITheme Implementation
+The existing shared theme helper is preferable to another copied implementation when it is present
+and suitable. Check whether its metrics are global mutable state. If two apps can initialize different
+curves in the same process, one must not silently change the other's sizing; use the repository's
+supported per-view metrics or take a stable app-specific snapshot rather than inventing a conflicting
+second global theme class.
 
-**Single source of truth (since 2026-08-20):** `S1Mods.Shared.UITheme` (`Source/Mods/Shared/src/UITheme.cs`) — do NOT copy a local class into your mod. Mod-specific wrappers (e.g. `BankApp.UI.UITheme`, `PocketShop.UI.UITheme`) delegate to it and only add their own color palette:
+Historical tuning examples used a reference height of 750 with a 0.85–2.0 clamp for text-heavy apps,
+and 900 with 0.75–1.20 for dense dashboards. These are design presets from that workspace, not Unity
+requirements or proven defaults for every phone. Confirm readability and density in the actual UI.
 
-```csharp
-// Text-heavy app (NotesApp/CalculatorApp style):
-S1Mods.Shared.UITheme.InitializeForTextApp(containerRt);      // 750f, clamp 0.85–2.0
+## Layout ownership
 
-// Dense dashboard (PotScanner style):
-S1Mods.Shared.UITheme.InitializeForDashboard(containerRt);    // 900f, clamp 0.75–1.20
+Choose which component controls each dimension. Avoid two layout systems fighting over the same
+axis. Scale fonts, padding, spacing, and explicit minimum sizes consistently with the chosen theme.
 
-// Custom curve:
-S1Mods.Shared.UITheme.Initialize(containerRt, refHeight: 750f, minScale: 0.85f, maxScale: 2.0f);
+| Element | Practical contract |
+|---|---|
+| Full-screen app root | Stretch to the app container without resizing shared phone objects |
+| Vertical list content | Top pivot; content height follows preferred row height |
+| Scroll-list width | Content/row width fills the viewport; check child-control and expansion settings |
+| Fixed tag plus flexible title | Fixed tag preferred width; flexible title receives remaining width |
+| Inline picker | Built once, toggled; layout participation matches visible state |
+| Modal | Bounded card inside a full-screen owned overlay; usable at the smallest supported rect |
 
-int sp = S1Mods.Shared.UITheme.Sp(14);
-float dp = S1Mods.Shared.UITheme.Dp(36f);
-```
+The historical collapsed-row fix set a vertical layout's `childControlWidth` and
+`childForceExpandWidth` true. For a horizontal row with a fixed tag and flexible title, it enabled
+child width control but disabled forced equal expansion. Re-derive these settings from the current
+child `LayoutElement` contracts rather than applying them to every hierarchy.
 
-For reference, the canonical engine (pre-delegation version) is:
+Trigger a targeted layout rebuild after structural changes when necessary. Do not force all canvases
+every frame. A hidden inline picker should not retain an unintended fixed blank height; an expanded
+picker must expose its actual preferred height instead of a remembered 100-unit constant.
 
-```csharp
-using UnityEngine;
+## Match a reference image
 
-public static class UITheme
-{
-    public const float RefHeight = 750f;
-    public const float RefWidth = 400f;
+Measure proportions and hierarchy: content margins, header/list share, font hierarchy, row spacing,
+button sizes, and alignment. Translate them into the real container coordinate system and check the
+chosen font's metrics. Browser/headless previews can help compare proportions but do not establish
+Unity text wrapping, masks, clipping, or input behavior. Use an in-game screenshot for acceptance.
 
-    public static float ActualWidth { get; private set; } = RefWidth;
-    public static float ActualHeight { get; private set; } = RefHeight;
-    public static float Scale { get; private set; } = 1.0f;
+Do not rely on a particular local browser path, handwritten PNG decoding, sandbox-disabling switches,
+or fixed font-height ratios as a UI method. Use available image tools for measurement and document
+any remaining approximation.
 
-    public static void Initialize(RectTransform containerRt)
-    {
-        Canvas.ForceUpdateCanvases();
-        var r = containerRt.rect;
-        float h = Mathf.Max(r.width, r.height);
-        float w = Mathf.Min(r.width, r.height);
+### Font parity with a browser concept
 
-        if (h > 200f && w > 100f)
-        {
-            ActualHeight = h;
-            ActualWidth = w;
+The local S1API `UIFactory.Text` and `ButtonWithLabel` implementations assign the built-in
+`Arial.ttf`; a browser's Segoe UI stack therefore does not automatically match native text metrics.
+For a close visual port, verify the actual native font API and font availability, then compare
+baseline/weight/line height in game rather than compensating with arbitrary smaller text.
 
-            // Choose appropriate clamping curve for your app style (see §2)
-            Scale = Mathf.Clamp(ActualHeight / RefHeight, 0.85f, 2.0f);
-        }
-        else
-        {
-            ActualHeight = RefHeight;
-            ActualWidth = RefWidth;
-            Scale = 1.0f;
-        }
-    }
+On 2026-10-22 the LightControl graphite-port preflight read the installed
+`UnityEngine.TextRenderingModule.dll` metadata and confirmed
+`Font.CreateDynamicFontFromOSFont(System.String, System.Int32)` plus its `Il2CppStringArray`
+overload; Windows listed Segoe UI and Segoe UI Semibold. This is metadata/OS evidence only,
+not a rendered-font verification. Subsequent wrapper-body inspection found the string overload's
+`Method unstripping failed` stub; the port therefore used the `Il2CppStringArray` overload. The
+owner's subsequent native session on the same date showed that this overload also fails: its body
+calls a missing `Font(Il2CppStringArray, Int32)` constructor (`MissingMethodException`), and the
+guarded Arial fallback is active. Neither a callable-looking wrapper body nor OS font enumeration
+proved a usable native font-creation path. Preserve the fallback and verify the complete call chain
+in game before claiming Segoe UI parity. A created font is owned runtime state: track its consumers and
+release it with the owning view; a borrowed built-in fallback must not be destroyed.
 
-    /// <summary>Calculates scale-adjusted font point size (Sp = Scale-adjusted Points).</summary>
-    public static int Sp(float pt) => Mathf.RoundToInt(pt * Scale);
+## Theme vanilla UI narrowly
 
-    /// <summary>Calculates scale-adjusted pixel dimension or padding (Dp = Density-adjusted Pixels).</summary>
-    public static float Dp(float px) => px * Scale;
-}
-```
+Resolve targets by their verified hierarchy and role, not by a broad global name search. Cache targets
+for the current canvas generation and invalidate destroyed/rebuilt objects. Treat text and images
+separately; tint multiplies sprite artwork, so a broad dark tint can make icons illegible. Preserve
+original tint/alpha or use white when the asset contract calls for untinted artwork.
 
----
+When vanilla update code overwrites a colour, inspect its owner and update order. A scoped `LateUpdate`
+pass can run after `Update`, but it does not guarantee priority over other `LateUpdate` methods,
+animations, canvas rebuilds, or later writers. Prefer the correct lifecycle hook or change point and
+make any reconciliation bounded and idempotent. Restore original values only while still owning the
+override.
 
-## 2. Choosing the Right Scale Dampening Factor
+## Icon and hover diagnostics
 
-Different app types require different scaling curves:
+For an unexpectedly full-screen or invisible phone hover/icon element, inspect the actual sprite,
+RectTransform, mask/maskable configuration, `CanvasRenderer` alpha, and active state. A historical
+Outline element was a filled sprite, so changing only a presumed border colour was ineffective.
+Old 620×1000 and 655×1201 measurements described different observed containers, not canonical sizes.
 
-| App Style | Clamping Formula | Why |
-|---|---|---|
-| **Text-Heavy & Utilities**<br>*(NotesApp, CalculatorApp)* | `Scale = Mathf.Clamp(ActualHeight / 750f, 0.85f, 2.0f)` | Prioritizes maximum readability of notes, numbers, and editor fields. |
-| **Dense Dashboards & Grid Lists**<br>*(PotScanner, PocketShop)* | `Scale = Mathf.Clamp(ActualHeight / 900f, 0.75f, 1.20f)` | Prevents oversized rows/cards on high-DPI screens so many rows fit on one screen. |
+Use a temporary bounded change watcher if a field's writer is unclear; remove its subscription and
+logging after diagnosis. Never leave per-frame full-hierarchy dumps in the shipping mod.
 
----
+## Verify
 
-## 3. Applying `UITheme` in UI Builders
+Test smallest/largest supported display settings, text length, empty/full lists, inline expansion,
+modal overlap, orientation, icon hover, and a second open. Verify no app modifies another app's theme
+metrics and no hidden element intercepts input.
 
-### A. Initialization
-Call `S1Mods.Shared.UITheme.InitializeForTextApp(...)` (or `InitializeForDashboard(...)`) at the very start of `OnCreatedUI`:
-```csharp
-protected override void OnCreatedUI(GameObject container)
-{
-    var containerRt = container.GetComponent<RectTransform>();
-    if (containerRt != null)
-    {
-        S1Mods.Shared.UITheme.InitializeForTextApp(containerRt);
-    }
-    // ...
-}
-```
+## Primary source
 
-### B. Standard Component Dimensions Cheat-Sheet
-| Component | Height / Size | Font Size | Example Code |
-|---|---|---|---|
-| **App Header Bar** | `Dp(32f)` – `Dp(36f)` | `Sp(14)` Bold | `le.preferredHeight = UITheme.Dp(36f);` |
-| **Top Action Buttons** | `Dp(28f)` – `Dp(32f)` | `Sp(11)` – `Sp(12)` | `le.preferredHeight = UITheme.Dp(30f);` |
-| **Filter Pills / Chips** | `Dp(24f)` – `Dp(26f)` | `Sp(10)` Bold | `le.preferredHeight = UITheme.Dp(24f);` |
-| **List Row** | `Dp(42f)` – `Dp(48f)` | `Sp(11)` – `Sp(13)` | `le.preferredHeight = UITheme.Dp(46f);` |
-| **Grid Card** | `Dp(120f)` – `Dp(180f)` | `Sp(10)` – `Sp(12)` | `le.preferredHeight = UITheme.Dp(150f);` |
-| **Modal Dialog** | `Dp(340f) x Dp(300f)` | `Sp(12)` – `Sp(16)` | `cardRt.sizeDelta = new Vector2(UITheme.Dp(340f), UITheme.Dp(300f));` |
-
-### C. Margins & Layout Padding
-Always scale `RectOffset` and `spacing`:
-```csharp
-var vlg = panel.AddComponent<VerticalLayoutGroup>();
-vlg.spacing = UITheme.Dp(6f);
-vlg.padding = new RectOffset(
-    (int)UITheme.Dp(10f),
-    (int)UITheme.Dp(10f),
-    (int)UITheme.Dp(6f),
-    (int)UITheme.Dp(6f)
-);
-```
+- [Unity LateUpdate](https://docs.unity3d.com/ScriptReference/MonoBehaviour.LateUpdate.html).

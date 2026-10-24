@@ -34,6 +34,16 @@ Source/Mods/<ModName>/
   post-update state is visible in the first lines of `Latest.log` instead of being silent.
 - IL2CPP `MonoBehaviour` types require the public `IntPtr` constructor.
 
+## TaxiDriver traffic-light boundary
+
+The 0.8.22 driver-controller boundary uses only the driver's existing registered NPCBehaviour/patrol. Runtime AddComponent is not network initialization. Missing registration uses existing direct Navigate; an unconfirmed prior lease blocks every replacement/recovery entry point while retaining original state and bounded deadlines. No S1API, network prefab, save, player-seat or collision changes are made. See [driver binding verification](../Source/Mods/TaxiDriver/docs/driver-binding-verification.md).
+
+TaxiDriver 0.8.21 scopes private DriveFlags around parameterless UpdateSweep/UpdateSpeedReduction for the exact owned host autonomous physical taxi. Native TrafficLight filtering changes; generic obstacles and native turn/destination braking do not. Kinematic/unknown modes retain vanilla, and the unsafe historical GetWheelSweepCollision detour is not installed. Stationary native sweep comparisons can hold recovery time only for readable exclusive traffic blocking; they do not refill attempts or infer arrival. Native activation/crossing/braking acceptance remains open; see [traffic-light verification](../Source/Mods/TaxiDriver/docs/traffic-light-repair-verification.md).
+
+## TaxiDriver visual wheel boundary
+
+TaxiDriver 0.8.20 writes only imported wheel-node rotations. It reads cached native wheel/rigidbody state and uses a no-slip rolling approximation plus native steering angle/membership; it does not alter wheel physics, colliders, vehicle transforms or navigation. Initial binding is bounded, and caches belong to the visual model lifetime (not each ride). Gameplay verification remains open; see [wheel verification](../Source/Mods/TaxiDriver/docs/wheel-visual-verification.md).
+
 ## HitmanPhone audit-repair boundary
 
 HitmanPhone's candidate repair is explicitly singleplayer-only, not a host-authoritative
@@ -48,7 +58,7 @@ remain local to HitmanPhone; no mod-to-mod dependencies are introduced. See the
 [verification record](../Source/Mods/HitmanPhone/docs/audit-repair-verification.md) for
 tested pure/source behavior and the still-open native pipeline checks.
 
-## LightControl first gameplay test boundary
+## LightControl runtime and phone UI boundary
 
 LightControl builds one `LightControl.dll` from its pure state model and a native grow-light
 adapter, with a phone app for color/intensity, original reset and applying the selected state to
@@ -60,14 +70,36 @@ only for the exact lamp's own `ToggleableLight.lightSources` references. Both ou
 model instruction. Native light baselines are handed back in Update and re-sampled in LateUpdate;
 Original/teardown restore only still-owned outputs, preserving foreign native changes.
 Plant materials, growth, electricity, switch state, transforms, cone/range and native culling remain
-untouched. Plants naturally appearing color-lit is intended. FullSpectrum/halogen panels, fixed
-world lamps, room/group control, direct interaction and multiplayer transport are outside this slice.
+untouched. Plants naturally appearing color-lit is intended. The current supported surface families
+are regular LED and the verified grow-tent halogen pair; FullSpectrum, other unsupported panels,
+fixed world lamps, room/group control, direct interaction and multiplayer transport remain outside
+this slice.
 Build and pure-policy checks do not verify visible effects, native material swaps, discovery,
 reload persistence or performance. Consult the installed-version record rather than assuming a
 source change has already been deployed.
-See the [LightControl docs](../Source/Mods/LightControl/docs/README.md) for current evidence.
+The compact phone redesign changes only the UI and its runtime-used Unity-free selection policy:
+the full-width list opens a dedicated pending-color chooser, which applies only on Select. The
+separate seven-step intensity menu keeps immediate click-to-apply behavior; More owns mode/reset
+and counted copy actions, with the existing frozen global confirmation. Every item action binds
+the captured session and exact key and revalidates immediately before the unchanged runtime call.
+Storage, native rendering, dependencies and schema are not changed by this UI candidate. Browser
+preview checks and source/policy tests do not establish native container fit or hit testing. The
+exact retained candidate was installed without rebuilding after a separate owner go; native
+gameplay acceptance remains open. See the
+[deployment record](../Source/Mods/LightControl/docs/phone-color-picker-deployment.md).
+See the [LightControl docs](../Source/Mods/LightControl/docs/README.md) and
+[picker verification](../Source/Mods/LightControl/docs/phone-color-picker-verification.md) for current
+evidence, historical installed dev.16 audit boundaries and the remaining singleplayer acceptance.
 
-## GraphicsProbe rendering discovery boundary
+## WorldLook native-sky baseline
+
+The active WorldLook build is canonical under `Source/Mods/WorldLook/`. One MelonMod owns startup settings, the F7 session state, a mild native-light module and the exact ocean material session. The game owns the skybox and its celestial/cloud rendering. The light module adjusts five evidenced native color channels, converts native HHMM explicitly, tracks game drift versus its own readbacks and retains bounded restore-only work after uncertain cleanup.
+
+The water shader is embedded, environment-only and uses native SkyState colors with finite ambient fallback plus native wind. It owns one material clone on the exact ocean renderer; uncertain restoration retains the clone instead of clearing the slot. Camera depth/opaque request checks are not proof of actual texture contents. The shared bundle is released without destroying borrowed shader objects still referenced by uncertain consumers.
+
+F9 is a small state snapshot. Full GraphicsProbe and the standalone custom cloud-sky prototype are archived outside the active build. Original runtime observations and current candidate checks are separated in the [verification record](../Source/Mods/WorldLook/docs/native-baseline-verification.md).
+
+## Historical GraphicsProbe rendering discovery boundary (archived)
 
 GraphicsProbe is a diagnostic-only first slice for the graphics-overhaul feasibility
 study. Its only intended state change is writing its own report under UserData.
@@ -89,7 +121,7 @@ native evidence (report IO and active URP) but failed gameplay coverage; its evi
 does not verify the repaired traversal or its frame-time behavior. Overall acceptance
 remains **In-Game-Verify open** pending a fresh real-game report and log.
 
-## WaterShader render-path boundary (0.2.0)
+## Historical WaterShader render-path boundary (0.2.0 prototype)
 
 WaterShader 0.1.x replaced only the evidenced Main/Map/StylizedWater2_Ocean material
 slot, cloning the game's existing shader/material rather than transporting shader

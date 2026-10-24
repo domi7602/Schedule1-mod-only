@@ -1,202 +1,86 @@
-# PhoneApp Lifecycle & Canvas Architecture
+# PhoneApp Lifecycle and Canvas Ownership
 
 > **Canonical home of Rule 10** (OnCreated fires once / never unsubscribe in OnPhoneClosed) — other files reference here instead of duplicating the pattern. verified: 2026-08-20 / 2026-09-11 audit; S1API mechanism re-checked 2026-10-05.
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 35/36 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
-This reference covers the complete lifecycle of an S1API `PhoneApp` inside Schedule I, the container hierarchy, orientation mechanics, and critical stability rules to prevent UI destruction bugs.
+## Evidence and use
 
----
+Use for registration, blank second opens, orientation, scene reloads, and stale event handlers.
+The original workspace observed the one-create/many-open lifecycle in 2026-08/09 and inspected S1API
+on 2026-10-05. Public documentation was reviewed on 2026-10-21. Neither establishes the installed
+S1API 3.2.1 implementation; confirm callback order and available teardown hooks in the target DLL. <!-- skills-health: version-evidence (S1API target requested by the owner; installed build state lives in AGENTS.md) -->
 
-## 1. S1API Discovery & Instantiation
+## Discover the actual lifecycle
 
-* **Auto-Discovery**: Any public non-abstract class inheriting from `S1API.PhoneApp.PhoneApp` is automatically discovered by S1API via reflection on startup.
-* **HomeScreen Binding**: When the in-game phone initializes, S1API invokes `SpawnUI(HomeScreen)` and `SpawnIcon(HomeScreen)` for each registered app.
-* **One Instance Per App**: S1API instantiates one singleton instance of your app class. Do not manually `new MyPhoneApp()` in your mod initialize logic.
+The inherited integration uses a public non-abstract `S1API.PhoneApp.PhoneApp` subclass discovered
+by S1API. Inspect discovery and registration before manually constructing or registering another
+instance. Identify whether the runtime instance survives phone closure, scene reload, or UI rebuild.
 
-```text
-Game Launch / Scene Load
-   │
-   ▼
-PhoneApp.OnCreated()          ◄── Register hooks, subscribe MelonEvents.OnUpdate
-   │
-   ▼
-PhoneApp.SpawnUI()            ◄── S1API clones AppPanel from template inside AppsCanvas
-   │
-   ▼
-PhoneApp.OnCreatedUI(container)◄── Build your entire UI hierarchy here (ONCE!)
-```
+Historical callback/member lookup candidates include `OnCreated`, `OnCreatedUI`, `OnPhoneOpened`,
+`OnPhoneClosed`, `OnDestroyed`, `IsOpen`, `SetAppOpen`, `SpawnUI`, and `SpawnIcon`.
+Use their verified visibility/signatures and invocation order; this list is not a replacement API.
 
----
+Maintain explicit states for instance lifetime, UI-root generation, visibility, focused input, and
+session/save identity. A new UI root can require reconstruction without implying a new gameplay save.
 
-## 2. Container Hierarchy & The Root Isolation Pattern
+## Resource lifetime table
 
-Inside `OnCreatedUI(GameObject container)`:
-- `container` is a child GameObject inside the game's `AppsCanvas`.
-- **Always build an isolated root panel (`_mainBG`)** as a direct child of `container.transform` with `fullAnchor: true`.
-- **Start with `_mainBG.SetActive(false)`**: The app panel must remain invisible until `IsOpen()` becomes true.
-
-```csharp
-protected override void OnCreatedUI(GameObject container)
-{
-    var containerRt = container.GetComponent<RectTransform>();
-    if (containerRt != null)
-    {
-        S1Mods.Shared.UITheme.InitializeForTextApp(containerRt);   // or InitializeForDashboard — never a local UITheme (see responsive-ui-theme.md)
-    }
-
-    // 1. Isolated Full-Screen Background Panel
-    _mainBG = UIFactory.Panel("MyApp_MainBG", container.transform, new Color(0.08f, 0.09f, 0.12f, 1f), fullAnchor: true);
-    _mainBG.SetActive(false);
-
-    var vlg = _mainBG.AddComponent<VerticalLayoutGroup>();
-    vlg.childControlWidth = true;
-    vlg.childControlHeight = true;
-    vlg.childForceExpandWidth = true;
-    vlg.childForceExpandHeight = false;
-
-    // 2. Build Sub-Panels (Header, Content, Modals)
-    BuildHeader(_mainBG.transform);
-    BuildContentArea(_mainBG.transform);
-    BuildModals(_mainBG.transform);
-}
-```
-
----
-
-## 3. Orientation: Vertical vs. Horizontal
-
-S1API allows two screen orientations via the `Orientation` property:
-
-```csharp
-public enum EOrientation
-{
-    Horizontal, // Wide landscape (tablet style, multi-column catalogs)
-    Vertical    // Standard portrait (default for smartphone apps like Notes, Calculator, PotScanner)
-}
-```
-
-### Key Differences:
-| Setting | Use Case | Behavior |
+| Resource | Acquire | Release |
 |---|---|---|
-| `EOrientation.Vertical` | Text, Tools, Standard Apps (NotesApp, CalculatorApp, PotScanner) | Keeps standard phone rotation, `LookOffsetMultiplier = 1.0f`. |
-| `EOrientation.Horizontal` | Wide Dashboards, 5-Column Stores (PocketShop, TVBrowser) | Rotates phone model by 90°, adjusts camera look offset to `0.6f`. |
+| Instance update/data event delegate | Once for the owning app instance | Final instance teardown |
+| UI hierarchy and component references | Current container generation | Container replacement/final teardown |
+| Visible-only expensive work | Open/visible state | Close, disable, focus loss as appropriate |
+| Typing/modal input ownership | Focus/modal activation | Its matching blur/close/cancel path |
+| Save/session-bound model | Validated session identity | Session change; flush only through permitted save gates |
 
-> [!IMPORTANT]
-> **Always explicitly declare `Orientation` in your app class.**
-> If omitted, S1API defaults to `EOrientation.Horizontal` in some versions, which triggers 90° phone rotation and camera offset changes!
+Do not unsubscribe the only instance update loop on ordinary phone closure if the runtime does not
+call `OnCreated` again. That historical bug caused a blank second opening. Conversely, leaving static
+subscriptions alive after final teardown leaks old app instances and causes duplicate callbacks.
 
-```csharp
-protected override EOrientation Orientation => EOrientation.Vertical; // or Horizontal
-```
+Store the delegate and publisher associated with the actual owning instance. Subtracting a delegate
+bound to a new instance does not remove an old instance's handler. Use a registration flag and exact
+matching unsubscribe on teardown; `-=` followed by `+=` alone is not a cross-instance cleanup strategy.
 
----
+## Isolated UI root
 
-## 4. The Golden Rule: Never Destroy UI Hierarchies in `OnPhoneClosed()`
+Build one app-owned full-stretch root under the supplied container. Keep it inactive until the
+framework reports the app open, then reconcile visibility in both directions. Do not accidentally
+hide or destroy the shared `AppsCanvas`, phone screen, or another app's container.
 
-### ⚠️ The "Transparent Phone" (Empty Housing) Bug
-In *Schedule I*, pressing <kbd>Tab</kbd> or clicking outside the phone lowers the phone and fires `Phone.onPhoneClosed`.
+Build the structure once per valid container generation. Opening should refresh/reconcile data and
+activate the root; closing should dismiss transient panels, release owned focus, and hide the root.
+When the container changes, detach listeners from old controls before discarding their references.
 
-* **The Anti-Pattern**: Calling `Dispose()`, `Object.Destroy()`, or wiping data caches in `OnPhoneClosed()`.
-  ```csharp
-  // ❌ FATAL ANTI-PATTERN: DESTROYS THE APP FOREVER
-  protected override void OnPhoneClosed()
-  {
-      base.OnPhoneClosed();
-      _gridPane?.Dispose();       // Destroys child GameObjects!
-      _directoryPane?.Dispose();  // Destroys root containers!
-      _mainBG.SetActive(false);
-  }
-  ```
-  When the player raises the phone again or re-enters the app, all child UI GameObjects have been destroyed. The 3D phone model renders with a completely empty, transparent screen.
+Choose orientation explicitly using the installed API. Historical phone canvases included a 90-degree
+rotation, but neither that rotation nor the default portrait/landscape value is universal. Inspect
+local rect dimensions and the canvas/scaler before applying another rotation or swapped dimensions.
 
-* **The Correct Pattern**: Only hide modals or reset navigation state. Keep GameObjects alive:
-  ```csharp
-  // ✅ CLEAN & SAFE PATTERN
-  protected override void OnPhoneClosed()
-  {
-      base.OnPhoneClosed();
-      if (_mainBG != null) _mainBG.SetActive(false);
-      _detailModal?.Hide();
-      _viewMode = ViewMode.Directory; // Reset to default view without destroying anything
-  }
-  ```
+## Close and reopen correctness
 
----
+Preserve the framework's app-open transition when implementing custom close behavior. Removing a
+`SetAppOpen(false)`-style transition to avoid one transparent frame can leave stale framework state.
+Diagnose the visible root, app state, phone animation, backdrop, and update order separately.
 
-## 5. Lifecycle Sync in `Update()`
+An app update that also performs open-state synchronization must keep that lightweight synchronization
+reachable while closed. Expensive data scans and rendering can be gated after it. A premature
+`if (!open) return` before hiding/synchronizing the root can leave stale content visible.
 
-Subscribe to `MelonEvents.OnUpdate` in `OnCreated()` to track `IsOpen()` transitions and handle periodic refreshes:
+## Data lifetime and persistence
 
-```csharp
-protected override void OnCreated()
-{
-    base.OnCreated();
-    // Idempotent: defensive Unsubscribe-before-Subscribe (re-creation safe).
-    MelonEvents.OnUpdate.Unsubscribe(Update);
-    MelonEvents.OnUpdate.Subscribe(Update);
-}
+Classify state before choosing storage. Window preferences may be global; notes, unlocked features,
+transactions, world IDs, and progress may belong to a specific save/session. Read the persistence
+skill for save identity, unreadable-state handling, write freeze, and slot transitions. UI teardown
+must not silently delete durable progress, and a new save must not inherit a prior save's model.
 
-private void Update()
-{
-    if (_mainBG == null || _mainBG.WasCollected) return;
+## Reopen and reload verification
 
-    bool open = IsOpen();
-    if (_mainBG.activeSelf != open)
-    {
-        _mainBG.SetActive(open);
-        if (open)
-        {
-            OnAppOpened();
-        }
-        else
-        {
-            OnAppClosed();
-        }
-    }
+Exercise open/close twice, app switch, modal close, phone close while typing, container recreation,
+scene reload, and slot A to B to A. Count subscriptions and root instances. Verify old handlers do not
+run and current handlers still run after a normal close. Report observed callback order with runtime
+versions; a source identifier match is insufficient.
 
-    if (!open) return;
+## Primary source and related references
 
-    // Physical Keyboard / Navigation
-    if (Input.GetKeyDown(KeyCode.Escape))
-    {
-        HandleBackOrClose();
-    }
-
-    // Periodic Refresh (e.g. 1s interval)
-    if (Time.unscaledTime - _lastRefreshTime > 1.0f)
-    {
-        _lastRefreshTime = Time.unscaledTime;
-        RefreshDynamicData();
-    }
-}
-```
-
-### ⚠️ Subscription Lifetime — Rule 10 (canonical; empirical, 2026-08-20 / 2026-09-11 audit)
-
-- `OnCreated()` fires **ONCE** per scene (S1API auto-discovery via `HomeScreen_Start_Patch` — see `ThirdParty/S1API/S1API/Internal/Patches/HomeScreen.Start.cs`).
-- `OnPhoneClosed()` fires on **every** phone close.
-- **Therefore: NEVER `MelonEvents.OnUpdate.Unsubscribe(Update)` inside `OnPhoneClosed()`** — the Update loop would stay dead until the next scene reload, and `_mainBG` would never re-show → blank app on the 2nd open.
-- Same for **static event handlers** (`OnPotsScanned`, `Money.OnBalanceChanged`, `TransactionHistoryService.OnHistoryChanged`, `_engine.OnStateChanged`): unsubscribing them in `OnPhoneClosed` kills live-refresh after the first close. The `-=`-before-`+=` in `OnCreated` is the correct idempotency pattern.
-- If a handler really must be torn down, override `OnDestroyed()` instead of `OnPhoneClosed()` (S1API calls it once when the app is destroyed).
-
----
-
----
-
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
-
-- `LookOffsetMultiplier`
+- [S1API PhoneApp public API](https://ifbars.github.io/S1API/api/S1API.PhoneApp.PhoneApp.html).
+- [Input ownership](input-focus-and-controls.md).
+- [Layout and theming](responsive-ui-theme.md).

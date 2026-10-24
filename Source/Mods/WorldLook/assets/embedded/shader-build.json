@@ -1,0 +1,187 @@
+{
+    "schemaVersion": 1,
+    "createdUtc": "2026-10-23T04:12:28.8148671Z",
+    "unityVersion": "2022.3.62f3",
+    "platform": "StandaloneWindows64",
+    "graphicsApi": "Direct3D11",
+    "colorSpace": "Linear",
+    "bundleSha256": "29557b87609c367e3b568d84d10400d67c980581a1e3491fbd455def9794c8ef",
+    "bundleBytes": 25140,
+    "urpPackageVersion": "14.0.12",
+    "corePackageVersion": "14.0.12",
+    "requestedWaterVariants": 8,
+    "loadedWaterVariants": 8,
+    "bundleAssets": [
+        "assets/buildsettings/worldlookvariants.shadervariants",
+        "assets/s1mods/referencewater.shader"
+    ],
+    "inputs": [
+        {
+            "path": "build/Build.ps1",
+            "sha256": "ca16ceac74f2d6aaa976cb45fcd3eab2309cf50c04085ce467933eae83912acf"
+        },
+        {
+            "path": "build/Verify-ShaderBundle.ps1",
+            "sha256": "fc923237daa6357bee2de90594b431f92ea0f2e78c9878e81a3c73e88a7a3019"
+        },
+        {
+            "path": "unity/Assets/Editor/BuildWorldLook.cs",
+            "sha256": "c7c38016dda66c5fd53104eecd684b3442865f79d57585d6fef64836ddbdde1e"
+        },
+        {
+            "path": "unity/Assets/Editor/BuildWorldLook.cs.meta",
+            "sha256": "6f70080eae6b6707d9911866b677f5eace88f6ec6a87571e35fd46e9290fb92a"
+        },
+        {
+            "path": "unity/Assets/S1Mods/ReferenceWater.shader",
+            "sha256": "2c53e90c374288d4216099816d15ef6ac051b177a496306639fa8231de25b84e"
+        },
+        {
+            "path": "unity/Assets/S1Mods/ReferenceWater.shader.meta",
+            "sha256": "fe0df9a8d06099d667dc586ad5b1eedd8b3692e57cd782ed0653f565188169c5"
+        },
+        {
+            "path": "unity/Packages/manifest.json",
+            "sha256": "175a38c688ee1a7291d12f420ed0ca28b8ca975ac0b39ae8674153e1adec64f1"
+        },
+        {
+            "path": "unity/Packages/packages-lock.json",
+            "sha256": "616dde05d199479e0fccaf5248a888fb415facb5538071e02d9623e86c4a174d"
+        },
+        {
+            "path": "unity/ProjectSettings/AudioManager.asset",
+            "sha256": "9a554916fe138ebcad8443ee9b079363ecc72795c39d0e80f5f7ca99e2c6f5e7"
+        },
+        {
+            "path": "unity/ProjectSettings/ClusterInputManager.asset",
+            "sha256": "40e65dd214bf254955d2c8829ca8ce2130fd3510485560ce012e9a1ddd93e623"
+        },
+        {
+            "path": "unity/ProjectSettings/DynamicsManager.asset",
+            "sha256": "62fd35da36080a098d3e9f90cf4af6c655fe582091c33e505b812cf9aa36fee1"
+        },
+        {
+            "path": "unity/ProjectSettings/EditorBuildSettings.asset",
+            "sha256": "1942c088ddfeeef348fdf12390e2a2d6da51056e197458d67969d44e7b2cbbd3"
+        },
+        {
+            "path": "unity/ProjectSettings/EditorSettings.asset",
+            "sha256": "6f8761b516f06ff2f0373b6310571cf7951f63afb86c56bfd7be832e06a9987b"
+        },
+        {
+            "path": "unity/ProjectSettings/GraphicsSettings.asset",
+            "sha256": "0c238daa2b1123a9db0f85265d1bbf54af7402937914fc42064c19045554119e"
+        },
+        {
+            "path": "unity/ProjectSettings/InputManager.asset",
+            "sha256": "60c83ae48e29a782141f99032eb38e803d18475124ff5224fbd1fd81b233f051"
+        },
+        {
+            "path": "unity/ProjectSettings/MemorySettings.asset",
+            "sha256": "1e8379a461b10ae09f3f696911088c16875d63e87ed5f2d95df9e1892703f9fd"
+        },
+        {
+            "path": "unity/ProjectSettings/NavMeshAreas.asset",
+            "sha256": "7ebbf8f53b8033104e1878b95ca07a28d0954092d81c220f14196a42f651e658"
+        },
+        {
+            "path": "unity/ProjectSettings/Physics2DSettings.asset",
+            "sha256": "531861618163b01648a075414f6e864506ad8fe0a0d4d0096aa1fbbfcd3937dc"
+        },
+        {
+            "path": "unity/ProjectSettings/PresetManager.asset",
+            "sha256": "29c125923fe6e29f90190d4fce1c82d660e7051546e2c9d02908d18c9cf2436c"
+        },
+        {
+            "path": "unity/ProjectSettings/ProjectSettings.asset",
+            "sha256": "2aa031a62a394a21233ae40e8f5bbbdd2bae65501f73e694a3de74c0809e6ec5"
+        },
+        {
+            "path": "unity/ProjectSettings/ProjectVersion.txt",
+            "sha256": "b51164d22c4d2716ba8aee7f0b59d6b7dd0efa8552fd1db2a8c3b123fae3a1ec"
+        },
+        {
+            "path": "unity/ProjectSettings/QualitySettings.asset",
+            "sha256": "92c88ed6a6193472d5c86e0507f9afb65dfdf6d263937336ed06e131aaeeb38c"
+        },
+        {
+            "path": "unity/ProjectSettings/ShaderGraphSettings.asset",
+            "sha256": "733eb0b08f2d9e57a51cef99c450140b18ddd101065cad1b9cde9330899ed8c7"
+        },
+        {
+            "path": "unity/ProjectSettings/TagManager.asset",
+            "sha256": "8e18b1c820e9c09e16bbd1f1b7842e9fb3b0158a0921b0964e0b8fa12c6e2c01"
+        },
+        {
+            "path": "unity/ProjectSettings/TimeManager.asset",
+            "sha256": "1a83e54adbbda7c9f4851103a0c6ab7f6448a3343d4ea5b7620452fa08416ecd"
+        },
+        {
+            "path": "unity/ProjectSettings/UnityConnectSettings.asset",
+            "sha256": "d6034acbef6c9e3179866486c31eab81fcbe5e7ed350ce71e0fa2b1449b77109"
+        },
+        {
+            "path": "unity/ProjectSettings/VersionControlSettings.asset",
+            "sha256": "e7bda45bf7a394745fee1316e6c71fa676004d591ad1f3aa247fd3e4ceb86071"
+        },
+        {
+            "path": "unity/ProjectSettings/VFXManager.asset",
+            "sha256": "3f31266c7c1910447586e71b041dabd58d8371715ac3142d3e38ace46121f4ab"
+        }
+    ],
+    "generatedFixture": [
+        {
+            "path": "Assets/BuildSettings/WorldLookBuildPipeline.asset",
+            "sha256": "8eb3d02fd2553c011908d1cfa3a708d40a1478fec7daeaeae98e16e08c86edb3"
+        },
+        {
+            "path": "Assets/BuildSettings/WorldLookBuildPipeline.asset.meta",
+            "sha256": "af397e363493fcbf4c6cc71d452c3b29b6eab960814d721ddcec269eff569957"
+        },
+        {
+            "path": "Assets/BuildSettings/WorldLookBuildRenderer.asset",
+            "sha256": "b97fd2fbb07b458606765e495663579bdaa93085ef8462c13c69bd0f4597ea0d"
+        },
+        {
+            "path": "Assets/BuildSettings/WorldLookBuildRenderer.asset.meta",
+            "sha256": "a29caf5350029e9a2127d894638bf8ff97179aaeb498296e89f80df95fa03499"
+        },
+        {
+            "path": "Assets/BuildSettings/WorldLookVariants.shadervariants",
+            "sha256": "f5bfe0ad4a0801ceea7a0d21a62314295a9bb640dafdf375e64b41d7ad71b020"
+        },
+        {
+            "path": "Assets/BuildSettings/WorldLookVariants.shadervariants.meta",
+            "sha256": "e4087ee08f101e8eff003fcb30f9ee68ee8e0a87b9f7e8f1dd46255dde2c767a"
+        }
+    ],
+    "resolvedPackageLockSha256": "616dde05d199479e0fccaf5248a888fb415facb5538071e02d9623e86c4a174d",
+    "shaders": [
+        {
+            "assetPath": "Assets/S1Mods/ReferenceWater.shader",
+            "shaderName": "S1Mods/ReferenceWater",
+            "passCount": 1,
+            "editorSupported": true,
+            "properties": [
+                "_ShallowTint",
+                "_DeepTint",
+                "_Absorption",
+                "_SurfaceOpacity",
+                "_ReflectionStrength",
+                "_WaveAmp",
+                "_WaveScale",
+                "_WaveSpeed",
+                "_RippleStrength",
+                "_WindActivity",
+                "_SunStrength",
+                "_SunSharpness",
+                "_FoamColor",
+                "_FoamDepth",
+                "_FoamStrength",
+                "_SkyColor",
+                "_AmbientColor"
+            ]
+        }
+    ],
+    "validation": "Editor bundle rebuilt, loaded, shader messages/pass/17-property contracts and all 8 SVC entries checked. SVC presence is not native GPU-variant execution or game visual/performance validation."
+}

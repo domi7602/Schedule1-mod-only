@@ -1,173 +1,65 @@
-# S1API — PhoneApp (In-Game Smartphone UI)
+# S1API PhoneApp integration map
 
 > verified: §5 UIFactory signatures checked against `UIFactory.cs` ( source) 2026-10-05; lifecycle rules empirical 2026-08-20.
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 42 of 42 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
-The `PhoneApp` base class turns your mod into a fully integrated app on the in-game phone home screen. Auto-discovered, lifecycle-managed, and branch-portable.
+Source scope: official online documentation reviewed on 2026-10-21; target-assembly
+and in-game validation remain required. Use the
+[phone-app skill](../../schedule1-phoneapp/SKILL.md) for the implementation workflow.
 
-For the full PhoneApp **runbook** (lifecycle, UI patterns, InputFocus, lifecycle sync), see the `schedule1-phoneapp` skill. This reference is the **S1API-specific catalog** of the PhoneApp base class.
+## Base class contract
 
----
+The official [PhoneApp reference](https://ifbars.github.io/S1API/api/S1API.PhoneApp.PhoneApp.html)
+separates app identity (`AppName`), display text (`AppTitle`, `IconLabel`), icon
+source, and orientation. It documents creation, UI construction, phone close,
+and destruction as separate callbacks. Match accessibility and signature to the
+target before overriding; do not copy guessed base members.
 
-## 1. The Class
+`IconSprite` takes precedence over file-based icon lookup in the online reference.
+`IsOpen` reports this app's open state. Confirm exact behavior in the target;
+do not substitute the entire phone's open flag for the app's state.
 
-```csharp
-using MelonLoader;
-using S1API.PhoneApp;
-using S1API.UI;
-using S1API.Utils;
-using UnityEngine;
+## Lifetime design
 
-public sealed class MyApp : PhoneApp
-{
-    protected override string AppName      => "MyApp";        // unique ID
-    protected override string AppTitle     => "My App";       // display name
-    protected override string IconLabel    => "My";           // text below icon
-    protected override string IconFileName => "myapp_icon.png";  // in Mods/Plugins folder
-    protected override EOrientation Orientation => EOrientation.Vertical;
+Create UI under the framework-provided container and identify who owns each root,
+canvas, texture, sprite, and subscription. Reuse the owned UI when the phone closes
+and reopens. Close should release temporary input focus and hide relevant UI;
+destruction should release the owning instance's resources and subscriptions.
 
-    protected override void OnCreated()
-    {
-        base.OnCreated();
-        // Subscribe to MelonEvents.OnUpdate here — idempotent (OnCreated fires ONCE per scene):
-        // MelonEvents.OnUpdate.Unsubscribe(Update);
-        // MelonEvents.OnUpdate.Subscribe(Update);
-    }
+The inherited failure case destroyed UI or removed essential update handlers on
+phone close, then expected OnCreated to run on the next open. Do not rely on that
+recreation assumption. Test actual create/open/close/destroy counts in the target.
 
-    protected override void OnCreatedUI(GameObject container)
-    {
-        var panel = UIFactory.Panel("MainPanel", container.transform,
-            new Color(0.1f, 0.1f, 0.1f), fullAnchor: true);
+If scene reload creates another app instance, detach the old instance explicitly.
+A new instance unsubscribing its own method does not remove the old handler.
+Keep world model state independent of a canvas that can be recreated.
 
-        UIFactory.Text("Title", "📱 Hello, S1API!", panel.transform, 22,
-            TextAnchor.MiddleCenter);
+## Icons and UI factories
 
-        var (maskGO, button, label) = UIFactory.RoundedButtonWithLabel(
-            "MyButton", "Click Me", panel.transform,
-            new Color(0.2f, 0.5f, 0.3f), 140, 40, 18, Color.white);
+Cache an owned generated icon for its intended lifetime. Do not allocate a new
+Texture2D/Sprite on every property read. Destroy only resources the mod owns and
+only after all users release them; borrowed framework assets are not yours to destroy.
+Check file lookup location and missing-icon behavior in the deployed framework.
 
-        ButtonUtils.AddListener(button, () => Log.Msg("Clicked!"));
-    }
+Inspect the actual UIFactory return types and component ownership before composing
+controls. Do not add a second Image to a panel that already owns one, or treat a
+Text component return as a GameObject. Use the project's supported event bridge
+for IL2CPP delegates; do not assume a managed listener overload is compatible.
 
-    protected override void OnPhoneClosed()
-    {
-        base.OnPhoneClosed();
-        // Cleanup here — never destroy UI!
-    }
-}
-```
+## Discovery and failure handling
 
----
+Inspect the framework's discovery path, candidate requirements, and exception
+handling. Verify the app appears once and an unrelated broken app does not silently
+mask your own registration failure. Keep a useful unavailable/dependency status
+when the world is not ready. Do not rebuild the full UI each frame to compensate
+for missing lifecycle ownership.
 
-## 2. Required Properties
+## Verification
 
-| Property | Type | Required | Notes |
-|---|---|---|---|
-| `AppName` | `string` | ✅ | Unique ID (used in auto-discovery) |
-| `AppTitle` | `string` | ✅ | Displayed name on the phone |
-| `IconLabel` | `string` | ✅ | Short text under the home icon |
-| `IconFileName` | `string` | ✅ | PNG filename in `Mods/` (S1API loads it) |
-| `Orientation` | `EOrientation` | ⚠ often | `Vertical` for portrait, `Horizontal` for landscape |
+Test repeated phone open/close, switching apps, typing and hotkeys, save reload,
+menu return, and new app instance creation. Check selected-control focus, canvas
+visibility, callback counts, and resource counts. Confirm icons and model state
+survive the intended lifetime without carrying another world's data.
 
-### Icon Override (NPE-safe)
-
-```csharp
-protected override string IconFileName => "";  // disable S1API file lookup
-protected override Sprite? IconSprite
-{
-    get
-    {
-        // Programmatically build a 64x64 sprite
-        var tex = new Texture2D(64, 64);
-        // ... fill pixels
-        return Sprite.Create(tex, new Rect(0, 0, 64, 64), Vector2.one * 0.5f);
-    }
-}
-```
-
-S1API prefers `IconSprite` over `IconFileName` — checked first.
-
----
-
-## 3. Lifecycle Hooks
-
-```csharp
-protected override void OnCreated()          // register hooks, subscribe events
-protected override void OnCreatedUI(GameObject container)  // build UI here (once)
-protected override void OnPhoneClosed()      // cleanup, never destroy UI
-protected override void OnDestroyed()        // final cleanup
-```
-
-> **Golden Rule:** NEVER destroy UI GameObjects in `OnPhoneClosed()`. The "Transparent Phone" bug occurs when the user re-opens the app and the 3D phone model renders with empty children.
->
-> **Rule 10 (2026-08-20):** NEVER `Unsubscribe(MelonEvents.OnUpdate)` / `-=` static events in `OnPhoneClosed()` — `OnCreated` fires only once per scene, the app goes blank after the first close. Teardown goes in `OnDestroyed()`.
-
----
-
-## 4. `IsOpen()` + Manual Close
-
-```csharp
-private void Update()
-{
-    bool open = IsOpen();   // checks PlayerSingleton<Phone>.Instance.IsOpen
-    // ...
-}
-
-protected override void OnPhoneClosed()
-{
-    base.OnPhoneClosed();
-    // Don't destroy UI here!
-}
-
-public void CloseApp()
-{
-    Exit(ExitAction.Default);   // or ExitAction.ReturnToHomeScreen
-}
-```
-
----
-
-## 5. `UIFactory` Cheat Sheet
-
-| Method | Returns | Notes |
-|---|---|---|
-| `Panel(name, parent, color)` | `GameObject` | uGUI panel with `Image` |
-| `Panel(name, parent, color, fullAnchor:true)` | `GameObject` | Full-screen-anchored panel |
-| `Text(name, content, parent, fontSize = 14, anchor = UpperLeft, style = Normal)` | `Text` | Legacy UGUI text — **returns the `Text` component directly**, NOT a GameObject (verified against `UIFactory.cs:69`, ) |
-| `RoundedButtonWithLabel(name, label, parent, color, w, h, fontSize, labelColor)` | `(GameObject, Button, Text)` | Pill-shaped button |
-| `InputField(name, parent, w, h, placeholder)` | `InputField` | Text input |
-| `ScrollableVerticalList(name, parent, spacing)` | `ScrollRect` | Pre-wired scroll rect |
-
-**Pitfall:** `UIFactory.Panel` already sets an `Image` — `AddComponent<Image>()` afterwards creates a duplicate and triggers an NPE in IL2CPP. Use `GetComponent<Image>() ?? AddComponent<Image>()`.
-
-For the full UI patterns + InputFocus + canvas, see the `schedule1-phoneapp` skill.
-
----
-
-## 6. Auto-Discovery Mechanism
-
-S1API uses `S1API.Internal.Patches.HomeScreen_Start_Patch` (a Harmony patch) to:
-1. Reflect over all loaded assemblies for `PhoneApp` subclasses
-2. Instantiate one of each
-3. Call `OnCreated()` → register with `PhoneAppRegistry`
-4. Build the home-icon via `SpawnIcon()` / `SpawnUI()`
-
-You don't need to register manually — just place your class in the mod DLL.
-
----
-
-## 7. S1API vs ScheduleOne-Hash
-
-If you want to register a `phone` command in `hash` (DooDesch's terminal), it lives in a parallel plugin-system, **not** in S1API:
-
-```csharp
-public override void OnInitializeMelon()
-{
-    if (HashCommands.Available)
-    {
-        HashCommands.Add("mycmd", "My commands", "mycmd hello");
-    }
-}
-```
-
-For the hash terminal integration, see `ThirdParty/Archive/ScheduleOne-Hash/` (reference-only, deprecated) and the PotScanner hash-bridge via reflection.
+Read [lifecycle](lifecycle.md) for callbacks and
+[cross-runtime compatibility](cross-compat.md) for delegate/native boundaries.

@@ -1,200 +1,49 @@
-# Build & Deploy — Detailed Runbook
+# Build, deployment and artifact verification
 
 > verified: pipeline re-checked 2026-10-05 against the current workspace state (deploy rows + bump caveats).
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 42 of 42 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
-This reference documents the **complete build/deploy pipeline** for the Schedule I Modding Workspace, including the conventions enforced by `Source/Mods/Directory.Build.props` + `Directory.Build.targets` and the handling of ThirdParty frameworks.
+## Before the first build
 
----
+Locate the actual repository instructions and project/solution files. Read imported props/targets and scripts that may run during build. The original workspace used Source/Mods/Directory.Build.props, Directory.Build.targets and Tools/build-all.ps1; verify these paths and current behavior.
 
-## 1. Command Matrix
+Resolve the game directory from existing configuration or an explicit user path. Never write to a guessed Steam path. Record whether the game is running and whether files could be locked.
 
-| Build | Command (PowerShell) | When |
+## Separate four phases
+
+| Phase | Work | Evidence |
 |---|---|---|
-| Single workspace mod | `dotnet build Source/Mods/<Name>/src/<Name>.csproj -c Release` | Fast iteration on one mod |
-| All workspace mods (Solution) | `dotnet build Source/Mods/S1Mods.sln -c Release` or `pwsh Tools/build-all.ps1` | Full solution builds, baseline checks |
-| Regenerate solution after new mod | `pwsh Tools/gen-sln.ps1` | After `Tools/new-mod.ps1` |
-| ThirdParty deploy | Auto-executed via MSBuild `Directory.Build.targets` or `pwsh Tools/deploy-thirdparty.ps1` | Syncs whitelisted 3rd-party DLLs to `<GameDir>\Mods\` |
-| S1API rebuild (if modified) | `dotnet build ThirdParty/S1API/S1API.sln -c Release` | Framework upgrades or internal API fixes |
-| Version bump across 4 sources | `pwsh Tools/bump-version.ps1 -Mod <Name> -Version <X.Y.Z>` | Release preparation |
+| Inspect | Confirm target, dependency paths, generated vs owned files and side effects | Identified files/configuration |
+| Build | Compile a focused target in an isolated output using the repository's supported deployment-disable mechanism | Command, exit code, warnings and output artifact |
+| Deploy | Copy only approved artifacts through the established helper | Exact destination, backup/receipt when provided, content identity |
+| Runtime check | Start/load under the intended setup and exercise the changed behavior | Actual loaded artifact and observed gameplay result |
 
----
+Do not assume a plain Release build is read-only: the uploaded runbook describes auto-deployment. Do not invent an MSBuild switch. If the supported isolated route cannot be established, complete static review and identify that blocker before mutating the installation.
 
-## 2. The Auto-Deploy Mechanism (2026-09 Standard)
+## Baseline and scope
 
-Every workspace mod's `.csproj` is implicitly wrapped by `Source/Mods/Directory.Build.props` (precedence) and `Source/Mods/Directory.Build.targets` (action) — both live in `Source/Mods/`. The targets file auto-deploys:
+Inspect existing changes first. Build the smallest affected project and required dependencies. Broaden to the solution when shared APIs, imported targets or an explicit gate justify it. Report baseline failures separately from new regressions; do not edit unrelated code just to obtain a clean total.
 
-1. **Loadables for MelonLoader** → `<GameDir>\Mods\`:
-   - `<ModName>.dll`
-   - `*.png` (app/HUD icons)
-   - `*.bundle` (embedded AssetBundles)
-2. **Metadata & Debug symbols** → `<GameDir>\UserData\<ModName>\`:
-   - `Source/Mods/<ModName>/docs/mod.json` → `<GameDir>\UserData\<ModName>\mod.json`
-   - `<ModName>.pdb` → `<GameDir>\UserData\<ModName>\<ModName>.pdb`
-3. **ThirdParty DLLs**:
-   - `Directory.Build.targets` invokes `Tools/deploy-thirdparty.ps1`.
-   - Copies whitelisted DLLs under `ThirdParty/` to `<GameDir>\Mods\` based on `ThirdParty/.deployallow`.
+## Deployment
 
-The targets call `Tools/deploy-mod.ps1` for each project. The helper compares SHA256
-content, copies changed files, and records every planned artifact (including unchanged files).
-See `Tools/README.md` for receipt locations, backups and bounded rollback guarantees.
+Check owner authorization already present in the task. Inspect the actual helper and allowlist, enumerate planned outputs, and preserve rollback data for replaced artifacts. Do not remove Shared or another dependency while retaining mods that need it.
 
----
+Compare SHA256 of produced and installed files. A byte-identical file can correctly keep an older timestamp. A matching filename/version string alone is insufficient.
 
-## 3. GameDir Override
+After deployment, verify which artifact the loader actually loaded. A file copy does not prove successful initialization.
 
-The workspace defaults `<GameDir>` to `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`. Override in two ways:
+## Failure cases
 
-A. **PowerShell env var** (recommended; survives the whole session):
-```pwsh
-$env:SCHEDULE1_PATH = "D:\path\to\Schedule I"
-dotnet build ...
-```
+- Locked destination: preserve built artifact and the previous installed one; retry only after the lock condition is resolved.
+- Partial copy: use the helper's actual receipt/rollback rules; do not claim all-or-nothing deployment unless implemented.
+- Dependency mismatch: align the requested target and references; do not silently deploy newest framework binaries.
+- Stale DLL suspicion: compare identity and load paths before destructive cleanup.
+- Build warnings: classify existing and new warnings; meet actual project gates without hiding diagnostics.
 
-B. **`local.build.props`** (persists on disk; should be gitignored):
-```xml
-<!-- In Source/Mods/local.build.props (gitignored) -->
-<Project>
-  <PropertyGroup>
-    <GameDir>D:\path\to\Schedule I</GameDir>
-    <S1ApiIl2CppPath>D:\path\to\Schedule I\MelonLoader\Il2CppAssemblies\S1API.Il2Cpp.MelonLoader.dll</S1ApiIl2CppPath>
-  </PropertyGroup>
-</Project>
-```
+## Packaging and release
 
-> **IMPORTANT (verified gotcha):** MSBuild evaluates `<GameDir>` **once at process start**. Setting `$env:SCHEDULE1_PATH` AFTER `dotnet build` has begun will not change the target. Set it BEFORE the build.
+Use the current packaging script when verified. Include required assets/metadata and explicit dependency requirements. Do not bundle third-party binaries by default; inspect project distribution rules. Version changes follow [version synchronization](version-sync.md).
 
----
+## Delivery
 
-## 4. Artifact identity, not timestamps
-
-The old MSBuild copy flow forced every copy to avoid timestamp/size-based skipping.
-The current helper instead compares SHA256: byte-identical files are already the right
-artifact and need no rewrite. Matching timestamps alone are not proof of identity.
-
-**If a stale DLL is still suspected:**
-```pwsh
-dotnet clean Source\Mods\<Name>\src\<Name>.csproj
-dotnet build  Source\Mods\<Name>\src\<Name>.csproj -c Release
-# Compare the built and installed DLL hashes; do not delete the installed DLL first.
-Get-FileHash "Source/Mods/<Name>/src/bin/Release/<TargetFramework>/<Name>.dll"
-Get-FileHash "$env:SCHEDULE1_PATH/Mods/<Name>.dll"
-```
-
-**Version bump (since 2026-08-20):** Never edit 4 files manually — `Tools/bump-version.ps1` updates `Mod.cs` (MelonInfo) + `Source/Mods/<Mod>/docs/mod.json` + `Source/Mods/<Mod>/docs/CHANGELOG.md` + `AGENTS.md`. **Not truly atomic:** the 3 documented regex pitfalls (version-sync.md §3) produce duplicate CHANGELOG entries in some formats — always read the post-bump CHANGELOG and clean up; run the Feature-Diff Gate first (`schedule1-modding` §2.C).
-```pwsh
-pwsh Tools/bump-version.ps1 -Mod <Name> -Version <X.Y.Z> # actual change
-pwsh Tools/bump-version.ps1 -Mod <Name> -Version <X.Y.Z> -DryRun # preview
-```
-
----
-
-## 5. ThirdParty Libraries & Frameworks
-
-| Framework | Status | Origin / Deploy | Notes |
-|---|---|---|---|
-| **S1API** | active | deployed `Mods\S1API.Il2Cpp.MelonLoader.dll` + `Plugins\S1APILoader.MelonLoader.dll`; see `AGENTS.md` for dependency selection | Keep checked-out source and deployed assembly aligned; avoid binaries missing required game API members |
-| **PhoneScroll** | retired 2026-09-16 | `ThirdParty/Archive/PhoneScroll/` (only README, DLL withdrawn) -> `Mods\PhoneScroll.dll` | Closed-source vanilla phone scroll hook by V4LEXL |
-| **S1MAPI** | ✅ active | `ThirdParty/S1MAPI/` | Procedural meshes, GLTF loader, interior tools |
-| **S1MCPServer** | ✅ active | `ThirdParty/S1MCPServer-master/` → `Mods\S1MCPServer-IL2CPP.dll` | Live TCP introspection (:8765) |
-| **Sideload** | ❌ removed | Removed on 2026-09-10 (commit `37e7a5d`) | Deprecated, unused |
-| **Hash** | deprecated | `ThirdParty/Archive/ScheduleOne-Hash/` (no DLL deploy) | Only `Hash.Api/HashCommands.cs` remains source-linked in BusinessIncome and PotScanner |
-
----
-
-## 6. Build Errors & Their First-Try Fixes
-
-| Error | Likely cause | First try |
-|---|---|---|
-| `CS0246: type 'S1API' not found` | S1API DLL missing or broken HintPath | Rebuild S1API (`ThirdParty/S1API/`) or check `Directory.Build.props` |
-| `CS0118: 'Harmony' is both namespace and type` | `using HarmonyLib;` + `private static Harmony? _harmony;` | Qualify: `private static HarmonyLib.Harmony? _harmony;` |
-| `MSB3026 / MSB3027: Access denied / already exists` | Schedule I still running, file locked | Close game; build auto-retries |
-| `IL2CPP0019: method body invalid` | Mod generates IL that IL2CPP can't process | Reduce complexity or use `[HideFromIl2Cpp]` on the offending type |
-| `WasCollected / NullReferenceException in IL2CPP` | Native object was destroyed | Guard with `obj != null && obj.Pointer != IntPtr.Zero && !obj.WasCollected` |
-| `Implicit conversion from float to int` warnings | Money fields are float now, not int | Use `float cashBalance` and `onlineBalance` everywhere |
-
----
-
-## 7. Deploy Verification Checklist
-
-After every successful build, verify before launching the game:
-
-1. **DLL exists** in `<GameDir>\Mods\<Name>.dll`
-2. **SHA256 equality** between the built DLL and installed DLL; unchanged files may retain old timestamps
-3. **`mod.json` exists** in `<GameDir>\UserData\<Name>\mod.json`
-4. **`<Name>.pdb` exists** in `<GameDir>\UserData\<Name>\<Name>.pdb`
-5. **Icon PNG exists** in `<GameDir>\Mods\` if the mod ships one
-6. **`MelonPreferences` cfg** updates correctly (check UserData)
-
----
-
-## 8. Distributable Outputs (for Nexus/Thunderstore)
-
-When shipping a mod externally:
-
-```pwsh
-# Output files:
-- <GameDir>\Mods\<Name>.dll
-- <GameDir>\Mods\<icon>.png                           (if applicable)
-- <GameDir>\UserData\<Name>\mod.json
-- README.md + CHANGELOG.md
-```
-
-Solution-wide packaging: use `pwsh Tools/package-release.ps1 -Mod All` (creates `Release/<Mod>-v<Version>.zip` per mod).
-
----
-
-## 9. Common Pipelines (End-to-End)
-
-**Iterate quickly on one mod:**
-```pwsh
-$env:WORKSPACE_ROOT = "C:\Users\<you>\Schedule1-mod-only"   # set once per session
-dotnet build "$env:WORKSPACE_ROOT\Source\Mods\NotesApp\src\NotesApp.csproj" -c Release
-```
-
-**Clean release for all mods:**
-```pwsh
-$env:WORKSPACE_ROOT = "C:\Users\<you>\Schedule1-mod-only"
-pwsh "$env:WORKSPACE_ROOT\Tools\build-all.ps1"
-```
-
-> The workspace lives outside the game directory (wherever you cloned the repo); only the game path needs `$env:SCHEDULE1_PATH`. Use `$env:WORKSPACE_ROOT` for cross-machine portability.
-
-**Onboard a new mod:**
-```pwsh
-pwsh Tools/new-mod.ps1 -Name "MyMod" -Author "Dominik" -Version "<X.Y.Z>"
-pwsh Tools/gen-sln.ps1
-dotnet build Source\Mods\MyMod\src\MyMod.csproj -c Release
-```
-
----
-
-## 10. Multi-PC-Workflow (Laptop ↔ Desktop)
-
-Linear workflow on `main`, no feature branches. Native saves live under the Windows user's
-`AppData/LocalLow/TVGS/Schedule I/Saves`; `<GameDir>/UserData` contains mod sidecars, configuration
-and deployed metadata. Both stay PC-local — only source code and docs are synced.
-
-**First-time setup on a new PC** (clone repo, then):
-```pwsh
-git clone https://github.com/domi7602/Schedule1-mod-only.git
-cd Schedule1-mod-only
-pwsh Tools/setup-workspace.ps1        # generates local.build.props, prompts for game path if needed
-dotnet build Source/Mods/S1Mods.sln -c Release
-```
-
-**Daily switch:**
-- Session start: `git pull`
-- Session end: inspect the diff, stage only the explicitly approved files/hunks, then commit/push only with owner authorization.
-
-**`local.build.props`** are gitignored (`ThirdParty/S1API/local.build.props`, `ThirdParty/S1MAPI/local.build.props`) and generated by `setup-workspace.ps1` from the `*.example` templates. For the standard Steam path `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` the default is sufficient; for a different library location interactive prompt or `-GameDir "<path>"`.
-
-**What is NOT synchronized:** `<GameDir>\Mods\*.dll` (build artifacts, locally produced by `dotnet build`), `<GameDir>\UserData\*` (mod sidecars/configuration/metadata), `bin/`/`obj/`.
-
----
-
----
-
----
-
----
+Report built, deployed and runtime-tested as separate statuses. Include only applicable commands/results and concrete remaining manual checks. A build-only task ends with a build artifact and its evidence, not an unsolicited deployment.

@@ -14,6 +14,8 @@ public static class AppLayout
     public const int FontSliderCaption = 17;
     public const int FontSliderValue = 17;
     public const int FontPowerLabel = 17;
+    /// <summary>Best-fit floor for the power label when "Property name: state" is long.</summary>
+    public const int FontPowerLabelMin = 12;
     public const int FontPowerDetail = 12;
     public const int FontButton = 14;
     public const int FontInlineState = 12;

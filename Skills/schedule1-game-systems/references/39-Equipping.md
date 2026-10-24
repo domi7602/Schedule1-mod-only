@@ -1,5 +1,8 @@
 # Equipping (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 135 of 135 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 Namespace: `Il2CppScheduleOne.Equipping` (+ `Equipping.Framework`).
 
@@ -12,7 +15,7 @@ Namespace: `Il2CppScheduleOne.Equipping` (+ `Equipping.Framework`).
 | `NetworkedEquipper` | `NetworkBehaviour` | Equip/unequip orchestration + FishNet SyncList replication |
 | `EquippableDataRegistry` | `PersistentSingleton<EquippableDataRegistry>` | GUID → `EquippableData` lookup (`GetEquippableData(Guid)`, `RegisterEquippableData`, `_equippableDataList`) |
 
-## Class Tree (verified bases)
+## Class Tree (previously reported bases)
 - `Equippable_Viewmodel : Equippable` — viewmodel placement (`localPosition`, `localEulerAngles`, `localScale`, `AvatarEquippable` ref)
   - `Equippable_AvatarViewmodel` → `Equippable_MeleeWeapon` (`Hit(power)`, `ExecuteHit`, `StartLoad`/`Release`, `UpdateCooldown`), `Equippable_RangedWeapon` → `Equippable_Revolver` (`SetDisplayedBullets`), `Equippable_PumpShotgun` (`GetBulletDirections`)
   - `Equippable_Pourable` (`CanPour(GrowContainer, out reason)`, `StartPourTask`) → `Equippable_Additive`; `PourableWaterContainerEquipped`
@@ -20,12 +23,12 @@ Namespace: `Il2CppScheduleOne.Equipping` (+ `Equipping.Framework`).
 - Direct `Equippable` children: `Equippable_BuildableItem`, `Equippable_SurfaceItem`
 - The item-definition side of equippables is covered in 09-Inventory-ItemFramework — do not duplicate here.
 
-## Handler & Network Flow (verified)
+## Handler & Network Flow (previously reported)
 - `EquippedItemHandler`: `IsEquipped` prop, `Equipped(IEquippableUser, EquippableData)`, `EquippedWithItem(user, data, BaseItemInstance)`, `Unequipped()`, `SetupParent()`/`SetupFirstPerson()`/`SetupThirdPerson()`, `UserUpdate()`, SyncVars `_user`/`_equippableData`
 - `NetworkedEquipper`: `Equip(EquippableData|BaseItemInstance, bool networked)`, `Unequip(handler)`, `UnequipAll()`, `CanEquip(EquippableData)`, `IsRightHandOccupied()`/`IsLeftHandOccupied()`, `IsItemEquipped(handler)`, `CreateHandlerForEquippable(EquippableData)`; SyncList `_networkEquippedItems` (`NetworkEquippedItems_OnChange`); RPCs `Unequip_Server`/`Unequip_Client`/`AddNetworkedEquippedItem_Server`/`RemoveNetworkedEquippedItem_Server` (hash 897730888)
 - Subclasses: `PlayerNetworkedEquipper` (`_player`), `NPCNetworkedEquipper` — both only override `GetUser()`
 
-## Framework folder (verified)
+## Framework folder (previously reported)
 - `EquippableItemDefinition : GenericEquippableItemDefinition<EquippableData> : StorableItemDefinition` (+ `ValidateDefinition()`)
 - `EquippableHandlerService`: static `SetupHandlerKeys()`, `GetHandlerPrefab(EquippableData) → IEquippedItemHandler`; nested `HandlerInfo { DataType, HandlerType }`
 - `EquipConfiguration : Configuration<EquipSettings>` — `Handlers`, `TryGetHandlerForData(Type, out IEquippedItemHandler)`
@@ -45,11 +48,11 @@ Namespace: `Il2CppScheduleOne.Equipping` (+ `Equipping.Framework`).
 ## Save Participation
 - **No `ISaveable` / `SaveData` in the Equipping namespace** (grep). Equipped state persists indirectly via inventory/item instances; equipped handler replication is FishNet SyncList only. Exact re-equip-on-load path: `unverified`.
 
-## Hook Points
+## Candidate Hook Points
 1. **Prefix `NetworkedEquipper.CanEquip(EquippableData)`** — deny/allow equips globally (restrict weapons in safe zones); plain bool method, patchable.
 2. **Postfix `EquippedItemHandler.Equipped(...)` / `Unequipped()`** — react to equip state changes (HUD, buffs); virtual, non-inline.
 3. **Postfix `EquippableDataRegistry.RegisterEquippableData`** — observe custom/game equippable registrations at load time.
-- **S1API wrappers (verified in source):** `S1API.Items.Equippable` (wraps native `Equippable`; `CanInteractWhenEquipped`, `CanPickUpWhenEquipped`, virtual `Equip(ItemInstance)`/`Unequip()`), `S1API.Items.EquippableBuilder`, `S1API.Items.AvatarEquippableRegistry` / `AvatarEquippablePaths`.
+- **S1API wrappers (previously reported in source):** `S1API.Items.Equippable` (wraps native `Equippable`; `CanInteractWhenEquipped`, `CanPickUpWhenEquipped`, virtual `Equip(ItemInstance)`/`Unequip()`), `S1API.Items.EquippableBuilder`, `S1API.Items.AvatarEquippableRegistry` / `AvatarEquippablePaths`.
 
 ## Not Implemented / Unverified
 - No equipping events on the manager level (only per-weapon UnityEvents + `OnUnequipped`).

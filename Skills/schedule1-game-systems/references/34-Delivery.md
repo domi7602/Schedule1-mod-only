@@ -1,4 +1,6 @@
 # Delivery (Schedule I)
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 101/102 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## Core Classes (`ScheduleOne.Delivery`)
@@ -12,9 +14,9 @@
 | `DeliveryConfiguration` | `Configuration<DeliverySettings>` | Delivery tuning config |
 | `LoadingDock` | `MonoBehaviour` | Physical dock per property: `InputSlots`/`OutputSlots`, `SetOccupant(LandVehicle)`, `SetStaticOccupant(LandVehicle)`, `RefreshOccupant()`, `ShowOutline(Color)`, `HideOutline()`, `ParentProperty`, `VehicleDetector`, `Parking`, `IsAcceptingItems`, `IsDestroyed`, `GUID`/`BakedGUID` |
 
-`EDeliveryStatus` (verified values): `InTransit, Waiting, Arrived, Completed` — **not** "Pending/InTransit/Delivered" as previously listed.
+`EDeliveryStatus` (previously reported values): `InTransit, Waiting, Arrived, Completed` — **not** "Pending/InTransit/Delivered" as previously listed.
 
-## DeliveryManager API (verified)
+## DeliveryManager API (previously reported)
 - State: `Deliveries` (static list), `deliveryCache`, `_deliveryHistory` / `_displayedDeliveryHistory`, `_minsSinceVehicleEmpty`
 - Queries: `GetDelivery(string deliveryID)`, `GetDelivery(Property destination)`, `GetActiveShopDelivery(DeliveryShop shop)`, `IsLoadingBayFree(Property destination, int loadingDockIndex)`
 - Mutations: `SendDelivery(DeliveryInstance)` (server RPC funnel), `RecordDeliveryReceipt_Server(DeliveryReceipt, string originalOrderID = "")`, `ReceiveDelivery(NetworkConnection, DeliveryInstance)`, `SetDeliveryState(string, EDeliveryStatus)`
@@ -39,7 +41,7 @@
 3. `OnTimePass` counts down; status `InTransit → Arrived` (next morning / delivery time), player fills dock inputs
 4. `RecordDeliveryReceipt_Server` → `Completed`, receipt persisted in `_deliveryHistory`
 
-## Hook Points (Harmony)
+## Candidate Hook Points (Harmony)
 1. `DeliveryManager.OnTimePass(int minutes)` — prefix/postfix for delivery timing control (accelerate/skip/queue custom deliveries); regular per-minute method, safe patch.
 2. `DeliveryShop.SubmitOrder(string originalDeliveryID)` — intercept custom orders, or `CanOrder(out string)` prefix to override availability.
 3. `LoadingDock.SetOccupant(LandVehicle)` — react to vehicle arrivals at docks.
@@ -51,22 +53,8 @@
 
 ---
 
----
+## Unresolved identifiers in the imported 2026-10-08 record
 
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+The imported scan did not resolve the following tokens within its recorded search scope. These may be placeholders, attributes from another assembly or drift candidates. Search the actual declaring assembly and version before concluding that an API was removed.
 
 - `_Vehicle`

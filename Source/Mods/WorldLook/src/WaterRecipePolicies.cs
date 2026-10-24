@@ -1,12 +1,9 @@
 // ---------------------------------------------------------------------------
 // Water/WaterRecipePolicies.cs
 //
-// Mechanically consolidated from the former per-type source files. Each original
-// file keeps its own block namespace with its own using directives, so name
-// binding is unchanged; the bodies differ from the pre-consolidation sources only
-// by the block-namespace indent level. Machine markers delimit the section that
-// came from each original file so the source-contract checks and an independent
-// reconstruction proof can still read that file's exact content.
+// Unity-free water recipes, native-input validation and material ownership.
+// The reference path uses environment colors, not a reflection camera. The former
+// camera/matrix policies and the standalone sky-only material leases are retired.
 //
 //   Water/WaterLookRecipe.cs           -> section WaterLookRecipe.cs
 //   Water/ReferenceWaterLook.cs        -> section ReferenceWaterLook.cs
@@ -80,14 +77,11 @@ namespace WaterShader
     /// <summary>
     /// Look step for the reference water shader, applied to the owned clone right after the
     /// reference shader is bound. The shader's own declared defaults are the baseline; this
-    /// recipe moves only what makes the water read clearer:
-    ///  - lower absorption, so the refracted bottom survives over more real water thickness;
-    ///  - a calmer surface, so that bottom is smeared less;
-    ///  - a shallow tint whose channels stay near 0.5, so the shader's *2 transmission gain
-    ///    does not lift the bottom into a pale cream wash.
-    /// The deep tint, the rest of the palette, reflection, sun and the shore foam are
-    /// deliberately NOT written. Foam was narrowed in 0.1.1 as a side effect and reverted
-    /// in 0.1.2 — the shader's own smoothstep gate, not our value, is what sizes it.
+    /// recipe preserves the installed standalone's clear-shallows tuning. Scene-depth
+    /// difference is an eye-space thickness approximation. Body opacity and the weak
+    /// environment reflection are composed separately; this does not force opaque water.
+    /// Sky/horizon colors and wind activity are live native inputs. Deep tint, sun
+    /// highlight and shore-foam values use the shader/material settings.
     /// Every write is HasProperty-guarded and Unity-free, so a shader revision that drops a
     /// name degrades to "that value is not applied" instead of faulting the render path.
     /// </summary>
@@ -95,23 +89,17 @@ namespace WaterShader
     {
         private static readonly (string name, float value)[] Floats =
         {
-            // Absorption is the dominant depth lever: the shader attenuates the refracted
-            // bottom by 1 - exp(-thickness * _Absorption) and raises alpha with the same
-            // term. 0.55 -> 0.38 still looked veiled within a couple of metres; 0.22 keeps
-            // the bottom readable further out without dropping to the shader minimum.
-            ("_Absorption", 0.22f),
-            // A calmer surface smears the refracted bottom less.
-            ("_RippleStrength", 0.45f),
+            // Preserve the approved late-dye tuning and environment-only composition.
+            ("_Absorption", 0.10f),
+            ("_RippleStrength", 0.28f),
+            ("_SurfaceOpacity", 0.22f),
+            ("_ReflectionStrength", 0.12f),
         };
 
         private static readonly (string name, float r, float g, float b)[] Colors =
         {
-            // Everything seen THROUGH the surface is sceneColor * lerp(shallow, deep, absorb) * 2.0.
-            // The 0.1.2 tint (0.50, 0.75, 0.75) therefore gained (1.0, 1.5, 1.5): green and blue
-            // lifted sand toward pale cream. Channels near 0.5 keep that gain near the bottom's
-            // own colour, with only a small cool bias so it still reads as water. Red stays above
-            // the shader default 0.35 so the old teal crush does not come back. Deep tint is not
-            // written. The shader still composites a 0.35 alpha floor; this value cannot remove it.
+            // Near 0.5, the shader's *2 shallow-transmission gain stays near unity.
+            // Its compositor also retains a separate untinted destination contribution.
             ("_ShallowTint", 0.46f, 0.52f, 0.55f),
         };
 
@@ -149,78 +137,20 @@ namespace WaterShader
 
 
     /// <summary>
-    /// Unity-free decisions and math for the reference water reflection path.
-    /// Row-major 4x4 arrays keep the reflection math testable without UnityEngine.
-    /// The runtime consumes only MirrorPoint/MirrorDirection; ReflectionMatrix is
-    /// the matrix those two are derived from and exists to pin that relationship.
+    /// Shader contract for the environment-only reference water path.
     /// </summary>
     internal static class ReferenceWaterPolicy
     {
         /// <summary>Shader properties the reference shader contract requires.</summary>
         internal static readonly string[] RequiredShaderProperties =
         {
-            "_ShallowTint", "_DeepTint", "_Absorption",
-            "_ReflectionTex", "_ReflectionStrength", "_ReflectionSharpness",
-            "_WaveAmp", "_WaveScale", "_WaveSpeed", "_RippleStrength",
+            "_ShallowTint", "_DeepTint", "_Absorption", "_SurfaceOpacity",
+            "_ReflectionStrength",
+            "_WaveAmp", "_WaveScale", "_WaveSpeed", "_RippleStrength", "_WindActivity",
             "_SunStrength", "_SunSharpness",
             "_FoamColor", "_FoamDepth", "_FoamStrength",
             "_SkyColor", "_AmbientColor",
         };
-
-        /// <summary>
-        /// Reflection across the horizontal plane y = waterY maps (x, y, z) to
-        /// (x, 2*waterY - y, z). Returned as a row-major 4x4.
-        /// </summary>
-        internal static float[] ReflectionMatrix(float waterY)
-        {
-            return new[]
-            {
-                1f, 0f, 0f, 0f,
-                0f, -1f, 0f, 2f * waterY,
-                0f, 0f, 1f, 0f,
-                0f, 0f, 0f, 1f,
-            };
-        }
-
-        /// <summary>Mirror a world point across y = waterY.</summary>
-        internal static (float x, float y, float z) MirrorPoint(float waterY, float x, float y, float z)
-        {
-            return (x, 2f * waterY - y, z);
-        }
-
-        /// <summary>Mirror a direction across y = waterY (only the y component flips).</summary>
-        internal static (float x, float y, float z) MirrorDirection(float x, float y, float z)
-        {
-            return (x, -y, z);
-        }
-
-        /// <summary>Clamp the reflection render-target size to the supported budget.</summary>
-        internal static (int width, int height) ReflectionSize(int requestedWidth, int requestedHeight, int maxDimension)
-        {
-            int max = Math.Clamp(maxDimension, 128, 1024);
-            int width = Math.Clamp(requestedWidth, 16, max);
-            int height = Math.Clamp(requestedHeight, 16, max);
-            return (width, height);
-        }
-
-        /// <summary>Decide whether a camera should trigger the owned reflection render.</summary>
-        internal static bool ShouldRenderReflection(
-            bool reentrancyGateOpen,
-            bool cameraIsOwned,
-            bool cameraIsReflection,
-            bool cameraIsOverlay,
-            bool cameraIsPreview,
-            bool cameraIsGame,
-            bool materialBound)
-        {
-            return reentrancyGateOpen
-                   && !cameraIsOwned
-                   && !cameraIsReflection
-                   && !cameraIsOverlay
-                   && !cameraIsPreview
-                   && cameraIsGame
-                   && materialBound;
-        }
 
         /// <summary>Decide whether the reference shader may replace the clone's shader.</summary>
         internal static bool CanApplyReference(bool bundleLoaded, bool shaderSupported, bool hasRequiredProperties)
@@ -242,30 +172,40 @@ namespace WaterShader
             return missing.ToArray();
         }
 
-        /// <summary>Decide whether reflection inputs may be bound this frame.</summary>
-        internal static bool ShouldBindReflection(bool materialBound, bool reflectionTextureReady)
-        {
-            return materialBound && reflectionTextureReady;
-        }
-
-        /// <summary>
-        /// Scale a source resolution down to a bounded budget while preserving its
-        /// aspect ratio. Unlike <see cref="ReflectionSize"/> this keeps the shape of
-        /// the frame, which a per-axis clamp would distort at high resolutions.
-        /// </summary>
-        internal static (int width, int height) ReflectionSizeForAspect(int sourceWidth, int sourceHeight, int maxDimension)
-        {
-            int max = Math.Clamp(maxDimension, 128, 1024);
-            if (sourceWidth <= 0 || sourceHeight <= 0) return (max, max);
-
-            int longSide = Math.Max(sourceWidth, sourceHeight);
-            float scale = Math.Min(1f, max / (float)longSide);
-            int width = Math.Max(16, (int)Math.Round(sourceWidth * scale));
-            int height = Math.Max(16, (int)Math.Round(sourceHeight * scale));
-            return (width, height);
-        }
     }
     // ==== end WorldLook section: ReferenceWaterPolicy.cs ====
+
+    internal static class WaterEnvironmentPolicy
+    {
+        internal static bool IsFinite((float r, float g, float b, float a) color)
+            => float.IsFinite(color.r) && float.IsFinite(color.g)
+                && float.IsFinite(color.b) && float.IsFinite(color.a);
+
+        // Preserve native HDR/night colors exactly; never normalize or brighten them.
+        internal static (float r, float g, float b, float a)? SelectColor(
+            (float r, float g, float b, float a)? native,
+            (float r, float g, float b, float a)? ambient)
+            => native.HasValue && IsFinite(native.Value) ? native
+                : ambient.HasValue && IsFinite(ambient.Value) ? ambient : null;
+
+        internal static float WindActivity(float value)
+            => float.IsFinite(value) ? Math.Clamp(value, 0f, 1f) : 0f;
+    }
+
+    internal static class WaterShaderAssignment
+    {
+        // Used for both initial binding and rollback. A setter may silently fail or
+        // mutate and then throw: neither case proves a successful shader transition.
+        internal static void AssignConfirmed<T>(T shader, Func<T, bool> alive,
+            Action<T> write, Func<T?> read, Func<T?, T, bool> same) where T : class
+        {
+            if (shader == null || !alive(shader))
+                throw new InvalidOperationException("Water shader candidate is unavailable; refusing an empty shader assignment.");
+            write(shader);
+            if (!same(read(), shader))
+                throw new InvalidOperationException("Water shader assignment was not confirmed.");
+        }
+    }
 }
 
 namespace WaterShader
@@ -294,6 +234,7 @@ namespace WaterShader
     {
         internal const double RetrySeconds = 5;
         internal const double HealthSeconds = 1;
+        internal const int InactiveCleanupRetryLimit = 3;
         private readonly IWaterRuntime<TTarget, TMaterial> _runtime;
         private TTarget? _target;
         private TMaterial? _original;
@@ -301,6 +242,8 @@ namespace WaterShader
         private bool _active;
         private bool _pendingRelease;
         private double _nextCheck;
+        private double _lastNow;
+        private int _inactiveCleanupRetries;
 
         public WaterState State { get; private set; }
         public Exception? LastError { get; private set; }
@@ -310,15 +253,33 @@ namespace WaterShader
         {
             if (_active) return;
             _active = true;
+            _lastNow = now;
+            _inactiveCleanupRetries = 0;
             _nextCheck = now;
             if (!_pendingRelease) State = WaterState.Waiting;
         }
 
-        public void Stop()
+        // Compatibility for explicit callers without a clock; runtime lifecycle
+        // calls supply the actual event time rather than the last update time.
+        public void Stop() => Stop(_lastNow);
+
+        public void Stop(double now)
         {
             _active = false;
+            _lastNow = now;
+            _nextCheck = now + RetrySeconds;
+            _inactiveCleanupRetries = InactiveCleanupRetryLimit;
             try { Release(); State = WaterState.Stopped; }
             catch (Exception ex) { Fault(ex); }
+        }
+
+        // An input/shader update can fail after publication. Keep ownership and let
+        // the same bounded cleanup path reconcile it before another allocation.
+        public void ReportFailure(Exception error, double now)
+        {
+            _lastNow = now;
+            _nextCheck = now + RetrySeconds;
+            Fault(error);
         }
 
         private void Fault(Exception ex)
@@ -335,9 +296,11 @@ namespace WaterShader
                 if (_target != null && _runtime.TargetAlive(_target)
                     && _runtime.SameMaterial(_runtime.ReadMaterial(_target), _owned))
                 {
-                    _runtime.WriteMaterial(_target, _original != null && _runtime.MaterialAlive(_original) ? _original : null);
-                    if (_runtime.SameMaterial(_runtime.ReadMaterial(_target), _owned))
-                        throw new InvalidOperationException("Water restore did not detach the owned material.");
+                    if (_original == null || !_runtime.MaterialAlive(_original))
+                        throw new InvalidOperationException("Native water material unavailable; retaining the visible owned material instead of writing null.");
+                    _runtime.WriteMaterial(_target, _original);
+                    if (!_runtime.SameMaterial(_runtime.ReadMaterial(_target), _original))
+                        throw new InvalidOperationException("Native water material restoration was not confirmed.");
                 }
                 // A failed read/restore retains ownership: never destroy a possibly attached clone.
                 if (_runtime.MaterialAlive(_owned)) _runtime.DestroyMaterial(_owned);
@@ -346,19 +309,25 @@ namespace WaterShader
             _owned = null;
             _original = null;
             _pendingRelease = false;
+            _inactiveCleanupRetries = 0;
             LastError = null;
         }
 
         public void Tick(double now)
         {
-            if (!_active || now < _nextCheck) return;
+            _lastNow = now;
+            if (now < _nextCheck) return;
+            // OFF does not discard uncertain ownership. Only retained cleanup can
+            // run while inactive, with a finite budget that ticks never replenish.
+            if (!_active && (!_pendingRelease || _inactiveCleanupRetries <= 0)) return;
             _nextCheck = now + RetrySeconds; // No tight retries or catch-up after a stalled frame.
             try
             {
                 if (_pendingRelease)
                 {
+                    if (!_active) _inactiveCleanupRetries--;
                     Release();
-                    State = WaterState.Waiting;
+                    State = _active ? WaterState.Waiting : WaterState.Stopped;
                     return; // Cleanup and new allocation never share a retry slice.
                 }
                 if (_target != null)

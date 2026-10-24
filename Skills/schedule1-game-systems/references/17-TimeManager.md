@@ -1,11 +1,14 @@
 # TimeManager (Schedule I)
-> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 36/40 identifier-shaped tokens resolve (3 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 36/40 identifier-shaped tokens resolve (3 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## Architecture
 - `NetworkSingleton<TimeManager>` (Server-authoritative)
 - Format: `int CurrentTime` in 24h format (HHMM, e.g. 900 = 09:00)
 - `CycleDuration` = 24 minutes real-time per game day
+
+**Local unit confirmation, 2026-10-22 (0.4.7f12):** read-only observation returned `CurrentTime=1954` while the native DayNightController reported about `19.90776` hours / `.82951415` day fraction. Convert HHMM to minutes before minute-based policy calculations; `1954` is 19:54, not 1,954 elapsed minutes. S1MCP 1.0.4's current `get_time_of_day` wrapper mislabels this raw value as `time_minutes` and displayed `32h 34m`. This verifies the clock units only, not the event/cycle claims below. WorldLook's native-baseline repair corrects its own conversion; the bridge handler is a separate repair.
 
 ## Important Constants
 | Constant | Value | Description |
@@ -24,7 +27,7 @@
 - Time stands still between **04:00 – 06:00** (`EndOfDay`)
 
 ## Events
-Event surface re-checked against the f12 decompile on 2026-10-08. `TimeManager` exposes
+The original notes report an event-surface check against the f12 decompile on 2026-10-08; this package has not reproduced that check. `TimeManager` exposes
 `onDayPass`, `onHourPass`, `onWeekPass`, `onTimeChanged`, `onTimeSet`, `onUpdate`,
 `onFixedUpdate` and `onTimeSkip(int)`.
 
@@ -42,16 +45,16 @@ Related public helpers observed on f12: `GetDateTime()`, `GetTotalMinSum()`,
 `IsCurrentTimeWithinRange(min, max)`, `IsCurrentDateWithinRange(start, end)`,
 `ShouldMinutePass()`, `TickLoop()`, `TimeLoop()`.
 
-> **Removed/renamed:** earlier revisions of this file listed `onMinutePass`,
+> **Not located in the recorded snapshot:** earlier revisions of this file listed `onMinutePass`,
 > `onUncappedMinutePass` and `onTick`. None exist in the f12 assemblies — re-derive
-> minute-level hooks from `ShouldMinutePass()` / `onTimeChanged` before using them.
+> minute-level hooks from `ShouldMinutePass()` / `onTimeChanged` before using them. Do not replace an event with a similarly named method without checking timing, units and subscription semantics.
 
 ## Sleeping (TimeSkip)
 1. Interact with bed (from 18:00 onwards)
 2. `SleepMenu` (UI): select hours; `SleepController` drives the session
 3. All players must be ready to sleep
 4. Server advances time (no public `SkipForwardToTime` in the f12 assemblies — use the
-   controller surface or the `onTimeSkip` callback instead)
+   verified controller surface; observing `onTimeSkip` is not a command to advance time)
 5. The skip difference recalculates plant growth + drug processing catch-up
 6. **Automatic save** upon sleep completion
 
@@ -84,18 +87,8 @@ are **not verified on f12** — re-derive them from the current stamina code bef
 
 ---
 
----
+## Unresolved identifiers in the imported 2026-10-08 record
 
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+The imported scan did not resolve the following tokens within its recorded search scope. These may be placeholders, attributes from another assembly or drift candidates. Search the actual declaring assembly and version before concluding that an API was removed.
 
 - `SkipForwardToTime`

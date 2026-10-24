@@ -1,55 +1,32 @@
-# Self-Damage Bug (Baseball Bat + V Key) (Schedule I)
+# Camera-dependent self-damage investigation (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 15 of 15 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
-> **Static-check limitation (2026-10-08).** `Il2CppScheduleOne.Equipping.Equippable_MeleeWeapon`
-> exists on the installed runtime and `ExecuteHit(float power)` is still declared, but the
-> decompiled body is only an `il2cpp_runtime_invoke` stub — the method logic is not present in
-> the shipped metadata. Therefore the missing self-damage guard, the local variable name and
-> the "Line 236" reference **cannot be confirmed or refuted** from the decompiles. Everything
-> below is carried-over analysis plus an in-game report, not decompile-verified code. Re-derive
-> it from a runtime dump (S1MCP / dnSpy-on-dump) before relying on it.
+> Evidence: inherited incident hypothesis from Skills.zip. No game session, executable method body or reproduction log was supplied with this package. The old static-token scan does not establish a root cause.
 
+## Report and competing explanations
 
-## Root Cause
-**Missing self-damage check** in `Equippable_MeleeWeapon.ExecuteHit()` (Line 236).
+The original note reports self-damage while using the baseball bat and the V-key avatar view. It proposes that a camera-origin cast intersects the local player's collider. Other explanations include repeated hit callbacks, another damage source, a collider/layer configuration difference, or a mod interaction. Keep these alternatives open until a reproduction distinguishes them.
 
-## Workflow / Sequence
-1. **V Key** (`ViewAvatar`): Camera is positioned behind the player, `LookAt(LowestSpine)`
-2. `Camera.forward` points directly at the player
-3. **Swing**: `LookRaycast()` fires from **camera position** in **camera direction**
-4. Hits player's own collider (CapsuleCollider / Avatar)
-5. `hit.collider.GetComponentInParent<IDamageable>()` resolves to **the player itself**
-6. **NO** `componentInParent != Player.Local` check → hit impact is registered
-7. Fully charged swing: 60 damage → death (at 100 HP)
+Candidate owners are `Il2CppScheduleOne.Equipping.Equippable_MeleeWeapon`, `ExecuteHit(float power)`, `PlayerCamera` and the player damage receiver. Their exact current signatures, visibility and runtime path must be resolved on the target build.
 
-## Comparison Across Weapon Systems
-| Weapon System | Self-Damage Check |
-|---------------|-------------------|
-| PunchController | ✅ `componentInParent != player` |
-| RangedWeapon | ✅ `componentInParent == Player.Local => continue` |
-| Explosion | ✅ (ImpactSource = null, never own grenade) |
-| **Equippable_MeleeWeapon** | **❌ Completely missing** |
+## What the previous note cannot prove
 
-## Why Only Baseball Bat?
-- **Prefab configuration difference, not code difference**
-- All melee weapons share identical code logic
-- Difference: **Prefab values** (Range + HitRadius)
+- An `il2cpp_runtime_invoke` proxy body does not expose the native hit-selection logic. A local variable name and source line number from a different export are not a valid patch target.
+- Finding identifiers does not prove that a self-hit guard is missing, that every melee weapon shares the same effective path, or that explosions exclude the owner.
+- A single 60-point hit against 100 health leaves 40 health in a simple subtraction model. Death would need evidence of another hit, a multiplier, another source or a different initial health value.
+- The inherited bat/pan range and radius estimates are hypotheses, not measured prefab values.
 
-| Weapon | Range | HitRadius | Effect |
-|--------|-------|-----------|--------|
-| Baseball Bat | ~2.5 | ~0.4 | SphereCast reaches player collider |
-| Frying Pan | ~1.0 | ~0.0 | Raycast too short/narrow |
+## Reproduction and instrumentation
 
-## Fix (1 Line)
-```csharp
-// In Equippable_MeleeWeapon.ExecuteHit(), Line 236:
-// OLD:
-if (componentInParent != null)
-// NEW:
-if (componentInParent != null && componentInParent != Player.Local)
-```
+1. Use a reversible test save and record game build, backend, weapon, health, active mods and camera mode.
+2. Compare bat and one other melee weapon, normal view and avatar view, with identical health and target position. Repeat with the suspected mod disabled when appropriate.
+3. Record one attack identifier, actual cast origin/direction and hit collider where observable, resolved damage receiver, damage amount and every health transition. Avoid per-frame log flooding.
+4. Resolve the real damage/hit boundary and inspect a readable implementation or capture runtime evidence. Verify whether damage is host-authoritative, predicted locally or broadcast before choosing a hook.
+5. Locate the narrow ownership check or collision filter that preserves ordinary hits and other damage sources. Do not suppress an entire attack merely because the camera points at the player.
 
-## Mod Idea
-Set `Range` and `HitRadius` via mod on other melee weapons → bug occurs with frying pan etc. as well.
+## Acceptance for a proposed fix
 
----
+The reproduction stops harming its owner, ordinary hits still work, unrelated environmental damage remains valid, and the relevant host/client path produces one outcome. Return to the menu and reload once to detect stale references or duplicate patches. If only metadata is available, deliver a hypothesis and instrumented test plan, not a claimed one-line fix.
+
+Related: [combat](29-Combat-Weapons.md), [player](49-Player.md), [Harmony and IL2CPP boundaries](../../schedule1-modding/references/il2cpp-harmony-guide.md).

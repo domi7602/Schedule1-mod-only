@@ -636,6 +636,53 @@ namespace TaxiDriver
         internal static bool ShouldIgnore(bool host, bool exactOwnedTaxi, bool activeOrder,
             bool autoDriving, bool playerDriver)
             => host && exactOwnedTaxi && activeOrder && autoDriving && !playerDriver;
+
+        internal static bool CanBypass(bool eligible, bool physical, bool reversing, bool paused)
+            => eligible && physical && !reversing && !paused;
+
+        internal static bool IsTrafficWait(bool readable, bool stopped, bool trafficHit,
+            bool genericHit, bool filteredHit)
+            => readable && stopped && trafficHit && !genericHit && !filteredHit;
+    }
+
+    internal sealed class PatrolReleaseGate
+    {
+        internal bool Requested { get; private set; }
+        internal bool Busy { get; private set; }
+        internal bool Completed { get; private set; }
+        internal bool TryBegin()
+        {
+            if (Busy || Completed) return false;
+            Requested = true;
+            Busy = true;
+            return true;
+        }
+        internal void End(bool completed)
+        {
+            if (!Busy) return;
+            Completed = completed;
+            Busy = false;
+        }
+    }
+
+    internal static class PatrolBindingPolicy
+    {
+        internal static bool CanUse(bool owner, bool network, bool registered, bool serverReady, bool idle)
+            => owner && network && registered && serverReady && idle;
+    }
+
+    internal sealed class TrafficWaitBudget
+    {
+        internal const float MaxSeconds = 30f;
+        internal float HeldSeconds { get; private set; }
+        internal float Observe(bool waiting, float seconds, bool withinArrival)
+        {
+            if (!waiting || withinArrival || !float.IsFinite(seconds) || seconds <= 0f) return 0f;
+            float held = System.Math.Min(seconds, System.Math.Max(0f, MaxSeconds - HeldSeconds));
+            HeldSeconds = System.Math.Min(MaxSeconds, HeldSeconds + held);
+            return held;
+        }
+        internal void Reset() => HeldSeconds = 0f;
     }
     // ==== end TaxiDriver section: TrafficLightPolicy.cs ====
 }

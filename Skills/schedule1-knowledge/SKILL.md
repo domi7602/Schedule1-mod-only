@@ -1,152 +1,71 @@
 ---
 name: schedule1-knowledge
-description: >-
-  Research guide for the Schedule I Modding Knowledge Base, including in-repo decompiles (GameReferences/), all 64 system analyses (Skills/schedule1-game-systems/references/), S1API source (ThirdParty/S1API/), and active mod code.
-  Use this skill whenever you need to find a vanilla game class/method/API, understand a game's system architecture, learn an IL2CPP/S1API rule, study an existing mod's pattern, or navigate the workspace's decompiles + analysis efficiently.
-  Keywords: Decompiles, Assembly-CSharp, Il2CppScheduleOne, GameReferences, Game Systems, S1API, S1MAPI, ilspycmd, research.
+description: "Find and maintain Schedule I knowledge and evidence. Keywords: Decompiles, Assembly-CSharp, Il2CppScheduleOne, GameReferences, Game Systems, S1API, S1MAPI, ilspycmd, research."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+# Schedule I — Knowledge Navigation
 
-# Schedule I — Knowledge Navigation Skill
+## Scope and prerequisites
 
-This skill guides you through the curated knowledge resources available directly within the workspace and live game installation. Use this guide to locate symbols, methods, and system architectures in seconds instead of searching blindly.
+Follow the [working contract](../schedule1-modding/references/working-contract.md).
+Establish the actual repository root and available files before using historical paths.
+The reference directories below are expected workspace locations, not bundled sources.
+Do not treat a curated note or a symbol sweep as current-runtime verification.
 
----
+## Choose the evidence needed
 
-## 1. Knowledge Map (In-Repo Orientation)
-
-```text
-Schedule1-mod-only/
-├── GameReferences/
-│   └── decompiled/Assembly-CSharp/
-│       ├── Assembly-CSharp.csproj           (IDE navigation)
-│       └── Il2CppScheduleOne/               (★ Primary game core: 87 sub-namespaces)
-│           ├── Audio/ AvatarFramework/ Building/ Calling/ Cartel/ Casino/ Clothing/
-│           ├── Combat/ Configuration/ Dialogue/ Doors/ Dragging/ Economy/ Effects/
-│           ├── Employees/ EntityFramework/ Equipping/ Events/ Gamepad/ GameTime/
-│           ├── Growing/ Heatmap/ Input/ Interaction/ ItemFramework/ Law/ Levelling/
-│           ├── Lighting/ Management/ Map/ Materials/ Math/ Messaging/ Misc/ Money/
-│           ├── Networking/ NPCs/ Noise/ ObjectScripts/ Packaging/ Persistence/
-│           ├── PlayerScripts/ PlayerTasks/ Police/ Polling/ Product/ Property/
-│           ├── Quests/ Reporting/ ScriptableObjects/ Skating/ State/ Storage/
-│           ├── StationFramework/ Temperature/ Tiles/ Tools/ Trash/ TV/ UI/
-│           └── Variables/ Vehicles/ Vision/ VoiceOver/ Weather/
-│
-├── Skills/
-│   ├── schedule1-game-systems/references/   (★ All 64 system analyses: 01-FishNet to 64-Weather + _index.md)
-│   ├── schedule1-modding/references/        (Build, deploy, architecture, mod patterns)
-│   ├── schedule1-s1api/references/          (S1API subsystem deep-dives)
-│   └── schedule1-phoneapp/references/       (Method 3 responsive UI, input focus, lifecycle)
-│
-├── ThirdParty/
-│   ├── S1API/S1API/                         (Full S1API C# source tree; compare with deployed DLLs before relying on source-level details)
-│   ├── S1MAPI/                              (S1MAPI mapping framework)
-│   ├── Archive/PhoneScroll/               (retired 2026-09-16, phone scroll hook by V4LEXL)
-│   └── S1MCPServer-master/                  (S1MCP protocol bridge source)
-│
-└── Source/Mods/                             (active mod implementations: NotesApp, BankApp, PotScanner, PocketShop, etc.; archivierte Mods in Source/Archive/)
-```
-
-> **Live Inspection:** Always verify method signatures against the live game proxies in `$env:SCHEDULE1_PATH\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll` using `ilspycmd`.
-
----
-
-## 2. The First 60 Seconds: Decision Tree
-
-When you get a question, run this mental check:
-
-| Question | File / Location to open first | Then |
+| Question | Start with | Verify against |
 |---|---|---|
-| What's the API signature of `GrowContainer.SetMoistureAmount`? | `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/Growing/GrowContainer.cs` | Verify live DLL via `ilspycmd` |
-| What does S1API expose for Phone Apps? | `Skills/schedule1-phoneapp/SKILL.md` + `ThirdParty/S1API/S1API/PhoneApp/` | `Source/Mods/NotesApp/` |
-| How does ModX achieve Y? | `Source/Mods/<ModName>/src/*.cs` (active workspace mods) | `AGENTS.md` (mod inventory) |
-| What are IL2CPP pitfalls? | `Skills/schedule1-il2cpp-reflection/SKILL.md` + `schedule1-troubleshooting` | `Source/Mods/Shared/` |
-| Which class is responsible for Save/Load? | `Skills/schedule1-game-systems/references/02-Save-Persistence.md` | `GameReferences/decompiled/.../Persistence/` |
-| What is the screen layout / phone / HUD? | `Skills/schedule1-game-systems/references/06-UI-Phone-HUD.md` | `Skills/schedule1-phoneapp/` |
-| How does growing work (water/soil/growth)? | `Skills/schedule1-game-systems/references/08-Plant-Growing.md` | `Source/Mods/PotScanner/` |
-| Item stacking / Registry / slots? | `Skills/schedule1-items/SKILL.md` + `references/09-Inventory-ItemFramework.md` | `Source/Mods/StackLimitMod/` |
-| How to handle multi-payment (Cash/Bank) or economy? | `Skills/schedule1-economy/SKILL.md` | `Source/Mods/PocketShop/` + `Source/Mods/BankApp/` |
-| How to build a Minimap / Radar / Blips? | `Source/Mods/Minimap/` | `Skills/schedule1-modding/references/mod-patterns.md` |
-| How to do Multiplayer Host Authority or passive income? | `Source/Mods/BusinessIncome/` | `Skills/schedule1-economy/references/passive-revenue.md` |
-| How to implement Everywhere Building / Procedural 3D? | `Source/Archive/HomelessMod/` | `Skills/schedule1-grid/` |
-| UI theming / EventHelper dedupe / rebuilt-UI wiring? | `Source/Mods/MessagesPlus/` | `schedule1-modding` Rule 19 |
-| GLTF models / vehicle / own NPC driver? | `Source/Mods/TaxiDriver/` | `schedule1-s1mapi` + `schedule1-game-systems/references/07-Vehicle.md` |
-| Mockup-based restyle workflow (measure + headless diff)? | `Source/Mods/Weather/` | `schedule1-phoneapp` Rule 14 |
-| Read-only storage overview / readiness gates? | `Source/Mods/StorageScanner/` | `schedule1-items` |
-| Is a downloaded third-party mod safe/compatible? | `Skills/schedule1-knowledge/references/third-party-mod-triage.md` | `references/third-party-mod-patterns.md` |
+| Which subsystem owns a feature? | [Systems index](../schedule1-game-systems/references/_index.md) | Matching source/type |
+| Does an S1API method exist? | [S1API catalog](../schedule1-s1api/SKILL.md) | Exact target-version DLL/source |
+| Does S1MAPI provide a building/model helper? | [S1MAPI catalog](../schedule1-s1mapi/SKILL.md) | Deployed dependency |
+| How does a local mod implement it? | Its source and tests | Current commit and runtime evidence |
+| What does native code do? | Available native/Mono evidence | Instrumented behavior or matched implementation |
+| Why does a loaded mod fail? | Log and reproduction | [Troubleshooting](../schedule1-troubleshooting/SKILL.md) |
+| What does a foreign DLL change? | Package and patch inventory | [Reversing](../schedule1-mod-reversing/SKILL.md) |
 
----
+## Research workflow
 
-## 3. Top Sources by Frequency
+1. Write the exact unknown: existence, signature, ownership, ordering, or behavior.
+2. Locate the relevant index entry, then open only the matching reference.
+3. Locate the named source/decompile and record assembly/source identity.
+4. Search within the declaring type and inspect parameter/return types and callers.
+5. Compare the source checkout with the deployed binary before relying on implementation.
+6. When proxies hide the answer, state the limitation and design a bounded runtime probe.
+7. Record the result and evidence level; update contradictory examples together.
 
-| Ranking | Source | Location | Speed | Use case |
-|---|---|---|---|---|
-| **#1** | **Game Systems (64 systems)** | `Skills/schedule1-game-systems/references/` | ⚡ instant | Game architecture, systems, events, UI patterns |
-| **#2** | **Vanilla Decompiled Source** | `GameReferences/decompiled/Assembly-CSharp/` | 🔍 grep/targeted | Exact class fields, signatures, enums, game logic |
-| **#3** | **S1API Full Source** | `ThirdParty/S1API/S1API/` | 🔍 targeted | S1API wrapper methods, event hooks, UI builders |
-| **#4** | **Active Workspace Mods** | `Source/Mods/<Mod>/` | ⚡ instant | Production-tested patterns, SafeStorage, Method 3 UI |
-| **#5** | **Live Proxy Assemblies** | `$env:SCHEDULE1_PATH\MelonLoader\Il2CppAssemblies\` | 🔍 `ilspycmd` | Runtime ground truth for all method signatures |
+## Typical workspace map
 
----
-
-## 4. Safe Research Recipes (PowerShell)
-
-A. **Find a method signature in vanilla game:**
-   ```pwsh
-   # Search decompiles in the repository:
-   Select-String -Pattern "class GrowContainer" -Path "GameReferences\decompiled\Assembly-CSharp\Il2CppScheduleOne\Growing\*"
-   # Or verify live against runtime proxies:
-   & (Get-Command ilspycmd -ErrorAction Stop).Source -t Il2CppScheduleOne.Growing.GrowContainer "$env:SCHEDULE1_PATH\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll"
-   ```
-
-B. **Find how an active workspace mod implemented a feature:**
-   ```pwsh
-   # Search across workspace mods:
-   Select-String -Pattern "SaveAtomic" -Path "Source\Mods\*\src\*.cs"
-   ```
-
-C. **Check a specific game system:**
-   - Open `Skills/schedule1-game-systems/references/_index.md`
-   - Read the matching system document (e.g. `references/08-Plant-Growing.md` or `references/23-Economy-Money.md`)
-
-D. **Inspect S1API wrappers:**
-   - Check `ThirdParty/S1API/S1API/` for wrappers before using raw `Il2CppScheduleOne.*`.
-
-E. **Review patterns from third-party decompiles:**
-   - Use `references/third-party-mod-patterns.md` for static observations and pitfalls; verify current APIs live and do not copy third-party code.
-
-F. **Triage a downloaded mod, or check one against our own mods:**
-   - Follow `references/third-party-mod-triage.md`: package inventory → decompile → structural sweep → targeted body reads → risk scan → compatibility check. It also lists the cheap-to-lose pitfalls (scratch paths for native tools, ASCII file names, `UserLibs` vs `Mods`, embedded resources vs disk paths).
-   - Report source-level findings and runtime verification as separate statements.
-
----
-
-## 5. Anti-Patterns
-
-* **Grepping the entire disk without index-lookup first.** Wasteful — start at `_index.md`.
-* **Assuming methods can be patched without checking.** Always verify with `ilspycmd` whether a method is an IL2CPP field accessor (`get_DefaultStackLimit` cannot be patched).
-* **Missing WasCollected checks.** IL2CPP objects can be destroyed natively while C# references remain non-null. Always check `obj != null && obj.Pointer != IntPtr.Zero && !obj.WasCollected`.
-* **Writing save files without slot isolation.** Always check `SaveSlotNumber >= 0` and suffix per-save files with `slot_{SaveSlotNumber}.json`.
-
----
-
-## 6. Knowledge State & Anchors
-
-* Workspace: the `Schedule1-mod-only` repository root (wherever you cloned it)
-* Runtime and dependency versions: see workspace `AGENTS.md` / `docs/compatibility.md`; this skill does not mirror them.
-* S1API source and deployment: compare `ThirdParty/S1API/` with the installed DLLs before relying on source-level details.
-* S1MAPI source and deployment: see `ThirdParty/S1MAPI/` and the installed `UserLibs/S1MAPI_Il2Cpp.dll`.
-* Active Mods: **see `AGENTS.md` §2** — it is the single authoritative mod inventory (never copy the list here; it drifts).
-* All 64 game systems documented in `Skills/schedule1-game-systems/references/`.
-
----
-
-## 7. Framework Skills (Cross-Reference)
-
-| Skill | Use when |
+| Location | Purpose and limit |
 |---|---|
-| `schedule1-s1api` | Need a S1API namespace/class for a task (Saveables, PhoneApp, Quests, NPCs, Items, Money, GameTime, Lifecycle) |
-| `schedule1-s1mapi` | Need procedural meshes, building construction, GLTF/GLB loading, terrain clearing, NPC navigation, or prefab placement |
-| `schedule1-modding` | Primary mod development runbook, build/deploy, architecture rules, SafeStorage |
-| `schedule1-troubleshooting` | Diagnostic runbook, Latest.log parsing, crash analysis, IL2CPP pitfalls |
+| `GameReferences/decompiled/Assembly-CSharp/` | Generated game/proxy surface; provenance must match the binary |
+| `ThirdParty/S1API/` | Framework source; not proof of the deployed DLL's implementation |
+| `ThirdParty/S1MAPI/` | Mapping/building source if available |
+| `ThirdParty/S1MCPServer-master/` | Bridge source; compare with the running bridge |
+| `Source/Mods/` | Current local implementations and tests |
+| `Source/Archive/` | Historical patterns, not automatically supported examples |
+| `AGENTS.md` and `docs/compatibility.md` | Workspace-specific environment record if supplied |
+
+## Search and interpretation rules
+
+- Prefer `rg`/`rg --files` with a narrow path, then inspect matching bodies.
+- Inspect actual tool help and backend before assuming a decompiler option or shell path.
+- A renamed generated proxy namespace is not proof of changed gameplay semantics.
+- A zero-result search can reflect an incomplete decompile, scan cap, or wrong source.
+- Do not promote identifiers in examples to verified APIs because they appear elsewhere.
+- IL2CPP proxy method bodies cannot generally establish native event invocation order.
+- Missing evidence remains unknown; do useful independent work and report the missing input.
+
+## Verification and delivery
+
+Return the exact type/member, source or assembly identity, evidence scope, and the next
+smallest check needed. Cite local file/member or official documentation for material claims.
+Separate proposed implementation from inspected behavior and tested acceptance.
+Do not start a build, deploy, launch, or mutation solely as part of source lookup.
+
+## Read triggers
+
+- [Inventory](references/inventory.md): locate framework, game, and workspace evidence.
+- [Search recipes](references/search-recipes.md): targeted signature and lifecycle lookup.
+- [Third-party triage](references/third-party-mod-triage.md): compare another mod's gates and effects.
+- [Third-party patterns](references/third-party-mod-patterns.md): inherited architectural observations, not ready-made APIs.

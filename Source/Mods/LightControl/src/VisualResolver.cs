@@ -54,6 +54,22 @@ public sealed record VisualInstruction
 
 public static class VisualResolver
 {
+    // Ten static modes by seven fixed intensity levels. Rainbow/effects bypass this cache.
+    private static readonly VisualInstruction[,] StaticInstructions = BuildStaticInstructions();
+    private static readonly VisualInstruction Disabled = new(null, 1, false);
+
+    private static VisualInstruction[,] BuildStaticInstructions()
+    {
+        var colors = new RgbColor?[] { null, new(1, 1, 1), new(1, 0, 0), new(1, 0.35, 0),
+            new(1, 1, 0), new(0, 1, 0), new(0, 1, 1), new(0, 0, 1), new(0.55, 0, 1), new(1, 0.15, 0.55) };
+        var levels = new[] { 0.1, 0.25, 0.5, 0.75, 1, 1.5, 2 };
+        var instructions = new VisualInstruction[colors.Length, levels.Length];
+        for (int color = 0; color < colors.Length; color++)
+            for (int level = 0; level < levels.Length; level++)
+                instructions[color, level] = new(colors[color], levels[level], false);
+        return instructions;
+    }
+
     public static VisualInstruction Resolve(string logicalLampKey, string? propertyId, LampBaseState state,
         EffectState effects, double synchronizedTimeSeconds, bool modEnabled = true,
         double rainbowPeriodSeconds = LightLimits.RainbowPeriodSeconds)
@@ -67,7 +83,7 @@ public static class VisualResolver
         if (!double.IsFinite(rainbowPeriodSeconds) || rainbowPeriodSeconds < LightLimits.MinRainbowPeriodSeconds ||
             rainbowPeriodSeconds > LightLimits.MaxRainbowPeriodSeconds)
             throw new ArgumentOutOfRangeException(nameof(rainbowPeriodSeconds));
-        if (!modEnabled) return new(null, 1, false);
+        if (!modEnabled) return Disabled;
         var effect = effects.Resolve(propertyId);
         if (effect is not null)
         {
@@ -76,22 +92,20 @@ public static class VisualResolver
             ulong hash = Mix(StableHash(logicalLampKey) ^ effect.Seed ^ Mix(step));
             return new(FromHue((hash >> 11) * (1.0 / 9007199254740992.0)), state.IntensityFactor, true);
         }
-        RgbColor? color = state.Color switch
+        if (state.Color == ColorMode.Rainbow)
+            return new(FromHue(synchronizedTimeSeconds / rainbowPeriodSeconds), state.IntensityFactor, false);
+        int levelIndex = state.Intensity switch
         {
-            ColorMode.Original => null,
-            ColorMode.White => new(1, 1, 1),
-            ColorMode.Red => new(1, 0, 0),
-            ColorMode.Orange => new(1, 0.35, 0),
-            ColorMode.Yellow => new(1, 1, 0),
-            ColorMode.Green => new(0, 1, 0),
-            ColorMode.Cyan => new(0, 1, 1),
-            ColorMode.Blue => new(0, 0, 1),
-            ColorMode.Purple => new(0.55, 0, 1),
-            ColorMode.Pink => new(1, 0.15, 0.55),
-            ColorMode.Rainbow => FromHue(synchronizedTimeSeconds / rainbowPeriodSeconds),
+            IntensityLevel.Percent10 => 0,
+            IntensityLevel.Percent25 => 1,
+            IntensityLevel.Percent50 => 2,
+            IntensityLevel.Percent75 => 3,
+            IntensityLevel.Percent100 => 4,
+            IntensityLevel.Percent150 => 5,
+            IntensityLevel.Percent200 => 6,
             _ => throw new ArgumentOutOfRangeException(nameof(state))
         };
-        return new(color, state.IntensityFactor, false);
+        return StaticInstructions[(int)state.Color, levelIndex];
     }
 
     /// <summary>Specified UTF-8 FNV-1a, independent of process-randomized string hash codes.</summary>

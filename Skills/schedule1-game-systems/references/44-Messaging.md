@@ -1,5 +1,8 @@
 # Messaging (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 99 of 99 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 Namespace: `Il2CppScheduleOne.Messaging` (UI in `Il2CppScheduleOne.UI.Phone.Messages`).
 
@@ -15,19 +18,19 @@ Namespace: `Il2CppScheduleOne.Messaging` (UI in `Il2CppScheduleOne.UI.Phone.Mess
 | `MessageContactInfo` | `Il2CppSystem.Object` | Contact identity (`_name`, `_npcId`, `_icon`, `_canConversationBeHidden`, `_displayRelationshipInfo`) |
 | `EConversationCategory` | enum | **`Customer, Supplier, Dealer`** — old "Deal/Contract/Social" list was wrong |
 
-## MessagingManager (verified)
+## MessagingManager (previously reported)
 - `_senderIdConversationMap` (`Dictionary<string, MSGConversation>`), `Register(MSGConversation)`, `TryGetConversation(string senderId, out MSGConversation)`
 - Server/client method pairs (each backed by FishNet RPCs): `SendMessage_Server/Client(Message, bool notify, string id)` (hash 2134336246), `SendMessageChain_Server/Client(MessageChain, string id, float initialDelay, bool notify)` (3949292778), `SendResponse_Server/Client(int responseIndex, string id)` (2801973956), `SendPlayerMessage_Server/Client(int sendableIndex, int sentIndex, string id)` (1952281135), `ClearResponses_Server/Client(string id)` (3615296227), `ShowResponses_Server/Client(string id, List<Response>, float delay)` (995803534)
 - `ReceiveMSGConversationData(NetworkConnection, string id, MSGConversationData)` — target RPC (2662241369) pushing full conversation history to joining clients; `OnSpawnServer` triggers it
 - `MessageChain` type lives in `Il2CppScheduleOne.UI.Phone.Messages`
 
-## MSGConversation (verified)
+## MSGConversation (previously reported)
 - State props: `ConversationId`, `IsSenderKnown`, `Read`, `Index`, `IsOpen`, `EntryVisible`, `Categories`, `MessageHistory`; `_sender` (MessageContactInfo), `_messageHistory`, `_messageChainHistory`, `_bubbles`, `_sendables`, `currentResponses`
 - Core flow: `SendMessage(Message, bool notify = true, bool network = true)`, `SendMessageChain(MessageChain, float initialDelay = 0, ...)` (coroutine roll-out), `ShowResponses(List<Response>, float delay, bool network)`, `GetResponse(string label)`, `ResponseChosen(Response, bool network)`, `ClearResponses(bool network = false)`, `CreateSendableMessage(string) → SendableMessage`, `SendPlayerMessage(...)`, `CanSendNewMessage()`, `CheckSendLoop()`
 - Contact/UI: `SetIsKnown(bool)`, `SetCategories(List<EConversationCategory>)`, `MoveToTop()`, `EntryClicked()`, `SetOpen(bool)`, `SetRead(bool)`, `SetEntryVisibility(bool)`, `DisplayRelationshipInfo()`, `RenderMessage(Message)`, `RenderPlayerMessage(SendableMessage)`, `GetSenderIcon()`, `CreateUI()`/`EnsureUIExists()`/`RefreshPreviewText()`
 - Replication helpers: `ShouldReplicate()`, `GetReplicationByteSize()`
 
-## SendableMessage / Response (verified)
+## SendableMessage / Response (previously reported)
 - `SendableMessage`: `Text`, `ShouldShowCheck` / `IsValidCheck` (**delegate fields**, Func-style — not UnityEvents), `onSelected`, `onSent`, `conversation`, `disableDefaultSendBehaviour`, `sentIDs`; `ShouldShow()`, `IsValid(out string reason)`, `Send(bool network, int id = -1)`
 - `Response`: `text`, `label`, `callback` (delegate field), `disableDefaultResponseBehaviour`
 - `Message.GetSaveData() → TextMessageData`; `MessageContactInfo.IsNull()`, `TryGetNPC(out NPC)`
@@ -46,11 +49,11 @@ No UnityEvents in the Messaging namespace (grep).
 - `MSGConversation.GetSaveData() → MSGConversationData` + `Load(MSGConversationData)` — per-conversation persistence; `Message` persists via `TextMessageData` (response data class: `TextResponseData`).
 - Data classes live in `Il2CppScheduleOne.Persistence.Datas` (see 02-Save-Persistence); `MessagingManager` itself is **not** ISaveable (grep) — conversations replicate/save individually.
 
-## Hook Points
+## Candidate Hook Points
 1. **Postfix `MessagingManager.SendMessage_Server(Message, bool, string)`** — monitor every NPC→player message server-side (loggers, triggers, deal detection); RPC logic method, non-inline.
 2. **Prefix/postfix `MSGConversation.ShowResponses(List<Response>, float, bool)`** — inject or rewrite the player's response options (custom dialogue trees); instance method on a plain object, patchable.
 3. **Prefix `MSGConversation.CanSendNewMessage()`** — throttle/block player sends (phone-signal events); simple bool, patchable.
-- **S1API wrappers (verified in source):** `S1API.Messaging.Response` (`Label`, `Text`, `OnTriggered` → wraps native `Response.callback`); `S1API.Entities.NPC` messaging helpers call `MSGConversation.SendMessage`/`ShowResponses`/`ClearResponses`/`SetCategories`/`EnsureUIExists` directly (send + response flow via `NPC.SendTextMessage`, verified in `NPC.cs`).
+- **S1API wrappers (previously reported in source):** `S1API.Messaging.Response` (`Label`, `Text`, `OnTriggered` → wraps native `Response.callback`); `S1API.Entities.NPC` messaging helpers call `MSGConversation.SendMessage`/`ShowResponses`/`ClearResponses`/`SetCategories`/`EnsureUIExists` directly (send + response flow via `NPC.SendTextMessage`, verified in `NPC.cs`).
 
 ## Not Implemented / Unverified
 - No global "message received" event on `MessagingManager` — hook the RPCs or per-conversation actions instead.

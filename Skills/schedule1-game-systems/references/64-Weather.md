@@ -1,4 +1,6 @@
 # Weather & Environment (Schedule I)
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 137/142 identifier-shaped tokens resolve (3 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 Namespace: `Il2CppScheduleOne.Weather` — 21 types in the decompile dump.
@@ -13,7 +15,7 @@ Namespace: `Il2CppScheduleOne.Weather` — 21 types in the decompile dump.
 | `WeatherEffectController` | EffectController | Base for per-volume effects (blend, audio, particles, shaders) |
 | `RainController` / `CloudController` / `ThunderController` | WeatherEffectController | Precipitation, cloud cover, lightning |
 
-Supporting (verified): `PuddleVolume`, `EnclosureVisualiser`, `HeightMaskGenerator` (terrain height map), `MaskController` (rain wetness mask + terrain modifications), `MaskModificationData`/`MaskModificationDataGPU`/`MaskModificationCreator`/`EModificationSize`, `WeatherProbe`, `WeatherBasedObjectProvider`, `LensFlareSettings`, `WeatherProfileNetworkSerializer` (FishNet writer/reader), `ParticleEffectHandler`/`ShaderEffectHandler` (EffectHandler base).
+Supporting (previously reported): `PuddleVolume`, `EnclosureVisualiser`, `HeightMaskGenerator` (terrain height map), `MaskController` (rain wetness mask + terrain modifications), `MaskModificationData`/`MaskModificationDataGPU`/`MaskModificationCreator`/`EModificationSize`, `WeatherProbe`, `WeatherBasedObjectProvider`, `LensFlareSettings`, `WeatherProfileNetworkSerializer` (FishNet writer/reader), `ParticleEffectHandler`/`ShaderEffectHandler` (EffectHandler base).
 
 ## EnvironmentManager API
 - Weather control (server): `SetWeather(string)` (virtual final), `SetWeatherSequence(string)`, `SetRandomWeatherSequence()`, `ClearWeather()`, `GetCurrentWeather(out string, out string, out float)`, `GetWeatherProfile(string)` → `WeatherProfile`, `GetWeatherProfileFromPosition(pos)`, `GetActiveWeatherConditionsFromPosition(pos)` → `WeatherConditions`, `HasActiveWeatherVolumes()`
@@ -43,39 +45,25 @@ Supporting (verified): `PuddleVolume`, `EnclosureVisualiser`, `HeightMaskGenerat
 - **No UnityEvents** in the Weather namespace. Effect changes propagate through `WeatherVolume`/controller methods; thunder uses FishNet RPCs.
 
 ## Save Participation
-- **None**: no ISaveable in the Weather namespace (EnvironmentManager has no save members). Weather state is re-established on scene load; persistence of chosen weather: unverified.
+- The original notes found no direct `ISaveable` implementation in the inspected Weather namespace. That does not exclude persistence through another manager, a base class or saved inputs. Trace the actual load/save path before deciding how chosen weather survives a reload.
 
 ## Data Types Not In This Dump
-`WeatherProfile`, `WeatherConditions`, `WeatherSequence`, `WeightedWeatherSequence`, `SkyState`, `SkySettings`, `WorldEnclosure`, `WeatherEnclosure`, `SkyOverrideEnclosure`, `IWeatherEntity` are **referenced in EnvironmentManager/WeatherVolume signatures but have no interop wrapper files** in the 2026-10-02 dump — names are runtime-real (typed fields/RPC signatures), but member APIs: `unverified`. Fog has no controller class — handled by an SRP `_fogFeature` inside EnvironmentManager. Old `ShadderEffectHandler` was a typo for `ShaderEffectHandler`; `EnvironmentHandler`/`EnvironmentProfile`/`BasicEnclosure`/`SkyProfileFrame` were **not found** (removed).
+`WeatherProfile`, `WeatherConditions`, `WeatherSequence`, `WeightedWeatherSequence`, `SkyState`, `SkySettings`, `WorldEnclosure`, `WeatherEnclosure`, `SkyOverrideEnclosure`, `IWeatherEntity` are **referenced in EnvironmentManager/WeatherVolume signatures but have no interop wrapper files** in the 2026-10-02 dump — the names appeared in recorded signatures, while their declaring assemblies and member APIs remain to be resolved for the target. Fog has no controller class — handled by an SRP `_fogFeature` inside EnvironmentManager. Old `ShadderEffectHandler` was a typo for `ShaderEffectHandler`; `EnvironmentHandler`/`EnvironmentProfile`/`BasicEnclosure`/`SkyProfileFrame` were **not found** (not located in that snapshot; removal not established).
 
-## Hook Points
-1. **Postfix `EnvironmentManager.SetWeather(string)`** — react to / veto weather changes (server-side).
+## Candidate Hook Points
+1. **Postfix `EnvironmentManager.SetWeather(string)`** — observe the completed call and inspect resulting state. A postfix cannot prevent side effects that already ran. A veto needs a verified pre-mutation boundary, an explicit decision rule and the correct authority path.
 2. **Prefix `EnvironmentManager.SetRandomWeatherSequence()`** — bias or replace the daily weather roll.
 3. **Prefix `ThunderController.TriggerRandomPlayerLightningStrike()`** — tune/prevent lightning hitting players.
-- **S1API wrapper (verified against checked-in source)**: `S1API.Weather.WeatherManager` (static, **read-only**): `Current` (`WeatherState?` snapshot), `OnWeatherChanged` event, `KnownSequenceIds`; `WeatherState` = 9 weights (`Sunny, Cloudy, Rainy, Stormy, Snowy, Foggy, Windy, Hail, Sleet`, 0–1). S1API explicitly does **not** set weather.
+- **S1API wrapper (previously reported against checked-in source)**: `S1API.Weather.WeatherManager` (static, **read-only**): `Current` (`WeatherState?` snapshot), `OnWeatherChanged` event, `KnownSequenceIds`; `WeatherState` = 9 weights (`Sunny, Cloudy, Rainy, Stormy, Snowy, Foggy, Windy, Hail, Sleet`, 0–1). S1API explicitly does **not** set weather.
 
 ## Cross-links
 08-Plant-Growing · 62-Vision (night/rain sight) · 58-Temperature · 61-Variables (weather globals) · 17-TimeManager · 13-Regions · 01-FishNet-Networking
 
 ---
 
----
+## Unresolved identifiers in the imported 2026-10-08 record
 
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+The imported scan did not resolve the following tokens within its recorded search scope. These may be placeholders, attributes from another assembly or drift candidates. Search the actual declaring assembly and version before concluding that an API was removed.
 
 - `ToHitPlayer`
 - `ToHitNPC`

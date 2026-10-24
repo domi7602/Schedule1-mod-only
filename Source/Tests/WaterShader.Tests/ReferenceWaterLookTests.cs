@@ -6,17 +6,17 @@ using Xunit;
 namespace WaterShader.Tests;
 
 /// <summary>
-/// Pins the reference-water look step. Two things are protected here: the values only ever
-/// move toward "clearer", and the parts left at the shader defaults — the deep tint, reflection,
-/// sun and the shore foam — are NOT written. The shallow tint is written, but only to stop the
-/// *2 transmission gain from washing the bottom into pale cream.
+/// Pins the approved standalone recipe and the authored shader contract. Numerical and
+/// source checks do not establish visual clarity or GPU behavior in the game.
 /// </summary>
 public sealed class ReferenceWaterLookTests
 {
     private static readonly (string name, float value)[] ApprovedFloats =
     {
-        ("_Absorption", 0.22f),
-        ("_RippleStrength", 0.45f),
+        ("_Absorption", 0.10f),
+        ("_RippleStrength", 0.28f),
+        ("_SurfaceOpacity", 0.22f),
+        ("_ReflectionStrength", 0.12f),
     };
 
     private static readonly (string name, float r, float g, float b)[] ApprovedColors =
@@ -113,6 +113,38 @@ public sealed class ReferenceWaterLookTests
     }
 
     [Fact]
+    public void ShaderKeepsFineSurfaceSlopesOutOfRefractionAndShoreFoam()
+    {
+        // This is a source-boundary check, not evidence that an image is free of bands.
+        // The retired warp/d4 string test passed despite the owner's banded screenshots.
+        // Fine surface detail must not amplify the accepted refraction or foam field.
+        string shader = RepoFile(ShaderPath);
+        string fragment = shader[shader.IndexOf("half4 frag(", StringComparison.Ordinal)..];
+        Assert.Contains("float2 refractionGrad = RefractionGradient(IN.positionWS.xz, _Time.y);", fragment);
+        Assert.Contains("float2 refractUV = saturate(screenUV + refractionGrad * 0.012);", fragment);
+        Assert.Contains("float2 surfaceGrad = SurfaceGradient(IN.positionWS.xz, _Time.y, unresolvedVariance);", fragment);
+        Assert.Contains("float3 normalWS = normalize(float3(-surfaceGrad.x, 1.0, -surfaceGrad.y));", fragment);
+        Assert.Contains("foamBand + refractionGrad.x * 0.15", fragment);
+        Assert.Contains("float3 foamNormalWS = normalize(float3(-refractionGrad.x, 1.0, -refractionGrad.y));", fragment);
+        Assert.Contains("saturate(dot(foamNormalWS, lightDir))", fragment);
+    }
+
+    [Fact]
+    public void ShaderKeepsLateDyeWithIndependentPremultipliedSurfaceComposition()
+    {
+        // The standalone shader retires the old alpha floor; body and environment
+        // reflection now contribute separately to premultiplied output.
+        string shader = RepoFile(ShaderPath);
+        Assert.DoesNotContain("0.35 + absorb * 0.65", shader);
+        Assert.Contains("float dye = lerp(1.0, saturate(pow(absorb, 2.2)), depthValid);", shader);
+        Assert.Contains("lerp(_ShallowTint.rgb, _DeepTint.rgb, dye)", shader);
+        Assert.Contains("Blend One OneMinusSrcAlpha", shader);
+        Assert.Contains("float bodyOpacity = lerp(clamp(_SurfaceOpacity, 0.1, 0.65), 0.89, dye);", shader);
+        Assert.Contains("float alpha = reflectionWeight + bodyWeight;", shader);
+        Assert.Contains("refractionGrad * 0.012", shader);
+    }
+
+    [Fact]
     public void LowersAbsorptionBelowTheStepThatStillReadCreamy()
     {
         // 0.38 still pulled the dark blue deep tint and the extra opacity in within a couple of
@@ -156,7 +188,7 @@ public sealed class ReferenceWaterLookTests
     }
 
     [Fact]
-    public void LeavesDeepTintRestOfPaletteReflectionSunAndWaveValuesUntouched()
+    public void LeavesDeepTintRestOfPaletteSunAndWaveValuesUntouched()
     {
         var material = new TestMaterial();
         var preservedFloats = material.Floats
@@ -224,7 +256,7 @@ public sealed class ReferenceWaterLookTests
 
             string diagnostic = ReferenceWaterLook.Apply(material);
 
-            Assert.Equal("[water-shader] reference clarity applied: _Absorption=0.22 _ShallowTint=(0.46,0.52,0.55)", diagnostic);
+            Assert.Equal("[water-shader] reference clarity applied: _Absorption=0.1 _ShallowTint=(0.46,0.52,0.55)", diagnostic);
             Assert.Single(material.FloatWrites);
             Assert.Single(material.ColorWrites);
         }
@@ -244,7 +276,8 @@ public sealed class ReferenceWaterLookTests
     }
 
     public static IEnumerable<object[]> AllSupportedPropertySubsets()
-        => Enumerable.Range(0, 1 << 3).Select(subset => new object[] { subset });
+        => Enumerable.Range(0, 1 << (ApprovedFloats.Length + ApprovedColors.Length))
+            .Select(subset => new object[] { subset });
 
     [Theory]
     [MemberData(nameof(AllSupportedPropertySubsets))]
@@ -311,14 +344,14 @@ public sealed class ReferenceWaterLookTests
 
         public Dictionary<string, float> Floats { get; } = new(ShaderDefaults)
         {
-            // Reflection / sun / wave values the look step must not touch.
-            ["_ReflectionStrength"] = 0.85f,
-            ["_ReflectionSharpness"] = 24f,
+            ["_SurfaceOpacity"] = 0.22f,
+            ["_ReflectionStrength"] = 0.12f,
+            // Sun / wave values the look step must not touch.
             ["_WaveAmp"] = 0.15f,
             ["_WaveScale"] = 1.6f,
             ["_WaveSpeed"] = 0.8f,
             ["_SunStrength"] = 0.9f,
-            ["_SunSharpness"] = 220f,
+            ["_SunSharpness"] = 512f,
         };
 
         public Dictionary<string, (float r, float g, float b, float alpha)> Colors { get; } = new()

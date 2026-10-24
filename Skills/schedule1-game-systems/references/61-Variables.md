@@ -1,5 +1,8 @@
 # Variables & Conditions (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 80 of 80 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 Namespace: `Il2CppScheduleOne.Variables` — 13 types in the decompile dump.
 
@@ -53,13 +56,13 @@ No UnityEvents on the database itself; value replication uses FishNet RPCs (01-F
 - **Yes** — `VariableDatabase` is ISaveable (own save file via `SaveFolderName`/`GetSaveString`/`LoadVariable`); `Persistent` flag per variable decides what gets written.
 - Player variables follow the player's save entry (per-owner persistence; exact layout unverified).
 
-## Hook Points
+## Candidate Hook Points
 1. **Postfix `VariableDatabase.SetVariableValue(string, string, bool)`** — react to any variable write (flags, counters) without patching each consumer.
 2. **Prefix `Conditions.Evaluate()`** — override/extend condition checks for custom dialogue/quest gating.
 3. **Postfix `VariableDatabase.CreateVariable(...)`** — inject variables at creation time (guarantees they exist on both server and clients).
 - **No S1API wrapper namespace for Variables found in ** (S1API has no `S1API.Variables`) — use direct interop or `VariableSetter`.
 
-## Applications (verified usage paths)
+## Applications (previously reported usage paths)
 - Quest flags + quest-entry state via `QuestCondition` (03-Dialogue-Quest)
 - Item-acquisition tracking via `NotifyItemAcquired`
 - `SystemTrigger`-driven story state (27-Tutorial-Prolog)

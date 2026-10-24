@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>LightControl — Interactive graphite mockup</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #eef0f3;
+      background: #0d0f12;
+      font-synthesis: none;
+      --text: #eef0f3;
+      --muted: #a1a7b0;
+      --subtle: #787f89;
+      --line: #30343a;
+      --row-columns: minmax(0, 1fr) 224px 182px 64px;
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; }
+    button, input { font: inherit; }
+    button { color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    button:disabled { cursor: default; }
+    button, a, input { touch-action: manipulation; }
+    button:focus-visible, input:focus-visible, [tabindex]:focus-visible {
+      outline: 2px solid #f3f5f7;
+      outline-offset: 4px;
+    }
+    button { transition: background-color 120ms, border-color 120ms; }
+    .icon { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .svg-library { position: absolute; width: 0; height: 0; overflow: hidden; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+    /* Browser-only preview chrome. None of this strip belongs to the phone UI. */
+    .preview {
+      height: 100vh;
+      height: 100dvh;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      gap: 20px;
+      padding: 24px 32px 20px;
+    }
+    .preview-header, .preview-footer {
+      width: 100%;
+      max-width: 1382px;
+      margin-inline: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .preview-brand { display: flex; align-items: center; gap: 13px; }
+    .preview-mark { width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid #363b44; border-radius: 10px; color: #c1c7d0; }
+    .preview-eyebrow { margin: 0 0 5px; color: #a7aeb8; font-size: 10px; font-weight: 650; letter-spacing: 1.5px; }
+    .preview-title { margin: 0; color: #e0e4e9; font-size: 16px; font-weight: 550; letter-spacing: -.2px; }
+    .preview-tools, .preview-meta { display: flex; align-items: center; gap: 18px; }
+    .demo-badge { border: 1px solid #42464e; border-radius: 5px; padding: 5px 7px; font-size: 10px; letter-spacing: 1px; font-weight: 650; color: #c2c8d0; white-space: nowrap; }
+    .reference-size { font-size: 12px; color: #969eaa; white-space: nowrap; }
+    .preview-reset { display: inline-flex; align-items: center; gap: 7px; padding: 9px 12px; border: 1px solid #353a43; border-radius: 8px; background: #1a1d22; font-size: 12px; font-weight: 550; white-space: nowrap; }
+    .preview-reset:hover { background: #272b32; border-color: #626975; }
+    .preview-reset .icon { width: 14px; height: 14px; }
+    .stage { min-height: 0; min-width: 0; display: grid; place-items: center; }
+    .screen-frame { position: relative; width: 1201px; height: 655px; flex: none; }
+    .preview-footer { font-size: 12px; line-height: 1.5; color: #959da8; }
+    .preview-footer p { margin: 0; }
+    .preview-footer strong { font-weight: 500; color: #bec5cf; }
+    .preview-footer .preview-tools { gap: 20px; }
+    .scale-label { color: #727c89; min-width: 66px; text-align: right; font-variant-numeric: tabular-nums; }
+    .demo-toggle { display: inline-flex; align-items: center; gap: 9px; white-space: nowrap; cursor: pointer; position: relative; }
+    .demo-toggle input { position: absolute; width: 30px; height: 18px; margin: 0; opacity: 0; }
+    .toggle-track { width: 30px; height: 18px; border: 1px solid #4a515c; border-radius: 10px; background: #242931; position: relative; }
+    .toggle-track::after { content: ""; position: absolute; width: 10px; height: 10px; top: 3px; left: 3px; border-radius: 50%; background: #8d97a4; transition: transform 120ms; }
+    .demo-toggle input:checked + .toggle-track { border-color: #b3bbc6; background: #b3bbc6; }
+    .demo-toggle input:checked + .toggle-track::after { background: #1a1d22; transform: translateX(12px); }
+    .demo-toggle input:focus-visible + .toggle-track { outline: 2px solid #f3f5f7; outline-offset: 4px; }
+
+    /* Fixed reference canvas: all app measurements are native 1201 × 655 units. */
+    .app-canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1201px;
+      height: 655px;
+      transform-origin: top left;
+      background: #15171a;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px #35393f, 0 24px 60px #0006;
+      isolation: isolate;
+    }
+    .app-content { height: 100%; padding: 32px 36px 28px; display: flex; flex-direction: column; }
+    .app-header { flex: none; height: 84px; display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+    h1 { margin: 0; font-size: 34px; line-height: 42px; font-weight: 650; letter-spacing: -.9px; }
+    .app-summary { margin: 6px 0 0; color: var(--muted); font-size: 16px; line-height: 22px; }
+    .availability { padding-top: 6px; text-align: right; }
+    .availability-main { display: flex; align-items: center; justify-content: flex-end; gap: 8px; color: #d2d6dc; font-size: 16px; line-height: 25px; }
+    .availability-main .icon { width: 17px; height: 17px; color: #b3bcc5; }
+    .availability-note { margin: 5px 0 0; color: var(--subtle); font-size: 14px; }
+    .lamp-list { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #5b626d transparent; background: #1b1d21; border: 1px solid #32363c; border-radius: 13px; }
+    .lamp-list::-webkit-scrollbar { width: 7px; }
+    .lamp-list::-webkit-scrollbar-thumb { border-radius: 5px; background: #5b626d; }
+    .lamp-list:focus-visible { outline-offset: 3px; }
+    .group-heading { height: 52px; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; background: #212429; }
+    .group-heading:not(:first-child) { margin-top: 20px; border-top: 1px solid var(--line); }
+    .group-heading h2 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -.2px; }
+    .group-count { font-size: 15px; color: var(--muted); }
+    .column-head, .lamp-row { display: grid; grid-template-columns: var(--row-columns); gap: 24px; padding-inline: 16px; align-items: center; }
+    .column-head { height: 36px; background: #1b1d21; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 500; color: #a0a7b1; position: sticky; top: 0; z-index: 2; }
+    .column-head span:first-child { padding-left: 58px; }
+    .column-head span:last-child { text-align: center; }
+    .lamp-row { min-height: 126px; border-bottom: 1px solid #30343a; }
+    .lamp-row:last-child { border-bottom: 0; }
+    .lamp-row:hover, .lamp-row:focus-within { background: #202328; }
+    .lamp-identity { min-width: 0; display: flex; align-items: center; gap: 16px; }
+    .lamp-symbol { width: 42px; height: 48px; flex: none; display: grid; place-items: center; color: #afb6c0; background: #292d33; border: 1px solid #353a42; border-radius: 10px; }
+    .lamp-symbol .icon { width: 24px; height: 24px; }
+    .lamp-labels { min-width: 0; }
+    .lamp-name { margin: 0; font-size: 24px; line-height: 31px; font-weight: 600; letter-spacing: -.45px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lamp-detail { margin: 5px 0 0; font-size: 15px; line-height: 21px; color: #a0a7b0; }
+    .lamp-id { font-variant-numeric: tabular-nums; }
+    .color-control { width: 224px; height: 54px; display: flex; align-items: center; gap: 12px; padding: 0 14px; border: 1px solid #41464e; border-radius: 10px; background: #292d33; font-size: 18px; font-weight: 550; text-align: left; }
+    .color-control:hover { background: #343941; border-color: #757d89; }
+    .control-chevron { margin-left: auto; width: 17px; height: 17px; color: #b2b9c3; }
+    .color-swatch { display: inline-grid; place-items: center; width: 22px; height: 22px; flex: none; border-radius: 4px; box-shadow: inset 0 0 0 1px #ffffff38; overflow: hidden; }
+    .color-swatch.mode-original { border: 1px dashed #b7bec8; box-shadow: none; color: #c8cdd5; }
+    .color-swatch.mode-original .icon { width: 15px; height: 15px; }
+    .rainbow-swatch { display: block; width: 100%; height: 100%; }
+    .brightness-control { width: 174px; height: 60px; padding: 10px 13px 11px; border: 1px solid #41464e; border-radius: 10px; background: #24282e; text-align: left; }
+    .brightness-control:hover { background: #343941; border-color: #757d89; }
+    .brightness-top { display: flex; align-items: center; justify-content: space-between; font-size: 18px; line-height: 23px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .level-track { height: 3px; width: 100%; margin-top: 9px; border-radius: 2px; overflow: hidden; background: #484e57; }
+    .level-fill { display: block; height: 100%; background: #c7cdd5; border-radius: inherit; }
+    .more-control { display: grid; place-items: center; width: 52px; height: 52px; justify-self: center; background: transparent; border: 1px solid transparent; border-radius: 10px; color: #b5bdc7; }
+    .more-control:hover { background: #30353c; border-color: #454c56; color: #f0f3f6; }
+    .more-control .icon { width: 25px; height: 25px; }
+
+    /* Owned overlay stays within the scaled phone canvas, including its footer. */
+    .overlay { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; background: #08090bbf; }
+    .dialog { width: 600px; max-height: 575px; padding: 28px; border: 1px solid #4b5058; border-radius: 15px; background: #24272c; box-shadow: 0 20px 55px #0007; display: flex; flex-direction: column; }
+    .dialog:focus { outline: none; }
+    .dialog h2 { margin: 0; font-size: 27px; line-height: 33px; font-weight: 620; letter-spacing: -.55px; }
+    .dialog-subtitle { margin: 6px 0 0; color: #adb4bf; font-size: 16px; line-height: 22px; }
+    .dialog-footer { display: flex; gap: 12px; margin-top: 24px; flex: none; }
+    .dialog-button { flex: 1; min-height: 54px; border: 1px solid #4c535d; border-radius: 10px; background: #30353d; font-size: 18px; font-weight: 600; }
+    .dialog-button:hover { background: #414852; border-color: #747d8b; }
+    .dialog-button.primary { color: #16191d; border-color: #e6e9ee; background: #e6e9ee; }
+    .dialog-button.primary:hover { background: #fff; border-color: #fff; }
+    .dialog-button.primary:disabled { color: #8f97a3; border-color: #41474f; background: #353b43; }
+    .color-dialog { height: 456px; }
+    .palette { display: grid; grid-template-columns: repeat(5, 80px); grid-auto-rows: 80px; gap: 14px; width: max-content; margin: 22px auto 0; }
+    .color-choice { width: 80px; height: 80px; padding: 0; position: relative; border: 2px solid #434a54; border-radius: 12px; background: #24272c; }
+    .color-choice:hover { border-color: #a2acb9; background: #353b44; }
+    .color-choice[aria-checked="true"] { border-color: #fff; }
+    .color-choice:focus-visible { outline-color: #fff; outline-offset: 4px; }
+    .tile-paint { position: absolute; inset: 5px; border-radius: 7px; box-shadow: inset 0 0 0 1px #ffffff24; }
+    .tile-paint > .color-swatch { width: 100%; height: 100%; border-radius: inherit; }
+    .tile-check { position: absolute; width: 23px; height: 23px; right: 9px; bottom: 9px; border-radius: 7px; background: #14171be6; border: 1px solid #ffffffa6; color: #fff; display: none; align-items: center; justify-content: center; }
+    .tile-check .icon { width: 15px; height: 15px; stroke-width: 2.4; }
+    .color-choice[aria-checked="true"] .tile-check { display: flex; }
+    .pending-color { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 29px; margin-top: 16px; line-height: 27px; }
+    .pending-prefix { color: #a7b0bc; font-size: 15px; }
+    .pending-name { font-size: 20px; font-weight: 600; }
+    .pending-detail { color: #a7b0bc; font-size: 14px; }
+    .pending-detail.hex { font-family: Consolas, "SFMono-Regular", monospace; letter-spacing: .2px; }
+    .color-dialog .dialog-footer { margin-top: auto; }
+    .brightness-reading { display: flex; justify-content: space-between; align-items: baseline; margin-top: 24px; }
+    .brightness-reading strong { font-size: 40px; line-height: 46px; font-weight: 600; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+    .brightness-reading span { color: #a7b0bc; font-size: 15px; }
+    .brightness-meter { height: 6px; border-radius: 3px; background: #484e57; margin-top: 12px; overflow: hidden; }
+    .brightness-choices { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 22px; }
+    .brightness-choice { height: 54px; padding: 0; border: 1px solid #505762; border-radius: 9px; background: #30353d; font-size: 18px; font-weight: 550; font-variant-numeric: tabular-nums; }
+    .brightness-choice:hover { background: #414852; border-color: #9ba5b4; }
+    .brightness-choice[aria-pressed="true"] { background: #e6e9ee; border-color: #e6e9ee; color: #171a1e; }
+    .dialog-help { margin: 14px 0 0; font-size: 15px; line-height: 20px; color: #aeb7c4; }
+    .actions-dialog { width: 530px; padding: 26px; }
+    .action-list { display: flex; flex-direction: column; margin-top: 20px; }
+    .action-item { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 65px; padding: 9px 10px; border: 1px solid transparent; border-radius: 9px; background: transparent; text-align: left; }
+    .action-item:hover { background: #353b43; border-color: #48515d; }
+    .action-item > .icon { width: 21px; height: 21px; color: #b9c2cf; }
+    .action-label { flex: 1; min-width: 0; font-size: 18px; line-height: 24px; font-weight: 550; }
+    .action-label small { display: block; color: #a8b1be; font-size: 14px; line-height: 20px; font-weight: 400; margin-top: 2px; }
+    .action-item .current-mode { width: 18px; height: 18px; color: #d8dfe7; }
+    .action-divider { height: 1px; margin: 8px 10px; background: #40464f; }
+    .actions-dialog .dialog-footer { margin-top: 18px; }
+    .copy-dialog { width: 560px; }
+    .copy-facts { margin: 24px 0 0; display: grid; grid-template-columns: 110px minmax(0, 1fr); column-gap: 16px; row-gap: 18px; font-size: 18px; line-height: 24px; }
+    .copy-facts dt { color: #abb4c1; font-size: 16px; }
+    .copy-facts dd { margin: 0; }
+    .copy-facts small { display: block; color: #abb4c1; font-size: 14px; line-height: 21px; margin-top: 3px; }
+    .copy-color { display: flex; align-items: center; gap: 10px; }
+    .copy-targets { margin-top: 24px; padding: 16px 18px; border: 1px solid #444c58; border-radius: 10px; background: #2c323a; }
+    .copy-targets strong { display: block; font-size: 22px; line-height: 28px; font-weight: 600; }
+    .copy-targets p { margin: 5px 0 0; font-size: 15px; line-height: 22px; color: #b8c1ce; }
+    .copy-note { margin: 13px 0 0; color: #a9b3c0; font-size: 14px; line-height: 20px; }
+    .toast { position: absolute; z-index: 20; bottom: 17px; left: 50%; max-width: 780px; transform: translate(-50%, 8px); border: 1px solid #5b646f; border-radius: 9px; padding: 11px 17px; background: #11151bf5; color: #e5eaf0; font-size: 15px; line-height: 20px; box-shadow: 0 5px 18px #0004; opacity: 0; pointer-events: none; transition: opacity 150ms, transform 150ms; white-space: nowrap; }
+    .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+    .no-script { position: absolute; inset: 130px 40px auto; padding: 24px; background: #2b3038; border-radius: 12px; font-size: 20px; }
+
+    @media (max-width: 850px) {
+      .preview { padding: 18px 18px 14px; gap: 16px; }
+      .preview-header { flex-wrap: wrap; }
+      .preview-meta { gap: 12px; }
+      .preview-footer { flex-wrap: wrap; gap: 8px; }
+      .preview-footer .preview-tools { margin-left: auto; }
+    }
+    @media (max-width: 520px) {
+      .preview { padding: 12px; gap: 12px; }
+      .preview-tools { gap: 10px; }
+      .preview-meta { flex-wrap: wrap; gap: 8px; }
+      .preview-header > .preview-tools { width: 100%; justify-content: space-between; }
+      .preview-title { font-size: 14px; }
+      .reference-size { font-size: 11px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <symbol id="icon-lamp" viewBox="0 0 24 24"><path d="M12 3v4M7 7h10l4 7H3l4-7Z M7 18l-1 2M12 18v3M17 18l1 2"/></symbol>
+      <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+      <symbol id="icon-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.2" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+      <symbol id="icon-reset" viewBox="0 0 24 24"><path d="M4 5v5h5M4.8 9a8 8 0 1 1-.3 5"/></symbol>
+      <symbol id="icon-original" viewBox="0 0 24 24"><path d="M12 3v3M3 12h3M18 12h3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="icon-rainbow" viewBox="0 0 24 24"><path d="M3 19v-5a9 9 0 0 1 18 0v5M7 19v-5a5 5 0 0 1 10 0v5M11 19v-5a1 1 0 0 1 2 0v5"/></symbol>
+      <symbol id="icon-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M15 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h3"/></symbol>
+      <symbol id="icon-properties" viewBox="0 0 24 24"><path d="m3 10 7-6 7 6v10H3V10ZM7 20v-6h6v6M15 3l6 5v10"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="preview">
+    <header class="preview-header" id="preview-header">
+      <div class="preview-brand">
+        <span class="preview-mark"><svg class="icon" aria-hidden="true"><use href="#icon-lamp"/></svg></span>
+        <div>
+          <p class="preview-eyebrow">INTERACTIVE MOCKUP</p>
+          <p class="preview-title">LightControl / Graphite concept</p>
+        </div>
+      </div>
+      <div class="preview-tools">
+        <div class="preview-meta">
+          <span class="demo-badge">DEMO DATA</span>
+          <span class="reference-size">1201 × 655 UI units · Landscape</span>
+        </div>
+        <button class="preview-reset" id="reset-demo" type="button">
+          <svg class="icon" aria-hidden="true"><use href="#icon-reset"/></svg>Reset demo
+        </button>
+      </div>
+    </header>
+
+    <div class="stage" id="stage">
+      <div class="screen-frame" id="screen-frame">
+        <main class="app-canvas" id="app-canvas" aria-label="LightControl interactive design concept">
+          <div class="app-content" id="app-content">
+            <header class="app-header">
+              <div>
+                <h1>Lights</h1>
+                <p class="app-summary" id="app-summary">Motel Room · 3 lights</p>
+              </div>
+              <div class="availability">
+                <div class="availability-main"><svg class="icon" aria-hidden="true"><use href="#icon-check"/></svg><span id="available-count">3 of 3 available</span></div>
+                <p class="availability-note">Demo state</p>
+              </div>
+            </header>
+            <section class="lamp-list" id="lamp-list" tabindex="0" aria-label="Lights grouped by property. Scroll to see more lights."></section>
+          </div>
+          <div class="overlay" id="overlay" hidden></div>
+          <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+          <noscript><p class="no-script">Enable JavaScript for this offline interactive mockup. All lamp data is fictional and stays in this tab.</p></noscript>
+        </main>
+      </div>
+    </div>
+
+    <footer class="preview-footer" id="preview-footer">
+      <p><strong>Visual concept, not the game.</strong> Demo changes stay in this tab. No saving or connection.</p>
+      <div class="preview-tools">
+        <label class="demo-toggle" title="Preview-only control: add more lights and a second property to try scrolling and copying.">
+          <input type="checkbox" id="long-list" aria-describedby="long-list-description">
+          <span class="toggle-track" aria-hidden="true"></span>
+          <span>Long-list demo</span>
+        </label>
+        <span class="sr-only" id="long-list-description">Adds nine demo lights and a second property. This switch is not part of the proposed in-game app.</span>
+        <span class="scale-label" id="scale-label">100% view</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    "use strict";
+
+    // In-memory fixtures only. No storage, network, or game APIs are used.
+    const COLORS = Object.freeze([
+      { name: "White", hex: "#ffffff" },
+      { name: "Red", hex: "#ff0000" },
+      { name: "Orange", hex: "#ff5900" },
+      { name: "Yellow", hex: "#ffff00" },
+      { name: "Green", hex: "#00ff00" },
+      { name: "Cyan", hex: "#00ffff" },
+      { name: "Blue", hex: "#0000ff" },
+      { name: "Purple", hex: "#8c00ff" },
+      { name: "Pink", hex: "#ff268c" }
+    ]);
+    const COLOR_CHOICES = Object.freeze([...COLORS, { name: "Rainbow" }]);
+    const BRIGHTNESS_STEPS = Object.freeze([10, 25, 50, 75, 100, 150, 200]);
+    const byId = id => document.getElementById(id);
+    const list = byId("lamp-list");
+    const overlay = byId("overlay");
+    const appContent = byId("app-content");
+    const previewHeader = byId("preview-header");
+    const previewFooter = byId("preview-footer");
+    const longListSwitch = byId("long-list");
+    const toast = byId("toast");
+    let lamps = createDemo();
+    let longList = false;
+    let modal = null;
+    let returnTarget = null;
+    let toastTimer = 0;
+
+    function createDemo() {
+      const values = [
+        ["LC-MR-01", "Motel Room", "Grow tent 01", "Blue", 100, false],
+        ["LC-MR-02", "Motel Room", "Grow tent 02", "Orange", 75, false],
+        ["LC-MR-03", "Motel Room", "Grow tent 03", "Purple", 150, false],
+        ["LC-MR-04", "Motel Room", "Grow tent 04", "Pink", 100, true],
+        ["LC-MR-05", "Motel Room", "Grow tent 05", "Original", 100, true],
+        ["LC-MR-06", "Motel Room", "Grow tent 06", "Rainbow", 50, true],
+        ["LC-SW-01", "Sweatshop", "Grow tent 01", "White", 100, true],
+        ["LC-SW-02", "Sweatshop", "Grow tent 02", "Green", 75, true],
+        ["LC-SW-03", "Sweatshop", "Grow tent 03", "Cyan", 200, true],
+        ["LC-SW-04", "Sweatshop", "Grow tent 04", "Yellow", 25, true],
+        ["LC-SW-05", "Sweatshop", "Grow tent 05", "Red", 50, true],
+        ["LC-SW-06", "Sweatshop", "Grow tent 06", "Orange", 150, true]
+      ];
+      return values.map(([id, property, name, mode, brightness, extra]) => ({ id, property, name, mode, brightness, extra }));
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+    }
+
+    function icon(name, className = "") {
+      return `<svg class="icon ${className}" aria-hidden="true"><use href="#icon-${name}"/></svg>`;
+    }
+
+    function activeLamps() { return lamps.filter(lamp => longList || !lamp.extra); }
+    function findLamp(id) { return activeLamps().find(lamp => lamp.id === id); }
+    function fixedColor(name) { return COLORS.find(color => color.name === name); }
+    function colorChoice(name) { return COLOR_CHOICES.find(color => color.name === name); }
+    function plural(count, singular, multiple = `${singular}s`) { return `${count} ${count === 1 ? singular : multiple}`; }
+
+    function swatch(mode) {
+      const color = fixedColor(mode);
+      if (color) return `<span class="color-swatch" style="background:${color.hex}" aria-hidden="true"></span>`;
+      if (mode === "Rainbow") {
+        const bars = COLORS.slice(1).map((entry, index) => `<rect x="${index * 3}" width="3" height="24" fill="${entry.hex}"/>`).join("");
+        return `<span class="color-swatch" aria-hidden="true"><svg class="rainbow-swatch" viewBox="0 0 24 24">${bars}</svg></span>`;
+      }
+      // Original is deliberately a neutral symbol, never a pretend white swatch.
+      return `<span class="color-swatch mode-original" aria-hidden="true">${icon("original")}</span>`;
+    }
+
+    function lampRow(lamp) {
+      const id = escapeHtml(lamp.id);
+      const name = escapeHtml(lamp.name);
+      return `<article class="lamp-row" aria-labelledby="name-${id}">
+        <div class="lamp-identity">
+          <span class="lamp-symbol">${icon("lamp")}</span>
+          <div class="lamp-labels"><h3 class="lamp-name" id="name-${id}">${name}</h3><p class="lamp-detail">Grow light · <span class="lamp-id">${id}</span></p></div>
+        </div>
+        <button class="color-control" type="button" data-action="color" data-id="${id}" aria-haspopup="dialog" aria-label="${name}, ${id}: color ${lamp.mode}. Change color.">
+          ${swatch(lamp.mode)}<span>${lamp.mode}</span>${icon("chevron", "control-chevron")}
+        </button>
+        <button class="brightness-control" type="button" data-action="brightness" data-id="${id}" aria-haspopup="dialog" aria-label="${name}, ${id}: brightness ${lamp.brightness} percent, maximum 200. Change brightness.">
+          <span class="brightness-top"><span>${lamp.brightness}%</span>${icon("chevron", "control-chevron")}</span>
+          <span class="level-track" style="display:block" aria-hidden="true"><span class="level-fill" style="width:${lamp.brightness / 2}%"></span></span>
+        </button>
+        <button class="more-control" type="button" data-action="more" data-id="${id}" aria-haspopup="dialog" aria-label="More actions for ${name}, ${id}">${icon("more")}</button>
+      </article>`;
+    }
+
+    function renderList(resetScroll = false) {
+      const scrollTop = resetScroll ? 0 : list.scrollTop;
+      const visible = activeLamps();
+      const properties = [...new Set(visible.map(lamp => lamp.property))];
+      list.innerHTML = properties.map((property, index) => {
+        const group = visible.filter(lamp => lamp.property === property);
+        const headings = index === 0 ? `<div class="column-head" aria-hidden="true"><span>Light</span><span>Color</span><span>Brightness</span><span>More</span></div>` : "";
+        return `<div class="group-heading"><h2>${escapeHtml(property)}</h2><span class="group-count">${plural(group.length, "light")}</span></div>${headings}${group.map(lampRow).join("")}`;
+      }).join("");
+      list.scrollTop = scrollTop;
+      byId("app-summary").textContent = `${properties.length === 1 ? properties[0] : plural(properties.length, "property", "properties")} · ${plural(visible.length, "light")}`;
+      byId("available-count").textContent = `${visible.length} of ${visible.length} available`;
+    }
+
+    function notify(message) {
+      window.clearTimeout(toastTimer);
+      toast.textContent = `${message} · demo only`;
+      toast.classList.add("is-visible");
+      toastTimer = window.setTimeout(() => toast.classList.remove("is-visible"), 3400);
+    }
+
+    function header(title, lamp) {
+      return `<header><h2 id="dialog-title">${title}</h2><p class="dialog-subtitle" id="dialog-description">${escapeHtml(lamp.name)} · ${escapeHtml(lamp.id)}</p></header>`;
+    }
+
+    function dialogShell(className, content) {
+      overlay.innerHTML = `<section class="dialog ${className}" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-description" tabindex="-1">${content}</section>`;
+      overlay.hidden = false;
+      appContent.inert = true;
+      previewHeader.inert = true;
+      previewFooter.inert = true;
+      // A previous update toast must not obscure a newly opened action footer.
+      window.clearTimeout(toastTimer);
+      toast.classList.remove("is-visible");
+    }
+
+    function focusInside(selector) {
+      const target = (selector && overlay.querySelector(selector)) || overlay.querySelector("button:not(:disabled)") || overlay.querySelector(".dialog");
+      if (target) target.focus({ preventScroll: true });
+    }
+
+    function openModal(type, lamp, trigger) {
+      returnTarget = { element: trigger, id: lamp.id, action: type };
+      modal = { type, id: lamp.id };
+      if (type === "color") openColor(lamp);
+      else if (type === "brightness") openBrightness(lamp);
+      else openMore(lamp);
+    }
+
+    function closeModal() {
+      if (!modal) return;
+      modal = null;
+      overlay.hidden = true;
+      overlay.innerHTML = "";
+      appContent.inert = false;
+      previewHeader.inert = false;
+      previewFooter.inert = false;
+      const target = returnTarget;
+      returnTarget = null;
+      if (target) {
+        const button = target.element.isConnected ? target.element : list.querySelector(`[data-id="${target.id}"][data-action="${target.action}"]`);
+        (button || list).focus({ preventScroll: true });
+      }
+    }
+
+    function openColor(lamp) {
+      modal.pending = colorChoice(lamp.mode) ? lamp.mode : null;
+      const tiles = COLOR_CHOICES.map(color => {
+        const detail = color.hex ? color.hex.toUpperCase() : "Color cycle";
+        const paint = color.hex ? `<span class="tile-paint" style="background:${color.hex}"></span>` : `<span class="tile-paint">${swatch(color.name)}</span>`;
+        return `<button class="color-choice" type="button" role="radio" aria-checked="false" tabindex="-1" data-color="${color.name}" aria-label="${color.name}, ${detail}" title="${color.name} · ${detail}">${paint}<span class="tile-check">${icon("check")}</span></button>`;
+      }).join("");
+      dialogShell("color-dialog", `${header("Light color", lamp)}
+        <div class="palette" role="radiogroup" aria-label="Light colors and Rainbow color cycle. Arrow keys choose a pending color.">${tiles}</div>
+        <div class="pending-color" aria-live="polite" aria-atomic="true"><span class="pending-prefix" id="pending-prefix"></span><strong class="pending-name" id="pending-name"></strong><span class="pending-detail" id="pending-detail"></span></div>
+        <div class="dialog-footer"><button class="dialog-button" type="button" data-command="close">Cancel</button><button class="dialog-button primary" type="button" data-command="apply-color" id="apply-color">Apply</button></div>`);
+      updatePendingColor();
+      focusInside('.color-choice[tabindex="0"]');
+    }
+
+    function updatePendingColor() {
+      const current = findLamp(modal.id);
+      const chosen = colorChoice(modal.pending);
+      const tabStop = chosen ? chosen.name : COLOR_CHOICES[0].name;
+      overlay.querySelectorAll("[data-color]").forEach(button => {
+        button.setAttribute("aria-checked", String(button.dataset.color === modal.pending));
+        button.tabIndex = button.dataset.color === tabStop ? 0 : -1;
+      });
+      byId("pending-prefix").textContent = chosen ? "Selected" : "Current";
+      byId("pending-name").textContent = chosen ? chosen.name : current.mode;
+      byId("pending-detail").textContent = chosen ? (chosen.hex ? chosen.hex.toUpperCase() : "Color cycle") : "Choose a color";
+      byId("pending-detail").classList.toggle("hex", Boolean(chosen && chosen.hex));
+      byId("apply-color").disabled = !chosen;
+    }
+
+    function openBrightness(lamp) {
+      dialogShell("brightness-dialog", `${header("Brightness", lamp)}
+        <div class="brightness-reading"><strong id="brightness-value" aria-live="polite">${lamp.brightness}%</strong><span>200% maximum</span></div>
+        <div class="brightness-meter" aria-hidden="true"><span class="level-fill" id="brightness-fill" style="width:${lamp.brightness / 2}%"></span></div>
+        <div class="brightness-choices" role="group" aria-label="Brightness, percent of default intensity">${BRIGHTNESS_STEPS.map(value => `<button class="brightness-choice" type="button" data-brightness="${value}" aria-label="${value} percent" aria-pressed="${lamp.brightness === value}">${value}%</button>`).join("")}</div>
+        <p class="dialog-help">Applies immediately. Try another level to compare.</p>
+        <div class="dialog-footer"><button class="dialog-button" type="button" data-command="close">Close</button></div>`);
+      focusInside('.brightness-choice[aria-pressed="true"]');
+    }
+
+    function openMore(lamp) {
+      const visible = activeLamps();
+      const propertyCount = visible.filter(entry => entry.property === lamp.property).length;
+      const totalProperties = new Set(visible.map(entry => entry.property)).size;
+      const action = (command, symbol, title, detail, selected = false) => `<button class="action-item" type="button" data-command="${command}">${icon(symbol)}<span class="action-label">${title}<small>${detail}</small></span>${selected ? icon("check", "current-mode") : ""}</button>`;
+      dialogShell("actions-dialog", `${header("Light actions", lamp)}<div class="action-list">
+        ${action("original", "original", "Original", "Game color · keep brightness", lamp.mode === "Original")}
+        ${action("rainbow", "rainbow", "Rainbow", "Cycle colors · keep brightness", lamp.mode === "Rainbow")}
+        ${action("reset", "reset", "Reset", "Original color · 100% brightness")}
+        <div class="action-divider" role="separator"></div>
+        ${action("copy-property", "copy", "Copy to property", `${plural(propertyCount, "light")} in ${escapeHtml(lamp.property)}`)}
+        ${action("copy-all", "properties", "Copy to all properties", `${plural(visible.length, "light")} across ${plural(totalProperties, "property", "properties")}`)}
+        </div><div class="dialog-footer"><button class="dialog-button" type="button" data-command="close">Close</button></div>`);
+      focusInside(".action-item");
+    }
+
+    function openCopy(lamp) {
+      const targets = activeLamps();
+      const properties = [...new Set(targets.map(entry => entry.property))];
+      modal = {
+        type: "copy", id: lamp.id,
+        snapshot: { mode: lamp.mode, brightness: lamp.brightness, targets: targets.map(entry => entry.id) }
+      };
+      dialogShell("copy-dialog", `<header><h2 id="dialog-title">Copy to all properties?</h2><p class="dialog-subtitle" id="dialog-description">Copy this light’s color and brightness.</p></header>
+        <dl class="copy-facts"><dt>Source</dt><dd>${escapeHtml(lamp.name)}<small>${escapeHtml(lamp.id)} · ${escapeHtml(lamp.property)}</small></dd><dt>Color</dt><dd class="copy-color">${swatch(lamp.mode)}${lamp.mode}</dd><dt>Brightness</dt><dd>${lamp.brightness}%</dd></dl>
+        <div class="copy-targets"><strong>${plural(targets.length, "light")} · ${plural(properties.length, "property", "properties")}</strong><p>${properties.map(escapeHtml).join(" + ")} · includes the source light</p></div>
+        <p class="copy-note">Demo data only. These are the exact lights this action will affect.</p>
+        <div class="dialog-footer"><button class="dialog-button" type="button" data-command="close">Cancel</button><button class="dialog-button primary" type="button" data-command="confirm-copy">Copy to ${plural(targets.length, "light")}</button></div>`);
+      focusInside('[data-command="close"]');
+    }
+
+    list.addEventListener("click", event => {
+      const button = event.target.closest("button[data-action]");
+      if (!button || modal) return;
+      const lamp = findLamp(button.dataset.id);
+      if (lamp) openModal(button.dataset.action, lamp, button);
+    });
+
+    overlay.addEventListener("click", event => {
+      if (!modal) return;
+      event.stopPropagation();
+      if (event.target === overlay) { closeModal(); return; }
+      const button = event.target.closest("button");
+      if (!button || button.disabled) return;
+      if (button.dataset.command === "close") { closeModal(); return; }
+      const lamp = findLamp(modal.id);
+      if (!lamp) { closeModal(); return; }
+
+      if (modal.type === "color" && button.dataset.color) {
+        modal.pending = button.dataset.color;
+        updatePendingColor();
+        return;
+      }
+      if (modal.type === "brightness" && button.dataset.brightness) {
+        const value = Number(button.dataset.brightness);
+        if (!BRIGHTNESS_STEPS.includes(value)) return;
+        lamp.brightness = value;
+        renderList();
+        byId("brightness-value").textContent = `${value}%`;
+        byId("brightness-fill").style.width = `${value / 2}%`;
+        overlay.querySelectorAll("[data-brightness]").forEach(choice => choice.setAttribute("aria-pressed", String(Number(choice.dataset.brightness) === value)));
+        notify(`${lamp.name}: ${value}% brightness`);
+        return;
+      }
+
+      const command = button.dataset.command;
+      if (command === "apply-color" && modal.type === "color" && colorChoice(modal.pending)) {
+        lamp.mode = modal.pending;
+        renderList();
+        closeModal();
+        notify(`${lamp.name}: ${lamp.mode} applied`);
+      } else if (modal.type === "more" && ["original", "rainbow", "reset"].includes(command)) {
+        lamp.mode = command === "rainbow" ? "Rainbow" : "Original";
+        if (command === "reset") lamp.brightness = 100;
+        renderList();
+        closeModal();
+        notify(`${lamp.name}: ${lamp.mode} · ${lamp.brightness}%`);
+      } else if (modal.type === "more" && command === "copy-property") {
+        const targets = activeLamps().filter(entry => entry.property === lamp.property);
+        targets.forEach(target => { target.mode = lamp.mode; target.brightness = lamp.brightness; });
+        renderList();
+        closeModal();
+        notify(`${lamp.mode} · ${lamp.brightness}% copied to ${plural(targets.length, "light")} in ${lamp.property}`);
+      } else if (modal.type === "more" && command === "copy-all") {
+        openCopy(lamp);
+      } else if (command === "confirm-copy" && modal.type === "copy") {
+        const snapshot = modal.snapshot;
+        const targets = snapshot.targets.map(findLamp);
+        if (targets.some(target => !target) || lamp.mode !== snapshot.mode || lamp.brightness !== snapshot.brightness) {
+          closeModal();
+          notify("Demo changed. Reopen the copy preview");
+          return;
+        }
+        targets.forEach(target => { target.mode = snapshot.mode; target.brightness = snapshot.brightness; });
+        renderList();
+        closeModal();
+        notify(`${snapshot.mode} · ${snapshot.brightness}% copied to ${plural(targets.length, "light")}`);
+      }
+    });
+
+    overlay.addEventListener("keydown", event => {
+      if (!modal || modal.type !== "color" || !event.target.matches("[data-color]")) return;
+      const index = COLOR_CHOICES.findIndex(color => color.name === event.target.dataset.color);
+      let next = index;
+      if (event.key === "ArrowRight") next = (index + 1) % COLOR_CHOICES.length;
+      else if (event.key === "ArrowLeft") next = (index + COLOR_CHOICES.length - 1) % COLOR_CHOICES.length;
+      else if (event.key === "ArrowDown") next = (index + 5) % COLOR_CHOICES.length;
+      else if (event.key === "ArrowUp") next = (index + COLOR_CHOICES.length - 5) % COLOR_CHOICES.length;
+      else if (event.key === "Home") next = 0;
+      else if (event.key === "End") next = COLOR_CHOICES.length - 1;
+      else return;
+      event.preventDefault();
+      modal.pending = COLOR_CHOICES[next].name;
+      updatePendingColor();
+      focusInside(`[data-color="${modal.pending}"]`);
+    });
+
+    // The overlay owns keyboard focus until it closes; the logical row control
+    // receives focus again even when an immediate action rebuilt the lamp list.
+    document.addEventListener("keydown", event => {
+      if (!modal) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        closeModal();
+      } else if (event.key === "Tab") {
+        const focusable = [...overlay.querySelectorAll('button:not(:disabled):not([tabindex="-1"]), [tabindex="0"]')];
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const current = document.activeElement;
+        if (!first) { event.preventDefault(); focusInside(".dialog"); return; }
+        if (event.shiftKey && (current === first || !focusable.includes(current))) {
+          event.preventDefault(); last.focus();
+        } else if (!event.shiftKey && (current === last || !focusable.includes(current))) {
+          event.preventDefault(); first.focus();
+        }
+      }
+    }, true);
+
+    document.addEventListener("focusin", event => {
+      if (modal && !overlay.contains(event.target)) focusInside();
+    });
+
+    longListSwitch.addEventListener("change", () => {
+      longList = longListSwitch.checked;
+      renderList(true);
+      notify(longList ? "12 lights in 2 properties · scroll to explore" : "3 lights in Motel Room");
+    });
+
+    byId("reset-demo").addEventListener("click", () => {
+      closeModal();
+      lamps = createDemo();
+      longList = false;
+      longListSwitch.checked = false;
+      renderList(true);
+      notify("Demo reset · 3 lights in Motel Room");
+    });
+
+    function fitCanvas() {
+      const stage = byId("stage");
+      const scale = Math.min(1.15, stage.clientWidth / 1201, stage.clientHeight / 655);
+      byId("screen-frame").style.width = `${1201 * scale}px`;
+      byId("screen-frame").style.height = `${655 * scale}px`;
+      byId("app-canvas").style.transform = `scale(${scale})`;
+      byId("scale-label").textContent = `${Math.round(scale * 100)}% view`;
+    }
+
+    renderList();
+    fitCanvas();
+    window.addEventListener("resize", fitCanvas);
+    if ("ResizeObserver" in window) new ResizeObserver(fitCanvas).observe(byId("stage"));
+  </script>
+</body>
+</html>

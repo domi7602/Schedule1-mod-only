@@ -1,165 +1,402 @@
+using Il2CppScheduleOne.DevUtilities;
+using Il2CppScheduleOne.GameTime;
+using S1API.Lifecycle;
+using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 using Xunit;
 
-// Supplementary source wiring only: these do not execute Unity or prove native getter safety.
-// They pin the review findings as source contracts (B1/B2 of the 0.1.0 pre-deploy review).
-public class RuntimeWiringTests
+namespace GoldenHour.Tests;
+
+// Executes the production managed module against RuntimeBoundary.cs. Real Unity/IL2CPP
+// ordering, native setter precision and rendered appearance still require in-game checks.
+public sealed class RuntimeWiringTests : IDisposable
 {
-    private static string Source(string modFolder, string name)
+    private readonly Mod _module = new();
+    private static readonly Color Native = new(0.6f, 0.7f, 0.8f, 1f);
+
+    public RuntimeWiringTests()
     {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir != null && !Directory.Exists(Path.Combine(dir.FullName, "Source", "Mods"))) dir = dir.Parent;
-        Assert.NotNull(dir);
-        string path = Path.Combine(dir!.FullName, "Source", "Mods", "WorldLook", "src", name);
-        Assert.True(File.Exists(path), "Missing runtime file: " + name);
-        return File.ReadAllText(path);
+        Assert.Equal(0, GameLifecycle.Subscribers);
+        SceneManager.Active = new Scene(1, "Main");
+        RenderSettings.skybox = new Material();
+        RenderSettings.sun = new Light();
+        RenderSettings.ambientMode = AmbientMode.Trilight;
+        RenderSettings.Sky = new NativeColor();
+        RenderSettings.Equator = new NativeColor();
+        RenderSettings.Ground = new NativeColor();
+        NetworkSingleton<TimeManager>.Instance = new TimeManager();
+        Time.unscaledTime = 0;
+    }
+
+    public void Dispose()
+    {
+        _module.OnDeinitializeMelon();
+        Assert.Equal(0, GameLifecycle.Subscribers);
+    }
+
+    private Dictionary<string, object?> Status => _module.GetDiagnosticsSnapshot();
+    private void Start(double warmth = 1.0)
+    {
+        _module.OnInitializeMelon();
+        _module.SetEnabled(true, warmth);
+        Frame();
+    }
+
+    private void Frame()
+    {
+        Time.unscaledTime += 0.02f;
+        _module.OnUpdate();
+        _module.OnLateUpdate();
+    }
+
+    private static Color Biased(Color color, Argb tint, double warmth = 1.0)
+    {
+        Argb biased = BlendPolicy.Blend(new Argb(color.r, color.g, color.b, color.a), tint, warmth);
+        return new Color(biased.R, biased.G, biased.B, biased.A);
     }
 
     [Fact]
-    public void FirstWriteOfLateReadableKeyIsSnapshotBacked_NoCompounding()
+    public void Startup_in_menu_defers_activation_until_readable_Main_targets()
     {
-        // Review B1: Handle must not blend from an unrecorded current value; the first
-        // write of a key that was unreadable at activation records the pristine value.
-        string source = Source("GoldenHour", "SceneTargets.cs");
-        Assert.Contains("store.RecordOnce(key, current.Value);", source);
-        Assert.Contains("First write of a key that was unreadable at activation", source);
+        SceneManager.Active = new Scene(5, "Menu");
+        _module.SetEnabled(true, 1);
+        Frame();
+        Assert.Equal(0, RenderSettings.sun!.Slot.Writes);
+        _module.OnInitializeMelon();
+        Frame();
+        Assert.False((bool)Status["active"]!);
+        Assert.True((bool)Status["desiredEnabled"]!);
+
+        SceneManager.Active = new Scene(10, "Main");
+        RenderSettings.sun = null;
+        RenderSettings.skybox = null;
+        RenderSettings.ambientMode = AmbientMode.Flat;
+        Frame();
+        Assert.False((bool)Status["active"]!);
+        RenderSettings.sun = new Light();
+        Frame();
+        Assert.True((bool)Status["active"]!);
+        Assert.Equal(Biased(Native, GoldenHourTargets.SunLightTint), RenderSettings.sun.Slot.Value);
     }
 
     [Fact]
-    public void SceneExitRestoresAssetLevelTargetsIntoRecordedMaterialOnly()
+    public void Writes_happen_in_LateUpdate_and_native_drift_is_never_frozen_or_compounded()
     {
-        // Review B2: scene exit must not write per-scene RenderSettings into the
-        // destination scene, and _SunShine must go back into the recorded material.
-        string targets = Source("GoldenHour", "SceneTargets.cs");
-        Assert.Contains("public int RestoreAssetLevel(SnapshotStore store, ModLogger log)", targets);
-        Assert.Contains("private Material? _skyMaterial;", targets);
-        Assert.Contains("_skyMaterial ??= mat;", targets);
-        Assert.Contains("deliberately skipped", targets);
-        int assetLevelStart = targets.IndexOf("public int RestoreAssetLevel", StringComparison.Ordinal);
-        int cacheStart = targets.IndexOf("public void InvalidateRuntimeCache", StringComparison.Ordinal);
-        Assert.True(assetLevelStart >= 0 && cacheStart > assetLevelStart);
-        string assetLevelBody = targets[assetLevelStart..cacheStart];
-        Assert.DoesNotContain("ambientSkyColor", assetLevelBody);
-        Assert.DoesNotContain("fogColor", assetLevelBody);
-        Assert.DoesNotContain("WriteSunColor", assetLevelBody);
-
-        string mod = Source("GoldenHour", "Mod.cs");
-        Assert.Contains("_targets.RestoreAssetLevel(_store, _log);", mod);
+        _module.OnInitializeMelon();
+        _module.SetEnabled(true, 1);
+        _module.OnUpdate();
+        Assert.Equal(0, RenderSettings.sun!.Slot.Writes);
+        for (int frame = 0; frame < 240; frame++)
+        {
+            Color native = Native with { r = Native.r + frame * 0.00001f };
+            RenderSettings.sun.Slot.Value = native;
+            RenderSettings.Sky.Value = native;
+            Frame();
+            Assert.Equal(Biased(native, GoldenHourTargets.SunLightTint), RenderSettings.sun.Slot.Value);
+            Assert.Equal(Biased(native, GoldenHourTargets.AmbientTint), RenderSettings.Sky.Value);
+        }
+        Color latestNative = Native with { r = Native.r + 239 * 0.00001f };
+        _module.SetEnabled(false, 1);
+        Assert.Equal(latestNative, RenderSettings.sun.Slot.Value);
+        Assert.Equal(latestNative, RenderSettings.Sky.Value);
     }
 
     [Fact]
-    public void RuntimeUnloadRestoresBeforeTeardown()
+    public void Repeated_toggle_and_live_warmth_changes_restore_all_five_values()
     {
-        // Review N2: OnDeinitializeMelon covers MelonLoader disable/unload while active.
-        string mod = Source("GoldenHour", "Mod.cs");
-        Assert.Contains("public void OnDeinitializeMelon()", mod);
-        Assert.Contains("HandleSceneExit(\"mod deinitialized\");", mod);
+        Start();
+        Material sky = RenderSettings.skybox!;
+        Light sun = RenderSettings.sun!;
+        foreach (double warmth in new[] { 0.2, 0.7, 1.0, 0.0, 0.9 })
+        {
+            _module.SetEnabled(true, warmth);
+            Frame();
+            Assert.Equal(Biased(Native, GoldenHourTargets.SunLightTint, warmth), sun.Slot.Value);
+            Assert.Equal(Biased(Native, GoldenHourTargets.SkySunGlowTint, warmth), sky.Slot.Value);
+            _module.SetEnabled(false, warmth);
+            Frame();
+            Assert.Equal(Native, sun.Slot.Value);
+            Assert.Equal(Native, sky.Slot.Value);
+            Assert.Equal(Native, RenderSettings.Sky.Value);
+            Assert.Equal(Native, RenderSettings.Equator.Value);
+            Assert.Equal(Native, RenderSettings.Ground.Value);
+            Assert.Same(sky, RenderSettings.skybox);
+            Assert.Same(sun, RenderSettings.sun);
+        }
+    }
+
+    [Theory]
+    [InlineData(600, 1.0)]
+    [InlineData(1200, 0.0)]
+    [InlineData(1800, 1.0)]
+    [InlineData(2359, 0.0)]
+    [InlineData(0, 0.0)]
+    [InlineData(1260, 0.0)]
+    public void Actual_module_uses_HHMM_and_releases_old_tint(int hhmm, double strength)
+    {
+        Start();
+        NetworkSingleton<TimeManager>.Instance!.RawHhmm = hhmm;
+        Frame();
+        Assert.Equal(strength, Status["appliedStrength"]);
+        Assert.Equal(Biased(Native, GoldenHourTargets.SunLightTint, strength), RenderSettings.sun!.Slot.Value);
+        Assert.Equal(hhmm != 1260, Status["timeReadable"]);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Missing_or_throwing_clock_is_neutral_and_can_recover(bool throwing)
+    {
+        Start();
+        if (throwing) NetworkSingleton<TimeManager>.Instance!.ThrowOnRead = true;
+        else NetworkSingleton<TimeManager>.Instance = null;
+        Frame();
+        Assert.False((bool)Status["timeReadable"]!);
+        Assert.Equal(0.0, Status["appliedStrength"]);
+        Assert.Equal(Native, RenderSettings.sun!.Slot.Value);
+        NetworkSingleton<TimeManager>.Instance = new TimeManager();
+        Frame();
+        Assert.Equal(1.0, Status["appliedStrength"]);
+    }
+
+    [Theory]
+    [InlineData(double.NaN, 0.0)]
+    [InlineData(double.PositiveInfinity, 0.0)]
+    [InlineData(-2.0, 0.0)]
+    [InlineData(2.0, 1.0)]
+    public void Coordinator_warmth_is_clamped_before_applying(double value, double expected)
+    {
+        Start(value);
+        Assert.Equal(expected, Status["warmth"]);
+        Assert.Equal(expected, Status["appliedStrength"]);
     }
 
     [Fact]
-    public void HotkeyAcceptsBothModifierSides()
+    public void Replacement_objects_never_receive_old_baselines_on_OFF()
     {
-        // Review N4: right-side Ctrl/Shift must work too (GraphicsProbe precedent).
-        string mod = Source("GoldenHour", "Mod.cs");
-        Assert.Contains("KeyCode.RightControl", mod);
-        Assert.Contains("KeyCode.RightShift", mod);
-    }
-
-    // --- 0.1.1 hardening (ChatGPT fix round: accepted parts only) ---------------------
-
-    [Fact]
-    public void VolumeWriteForcesComponentAndOverrideState()
-    {
-        // Writing colorFilter.value is a no-op unless the component is active and the
-        // override is set — the likely cause of an invisible tint.
-        string targets = Source("GoldenHour", "SceneTargets.cs");
-        Assert.Contains("colorFilter.overrideState = true;", targets);
-        Assert.Contains("adjustments.active = true;", targets);
-        Assert.Contains("VolumeFlagPolicy.NeedsEnable", targets);
-        Assert.Contains("_originalFilterOverride", targets);
-        Assert.Contains("_originalVolumeActive", targets);
+        Start();
+        Material oldSky = RenderSettings.skybox!;
+        Light oldSun = RenderSettings.sun!;
+        Material newSky = new();
+        Light newSun = new();
+        Color foreign = new(0.2f, 0.3f, 0.4f, 1f);
+        newSky.Slot.Value = newSun.Slot.Value = foreign;
+        RenderSettings.skybox = newSky;
+        RenderSettings.sun = newSun;
+        _module.SetEnabled(false, 1);
+        Assert.Equal(Native, oldSky.Slot.Value);
+        Assert.Equal(Native, oldSun.Slot.Value);
+        Assert.Equal(foreign, newSky.Slot.Value);
+        Assert.Equal(foreign, newSun.Slot.Value);
+        Assert.Equal(0, newSky.Slot.Writes);
+        Assert.Equal(0, newSun.Slot.Writes);
     }
 
     [Fact]
-    public void VolumeUsesRuntimeProfileNotSharedAsset()
+    public void Replacement_while_enabled_restores_old_target_then_adopts_new_target()
     {
-        // volume.profile is a dedicated runtime instance; the shared asset stays untouched.
-        string targets = Source("GoldenHour", "SceneTargets.cs");
-        Assert.Contains("volume.profile", targets);
-        Assert.DoesNotContain("sharedProfile", targets);
+        Start();
+        Material oldSky = RenderSettings.skybox!;
+        Light oldSun = RenderSettings.sun!;
+        RenderSettings.skybox = new Material();
+        RenderSettings.sun = new Light();
+        Color replacement = new(0.2f, 0.3f, 0.4f, 1f);
+        RenderSettings.skybox.Slot.Value = RenderSettings.sun.Slot.Value = replacement;
+        Frame();
+        Assert.Equal(Native, oldSky.Slot.Value);
+        Assert.Equal(Native, oldSun.Slot.Value);
+        Assert.Equal(Biased(replacement, GoldenHourTargets.SunLightTint), RenderSettings.sun.Slot.Value);
+        _module.SetEnabled(false, 1);
+        Assert.Equal(replacement, RenderSettings.sun.Slot.Value);
+        Assert.Equal(replacement, RenderSettings.skybox.Slot.Value);
     }
 
     [Fact]
-    public void DiagnosticsAreAvailableForInGameVerify()
+    public void Dead_target_is_released_without_accessing_its_color()
     {
-        string targets = Source("GoldenHour", "SceneTargets.cs");
-        Assert.Contains("LogDiagnostics", targets);
-        Assert.Contains("volumeLayerMask", targets);
-        Assert.Contains("renderPostProcessing", targets);
-        Assert.Contains("HasProperty", targets);
-        string mod = Source("GoldenHour", "Mod.cs");
-        Assert.Contains("LogDiagnostics", mod);
+        Start();
+        Light old = RenderSettings.sun!;
+        old.Alive = false;
+        int reads = old.Slot.Reads;
+        int writes = old.Slot.Writes;
+        RenderSettings.sun = new Light();
+        Frame();
+        Assert.Equal(reads, old.Slot.Reads);
+        Assert.Equal(writes, old.Slot.Writes);
+        Assert.Equal(Biased(Native, GoldenHourTargets.SunLightTint), RenderSettings.sun.Slot.Value);
     }
 
     [Fact]
-    public void BaselineAdoptsDriftAndRestoreNeverSkips()
+    public void Tiny_external_changes_win_on_OFF()
     {
-        // 0.1.4 revision of the 0.1.1 contract: "baseline replacement weakens
-        // first-wins" assumed the game does not rewrite these values. Measured
-        // 2026-10-17: it does, continuously — keeping the activation snapshot froze
-        // the sun color and a later restore would drag it back hours. Re-basing on
-        // the game's drift keeps restore at the latest vanilla value. Restore is
-        // still never skipped on external changes.
-        string targets = Source("GoldenHour", "SceneTargets.cs");
-        Assert.Contains("store.Update(key, decision.Baseline);", targets);
-        Assert.DoesNotContain("changed externally", targets);
+        Start();
+        Color foreign = RenderSettings.sun!.Slot.Value with { r = RenderSettings.sun.Slot.Value.r + 0.00001f };
+        RenderSettings.sun.Slot.Value = foreign;
+        RenderSettings.skybox!.Slot.Value = foreign;
+        RenderSettings.Sky.Value = foreign;
+        _module.SetEnabled(false, 1);
+        Assert.Equal(foreign, RenderSettings.sun.Slot.Value);
+        Assert.Equal(foreign, RenderSettings.skybox.Slot.Value);
+        Assert.Equal(foreign, RenderSettings.Sky.Value);
     }
 
     [Fact]
-    public void PerFrameApplyIsTheDefault()
+    public void Scene_exit_restores_borrowed_objects_but_never_the_destination_ambient()
     {
-        // 0.1.4 revision of the 0.1.3 contract: the "does not rewrite continuously"
-        // evidence was wrong (measured 2026-10-17). A once-per-second reapply loses
-        // every frame race and the bias never shows on screen. Per-frame apply is
-        // now the default; the bounded cadence remains configurable for
-        // cost-sensitive setups. DiagnosticStrongTint stays opt-in.
-        string config = Source("GoldenHour", "GoldenHourConfig.cs");
-        Assert.Contains("ApplyEveryLateUpdate { get; set; } = true;", config);
-        Assert.Contains("DiagnosticStrongTint { get; set; } = false;", config);
+        Start();
+        Light oldSun = RenderSettings.sun!;
+        Material oldSky = RenderSettings.skybox!;
+        SceneManager.Active = new Scene(2, "Menu");
+        RenderSettings.sun = new Light();
+        RenderSettings.skybox = new Material();
+        RenderSettings.Sky = new NativeColor();
+        RenderSettings.Equator = new NativeColor();
+        RenderSettings.Ground = new NativeColor();
+        _module.OnSceneWasUnloaded(1, "Main");
+        Frame();
+        Assert.Equal(Native, oldSun.Slot.Value);
+        Assert.Equal(Native, oldSky.Slot.Value);
+        Assert.Equal(0, RenderSettings.Sky.Writes);
+        Assert.Equal(0, RenderSettings.sun.Slot.Writes);
+        Assert.Equal(0, RenderSettings.skybox.Slot.Writes);
+        Assert.True((bool)Status["desiredEnabled"]!);
+        Assert.False((bool)Status["active"]!);
     }
 
     [Fact]
-    public void VolumeWriteRequiresGameInstantiatedProfile()
+    public void Lifecycle_suspends_and_restores_then_reapplies_desired_state_on_new_world()
     {
-        // Review F1: accessing volume.profile instantiates it and would decouple the
-        // game's own per-frame colorFilter writes. Only write when the game already
-        // instantiated the profile itself.
-        string targets = Source("GoldenHour", "SceneTargets.cs");
-        Assert.Contains("HasInstantiatedProfile", targets);
-        Assert.Contains("VolumeProfilePolicy.ShouldUseProfile", targets);
-        // N-a: an uninstantiated volume must not end the search for a later instantiated one.
-        Assert.Contains("sawUninstantiated", targets);
-        // Live evidence 2026-10-16: the volume path is @Managers/@EnvironmentFX/GlobalVolume —
-        // "EnvironmentFX" is NOT a scene root, so filtering roots on that token alone never
-        // matched and the volume key silently stayed unapplied.
-        Assert.Contains("IndexOf(\"Managers\"", targets);
-        // N-1: a found-but-unusable volume must not be reported as a missing one.
-        Assert.Contains("sawVolume", targets);
-        Assert.Contains("no GlobalVolume found", targets);
+        Start();
+        _module.OnSceneWasUnloaded(8, "AdditiveInterior");
+        Assert.True((bool)Status["active"]!);
+        GameLifecycle.PreSceneChange();
+        GameLifecycle.PreLoad();
+        Assert.Equal(Native, RenderSettings.sun!.Slot.Value);
+        Frame();
+        Assert.False((bool)Status["active"]!);
+        Assert.True((bool)Status["desiredEnabled"]!);
+        SceneManager.Active = new Scene(11, "Main");
+        RenderSettings.sun = new Light();
+        GameLifecycle.LoadComplete();
+        Frame();
+        Assert.True((bool)Status["active"]!);
+        Assert.Equal(Biased(Native, GoldenHourTargets.SunLightTint), RenderSettings.sun.Slot.Value);
     }
 
     [Fact]
-    public void ClockWeightScalesStrengthAndDoesNotEnableFog()
+    public void Repeated_initialize_and_shutdown_are_idempotent_and_unsubscribe_exactly()
     {
-        // 0.1.5: a constant warm multiply paints noon gold. The clock weight must
-        // scale the apply, and a strength change must be visible to BaselinePolicy.
-        // Fog stays disabled — enabling it is a visibility change without a measured hook.
-        string mod = Source("GoldenHour", "Mod.cs");
-        Assert.Contains("DaylightPolicy.Weight(minutes)", mod);
-        Assert.Contains("_targets.Apply(_store, strength, diagnostic, _log, _lastAppliedStrength);", mod);
-        Assert.DoesNotContain("RenderSettings.fog = true", mod);
+        Start();
+        _module.OnInitializeMelon();
+        Assert.Equal(3, GameLifecycle.Subscribers);
+        _module.OnDeinitializeMelon();
+        int writes = RenderSettings.sun!.Slot.Writes;
+        _module.OnDeinitializeMelon();
+        _module.SetEnabled(true, 1);
+        GameLifecycle.LoadComplete();
+        Frame();
+        Assert.Equal(writes, RenderSettings.sun.Slot.Writes);
+        Assert.Equal(Native, RenderSettings.sun.Slot.Value);
+        Assert.Equal(0, GameLifecycle.Subscribers);
+    }
 
-        string targets = Source("GoldenHour", "SceneTargets.cs");
-        Assert.Contains("BaselinePolicy.Evaluate(original, current.Value, tint, strength, previousStrength);", targets);
-        Assert.DoesNotContain("RenderSettings.fog = true", targets);
+    [Fact]
+    public void Ambient_is_only_written_in_Trilight_and_waits_for_mode_to_return_on_restore()
+    {
+        RenderSettings.ambientMode = AmbientMode.Skybox;
+        Start();
+        Assert.Equal(0, RenderSettings.Sky.Writes);
+        RenderSettings.ambientMode = AmbientMode.Trilight;
+        Frame();
+        Assert.Equal(1, RenderSettings.Sky.Writes);
+        RenderSettings.ambientMode = AmbientMode.Flat;
+        _module.SetEnabled(false, 1);
+        for (int second = 1; second <= 10; second++)
+        {
+            Time.unscaledTime = second;
+            _module.OnUpdate();
+        }
+        Assert.Equal(1, RenderSettings.Sky.Writes);
+        Assert.Equal(3, Status["pendingRestores"]);
+        RenderSettings.ambientMode = AmbientMode.Trilight;
+        Time.unscaledTime = 12;
+        _module.OnUpdate();
+        Assert.Equal(Native, RenderSettings.Sky.Value);
+        Assert.Equal(0, Status["pendingRestores"]);
+    }
+
+    [Fact]
+    public void Missing_optional_sunshine_property_does_not_disable_other_channels()
+    {
+        RenderSettings.skybox!.HasSunShine = false;
+        Start();
+        Assert.Equal(0, RenderSettings.skybox.Slot.Writes);
+        Assert.Equal(4, Status["readableChannels"]);
+        Assert.Equal(Biased(Native, GoldenHourTargets.SunLightTint), RenderSettings.sun!.Slot.Value);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Partial_setter_failure_restores_only_its_lane_and_does_not_retry_every_frame(bool after)
+    {
+        RenderSettings.sun!.Slot.ThrowAfterWrites = after ? 1 : 0;
+        RenderSettings.sun.Slot.ThrowBeforeWrite = !after;
+        Start();
+        Frame();
+        Assert.Equal(Native, RenderSettings.sun.Slot.Value);
+        int sunWrites = RenderSettings.sun.Slot.Writes;
+        for (int frame = 0; frame < 100; frame++) Frame();
+        Assert.Equal(sunWrites, RenderSettings.sun.Slot.Writes);
+        Assert.Equal(Biased(Native, GoldenHourTargets.SkySunGlowTint), RenderSettings.skybox!.Slot.Value);
+        Assert.True((int)Status["errors"]! > 0);
+        Assert.Equal(0, Status["pendingRestores"]);
+        RenderSettings.sun.Slot.ThrowBeforeWrite = false;
+        _module.SetEnabled(false, 1);
+        _module.SetEnabled(true, 1);
+        Frame();
+        Assert.Equal(Biased(Native, GoldenHourTargets.SunLightTint), RenderSettings.sun.Slot.Value);
+    }
+
+    [Fact]
+    public void Unresolved_restore_blocks_reactivation_until_native_drift_releases_it()
+    {
+        Start();
+        Light sun = RenderSettings.sun!;
+        sun.Slot.IgnoreWrite = true;
+        _module.SetEnabled(false, 1);
+        _module.SetEnabled(true, 1);
+        for (int second = 1; second <= 10; second++)
+        {
+            Time.unscaledTime = second;
+            Frame();
+        }
+        Assert.Equal(4, sun.Slot.Writes); // first apply + three restore attempts
+        Assert.Equal(1, Status["pendingRestores"]);
+        sun.Slot.IgnoreWrite = false;
+        sun.Slot.Value = Native;
+        Time.unscaledTime = 12;
+        Frame();
+        Assert.Equal(0, Status["pendingRestores"]);
+        Assert.Equal(Biased(Native, GoldenHourTargets.SunLightTint), sun.Slot.Value);
+    }
+
+    [Fact]
+    public void Diagnostics_are_cached_and_do_not_touch_native_resources()
+    {
+        Start(0.75);
+        int sunReads = RenderSettings.sun!.Slot.Reads;
+        int skyReads = RenderSettings.skybox!.Slot.Reads;
+        int ambientReads = RenderSettings.Sky.Reads;
+        for (int read = 0; read < 100; read++)
+        {
+            Assert.Equal(0.75, Status["appliedStrength"]);
+            Assert.Equal(1800, Status["timeHhmm"]);
+            Assert.Equal(1080, Status["minutesSinceMidnight"]);
+        }
+        Assert.Equal(sunReads, RenderSettings.sun.Slot.Reads);
+        Assert.Equal(skyReads, RenderSettings.skybox.Slot.Reads);
+        Assert.Equal(ambientReads, RenderSettings.Sky.Reads);
     }
 }

@@ -1,171 +1,68 @@
-# Third-Party Mod Triage — decompile, map, compatibility-check
+# Third-Party Mod Triage and Compatibility Comparison
 
 > UNVERIFIED against the installed runtime. Static method note: it records the order of work that
 > proved reliable, not runtime behaviour. Proven on two downloaded mods inspected 2026-10-19 (see
 > `third-party-mod-patterns.md` for the findings). Re-verify every identifier against the current
 > game before relying on it.
 
-## When to use
+> Evidence scope: adapted from inherited October 2026 static-review notes. The cited
+> foreign binaries are not bundled, and no current installation or gameplay was tested.
 
-- A downloaded mod must be assessed before it is copied into `Mods\`.
-- A third-party mod must be compared with one of ours for patch overlap.
-- A mod's behaviour must be explained from the binary alone (no install, no game session).
+## Scope
 
-## 0. Triage order
+Use this reference to compare a third-party mod with a workspace mod or understand a supplied
+archive without installing it. Use the [reversing runbook](../../schedule1-mod-reversing/references/reversing-runbook.md)
+for package handling, artifact identity, and decompilation; it is the single procedural source.
 
-Do these in sequence. The point of the order is that steps 1–4 are cheap and often answer the
-question, while step 5 is expensive and usually unnecessary.
+## Triage order
 
-1. **Inventory the package** — what ships besides the DLL (models, textures, extra DLLs)?
-2. **Copy to an ASCII scratch path** — native tools cannot read odd filenames or `/tmp`.
-3. **Identify the assembly** — mod name, author, declared version, target framework.
-4. **Structural sweep** — types, Harmony targets, settings, item IDs, user-facing strings.
-5. **Targeted body reads** — only the classes the sweep says matter.
-6. **Risk scan** — network, process, registry, file IO, P/Invoke.
-7. **Compatibility check** — compare patch surface and relevance gates with our mods.
+1. Inventory the package and dependencies.
+2. Identify assembly/loader metadata and backend expectations.
+3. Map entry points, domain rules, persistence, and patch targets.
+4. Read targeted implementation bodies and failure paths.
+5. Inspect file/network/native effects and unresolved decompilation warnings.
+6. Compare exact API anchors and relevance gates with local mods.
 
-## 1. Package inventory
+Names, UI strings, and type counts narrow the reading scope; they do not replace the body
+when explaining mechanics. Keep raw decompiler warnings visible even if a second reading
+copy removes annotation noise.
 
-List the archive before extracting, and note the target folder of every entry. A mod that ships
-models or textures into `Mods\<Mod>\` behaves differently from a single-DLL mod: the DLL alone is
-not a complete install.
+## Compatibility comparison
 
-```bash
-python -c "
-import zipfile, sys
-z = zipfile.ZipFile(sys.argv[1])
-for i in z.infolist(): print(f'{i.file_size:>10}  {i.filename}')
-" 'C:/path/to/Mod.zip'
-```
+| Question | Evidence to collect |
+|---|---|
+| Do both mods reach the same original? | Declaring type plus exact signature and backend |
+| Do they affect the same instances? | Item IDs, ownership, feature flags, tags, and clone behavior |
+| Does either skip/replace original behavior? | Prefix return path, result changes, and priorities |
+| Do they share mutable state? | Fields, registries, property blocks, input, time scale, resource ownership |
+| Can failure leave state changed? | Snapshot, restoration, teardown, and exception paths |
+| Is the behavior role dependent? | Host/client gates, request validation, replication ownership |
+| Is initialization repeatable? | Duplicate registration, scene reload, late join, and cleanup |
 
-Watch for three things: a `UserLibs\` entry (a reference assembly, see §7), GLB/asset folders that
-the code loads at runtime by path, and any second DLL that is itself a mod.
+Write a concrete test scenario for each credible collision. An overlapping class name is
+only a candidate; a read-only consumer can still cause cost or lifecycle problems, and an
+additive patch can still change an invariant.
 
-## 2. Scratch path and decompile
+## External-effect review
 
-Native tools (ilspycmd, git, node) do not resolve MSYS paths and cannot read a bare `/tmp`. Copy
-the DLL to an explicit Windows scratch path first, and strip non-ASCII characters from the name:
+Inspect HTTP/socket destinations, process launches, registry access, writes/deletes, native
+imports, and their data/validation/error paths. Explain the observed effect and scope.
+Pattern scanning cannot prove absence of hidden effects. P/Invoke into a familiar system
+DLL is not automatically benign; a user-provided URL still needs bounded input and timeouts.
 
-```bash
-SCRATCH="/c/Users/<user>/AppData/Local/hermes/cache/scratch/<mod>"
-mkdir -p "$SCRATCH" && cp "$HOME/Downloads/<Mod>.dll" "$SCRATCH/Mod.dll"
-export DOTNET_ROOT="C:/Users/<user>/.dotnet"
-export PATH="C:/Users/<user>/.dotnet:C:/Users/<user>/.dotnet/tools:$PATH"
-ilspycmd "$SCRATCH/Mod.dll" -o "$SCRATCH/decomp" --nested-directories
-```
+## Package-specific pitfalls
 
-`--nested-directories` gives one file per type. For large mods ILSpy may still emit a single flat
-file — both shapes are fine for the sweep, but check the file count before assuming a layout.
+- Preserve `UserLibs` and asset-directory requirements when describing installation;
+  do not install as a side effect of analysis.
+- Inspect embedded resources and disk fallback paths before declaring a package incomplete.
+- Resolve shell/native paths based on the actual environment, not a fixed Windows username.
+- Report assembly metadata, loader-declared version, and file version separately when different.
+- Identify a deployed artifact before claiming it is installed; identify a loaded module
+  before claiming it is running.
 
-## 3. Cheap structural sweep
+## Reporting
 
-Never read a large decompiled file top to bottom. A 60k-line assembly will flood any context. Use
-Python to pull the structure out and print only the summary:
-
-```python
-import re
-src = open(F, encoding='utf-8-sig').read()
-lines = src.split('\n')
-
-# assembly identity
-[l for l in lines[:200] if '[assembly:' in l or l.startswith('using ')]
-
-# type inventory with line numbers
-decl = re.compile(r'^\s*(?:\[[^\]]*\]\s*)?(?:public|internal|private|protected|static|sealed|abstract|partial|\s)*\b(class|struct|enum|interface)\s+([A-Za-z_][\w]*)')
-[(i+1, m.group(2)) for i, l in enumerate(lines) if (m := decl.match(l)) and 'namespace' not in l]
-
-# patch surface
-[(i+1, l.strip()) for i, l in enumerate(lines) if 'HarmonyPatch(' in l]
-
-# settings surface
-[(i+1, l.strip()) for i, l in enumerate(lines) if 'CreateEntry<' in l or 'CreateCategory' in l]
-
-# user-facing strings (messages, instructions, item names)
-sorted(set(re.findall(r'"([^"]{18,170})"', src)))
-```
-
-The user-facing strings are the highest-value output of the whole sweep: they usually state the
-mod's actual rules (prices, durations, quality tiers, unlock requirements) more precisely than the
-code does.
-
-For readability, write a second copy with the IL annotations stripped — they are typically 20–25%
-of the lines and carry no meaning for a behavioural read:
-
-```bash
-grep -v '^\s*//IL_' decomp/Mod.decompiled.cs > decomp/Mod.clean.cs
-```
-
-## 4. Targeted body reads
-
-Read bodies only for the classes the sweep flagged. Useful per-class summaries:
-
-- method signatures + line numbers, to find the entry points,
-- `new GameObject("…")` / `Child(…, "…")` names, for a built-object inventory,
-- `Kit.`-style helper calls, for a construction vocabulary,
-- `ModelRoot.Load(…)` / asset loads, for external file dependencies,
-- `switch`/dictionary literals, for id → behaviour tables.
-
-## 5. Risk scan
-
-Before recommending an install, scan for the categories that matter:
-
-```python
-pats = {
- 'network': r'HttpClient|WebClient|WebRequest|Socket|TcpClient|UnityWebRequest|DownloadString',
- 'process': r'Process\.Start|ProcessStartInfo|cmd\.exe|powershell',
- 'registry': r'Microsoft\.Win32\.Registry|RegistryKey',
- 'file-write': r'File\.WriteAll|StreamWriter|File\.Delete|File\.Move|Directory\.Delete',
- 'native': r'DllImport|GetProcAddress',
-}
-```
-
-Report the hits and where the files go. `DllImport` on `user32`/`kernel32` is usually clipboard or
-window handling, not a red flag; a file write into `UserData\` is normal mod behaviour. Say plainly
-that the scan is pattern-based and does not prove the absence of anything.
-
-## 6. Compatibility check against our mods
-
-The decisive question is not "does it patch the same class" but **"does it patch it for the same
-instances"**. Work through this:
-
-1. **Patch surface overlap.** Compare the third-party `HarmonyPatch` targets with our mods' targets.
-2. **Relevance gates.** Many well-built mods patch a vanilla class but return early unless the
-   object is theirs — an item-id check in a slot, an ownership flag, a feature-unlock flag. A gate
-   is what decides whether the overlap is real. Read the gate, not the patch attribute.
-3. **Which side is additive.** A mod that only *reads* or *calls* vanilla APIs (an engine consumer)
-   is far less likely to collide than one that *replaces* UI or state logic with prefixes.
-4. **Cloned objects.** If our mod clones a vanilla prefab, the third-party patch will match the
-   clone too, because patches bind by type. Whether that matters is decided by the gate in step 2.
-5. **Write the conflict as a concrete scenario** ("if X lands in slot Y while Z is unlocked, then
-   …") instead of a general warning. A scenario can be tested; a warning cannot.
-
-## 7. Pitfalls that cost time
-
-- **`$TMPDIR` can resolve to `/tmp`** on this host. Bash builtins and redirection work there, but a
-  native tool told to open `/tmp/…` fails with "does not exist" even though `ls` shows the file.
-  Always stage for native tools under an explicit Windows path.
-- **Non-ASCII filenames** (`✽ Mod.dll`, spaces, emoji) break tool invocations. Copy to an ASCII
-  name first; do not try to quote your way through it.
-- **`ilspycmd` needs `DOTNET_ROOT`/`PATH`** set to the user-local SDK in agent shells, otherwise it
-  reports no SDK.
-- **`ilspycmd -l c,i,s,d,e`** produced no type list in the pinned version — decompile and use the
-  regex sweep instead.
-- **`MelonInfo` is the identity**, not the file name: it carries the real mod name, author and
-  declared version.
-- **A reference library belongs in `UserLibs\`, not `Mods\`.** A non-mod DLL in `Mods\` gets
-  scanned as a mod and produces loader errors. Check the archive for a `UserLibs\` entry and make
-  sure it lands there.
-- **Embedded resources vs. disk paths.** A mod may look for `Textures\Foo.png` on disk while also
-  shipping the same image as an embedded resource with a file fallback. Check both before
-  declaring an archive incomplete.
-- **Decompiled bodies can be incomplete.** ILSpy emits unresolved-IL annotations when interop
-  metadata is missing; a class name is not proof that a feature runs. Keep source-level findings
-  and runtime verification strictly apart, and never copy third-party code or constants.
-
-## 8. Reporting the result
-
-Close with three separate statements, never mixed:
-
-1. **What was inspected** — artefact, date, method (static decompile).
-2. **What the code says** — with line references.
-3. **What remains unverified** — runtime behaviour, multiplayer, save effects, in-game look.
+Return what was inspected, what the relevant bodies establish, static compatibility findings,
+concrete risk scenarios, and what requires a controlled game session.
+Keep new code or third-party modifications out of a read-only analysis unless requested.
+See [pattern notes](third-party-mod-patterns.md) for inherited design ideas to verify anew.

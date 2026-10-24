@@ -1,0 +1,75 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>WorldLook</AssemblyName>
+    <RootNamespace>WorldLook</RootNamespace>
+    <Version>0.2.0</Version>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+    <Deterministic>true</Deterministic>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <RestoreConfigFile>$(MSBuildThisFileDirectory)build\NuGet.Config</RestoreConfigFile>
+    <GameDir Condition="'$(GameDir)' == ''">$(SCHEDULE_I_GAME_DIR)</GameDir>
+    <Il2CppAssemblies Condition="'$(Il2CppAssemblies)' == ''">$(GameDir)\MelonLoader\Il2CppAssemblies</Il2CppAssemblies>
+    <MelonLoaderAssemblies Condition="'$(MelonLoaderAssemblies)' == ''">$(GameDir)\MelonLoader\net6</MelonLoaderAssemblies>
+    <S1ApiPath Condition="'$(S1ApiPath)' == ''">$(GameDir)\Mods\S1API.Il2Cpp.MelonLoader.dll</S1ApiPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Include only the mod: Unity editor scripts are a separate compilation. -->
+    <Compile Include="src\**\*.cs" />
+    <EmbeddedResource Include="assets\worldlook-shaders.bundle"
+                      LogicalName="WorldLook.Shaders.bundle"
+                      Condition="Exists('assets\worldlook-shaders.bundle')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Interop assemblies are read from the user's game and never redistributed. -->
+    <Reference Include="$(Il2CppAssemblies)\*.dll"
+               Exclude="$(Il2CppAssemblies)\Il2Cppmscorlib.dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2Cppmscorlib">
+      <HintPath>$(Il2CppAssemblies)\Il2Cppmscorlib.dll</HintPath>
+      <Aliases>global,il2cpp</Aliases>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="MelonLoader">
+      <HintPath>$(MelonLoaderAssemblies)\MelonLoader.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Runtime">
+      <HintPath>$(MelonLoaderAssemblies)\Il2CppInterop.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Il2CppInterop.Common" Condition="Exists('$(MelonLoaderAssemblies)\Il2CppInterop.Common.dll')">
+      <HintPath>$(MelonLoaderAssemblies)\Il2CppInterop.Common.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony" Condition="Exists('$(MelonLoaderAssemblies)\0Harmony.dll')">
+      <HintPath>$(MelonLoaderAssemblies)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="S1API.Il2Cpp.MelonLoader">
+      <HintPath>$(S1ApiPath)</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="CheckWorldLookInputs" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="'$(GameDir)' == ''" Text="GameDir is missing. Use build\Build.ps1 -GamePath &quot;PATH TO SCHEDULE I&quot;." />
+    <Error Condition="!Exists('$(Il2CppAssemblies)\Assembly-CSharp.dll')" Text="Missing game interop assemblies. Start the IL2CPP game with MelonLoader once, then use its installation as GameDir." />
+    <Error Condition="!Exists('$(Il2CppAssemblies)\Il2Cppmscorlib.dll')" Text="Il2Cppmscorlib.dll is missing from the game's MelonLoader\Il2CppAssemblies directory." />
+    <Error Condition="!Exists('$(Il2CppAssemblies)\Il2CppScheduleOne.Core.dll')" Text="Il2CppScheduleOne.Core.dll is required for the current native sky-state types." />
+    <Error Condition="!Exists('$(Il2CppAssemblies)\Unity.RenderPipelines.Core.Runtime.dll') Or !Exists('$(Il2CppAssemblies)\Unity.RenderPipelines.Universal.Runtime.dll')" Text="The installed game is missing the required URP interop assemblies." />
+    <Error Condition="!Exists('$(MelonLoaderAssemblies)\MelonLoader.dll') Or !Exists('$(MelonLoaderAssemblies)\Il2CppInterop.Runtime.dll')" Text="MelonLoader .NET 6 assemblies are missing. Verify the MelonLoader installation or pass MelonLoaderAssemblies explicitly." />
+    <Error Condition="!Exists('$(S1ApiPath)')" Text="S1 API 3.2.1 is missing: $(S1ApiPath)." />
+    <Error Condition="!Exists('assets\worldlook-shaders.bundle') Or !Exists('assets\shader-build.json')" Text="Build the shader bundle first with build\Build.ps1. A new bundle and shader-build.json are required." />
+    <!-- Build.ps1 checks the evidenced S1 API FileVersion 3.2.1.0 and assembly
+         name. AssemblyVersion is recorded only: it need not equal FileVersion. -->
+  </Target>
+</Project>

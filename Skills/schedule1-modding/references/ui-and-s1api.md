@@ -1,84 +1,37 @@
-# S1API & Responsive UI Frameworks Guide
+# UI integration and framework choice
 
 > verified: S1API section checked against 2026-10-05 (icon policy + clamp curves); Method 3 section since 2026-08-20.
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 27 of 27 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
----
+## Before implementation
 
-## 1. S1APIArchitecture
+Confirm whether the feature belongs in a PhoneApp, HUD, world-space UI or existing native screen. Inspect the matching current base class and project UI helpers; do not infer override accessibility or registration APIs from an old skeleton.
 
-S1API provides high-level abstractions for Schedule I:
-* **Phone Applications**: `PhoneApp`, `PhoneAppRegistry`
-* **UI Components**: `UIFactory`, `TopBar`, `ScrollableVerticalList`
-* **Game Services**: `Money`, `Property`, `Growing`, `Dialogue`, `Console / BaseConsoleCommand`
+Use [PhoneApp](../../schedule1-phoneapp/SKILL.md) for lifecycle, input and layout. Use [S1API](../../schedule1-s1api/SKILL.md) to locate the actual public interface.
 
-### Creating a Phone App via S1API:
-```csharp
-using S1API.PhoneApp;
-using S1API.UI;
+## Presentation contract
 
-public sealed class MyPhoneApp : PhoneApp
-{
-    protected override string AppName => "my_phone_app";
-    protected override string AppTitle => "My App";
-    protected override string IconLabel => "My";
-    // Ship icon.png in the mod's assets/ folder (Directory.Build.targets must copy it — see phoneapp checklist).
-    protected override string IconFileName => "icon.png";
-    // No icon file? Override `IconSprite` to return a Sprite directly instead
-    // (PotScanner fix — avoids the "Icon file not found" log at runtime).
+- Keep domain state independent from concrete UI objects.
+- Reconcile added, changed and removed rows, not only visible additions.
+- Rebuild event bindings for the actual control instance and dispose final subscriptions owned by that instance.
+- Distinguish close/hide from destruction. Reopen must remain functional.
+- Acquire and release typing/focus through a shared owner-aware coordinator.
+- Preserve selection and scroll position by stable domain identity when still valid.
 
-    protected override void OnCreatedUI(GameObject container)
-    {
-        S1Mods.Shared.UITheme.InitializeForTextApp(container.GetComponent<RectTransform>());
-        // build UI ...
-    }
-}
-```
+## Scaling
 
-> ⚠ **Lifecycle (2026-08-20):** `OnCreated` fires ONCE per scene. NEVER `Unsubscribe(MelonEvents.OnUpdate)` in `OnPhoneClosed` — app goes blank after 1st close. See `schedule1-phoneapp` Rule 10.
+Reuse the actual Shared UITheme where present. The uploaded collection described text and dashboard profiles with different scaling curves; inspect their current implementation rather than copying constants into every mod. Define which rect is measured and when layout has settled.
 
-> ⚠ **Slot-Isolation (2026-08-21):** PhoneApps saving to `UserData/<Mod>/state.json` (global) leak Slot-A state into Slot-B. Use `LoadManager.Instance.ActiveSaveInfo.SaveSlotNumber` → `slot_{n}.json` + `TryMigrateLegacy` (see `CalculatorState.cs:65-93`).
+Validate narrow phone content, long text, supported resolutions, user scale and repeated rebuild. A clamp alone does not prevent overflow or guarantee legibility.
 
----
+## Assets
 
-## 2. Method 3 Responsive UI & Scaling Engine
+Confirm how icons/resources are resolved and deployed by the current framework and project. Give runtime-generated sprites/textures explicit ownership and cleanup. A missing icon should produce a bounded diagnostic and a supported fallback, not repeated allocation.
 
-Schedule I phone screens and HUD overlays must scale gracefully across diverse screen resolutions (1080p, 1440p, 4K, ultrawide).
+## Commands
 
-### The Dynamic Scaling Formula (single source of truth: `S1Mods.Shared.UITheme`):
-```csharp
-using S1Mods.Shared;
+If a diagnostic console command is needed, inspect the actual S1API BaseConsoleCommand definition and working project examples. Do not invent registration attributes, method names or parameter types. Keep read-only status separate from state-changing commands and report actual readback.
 
-// Text-heavy app:      S1Mods.Shared.UITheme.InitializeForTextApp(containerRt);   // 750f, 0.85–2.0
-// Dense dashboard:     S1Mods.Shared.UITheme.InitializeForDashboard(containerRt); // 900f, 0.75–1.20
+## Acceptance
 
-float dp = S1Mods.Shared.UITheme.Dp(36f);   // heights, paddings, margins
-int   sp = S1Mods.Shared.UITheme.Sp(14);    // fonts
-```
-
-* **Buttons & Row Heights**: Use `Dp(...)` for heights, paddings, margins.
-* **Text / Fonts**: Use `Sp(...)` for `TMP_Text.fontSize`.
-* **Clamping**: the TextApp curve clamps `0.85–2.0` (RefHeight 750f), the Dashboard curve `0.75–1.20` (RefHeight 900f) — prevents giant UI on 4K while keeping small screens readable (curves: `schedule1-phoneapp/references/responsive-ui-theme.md`).
-* **Do NOT** re-implement the math in a local `UITheme` class — delegate to `S1Mods.Shared.UITheme` (wrappers may add palettes only).
-
----
-
-## 3. In-Game Console Commands (S1API)
-
-Inherit from S1API `BaseConsoleCommand` to auto-register a command. Check the current definition in `ThirdParty/S1API/S1API/Console/BaseConsoleCommand.cs`; it requires properties and `ExecuteCommand(List<string>)`, not an invented registration attribute or `Execute(string[])`. Opening the developer console still depends on the game settings/key binding.
-```csharp
-using System.Collections.Generic;
-using S1API.Console;
-
-public sealed class MyModCommand : BaseConsoleCommand
-{
-    public override string CommandWord => "mymod";
-    public override string CommandDescription => "Control MyMod settings";
-    public override string ExampleUsage => "mymod status";
-
-    public override void ExecuteCommand(List<string> args)
-    {
-        // Handle and validate the command arguments here.
-    }
-}
-```
+Verify create, first open, close/reopen, rebuild, scene transition, input focus, removed data and final teardown. Report compile and gameplay checks separately.

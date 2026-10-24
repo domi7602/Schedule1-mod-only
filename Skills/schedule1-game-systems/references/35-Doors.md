@@ -1,5 +1,8 @@
 # Doors (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 103 of 103 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 ## Core Classes (`ScheduleOne.Doors`)
 
@@ -31,7 +34,7 @@ Each door type is an independent `MonoBehaviour` — they do **not** inherit fro
 
 Also related (not in `ScheduleOne.Doors`): `Map.DarkMarketMainDoor`, `ObjectScripts.LabOvenDoor`, `Storage.StorageDoorAnimation`.
 
-## DoorController (verified API)
+## DoorController (previously reported API)
 - Config fields: `PlayerAccess` (EDoorAccess), `AutoOpenForPlayer`, `OpenableByNPCs`, `AutoCloseOnSleep`, `AutoCloseOnDistantPlayer` (+ static `DISTANT_PLAYER_THRESHOLD`), `ReturnToOriginalTime`, `PlayerBlocker` (BoxCollider), `InteriorIntObjs` / `ExteriorIntObjs` (`InteractableObject[]` — the actual interact handles), `InteriorDoorHandleAnimation` / `ExteriorDoorHandleAnimation`, `noAccessErrorMessage`
 - Runtime state: `IsOpen` (virtual property), `lastOpenSide`, `openedByNPC`, `detectedNPCCount`, `detectedPlayerCount`, `timeSincePlayerSensed`, `timeInCurrentState`
 - Access logic: `CanPlayerAccess(EDoorSide)` (non-virtual bool) and `virtual CanPlayerAccess(EDoorSide, out string reason)`
@@ -47,7 +50,7 @@ Also related (not in `ScheduleOne.Doors`): `Map.DarkMarketMainDoor`, `ObjectScri
 ## Save Participation
 - No `ISaveable` / `SaveData` in `ScheduleOne.Doors` (grep verified). Door open state is transient runtime state (with `AutoCloseOnSleep` cleanup); **not** persisted in the save file.
 
-## Hook Points (Harmony)
+## Candidate Hook Points (Harmony)
 1. `DoorController.CanPlayerAccess(EDoorSide side, out string reason)` (virtual) — prefix to bypass/lock access per side (locks, keycards, bounty-based doors).
 2. `DoorController.SetIsOpen(bool, EDoorSide)` (virtual, runs on every client after RPC) — postfix for open/close reactions (lighting, sound, counters). Patch this instead of the RPC plumbing.
 3. `StaticDoor.Interacted()` / `Knock()` (virtual) — custom NPC summons / knock-based triggers.

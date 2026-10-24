@@ -49,6 +49,27 @@ internal sealed class OwnedSurface
     public bool LastOn;
 
     /// <summary>
+    /// The <c>MaterialIndex</c> resolved for the last processed frame. LC05: the native on/off swap
+    /// can move the emitting slot, so a converged cache that ignored the slot would keep writing the
+    /// old one until something else changed.
+    /// </summary>
+    public int LastSlot = -1;
+
+    /// <summary>
+    /// Monotonic time of the next budgeted re-read of this slot and its native emission. A converged
+    /// surface is skipped only until this deadline, so an external material change is still noticed
+    /// within about a second instead of never (LC05).
+    /// </summary>
+    public double NextRefreshAt;
+
+    /// <summary>
+    /// True while a readable foreign material occupies the target slot. Tracked so the conflict count
+    /// is a counter update instead of a rescan, and so an unreadable slot is never reported as a
+    /// visible conflict.
+    /// </summary>
+    public bool Foreign;
+
+    /// <summary>
     /// The resolved instruction of the last processed frame (record value equality).
     /// </summary>
     public VisualInstruction? LastInstruction;
@@ -67,6 +88,8 @@ internal sealed class OwnedSurface
 /// </summary>
 internal sealed class OwnedLightSource
 {
+    /// <summary>Captured before our first write; reserves this native identity until hand-back completes.</summary>
+    public long NativePointer;
     /// <summary>The lamp's own native light, or a dead wrapper once the fixture is gone.</summary>
     public Light? Handle;
 
@@ -91,6 +114,7 @@ internal sealed class OwnedLamp
     public ToggleableLight? Toggle;
     /// <summary>Phone-app noun: "Grow lamp" or "Grow tent".</summary>
     public string Kind = "Grow lamp";
+    public int DisplayNumber;
     public string? PropertyCode;
     public int Generation;
     public bool Available;
@@ -105,6 +129,16 @@ internal sealed class OwnedLamp
 
     /// <summary>Monotonic time of the last emitted apply breadcrumb (rate limit, never per frame).</summary>
     public double LastApplyLogAt = -1;
+
+    /// <summary>
+    /// The exact instruction the last emitted apply breadcrumb was built for. LC11: an unchanged frame
+    /// must not pay for the native colour/intensity read-back and the string formatting behind that
+    /// line, so this cheap comparison runs first.
+    /// </summary>
+    public VisualInstruction? LastLoggedInstruction;
+
+    /// <summary>The surface slot reported by the last emitted apply breadcrumb.</summary>
+    public int LastLoggedSlot = -1;
 
     /// <summary>The lamp's own emitting LED panel slots (coupled output 1).</summary>
     public List<OwnedSurface> Surfaces { get; } = new();
@@ -213,6 +247,8 @@ internal static class LightRuntime
     private static readonly Dictionary<string, OwnedLamp> Lamps = new(StringComparer.Ordinal);
     /// <summary>Lamps that are currently available and controllable (the phone app's list).</summary>
     private static readonly List<OwnedLamp> Order = new();
+    private static readonly Queue<OwnedLamp> KnownReconcileQueue = new();
+    private static int _nextDisplayNumber;
     private static readonly ScanCadence Reconcile = new(ReconcileIntervalSeconds);
     private static readonly SceneScanBudget ScanBudget = new(ScanNodesPerFrame, ScanMillisecondsPerFrame, ScanNodeCap);
     private static readonly Queue<Transform> ScanQueue = new();
@@ -249,6 +285,28 @@ internal static class LightRuntime
     private static double _nextPendingRelease;
 
     /// <summary>
+    /// Native light sources whose hand-back could not be confirmed (the wrapper was not alive, the
+    /// getter threw or the setter threw). LC01: a rebind or teardown clears <see cref="Lamps"/>, so
+    /// ownership recorded only on the lamp record would be lost and the lamp would stay tinted. The
+    /// entries live here, survive teardown, and are retried once per second even while no session is
+    /// ready. A source that is provably destroyed is released instead of being retained forever.
+    /// </summary>
+    private static readonly List<OwnedLightSource> PendingLightRestores = new();
+    private static double _nextPendingLightRestore;
+    /// <summary>Soft admission limit; already-owned outputs are retained even above it.</summary>
+    private const int PendingLightRestoreCap = 256;
+
+    /// <summary>The name suffix that marks a material as our own clone, never a native one.</summary>
+    internal const string CloneNameSuffix = " (LightControl)";
+
+    /// <summary>
+    /// LC05: a converged surface still re-reads its slot and the native emission at this cadence, so an
+    /// external material change is noticed within about a second while the per-frame path stays
+    /// allocation-free. The per-lamp stagger spreads those re-reads over the interval.
+    /// </summary>
+    private const double SurfaceRefreshSeconds = 1;
+
+    /// <summary>
     /// Grow lamps whose coupled outputs are not both resolvable yet. Retried at a bounded cadence from
     /// <see cref="UpdatePhase"/>; an entry is never used to enable, switch on or otherwise force a lamp.
     /// </summary>
@@ -261,6 +319,19 @@ internal static class LightRuntime
     /// pretends to control both outputs when only the panel is available.
     /// </summary>
     public static int UnsupportedLampCount { get; private set; }
+
+    /// <summary>
+    /// Number of owned surface slots currently holding a readable foreign material we must not
+    /// override, so the UI can state that a lamp is visibly conflicted instead of showing a colour the
+    /// panel does not have. Maintained as a counter, never rescanned.
+    /// </summary>
+    public static int MaterialConflictCount { get; private set; }
+
+    /// <summary>Surface clones still awaiting a proven release (reported, never force-destroyed).</summary>
+    public static int RetainedSurfaceCount => PendingReleases.Count;
+
+    /// <summary>Native light hand-backs still awaiting confirmation (also retried after teardown).</summary>
+    public static int PendingLightRestoreCount => PendingLightRestores.Count;
 
     /// <summary>True while a host session exists and the coupled lamp outputs are being driven.</summary>
     public static bool Ready { get; private set; }
@@ -282,6 +353,12 @@ internal static class LightRuntime
     public static long CatalogRevision => Ready && _store != null ? _store.CatalogRevision : 0;
 
     public static long SavedRevision => _savedRevision;
+
+    public static bool IsKnownLamp(string key) => Ready && Lamps.ContainsKey(key);
+
+    public static bool ScanInProgress => Ready && _scanActive;
+
+    public static bool ScanTruncated => Ready && _scanTruncated;
 
     public static bool LastSaveFailed { get; private set; }
 
@@ -368,7 +445,8 @@ internal static class LightRuntime
     /// </summary>
     public static void Teardown()
     {
-        Persist();
+        try { Persist(); }
+        catch (Exception ex) { Log.Warn("Final lamp save failed; native cleanup continues", ex); }
         foreach (var lamp in Lamps.Values)
         {
             foreach (var surface in lamp.Surfaces)
@@ -378,8 +456,13 @@ internal static class LightRuntime
         }
         if (PendingReleases.Count > 0)
             Log.Warn($"{PendingReleases.Count} grow-lamp LED surface clone(s) could not be proven unreferenced; their release is retained and retried once per second, and they are never destroyed while a renderer may still reference them.");
+        // Retained cleanup is a separate cross-session status, not a current material conflict.
+        foreach (var surface in PendingReleases) surface.Foreign = false;
+        MaterialConflictCount = 0;
         Order.Clear();
         Lamps.Clear();
+        KnownReconcileQueue.Clear();
+        _nextDisplayNumber = 0;
         PendingCoupling.Clear();
         _nextPendingCoupling = 0;
         UnsupportedLampCount = 0;
@@ -443,11 +526,15 @@ internal static class LightRuntime
         // A deferred clone release is retried even while no session is ready, so a teardown that could
         // not prove a clone unreferenced is still completed once the renderer allows it.
         RetryPendingReleases();
+        // The same applies to a native light whose hand-back could not be confirmed, including one
+        // retained across a teardown (LC01).
+        RetryPendingLightRestores();
         if (!Ready) return;
 
         UndoLights();
         ScanStep();
         RetryPendingCoupling();
+        if (KnownReconcileQueue.Count > 0) ReconcileLamps();
 
         double now = Now;
         if (Reconcile.ShouldScan(now))
@@ -469,16 +556,20 @@ internal static class LightRuntime
     private static void ReconcileLamps()
     {
         if (_store is null) return;
-        for (int index = Order.Count - 1; index >= 0; index--)
+        // Snapshot on cadence; drain at most 32 known fixtures per update, including inactive ones.
+        if (KnownReconcileQueue.Count == 0)
+            foreach (var known in Lamps.Values) KnownReconcileQueue.Enqueue(known);
+        for (int processed = 0; processed < 32 && KnownReconcileQueue.Count > 0; processed++)
         {
-            var lamp = Order[index];
+            var lamp = KnownReconcileQueue.Dequeue();
+            if (!Lamps.TryGetValue(lamp.Key, out var current) || !ReferenceEquals(current, lamp)) continue;
             if (lamp.Identity is null) continue;
             if (IsPermanentlyGone(lamp))
             {
                 RemoveDestroyed(lamp);
                 continue;
             }
-            if (!IsControllable(lamp))
+            if (lamp.Available && !IsControllable(lamp))
                 Demote(lamp, "its native surface renderer or parent property is unavailable");
         }
     }
@@ -538,12 +629,21 @@ internal static class LightRuntime
         }
         catch (Exception ex) { LogWarnOnce("read the grow-lamp switch state", ex); return; }
 
+        bool admission = true;
+        foreach (var source in lamp.Lights)
+            admission &= NativeLightAdmissionPolicy.MayApply(source.Binding.OwnsAny, PendingLightRestores.Count, PendingLightRestoreCap);
+        if (on && !admission)
+        {
+            foreach (var surface in lamp.Surfaces) RestoreSurface(surface, PreferredNative(toggle!, on));
+            foreach (var source in lamp.Lights) RestoreLightSource(source);
+            return;
+        }
         bool changed = false;
         foreach (var surface in lamp.Surfaces)
             changed |= ApplySurface(lamp, surface, toggle!, slot, on, instruction);
         foreach (var source in lamp.Lights)
             changed |= ApplyLightSource(source, on, instruction);
-        if (changed) LogApplied(lamp, slot, instruction);
+        if (changed) MaybeLogApplied(lamp, slot, instruction);
     }
 
     /// <summary>
@@ -561,13 +661,19 @@ internal static class LightRuntime
         var renderer = surface.Renderer;
         if (!NetworkGuard.IsAlive(renderer)) return false;
 
-        // Steady state: the lamp's switch state and the resolved instruction are unchanged since the
-        // last converged frame, so there is nothing to recompute. This is what keeps the per-frame
-        // path allocation-free for the whole scene: no sharedMaterials array, no clone, no write.
-        if (surface.Converged && surface.LastOn == on && Equals(surface.LastInstruction, instruction)) return false;
+        // Steady state: the lamp's switch state, its resolved MaterialIndex and the resolved
+        // instruction are unchanged since the last converged frame, so there is nothing to recompute.
+        // This is what keeps the per-frame path allocation-free for the whole scene: no
+        // sharedMaterials array, no clone, no write. LC05: the slot is part of the key, and the cache
+        // expires at a bounded cadence so an external material change is still picked up.
+        double frameNow = Now;
+        if (surface.Converged && surface.LastOn == on && surface.LastSlot == slot &&
+            frameNow < surface.NextRefreshAt && Equals(surface.LastInstruction, instruction)) return false;
         surface.LastOn = on;
+        surface.LastSlot = slot;
         surface.LastInstruction = instruction;
         surface.Converged = false;
+        surface.NextRefreshAt = frameNow + SurfaceRefreshSeconds + SurfaceStagger(lamp);
 
         Il2CppReferenceArray<Material>? materials;
         try { materials = renderer!.sharedMaterials; }
@@ -584,6 +690,14 @@ internal static class LightRuntime
             hasMaterial: current is not null && NetworkGuard.IsAlive(current),
             isOwnClone: ownClone,
             isSupportedPanel: IsSupportedPanel(current));
+
+        // Track a readable foreign material as a reported conflict (never as a write target).
+        bool foreign = state == LedSlotState.Foreign;
+        if (foreign != surface.Foreign)
+        {
+            surface.Foreign = foreign;
+            MaterialConflictCount = Math.Max(0, MaterialConflictCount + (foreign ? 1 : -1));
+        }
 
         if (state == LedSlotState.Foreign && !surface.Warned && current is not null)
         {
@@ -614,7 +728,7 @@ internal static class LightRuntime
         switch (step.Action)
         {
             case LedSurfaceAction.Install:
-                surface.Converged = InstallSurface(surface, renderer!, slot, source ?? surface.InstalledSource, materials, step);
+                surface.Converged = InstallSurface(surface, renderer!, slot, source ?? surface.InstalledSource, materials, step, PreferredNative(toggle, on));
                 return surface.Converged;
             case LedSurfaceAction.Restore:
                 // A deferred restore must not settle: it is retried until the outcome proves the slot
@@ -635,35 +749,75 @@ internal static class LightRuntime
     /// panel HDR magnitude. Colour is <i>absolute</i>: the chosen hue replaces the native colour. A
     /// switched-off lamp is only handed back to its own baseline and is never forced on, and a native
     /// intensity of zero stays zero at every factor. Returns true only when a native property was written.
+    /// <para>
+    /// LC01: the switched-off hand-back uses the confirmed form, so a throwing setter keeps ownership and
+    /// the hand-back is retried instead of leaving our brightness or colour installed on a lamp the
+    /// player switched off.
+    /// </para>
     /// </summary>
     private static bool ApplyLightSource(OwnedLightSource source, bool on, VisualInstruction instruction)
     {
+        if ((!on && !source.Binding.OwnsAny) || (on && !source.Binding.NeedsApply(instruction))) return false;
+        if (on && !NativeLightAdmissionPolicy.MayApply(source.Binding.OwnsAny, PendingLightRestores.Count, PendingLightRestoreCap))
+            return false;
         if (!TryReadNativeLight(source, out double intensity, out float r, out float g, out float b, out float a)) return false;
-        NativeLightApply step = on
-            ? source.Binding.Apply(intensity, r, g, b, a, instruction)
-            : source.Binding.Restore(intensity, r, g, b, a);
-        return WriteNative(source, step);
+        if (!on)
+            return WriteHandbackNative(source, source.Binding.BeginHandback(intensity, r, g, b, a));
+        return WriteNative(source, source.Binding.Apply(intensity, r, g, b, a, instruction));
     }
 
     /// <summary>
-    /// Performs the two native writes of one coordinated step, each independently guarded. A setter that
-    /// throws releases ownership of exactly that property - a value we did not write is never claimed -
-    /// and never aborts the other property, the rest of the lamp or another lamp's cleanup.
+    /// Performs the two native writes of one coordinated late-update step, each independently guarded.
+    /// A setter that throws reverts exactly that property to the state before this apply (LC01): a value
+    /// we did not write is never claimed, and an output that was already installed is never forgotten.
+    /// It never aborts the other property, the rest of the lamp or another lamp's cleanup.
     /// </summary>
-    private static bool WriteNative(OwnedLightSource source, NativeLightApply step)
+    private static bool WriteNative(OwnedLightSource source, NativeLightApply step) =>
+        WriteNativeStep(source, step, handback: false);
+
+    /// <summary>
+    /// Performs the two native writes of one hand-back step (update-phase undo, teardown, demote,
+    /// rebind). A setter that throws keeps ownership of the value that is still installed, so the
+    /// hand-back is retried on a later frame instead of being silently abandoned (LC01); each property
+    /// is confirmed or rejected on its own.
+    /// </summary>
+    private static bool WriteHandbackNative(OwnedLightSource source, NativeLightApply step) =>
+        WriteNativeStep(source, step, handback: true);
+
+    private static bool WriteNativeStep(OwnedLightSource source, NativeLightApply step, bool handback)
     {
         var light = source.Handle;
         if (!NetworkGuard.IsAlive(light)) return false;
         bool written = false;
         if (step.Intensity.ShouldWrite)
         {
-            try { light!.intensity = step.Intensity.Intensity; written = true; }
-            catch (Exception ex) { source.Binding.RejectIntensityWrite(); LogWarnOnce("write the grow-lamp native light intensity", ex); }
+            try
+            {
+                light!.intensity = step.Intensity.Intensity;
+                if (handback) source.Binding.ConfirmIntensityHandback();
+                written = true;
+            }
+            catch (Exception ex)
+            {
+                if (handback) source.Binding.RejectIntensityHandback();
+                else source.Binding.RejectIntensityWrite();
+                LogWarnOnce("write the grow-lamp native light intensity", ex);
+            }
         }
         if (step.Color.ShouldWrite)
         {
-            try { light!.color = new Color(step.Color.R, step.Color.G, step.Color.B, step.Color.A); written = true; }
-            catch (Exception ex) { source.Binding.RejectColorWrite(); LogWarnOnce("write the grow-lamp native light colour", ex); }
+            try
+            {
+                light!.color = new Color(step.Color.R, step.Color.G, step.Color.B, step.Color.A);
+                if (handback) source.Binding.ConfirmColorHandback();
+                written = true;
+            }
+            catch (Exception ex)
+            {
+                if (handback) source.Binding.RejectColorHandback();
+                else source.Binding.RejectColorWrite();
+                LogWarnOnce("write the grow-lamp native light colour", ex);
+            }
         }
         return written;
     }
@@ -698,23 +852,69 @@ internal static class LightRuntime
             foreach (var source in lamp.Lights)
             {
                 if (!source.Binding.OwnsAny) continue;
+                // LC01: the undo is confirmed per property. If the getter throws, nothing is written
+                // and the late-update phase samples our own output - which the policy refuses to
+                // rebase on, so it cannot compound. If a setter throws, ownership is retained and the
+                // hand-back is retried on the next frame.
                 if (!TryReadNativeLight(source, out double intensity, out float r, out float g, out float b, out float a)) continue;
-                WriteNative(source, source.Binding.Undo(intensity, r, g, b, a));
+                WriteHandbackNative(source, source.Binding.BeginHandback(intensity, r, g, b, a));
             }
         }
     }
 
     /// <summary>
     /// Hands one owned native light output back to the game (demote, rebind, removal, teardown), but only
-    /// while the native value still equals our own last write; an external change is preserved. A light
-    /// wrapper that is no longer alive keeps its ownership so a later alive frame can still hand it back,
-    /// and nothing is ever written for a dead handle.
+    /// while the native value still equals our own last write; an external change is preserved.
+    /// <para>
+    /// LC01: the hand-back is confirmed per property. Anything still owned afterwards - the getter threw,
+    /// the setter threw, or the wrapper was not alive this frame - is retained in
+    /// <see cref="PendingLightRestores"/> and retried, even while no session is ready, so a rebind or
+    /// teardown that clears the lamp list can never drop a light that still carries our output. A native
+    /// light that is provably destroyed has nothing left to hand back and is released instead of being
+    /// retained forever.
+    /// </para>
     /// </summary>
     private static void RestoreLightSource(OwnedLightSource source)
     {
-        if (!source.Binding.OwnsAny) return;
-        if (!TryReadNativeLight(source, out double intensity, out float r, out float g, out float b, out float a)) return;
-        WriteNative(source, source.Binding.Restore(intensity, r, g, b, a));
+        if (!source.Binding.OwnsAny) { PendingLightRestores.Remove(source); return; }
+        if (IsProvablyDestroyed(source.Handle))
+        {
+            PendingLightRestores.Remove(source);
+            source.Binding.Abandon();
+            return;
+        }
+        if (TryReadNativeLight(source, out double intensity, out float r, out float g, out float b, out float a))
+            WriteHandbackNative(source, source.Binding.BeginHandback(intensity, r, g, b, a));
+        if (!source.Binding.OwnsAny) { PendingLightRestores.Remove(source); return; }
+        RetainLightRestore(source);
+    }
+
+    /// <summary>
+    /// Retains one source whose hand-back could not be confirmed. Duplicate retains are ignored, an
+    /// already-retained source is never replaced. Backpressure prevents NEW claims at the soft limit;
+    /// an already-owned output is never forgotten merely because cleanup has fallen behind.
+    /// </summary>
+    private static void RetainLightRestore(OwnedLightSource source)
+    {
+        if (PendingLightRestores.Contains(source)) return;
+        PendingLightRestores.Add(source);
+        Log.Warn("A grow-lamp native light still carries our output after a hand-back attempt; its restore is retained and retried once per second, including after teardown.");
+    }
+
+    /// <summary>
+    /// Retries every retained native hand-back at a bounded once-per-second cadence. Runs even while no
+    /// session is ready, so a teardown or rebind that could not read or write a light is still completed
+    /// once the native object allows it. A source that is provably destroyed is dropped; one that merely
+    /// cannot be read is kept - dropping it would leave the lamp tinted for the rest of the session.
+    /// </summary>
+    public static void RetryPendingLightRestores()
+    {
+        if (PendingLightRestores.Count == 0) return;
+        double now = Now;
+        if (now < _nextPendingLightRestore) return;
+        _nextPendingLightRestore = now + PendingReleaseRetrySeconds;
+        for (int index = PendingLightRestores.Count - 1; index >= 0; index--)
+            RestoreLightSource(PendingLightRestores[index]);
     }
 
     /// <summary>
@@ -724,10 +924,23 @@ internal static class LightRuntime
     /// state, so a failed write is retried on the next frame instead of being treated as settled.
     /// </summary>
     private static bool InstallSurface(OwnedSurface surface, MeshRenderer renderer, int slot,
-        Material? source, Il2CppReferenceArray<Material>? materials, LedSurfaceStep step)
+        Material? source, Il2CppReferenceArray<Material>? materials, LedSurfaceStep step, Material? preferredNative)
     {
         try
         {
+            // LC04: the lamp's MaterialIndex can move (the native on/off swap replaces the array). Our
+            // clone may still sit in the previous slot; that installation is handed back before
+            // anything is installed elsewhere, otherwise the old slot forgets the clone and a renderer
+            // keeps a material we no longer track.
+            if (surface.Clone is not null && LedSurfaceOwnership.RequiresRelocation(surface.InstalledSlot, slot))
+            {
+                if (!LedSurfaceOwnership.RestoreConverged(RestoreSurface(surface, preferredNative)))
+                {
+                    surface.Policy.RejectWrite();
+                    return false;
+                }
+            }
+
             if (LedSurfaceOwnership.NeedsClone(surface.Clone, source, surface.InstalledSource, NativeMaterialId))
             {
                 // A replacement clone is only created once the previous one is proven to be
@@ -788,7 +1001,7 @@ internal static class LightRuntime
         // The array is scanned for our clone through the pure accumulator: one unreadable (disposed or
         // collected) element makes the scan incomplete, and an incomplete scan can never prove the
         // clone absent. Treating such a scan as "disconnected" would destroy a material the renderer
-        // still points at.
+        // still points at. LC04: a null neighbour slot is a readable empty slot, not a failed read.
         var scan = new NativeMaterialArrayScan();
         bool exactSlotHolds = false;
         Il2CppReferenceArray<Material>? materials = null;
@@ -797,27 +1010,14 @@ internal static class LightRuntime
             try
             {
                 materials = renderer!.sharedMaterials;
-                if (materials is null)
+                scan = ScanForClone(materials, clone);
+                if (materials is not null && slot >= 0 && slot < materials.Length)
                 {
-                    scan.MarkUnreadable();
-                }
-                else
-                {
-                    long cloneId = NativeMaterialId(clone);
-                    for (int index = 0; index < materials.Length; index++)
-                    {
-                        Material? candidate;
-                        try { candidate = materials[index]; } catch { scan.Record(0, cloneId); continue; }
-                        scan.Record(NativeMaterialId(candidate), cloneId);
-                    }
-                    if (slot >= 0 && slot < materials.Length)
-                    {
-                        try { exactSlotHolds = SameNativeMaterial(materials[slot], clone); }
-                        catch { exactSlotHolds = false; }
-                    }
+                    try { exactSlotHolds = SameNativeMaterial(materials[slot], clone); }
+                    catch { exactSlotHolds = false; }
                 }
             }
-            catch (Exception ex) { LogWarnOnce("read the grow-lamp surface materials", ex); scan.MarkUnreadable(); }
+            catch (Exception ex) { LogWarnOnce("read the grow-lamp surface materials", ex); scan = ScanForClone(null, clone); }
         }
 
         Material? native = preferredNative;
@@ -846,6 +1046,20 @@ internal static class LightRuntime
             nativeSourceAlive: nativeAlive,
             writeSucceeded: writeSucceeded);
 
+        if (writeSucceeded)
+        {
+            // LC04: a successful setter is not a release proof on its own, so it replaces the
+            // pre-write decision with the stronger one. Our clone can be referenced by a second slot of
+            // this renderer; the whole array is therefore re-read and the release only stands when that
+            // complete re-read no longer references the clone. The proof is scoped to this renderer's
+            // own array - an arbitrary foreign renderer can never be inspected, so it is never treated
+            // as a global reference count.
+            NativeMaterialArrayScan reread;
+            try { reread = ScanForClone(renderer!.sharedMaterials, clone!); }
+            catch (Exception ex) { LogWarnOnce("re-read the grow-lamp surface materials", ex); reread = ScanForClone(null, clone!); }
+            outcome = LedSurfaceOwnership.ConfirmRestore(reread.FullyReadable, reread.ReferencesClone);
+        }
+
         if (outcome is LedReleaseOutcome.Nothing or LedReleaseOutcome.Disconnected or LedReleaseOutcome.Restored)
             surface.InstalledSlot = -1;
         return outcome;
@@ -862,21 +1076,8 @@ internal static class LightRuntime
         var clone = surface.Clone;
         if (clone is null) return true;
         if (!NetworkGuard.IsAlive(renderer)) return false;
-        var scan = new NativeMaterialArrayScan();
-        try
-        {
-            var materials = renderer!.sharedMaterials;
-            if (materials is null) return false;
-            long cloneId = NativeMaterialId(clone);
-            for (int index = 0; index < materials.Length; index++)
-            {
-                Material? candidate;
-                try { candidate = materials[index]; } catch { scan.Record(0, cloneId); continue; }
-                scan.Record(NativeMaterialId(candidate), cloneId);
-            }
-        }
+        try { return ScanForClone(renderer!.sharedMaterials, clone).ProvesDisconnected; }
         catch { return false; }
-        return scan.ProvesDisconnected;
     }
 
     /// <summary>Hands one owned surface slot back to the game while keeping the clone for a rebind.</summary>
@@ -910,6 +1111,13 @@ internal static class LightRuntime
         surface.InstalledSource = null;
         surface.InstalledSlot = -1;
         surface.Converged = false;
+        surface.NextRefreshAt = 0;
+        surface.LastSlot = -1;
+        if (surface.Foreign)
+        {
+            surface.Foreign = false;
+            MaterialConflictCount = Math.Max(0, MaterialConflictCount - 1);
+        }
         surface.Policy.RejectWrite();
         if (!NetworkGuard.IsAlive(clone)) return;
         try { UnityEngine.Object.Destroy(clone); }
@@ -959,7 +1167,7 @@ internal static class LightRuntime
         {
             if (!source!.HasProperty(EmissionProperty)) return null;
             var clone = new Material(source);
-            clone.name = source.name + " (LightControl)";
+            clone.name = source.name + CloneNameSuffix;
             return clone;
         }
         catch (Exception ex) { LogWarnOnce("clone the grow-lamp surface material", ex); return null; }
@@ -979,6 +1187,7 @@ internal static class LightRuntime
         try
         {
             if (!material!.HasProperty(EmissionProperty)) return false;
+            if (!PanelFamilyPolicy.IsVerifiedPanelName(material.name)) return false;
             string name = StripInstanceSuffix(material.name);
             for (int index = 0; index < SupportedPanelMaterials.Length; index++)
                 if (string.Equals(name, SupportedPanelMaterials[index], StringComparison.Ordinal)) return true;
@@ -1033,8 +1242,8 @@ internal static class LightRuntime
     private static string StripInstanceSuffix(string? name)
     {
         string value = name ?? string.Empty;
-        int suffix = value.IndexOf(" (Instance)", StringComparison.Ordinal);
-        return suffix >= 0 ? value.Substring(0, suffix) : value;
+        const string suffix = " (Instance)";
+        return value.EndsWith(suffix, StringComparison.Ordinal) ? value.Substring(0, value.Length - suffix.Length) : value;
     }
 
     /// <summary>Reads the native HDR emission colour. Never reads our own clone as a baseline.</summary>
@@ -1076,6 +1285,93 @@ internal static class LightRuntime
     /// </summary>
     private static bool SameNativeMaterial(Material? left, Material? right) =>
         NativeMaterialIdentity.SameNative(left, right, NativeMaterialId);
+
+    /// <summary>
+    /// Reads one material array element's native id and reports whether the read itself succeeded. A
+    /// null element is a successful read of an empty slot (id zero); a disposed or collected wrapper
+    /// fails. LC04: conflating the two made a valid nullable neighbour slot block every release proof.
+    /// </summary>
+    private static bool TryReadMaterialId(Material? material, out long nativeId)
+    {
+        nativeId = 0;
+        if (material is null) return true;
+        try { nativeId = material.Pointer.ToInt64(); return nativeId != 0; }
+        catch { return false; }
+    }
+
+    /// <summary>
+    /// Scans one renderer material array for our clone using explicit read success: a null neighbour
+    /// slot does not make the array unprovable, a thrown read does. The scan proves only that
+    /// <i>this</i> array no longer references the clone - never a global reference count.
+    /// </summary>
+    private static NativeMaterialArrayScan ScanForClone(Il2CppReferenceArray<Material>? materials, Material clone)
+    {
+        var scan = new NativeMaterialArrayScan();
+        if (materials is null) { scan.MarkUnreadable(); return scan; }
+        long cloneId = NativeMaterialId(clone);
+        for (int index = 0; index < materials.Length; index++)
+        {
+            Material? candidate;
+            bool read;
+            try { candidate = materials[index]; read = true; }
+            catch { candidate = null; read = false; }
+            if (read && TryReadMaterialId(candidate, out long candidateId)) scan.RecordRead(candidateId, cloneId);
+            else scan.RecordUnreadable();
+        }
+        return scan;
+    }
+
+    /// <summary>
+    /// True only when Unity's native destroyed-object check reports null through a usable wrapper.
+    /// A collected proxy or missing pointer does not prove the native resource is gone. Unreadable state
+    /// is <i>not</i> proven dead, so a retained hand-back is never dropped on a failed read.
+    /// </summary>
+    private static bool IsProvablyDestroyed(UnityEngine.Object? native)
+    {
+        if (native is null) return false;
+        try { return !native.WasCollected && native.Pointer != IntPtr.Zero && native == null; }
+        catch { return false; }
+    }
+
+    /// <summary>
+    /// True when a handle is one of our own clones, including a clone retained for a deferred release.
+    /// Candidate discovery must skip these: after a rebind a retained clone is still installed under
+    /// the verified native name and would otherwise be adopted as a native material source.
+    /// </summary>
+    internal static bool IsOwnClone(Material? material)
+    {
+        long id = NativeMaterialId(material);
+        if (id == 0) return false;
+        foreach (var lamp in Lamps.Values)
+            foreach (var surface in lamp.Surfaces)
+                if (NativeMaterialId(surface.Clone) == id) return true;
+        foreach (var surface in PendingReleases)
+            if (NativeMaterialId(surface.Clone) == id) return true;
+        return false;
+    }
+
+    /// <summary>True while this surface is retained for a deferred release (candidate discovery skips it).</summary>
+    internal static bool IsRetainedForRelease(OwnedSurface surface) => PendingReleases.Contains(surface);
+
+    /// <summary>
+    /// Deterministic per-lamp stagger in [0, 1) seconds for the LC05 surface re-read, derived with the
+    /// specified FNV-1a from the visual model so it never depends on a process-randomized hash.
+    /// </summary>
+    private static double SurfaceStagger(OwnedLamp lamp) =>
+        lamp.Key.Length == 0 ? 0 : (VisualResolver.StableHash(lamp.Key) % 1000) / 1000.0;
+
+    /// <summary>
+    /// LC11 cheap guard: the breadcrumb's native read-back and its formatted string are only built when
+    /// the instruction or the slot actually changed and the rate limit allows a line. An unchanged
+    /// frame therefore pays two comparisons and nothing else.
+    /// </summary>
+    private static void MaybeLogApplied(OwnedLamp lamp, int slot, VisualInstruction instruction)
+    {
+        if (lamp.LastLoggedSlot == slot && Equals(lamp.LastLoggedInstruction, instruction)) return;
+        double now = Now;
+        if (lamp.LastApplyLogAt >= 0 && now - lamp.LastApplyLogAt < ApplyLogIntervalSeconds) return;
+        LogApplied(lamp, slot, instruction);
+    }
 
     /// <summary>
     /// One bounded apply breadcrumb per real instruction change: the lamp's stable key, the requested
@@ -1121,6 +1417,8 @@ internal static class LightRuntime
         if (now - lamp.LastApplyLogAt < ApplyLogIntervalSeconds) return;
         lamp.LastApplyLog = message;
         lamp.LastApplyLogAt = now;
+        lamp.LastLoggedInstruction = instruction;
+        lamp.LastLoggedSlot = slot;
         Log.Info(message);
     }
 
@@ -1204,12 +1502,13 @@ internal static class LightRuntime
         if (lamp.Identity is not null && _store is not null)
         {
             try { _store.RemovePermanently(lamp.Identity, Now); }
-            catch (Exception ex) { Log.Warn("Removing a destroyed grow lamp failed", ex); }
+            catch (Exception ex) { Log.Warn("Removing a destroyed grow lamp failed; retained for a later retry", ex); return; }
         }
         foreach (var surface in lamp.Surfaces) ReleaseOwned(surface);
         foreach (var source in lamp.Lights) RestoreLightSource(source);
         Order.Remove(lamp);
         Lamps.Remove(lamp.Key);
+        ClearUnsupportedCoupling(lamp.Key);
         if (!string.IsNullOrEmpty(lamp.Key)) PendingCoupling.Remove(lamp.Key);
         Log.Info($"Removed an untracked grow lamp ({Order.Count} left).");
     }
@@ -1231,12 +1530,6 @@ internal static class LightRuntime
     {
         if (!Ready || _store is null) return false;
         if (!NetworkGuard.IsAlive(pot)) return false;
-        if (IsAnchorDestroyed(pot) || IsParentPropertyDestroyed(pot))
-        {
-            // Drop a tent that was registered before the property exploded.
-            return false;
-        }
-
         string guidText;
         bool destroyed;
         bool initialized;
@@ -1249,17 +1542,17 @@ internal static class LightRuntime
             itemId = pot.ItemInstance?.Definition?.ID;
         }
         catch (Exception ex) { LogWarnOnce("read native grow-tent identity", ex); return false; }
-        if (destroyed || !initialized || !PanelFamilyPolicy.IsGrowTent(itemId)) return false;
+        if (!PanelFamilyPolicy.IsGrowTent(itemId)) return false;
 
         var native = LampIdentityPolicy.FromNativeGuid(guidText);
         LampIdentity? identity = native.Identity;
         if (!native.Accepted || identity is null) return false;
-        if (IsParentPropertyDestroyed(pot))
+        if (destroyed || IsParentPropertyDestroyed(pot))
         {
             if (Lamps.TryGetValue(identity.Key, out var stale)) RemoveDestroyed(stale);
             return false;
         }
-        if (!TryReadOwnedPropertyCode(pot, out string propertyCode)) return false;
+        if (!initialized || !TryReadOwnedPropertyCode(pot!, out string propertyCode)) return false;
 
         var toggle = FindBuiltInToggle(pot);
         if (!NetworkGuard.IsAlive(toggle))
@@ -1270,11 +1563,8 @@ internal static class LightRuntime
 
         if (Lamps.TryGetValue(identity.Key, out var known))
         {
-            if (known.Available) return false;
-            known.Container = pot;
-            known.Toggle = toggle;
-            known.Kind = "Grow tent";
-            return RebindTent(known, toggle!, propertyCode);
+            if (known.Available) { SyncProperty(known, pot!); return false; }
+            return RebindTent(known, toggle!, propertyCode, pot);
         }
 
         var surfaces = CollectSurfaces(toggle!, ActiveSurfacePointers(null));
@@ -1305,6 +1595,7 @@ internal static class LightRuntime
             Container = pot,
             Toggle = toggle,
             Kind = "Grow tent",
+            DisplayNumber = checked(++_nextDisplayNumber),
             PropertyCode = propertyCode,
             Generation = 0,
             Available = true
@@ -1319,9 +1610,10 @@ internal static class LightRuntime
         return true;
     }
 
-    private static bool RebindTent(OwnedLamp lamp, ToggleableLight toggle, string propertyCode)
+    private static bool RebindTent(OwnedLamp lamp, ToggleableLight toggle, string propertyCode, Pot? container = null)
     {
         if (lamp.Identity is null || _store is null) return false;
+        RetireRebindOutputs(lamp);
         var surfaces = CollectSurfaces(toggle, ActiveSurfacePointers(lamp));
         var lights = CollectLightSources(toggle, ActiveLightPointers(lamp));
         bool on;
@@ -1331,24 +1623,11 @@ internal static class LightRuntime
         if (coupling != LampCouplingState.Ready)
         {
             if (coupling == LampCouplingState.Pending)
-                MarkPendingCoupling(lamp.Identity.Key, null, propertyCode, lamp.Container);
+                MarkPendingCoupling(lamp.Identity.Key, null, propertyCode, container ?? lamp.Container);
             else ReportUnsupportedCoupling(lamp.Identity.Key);
             return false;
         }
-        lamp.Surfaces.Clear();
-        foreach (var surface in surfaces) lamp.Surfaces.Add(surface);
-        lamp.Lights.Clear();
-        foreach (var source in lights) lamp.Lights.Add(source);
-        lamp.Toggle = toggle;
-        lamp.PropertyCode = propertyCode;
-        lamp.Available = true;
-        lamp.Kind = "Grow tent";
-        if (!Order.Contains(lamp)) Order.Add(lamp);
-        PendingCoupling.Remove(lamp.Key);
-        ClearUnsupportedCoupling(lamp.Key);
-        try { _store.RebindTemporarilyUnloaded(lamp.Identity, RuntimeInstanceId(lamp.Identity, lamp.Generation)); }
-        catch (Exception ex) { Log.Warn("Grow tent rebind rejected", ex); return false; }
-        return true;
+        return CommitRebind(lamp, surfaces, lights, propertyCode, null, container ?? lamp.Container, toggle);
     }
 
     /// <summary>Bounded child walk for the tent's one verified built-in toggle. Never a scene-wide query.</summary>
@@ -1443,7 +1722,7 @@ internal static class LightRuntime
         var anchor = LiveAnchor(lamp);
         if (anchor == null) return false;
         if (IsParentPropertyDestroyed(anchor)) return false;
-        if (!IsOwnedByPlayer(anchor, lamp.PropertyCode)) return false;
+        if (!SyncProperty(lamp, anchor!)) return false;
         bool surface = false;
         foreach (var owned in lamp.Surfaces)
             if (NetworkGuard.IsAlive(owned.Renderer)) { surface = true; break; }
@@ -1496,18 +1775,29 @@ internal static class LightRuntime
         catch { return false; }
     }
 
+    /// <summary>Publish a property change only after the pure model accepts it.</summary>
+    private static bool SyncProperty(OwnedLamp lamp, Il2CppScheduleOne.EntityFramework.BuildableItem anchor)
+    {
+        if (_store is null || lamp.Identity is null || !TryReadOwnedPropertyCode(anchor, out string code)) return false;
+        if (string.Equals(code, lamp.PropertyCode, StringComparison.Ordinal)) return true;
+        try { _store.Move(lamp.Identity, code); }
+        catch (Exception ex) { Log.Warn("Lamp property change rejected; runtime view was not updated", ex); return false; }
+        lamp.PropertyCode = code;
+        Log.Info($"Lamp property reconciled to '{code}'.");
+        return true;
+    }
+
     /// <summary>Moves a lamp out of the active list while keeping its record for a later rebind.</summary>
     private static void Demote(OwnedLamp lamp, string reason)
     {
-        foreach (var surface in lamp.Surfaces) RestoreOwned(surface);
-        foreach (var source in lamp.Lights) RestoreLightSource(source);
-        lamp.Available = false;
         if (lamp.Identity is not null && _store is not null)
         {
             try { _store.MarkTemporarilyUnloaded(lamp.Identity); }
             catch (Exception ex) { Log.Warn("Marking a grow lamp temporarily unloaded failed", ex); }
         }
+        lamp.Available = false;
         Order.Remove(lamp);
+        RetireRebindOutputs(lamp);
         Log.Info($"Grow lamp is no longer controllable ({reason}); its state is retained for a later rebind.");
     }
 
@@ -1519,9 +1809,14 @@ internal static class LightRuntime
     private static bool Rebind(OwnedLamp lamp, GrowLight growLight, string propertyCode)
     {
         if (lamp.Identity is null || _store is null) return false;
-        var surfaces = CollectSurfaces(growLight, ActiveSurfacePointers(lamp));
-        var lights = CollectLightSources(growLight, ActiveLightPointers(lamp));
-        LampCouplingState coupling = NativeCouplingPolicy.Decide(surfaces.Count > 0, lights.Count > 0, ReadLampSwitch(growLight));
+        RetireRebindOutputs(lamp);
+        ToggleableLight? toggle;
+        bool on;
+        try { toggle = growLight.Light; if (!NetworkGuard.IsAlive(toggle)) return false; on = toggle!.isOn; }
+        catch (Exception ex) { LogWarnOnce("resolve the rebind toggle", ex); return false; }
+        var surfaces = CollectSurfaces(toggle!, ActiveSurfacePointers(lamp));
+        var lights = CollectLightSources(toggle!, ActiveLightPointers(lamp));
+        LampCouplingState coupling = NativeCouplingPolicy.Decide(surfaces.Count > 0, lights.Count > 0, on);
         if (coupling == LampCouplingState.Pending)
         {
             MarkPendingCoupling(lamp.Identity.Key, growLight, propertyCode);
@@ -1533,18 +1828,48 @@ internal static class LightRuntime
             return false;
         }
 
-        lamp.Generation++;
-        string runtimeId = RuntimeInstanceId(lamp.Identity, lamp.Generation);
-        try { _store.RebindTemporarilyUnloaded(lamp.Identity, runtimeId); }
-        catch (Exception ex) { Log.Warn("Rebinding a grow lamp failed", ex); return false; }
+        return CommitRebind(lamp, surfaces, lights, propertyCode, growLight, null, toggle);
+    }
 
+    /// <summary>Retry owned restoration before discovery so an old installed clone is not a foreign panel.</summary>
+    private static void RetireRebindOutputs(OwnedLamp lamp)
+    {
         foreach (var surface in lamp.Surfaces) ReleaseOwned(surface);
         foreach (var source in lamp.Lights) RestoreLightSource(source);
+        // Failed hand-backs now belong to the retained queues; successful ones need no second pass.
+        lamp.Surfaces.Clear();
+        lamp.Lights.Clear();
+    }
+
+    /// <summary>Shared lamp/tent transition: validate, prepare cleanup, commit model, publish runtime.</summary>
+    private static bool CommitRebind(OwnedLamp lamp, List<OwnedSurface> surfaces, List<OwnedLightSource> lights,
+        string propertyCode, GrowLight? growLight, Pot? container, ToggleableLight? toggle)
+    {
+        if (_store is null || lamp.Identity is null) return false;
+        int generation = checked(lamp.Generation + 1);
+        string runtimeId = RuntimeInstanceId(lamp.Identity, generation);
+        string? group = null;
+        foreach (var registration in _store.GetRegistrations())
+            if (registration.Identity.Key == lamp.Key) { group = registration.GroupId; break; }
+        try
+        {
+            _store.RebindTemporarilyUnloaded(lamp.Identity, runtimeId, propertyCode, group, () =>
+            {
+                lamp.Surfaces.EnsureCapacity(surfaces.Count);
+                lamp.Lights.EnsureCapacity(lights.Count);
+                Order.EnsureCapacity(Order.Count + 1);
+            });
+        }
+        catch (Exception ex) { Log.Warn("Rebinding a grow lamp failed", ex); return false; }
+
         lamp.Surfaces.Clear();
         lamp.Lights.Clear();
         foreach (var surface in surfaces) lamp.Surfaces.Add(surface);
         foreach (var source in lights) lamp.Lights.Add(source);
         lamp.GrowLight = growLight;
+        lamp.Container = container;
+        lamp.Toggle = toggle;
+        lamp.Generation = generation;
         lamp.PropertyCode = propertyCode;
         lamp.Available = true;
         PendingCoupling.Remove(lamp.Key);
@@ -1583,6 +1908,8 @@ internal static class LightRuntime
     private static HashSet<long> ActiveLightPointers(OwnedLamp? exclude)
     {
         var pointers = new HashSet<long>();
+        foreach (var pending in PendingLightRestores)
+            if (pending.NativePointer != 0) pointers.Add(pending.NativePointer);
         foreach (var lamp in Order)
         {
             if (ReferenceEquals(lamp, exclude)) continue;
@@ -1748,7 +2075,7 @@ internal static class LightRuntime
         }
         _scanElapsedMilliseconds += ScanWatch.Elapsed.TotalMilliseconds;
 
-        if (ScanQueue.Count == 0)
+        if (ScanQueue.Count == 0 || _scanTruncated)
         {
             _scanActive = false;
             string truncated = _scanTruncated ? ", TRUNCATED at the node cap" : string.Empty;
@@ -1779,20 +2106,21 @@ internal static class LightRuntime
             initialized = growLight.Initialized;
         }
         catch (Exception ex) { LogWarnOnce("read native grow-lamp identity", ex); return false; }
-        if (destroyed || !initialized) return false;
-
         var native = LampIdentityPolicy.FromNativeGuid(guidText);
         LampIdentity? identity = native.Identity;
         if (!native.Accepted || identity is null) return false;
-        if (IsParentPropertyDestroyed(growLight!))
+        if (destroyed || IsParentPropertyDestroyed(growLight!))
         {
             if (Lamps.TryGetValue(identity.Key, out var stale)) RemoveDestroyed(stale);
             return false;
         }
-        if (!TryReadOwnedPropertyCode(growLight!, out string propertyCode)) return false;
+        if (!initialized || !TryReadOwnedPropertyCode(growLight!, out string propertyCode)) return false;
 
         if (Lamps.TryGetValue(identity.Key, out var known))
-            return !known.Available && Rebind(known, growLight!, propertyCode);
+        {
+            if (known.Available) { SyncProperty(known, growLight!); return false; }
+            return Rebind(known, growLight!, propertyCode);
+        }
 
         var surfaces = CollectSurfaces(growLight!, ActiveSurfacePointers(null));
         var lights = CollectLightSources(growLight!, ActiveLightPointers(null));
@@ -1817,6 +2145,7 @@ internal static class LightRuntime
             Key = identity.Key,
             Identity = identity,
             GrowLight = growLight,
+            DisplayNumber = checked(++_nextDisplayNumber),
             PropertyCode = propertyCode,
             Generation = 0,
             Available = true
@@ -1970,7 +2299,7 @@ internal static class LightRuntime
 
             Material? material;
             try { material = materials[slot]; } catch { continue; }
-            if (!IsSupportedPanel(material)) continue;
+            if (IsOwnClone(material) || !IsSupportedPanel(material)) continue;
 
             long pointer;
             try { pointer = renderer!.Pointer.ToInt64(); } catch { continue; }
@@ -2027,7 +2356,7 @@ internal static class LightRuntime
             try { pointer = light!.Pointer.ToInt64(); } catch { continue; }
             if (pointer == 0) continue;
 
-            candidates.Add(new OwnedLightSource { Handle = light });
+            candidates.Add(new OwnedLightSource { Handle = light, NativePointer = pointer });
             pointers.Add(pointer);
         }
 
@@ -2100,7 +2429,7 @@ internal static class LightRuntime
         catch { return false; }
         string code = lamp.PropertyCode ?? string.Empty;
         string name = ReadPropertyName(lamp, code);
-        view = new LampView(index, Order.Count, $"{lamp.Kind} {index + 1}", state.Color, state.Intensity, lamp.Kind, code, name, lamp.Identity.Key);
+        view = new LampView(index, Order.Count, $"{lamp.Kind} {lamp.DisplayNumber}", state.Color, state.Intensity, lamp.Kind, code, name, lamp.Identity.Key);
         return true;
     }
 
@@ -2124,6 +2453,7 @@ internal static class LightRuntime
                 var property = anchor!.ParentProperty;
                 if (NetworkGuard.IsAlive(property))
                 {
+                    if (!string.Equals(property!.propertyCode, code, StringComparison.Ordinal)) return code;
                     string name = property!.PropertyName;
                     if (!string.IsNullOrWhiteSpace(name)) return name.Trim();
                 }
@@ -2163,13 +2493,16 @@ internal static class LightRuntime
 
     public static LampActionResult ApplyPreview(CopyPreview shown, bool world)
     {
+        if (!Ready || _store is null) return LampActionResult.Rejected;
+        RecheckOwnership();
         if (!TryBuildPreview(shown.SourceKey, world, out var current)) return LampActionResult.Rejected;
         if (!UiSelectionPolicy.PreviewMatches(
             shown.SessionId, shown.SourceKey, shown.PropertyCode, shown.Color, shown.Intensity, shown.TargetKeys,
             current.SessionId, current.SourceKey, current.PropertyCode, current.Color, current.Intensity, current.TargetKeys))
             return new LampActionResult(CommandStatus.StaleRevision, 0);
         var selection = world ? LampSelection.World() : LampSelection.Property(current.PropertyCode!);
-        return Execute(ControlCommand.Set(selection, new LampChange(current.Color, current.Intensity)));
+        return Execute(ControlCommand.Set(selection, new LampChange(current.Color, current.Intensity)),
+            recheck: false, expectedTargets: current.TargetKeys, expectedCatalogRevision: _store.CatalogRevision);
     }
 
     public static LampActionResult SetColor(string key, ColorMode color)
@@ -2260,14 +2593,16 @@ internal static class LightRuntime
     /// verified sender: the authorization callback only ever sees the frozen target set of the pure
     /// model and always runs outside a mutation.
     /// </summary>
-    private static LampActionResult Execute(ControlCommand command)
+    private static LampActionResult Execute(ControlCommand command, bool recheck = true,
+        string[]? expectedTargets = null, long? expectedCatalogRevision = null)
     {
         if (!Ready || _store is null) return LampActionResult.Rejected;
-        RecheckOwnership();
+        if (recheck) RecheckOwnership();
         try
         {
             var request = new ClientCommand(LightLimits.ProtocolVersion, _store.SessionId, Guid.NewGuid(), _store.Revision, command);
-            var result = _store.ExecuteHost(request, LocalSenderId, _ => true, Now);
+            var result = _store.ExecuteHost(request, LocalSenderId,
+                context => AllRuntimeTargetsAvailable(context), Now, expectedTargets, expectedCatalogRevision);
             if (result.Status is not (CommandStatus.Applied or CommandStatus.Unchanged))
             {
                 Log.Warn($"Local command was not applied: {result.Status}.");
@@ -2279,7 +2614,14 @@ internal static class LightRuntime
         catch (Exception ex) { Log.Warn("Local host command failed", ex); return LampActionResult.Rejected; }
     }
 
-    /// <summary>Demotes any active lamp whose property is no longer owned, before a command is applied.</summary>
+    private static bool AllRuntimeTargetsAvailable(CommandAuthorizationContext context)
+    {
+        foreach (var target in context.Targets)
+            if (!Lamps.TryGetValue(target.Identity.Key, out var lamp) || !lamp.Available || !Order.Contains(lamp)) return false;
+        return true;
+    }
+
+    /// <summary>Demotes any active lamp whose property or coupled native outputs are unavailable.</summary>
     private static void RecheckOwnership()
     {
         List<OwnedLamp>? demoted = null;

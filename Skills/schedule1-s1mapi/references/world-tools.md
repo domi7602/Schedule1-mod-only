@@ -1,161 +1,61 @@
-# S1MAPI — World Tools (Terrain, Navigation, Prefab Placement)
+# S1MAPI — Terrain, Navigation, and Prefab Integration
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 7 of 7 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+## Evidence boundary
 
-The "advanced" world-modification API. Use these when you need to integrate procedural geometry with the existing game world: clear surroundings, flatten terrain, build NPC navigation, place in-game prefabs.
+Public S1MAPI documentation was consulted on 2026-10-21. It places structural terrain tools under `S1MAPI.Building.Structural` and building navigation under `S1MAPI.Building`. Verify the deployed source/assembly before using members; the old universal `S1MAPI.World` recipes and static navigation calls are not retained.
 
----
+## Terrain preparation
 
-## 1. TerrainClearer
+1. Inspect the target footprint, existing world objects, terrain data, ownership, and dependent gameplay systems.
+2. Plan the smallest required change and record what must be restored or regenerated.
+3. Resolve the installed `TerrainClearer` / `TerrainFlattener` contracts, including deferred retries.
+4. Position the building before operations whose footprint comes from its transform.
+5. Restrict removal to approved object categories and bounds; do not clear arbitrary nearby interactables or networked entities.
+6. Validate the resulting surface, grass/detail state, collision, and neighbors.
+7. Make repeated preparation idempotent and cancel stale deferred work when the owning world changes.
 
-Remove vegetation, trees, rocks, and other objects around a build site.
+The public `TerrainFlattener.FlattenUnder` documentation describes lowering terrain and an outcome that can indicate a queued retry. Therefore a return without an immediate result is not necessarily final failure or readiness. Inspect the actual completion mechanism before advancing construction.
 
-```csharp
-using S1MAPI.World;
+Do not claim terrain operations are O(1). Cost depends on affected data, scene queries, synchronization, and implementation. Measure frame cost and completion time on the intended footprint.
 
-TerrainClearer.Clear(origin: new Vector3(0, 0, 0),
-                     radius: 20f);   // 20m radius
-```
+## Navigation ownership
 
-Use it before placing a new building to ensure a clean construction site.
+The public `NavigationBuilder` is a building-specific system that can combine carving with interior pathfinding. It is not a universal static region rebake call.
 
----
+- Build after final placement and valid collision/openings.
+- Keep the returned owner and its supported build/rebuild/remove lifecycle.
+- Rebuild only after relevant layout changes, with debounce/batching where needed.
+- Coordinate release of NPCs before removing navigation they still use.
+- Validate each required NPC agent, entry, destination, exit, and blocked route.
 
-## 2. FlattenTerrain
+For wider world NavMesh changes, follow the [world-expansion pipeline](../../schedule1-world-expansion/references/world-expansion-pipeline.md) and verify the native agent/build-data API separately.
 
-Flatten terrain around a build site as a foundation.
+## Functional prefabs
 
-```csharp
-FlattenTerrain.Flatten(origin: new Vector3(0, 0, 0),
-                       size: new Vector2(20, 20),   // 20×20m flat area
-                       targetHeight: 0f);            // absolute y
-```
+1. Resolve an actual registered prefab and inspect its required components and serialized links.
+2. Separate mesh-only decoration from a functional/native entity.
+3. Confirm spawn authority and position/parenting before the network spawn when the transport contract requires it.
+4. On clients, handle deferred arrival/linking rather than creating a competing local entity.
+5. Verify which customization callbacks run on the server versus each client.
+6. Track stable identity, teardown, and restore responsibility independently of network identity.
+7. Treat absent prefab or failed registration as a failed phase; do not repair arbitrary network graphs by attaching components.
 
-The terrain is reduced to a flat plane at `targetHeight` over the specified area.
+Network replication does not prove durable saving. Read [persistence](persistence.md) before promising restoration. If the native save system might restore the same entity, resolve that question before adding an unconditional respawn path.
 
----
+## Example expansion plan
 
-## 3. NavigationBuilder
+For a hotel extension: validate footprint → prepare owned shell → position it → clear only approved obstructing scenery → finish collision → build navigation → add verified functional prefabs → attach gameplay → publish readiness. Each phase has an owner and rollback boundary. Keep definitions independent of these live objects so the process is repeatable.
 
-Build NPC pathfinding (A* navmesh) for new areas. **Without this, NPCs won't walk into your custom area.**
+## Verification
 
-```csharp
-NavigationBuilder.BuildFor(myBuilding.gameObject);
-```
+Check absent terrain, deferred completion after scene exit, removal outside the footprint, player collision, unreachable doors, failed network spawn, late join, native save restoration, repeated build, and cleanup. Compare frame-time and resource measurements for the smallest and largest supported layouts.
 
-Or for an entire region:
+## Sources and anchors
 
-```csharp
-NavigationBuilder.Build(Region.Docks);
-```
-
-### When to Use
-
-| Situation | Required? |
-|---|---|
-| Procedural building with NPCs inside | ✅ Yes |
-| Static decorative structure | ❌ No |
-| Procedural building with no NPCs | ❌ No |
-| New area on the map (extension) | ✅ Yes |
-
----
-
-## 4. PrefabPlacer
-
-Place in-game prefabs (real game objects, e.g., cars, doors, NPCs) at runtime. With `networked: true`, the state syncs across multiplayer clients.
-
-```csharp
-using S1MAPI.World;
-
-PrefabPlacer.Place(prefab: myCustomBuildingPrefab,
-                  position: new Vector3(0, 0, 0),
-                  rotation: Quaternion.identity,
-                  networked: true);
-```
-
-### Common Use Cases
-
-| Prefab Type | Use for |
-|---|---|
-| Doors | Real interactable doors |
-| Lights | Functional in-game lighting |
-| NPCs | Real NPCs in custom positions |
-| Vehicles | Park spawned vehicles |
-| Containers | Interactable storage |
-
----
-
-## 5. Complete Workflow — Adding a New Region
-
-```csharp
-public class NewRegionBuilder
-{
-    public static GameObject BuildHotelExtension()
-    {
-        // 1. Clear existing terrain
-        TerrainClearer.Clear(origin: new Vector3(50, 0, 50), radius: 30f);
-
-        // 2. Flatten the build site
-        FlattenTerrain.Flatten(origin: new Vector3(50, 0, 50),
-                               size: new Vector2(20, 20),
-                               targetHeight: 0f);
-
-        // 3. Build the building
-        var building = BuildingBuilder.Create("HotelExtension")
-            .SetFloor(new Vector3(50, 0, 50), new Vector2(20, 20))
-            .SetCeiling(new Vector3(50, 3, 50), new Vector2(20, 20))
-            .AddWall(WallSegment.North(new Vector3(50, 1.5f, 60), 20)
-                .WithDoor(new Vector3(50, 1f, 60),
-                          new Vector2(1.5f, 2.2f),
-                          DoorStyle.Wood))
-            .AddWall(WallSegment.South(new Vector3(50, 1.5f, 40), 20))
-            .AddWall(WallSegment.East(new Vector3(60, 1.5f, 50), 20))
-            .AddWall(WallSegment.West(new Vector3(40, 1.5f, 50), 20))
-            .Build();
-
-        // 4. Add interior
-        InteriorBuilder.Add(building, FurnitureType.Desk, new Vector3(50, 0.5f, 50));
-        InteriorBuilder.Add(building, FurnitureType.Chair, new Vector3(50.5f, 0.5f, 50.5f));
-
-        // 5. Build navigation so NPCs can walk in
-        NavigationBuilder.BuildFor(building);
-
-        // 6. (Optional) Place networked prefabs
-        // PrefabPlacer.Place(doorPrefab, new Vector3(50, 1f, 60), networked: true);
-
-        return building;
-    }
-}
-```
-
----
-
-## 6. Edge Cases & Caveats
-
-| Caveat | Why | Fix |
-|---|---|---|
-| NPC walks into wall | NavMesh says "yes" but geometry blocks | Re-run `NavigationBuilder` after geometry changes |
-| Cleared terrain suddenly respawns vegetation | Game spawns new vegetation periodically | Use `FlattenTerrain` regularly, or pre-claim area with `Marker` |
-| Placed prefab disappears on save load | PrefabPlacer networking is **session-sync, not persistence** (FishNet spawn + deferred client link, no save hooks in S1MAPI) | Persist placements yourself: slot-isolated JSON + `OnSaveComplete`/`OnLoadComplete` — full pattern in [`../../schedule1-s1mapi/references/persistence.md`](../../schedule1-s1mapi/references/persistence.md); old "networked:true + Saveable" advice was wrong |
-| NavigationBuilder takes a long time | Large area | Build per-room, not per-building |
-
----
-
-## 7. Performance Notes
-
-| Op | Cost | Notes |
-|---|---|---|
-| `TerrainClearer` | O(n) for n objects in radius | Use sparingly |
-| `FlattenTerrain` | O(1) | Cheap |
-| `NavigationBuilder` | O(area) | Heavy for large areas, prefer per-room |
-| `PrefabPlacer` | O(1) per placement | Cheap |
-
----
-
-## 8. Workspace Reference
-
-None of the current workspace mods use `World` tools yet. The skill is forward-looking for content mods that want to extend the game world.
-
-For the official S1MAPI docs: https://github.com/ifBars/S1MAPI/tree/stable/docs/examples.md
-
----
+- [Official structural namespace](https://ifbars.github.io/S1MAPI/api/S1MAPI.Building.Structural.html).
+- [Official TerrainFlattener API](https://ifbars.github.io/S1MAPI/api/S1MAPI.Building.Structural.TerrainFlattener.html).
+- [Official NavigationBuilder API](https://ifbars.github.io/S1MAPI/api/S1MAPI.Building.NavigationBuilder.html).
+- [Official PrefabRef API](https://ifbars.github.io/S1MAPI/api/S1MAPI.Core.PrefabRef.html) — confirm exact spawn semantics from the installed implementation when prose is ambiguous.
+- Local source search: `ThirdParty/S1MAPI/` for terrain tools, `NavigationBuilder`, prefab placement and client linker types.

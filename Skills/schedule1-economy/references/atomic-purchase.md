@@ -1,50 +1,70 @@
-# Atomic Purchase (PocketShop Reference)
+# Purchase settlement and partial failure
+
 > verified: sequence from PocketShop source; MoneyManager APIs re-verified against the installed runtime decompiles 2026-10-05 (ChangeCashBalance/CreateOnlineTransaction, see SKILL section 7).
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 5 of 5 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+Inherited PocketShop source notes; not revalidated against the installed game in
+this package. This filename is retained for compatibility. A payment followed by
+several inventory calls is not automatically an atomic transaction.
 
-Complete sequence from `PocketShop/src/Services/PurchaseService.cs:114` (verified in source, `PocketShop/UI/UITheme.cs` delegates to Shared).
+## Validate before mutation
 
-```csharp
-// 1. Validate definition + qty + stock
-if (item.Definition == null) return DefinitionNull;
-if (qty<1) return InvalidQuantity;
-int stock = item.CurrentStock >0 ? item.CurrentStock : UnlimitedStockSentinel; // -1 = unlimited:49
-if (stock==0) return StockEmpty; if (stock!=-1 && qty>stock) return InvalidQuantity;
+- Confirm operation identity, world context, authoritative peer, item definition,
+  integral positive quantity, finite price/fees, and supported payment mode.
+- Keep stock states distinct: zero is sold out; a positive value is finite stock;
+  only the provider's explicit unlimited sentinel means unlimited. Reject unknown
+  negative states instead of converting every nonpositive value to unlimited.
+- Bound quantity and total calculation; reject overflow, NaN, infinity, and an
+  unexpected negative total. Freeze the approved price for the operation.
+- Check affordability and actual inventory fit. In Auto mode, use the documented
+  payment policy; do not silently combine balances when the UI promises fallback.
+- Pre-create and validate all deliverable instances when supported. Dispose only
+  unused resources owned by the operation. Creation success is not delivery.
 
-// 2. Price
-CalculatePricing(item, qty, out perUnit, out _, out _, out total); // perUnit = Price*(1+fee%/100):62
-// 3. Affordability — Auto prefers Cash→Bank fallback
-if (!CanAfford(total, mode, out effectiveMode)) return NotEnoughFunds; //:72
+## Execute with explicit outcomes
 
-// 4. Fit check
-var probe = item.Definition.GetDefaultInstance(1);
-if (!inventory.CanItemFitInInventory(probe, qty)) return NoInventorySpace; //:203
+1. Latch the operation before the first fallible provider call so duplicate
+   callbacks cannot start another payment.
+2. Attempt payment and establish its outcome from the provider contract and
+   appropriate state evidence. A thrown call may already have deducted funds.
+3. Transfer items while tracking confirmed delivery per instance/quantity.
+   If a call has an unknown result, mark that part unresolved.
+4. Reconcile stock for the actual retained delivery, following authority and
+   concurrency rules. Reserve or revalidate stock where competing purchases can occur.
+5. Complete the receipt only when money, retained items, stock, and context agree.
+   Treat notification/logging failure separately from settlement failure.
 
-// 5. Pre-create ALL instances BEFORE payment (PocketShop C2 fix)
-var instances = new List<ItemInstance>();
-for (int i=0;i<qty;i++) instances.Add(item.Definition.GetDefaultInstance(1)); //:218
+## Settlement decisions
 
-// 6. Pay — visualizeChange=false to suppress big-screen animation
-try {
-  if (effectiveMode==Cash) money.ChangeCashBalance(-total,false,false); //:233
-  else money.CreateOnlineTransaction($"PocketShop: {item.Name} x{qty}", -total, 1, "PocketShop Order"); //:238
-} catch (Exception payEx) {
-  // NEVER refund — payment didn't happen :243
-  return Error;
-}
+| Established state | Action |
+|---|---|
+| Payment definitely not applied | No refund; no delivery |
+| Payment applied, nothing delivered | Refund the confirmed refundable amount or retry only known-undelivered work |
+| Payment applied, some items delivered | Reverse exactly those transfers if supported, or settle/refund only the undelivered portion |
+| Payment or last delivery effect unknown | Hold for reconciliation; no blind refund or duplicate transfer |
+| Refund effect unknown | Retain unresolved compensation; do not run it again automatically |
+| All intended effects confirmed | Record one completed receipt and the matching stock change |
 
-// 7. Transfer — own try/catch → refund on fail
-try { foreach(var inst in instances) inventory.AddItemToInventory(inst); } //:254
-catch (Exception ex) {
-  if (effectiveMode==Cash) money.ChangeCashBalance(+total,false,false); //:267
-  else money.CreateOnlineTransaction("PocketShop Refund", +total, 1, "Rollback"); //:271
-  return NoInventorySpace;
-}
+A catch around the entire delivery loop must not refund the entire order while
+earlier items remain with the player. Removing arbitrary matching item IDs is not
+a safe rollback if they could belong to the player's pre-existing inventory.
+Define fee treatment for cancellation and partial delivery explicitly.
 
-// 8. Stock decrement only after success
-if (stock!=-1) { item.SourceListing.SetStock(Math.Max(0, stock-qty), true); }
-return Success; //:297 + SoundService.PlayPurchaseSuccess()
-```
+## Save boundary
 
-BuyResult: Success, NotEnoughCash/Bank/Funds, NoInventorySpace, StockEmpty, InvalidQuantity, DefinitionNull, Error. See `BuyResult:14`.
+A receipt or journal must describe the same world checkpoint as money, inventory,
+and stock. A sidecar-only completed marker can suppress a legitimate payment after
+native rollback; a lost marker can permit duplication. Use the project's verified
+checkpoint/recovery design and admit when an exact-once guarantee is unavailable.
+
+## Verification
+
+Cover stock 0, finite stock, unlimited stock, oversized quantity, insufficient
+funds, full inventory, failure before payment, failure after payment mutation,
+first/middle/last delivery failures, partial native acceptance, failed refund,
+double click, host/client race, stock mutation failure, save rollback, and reload.
+Assert all four outcomes: money, retained items, stock, and operation state.
+
+The general [compensating transaction pattern](https://learn.microsoft.com/en-us/azure/architecture/patterns/compensating-transaction)
+requires accounting for completed work and compensation progress. Applying it to
+these native game calls is a design inference, not proof of their behavior.

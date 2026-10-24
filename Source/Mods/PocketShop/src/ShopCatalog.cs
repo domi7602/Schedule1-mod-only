@@ -446,6 +446,7 @@ public static class ShopCatalog
             var nextItems = new List<ItemPOCO>();
             var nextShops = new List<ShopPOCO>();
             int registeredCount = 0;
+            int hiddenSuppliers = 0;
             bool refreshHadShopReadError = false;
 
             for (int s = 0; s < allShops.Count; s++)
@@ -456,6 +457,13 @@ public static class ShopCatalog
 
                 try
                 {
+                    string code = ResolveShopCode(shop, s);
+                    if (ShopDirectoryPolicy.IsHiddenS1ApiSupplier(shop.ShopName, code))
+                    {
+                        hiddenSuppliers++;
+                        continue;
+                    }
+
                     var listings = shop!.Listings;
                     if (listings == null || listings.Pointer == IntPtr.Zero || listings.WasCollected)
                     {
@@ -464,7 +472,6 @@ public static class ShopCatalog
                         continue;
                     }
 
-                    string code = ResolveShopCode(shop, s);
                     EPaymentType paymentType;
                     try { paymentType = shop.PaymentType; }
                     catch { paymentType = (EPaymentType)(-1); }
@@ -544,6 +551,11 @@ public static class ShopCatalog
                     // A broken shop entry is isolated; do not discard the last fully committed snapshot.
                     MelonLogger.Warning($"PocketShop skipped an unreadable shop: {ex.Message}");
                 }
+            }
+
+            if (hiddenSuppliers > 0)
+            {
+                MelonLogger.Msg($"[PocketShop] hid {hiddenSuppliers} S1API supplier shop(s) from the phone directory");
             }
 
             if (refreshHadShopReadError || registeredCount == 0 || nextShops.Count == 0) return;

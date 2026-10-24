@@ -1,5 +1,7 @@
 # Noise System (Schedule I)
 
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 50/52 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep. Decompiles are IL2CPP interop stubs — hierarchy/signatures/CallerCount verified, method bodies not readable.
 
 ## Core Classes
@@ -18,7 +20,7 @@
 
 **NOT implemented:** no `Breaking`, no `Scream`, no `Vehicle` types. The old claim "Footstep, Gunshot, Breaking, etc." was wrong — only 3 enum values exist.
 
-## Events (verified raising chain)
+## Events (previously reported raising chain)
 
 | Event | Raising / Handler |
 |-------|-------------------|
@@ -36,13 +38,13 @@
 - `NoiseEvent.OriginInSewer` is a dedicated flag — sewer origins get special treatment (see [`15-Sewer.md`](15-Sewer.md); range behavior unverified).
 - `NoiseEvent` consumers: `NPCAwareness`, `NPCResponses`, `NPCResponses_Civilian`, `NPCResponses_Police`, `NPCResponses_CartelGoon`.
 - Combined detection: police pursuit = Vision ([`62-Vision.md`](62-Vision.md)) + Noise + Law ([`12-Heat-Pursuit-Law.md`](12-Heat-Pursuit-Law.md)).
-- `Player.Sneaky` (verified property) exists as drug-effect variable; its exact influence on footstep emission is **unverified**.
+- `Player.Sneaky` (previously reported property) exists as drug-effect variable; its exact influence on footstep emission is **unverified**.
 
 ## Save participation
 
 None — `NoiseUtility` is static; `NoiseEvent`/`Listener` are not `ISaveable` and never persist.
 
-## Hook Points
+## Candidate Hook Points
 
 1. **Prefix `NoiseUtility.EmitNoise`** — single global tap: log, filter or amplify all noise (static method, no instance needed).
 2. **Prefix `Listener.Notify`** — per-NPC hearing control (silence specific NPCs, spoof events).
@@ -51,23 +53,9 @@ None — `NoiseUtility` is static; `NoiseEvent`/`Listener` are not `ISaveable` a
 
 ---
 
----
+## Unresolved identifiers in the imported 2026-10-08 record
 
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+The imported scan did not resolve the following tokens within its recorded search scope. These may be placeholders, attributes from another assembly or drift candidates. Search the actual declaring assembly and version before concluding that an API was removed.
 
 - `Scream`
 - `Breaking`

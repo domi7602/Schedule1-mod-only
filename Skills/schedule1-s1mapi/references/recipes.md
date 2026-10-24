@@ -1,240 +1,85 @@
-# S1MAPI — End-to-End Recipes
+# S1MAPI — End-to-End Construction Plans
+
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 17/18 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
+## Scope
 
-Step-by-step real-world recipes combining multiple S1MAPI modules.
+These are implementation contracts, not copy-and-paste code or tested API signatures. Select members from the current target assembly using [building](building.md), [meshes](procedural-mesh.md), [interior](interior.md), and [GLTF](gltf-loading.md). The earlier recipes used members their own reference marked absent; those contradictory chains are removed.
 
----
+## Shared sequence
 
-## Recipe 1: Simple Lounge (Procedural Only)
+1. Define the feature's stable identity, layout data, world prerequisites, authority, and persistence owner.
+2. Resolve actual assets and API contracts before mutation.
+3. Build one owned inactive root in idempotent phases.
+4. Validate geometry/materials/collision before dependent interaction or navigation.
+5. Position the root before footprint-dependent terrain and navigation work.
+6. Add gameplay only through supported initialization/registration paths.
+7. Publish readiness after all mandatory phases succeed; optional failures remain explicit.
+8. Teardown runtime resources without losing a pending durable save/recovery record.
 
-**Goal:** A 10×10m lounge with a couch, table, lamp, and emissive neon sign. No external models.
+## Plan A — Procedural lounge
 
-```csharp
-using MelonLoader;
-using S1API.Lifecycle;
-using S1MAPI.Building;
-using S1MAPI.Interior;
-using S1MAPI.ProceduralMesh;
-using S1MAPI.World;
-using UnityEngine;
+**Input:** footprint, room height, door/window layout, furniture definitions, lighting budget.
 
-public class LoungeMod : MelonMod
-{
-    public override void OnInitializeMelon()
-    {
-        GameLifecycle.OnLoadComplete += BuildLounge;
-    }
+- Generate a shell through verified building methods and openings.
+- Place seating and tables in local coordinates with clear walking paths.
+- Build a sign mesh and assign an owned emissive material; emission and room illumination are separate decisions.
+- Build required navigation after collision and furniture are final.
+- Register save data only if the layout is user-modifiable; deterministic static content can rebuild from versioned definitions.
 
-    private void BuildLounge()
-    {
-        Vector3 origin = new Vector3(50, 0, 50);
-        TerrainClearer.Clear(origin, 15f);
-        FlattenTerrain.Flatten(origin, new Vector2(12, 12), 0f);
+**Acceptance:** doorway traversal, furniture clearance, readable sign in day/night, repeated load without duplicates, and complete owned-resource cleanup.
 
-        // Build the lounge
-        var building = BuildingBuilder.Create("Lounge")
-            .SetFloor(origin, new Vector2(10, 10))
-            .SetCeiling(origin + Vector3.up * 3, new Vector2(10, 10))
-            .AddWall(WallSegment.North(origin + Vector3.up * 1.5f + Vector3.forward * 5, 10)
-                .WithDoor(new Vector3(origin.x, 1f, origin.z + 5f),
-                          new Vector2(1.2f, 2.2f), DoorStyle.Wood))
-            .AddWall(WallSegment.South(origin + Vector3.up * 1.5f - Vector3.forward * 5, 10)
-                .WithWindow(new Vector3(origin.x, 1.5f, origin.z - 5f),
-                            new Vector2(2f, 1.2f), WindowStyle.Glass))
-            .AddWall(WallSegment.East(origin + Vector3.up * 1.5f + Vector3.right * 5, 10))
-            .AddWall(WallSegment.West(origin + Vector3.up * 1.5f - Vector3.right * 5, 10))
-            .Build();
+## Plan B — Showroom with an imported rack
 
-        // Furniture
-        InteriorBuilder.Add(building, FurnitureType.Couch, new Vector3(0, 0.4f, 2));
-        InteriorBuilder.Add(building, FurnitureType.Table, new Vector3(0, 0.4f, 3));
+**Input:** shell definition, packaged GLB resource, expected bounds and orientation, material requirements.
 
-        // Neon sign (procedural)
-        new ProceduralMeshBuilder("NeonSign")
-            .AddBox(origin + new Vector3(0, 2.5f, 4.95f), new Vector3(3, 0.3f, 0.05f))
-            .SetMaterialPreset(MaterialPreset.Emissive)
-            .SetEmission(Color.cyan, intensity: 2.5f)
-            .Build();
+- Build the shell and validate the resource exists in the compiled package.
+- Import with a supported loader/shader; handle an absent result before accessing transforms.
+- Parent and place the rack once in the building's local frame.
+- Create collision appropriate to the rack; keep a walkable display aisle.
+- Separate visual glass from physical barriers and check transparent sorting.
+- Add functional interactions only if required, using verified game contracts.
 
-        // NPC pathfinding
-        NavigationBuilder.BuildFor(building);
-    }
-}
-```
+**Acceptance:** clean installation, missing/corrupt asset, exact rack scale, texture/normal appearance, collision, and repeated reload memory.
 
----
+## Plan C — Quest in a library
 
-## Recipe 2: Custom Building with GLTF Model
+**Input:** static library geometry, stable quest identity, NPC role, destinations, progression state.
 
-**Goal:** A 15×15m showroom displaying a custom weapon rack (exported from Blender as weapons.glb).
+- Build geometry and navigation first.
+- Register the NPC through S1API's supported discovery/prefab path.
+- Create or locate the quest through the verified quest lifecycle; quest creation is not NPC spawning.
+- Bind dialogue and progression to stable IDs, and reattach saved callbacks after load.
+- Gate readiness so the NPC does not enter a location still under construction.
 
-```csharp
-using MelonLoader;
-using S1API.Lifecycle;
-using S1MAPI.Building;
-using S1MAPI.Gltf;
-using S1MAPI.Interior;
-using S1MAPI.Materials;
-using S1MAPI.World;
-using System.Reflection;
-using UnityEngine;
+**Acceptance:** only one NPC and quest instance, reachable destinations, dialogue exit, progression restoration, and no repeat rewards after reload.
 
-public class ShowroomMod : MelonMod
-{
-    public override void OnInitializeMelon()
-    {
-        GameLifecycle.OnLoadComplete += BuildShowroom;
-    }
+## Plan D — Replace one suitable AssetBundle model
 
-    private void BuildShowroom()
-    {
-        Vector3 origin = new Vector3(100, 0, 0);
-        TerrainClearer.Clear(origin, 20f);
-        FlattenTerrain.Flatten(origin, new Vector2(16, 16), 0f);
+**Input:** asset inventory listing mesh, texture, shader, animation, controller, particles, and components.
 
-        // Build the room
-        var building = BuildingBuilder.Create("Showroom")
-            .SetFloor(origin, new Vector2(15, 15))
-            .SetCeiling(origin + Vector3.up * 4, new Vector2(15, 15))
-            .AddWall(WallSegment.North(origin + Vector3.up * 2f + Vector3.forward * 7.5f, 15)
-                .WithDoor(new Vector3(origin.x, 1f, origin.z + 7.5f),
-                          new Vector2(1.5f, 2.5f), DoorStyle.Wood))
-            .AddWall(WallSegment.South(origin + Vector3.up * 2f - Vector3.forward * 7.5f, 15)
-                .WithWindow(new Vector3(origin.x, 1.5f, origin.z - 7.5f),
-                            new Vector2(3f, 1.5f), WindowStyle.Glass))
-            .AddWall(WallSegment.East(origin + Vector3.up * 2f + Vector3.right * 7.5f, 15))
-            .AddWall(WallSegment.West(origin + Vector3.up * 2f - Vector3.right * 7.5f, 15))
-            .Build();
+- Identify which content the deployed GLTF loader actually supports.
+- Prototype the static model import and compare appearance, bounds, collision, and runtime cost.
+- Keep Unity-specific or unsupported features on a compatible asset-build path.
+- Change packaging/deployment and validate a clean install before deleting the original dependency.
 
-        // Load weapons.glb from embedded resource
-        var assembly = Assembly.GetExecutingAssembly();
-        byte[] glbData;
-        using (var stream = assembly.GetManifestResourceStream("ShowroomMod.Resources.weapons.glb"))
-        using (var ms = new System.IO.MemoryStream())
-        {
-            stream.CopyTo(ms);
-            glbData = ms.ToArray();
-        }
+**Acceptance:** equivalent required behavior and appearance, measured resource use, documented unsupported features, and reversible asset migration.
 
-        var weaponRack = GltfLoader.LoadGlb(glbData);
-        weaponRack.transform.SetParent(building.transform);
-        weaponRack.transform.localPosition = new Vector3(0, 0, 0);
+## Plan E — Multi-floor building
 
-        // Glass display case
-        new ProceduralMeshBuilder("DisplayCase")
-            .AddBox(origin + new Vector3(0, 1f, 0), new Vector3(2, 2, 0.05f))
-            .SetMaterialPreset(MaterialPreset.Glass)
-            .SetColor(new Color(0.7f, 0.9f, 1f, 0.5f))
-            .Build();
+**Input:** per-floor elevations/bounds, stair and landing geometry, opening definitions, agent dimensions.
 
-        // Furniture
-        InteriorBuilder.Add(building, FurnitureType.Desk, new Vector3(0, 0.5f, 4));
-        InteriorBuilder.Add(building, FurnitureType.Chair, new Vector3(0.5f, 0.5f, 4.5f));
+- Define every floor/ceiling and connecting stair explicitly.
+- Avoid assuming an unverified convenience helper creates valid stairs or navigation.
+- Verify headroom, slope, railings/collision, and entry/exit at each level.
+- Build and test navigation links or the selected interior path system after final transforms.
 
-        // NPCs walk in
-        NavigationBuilder.BuildFor(building);
-    }
-}
-```
+**Acceptance:** player and every required NPC can traverse all levels in both directions; removed links or blocked stairs fail visibly without teleporting or trapping actors.
 
----
+## Failure exercise
 
-## Recipe 3: Mod-Authored Quest Inside a Custom Building
+For the chosen plan, inject one failure at asset resolution, construction, navigation, network spawn, and save. Confirm the completed prior phase remains consistent or the feature rolls back to a defined safe state. Do not mark a feature tested because the builder method names were found.
 
-**Goal:** A 3-quest storyline (`S1API.Quests.Quest`) inside a procedurally-built library.
+## Evidence
 
-```csharp
-public class LibraryQuestMod : MelonMod
-{
-    public override void OnInitializeMelon()
-    {
-        GameLifecycle.OnLoadComplete += BuildAndSpawnQuest;
-    }
-
-    private void BuildAndSpawnQuest()
-    {
-        // 1. Build the library with S1MAPI
-        Vector3 origin = new Vector3(70, 0, 30);
-        TerrainClearer.Clear(origin, 18f);
-        FlattenTerrain.Flatten(origin, new Vector2(14, 14), 0f);
-
-        var building = BuildingBuilder.Create("Library")
-            .SetFloor(origin, new Vector2(12, 12))
-            .SetCeiling(origin + Vector3.up * 3.5f, new Vector2(12, 12))
-            .AddWall(WallSegment.North(origin + Vector3.up * 1.75f + Vector3.forward * 6, 12)
-                .WithDoor(new Vector3(origin.x, 1f, origin.z + 6f),
-                          new Vector2(1.2f, 2.2f), DoorStyle.Wood))
-            .AddWall(WallSegment.South(origin + Vector3.up * 1.75f - Vector3.forward * 6, 12))
-            .AddWall(WallSegment.East(origin + Vector3.up * 1.75f + Vector3.right * 6, 12))
-            .AddWall(WallSegment.West(origin + Vector3.up * 1.75f - Vector3.right * 6, 12))
-            .Build();
-
-        // 2. Fill with shelves
-        for (int i = 0; i < 4; i++)
-        {
-            InteriorBuilder.Add(building, FurnitureType.Shelf,
-                                new Vector3(-4 + i * 2.5f, 0.5f, 4));
-        }
-
-        // 3. NPC pathfinding
-        NavigationBuilder.BuildFor(building);
-
-        // 4. Spawn a librarian NPC via S1API
-        var librarian = QuestManager.CreateQuest<FindBookQuest>();
-        // (NPC spawning pattern — see ../schedule1-s1api/references/entities.md)
-    }
-}
-```
-
-This is the **S1MAPI + S1API sweet spot**: S1MAPI builds the world, S1API fills it with quests and NPCs.
-
----
-
-## Recipe 4: Replace AssetBundle Workflow with GLTF
-
-**Migration:** Drop your `.bundle` files. Use `.glb` + `GltfLoader` instead.
-
-| Old (AssetBundle) | New (S1MAPI) |
-|---|---|
-| `var bundle = AssetBundle.LoadFromFile("MyBundle.bundle");` | `var model = GltfLoader.LoadGlb(glbData);` |
-| `var prefab = bundle.LoadAsset<GameObject>("MyPrefab");` | (no AssetBundle; use ProceduralMeshBuilder or .glb) |
-| `Instantiate(prefab)` | `Instantiate(model)` |
-| Build staged in Unity Editor | Build = project compiles; .glb is embedded |
-
-**Win:** No version lock, no Unity Editor roundtrip, simpler build pipeline.
-
----
-
-## Recipe 5: Multi-Floor Building
-
-```csharp
-var building = BuildingBuilder.Create("OfficeTower")
-    .SetFloor(new Vector3(0, 0, 0), new Vector2(10, 10))    // ground floor
-    .AddFloor(new Vector3(0, 3f, 0), new Vector2(10, 10))   // 2nd floor (ceiling of 1st = floor of 2nd)
-    .AddFloor(new Vector3(0, 6f, 0), new Vector2(10, 10))   // 3rd floor
-    .AddStairsBetween(prev: 0f, next: 3f, position: new Vector3(4, 0, 4))
-    .AddStairsBetween(prev: 3f, next: 6f, position: new Vector3(4, 3, 4))
-    .AddWall(WallSegment.North(new Vector3(0, 3f, 5), 10))  // 2nd floor walls
-    .Build();
-```
-
-`AddFloor` adds a floor slab; `AddStairsBetween` creates a walkable staircase.
-
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
-
-- `AddStairsBetween`
+The recipes are engineering recommendations composed from this package's corrected ownership/lifecycle contracts. Concrete signatures must come from the linked specialist references and deployed assemblies. No recipe in this revision was compiled or executed in the user's game.

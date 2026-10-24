@@ -1,161 +1,71 @@
 ---
 name: schedule1-custom-npcs
-description: Focused Schedule One S1API custom NPC creation skill. Use when creating, editing, debugging, or reviewing custom NPC classes for Schedule 1 mods, including physical or non-physical NPCs, ConfigurePrefab builder setup, appearance, schedules, dialogue, customer behavior, dealer behavior, runtime lifecycle hooks, save/load callback restoration, and AvatarFramework-backed appearance ranges and asset paths. Keywords: NPC, NPCPrefabBuilder, ConfigurePrefab, OnCreated, Appearance, Avatar, Schedule, Dialogue, Customer, Dealer, EnsureDealSignal, OnResponseLoaded, layers.
+description: "Build and restore custom Schedule I NPCs. Keywords: NPC, NPCPrefabBuilder, ConfigurePrefab, OnCreated, Appearance, Avatar, Schedule, Dialogue, Customer, Dealer, EnsureDealSignal, OnResponseLoaded, layers."
 ---
 
 > Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
-# Schedule One Custom NPCs (S1API)
+# Schedule I — Custom NPCs
 
-Use this skill to build custom NPCs with `S1API` using the documented two-phase model and the underlying `AvatarFramework` constraints.
+Apply the [shared working contract](../schedule1-modding/references/working-contract.md).
+Use the installed S1API assembly as the signature authority; the requested target is S1API 3.2.1. <!-- skills-health: version-evidence (S1API target requested by the owner; installed build state lives in AGENTS.md) -->
 
-## Workflow
+## Establish the NPC contract
 
-Follow this order:
+1. Identify physical versus non-physical presence and customer/dealer/supplier/story roles.
+2. Define stable identity, save ownership, spawn prerequisites, and desired runtime interactions.
+3. Inspect the current NPC base, prefab builder, schedule wrappers, and lifecycle callbacks.
+4. Compare checked-in source with the deployed assembly before using visibility or signature claims.
+5. Confirm required assets, destination reachability, and multiplayer authority.
 
-1. Classify the NPC as `physical`, `non-physical`, `customer`, `dealer`, or a mixed interaction/UI contact.
-2. Put persistent prefab-time data in `ConfigurePrefab(...)`.
-3. Put runtime behavior in `OnCreated()` and add `OnDestroyed()`, `OnLoaded()`, or `OnResponseLoaded(...)` when needed.
-4. Prefer S1API builder and wrapper APIs over direct low-level object manipulation.
-5. Return minimal, reviewable changes plus explicit manual verification steps.
+## Separate responsibilities
 
-## Core Model
+| Stage | Responsibility |
+|---|---|
+| Prefab configuration | Stable identity, role infrastructure, spawn, appearance defaults, relationship/customer/dealer defaults, schedule definitions, required action components |
+| Instance creation | Base initialization, appearance application, supported schedule activation, dialogue and event wiring |
+| Load restoration | Runtime references, state affected by loading, saved message-response callbacks |
+| Final teardown | Detach owned delegates, release leases and cached ownership, remove owned runtime resources |
 
-Keep these responsibilities separate:
+Let S1API own custom NPC creation. Do not create a second instance manually or change its persistent ID
+as an incidental refactor. Role properties must not depend on initialization that occurs too late.
 
-- `ConfigurePrefab(...)`: identity, icon, spawn position, relationship defaults, customer defaults, dealer defaults, inventory defaults, schedule, and action-specific `Ensure*` calls such as `plan.EnsureDealSignal()`. Role infrastructure comes automatically from `IsCustomer`, `IsDealer`, and `IsSupplier`; do not add `EnsureCustomer()`, `EnsureDealer()`, or `EnsureSupplier()`.
-- `OnCreated()`: `base.OnCreated()`, `Appearance.Build()`, `Schedule.Enable()`, `Schedule.InitializeActions()` when needed, dialogue wiring, event subscriptions, text messages, and runtime state.
+## Implement in order
 
-Do not move persistent customer, dealer, relationship, or schedule defaults into runtime code.
+1. Configure persistent defaults through the verified prefab path.
+2. Prefer supported schedule wrappers over low-level action specs for ordinary movement and interaction.
+3. Add only verified action prerequisites. Check customer/dealer deal signals against the selected role.
+4. Apply runtime appearance through the supported build/apply path.
+5. Enable the schedule through its public contract. **Do not call `Schedule.InitializeActions()` from mod code based on old examples:** inherited source inspection found it internal and framework-owned.
+6. Bind dialogue callbacks and release dialogue from a safe choice/completion path; avoid reentrant override changes during node display.
+7. Rebind persisted message-response behavior after loading and make one-time introductions idempotent.
+8. Add ownership-aware cleanup before feature expansion; stale teardown must not erase a replacement instance's registration.
 
-## Decision Rules
+## Native behavior and recovery
 
-### Physical vs non-physical
+- Resolve the actual native behavior controller, including verified child placement; do not assume root-only lookup.
+- Adding a network component and assigning an owner does not establish FishNet registration.
+- Retain borrowed behavior state until release is confirmed. Failed release blocks replacement navigation.
+- Read back critical native mutations. A wrapper call returning normally does not prove the intended field changed.
+- Recover only the exact registered NPC under the appropriate authority; refuse unconfirmed recovery instead of silently replacing it.
+- Preserve foreign/player ownership and bound retries. Lost native registration can require a scene reload.
 
-- `IsPhysical => true`: world entity, avatar, spawn point, schedule, direct interaction.
-- `IsPhysical => false`: messaging/contact-focused NPC, usually no spawn point and no schedule.
+## Verify
 
-### Customer vs dealer
+Test spawn, appearance/mugshot, direct interaction, complete scheduled routes, role-specific behavior,
+dialogue exit, same-save reload, save switch, restored responses, host/client behavior, and teardown.
+Include blocked/missing destinations, unavailable assets, and repeated callbacks. Compile against the
+actual target assembly before describing an API pattern as supported.
 
-- Customer NPCs declare `public override bool IsCustomer => true;`, then optionally use `WithCustomerDefaults(...)`.
-- Customer schedules usually need `plan.EnsureDealSignal()`.
-- Dealer NPCs declare `public override bool IsDealer => true;`, then optionally use `WithDealerDefaults(...)`.
-- Dealer schedules need `plan.EnsureDealSignal()` to function correctly, and may use `plan.HandleDeal(...)` when that better fits the role.
+## Read on demand
 
-## Hard Rules
+| Need | Reference |
+|---|---|
+| API responsibilities, appearance constraints, schedule/lifecycle cautions | [NPC reference](references/s1api-custom-npc-reference.md) |
+| Customer, dealer, contact, story, or conditional-presence design | [Role patterns](references/example-project-patterns.md) |
 
-- Prefer the parameterless NPC constructor for new code.
-- Never manually instantiate custom NPCs with `new`; let S1API own instancing.
-- Treat `WithIdentity(id, ...)` as stable save data. Changing the `id` effectively creates a different NPC.
-- Configure customer, dealer, relationship, and schedule defaults only in `ConfigurePrefab(...)`.
-- Always call `Appearance.Build()` after runtime appearance changes.
-- For physical NPCs, call `Schedule.Enable()` in `OnCreated()`; add `Schedule.InitializeActions()` when actions require it.
-- Unsubscribe from events in `OnDestroyed()`.
-- Reattach saved text-message callbacks in `OnResponseLoaded(...)` when messages must keep working after load.
-- Restore load-sensitive runtime state in `OnLoaded()`.
-- Call `ClearConversationCategories()` for contacts that should not show the default Customer/Supplier/Dealer badge.
-- Prefer schedule wrapper methods like `WalkTo(...)`, `StayInBuilding(...)`, `UseVendingMachine(...)`, `LocationDialogue(...)`, and `HandleDeal(...)`; use `plan.Add(new ...Spec())` only for advanced cases.
-- Before using `LocationBased(...).OnArriveSmokeBreak()`, `OnArriveGraffiti()`, `OnArriveDrinking()`, or `OnArriveHoldItem()`, add the corresponding prefab-time `Ensure*` component.
-- Do not call `Dialogue.StopOverride()` from `OnNodeDisplayed(...)`; only call it from safe callback points such as `OnChoiceSelected(...)`.
+## Evidence and output
 
-## Minimal Skeletons
-
-### Physical NPC
-
-```csharp
-using S1API.Entities;
-using UnityEngine;
-
-public sealed class MyCustomNpc : NPC
-{
-    public override bool IsPhysical => true;
-
-    protected override void ConfigurePrefab(NPCPrefabBuilder builder)
-    {
-        var spawnPos = new Vector3(0f, 0f, 0f);
-
-        builder.WithIdentity("my_custom_npc", "Alex", "Example")
-            .WithSpawnPosition(spawnPos)
-            .WithRelationshipDefaults(r =>
-            {
-                r.WithDelta(1.0f)
-                    .SetUnlocked(true)
-                    .SetUnlockType(NPCRelationship.UnlockType.DirectApproach);
-            })
-            .WithSchedule(plan =>
-            {
-                plan.WalkTo(spawnPos, 900);
-            });
-    }
-
-    protected override void OnCreated()
-    {
-        base.OnCreated();
-        Appearance.Build();
-        Schedule.Enable();
-    }
-}
-```
-
-### Non-physical contact NPC
-
-```csharp
-using S1API.Entities;
-
-public sealed class ContactNpc : NPC
-{
-    public override bool IsPhysical => false;
-
-    protected override void ConfigurePrefab(NPCPrefabBuilder builder)
-    {
-        builder.WithIdentity("contact_npc", "Unknown", "Contact")
-            .WithIcon(null);
-    }
-
-    protected override void OnCreated()
-    {
-        base.OnCreated();
-        ClearConversationCategories();
-        SendTextMessage("Hello from the contact.");
-    }
-}
-```
-
-## Appearance Rules
-
-Read `references/s1api-custom-npc-reference.md` for the detailed appearance and AvatarFramework notes. The most important constraints are:
-
-- `Gender`: treat as normalized `0.0f` to `1.0f`; `Avatar.IsMale()` uses `< 0.5f`.
-- `Weight`: treat as normalized `0.0f` to `1.0f`; AvatarFramework applies it as a blendshape percentage.
-- `Height`: AvatarFramework does not clamp it, but S1API defaults and random generation center around `0.98f` to `1.0f`; use `0.8f` to `1.2f` as the safe practical range unless you intentionally want exaggerated scaling.
-- `PupilDilation`: use `0.0f` to `1.0f`.
-- `EyeLidRestingState` values: each lid value should stay in `0.0f` to `1.0f`.
-- `EyebrowRestingHeight`: runtime code clamps this to `-1.1f` through `1.5f`.
-- Practical layer limits: keep face layers to 6, body layers to 6, and accessories to 9.
-- Asset paths must match `Resources.Load(...)` style paths, such as `Avatar/Hair/Spiky/Spiky` or `Avatar/Layers/Top/T-Shirt`, with no file extension.
-
-## Reference Files
-
-- Read `references/s1api-custom-npc-reference.md` for API guidance, runtime lifecycle behavior, schedule rules, and AvatarFramework-backed appearance constraints.
-- Read `references/example-project-patterns.md` for reusable implementation patterns without depending on any local sample repository.
-
-## Output Expectations
-
-When producing code or guidance, include:
-
-- The NPC type and why it fits.
-- What belongs in `ConfigurePrefab(...)` versus `OnCreated()`.
-- Which files need to change.
-- Manual checks for spawn, mugshot/icon, interaction, schedule execution, customer/dealer behavior, save/load restoration, and any message-response callbacks.
-
-## Common Pitfalls
-
-- Setting appearance defaults but forgetting `Appearance.Build()`.
-- Making `IsCustomer`, `IsDealer`, or `IsSupplier` depend on constructor or initialized field state.
-- Calling `WithDealerDefaults(...)` without `IsDealer => true`.
-- Omitting `EnsureDealSignal()` for customer or dealer schedules that need deals/contracts.
-- Using advanced location-based actions without the matching `Ensure*` call.
-- Using `plan.Add(new ...Spec())` for simple cases where a wrapper method is clearer.
-- Modifying persistent defaults in `OnCreated()` instead of `ConfigurePrefab(...)`.
-- Forgetting to restore message response callbacks in `OnResponseLoaded(...)`.
-- Changing the NPC `id` without realizing it changes save identity.
+The inherited NPC reference records a 2026-10-05 source/DLL mismatch; no current-runtime validation is
+implied. Preserve useful source anchors, but recheck exact members in the supplied build. Return role,
+identity policy, stage responsibilities, changed files, verified API evidence, and concrete playtests.

@@ -1,71 +1,68 @@
 ---
 name: schedule1-3d-assets
-description: >-
-  Comprehensive 3D asset, Blender pipeline, and Unity URP rendering runbook for Schedule I modding.
-  Use this skill whenever creating 3D models in Blender, fixing rendering issues (pink shaders, flipped normals, axis rotations), exporting to .obj/.glb/AssetBundles, rigging/attaching to avatar bones (Spine2, Head, Hands), setting up PBR materials, and tuning proportions for Schedule I characters and props.
-  Keywords: Blender, 3D, Mesh, URP, Universal Render Pipeline, Shader, Material, Lit, Unlit, Pink Texture, Flipped Normals, Backface Culling, ObjLoader, GLTF, GLB, AssetBundle, Bone Attachment, Spine2, Humanoid, Zero Collider, Scale.
+description: "Create Schedule I meshes, materials and texture assets. Keywords: Blender, 3D, Mesh, URP, Universal Render Pipeline, Shader, Material, Lit, Unlit, Pink Texture, Flipped Normals, Backface Culling, ObjLoader, GLTF, GLB, AssetBundle, Bone Attachment, Spine2, Humanoid, Zero Collider, Scale."
 ---
 
 > Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
-# Schedule I — 3D Asset & Blender Rendering Pipeline
+# Schedule I — 3D Assets
 
-This skill is the **complete runbook** for creating, exporting, and rendering 3D assets in *Schedule I* with the Universal Render Pipeline.
+Apply the [shared working contract](../schedule1-modding/references/working-contract.md).
+Choose the asset pipeline from the required content and the actual loader capabilities.
 
----
+## Establish prerequisites
 
-## 1. Decision Tree: Which 3D Asset Pipeline to Use?
+- Inspect the supplied asset, its source authoring file, intended pivot, units, and animation needs.
+- Identify the installed runtime, render pipeline, supported shader variants, and loader.
+- Determine who owns meshes, materials, textures, colliders, and instantiated roots.
+- Measure the target avatar or prop in world space; do not promote one historical local-space measurement to a universal game scale.
+- Record visual and performance acceptance criteria before changing export settings.
 
-```mermaid
-flowchart TD
-    Start[3D Asset Needed] --> Type{Which asset type?}
+## Choose a pipeline
 
-    Type -->|Simple geometry / primitive| A[Procedural MeshBuilder / S1MAPI]
-    Type -->|Static props / clothing / backpacks| B{Textures & complexity?}
-    Type -->|Complex rigs / animated models / effects| C[Unity AssetBundle]
+| Asset need | Candidate | Required check |
+|---|---|---|
+| Simple geometry | Unity mesh or S1MAPI builder | Topology, collider, material ownership |
+| Static simple prop | Existing OBJ loader | UV/normal/material support and axis conversion |
+| Textured static model | S1MAPI GLB/GLTF loader | Supported extensions, texture formats, failure behavior |
+| Complex animation, particle system, custom shader | Unity AssetBundle | Game/editor compatibility and retained shader variants |
 
-    B -->|Simple mesh / palette / runtime .obj| D[ObjLoader Pipeline .obj]
-    B -->|PBR textures / GLTF standard| E[S1MAPI GltfLoader .glb/.gltf]
+Do not replace AssetBundles wholesale with GLB. Mesh interchange does not carry every Unity-specific
+component, shader, animation controller, or effect. Code can use existing shaders and retained variants;
+a new shader needs a compatible build/asset route. A C# DLL is not a general Unity shader compiler.
 
-    A --> Out1[100% C# procedural - 0 external files]
-    D --> Out2[Zero-dependency .obj in UserData/Mods]
-    E --> Out3[Full PBR embed via S1MAPI]
-    C --> Out4[Unity Editor Build Pipeline]
-```
+## Workflow
 
-| Pipeline | File format | Loader / Tool | When to use? |
-|---|---|---|---|
-| **1. ObjLoader (Lightweight)** | `.obj` | `ObjLoader.cs` (in `Shared`/Mod) | Backpacks, hats, weapons, hand-items, signs, deco. Loads directly from `UserData/<Mod>/models/`. |
-| **2. S1MAPI GltfLoader** | `.glb` / `.gltf` | `S1MAPI.ProceduralMesh.GltfLoader` | Full PBR models with embedded textures, furniture, vehicles, building interiors. |
-| **3. Procedural Meshes** | C# code | `ProceduralMeshBuilder` / `Mesh` | Sleeping bags, crates, UI meshes, dynamic geometric shapes without external files. |
-| **4. Unity AssetBundle** | `.bundle` | `AssetBundle.LoadFromFile` | Animated characters, complex skeleton rigs, particle effects, custom shaders. |
+1. Preserve the original authoring asset. Normalize only the transforms required by the selected pipeline.
+2. Preserve the chosen pivot and rig contract; applying all transforms blindly can change attachment or animation behavior.
+3. Verify normals, triangle winding, UVs, negative scale, and mesh bounds.
+4. Export a small representative asset and validate scale, orientation, and materials before a full batch.
+5. Resolve a shader supported by the running pipeline. If none is available, fail the visual feature cleanly or preserve a verified existing material.
+6. Reuse borrowed materials read-only. For isolated changes use a deliberately owned material or a tested property override.
+7. Build collider policy by role: cosmetic wearable, decorative prop, or interactive physical object.
+8. Attach to an unambiguous target instance/bone and keep ownership records for replacement and cleanup.
+9. Load new resources before replacing old ones; on failure destroy partial owned resources and retain the last usable asset.
+10. Release owned runtime resources when their last consumer is gone; do not destroy borrowed game assets.
 
----
+## Failure and performance checks
 
-## 2. The 7 Golden Rules for 3D Assets in Schedule I
+- Missing shader, corrupt image, unsupported GLTF extension, missing bone, and invalid scale must give an actionable bounded diagnostic.
+- Disable cosmetic colliders before deferred destruction when immediate collision/raycast exclusion is required.
+- Avoid full-scene searches and uncached material instantiation in per-frame paths.
+- Profile upload size, draw calls, material count, and repeated reload memory. A property block is not automatically faster under URP.
+- Test the visible result under daylight and artificial light, from all relevant distances and animation poses.
 
-1. **Transform Reset in Blender (<kbd>Ctrl+A</kbd>):**  
-   Always run <kbd>Ctrl+A</kbd> → **Apply All Transforms** (Rotation, Scale, Location) in Blender before export. Never export unscaled or rotated objects!
-2. **Coordinate Standard (Z-Up vs. Y-Up):**  
-   Blender uses $+Z$ as up, Unity uses $+Y$ as up. Export settings for OBJ/GLTF: **Forward: `-Z Forward` / Up: `Y Up`**.
-3. **Face Orientation & Normals Check (<kbd>Shift+N</kbd>):**  
-   Enable the **Face Orientation** overlay in Blender before export. Blue faces = outside, red faces = inside. If outward-facing faces are red, select all (<kbd>A</kbd>) and press <kbd>Shift+N</kbd>.
-4. **URP Shader Compatibility (*Pink Shader Fix*):**  
-   *Schedule I* runs on the **Universal Render Pipeline (URP)**. Standard Built-in Unity shaders show up as bright pink. Always use `Shader.Find("Universal Render Pipeline/Lit")` or `"Universal Render Pipeline/Unlit"`.
-5. **Zero-Collider Rule for Clothing & Wearables:**  
-   Clothing items, backpacks, or worn accessories must **not have active colliders** (`Destroy(collider)` on load), otherwise they intercept raycasts, block inventory clicks, or cause physics glitches.
-6. **Respect Avatar Proportions:**  
-   The *Schedule I* character is slim and stylized. Torso width: ≈0.12–0.14 m, total height: ≈1.75 m. Never use a standard 1m cube as a backpack — align to the real avatar dimensions.
-7. **Material Memory Hygiene (`sharedMaterial` vs `material`):**  
-   Never casually access `renderer.material` in code (creates memory leaks through dynamic instances); use `renderer.sharedMaterial` or cache materials in `static readonly` fields.
+## Reference routing
 
----
+| Trigger | Reference |
+|---|---|
+| Axis, pivot, units, normals, export settings | [Blender export](references/blender-export.md) |
+| Pink model, PBR, material ownership, image failure | [Rendering and materials](references/urp-rendering-materials.md) |
+| Clothing, backpacks, held props, mannequin | [Rigging and attachment](references/rigging-and-attachment.md) |
 
-## 3. Module Overview & Reference Guides
+## Evidence and output
 
-* **[Blender Export & Geometry Preparation](references/blender-export.md):**  
-  Axis conversion, scales, normals fixes, UV mapping, mesh optimization.
-* **[URP Rendering & Material Pipeline](references/urp-rendering-materials.md):**  
-  Universal Render Pipeline shaders, PBR properties (metallic, smoothness, normal maps), texture streaming, and pink-shader avoidance.
-* **[Rigging & Bone Attachment](references/rigging-and-attachment.md):**  
-  Attaching 3D meshes to avatar bones (`Spine2`, `Head`, `Hands`), zero-collider safety, and 360° mannequin inspection.
+Unity ownership and resource-lifetime guidance is linked to official documentation in the references.
+Game-specific paths, bones, dimensions, and loader behaviors require the installed asset/runtime.
+Return the chosen pipeline, assumptions, changed assets/settings, measured checks, and remaining in-game
+verification. Do not label static identifier matches as visual or runtime validation.

@@ -22,6 +22,7 @@
     <Compile Include="../../Mods/PropertyLEDs/src/Layouts.cs" Link="Core/Layouts.cs" />
     <Compile Include="../../Mods/PropertyLEDs/src/LEDSettings.cs" Link="Core/LEDSettings.cs" />
     <Compile Include="../../Mods/PropertyLEDs/src/LEDState.cs" Link="Core/LEDState.cs" />
+    <Compile Include="../../Mods/PropertyLEDs/src/PropertySelection.cs" Link="Core/PropertySelection.cs" />
     <Compile Include="../../Mods/PropertyLEDs/src/SaveDebounce.cs" Link="Core/SaveDebounce.cs" />
     <Compile Include="../../Mods/PropertyLEDs/src/SlotSession.cs" Link="Core/SlotSession.cs" />
     <Compile Include="../../Mods/PropertyLEDs/src/StateCodec.cs" Link="Core/StateCodec.cs" />

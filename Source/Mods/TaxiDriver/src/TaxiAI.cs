@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using Il2CppFishNet.Object;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppScheduleOne.NPCs;
 using Il2CppScheduleOne.NPCs.Behaviour;
 using Il2CppScheduleOne.Vehicles;
 using Il2CppScheduleOne.Vehicles.AI;
 using MelonLoader;
+using S1Mods.Shared;
 using UnityEngine;
 
 namespace TaxiDriver;
@@ -18,8 +20,8 @@ namespace TaxiDriver;
 /// The finding that made this possible: our taxi already drives with the game's own
 /// autopilot (<c>VehicleAgent</c> — the same component every police car uses), so what
 /// was missing is not a driver but the <b>supervision</b> the game puts on top of it.
-/// That supervision is <c>VehiclePatrolBehaviour</c>, and it is fully reachable from a
-/// mod:
+/// That supervision is <c>VehiclePatrolBehaviour</c>. It can only be borrowed when the
+/// driver's prefab already supplies an idle, initialized and registered instance:
 ///
 /// <list type="bullet">
 /// <item><c>VehiclePatrolRoute</c> is a plain object (public ctor): a name plus a
@@ -38,18 +40,41 @@ namespace TaxiDriver;
 /// The pursuit behaviour is NOT usable for us: it hangs off a <c>Player</c> target and
 /// needs vision events — for "drive to a place" the patrol is the right one.
 ///
-/// Everything here is best-effort and reversible: <see cref="StartPatrol"/> returns
-/// <c>false</c> on any failure (having cleaned up after itself) and the caller falls
-/// back to the mod's own <c>Navigate()</c> dispatch. The mod's polling keeps
-/// supervising either way, so the ride kernel's arrival verdict is unchanged.
+/// <see cref="StartPatrol"/> returns false when unavailable. Direct Navigate remains
+/// the fallback, except while a previously borrowed patrol has an unconfirmed release:
+/// its original state stays retained and replacement navigation is blocked.
 /// </summary>
 internal static class TaxiAI
 {
     /// <summary>The GAME's own driver for our taxi, alive only while a ride drives.</summary>
     private static VehiclePatrolBehaviour? Patrol;
-    private static bool PatrolOwned;
-    private static IntPtr LastDestroyedPatrol;
-    private static int LastDestroyedPatrolFrame = -1;
+    private static PatrolLease? Lease;
+
+    private sealed class PatrolLease
+    {
+        internal readonly NPC Driver;
+        internal readonly NPCBehaviour Manager;
+        internal readonly VehiclePatrolBehaviour Patrol;
+        internal readonly LandVehicle Vehicle;
+        internal readonly VehiclePatrolRoute? OriginalRoute;
+        internal readonly LandVehicle? OriginalVehicle;
+        internal readonly bool OriginalEnabled, OriginalAggressive;
+        internal VehiclePatrolRoute? AssignedRoute;
+        internal bool ActivationStarted, DeactivationRequested, Restoring, ReleaseWarning;
+        internal readonly PatrolReleaseGate Release = new();
+
+        internal PatrolLease(NPC driver, NPCBehaviour manager, VehiclePatrolBehaviour patrol, LandVehicle vehicle)
+        {
+            Driver = driver;
+            Manager = manager;
+            Patrol = patrol;
+            Vehicle = vehicle;
+            OriginalRoute = patrol.Route;
+            OriginalVehicle = patrol.Vehicle;
+            OriginalEnabled = patrol.enabled;
+            OriginalAggressive = patrol.aggressiveDrivingEnabled;
+        }
+    }
 
     /// <summary>The runtime-built route handed to the game's behaviour.</summary>
     private static VehiclePatrolRoute? Route;
@@ -74,7 +99,7 @@ internal static class TaxiAI
         {
             try
             {
-                return Patrol != null && Patrol.Pointer != IntPtr.Zero;
+                return Lease != null && !Lease.Release.Requested && Lease.ActivationStarted && NetworkGuard.IsAlive(Patrol);
             }
             catch (Exception)
             {
@@ -117,6 +142,7 @@ internal static class TaxiAI
 
     /// <summary>Human-readable label of the active route.</summary>
     internal static string Label => RouteLabel;
+    internal static bool NavigationBlocked => Lease != null && Lease.Release.Requested;
 
     // ------------------------------------------------------- A: the game's own numbers
 
@@ -229,8 +255,8 @@ internal static class TaxiAI
 
     /// <summary>
     /// Hands the ride to the GAME's own driver: builds a <c>VehiclePatrolRoute</c> with
-    /// two runtime waypoints (where the car is, where it should be) and attaches
-    /// <c>VehiclePatrolBehaviour</c> to the taxi driver, then
+    /// two runtime waypoints (where the car is, where it should be) and leases an
+    /// already registered <c>VehiclePatrolBehaviour</c> from the driver, then
     /// <c>SetRoute</c>/<c>Activate</c>/<c>StartPatrol</c> — the same order the police
     /// chain uses (see <c>PoliceOfficer.StartVehiclePatrol</c>).
     ///
@@ -240,68 +266,38 @@ internal static class TaxiAI
     internal static bool StartPatrol(NPC? driver, LandVehicle? veh, Vector3 arrival, string label, out Vector3 resolvedTarget)
     {
         resolvedTarget = arrival;
-        StopPatrol("restart");
-
-        if (driver == null || veh == null)
-        {
-            Mod.Log.Warn("[patrol] the game's patrol driver needs a driver NPC in the vehicle — none given.");
-            return false;
-        }
-
-        AdoptConstants("ride");
-
+        PatrolLease? lease = null;
         try
         {
+            if (!NetworkGuard.IsAlive(driver) || !SpikeCommands.IsOwnedTaxi(veh) ||
+                !SpikeCommands.HasAuthority() || !NetworkGuard.IsAlive(SpikeState.DriverNpc) ||
+                SpikeState.DriverNpc!.Pointer != driver!.Pointer || veh!.DriverPlayer != null)
+            {
+                StopPatrol("patrol precondition changed");
+                Mod.Log.Warn("[patrol] owned driver/authority unavailable — no patrol activated.");
+                return false;
+            }
+            StopPatrol("restart");
+            if (Lease != null) return false;
+            AdoptConstants("ride");
             Vector3 from = veh.transform.position;
 
-            // Attach/reuse the behaviour FIRST (review 2026-10-02, point 8): the game's
-            // own reachability check needs the instance, and its answer decides the ONE
-            // point that route, NavTarget and drop-off all use afterwards.
-            Patrol = driver.GetComponent<VehiclePatrolBehaviour>();
-            // Unity Destroy is deferred until frame end. Never reuse a component
-            // already scheduled for destruction during a same-frame route change.
-            if (Patrol != null && LastDestroyedPatrolFrame == Time.frameCount &&
-                Patrol.Pointer == LastDestroyedPatrol)
-                Patrol = null;
-            PatrolOwned = false;
-            if (Patrol != null)
+            // Only lease an already registered, idle prefab behaviour. Assigning beh
+            // on a runtime-added NetworkBehaviour is not FishNet initialization.
+            NPCBehaviour manager = driver.Behaviour;
+            var candidate = NetworkGuard.IsAlive(manager)
+                ? manager.GetComponentInChildren<VehiclePatrolBehaviour>(true) : null;
+            if (!BindingValid(driver, manager, candidate, requireIdle: true))
             {
-                TaxiLog.Verbose("[patrol] the taxi driver already carries a VehiclePatrolBehaviour — reusing it.");
+                Mod.Log.Info("[patrol] no idle, registered patrol on the driver's existing controller — using direct Navigate; no runtime network components added.");
+                return false;
             }
-            else
-            {
-                Patrol = driver.gameObject.AddComponent<VehiclePatrolBehaviour>();
-                PatrolOwned = true;
-                TaxiLog.Verbose("[patrol] VehiclePatrolBehaviour attached to the taxi driver (runtime AddComponent) — next: Vehicle, SetRoute, Activate, StartPatrol.");
-            }
-
-            // Behaviour-framework wiring (bug3, 2026-09-29): VehiclePatrolBehaviour is an
-            // NPCs.Behaviour.Behaviour, and the native Activate/StartPatrol expects its
-            // owner wiring (Npc + beh). A runtime AddComponent on our custom taxi_driver
-            // left that wiring null -> the NullReferenceException that threw every clone
-            // attempt back to the mod's Navigate fallback. Wire best-effort.
-            try
-            {
-                // Npc is not settable on this build - the beh wiring below carries the owner.
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"[patrol] Npc wiring failed: {ex.Message}");
-            }
-            try
-            {
-                NPCBehaviour beh = driver.GetComponent<NPCBehaviour>();
-                if (beh == null)
-                    beh = driver.gameObject.AddComponent<NPCBehaviour>();
-                Patrol.beh = beh;
-            }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"[patrol] beh wiring failed: {ex.Message}");
-            }
-
-            Patrol.Vehicle = veh;
-            Patrol.aggressiveDrivingEnabled = false;
+            var patrol = candidate!;
+            lease = new PatrolLease(driver, manager, patrol, veh);
+            Lease = lease; // publish cleanup state before the first native write
+            Patrol = patrol;
+            patrol.Vehicle = veh;
+            patrol.aggressiveDrivingEnabled = false;
 
             // Resolve the dispatch target BEFORE the route is built (review point 8) —
             // the same point goes into the route, NavTarget and the drop-off note.
@@ -318,6 +314,7 @@ internal static class TaxiAI
 
             RouteLabel = label;
             Route = new VehiclePatrolRoute();
+            lease.AssignedRoute = Route;
             Route.RouteName = $"Taxi - {label}";
             Route.Waypoints = new Il2CppReferenceArray<Transform>(new[] { start.transform, goal.transform });
             Route.StartWaypointIndex = 0;
@@ -326,16 +323,20 @@ internal static class TaxiAI
                 $"[patrol] route '{Route.RouteName}': {Route.Waypoints.Length} waypoints " +
                 $"{TaxiDestinations.Fmt(from)} -> {TaxiDestinations.Fmt(resolvedTarget)}.");
 
-            Patrol.SetRoute(Route);
-            TaxiLog.Verbose($"[patrol] SetRoute done (CurrentWaypoint={Patrol.CurrentWaypoint}).");
+            patrol.SetRoute(Route);
+            if (!ReferenceEquals(Lease, lease)) return false;
+            TaxiLog.Verbose($"[patrol] SetRoute done (CurrentWaypoint={patrol.CurrentWaypoint}).");
 
-            Patrol.enabled = true;
-            Patrol.Activate();
+            patrol.enabled = true;
+            lease.ActivationStarted = true; // a partial activation also needs cleanup
+            patrol.Activate();
+            if (!ReferenceEquals(Lease, lease)) return false;
             TaxiLog.Verbose("[patrol] Activate done - StartPatrol next.");
 
-            Patrol.StartPatrol();
+            patrol.StartPatrol();
+            if (!ReferenceEquals(Lease, lease)) return false;
             TaxiLog.Verbose(
-                $"[patrol] StartPatrol done (CurrentWaypoint={Patrol.CurrentWaypoint}, isDriving={Patrol.isDriving}) " +
+                $"[patrol] StartPatrol done (CurrentWaypoint={patrol.CurrentWaypoint}, isDriving={patrol.isDriving}) " +
                 "— THE GAME DRIVES NOW, the mod only supervises.");
 
             return true;
@@ -344,20 +345,46 @@ internal static class TaxiAI
         {
             Mod.Log.Error(
                 $"[patrol] cloning the game's patrol driver failed ({ex.GetType().Name}: {ex.Message}) — " +
-                "falling back to the mod's own Navigate() dispatch.");
+                "direct Navigate is allowed only after a confirmed patrol release.");
             resolvedTarget = arrival;
-            StopPatrol("start failed");
+            if (lease == null && Lease != null) StopPatrol("start failed before lease");
+            if (ReferenceEquals(Lease, lease)) StopPatrol("start failed");
             return false;
         }
     }
 
-    /// <summary>
-    /// Review 2026-10-02, point 8: resolves the ONE dispatch target before the route is
-    /// built. <c>IsAsCloseAsPossible</c> stays advisory (its semantics are not fully
-    /// proven): a meaningful delta (≥ 0.5 m) rebinds to the game's closest reachable
-    /// point; a zero-delta "unreachable" verdict keeps the exact point (logged), with
-    /// the 8 s start self-test covering the ride.
-    /// </summary>
+    /// <summary>No registration repair, component creation or network initialization occurs here.</summary>
+    private static bool BindingValid(NPC driver, NPCBehaviour manager, VehiclePatrolBehaviour? patrol, bool requireIdle = false)
+    {
+        if (!NetworkGuard.IsAlive(driver) || !NetworkGuard.IsAlive(manager) || !NetworkGuard.IsAlive(patrol)) return false;
+        if (!NetworkGuard.IsAlive(manager.Npc) || !NetworkGuard.IsAlive(patrol!.beh)) return false;
+        var network = driver._networkObjectCache;
+        if (!NetworkGuard.IsAlive(network) || !NetworkGuard.IsAlive(manager._networkObjectCache) ||
+            !NetworkGuard.IsAlive(patrol._networkObjectCache)) return false;
+        bool sameOwner = driver.Behaviour != null && driver.Behaviour.Pointer == manager.Pointer &&
+            manager.Npc.Pointer == driver.Pointer && patrol.beh.Pointer == manager.Pointer;
+        bool sameNetwork = network.Pointer == manager._networkObjectCache.Pointer &&
+            network.Pointer == patrol._networkObjectCache.Pointer;
+        var stack = manager.behaviourStack;
+        int index = patrol.BehaviourIndex;
+        bool registered = stack != null && index >= 0 && index < stack.Count &&
+            stack[index] != null && stack[index].Pointer == patrol.Pointer &&
+            Registered(manager) && Registered(patrol);
+        return PatrolBindingPolicy.CanUse(sameOwner, sameNetwork, registered,
+            manager.IsServerInitialized && patrol.IsServerInitialized,
+            !requireIdle || (!patrol.Active && !patrol.isDriving));
+    }
+
+    private static bool Registered(NetworkBehaviour behaviour)
+    {
+        var network = behaviour._networkObjectCache;
+        if (!NetworkGuard.IsAlive(network)) return false;
+        var registered = network.NetworkBehaviours;
+        int index = behaviour.ComponentIndex;
+        return registered != null && index >= 0 && index < registered.Length &&
+            registered[index] != null && registered[index].Pointer == behaviour.Pointer;
+    }
+
     private static Vector3 ResolveDispatchTarget(Vector3 arrival, string label)
     {
         if (Patrol == null)
@@ -403,41 +430,34 @@ internal static class TaxiAI
     internal static void StopPatrol(string reason)
     {
         bool had = Patrol != null || WaypointObjects.Count > 0;
-
-        if (Patrol != null)
+        var lease = Lease;
+        if (lease != null)
         {
-            TaxiLog.Verbose($"[patrol] releasing the game's patrol driver ({reason}).");
-            // Deactivate() NREs on an already-torn-down behaviour (game bug). Skip it
-            // entirely: disable + Destroy below is enough and never throws.
-            try { Patrol.enabled = false; }
-            catch (Exception disableEx) { Mod.Log.Warn($"[patrol] disabling failed: {disableEx.Message}"); }
-
-            try
+            if (!lease.Release.TryBegin()) return;
+            bool restored = false;
+            try { restored = ReleaseLease(lease); }
+            catch (Exception ex) { CleanupFailure("patrol lease", ex); }
+            finally { lease.Release.End(restored); }
+            if (!restored)
             {
-                if (PatrolOwned)
+                if (!lease.ReleaseWarning)
                 {
-                    LastDestroyedPatrol = Patrol.Pointer;
-                    LastDestroyedPatrolFrame = Time.frameCount;
-                    UnityEngine.Object.Destroy(Patrol);
-                    TaxiLog.Verbose("[patrol] removed mod-owned AddComponent behaviour.");
+                    lease.ReleaseWarning = true;
+                    Mod.Log.Warn("[patrol] lease release unconfirmed — originals retained; new navigation blocked until a safe stop/retry.");
                 }
-                else
-                {
-                    TaxiLog.Verbose("[patrol] prefab behaviour preserved (not created by this mod).");
-                }
+                return;
             }
-            catch (Exception ex)
-            {
-                Mod.Log.Warn($"[patrol] removing the behaviour failed: {ex.Message}");
-            }
+            if (!ReferenceEquals(Lease, lease)) return;
         }
-
+        Lease = null;
         Patrol = null;
-        PatrolOwned = false;
         Route = null;
         RouteLabel = string.Empty;
+        var waypoints = WaypointObjects.ToArray();
+        WaypointObjects.Clear();
 
-        foreach (GameObject go in WaypointObjects)
+
+        foreach (GameObject go in waypoints)
         {
             if (go == null)
                 continue;
@@ -452,10 +472,48 @@ internal static class TaxiAI
             }
         }
 
-        WaypointObjects.Clear();
-
         if (had && !string.Equals(reason, "restart", StringComparison.Ordinal))
             TaxiLog.Verbose($"[patrol] released ({reason}).");
     }
+
+    private static bool ReleaseLease(PatrolLease lease)
+    {
+        var patrol = lease.Patrol;
+        if (!NetworkGuard.IsAlive(patrol) || !NetworkGuard.IsAlive(lease.Driver)) return true;
+        if (!BindingValid(lease.Driver, lease.Manager, patrol) || !SpikeCommands.IsOwnedTaxi(lease.Vehicle) ||
+            !SpikeCommands.HasAuthority() || !ReferenceEquals(Lease, lease)) return false;
+        var currentVehicle = patrol.Vehicle;
+        bool assignedVehicle = currentVehicle != null && currentVehicle.Pointer == lease.Vehicle.Pointer;
+        bool originalVehicle = currentVehicle?.Pointer == lease.OriginalVehicle?.Pointer;
+        if (lease.Restoring || !lease.ActivationStarted)
+        {
+            if (!assignedVehicle && !originalVehicle) return false;
+        }
+        else if (!assignedVehicle && !(lease.DeactivationRequested && currentVehicle == null)) return false;
+        if (patrol.Route != null && patrol.Route.Pointer != lease.AssignedRoute?.Pointer &&
+            patrol.Route.Pointer != lease.OriginalRoute?.Pointer) return false;
+        // Quiesce only the borrowed component; never brake/seat a player takeover.
+        patrol.enabled = false;
+        if (lease.Vehicle.DriverPlayer != null) return false;
+        if (lease.ActivationStarted && (patrol.Active || patrol.isDriving))
+        {
+            if (lease.DeactivationRequested) return false;
+            lease.DeactivationRequested = true; // never replay unknown partial native work
+            if (!CleanupGuard.Run("patrol deactivate", () => patrol.Deactivate(), CleanupFailure)) return false;
+        }
+        if (!ReferenceEquals(Lease, lease) || !BindingValid(lease.Driver, lease.Manager, patrol) || patrol.Active || patrol.isDriving) return false;
+        if (patrol.Route != null && patrol.Route.Pointer != lease.AssignedRoute?.Pointer &&
+            patrol.Route.Pointer != lease.OriginalRoute?.Pointer) return false;
+        if (!lease.Restoring && lease.ActivationStarted && patrol.Vehicle != null && patrol.Vehicle.Pointer != lease.Vehicle.Pointer) return false;
+        lease.Restoring = true;
+        bool route = CleanupGuard.Run("patrol route", () => patrol.Route = lease.OriginalRoute!, CleanupFailure);
+        bool vehicle = CleanupGuard.Run("patrol vehicle", () => patrol.Vehicle = lease.OriginalVehicle!, CleanupFailure);
+        bool aggression = CleanupGuard.Run("patrol aggression", () => patrol.aggressiveDrivingEnabled = lease.OriginalAggressive, CleanupFailure);
+        if (!route || !vehicle || !aggression) return false;
+        return CleanupGuard.Run("patrol enabled", () => patrol.enabled = lease.OriginalEnabled, CleanupFailure);
+    }
+
+    private static void CleanupFailure(string step, Exception ex)
+        => Mod.Log.Warn($"[patrol] {step} cleanup failed: {ex.Message}");
 
 }

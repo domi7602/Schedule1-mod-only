@@ -1,5 +1,8 @@
 # Interaction (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 112 of 115 identifier-shaped tokens resolve (3 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 Namespace: `Il2CppScheduleOne.Interaction`.
 
@@ -15,7 +18,7 @@ Namespace: `Il2CppScheduleOne.Interaction`.
 | `IUsableInteractableObject` | `InteractableObject` | Adapter for `IUsable` implementers |
 | `WorldSpaceLabel` | `Il2CppSystem.Object` | **Not a MonoBehaviour** — world-space text label helper (`ctor(string, Vector3)`, `RefreshDisplay()`, `Destroy()`) |
 
-## InteractionManager (verified)
+## InteractionManager (previously reported)
 - Search: `DoCasts()` (private), `_ray`, `_sphereCastHits`, `_rayCastHits`, `interaction_SearchMask` (`LayerMask`), `RayRadius`, `MaxInteractionRange`, `rightClickRange`
 - Selection state: `HoveredInteractableObject`, `HoveredValidInteractableObject`, `InteractedObject` (props, set protected), `CanDestroy` prop + `SetCanDestroy(bool)`
 - Hold-to-destroy: `itemBeingDestroyed`, `destroyTime`, `timeToDestroy`
@@ -23,12 +26,12 @@ Namespace: `Il2CppScheduleOne.Interaction`.
 - Methods: `Update()`, `LateUpdate()`, `CheckHover()`, `CheckInteraction()`, `CheckRightClick()`, `GetHoveredBuildableItem()`, `IsAnythingBlockingInteraction()`
 - **Correction:** old note "EInteractionSearchType (Raycast, OverlapSphere)" — no such enum exists in the decompiles; search is a LayerMask-driven sphere cast. `InputPromptsCanvas` also not found (`unverified`/removed). `InteractionCanvas`/`CrosshairText` live in `Il2CppScheduleOne.UI`.
 
-## InteractableObject (verified)
+## InteractableObject (previously reported)
 - Nested enums: `EInteractionType { Key_Press, LeftMouse_Click }`, `EInteractableState { Default, Invalid, Disabled, Label }`
 - Fields: `message`, `interactionType`, `interactionState`, `MaxInteractionRange`, `RequiresUniqueClick`, `Priority`, `displayLocationCollider`, `displayLocationPoint`, `LimitInteractionAngle`, `AngleLimit`, `_isMessageActive`, `_currentBindingData`, `_descriptorData`
 - Methods: `SetInteractionType(EInteractionType)`, `SetInteractableState(EInteractableState)`, `SetMessage(string)`, virtual `Hovered()` / `Exited()` / `StartInteract()` / `EndInteract()` / `ShowMessage()`, `CheckAngleLimit(Vector3) → bool`, input hooks `SetInputData`/`OnInputChange(InputDeviceType)`
 
-## Toggleables (verified)
+## Toggleables (previously reported)
 - `InteractableToggleable`: `IsActivated` prop, `ActivateMessage`/`DeactivateMessage`, `CoolDown`, `IntObj` (InteractableObject ref), `lastActivated`; `Toggle()`, `SetState(bool)`, `Hovered()`, `Interacted()`, `PoliceDetected()` — auto-deactivate when police are near (cross-link 12)
 - `NetworkedInteractableToggleable`: same fields + RPCs — client `RpcWriter___Server_SendToggle_2166136261`, replication `RpcWriter___Observers_SetState_214505783` / target variant
 - `InteractablePurchaseableItem`: `_paymentType`, `_useItemDefaultPrice`, `_setPrice`, `_item`, `_itemQuantity`, `_showNameInMessage`, `_playCashSoundOnPurchase`, `_purchaseCooldown`/`_lastPurchaseTime`, `_interactableObject`; `Buy()`, `CanBuy(out string reason)` (virtual), `GetItemToGive(int) → ItemInstance`, `HasSpaceInInventory()`, `HasEnoughFunds()`, `IsOnPurchaseCooldown()`, `OnHovered()`/`OnInteracted()`
@@ -46,12 +49,12 @@ No C#-delegate event fields in the namespace (grep).
 ## Save Participation
 - **No `ISaveable` / `SaveData` in the Interaction namespace** (grep). Toggle state persistence is owned by the underlying objects (e.g. `ToggleableLight` state, doors) — not by these components.
 
-## Hook Points
+## Candidate Hook Points
 1. **Prefix `InteractableObject.StartInteract()`** — global per-object interact gate (lock doors, quest items, cooldowns); virtual, non-inline, called for every interaction.
 2. **Postfix `InteractionManager.CheckInteraction()`** — observe every player interaction per frame (analytics, achievement-style triggers).
 3. **Postfix `InteractionManager.IsAnythingBlockingInteraction()`** — inject custom blocking conditions (cutscenes, UI modals).
-- **S1API wrapper (verified in source):** `S1API.Interaction.InteractionPrompt` + `InteractionPromptBuilder` — managed handle that adds/configures the native `InteractableObject` on a mod GameObject (`SetMessage`, maps `EInteractionType`/`EInteractableState`, exposes `Hovered`/`InteractionStarted`/`InteractionEnded` events, `Message`/`Range`/`Priority`/`AngleLimit` properties).
-- `S1API.Entities.NPC` also reuses native `InteractableObject` for talk/pickpocket interactables (verified in `NPC.cs`).
+- **S1API wrapper (previously reported in source):** `S1API.Interaction.InteractionPrompt` + `InteractionPromptBuilder` — managed handle that adds/configures the native `InteractableObject` on a mod GameObject (`SetMessage`, maps `EInteractionType`/`EInteractableState`, exposes `Hovered`/`InteractionStarted`/`InteractionEnded` events, `Message`/`Range`/`Priority`/`AngleLimit` properties).
+- `S1API.Entities.NPC` also reuses native `InteractableObject` for talk/pickpocket interactables (previously reported in `NPC.cs`).
 
 ## Not Implemented / Unverified
 - No manager-level "interaction happened" event — only per-object UnityEvents.
@@ -62,8 +65,7 @@ No C#-delegate event fields in the namespace (grep).
 36-Dragging · 39-Equipping · 12-Heat-Pursuit-Law · 47-ObjectStations · 57-Storage
 
 ---
- Identifier-shaped tokens documented as *absent* (counted as resolved): `Default_Key`, `InputPromptsCanvas`, `LeftMouse`.
- Identifier-shaped tokens documented as *absent*: `LeftMouse`, `InputPromptsCanvas`, `Default_Key`.
- Identifier-shaped tokens documented as *absent*: `LeftMouse`, `Default_Key`, `InputPromptsCanvas`.
- Identifier-shaped tokens documented as *absent*: `LeftMouse`, `Default_Key`, `InputPromptsCanvas`.
- Identifier-shaped tokens documented as *absent*: `InputPromptsCanvas`, `LeftMouse`, `Default_Key`.
+
+## Names reported absent in the original search
+
+`Default_Key`, `InputPromptsCanvas`, `LeftMouse`. Absence is scoped to that search, not proof of removal from every supported version.

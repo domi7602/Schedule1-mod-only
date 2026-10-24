@@ -1,198 +1,67 @@
-# S1API — Saveables (Custom Persistence in Save Games)
+# S1API Saveables and serialization
+
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 14/16 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
+Source scope: official online documentation reviewed on 2026-10-21; this is not a
+compile or runtime verification against the user's installed S1API 3.2.1. <!-- skills-health: version-evidence (S1API target requested by the owner; installed build state lives in AGENTS.md) -->
 
-Saveables let your mod's custom data classes **persist in the schedule-i save game** with JSON serialization, GUID references, and automatic save-game restart safety.
+## Supported surface to match to the target
 
----
+The official [Saveable reference](https://ifbars.github.io/S1API/api/S1API.Internal.Abstraction.Saveable.html)
+identifies `S1API.Internal.Abstraction.Saveable` as a supported mod-facing base
+class despite its namespace. It documents `OnLoaded`, `OnSaved`, `LoadOrder`, and
+`RequestGameSave`. The request returns whether a save was requested; that Boolean
+is not a durable-write receipt. The default load order is after base-game entities;
+choose earlier loading only for a demonstrated dependency.
 
-## 1. The Saveable Pattern
+The [SaveableField reference](https://ifbars.github.io/S1API/api/S1API.Saveables.SaveableField.html)
+targets fields, not properties. Use fields with explicit persisted names and
+initialized defaults. The documentation warns against the reserved field name
+`QuestData`; check the target source when choosing names and migrations.
 
-```csharp
-using S1API.Internal.Abstraction;
-using S1API.Saveables;
+## Design the persisted model
 
-public class NotesSave : Saveable
-{
-    [SaveableField("notes")] private List<Note> _notes = new();
+Keep versioned domain data separate from transient wrappers, delegates, Unity
+objects, and UI projections. Persist stable identifiers for runtime objects and
+resolve them after the appropriate restore boundary.
+Use bounded collections and a schema migration policy. Check the actual serializer
+for supported nested structures, collection types, null handling, private fields,
+and cycles; do not infer restrictions or capabilities from another JSON library.
+Do not add attributes to a cyclic object graph as a substitute for designing a
+serializable data model.
 
-    protected override void OnLoaded()
-    {
-        // Apply loaded data to your UI / managers
-    }
+## Discovery and lifecycle
 
-    protected override void OnSaved()
-    {
-        // Optional cleanup of transient caches
-    }
+Inspect the target's registration/discovery path and constructor requirements.
+Verify exactly one intended state owner is created and that consumers receive that
+instance. Do not create an additional local instance and assume it is the one the
+framework saves. A nested state DTO need not be an independently registered
+Saveable; establish the target's behavior before inheriting it for nested records.
 
-    // Load order relative to the base game:
-    // AfterBaseGame (default) — Game entities (NPCs, buildings, ...) already exist
-    // BeforeBaseGame          — for early hooks / global setup
-    public override SaveableLoadOrder LoadOrder => SaveableLoadOrder.AfterBaseGame;
-}
-```
+Restore fields first, validate the candidate, then rebuild runtime projections.
+If a UI subscribes after OnLoaded, provide the current validated state as well as
+future notifications; otherwise initial data can remain invisible.
+Clean up transient subscriptions without clearing persisted data prematurely.
 
-### Auto-Discovery
+## Save requests and failure
 
-- Class must be `public`, **non-abstract**, with a **parameterless constructor**.
-- S1API auto-discovers via reflection and instantiates **one instance per type** at save load.
-- No manual registration needed.
+Trigger saves according to the feature's persistence policy and the game's
+accepted cadence. Do not force a full game save for every keystroke or every
+repaint. Handle an unaccepted request and keep unsaved intent visible.
+Trace the target's actual failure reporting before treating OnSaved as complete
+proof of all native and mod data durability.
 
----
+If custom IO is needed instead of framework persistence, use
+[the persistence workflow](../../schedule1-persistence/SKILL.md). Do not wrap an
+unreadable file in a default object and then silently overwrite its source.
 
-## 2. `[SaveableField]` Attribute
+## Verification
 
-```csharp
-[SaveableField("version")] public int Version { get; set; } = 1;
-[SaveableField("payload")] public List<MyItem> Items { get; set; } = new();
-[SaveableField("created_at")] public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-```
+Compile the actual attributed fields against the target assembly. Roundtrip
+non-empty strings, multiple collection entries, numeric boundaries, null/default
+values, and schema migration. Check actual saved content rather than success logs
+alone. Test reload, slot switch, rejected save request, missing/corrupt data, and
+UI subscription after restore. Label native acceptance tests separately from pure
+serializer tests.
 
-- **`name` is required** — it's the JSON key in the save file.
-- **Private fields work** — S1API uses reflection to read private state.
-- **Initialize defaults** in the declaration or constructor.
-
----
-
-## 3. Lifecycle of a Saveable
-
-```
-OnInitializeMelon()        your mod runs
-  ↓
-GameLifecycle.OnLoadComplete   ← S1API instantiates your Saveable
-  ↓
-Saveable.OnLoaded()         ← your initializer runs
-  ↓
-[Game running, you read/write fields freely]
-  ↓
-Saveable.RequestGameSave()   ← trigger save (see below)
-  ↓
-Saveable.OnSaved()          ← cleanup hook
-```
-
-### Triggering a Save
-
-```csharp
-Saveable.RequestGameSave();   // asks S1API to save the game now
-```
-
-You don't call this on every change — it's expensive. Call it after significant state changes (e.g., user added a new note, player completed a quest).
-
----
-
-## 4. Common Patterns
-
-### Pattern A: Single Saveable Per Mod
-
-```csharp
-public class ModStateSave : Saveable
-{
-    [SaveableField("version")] public int Version { get; set; } = 1;
-    [SaveableField("high_scores")] public List<int> HighScores { get; set; } = new();
-    [SaveableField("settings")] public Dictionary<string, string> Settings { get; set; } = new();
-}
-```
-
-### Pattern B: Saveable as a Sub-State of a Domain Object
-
-```csharp
-public class QuestData : Saveable
-{
-    [SaveableField("objective_progress")] public int ObjectiveProgress { get; set; }
-    [SaveableField("optional_done")] public bool BonusComplete { get; set; }
-}
-
-public class MyQuest : Quest  // S1API.Quests
-{
-    [SaveableField("my_quest_data")]
-    private QuestData _data = new();
-}
-```
-
-Saveables can be nested: when their parent is saved, they're saved along.
-
-### Pattern C: ID Lookup Pattern
-
-```csharp
-// Useful when you want to reference a vanilla or modded object in save data
-[SaveableField("npc_id")]
-private string _npcId = "kyle_cooley";
-
-private NPC _npc;  // resolved at runtime
-
-protected override void OnLoaded()
-{
-    _npc = NPCManager.GetNPCByID(_npcId);  // safe — runs after save load
-}
-```
-
----
-
-## 5. Constraint Table
-
-| Allowed | Not Allowed |
-|---|---|
-| `int`, `float`, `bool`, `string` | `Il2CppScheduleOne.*` references in fields |
-| `List<T>` / `Dictionary<K,V>` of primitives | `[Serializable]` will not save to schedule-i save |
-| Other `[SaveableField]`-tagged classes | `HashSet<T>` (use `List<T>` and `.Distinct()`) |
-| `DateTime` | `Func` / `Action` / `delegate` |
-| `[SaveableField]` tagged nested Saveables | Unity primitives — use `[SaveableField]` on the wrapper |
-
----
-
-## 6. Drag-and-Drop Refresh Pattern
-
-If your UI needs to react to save-load (e.g., re-display saved data after restore):
-
-```csharp
-public class NotesSave : Saveable
-{
-    [SaveableField("notes")] private List<Note> _notes = new();
-
-    public event Action<List<Note>> NotesChanged;
-
-    protected override void OnLoaded()
-    {
-        NotesChanged?.Invoke(_notes);
-    }
-
-    public void AddNote(Note n)
-    {
-        _notes.Add(n);
-        NotesChanged?.Invoke(_notes);
-        RequestGameSave();
-    }
-}
-```
-
-The UI subscribes to `NotesChanged` and rebuilds.
-
----
-
-## 7. Debugging Tips
-
-* **My data isn't saved → am I getting auto-discovered?** Check the MelonLoader console for `S1API.Saveables` log lines. The class must be `public`, not nested private, and have a parameterless constructor.
-* **My collection shows up empty after save-load** → field needs `[SaveableField]`. S1API does NOT automatically serialize public fields.
-* **Reference loops throw** → S1API uses `JsonIgnoreHandling` per cycle. For circular refs, use `[SaveableField]` on the inner objects too.
-
-Deep reference: `ThirdParty/S1API/` (S1API.Saveables -> Saveable.cs; initialize the submodule first if needed).
-
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
-
-- `NotesChanged`
-- `JsonIgnoreHandling`
+Research anchor: the matching source under `ThirdParty/S1API/`, if available.

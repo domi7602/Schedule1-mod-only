@@ -10,11 +10,13 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2"><PrivateAssets>all</PrivateAssets></PackageReference>
-    <!-- Pure, Unity-free lighting logic. The former per-type files are consolidated into domain
-         bundles; each original body is preserved verbatim in its own block namespace. -->
+    <!-- Pure policy/lease tests plus actual module/target code against a narrow fake native
+         boundary. No game assemblies, production project builds or deployment. -->
     <Compile Include="../../Mods/WorldLook/src/BaselinePolicy.cs" Link="BaselinePolicy.cs" />
     <Compile Include="../../Mods/WorldLook/src/LightingMath.cs" Link="LightingMath.cs" />
-    <Compile Include="../../Mods/WorldLook/src/LightingVolume.cs" Link="LightingVolume.cs" />
-    <Compile Include="../../Mods/WorldLook/src/LightingCadence.cs" Link="LightingCadence.cs" />
+    <Compile Include="../../Mods/WorldLook/src/LightingChannel.cs" Link="LightingChannel.cs" />
+    <Compile Include="../../Mods/WorldLook/src/GoldenHourTargets.cs" Link="GoldenHourTargets.cs" />
+    <Compile Include="../../Mods/WorldLook/src/SceneTargets.cs" Link="SceneTargets.cs" />
+    <Compile Include="../../Mods/WorldLook/src/Mod.cs" Link="Mod.cs" />
   </ItemGroup>
 </Project>

@@ -1,182 +1,70 @@
-# S1API — Cross-Compatibility (IL2CPP vs Mono)
+# S1API cross-runtime compatibility
 
 > verified: loader mechanism checked against S1APIsource 2026-10-05; §6 runtime check corrected 2026-10-05 (was an OS check that proved nothing).
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 32 of 32 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
-S1API's main promise: **one mod, one build, both branches** (IL2CPP standard + Mono `alternate`). This reference explains how that works, when it breaks, and how to handle the exceptions.
+Source scope: the official repository and release history were reviewed on
+2026-10-21. Installed assemblies and cross-runtime execution were not tested by
+this package. Read [S1API's repository](https://github.com/ifBars/S1API) for the
+current distribution contract and match it to the selected release.
 
----
+## State the supported target
 
-## 1. The Two Runtimes
+Distinguish the IL2CPP game branch from the Mono branch and identify the actual
+runtime used by the project. Do not infer it from Windows versus Linux, player
+share percentages, folder names, or whether one optional assembly happens to be
+loaded early during startup.
 
-| Branch | Engine | Game code exposed as | Who's on it |
-|---|---|---|---|
-| **Standard** (this PC) | IL2CPP | `Il2CppScheduleOne.*` (interop proxies) | Default Steam release, ~99% of players |
-| **alternate** | Mono | `ScheduleOne.*` (regular .NET) | Beta branch opt-in |
+Decide whether the product promises one runtime-neutral build, separate builds,
+or one intentionally supported branch. Do not silently broaden that promise just
+because the framework supports multiple runtimes.
 
-The same game code appears differently in each runtime. **Member signatures, delegate types, and IL stubs differ** — a mod built directly against one runtime will not run on the other.
+## Dependency boundary
 
----
+A public API expressed in wrapper/.NET types is useful but not sufficient for
+portability. A private direct reference to an IL2CPP-only assembly still creates a
+runtime dependency and can fail before a runtime branch check executes.
 
-## 2. How S1API Solves This
+Inspect the whole dependency graph: native types in fields, attributes, generic
+arguments, method signatures, static initialization, transitive references, and
+delegate conversions. Keep direct native integration in separate verified branch
+adapters where required. Conditional compilation produces different builds; it
+does not by itself create a single universal DLL.
 
-```
-┌─────────────────────┐
-│  Your Mod.dll       │  references S1API.Forked (NuGet)
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│  S1API (compiled)   │  wraps the game in stable surfaces
-└──────────┬──────────┘
-           │
-           ▼ runtime-detection (at game start)
-┌─────────────────────┐                          ┌─────────────────────┐
-│  S1API.Il2Cpp.dll    │  loaded on IL2CPP branch  │  S1API.Mono.dll    │  loaded on Mono branch
-└──────────┬──────────┘                          └──────────┬──────────┘
-           │                                                │
-           ▼                                                ▼
-┌─────────────────────┐                          ┌─────────────────────┐
-│  Il2CppScheduleOne.* │                          │  ScheduleOne.*       │
-└─────────────────────┘                          └─────────────────────┘
-```
+Use the package/reference scheme documented by the target S1API release and the
+actual project. Do not adopt a package ID, loader DLL filename, output path, or
+configuration such as `MonoRelease` merely because an old example used it.
 
-The `S1APILoader.MelonLoader.dll` plugin detects the runtime and loads the correct S1API build. Your mod only ever sees the unified surface.
+## Runtime detection and optional dependencies
 
----
+Use the loader/framework's supported runtime identity when available and verify
+when it becomes reliable. An assembly-name probe can be a diagnostic signal but
+is timing-dependent; failure to find an assembly is not proof of the other runtime.
+Keep optional native code from being eagerly loaded before its dependency is
+established. Test the unavailable path as well as the supported path.
 
-## 3. The 5 Author Rules (Recap)
+## Branch matrix
 
-1. **Reference `S1API.Forked`** — never `Assembly-CSharp.dll`.
-2. **Expose public mod interfaces only with S1API or pure .NET types** — no `Il2CppScheduleOne.*` in your public API.
-3. **Use lifecycle events** instead of assuming objects are ready.
-4. **Isolate runtime-specific code** behind internal boundaries.
-5. **Test both runtime builds** before release.
-
-> S1API's documentation explicitly warns: "Directly using IL2CPP-only or Mono-only game assembly types in your mod API breaks the cross-compatible contract."
-
----
-
-## 4. When S1API Is Enough
-
-Most use cases are covered by S1API wrappers:
-
-| Task | Wrapper |
+| Boundary | Verify on each promised runtime |
 |---|---|
-| Phone App | `S1API.PhoneApp` |
-| NPC | `S1API.Entities` |
-| Quest | `S1API.Quests` |
-| Item | `S1API.Items` |
-| Saveable | `S1API.Saveables` |
-| Money | `S1API.Money` |
-| Game Time | `S1API.GameTime` |
-| Property | `S1API.Property` |
-| Saving | `S1API.Lifecycle` (`OnPreLoad` / `OnLoadComplete` / `OnSaveComplete`; `OnSaveLoaded` is absent from checked-in source; `OnSaveInfoLoaded` fired 0 times in the instrumented session) |
-| Console | `S1API.Console` |
-| Geometry | `S1MAPI` (separate skill) |
+| Compile references | Correct framework, native/Unity bindings, target framework |
+| Loader and distribution | Correct dependency resolution and actual loaded versions |
+| Events | Member kind, delegate conversion, exact unsubscribe identity |
+| Native access | Equivalent owner/member semantics, not just similar names |
+| Save/load | Same intended data behavior and migration compatibility |
+| UI/assets | Required shaders, assets, input, and resource lifetime |
 
----
+Build with the project's real configurations. A successful compile on one branch
+is not evidence for the other. Avoid changing the live Steam branch solely to
+validate documentation; use the user's established test environment and authorized
+workflow.
 
-## 5. When You Must Bypass S1API
+## Verification and release statement
 
-| Scenario | Reason |
-|---|---|
-| Render pipeline tweaks | No wrapper exists |
-| Exotic internal manager | `S1API.Internal.*` is mostly `internal` |
-| Pre-S1API-version game state | Some legacy methods |
-| Frequent deep game state | Many wrapper hops; direct is faster |
+Test startup, first load, repeated reload, core interactions, and shutdown on each
+promised runtime. Record concrete build artifacts and test environments. State
+unsupported or untested branches honestly instead of claiming automatic portability.
 
-### How to Bypass Safely
-
-```csharp
-using Il2CppScheduleOne.SomeSystem;   // ❌ in your public API
-                                       // ✅ in private/internal code only
-
-public class MyMod
-{
-    private void DirectInteropExample()
-    {
-        var vanillaThing = Il2CppScheduleOne.SomeSystem.Instance;
-        // ... work with it directly ...
-    }
-
-    // Public API returns S1API or pure .NET only
-    public int GetThingCount() => /* ... */;
-}
-```
-
-The `Il2CppScheduleOne.*` access compiles **only** against the IL2CPP build. For Mono-branch support, you'd need to wrap:
-
-```csharp
-#if IL2CPP
-    using Il2CppScheduleOne.SomeSystem;
-#else
-    using ScheduleOne.SomeSystem;
-#endif
-```
-
-But this is exactly what S1API does internally — let S1API handle the abstraction.
-
----
-
-## 6. The Branch-Pinning Trick (When You Need It)
-
-For mods that genuinely need IL2CPP-specific behavior (e.g., IL2CPP-only optimization):
-
-```csharp
-public override void OnInitializeMelon()
-{
-    bool isIl2Cpp = AppDomain.CurrentDomain.GetAssemblies()
-        .Any(a => string.Equals(a.GetName().Name, "Il2CppInterop.Runtime", StringComparison.Ordinal));
-    if (isIl2Cpp)
-    {
-        // IL2CPP-only fast path
-    }
-}
-```
-
-The runtime check is rare; usually S1API handles it. (Canonical check = the `Il2CppInterop.Runtime` assembly probe from `schedule1-il2cpp-reflection` §2 — the older `OSPlatform.Windows` example here proved nothing about the runtime and was fixed 2026-10-05.)
-
----
-
-## 7. Testing Both Branches
-
-`S1API.Forked` ships both Mono and IL2CPP builds. To test your mod on both:
-
-```pwsh
-# IL2CPP build (default in this workspace)
-dotnet build Source/Mods/MyMod/src/MyMod.csproj -c Release
-# Verify deployment to Game/Mods/, launch game, test
-
-# Mono build (requires alternate branch)
-# Switch Steam to "alternate" beta branch
-dotnet build Source/Mods/MyMod/src/MyMod.csproj -c MonoRelease
-# Verify deployment, launch game, test
-```
-
-Most workspace mods are IL2CPP-only by deployment choice (current inventory: [`AGENTS.md`](../../../AGENTS.md) §2). `S1API` supports both via the loader mechanism.
-
----
-
-## 8. Related: S1MAPI
-
-For **map/building geometry** (procedural meshes, GLTF loading, terrain), the sister framework **S1MAPI** by the same author exists. It is **also branch-portable** (Mono + IL2CPP DLLs) but lives in `UserLibs/` rather than `Plugins/`. See the `schedule1-s1mapi` skill.
-
----
-
-## 9. Quick Reference
-
-| Concern | Tool |
-|---|---|
-| Where's the S1API namespace for X? | `ThirdParty/S1API/` (source tree) |
-| How does a particular S1API API work? | `ThirdParty/S1API/` (source of the wrapper in question) |
-| What's the actual signature? | `ThirdParty/S1API/` (namespace folder) |
-| Is the runtime branch compatible? | S1API repo README / release notes (Submodule-Pin) |
-| Vanilla class signature? | `GameReferences/` (locally generated decompiles, see GameReferences/README.md) |
-| Bridging wrapper from S1API to vanilla? | That's literally what S1API does internally |
-
----
-
----
-
----
+For a branch-specific implementation, make that restriction explicit in project
+metadata and user-facing compatibility information. For a shared implementation,
+ensure no native-only dependency leaks across its adapter boundary.

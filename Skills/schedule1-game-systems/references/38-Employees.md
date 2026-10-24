@@ -1,5 +1,8 @@
 # Employees (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 144 of 146 identifier-shaped tokens resolve (2 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 Namespace: `Il2CppScheduleOne.Employees`.
 
@@ -23,12 +26,12 @@ Namespace: `Il2CppScheduleOne.Employees`.
 - Pay & dialogue: `SetIsPaid()`, `IsPayAvailable()`, `RemoveDailyWage()`, `GetWorkIssue(out Conversation)`, `SubmitNoWorkReason(reason, fix, priority)`, `OnNotWorkingDialogue()`, dialogue templates `BedNotAssignedDialogue`/`NotPaidDialogue`/`WorkIssueDialogueTemplate`/`FireDialogue`/`TransferDialogue`
 - Job specifics: `Botanist` — `GetPotForWatering`, `GetPotsReadyForSeed`, `GetPotsForHarvest`, `GetMushroomBedForMisting`, `StartDryingRack`/`StopDryingRack`, `CanMoveDryableToRack`; `Chemist` — station work + `CanConsumeProduct`; `Packager` — `StartPackaging(PackagingStation)`, `StartPress(BrickPress)`, `StartMoveItem(...)`, `GetTransitRouteReady(out ItemInstance)`; each has `SetConfigurer(NetworkObject)` RPC `SetConfigurer_3323014238` + `SendConfigurationToClient(conn)`, `CreateWorldspaceUI()`/`DestroyWorldspaceUI()`
 
-## EmployeeManager (verified)
+## EmployeeManager (previously reported)
 - Fields: `AllEmployees`, `EmployeeQuests` (hire gating via `Quest_Employees` — closure filter verified in `CreateEmployee_Server`), `MALE_EMPLOYEE_CHANCE`, prefabs `BotanistPrefab`/`PackagerPrefab`/`ChemistPrefab`/`CleanerPrefab`, appearance/voice/name pools (`MaleAppearances`, `FemaleVoices`, `takenNames`, …)
 - Methods: `CreateNewEmployee(Property, EEmployeeType)` (random identity), `CreateEmployee(...)` → client RPC `RpcLogic___CreateEmployee_311954683` —the numeric suffix is a per-build IL2CPP token and changes on every game update —do not treat it as a stable API name, `CreateEmployee_Server(...) → Employee`, `GetEmployeePrefab(type)`, `GetEmployeesByType(type)`, `GenerateRandomName(bool, out first, out last)`, `GetAppearance`/`GetRandomAppearance`/`GetVoice`, `RegisterName`/`RegisterAppearance`, validity checks `IsPositionValid`/`IsRotationValid`/`IsFloatValid`
 - Nested `EmployeeAppearance` (`Settings`, `AppearanceObject`, `Mugshot`)
 
-## EmployeeHome (verified)
+## EmployeeHome (previously reported)
 - `AssignedEmployee` prop, `SetAssignedEmployee(Employee)`, `HomeType`, `Storage`, `Clipboard`, `MugshotSprite`, `NameLabel`, per-job materials (`SpecificMat_Botanist` …)
 - Cash access: `GetCashSum()`, `RemoveCash(float)`
 - Static `IsBuildableEntityAValidEmployeeHome(BuildableItem, out string reason)`
@@ -44,10 +47,10 @@ No other UnityEvents/delegate events in the namespace (grep).
 - Not `ISaveable` directly: employees persist through the **NPC base save system** — `NPC.GetSaveData() → DynamicSaveData` + `NPC.Load(DynamicSaveData, NPCData)`; `Employee` overrides `ShouldSave()`, job classes override `GetSaveData()`/`WriteData(parentFolderPath)`.
 - `EmployeeManager` has no save methods in the decompile (recreation on load flows through employee save data + RPCs) — exact load order `unverified`.
 
-## Hook Points
+## Candidate Hook Points
 1. **Prefix `Employee.CanWork()`** — gate/suppress all employee work (strike events, curfew logic); simple bool method, patchable.
 2. **Postfix `EmployeeManager.CreateEmployee_Server(...)`** — track/modify every spawned employee (custom names, spawned-by-mod bookkeeping); public, non-inline RPC logic target.
-3. **Prefix `Employee.SetIsPaid()` / `RemoveDailyWage()`** — custom wage economy (bonuses, withholding); straight-line methods, patchable.
+3. **Prefix `Employee.SetIsPaid()` / `RemoveDailyWage()`** — candidate boundaries for a custom wage economy. Confirm exact methods, payment timing and authority; a signature does not prove a straight-line body or a safe rollback.
 - **S1API: no dedicated Employees wrapper.** Available instead: `S1API.Quests.Identifiers` hire-quest wrappers (`Botanists`, `Chemists`, `Cleaners`, `Packagers`), and `S1API.Entities.NPC` prefab fallback handles the `BaseEmployee` prefab (employee-component stripping/normalization verified in `NPC.cs`).
 
 ## Not Implemented / Unverified
@@ -59,8 +62,7 @@ No other UnityEvents/delegate events in the namespace (grep).
 11-Business-Laundering · 42-ManagementUI · 17-TimeManager · 09-Inventory-ItemFramework · 01-FishNet-Networking
 
 ---
- Identifier-shaped tokens documented as *absent* (counted as resolved): `Initialize_2260823878`, `SetConfigurer_3323014238`.
- Identifier-shaped tokens documented as *absent*: `Initialize_2260823878`, `SetConfigurer_3323014238`.
- Identifier-shaped tokens documented as *absent*: `SetConfigurer_3323014238`, `Initialize_2260823878`.
- Identifier-shaped tokens documented as *absent*: `SetConfigurer_3323014238`, `Initialize_2260823878`.
- Identifier-shaped tokens documented as *absent*: `SetConfigurer_3323014238`, `Initialize_2260823878`.
+
+## Names reported absent in the original search
+
+`Initialize_2260823878`, `SetConfigurer_3323014238`. Absence is scoped to that search, not proof of removal from every supported version.

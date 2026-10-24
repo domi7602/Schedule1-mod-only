@@ -1,67 +1,70 @@
 ---
 name: schedule1-grid
-description: "Schedule I: Grid placement system, outdoor/unrestricted building, BuildUpdate_Grid patching, ghost positioning, and IL2CPP lifecycle stability. Use when placing buildables outside purchased properties, patching BuildUpdate_Grid/BuildableItem, stripping FishNet networking, or fixing ghost/footprint issues. Keywords: Grid, GridItem, BuildableItem, BuildUpdate_Grid, GridManager, FootprintTile, StreetPropertyManager, outdoor placement, anti-dupe, slot isolation."
+description: "Build Schedule I grids and validate placement. Keywords: Grid, GridItem, BuildableItem, BuildUpdate_Grid, GridManager, FootprintTile, StreetPropertyManager, outdoor placement, anti-dupe, slot isolation."
 ---
 
 > Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
 
-# Schedule I - Grid & Building System Skill
+# Schedule I — Grid and Placement
 
-This skill documents how to work with the building, placement, and grid systems in *Schedule I* (IL2CPP / MelonLoader), particularly when creating outdoor/unrestricted placement systems (such as `HomelessMod`) or extending vanilla building mechanics.
+Apply the [shared working contract](../schedule1-modding/references/working-contract.md).
+Treat historical HomelessMod recipes as one implementation model, not universal native behavior.
 
-> **Reference split (A):** Details moved to `references/` — load on demand. This file is the decision tree + quick refs.
+## Choose the ownership model first
 
----
-
-## Reference Architecture & Key Classes
-
-| Class / Component | Type | Responsibility & Behavior |
+| Model | Network policy | Restore policy |
 |---|---|---|
-| `BuildUpdate_Grid` | Vanilla (`Il2CppScheduleOne.Building`) | Manages build mode ghost positioning, rotation, raycasting, and placement execution. |
-| `GridItem` | Vanilla (`Il2CppScheduleOne.EntityFramework`) | Attached to vanilla buildables. Triggers auto-deletion if placed outside a purchased property grid. |
-| `BuildableItem` | Vanilla (`Il2CppScheduleOne.EntityFramework`) | Manages property attachment, network registration, and culling states. |
-| `GridManager` | Vanilla (`Il2CppScheduleOne.Tiles`) | Tracks valid purchased properties via invisible "Grid" layer trigger colliders. |
-| `BuildManager` | Vanilla (`Il2CppScheduleOne.Building`) | Singleton (`NetworkSingleton<BuildManager>.Instance`) providing ghost materials, sound effects, and networking/navigation strippers (`DisableNetworking`, `DisableNavigation`). |
-| `FootprintTile` / `TileAppearance` | Vanilla (`Il2CppScheduleOne.Tiles`) | Visual indicator tiles instantiated below grid objects. Must be suppressed for outdoor placement. |
-| `Property` | Vanilla (`Il2CppScheduleOne.Property`) | Core property entity. **Never attach directly to virtual world roots.** |
-| `GroundPlacementAssistant` | Custom Helper (`HomelessMod.Building`) | Zero-allocation helper for smart 5-point ground sampling, slope checks (≤ 45°), box collision non-alloc checks, and dual-grid snapping. |
-| `StreetPropertyManager` | Custom Manager (`HomelessMod.Building`) | Virtual world root container (`StreetNomad_WorldRoot`), in-memory registration, save-slot isolated persistence, and GUID deduplication. |
-| `OutdoorItemInteractable` | Custom Component (`HomelessMod.Building`) | IL2CPP-registered MonoBehaviour for holding RMB or pressing [F] to dismantle/pack up placed world objects. |
+| Native registered buildable | Preserve required native registration | Native save restoration; mod attaches extra state |
+| Mod-owned persistent world object | Host-authoritative mod protocol when shared | Mod registry and explicit rebuild |
+| Local visual preview or cosmetic | No gameplay authority | Recreate/dispose locally |
 
----
+Do not strip FishNet or navigation from a shared native object to make a local placement recipe work.
+Load [networked world state](../schedule1-networked-world-state/SKILL.md) when mod-owned placements must replicate.
 
-## The 7 Golden Rules — Summary
+## Establish prerequisites
 
-Full code & rationale in `references/`:
+- Inspect current `BuildUpdate_Grid`, `GridItem`, `BuildableItem`, `BuildManager`, and grid/property contracts.
+- Resolve scene readiness, host/client role, exact save identity, item definition, and object ownership.
+- Find the selected mod's placement validator, registry, and inventory transaction interface.
+- Confirm which native callbacks must remain and which may be narrowly intercepted.
 
-1. **NEVER Destroy GridItem** — disable (`gi.enabled=false`) + `SetFootprintTileVisiblity(false)` → `references/outdoor-placement.md`
-2. **Strip FishNet Networking** — `DisableNetworking/DisableNavigation` on clone → `references/build-update-patching.md`
-3. **Harmony Guards on BuildableItem.Start & SetCulled** — skip on outdoor items → `references/build-update-patching.md`
-4. **Never attach Property to _streetRoot** — keep `StreetNomad_WorldRoot` clean + `DontDestroyOnLoad` → `references/outdoor-placement.md`
-5. **Footprint & Grid Tile Suppression** — deactivate `FootprintTile`, filter renderers → `references/outdoor-placement.md`
-6. **Save Synchronicity (Anti-Dupe)** — in-memory only, serialize only on `GameLifecycle.OnSaveComplete`, slot `street_items_slot_{id}.json` → `references/build-update-patching.md`
-7. **IL2CPP Pointer Safety** — `Pointer != IntPtr.Zero && !WasCollected` + parent walk in `IsOutdoorItem` → `references/build-update-patching.md`
+## Workflow
 
----
+1. Keep native valid placement as the normal path unless the feature explicitly changes it.
+2. Evaluate custom ghosts using bounded camera/ground queries, footprint sampling, slope and reach limits, and collision clearance.
+3. Treat a saturated non-alloc collision buffer as incomplete evidence; retry with a bounded larger buffer or reject placement.
+4. Revalidate on commit; a previously valid ghost is not permission to place after the scene or inventory changes.
+5. Stage the clone inactive and configure identity, ownership, collider policy, and interaction before activation.
+6. Preserve source-prefab state and restore it on every exit path if temporary source changes are unavoidable.
+7. Commit registry and inventory changes through an exact-once transaction; failure leaves no unpaid object or consumed item without an object.
+8. Reset placement state on completion, cancellation, exception, or ownership change.
+9. Pack up only after confirming the destination inventory accepted the full return. Never destroy the source merely because an add call was attempted.
+10. Persist at verified save boundaries, with load-result gates and exact save identity. A separate atomic JSON write does not make two stores one transaction.
 
-## Placement & Load Lifecycle — Overview
+## Lifecycle and failure handling
 
-- **Ghost evaluation** (`CheckIntersections` postfix): camera raycast → fallback down ray → 4-corner sampling (slope ≤45°, reach 0.3–7m) → `OverlapBoxNonAlloc` clearance → ghost white/red. Details: `references/collision-and-ghosts.md`
-- **Placement** (`Place` prefix): if `IsCustomPlacementValid` → deactivate source prefab, `Instantiate`, parent to `StreetRoot`, strip networking, attach `OutdoorItemInteractable`, suppress footprints, register, deduct inventory, `Stop()` and `return false`. Details: `references/build-update-patching.md`
-- **Save/Load:** `OnPreLoad -> ResetState`, `OnLoadComplete -> LoadAndSpawn + register defs`, `OnSaveComplete -> SaveStreetItems` (atomic). See `references/build-update-patching.md`; the instrumented session on 2026-09-29 observed no `OnSaveInfoLoaded` callbacks, so do not rely on that hook without re-verification.
+- For the historical local outdoor model, disabling a required `GridItem` may be safer than destroying a component still referenced by native code; verify the actual callbacks.
+- Scope Harmony guards to proven owned instances. Unrelated buildables must retain vanilla behavior.
+- Keep a virtual mod root separate from a real property. A real property requires its full native registration contract.
+- Clear runtime objects and caches at relevant world teardown; retain durable state needed by an in-flight save until its outcome is known.
+- Reject invalid/stale pointers and owner generations before dereferencing, while recognizing that pointer checks are not proof of safe native lifetime.
 
----
+## Verify
 
-## Pack-Up & Verification
+Cover native and custom placement, blocked/full inventory, repeated placement requests, cancellation,
+curbs/slopes, masked layers, footprint visibility, culling, pack-up failure, host/client behavior,
+late join where supported, same-save reload, slot switch, interrupted saves, and scene cleanup.
 
-- **Dismantle:** distance ≤3m, `[F]` or hold RMB 0.40s, IMGUI cached, `AddItemToInventory` → `Unregister` → `Destroy` (persist on save only). Details: `references/collision-and-ghosts.md`
-- **Checklist:** 12-point grid verification in `references/collision-and-ghosts.md` (raycast mask, GridItem, networking, Harmony, virtual root, footprint, kinematic, anti-dupe, slot isolation, pointer, parent walk, state reset)
+## Read on demand
 
-Load the relevant `references/*.md` when implementing that subsystem — do not inline all rules at once.
+| Trigger | Reference |
+|---|---|
+| Native interception, transaction, save timing | [Build-update patching](references/build-update-patching.md) |
+| Virtual root, GridItem, footprint policy | [Outdoor placement](references/outdoor-placement.md) |
+| Raycasts, collision, ghost and pack-up tests | [Collision and ghosts](references/collision-and-ghosts.md) |
 
-## Decompile Reference Note
+## Evidence and output
 
-Decompiled references for grid and building classes (`BuildUpdate_Grid`, `GridManager`, `BuildableItem`) are located directly in the repo at:
-- `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/Building/`
-- `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/Tiles/`
-- Architecture guide: `Skills/schedule1-game-systems/references/10-Building-Construction.md` and `59-TilesGrid.md`
+Class names and historical observations in these references must be checked against the deployed game.
+Return the selected ownership model, exact intercepted targets, transaction/restore responsibilities,
+changed files, and measured in-game evidence. Do not claim multiplayer or anti-duplication support from a single-player example.

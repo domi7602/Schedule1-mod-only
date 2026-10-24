@@ -1,16 +1,15 @@
-# Systems — Quick Reference Index (single authority)
+# Schedule I system index
 
 > verified: index consolidated 2026-10-05; f12 static identifier sweep executed 2026-10-08 against the regenerated `GameReferences/decompiled/Assembly-CSharp` (2 234 files, 56 741 identifiers). Per-file verification state is in each file's header; files with drift candidates carry an `Unresolved identifiers` section.
 
-Quick access to all 64 game-system analyses. Each file documents one gameplay subsystem with core classes, events, and entry points.
+Choose a topic, then resolve its candidates against the target build. [Evidence scope](README.md) applies to every row. Detail ratings describe the amount of inherited material, not its correctness or runtime validation.
 
-> **Workflow:** Find the system in the table → read the MD → open vanilla class in `GameReferences/decompiled/Assembly-CSharp/Il2CppScheduleOne/` → check wrapper in `ThirdParty/S1API/S1API/`.
+- 🟢 detailed notes, formulas or candidate hooks
+- 🟡 focused overview or value tables
+- 🔵 class register; inspect actual source for implementation
+- ↪️ redirect to another numbered file
 
-> **Reading the verification headers:** every reference file carries an f12 static identifier sweep dated 2026-10-08, run against `GameReferences/decompiled/Assembly-CSharp` (regenerated from the installed runtime) plus the checked-in S1API/S1MAPI source and the workspace source. `> verified: …` means every identifier-shaped token in the file resolves. `> UNVERIFIED …` means some do not, and those are listed in an `Unresolved identifiers` section at the end of the file — drift **candidates**, not confirmed breakage. Identifiers a file explicitly documents as *absent* are counted as resolved and named in the header, so a file can document a removal without being flagged. Tokens starting lowercase (parameter and variable names) are out of scope. None of this is runtime verification.
-
-> **Depth legend:** 🟢 = deep (formulas/events/hook points/verification) · 🟡 = medium (facts + constants, no hooks) · 🔵 = class-list only (navigation register; deepen on demand) · ↪️ = redirect stub (canonical content merged into another file).
-
-| # | System | Depth | Core Topics |
+| # | System | Detail level, not confidence | Core Topics |
 |---|--------|-------|-------------|
 | 01 | [FishNet-Networking](01-FishNet-Networking.md) | 🟢 | SyncVars, RPCs, NetworkSingleton, Server Authority |
 | 02 | [Save-Persistence](02-Save-Persistence.md) | 🟡 | JSON saves, GUID Manager, ISaveable, Loader (game-version example outdated — flagged in file) |
@@ -18,7 +17,7 @@ Quick access to all 64 game-system analyses. Each file documents one gameplay su
 | 04 | [DarkMarket](04-DarkMarket.md) | 🟡 | Night shop, Igor + Oscar, Rank Lock |
 | 05 | [Achievement-Steam](05-Achievement-Steam.md) | 🟢 | Steamworks.NET, 13-Achievement table, VariableDatabase |
 | 06 | [UI-Phone-HUD](06-UI-Phone-HUD.md) | 🟡 | 3D worldspace phone, App\<T\>, UIScreenManager |
-| 07 | [Vehicle](07-Vehicle.md) | 🟢 | WheelCollider, PID, skateboard + map-POI section (Live-verified API observations, 2026-09-25) |
+| 07 | [Vehicle](07-Vehicle.md) | 🟢 | WheelCollider, PID, skateboard + map-POI section (Inherited API observations, 2026-09-25) |
 | 08 | [Plant-Growing](08-Plant-Growing.md) | 🟢 | MinPass formula, Soil, Water, Additives, Quality |
 | 09 | [Inventory-ItemFramework](09-Inventory-ItemFramework.md) | 🟢 | Item hierarchy, Slots, Registry, Quality, Filters |
 | 10 | [Building-Construction](10-Building-Construction.md) | 🟢 | 2D Grid (0.5u), Ghost Preview, BuildManager flow |
@@ -32,17 +31,17 @@ Quick access to all 64 game-system analyses. Each file documents one gameplay su
 | 18 | [Trash-Recycling](18-Trash-Recycling.md) | 🟡 | Global limit 2000, Recycler math, Cleaner priorities |
 | 19 | [Customer-Budget](19-Customer-Budget.md) | 🟢 | AdjustedWeeklySpend formula, Bonus table |
 | 20 | [XP-Leveling](20-XP-Leveling.md) | 🟡 | 15 XP sources, 11 Ranks |
-| 21 | [Casino-Gambling](21-Casino-Gambling.md) | 🟡 | Slots 131.9% RTP (verification date open), Blackjack |
+| 21 | [Casino-Gambling](21-Casino-Gambling.md) | 🟡 | Slots 131.9% RTP (unverified inherited estimate), Blackjack |
 | 22 | [DevConsole](22-DevConsole.md) | 🟡 | Activation via save edit, 8 commands, ~50 utilities |
 | 23 | [Economy-Money](23-Economy-Money.md) | 🟡 | Money types, 6 income sources, 4 exploits |
-| 24 | [Avatar-CharacterCreator](24-Avatar-CharacterCreator.md) | 🟡 | Creator, Blendshapes, 10 Clothing Slots (verified), 27 colors |
+| 24 | [Avatar-CharacterCreator](24-Avatar-CharacterCreator.md) | 🟡 | Creator, Blendshapes, 10 Clothing Slots (inherited), 27 colors |
 | 25 | [Mixing-Production](25-Mixing-Production.md) | 🟡 | MixMap combinatorics, 35 Effects, 16 Ingredients |
-| 26 | [PlayerCamera-SelfDamageBug](26-PlayerCamera-SelfDamageBug.md) | 🟢 | Known bug with root cause + fix snippet |
+| 26 | [PlayerCamera-SelfDamageBug](26-PlayerCamera-SelfDamageBug.md) | 🟢 | Camera/self-hit hypothesis, reproduction and acceptance criteria |
 | 27 | [Tutorial-Prolog](27-Tutorial-Prolog.md) | 🟢 | 16-Quest chain, IntroManager cutscene, RV explosion |
 | 28 | [Audio](28-Audio.md) | 🔵 | Sound system |
 | 29 | [Combat-Weapons](29-Combat-Weapons.md) | 🔵 | Combat, weapon mechanics |
 | 30 | [Cartel](30-Cartel.md) | ↪️ | → canonical: **13-Regions.md** (class register kept) |
-| 31 | [Clothing](31-Clothing.md) | 🟢 | 7-type namespace verified; PlayerClothing in PlayerScripts; 10 slots + 27 colors verified; strong S1API.Items.Clothing wrapper |
+| 31 | [Clothing](31-Clothing.md) | 🟢 | 7-type namespace register; PlayerClothing in PlayerScripts; 10 slots + 27 colors recorded; strong S1API.Items.Clothing wrapper |
 | 32 | [Configuration](32-Configuration.md) | 🔵 | Config system (+ ModConfig\<T\> mixed in) |
 | 33 | [Cutscenes](33-Cutscenes.md) | 🔵 | Cutscene system |
 | 34 | [Delivery](34-Delivery.md) | 🔵 | Delivery system |
@@ -91,4 +90,4 @@ Quick access to all 64 game-system analyses. Each file documents one gameplay su
 | **Infrastructure** | Networking (01), Multiplayer (45→01), Save (02), Time (17), Config (32), Variables (61) |
 | **Environment** | Weather (64), Lighting (41), Audio (28), Temperature (58), Trash (18) |
 | **Misc** | Casino (21), Sewer (15), Graffiti (16), TV (60), Cutscenes (33), Tutorial (27), Polling (52), Interaction (40), Dragging (36), Vision (62), Storage (57), Stations (47/56/48) |
-| **Known Bugs** | 26-PlayerCamera-SelfDamageBug |
+| **Incident hypotheses** | 26-PlayerCamera-SelfDamageBug |

@@ -53,6 +53,7 @@ public sealed class PropertyLEDsApp : PhoneApp
     private Texture2D? _saturationTexture;
     private float _saturationHue = -1;
     private string? _propertyId, _editError;
+    private readonly PropertySelection _selection = new();
     private LEDSettings _shown = new();
     private int _shownRevision = -1;
     private bool _suppress, _destroyed, _lastReady, _updateErrorLogged;
@@ -177,7 +178,9 @@ public sealed class PropertyLEDsApp : PhoneApp
         }
         catch (Exception ex)
         {
-            Invalidate();
+            // A transient view failure is not a load boundary; keep the manual selection.
+            _shownRevision = -1;
+            SetEnabled(false);
             SetInlineState("LED phone refresh failed: " + ex.Message);
             if (!_updateErrorLogged)
             {
@@ -253,6 +256,7 @@ public sealed class PropertyLEDsApp : PhoneApp
     {
         _shownRevision = -1;
         _propertyId = null;
+        _selection.Invalidate();
         _lastReady = false;
         SetEnabled(false);
         SetInlineState("Unavailable during loading / scene transition.");
@@ -279,10 +283,16 @@ public sealed class PropertyLEDsApp : PhoneApp
             if (ready)
                 for (int i = 0; i < properties.Count; i++)
                     if (properties[i].Id == _propertyId) { propertyIndex = i; break; }
-            if (ready && propertyIndex < 0 && properties.Count > 0)
+            if (ready && IsOpen() && propertyIndex < 0 && properties.Count > 0)
             {
-                propertyIndex = 0;
-                _propertyId = properties[0].Id;
+                // Resolve only on first actual open, not during hidden UI construction.
+                // Afterwards a manual choice wins across app close/reopen. No position guess.
+                var ids = new List<string>(properties.Count);
+                for (int i = 0; i < properties.Count; i++) ids.Add(properties[i].Id);
+                string? currentId = _selection.CanAdoptCurrent ? LEDRuntime.CurrentPropertyId() : null;
+                _propertyId = _selection.Resolve(ids, currentId);
+                propertyIndex = IndexOf(properties, _propertyId);
+                Mod.Log.Info($"Phone property selection: selected={_propertyId}, current={currentId ?? "unavailable"}.");
             }
             var property = SelectedProperty();
             SetEnabled(property != null);
@@ -308,8 +318,9 @@ public sealed class PropertyLEDsApp : PhoneApp
             _values[2].text = F(_shown.ColorIntensity * 100f) + "%";
             _values[3].text = F(_shown.Brightness) + " / 5";
             UpdateSaturationTrack(_shown.Hue);
-            _toggleLabel.text = _shown.Enabled ? "LEDs enabled" : "LEDs disabled";
-            _powerDetail.text = _shown.Enabled ? "Property LEDs are currently on" : "Property LEDs are currently off";
+            // The status names the selected property so it can never be read as another one's state.
+            _toggleLabel.text = PropertyStatus.Label(property.DisplayName, _shown.Enabled);
+            _powerDetail.text = PropertyStatus.Detail(_shown.Enabled);
             _powerTrack.color = _shown.Enabled ? Accent : Surface;
             _powerKnob.anchorMin = _powerKnob.anchorMax = new Vector2(_shown.Enabled ? 0.75f : 0.25f, 0.5f);
             SetInlineState(_editError ?? "");
@@ -346,8 +357,18 @@ public sealed class PropertyLEDsApp : PhoneApp
         var properties = LEDRuntime.Properties;
         int index = 0;
         for (int i = 0; i < properties.Count; i++) if (properties[i].Id == _propertyId) { index = i; break; }
-        _propertyId = properties[(index + delta + properties.Count) % properties.Count].Id;
+        string next = properties[(index + delta + properties.Count) % properties.Count].Id;
+        _selection.Select(next);
+        _propertyId = next;
         RefreshView(); // No Apply or file writes on navigation.
+    }
+
+    private static int IndexOf(IReadOnlyList<PropertyEntry> properties, string? id)
+    {
+        if (id == null) return -1;
+        for (int i = 0; i < properties.Count; i++)
+            if (properties[i].Id == id) return i;
+        return -1;
     }
 
     private void SetEnabled(bool enabled)
@@ -608,6 +629,11 @@ public sealed class PropertyLEDsApp : PhoneApp
         icon.rectTransform.offsetMax = new Vector2(UITheme.Dp(44), 0);
         _toggleLabel = Label("PowerLabel", "LEDs disabled", card.transform, AppLayout.FontPowerLabel, FontStyle.Bold);
         _powerDetail = Label("PowerDetail", "Property LEDs are currently off", card.transform, AppLayout.FontPowerDetail);
+        // The state comes first; long property names shrink instead of wrapping out of the band.
+        _toggleLabel.resizeTextForBestFit = true;
+        _toggleLabel.resizeTextMinSize = UITheme.Sp(AppLayout.FontPowerLabelMin);
+        _toggleLabel.resizeTextMaxSize = UITheme.Sp(AppLayout.FontPowerLabel);
+        _toggleLabel.verticalOverflow = VerticalWrapMode.Truncate;
         Rect(_toggleLabel.rectTransform, 0, 0.48f, 1, 0.84f);
         Rect(_powerDetail.rectTransform, 0, 0.18f, 1, 0.48f);
         _toggleLabel.rectTransform.offsetMin = _powerDetail.rectTransform.offsetMin = new Vector2(UITheme.Dp(60), 0);

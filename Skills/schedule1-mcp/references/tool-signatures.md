@@ -1,408 +1,206 @@
-# S1MCP Tool Signatures & JSON-RPC Reference
+# S1MCP Historical Signatures and Transport Notes
+
 > verified: tool schemas extracted from S1MCPServer source 2026-10-05.
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 108 of 110 identifier-shaped tokens resolve (2 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
-Source of truth: `ThirdParty/S1MCPServer-master/` (C# mod: `S1MCPServer/`, Python MCP client: `S1MCPClient/`). Every schema below is backed by the named source file. Fields that exist only as stubs/TODOs in the source are marked. Nothing in this file is guessed.
+> Evidence scope: this file preserves interface/handler observations from the uploaded
+> workspace notes, which attributed them to local source inspections on 2026-10-05 and
+> later live observations. The local source, deployed DLL, Python client, and traces were
+> not provided in this package. None of these schemas was live-discovered or tested here.
 
-The SKILL.md §3 table lists a **15-tool subset**. The Python client actually registers more tools (e.g. `s1_get_npc_position`, `s1_inspect_component`, `s1_find_gameobjects`, `s1_launch_game`). This file documents the 15 listed there; all 14 that exist in source are below, plus one entry documenting a name mismatch (`s1_list_buildings`).
+## 1. Use the live schema first
 
----
+Discover available tools and their actual input schemas through the installed connector.
+Record bridge/build identity, target process, and network/session state.
+Use this reference to recognize drift, stubs, and transport failures, not to manufacture a
+missing tool or invoke a historical schema against an unidentified bridge.
+A public upstream repository is not proof of the local fork's implementation.
 
-## 1. JSON-RPC Envelope (Wire Protocol)
+The inherited source paths were `ThirdParty/S1MCPServer-master/S1MCPServer/` for the mod
+and `ThirdParty/S1MCPServer-master/S1MCPClient/` for the Python bridge. Verify those paths
+and their revision if they exist in the actual workspace.
 
-**Transport:** TCP socket. Server binds `127.0.0.1:8765` (`IPAddress.Loopback`, port fixed in `MainMod.cs` → `new TcpServer(..., port: 8765)`; client default `localhost:8765` in `S1MCPClient/src/tcp_client.py` and `src/utils/config.py`).
+## 2. Historical tool status and parameters
 
-**Framing** (`S1MCPClient/src/protocol.py`, `src/tcp_client.py`): 4-byte **little-endian unsigned int32** length prefix (`struct.pack('<I', len)`) followed by a UTF-8 JSON payload. The client rejects frames larger than 10 MB (`message_length > 10 * 1024 * 1024`).
+All rows describe the inherited revision only. A current connector may differ.
 
-**Request envelope** — serialized by `protocol.py: serialize_request()` and parsed by the C# `Models/Request.cs` (`id`, `method`, `params` only):
+| Historical tool | Wire method | Parameters described in the notes | Important limit |
+|---|---|---|---|
+| `s1_get_game_state` | `get_game_state` | None | `game_time` was a stub |
+| `s1_capture_logs` | `capture_logs` | Line, keyword, timestamp, regex filters below | Old `max_lines`/`log_level`/`start_time` names were absent |
+| `s1_get_player` | `get_player` | None | Player must be ready |
+| `s1_get_player_inventory` | `get_player_inventory` | None | Hotbar only; per-item serialized fields unverified |
+| `s1_teleport_player` | `teleport_player` | Required `position` object with numeric `x/y/z` | Notes report direct transform assignment; gameplay/network acceptance unverified |
+| `s1_add_item_to_player` | `add_item_to_player` | Required `item_id`; optional `quantity` | Non-mutating TODO stub; `quality` absent |
+| `s1_list_npcs` | `list_npcs` | Optional `filter` | Several filter values were accepted but not implemented |
+| `s1_get_npc` | `get_npc` | Required `npc_id` | Reflected fields could be missing |
+| `s1_teleport_npc` | `teleport_npc` | Required `npc_id` and `position` | Non-mutating TODO stub |
+| `s1_set_npc_health` | `set_npc_health` | Required `npc_id` and `health` | Non-mutating TODO stub |
+| `s1_list_items` | `list_items` | Optional `category` | Category filter and some result fields were placeholders |
+| `s1_get_item` | `get_item` | Required `item_id` | Price/category/legal-status fields were placeholders |
+| `s1_spawn_item` | `spawn_item` | Required `item_id` and `position`; optional `quantity` | Non-mutating TODO stub |
+| `s1_inspect_object` | `inspect_object` | Required `object_name`; optional `object_type` | `object_type` ignored by described handler |
+| `s1_list_buildings` | — | — | Not found in the described client/server source |
+| `s1_list_properties` | `list_properties` | None | Empty-list TODO stub |
+| `s1_get_property` | `get_property` | `property_id` or `property_name` | Placeholder TODO response |
 
-```json
-{"id": 1, "method": "get_player", "params": {}}
-```
+A success response from a listed stub is not evidence of a state change. Confirm the actual
+handler implementation and independent readback before using a tool for a test mutation.
 
-**Correction vs. older revision of this file:** the wire format is JSON-RPC-2.0-*style* (id/method/params, standard error codes) but the `"jsonrpc": "2.0"` member is **not** sent. Neither the C# request/response models nor the Python serializer contains it. Method names on the wire are the MCP tool names **without** the `s1_` prefix (mapping table in §2).
+## 3. Log filtering details
 
-**Response envelope** — C# `Models/Response.cs` + `Models/ErrorResponse.cs` (`result`/`error` are omitted when null via `JsonIgnoreCondition.WhenWritingNull`):
+Historical source: `src/tools/log_tools.py` and `Handlers/LogCommandHandler.cs`.
 
-```json
-{"id": 1, "result": {"success": true}}
-{"id": 2, "error": {"code": -32602, "message": "item_id parameter is required", "data": null}}
-```
+| Parameter | Described type/constraint |
+|---|---|
+| `last_n_lines` | Positive integer; exclusive with `first_n_lines` |
+| `first_n_lines` | Positive integer; exclusive with `last_n_lines` |
+| `keyword` | Case-insensitive substring |
+| `from_timestamp`, `to_timestamp` | Time strings such as `HH:mm:ss` or `HH:mm:ss.fff` |
+| `include_pattern`, `exclude_pattern` | Case-insensitive regular expressions |
 
-**Acknowledgment step** (`TcpServer.HandleClient` + `tcp_client.call()`): after every response the client sends `{"id": <request id>, "status": "received"}`; the server waits for this ack before reading the next request.
+The notes report timestamp, keyword, regex, then line-count filtering. Timestamp filtering
+could discard non-timestamped stack lines. Preserve full exception context separately.
+They also report a final-256-KB tail optimization for large files unless beginning/time-based
+filters required broader reading. Record actual truncation rather than assuming this cap.
 
-**Heartbeats:**
-- Client → server: `heartbeat` request every 60 s (`tcp_client._heartbeat_loop`).
-- Server → client: server-initiated response every 60 s with its own ID counter, payload `{"type": "server_heartbeat", "status": "alive", "timestamp": <unix ms>}` (`TcpServer.HeartbeatLoop`). The client detects it via `result.type == "server_heartbeat"` and keeps waiting for the actual response.
+Reported response fields: `lines` with `line_number/timestamp/content`, `total_lines_in_file`,
+`filtered_count`, `filters_applied`, and optional `warning` when the file was absent.
+An empty success response with a warning is not the same as an error-free game session.
 
-**Error codes** (observed in handlers; `ProtocolHandler.CreateErrorResponse`, `ValidationHelper`):
+## 4. State and entity response details
 
-| Code | Meaning | Example |
+### Game state
+
+The historical response used `scene_name`, `game_time`, `network_status`, and `loaded_mods`.
+`game_time` was always zero in that implementation. Previously documented `build_index`,
+`is_multiplayer`, `is_host`, and `game_version` were not established by those source notes.
+Reported network labels included host, singleplayer, client, server, and unknown; their
+meaning during transitions still requires observation.
+
+### Player and inventory
+
+Reported player fields: position, Euler-angle rotation, health, money containing cash/bank/
+networth, and network status. Readiness depended on a local player instance.
+The inventory handler enumerated non-null instances in hotbar slots and returned items/count.
+It did not establish complete inventory coverage or stable fields for raw item serialization.
+
+### Position-bearing operations
+
+The described schema used a nested `position` object, not independent top-level coordinates.
+Historical validation rejected positions below -10 or above 1000 on the vertical axis, or
+outside 10000 on horizontal axes. These bounds belong to that handler and do not prove
+collision safety, reachability, controller synchronization, or network acceptance.
+
+### NPCs
+
+Historical `filter` values were conscious, unconscious, in_building, and in_vehicle, but
+only the first two were described as implemented. Other accepted values returned unfiltered
+results. Reported fields included ID, name, position, health, consciousness, and object name;
+reflection failures could omit fields.
+NPC lookup reportedly tried several ID/name properties. Treat the resolved identity as
+something to verify, especially where names can collide.
+Teleport and health mutation handlers were documented as TODOs. The reported old-health
+value was a constant, so it cannot serve as an independent before-state measurement.
+
+### Items and properties
+
+Item definitions reportedly provided real ID/name/description/stack-limit fields while
+category, price, and legal status could be fixed placeholders. Do not use those placeholder
+fields for economy analysis. The category filter was accepted without filtering.
+Item addition and physical spawning were documented as TODOs that returned success.
+Property enumeration returned an empty placeholder list; property lookup returned placeholder
+position and occupants. Empty output cannot prove there are no owned properties.
+
+## 5. Object/component inspection
+
+Historical source: `src/tools/debug_tools.py` and `Handlers/Debug/DebugObjectInspectionHandler.cs`.
+The object tool used `object_name`; old `game_object_name` and `component_name` parameters
+were not present in the described schema. Component inspection was a separate tool.
+Reported object fields included name/type, full type, position, quaternion rotation, scale,
+component descriptions, child names/paths, and counts.
+
+The described handler read up to 20 public properties and 20 public fields per component,
+filtering some backing fields/pointers. That still permits expensive or stateful getters.
+Prefer a named member on a known component. An ignored parameter or reflected property
+exception must not be interpreted as a successful read of the intended target.
+
+The notes mention tools such as `s1_inspect_component`, `s1_find_gameobjects`,
+`s1_get_npc_position`, and lifecycle commands beyond the summarized subset. Discover their
+actual schema rather than deriving arguments from the name.
+
+## 6. Additional wire-only methods reported later
+
+A later local release note mentioned methods without corresponding Python `s1_*` wrappers.
+These are historical local capabilities to check, not automatically exposed connector tools.
+
+| Reported method | Described behavior | Verification boundary |
 |---|---|---|
-| `-32700` | Parse error | invalid JSON payload |
-| `-32600` | Invalid request | empty `method` |
-| `-32601` | Method not found | unknown method; `data.availableMethods` lists valid ones |
-| `-32602` | Invalid params | missing/incorrect `position`, mutually exclusive `capture_logs` params, invalid regex |
-| `-32603` | Internal error | handler exception (`data.details`) |
-| `-32000` | Game error | `Player not ready`, `NPC not found`, `Item not found`, `GameObject not found` |
-| `-32002` | Validation error | `data.reason`, e.g. `"Position is too far underground"`, `"NPC '<id>' not found"` |
+| `get_time_of_day` | No arguments; minutes, elapsed days, display, or unavailable in menu | Confirm units and actual fields |
+| `set_time_of_day` | `time` in hours or `minutes`; attempted host-owned time change with readback | Inspect authority and compare exact resulting state |
+| `get_weather` | No arguments; current weather-weight fields or unavailable | Reading weights does not prove visual weather effects |
+| `list_mods` | Managed mod metadata and total count | A list alone is not patch-health evidence |
 
-**Execution model** (`MainMod.cs`, `Core/CommandQueue.cs`, `Core/ResponseQueue.cs`): the TCP background thread enqueues requests into `CommandQueue`; the mod's `OnUpdate` (main thread) dequeues and routes them; responses flow back through `ResponseQueue` and a background `ResponseLoop`. All Unity/IL2CPP access happens on the main thread.
+Do not prepend `s1_` and call a tool that the connector did not register. Use an inspected raw
+protocol only when needed, within scope, and compatible with the installed implementation.
 
-**Single-client rule** (`TcpServer.ServerLoop`): if a client is already connected, a second incoming connection is closed immediately (`"Rejecting new client connection ... - already have a connected client"`).
+## 7. Historical transport contract
 
----
+The uploaded notes describe two layers: MCP over stdio between agent and Python client,
+and a custom TCP exchange between that client and the game mod.
+The reported game endpoint was loopback port 8765. Verify the actual bind/configuration;
+this is not a current security or availability guarantee.
 
-## 2. Tool Schemas (15)
+| Element | Described behavior |
+|---|---|
+| Frame | Four-byte little-endian unsigned length plus UTF-8 JSON |
+| Client frame limit | 10 MB |
+| Request fields | `id`, `method`, `params` |
+| JSON-RPC marker | The custom TCP serializer omitted `jsonrpc`; do not assume a standard JSON-RPC envelope |
+| Response | Matching `id` with result or error |
+| Acknowledgment | Client acknowledgment containing ID and received status after response |
+| Heartbeats | Client and server heartbeat paths at roughly 60-second intervals |
+| Client ownership | Described server accepted one client at a time |
+| Execution | Socket work on a background thread; queued game work handled through the main-thread pump |
 
-Each block: MCP tool name → wire `method`, params (from the Python `inputSchema` in `S1MCPClient/src/tools/*.py`, cross-checked against C# param handling in `S1MCPServer/Handlers/*.cs`), response structure, error cases.
+Reported errors included parse/invalid-request/method-not-found/invalid-params/internal-error,
+plus game and validation errors. Preserve the actual code, details, and target context.
+Do not collapse a game-not-ready response into an unsupported-API finding.
 
-### `s1_get_game_state` → `get_game_state`
-Source: `src/tools/game_state_tools.py`, `Handlers/GameStateCommandHandler.cs`.
-**Params:** none.
-**Response:**
-```json
-{
-  "scene_name": "Main",
-  "game_time": 0,
-  "network_status": "singleplayer",
-  "loaded_mods": ["S1MCPServer", "..."]
-}
-```
-- `scene_name`: `SceneManager.GetActiveScene().name`.
-- `game_time`: **stub, always `0`** (`// TODO: Get actual game time`).
-- `network_status`: `host` | `singleplayer` | `client` | `server` | `unknown` (FishNet `InstanceFinder.NetworkManager`).
-- `loaded_mods`: `MelonMod.RegisteredMelons` names.
-- **Outdated fields removed from this doc:** the previous revision showed `build_index`, `is_multiplayer`, `is_host`, `game_version` — none of these exist in the current source (`game_version` is commented out as TODO).
-**Errors:** `-32000` "Failed to get game state" (`data.details`).
+## 8. Transport and discovery incidents
 
-### Wire-only methods (1.0.4) — no `s1_*` client tool wrapper yet <!-- skills-health: version-evidence (S1MCPServer release that introduced these methods; historical provenance, not a current dependency pin) -->
-Added in S1MCPServer 1.0.4 (main-thread handlers, never fast path). Call them with the raw
-JSON-RPC protocol (`mcp_client.py`-style); no `S1MCPClient` tool schema exists yet, so
-Hermes-connector `s1_*` names do not apply.
+These are inherited observations, not newly reproduced defects.
 
-- **`get_time_of_day`** — params none. `TimeManager` is a NetworkSingleton that only exists
-  in a loaded world: in the main menu the response is `{available:false, reason:"..."}`.
-  When available: `time_minutes` (0-1439, minutes since midnight), `elapsed_days`,
-  `display` (`GetMinutesToDisplayTime`). Errors: `-32000`.
-- **`set_time_of_day`** — params `time` (hours 0-24, float) OR `minutes` (0-1439, int);
-  validated on the double BEFORE the int cast (an out-of-range double would silently cast
-  to int.MinValue otherwise). Calls the host-authoritative `SetTime_Server`, then reports
-  `applied_minutes`, `readback_minutes`, `changed` (readback == applied) and a `note`
-  whenever `changed` is false (non-host client). Errors: `-32602` invalid params, `-32000`.
-- **`get_weather`** — params none, read-only. Reads the nine native weights from
-  `EnvironmentManager._currentWeatherConditions` (same members S1API's WeatherRuntime
-  mirrors): `conditions.sunny/cloudy/rainy/stormy/snowy/foggy/windy/hail/sleet`, floats
-  0-1. Main menu → `available:false`. Never selects sequences or triggers effects.
-- **`list_mods`** — params none, purely managed. `total_count` + `mods[]` with
-  `name/version/author/type` from `MelonMod.RegisteredMelons`, sorted by name. Works from
-  the main menu (true functional test of the set).
+- **Connection before readiness:** the notes describe a listener started during mod init,
+  while player/world objects were not yet ready. A successful handshake is not readiness.
+- **Occupied port:** a stale or different process can own the endpoint. Identify it before
+  any shutdown action; reconnecting may otherwise attach to the wrong game.
+- **Second client rejected:** coordinate the current connection instead of repeatedly
+  opening a competing one.
+- **Large reflection queries:** main-thread traversal and serialization can stall frames.
+  Bound depth, count, duration, and output; prefer exact targets.
+- **Read/response timeout differences:** the notes described separate server/client waits
+  and retries. A delayed response can outlive the caller's timeout; mutation outcome is unknown.
+- **Acknowledgment phase drift:** an October 2026 report observed stale response IDs after
+  an error path. Reject mismatched IDs, close the failed session, and reconnect deliberately.
+- **Scan caps:** one recorded search stopped after 2000 objects. A zero match under that cap
+  did not prove absence. Inspect a known exact path or broaden bounded coverage.
+- **Argument conversion:** `call_method` reportedly returned silent null on some component
+  or argument-conversion failures. Null alone does not establish invocation or success.
+- **Volume inspection:** a profile getter can instantiate data. Do not read it to prove a
+  profile has never been instantiated; inspect a non-mutating verified field path instead.
 
-**Errors:** all three world-bound handlers return a clean `{available:false, reason}` in the
-menu instead of erroring — a crash-free answer is the contract.
+Debug-logging configuration and truncation limits also depend on the installed fork.
+Preserve necessary evidence before toggling or restarting it, and disable noisy capture when
+the bounded diagnostic interval ends.
 
-### `s1_capture_logs` → `capture_logs`
-Source: `src/tools/log_tools.py`, `Handlers/LogCommandHandler.cs`. Reads `MelonEnvironment.MelonLoaderDirectory/Latest.log` with `FileShare.ReadWrite`. If the file is > 256 KB and neither `first_n_lines` nor `from_timestamp` is set, only the **last 256 KB** are read (tail seek).
-**Params:**
+## 9. Connection configuration and reporting
 
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| `last_n_lines` | integer | — | min 1; mutually exclusive with `first_n_lines` |
-| `first_n_lines` | integer | — | min 1; mutually exclusive with `last_n_lines` |
-| `keyword` | string | — | case-insensitive substring |
-| `from_timestamp` | string | — | `HH:mm:ss` or `HH:mm:ss.fff` (`TimeSpan.TryParse`) |
-| `to_timestamp` | string | — | same format |
-| `include_pattern` | string | — | case-insensitive regex |
-| `exclude_pattern` | string | — | case-insensitive regex |
+Locate the actual Python entry point, dependencies, working-directory requirements, and
+configuration before launching a client. Historical notes mention `python -m src.main` from
+`S1MCPClient/`, but the current package may have another supported entry point.
+Do not overwrite existing MCP configuration with a guessed registration snippet.
 
-Filter order: timestamp → keyword → regex → line count. Lines without a parseable timestamp are dropped during timestamp filtering. **Outdated params removed:** `max_lines`, `log_level`, `start_time` from the old SKILL.md table do not exist.
-**Response:**
-```json
-{
-  "lines": [{"line_number": 120, "timestamp": "[12:30:45.123]", "content": "..."}],
-  "total_lines_in_file": 4821,
-  "filtered_count": 37,
-  "filters_applied": ["keyword: error"],
-  "warning": "Log file not found"
-}
-```
-- `timestamp` is the extracted `[HH:mm:ss.fff]` prefix (empty string if none). `warning` only appears when `Latest.log` does not exist (then `lines` is empty, success response).
-**Errors:** `-32602` "Cannot specify both last_n_lines and first_n_lines"; `-32602` "Invalid include_pattern regex" / "Invalid exclude_pattern regex" (`data.details`); `-32000` "Failed to read log file" / "Failed to capture logs" (with `data.stack_trace`).
-
-### `s1_get_player` → `get_player`
-Source: `src/tools/player_tools.py`, `Handlers/PlayerCommandHandler.cs (HandleGetPlayer)`.
-**Params:** none.
-**Response:**
-```json
-{
-  "position": {"x": 124.5, "y": 2.1, "z": -45.0},
-  "rotation": {"x": 0.0, "y": 180.0, "z": 0.0},
-  "health": 100.0,
-  "money": {"cash": 4500.0, "bank": 12000.0, "networth": 30000.0},
-  "network_status": "singleplayer"
-}
-```
-- `rotation`: `transform.eulerAngles` (degrees).
-- `money.cash` = `MoneyManager.cashBalance`, `money.bank` = `MoneyManager.onlineBalance`, `money.networth` = `MoneyManager.LastCalculatedNetworth`.
-**Errors:** `-32000` "Player not ready" (no `Player.Local`); `-32000` "Failed to get player information" (`data.details`).
-
-### `s1_get_player_inventory` → `get_player_inventory`
-Source: `src/tools/player_tools.py`, `Handlers/PlayerCommandHandler.cs (HandleGetPlayerInventory)`.
-**Params:** none.
-**Response:**
-```json
-{"items": [ {"...ItemInstance serialization..."} ], "count": 2}
-```
-- Reads only `PlayerInventory.Instance.hotbarSlots`, collecting slots with a non-null `ItemInstance`. Items are the raw serialized `ItemInstance` objects — **the exact per-item fields are `unverified`** (the C# source does not enumerate them; it hands the IL2CPP objects to the serializer).
-**Errors:** `-32000` "Player not ready"; `-32000` "Failed to get player inventory" (`data.details`).
-
-### `s1_teleport_player` → `teleport_player`
-Source: `src/tools/player_tools.py`, `Handlers/PlayerCommandHandler.cs (HandleTeleportPlayer)`, `Core/ValidationHelper.cs`.
-**Params:**
-
-| Param | Type | Required | Notes |
-|---|---|---|---|
-| `position` | object `{x, y, z}` numbers | yes | all three required by schema; C# defaults missing keys to `0.0` |
-
-**Response:**
-```json
-{"success": true, "new_position": {"x": 10.0, "y": 2.0, "z": 20.0}}
-```
-- Sets `player.transform.position` directly.
-**Validation (`ValidationHelper.ValidatePosition`, error code `-32002`, `data.reason`):**
-- `y < -10` → "Position is too far underground"
-- `y > 1000` → "Position is too high"
-- `|x| > 10000` or `|z| > 10000` → "Position is outside world bounds"
-**Errors:** `-32602` "position parameter is required" / "Invalid position format" / "Failed to parse position"; `-32002`; `-32000` "Player not ready" / "Failed to teleport player".
-
-### `s1_add_item_to_player` → `add_item_to_player`
-Source: `src/tools/player_tools.py`, `Handlers/PlayerCommandHandler.cs (HandleAddItemToPlayer)`.
-**Params:**
-
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| `item_id` | string | — | required; validated against the item registry |
-| `quantity` | number | 1 | clamped to ≥ 1; unparsable → default 1 |
-
-**Response:**
-```json
-{"success": true, "item_id": "weed_baggy", "quantity_added": 5, "new_total": 5}
-```
-- **Stub warning:** the handler body is `// TODO: Implement item addition using native game classes` — it returns success **without actually modifying the inventory**. `new_total` is just the passed quantity. Do not rely on this tool to change game state.
-- **Outdated param removed:** `quality` (SKILL.md §3) does not exist in the source.
-**Errors:** `-32602` "item_id parameter is required"; `-32002` "Item '<id>' not found in registry" (`data.reason`); `-32000` "Player not ready" / "Failed to add item to player".
-
-### `s1_list_npcs` → `list_npcs`
-Source: `src/tools/npc_tools.py`, `Handlers/NPCCommandHandler.cs (HandleListNPCs)`. Iterates `NPCManager.NPCRegistry`.
-**Params:**
-
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| `filter` | string enum | — | schema enum: `conscious`, `unconscious`, `in_building`, `in_vehicle`. C# only implements `conscious`/`unconscious`; other values match nothing and **include all** NPCs |
-
-**Response:**
-```json
-{
-  "npcs": [
-    {"npc_id": "kyle_cooley", "name": "Kyle Cooley", "position": {"x": 1.0, "y": 0.0, "z": 2.0},
-     "health": 100.0, "is_conscious": true, "game_object_name": "Kyle Cooley"}
-  ],
-  "count": 1
-}
-```
-- Per-NPC fields (`name`, `position`, `health`, `is_conscious`, `game_object_name`) are extracted via reflection on common property names and are **optional** — an NPC entry may omit any of them if reflection fails. `game_object_name` is included specifically so it can be fed into `s1_inspect_object` / `s1_inspect_component`.
-**Errors:** `-32000` "Failed to list NPCs" (`data.details`).
-
-### `s1_get_npc` → `get_npc`
-Source: `src/tools/npc_tools.py`, `Handlers/NPCCommandHandler.cs (HandleGetNPC)`.
-**Params:** `npc_id` (string, required). Lookup is case-insensitive over `NPCRegistry`, resolving the NPC's ID via reflection on properties `ID`, `Id`, `NPCID`, `NpcId`, `Identifier`, `Name` (fallback: `ToString()`).
-**Response:** same shape as one `s1_list_npcs` entry (see above).
-**Errors:** `-32602` "npc_id parameter is required"; `-32002` "NPC '<id>' not found" (`ValidationHelper.ValidateNPCID` → `NPCManager.GetNPC`); `-32000` "NPC not found" (`data.npc_id`) / "Failed to extract NPC data" / "Failed to get NPC".
-
-### `s1_teleport_npc` → `teleport_npc`
-Source: `src/tools/npc_tools.py`, `Handlers/NPCCommandHandler.cs (HandleTeleportNPC)`.
-**Params:** `npc_id` (string, required), `position` (`{x, y, z}`, required; same parsing/validation as `s1_teleport_player`).
-**Response:**
-```json
-{"success": true, "npc_id": "kyle_cooley", "new_position": {"x": 1.0, "y": 0.0, "z": 2.0}}
-```
-- **Stub warning:** handler body is `// TODO: Implement NPC teleportation` — returns success without moving the NPC.
-**Errors:** `-32602` "npc_id parameter is required" / "position parameter is required" / "Invalid position format"; `-32002` (NPC not found / position bounds); `-32000` "Failed to teleport NPC".
-
-### `s1_set_npc_health` → `set_npc_health`
-Source: `src/tools/npc_tools.py`, `Handlers/NPCCommandHandler.cs (HandleSetNPCHealth)`.
-**Params:** `npc_id` (string, required), `health` (number, required; must be 0–1000).
-**Response:**
-```json
-{"success": true, "npc_id": "kyle_cooley", "old_health": 100.0, "new_health": 0.0}
-```
-- **Stub warning:** handler body is `// TODO: Implement NPC health modification`; `old_health` is a hard-coded `100.0f`. The health value is **not** applied to the game.
-**Errors:** `-32602` "npc_id parameter is required" / "health parameter is required" / "Invalid health value"; `-32002` "Health must be between 0 and 1000" or "NPC '<id>' not found"; `-32000` "Failed to set NPC health".
-
-### `s1_list_items` → `list_items`
-Source: `src/tools/item_tools.py`, `Handlers/ItemCommandHandler.cs (HandleListItems)`. Enumerates `Helpers.Utils.GetAllStorableItemDefinitions()`.
-**Params:** `category` (string, optional — accepted but **not applied**; C# TODO: "include all items").
-**Response:**
-```json
-{
-  "items": [
-    {"item_id": "weed_baggy", "name": "Bag of Weed", "description": "...", "category": "Unknown",
-     "base_price": 0.0, "stack_limit": 5}
-  ],
-  "count": 1
-}
-```
-- `category` and `base_price` are **stubs** (`"Unknown"` / `0.0` — TODO in source). `item_id`, `name`, `description`, `stack_limit` are real (`StorableItemDefinition.ID/Name/Description/StackLimit`).
-**Errors:** `-32000` "Failed to list items" (`data.details`).
-
-### `s1_get_item` → `get_item`
-Source: `src/tools/item_tools.py`, `Handlers/ItemCommandHandler.cs (HandleGetItem)`.
-**Params:** `item_id` (string, required).
-**Response:**
-```json
-{"item_id": "weed_baggy", "name": "Bag of Weed", "description": "...", "category": "Unknown",
- "base_price": 0.0, "stack_limit": 5, "legal_status": "unknown"}
-```
-- `category`, `base_price`, `legal_status` are stubs (TODO in source).
-**Errors:** `-32602` "item_id parameter is required"; `-32000` "Item not found" (`data.item_id`) / "Failed to get item".
-
-### `s1_spawn_item` → `spawn_item`
-Source: `src/tools/item_tools.py`, `Handlers/ItemCommandHandler.cs (HandleSpawnItem)`.
-**Params:**
-
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| `item_id` | string | — | required; registry-validated |
-| `position` | object `{x, y, z}` | — | required; same bounds validation as teleport |
-| `quantity` | number | 1 | only sent by client when ≠ 1; C# clamps < 1 → 1 |
-
-**Response:**
-```json
-{"success": true, "item_id": "weed_baggy", "quantity": 1, "position": {"x": 1.0, "y": 2.0, "z": 3.0}}
-```
-- **Stub warning:** handler body is `// TODO: Implement item spawning using native game classes` — returns success **without spawning anything** in the world.
-**Errors:** `-32602` "item_id parameter is required" / "position parameter is required" / "Invalid position format"; `-32002` (item registry / position bounds); `-32000` "Failed to spawn item".
-
-### `s1_list_buildings` — **not present in source** (`unverified` / renamed)
-There is **no** `s1_list_buildings` tool and no `list_buildings` method in this source revision (`grep` over `S1MCPClient/src` and `S1MCPServer` returns nothing). The SKILL.md §3 row is stale. The building/property equivalent that *does* exist:
-- **`s1_list_properties`** → `list_properties` (`src/tools/property_tools.py`; `Handlers/PropertyCommandHandler.cs`). Params: none. Response: `{"properties": [], "count": 0}` — **stub** (`// TODO: Implement property enumeration`, reference pattern `S1API Property.GetAll()`).
-- **`s1_get_property`** → `get_property`. Params: `property_id` **or** `property_name` (string, at least one required). Response: `{"property_id": "...", "name": "...", "position": {"x":0.0,"y":0.0,"z":0.0}, "npcs_inside": [], "npc_count": 0}` — **stub** (TODO; reference pattern `S1API Property.GetByName()`).
-**Errors (get_property):** `-32602` "property_id or property_name parameter is required"; `-32000` "Failed to get property".
-
-### `s1_inspect_object` → `inspect_object`
-Source: `src/tools/debug_tools.py (handle_s1_inspect_object)`, `Handlers/Debug/DebugObjectInspectionHandler.cs`. GameObject lookup: `ReflectionHelper.FindGameObject(name)` — `GameObject.Find(name)` for active objects, otherwise an active-scene root traversal comparing `obj.name == name` (exact match; inactive objects only when `includeDisabled`, which the tool does not expose).
-**Params:**
-
-| Param | Type | Default | Notes |
-|---|---|---|---|
-| `object_name` | string | — | required; exact GameObject name |
-| `object_type` | string | `"GameObject"` | accepted by the client schema but **ignored** by the C# handler — it always inspects as GameObject |
-
-**Outdated params removed:** `game_object_name`, `component_name` (old SKILL.md table) do not exist in the source; component-level reflection is a separate tool (`s1_inspect_component`).
-**Response:**
-```json
-{
-  "object_name": "Kyle Cooley",
-  "object_type": "GameObject",
-  "full_type": "UnityEngine.GameObject",
-  "position": {"x": 1.0, "y": 0.0, "z": 2.0},
-  "rotation": {"x": 0.0, "y": 0.0, "z": 0.0, "w": 1.0},
-  "scale": {"x": 1.0, "y": 1.0, "z": 1.0},
-  "components": [
-    {"type": "Transform", "full_type": "UnityEngine.Transform",
-     "properties": {"position": "..."}, "fields": {}}
-  ],
-  "component_count": 1,
-  "component_types": ["Transform"],
-  "children": [{"name": "Model", "path": "Kyle Cooley/Model"}],
-  "child_count": 1
-}
-```
-- Per component: up to **20 public properties** and **20 public fields** (reflection, `Take(20)`); backing fields (`<Name>k__BackingField`) and `IntPtr`-typed values are filtered out. A component that throws during inspection is returned as `{"type": ..., "full_type": ..., "error": "<message>"}`.
-**Errors:** `-32602` "object_name parameter is required"; `-32000` "GameObject not found" (`data.object_name`) / "Failed to inspect object" (`data.details`).
-
----
-
-## 3. Bridge Troubleshooting
-
-### 3.1 Connection refused / "Game is not connected"
-- **Game not running or mod not loaded:** `TcpConnectionError` ("Failed to connect to TCP server: ...") after 3 `call_with_retry` attempts (1 s apart); the MCP tool surfaces it as `"Error: Connection failed - ... Please ensure the game is running with the mod loaded."`
-- **Client-side connection guard** (`src/main.py: can_call_tool`): every tool except the lifecycle set (`s1_launch_game`, `s1_close_game`, `s1_get_game_process_info`, `s1_search_s1api_docs`) is refused until the startup `handshake` succeeded: `"Error: Game is not connected. Please launch the game first using s1_launch_game."`
-- **Scene-gate window:** the TCP listener is started in `OnInitializeMelon`, i.e. *before* the Main scene loads (`MainMod.cs` logs `"S1MCPServer ready - waiting for Main scene"`). In that window a connection + handshake can succeed while game data is not ready — data tools then fail with `-32000`, e.g. `s1_get_player` → `"Player not ready"` until `Player.Local` exists. Source marker that the game is usable: `"Main scene loaded - S1MCPServer is active"`. (Note: this source revision contains no explicit per-command scene gate beyond these errors; the stricter gate wording in SKILL.md §4.1 is `unverified` against the code.)
-
-### 3.2 Port 8765 occupied (stale game process)
-- If a previous `Schedule I.exe` is still alive, the new instance cannot bind: `TcpListener.Start()` throws, `TcpServer.ServerLoop` logs `"TCP server error: ..."` and retries the bind **every 1 s** (so Latest.log fills with bind errors). Meanwhile a client may successfully connect to the **old** process and read stale state.
-- Fix: kill the stale `Schedule I.exe` before relaunching (check `netstat -ano | findstr 8765`).
-- Also remember the single-client rule: while one MCP client holds the connection, a second one is silently closed by the server (`"Rejecting new client connection ..."`).
-
-### 3.3 Timeouts on large inspect queries
-- Client timing (`tcp_client.py`): connect timeout 5 s; after connect the **read timeout is 90 s** (covers the 60 s heartbeat plus buffer); `call_with_retry` makes up to **3 attempts** with 1 s reconnect delay.
-- Server timing (`TcpServer.HandleClient`): after enqueueing a command it waits max **10 s** (200 × 50 ms) for the response to be sent, then logs a warning and continues — the response may still arrive later.
-- Cost drivers: `s1_inspect_object` reflects up to 40 members per component on every component of the target; scene-wide debug queries (`s1_find_gameobjects`, up to 1000 results) run on the main thread and can stall the frame. Serialization has `MaxDepth = 32` (`ProtocolHandler.JsonOptions`) — deeply nested object graphs can fail.
-- Mitigation (source-supported): prefer targeted tools (`s1_get_npc` → `game_object_name` → `s1_inspect_component` with `max_depth`), use `keyword`/`last_n_lines` on `s1_capture_logs` (the handler already tails only the last 256 KB of large logs unless `first_n_lines`/`from_timestamp` forces a full read).
-
-### 3.4 DebugLogging config
-- `MainMod.cs` registers MelonPreferences category `S1MCPServer`, file **`UserData/S1MCPServer.cfg`** (relative to the game install), entry `DebugLogging` (bool, **default `false`**, description "Enable verbose [DEBUG] log output (includes truncated payload dumps)").
-- When enabled, `ModLogger.Debug` / `ModLogger.DebugPayload` write `[DEBUG]` lines including raw request/response JSON, **truncated to 500 chars** (`ModLogger.MaxPayloadLogChars = 500`). Info/Warn lifecycle lines (TCP server start, client connect/disconnect, Main scene loaded) are always logged.
-- Prefs are read once in `OnInitializeMelon` (`MelonPreferences.Load()`) — changing the cfg requires a game restart.
-- Use it when diagnosing the bridge itself (payload dumps show the exact wire JSON); turn it off afterwards to avoid Latest.log spam.
-
-### 3.5 Ack phase drift (observed live 2026-10-16)
-- After any response that travelled the **error path** (e.g. a validation failure from a wrong parameter name), the server's read phase shifts: it reads the client's next **ack frame as a request** (`Method name is empty` / ID-mismatch warnings), and every subsequent response comes back with a stale `id` (observed cascade of `id: 3`).
-- Counter-probe result: sending *no* ack gets total silence (the server only reads the next frame after the 10 s wait); sending acks works only until the first error-path response. Root cause is the single sequential read loop in `TcpServer.HandleClient`, not ack support itself.
-- Practice: keep the session clean, use exact parameter names (no validation-error probing), and if responses come back with a stale `id`, kill the connection and reconnect fresh — the phase shift does not self-heal.
-- Accept loop detail (`TcpServer.AcceptLoop`): the listener is stopped and restarted around every accepted client, so a connect can land in the restart window and hang. Wait ~10 s and retry (3 attempts spaced ~8 s worked).
-- After a reconnect was accepted at 15:30:45 the log went silent and the next exchange reset — suspect a paused main thread (game in background). If the bridge stalls right after connect, bring the game window to the foreground and retry.
-
-### 3.6 Discovery pitfalls: scan caps and how to get the real path (observed live 2026-10-16)
-- `find_gameobjects` is **scan-capped**: a live call returned `total_scanned: 2000` with `count: 0` for `name_pattern: "Environment"` — but the object *does* exist. On a scene as large as Schedule I's `Main`, a `count: 0` result is **not** evidence of absence. Never conclude "the object isn't there" from a zero result.
-- `inspect_component` takes `object_name` (resolved directly, independent of the scan) and returns **`game_object_path`** — the authoritative hierarchy. That is how `@Managers/@EnvironmentFX/GlobalVolume` was found, and it proved a mod's root-name filter (`EnvironmentFX`) could never match because `EnvironmentFX` is a *child* of `@Managers`, not a scene root.
-- `find_gameobjects` accepts `name_pattern`, `tag`, `layer`, `component_type`, plus active-state filters; `inspect_component` accepts `component_type` (partial match), `object_name`, `max_depth`. Prefer `inspect_component` with an explicit `object_name` when you need ground truth about one object — it costs one call and cannot be defeated by the scan cap.
-- Reading a URP `Volume` this way also answers the profile question without touching it: `m_InternalProfile: "null"` + `profile == sharedProfile` means the game has **not** instantiated its volume profile (so a mod must not read `volume.profile`).
-
----
-
-## 4. Client Setup (S1MCPClient)
-
-- **Location / working directory:** `ThirdParty/S1MCPServer-master/S1MCPClient/` — run the server **from this directory** (`src` package imports depend on the cwd).
-- **Dependencies:** Python environment from `requirements.txt`; install the MCP SDK using the repository setup instructions.
-- **Launch:** `python -m src.main` (or the console script `s1mcpclient` if pip-installed — `pyproject.toml` maps `s1mcpclient = "src.main:main"`).
-- **Config:** `config.json` in the S1MCPClient root (`src/utils/config.py: Config.from_file`). Only `game_config.json.example` is committed — without `config.json` the code defaults apply:
-
-| Key | Default | Purpose |
-|---|---|---|
-| `host` / `port` | `localhost` / `8765` | TCP bridge endpoint (must match the mod's fixed 8765) |
-| `log_level` | `DEBUG` | client log verbosity |
-| `connection_timeout` | `5.0` | TCP connect timeout (s) |
-| `reconnect_delay` | `1.0` | delay between retry attempts (s) |
-| `game_il2cpp_path` | null | game dir for lifecycle tools (IL2CPP marker: `MelonLoader/Il2CppAssemblies`) |
-| `game_mono_path` | null | game dir for lifecycle tools (Mono) |
-| `game_executable` | `"Schedule I.exe"` | process name used by lifecycle tools |
-| `game_startup_timeout` | `60.0` | wait for game start (s) |
-| `game_connection_poll_interval` | `2.0` | connection polling interval (s) |
-
-- **MCP client registration** (README pattern, e.g. Claude Desktop):
-```json
-{
-  "mcpServers": {
-    "s1mcpclient": {
-      "command": "python",
-      "args": ["-m", "src.main"],
-      "cwd": "C:\\path\\to\\ThirdParty\\S1MCPServer-master\\S1MCPClient"
-    }
-  }
-}
-```
-- **Startup behavior** (`src/main.py`): optional initial `tcp_client.connect()` + `handshake` (records `available_methods`); game tools stay gated on `is_connected` until handshake succeeds. A PID file (`%TEMP%/s1mcpclient.pid`) warns when another instance is running.
-
----
-
----
-
----
-
----
- Identifier-shaped tokens documented as *absent*: `MainMod`, `S1MCPClient`.
- Identifier-shaped tokens documented as *absent*: `MainMod`, `S1MCPClient`.
- Identifier-shaped tokens documented as *absent*: `S1MCPClient`, `MainMod`.
- Identifier-shaped tokens documented as *absent*: `MainMod`, `S1MCPClient`.
+A test report identifies the connector/schema, bridge and process, world/role/object,
+request/result correlation, independent readback, observation duration, cleanup, and limits.
+See [live debugging](live-debugging.md) and [bounded observations](sewer-key-observation.md).

@@ -1,207 +1,67 @@
-# S1MAPI — ProceduralMesh (Primitive Shapes)
+# S1MAPI — Procedural and Custom Meshes
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 29 of 35 identifier-shaped tokens resolve (6 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+## Evidence boundary
 
-The `ProceduralMeshBuilder` is the lowest-level entry point. It generates primitive shapes (box, sphere, cylinder, capsule) as ready-made GameObjects with mesh, collider, and material — all in one fluent chain.
+Public API documentation was inspected on 2026-10-21; it describes its published assembly, not the user's deployed DLL. The original skill also recorded a local source inspection on 2026-10-08. Use member names below as lookup targets and verify signatures, output components, and ownership in the target assembly before implementation.
 
----
+## Pick the builder
 
-## 1. The Basic Pattern
+| Need | Documented entry point | Integration decision |
+|---|---|---|
+| Composite primitive geometry | `S1MAPI.ProceduralMesh.ProceduralMeshBuilder` | One builder for one intended composite result |
+| Explicit vertices, triangles, UVs | `S1MAPI.ProceduralMesh.CustomMeshBuilder` | Validate topology and attribute counts before build |
+| Repeated copies of the same model | Cached mesh/material plus owned instances | Share only resources whose mutation/lifetime contract allows it |
 
-```csharp
-using S1MAPI.ProceduralMesh;
-using UnityEngine;
+The public primitive API lists `AddBox`, `AddSphere`, `AddCylinder`, `AddCapsule`, `ApplyFlatShading`, `SetColor`, `SetMaterial`, `Build`, and `BuildMesh`. Cylinder/capsule shapes are endpoint-based. The custom builder owns vertex/triangle/quad and UV assembly. Check overloads in the linked API rather than deriving them from a method name.
 
-GameObject box = new ProceduralMeshBuilder("MyBox")
-    .AddBox(Vector3.zero, new Vector3(1f, 1f, 1f))
-    .SetColor(Color.red)
-    .Build();
-```
+## Construction contract
 
-That's a 1m³ red cube at the world origin.
+1. Define local geometry, material groups, intended pivot, and collision role before creating objects.
+2. Validate finite coordinates, positive dimensions/radii, segment limits, and index/vertex budgets.
+3. Resolve a supported material. Decide whether it is borrowed, shared by this mod, or owned exclusively by the new object.
+4. Add geometry in one coordinate space; avoid embedding world offsets into vertices and then applying the same offset to the root.
+5. Build the intended result once. Inspect returned root, mesh, renderer, material assignment, and collider behavior.
+6. Add or configure collision explicitly if the verified builder output does not supply the required collider.
+7. Register all created resources under an owner before activation so failure cleanup is complete.
+8. Position/parent the root, then verify bounds, normals, seams, and collision in the target game.
 
----
+## Builder accumulation
 
-## 2. Available Shapes
+Do not use repeated append-and-build calls as an independent-object factory unless the actual implementation documents a reset. If the builder retains vertices, each later result can include all prior shapes. Choose either:
 
-| Method | Geometry |
-|---|---|
-| `AddBox(Vector3 center, Vector3 size)` | Box / cube |
-| `AddSphere(...)` | Sphere |
-| `AddCylinder(Vector3 start, Vector3 end, float radius, int segments = …)` | Cylinder between two points |
-| `AddCapsule(Vector3 start, Vector3 end, float radius)` | Capsule between two points |
+- one composite: append all desired shapes and build once;
+- independent results: use a fresh builder for each result;
+- repeated identical results: build/cache a prototype and instantiate under an explicit sharing contract.
 
-> **Corrected 2026-10-08 against the checked-in S1MAPI source.** The builder exposes
-> `AddBox`, `AddSphere`, `AddCylinder`, `AddCapsule`, `ApplyFlatShading`, `Build`,
-> `BuildMesh`, `SetColor`, `SetMaterial`. There is **no** `AddPlane`, no `AddX`, and no
-> `AddQuad` on this type — `AddQuad(int,int,int,int)` / `AddTriangle(int,int,int)` /
-> `AddVertex` / `SetUVs` / `ApplyPlanarUVs` / `DontCalculateNormals` belong to the lower-level
-> `CustomMeshBuilder`. Shape helpers are endpoint-based (`start`/`end`), not centre/size.
+Verify material reuse separately. Reusing a builder does not itself establish ownership or memory efficiency.
 
-## 2b. Lower-level mesh assembly — `CustomMeshBuilder`
+## Practical compositions
 
-```csharp
-var mesh = new CustomMeshBuilder("MyMesh")
-    .AddVertex(...)      // vertex-by-vertex construction
-    .AddQuad(v0, v1, v2, v3)
-    .AddTriangle(v0, v1, v2)
-    .SetUVs(...)
-    .ApplyPlanarUVs()
-    .DontCalculateNormals()
-    .BuildMesh();
-```
+### Pallet and crates
 
----
+Define a base and crate transforms as data. Use one composite only when shared collision/material/visibility fits the design; otherwise parent separate results under one owned root. Reserve the root ID before creating children so retries cannot duplicate crates. Supply colliders on the objects that must participate in physics.
 
-## 3. The Full Fluent API
+### Table with legs
 
-```csharp
-var box = new ProceduralMeshBuilder("MyBox")
-    .AddBox(Vector3.zero, Vector3.one)   // geometry
-    .SetColor(Color.red)                  // colour
-    .SetMaterial(myMaterial)              // material instance
-    .ApplyFlatShading()                   // flat shading
-    .Build();                             // GameObject
-```
+Build the top with its intended dimensions. Derive each leg's lower and upper endpoints from the table-local frame; do not substitute center/radius/height arguments for an endpoint-based cylinder API. Parent all parts before world placement. Verify the leg ends meet the top and the floor.
 
-### `ProceduralMeshBuilder` methods (verified 2026-10-08)
+### Emissive lamp
 
-| Method | Purpose |
-|---|---|
-| `AddBox(Vector3 center, Vector3 size)` | Box geometry |
-| `AddSphere(...)` | Sphere geometry |
-| `AddCylinder(Vector3 start, Vector3 end, float radius, int segments = …)` | Cylinder geometry |
-| `AddCapsule(Vector3 start, Vector3 end, float radius)` | Capsule geometry |
-| `SetColor(Color)` | Single tint |
-| `SetMaterial(Material)` | Assign a material instance |
-| `ApplyFlatShading()` | Flat shading |
-| `Build()` / `BuildMesh()` | Finalize to `GameObject` / `Mesh` |
+Create the emissive material through a verified material helper or a supported Unity material configuration, then pass that material to the mesh builder. Add a separate light only if the scene should actually be illuminated. Limit its range/shadows and verify the day/night result.
 
-> **Removed in the checked-in source:** `SetMaterialPreset`, `SetEmission`,
-> `SetTransparency`, `SetCollider` and `SetStatic` are **not** members of this builder.
-> Material presets and emission live in the material helpers
-> (`Materials`/`MaterialPresets`), colliders and layers must be set on the returned
-> `GameObject`/`Component`. Re-derive the exact signatures from
-> `ThirdParty/S1MAPI/ProceduralMesh/ProceduralMeshBuilder.cs` before use.
+## Retired recipes
 
----
+The original package's calls to `SetMaterialPreset`, `SetEmission`, `SetTransparency`, `SetCollider`, and `SetStatic` on `ProceduralMeshBuilder` contradicted its own source inspection. Those recipes are removed. Do not restore them or invent substitutes with similar names. `AddQuad` and `AddTriangle` belong to the custom geometry workflow, not the primitive builder.
 
-## 4. Production Example — Container Pallets
+## Verification and performance
 
-```csharp
-public class PalletBuilder
-{
-    public static GameObject CreatePallet(Vector3 position, string id)
-    {
-        // pallet base
-        var baseGo = new ProceduralMeshBuilder($"Pallet_{id}_Base")
-            .AddBox(position, new Vector3(1.2f, 0.1f, 1.2f))
-            .SetColor(new Color(0.5f, 0.3f, 0.1f))
-            .SetMaterialPreset(MaterialPreset.Opaque)
-            .Build();
+Check empty/invalid geometry, index limits, negative scale, duplicate builds, missing shader, material lifetime, and destruction while another instance still shares the mesh. Measure actual vertices, draw calls, collider cost, and construction time. Do not claim baked lighting for runtime-created geometry merely because a static flag is set.
 
-        // 3 crates on top
-        for (int i = 0; i < 3; i++)
-        {
-            var cratePos = position + new Vector3(
-                (i - 1) * 0.4f,
-                0.3f,
-                0f);
-            new ProceduralMeshBuilder($"Pallet_{id}_Crate{i}")
-                .AddBox(cratePos, new Vector3(0.4f, 0.4f, 0.4f))
-                .SetColor(new Color(0.6f, 0.4f, 0.2f))
-                .SetMaterialPreset(MaterialPreset.Opaque)
-                .SetCollider(true)
-                .Build();
-        }
+## Sources and local anchors
 
-        return baseGo;
-    }
-}
-```
-
----
-
-## 5. Advanced Patterns
-
-### Pattern A: Layer Composition
-
-```csharp
-var table = new ProceduralMeshBuilder("Table")
-    .AddBox(Vector3.zero, new Vector3(1.5f, 0.05f, 1.0f))   // top
-    .SetColor(new Color(0.44f, 0.27f, 0.13f))   // brown — UnityEngine has NO Color.brown, use explicit RGB
-    .Build();
-
-foreach (var legPos in new[] {
-    new Vector3( 0.6f, -0.4f,  0.4f),
-    new Vector3(-0.6f, -0.4f,  0.4f),
-    new Vector3( 0.6f, -0.4f, -0.4f),
-    new Vector3(-0.6f, -0.4f, -0.4f),
-})
-{
-    new ProceduralMeshBuilder("Leg")
-        .AddCylinder(legPos, 0.04f, 0.8f)
-        .SetColor(Color.black)
-        .Build();
-}
-```
-
-### Pattern B: Instanced Builders (Avoid Memory)
-
-```csharp
-// ✅ Reuse a builder for many shapes of the same material
-var builder = new ProceduralMeshBuilder("Wall")
-    .SetColor(Color.gray)
-    .SetMaterialPreset(MaterialPreset.Opaque)
-    .SetCollider(true);
-
-foreach (var segment in wallSegments)
-{
-    builder.AddBox(segment.center, segment.size)
-           .Build();   // each .Build() returns the GameObject; builder state still persists
-}
-```
-
-> Reading the source: in S1MAPI, `Build()` does **not** reset the builder — you can chain multiple `.AddX().Build()` calls on the same instance. Materials are reused → memory-efficient for many similar objects.
-
-### Pattern C: Light Source
-
-```csharp
-var lamp = new ProceduralMeshBuilder("Lamp")
-    .AddSphere(Vector3.zero, 0.2f)
-    .SetMaterialPreset(MaterialPreset.Emissive)
-    .SetEmission(Color.yellow, intensity: 2.0f)
-    .Build();
-
-lamp.AddComponent<Light>();
-lamp.GetComponent<Light>().color = Color.yellow;
-lamp.GetComponent<Light>().intensity = 1.5f;
-lamp.GetComponent<Light>().type = LightType.Point;
-```
-
----
-
-## 6. When ProceduralMesh Isn't Enough
-
-For complex shapes (curves, custom meshes, sculpted geometry), use:
-- **GltfLoader** — load `.glb` from Blender/similar (see [gltf-loading.md](gltf-loading.md))
-- **BuildingBuilder** — room-level composites (see [building.md](building.md))
-
-For runtime-modifiable meshes (e.g., shape changes during gameplay), use Unity's `MeshFilter`/`Mesh` directly with S1MAPI materials.
-
----
-
-## 7. Performance Notes
-
-* `Build()` creates the GameObject + Mesh + Material + Collider in one call. Reuse the builder across many shapes for material efficiency.
-* For >100 static shapes, consider `Static` flag + the Unity-Editor-baked lighting.
-* For dynamic shapes, see `Mesh.Update()` patterns.
-
----
-
----
-
----
- Identifier-shaped tokens documented as *absent*: `SetMaterialPreset`, `SetTransparency`, `SetCollider`, `AddX`, `SetEmission`, `AddPlane`.
- Identifier-shaped tokens documented as *absent*: `SetEmission`, `AddPlane`, `AddX`, `SetTransparency`, `SetCollider`, `SetMaterialPreset`.
- Identifier-shaped tokens documented as *absent*: `AddPlane`, `AddX`, `SetTransparency`, `SetMaterialPreset`, `SetCollider`, `SetEmission`.
+- [Official ProceduralMeshBuilder API](https://ifbars.github.io/S1MAPI/api/S1MAPI.ProceduralMesh.ProceduralMeshBuilder.html)
+- [Official CustomMeshBuilder API](https://ifbars.github.io/S1MAPI/api/S1MAPI.ProceduralMesh.CustomMeshBuilder.html)
+- Historical source anchor: `ThirdParty/S1MAPI/ProceduralMesh/ProceduralMeshBuilder.cs`; resolve the actual path in the current checkout.
+- [Material ownership](materials.md) and [persistence](persistence.md).

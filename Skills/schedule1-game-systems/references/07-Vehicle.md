@@ -1,6 +1,7 @@
 # Vehicle (Schedule I)
-> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 119/122 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+> UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 119/122 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## Vehicle Types
 | Type | Base | Physics |
@@ -39,7 +40,7 @@
 - VisionCone + `LastKnownPosition`
 - 5s after lost line of sight: `IsTargetRecentlyVisible = false`
 
-## Live-Verified API (inspected 2026-09-25 from `MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll`)
+## previously reported API (inspected 2026-09-25 from `MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll`)
 
 Signatures confirmed via ilspycmd against the installed build; some sections above may reflect older evidence:
 
@@ -47,8 +48,8 @@ Signatures confirmed via ilspycmd against the installed build; some sections abo
 - `LandVehicle` → `public VehicleAgent Agent {get;set}`, `Seats` (`Il2CppReferenceArray<VehicleSeat>`), `driverEntryPoint`, `OccupantNPCs`, `DriverPlayer`, `IsOccupied`, `GetFirstFreeSeat()`, `AddNPCOccupant(NPC)`, `RemoveNPCOccupant(NPC)`, `EnterVehicle()` (local player), `ExitVehicle()`, `DestroyVehicle()`, `VehicleCode/VehicleName/VehiclePrice`, `Speed_Kmh`, `LocalPlayerIsInVehicle`.
 - `VehicleAgent` → `Navigate(Vector3 location, NavigationSettings settings = null, NavigationCallback callback = null)`, `StopNavigating()`, `AutoDriving`, `TargetLocation`, `IsOnVehicleGraph()`, `GetIsStuck()`. `ENavigationResult { Failed, Complete, Stopped }` (names verified live 2026-09-25 — Failed=0.2s on bad targets, Complete on arrival, Stopped on our own StopNavigating/timeout).
 - `NavigationSettings` (class, parameterless ctor) → bool fields `endAtRoad`, `ensureProximityToGraph`, `teleportToGraphIfCalculationFails`.
-- `NavigationCallback` -> has `public static implicit operator NavigationCallback(System.Action<ENavigationResult>)` (DelegateSupport.ConvertDelegate) and accepts a managed lambda; `ENavigationResult { Failed, Complete, Stopped }` provides the Navigate outcome (verified in the inspected interop dump on 2026-09-25).
-- `VehicleSeat` -> `isDriverSeat` (get/set), `Occupant` (Player only; NPC occupancy lives on `LandVehicle.OccupantNPCs`), `isOccupied` (stays False for NPC occupants). The `OccupantNPCs[i]` to `Seats[i]` mapping was live-verified only for the single-driver case; the proxy does not expose it directly.
+- `NavigationCallback` -> has `public static implicit operator NavigationCallback(System.Action<ENavigationResult>)` (DelegateSupport.ConvertDelegate) and accepts a managed lambda; `ENavigationResult { Failed, Complete, Stopped }` provides the Navigate outcome (previously reported in the inspected interop dump on 2026-09-25).
+- `VehicleSeat` -> `isDriverSeat` (get/set), `Occupant` (Player only; NPC occupancy lives on `LandVehicle.OccupantNPCs`), `isOccupied` (stays False for NPC occupants). The `OccupantNPCs[i]` to `Seats[i]` mapping was previously reported only for the single-driver case; the proxy does not expose it directly.
 - `NPC` -> `EnterVehicle(NetworkConnection connection, LandVehicle veh)` (public virtual, RPC-shaped; singleplayer: try `null` connection), `ExitVehicle()`, `CurrentVehicle`, `IsInVehicle`, events `onEnterVehicle` / `onExitVehicle`. The inspected dump had no `NPC.CurrentVehicleSeat`; NPC seat proof used `LandVehicle.OccupantNPCs[i] == npc` plus root-to-seat distance. `VehicleSeat.Occupant` is typed `Player`, so `isOccupied` does not reflect NPC occupants. `NPCManager.NPCRegistry` is `public static List<NPC>`.
 - Reference pattern for NPC-drives-vehicle: schedule spec `S1API.Entities.Schedule.DriveToCarParkSpec` wires native `NPCSignal_DriveToCarPark` via reflection (sets `action.Vehicle`/`action.ParkingLot`). Vanilla behaviour class: `VehiclePatrolBehaviour` (`DriveTo(Vector3)`, `SetRoute`, `Vehicle`, `Agent`).
 - S1API wrappers expose native objects only as `internal` (`LandVehicle.S1LandVehicle`, `NPC.S1NPC`) — mods that need `Agent`/native calls must use the `Il2CppScheduleOne.*` types directly (Assembly-CSharp reference comes from `Directory.Build.props`).
@@ -78,19 +79,9 @@ Signatures confirmed via ilspycmd against the installed build; some sections abo
 
 ---
 
----
+## Unresolved identifiers in the imported 2026-10-08 record
 
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
+The imported scan did not resolve the following tokens within its recorded search scope. These may be placeholders, attributes from another assembly or drift candidates. Search the actual declaring assembly and version before concluding that an API was removed.
 
 - `VehicleModStation`
 - `BUY_ONLINE`

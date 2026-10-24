@@ -1,5 +1,8 @@
 # Combat & Weapons (Schedule I)
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 137 of 139 identifier-shaped tokens resolve (2 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
+
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
 
 ## Core Classes
 
@@ -36,7 +39,7 @@
 | `Equippable_PumpShotgun` | `Equippable_RangedWeapon` | No unique public members in dump — pump behavior comes from base fields (`MustBeCocked`, `CockedByDefault`, reload/cock config) |
 
 ## Events / UnityEvents
-On `Equippable_RangedWeapon` (verified `UnityEvent` properties; invocation sites are inside the fire/reload/cock method flow — exact `.Invoke()` call sites not visible in the interop dump):
+On `Equippable_RangedWeapon` (previously reported `UnityEvent` properties; invocation sites are inside the fire/reload/cock method flow — exact `.Invoke()` call sites not visible in the interop dump):
 | UnityEvent | Associated flow |
 |-----------|-----------|
 | `onFire` | firing (`Fire` path, single + spread) |
@@ -45,7 +48,7 @@ On `Equippable_RangedWeapon` (verified `UnityEvent` properties; invocation sites
 
 No `UnityEvent`/`event Action`/`PreallocatedAction` members exist anywhere in `ScheduleOne.Combat` itself — explosion and impact flow is method-based, not event-based.
 
-## CombatBehaviour AI (verified fields — moddable tuning knobs)
+## CombatBehaviour AI (previously reported fields — moddable tuning knobs)
 - Constants: `RECENT_VISIBILITY_THRESHOLD`, `REPOSITION_TIME`, `SEARCH_RADIUS_MIN/MAX`, `SEARCH_SPEED`, `CONSECUTIVE_MISS_ACCURACY_BOOST`, `REACHED_DESTINATION_DISTANCE`, `DelayBeforeFirstAttack`
 - Inspector/config: `GiveUpRange`, `GiveUpAfterSuccessfulHits`, `DefaultMovementSpeed`, `VirtualPunchWeapon`, `DefaultSearchTime`, `CombatOnStart`
 - Key methods: `SetTargetAndEnable_Server(NetworkObject)`, `SetDefaultWeapon(AvatarWeapon)`, `SetWeapon(string weaponPath)` (protected virtual), `ClearWeapon()`, `IsCurrentWeaponMelee()`, `Shoot()`, `SucessfulHit()` (sic), `StartSearching()`/`StopSearching()`, `CheckTargetVisibility()`, `MarkPlayerVisible()`
@@ -53,7 +56,7 @@ No `UnityEvent`/`event Action`/`PreallocatedAction` members exist anywhere in `S
 ## Save Participation
 - None of the Combat/Equipping classes implement `ISaveable` (grep verified). Ammo state is item-instance data; equipped items persist via item instances, not via this namespace.
 
-## Hook Points (Harmony)
+## Candidate Hook Points (Harmony)
 1. `CombatManager.CreateExplosion(Vector3, ExplosionData)` (public, CallerCount>0) and its private id-overload — prefix to modify/custom-block explosions; networked flow is `RpcWriter___Server_CreateExplosion_*` → server → observers, so patch the public client entry, not the RPC reader.
 2. `CombatBehaviour.Shoot()` — bool-returning, non-trivial instance method; prefix to force hit/miss (roll accuracy mods) without touching raycast internals.
 3. `Equippable_RangedWeapon.CanFire(bool)` or `PunchController.Punch(float)` — gate/disable weapons or re-route damage.
@@ -68,11 +71,6 @@ No `UnityEvent`/`event Action`/`PreallocatedAction` members exist anywhere in `S
 
 ---
 
----
+## Names reported absent in the original search
 
----
-
----
- Identifier-shaped tokens documented as *absent*: `WeaponRegistry`, `RpcWriter___Server_CreateExplosion_`.
- Identifier-shaped tokens documented as *absent*: `RpcWriter___Server_CreateExplosion_`, `WeaponRegistry`.
- Identifier-shaped tokens documented as *absent*: `WeaponRegistry`, `RpcWriter___Server_CreateExplosion_`.
+`RpcWriter___Server_CreateExplosion_`, `WeaponRegistry`. Absence is scoped to that search, not proof of removal from every supported version.

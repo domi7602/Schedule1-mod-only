@@ -1,367 +1,90 @@
-# Common Error Patterns — Detailed Decoder
+# Common Error Patterns — Evidence and Next Checks
 
 > verified: patterns collected 2026-08-03 → 2026-08-22; §9 lifecycle advice re-verified 2026-09-29 (OnSaveInfoLoaded = 0 firings in the instrumented session); §11 guard idiom unified to the Golden Guard 2026-10-05.
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 105/109 identifier-shaped tokens resolve (1 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
-A deeper dive than the master `SKILL.md` table. Includes cause, workarounds, and reference impls for the most common Schedule I mod failures.
-
----
-
-## 1. `MissingMethodException` During Patch Install
-
-**Symptom:**
-```
-[<time>] [ModName] Error: MissingMethodException: void ScheduleOne.A.B.C()
-[<time>] [Harmony] failed to patch <FullName>
-```
-
-**Cause (verified):** Harmony tries to pin the method's IL body. When the body references an obsolete/removed API, the pin fails BEFORE user code runs.
-
-**Fix:** Patch the **caller** instead. E.g. instead of patching `DialogueHandler.MarkDirty`, whose body references the removed `get_activeDialogue()` accessor, patch the caller of `MarkDirty`.
-
-**Lessons:**
-- The `AGENTS.md §5` patch-exception rule.
-- The "Harmony-Patch Ohne explizite Target-Spec" rule (use `harmony.Patch(methodInfo, ...)` without marker-attribute).
-
----
-
-## 2. `[RegisterTypeInIl2Cpp]` Failure: Class Not Initialized
-
-**Symptom:**
-```
-[<time>] [ModName] Error: Cannot register Il2Cpp type
-[<time>] [ModName] Error: Object reference not set…
-```
-or
-```
-[<time>] [ModName] Info: Adding component NotesAppInputFocus
-[<time>] Exception: NullReferenceException: MonoBehaviour …
-```
-
-**Cause (verified 2026-08-04, NotesApp fix):** A `MonoBehaviour` subclass is marked `[RegisterTypeInIl2Cpp]` but **missing the public `IntPtr` constructor**:
-```csharp
-public MyBehaviour(IntPtr ptr) : base(ptr) { }
-```
-Without it, the IL2CPP-Bridge cannot initialize the wrapper when `AddComponent<MyBehaviour>()` is called.
-
-**Detection:** `s1interop analyze <csproj>` reports `injected_type_missing_intptr_constructor`.
-
-**Fix:** Add the constructor (the only mandatory thing). Verify: `s1interop analyze` after fix returns no warning.
-
----
-
-## 3. `MissingFieldException` on Private Field
-
-**Symptom:** Mod reads `Game.GetType().GetField("privateField").GetValue(...)` → fails with `MissingFieldException`.
-
-**Cause (verified 2026-08-04):** IL2CPP's reflection layer sometimes strips fields or returns a stale handle. Reflection-based set may write to the wrong address.
-
-**Fix:**
-- Prefer Harmony-Prefix on the method that uses the field (read inside the patched method, valid IL).
-- Or use S1API wrapper if available.
-
----
-
-## 4. Native Access Violation (0xc0000005)
-
-**Symptom:**
-```
-Windows Error Dialog: "Exception Processing Message 0xc0000005"
-Game closes without managed stack trace in Latest.log.
-```
-
-**Cause (verified 2026-08-04, DrugExpansion rollback):** IL2CPPInterop fails to init all classes in the mod because:
-- Mod class count > ~5000 / Mod .dll size > 10 MB
-- Warning just before the crash:
-  ```
-  [<time>] [Il2CppInterop] Warning: Class::Init signatures have been exhausted, using a substitute!
-  ```
-- Substituted class init → memory-mismatch → native AV.
-
-**Fix:**
-- Split the mod into multiple `.csproj` files / DLLs.
-- Reduce `[RegisterTypeInIl2Cpp]` usage.
-- Roll back to an older version of the third-party mod.
-
----
-
-## 5. CLR Fatal Error (0x80131506)
-
-**Symptom:**
-```
-Windows Error Dialog: "0x80131506" (Fatal CLR Error)
-[<time>] [S1API] Fatal: <…>
-```
-
-**Cause (verified 2026-08-03):** A problematic S1API build called `Assembly.GetTypes()` from `PreRegisterAllNpcPrefabs()`, causing infinite recursion and a CLR crash.
-
-**Fix:** Use a S1API build containing the deferred-building-resolve fix. For affected older forks, roll back or align the framework source and deployed DLL with the workspace dependency record.
-
----
-
-## 6. Patch Installs But Never Fires (Inlining)
-
-**Symptom:** Method is patched but `OnUpdate` work never appears.
-
-**Cause:** IL2CPP inlines small methods (getters, setters, one-liners) in the native build. The Harmony patch installs on the IL proxy, but the inlined native call site bypasses it.
-
-**Fix:** Patch the **caller** instead. For example, instead of patching `MoneyManager.GetCashBalance()`, patch every call site that uses cash balance. Or compute the value yourself.
-
----
-
-## 7. UIButton.onClick Crash
-
-**Symptom:**
-```
-[<time>] [ModName] Exception: Cannot convert from method group to UnityAction
-[<time>]   at System.Reflection…
-```
-
-**Cause:** `button.onClick.AddListener(new UnityAction(MyMethod))` — IntPtr cast fails on IL2CPP delegates.
-
-**Fix:** Always use `S1API.Utils.ButtonUtils.AddListener(button, () => MyMethod())` or `S1API.Utils.EventHelper.AddListener(...)`.
-
----
-
-## 8. Scene-Unload Saga
-
-**Symptom:** Mod works fine in scene A, then breaks on scene transition.
-
-**Cause:** Static-List retention or stale cache after scene unload. Common cases:
-- Cached `MoneyManager.Instance` is fine (singleton).
-- Cached `List<T>` of gameplay objects is **not** — gets destroyed.
-
-**Fix (verified 2026-08-04, PotScanner source):**
-- Clear all caches in `OnSceneWasUnloaded`.
-- Single helper `IsGameplayScene(name)` predicate, reused by Load + Unload handlers (load/unload asymmetry is the classic bug source).
-- Re-resolve via `S1Mods.Shared.GameObjectResolver.FindComponentDeep<T>()` after scene load.
-
----
-
-## 9. Save-Load Timing (Static List Empty)
-
-**Symptom:** `Property.OwnedProperties.Count == 0` even though save has owned properties. `Player.Stats == null`.
-
-**Cause (verified 2026-08-04, PotScanner source):** `OnGameplaySceneLoaded` fires before S1API/internal save-load completes. Static lists are uninitialized at that point.
-
-**Fix:** Refresh on `GameLifecycle.OnLoadComplete` (verified order 2026-09-29: Scene 'Main' → `OnPreLoad` → `OnLoadComplete`).
-```csharp
-GameLifecycle.OnPreLoad        += () => ResetCaches();          // before save data loads
-GameLifecycle.OnLoadComplete   += () => { RefreshPropertyCache(); ForceRefreshUI(); };
-```
-
-> **Historical:** An older recipe subscribed to `GameLifecycle.OnSaveInfoLoaded`; the event fired 0 times in the instrumented session (2026-09-29, see `save-load-timing.md` section 1).
-
----
-
-## 10. `MelonLogger.Instance.Error` vs `MelonLogger.Error`
-
-**Symptom:** Patching the error-logger fails to catch IL2CPP-internal errors.
-
-**Cause:** Both static `MelonLogger.Error` and instance `MelonLogger.Instance.Error` are used by MelonLoader. Patch **both** for full coverage.
-
-**Fix:**
-```csharp
-// WHY: patching MelonLogger.Instance hooks the Instance getter, not Error — Error calls bypass it, so your patch never fires.
-static void LogPatchError(string msg) => MelonLogger.Msg($"[MyMod] {msg}"); // or LoggerInstance.Msg(msg)
-// usage from patch: LogPatchError("something failed");
-```
-
----
-
-## 11. `IL2CPP.Il2CppObjectBaseToPtr` Null Return
-
-**Symptom:**
-```
-[<time>] Exception: NullReferenceException at IL2CPP.Il2CppObjectBaseToPtrNotNull
-```
-
-**Cause:** Object was destroyed (Unity `==` overload reports null) but C# wrapper survived; passing it to a native method fails.
-
-**Fix:**
-```csharp
-if (obj == null || obj.Pointer == IntPtr.Zero || obj.WasCollected) return;
-```
-Never `is null` for `UnityEngine.Object` (operator overload is bypassed). This is the workspace **Golden Guard** (same idiom as `schedule1-modding` Rule 3). The older `obj.GetInstanceID() == 0` idiom also appears in this file's history: it works for pure Unity objects but does **NOT** cover collected IL2CPP wrappers — use the Golden Guard everywhere (unified 2026-10-05).
-
----
-
-## 12. Stack Trace from `GameAssembly`
-
-**Symptom:** Stack trace mentions `<GameAssembly.dll!SomeMethod+0x...>` offsets only.
-
-**Cause:** IL2CPP compiles to native; native offsets don't map back to method names.
-
-**Fix:** Translate the offset → native method by:
-1. Opening `Assembly-CSharp.dll` or `Il2CppScheduleOne.dll` in `ilspycmd -t` and matching the method name.
-2. Or searching the decompile for the nearest method that contains the offset's surrounding stack frames.
-
----
-
-## 13. `FormatException` from JSON Persistence
-
-**Symptom:**
-```
-[<time>] [ModName] Error: FormatException: '<', hexadecimal value 0x3C, …
-```
-
-**Cause:** The persisted JSON file is empty or truncated (crash during write).
-
-**Fix:**
-- Always use `S1Mods.Shared.SafeStorage.SaveAtomic` — atomic write + `.bak`.
-- On corrupt load, fall back to `.bak` content.
-
----
-
-## 14. Generic Loading-Screen Stutter
-
-**Symptom:** Mod's first scene-load is 1-2 s slower than expected.
-
-**Cause:** First `il2cpp_runtime_invoke` for each type marshals + warms caches. With many types, this adds up.
-
-**Fix:** Lazy-init per-type on first use. Avoid eager scene-wide scans during `OnGameplaySceneLoaded`.
-
----
-
-## 15. Type Mismatch on Generic Method
-
-**Symptom:** `MissingMethodException` on a `GetComponent<T>` for a struct type.
-
-**Cause (Rule 10 in `IL2CPP-Interop-Rules.md`):** AOT doesn't generate generic instances for struct types the game never used.
-
-**Fix:**
-- Use non-generic overloads: `GetComponent(Il2CppType.Of<T>())`.
-- Or use the version known to work in vanilla.
-
----
-
-## 16. PhoneApp Blank After 1st Close (Unsubscribe in OnPhoneClosed)
-
-**Symptom (verified 2026-08-20, ALL 5 PhoneApp mods):** App renders on first open, but is blank/empty on the second phone open. No crash, no log error.
-
-**Cause:** `OnPhoneClosed()` contains `MelonEvents.OnUpdate.Unsubscribe(Update)` (or `-=` on static events like `OnPotsScanned`/`OnBalanceChanged`/`OnStateChanged`). S1API instantiates each `PhoneApp` **ONCE per scene** (`HomeScreen_Start_Patch` + `Activator.CreateInstance`), so `OnCreated` (which re-subscribes) never fires again until a scene reload. After the 1st close the Update loop is dead → `_mainBG.SetActive(open)` never runs → app stays hidden.
-
-**Fix (pattern; canonical code in `schedule1-phoneapp/references/lifecycle-and-canvas.md` §5):** defensive `Unsubscribe`-before-`Subscribe` of `MelonEvents.OnUpdate` in `OnCreated()` ONLY; `OnPhoneClosed()` just hides (`_mainBG.SetActive(false)`) — no unsubscribe, no destroy. Real teardown goes in `OnDestroyed()`.
-
-**Detection:** Grep all PhoneApp mods for `Unsubscribe` inside `OnPhoneClosed`. Regression source: e24371b (2026-08-19).
-
-**Reference:** schedule1-phoneapp Rule 10 + `schedule1-s1api/references/lifecycle.md` §7.
-
----
-
-## 17. PatchGuard Overdose (Harmony.PatchAll scope)
-
-If a mod patches >20 methods via PatchAll and another mod does the same, expect Silent-No-Op from conflicting patches. Use Harmony.PatchAll with explicit HarmonyInstance to scope.
-
----
-
-## 18. Config Values Reset on Restart (ModConfig TOML Limit)
-
-**Symptom (verified 2026-08-20, BusinessIncome):** Dictionary/List config values (`PropertyMultipliers`, `DisplayNameOverrides`, `WeekendBonusCategories`) return to defaults after every restart, though scalars persist.
-
-**Cause:** `ModConfig<T>` (MelonPreferences/TOML) cannot serialize `Dictionary<K,V>`/`List<T>` properties — `CreateEntry` throws "not TOML-mappable", property silently dropped (logged once).
-
-**Fix:** Add a SafeStorage JSON sidecar (`ConfigJsonStore` pattern):
-```csharp
-ConfigJsonStore.ApplyToConfig(ModConfig<T>.Instance);  // after Initialize
-ConfigJsonStore.Save(ModConfig<T>.Instance);           // after every SetAndSave
-```
----
-
-## 19. Fatal Startup Crash (0xc0000005) on IL2CPP Prefix `ref __result`
-
-**Symptom (verified 2026-08-22, BackpackMod):**
-MelonLoader closes after ~2 seconds with a Windows Application Error:
-`Ausnahmecode: 0xc0000005` (Access Violation) in `UnityPlayer.dll` at `0x0000000000646d5e`. `Latest.log` abruptly ends after mod initialization or during first scene load without an exception trace.
-
-**Cause:**
-In Unity IL2CPP, writing a managed IL2CPP wrapper object to `ref <Il2CppType> __result` in a `[HarmonyPrefix]` with `return false;` corrupts the native C++ return register / trampoline. When the engine calls the hooked function, it reads an invalid native pointer and crashes instantly.
-Additionally, using blind `harmony.PatchAll()` will indiscriminately arm such dangerous patches.
-
-**Fix:**
-1. **Never override native object returns via Prefix `ref __result`.** Instead, let the native method run and mutate the object in a `[HarmonyPostfix]`, or inject data into static registries/lists directly during initialization.
-2. **Never use blind `harmony.PatchAll()`.** Register all patches explicitly through `PatchGuard.TryPatch` with target method reflection and pointer validation (`obj != null && obj.Pointer != IntPtr.Zero && !obj.WasCollected`).
-
----
-
-## Quick-Reference: First-Try Fixes
-
-| Error | First Try |
-|-------|-----------|
-| `MissingMethodException` on patch | Patch the caller, not the dead method |
-| `NullReferenceException` in patch | Add the Golden Guard: `obj != null && obj.Pointer != IntPtr.Zero && !obj.WasCollected` (§11) |
-| Mod silent | Check inlining (small method patched → patch caller) |
-| Native AV / 0xc0000005 | Remove `ref <Il2CppType> __result` in Prefix (§19), split DLL |
-| Save data empty | Refresh on `OnLoadComplete` — `OnSaveInfoLoaded` fires 0× in the instrumented session (§9) |
-| UIButton crash | Use `ButtonUtils.AddListener` |
-| JSON corrupt | Use `SafeStorage.SaveAtomic` |
-| `[RegisterTypeInIl2Cpp]` crash | Add `IntPtr` ctor |
-| Stack offsets only | `ilspycmd` the offset's enclosing method |
-| PhoneApp blank after 1st close | Remove `Unsubscribe` from `OnPhoneClosed` (§16) |
-| Dict/List config resets | JSON sidecar via SafeStorage (§18) |
-| Startup AV in UnityPlayer.dll | Check Harmony Prefixes with `ref __result` (§19) |
-| Stations multiply on each load | Never `SpawnStationAt` in `OnLoadComplete` for BuildableItems — game restores them; only `ApplySaveData` |
-| Save data wiped on scene change | Never `OnSceneWasUnloaded` to clear state — use `OnPreLoad` only |
-| Input keys fire through game UI | Guard with `if (Cursor.lockState != CursorLockMode.Locked) return;` |
-| Items lost on Dismantle | Check `CanItemFitInInventory` before each `AddItemToInventory` in dismantle flow |
-
----
-
-## §20 — Buildable Duplicate-Spawn Bug (verified 2026-08-22, AutoPackagingStation)
-
-**Symptom:** Each save→load adds one more copy of the station at the same position.
-
-**Cause:** `OnLoadComplete` calls `SpawnStationAt(new GameObject(...))` in the `else`-branch when GUID matching fails. But the game also restores `BuildableItem`s itself. On first load: 2 stations. On second: 3. Etc.
-
-**Why GUID matching fails:** `Awake()` uses `Guid.NewGuid()` instead of `BuildableItem.GUID`. Every session generates a new random GUID → saved GUIDs never match → `else`-branch always fires.
-
-**Fix:**
-```csharp
-// In Awake() — use BuildableItem's own persistent GUID
-var buildable = gameObject.GetComponent<BuildableItem>();
-if (buildable != null) _stationGuid = buildable.GUID.ToString();
-// Fallback only if truly no buildable (e.g. procedural spawn)
-if (string.IsNullOrEmpty(_stationGuid)) _stationGuid = Guid.NewGuid().ToString();
-
-// In OnLoadComplete — NEVER spawn, only pre-stage data
-ApplySaveData(saved.Guid, saved); // Controller picks up lazily via GetRuntimeData(guid)
-// ← REMOVE: SpawnStationAt(pos, rot, saved);
-```
-
-**Also:** Remove any `OnSceneWasUnloaded` hook that clears `_activeStations` — it fires for menu/loading scene unloads and wipes state before `OnSaveComplete`, causing a blank save.
-
----
-
-## §21 — Key Input Conflict With Game UIs (verified 2026-08-22)
-
-**Symptom:** Station interaction keys (E/R/F/Space) fire while talking to NPCs, in menus, or shopping.
-
-**Cause:** `HandlePlayerInput()` only checks `_isPlayerNear` (raycast), not whether any game UI is blocking input.
-
-**Fix:** Add at top of `HandlePlayerInput()`:
-```csharp
-if (Cursor.lockState != CursorLockMode.Locked) return; // UI is open, cursor is free
-```
-`CursorLockMode.Locked` = gameplay mode, cursor hidden. `None`/`Confined` = UI open.
-
----
-
----
-
----
-
----
-
----
-
----
-
----
-
-## Unresolved identifiers (f12 static check 2026-10-08)
-
-These documented identifiers were not found in the f12 game assemblies, the checked-in S1API/S1MAPI source, or the workspace source. Treat them as drift candidates and re-derive them from the current decompiles before relying on this document.
-
-- `HandlePlayerInput`
-- `Confined`
-- `_isPlayerNear`
+> Evidence scope: revised from the uploaded workspace notes. Earlier incident dates and
+> project names identify inherited reports, not tests performed for this package.
+> The referenced game, framework, and mod sources are not bundled here.
+
+## How to use this decoder
+
+Treat the symptom as a search key. Confirm the caller, relevant assembly identity, and
+failure path before selecting a repair. A matching error string is not a unique diagnosis.
+See [log triage](logscan-and-logs.md) for preservation and capture boundaries.
+
+## Startup and interop
+
+| Symptom | Candidate causes | Verification and bounded response |
+|---|---|---|
+| `MissingMethodException` during patch installation | Build/deployment mismatch, changed signature, dependency resolution, removed API in patch code | Inspect the full exception and exact declaring type in both build references and deployed DLLs. Repair the mismatch before choosing another hook. |
+| Injected type cannot register | Unsupported member types, missing required constructor, registration order, duplicate registration | Compare the installed Il2CppInterop class-injection contract with the actual class. The historical NotesApp case involved its `IntPtr` constructor; that is not the only possible cause. |
+| Private member lookup fails | Wrong declaring type, member became a property, renamed member, wrong flags, missing proxy surface | Resolve the exact member and its type. Do not turn a failed write into success or infer arbitrary-address writes from a missing member alone. |
+| Native access violation `0xc0000005` | Invalid lifetime/thread/ABI, unsafe native patch, incompatible dependencies, or unrelated native fault | Preserve crash evidence, inspect recent changes, and isolate a minimal reproduction. DLL size is not a proven universal threshold. |
+| CLR fatal error `0x80131506` | Runtime failure with several possible causes | Inspect crash diagnostics and source/deployment identities. Old S1API recursion notes are a lead only when the same call path is demonstrated. |
+| Field-accessor hook rejected | Proxy accessor may lack a patchable native method | Confirm the actual installed bridge's target classification; use a verified caller or a supported data path if appropriate. |
+
+Historical DrugExpansion notes associated a class-initialization warning and a large DLL
+with a native crash. They do not establish that 5 MB, 10 MB, or a given class count causes
+all such crashes, or that splitting a DLL is sufficient to fix one.
+
+## Patching and callbacks
+
+| Symptom | What to establish | Response |
+|---|---|---|
+| Installed hook never fires | Exact owner/target, native call path, scene, object gates, reproduction coverage | Instrument the hook and its relevant caller with bounded counters. Inlining is one candidate, not the default proof. |
+| Several mods patch the same target | Which instances and state each patch changes; priorities and skip-original behavior | Write a concrete conflict scenario and test both together. Patch count alone does not establish conflict. |
+| Prefix changes a native object return and crashes | Actual parameter/return ABI and HarmonySupport converter | Do not reinstall the same failing detour blindly. Verify a minimal alternative and preserve restoration. Managed Harmony support does not prove native bridge safety. |
+| Error capture is incomplete | Which logger overloads and sinks the actual build uses | Inspect the logger surface and capture paths. Avoid recursive logging inside a logging patch. |
+| Repeated event callbacks | Where subscription happens, who owns the delegate, when the instance dies | Make subscription and teardown symmetric and idempotent for the intended lifetime. |
+
+Use [Harmony bootstrap](../../schedule1-harmony-bootstrap/SKILL.md) for outcome accounting.
+A caller patch is an alternative only after checking its scope, invocation rate, and semantics;
+patching every caller indiscriminately can multiply behavior and cost.
+
+## Unity lifetime and UI
+
+| Symptom | What to establish | Response |
+|---|---|---|
+| Collected/stale IL2CPP wrapper | Managed reference, wrapper validity, Unity lifetime, scene generation | Use the installed project's verified validity helper and re-resolve at the correct lifecycle boundary. A check does not grant indefinite validity. |
+| Works before scene change, fails after it | Ownership of cached singleton and object lists | Invalidate scene-owned references. A singleton label does not prove a native object survives a reload. |
+| Button listener fails | Exact delegate type, constructor/adapter, and target lifetime | Prefer a verified S1API listener helper when present; otherwise implement the actual installed delegate contract. |
+| Phone app blank on second open | Close versus destruction, update subscription, active root | Keep the reopen mechanism alive; tear down on the actual destruction boundary. Read the current PhoneApp implementation before naming callbacks. |
+| Gameplay keys leak through UI | Focus owner, modal state, input map, cursor behavior | Use the project's verified input arbitration. Cursor lock alone is a heuristic, not proof that no blocking UI is open. |
+| Wrong sprite after a size/style change | Cache key and dependency ownership | Include all rendering-relevant parameters and lifecycle generation; clean up unused owned resources. |
+
+See [PhoneApp lifecycle](../../schedule1-phoneapp/references/lifecycle-and-canvas.md) and
+[runtime cache ownership](../../schedule1-runtime-unity-cache/SKILL.md).
+
+## Save/load and configuration
+
+| Symptom | What to establish | Response |
+|---|---|---|
+| Empty owned-property/NPC list | Correct world, lifecycle phase, local authority, legitimate empty state | Record readiness and refresh after the relevant verified event; do not use nonzero count as the only readiness signal. |
+| Save appears lost after scene exit | Which hook cleared persistent state; whether a later save wrote it | Separate transient cache invalidation from persistent-state reset; bind writes to the active world. |
+| Stations multiply after each load | Who owns restoration; persistent GUID acquisition timing | Choose one restoration owner. Match native objects by verified persistent identity before applying sidecar data. |
+| JSON parse failure | Actual bytes, encoding, expected schema, truncation or wrong file | Preserve the input and error. Validate backup recovery without overwriting the failed primary from default state. |
+| Dictionary/list config disappears | Installed serializer and workspace configuration wrapper | Inspect the actual supported types. Use a separate versioned store when required, not a universal claim that TOML cannot represent collections. |
+| Enum conversion on preferences save | Actual generic entry type and serializer behavior | Trace the stored value and type; inherited workspace notes recommend typed entries but the deployed helper must be checked. |
+| Data leaks across saves | World binding, save root, fallback paths, migration ownership | Follow the canonical persistence identity contract; a slot number alone may be insufficient. |
+| Items disappear during dismantle | Capacity, actual transfer result, mutation ordering | Validate the transfer and only remove the source after confirmed acceptance, with a defined failure path. |
+
+See [save/load timing](save-load-timing.md) and
+[persistence](../../schedule1-persistence/SKILL.md).
+
+## Performance and tooling
+
+- Measure callback duration and allocation cost, not how often an observer enumerates mods.
+- Separate initial asset/type warm-up from steady-state cost with repeated controlled runs.
+- A native stack offset requires matched binary/load-address/symbol or native-analysis
+  evidence; opening an unrelated proxy type in ILSpy does not resolve that offset.
+- Generic AOT constraints require an actual supported type and API. `GetComponent` needs
+  a component type; a struct example cannot validate a general AOT workaround.
+- Discover optional tools before using their advertised diagnostics. If unavailable, report
+  the limitation and use the checks that can actually run.
+
+## Acceptance evidence
+
+For each repair record the original reproduction, the specific cause confirmed, changed
+behavior, tested failure paths, and remaining runtime/host/client coverage gaps.
+A clean build or clean log alone does not close an in-game bug.

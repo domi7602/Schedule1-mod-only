@@ -1,81 +1,75 @@
-# Door Hooking & Interior Transitions — Reference Guide
+# Door Integration and Interior Transitions
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 13 of 13 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+## Evidence and use
 
-This reference details how to connect the exterior map of Hyland Point with custom interior spaces using Harmony patches on vanilla door classes.
+Use for adding an entrance/menu action and returning safely from a custom interior. Historical
+lookup anchors were `StaticDoor`, `DoorKnocker`, and a summon-menu type named `NPCSummonMenu` or
+`NpcSummonMenu` in different examples. Verify exact namespace, case, overload, and lifecycle in the
+installed assemblies before writing a Harmony target. These are not interchangeable declared types.
 
----
+## Resolve the target and hook
 
-## 1. The Vanilla Door System in Schedule I
+Identify the intended building/door through a stable native identity, supported reference, or verified
+hierarchy. Inspect what its interaction method does before choosing a prefix or postfix. A postfix
+runs after the native action; it cannot undo an already-opened unrelated menu or a completed transition
+merely by returning a value.
 
-Schedule I uses three primary classes for doors and building interactions:
-- `StaticDoor`: Standard exterior building doors.
-- `DoorKnocker`: Interactive doorbells/knockers that prompt the player to summon NPCs.
-- `NPCSummonMenu`: The UI dialog that pops up when knocking or interacting with an entrance.
+Scope every hook to the resolved target and current scene generation. Unrelated doors and summon
+menus must retain native behavior. Detect missing target paths early and give one diagnostic rather
+than repeatedly scanning the scene or patching all menus by name.
 
----
+## Owned menu option
 
-## 2. Harmony Hook Strategy
+1. Resolve the live menu generation and its actual button template/layout owner.
+2. Check whether this feature's option already exists. Reuse/rebind or remove the old owned option
+   instead of adding another on each open.
+3. Clone only the intended template. Inspect copied components/listeners and replace the inherited
+   action only on the owned clone. Do not clear listeners from the native template.
+4. Set text through the actual uGUI/TMP component and connect interaction using the verified
+   IL2CPP-safe event adapter used by the repository.
+5. Bind the current entrance/context rather than a stale captured door from a previous menu open.
+6. Disable the action while a transition is pending or its prerequisites are unavailable.
+7. Detach handlers and release the clone on menu replacement or final teardown.
 
-```csharp
-[HarmonyPatch]
-public static class DoorHookPatches
-{
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(StaticDoor), nameof(StaticDoor.Interacted))]
-    public static void StaticDoor_Interacted_Postfix(StaticDoor __instance)
-    {
-        if (IsTargetBuildingDoor(__instance))
-        {
-            DoorTransitionService.Instance.OnDoorInteracted(__instance);
-        }
-    }
+The previous direct cast to a guessed `UnityAction` was removed. A managed-looking listener can require
+a different bridge on the deployed IL2CPP runtime. Verify one click invokes one supported handler.
 
-    [HarmonyPostfix]
-    [HarmonyPatch(typeof(NPCSummonMenu), nameof(NPCSummonMenu.Open))]
-    public static void NPCSummonMenu_Open_Postfix(NPCSummonMenu __instance)
-    {
-        DoorTransitionService.Instance.InjectCustomMenuOption(__instance);
-    }
-}
-```
+## Transition transaction
 
----
+Prefer the game's supported player movement/teleport path. Determine local versus host authority and
+any network transform, controller, camera, or velocity state it coordinates. Toggling a
+`CharacterController` and writing a transform is not a universal multiplayer teleport implementation.
 
-## 3. Injecting Custom Options into NPCSummonMenu
+Before entry, validate room readiness, destination clearance, safe floor support, and a reachable exit.
+Capture the return pose plus the relevant controller/camera/input state. Acquire transition input
+ownership through the verified mechanism and prevent overlapping requests.
 
-When `NPCSummonMenu.Open(List<NPC> npcs, Action<NPC> callback)` is called:
-1. Find a reference button inside the menu hierarchy (e.g. `transform.Find("Container/ButtonTemplate")`).
-2. Instantiate a clone:
-   ```csharp
-   GameObject customButton = UnityEngine.Object.Instantiate(templateButton, templateButton.transform.parent);
-   customButton.SetActive(true);
-   customButton.name = "Btn_EnterCustomInterior";
-   
-   var text = customButton.GetComponentInChildren<TextMeshProUGUI>();
-   if (text != null) text.text = "Enter Building";
-   
-   var btn = customButton.GetComponent<Button>();
-   btn.onClick.RemoveAllListeners();
-   btn.onClick.AddListener((UnityAction)(() => {
-       DoorTransitionService.Instance.TeleportToInterior();
-   }));
-   ```
+Perform movement using the chosen supported path. If temporary controller disablement is actually
+required, capture its previous enabled state and restore that state in `finally`, while respecting
+any newer owner. Never force enabled merely because the old sample did so. Reset velocity or camera
+state only where the installed movement contract requires it.
 
----
+Close the native menu and transfer focus in the order its lifecycle supports. Do not force a globally
+locked/hidden cursor if an active UI still needs it. On failure, release this transition's resources
+and restore a verified safe pose/state; report when recovery cannot be confirmed.
 
-## 4. Teleportation & Input Safety Checklist
+## Return and lifecycle
 
-| Step | Action | Why? |
-|---|---|---|
-| 1 | `_returnPos = player.transform.position;` | Saves exterior exit point |
-| 2 | `CharacterController.enabled = false;` | Prevents Unity physics snap-back |
-| 3 | `player.transform.position = interiorSpawnPos;` | Moves player to room |
-| 4 | `CharacterController.enabled = true;` | Restores movement physics |
-| 5 | `Cursor.lockState = CursorLockMode.Locked;` | Restores FPS mouse look |
-| 6 | `Cursor.visible = false;` | Hides UI cursor |
-| 7 | `NPCSummonMenu.Close();` | Cleans up UI |
+Store a return destination tied to the active scene/session. Validate it again before exit; geometry,
+player instance, or map readiness may have changed. Maintain a tested exterior fallback and a defined
+load-inside behavior. A raw saved transform alone does not prove that the destination is safe.
 
----
+Cancel pending transitions on scene change, player replacement, room teardown, or application focus
+loss where appropriate. Releasing one interior's input ownership must not clear another UI's gate.
+Do not destroy a room while a player is inside without a supported evacuation/transition policy.
 
----
+## Verify
+
+Test repeated menu opens, double clicks, cancellation, blocked/missing destination, room-build
+failure, enter/exit, load while inside, scene change, and each supported network role. Check original
+door behavior, one injected option, restored input/cursor/camera, and absence of stale delegates.
+
+Read [Phone input ownership](../../schedule1-phoneapp/references/input-focus-and-controls.md) and
+[Room geometry](procedural-room.md) for dependent contracts.

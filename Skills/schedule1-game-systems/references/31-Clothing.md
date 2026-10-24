@@ -2,9 +2,11 @@
 
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 63 of 63 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+
 Namespace: `Il2CppScheduleOne.Clothing` — exactly **7 types** in the decompile dump.
 
-## Core Classes (verified)
+## Core Classes (previously reported)
 
 | Class | Base | Purpose |
 |-------|------|---------|
@@ -18,7 +20,7 @@ Namespace: `Il2CppScheduleOne.Clothing` — exactly **7 types** in the decompile
 
 **Corrections vs. the old class-list (2026-10-05):**
 - `PlayerClothing` does **NOT** live in `Clothing` — it is `Il2CppScheduleOne.PlayerScripts.PlayerClothing` (NetworkBehaviour).
-- `ClothingUtility` does **not exist** anywhere in the decompiles (removed).
+- `ClothingUtility` does **not exist** anywhere in the decompiles (not located in that snapshot; removal not established).
 - Shops: `ClothingShopInterface` / `ClothingShopListing` live in `Il2CppScheduleOne.UI.Shop`.
 
 ## PlayerClothing (PlayerScripts — the runtime equipment surface)
@@ -34,7 +36,7 @@ Namespace: `Il2CppScheduleOne.Clothing` — exactly **7 types** in the decompile
 - Appearance/config state travels via `ClothingSettings`/`ClothingConfiguration` through ConfigurationService (32), and via `SetStoredInstance` RPCs on join.
 - No `ISaveable` in this namespace (grep).
 
-## Hook Points
+## Candidate Hook Points
 
 1. **Prefix `PlayerClothing.InsertClothingItem(ClothingInstance)`** — intercept/reject/gate clothing equips (dress codes, custom slots).
 2. **Postfix `PlayerClothing.RefreshAppearance()`** — react to visual changes without patching each caller.

@@ -1,16 +1,77 @@
-# Bounded sewer-key observations
+# Bounded Sewer-Key and World-Identity Observation
 
 > UNVERIFIED as an end-to-end gameplay workflow; individual native observations below have limited scope and do not establish a playable search feature.
 
-Use this workflow to establish native facts before implementing Minimap search behavior. These reads do not establish a playable search feature or validate a curated area.
+> Evidence scope: inherited notes from prior workspace observations. The original traces,
+> screenshots, game build, and bridge implementation are not included. Named members are
+> investigation leads to verify against the actual session, not current API declarations.
 
-- Obtain permission for a disposable world and loading it; back it up before first use. A permission to create another world does not authorize overwriting an existing slot. Distinguish the zero-based `list_saves.slot_index` from the displayed save-slot number. Prefer the actual visible slot button, checking that the corresponding slot is empty, over an unverified indexed method.
-- Read `SewerManager.IsRandomWorldKeyCollected` independently from `RandomWorldSewerKeyPickup`. A successful vanilla pickup can leave the wrapper reporting `WasCollected=false` while access to its Unity `gameObject` fails. Wrapper validity and pickup disappearance are not collection authorities.
-- Inspect a known component through explicit `get_component_property` or `get_member_value`. The latter supports nested paths such as `ActiveSaveInfo.MetaData.CreationDate.Year`; this avoids broad `inspect_component` calls which enumerate unrelated getters. Some getters (for example cancellation-token creation) are not side-effect-free.
-- Enumerate the native candidate array or its known scene subtree in bounded batches. Persist every batch, count/dedupe programmatically, and compare the selected native index against the actual pickup transform. A match for one index does not prove the entire hierarchy order matches the native array. Candidate coordinates are not independently curated area centers or an accessibility proof.
-- Record all session signals without prescribing their values. Solo and a host alone can both report `host`/`IsHost=true`/`PlayerCount=1`; steady `IsInLobby` differentiated the tested solo (false) and created lobby (true). With explicit permission, use the normal native `CreateLobby()` without invitations and `LeaveLobby()` in a `finally`; read back no-lobby after cleanup. Pending create/join/leave intervals are separate unknown states: steady-state observations do not prove transition safety.
-- Never promote a creation timestamp to a verified world identifier before same-world reload and same-slot replacement tests. Include other independently observed generation data, such as the native seed, in a versioned binding. The presence of a `.Ticks` property does not prove actual subsecond entropy in its values. Read a static native property such as `GameManager.Seed` with `get_member_value`; an instance-only property endpoint may silently return null for it. Compare the typed result against the disposable world's actual saved data.
-- Start a bounded persistent-socket observer before asking the owner for a normal pickup. Record elapsed timestamps and each read's duration. If the watch expires before the owner acts, report before/after evidence only; do not claim continuous transition or sub-frame ordering. Unknown reads break continuity.
-- Parameterless native UI actions can be exercised through `call_method` only with the exact component and a readback of the resulting UI state. Resolve referenced controls using nested transform names; bare names such as `Done` can refer to unrelated active UIs. Check active/interactable state before invoking an action. Public navigation methods may not enforce visible UI bounds, so never loop `Next()` without first reading the actual window count and index.
-- Generic setters or argument-bearing method calls may return failure or silent null because the installed bridge does not convert `JsonElement` values consistently. Inspect the installed handler and verify the exact changed target; do not retry blindly or claim the state changed. A native `Save()` returning null is not evidence of completion: check `IsSaving`, relevant save errors, and the exact saved target.
-- Keep raw traces/screenshots in scratch and required save backups outside the prunable cache. Preserve user-provided plans in the task's durable docs rather than depending on Downloads. Full prior `read_file` output can be recovered with `session_search` scroll around its message; process a spilled result locally instead of repeatedly requesting it.
+## Test-world boundaries
+
+Use a disposable world only within the task's existing authorization and preserve its
+required backup before mutation. Creating a new world does not imply overwriting an old one.
+Resolve whether an API index is zero-based and how it maps to the visible slot; inspect the
+actual slot and identity before invoking a create/load action.
+
+## Separate collection state from object lifetime
+
+The earlier notes compared `SewerManager.IsRandomWorldKeyCollected` with
+`RandomWorldSewerKeyPickup`. A surviving managed/native wrapper is not sufficient evidence
+that a pickup remains usable, and wrapper invalidity is not sufficient proof it was collected.
+Read the authoritative collection state and object presence independently when available.
+Do not infer a playable search feature or area accessibility from a candidate coordinate list.
+
+## Bound discovery and reads
+
+Inspect a known component through specific verified member access rather than enumerating
+all getters. Some getters allocate or mutate state, including token-producing properties.
+Enumerate candidate arrays or a known subtree in bounded batches, persist the batches,
+deduplicate, and record coverage. One matching index does not prove all hierarchy ordering.
+A capped search with zero matches does not establish absence.
+
+## Observe network role and transitions
+
+A host alone and offline play can share player count and host flags. The earlier notes used
+lobby state as additional evidence; its current meaning and transition timing require checking.
+Do not create a lobby merely to inspect an unrelated state. If a lobby-transition test is
+within scope, record before/during/after states and verify return to the original session.
+Pending create/join/leave states remain unknown until resolved.
+
+## Validate world identity
+
+A creation timestamp is a candidate input, not a verified unique world identifier.
+Compare same-world reload, a different world, and replacement in the same slot.
+Include independently verified generation data only with a versioned identity policy.
+A `.Ticks` property does not prove subsecond entropy in the stored timestamp.
+Static and instance member endpoints can differ; silent null from the wrong access path
+must not become a valid default. Compare against the exact saved world's data where allowed.
+
+## Preserve observation continuity
+
+Start a bounded observer before the event, record elapsed time and each read's duration,
+and distinguish continuous coverage from before/after snapshots.
+A timeout, failed read, or missed interval breaks continuity. Do not infer sub-frame order
+from coarse polling, and do not claim a transition was watched when it happened after expiry.
+
+## Native UI and method invocation
+
+Resolve the exact component and method with the installed bridge's schema.
+A matching bare control name can refer to an unrelated UI; check the actual hierarchy,
+active/interactable state, and resulting state after invoking an action.
+Navigation methods may not enforce the visible UI's bounds; inspect indices/counts first.
+The earlier bridge could return silent null on argument-conversion failure. Do not treat
+that as success or retry blindly. A save method returning null is not evidence of completed
+persistence; inspect relevant busy/error state and the exact saved target.
+
+## Retain useful evidence
+
+Keep raw traces and screenshots with explicit session identity. Required backups and final
+verification notes need durable task storage rather than a prunable cache alone.
+Process an existing spilled/large result locally where available instead of repeatedly
+re-requesting broad reflection dumps.
+
+## Acceptance boundary
+
+This workflow can establish limited native observations. A search feature additionally
+needs its own identity model, accessible-area validation, lifecycle/role tests, and user-facing
+behavior acceptance. See [live debugging](live-debugging.md) for reporting requirements.

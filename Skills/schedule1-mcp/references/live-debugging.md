@@ -1,35 +1,70 @@
-# Live Debugging Runbook with S1MCP
+# Live Debugging with S1MCP
+
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 3 of 3 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
+> Evidence scope: procedure revised from inherited bridge notes. No bridge connection,
+> tool call, game-state mutation, or gameplay test was performed for this package.
 
-This guide provides step-by-step procedures for AI agents to diagnose runtime issues, inspect state, and test mod features using S1MCP.
+## 1. Discover the actual session
 
----
+Confirm the task's game/session and available connector before using tools.
+Inspect the exposed tool names and input schemas; preserve the bridge/build identity.
+Use a small read-only game-state request if available and check the actual response fields.
+Do not assume a field exists because a previous example used it.
+A connected bridge can precede player/world readiness.
 
-## 1. Quick Health Check Workflow
+## 2. Capture the relevant failure
 
-When a player reports a bug in-game (e.g. "My plants aren't watering" or "Item won't spawn"):
+Prefer a bounded log read around the reproduction time. The inherited schema uses
+`last_n_lines` with `keyword`; the live schema is authoritative.
+Preserve complete exception context through a file capture when a filtered response omits it.
+Record time bounds, truncation, process/session identity, and failed reads.
+See [log triage](../../schedule1-troubleshooting/references/logscan-and-logs.md).
 
-1. **Verify Connection & Scene:**
-   - Call `s1_get_game_state`
-   - Ensure `scene_name` is `"Main"` (active gameplay) and not `"Menu"`.
+## 3. Inspect an exact target
 
-2. **Capture Recent Errors:**
-   - Call `s1_capture_logs(keyword="Exception", max_lines=20)`
-   - Call `s1_capture_logs(keyword="Error", max_lines=20)`
-   - Identify the mod throwing exceptions from the stack traces.
+Resolve player/NPC/object identity, then read only the members needed for the hypothesis.
+The inherited object-inspection parameter is `object_name`; component-level inspection is
+separate. Do not use the obsolete `game_object_name`/`component_name` pair as a call recipe.
+Prefer a known path/member over a broad reflective sweep because getters can have effects.
+Record scan caps and incomplete coverage; an empty capped search is not proof of absence.
 
-3. **Inspect Player & Target Entity:**
-   - For item issues: call `s1_get_player_inventory()` to check slot counts and item definitions.
-   - For NPC issues: call `s1_get_npc(npc_id=...)` to check position and health.
-   - For custom GameObjects: call `s1_inspect_object(game_object_name=...)`.
+## 4. Establish implemented mutation capability
 
----
+Before changing state, inspect the actual tool schema and handler/capability evidence.
+The inherited bridge revision contains non-mutating stubs for item addition/spawning,
+NPC teleportation, NPC health, and property enumeration. A success response from those
+handlers cannot test money, inventory, NPC movement, or a quest.
+If only a stub is available, use an independently verified native/UI path within the task's
+scope or report that the test cannot be performed through this bridge.
 
-## 2. Automated Test Scenario Injection
+## 5. Run an authorized controlled scenario
 
-To quickly verify a new mod feature without requiring manual player grind:
+1. Confirm the test world, target object, network role, and prior state.
+2. Establish a restoration/cleanup path and preserve any required save copy.
+3. Invoke the implemented operation using its discovered parameter schema.
+4. Read the exact affected state through an independent verified path.
+5. Observe the gameplay behavior required by the test, not just the tool's response.
+6. Restore temporary state and verify cleanup.
 
-- **Money Test:** `s1_add_item_to_player(item_id="cash_stack", quantity=5)` or manipulate cash directly.
-- **Item Interaction Test:** `s1_spawn_item(item_id="custom_skateboard", quantity=1)` directly at player position.
-- **NPC Quest Test:** `s1_teleport_npc(npc_id="jeff_gilmore", x=100.0, y=1.0, z=50.0)` to bring the NPC directly to the player for dialogue testing.
+For historical teleport/position-based handlers, the notes use a `position` object with
+coordinates; do not infer that separate top-level `x`, `y`, and `z` are accepted.
+Never retry a timed-out non-idempotent operation before resolving whether it already applied.
+
+## 6. Handle uncertainty
+
+| Observation | Interpretation |
+|---|---|
+| Silent null | Return value, missing target, conversion failure, or swallowed error remain possible |
+| Success from documented stub | No verified state mutation |
+| Stale response ID | Protocol/session failure; result is not attributable to the request |
+| Timeout | Outcome unknown until readback or other evidence |
+| No matching object in capped scan | Search incomplete or target unresolved |
+| Read succeeds before/after an event | Two observations, not continuous transition coverage |
+
+## 7. Deliver the result
+
+Report the request/schema, exact target, before/after readback, relevant logs, observation
+window, cleanup outcome, and unsupported tests. Separate source inspection from live evidence.
+See [historical signatures](tool-signatures.md) and
+[bounded observation notes](sewer-key-observation.md).

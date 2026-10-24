@@ -42,6 +42,11 @@ namespace LightControl.Core
         private bool _owned;
         private double _baseline;
         private float _lastWritten;
+        private bool _handbackPending;
+        private bool _snapshotTaken;
+        private bool _snapshotOwned;
+        private double _snapshotBaseline;
+        private float _snapshotLastWritten;
 
         /// <summary>True while the adapter's own output is currently installed on the native light.</summary>
         public bool Owned => _owned;
@@ -53,18 +58,16 @@ namespace LightControl.Core
         /// Update phase: hand the light back to the game's own writer by restoring the last sampled
         /// baseline. Writes nothing when the adapter owns nothing.
         /// </summary>
+        /// <remarks>
+        /// LC01: single-shot convenience form for callers that cannot confirm the setter. It is
+        /// <see cref="BeginHandback"/> plus <see cref="ConfirmHandback"/>; the adapter uses the
+        /// confirmed form so a throwing setter cannot drop ownership of a value still installed.
+        /// </remarks>
         public NativeLightStep UndoOwned(double currentNativeIntensity)
         {
-            if (!_owned) return new(false, 0, false);
-            if (!MatchesOwnedOutput(currentNativeIntensity))
-            {
-                // An external writer changed the value: preserve it, release ownership, write nothing.
-                if (IsValidSample(currentNativeIntensity)) _baseline = currentNativeIntensity;
-                _owned = false;
-                return new(false, 0, false);
-            }
-            _owned = false;
-            return new(true, (float)_baseline, false);
+            NativeLightStep step = BeginHandback(currentNativeIntensity);
+            ConfirmHandback();
+            return step;
         }
 
         /// <summary>
@@ -72,42 +75,113 @@ namespace LightControl.Core
         /// instruction. A factor of one releases ownership and restores the latest sampled baseline;
         /// an invalid or overflowing sample writes nothing.
         /// </summary>
+        /// <remarks>
+        /// LC01: the update-phase undo can legitimately fail to run (its native getter threw, the source
+        /// was not alive for one frame). The late-update sample is then <i>this adapter's own output</i>,
+        /// not a native baseline, and scaling it would compound 10 → 20 → 40 even though nothing else
+        /// wrote. While the sampled value still equals the exact float we installed, the retained
+        /// baseline is the only legal base, so a missed undo can never compound.
+        /// </remarks>
         public NativeLightStep Apply(double sampledNativeIntensity, VisualInstruction instruction)
         {
             if (instruction is null) throw new ArgumentNullException(nameof(instruction));
             if (!IsValidSample(sampledNativeIntensity)) return new(false, 0, _owned);
+            TakeSnapshot();
+            // A new instruction supersedes an unfinished hand-back: a stale confirmation must not be
+            // able to release ownership of the output this apply is about to install.
+            _handbackPending = false;
+            bool ownOutputInstalled = _owned && MatchesOwnedOutput(sampledNativeIntensity);
+            double native = ownOutputInstalled ? _baseline : sampledNativeIntensity;
             if (instruction.RemovesModInfluence)
             {
-                _baseline = sampledNativeIntensity;
+                _baseline = native;
                 _owned = false;
-                return new(true, (float)sampledNativeIntensity, false);
+                return new(true, (float)native, false);
             }
             double output;
-            try { output = instruction.ScaleCurrentNativeIntensity(sampledNativeIntensity); }
+            try { output = instruction.ScaleCurrentNativeIntensity(native); }
             catch (ArgumentOutOfRangeException) { return new(false, 0, _owned); }
-            _baseline = sampledNativeIntensity;
+            _baseline = native;
             _lastWritten = (float)output;
             _owned = true;
             return new(true, _lastWritten, true);
         }
 
         /// <summary>Teardown: restore the latest baseline once and release ownership.</summary>
-        public NativeLightStep Restore(double currentNativeIntensity)
+        public NativeLightStep Restore(double currentNativeIntensity) => UndoOwned(currentNativeIntensity);
+
+        /// <summary>
+        /// Update/teardown phase, first half: the exact native baseline to write back, emitted while
+        /// ownership is still held. Nothing is written when nothing of ours is installed, and an
+        /// external write is preserved (adopted as the new baseline) without any native write.
+        /// </summary>
+        public NativeLightStep BeginHandback(double currentNativeIntensity)
         {
+            _snapshotTaken = false;
             if (!_owned) return new(false, 0, false);
             if (!MatchesOwnedOutput(currentNativeIntensity))
             {
                 // An external writer changed the value: preserve it, release ownership, write nothing.
                 if (IsValidSample(currentNativeIntensity)) _baseline = currentNativeIntensity;
                 _owned = false;
+                _handbackPending = false;
                 return new(false, 0, false);
             }
-            _owned = false;
+            _handbackPending = true;
             return new(true, (float)_baseline, false);
         }
 
+        /// <summary>Second half: the hand-back write actually happened, so our output is gone.</summary>
+        public void ConfirmHandback()
+        {
+            if (!_handbackPending) return;
+            _handbackPending = false;
+            _owned = false;
+        }
+
+        /// <summary>
+        /// Second half: the hand-back setter threw. Our own output is <i>still installed</i>, so the
+        /// ownership and the retained native baseline must both survive and the hand-back is retried
+        /// on a later frame instead of being silently abandoned.
+        /// </summary>
+        public void RejectHandback() => _handbackPending = false;
+
+        /// <summary>
+        /// Drops every claim without writing. Only for a native object that is provably destroyed, where
+        /// there is no value left to hand back and retaining it would leak a dead handle forever.
+        /// </summary>
+        public void Abandon()
+        {
+            _owned = false;
+            _handbackPending = false;
+            _snapshotTaken = false;
+        }
+
         /// <summary>The adapter's native setter threw: never claim ownership of a value we did not write.</summary>
-        public void RejectWrite() => _owned = false;
+        /// <remarks>
+        /// LC01: the failed setter changed nothing on the light, so the state before this apply is
+        /// restored exactly. A source that already carried our earlier output keeps its ownership and
+        /// baseline; a source that carried nothing of ours keeps claiming nothing.
+        /// </remarks>
+        public void RejectWrite()
+        {
+            if (!_snapshotTaken) { _owned = false; return; }
+            _snapshotTaken = false;
+            _owned = _snapshotOwned;
+            _baseline = _snapshotBaseline;
+            _lastWritten = _snapshotLastWritten;
+        }
+
+        /// <summary>True between <see cref="BeginHandback"/> and its confirmation or rejection.</summary>
+        public bool HandbackPending => _handbackPending;
+
+        private void TakeSnapshot()
+        {
+            _snapshotTaken = true;
+            _snapshotOwned = _owned;
+            _snapshotBaseline = _baseline;
+            _snapshotLastWritten = _lastWritten;
+        }
 
         /// <summary>
         /// True only while the native value still equals the exact float we wrote, compared as floats so
@@ -144,51 +218,109 @@ namespace LightControl.Core
         private bool _owned;
         private float _baseR, _baseG, _baseB, _baseA;
         private float _outR, _outG, _outB, _outA;
+        private bool _handbackPending;
+        private bool _snapshotTaken;
+        private bool _snapshotOwned;
+        private float _snapshotR, _snapshotG, _snapshotB, _snapshotA;
 
         public bool Owned => _owned;
 
         /// <summary>Update phase: restore the last sampled baseline color only while we still own it.</summary>
         public NativeColorStep UndoOwned(float r, float g, float b, float a)
         {
+            NativeColorStep step = BeginHandback(r, g, b, a);
+            ConfirmHandback();
+            return step;
+        }
+
+        /// <summary>
+        /// LC01, colour half of the confirmed hand-back: the exact native baseline colour is emitted
+        /// while ownership is still held, so a throwing setter can never drop it.
+        /// </summary>
+        public NativeColorStep BeginHandback(float r, float g, float b, float a)
+        {
+            _snapshotTaken = false;
             if (!_owned) return new(false, 0, 0, 0, 0, false);
             if (!MatchesOwnedOutput(r, g, b, a))
             {
                 // An external writer changed the color: preserve it, release ownership, write nothing.
                 if (IsValid(r, g, b, a)) { _baseR = r; _baseG = g; _baseB = b; _baseA = a; }
                 _owned = false;
+                _handbackPending = false;
                 return new(false, 0, 0, 0, 0, false);
             }
-            _owned = false;
+            _handbackPending = true;
             return new(true, _baseR, _baseG, _baseB, _baseA, false);
         }
 
+        /// <summary>Second half: the colour hand-back write actually happened, so our output is gone.</summary>
+        public void ConfirmHandback()
+        {
+            if (!_handbackPending) return;
+            _handbackPending = false;
+            _owned = false;
+        }
+
+        /// <summary>
+        /// Second half: the colour setter threw, so our own colour is still installed and ownership
+        /// (with its baseline) is retained for a later retry.
+        /// </summary>
+        public void RejectHandback() => _handbackPending = false;
+
+        /// <summary>True between <see cref="BeginHandback"/> and its confirmation or rejection.</summary>
+        public bool HandbackPending => _handbackPending;
+
         /// <summary>Late-update phase: sample a fresh native color and install the resolved override.</summary>
+        /// <remarks>
+        /// LC01, colour half: like intensity, a sampled colour that still equals our own installed output
+        /// is not a native baseline and must never replace the retained one.
+        /// </remarks>
         public NativeColorStep Apply(float r, float g, float b, float a, RgbColor? overrideColor)
         {
             if (overrideColor is null || !IsValid(r, g, b, a)) return new(false, 0, 0, 0, 0, _owned);
-            _baseR = r; _baseG = g; _baseB = b; _baseA = a;
-            _outR = (float)overrideColor.R; _outG = (float)overrideColor.G; _outB = (float)overrideColor.B; _outA = a;
+            TakeSnapshot();
+            _handbackPending = false;
+            bool ownOutputInstalled = _owned && MatchesOwnedOutput(r, g, b, a);
+            if (!ownOutputInstalled) { _baseR = r; _baseG = g; _baseB = b; _baseA = a; }
+            _outR = (float)overrideColor.R; _outG = (float)overrideColor.G; _outB = (float)overrideColor.B;
+            _outA = ownOutputInstalled ? _baseA : a;
             _owned = true;
             return new(true, _outR, _outG, _outB, _outA, true);
         }
 
         /// <summary>Teardown: restore the last sampled baseline color once and release ownership.</summary>
-        public NativeColorStep Restore(float r, float g, float b, float a)
+        public NativeColorStep Restore(float r, float g, float b, float a) => UndoOwned(r, g, b, a);
+
+        /// <summary>
+        /// Drops every claim without writing. Only for a native object that is provably destroyed, where
+        /// there is no colour left to hand back.
+        /// </summary>
+        public void Abandon()
         {
-            if (!_owned) return new(false, 0, 0, 0, 0, false);
-            if (!MatchesOwnedOutput(r, g, b, a))
-            {
-                // An external writer changed the color: preserve it, release ownership, write nothing.
-                if (IsValid(r, g, b, a)) { _baseR = r; _baseG = g; _baseB = b; _baseA = a; }
-                _owned = false;
-                return new(false, 0, 0, 0, 0, false);
-            }
             _owned = false;
-            return new(true, _baseR, _baseG, _baseB, _baseA, false);
+            _handbackPending = false;
+            _snapshotTaken = false;
         }
 
         /// <summary>The native color setter threw: never claim ownership of a value we did not write.</summary>
-        public void RejectWrite() => _owned = false;
+        /// <remarks>
+        /// LC01, colour half: a failed setter changed nothing, so the pre-apply ownership and baseline
+        /// colour are restored instead of dropping a colour that is still installed.
+        /// </remarks>
+        public void RejectWrite()
+        {
+            if (!_snapshotTaken) { _owned = false; return; }
+            _snapshotTaken = false;
+            _owned = _snapshotOwned;
+            _baseR = _snapshotR; _baseG = _snapshotG; _baseB = _snapshotB; _baseA = _snapshotA;
+        }
+
+        private void TakeSnapshot()
+        {
+            _snapshotTaken = true;
+            _snapshotOwned = _owned;
+            _snapshotR = _baseR; _snapshotG = _baseG; _snapshotB = _baseB; _snapshotA = _baseA;
+        }
 
         /// <summary>True only while the native color still equals the exact floats we wrote.</summary>
         private bool MatchesOwnedOutput(float r, float g, float b, float a) =>
@@ -299,6 +431,9 @@ namespace LightControl.Core
         /// <summary>True while either property still carries this adapter's own output.</summary>
         public bool OwnsAny => _intensity.Owned || _color.Owned;
 
+        /// <summary>Original at 100% needs no native read/write unless a prior output still needs hand-back.</summary>
+        public bool NeedsApply(VisualInstruction instruction) => OwnsAny || !instruction.RemovesModInfluence;
+
         /// <summary>
         /// Update phase: hand both native properties back to the game's own writer, so the game's value can
         /// never be re-scaled and a released output is not left installed. Writes nothing for a property the
@@ -331,6 +466,30 @@ namespace LightControl.Core
         /// <summary>The native intensity setter threw: never claim ownership of a value we did not write.</summary>
         public void RejectIntensityWrite() => _intensity.RejectWrite();
 
+        /// <summary>True while either property still owes a confirmed hand-back write.</summary>
+        public bool HandbackPending => _intensity.HandbackPending || _color.HandbackPending;
+
+        /// <summary>
+        /// Update-phase and teardown hand-back, first half: the exact native baseline of both
+        /// properties is emitted while ownership is still held. The adapter performs the two writes
+        /// independently and must confirm or reject each one, so a failed setter can never drop
+        /// ownership of a value that is still installed.
+        /// </summary>
+        public NativeLightApply BeginHandback(double sampledIntensity, float r, float g, float b, float a) =>
+            new(_intensity.BeginHandback(sampledIntensity), _color.BeginHandback(r, g, b, a));
+
+        /// <summary>The native intensity hand-back write actually happened.</summary>
+        public void ConfirmIntensityHandback() => _intensity.ConfirmHandback();
+
+        /// <summary>The native intensity hand-back setter threw: keep ownership and retry later.</summary>
+        public void RejectIntensityHandback() => _intensity.RejectHandback();
+
+        /// <summary>The native colour hand-back write actually happened.</summary>
+        public void ConfirmColorHandback() => _color.ConfirmHandback();
+
+        /// <summary>The native colour hand-back setter threw: keep ownership and retry later.</summary>
+        public void RejectColorHandback() => _color.RejectHandback();
+
         /// <summary>The native colour setter threw: never claim ownership of a value we did not write.</summary>
         public void RejectColorWrite() => _color.RejectWrite();
 
@@ -339,6 +498,16 @@ namespace LightControl.Core
         {
             _intensity.RejectWrite();
             _color.RejectWrite();
+        }
+
+        /// <summary>
+        /// The native light is provably destroyed: drop every claim without writing, so a retained
+        /// hand-back never holds a dead handle forever (LC01).
+        /// </summary>
+        public void Abandon()
+        {
+            _intensity.Abandon();
+            _color.Abandon();
         }
     }
     // ==== end LightControl section: NativeLightBinding.cs ====
@@ -426,6 +595,11 @@ namespace LightControl.Core
         /// Records one element: its readable native id (0 when the handle is unreadable or disposed) and
         /// the native id of the clone we are looking for.
         /// </summary>
+        /// <remarks>
+        /// Legacy single-id form: a zero id is treated as an unreadable element. Use
+        /// <see cref="RecordRead"/> when the adapter knows the element read succeeded, so a legitimate
+        /// null neighbour slot is not mistaken for a failed read (LC04).
+        /// </remarks>
         public void Record(long candidateNativeId, long cloneNativeId)
         {
             if (!NativeMaterialIdentity.IsUsable(candidateNativeId) || !NativeMaterialIdentity.IsUsable(cloneNativeId))
@@ -435,12 +609,38 @@ namespace LightControl.Core
             }
             if (candidateNativeId == cloneNativeId) ReferencesClone = true;
         }
+
+        /// <summary>
+        /// Records one element whose handle read <i>succeeded</i>. A material array may legitimately
+        /// contain a null (empty) element: that is a readable id of zero, not a failure, and it must
+        /// not block the disconnect proof. Only an unidentified <paramref name="cloneNativeId"/>
+        /// (our own handle unreadable) still makes the scan unable to prove anything.
+        /// </summary>
+        public void RecordRead(long candidateNativeId, long cloneNativeId)
+        {
+            if (!NativeMaterialIdentity.IsUsable(cloneNativeId))
+            {
+                MarkUnreadable();
+                return;
+            }
+            if (NativeMaterialIdentity.SameNative(candidateNativeId, cloneNativeId)) ReferencesClone = true;
+        }
+
+        /// <summary>Records one element whose handle read threw or whose wrapper was disposed.</summary>
+        public void RecordUnreadable() => MarkUnreadable();
     }
     // ==== end LightControl section: NativeMaterialIdentity.cs ====
 }
 
 namespace LightControl.Core
 {
+    /// <summary>Backpressure blocks new native ownership, never drops responsibility for existing output.</summary>
+    public static class NativeLightAdmissionPolicy
+    {
+        public static bool MayApply(bool alreadyOwned, int pendingCount, int softLimit) =>
+            alreadyOwned || (softLimit > 0 && pendingCount >= 0 && pendingCount < softLimit);
+    }
+
     // ==== LightControl section: PanelFamilyPolicy.cs ====
     /// <summary>
     /// Which native on/off panel pairs this build may recolour. Unity-free.
@@ -483,8 +683,8 @@ namespace LightControl.Core
         private static string Strip(string? name)
         {
             string value = (name ?? string.Empty).Trim();
-            int suffix = value.IndexOf(" (Instance)", StringComparison.Ordinal);
-            return suffix >= 0 ? value.Substring(0, suffix) : value;
+            const string suffix = " (Instance)";
+            return value.EndsWith(suffix, StringComparison.Ordinal) ? value.Substring(0, value.Length - suffix.Length) : value;
         }
     }
     // ==== end LightControl section: PanelFamilyPolicy.cs ====

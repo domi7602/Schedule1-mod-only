@@ -1,108 +1,85 @@
-# Procedural 3D Room & Binary Mesh Construction — Reference Guide
+# Procedural Rooms, Binary Meshes, and Collision Shells
+
 > UNVERIFIED against the installed runtime. This file contains no backticked identifier claims, so the f12 static identifier sweep 2026-10-08 had nothing to check: its prose, tables and numbers are **not covered** by the static check and must be re-derived from the decompiles before being relied on.
 
+## Evidence and use
 
-This reference details how to generate interior rooms, buildings, and collision shells at runtime without requiring compiled Unity scene bundles.
+Use for a room built from primitives, generated meshes, or custom embedded binary meshes. The original
+`runtime_meshes.bin` example was an illustrative format with no verified reader bounds or schema.
+This reference defines the checks needed before implementing the reader against an actual exporter.
+It does not claim an existing game-native binary format.
 
----
+## Choose the representation
 
-## 1. Binary Mesh Format (`runtime_meshes.bin`)
+Simple room shells can use primitive/render meshes and separate colliders. Imported GLB/OBJ or an
+appropriate Unity asset build may be better for complex geometry. A custom binary format is reasonable
+only when the producer, schema, validation, and maintenance cost are deliberate.
 
-To load complex models (arcade cabinets, furniture, structural walls) without AssetBundles:
+A mesh interchange format does not supply every animation controller, Unity component, shader, or
+native gameplay contract. Read the 3D assets and S1MAPI references before replacing an asset pipeline.
 
-```csharp
-public static Mesh ReadBinaryMesh(BinaryReader reader)
-{
-    int vertexCount = reader.ReadInt32();
-    Vector3[] vertices = new Vector3[vertexCount];
-    for (int i = 0; i < vertexCount; i++)
-        vertices[i] = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+## Binary reader contract
 
-    int normalCount = reader.ReadInt32();
-    Vector3[] normals = new Vector3[normalCount];
-    for (int i = 0; i < normalCount; i++)
-        normals[i] = new Vector3(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle());
+Define a magic identifier, format version, byte order, part count, per-part fields, optional attributes,
+and expected end-of-file behavior. Record exporter/reader compatibility. Reject unsupported versions
+instead of interpreting them using the current layout.
 
-    int uvCount = reader.ReadInt32();
-    Vector2[] uvs = new Vector2[uvCount];
-    for (int i = 0; i < uvCount; i++)
-        uvs[i] = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+Validate before allocating or publishing Unity resources:
 
-    int triangleCount = reader.ReadInt32();
-    int[] triangles = new int[triangleCount];
-    for (int i = 0; i < triangleCount; i++)
-        triangles[i] = reader.ReadInt32();
+- Bound file bytes, part count, string length, vertex count, index count, and total allocation budget.
+- Use checked arithmetic for count × element-size and cumulative offsets; confirm remaining stream
+  bytes cover every array before allocation/read.
+- Require finite vertex, normal, and UV values. Validate bounds against the intended room budget.
+- Require matching per-vertex attribute counts when an attribute is present; define a supported policy
+  for absent normals/UVs instead of accepting mismatched arrays.
+- Require triangle index count divisible by three, indices within the vertex range, and the selected
+  mesh index format to support the largest index. Verify 32-bit index support where needed.
+- Validate material/submesh mapping and reject invalid or overlapping ranges where the format forbids
+  them. Bound pathological geometry even if each individual index is technically valid.
+- Treat truncation, unexpected trailing data, invalid names, and duplicate part IDs according to an
+  explicit schema policy. Preserve the failing asset identifier and first useful diagnostic.
 
-    var mesh = new Mesh
-    {
-        vertices = vertices,
-        normals = normals,
-        uv = uvs,
-        triangles = triangles
-    };
-    mesh.RecalculateBounds();
-    return mesh;
-}
-```
+Decode into bounded plain data first. Build owned Unity meshes only after validation, publish the
+completed root atomically, and release all partial meshes/materials/objects on any failure. Use the
+installed managed/IL2CPP array APIs; no unchecked old reader should be copied as a working recipe.
 
----
+## Local-space room construction
 
-## 2. Generating the Collision Shell
+Choose one root transform and define room dimensions/anchors in its local space. Distinguish a floor
+origin from a geometric center in the data model. Parent generated children with the intended local
+transform semantics, then position the whole room once. Do not pass local coordinates into world
+`position` assignments merely because the root happened to be at the origin in a test.
 
-A custom interior needs solid boundaries to prevent the player from falling into the void:
+Build floor, ceiling, and individual wall collision with deliberate thickness and overlap at seams.
+Split walls around doors/windows; a single box enclosing the whole room blocks its usable interior.
+Check floor height, headroom, step clearance, wall thickness, and the actual player controller shape.
+Keep the render shell and collision shell aligned but independently tunable.
 
-```csharp
-public static void CreateCollisionShell(Transform parent, Vector3 roomSize, Vector3 roomCenter)
-{
-    // Floor collider
-    CreateBoxCollider(parent, "FloorCollider", 
-        new Vector3(roomCenter.x, roomCenter.y - 0.1f, roomCenter.z), 
-        new Vector3(roomSize.x + 2f, 0.2f, roomSize.z + 2f));
+Create the room inactive, finish geometry and collision, then validate destination points before
+activation. If physics queries immediately follow transform changes, inspect whether the target
+runtime requires an explicit transform synchronization point. Build NPC navigation only after the
+final geometry pose and keep all mod-created navigation handles for teardown.
 
-    // Ceiling collider
-    CreateBoxCollider(parent, "CeilingCollider", 
-        new Vector3(roomCenter.x, roomCenter.y + roomSize.y + 0.1f, roomCenter.z), 
-        new Vector3(roomSize.x + 2f, 0.2f, roomSize.z + 2f));
+## Tiled materials and lighting
 
-    // 4 Walls
-    float halfX = roomSize.x * 0.5f;
-    float halfZ = roomSize.z * 0.5f;
-    float wallThick = 0.3f;
+Resolve a compatible shader or borrowed working material before creating a new material. Check the
+actual texture/property names and normal-map keyword/format requirements. Derive repeat amounts from
+surface dimensions and UVs so floor/wall density stays coherent; normal/albedo tiling must agree.
 
-    CreateBoxCollider(parent, "WallNorth", new Vector3(roomCenter.x, roomCenter.y + roomSize.y * 0.5f, roomCenter.z + halfZ), new Vector3(roomSize.x, roomSize.y, wallThick));
-    CreateBoxCollider(parent, "WallSouth", new Vector3(roomCenter.x, roomCenter.y + roomSize.y * 0.5f, roomCenter.z - halfZ), new Vector3(roomSize.x, roomSize.y, wallThick));
-    CreateBoxCollider(parent, "WallEast", new Vector3(roomCenter.x + halfX, roomCenter.y + roomSize.y * 0.5f, roomCenter.z), new Vector3(wallThick, roomSize.y, roomSize.z));
-    CreateBoxCollider(parent, "WallWest", new Vector3(roomCenter.x - halfX, roomCenter.y + roomSize.y * 0.5f, roomCenter.z), new Vector3(wallThick, roomSize.y, roomSize.z));
-}
+Choose material ownership explicitly. A shared native material is borrowed read-only; a mod-owned
+instance or tested property override isolates changed tiling/tint. A missing shader/image must leave
+a recoverable partial failure, not a pink active room with no exit.
 
-private static void CreateBoxCollider(Transform parent, string name, Vector3 pos, Vector3 size)
-{
-    var go = new GameObject(name);
-    go.transform.SetParent(parent, false);
-    go.transform.position = pos;
-    var col = go.AddComponent<BoxCollider>();
-    col.size = size;
-}
-```
+Lighting, exposure, shadows, emission, and audio are distinct systems. A visually bright emissive
+material does not establish illumination of the room. Bound shadow-casting lights and validate the
+intended performance with multiple rooms active.
 
----
+## Verification
 
-## 3. Floor & Ceiling Materials with Tiling
+Test rotated/translated roots, seams, open doorways, floor contact, blocked spawn, corrupt/truncated
+mesh input, allocation limits, unsupported version, missing material, repeated rebuild, and teardown.
+Measure mesh/material counts and build time. Verify navigation and player transitions in the game;
+static bounds checks cannot establish playable access.
 
-```csharp
-public static Material CreateTiledFloorMaterial(Texture2D diffuseTex, Texture2D normalMap, float repeatX, float repeatZ)
-{
-    var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-    mat.mainTexture = diffuseTex;
-    mat.mainTextureScale = new Vector2(repeatX, repeatZ);
-    if (normalMap != null)
-    {
-        mat.EnableKeyword("_NORMALMAP");
-        mat.SetTexture("_BumpMap", normalMap);
-        mat.SetTextureScale("_BumpMap", new Vector2(repeatX, repeatZ));
-    }
-    mat.SetFloat("_Smoothness", 0.35f);
-    mat.SetFloat("_Metallic", 0.05f);
-    return mat;
-}
-```
+Read [Rendering and materials](../../schedule1-3d-assets/references/urp-rendering-materials.md),
+[Asset import](../../schedule1-s1mapi/references/gltf-loading.md), and [Door transitions](door-hooking.md).
