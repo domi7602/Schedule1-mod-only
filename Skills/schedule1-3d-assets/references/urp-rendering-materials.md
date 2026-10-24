@@ -92,7 +92,9 @@ texture instances before and after open/close, scene reload, and feature disable
 
 ### Controlled shader comparison
 
-WorldLook's 2026-10-23 surface-refinement check rendered the actual baseline/candidate bundles in an isolated Unity 2022.3.62f3 / URP 14.0.12 / D3D11 scene. The test-only fixture is under `Source/Mods/WorldLook/build/preview/` in this workspace; its evidence boundaries are recorded in `Source/Mods/WorldLook/docs/water-surface-verification.md`.
+WorldLook's 2026-10-23 surface-refinement check rendered the actual baseline/candidate bundles in an isolated scene.
+The recorded fixture used Unity 2022.3.62f3 / URP 14.0.12 / D3D11; these identify that comparison, not a current game-runtime requirement. <!-- skills-health: version-evidence (dated WorldLook shader-comparison environment; see linked water-surface record) -->
+The test-only fixture is under `Source/Mods/WorldLook/build/preview/` in this workspace; its evidence boundaries are recorded in the [water-surface verification](../../../Source/Mods/WorldLook/docs/water-surface-verification.md). Resolve current runtime requirements from [AGENTS.md](../../../AGENTS.md).
 
 - Source-token tests cannot establish that a wave field looks natural or is free of visible bands. Compile the shader and inspect actual matched pixels as well as failure boundaries.
 - Match fixture/bundle identities, camera, time, native-equivalent input values and pipeline settings. URP rewrites clock globals during camera setup: a fixed-time test pass before transparent rendering plus hash-identical repeated frames checks that the shader actually receives controlled time. Dry controls distinguish scene drift from water changes.

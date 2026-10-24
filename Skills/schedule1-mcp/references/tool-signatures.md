@@ -133,10 +133,11 @@ actual schema rather than deriving arguments from the name.
 
 A later local release note mentioned methods without corresponding Python `s1_*` wrappers.
 These are historical local capabilities to check, not automatically exposed connector tools.
+The clock rows incorporate the correction and bounded live evidence recorded on 2026-10-24 in the [bridge changelog](../../../ThirdParty/S1MCPServer-master/S1MCPServer/CHANGELOG.md); the [compatibility matrix](../../../docs/compatibility.md#verification-matrix) owns current acceptance and limits.
 
 | Reported method | Described behavior | Verification boundary |
 |---|---|---|
-| `get_time_of_day` | No arguments; `time_hhmm` (native HHMM, e.g. 1954 = 19:54), `time_minutes` (0-1439), `elapsed_days`, 24-hour `display`, or unavailable in menu | Units are proven since 1.0.5; one fresh in-game read check is still open |
+| `get_time_of_day` | No arguments; `time_hhmm` (native HHMM, e.g. 1954 = 19:54), `time_minutes` (0-1439), `elapsed_days`, 24-hour `display`, or unavailable in menu | Owner-confirmed 2026-10-24; later live read returned `812` → 08:12 / 492 min. A no-op HHMM write/readback was also observed, not every write form. |
 | `set_time_of_day` | Exactly one of `time` (decimal hours), `minutes` (0-1439) or `hhmm` (0-2359 or `"19:54"`); host-owned time change with `readback_hhmm`/`changed` | Inspect authority and compare the exact resulting clock |
 | `get_weather` | No arguments; current weather-weight fields or unavailable | Reading weights does not prove visual weather effects |
 | `list_mods` | Managed mod metadata and total count | A list alone is not patch-health evidence |

@@ -8,7 +8,13 @@
 - Format: `int CurrentTime` in 24h format (HHMM, e.g. 900 = 09:00)
 - `CycleDuration` = 24 minutes real-time per game day
 
-**Local unit confirmation, 2026-10-22 (0.4.7f12):** read-only observation returned `CurrentTime=1954` while the native DayNightController reported about `19.90776` hours / `.82951415` day fraction. Convert HHMM to minutes before minute-based policy calculations; `1954` is 19:54, not 1,954 elapsed minutes. **S1MCP 1.0.5 (2026-10-24) repairs the bridge:** it returns `time_hhmm` (native) and `time_minutes` (true 0-1439) plus a 24-hour `display`, and `set_time_of_day` accepts `time` (hours) / `minutes` / `hhmm`. 1.0.4 mislabelled the raw value as `time_minutes` (`32h 34m`) and its write path landed on 07:20 for a requested 12:00 - that write acceptance is superseded and needs one fresh in-game check. WorldLook's native-baseline repair corrects its own conversion. This verifies the clock units only, not the event/cycle claims below.
+**Recorded local clock-unit observation, 2026-10-22 (0.4.7f12):** a read-only observation returned `CurrentTime=1954` while the native DayNightController reported about `19.90776` hours / `.82951415` day fraction. <!-- skills-health: version-evidence (game build of the dated clock-unit observation, not a current target pin) -->
+Convert HHMM to minutes before minute-based policy calculations; `1954` is 19:54, not 1,954 elapsed minutes.
+
+**Bridge correction recorded 2026-10-24:** S1MCP 1.0.5 returns `time_hhmm` (native), `time_minutes` (true 0-1439) and a 24-hour `display`; `set_time_of_day` accepts exactly one of `time` (hours), `minutes` or `hhmm`. <!-- skills-health: version-evidence (historical bridge release that introduced the corrected clock contract) -->
+S1MCP 1.0.4 mislabelled the raw value as `time_minutes` (`32h 34m`) and its write path landed on 07:20 for a requested 12:00; that old write acceptance is superseded. <!-- skills-health: version-evidence (affected historical bridge release retained for diagnosing the HHMM defect) -->
+The [bridge changelog](../../../ThirdParty/S1MCPServer-master/S1MCPServer/CHANGELOG.md) records owner acceptance on 2026-10-24 and a later live read (`812` → 08:12 / 492 min) plus a no-op `hhmm: 836` write with matching 08:36 / 516 min readback. Those observations do not exercise every write form. The [compatibility matrix](../../../docs/compatibility.md#verification-matrix) owns current acceptance and limits; the earlier request for a fresh check is closed by that record.
+WorldLook's native-baseline repair corrects its own conversion. The clock-unit evidence does not verify the event/cycle claims below.
 
 ## Important Constants
 | Constant | Value | Description |

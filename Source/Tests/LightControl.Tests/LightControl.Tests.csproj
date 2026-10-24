@@ -2,6 +2,10 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
+    <!-- Compatibility harness: compile and execute linked mod sources on the same
+         framework as MelonLoader. Keep this EOL exception local to this net6.0 host;
+         revisit when the mod runtime changes. An explicit CLI override still wins. -->
+    <CheckEolTargetFramework Condition="'$(TargetFramework)' == 'net6.0' And '$(CheckEolTargetFramework)' == ''">false</CheckEolTargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>12</LangVersion>

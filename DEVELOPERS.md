@@ -92,7 +92,18 @@ dotnet build Source/Mods/S1Mods.sln -c Release -p:S1NoDeploy=true
 
 ## Test
 
-`Source/Tests/` holds the test projects: mostly xUnit suites, plus one dependency-free console host (`LightControl.Tests`, an `Exe` whose `Program.cs` runs its own checks — plain `dotnet test` does not run it). `gen-sln.ps1` picks up every `*.csproj` there. Suites that need no game assemblies run in CI; the rest need the installed game. The table lists the shared and game-free suites:
+`Source/Tests/` holds the test projects: mostly xUnit suites, plus one dependency-free console host (`LightControl.Tests`, an `Exe` whose `Program.cs` runs its own checks — plain `dotnet test` does not run it). `gen-sln.ps1` picks up every `*.csproj` there. Suites that need no game assemblies run in CI; the rest need the installed game.
+
+Tests retain `net6.0` to compile and execute linked mod code against the framework used by
+MelonLoader. .NET 6 is out of support. The LightControl console host has a project-local,
+`net6.0`-only `CheckEolTargetFramework=false` exception for
+[NETSDK1138](https://learn.microsoft.com/en-us/dotnet/core/tools/sdk-errors/netsdk1138);
+the SDK does not enable this EOL check by default for the xUnit library projects.
+This exception changes no target framework or runtime and suppresses no compiler or package
+warnings. Reassess it with a mod-runtime migration; use `-p:CheckEolTargetFramework=true`
+to restore the diagnostic explicitly.
+
+The table lists the shared and game-free suites:
 
 | Project | Scope | Needs game assemblies |
 |---|---|---|
