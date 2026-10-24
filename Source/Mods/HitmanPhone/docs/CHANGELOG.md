@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 (2026-10-24)
+- **Stable release of the audited repair; Verified, owner-confirmed 2026-10-24.** Only the `MelonInfo` version string and `mod.json` metadata changed against the accepted 0.3.0-dev.1 code. The confirmation had been missing from the record and was supplied retroactively; individual actions and the exact session were not itemized. The normal Release offer-to-cash/slot roundtrip, native save/restore, registry-before-items and GUID persistence are owner-accepted, not separately logged. No new code, patch or save-schema change in this step.
+- Deployed 2026-10-24 with the game closed: installed `HitmanPhone.dll` SHA-256 `24F6AF4CEECBB557521CBB626FAA69E8C2E1FC42B86AAC6BAB7AA61E0449C06C` (123,904 bytes); installed `mod.json` reports `0.3.0`. Release build 0 warnings/errors; 148 tests pass.
+
 ## 0.3.0-dev.1 (2026-10-19)
 - **Experimental audit repair; In-Game-Verify open.** Targets installed Schedule I 0.4.7f12 / S1API 3.2.1 IL2CPP. Release/Debug compile 0 warnings/errors; 148 pure, delegate-seam and source-wiring checks passed. No new native gameplay/normal Release chain acceptance. Historical 0.2.9 acceptance is not carried forward.
 - **HP-01, R-01/02/03/06:** confirmed-load identity/destination, SP-only host+client rejection and visible status; dirty memory state, frozen save-start snapshot and verified save-complete checkpoint. SHA-256 native JSON fingerprint with strict identity/hash recovery; no arbitrary latest-file fallback. Legacy sources are retained, null data normalized, clock sampled coherently. Initial legacy alignment and engine/sidecar crash atomicity remain limitations.

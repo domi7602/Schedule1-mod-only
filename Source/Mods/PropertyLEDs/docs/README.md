@@ -4,12 +4,12 @@ Room-by-room RGB LED strips along the ceiling and wall edges of your owned prope
 businesses, controlled from a dedicated phone app. Developed independently for *Schedule I*
 (MelonLoader, IL2CPP, S1API). No code, models or textures from any existing LED mod are used.
 
-> **Status: experimental (v0.1.8, location-aware initial selection and property-named power status; 115 tests pass, In-Game-Verify open).** The mod builds, deploys and ships a complete settings,
+> **Status: Verified, owner-confirmed 2026-10-24 (v0.1.8, location-aware initial selection and property-named power status; 115 tests pass).** The confirmation had been missing from the record and was supplied retroactively; native location/status fitting, toggle/color and the save roundtrip were not itemized. The mod builds, deploys and ships a complete settings,
 > rendering, phone and diagnostics implementation. It deliberately contains **no built-in room
 > coordinates**: until a room has been measured and marked verified in the layout catalog, no
 > persistent LED geometry is placed there. See
-> [`implementation-status.md`](implementation-status.md) for the exact list of what is verified
-> and what is still open.
+> [`implementation-status.md`](implementation-status.md) for the implementation history and the
+> evidence that predates the owner confirmation.
 
 ## What it does
 

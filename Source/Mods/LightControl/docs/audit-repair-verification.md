@@ -14,9 +14,11 @@ and no rollback. Preflight before/after confirmed the game closed; no game was l
 - All **76** unrelated mod/library/plugin witness files were unchanged, as were the native Tests save and all LightControl persistence files. Only the intended DLL, PDB and metadata were replaced, plus LightControl deployment receipts/backups.
 - Installed DLL SHA-256 remains `a0697ef72100891f31149dbd341af7f136e02d02678c05f696203a561791f344`; PDB/metadata match the retained hashes below. The metadata is deliberately byte-identical to the frozen build record, including its historical compile-only/not-deployed label; this deployment record is authoritative for installed state.
 
-**In-Game-Verify remains open.** Installation and exact hash equality prove delivery, not runtime
-loading, PhoneApp fit, rendering or material destruction. The owner will start through Steam and load
-the backed-up **Tests** slot. The implementation/compile-only history below is preserved as history.
+**In-Game-Verify remained open at this deployment point.** Installation and exact hash equality
+prove delivery, not runtime loading, PhoneApp fit, rendering or material destruction. The owner
+confirmation of 2026-10-24 later accepted the current 0.1.0 code (see
+[graphite-ui-verification.md](graphite-ui-verification.md)); this record keeps the dev.16 state.
+The implementation/compile-only history below is preserved as history.
 
 ## Original implementation scope and baseline (historical)
 

@@ -4,7 +4,7 @@ using S1API.Building;
 using S1API.Lifecycle;
 using S1Mods.Shared;
 
-[assembly: MelonInfo(typeof(LightControl.Mod), "LightControl", "0.1.0-dev.19", "LightControl Project")]
+[assembly: MelonInfo(typeof(LightControl.Mod), "LightControl", "0.1.0", "LightControl Project")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace LightControl;

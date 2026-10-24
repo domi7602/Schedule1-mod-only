@@ -1,5 +1,9 @@
 # LightControl
 
+## 0.1.0 (2026-10-24)
+- **Stable release of the graphite port; Verified, owner-confirmed 2026-10-24.** Only the `MelonInfo` version string and `mod.json` metadata changed against the accepted 0.1.0-dev.19 code. The confirmation had been missing from the record and was supplied retroactively; exact font parity, hit testing, long-list/reopen/lifecycle and wider gameplay actions were not itemized. No new code, layout or interaction change in this step.
+- Deployed 2026-10-24 with the game closed, using an explicit `-p:S1NoDeploy=false` to override the project's guarded deploy default: installed `LightControl.dll` SHA-256 `9D88785699DAC3E6EA77E27EC9D27997B09FBFBFFEACFFD8F88D32D3DB631077` (212,992 bytes); installed `mod.json` reports `0.1.0`. Release build 0 warnings/errors; 264/264 core/adapter/source checks pass.
+
 ## 0.1.0-dev.19 (2026-10-22)
 - Native port of the approved graphite HTML app area: owned 1201 x 655 reference canvas, larger Segoe UI typography with Arial fallback, outlined lamp icons, four aligned columns, explicit color controls, brightness meters and ellipsis actions. A single sticky column heading retains its list spacer and blocks clicks through to covered rows.
 - Color chooser matches the 600 x 456 reference, with ten 80-unit fields in a 5 x 2 grid, Rainbow at bottom-right, selection checks and 54-unit Cancel/Apply buttons. Rainbow now stages through the exact-session/source picker; Original opens without a pending choice. Brightness retains seven immediate steps in one row. Property copy remains immediate; all-property copy has its own frozen source/settings/count confirmation card.

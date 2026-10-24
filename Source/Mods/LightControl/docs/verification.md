@@ -1,5 +1,9 @@
 # First test-slice verification
 
+> Historical record (dev.2–dev.16 iteration). Current status: **0.1.0, owner-confirmed
+> 2026-10-24** — see [graphite-ui-verification.md](graphite-ui-verification.md). The
+> "open"/"candidate" statements below describe their original snapshot dates.
+
 ## Current candidate: 0.1.0-dev.16 — compile-only audit/UI repair
 
 See [audit-repair-verification.md](audit-repair-verification.md) for the final 233/233 checks, clean

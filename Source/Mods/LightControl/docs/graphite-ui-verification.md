@@ -5,9 +5,11 @@
 On 2026-10-22 Dominik approved the native implementation of
 [ui-mockup.html](ui-mockup.html), including the subsequent Rainbow tenth-slot amendment, tests,
 independent review, version step to dev.19 and installation with backups/hash verification.
-Native list/picker screenshots and startup evidence were subsequently checked below. Full acceptance
-remains **In-Game-Verify open**: interactions and lifecycle checks are not established by screenshots.
-Browser rendering is design evidence, not native acceptance.
+Native list/picker screenshots and startup evidence were subsequently checked below.
+**Verified, owner-confirmed 2026-10-24** (released as 0.1.0 with version metadata only): the owner
+confirmed the work finished; the confirmation had been missing from the record and was supplied
+retroactively. Exact font parity, interactions and lifecycle were not itemized, and the screenshots
+do not establish them on their own. Browser rendering is design evidence, not native acceptance.
 
 ## Parent-observed baseline
 
@@ -182,7 +184,8 @@ Its last captured entry is 08:20:41.048; findings do not cover later activity.
 
 **Status:** native list and open-picker appearance checked for this shown resolution/data set;
 Segoe UI remains unavailable. Cancel/Apply behavior, Rainbow staging/reopen, brightness actions,
-copy confirmation, long-list sticky scrolling, app/phone reopen and resource teardown remain open.
+copy confirmation, long-list sticky scrolling, app/phone reopen and resource teardown are
+owner-accepted 2026-10-24 (not itemized); this screenshot review did not establish them.
 
 ## In-game acceptance
 

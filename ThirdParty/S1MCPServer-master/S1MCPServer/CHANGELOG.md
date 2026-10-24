@@ -22,7 +22,9 @@
   error instead of a silent precedence rule.
 - New game-free suite `Source/Tests/S1MCP.Tests` (50 tests: both-way conversion, a full
   `0..2359` round-trip, decimal hours, text parsing and every rejection path).
-  In-game acceptance of the read/write path on a real clock remains open.
+  In-game acceptance of the read/write path on a real clock is **owner-confirmed 2026-10-24**
+  (the confirmation had been missing from the record and was supplied retroactively; no fresh
+  logged read+write sample was captured for it).
 
 ## 1.0.4 (2026-10-17)
 - **New: `set_time_of_day` / `get_time_of_day`.** Reads and writes the in-game clock against

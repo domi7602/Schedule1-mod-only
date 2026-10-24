@@ -1,10 +1,14 @@
 # LightControl UI deployments
 
-## Current installation — 0.1.0-dev.19, 2026-10-22
+## Latest installation — 0.1.0, 2026-10-24
 
-The approved graphite native port is installed. Its checked source/build identity, all three
-installed hashes, previous dev.18 backups and deployment receipt are recorded in
-[graphite-ui-verification.md](graphite-ui-verification.md). Native appearance/hit testing remain open.
+The approved graphite native port is installed. Version 0.1.0 is the stable release of the
+owner-accepted dev.19 code (version metadata only). Its checked source/build identity, installed
+hashes and deployment receipt are recorded in
+[graphite-ui-verification.md](graphite-ui-verification.md). Native appearance and hit testing are
+owner-accepted 2026-10-24 (not itemized).
+
+## Historical installation — 0.1.0-dev.19, 2026-10-22
 
 ## Historical installation — 0.1.0-dev.18, 2026-10-22
 

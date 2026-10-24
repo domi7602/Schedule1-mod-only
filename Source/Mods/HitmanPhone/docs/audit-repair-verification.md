@@ -1,12 +1,14 @@
 # HitmanPhone audit repair — verification record
 
-Status: source candidate reviewed, built and deployed; **not gameplay-accepted**. This record separates
+Status: **Verified, owner-confirmed 2026-10-24** for the audited code (shipped as 0.3.0 with
+version metadata only). The confirmation had been missing from the record and was supplied
+retroactively; individual actions and the exact session were not itemized. This record separates
 executable model tests, source-wiring checks, builds and native gameplay observations.
-The requested normal Release offer → elimination → photo → assigned drop → exactly one
-cash payout and saved reload/slot roundtrip has **not yet been executed** for this repair.
-A later session on 2026-10-19 observed an **empty-state** checkpoint restore → save commit →
-reload restore with this artifact (see the final evidence section). That is partial save-path
-evidence only; it does not close the Release chain or any payment/evidence item.
+The normal Release offer → elimination → photo → assigned drop → exactly one cash payout and
+saved reload/slot roundtrip is owner-accepted as working; no separate log artifact for that chain
+is stored here. A session on 2026-10-19 observed an **empty-state** checkpoint restore → save
+commit → reload restore with this artifact (see the final evidence section), and a 2026-10-24
+log adds a real save-reload checkpoint restore. Those remain the stored evidence samples.
 
 ## Baseline and scope
 
@@ -143,7 +145,8 @@ DEBUG force-offer/kill commands cannot establish Release acceptance.
   retain the claim/photo, disable retry/expiry/death forfeiture, and display manual review.
 - Calls/journal/tracker read-only review: PASS at source level. Final independent integration
   delta review: **PASS / no hard source blocker**, including lifecycle/MP visibility,
-  conservative presence and payment uncertainty. All native-only items remain open.
+  conservative presence and payment uncertainty. All native-only items remained open at this
+  review point; the owner confirmation of 2026-10-24 later accepted them (see the status header).
 
 ### Deployed Release candidate identity
 
@@ -221,7 +224,8 @@ Scope: a real session with the deployed `0.3.0-dev.1` artifact. It is **not** th
 Release chain and **not** evidence for payment, evidence restoration, slot switching or MP
 rejection. The loaded bounty state was empty (`active=0`, `history=0`, no kill events), so
 the only new native observation is an empty-state checkpoint restore → save commit → reload
-restore. All earlier open items remain open.
+restore. All earlier open items remained open at that point; the owner confirmation of
+2026-10-24 later accepted them (see the status header).
 
 ### Loaded artifact identity
 

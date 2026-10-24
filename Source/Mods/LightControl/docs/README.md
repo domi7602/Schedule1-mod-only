@@ -25,7 +25,8 @@ remain the production source budget.
 Parent verification: **264/264 checks**, forced Release **0 warnings / 0 errors**, scoped formatting
 clean and final independent delta review **PASS**. Owner screenshots subsequently establish the
 three-lamp list and open chooser rendering, including visible Cancel/Apply and Rainbow tenth.
-Exact font parity, click routing and wider gameplay/lifecycle acceptance remain open. Current
+Exact font parity, click routing and wider gameplay/lifecycle acceptance are owner-accepted
+2026-10-24 (not itemized; the confirmation had been missing from the record). Current
 evidence: [graphite-ui-verification.md](graphite-ui-verification.md).
 
 ## Historical installed V4 professional list — dev.18

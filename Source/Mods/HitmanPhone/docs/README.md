@@ -1,12 +1,15 @@
-# HitmanPhone — audit repair candidate
+# HitmanPhone — audit repair
 
 Anonymous bounty contracts: accept an offer, eliminate the assigned customer (KO counts),
 receive the evidence photo and use the **assigned** dead drop for a cash reward.
 Existing reward tiers and delivery windows are retained.
 
-**Experimental audit repair; not gameplay-accepted.** Target: Schedule I 0.4.7f12,
-S1API 3.2.1, MelonLoader IL2CPP. Historical 0.2.9 gameplay evidence does not verify this
-repair. Builds, model tests and source checks do not establish the native gameplay chain.
+**Verified, owner-confirmed 2026-10-24 (v0.3.0, version metadata only over the audited
+0.3.0-dev.1 code).** Target: Schedule I 0.4.7f12, S1API 3.2.1, MelonLoader IL2CPP. The
+confirmation had been missing from the record and was supplied retroactively; individual actions
+and the exact session were not itemized. Historical 0.2.9 gameplay evidence does not verify this
+repair. Builds, model tests and source checks do not establish the native gameplay chain on their
+own; the owner acceptance is the verification for that chain.
 
 ## Session and gameplay rules
 

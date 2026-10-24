@@ -1,6 +1,6 @@
 # PropertyLEDs — implementation and verification status
 
-Last update: **2026-10-17** (v0.1.6 removes the phone Room/Scope card, color preview, and "Use property color" button. Edits apply to the property color. Saved room overrides are not deleted. 90 tests, review PASS. In-Game-Verify open. Prior 0.1.5 spacing/palette and 0.1.4 owner UI acceptance are historical. Geometry and coverage history below is unchanged.)
+Last update: **2026-10-24** (v0.1.8 is **Verified, owner-confirmed 2026-10-24**; the confirmation had been missing from the record and was supplied retroactively, with native fitting, toggle/color and the save roundtrip not itemized. The milestone table below records the earlier 2026-10-17 state, including items then marked open; those are accepted by the owner confirmation rather than re-tested here. Prior 0.1.5 spacing/palette and 0.1.4 owner UI acceptance remain historical.)
 Scope: independently developed mod for *Schedule I* (MelonLoader, IL2CPP, S1API 3.2.1). No source,
 mesh or texture of any existing LED mod was used; the functional brief supplied by the owner is the
 acceptance specification.

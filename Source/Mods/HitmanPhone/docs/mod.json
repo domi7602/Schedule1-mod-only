@@ -1,6 +1,6 @@
 {
   "name": "HitmanPhone",
   "author": "Dominik",
-  "version": "0.3.0-dev.1",
+  "version": "0.3.0",
   "description": "Experimental singleplayer-only bounty workflow: anonymous phone offers, persistent polaroid tokens, assigned dead-drop cash payouts and checkpoint-bound saves. Audit repair; native gameplay/save-load acceptance remains open. Multiplayer hosts and clients unsupported."
 }

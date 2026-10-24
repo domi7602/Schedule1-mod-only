@@ -1,5 +1,9 @@
 # Compact color-picker verification
 
+> Historical v3/V4 evidence (dev.17/dev.18 iteration). Current status: **0.1.0, owner-confirmed
+> 2026-10-24** — see [graphite-ui-verification.md](graphite-ui-verification.md). "Open"
+> statements below describe their original snapshot dates.
+
 The subsequent dev.19 graphite native port is documented in
 [graphite-ui-verification.md](graphite-ui-verification.md). This file retains v3/V4 evidence.
 
