@@ -1,5 +1,10 @@
 # LightControl
 
+## 0.1.1 (2026-10-24)
+- **Fixed: Rainbow ticks no longer spam the log.** `VisualInstruction` now carries an `IsRainbow` flag set by `VisualResolver.Resolve`; `MaybeLogApplied` returns before the rate-limited `[apply]` breadcrumb, so an active Rainbow cycle no longer writes one line per lamp per second. Pure Rainbow instructions skip this breadcrumb even after slot or brightness changes; static colours and temporary effects keep the existing dedup/rate limit. Pre-fix live evidence: 530 `[apply]` lines in 4:28 min across two lamps (217 distinct colours).
+- 265/265 core/adapter/source checks pass (one new regression: Rainbow is flagged, a fixed colour is not, and the breadcrumb skips the flag). Release build 0 warnings/errors.
+- Deployed 2026-10-24 with the game closed, using `-p:S1NoDeploy=false`: installed `LightControl.dll` SHA-256 `620FBB75344CA2A2C554A7DF4F0DB2838A579A15CD9225A088A6E50E1066ACAF` and installed `mod.json` reports `0.1.1`. DLL/PDB/metadata hashes match their build/source targets. Rainbow log suppression has not yet been observed in-game on this build; the 0.1.0 gameplay acceptance remains historical.
+
 ## 0.1.0 (2026-10-24)
 - **Stable release of the graphite port; Verified, owner-confirmed 2026-10-24.** Only the `MelonInfo` version string and `mod.json` metadata changed against the accepted 0.1.0-dev.19 code. The confirmation had been missing from the record and was supplied retroactively; exact font parity, hit testing, long-list/reopen/lifecycle and wider gameplay actions were not itemized. No new code, layout or interaction change in this step.
 - Deployed 2026-10-24 with the game closed, using an explicit `-p:S1NoDeploy=false` to override the project's guarded deploy default: installed `LightControl.dll` SHA-256 `9D88785699DAC3E6EA77E27EC9D27997B09FBFBFFEACFFD8F88D32D3DB631077` (212,992 bytes); installed `mod.json` reports `0.1.0`. Release build 0 warnings/errors; 264/264 core/adapter/source checks pass.

@@ -1,7 +1,7 @@
 {
   "name": "LightControl",
   "author": "LightControl Project",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Grow-lamp LED panel and emitted-light control from the in-game phone. Color and brightness drive the lamp's own emitting LED panel and the light that lamp emits from the one resolved color, so both match. Emitted intensity is relative to the lamp's own native intensity, plant materials are never modified, and slot-scoped storage restores the original. Host/singleplayer placed grow lamps, on top of a game-independent light-control model.",
   "status": "development",
   "inGameVerify": "open-graphite-native-ui",

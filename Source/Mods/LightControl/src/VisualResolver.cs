@@ -28,7 +28,13 @@ public sealed record VisualInstruction
     public double IntensityFactor { get; }
     public bool HasTemporaryEffect { get; }
 
-    public VisualInstruction(RgbColor? colorOverride, double intensityFactor, bool hasTemporaryEffect)
+    /// <summary>
+    /// True for a Rainbow sample. Rainbow changes every tick by design, so the apply breadcrumb
+    /// skips it instead of emitting a rate-limited line per second.
+    /// </summary>
+    public bool IsRainbow { get; }
+
+    public VisualInstruction(RgbColor? colorOverride, double intensityFactor, bool hasTemporaryEffect, bool isRainbow = false)
     {
         if (!double.IsFinite(intensityFactor) ||
             !(intensityFactor == 0.1 || intensityFactor == 0.25 || intensityFactor == 0.5 || intensityFactor == 0.75 ||
@@ -37,6 +43,7 @@ public sealed record VisualInstruction
         ColorOverride = colorOverride;
         IntensityFactor = intensityFactor;
         HasTemporaryEffect = hasTemporaryEffect;
+        IsRainbow = isRainbow;
     }
 
     public bool RemovesModInfluence => ColorOverride is null && IntensityFactor == 1;
@@ -93,7 +100,7 @@ public static class VisualResolver
             return new(FromHue((hash >> 11) * (1.0 / 9007199254740992.0)), state.IntensityFactor, true);
         }
         if (state.Color == ColorMode.Rainbow)
-            return new(FromHue(synchronizedTimeSeconds / rainbowPeriodSeconds), state.IntensityFactor, false);
+            return new(FromHue(synchronizedTimeSeconds / rainbowPeriodSeconds), state.IntensityFactor, false, isRainbow: true);
         int levelIndex = state.Intensity switch
         {
             IntensityLevel.Percent10 => 0,

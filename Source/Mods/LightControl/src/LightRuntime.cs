@@ -1362,11 +1362,13 @@ internal static class LightRuntime
 
     /// <summary>
     /// LC11 cheap guard: the breadcrumb's native read-back and its formatted string are only built when
-    /// the instruction or the slot actually changed and the rate limit allows a line. An unchanged
-    /// frame therefore pays two comparisons and nothing else.
+    /// the instruction or the slot actually changed and the rate limit allows a line. Rainbow ticks are
+    /// skipped first, because they change every second by design and would otherwise fill the log.
+    /// Other unchanged instructions return after the flag, slot and instruction equality checks.
     /// </summary>
     private static void MaybeLogApplied(OwnedLamp lamp, int slot, VisualInstruction instruction)
     {
+        if (instruction.IsRainbow) return;
         if (lamp.LastLoggedSlot == slot && Equals(lamp.LastLoggedInstruction, instruction)) return;
         double now = Now;
         if (lamp.LastApplyLogAt >= 0 && now - lamp.LastApplyLogAt < ApplyLogIntervalSeconds) return;
@@ -1377,8 +1379,8 @@ internal static class LightRuntime
     /// One bounded apply breadcrumb per real instruction change: the lamp's stable key, the requested
     /// model colour, the emission actually read back from our own panel clone, and the colour and
     /// intensity actually read back from the lamp's own native light. Only a successful coupled write
-    /// logs; an identical line is suppressed and a per-frame changing instruction (a rainbow effect) is
-    /// rate limited, so neither can spam the log and model state is never reported as a visual success.
+    /// logs; an identical line is suppressed, Rainbow ticks are skipped completely, and any other
+    /// changing instruction is rate limited, so model state is never reported as a visual success.
     /// </summary>
     private static void LogApplied(OwnedLamp lamp, int slot, VisualInstruction instruction)
     {

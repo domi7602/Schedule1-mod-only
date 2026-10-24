@@ -15,6 +15,7 @@ internal static class AuditRuntimeChecks
         ("LC06 Exact confirmed targets apply and stale rejection is retryable", ConfirmedTargetsApply),
         ("LC06 Duplicate confirmed keys reject without mutation", DuplicateConfirmedKeys),
         ("LC11 Static visual instructions are reused", StaticVisualCache),
+        ("LC11 Rainbow ticks are flagged and skip the apply breadcrumb", RainbowTickWiring),
         ("LC01 Pending restore pressure blocks new claims, not existing owners", RestoreBackpressure),
         ("LC01 Source wiring never discards an owned source at the soft limit", PendingRetentionWiring),
         ("Native destruction proof is not proxy collection or a missing pointer", NativeDestructionWiring),
@@ -124,6 +125,43 @@ internal static class AuditRuntimeChecks
         Require(ReferenceEquals(first, store.ResolveVisual(Id("a"), 2)), "Unchanged fixed-color state allocates a new instruction.");
         var original = store.ResolveVisual(Id("b"), 2, false);
         Require(ReferenceEquals(original, store.ResolveVisual(Id("b"), 3, false)), "Disabled instruction allocates each frame.");
+    }
+
+    private static void RainbowTickWiring()
+    {
+        var rainbowState = new LampBaseState(ColorMode.Rainbow, IntensityLevel.Percent100);
+        var rainbow = VisualResolver.Resolve("lamp", null, rainbowState, EffectState.Empty, 1);
+        Require(rainbow.IsRainbow, "A Rainbow instruction was not flagged as a periodic tick.");
+        var fixedColor = VisualResolver.Resolve("lamp", null,
+            new LampBaseState(ColorMode.Blue, IntensityLevel.Percent100), EffectState.Empty, 1);
+        Require(!fixedColor.IsRainbow, "A fixed colour was flagged as a Rainbow tick.");
+        var effects = new EffectState(null, new[]
+        {
+            new KeyValuePair<string, DiscoEffect>("property", new DiscoEffect(0, 1, 7))
+        });
+        var temporary = VisualResolver.Resolve("lamp", "property", rainbowState, effects, 1);
+        Require(temporary.HasTemporaryEffect && !temporary.IsRainbow,
+            "A temporary effect over Rainbow must retain its ordinary change-logging path.");
+
+        string body = Body("private static void MaybeLogApplied(");
+        int rainbowGuard = body.IndexOf("if (instruction.IsRainbow) return;", StringComparison.Ordinal);
+        int unchangedGuard = body.IndexOf("if (lamp.LastLoggedSlot == slot && Equals(lamp.LastLoggedInstruction, instruction)) return;", StringComparison.Ordinal);
+        int rateLimit = body.IndexOf("double now = Now;", StringComparison.Ordinal);
+        int logCall = body.IndexOf("LogApplied(lamp, slot, instruction);", StringComparison.Ordinal);
+        Require(rainbowGuard >= 0 && unchangedGuard > rainbowGuard && rateLimit > unchangedGuard && logCall > rateLimit,
+            "Rainbow ticks must return before equality, rate-limit and native-readback logging work.");
+        string appliedBody = Body("private static void LogApplied(");
+        int nativeReadback = appliedBody.IndexOf("clone!.GetColor(EmissionProperty)", StringComparison.Ordinal);
+        int formatting = appliedBody.IndexOf("string message =", StringComparison.Ordinal);
+        int writeLog = appliedBody.IndexOf("Log.Info(message);", StringComparison.Ordinal);
+        Require(nativeReadback >= 0 && formatting > nativeReadback && writeLog > formatting,
+            "The apply breadcrumb no longer has the expected readback, formatting and write sequence.");
+        string applyBody = Body("private static void ApplyLamp(");
+        int surfaceWrite = applyBody.IndexOf("ApplySurface(lamp, surface", StringComparison.Ordinal);
+        int lightWrite = applyBody.IndexOf("ApplyLightSource(source", StringComparison.Ordinal);
+        int logging = applyBody.IndexOf("MaybeLogApplied(lamp, slot, instruction);", StringComparison.Ordinal);
+        Require(surfaceWrite >= 0 && lightWrite > surfaceWrite && logging > lightWrite,
+            "Rainbow log suppression must remain downstream of both visual writes.");
     }
 
     private static void ConfirmedTargetsApply()
