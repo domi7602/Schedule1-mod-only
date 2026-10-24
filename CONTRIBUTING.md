@@ -4,10 +4,10 @@ Thanks for your interest in contributing to the Schedule I mods in this reposito
 
 ## Requirements
 
-- **Game:** Schedule I (IL2CPP, Unity 2022.3) — v0.4.7f11 current runtime; older verifications on v0.4.6f13 / v0.4.7f6 / v0.4.7f9 (see [`docs/compatibility.md`](docs/compatibility.md)); installed under `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`)
-- **SDK:** .NET 6 SDK, PowerShell 7+
+- **Game:** Schedule I (IL2CPP, Unity 2022.3.62f2) — v0.4.7f12 current runtime; older verification baselines are recorded in [`docs/compatibility.md`](docs/compatibility.md). Installed under `C:\Program Files (x86)\Steam\steamapps\common\Schedule I` (override via `$env:SCHEDULE1_PATH`).
+- **SDK:** .NET 8 SDK for C# 12, .NET 6 runtime for the `net6.0` targets, PowerShell 7+. The maintainer's SDK 8.0.426 is global in `C:\Program Files\dotnet`; do not override `DOTNET_ROOT` with the tools-only user directory.
 - **Loader:** MelonLoader 0.7.3
-- **S1API:** 3.2.x (deployed as `Mods/S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.dll`; source pinned as submodule `ThirdParty/S1API/`)
+- **S1API:** 3.2.1 stable (deployed as `Mods/S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll`; source pinned as submodule `ThirdParty/S1API/` at `a4cbdd9`, tag `v3.2.1`)
 - **S1MAPI:** 2.0.1 (`UserLibs/S1MAPI_Il2Cpp.dll`; submodule `ThirdParty/S1MAPI/`) — needed by AutoPackagingStation and TaxiDriver
 
 ## Workspace Layout
@@ -15,7 +15,7 @@ Thanks for your interest in contributing to the Schedule I mods in this reposito
 ```
 Source/Mods/          Active mods + Shared lib + S1Mods.sln          → Source/Mods/README.md
 Source/Archive/       Archived mods (not in SLN, not built)
-Source/Tests/         xUnit tests (Shared.Tests, AutoPackagingStation.Tests, CalculatorApp.Tests)
+Source/Tests/         xUnit suites + the LightControl console test host
 GameReferences/       Locally generated decompiles (gitignored)      → GameReferences/README.md
 Skills/               AI-agent skills                                → Skills/README.md
 ThirdParty/           Pinned dependencies & archives                 → ThirdParty/README.md
@@ -61,31 +61,32 @@ See `Skills/schedule1-modding/references/architecture-and-shared.md` for mandato
 
 ## Build & Test
 
+Close the game before building. Launch it through Steam with
+`Start-Process "steam://rungameid/3164500"`, never by starting the game executable directly.
+Invoke scripts with `pwsh -NoProfile -ExecutionPolicy Bypass -File` from any shell.
+
 ```pwsh
-# All mods
-pwsh Tools/build-all.ps1
-dotnet build Source/Mods/S1Mods.sln -c Release
+# Repository guards plus game-free tests; no deployment
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify.ps1 -Mode Pure
 
-# Single mod
-dotnet build Source/Mods/NotesApp/src/NotesApp.csproj -c Release
+# Full compile/test verification on a machine with game references; no deployment
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify.ps1 -Mode Full
 
-# All tests (Shared.Tests needs the game assemblies)
-dotnet test Source/Mods/S1Mods.sln -c Release
+# Isolated working-tree snapshot for docs/tests/CI/third-party changes
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify-clean-checkout.ps1 -Mode Pure
 
-# Single test suites
-dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj -c Release               # requires game assemblies
-dotnet test Source/Tests/AutoPackagingStation.Tests/AutoPackagingStation.Tests.csproj -c Release # pure math logic
-dotnet test Source/Tests/CalculatorApp.Tests/CalculatorApp.Tests.csproj -c Release # pure decimal logic
+# Tests only, including the LightControl console host
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/test-all.ps1 -Selection all
 
-# Format check (CI)
-dotnet format Source/Mods/S1Mods.sln --verify-no-changes
+# Targeted test also disables deployment
+dotnet test Source/Tests/Shared.Tests/Shared.Tests.csproj -c Release -p:S1NoDeploy=true
 
-# Version drift check (CI + pre-commit): code <-> mod.json <-> README/AGENTS (exit 1 on drift)
-pwsh Tools/check-version-sync.ps1
-
-# Doc paths check (CI + pre-commit): referenced repo paths must exist
-pwsh Tools/check-doc-paths.ps1
+# Intentional build/deploy, only when installation is part of the task
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/build-all.ps1
 ```
+
+`Quick` and `Auto` verification modes and all individual commands are described in
+[DEVELOPERS.md](DEVELOPERS.md#formatting-and-repository-checks) and [Tools/README.md](Tools/README.md).
 
 ## Version Bump (Single Source of Truth = Code)
 
@@ -99,7 +100,11 @@ pwsh Tools/bump-version.ps1 -Mod NotesApp -Version 1.0.3 -DryRun
 pwsh Tools/check-version-sync.ps1
 ```
 
-Updates 5 places: MelonInfo in code (file with `[assembly: MelonInfo(...)]`, otherwise `Constants.ModVersion`) + `Source/Mods/<Mod>/docs/mod.json` + `Source/Mods/<Mod>/docs/CHANGELOG.md` (`## x.y.z` header) + `AGENTS.md` (matrix row **and** detail header in §2) + `README.md` (mod table row and featured card). After an in-game verification also update the matrix in `docs/compatibility.md`.
+Updates code (`MelonInfo`, otherwise `Constants.ModVersion`), the mod's `mod.json` and
+`CHANGELOG.md`, the `AGENTS.md` inventory row (plus a detail header if present), the README
+table/featured card and the current version cell in `docs/compatibility.md`. Historical detail
+headers in the dated archive are not release metadata. A version change preserves prior evidence
+as historical; it never proves gameplay acceptance of the new build.
 
 `Tools/check-version-sync.ps1` checks exactly these locations against the code; it runs in CI and in the pre-commit hook.
 
@@ -127,6 +132,7 @@ Updates 5 places: MelonInfo in code (file with `[assembly: MelonInfo(...)]`, oth
 
 ## Commit & PR
 
+- Do not commit or push without Dominik's explicit instruction. Verification is separate from publication.
 - Commits: `feat(mod): ...`, `fix(mod): ...`, `chore(tools): ...` (see `git log`)
 - Solution is deterministic (`gen-sln.ps1` uses MD5 GUIDs) — no unnecessary GUID diffs
 - `dotnet format` before every push

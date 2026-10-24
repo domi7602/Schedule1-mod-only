@@ -1,3 +1,11 @@
+# Historical snapshot — 2026-10-24
+
+This is the 2026-10-08 handoff, including superseded visual requirements, then-open checks and the former user-local SDK installation. It is not current setup guidance or an open task list. Current acceptance is recorded in [compatibility](../../../../../docs/compatibility.md#verification-matrix); current setup is in [DEVELOPERS](../../../../../DEVELOPERS.md#requirements).
+
+Original: `Notes/MessagesPlus-InGame-Test-Handoff.md`. Original SHA-256: `dcc959c980cce43fae5608d6d6deff99c8d11fa49892c8a1f6e90fe7edeb0eeb`.
+The original document bytes are retained after the marker below.
+
+<!-- preserved-document:start -->
 # MessagesPlus In-Game Test Handoff
 
 **Updated:** 2026-10-08

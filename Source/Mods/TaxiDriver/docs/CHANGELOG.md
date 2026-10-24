@@ -827,7 +827,7 @@ fährt gegen lampen etc. nachdem man taxi kündigt und im taxi ist ist das spiel
   navCalc=False speed=0.0 km/h distToTarget=93.5m callback=-` unchanged for 9.6 s,
   `stuck=False` throughout — only the 90 s timeout could have ended it.
 - **Version drift**: the deployed assembly still reported 0.2.0 while this file already
-  documented 0.3.0 (passenger mode). `MelonInfo`, `docs/mod.json` and this changelog are
+  documented 0.3.0 (passenger mode). `MelonInfo`, `Source/Mods/TaxiDriver/docs/mod.json` and this changelog are
   now aligned at 0.4.0.
 
 ### Open
@@ -882,7 +882,7 @@ fährt gegen lampen etc. nachdem man taxi kündigt und im taxi ist ist das spiel
 - The call-taxi flow is extracted into `SpikeCommands.CallTaxi(caller)` — the **single source of truth** shared by the F5 hotkey and the phone button (same run-start guard, same one-shot stand arm, same automation state block; the two can never drift apart).
 - **STOP** button runs the same code path as the `taxi stop` console command (`SpikeCommands.Stop()`).
 - Live status label ("No taxi" / "Run in progress" / "Taxi active — press STOP or ride along"), derived from `SpikeState` and refreshed with a cheap string compare; button outcomes show for a few seconds, and every button is scene-gated ("Only available in gameplay." outside the main scene).
-- New app icon `assets/taxi_icon.png` (128×128, deployed to `Mods\`), with a procedural fallback sprite so a missing file never logs errors.
+- New app icon `Source/Mods/TaxiDriver/assets/taxi_icon.png` (128×128, deployed to `Mods\`), with a procedural fallback sprite so a missing file never logs errors.
 - F1–F12 hotkeys unchanged — they remain the diagnostic control surface.
 
 ## 0.1.1 (2026-09-26) - F1-F12 hotkey remap
@@ -1106,7 +1106,7 @@ fährt gegen lampen etc. nachdem man taxi kündigt und im taxi ist ist das spiel
 - **Docs:** `SwapInternal`/`Vec` XML docs, help head + init log now say
   "Stage 1 spike + Stage 2 visual swap", `ResolveAssetPath` documents its
   warning as *per call* (a miss is not cached), README/AGENTS/mod.json describe
-  Stage 2 (Visual-Swap via `S1MAPI.Gltf.GltfLoader`, `assets/taxi.glb`, F16).
+  Stage 2 (Visual-Swap via `S1MAPI.Gltf.GltfLoader`, `Source/Mods/TaxiDriver/assets/taxi.glb`, F16).
   Version stays **0.1.0**.
 - **Live verification (real-game session 2026-09-25, session 5, PID 13692):**
   F16 → `F16 → visual swap OFF (applies to next spawn)` → F15 logged

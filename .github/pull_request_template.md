@@ -4,18 +4,16 @@
 <!-- What does this PR change? Link issues if applicable. -->
 
 ## Checklist
-- [ ] `dotnet build Source/Mods/S1Mods.sln -c Release -p:S1NoDeploy=true` — 0 errors / 0 warnings
-- [ ] `dotnet format Source/Mods/S1Mods.sln --verify-no-changes` clean
-- [ ] `pwsh Tools/gen-sln.ps1` — no diff (deterministic GUIDs)
-- [ ] `pwsh Tools/check-version-sync.ps1` green (code ↔ `mod.json` ↔ `README.md` ↔ `AGENTS.md`, via `Tools/bump-version.ps1`)
-- [ ] `pwsh Tools/check-doc-paths.ps1` green (no dead repository paths in Markdown)
-- [ ] Tests pass (`dotnet test Source/Mods/S1Mods.sln -c Release`; at least the pure-logic suites if the game is not installed)
-- [ ] In-game verified (Main Menu → Game → Main Menu); result noted in the mod's `CHANGELOG.md` and `docs/compatibility.md`
-- [ ] `s1interop analyze` report read, no unexpected findings (optional, advisory)
-- [ ] Documentation updated where behaviour changed (mod `docs/README.md`, root `README.md` table, `AGENTS.md` §2)
+
+- [ ] `pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify.ps1 -Mode Auto` passed; selected mode and report path recorded below. Full requires game references and a closed game; Pure includes game-free xUnit suites, the LightControl console host and tool tests. All modes disable deployment.
+- [ ] For documentation, tests, tooling, ignore rules, CI or dependency changes: `pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify-clean-checkout.ps1 -Mode Pure` passed against the final working files.
+- [ ] Relevant build/test warnings reviewed; known framework warnings are recorded rather than hidden. Missing game references or unexecuted checks are stated explicitly.
+- [ ] If runtime behaviour changed, the affected gameplay checks and artifact identity are recorded in the mod's changelog and compatibility record, or clearly marked pending. Documentation-only changes need no new gameplay acceptance.
+- [ ] Documentation reflects the resulting behaviour. Release version changes used `Tools/bump-version.ps1`; source/history evidence was preserved.
+- [ ] Optional `s1interop analyze` findings reviewed when relevant; its exit code is not a verification gate.
 
 ## Testing
-<!-- How did you test? Steps, save file, screenshots, Latest.log excerpt -->
+<!-- Selected mode, report paths, focused tests, warnings and limits. For runtime changes, add scenario/version/log evidence. Builds alone do not prove gameplay acceptance. -->
 
 ## Notes
 <!-- Breaking changes, follow-ups, TODOs -->

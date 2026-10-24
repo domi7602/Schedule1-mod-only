@@ -116,7 +116,7 @@ and mod path. The schema is unchanged; no world-ID migration is invented. Shared
 | `src/LightControlApp.cs` | Full-width landscape list, dedicated staged color chooser, immediate seven-step intensity menu and separate More actions; English dark UI. |
 | `src/` (remaining policy files) | Game-independent state, identity, protocol, JSON, visual and native policies. 19 C# files plus project total; no new assembly or dependency. |
 | `assets/` | Eight language files (42 keys each) and `config.defaults.json`. Not yet bound to any UI or runtime configuration. |
-| `docs/upstream/` | Archived legacy build configs, scripts, packaging and documentation from the imported archive. Reference only, not active. |
+| [upstream archive](upstream/) | Archived legacy build configs, scripts, packaging and documentation from the imported archive. Reference only, not active. |
 
 The five cohesive native-light policy files are consolidated into one compilation unit
 (`src/NativePolicies.cs`): `NativeLightPolicy`, `NativeColorPolicy`,
@@ -242,9 +242,9 @@ the owner.
   1201 x 655 phone reference size. Open the HTML file in a browser to try color selection, brightness
   and lamp actions with in-memory demo data. This is a browser preview, not an in-game screenshot
   or native UI acceptance evidence.
-- `docs/CHANGELOG.md` — import, adaptation and test-slice record.
-- `docs/mod.json` — machine-readable status.
-- `docs/verification.md` — build, test and limitation evidence.
-- `docs/implementation-plan.md` — the original staged plan; later stages are still open.
-- `docs/upstream/` — the original archive's build/packaging tooling, old project files and reports,
+- [CHANGELOG.md](CHANGELOG.md) — import, adaptation and test-slice record.
+- [mod.json](mod.json) — machine-readable metadata.
+- [verification.md](verification.md) — dated build, test and limitation evidence.
+- [implementation-plan.md](implementation-plan.md) — original staged plan; current owner acceptance and limits are in the [graphite record](graphite-ui-verification.md).
+- [upstream archive](upstream/) — the original archive's build/packaging tooling, old project files and reports,
   kept as history.

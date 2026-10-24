@@ -1,241 +1,233 @@
 #Requires -Version 7
 <#
 .SYNOPSIS
-    Pfad-Existenz-Guard: Prueft, dass alle in Markdown referenzierten
-    Repo-relativen Pfade tatsaechlich existieren (Drift-Guard fuer Doku,
-    CI- + pre-commit-tauglich).
+    Prueft lokale Dateipfade in der selbst gepflegten Markdown-Dokumentation.
 
 .DESCRIPTION
-    Motivation (Repo-Audit 2026-09-16): AGENTS.md & Co. referenzierten
-    Pfade, die nicht mehr existieren (Source/Archive/DayCounter, Knowledge/,
-    .agents/...). check-version-sync.ps1 bewacht nur Versionsnummern —
-    dieses Skript bewacht PFADE.
+    Inventar: Git-getrackte und ungetrackte, nicht ignorierte Markdown-Dateien
+    im Root sowie unter docs/, Skills/, Tools/ und Source/Mods/. Dazu kommen
+    ThirdParty/README.md und GameReferences/README.md. Generierte bin/, obj/,
+    Library/, build/logs/, vendored/node_modules und docs/upstream sowie
+    Submodul-Inhalte werden nicht als eigene Dokumentation gescannt.
 
-    Gescannt werden: Root-*.md, docs/**, Skills/**, ThirdParty/README.md,
-    GameReferences/README.md. Extrahiert werden Inline-Code-Spans
-    (`pfad/zu/x`) und Markdown-Links (...](pfad/zu/x), inclusive Bilder).
-    Fenced Code-Blocks werden ignoriert.
+    Echte Inline-Links/Bilder und Referenzdefinitionen werden relativ zur
+    Markdown-Datei aufgeloest, auch ../README.md und einfache Dateinamen.
+    Winkelklammern und URL-kodierte Dateinamen mit Leerzeichen sind erlaubt.
+    Ein gleichnamiger Pfad im Repo-Root kann einen kaputten Link nicht retten.
+    Inline-Code bleibt eine getrennte Heuristik: nur Pfade mit bekanntem
+    Repo-Root-Segment und Slash, existent relativ zum Root oder Dokument.
+    Historische Inline-Code-Pfade duerfen auf derselben Zeile mit
+    <!-- doc-paths: historical-reference (nichtleere Begruendung) -->
+    markiert werden. Nur deren Code-Heuristik wird ausgenommen; echte Links
+    bleiben auf dieser Zeile pruefpflichtig. Die Markierung gilt nicht weiter.
 
-    Ein Kandidat gilt als existent, wenn er
-      a) relativ zum Repo-Root, oder
-      b) relativ zur Markdown-Datei
-    existiert. Pfade, die nur lokal existieren, weil sie gitignored sind
-    (z.B. ThirdParty/S1API/local.build.props), zaehlen als OK mit Hinweis
-    (auf einem frischen Clone/CI existieren sie nicht).
+    Fenced Code (Backticks/Tilden) und Links innerhalb von Inline-Code werden
+    ignoriert. URLs, absolute Pfade, Anker ohne Datei und Pfad-Platzhalter
+    werden nicht geprueft. Anker-Ziele selbst werden NICHT validiert.
+    Dies ist ein Dateipfad-Guard, kein vollstaendiger CommonMark-Parser:
+    HTML-Links, mehrzeilige Linkziele und aufgeloeste Referenz-Labels werden
+    nicht geprueft; lokale Referenzdefinitionen werden direkt validiert.
 
-    Submodul-Pfade (aus .gitmodules) werden NICHT pauschal ausgenommen: ist
-    das Submodul initialisiert, wird sein Inhalt normal geprueft; nur ein
-    leeres Submodul (frischer Clone/CI) wird als "nicht pruefbar" gewertet.
-
-    Gefiltert (bewusst NICHT geprueft): URLs, absolute Pfade (C:\...),
-    Platzhalter (<Mod>, {n}, *), game-seitige Root-Ordner (Mods\, UserData\
-    — liegen ausserhalb des Worktrees), tokens ohne Slash, Pfade mit ":".
-
+    Fehlende gitignorierte Ziele, generierte GameReferences/decompiled und
+    lokale ThirdParty/local.build.props sind erlaubte lokale Voraussetzungen.
+    Ziele in leeren Submodulen werden als lokal nicht pruefbar gemeldet;
+    bei initialisierten Submodulen werden Zielpfade normal geprueft.
 .EXAMPLE
-    pwsh Tools/check-doc-paths.ps1
-    pwsh Tools/check-doc-paths.ps1 -Quiet
+    pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/check-doc-paths.ps1
 #>
 [CmdletBinding()]
 param(
     [switch]$Quiet,
-    # Regex-Whitelist fuer bewusst dokumentierte, nicht existierende Pfade.
+    # Regex-Ausnahmen gelten fuer normalisierte Repo-relative Zielpfade.
     [string[]]$Allow = @()
 )
 
 $ErrorActionPreference = 'Stop'
-
-$workspaceRoot = Split-Path $PSScriptRoot -Parent
-
-# GameReferences/decompiled: bootstrap-generierter Output, per Design gitignored
-# (GameReferences/.gitignore:1) — Doku (README.md) referenziert ihn bewusst,
-# der Pfad ist nach `pwsh Tools/bootstrap-game-references.ps1` lokal vorhanden,
-# aber nie Teil des Worktrees.
-# ThirdParty/<Submodule>/local.build.props: von `Tools/setup-workspace.ps1`
-# erzeugt und per .gitignore ausgeschlossen. Die generische "gitignored = lokal
-# OK"-Toleranz (siehe Test-Schleife) kann diese Pfade NICHT abdecken: `git
-# check-ignore` bricht fuer Pfade innerhalb eines Submodules mit exit 128 ab
-# ("Pathspec ... is in submodule"), statt eine Regel zu liefern. Ohne diesen
-# Eintrag wird der Pfad auf einem frischen Clone/CI als toter Link gemeldet.
-$defaultAllow = @(
-    '^GameReferences/decompiled(/|$)'
-    '^ThirdParty/[^/]+/local\.build\.props$'
-)
-$Allow = $defaultAllow + $Allow
-
-# Submodule: Inhalt existiert erst nach `git submodule update --init --recursive`.
-# Auf einem frischen Clone/CI ist der Pfad ein leerer Verzeichnisstummel und
-# nicht pruefbar. Auf einer initialisierten Workspace IST der Inhalt aber
-# vorhanden — dann sollen Tippfehler in Doku-Pfaden (z.B.
-# ThirdParty/S1MAPI/Core/... statt .../ProceduralMesh/...) trotzdem auffallen.
-# Deshalb: Submodule-Pfade werden nicht pauschal ausgenommen, sondern nur dann,
-# wenn das Submodul auf dieser Maschine leer ist.
+$workspaceRoot = [IO.Path]::GetFullPath((Split-Path $PSScriptRoot -Parent))
+$Allow = @('^GameReferences/decompiled(/|$)', '^ThirdParty/[^/]+/local\.build\.props$') + $Allow
+$historicRoots = @('Knowledge', 'memory', 'Archive', 'Docs', '.agents')
+$rootEntries = @(Get-ChildItem -LiteralPath $workspaceRoot -Force | Select-Object -ExpandProperty Name)
 $submodulePaths = @()
 $gitmodules = Join-Path $workspaceRoot '.gitmodules'
 if (Test-Path -LiteralPath $gitmodules) {
-    foreach ($line in [System.IO.File]::ReadAllLines($gitmodules)) {
+    foreach ($line in [IO.File]::ReadAllLines($gitmodules)) {
         if ($line -match '^\s*path\s*=\s*(.+?)\s*$') {
             $submodulePaths += ($Matches[1] -replace '\\', '/').TrimEnd('/')
         }
     }
 }
+$submoduleEmpty = @{}
+$optionalTargets = @{}
 
-function Test-InUninitializedSubmodule {
-    param([string]$Token)
+function Test-InUninitializedSubmodule([string]$Token) {
     foreach ($sub in $submodulePaths) {
-        if ($Token -ne $sub -and -not $Token.StartsWith("$sub/", [System.StringComparison]::Ordinal)) { continue }
-        $subDir = Join-Path $workspaceRoot ($sub -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-        if (-not (Test-Path -LiteralPath $subDir)) { return $true }
-        $hasContent = @(Get-ChildItem -LiteralPath $subDir -Recurse -File -ErrorAction SilentlyContinue |
-                        Select-Object -First 1).Count -gt 0
-        if (-not $hasContent) { return $true }
-        return $false
+        if ($Token -ne $sub -and -not $Token.StartsWith("$sub/", [StringComparison]::OrdinalIgnoreCase)) { continue }
+        if (-not $submoduleEmpty.ContainsKey($sub)) {
+            $subDir = Join-Path $workspaceRoot $sub
+            $submoduleEmpty[$sub] = -not (Test-Path -LiteralPath $subDir -PathType Container) -or
+                @(Get-ChildItem -LiteralPath $subDir -Recurse -File -Force -ErrorAction SilentlyContinue |
+                    Select-Object -First 1).Count -eq 0
+        }
+        return $submoduleEmpty[$sub]
     }
     return $false
 }
 
-# Historische Wurzeln: Layouts, die es im aktuellen Repo (bewusst) nicht
-# mehr gibt. Pfade unter diesen Segmenten sind per Definition tot —
-# genau die Drift-Klasse, die dieser Guard fangen soll.
-$historicRoots = @('Knowledge', 'memory', 'Archive', 'Docs', '.agents')
-
-# Dynamisch: aktuelle Top-Level-Eintraege des Repos. Ein Kandidat gilt nur
-# als repo-relativer Pfad, wenn sein erstes Segment hier auftaucht — das
-# haelt Prosa/API-Bezeichner (z.B. "UITheme.Sp/Dp", "try/finally",
-# "AvatarFramework/Avatar.cs") raus.
-$rootEntries = @(Get-ChildItem -LiteralPath $workspaceRoot -Force |
-    Select-Object -ExpandProperty Name)
-
 function Get-ScanFiles {
-    $roots = @(
-        (Join-Path $workspaceRoot 'AGENTS.md'),
-        (Join-Path $workspaceRoot 'README.md'),
-        (Join-Path $workspaceRoot 'DEVELOPERS.md'),
-        (Join-Path $workspaceRoot 'CONTRIBUTING.md'),
-        (Join-Path $workspaceRoot 'docs'),
-        (Join-Path $workspaceRoot 'Skills'),
-        (Join-Path $workspaceRoot 'ThirdParty/README.md'),
-        (Join-Path $workspaceRoot 'GameReferences/README.md')
-    )
-    foreach ($r in $roots) {
-        if (Test-Path -LiteralPath $r -PathType Leaf) { Get-Item -LiteralPath $r }
-        elseif (Test-Path -LiteralPath $r -PathType Container) {
-            Get-ChildItem -LiteralPath $r -Recurse -Filter '*.md' -File
+    # -z preserves spaces/non-ASCII names; Git is read-only even in an unborn repo.
+    $inventory = & git -C $workspaceRoot -c core.quotepath=false ls-files -z --cached --others --exclude-standard -- ':(icase)*.md'
+    if ($LASTEXITCODE -ne 0) { throw 'Git-Markdown-Inventar konnte nicht gelesen werden.' }
+    foreach ($path in (($inventory -join "`n") -split "`0" | Sort-Object -Unique)) {
+        if (-not $path) { continue }
+        if ($path -notmatch '^[^/]+\.[mM][dD]$|^(docs|Skills|Tools|Source/Mods)/|^(ThirdParty|GameReferences)/README\.md$') { continue }
+        if ($path -match '(^|/)(bin|obj|Library|node_modules|vendor|vendored)/|(^|/)build/logs/|(^|/)docs/upstream/') { continue }
+        $inSubmodule = $false
+        foreach ($sub in $submodulePaths) {
+            if ($path.StartsWith("$sub/", [StringComparison]::OrdinalIgnoreCase)) { $inSubmodule = $true; break }
         }
+        if ($inSubmodule) { continue }
+        $fullPath = Join-Path $workspaceRoot $path
+        # A tracked document deleted in this working tree is no longer a source.
+        if (Test-Path -LiteralPath $fullPath -PathType Leaf) { Get-Item -LiteralPath $fullPath }
     }
 }
 
-function Get-Candidates {
-    param([string]$Text)
-
-    $found = @()
-    # Inline-Code-Spans
-    foreach ($m in [regex]::Matches($Text, '`([^`\n]+)`')) { $found += $m.Groups[1].Value }
-    # Markdown-Links/Bilder
-    foreach ($m in [regex]::Matches($Text, '\]\(([^)\s]+)\)')) { $found += $m.Groups[1].Value }
-    return $found
+function Get-Candidates([string]$Text) {
+    $plain = $Text
+    $codeSpans = [regex]::Matches($Text, '(?<!`)(?<ticks>`+)(?!`)(?<body>.*?)(?<!`)\k<ticks>(?!`)')
+    foreach ($span in $codeSpans) {
+        [pscustomobject]@{ Token = $span.Groups['body'].Value; Kind = 'Code' }
+    }
+    # Mask spans before parsing links, retaining surrounding link-label syntax.
+    for ($index = $codeSpans.Count - 1; $index -ge 0; $index--) {
+        $span = $codeSpans[$index]
+        $plain = $plain.Remove($span.Index, $span.Length).Insert($span.Index, (' ' * $span.Length))
+    }
+    # Balancing groups allow parentheses in unquoted destinations. Optional
+    # Markdown titles are not part of the filesystem path.
+    $inlinePattern = '\]\(\s*(?:<(?<angle>[^<>\r\n]*)>|(?<bare>(?:\\.|[^\\\s()]|\((?<depth>)|\)(?<-depth>))*(?(depth)(?!))))(?:\s+(?:"[^"]*"|''[^'']*''|\([^)]*\)))?\s*\)'
+    foreach ($link in [regex]::Matches($plain, $inlinePattern)) {
+        $token = if ($link.Groups['angle'].Success) { $link.Groups['angle'].Value } else { $link.Groups['bare'].Value }
+        [pscustomobject]@{ Token = $token; Kind = 'Link' }
+    }
+    if ($plain -match '^\s{0,3}\[[^\]]+\]:\s*(?:<(?<angle>[^<>\r\n]*)>|(?<bare>\S+))') {
+        $token = if ($Matches.ContainsKey('angle')) { $Matches['angle'] } else { $Matches['bare'] }
+        [pscustomobject]@{ Token = $token; Kind = 'Link' }
+    }
 }
 
-function Test-IsPathCandidate {
-    param([string]$Token)
-
+function Get-PathToken([string]$Token, [string]$Kind) {
     $t = $Token.Trim()
-    $t = $t.TrimEnd('.', ',', ';', '!', '?', ')', ']', '}', '"', "'", '»')
+    if ($Kind -eq 'Code') {
+        $t = $t.TrimEnd('.', ',', ';', '!', '?', ')', ']', '}', '"', "'", '»')
+        if ($t -match '\s|\.\.|[:@]') { return $null }
+    }
+    if (-not $t -or $t -match '^[A-Za-z][A-Za-z0-9+.-]*:|^[/\\]|^[#?]') { return $null }
+    if ($t -match '[<>\{\}*~]') { return $null }
+    if ($Kind -eq 'Link') {
+        # Markdown escaping is distinct from Windows path separators.
+        $t = $t -replace '\\([()\[\] _!#])', '$1'
+        $t = [System.Net.WebUtility]::HtmlDecode($t)
+    }
+    $t = ($t -split '[#?]', 2)[0]
+    if ($Kind -eq 'Link') { $t = [Uri]::UnescapeDataString($t) }
+    $t = ($t -replace '\\', '/').TrimEnd('/')
     if (-not $t) { return $null }
-    if ($t -match '^(https?|ftp|file)://') { return $null }
-    if ($t -match '^[A-Za-z]:') { return $null }            # absolute Windows-Pfade
-    if ($t -match '[<>\{\}\*~]') { return $null }           # Platzhalter/Globs
-    if ($t -match '[:@]') { return $null }                  # git show sha:path, user@host
-    if ($t -match '\.\.') { return $null }                  # Parent-Refs/Ellipsen: nicht pruefbar
-    if ($t -match '\s') { return $null }                    # Prosa
-    $t = $t -replace '\\', '/'
-    $t = ($t -split '#')[0]                                 # Anker abtrennen
-    $t = $t.TrimEnd('/')
-    if (-not $t -or $t -notmatch '/') { return $null }      # ohne Slash: zu ambig
+    if ($Kind -eq 'Code') {
+        if ($t -notmatch '/') { return $null }
+        $first = ($t -split '/')[0]
+        if ($rootEntries -cnotcontains $first -and $historicRoots -cnotcontains $first) { return $null }
+    }
+    return $t
+}
 
-    $segments = $t -split '/'
-    $first = $segments[0]
-
-    # Repo-relativ: erstes Segment existiert aktuell im Repo-Root ...
-    if ($rootEntries -ccontains $first) { return $t }
-    # ... oder ist eine bekannte historische Wurzel (immer tot).
-    if ($historicRoots -ccontains $first) { return $t }
-    return $null
+function Get-OptionalTargetReason([string]$Target) {
+    if ($optionalTargets.ContainsKey($Target)) { return $optionalTargets[$Target] }
+    $reason = $null
+    foreach ($pattern in $Allow) {
+        if ($Target -match $pattern) { $reason = 'dokumentierte lokale Voraussetzung / Allow'; break }
+    }
+    if (-not $reason -and (Test-InUninitializedSubmodule $Target)) {
+        $reason = 'Submodul nicht initialisiert - lokal nicht pruefbar'
+    }
+    if (-not $reason) {
+        & git -C $workspaceRoot check-ignore -q -- $Target 2>$null
+        if ($LASTEXITCODE -eq 0) { $reason = 'gitignored - lokale Voraussetzung' }
+        # Git returns 128 for a path inside an initialized submodule. That does
+        # not exempt a missing target; local.build.props is explicit above.
+    }
+    $optionalTargets[$Target] = $reason
+    return $reason
 }
 
 $files = @(Get-ScanFiles)
-$problems = @()
-$localOnlyHits = @()
+$problems = [Collections.Generic.List[string]]::new()
+$localOnlyHits = [Collections.Generic.HashSet[string]]::new()
+$seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
 $checked = 0
-$seen = @{}
 
 foreach ($file in $files) {
-    $raw = [System.IO.File]::ReadAllText($file.FullName, [System.Text.Encoding]::UTF8)
-    $fileDir = Split-Path -Parent $file.FullName
-    $lines = $raw -split "`r?`n"
-
-    # Fence-State pro Zeile tracken -> gemeldete Zeilennummern bleiben
-    # Original-Zeilennummern der Datei.
-    $inFence = $false
+    $source = [IO.Path]::GetRelativePath($workspaceRoot, $file.FullName) -replace '\\', '/'
+    $lines = [IO.File]::ReadAllLines($file.FullName, [Text.Encoding]::UTF8)
+    $fenceCharacter = $null
+    $fenceLength = 0
     for ($i = 0; $i -lt $lines.Count; $i++) {
-        if ($lines[$i] -match '^\s*```') { $inFence = -not $inFence; continue }
-        if ($inFence) { continue }
-
-        foreach ($cand in (Get-Candidates -Text $lines[$i])) {
-            $t = Test-IsPathCandidate -Token $cand
-            if (-not $t) { continue }
-            $key = "$t"
-            if ($seen.ContainsKey($key)) { continue }
-
-            $rootPath = Join-Path $workspaceRoot ($t -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-            $relPath = Join-Path $fileDir ($t -replace '/', [System.IO.Path]::DirectorySeparatorChar)
-
-            if (Test-Path -LiteralPath $rootPath) {
-                $seen[$key] = $true; $checked++
-                continue
+        if ($lines[$i] -match '^\s*(?<fence>`{3,}|~{3,})(?<tail>.*)$') {
+            $fence = $Matches['fence']
+            if (-not $fenceCharacter) { $fenceCharacter = $fence[0]; $fenceLength = $fence.Length }
+            elseif ($fence[0] -eq $fenceCharacter -and $fence.Length -ge $fenceLength -and -not $Matches['tail'].Trim()) {
+                $fenceCharacter = $null
             }
-            if (Test-Path -LiteralPath $relPath) {
-                $seen[$key] = $true; $checked++
-                continue
-            }
-            # Gitignored = existiert nur lokal (frischer Clone/CI hat die Datei
-            # nicht) -> dokumentiert OK, aber als Hinweis listen.
-            git -C $workspaceRoot check-ignore -q -- "$t" 2>$null
-            if ($LASTEXITCODE -eq 0) {
-                $seen[$key] = $true; $checked++
-                $localOnlyHits += "$t (gitignored — existiert nur lokal)"
-                continue
-            }
+            continue
+        }
+        if ($fenceCharacter) { continue }
 
-            $allowed = $false
-            foreach ($a in $Allow) { if ($t -match $a) { $allowed = $true; break } }
-            if (-not $allowed -and (Test-InUninitializedSubmodule -Token $t)) {
-                $allowed = $true
-                $localOnlyHits += "$t (Submodul nicht initialisiert — Pfad lokal nicht pruefbar)"
+        $historicalCode = [regex]::IsMatch($lines[$i], '<!--\s*doc-paths:\s*historical-reference\s+\(\s*[^\s)][^)]*\)\s*-->')
+        foreach ($candidate in (Get-Candidates $lines[$i])) {
+            if ($historicalCode -and $candidate.Kind -eq 'Code') { continue }
+            $token = Get-PathToken $candidate.Token $candidate.Kind
+            if (-not $token) { continue }
+            $relativePath = [IO.Path]::GetFullPath((Join-Path $file.DirectoryName $token))
+            if ($candidate.Kind -eq 'Link') { $targets = @($relativePath) }
+            else {
+                $rootPath = [IO.Path]::GetFullPath((Join-Path $workspaceRoot $token))
+                $targets = @($rootPath, $relativePath)
             }
-            if ($allowed) { $seen[$key] = $true; $checked++; continue }
-
-            $seen[$key] = $true
-            $problems += ("{0}:{1}: Pfad nicht gefunden: {2}" -f ($file.FullName.Substring($workspaceRoot.Length + 1)), ($i + 1), $t)
+            $selectedTarget = $targets[0]
+            $valid = $false
+            $localHint = $null
+            foreach ($target in $targets) {
+                if (Test-Path -LiteralPath $target) { $selectedTarget = $target; $valid = $true; break }
+            }
+            if (-not $valid) {
+                foreach ($target in $targets) {
+                    $repoTarget = [IO.Path]::GetRelativePath($workspaceRoot, $target) -replace '\\', '/'
+                    if ($repoTarget -eq '..' -or $repoTarget.StartsWith('../')) { continue }
+                    $reason = Get-OptionalTargetReason $repoTarget
+                    if ($reason) {
+                        $selectedTarget = $target; $valid = $true; $localHint = "$repoTarget ($reason)"; break
+                    }
+                }
+            }
+            # Include source and actual resolved target, never just the token.
+            # A code span and link to the same file count once in this source.
+            if (-not $seen.Add("$source`0$selectedTarget")) { continue }
+            $checked++
+            if ($localHint) { $null = $localOnlyHits.Add($localHint) }
+            if (-not $valid) { $problems.Add("${source}:$($i + 1): Pfad nicht gefunden ($($candidate.Kind)): $token") }
         }
     }
 }
 
 if (-not $Quiet) {
-    Write-Host ("=== Doc-Pfad-Check ({0} Markdown-Dateien, {1} eindeutige Pfade) ===" -f $files.Count, $checked) -ForegroundColor Cyan
-    if ($localOnlyHits.Count -gt 0) {
-        Write-Host ("Nur-lokal vorhanden (gitignored, {0}):" -f $localOnlyHits.Count) -ForegroundColor DarkYellow
-        foreach ($h in $localOnlyHits) { Write-Host "  ~ $h" -ForegroundColor DarkYellow }
-    }
+    Write-Host ("=== Doc-Pfad-Check ({0} Markdown-Dateien, {1} Quelle/Ziel-Paare) ===" -f $files.Count, $checked) -ForegroundColor Cyan
+    foreach ($hit in ($localOnlyHits | Sort-Object)) { Write-Host "  ~ $hit" -ForegroundColor DarkYellow }
 }
-
 if ($problems.Count -eq 0) {
-    if (-not $Quiet) { Write-Host "Doc-Pfad-Check OK: alle referenzierten Pfade existieren." -ForegroundColor Green }
+    if (-not $Quiet) { Write-Host 'Doc-Pfad-Check OK (Dateipfade; Anker nicht geprueft).' -ForegroundColor Green }
     exit 0
 }
-
 Write-Host ("Tote Pfad-Referenzen: {0}" -f $problems.Count) -ForegroundColor Red
-foreach ($p in $problems) { Write-Host "  - $p" -ForegroundColor Yellow }
-Write-Host ''
-Write-Host 'Fix: Pfad in der Markdown-Datei korrigieren/entfernen — oder begruendete'
-Write-Host 'Ausnahme ueber -Allow <regex> (dauerhaft: allowlist im Skript-Kopf pflegen).' -ForegroundColor DarkGray
+foreach ($problem in $problems) { Write-Host "  - $problem" -ForegroundColor Yellow }
+Write-Host 'Fix: Ziel relativ zur Markdown-Datei korrigieren; begruendete lokale Ausnahmen ueber -Allow <regex>.' -ForegroundColor DarkGray
 exit 1

@@ -1,189 +1,98 @@
+#Requires -Version 7
 [CmdletBinding()]
 param (
-    [Parameter(Position = 0)]
-    [string]$Mod = 'All',
-
-    [Parameter()]
+    [Parameter(Position = 0)][string]$Mod = 'All',
     [string]$OutputDir = 'Release'
 )
 
 $ErrorActionPreference = 'Stop'
-
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$workspaceRoot = Split-Path -Parent $scriptDir
-$modsRoot = Join-Path $workspaceRoot 'Source\Mods'
-$releaseDir = Join-Path $workspaceRoot $OutputDir
-
-# Fail fast ohne Spiel-Assemblies: dotnet build braucht MelonLoader/Il2CppAssemblies
-# (gleiche Aufloesung wie Directory.Build.props: $env:SCHEDULE1_PATH sonst Defaultpfad).
+. (Join-Path $PSScriptRoot 'release-manifest.ps1')
+$workspaceRoot = Split-Path -Parent $PSScriptRoot
+$modsRoot = Join-Path $workspaceRoot 'Source/Mods'
+$releaseDir = [IO.Path]::GetFullPath($OutputDir, $workspaceRoot)
 $gameDir = if ($env:SCHEDULE1_PATH) { $env:SCHEDULE1_PATH } else { 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I' }
-$probeRef = Join-Path $gameDir 'MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll'
-if (-not (Test-Path -LiteralPath $probeRef)) {
-    Write-Error "Spiel-Assemblies nicht gefunden (gesucht: $probeRef). Release-Packaging braucht eine Schedule-I-Installation — `$env:SCHEDULE1_PATH setzen oder lokal/self-hosted bauen. Siehe AGENTS.md."
-    exit 1
+$probeRef = Join-Path $gameDir 'MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll'
+if (-not (Test-Path -LiteralPath $probeRef -PathType Leaf)) {
+    throw "Game assemblies missing ($probeRef). Packaging requires a local/self-hosted Schedule I installation; set SCHEDULE1_PATH."
 }
+if (Get-Process -Name 'Schedule I' -ErrorAction SilentlyContinue) { throw 'Close Schedule I before building release packages.' }
 
-if (-not (Test-Path $releaseDir)) {
-    New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
+$allMods = @(Get-ChildItem -LiteralPath $modsRoot -Directory | Where-Object {
+    $_.Name -notin @('Shared', 'Archive', '_DiagPerfCounter') -and
+    (Test-Path -LiteralPath (Join-Path $_.FullName "src/$($_.Name).csproj") -PathType Leaf)
+} | Sort-Object Name)
+if ([string]::IsNullOrWhiteSpace($Mod) -or $Mod -eq 'All') { $targetMods = $allMods }
+else {
+    Assert-S1ReleaseModName $Mod
+    $targetMods = @($allMods | Where-Object Name -CEQ $Mod)
+    if ($targetMods.Count -ne 1) { throw "Mod '$Mod' not found in $modsRoot." }
 }
-
-# Determine list of mods to package
-# _DiagPerfCounter ist ein reines Dev-Diagnose-Tool (Reflection-Dump) und
-# gehoert nicht in Spieler-Release-Zips.
-$allMods = Get-ChildItem -Path $modsRoot -Directory | Where-Object {
-    $_.Name -ne 'Shared' -and $_.Name -ne 'Archive' -and $_.Name -ne '_DiagPerfCounter' -and (Test-Path (Join-Path $_.FullName "src\$($_.Name).csproj"))
+# Validate metadata for every requested mod before building any of them. Never invent a version.
+foreach ($modDir in $targetMods) {
+    $null = Read-S1ReleaseMetadata (Join-Path $modDir.FullName 'docs/mod.json') $modDir.Name
 }
-
-$targetMods = @()
-if ($Mod -eq 'All' -or [string]::IsNullOrWhiteSpace($Mod)) {
-    $targetMods = $allMods
-} else {
-    $found = $allMods | Where-Object { $_.Name -eq $Mod }
-    if (-not $found) {
-        # Dev-Tools/Shared bewusst anfragen -> klar melden statt hart zu brechen.
-        if ($Mod -eq 'Shared' -or $Mod -eq '_DiagPerfCounter') {
-            Write-Error "Mod '$Mod' wird bewusst nicht gepackt (nicht fuer Release vorgesehen)."
-        } else {
-            Write-Error "Mod '$Mod' not found in $modsRoot"
-        }
-        return
-    }
-    $targetMods = @($found)
-}
-
-Write-Host "=== Packaging Schedule I Mods for Release ===" -ForegroundColor Cyan
-Write-Host "Target Mods count: $($targetMods.Count)" -ForegroundColor Gray
-
-$failedMods = @()
+$null = New-Item -ItemType Directory -Path $releaseDir -Force
 
 foreach ($modDir in $targetMods) {
     $modName = $modDir.Name
-    $csprojPath = Join-Path $modDir.FullName "src\$modName.csproj"
     $docsPath = Join-Path $modDir.FullName 'docs'
     $modJsonPath = Join-Path $docsPath 'mod.json'
+    $metadata = Read-S1ReleaseMetadata $modJsonPath $modName
+    $source = Get-S1ReleaseSourceIdentity $workspaceRoot
+    Write-Host "Building $modName v$($metadata.version); HEAD $($source.Head), dirty=$($source.Dirty)" -ForegroundColor Cyan
+    # Rebuild prevents a timestamp-valid old output from being accepted as this source's artifact.
+    & dotnet build (Join-Path $modDir.FullName "src/$modName.csproj") -t:Rebuild -c Release --nologo -p:S1NoDeploy=true
+    if ($LASTEXITCODE -ne 0) { throw "Build failed for $modName (exit $LASTEXITCODE). Existing ZIP retained." }
+    Assert-S1ReleaseSourceIdentity (Get-S1ReleaseSourceIdentity $workspaceRoot) $source
 
-    # Read version
-    $version = '1.0.0'
-    if (Test-Path $modJsonPath) {
-        try {
-            $jsonContent = Get-Content $modJsonPath -Raw | ConvertFrom-Json
-            if ($jsonContent.version) {
-                $version = $jsonContent.version
-            }
-        } catch {
-            Write-Warning "[$modName] mod.json nicht parsebar ($($_.Exception.Message)) — fallback $version."
+    $dllPath = Join-Path $modDir.FullName "src/bin/Release/net6.0/$modName.dll"
+    $sharedDll = Join-Path $modsRoot 'Shared/src/bin/Release/net6.0/Shared.dll'
+    foreach ($required in @($dllPath, $sharedDll)) {
+        if (-not (Test-Path -LiteralPath $required -PathType Leaf) -or (Get-Item -LiteralPath $required).Length -le 0) {
+            throw "Required package DLL is missing or empty: $required"
         }
     }
-
-    Write-Host "`n--> Building $modName (v$version)..." -ForegroundColor Yellow
-    dotnet build $csprojPath -c Release --nologo -p:S1NoDeploy=true | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "[$modName] dotnet build fehlgeschlagen (exit $LASTEXITCODE) — Mod wird uebersprungen."
-        $failedMods += $modName
-        continue
-    }
-
-    $dllPath = Join-Path $modDir.FullName "src\bin\Release\net6.0\$modName.dll"
-    if (-not (Test-Path $dllPath)) {
-        Write-Error "Build output DLL not found at: $dllPath"
-        $failedMods += $modName
-        continue
-    }
-
-    # Prepare temp packaging staging dir
-    $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) "S1Release_$modName"
-    if (Test-Path $tempDir) { Remove-Item -Path $tempDir -Recurse -Force }
-    # Staging spiegelt die Deploy-Konvention (Directory.Build.targets, seit 2026-09):
-    #   Mods\              -> DLL + PNGs + Bundles (nur von MelonLoader ladbare Dateien)
-    #   UserData\<Mod>\    -> mod.json (Metadaten) + <Mod>.pdb (Debug-Symbole)
-    # JSON/PDB gehoeren NIEMALS nach Mods\.
-    $stagingModsDir = Join-Path $tempDir 'Mods'
-    $stagingUserDataDir = Join-Path $tempDir "UserData\$modName"
-    New-Item -ItemType Directory -Path $stagingModsDir -Force | Out-Null
-    New-Item -ItemType Directory -Path $stagingUserDataDir -Force | Out-Null
-
-    # Copy DLL -> Mods\
-    Copy-Item -Path $dllPath -Destination $stagingModsDir -Force
-
-    # Copy Shared.dll -> Mods\ (runtime dependency of every mod; ProjectReference has
-    # Private=false, so it is neither merged into the mod DLL nor copied by the build).
-    # The mod build compiles Shared as a dependency, so the Release output exists here.
-    $sharedDll = Join-Path $modsRoot 'Shared\src\bin\Release\net6.0\Shared.dll'
-    if (Test-Path $sharedDll) {
-        Copy-Item -Path $sharedDll -Destination $stagingModsDir -Force
-    } else {
-        Write-Warning "[$modName] Shared.dll not found at $sharedDll — the ZIP will not run without it."
-    }
-
-    # Copy mod.json as mod.json -> UserData\<Mod>\
-    if (Test-Path $modJsonPath) {
-        Copy-Item -Path $modJsonPath -Destination (Join-Path $stagingUserDataDir "mod.json") -Force
-    }
-
-    # Copy PDB -> UserData\<Mod>\ (wenn vom Build erzeugt)
-    $pdbPath = Join-Path (Split-Path -Parent $dllPath) "$modName.pdb"
-    if (Test-Path $pdbPath) {
-        Copy-Item -Path $pdbPath -Destination $stagingUserDataDir -Force
-    }
-
-    # Copy PNGs (src\*.png + assets\*.png, vgl. Directory.Build.targets) -> Mods\
-    $pngs = @()
-    $pngs += Get-ChildItem -Path (Join-Path $modDir.FullName 'src') -Filter '*.png' -File -ErrorAction SilentlyContinue
-    $assetsDir = Join-Path $modDir.FullName 'assets'
-    if (Test-Path $assetsDir) {
-        $pngs += Get-ChildItem -Path $assetsDir -Filter '*.png' -File -ErrorAction SilentlyContinue
-    }
-    foreach ($png in $pngs) {
-        Copy-Item -Path $png.FullName -Destination $stagingModsDir -Force
-    }
-
-    # Copy AssetBundles from assets/ -> Mods\
-    if (Test-Path $assetsDir) {
-        $bundles = Get-ChildItem -Path $assetsDir -Filter '*.bundle' -File
-        foreach ($b in $bundles) {
-            Copy-Item -Path $b.FullName -Destination $stagingModsDir -Force
-        }
-    }
-
-    # Mirror GLB deployment: models belong under Mods/<Mod>/, not Mods/.
-    if (Test-Path $assetsDir) {
-        $models = @(Get-ChildItem -LiteralPath $assetsDir -Filter '*.glb' -File)
-        if ($models.Count -gt 0) {
-            $modelDir = Join-Path $stagingModsDir $modName
-            New-Item -ItemType Directory -Path $modelDir -Force | Out-Null
-            foreach ($model in $models) {
-                Copy-Item -LiteralPath $model.FullName -Destination $modelDir -Force
+    $staging = New-S1ReleaseStagingDirectory
+    $zipPath = Join-Path $releaseDir "$modName-v$($metadata.version).zip"
+    $pendingZip = Join-Path $releaseDir ('.s1release-' + [guid]::NewGuid().ToString('N') + '.zip')
+    try {
+        $stagingMods = Join-Path $staging.Path 'Mods'
+        $stagingData = Join-Path $staging.Path "UserData/$modName"
+        $null = New-Item -ItemType Directory -Path $stagingMods, $stagingData -Force
+        Copy-Item -LiteralPath $dllPath, $sharedDll -Destination $stagingMods
+        Copy-Item -LiteralPath $modJsonPath -Destination (Join-Path $stagingData 'mod.json')
+        $pdb = Join-Path (Split-Path -Parent $dllPath) "$modName.pdb"
+        if (Test-Path -LiteralPath $pdb -PathType Leaf) { Copy-Item -LiteralPath $pdb -Destination $stagingData }
+        # Mirror Directory.Build.targets: icons/bundles in Mods, GLBs in Mods/<Mod>.
+        foreach ($assetRoot in @((Join-Path $modDir.FullName 'src'), (Join-Path $modDir.FullName 'assets'))) {
+            if (-not (Test-Path -LiteralPath $assetRoot -PathType Container)) { continue }
+            $isAssets = [IO.Path]::GetFileName($assetRoot) -eq 'assets'
+            foreach ($asset in @(Get-ChildItem -LiteralPath $assetRoot -File | Where-Object {
+                $_.Extension -eq '.png' -or ($isAssets -and $_.Extension -in @('.bundle', '.glb'))
+            })) {
+                $destination = $stagingMods
+                if ($asset.Extension -eq '.glb') {
+                    $destination = Join-Path $stagingMods $modName
+                    $null = New-Item -ItemType Directory -Path $destination -Force
+                }
+                $target = Join-Path $destination $asset.Name
+                if (Test-Path -LiteralPath $target) { throw "Duplicate package asset destination: $target" }
+                Copy-Item -LiteralPath $asset.FullName -Destination $target
             }
         }
+        foreach ($name in @('README.md', 'CHANGELOG.md')) {
+            $document = Join-Path $docsPath $name
+            if (Test-Path -LiteralPath $document -PathType Leaf) { Copy-Item -LiteralPath $document -Destination $staging.Path }
+        }
+        $null = Write-S1ReleaseManifest -StagingRoot $staging.Path -Mod $modName -Source $source
+        # Catch edits during build/copy before creating or replacing the output archive.
+        Assert-S1ReleaseSourceIdentity (Get-S1ReleaseSourceIdentity $workspaceRoot) $source
+        [IO.Compression.ZipFile]::CreateFromDirectory($staging.Path, $pendingZip, [IO.Compression.CompressionLevel]::Optimal, $false)
+        $null = Assert-S1ReleaseArchive $pendingZip $modName $metadata.version $source
+        [IO.File]::Move($pendingZip, $zipPath, $true)
+        Write-Host "Created $zipPath (manifest and payload hashes verified)." -ForegroundColor Green
+    } finally {
+        if (Test-Path -LiteralPath $pendingZip) { Remove-Item -LiteralPath $pendingZip -Force }
+        Remove-S1ReleaseStagingDirectory $staging
     }
-
-    # Copy Docs (README, CHANGELOG) to root of zip
-    $readme = Join-Path $docsPath 'README.md'
-    if (Test-Path $readme) {
-        Copy-Item -Path $readme -Destination $tempDir -Force
-    }
-    $changelog = Join-Path $docsPath 'CHANGELOG.md'
-    if (Test-Path $changelog) {
-        Copy-Item -Path $changelog -Destination $tempDir -Force
-    }
-
-    # Create Zip
-    $zipFileName = "$modName-v$version.zip"
-    $zipFilePath = Join-Path $releaseDir $zipFileName
-    if (Test-Path $zipFilePath) {
-        Remove-Item -Path $zipFilePath -Force
-    }
-
-    Compress-Archive -Path "$tempDir\*" -DestinationPath $zipFilePath -CompressionLevel Optimal
-    Remove-Item -Path $tempDir -Recurse -Force
-
-    $zipSize = (Get-Item $zipFilePath).Length / 1KB
-    Write-Host "[OK] Created $zipFileName ($([Math]::Round($zipSize, 1)) KB) in $OutputDir" -ForegroundColor Green
-}
-
-Write-Host "`n=== Packaging Complete! ===" -ForegroundColor Cyan
-
-if ($failedMods.Count -gt 0) {
-    Write-Host ("FEHLGESCHLAGEN ({0}): {1} — keine Zips fuer diese Mods." -f $failedMods.Count, ($failedMods -join ', ')) -ForegroundColor Red
-    exit 1
 }

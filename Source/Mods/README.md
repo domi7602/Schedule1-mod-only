@@ -1,6 +1,10 @@
 # Source/Mods — Mod Source Directory
 
-All **active** mods and the shared library live here, one folder per project, and are built together through `S1Mods.sln`. Archived mods are in [`../Archive/`](../Archive/) and are not part of the solution. The authoritative inventory (status, versions, verification dates) is [`AGENTS.md`](../../AGENTS.md) §2; player-facing descriptions are in the root [README](../../README.md).
+All **active** mods and the shared library live here, one folder per project, and are built together through `S1Mods.sln`. Archived mods are in [`../Archive/`](../Archive/) and are not part of the solution. The current inventory is [`AGENTS.md`](../../AGENTS.md#2-mod-inventory); verification scope and evidence live in [compatibility](../../docs/compatibility.md#verification-matrix). Player-facing descriptions are in the root [README](../../README.md).
+
+WorldLook is the only mod under active development. The inventory distinguishes completed
+mods from their separately recorded gameplay acceptance; historical checklists do not reopen
+owner-accepted work.
 
 ## Directory layout
 
@@ -19,15 +23,21 @@ Source/Mods/
 ├── CalculatorApp/              Phone: decimal calculator
 ├── CustomSkateboard/           Pro Cyber Skateboard (physics, store injection, OBJ model)
 ├── HitmanPhone/                Bounty contracts via the Messages app
-├── MessagesPlus/               Clear All + Trash for the vanilla Messages app
+├── LightControl/               Phone controls for owned lights
+├── MessagesPlus/               Inbox filters, hide/show actions and whole-app dark mode
+├── Minimap/                    HUD map and phone settings
 ├── MoreSaveSlots/              25 save slots, pagination, renaming
 ├── NotesApp/                   Phone: notes
+├── PhoneScrollFix/             Clipped home-screen icon hover
 ├── PocketShop/                 Phone: shop from anywhere
 ├── PotScanner/                 Phone: grow-pot monitor
-├── PropertyLEDs/               Experimental: RGB ceiling strips + phone + measured layouts
+├── ProductAppQoL/              Mouse/touch asking-price controls
+├── PropertyLEDs/               RGB ceiling strips, phone controls and measured layouts
 ├── StackLimitMod/              Configurable stack limits
-├── TaxiDriver/                 Feasibility spike: NPC-driven taxi (developer tool)
-└── Weather/                    Phone: weather dashboard
+├── StorageScanner/             Phone: storage overview
+├── TaxiDriver/                 NPC-driven taxi; known road/jitter limits in compatibility
+├── Weather/                    Phone: weather dashboard
+└── WorldLook/                  Active sky, light and water development
 ```
 
 Every mod folder follows the same structure (scaffolded by `Tools/new-mod.ps1`):
@@ -42,9 +52,11 @@ Every mod folder follows the same structure (scaffolded by `Tools/new-mod.ps1`):
 │   ├── mod.json                Metadata (name, author, version, description, requires) → deployed to UserData\<ModName>\
 │   ├── README.md               Player-facing documentation → copied into the release ZIP
 │   └── CHANGELOG.md            Version history, newest first
-├── assets/                     Optional: *.png icons, *.bundle, *.glb → deployed automatically
-└── tests/                      Optional notes/fixtures; real test projects live in Source/Tests/
+└── assets/                     Optional: *.png icons, *.bundle, *.glb → deployed automatically
 ```
+
+Executable tests belong in `Source/Tests/<Mod>.Tests/`. Some existing mods retain `tests/`
+for verification notes or fixtures; new scaffolds do not create a second test location.
 
 ## Why every mod is isolated
 
@@ -89,7 +101,7 @@ Changing `Shared` affects every mod: build the whole solution and run `Source/Te
 
 ## Versioning
 
-The code is the single source of truth: `[assembly: MelonInfo(typeof(X.Mod), "X", "1.2.3", "Dominik")]` (PotScanner: `Constants.ModVersion`). `Tools/bump-version.ps1 -Mod X -Version 1.2.4` synchronises `docs/mod.json`, `docs/CHANGELOG.md`, `AGENTS.md` and the root `README.md`; `Tools/check-version-sync.ps1` fails CI on any drift. Changelogs use `## x.y.z (YYYY-MM-DD) — short title` headers with the newest version first.
+The code is the single source of truth: `[assembly: MelonInfo(typeof(X.Mod), "X", "1.2.3", "Dominik")]` (PotScanner: `Constants.ModVersion`). `Tools/bump-version.ps1 -Mod X -Version 1.2.4` synchronises `<Mod>/docs/mod.json`, `<Mod>/docs/CHANGELOG.md`, `AGENTS.md` and the root `README.md`; `Tools/check-version-sync.ps1` fails CI on any drift. Changelogs use `## x.y.z (YYYY-MM-DD) — short title` headers with the newest version first.
 
 ## mod.json
 
@@ -115,18 +127,21 @@ The code is the single source of truth: `[assembly: MelonInfo(typeof(X.Mod), "X"
 
 ## Tests
 
-- `Source/Tests/<Mod>.Tests/` — xUnit projects picked up by `gen-sln.ps1`. Pure-logic tests link the source file directly (`<Compile Include="..\..\Mods\AutoPackagingStation\src\PackagingMath.cs" />`) so they run without game assemblies — this is how `AutoPackagingStation.Tests` and `CalculatorApp.Tests` run in CI.
+- `Source/Tests/<Mod>.Tests/` — xUnit projects plus the LightControl console host, picked up by `gen-sln.ps1`. Pure-logic tests link source directly so they run without game assemblies. Use `Tools/test-all.ps1` or `Tools/verify.ps1` to include both test formats.
 - `Source/Tests/Shared.Tests/` references the real MelonLoader/Unity DLLs and only runs on a machine with the game installed.
 - Keep testable logic (math, state machines, parsers) in plain static classes without Unity or S1API types so it can be linked into a test project.
 
 ## Build system essentials
 
 ```pwsh
-dotnet build Source/Mods/S1Mods.sln -c Release                     # all projects, deploys to the game
-dotnet build Source/Mods/NotesApp/src/NotesApp.csproj -c Release   # one mod
-dotnet build Source/Mods/S1Mods.sln -c Release -p:S1NoDeploy=true  # compile only
-pwsh Tools/gen-sln.ps1                                             # after adding/removing a project
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify.ps1 -Mode Pure
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/build-all.ps1 -NoDeploy
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/gen-sln.ps1 -Check
 ```
+
+These are verification commands, with deployment disabled. Use `gen-sln.ps1` without
+`-Check` only after intentionally adding/removing projects. For installation, use the
+explicit build/deploy workflow in [DEVELOPERS.md](../../DEVELOPERS.md#build).
 
 - Target framework `net6.0`, C# 12, nullable enabled, portable PDBs (`Directory.Build.props`).
 - Game path: `$env:SCHEDULE1_PATH`, fallback `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.

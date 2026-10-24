@@ -19,8 +19,8 @@ Native deep `_BaseColor` RGBA, absorption/depth exponent, ZWrite, textures and
 keywords remain unchanged. **0.2.0 deliberately supersedes the earlier material-only
 boundary**: it adds an authored shader and one reflection camera/render pass, approved
 by the owner after the material-only recipes (0.1.2/0.1.3) stayed visually close to
-vanilla. No underwater geometry or lighting changes. See [Clear Shallows](clear-shallows.md)
-for the 0.1.3 evidence and its limitations, and [reference-target](reference-target.md)
+vanilla. No underwater geometry or lighting changes. See [Clear Shallows](water-clear-shallows.md)
+for the 0.1.3 evidence and its limitations, and [reference-target](water-reference-target.md)
 for the 0.2.0 acceptance table.
 
 The previous implementation enumerated every mesh renderer every five seconds.
@@ -38,7 +38,7 @@ Shared `GameObjectResolver` was inspected but deliberately not used: its helpers
 recurse or allocate all descendant components, contrary to this narrow scope.
 
 The native property provenance and the historical natural-coast recipe are recorded
-in [material-evidence.md](material-evidence.md). That document separates installed
+in [material-evidence.md](water-material-evidence.md). That document separates installed
 asset values from artistic candidates and pending visual acceptance.
 
 ## Runtime policy

@@ -1,7 +1,7 @@
 # Native ocean material evidence and natural-coast recipe
 
 The natural-coast recipe below is historical (0.1.2). Current transparency
-candidate and acceptance limits: [Clear Shallows](clear-shallows.md).
+candidate and acceptance limits: [Clear Shallows](water-clear-shallows.md).
 
 ## Evidence provenance — 2026-10-17
 

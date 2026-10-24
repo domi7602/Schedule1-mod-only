@@ -1,6 +1,6 @@
 # GoldenHour
 
-Golden-hour look bias for Schedule I — graphics-overhaul slice 2 ([plan](../../../docs/graphics-golden-hour-plan.md)).
+Golden-hour look bias for Schedule I — graphics-overhaul slice 2 ([plan](../../../../../docs/graphics-golden-hour-plan.md)).
 
 ## What it does
 

@@ -2,13 +2,22 @@
 # Runs entirely in a scratch fake install; never touches the real game and
 # never copies a real ThirdParty DLL.
 
+[CmdletBinding()]
+param([string]$ScratchRoot)
+
 $ErrorActionPreference = 'Stop'
+# Exercise deployment only against this suite's fake installs, independently of
+# the verification runner's no-deploy environment; restore it even on exit/error.
+$fixtureInheritedNoDeploy = $env:S1NoDeploy
+try {
+$env:S1NoDeploy = $null
+
 $repo = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $preflightPath = Join-Path $repo 'Tools\check-deploy-preflight.ps1'
 $deployPath = Join-Path $repo 'Tools\deploy-thirdparty.ps1'
 $buildAllPath = Join-Path $repo 'Tools\build-all.ps1'
 
-$scratch = Join-Path $env:LOCALAPPDATA 'hermes/cache/scratch'
+$scratch = if ($ScratchRoot) { [IO.Path]::GetFullPath($ScratchRoot) } else { Join-Path $env:LOCALAPPDATA 'hermes/cache/scratch' }
 $root = Join-Path $scratch ('s1-deploy-regression-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $root -Force | Out-Null
 
@@ -352,6 +361,7 @@ $fakeRepo = Join-Path $root 'fake-repo'
 New-Item -ItemType Directory -Path (Join-Path $fakeRepo 'Tools') -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $fakeRepo 'Source\Mods') -Force | Out-Null
 Copy-Item -LiteralPath $buildAllPath -Destination (Join-Path $fakeRepo 'Tools\build-all.ps1')
+Copy-Item -LiteralPath (Join-Path $repo 'Tools/dotnet-sdk.ps1') -Destination (Join-Path $fakeRepo 'Tools/dotnet-sdk.ps1')
 Copy-Item -LiteralPath $preflightPath -Destination (Join-Path $fakeRepo 'Tools\check-deploy-preflight.ps1')
 & $dotnet new sln -n S1Mods -o (Join-Path $fakeRepo 'Source\Mods') --force 2>&1 | Out-Null
 $fakeBuildAll = Join-Path $fakeRepo 'Tools\build-all.ps1'
@@ -396,3 +406,5 @@ Write-Host ''
 Write-Host "Passed: $script:Passed | Failed: $script:Failed" -ForegroundColor Cyan
 if ($script:Failed -gt 0) { exit 1 }
 exit 0
+}
+finally { $env:S1NoDeploy = $fixtureInheritedNoDeploy }

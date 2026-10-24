@@ -1,5 +1,8 @@
 name: Release
 
+permissions:
+  contents: read
+
 # Release packaging is manual-only and only works on a runner that has
 # Schedule I installed (IL2CPP game assemblies under MelonLoader\Il2CppAssemblies).
 # GitHub-hosted runners never have the game, so package-release.ps1 fails fast
@@ -18,16 +21,21 @@ on:
 jobs:
   package:
     name: Package release ZIPs
-    runs-on: windows-latest
+    runs-on: [self-hosted, Windows, schedule1]
     timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
-      - name: Setup .NET 6 SDK
+      - name: Setup .NET 8 SDK and .NET 6 runtime
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: "6.0.x"
+          dotnet-version: |
+            8.0.x
+            6.0.x
 
       # Fail fast with a clear message instead of deep inside the packaging script.
       - name: Require game assemblies
@@ -46,10 +54,12 @@ jobs:
         env:
           # CI must never write into the local game installation (self-hosted runner).
           S1NoDeploy: "true"
+          RELEASE_MOD: ${{ inputs.mod }}
         run: |
-          $mod = "${{ inputs.mod }}"
+          $mod = $env:RELEASE_MOD
           if ([string]::IsNullOrWhiteSpace($mod)) { $mod = "All" }
-          pwsh Tools/package-release.ps1 -Mod $mod
+          pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/package-release.ps1 -Mod $mod
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Upload release ZIPs as workflow artifact
         uses: actions/upload-artifact@v7

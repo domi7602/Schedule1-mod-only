@@ -15,10 +15,10 @@ Scope: canonical build scripts, Editor-only water builder, project version, embe
 
 ## Artifact identity
 
-- `assets/embedded/worldlook-shaders.bundle`: SHA-256 `596f9f989ac5ba78e6d478dbbbad094f42ac5bc0561a6a35cef4ff3a1e3bd6bf`.
-- `assets/embedded/shader-build.json`: SHA-256 `d2b6d369ec5858e7fcbc0978ae2eebf8d24443ef69a955c92ff8da07f79e2830`.
+- `Source/Mods/WorldLook/assets/embedded/worldlook-shaders.bundle`: SHA-256 `596f9f989ac5ba78e6d478dbbbad094f42ac5bc0561a6a35cef4ff3a1e3bd6bf`.
+- `Source/Mods/WorldLook/assets/embedded/shader-build.json`: SHA-256 `d2b6d369ec5858e7fcbc0978ae2eebf8d24443ef69a955c92ff8da07f79e2830`.
 - Approved `unity/Assets/S1Mods/ReferenceWater.shader` remains byte-identical: SHA-256 `2ce7e343c100f2f9d6f93aef3380039d5ee34d2787b283dc1dde6d46ac952a47`.
-- Seven retired files were copied byte-for-byte and hash-checked under `Source/Archive/WorldLook/LegacyUnity/`; details in that folder's `retirement-hashes.json`. Original active editor scripts/metadata and top-level `assets/s1reference.bundle` were then removed. The top-level deployable bundle scan is empty.
+- Seven retired files were copied byte-for-byte and hash-checked under `Source/Archive/WorldLook/LegacyUnity/`; details in that folder's `retirement-hashes.json`. Original active editor scripts/metadata and the former top-level bundle (assets/s1reference.bundle) were then removed. The top-level deployable bundle scan is empty.
 
 The final shader receipt records 28 current source/settings/build input hashes, resolved URP/Core 14.0.12, D3D11 and Linear color space. Manifest package pins remain 14.0.11. Canonical settings/package files were not rewritten by Unity: builds used isolated source copies under the run logs.
 

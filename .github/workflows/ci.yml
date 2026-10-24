@@ -7,7 +7,6 @@ on:
     branches: ["**"]
   workflow_dispatch:
 
-# Superseded runs on the same branch are cancelled to save runner minutes.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -21,9 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          # Contract tests read pinned S1API sources (e.g. SupplierRuntimeIds.cs) from
-          # the submodule. Both submodules are public, so the runner's token clones
-          # them at the recorded gitlink SHA - no secrets involved.
+          # Contract tests read source from the pinned public submodules.
           submodules: recursive
 
       - name: Setup .NET 8 SDK and .NET 6 runtime
@@ -40,161 +37,25 @@ jobs:
           key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
           restore-keys: nuget-${{ runner.os }}-
 
-      # The mods compile against Schedule I's IL2CPP assemblies
-      # (<GameDir>\MelonLoader\Il2CppAssemblies). Those exist only where the game
-      # is installed (developer machine / self-hosted runner), never on
-      # GitHub-hosted runners. Build + game-required tests therefore run only
-      # when the assemblies are present; everything else (restore, format,
-      # game-free tests, SLN determinism, version sync, doc paths) runs always.
-      # Path resolution mirrors Directory.Build.props: SCHEDULE1_PATH, else default.
-      - name: Detect game assemblies
-        id: detect
+      - name: Verify repository
         shell: pwsh
         run: |
-          $gameDir = if ($env:SCHEDULE1_PATH) { $env:SCHEDULE1_PATH } else { 'C:\Program Files (x86)\Steam\steamapps\common\Schedule I' }
-          $probe = Join-Path $gameDir 'MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll'
-          $hasGame = Test-Path -LiteralPath $probe
-          "has-game=$($hasGame.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
-          if ($hasGame) {
-            Write-Host "Game assemblies found ($gameDir) - full validation (build + all tests)."
-          } else {
-            Write-Host "No game assemblies on this runner - build and Shared.Tests are skipped; see DEVELOPERS.md."
-          }
-
-      - name: Restore
-        shell: pwsh
-        run: |
+          $scratch = Join-Path $env:LOCALAPPDATA 'Schedule1Tools/verification'
+          "VERIFY_ARTIFACTS=$scratch" >> $env:GITHUB_ENV
           $dotnet = (Get-Command dotnet -ErrorAction Stop).Source
-          Write-Host "dotnet: $dotnet"
-          & $dotnet restore Source/Mods/S1Mods.sln
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # Hosted runners select Pure. A configured runner with game references
+          # selects Full. Both use the same local entry point, with no deployment.
+          pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify.ps1 -Mode Auto -DotnetPath $dotnet -ScratchRoot $scratch
+          exit $LASTEXITCODE
 
-      - name: Check formatting (dotnet format --verify-no-changes)
-        shell: pwsh
-        run: |
-          $dotnet = (Get-Command dotnet -ErrorAction Stop).Source
-          & $dotnet format Source/Mods/S1Mods.sln --verify-no-changes --verbosity diagnostic
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      # Tools/test-all.ps1 classifies every Source/Tests project from its csproj
-      # and fails on anything it cannot classify. Pure selection = game-free
-      # xunit suites plus the LightControl console host; game-required suites
-      # are reported as skipped, never silently omitted.
-      #
-      # S1NoDeploy is also exported here for the MSBuild children, but the runner
-      # passes -p:S1NoDeploy=true explicitly because the environment alone is not
-      # a reliable contract.
-      - name: Run game-free tests (Tools/test-all.ps1 -Selection pure)
-        env:
-          S1NoDeploy: "true"
-        shell: pwsh
-        run: |
-          $dotnet = (Get-Command dotnet -ErrorAction Stop).Source
-          pwsh -NoProfile -File Tools/test-all.ps1 -Selection pure -Configuration Release -DotnetPath $dotnet
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      - name: Build solution (Release, no deploy)
-        if: steps.detect.outputs.has-game == 'true'
-        env:
-          # CI must never write into a local game installation (self-hosted runner).
-          S1NoDeploy: "true"
-        shell: pwsh
-        run: |
-          $dotnet = (Get-Command dotnet -ErrorAction Stop).Source
-          & $dotnet build Source/Mods/S1Mods.sln -c Release --no-restore --nologo -p:S1NoDeploy=true
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      # Same runner as above, now including the game-required suites
-      # (Shared.Tests). Every project is selected by classification, including
-      # console hosts that plain 'dotnet test' would skip.
-      - name: Run all test projects (Tools/test-all.ps1 -Selection all)
-        if: steps.detect.outputs.has-game == 'true'
-        env:
-          S1NoDeploy: "true"
-        shell: pwsh
-        run: |
-          $dotnet = (Get-Command dotnet -ErrorAction Stop).Source
-          pwsh -NoProfile -File Tools/test-all.ps1 -Selection all -Configuration Release -DotnetPath $dotnet
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      # Durable runner regression suites (Tools/Tests/*.Tests.ps1). They are plain
-      # pwsh scripts, not Pester: each drives a copy of the tool it covers inside a
-      # disposable scratch repo and uses fake installs, so no game is required.
-      # Every suite is run, exit codes are aggregated explicitly, and the step
-      # fails if any suite failed (a bare pwsh call does not propagate failure).
-      - name: Run tool regression suites (Tools/Tests/*.Tests.ps1)
-        shell: pwsh
-        run: |
-          $scratch = Join-Path $env:LOCALAPPDATA "hermes\cache\scratch\tool-tests"
-          $null = New-Item -ItemType Directory -Path $scratch -Force
-          $suites = @(Get-ChildItem -LiteralPath "Tools/Tests" -Filter "*.Tests.ps1" -File | Sort-Object Name)
-          if ($suites.Count -eq 0) {
-            Write-Error "No tool regression suites found under Tools/Tests."
-            exit 1
-          }
-          $failed = @()
-          foreach ($suite in $suites) {
-            Write-Host "=== $($suite.Name) ==="
-            $suiteScratch = Join-Path $scratch $suite.BaseName
-            # Only suites that declare -ScratchRoot get it; a bare pwsh -File call
-            # would otherwise swallow the switch silently.
-            $tokens = $null; $errors = $null
-            $ast = [System.Management.Automation.Language.Parser]::ParseFile($suite.FullName, [ref]$tokens, [ref]$errors)
-            $declared = @()
-            if ($ast.ParamBlock) { $declared = @($ast.ParamBlock.Parameters.Name.VariablePath.UserPath) }
-            $suiteArgs = @("-NoProfile", "-File", $suite.FullName)
-            if ($declared -contains "ScratchRoot") { $suiteArgs += @("-ScratchRoot", $suiteScratch) }
-            & pwsh @suiteArgs
-            $code = $LASTEXITCODE
-            Write-Host "--- $($suite.Name): exit $code"
-            if ($code -ne 0) { $failed += "$($suite.Name) (exit $code)" }
-          }
-          if ($failed.Count -gt 0) {
-            Write-Error ("Tool regression suite(s) failed: " + ($failed -join ", "))
-            exit 1
-          }
-          Write-Host "All $($suites.Count) tool regression suites passed."
-
-      - name: Note skipped game-dependent steps
-        if: steps.detect.outputs.has-game != 'true'
-        shell: pwsh
-        run: |
-          Write-Host "Schedule I is not installed on this runner: solution build and game-required tests were skipped."
-          Write-Host "Full validation needs the game assemblies (build locally or on a self-hosted runner). See DEVELOPERS.md."
-
-      # The runner checks out with LF while gen-sln.ps1 writes CRLF; compare with
-      # normalised line endings so the check is checkout-independent. What matters
-      # is the content (project list, deterministic GUIDs).
-      - name: Check S1Mods.sln determinism (Tools/gen-sln.ps1)
-        shell: pwsh
-        run: |
-          $before = ((Get-Content -LiteralPath "Source/Mods/S1Mods.sln" -Raw) -replace "`r?`n", "`n")
-          pwsh Tools/gen-sln.ps1
-          if ($LASTEXITCODE -ne 0) {
-            Write-Error "Tools/gen-sln.ps1 failed (exit $LASTEXITCODE)."
-            exit $LASTEXITCODE
-          }
-          $after = ((Get-Content -LiteralPath "Source/Mods/S1Mods.sln" -Raw) -replace "`r?`n", "`n")
-          if ($before -cne $after) {
-            Write-Error "S1Mods.sln is not deterministic. Run: pwsh Tools/gen-sln.ps1 and commit the result."
-            git diff -- Source/Mods/S1Mods.sln
-            exit 1
-          }
-          Write-Host "S1Mods.sln deterministic OK."
-
-      # Version drift guard: the code (MelonInfo / Constants.ModVersion) is the
-      # single source of truth; mod.json, README.md and AGENTS.md must match
-      # (bump-version.ps1 writes all of them). Pure text check, no game needed.
-      - name: Check version sync (code <-> mod.json <-> README <-> AGENTS)
-        shell: pwsh
-        run: pwsh Tools/check-version-sync.ps1
-
-      # Documentation path guard: every repository path referenced in Markdown
-      # must exist. Pure file-system check, no game needed.
-      - name: Check documentation paths (Tools/check-doc-paths.ps1)
-        shell: pwsh
-        run: pwsh Tools/check-doc-paths.ps1
-
-  # Note: a separate s1interop analysis job was removed on 2026-09-20 because it
-  # could never run on GitHub-hosted runners (no game). s1interop remains a local,
-  # advisory pre-flight check (see CONTRIBUTING.md "IL2CPP Obligations").
+      - name: Upload verification reports and logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: verification
+          path: |
+            ${{ env.VERIFY_ARTIFACTS }}/verify-*/report.json
+            ${{ env.VERIFY_ARTIFACTS }}/verify-*/*.log
+            ${{ env.VERIFY_ARTIFACTS }}/verify-*/tests/**/*.trx
+            ${{ env.VERIFY_ARTIFACTS }}/verify-*/tests/**/*.log
+          if-no-files-found: warn

@@ -18,7 +18,7 @@ The full script always regenerates the shader bundle. It copies the pinned packa
 
 The validated D3D11 / Linear / URP 14 fixture keeps main-light, cascaded, screen-space and soft-shadow branches eligible. Its explicit bundle map includes only ReferenceWater and its eight-entry shader variant collection. The newly rebuilt bundle is loaded in the Editor and checked for the sole shader, the requested collection entries, pass availability and all 17 material properties. No custom sky or pipeline asset enters the bundle.
 
-Only after those checks does the script publish `assets/embedded/worldlook-shaders.bundle` and `assets/embedded/shader-build.json`. The nested directory intentionally avoids the repository deploy helper's nonrecursive `assets/*.bundle` scan. The logical embedded resource remains `WorldLook.Shaders.bundle`.
+Only after those checks does the script publish `Source/Mods/WorldLook/assets/embedded/worldlook-shaders.bundle` and `Source/Mods/WorldLook/assets/embedded/shader-build.json`. The nested directory intentionally avoids the repository deploy helper's nonrecursive `assets/*.bundle` scan. The logical embedded resource remains `WorldLook.Shaders.bundle`.
 
 The `.csproj` validates bundle SHA-256/size, editor/package/variant/property contracts and the exact current shader/build-source provenance before every normal C# build. A missing or stale input fails the build and requires regeneration. Original settings/lock hashes and generated fixture/resolved-lock hashes are separately recorded.
 

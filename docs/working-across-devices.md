@@ -8,7 +8,10 @@ The repository is the single source of truth for everything that ships with the 
 - Both pinned submodules: `ThirdParty/S1API` (ifBars/S1API) and `ThirdParty/S1MAPI` (domi7602/S1MAPI). Both are public, so cloning needs no GitHub login.
 - CI-enforced formatting, solution determinism and documentation checks reproduce on any clone.
 
-**Rule:** finish every session with `git add -A`, `git commit` and `git push`. Uncommitted changes, local-only branches and stashes exist only on the machine that created them — they never appear on the other device.
+Before switching devices, review the intended changes and explicitly decide what to commit
+and push. Agents must wait for Dominik's authorization; there is no automatic end-of-session
+commit or push. Uncommitted files, local-only commits and stashes do not travel to another
+device through the remote. A successful local verifier does not mean changes are published.
 
 ## What is machine-local by design (never synced)
 
@@ -21,11 +24,14 @@ The repository is the single source of truth for everything that ships with the 
 | Build outputs (bin/obj folders) | Derived artifacts | `dotnet build` |
 | The ZIPs under Release | Packaged artifacts | `pwsh Tools/package-release.ps1` |
 | `core.hooksPath` git config | Per-clone configuration | `git config core.hooksPath .githooks` |
-| Stashes and extra worktrees | Live inside one clone only | Commit and push instead of stashing |
+| Stashes and extra worktrees | Live inside one clone only | Include intended work in explicitly approved commits before synchronizing |
 
 ## New device checklist
 
-Prerequisites (current versions: [`docs/compatibility.md`](compatibility.md) · setup details: [Requirements](../DEVELOPERS.md#requirements)): Windows 10/11, a .NET SDK that can build the mod target framework, PowerShell 7, Schedule I with MelonLoader installed, and `$env:SCHEDULE1_PATH` set if the game is not in the default Steam location.
+Prerequisites (current versions: [compatibility](compatibility.md) · setup details:
+[Requirements](../DEVELOPERS.md#requirements)): Windows 10/11, .NET SDK 8+ for C# 12,
+the .NET 6 runtime for the mod/test host, PowerShell 7, Schedule I with MelonLoader,
+and `SCHEDULE1_PATH` if the game is outside the default Steam location.
 
 ```pwsh
 # 1. Clone with the pinned submodules (public repo, no login needed)
@@ -33,14 +39,21 @@ git clone --recurse-submodules https://github.com/domi7602/Schedule1-mod-only.gi
 cd Schedule1-mod-only
 
 # 2. Generate the machine-local build props (prompts for the game path if needed)
-pwsh Tools/setup-workspace.ps1
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/setup-workspace.ps1
 
 # 3. Optional: enable the pre-commit hook (format, version sync, doc paths)
 git config core.hooksPath .githooks
 
-# 4. Build (deploys to the game directory; add -p:S1NoDeploy=true to compile only)
-dotnet build Source/Mods/S1Mods.sln -c Release
+# 4. Verify with deployment disabled; keep the game closed for Full/build checks
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify.ps1 -Mode Auto
 ```
+
+Setup requires both pinned submodule templates and the local game references. It fails
+with a concrete prerequisite error before writing props if required inputs are missing.
+It does not build, install or start the game. For an unattended setup use
+`-NonInteractive -GameDir <path>`; missing required input fails instead of prompting.
+Hooks are optional: `-EnableHooks` enables them; otherwise noninteractive setup leaves
+the hook configuration alone. For installation, follow [Build](../DEVELOPERS.md#build).
 
 Verify the clone is complete:
 
@@ -48,17 +61,29 @@ Verify the clone is complete:
 git submodule status               # each line: no leading '-' (uninitialized) or '+' (mismatch)
 git status                         # clean working tree
 git log --branches --tags --not --remotes --oneline   # prints nothing when everything is pushed
-pwsh Tools/check-doc-paths.ps1     # documentation integrity
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify.ps1 -Mode Quick
 ```
 
 ## Daily rhythm when switching machines
 
-- **Before leaving a machine:** commit and push everything (`git status` clean, `git log origin/main..HEAD` empty). Do not rely on stashes.
-- **After arriving on the other machine:** `git pull --ff-only`, then `git submodule update --init --recursive` if the pull moved a submodule pointer; re-run `Tools/setup-workspace.ps1` only when the game path changed.
+- **Before leaving a machine:** inspect `git status` and the commits ahead of the intended
+  remote branch. Commit/push only the reviewed, authorized changes; retain unrelated work.
+  Local scratch, backups and saves need their own intentional transfer if required.
+- **After arriving on the other machine:** inspect local changes first, then synchronize
+  with `git pull --ff-only` and `git submodule update --init --recursive`. Preserve local
+  work if synchronization cannot proceed cleanly. Re-run setup when local paths change.
 
 ## Optional: sandboxed second workspace
 
-`Tools/new-laptop-workspace.ps1` clones the repository into a second, independent workspace and renames the remote from `origin` to `upstream`, so accidental pushes to the main repository are physically impossible. Use it for experiments; cherry-pick or merge useful commits back through a `git push` from the main workspace.
+`Tools/new-laptop-workspace.ps1` creates a new clone with recursive pinned submodules,
+renames `origin` to `upstream`, optionally adds a backup remote named `origin`, and runs
+setup. The name `upstream` is a workflow convention, **not a technical push restriction**.
+Do not publish to either remote without explicit authorization.
+
+For unattended use, supply `-TargetDir <new-directory> -NonInteractive` and the game path
+when necessary. `-BackupUrl` and `-EnableHooks` are explicit options. Existing targets
+are rejected without overwriting them. A failed new clone/setup is retained for diagnosis;
+the script reports failure instead of announcing a complete workspace.
 
 ## Auditing repository completeness (maintainer)
 

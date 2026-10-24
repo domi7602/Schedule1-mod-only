@@ -7,7 +7,8 @@
     Automates steps 2-3 of the release process (docs/release-process.md, section 4):
       1. Version-sync gate (code <-> mod.json <-> README <-> AGENTS).
       2. Clean working tree + branch pushed to origin.
-      3. Release ZIP present (runs package-release.ps1 if missing).
+      3. Release ZIP matches its manifest, current clean source and payload hashes.
+         Runs package-release.ps1 only if the ZIP is missing; stale ZIPs are refused.
       4. Annotated tag <Mod>-v<version> created and pushed.
       5. GitHub release created via 'gh release create' with the matching
          CHANGELOG.md section as release notes and the ZIP attached.
@@ -38,6 +39,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'release-manifest.ps1')
+Assert-S1ReleaseModName $Mod
 
 $workspaceRoot = Split-Path $PSScriptRoot -Parent
 $modDir = Join-Path $workspaceRoot "Source/Mods/$Mod"
@@ -48,12 +51,12 @@ if (-not (Test-Path -LiteralPath $modJsonPath)) {
     Write-Error "No docs/mod.json for mod '$Mod' ($modJsonPath). Only Source/Mods/<Mod> mods with docs/mod.json can be released."
     exit 1
 }
-if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
+if (-not $DryRun -and -not (Get-Command gh -ErrorAction SilentlyContinue)) {
     Write-Error "GitHub CLI (gh) not found. Install it (https://cli.github.com/) and run 'gh auth login'."
     exit 1
 }
 
-$meta = Get-Content $modJsonPath -Raw | ConvertFrom-Json
+$meta = Read-S1ReleaseMetadata $modJsonPath $Mod
 $version = $meta.version
 if (-not $version) {
     Write-Error "docs/mod.json for '$Mod' has no 'version' field."
@@ -69,7 +72,7 @@ Write-Host "=== Release $Mod v$version (tag: $tag) ===" -ForegroundColor Cyan
 # --- 1. Version-sync gate -----------------------------------------------------
 
 Write-Host '[1/5] Version-sync gate ...' -ForegroundColor Yellow
-& pwsh -NoProfile -File (Join-Path $workspaceRoot 'Tools/check-version-sync.ps1')
+& pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $workspaceRoot 'Tools/check-version-sync.ps1')
 if ($LASTEXITCODE -ne 0) {
     Write-Error 'Version drift detected — bump with Tools/bump-version.ps1 and commit before releasing.'
     exit 1
@@ -78,24 +81,22 @@ if ($LASTEXITCODE -ne 0) {
 # --- 2. Repository state ------------------------------------------------------
 
 Write-Host '[2/5] Repository state ...' -ForegroundColor Yellow
-$branch = (git -C $workspaceRoot rev-parse --abbrev-ref HEAD).Trim()
-$dirty = git -C $workspaceRoot status --porcelain
-if ($dirty) {
-    Write-Error 'Working tree is not clean — commit and push first (release-process.md prerequisite).'
-    exit 1
-}
-git -C $workspaceRoot fetch origin --quiet
-$localHead = (git -C $workspaceRoot rev-parse HEAD).Trim()
+$source = Get-S1ReleaseSourceIdentity $workspaceRoot
+Assert-S1ReleaseSourceIdentity $source $source -RequireClean
+$branch = Invoke-S1ReleaseGit $workspaceRoot @('rev-parse', '--abbrev-ref', 'HEAD')
+if ($branch -eq 'HEAD') { throw 'Publication requires a checked-out branch, not detached HEAD.' }
+if (-not $DryRun) { $null = Invoke-S1ReleaseGit $workspaceRoot @('fetch', 'origin', '--quiet') }
+$localHead = $source.Head
 $remoteHead = git -C $workspaceRoot rev-parse "origin/$branch" 2>$null
 if ($remoteHead -and ($localHead -ne $remoteHead.Trim())) {
     Write-Error "Local '$branch' differs from origin/$branch — push (or pull) first."
     exit 1
 }
 if (-not $remoteHead) {
-    Write-Warning "origin/$branch not found — skipping the up-to-date check."
+    throw "origin/$branch not found — cannot verify that this release commit is pushed."
 }
 $tagLocal = git -C $workspaceRoot rev-parse -q --verify "refs/tags/$tag" 2>$null
-$tagRemote = git -C $workspaceRoot ls-remote --tags origin "refs/tags/$tag" 2>$null
+$tagRemote = if ($DryRun) { '' } else { Invoke-S1ReleaseGit $workspaceRoot @('ls-remote', '--tags', 'origin', "refs/tags/$tag") }
 if ($tagLocal -or $tagRemote) {
     Write-Error "Tag '$tag' already exists local or on origin — nothing to release."
     exit 1
@@ -105,16 +106,18 @@ if ($tagLocal -or $tagRemote) {
 
 Write-Host '[3/5] Release ZIP ...' -ForegroundColor Yellow
 if (Test-Path -LiteralPath $zipPath) {
-    Write-Host "  Using existing Release/$tag.zip"
+    $null = Assert-S1ReleaseArchive $zipPath $Mod $version $source -RequireClean
+    Write-Host "  Verified existing Release/$tag.zip against current source and every payload hash."
 } elseif ($DryRun) {
     Write-Host "  [dry-run] would run: pwsh Tools/package-release.ps1 -Mod $Mod"
 } else {
-    & pwsh -NoProfile -File (Join-Path $workspaceRoot 'Tools/package-release.ps1') -Mod $Mod
+    & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $workspaceRoot 'Tools/package-release.ps1') -Mod $Mod
     if ($LASTEXITCODE -ne 0) { exit 1 }
     if (-not (Test-Path -LiteralPath $zipPath)) {
         Write-Error "package-release.ps1 did not produce $zipPath."
         exit 1
     }
+    $null = Assert-S1ReleaseArchive $zipPath $Mod $version $source -RequireClean
 }
 
 # --- 4. Release notes from the changelog --------------------------------------
@@ -138,14 +141,13 @@ $footer = @(
     'Game compatibility and per-mod verification: https://github.com/domi7602/Schedule1-mod-only/blob/main/docs/compatibility.md'
 ) -join "`n"
 $notes = (($notesBody + "`n" + $footer).Trim()) + "`n"
-$notesFile = Join-Path $env:TEMP "$tag-notes.md"
-[System.IO.File]::WriteAllText($notesFile, $notes, [System.Text.UTF8Encoding]::new($false))
-Write-Host "  Notes file: $notesFile"
+$notesFile = Join-Path ([IO.Path]::GetTempPath()) ("$tag-" + [guid]::NewGuid().ToString('N') + '-notes.md')
 Write-Host '  --- preview ---'
 $notes -split "`n" | Select-Object -First 6 | ForEach-Object { Write-Host "  | $_" }
 Write-Host '  ----------------'
 
 if ($DryRun) {
+    Write-Host '[dry-run] Remote refs were not refreshed or queried; no tag, build, notes file or release was created.'
     Write-Host "[dry-run] Would create tag '$tag', push it, and create the GitHub release (ZIP: $zipPath; draft: $($Draft.IsPresent); prerelease: $isPrerelease)." -ForegroundColor Green
     exit 0
 }
@@ -153,7 +155,12 @@ if ($DryRun) {
 # --- 5. Tag + GitHub release --------------------------------------------------
 
 Write-Host '[5/5] Creating tag and GitHub release ...' -ForegroundColor Yellow
-git -C $workspaceRoot tag -a $tag -m "$Mod v$version"
+# Recheck after packaging/notes, immediately before the first publication mutation.
+Assert-S1ReleaseSourceIdentity (Get-S1ReleaseSourceIdentity $workspaceRoot) $source -RequireClean
+$null = Assert-S1ReleaseArchive $zipPath $Mod $version $source -RequireClean
+$zipHash = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash
+[System.IO.File]::WriteAllText($notesFile, $notes, [System.Text.UTF8Encoding]::new($false))
+git -C $workspaceRoot tag -a $tag $source.Head -m "$Mod v$version"
 if ($LASTEXITCODE -ne 0) { Write-Error 'git tag failed.'; exit 1 }
 git -C $workspaceRoot push origin "refs/tags/$tag"
 if ($LASTEXITCODE -ne 0) { Write-Error 'git push of the tag failed.'; exit 1 }
@@ -161,8 +168,13 @@ if ($LASTEXITCODE -ne 0) { Write-Error 'git push of the tag failed.'; exit 1 }
 $ghArgs = @('release', 'create', $tag, $zipPath, '--title', "$Mod v$version", '--notes-file', $notesFile, '--verify-tag')
 if ($Draft) { $ghArgs += '--draft' }
 if ($isPrerelease) { $ghArgs += '--prerelease' }
-& gh @ghArgs
-if ($LASTEXITCODE -ne 0) {
+if ((Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash -cne $zipHash) {
+    throw 'ZIP changed after validation. Tag is already pushed; no GitHub release was created.'
+}
+Push-Location $workspaceRoot
+try { & gh @ghArgs; $ghExitCode = $LASTEXITCODE }
+finally { Pop-Location }
+if ($ghExitCode -ne 0) {
     $manual = @(
         'gh release create failed - the tag IS already pushed. Finish manually:'
         "  gh release create $tag `"$zipPath`" --title `"$Mod v$version`" --notes-file $notesFile"

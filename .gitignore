@@ -23,8 +23,9 @@
 
 # Unity build cache and per-user settings. The root-anchored rules above only
 # cover the repo root, so a nested Unity project (Source/Mods/WorldLook/unity)
-# needs its own patterns. `Library/` is regenerable build trash and must never
-# reach the repo; `UserSettings/` is machine-local editor state.
+# needs its own patterns. `Library/` is local generated state, including caches
+# AND build reports/diagnostics. Ignore it in Git; never delete it wholesale.
+# `UserSettings/` is machine-local editor state.
 **/Library/
 **/UserSettings/
 **/Temp/

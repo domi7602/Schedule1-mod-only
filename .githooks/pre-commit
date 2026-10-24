@@ -1,35 +1,6 @@
 #!/bin/sh
-# Pre-commit hook: format + sln determinism + knowledge path check
-# Install via: git config core.hooksPath .githooks  (or pwsh: git config core.hooksPath .githooks)
-# Bypass with: git commit --no-verify
-
+# Install: git config core.hooksPath .githooks
+# Shared quick checks; no deployment or source rewriting.
 set -e
-
-echo "[pre-commit] dotnet format --verify-no-changes ..."
-if ! dotnet format Source/Mods/S1Mods.sln --verify-no-changes --verbosity quiet; then
-  echo "  ✖ dotnet format failed — run: dotnet format Source/Mods/S1Mods.sln"
-  exit 1
-fi
-
-echo "[pre-commit] check S1Mods.sln determinism ..."
-pwsh -NoProfile -File Tools/gen-sln.ps1 >/dev/null 2>&1 || powershell -NoProfile -File Tools/gen-sln.ps1 >/dev/null 2>&1
-if ! git diff --quiet -- Source/Mods/S1Mods.sln; then
-  echo "  ✖ S1Mods.sln is not deterministic — run: pwsh Tools/gen-sln.ps1 && git add Source/Mods/S1Mods.sln"
-  exit 1
-fi
-
-# Version-Drift-Guard (Code = Single Source of Truth; vgl. CI-Schritt).
-echo "[pre-commit] version sync check (code <-> mod.json <-> README/AGENTS) ..."
-if ! pwsh -NoProfile -File Tools/check-version-sync.ps1; then
-  echo "  ✖ Version drift — fix: pwsh Tools/bump-version.ps1 -Mod <Name> -Version <X.Y.Z>"
-  exit 1
-fi
-
-# Doku-Pfad-Guard: referenzierte Repo-Pfade muessen existieren (vgl. CI-Schritt).
-echo "[pre-commit] doc path check (referenced repo paths exist) ..."
-if ! pwsh -NoProfile -File Tools/check-doc-paths.ps1; then
-  echo "  ✖ Tote Pfad-Referenzen in der Doku — fix: Pfade korrigieren oder entfernen"
-  exit 1
-fi
-
-echo "[pre-commit] OK."
+cd "$(git rev-parse --show-toplevel)"
+exec pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify.ps1 -Mode Quick

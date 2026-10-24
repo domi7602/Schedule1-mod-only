@@ -1,7 +1,7 @@
 # Reference water prototype — approved implementation slice
 
 The owner explicitly approved moving beyond material-only tuning after reviewing
-[the reference target](reference-target.md). Schedule I was closed by the owner and
+[the reference target](water-reference-target.md). Schedule I was closed by the owner and
 confirmed absent before authoring/build work. The installed 0.1.3 DLL/PDB/metadata
 are hash-checked under `.backups/WaterShader/0.1.3-before-reference/`.
 

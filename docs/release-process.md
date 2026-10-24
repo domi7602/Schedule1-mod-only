@@ -6,8 +6,9 @@ Releases are produced **per mod** and **manually**. GitHub-hosted runners do not
 
 - Schedule I installed; `$env:SCHEDULE1_PATH` set if it is not in the default Steam location.
 - MelonLoader and S1API deployed into the game directory (the build references `Mods\S1API.Il2Cpp.MelonLoader.dll`); required versions: [`docs/compatibility.md`](compatibility.md).
-- An SDK that can build the mod target framework (see `Source/Mods/Directory.Build.props`) and PowerShell 7.
-- Working tree clean, `main` up to date.
+- .NET **8 SDK** for C# 12, .NET **6 runtime** for the tests/mod target, and PowerShell 7. On this device use the global installation; do not set `DOTNET_ROOT` to the tools-only user directory.
+- Close the game before building. Packaging always passes `-p:S1NoDeploy=true`.
+- For publication: clean working tree (including submodules), `main` pushed and up to date. Commits, pushes, tags and publication require the owner's explicit instruction.
 
 ## 1. Bump the version
 
@@ -38,7 +39,9 @@ pwsh Tools/package-release.ps1 -Mod NotesApp      # one mod
 pwsh Tools/package-release.ps1                    # every active mod
 ```
 
-The script builds the mod in Release with deployment disabled, fails fast if the game assemblies are missing, and writes `Release/<ModName>-v<version>.zip` (the `Release/` folder is git-ignored). The ZIP mirrors the game directory:
+The script forces a Release rebuild with deployment disabled and writes `Release/<ModName>-v<version>.zip` (the `Release/` folder is git-ignored). Missing or invalid metadata, an absent/empty mod DLL or `Shared.dll`, missing game assemblies, an uninitialized submodule or source changes during the build/copy abort packaging. A previous ZIP is replaced only after the new archive passes verification. Each attempt uses a unique temporary directory; cleanup is confined to that owned directory.
+
+Every ZIP contains `release-manifest.json` with schema version, exact mod/version, Git HEAD, clean/dirty state, a SHA-256 source fingerprint, and the relative path, size and SHA-256 of every payload file. The source fingerprint covers tracked and nonignored untracked working-tree files, recursively including initialized submodules. The manifest itself is excluded from its payload hash list. The verifier reads the archive without extracting it and rejects missing, extra, duplicate, unsafe or hash-mismatched entries. The ZIP mirrors the game directory:
 
 ```text
 NotesApp-v1.0.4.zip
@@ -50,16 +53,27 @@ NotesApp-v1.0.4.zip
 │   ├── mod.json
 │   └── NotesApp.pdb
 ├── README.md                      copied from docs/README.md
-└── CHANGELOG.md                   copied from docs/CHANGELOG.md
+├── CHANGELOG.md                   copied from docs/CHANGELOG.md
+└── release-manifest.json          source identity + every payload hash
 ```
 
 `Shared` and the archived `_DiagPerfCounter` tool are never packaged on their own. `Shared.dll` is not versioned separately — when releasing several mods, package them from the same commit so they ship an identical `Shared.dll`.
 
-Verify the archive contains `Mods/<Mod>.dll`, `Mods/Shared.dll` and `UserData/<Mod>/mod.json` before publishing.
+Both packaging and publication verify `Mods/<Mod>.dll`, `Mods/Shared.dll` and `UserData/<Mod>/mod.json`, including metadata name/version. Dirty-tree packages remain useful for local distribution, but publication rejects them. Commit/push the intended source only when authorized, then package again from that clean commit. An old ZIP with the right filename is insufficient; legacy ZIPs without a manifest and ZIPs from another source state must be regenerated explicitly.
+
+Git-clean alone does not prove that SDK wildcard inputs are tracked. Packaging and source validation therefore reject ignored files of any extension under active mod `src/` directories (except their generated `bin/` and `obj/` trees), ignored build-control files beside/above those projects, ignored PNG/bundle/GLB runtime assets, and ignored embedded-asset inputs such as those under `Source/Mods/WorldLook/assets/embedded/`. This also covers local exclusions such as `.git/info/exclude`. For example, an ignored `LocalPatch.tmp.cs` or `src/scratch/Hidden.cs` aborts instead of being silently compiled into a supposedly clean release. Intended production inputs must be tracked or moved out of these trees. Existing linked sources/resources outside `src/` are tracked and included in the fingerprint. New custom MSBuild inputs or imports outside this bounded layout need corresponding provenance coverage before release.
+
+The manifest detects stale archives and accidental payload changes; it is not a cryptographic signature or a reproducible-build proof. Installed game/framework assemblies, toolchain versions and ignored machine configuration outside the production-input guard are outside the source fingerprint. Payload hashes identify the produced binaries, including `Shared.dll`; gameplay verification remains a separate requirement.
+
+Run the game-free release fixtures without creating a release or building mods:
+
+```pwsh
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/Tests/release.Tests.ps1
+```
 
 ## 4. Publish on GitHub
 
-1. Commit the version bump and push.
+1. With explicit owner authorization, commit the version bump and push; package from that clean commit. Regenerate a ZIP previously built from a dirty tree or another commit.
 2. Create a tag `<ModName>-v<version>` (one mod per tag keeps release notes focused) and push it.
 3. Create a GitHub release from the tag, attach the ZIP from `Release/`, and state in the notes:
    - the game version the package was verified on,
@@ -67,9 +81,11 @@ Verify the archive contains `Mods/<Mod>.dll`, `Mods/Shared.dll` and `UserData/<M
    - the changelog excerpt for this version.
 4. Update `docs/compatibility.md` if the verified game version changed.
 
-> **Automated:** steps 2–3 of this section are implemented by `Tools/release-mod.ps1` — it runs the version-sync gate, verifies a clean, pushed branch, packages the ZIP if missing, pushes the tag and creates the GitHub release with the matching CHANGELOG section as notes. Preview with `-DryRun`, review the notes with `-Draft`.
+> **Automated:** steps 2–3 of this section are implemented by `Tools/release-mod.ps1` — it runs the version-sync gate, verifies a clean, pushed branch, packages the ZIP only if missing, validates the manifest against the current source and all payload hashes, pushes the tag and creates the GitHub release with the matching CHANGELOG section as notes. An existing stale/unverifiable ZIP fails rather than being silently reused or rebuilt. The source and archive are checked again immediately before tagging. `-Draft` still pushes a tag and creates a GitHub draft release, so it is a publication operation. `-DryRun` previews locally without fetching, querying remote tags, building, writing notes, tagging or publishing; its cached remote-branch check is not proof of current remote state.
 
-Tags do **not** trigger packaging automatically (an earlier tag-push trigger failed on every run because the runner has no game). The `Release` workflow (`.github/workflows/release.yml`) can be started manually via *Run workflow* on a self-hosted Windows runner with the game installed; it runs `package-release.ps1` and uploads the ZIPs as workflow artifacts.
+Tags do **not** trigger packaging automatically. The `Release` workflow (`.github/workflows/release.yml`) is manual-only and targets a self-hosted Windows runner with the custom **`schedule1`** label. That machine must have the game, MelonLoader and framework references installed and the game closed. Checkout initializes recursive submodules; setup provides the .NET 8 SDK plus .NET 6 SDK/runtime. The input mod name is passed through an environment variable rather than interpolated into PowerShell source. Packaging has deployment disabled and uploads ZIPs as workflow artifacts; the workflow does not create GitHub releases.
+
+No available/configured `schedule1` runner is assumed. Without one, a dispatched run waits in the queue. Local `Tools/package-release.ps1` remains the supported path on this device; registering a runner is separate setup work.
 
 ## Local-only distribution
 

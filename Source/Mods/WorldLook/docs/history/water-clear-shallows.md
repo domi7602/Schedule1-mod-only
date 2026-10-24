@@ -16,7 +16,7 @@ repair remains separately owner-confirmed on 0.1.1.
 
 ## Observed contract
 
-See [material-evidence.md](material-evidence.md) for exact installed asset record
+See [material-evidence.md](water-material-evidence.md) for exact installed asset record
 provenance. The selected material references the native Stylized Water 2/Standard
 (Tessellation) shader, not an embedded custom shader.
 
@@ -100,7 +100,7 @@ shader blend/depth response and rendered submerged geometry at the test location
 Later MCP-connected follow-up: the owner reports no stutters after the startup phase
 in the currently loaded 0.1.3 world. This is scoped owner-confirmed smooth play, not
 quantitative timing or attribution of prior hitches. The owner explicitly retains
-the reference-look goal; see [Reference-driven target](reference-target.md). The
+the reference-look goal; see [Reference-driven target](water-reference-target.md). The
 visual transparency/reflection target remains unmet, not accepted by this report.
 
 Subsequent owner report: microstutters have returned during the water work while

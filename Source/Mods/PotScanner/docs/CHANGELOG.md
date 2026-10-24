@@ -245,10 +245,10 @@
 - **`PotTracker.RefreshNow()`** (Step 2): Public method for an immediate scan + `OnPotsScanned` fire. Bypasses the 2s polling delay, so the UI updates in the same frame after a click.
 - **Custom App Icon (Side Fix):** Programmatic 64×64 sprite (white droplet on blue background) via `IconSprite` override. Prevents `[PhoneApp] Icon file not found` error from S1API when `IconFileName = ""`.
 - **Constants:** `WaterAllCostPerPot = 50f` (float, matched `MoneyManager.cashBalance`).
-- **Pre-implementation Verified** (11 ilspycmd checks): `SetMoistureAmount` / `ChangeCashBalance` / `MoneyManager.Instance` / `Property.IsOwned` etc. Details: `Knowledge/decompile-tmp/pot-scanner-water-all/verification-report.md`.
+- **Pre-implementation Verified** (11 ilspycmd checks): `SetMoistureAmount` / `ChangeCashBalance` / `MoneyManager.Instance` / `Property.IsOwned` etc. Details: `Knowledge/decompile-tmp/pot-scanner-water-all/verification-report.md`. <!-- doc-paths: historical-reference (Dated evidence from the former local Knowledge directory; that directory is no longer present.) -->
 - **Save-Load Timing Fix (real-world experience):** `Property.OwnedProperties` is still empty at the `OnGameplaySceneLoaded` event (3s save-load delay). S1API's `GetOwnedProperties()` and `PropertyWrapper.IsOwned` reflect this empty state. **Solution:** Retry mechanism in `PotTracker.Tick()` (delays 3s/6s/12s/25s) refreshes the `PropertyCache` as soon as the list is populated. Plan-C IL2CPP reflection fallback as defense-in-depth. **Verified:** Retry at +3s found 12 owned, button state activated, click → 5/5 pots watered for 250g.
-- **Spec:** `Knowledge/plans/pot-scanner-water-all-spec.md` (13.5 KB).
-- **Plan:** `Knowledge/plans/pot-scanner-water-all-impl-plan.md` (11.4 KB).
+- **Spec:** `Knowledge/plans/pot-scanner-water-all-spec.md` (13.5 KB). <!-- doc-paths: historical-reference (Dated evidence from the former local Knowledge directory; that directory is no longer present.) -->
+- **Plan:** `Knowledge/plans/pot-scanner-water-all-impl-plan.md` (11.4 KB). <!-- doc-paths: historical-reference (Dated evidence from the former local Knowledge directory; that directory is no longer present.) -->
 
 ## 0.1.1
 - **Scene Symmetry Fix (User Code Review):** `OnSceneWasUnloaded` did not check `sceneName`, while `OnSceneWasLoaded` did. An additive scene unload (menu, interior, UI overlay) could wrongly deactivate the tracker, even though the gameplay scene continued to run.

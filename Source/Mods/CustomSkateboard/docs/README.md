@@ -7,7 +7,7 @@ Adds the **Pro Cyber Skateboard** to *Schedule I*: a custom high-performance boa
 - **Store integration:** the board is injected into Jeff Gilmore's `DialogueController_SkateboardSeller` options (default price `$1,500`, configurable). Injection is idempotent — reloads do not create duplicate entries.
 - **Tuned riding physics (runtime, per board instance):** higher top speed and progressive push acceleration, sharper carving (`TurnForce`, `TurnChangeRate`, `TurnReturnToRestRate`, lateral friction), configurable board lean, instant jump with a short, clamped jump duration and a forward boost on take-off. Applied in `OnMount` to the custom board only; vanilla boards (Golden Skateboard, Cruiser, …) keep their values.
 - **Anti-gravel suspension:** the custom board's `SlowOnTerrain` flag is set from `DisableTerrainSlowdown` (default on), so grass, gravel and dirt no longer slow it down. (Earlier Harmony prefixes on terrain smoothness were removed in 2026-08 because the flag alone has the same effect.)
-- **Custom visuals:** deck mesh swapped from `assets/models/custom_skateboard.obj` (generated with `assets/generate_skateboard.py` in Blender; `.blend` and `.mtl` included) plus a cyan neon underglow. Renderer filtering is strict (deck/board meshes only), so player hair, eyes and clothing are never touched.
+- **Custom visuals:** deck mesh swapped from the [custom board model](../assets/models/custom_skateboard.obj) (generated with [the Blender script](../assets/generate_skateboard.py); `.blend` and `.mtl` included) plus a cyan neon underglow. Renderer filtering is strict (deck/board meshes only), so player hair, eyes and clothing are never touched.
 - **Console commands** (S1API console, command word `skate`): `skate give` (adds the board to the inventory after verifying the item is registered), `skate stats` (prints the live board parameters), `skate help`.
 - **Resilience:** `PatchGuard`-guarded patches, cached `AnimationCurve`/`Gradient`/material instances (no per-frame allocations, `sharedMaterial` to avoid VRAM leaks), configuration validation with clamping (e.g. `TopSpeed_Kmh` is clamped to 5–300 km/h and reset to 140 if invalid).
 
@@ -63,6 +63,6 @@ Verified in-game on Schedule I v0.4.6f13 (2026-09-15, v1.1.5). Not yet re-verifi
 dotnet build Source/Mods/CustomSkateboard/src/CustomSkateboard.csproj -c Release
 ```
 
-Source layout: `src/Mod.cs` (entry, config bootstrap), `SkateboardConfig.cs`, `SkateboardItemFactory.cs` (item definition), `SkateboardSellerInjector.cs` (dialogue injection), `SkateboardVisualPatches.cs` + `CyberSkateboardVisualizer.cs` (deck swap, underglow), `ObjLoader.cs` (runtime OBJ loading with winding correction), `SkateboardConsoleCommand.cs`. The 3D model is regenerated with `assets/generate_skateboard.py` (Blender).
+Source layout: `src/Mod.cs` (entry, config bootstrap), `SkateboardConfig.cs`, `SkateboardItemFactory.cs` (item definition), `SkateboardSellerInjector.cs` (dialogue injection), `SkateboardVisualPatches.cs` + `CyberSkateboardVisualizer.cs` (deck swap, underglow), `ObjLoader.cs` (runtime OBJ loading with winding correction), `SkateboardConsoleCommand.cs`. The 3D model is regenerated with [the Blender script](../assets/generate_skateboard.py) (Blender).
 
 Author: Dominik · License: MIT (see repository `LICENSE`).

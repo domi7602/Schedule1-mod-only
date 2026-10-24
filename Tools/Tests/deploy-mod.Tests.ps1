@@ -7,6 +7,12 @@
 
 $ErrorActionPreference = 'Stop'
 
+# Exercise deployment only against this suite's fake installs, independently of
+# the verification runner's no-deploy environment; restore it even on exit/error.
+$fixtureInheritedNoDeploy = $env:S1NoDeploy
+try {
+$env:S1NoDeploy = $null
+
 $repo = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $scriptPath = Join-Path $repo 'Tools\deploy-mod.ps1'
 $targetsPath = Join-Path $repo 'Source\Mods\Directory.Build.targets'
@@ -710,3 +716,5 @@ Write-Host ''
 Write-Host "Passed: $script:Passed | Failed: $script:Failed | Skipped: $script:Skipped" -ForegroundColor Cyan
 if ($script:Failed -gt 0) { exit 1 }
 exit 0
+}
+finally { $env:S1NoDeploy = $fixtureInheritedNoDeploy }

@@ -37,8 +37,8 @@
 # explicit MSBuild property (-p:S1NoDeploy=true). The environment variable alone is
 # not trusted, because a fresh MSBuild environment may not see it.
 #
-# Preflight: dotnet --version must succeed (a runtime-only host fails here) and
-# dotnet --list-sdks must offer a .NET 8+ SDK. Either check fails the run once,
+# Preflight: dotnet --version must select SDK 8+ (a runtime-only host fails here)
+# and dotnet --list-sdks must confirm an SDK installation. Either check fails once,
 # before any project work, instead of producing one confusing error per project.
 #
 # Scope is Source/Tests, and every project found there must classify. A
@@ -63,6 +63,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+. (Join-Path $PSScriptRoot 'dotnet-sdk.ps1')
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $testsRoot = Join-Path $repoRoot "Source\Tests"
@@ -73,28 +74,6 @@ $modsRoot = Join-Path $repoRoot "Source\Mods"
 # name is absent here is a classification error, never a silent run.
 $script:ConsoleContracts = @{
     "LightControl.Tests" = 'RESULT:\s*(?<passed>\d+)/(?<total>\d+)\s+passed;\s*(?<failed>\d+)\s+failed'
-}
-
-function Resolve-DotnetPath {
-    param([string]$Requested)
-
-    if ($Requested) {
-        if (Test-Path -LiteralPath $Requested -PathType Leaf) {
-            return (Resolve-Path -LiteralPath $Requested).Path
-        }
-        $cmd = Get-Command $Requested -ErrorAction SilentlyContinue
-        if ($cmd) { return $cmd.Source }
-        throw "dotnet not found at '$Requested'."
-    }
-
-    # AGENTS.md: prefer the user-local SDK; CI/hosted runners have it on PATH.
-    $userLocal = Join-Path $env:USERPROFILE ".dotnet\dotnet.exe"
-    if (Test-Path -LiteralPath $userLocal) { return $userLocal }
-
-    $cmd = Get-Command dotnet -ErrorAction SilentlyContinue
-    if ($cmd) { return $cmd.Source }
-
-    throw "dotnet not found (checked '$userLocal' and PATH)."
 }
 
 function Test-IsSystemTemp {
@@ -144,42 +123,6 @@ function Resolve-RunnerScratch {
     }
 
     throw "No usable scratch directory: every candidate (TEST_ALL_SCRATCH, TMPDIR, TEMP, LOCALAPPDATA\hermes\cache\scratch) is the OS temp directory or unavailable."
-}
-
-function Assert-DotnetSdk {
-    param([string]$Dotnet)
-
-    # One preflight, one clear error. A runtime-only installation fails '--version';
-    # an SDK older than 8 cannot build these projects.
-    $versionOutput = @(& $Dotnet --version 2>&1)
-    $versionExit = $LASTEXITCODE
-    if ($versionExit -ne 0) {
-        throw "dotnet --version failed (exit $versionExit); only a runtime may be installed: $($versionOutput -join ' ')"
-    }
-    $version = ($versionOutput | Where-Object { $_ -match '^\d+\.\d+\.\d+' } | Select-Object -First 1)
-    if (-not $version) {
-        throw "dotnet --version produced no version number: $($versionOutput -join ' ')"
-    }
-
-    $sdkOutput = @(& $Dotnet --list-sdks 2>&1)
-    $sdkExit = $LASTEXITCODE
-    if ($sdkExit -ne 0) {
-        throw "dotnet --list-sdks failed (exit $sdkExit): $($sdkOutput -join ' ')"
-    }
-    $majors = @(
-        $sdkOutput | ForEach-Object {
-            if ($_ -match '^(?<major>\d+)\.\d+\.\d+') { [int]$Matches['major'] }
-        }
-    )
-    if ($majors.Count -eq 0) {
-        throw "No .NET SDK is installed (dotnet --list-sdks was empty); this requires SDK 8 or newer."
-    }
-    $newest = ($majors | Measure-Object -Maximum).Maximum
-    if ($newest -lt 8) {
-        throw "The newest installed .NET SDK is $newest.x; this requires SDK 8 or newer."
-    }
-
-    return ($version | Select-Object -First 1)
 }
 
 function Get-ProjectKind {
@@ -381,8 +324,8 @@ $sdkVersion = "(not resolved - list only)"
 $runScratch = $null
 if (-not $ListOnly) {
     try {
-        $dotnet = Resolve-DotnetPath -Requested $DotnetPath
-        $sdkVersion = Assert-DotnetSdk -Dotnet $dotnet
+        $dotnet = Resolve-S1DotnetPath -Requested $DotnetPath
+        $sdkVersion = Assert-S1DotnetSdk -DotnetPath $dotnet
         $resolvedScratch = if ($ScratchRoot) { [System.IO.Path]::GetFullPath($ScratchRoot) } else { Resolve-RunnerScratch }
         if (Test-IsSystemTemp -Path $resolvedScratch) {
             throw "Refusing to write test artifacts into the OS temp directory: '$resolvedScratch'."

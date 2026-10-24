@@ -23,8 +23,11 @@
 - New game-free suite `Source/Tests/S1MCP.Tests` (50 tests: both-way conversion, a full
   `0..2359` round-trip, decimal hours, text parsing and every rejection path).
   In-game acceptance of the read/write path on a real clock is **owner-confirmed 2026-10-24**
-  (the confirmation had been missing from the record and was supplied retroactively; no fresh
-  logged read+write sample was captured for it).
+  (the confirmation had been missing from the record and was supplied retroactively). A live
+  bridge check the same day confirmed the contract: `get_time_of_day` returned `time_hhmm 812`,
+  `time_minutes 492`, `display 08:12`; a no-op `set_time_of_day {hhmm: 836}` returned
+  `applied_hhmm 836`, `applied_minutes 516`, `display 08:36` with a matching readback and left
+  the clock unchanged.
 
 ## 1.0.4 (2026-10-17)
 - **New: `set_time_of_day` / `get_time_of_day`.** Reads and writes the in-game clock against

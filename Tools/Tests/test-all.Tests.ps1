@@ -56,7 +56,9 @@ if ($ScratchRoot.TrimEnd('\', '/').Equals($systemTemp, [System.StringComparison]
     $ScratchRoot.StartsWith($systemTemp + [System.IO.Path]::DirectorySeparatorChar, [System.StringComparison]::OrdinalIgnoreCase)) {
     throw "ScratchRoot must not be the OS temp directory: $ScratchRoot"
 }
-$ScratchRoot = Join-Path $ScratchRoot ("test-all-tests-" + (Get-Date -Format "yyyyMMdd-HHmmss") + "-" + [guid]::NewGuid().ToString('N').Substring(0, 8))
+# Leave room for SDK obj/bin paths when nested inside an isolated verification
+# run. Long assembly paths can surface as misleading MSB3030 missing-file errors.
+$ScratchRoot = Join-Path $ScratchRoot ("tat-" + [guid]::NewGuid().ToString('N').Substring(0, 12))
 $null = New-Item -ItemType Directory -Path $ScratchRoot -Force
 
 $script:Passed = 0
@@ -237,6 +239,7 @@ function New-FixtureRepo {
     $null = New-Item -ItemType Directory -Path (Join-Path $root "Tools") -Force
     $null = New-Item -ItemType Directory -Path (Join-Path $root "Source\Tests") -Force
     Copy-Item -LiteralPath $script:RunnerScript -Destination (Join-Path $root "Tools/test-all.ps1")
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'Tools/dotnet-sdk.ps1') -Destination (Join-Path $root 'Tools/dotnet-sdk.ps1')
     Write-FixtureFile $root "fake-dotnet.ps1" $fakeDotnetPs1
     Write-FixtureFile $root "fake-dotnet.cmd" $fakeDotnetCmd
     Write-FixtureFile $root "fake-behavior.json" "{}"
@@ -294,7 +297,7 @@ function Invoke-Runner {
 
     try {
         $runnerPath = Join-Path $Root "Tools/test-all.ps1"
-        $cliArgs = @("-NoProfile", "-File", $runnerPath) + $RunnerArgs
+        $cliArgs = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $runnerPath) + $RunnerArgs
         $output = & pwsh @cliArgs 2>&1 | Out-String
         $code = $LASTEXITCODE
     }
@@ -516,8 +519,15 @@ $fixture = New-FixtureRepo "sdk-too-old"
 Add-XunitProject -Root $fixture -Name "Placed.Tests"
 $result = Invoke-Runner -Root $fixture -RunnerArgs @("-Selection", "pure", "-ScratchRoot", (Join-Path $fixture "artifacts"), "-DotnetPath", (Get-FakeDotnetPath $fixture)) -Behavior @{ version = "6.0.100"; sdks = @("6.0.100 [C:\fake\sdk]"); test = @{ trx = "pass"; exitCode = 0 } }
 Check-Equal 2 $result.ExitCode "an SDK older than 8 aborts before running"
-Check-Match $result.Output 'SDK 8 or newer' "old SDK failure names the requirement"
+Check-Match $result.Output 'SDK.*8 or newer' "old SDK failure names the requirement"
 Check-Equal 0 @($result.Invocations | Where-Object { $_ -match '^test\s' }).Count "no project is executed after an SDK preflight failure"
+
+$fixture = New-FixtureRepo 'active-sdk-too-old'
+Add-XunitProject -Root $fixture -Name 'Placed.Tests'
+$result = Invoke-Runner -Root $fixture -RunnerArgs @('-Selection', 'pure', '-ScratchRoot', (Join-Path $fixture 'artifacts'), '-DotnetPath', (Get-FakeDotnetPath $fixture)) -Behavior @{ version = '6.0.100'; sdks = @('6.0.100 [C:\fake\sdk]', '8.0.999 [C:\fake\sdk]'); test = @{ trx = 'pass'; exitCode = 0 } }
+Check-Equal 2 $result.ExitCode 'active SDK 6 is rejected even with SDK 8 installed'
+Check-Equal 0 @($result.Invocations | Where-Object { $_ -match '^test\s' }).Count 'SDK inventory cannot bypass active-version preflight'
+Check (-not (Test-Path -LiteralPath (Join-Path $fixture 'artifacts'))) 'failed SDK preflight creates no test artifacts'
 
 $fixture = New-FixtureRepo "runtime-only"
 Add-XunitProject -Root $fixture -Name "Placed.Tests"
@@ -555,6 +565,10 @@ public class RealPassTests
 }
 '@
     $result = Invoke-Runner -Root $fixture -RunnerArgs @("-Selection", "pure", "-ScratchRoot", (Join-Path $fixture "artifacts")) -RealDotnet -Environment @{ DOTNET_CLI_TELEMETRY_OPTOUT = "1"; DOTNET_NOLOGO = "1" }
+    if ($result.ExitCode -ne 0 -or $result.Output -notmatch '1/1 passed') {
+        Write-Host "Real passing fixture failed; retained files: $fixture"
+        Write-Host $result.Output
+    }
     Check-Equal 0 $result.ExitCode "a real xunit project with one passing fact passes"
     Check-Match $result.Output '1/1 passed' "the real run reports one executed test"
 
@@ -567,6 +581,10 @@ public class RealZeroTests
 }
 '@
     $result = Invoke-Runner -Root $fixture -RunnerArgs @("-Selection", "pure", "-ScratchRoot", (Join-Path $fixture "artifacts")) -RealDotnet -Environment @{ DOTNET_CLI_TELEMETRY_OPTOUT = "1"; DOTNET_NOLOGO = "1" }
+    if ($result.ExitCode -ne 1 -or $result.Output -notmatch 'executed=0') {
+        Write-Host "Real zero-fact fixture failed unexpectedly; retained files: $fixture"
+        Write-Host $result.Output
+    }
     Check-Equal 1 $result.ExitCode "a real xunit project with no facts fails (the zero-test hole)"
     Check-Match $result.Output 'executed=0' "the real zero-fact run is rejected on its counters"
 }

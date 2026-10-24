@@ -16,13 +16,13 @@ This repository builds on, and in some places vendors, third-party components. T
 
 ## Archived / reference-only components
 
-Kept under `ThirdParty/Archive/` for reference. None of them is part of the product build or of any release ZIP.
+Tracked reference material is kept under `ThirdParty/Archive/`; local-only assets are identified below. No archived project or DLL is built or deployed. The MIT Hash command-registration source shim is the explicit exception: it is compiled into BusinessIncome and PotScanner.
 
 | Component | License | Notes |
 |---|---|---|
-| **ScheduleOne-Hash** 1.0.5 by DooDesch | MIT — see `ThirdParty/Archive/ScheduleOne-Hash/Hash_extracted/LICENSE.md` | Terminal-replacement shim; deprecated 2026-09-10, reference only. |
+| **ScheduleOne-Hash** 1.0.5 by DooDesch | MIT — see `ThirdParty/Archive/ScheduleOne-Hash/Hash_extracted/LICENSE.md` | Terminal-replacement archive, deprecated 2026-09-10. Its optional `Hash.Api/HashCommands.cs` source shim is still compiled into BusinessIncome and PotScanner; no archived DLL is deployed. |
 | **PhoneScroll** 1.4 by V4LEXL | Closed source (NexusMods download) | Only a decompile summary (`ThirdParty/Archive/PhoneScroll/README.md`) is kept; no binaries or source are redistributed. Retired 2026-09-16. |
-| **ScheduleIArcade** | Not stated in the archived files | Reference assets only (`ThirdParty/Archive/ScheduleIArcade/`). Treat as all-rights-reserved; do not reuse without clarifying the license. |
+| **ScheduleIArcade** | Not stated in the archived files | Local-only reference assets (`ThirdParty/Archive/ScheduleIArcade/`), excluded from Git since 2026-10-07 and not redistributed. Absent from fresh checkouts. Treat as all-rights-reserved; do not reuse without clarifying the license. | <!-- doc-paths: historical-reference (local-only assets excluded from Git since 2026-10-07) -->
 
 ## Assets
 
@@ -37,4 +37,4 @@ Kept under `ThirdParty/Archive/` for reference. None of them is part of the prod
 
 ---
 
-*Last updated: 2026-10-01.* When adding a third-party dependency, update this file, `ThirdParty/README.md` and the deploy policy `ThirdParty/.deployallow` together.
+*Last updated: 2026-10-24.* When adding a third-party dependency, update this file, `ThirdParty/README.md` and the deploy policy `ThirdParty/.deployallow` together.

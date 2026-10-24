@@ -57,6 +57,9 @@ Clear All, Clear Read, the un-hide actions in the "Show hidden" panel, and the l
 
 **v0.4.6: Verified, owner-confirmed; confirmation recorded 2026-10-15.** Dominik confirmed the version works in-game, closing the popup/response dark-mode repair acceptance item. The original test date and individual actions were not supplied; no new independent log or visual check was performed.
 
+The [2026-10-08 handoff](history/ingame-test-handoff-20261008.md) preserves earlier requirements,
+build evidence and the former SDK setup. It is historical, not an active test/setup guide.
+
 ## In-game test notes
 
 - **Search/filter (v0.3.0):** type a contact name → only matching rows stay; clear the field → all rows return. Switch chips → same. Close and reopen the app → view is reset. Watch for row gaps after filtering (would mean `RepositionEntries` ignores inactive entries — report it).

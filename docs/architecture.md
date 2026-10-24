@@ -19,8 +19,11 @@ Source/Mods/<ModName>/
   src/       Project and production code
   docs/      mod.json, README, CHANGELOG
   assets/    Runtime assets copied by Directory.Build.targets when present
-  tests/     Optional isolated tests; integration tests live in Source/Tests/
+  tests/     Optional existing notes/fixtures; all executable tests live in Source/Tests/
 ```
+
+New scaffolds create src, docs and assets only. Add executable test projects under
+`Source/Tests/<Mod>.Tests/` so solution generation and the shared test runner discover them.
 
 `Directory.Build.props` owns shared compiler settings and game references. Individual project files contain only identity and genuinely mod-specific inputs.
 
@@ -38,25 +41,26 @@ Source/Mods/<ModName>/
 
 The 0.8.22 driver-controller boundary uses only the driver's existing registered NPCBehaviour/patrol. Runtime AddComponent is not network initialization. Missing registration uses existing direct Navigate; an unconfirmed prior lease blocks every replacement/recovery entry point while retaining original state and bounded deadlines. No S1API, network prefab, save, player-seat or collision changes are made. See [driver binding verification](../Source/Mods/TaxiDriver/docs/driver-binding-verification.md).
 
-TaxiDriver 0.8.21 scopes private DriveFlags around parameterless UpdateSweep/UpdateSpeedReduction for the exact owned host autonomous physical taxi. Native TrafficLight filtering changes; generic obstacles and native turn/destination braking do not. Kinematic/unknown modes retain vanilla, and the unsafe historical GetWheelSweepCollision detour is not installed. Stationary native sweep comparisons can hold recovery time only for readable exclusive traffic blocking; they do not refill attempts or infer arrival. Native activation/crossing/braking acceptance remains open; see [traffic-light verification](../Source/Mods/TaxiDriver/docs/traffic-light-repair-verification.md).
+TaxiDriver 0.8.21 introduced private DriveFlags around parameterless UpdateSweep/UpdateSpeedReduction for the exact owned host autonomous physical taxi. Native TrafficLight filtering changes; generic obstacles and native turn/destination braking do not. Kinematic/unknown modes retain vanilla, and the unsafe historical GetWheelSweepCollision detour is not installed. Stationary native sweep comparisons can hold recovery time only for readable exclusive traffic blocking; they do not refill attempts or infer arrival. TaxiDriver 1.0.0 is the version-only milestone of the owner-accepted 0.8.22 code (2026-10-24); individual actions were not itemized. The earlier [traffic-light verification](../Source/Mods/TaxiDriver/docs/traffic-light-repair-verification.md) remains historical evidence, not a reopened acceptance gate.
 
 ## TaxiDriver visual wheel boundary
 
-TaxiDriver 0.8.20 writes only imported wheel-node rotations. It reads cached native wheel/rigidbody state and uses a no-slip rolling approximation plus native steering angle/membership; it does not alter wheel physics, colliders, vehicle transforms or navigation. Initial binding is bounded, and caches belong to the visual model lifetime (not each ride). Gameplay verification remains open; see [wheel verification](../Source/Mods/TaxiDriver/docs/wheel-visual-verification.md).
+The visual boundary introduced in TaxiDriver 0.8.20 writes only imported wheel-node rotations. It reads cached native wheel/rigidbody state and uses a no-slip rolling approximation plus native steering angle/membership; it does not alter wheel physics, colliders, vehicle transforms or navigation. Initial binding is bounded, and caches belong to the visual model lifetime (not each ride). See the historical [wheel verification](../Source/Mods/TaxiDriver/docs/wheel-visual-verification.md); the later owner confirmation is recorded separately in the current compatibility matrix.
 
 ## HitmanPhone audit-repair boundary
 
-HitmanPhone's candidate repair is explicitly singleplayer-only, not a host-authoritative
+HitmanPhone's repair is explicitly singleplayer-only, not a host-authoritative
 multiplayer feature. A confirmed load binds identity and write destination; gameplay only
 marks bounty state dirty. Save-start freezes a snapshot and save-complete checks the native
 result/destination before checkpoint-bound sidecar IO through SafeStorage. Unknown world
 fingerprints pause the mod rather than adopting the newest bounty file. Compatibility and
-backup copies require both matching identity and content fingerprint. This is a provisional
-engine/sidecar consistency design, not an atomic cross-filesystem transaction or native
-save/load acceptance. Item registration, evidence delivery/receipts and journal rebind
+backup copies require both matching identity and content fingerprint. This coordinates the
+engine and sidecar checkpoints; it is not an atomic cross-filesystem transaction.
+Item registration, evidence delivery/receipts and journal rebind
 remain local to HitmanPhone; no mod-to-mod dependencies are introduced. See the
 [verification record](../Source/Mods/HitmanPhone/docs/audit-repair-verification.md) for
-tested pure/source behavior and the still-open native pipeline checks.
+tested pure/source behavior, the matching native checkpoint restore and the 2026-10-24 owner
+confirmation of 0.3.0. Individual gameplay actions were not itemized in that confirmation.
 
 ## LightControl runtime and phone UI boundary
 
@@ -77,19 +81,19 @@ this slice.
 Build and pure-policy checks do not verify visible effects, native material swaps, discovery,
 reload persistence or performance. Consult the installed-version record rather than assuming a
 source change has already been deployed.
-The compact phone redesign changes only the UI and its runtime-used Unity-free selection policy:
-the full-width list opens a dedicated pending-color chooser, which applies only on Select. The
-separate seven-step intensity menu keeps immediate click-to-apply behavior; More owns mode/reset
-and counted copy actions, with the existing frozen global confirmation. Every item action binds
-the captured session and exact key and revalidates immediately before the unchanged runtime call.
-Storage, native rendering, dependencies and schema are not changed by this UI candidate. Browser
-preview checks and source/policy tests do not establish native container fit or hit testing. The
-exact retained candidate was installed without rebuilding after a separate owner go; native
-gameplay acceptance remains open. See the
-[deployment record](../Source/Mods/LightControl/docs/phone-color-picker-deployment.md).
-See the [LightControl docs](../Source/Mods/LightControl/docs/README.md) and
-[picker verification](../Source/Mods/LightControl/docs/phone-color-picker-verification.md) for current
-evidence, historical installed dev.16 audit boundaries and the remaining singleplayer acceptance.
+The graphite phone UI uses an owned 1201x655 reference canvas, a four-column table with a
+sticky heading, and a pending-color chooser with Cancel/Apply and ten choices including
+Rainbow. Seven brightness steps apply immediately; More owns mode/reset and counted copy
+actions. Every item action binds the captured session and exact key and revalidates before
+the runtime call. Unique forwarding callbacks retain per-widget listener identity.
+
+Version 0.1.0 was owner-confirmed finished on 2026-10-24; native interaction/lifecycle and
+font parity were accepted without itemized actions. Arial remains the active fallback.
+Version 0.1.1 is the later log-only Rainbow-tick repair; its deployment does not create a new
+gameplay evidence claim. See [LightControl docs](../Source/Mods/LightControl/docs/README.md),
+[graphite verification](../Source/Mods/LightControl/docs/graphite-ui-verification.md) and the
+[changelog](../Source/Mods/LightControl/docs/CHANGELOG.md). Earlier picker/deployment records
+remain historical, including the dev.16 boundaries.
 
 ## WorldLook native-sky baseline
 
@@ -97,7 +101,7 @@ The active WorldLook build is canonical under `Source/Mods/WorldLook/`. One Melo
 
 The water shader is embedded, environment-only and uses native SkyState colors with finite ambient fallback plus native wind. It owns one material clone on the exact ocean renderer; uncertain restoration retains the clone instead of clearing the slot. Camera depth/opaque request checks are not proof of actual texture contents. The shared bundle is released without destroying borrowed shader objects still referenced by uncertain consumers.
 
-F9 is a small state snapshot. Full GraphicsProbe and the standalone custom cloud-sky prototype are archived outside the active build. Original runtime observations and current candidate checks are separated in the [verification record](../Source/Mods/WorldLook/docs/native-baseline-verification.md).
+F9 is a small state snapshot. Full GraphicsProbe and the standalone custom cloud-sky prototype are archived outside the active build. The active dev.2 candidate's surface, runtime and remaining acceptance evidence is in the [water-surface record](../Source/Mods/WorldLook/docs/water-surface-verification.md); [native-baseline verification](../Source/Mods/WorldLook/docs/native-baseline-verification.md) preserves dev.1 history.
 
 ## Historical GraphicsProbe rendering discovery boundary (archived)
 
@@ -118,8 +122,8 @@ by the diagnostic itself; it uses the existing Shared dependency for safe report
 The scope, real-game acceptance gates and exclusions are recorded in
 [`graphics-probe-plan.md`](graphics-probe-plan.md). Version 0.1.1 supplied partial
 native evidence (report IO and active URP) but failed gameplay coverage; its evidence
-does not verify the repaired traversal or its frame-time behavior. Overall acceptance
-remains **In-Game-Verify open** pending a fresh real-game report and log.
+does not verify the repaired traversal or its frame-time behavior. Those acceptance gaps
+belong to the retired diagnostic and are not current work.
 
 ## Historical WaterShader render-path boundary (0.2.0 prototype)
 
@@ -151,8 +155,8 @@ recipe; the reflection path never destroys the session-owned material or writes 
 native slot. Material inspection evidence is in
 [WaterShader material evidence](../Source/Mods/WorldLook/docs/history/water-material-evidence.md).
 A passing shader-property or AssetBundle test is not visual or GPU performance
-acceptance: the look, shoreline clipping and reflection cost stay **In-Game-Verify
-open**.
+acceptance. The prototype's unresolved look, shoreline clipping and reflection-cost checks
+remain historical; the current environment-only WorldLook candidate has its own record above.
 
 ## AutoPackagingStation native prefab composition
 

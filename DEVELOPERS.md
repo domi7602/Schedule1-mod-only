@@ -27,8 +27,8 @@ cd Schedule1-mod-only
 # 2. Generate the machine-local build props (asks for the game path if it is not the Steam default)
 pwsh Tools/setup-workspace.ps1
 
-# 3. Optional: enable the git hooks — pre-commit gates (format, SLN determinism,
-#    version sync, doc paths) and pre-push (full Release build + all tests; skipped without the game)
+# 3. Optional: enable the git hooks — pre-commit Quick gates (format, SLN determinism,
+#    version sync, doc paths, skills) and pre-push Auto (Full with game refs, otherwise Pure)
 git config core.hooksPath .githooks
 
 # 4. Build everything (deploys to the game directory, see "Build")
@@ -44,7 +44,7 @@ Working from more than one machine? See [`docs/working-across-devices.md`](docs/
 | Requirement | Version | Notes |
 |---|---|---|
 | Windows | 10/11 | The build references DLLs from the installed game; PowerShell scripts assume Windows paths. |
-| .NET SDK | 8.0+ (8.0.425 user-local on the maintainer machine) | Mods target `net6.0`, but `LangVersion` 12 needs the C# 12 compiler that ships with SDK 8 — a 6.0 SDK cannot build the solution. CI installs the 8.0.x SDK plus the 6.0.x runtime. |
+| .NET SDK | 8.0+ (8.0.426 globally installed on the maintainer machine) | Mods target `net6.0`, but `LangVersion` 12 needs the C# 12 compiler that ships with SDK 8 — a 6.0 SDK cannot build the solution. CI installs the 8.0.x SDK plus the 6.0.x runtime. |
 | PowerShell | 7+ (`pwsh`) | All `Tools/*.ps1` scripts (`#Requires -Version 7` where applicable). Windows execution policy can block script execution (the effective policy depends on machine/user/host scope), so invoke them explicitly as `pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/<script>.ps1` from any shell. |
 | Schedule I | v0.4.7f12 (current runtime; older verifications on v0.4.6f13 / v0.4.7f6 / v0.4.7f9 / v0.4.7f11) | Provides `MelonLoader\Il2CppAssemblies\*.dll` and `MelonLoader\net6\*.dll` referenced by `Directory.Build.props`. |
 | MelonLoader | 0.7.3 | Must be installed into the game directory. |
@@ -52,6 +52,12 @@ Working from more than one machine? See [`docs/working-across-devices.md`](docs/
 | S1MAPI | 2.0.1 | Referenced from `<GameDir>\UserLibs\S1MAPI_Il2Cpp.dll` when present; needed by `AutoPackagingStation` and `TaxiDriver`. |
 
 Without the game assemblies the solution does **not** compile. CI on GitHub-hosted runners therefore only runs restore, formatting, the game-independent test projects, solution determinism and the documentation checks (see [CI](#formatting-and-repository-checks)).
+
+On the current maintainer machine, SDK 8.0.426 and runtimes 6.0.36 / 8.0.32 live in
+`C:\Program Files\dotnet` (2026-10-24). Call `dotnet` directly. Do not set `DOTNET_ROOT` to
+`%USERPROFILE%\.dotnet`: that directory contains tools, not a runtime, and the override makes
+testhost fail to find `hostfxr.dll`. Only use a user-local SDK fallback on a machine where
+`dotnet --list-sdks` is empty and a complete SDK/runtime is actually installed there.
 
 ## Build
 
@@ -112,11 +118,33 @@ Mod folders may contain a `tests/` directory for isolated notes or fixtures; rea
 
 ## Formatting and Repository Checks
 
-The same gates run locally, in the pre-commit hook and in CI (`.github/workflows/ci.yml`):
+Use the shared verification entry point for a consistent, no-deploy run:
+
+```pwsh
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify.ps1 -Mode Quick
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify.ps1 -Mode Pure
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify.ps1 -Mode Full
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify.ps1 -Mode Auto
+```
+
+`Quick` runs repository guards; `Pure` adds game-free tests and tool regression suites; `Full` includes a
+compile-only Release build, all test projects and tool suites, requiring the installed game references.
+`Auto` chooses the applicable test/build mode from the available references. Keep the game
+closed before a build. See [Tools/README.md](Tools/README.md) for exact checks and exit behavior.
+
+For docs, tests, ignore rules, CI or third-party changes, also verify an isolated checkout:
+
+```pwsh
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/verify-clean-checkout.ps1 -Mode Pure
+```
+
+This checks the working-tree snapshot without relying on local ignored outputs. The snapshot
+and submodule rules are documented in [Tools/README.md](Tools/README.md); neither verification
+command deploys or commits changes. The underlying gates remain directly callable:
 
 ```pwsh
 dotnet format Source/Mods/S1Mods.sln --verify-no-changes   # .editorconfig: LF, 4 spaces, final newline
-pwsh Tools/gen-sln.ps1                                     # SLN must be reproducible (no diff)
+pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/gen-sln.ps1 -Check  # read-only determinism check
 pwsh Tools/check-version-sync.ps1                          # code <-> mod.json <-> README.md <-> AGENTS.md
 pwsh Tools/check-doc-paths.ps1                             # every repo path referenced in Markdown must exist
 ```
@@ -153,8 +181,11 @@ Source/Mods/MyMod/
   docs/README.md        player-facing documentation (copied into the release ZIP)
   docs/CHANGELOG.md     version history (bump-version.ps1 prepends headers here)
   assets/               icons (*.png), bundles, GLB models — deployed automatically
-  tests/                notes or fixtures; real test projects go to Source/Tests/
 ```
+
+The scaffold does not create a placeholder `tests/` folder. Add executable tests under
+`Source/Tests/<Mod>.Tests/` and regenerate the solution; existing mod-local test notes and
+fixtures remain valid. Use the shared test runner to include both xUnit and console suites.
 
 ### Rules that every mod follows
 

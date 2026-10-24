@@ -1,4 +1,7 @@
-# Nutzung: pwsh Tools/gen-sln.ps1
+# Nutzung: pwsh Tools/gen-sln.ps1 [-Check]
+[CmdletBinding()]
+param([switch]$Check)
+
 $ErrorActionPreference = "Stop"
 
 function Get-DeterministicGuid {
@@ -19,8 +22,6 @@ $workspaceRoot = Split-Path $PSScriptRoot -Parent
 $modRoot = Join-Path $workspaceRoot "Source\Mods"
 $testRoot = Join-Path $workspaceRoot "Source\Tests"
 $sln = Join-Path $modRoot "S1Mods.sln"
-
-if (Test-Path -LiteralPath $sln) { Remove-Item -LiteralPath $sln -Force }
 
 $modProjects = Get-ChildItem -LiteralPath $modRoot -Recurse -Filter "*.csproj" | ForEach-Object {
     [PSCustomObject]@{
@@ -111,5 +112,18 @@ EndGlobal
 # MSBuild/VS parsen LF-only .sln problemlos (verifiziert 2026-09-14 via
 # `-t:ValidateSolutionConfiguration` + Solution-weitem Compile).
 $slnContent = $slnContent -replace "`r`n", "`n"
+if ($Check) {
+    if (-not (Test-Path -LiteralPath $sln -PathType Leaf)) {
+        Write-Host "Solution missing: $sln. Run Tools/gen-sln.ps1." -ForegroundColor Red
+        exit 1
+    }
+    $existing = [System.IO.File]::ReadAllText($sln) -replace "`r`n", "`n"
+    if ($existing -cne $slnContent) {
+        Write-Host "Solution differs from generated content: $sln. Run Tools/gen-sln.ps1." -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "Solution deterministic: $sln ($($projects.Count) projects; no writes)" -ForegroundColor Green
+    exit 0
+}
 Set-Content -LiteralPath $sln -Value $slnContent -Encoding UTF8 -NoNewline
 Write-Host "Solution: $sln ($($projects.Count) projects)" -ForegroundColor Green

@@ -84,7 +84,7 @@ Bug Report Round 6: N1 - JSON 'Title'/'Text': null is normalized to string.Empty
 - **Version Badge Fix**: `MelonInfo` is an assembly-level attribute → `Attribute.GetCustomAttribute(typeof(Mod).Assembly, ...)` instead of `typeof(Mod)`. The badge now correctly shows "v0.5.1" instead of "v?".
 
 ## 0.5.0
-- **Layout Fix (final)**: S1API's `UIFactory.ScrollableVerticalList` leaves `sizeDelta.x=100` of the default content GameObject behind → content 100px wider than the viewport → 50px mask clipping left + 50px right → text was clipped on the left. Workaround in `BuildListScreen`: `_listContent.sizeDelta = new Vector2(0, currentY)` right after the `UIFactory.ScrollableVerticalList` call. Details in `Knowledge/s1api-scrollableverticallist-bug.md`.
+- **Layout Fix (final)**: S1API's `UIFactory.ScrollableVerticalList` leaves `sizeDelta.x=100` of the default content GameObject behind → content 100px wider than the viewport → 50px mask clipping left + 50px right → text was clipped on the left. Workaround in `BuildListScreen`: `_listContent.sizeDelta = new Vector2(0, currentY)` right after the `UIFactory.ScrollableVerticalList` call. Details in `Knowledge/s1api-scrollableverticallist-bug.md`. <!-- doc-paths: historical-reference (Dated evidence from the former local Knowledge directory; that directory is no longer present.) -->
 - **Diagnostic Code Removed**: `NotesAppDiag` MonoBehaviour + DBG logging removed (was a debug aid during bug hunting, clean 0.5.0 without debug noise).
 - **Version Badge Dynamic**: Now read live from `MelonInfoAttribute` instead of hard-coded "v0.4".
 
