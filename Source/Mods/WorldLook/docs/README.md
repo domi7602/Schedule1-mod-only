@@ -3,7 +3,7 @@
 WorldLook combines a mild native-light adjustment with clearer coastal water. The game owns its sky, clouds, sun, moon and stars.
 
 - **Ctrl+Shift+F7:** light and water ON/OFF together for this session; the profile is not rewritten.
-- **Ctrl+Shift+F9:** small targeted state report at `UserData/WorldLook/status.json`.
+- The F9 development status dump is removed in dev.3. Existing reports are historical evidence and are retained.
 - Light: correct native HHMM conversion; mild warmth peaks at 06:00/18:00 and is neutral at noon/night. Five evidenced color channels, native drift retained, owned writes restored.
 - Water: exact `Main/Map/StylizedWater2_Ocean`, native sky/weather inputs, an owned material clone and weak environment-color reflection. The water shader is embedded in `WorldLook.dll`.
 - Full GraphicsProbe and the custom cloud-sky prototype are preserved under `Source/Archive/WorldLook/`; F8 has no WorldLook binding.
@@ -37,10 +37,14 @@ The build does not install. Deployment uses `Tools/deploy-mod.ps1` for the candi
 
 ## Verification and history
 
-- [Prepared in-game acceptance](in-game-acceptance.md): step-by-step dev.2 session, evidence capture, expected state transitions and remaining measurement prerequisites; not an executed test.
+- [Acceptance status and remaining checks](in-game-acceptance.md): owner-accepted water/ON-OFF, remaining WorldLook evidence limits and the preserved dev.2 diagnostic protocol.
 - [Water-surface verification](water-surface-verification.md): current dev.2 implementation/check status, backup and manual acceptance.
 - [Native-baseline verification](native-baseline-verification.md): historical dev.1 artifact/check status and observed morning/midday comparisons.
 - `Source/Tests/GoldenHour.Tests`, `Source/Tests/WaterShader.Tests`, `Source/Tests/WorldLook.Tests`: native-free logic/configuration checks and limited adapter contracts. Their success is not an in-game visual result.
 - [Changelog](CHANGELOG.md) and `docs/history/`: historical 0.1.x observations. The standalone 0.2.0 prototype is an archived source reference, not the current build root.
 
-Current candidate remains **In-Game-Verify open** until the native light, water, toggles and load transition have been exercised together.
+**Water and ON/OFF are owner-accepted and closed (2026-10-24, dev.2).** The dev.3 cleanup
+removes debug output without changing the shader, recipe or normal toggle behavior. It has not
+received new gameplay acceptance. It was installed and hash-verified on 2026-10-24.
+Overall WorldLook acceptance remains open for visible warmth,
+night/menu/reload and measured performance; the accepted water work is not part of that backlog.

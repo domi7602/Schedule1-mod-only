@@ -1,5 +1,12 @@
 # WorldLook
 
+## 0.3.0-dev.3 (2026-10-24)
+
+- Remove Ctrl+Shift+F9, the runtime JSON status export and water diagnostic snapshots/timing. Remove successful shader/material/input/transition detail logs. Keep F7, concise startup/toggle confirmation, and errors/fallback/restore warnings. The internal light snapshot remains for the existing lifecycle tests, with no runtime export.
+- Water shader, embedded bundle, recipes and restoration/ownership guards are unchanged. Update the existing water-wiring assertions for direct recipe calls without logging; material writes still execute.
+- **Owner acceptance recorded 2026-10-24 for the installed dev.2:** Dominik confirmed ON/OFF without errors and explicitly requested water marked finished. Water appearance and toggling are closed; retain the earlier calm-motion acceptance. The session independently captured positive light strength at 17:42 and clean OFF restoration. Details, hashes and attribution are in the [water-surface record](water-surface-verification.md#owner-acceptance-and-session--2026-10-24).
+- Installed/hash-verified 2026-10-24 with backed-up dev.2 DLL/PDB/metadata. DLL `cc9a206a2e13b3824ff25e7d8d36e4d73114eefae9beff78cfc9b1bd610ae356`; Release/Full verification 20/20 passed. No new gameplay acceptance is implied. Visible warmth, night/reload and measured performance remain separate WorldLook evidence limits, not reasons to reopen the accepted water work. Earlier F9 reports and backups are retained.
+
 ## 0.3.0-dev.2 (2026-10-23)
 
 - Focused surface/glint refinement after the dev.1 midday comparison: three advected gradient-noise detail layers, footprint filtering with retained unresolved variance, and compact bounded sun glints (authored sharpness 512). Refraction/foam keep the prior gradient and the clarity recipe is retained.

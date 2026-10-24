@@ -26,17 +26,11 @@ namespace WaterShader
         private double _nextEnvironmentRefresh;
         private double _nextInputRequirementsRefresh;
         private double _nextWarning;
-        private bool? _lastLoggedInputRequirements;
+        private bool? _lastInputRequirements;
 
         public ReferenceWaterRuntime(Action<string> log) { _log = log; }
 
         internal bool IsReady { get; private set; }
-        internal const string ReflectionMode = "environment-only";
-        internal int LastSourceCameraInstanceId { get; private set; }
-        internal bool? SceneInputsRequested { get; private set; }
-        internal string SceneInputStatus { get; private set; } = "not checked";
-        internal string MaterialStatus { get; private set; } = "not configured";
-        internal string EnvironmentStatus { get; private set; } = "not checked";
 
         internal bool Initialize()
         {
@@ -44,10 +38,7 @@ namespace WaterShader
             if (_initialized) return IsReady;
             _initialized = true;
             _nextEnvironmentRefresh = _nextInputRequirementsRefresh = _nextWarning = 0;
-            _lastLoggedInputRequirements = null;
-            LastSourceCameraInstanceId = 0;
-            SceneInputsRequested = null;
-            SceneInputStatus = "not checked";
+            _lastInputRequirements = null;
             try
             {
                 _shader = WorldLook.ShaderAssets.LoadShader("Assets/S1Mods/ReferenceWater.shader", _log);
@@ -58,7 +49,6 @@ namespace WaterShader
                     return false;
                 }
                 IsReady = true;
-                _log($"[water-shader] reference ready: shader={_shader.name} reflectionMode={ReflectionMode} ownedCameras=0");
                 return true;
             }
             catch (Exception ex)
@@ -71,10 +61,9 @@ namespace WaterShader
         }
 
         /// <summary>Prepare before publication; a stale shader contract is rejected.</summary>
-        internal bool TryConfigure(Material clone, float waterY)
+        internal bool TryConfigure(Material clone)
         {
             Detach();
-            MaterialStatus = "native recipe pending";
             Shader? shader = _shader;
             if (_disposed || !WaterEnvironment.IsUsable(clone) || !IsReady || !WaterEnvironment.IsUsable(shader)) return false;
             if (!CheckSceneInputRequirements(ResolveSourceCamera())) return false;
@@ -91,8 +80,6 @@ namespace WaterShader
                 _nativeShader = originalShader;
                 if (!UpdateEnvironment())
                     throw new InvalidOperationException("No finite native or ambient environment colors available for initial water configuration.");
-                MaterialStatus = "reference prepared";
-                _log($"[water-shader] reference material prepared: shader={shader.name} waterY={waterY:F3} properties={ReferenceWaterPolicy.RequiredShaderProperties.Length} reflectionMode={ReflectionMode}");
                 return true;
             }
             catch (Exception ex)
@@ -100,15 +87,11 @@ namespace WaterShader
                 Detach();
                 // Do not swallow a failed rollback: WaterSession must retain and clean
                 // this candidate, not publish an unconfirmed shader as a native fallback.
-                MaterialStatus = "shader rollback pending";
                 AssignShader(clone, originalShader);
-                MaterialStatus = "native recipe pending";
                 _log($"[water-shader] reference configuration rejected, native shader restored: {ex.GetType().Name}: {ex.Message}");
                 return false;
             }
         }
-
-        internal void MarkNativeRecipeConfigured() => MaterialStatus = "native recipe configured";
 
         /// <summary>Called only while the session has a confirmed applied material.</summary>
         internal void Tick()
@@ -125,7 +108,6 @@ namespace WaterShader
             if (!WaterEnvironment.SameObject(_bound!.shader, _shader!))
             {
                 Detach();
-                MaterialStatus = "foreign shader; environment updates detached";
                 return;
             }
             if (inputsDue && !CheckSceneInputRequirements(ResolveSourceCamera()))
@@ -134,7 +116,6 @@ namespace WaterShader
                 return;
             }
             if (environmentDue) UpdateEnvironment();
-            MaterialStatus = "reference active";
         }
 
         private static Camera? ResolveSourceCamera()
@@ -146,14 +127,15 @@ namespace WaterShader
         private bool CheckSceneInputRequirements(Camera? source)
         {
             _nextInputRequirementsRefresh = _clock.Elapsed.TotalSeconds + InputRequirementsRefreshSeconds;
+            bool requested;
+            string failure = "";
             try
             {
-                LastSourceCameraInstanceId = WaterEnvironment.IsUsable(source) ? source!.GetInstanceID() : 0;
                 UniversalRenderPipelineAsset? pipeline = UniversalRenderPipeline.asset;
                 if (!WaterEnvironment.IsUsable(pipeline))
                 {
-                    SceneInputsRequested = false;
-                    SceneInputStatus = "active URP asset unavailable";
+                    requested = false;
+                    failure = "active URP asset unavailable";
                 }
                 else
                 {
@@ -165,23 +147,21 @@ namespace WaterShader
                         ? data!.requiresColorOption : CameraOverrideOption.UsePipelineSettings;
                     bool depth = ResolveInputRequirement(depthOption, pipeline!.supportsCameraDepthTexture);
                     bool color = ResolveInputRequirement(colorOption, pipeline.supportsCameraOpaqueTexture);
-                    SceneInputsRequested = depth && color;
-                    SceneInputStatus = $"depth={depth} ({depthOption}), opaque={color} ({colorOption}); "
-                        + (WaterEnvironment.IsUsable(source) ? "main-camera settings" : "camera not ready; pipeline defaults")
-                        + "; request check only, not a current-frame texture-handle validation";
+                    requested = depth && color;
+                    if (!requested)
+                        failure = $"depth={depth} ({depthOption}), opaque={color} ({colorOption}); "
+                            + (WaterEnvironment.IsUsable(source) ? "main-camera settings" : "camera not ready; pipeline defaults");
                 }
             }
             catch (Exception ex)
             {
-                SceneInputsRequested = false;
-                SceneInputStatus = $"request check failed: {ex.GetType().Name}: {ex.Message}";
+                requested = false;
+                failure = $"request check failed: {ex.GetType().Name}: {ex.Message}";
             }
-            bool requested = SceneInputsRequested == true;
-            if (_lastLoggedInputRequirements != requested)
+            if (_lastInputRequirements != requested)
             {
-                _lastLoggedInputRequirements = requested;
-                _log($"[water-shader] scene inputs: {SceneInputStatus}"
-                    + (requested ? "" : "; native fallback required"));
+                _lastInputRequirements = requested;
+                if (!requested) _log($"[water-shader] scene inputs: {failure}; native fallback required");
             }
             return requested;
         }
@@ -199,19 +179,16 @@ namespace WaterShader
             Material? material = _bound;
             Shader? nativeShader = _nativeShader;
             Detach();
-            MaterialStatus = "native fallback pending";
             if (!WaterEnvironment.IsAlive(material) || !WaterEnvironment.IsAlive(nativeShader))
                 throw new InvalidOperationException("Owned water material or original shader is unavailable for fallback.");
             if (!WaterEnvironment.SameObject(material!.shader, _shader!))
             {
-                MaterialStatus = "foreign shader; fallback declined";
                 return;
             }
             // Exceptions reach the session owner, which schedules restoration of the
             // original material. Never report a successful fallback before readback.
             AssignShader(material, nativeShader!);
-            _log(WaterLookRecipe.Apply(new NativeFallbackMaterial(material)));
-            MaterialStatus = "native recipe configured";
+            WaterLookRecipe.Apply(new NativeFallbackMaterial(material));
             _log("[water-shader] native shader fallback confirmed after input requests changed; reference resumes on the next enable or scene load");
         }
 
@@ -228,8 +205,7 @@ namespace WaterShader
         private bool UpdateEnvironment()
         {
             _nextEnvironmentRefresh = _clock.Elapsed.TotalSeconds + EnvironmentRefreshSeconds;
-            bool valid = WaterEnvironment.Read(out Color sky, out Color horizon, out float wind, out string source);
-            EnvironmentStatus = source;
+            bool valid = WaterEnvironment.Read(out Color sky, out Color horizon, out float wind, out _);
             if (valid)
             {
                 _bound!.SetColor("_SkyColor", sky);
@@ -262,11 +238,6 @@ namespace WaterShader
             IsReady = false;
             _initialized = false;
             _nextEnvironmentRefresh = _nextInputRequirementsRefresh = 0;
-            LastSourceCameraInstanceId = 0;
-            SceneInputsRequested = null;
-            SceneInputStatus = "released";
-            EnvironmentStatus = "released";
-            MaterialStatus = "released";
         }
 
         public void Dispose()

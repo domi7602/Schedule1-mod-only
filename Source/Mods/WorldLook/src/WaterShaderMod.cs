@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Il2CppScheduleOne.Map;
 using MelonLoader;
@@ -24,15 +23,14 @@ namespace WaterShader
         {
             if (_session != null) return;
             _shutdown = false;
-            _reference = new ReferenceWaterRuntime(message => LoggerInstance.Msg(message));
+            _reference = new ReferenceWaterRuntime(message => LoggerInstance.Warning(message));
             if (_enabled) _reference.Initialize();
-            _runtime = new NativeWaterRuntime(message => LoggerInstance.Msg(message));
+            _runtime = new NativeWaterRuntime();
             _runtime.Reference = _reference;
             _session = new WaterSession<MeshRenderer, Material>(_runtime);
             // Handles initialization into an already loaded world, without searching objects.
             var scene = SceneManager.GetSceneByName("Main");
             if (_enabled && scene.IsValid() && scene.isLoaded) _session.Start(_clock.Elapsed.TotalSeconds);
-            LoggerInstance.Msg("[water-shader] ready — exact Main/Map/StylizedWater2_Ocean only; no world scans");
         }
 
         public void OnSceneWasLoaded(int buildIndex, string sceneName)
@@ -93,21 +91,6 @@ namespace WaterShader
             LogTransition();
         }
 
-        internal Dictionary<string, object?> GetDiagnosticsSnapshot() => new()
-        {
-            ["enabled"] = _enabled,
-            ["state"] = _session?.State.ToString() ?? "not-initialized",
-            ["lastError"] = _session?.LastError?.ToString(),
-            ["materialStatus"] = _reference?.MaterialStatus ?? "not-initialized",
-            ["referenceReady"] = _reference?.IsReady ?? false,
-            ["reflectionMode"] = ReferenceWaterRuntime.ReflectionMode,
-            ["ownedReflectionCameras"] = 0,
-            ["environmentSource"] = _reference?.EnvironmentStatus ?? "not-initialized",
-            ["sourceCameraInstanceId"] = _reference?.LastSourceCameraInstanceId ?? 0,
-            ["sceneInputsRequested"] = _reference?.SceneInputsRequested,
-            ["sceneInputStatus"] = _reference?.SceneInputStatus ?? "not-initialized"
-        };
-
         public void OnDeinitializeMelon()
         {
             if (_shutdown) return;
@@ -123,47 +106,30 @@ namespace WaterShader
             _loggedState = _session.State;
             if (_loggedState == WaterState.Faulted)
                 LoggerInstance.Warning($"[water-shader] fault; ownership retained if cleanup is uncertain: {_session.LastError}");
-            else
-                LoggerInstance.Msg($"[water-shader] {_loggedState}: Main/Map/StylizedWater2_Ocean; material={_reference?.MaterialStatus}; last discovery={_runtime!.LastDiscoveryMilliseconds:F3} ms");
         }
 
         private sealed class NativeWaterRuntime : IWaterRuntime<MeshRenderer, Material>
         {
-            private readonly Action<string> _log;
-            private float _waterY;
-            public double LastDiscoveryMilliseconds { get; private set; }
-
             /// <summary>Optional reference-shader path; null keeps the vanilla recipe.</summary>
             internal ReferenceWaterRuntime? Reference { get; set; }
 
-            public NativeWaterRuntime(Action<string> log) { _log = log; }
-
             public MeshRenderer? Discover()
             {
-                long started = Stopwatch.GetTimestamp();
-                try
-                {
-                    // Read the generated static instance field; Map owns the evidenced direct child.
-                    var map = Map.instance;
-                    if (!Alive(map)) return null;
-                    var root = map.transform;
-                    var scene = map.gameObject.scene;
-                    if (!scene.IsValid() || !scene.isLoaded || scene.name != "Main"
-                        || root.name != "Map" || root.parent != null) return null;
-                    // A single direct-child name lookup also sees an inactive ocean. No recursive
-                    // resolver, world enumeration, hierarchy arrays or broad name matching.
-                    var water = root.Find("StylizedWater2_Ocean");
-                    if (!Alive(water)) return null;
-                    var renderer = water.GetComponent<MeshRenderer>();
-                    if (!Alive(renderer)) return null;
-                    var template = renderer.sharedMaterial;
-                    _waterY = renderer.transform.position.y;
-                    return Alive(template) && Alive(template.shader) ? renderer : null;
-                }
-                finally
-                {
-                    LastDiscoveryMilliseconds = (Stopwatch.GetTimestamp() - started) * 1000.0 / Stopwatch.Frequency;
-                }
+                // Read the generated static instance field; Map owns the evidenced direct child.
+                var map = Map.instance;
+                if (!Alive(map)) return null;
+                var root = map.transform;
+                var scene = map.gameObject.scene;
+                if (!scene.IsValid() || !scene.isLoaded || scene.name != "Main"
+                    || root.name != "Map" || root.parent != null) return null;
+                // A single direct-child name lookup also sees an inactive ocean. No recursive
+                // resolver, world enumeration, hierarchy arrays or broad name matching.
+                var water = root.Find("StylizedWater2_Ocean");
+                if (!Alive(water)) return null;
+                var renderer = water.GetComponent<MeshRenderer>();
+                if (!Alive(renderer)) return null;
+                var template = renderer.sharedMaterial;
+                return Alive(template) && Alive(template.shader) ? renderer : null;
             }
 
             // Keep throwing proxy access in the session's fault boundary. Treating an unreadable
@@ -184,19 +150,17 @@ namespace WaterShader
             {
                 // A rejected reference contract must confirm shader rollback before
                 // returning false. Failed rollback escapes into session cleanup.
-                if (Reference != null && Reference.TryConfigure(clone, _waterY))
+                if (Reference != null && Reference.TryConfigure(clone))
                 {
-                    _log(ReferenceWaterLook.Apply(new NativeWaterLookMaterial(clone)));
+                    ReferenceWaterLook.Apply(new NativeWaterLookMaterial(clone));
                     return;
                 }
-                _log(WaterLookRecipe.Apply(new NativeWaterLookMaterial(clone)));
-                Reference?.MarkNativeRecipeConfigured();
+                WaterLookRecipe.Apply(new NativeWaterLookMaterial(clone));
             }
         }
 
         private sealed class Log
         {
-            public void Msg(string message) => MelonLogger.Msg(message);
             public void Warning(string message) => MelonLogger.Warning(message);
         }
 

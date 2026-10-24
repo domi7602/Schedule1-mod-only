@@ -39,11 +39,14 @@ public sealed class WaterWiringTests
     }
 
     [Fact]
-    public void RuntimeLogsAppliedRecipeInConfigurationAndDoesNotAddRenderingFeatures()
+    public void RuntimeAppliesRecipeInConfigurationAndDoesNotAddRenderingFeatures()
     {
         string source = Source();
-        Assert.Contains("new NativeWaterRuntime(message => LoggerInstance.Msg(message))", source);
-        Assert.Contains("_log(WaterLookRecipe.Apply(new NativeWaterLookMaterial(clone)))", source);
+        int configurationStart = source.IndexOf("public void ConfigureMaterial(Material clone)", StringComparison.Ordinal);
+        Assert.True(configurationStart >= 0, "the material configuration method is gone");
+        int configurationEnd = source.IndexOf("private sealed class Log", configurationStart, StringComparison.Ordinal);
+        Assert.True(configurationEnd > configurationStart);
+        Assert.Contains("WaterLookRecipe.Apply(new NativeWaterLookMaterial(clone));", source[configurationStart..configurationEnd]);
         Assert.Single(source.Split('\n'), line => line.Contains("WaterLookRecipe.Apply("));
         foreach (string forbidden in new[] { "SetTexture(", "EnableKeyword(", "DisableKeyword(", "shaderKeywords", "new Camera", "SetInt(" })
             Assert.DoesNotContain(forbidden, source);
@@ -54,7 +57,7 @@ public sealed class WaterWiringTests
     {
         string source = Source();
         Assert.Contains("ReferenceWaterLook.Apply(new NativeWaterLookMaterial(clone))", source);
-        int branchStart = source.IndexOf("if (Reference != null && Reference.TryConfigure(clone, _waterY))", StringComparison.Ordinal);
+        int branchStart = source.IndexOf("if (Reference != null && Reference.TryConfigure(clone))", StringComparison.Ordinal);
         Assert.True(branchStart >= 0, "the reference branch is gone");
         int branchReturn = source.IndexOf("return;", branchStart, StringComparison.Ordinal);
         Assert.True(branchReturn > branchStart, "the reference branch must still return early");

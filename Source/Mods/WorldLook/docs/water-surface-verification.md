@@ -1,6 +1,80 @@
 # WorldLook water-surface refinement — 0.3.0-dev.2
 
-**Installed 2026-10-23.** Parent water tests (1,167), full shader/C# build, controlled binary-bundle GPU comparison, independent shader and fixture reviews passed. DLL `410fecf7…`, bundle `29557b87…`; three installed targets and their dev.1 backups hash-verified. **First dev.2 runtime observed 2026-10-23:** active F9 confirms HHMM conversion, five readable light channels and reference water; subsequent OFF reports clean release. **In-Game-Verify open** for full visual/motion/lifecycle acceptance.
+**Water accepted by Dominik on 2026-10-24; closed.** ON/OFF is also owner-confirmed without errors. This acceptance concerns the dev.2 water candidate used in that session (DLL `410fecf7…`, bundle `29557b87…`); it is not an itemized night/reload or performance result. The later diagnostic cleanup preserves this water acceptance and does not change the shader or water recipe. The dated implementation, build, deployment and runtime evidence below remains intact.
+
+## Diagnostic cleanup deployment — dev.3, 2026-10-24
+
+The owner authorized installation, commit and push after the cleanup passed Release/Full
+verification (20/20 steps, 18 test projects including 1,167 water / 104 light / 23 settings
+tests) and isolated Pure verification (19/19). The verified DLL was reused without rebuilding
+or regenerating the unchanged shader bundle. Metadata wording was clarified to distinguish
+installation/startup from gameplay acceptance.
+
+`Tools/deploy-mod.ps1` installed exactly three files with the game closed at **19:06:17 UTC /
+21:06:17 Europe/Berlin**. Source, receipt and installed hashes match:
+
+| Installed artifact | SHA-256 |
+| --- | --- |
+| `Mods/WorldLook.dll` | `cc9a206a2e13b3824ff25e7d8d36e4d73114eefae9beff78cfc9b1bd610ae356` |
+| `UserData/WorldLook/WorldLook.pdb` | `060cadd73216cbae5b1c4b703025315385088c4910c271092df1cb7980b19edb` |
+| `UserData/WorldLook/mod.json` | `bcd72fef3bb5d333fca2d9797a121fd1a7cd36bbb3af1e0d12224f3a7e1b319a` |
+
+Receipt: `UserData/.deploy/receipts/WorldLook.20261024T190616870Z-46f33609b7ae.json`.
+The three previous dev.2 files are retained under
+`UserData/.deploy/backups/20261024T190616915Z-WorldLook-ef9a7ea7/` and match the pre-install
+hashes. Of 45 checked installed files, exactly DLL/PDB/metadata changed; 42 remained identical,
+including Shared, the startup profile and the old F9 reports. The helper reported the legacy
+external `Mods/s1reference.bundle` as stale and left it untouched; dev.3 uses its embedded bundle.
+Local plan/receipt/hash comparisons are in `.scratch/worldlook-dev3-install-20261024/`.
+The receipt truthfully records parent Git HEAD `993c867…` with a dirty working tree at installation;
+it does not claim the later commit was already present. Installation is not a new gameplay result.
+
+## Owner acceptance and session — 2026-10-24
+
+Dominik explicitly requested **"Wasser fertig abhacken und die debugs entfernen"** after confirming
+**"on off funktioniert bereits ohne fehler"**. Water appearance, including the supplied sun view,
+and normal ON/OFF use are therefore closed by owner acceptance. Do not reopen these items
+because an earlier checklist lacked a separate capture. The earlier calm morning-motion
+confirmation remains valid; this decision does not manufacture unrecorded test actions.
+
+The Steam-launched singleplayer session used the owner-selected **Dominik / SaveGame_1**
+on Schedule I **0.4.7f12**, MelonLoader **0.7.3**, WorldLook **0.3.0-dev.2**.
+The native save was backed up before launch: 44 files, 1,021,017 bytes, hashes checked.
+DLL `410fecf7dda5f079e86807942eb18ef98168201c4a9dddea124391e3d5bd1645` and embedded bundle
+`29557b87609c367e3b568d84d10400d67c980581a1e3491fbd455def9794c8ef` match the accepted candidate.
+Shared was `3520cd6719b435312f4ec2545422c5bf767d773d9ccba03bc03c7f1446381430`, rather than the
+older Shared identity in the 2026-10-23 record. Profile bytes remained
+`73b8e6dc25029a817bdcddac5487a1a8fc254597f43d57a1745cf07a559a1d65` (all enabled, Warmth 1).
+
+- **ON, 18:36:35.928 UTC / 20:36:35 local:** HHMM 1742 → 1062 minutes,
+  positive applied light strength `0.9045084971874737`, five channels, no errors or pending restores;
+  reference water active, native sky, bundle loaded through `embedded-memory`.
+- **OFF request, 20:36:42.336 local; report 18:36:47.409 UTC / 20:36:47 local:**
+  light inactive/strength 0, water `Stopped/released`, no faults or pending restores.
+  Successful re-enabling is owner-confirmed, not a second independently captured ON report.
+- Dominik explicitly labelled the **12:02 image ON** and **17:59 image OFF**, and reported
+  no visible change across the intervening hours relevant to his comparison. ON shows submerged
+  plants and a broad broken reflection; OFF shows a darker, more uniform foreground surface.
+  Time and framing differ; these are owner-contextualized pictures, not controlled GPU measurements.
+- Dominik confirmed that he closed the game himself. The log ends with deinitialization and
+  `Preferences Saved!` at 20:37:18 local. This is not a menu/reload observation.
+
+Local raw evidence remains under `.scratch/WorldLook/acceptance-20261024-182045-2ac05e86/`;
+the native-save backup remains under the matching `.backups/WorldLook/` run directory.
+These local artifacts are not promised as files in a fresh clone.
+
+| Captured artifact | SHA-256 |
+| --- | --- |
+| `03-on-off-20261024-183807/on-status.json` | `3f05e720aaffa35baae1857dbdfb26a7fd508b95f933a519b21f1c5fe6046ca3` |
+| `03-on-off-20261024-183807/off-status.json` | `6d921f2574bb3ff40d452e1f344ee5101f4ac9f89d07c91ddb2a60f180ff45ba` |
+| `03-on-off-20261024-183807/Latest.log` | `75622a874fe5f550b956889147a9e664c8fe664938ed12e803eab5f2d624be0f` |
+| `04-owner-image-labels-20261024-184116/01-owner-labelled-on-1202.png` | `1a8765a53b545d91882c1d2baafccf9245842984ebdbf22690013d1989c7aa03` |
+| `04-owner-image-labels-20261024-184116/02-owner-labelled-off-1759.png` | `9fe1c3ca109bee268adf52a9519dd6d55eeab47f2515bce2aa567d890d57aaeb` |
+
+Remaining WorldLook evidence limits: visible warmth has not received a separate owner verdict;
+night/menu/reload and quantitative frame times were not measured in this session. Positive numeric
+warmth was observed. These limits do not reopen the accepted water work. The sections below describe
+the earlier state of knowledge at their dates; the owner decision above supersedes their open water items.
 
 ## Approved scope — 2026-10-23
 
@@ -75,6 +149,6 @@ The owner supplied morning screenshots at **Wednesday 07:59 / 08:17**. By collec
 - In the 07:59 image, submerged plants/pilings remain more visible and the dark water surface is subdued. The 08:17 image shows stronger surface patterning with less submerged detail. The log sequence supports apparent ON then OFF, but the images have no explicit state labels. Camera pitch and time differ; neither image contains the strong direct-sun reflection seen in the previous midday pair. These stills therefore do not establish glint-size improvement or motion/shimmer acceptance by themselves.
 - **Owner-confirmed 2026-10-23:** in response to whether slow camera movement looked calm or visibly flickering, Dominik answered **"ruhig"**. This accepts calm surface motion/no noticed shimmer for the reported morning test. It is owner-reported observation, not a measured frame-time result or acceptance of strong-sun glints.
 
-## Runtime acceptance
+## Runtime acceptance at the 2026-10-23 checkpoint
 
 Observed: correct candidate/bundle startup, active reference-water state with native sky input, one valid HHMM-to-minutes sample and five readable light channels, followed by one reported clean OFF release. Owner confirms calm camera-motion behavior in the morning test. Pending: overall surface/direct-sun-glint judgment, positive-strength warmth, ON-after-OFF, night and menu/reload roundtrip; GPU performance is unmeasured. The captured active F9 closes the earlier missing-ON-status item; another identical capture is not required just to repeat it.

@@ -1,10 +1,40 @@
-# WorldLook dev.2 — prepared in-game acceptance
+# WorldLook — acceptance status and remaining checks
 
-Prepared 2026-10-24 for **0.3.0-dev.2**. This is a runbook and blank result checklist,
-not a completed game test. The [water-surface record](water-surface-verification.md)
-owns prior observations; [compatibility](../../../../docs/compatibility.md#verification-matrix)
-owns current acceptance. Calm morning motion was already owner-confirmed. The work below
-targets direct sun, positive warmth, state transitions and measured performance.
+## Current status — 2026-10-24
+
+**Water and ON/OFF are accepted by Dominik and closed.** His request to mark water finished
+supersedes the open water items in the original protocol below. The
+[water-surface record](water-surface-verification.md#owner-acceptance-and-session--2026-10-24)
+preserves the exact owner statements, candidate identity, screenshots, log and F9 hashes.
+
+| Item | Current result and scope |
+| --- | --- |
+| Water appearance, including supplied sun view | Accepted by owner on dev.2, 2026-10-24 |
+| Calm morning motion | Owner-confirmed 2026-10-23; remains closed |
+| ON/OFF including re-enable | Owner-confirmed without errors, 2026-10-24; captured ON→OFF additionally has clean state reports |
+| Startup ON | Expected from profile `Enabled=true`, owner-confirmed; session OFF is not persisted across a process restart |
+| Positive warmth | Numeric strength 0.9045084971874737 observed at 17:42; visible effect not separately accepted |
+| Native night, menu/reload, named save/scene roundtrip | Not separately observed in this session |
+| Comparable frame timings | Not measured; recorder and acceptance budget still pending |
+
+The dev.3 cleanup removes F9 and normal diagnostic chatter. **Do not request fresh F9 reports
+from dev.3** or reinterpret retained dev.2 `status.json` files as current state. Keep the old
+reports and backups as evidence. The water shader/recipe and F7 behavior are unchanged;
+the cleanup build was installed and hash-verified on 2026-10-24, with no new gameplay acceptance.
+
+For remaining WorldLook work, use labelled visual observations and `MelonLoader/Latest.log`
+with the actual candidate/slot/time. Night/menu/reload checks and any raw frame-time experiment
+need their own observed results. Do not add hidden debug output again or reopen accepted water
+merely to fill the original protocol. Measured performance requires a verified recorder and
+an agreed budget; a screenshot, log timestamp or average FPS is not that measurement.
+
+## Historical dev.2 protocol — prepared before the owner session
+
+The following protocol and original blank checklist are retained to interpret the archived
+dev.2 reports. They are **not the current backlog** and their F9 commands apply only to the
+older dev.2 diagnostic build. Current results above supersede their original blank
+statuses. The [compatibility matrix](../../../../docs/compatibility.md#verification-matrix)
+owns the repository-wide summary.
 
 ## 1. Establish the candidate and session
 

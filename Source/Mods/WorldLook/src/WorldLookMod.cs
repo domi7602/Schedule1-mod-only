@@ -1,12 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using MelonLoader;
 using S1Mods.Shared;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(WorldLook.WorldLookMod), "WorldLook", "0.3.0-dev.2", "Dominik")]
+[assembly: MelonInfo(typeof(WorldLook.WorldLookMod), "WorldLook", "0.3.0-dev.3", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace WorldLook;
@@ -21,7 +19,6 @@ public sealed class WorldLookMod : MelonMod
     private readonly WaterShader.WaterShaderMod _water = new();
     private readonly ModLogger _log = new("WorldLook");
     private WorldLookSettings _settings = new();
-    private string _configPath = "unavailable";
     private bool _sessionEnabled;
     private bool _lightingInitialized;
     private bool _waterInitialized;
@@ -34,9 +31,9 @@ public sealed class WorldLookMod : MelonMod
     {
         try
         {
-            _configPath = SafeStorage.GetUserDataPath("WorldLook", "WorldLook.json");
-            _settings = WorldLookSettings.Load(() => File.ReadAllText(_configPath),
-                json => SafeStorage.SaveTextAtomic(_configPath, json, _log), message => _log.Warn(message));
+            string configPath = SafeStorage.GetUserDataPath("WorldLook", "WorldLook.json");
+            _settings = WorldLookSettings.Load(() => File.ReadAllText(configPath),
+                json => SafeStorage.SaveTextAtomic(configPath, json, _log), message => _log.Warn(message));
         }
         catch (Exception ex)
         {
@@ -51,7 +48,7 @@ public sealed class WorldLookMod : MelonMod
             _lighting.SetEnabled(_sessionEnabled && _settings.LightingEnabled, _settings.Warmth);
         }
         catch (Exception ex) { LightingFault("initialization", ex); }
-        _log.Info($"v{Info.Version} initialized. Native sky; mild light warmth={_settings.Warmth:0.00}; water={_settings.WaterEnabled}. Ctrl+Shift+F7: look on/off; Ctrl+Shift+F9: targeted status. Profile: {_configPath}");
+        _log.Info($"v{Info.Version} initialized. Ctrl+Shift+F7: look on/off (session only).");
     }
 
     public override void OnLateInitializeMelon()
@@ -137,7 +134,6 @@ public sealed class WorldLookMod : MelonMod
                 _log.Info("Look requested " + (_sessionEnabled ? "ON" : "OFF") +
                     $" (session only; lightingFault={_lightingFaulted}, waterFault={_waterFaulted}).");
             }
-            if (Input.GetKeyDown(KeyCode.F9)) WriteTargetedStatus();
         }
         catch (Exception ex)
         {
@@ -145,42 +141,6 @@ public sealed class WorldLookMod : MelonMod
             _inputErrorLogged = true;
             _log.Warn("Shortcut handling unavailable", ex);
         }
-    }
-
-    private void WriteTargetedStatus()
-    {
-        try
-        {
-            var report = new Dictionary<string, object?>
-            {
-                ["capturedUtc"] = DateTime.UtcNow.ToString("O"),
-                ["version"] = Info.Version,
-                ["lookRequested"] = _sessionEnabled,
-                ["mainLoaded"] = NetworkGuard.IsInMainScene,
-                ["skyMode"] = "native",
-                ["nativeSkybox"] = DescribeNativeSkybox(),
-                ["configPath"] = _configPath,
-                ["lightingFaulted"] = _lightingFaulted,
-                ["waterFaulted"] = _waterFaulted,
-                ["lighting"] = _lighting.GetDiagnosticsSnapshot(),
-                ["water"] = _water.GetDiagnosticsSnapshot(),
-                ["shaderBundleHash"] = ShaderAssets.BundleHash,
-                ["shaderLoadRoute"] = ShaderAssets.LoadRoute,
-                ["measurementNote"] = "Targeted state only; no scene scan, GPU pixel or performance measurement."
-            };
-            string json = JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true });
-            string path = SafeStorage.GetUserDataPath("WorldLook", "status.json");
-            if (SafeStorage.SaveTextAtomic(path, json, _log)) _log.Info("Targeted status written: " + path);
-        }
-        catch (Exception ex) { _log.Warn("Targeted status unavailable", ex); }
-    }
-
-    private static string DescribeNativeSkybox()
-    {
-        var material = RenderSettings.skybox;
-        if (!NetworkGuard.IsAlive(material)) return "unavailable";
-        var shader = material.shader;
-        return material.name + " / " + (NetworkGuard.IsAlive(shader) ? shader.name : "shader unavailable");
     }
 
     private void LightingFault(string phase, Exception ex)

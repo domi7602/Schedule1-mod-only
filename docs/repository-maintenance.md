@@ -106,21 +106,23 @@ silently upgraded to individually verified actions.
 
 ## Remaining native work: WorldLook
 
-WorldLook 0.3.0-dev.2 is the only active development mod. Its
+WorldLook is the only active development mod; its **water work and ON/OFF are owner-accepted
+and closed as of 2026-10-24**. The
 [canonical water-surface record](../Source/Mods/WorldLook/docs/water-surface-verification.md)
-identifies DLL `410fecf7…` and bundle `29557b87…`, the inherited 1,167 water tests,
-GPU/build reviews and owner-confirmed calm morning motion. No new native check is
-claimed by repository maintenance.
+identifies the accepted dev.2 DLL `410fecf7…` and bundle `29557b87…`, prior GPU/build reviews,
+calm morning motion, the fresh ON→OFF reports and Dominik's acceptance. The dev.3 diagnostic
+cleanup leaves the shader/recipe unchanged and was installed/hash-verified on 2026-10-24;
+no new gameplay acceptance is claimed.
 
-The [prepared in-game runbook](../Source/Mods/WorldLook/docs/in-game-acceptance.md) orders
-the remaining checks and evidence capture. Preparation on 2026-10-24 verified the installed
-candidate/profile identity and preserved the existing reports without starting the game.
-It claims no new runtime acceptance. Quantitative frame-time work still needs a verified
-recorder and an owner-agreed performance budget.
+The [acceptance record and protocol](../Source/Mods/WorldLook/docs/in-game-acceptance.md)
+separates closed water work from remaining WorldLook evidence. Positive numeric warmth was
+observed at 17:42. Quantitative frame-time work still needs a verified recorder and an
+owner-agreed performance budget. F9 is removed in dev.3; existing reports remain historical.
 
-- [ ] Overall/direct-sun appearance.
-- [ ] Positive warmth near 06:00 or 18:00; zero strength after 07:30 is expected.
-- [ ] ON after OFF, then night and menu/save/scene reload.
+- [x] Water appearance, including direct sun; owner accepted 2026-10-24.
+- [x] ON/OFF including re-enable; owner confirmed without errors 2026-10-24.
+- [ ] Visible positive warmth near 06:00 or 18:00; positive numeric strength already observed.
+- [ ] Native night and menu/save/scene reload; not separately observed.
 - [ ] Comparable ON/OFF game frame-time measurements.
 
 Owner-accepted mods remain closed, including the version-only Minimap/TaxiDriver releases.

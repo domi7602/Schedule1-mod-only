@@ -101,7 +101,7 @@ The active WorldLook build is canonical under `Source/Mods/WorldLook/`. One Melo
 
 The water shader is embedded, environment-only and uses native SkyState colors with finite ambient fallback plus native wind. It owns one material clone on the exact ocean renderer; uncertain restoration retains the clone instead of clearing the slot. Camera depth/opaque request checks are not proof of actual texture contents. The shared bundle is released without destroying borrowed shader objects still referenced by uncertain consumers.
 
-F9 is a small state snapshot. Full GraphicsProbe and the standalone custom cloud-sky prototype are archived outside the active build. The active dev.2 candidate's surface, runtime and remaining acceptance evidence is in the [water-surface record](../Source/Mods/WorldLook/docs/water-surface-verification.md); [native-baseline verification](../Source/Mods/WorldLook/docs/native-baseline-verification.md) preserves dev.1 history.
+Dev.3 removes the F9 snapshot and normal diagnostic chatter; F7, concise startup/toggle messages and error/fallback warnings remain. The water shader, recipe and ownership/restore guards are unchanged. Full GraphicsProbe and the standalone custom cloud-sky prototype are archived outside the active build. The [water-surface record](../Source/Mods/WorldLook/docs/water-surface-verification.md) preserves dev.2 runtime evidence and the owner's closed water/ON-OFF acceptance; [native-baseline verification](../Source/Mods/WorldLook/docs/native-baseline-verification.md) preserves dev.1 history.
 
 ## Historical GraphicsProbe rendering discovery boundary (archived)
 

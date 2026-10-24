@@ -17,8 +17,6 @@ internal static class ShaderAssets
     private static readonly HashSet<string> FailedAssets = new(StringComparer.Ordinal);
     private static AssetBundle? _bundle;
     private static bool _attempted;
-    internal static string BundleHash { get; private set; } = "not-loaded";
-    internal static string LoadRoute { get; private set; } = "not-loaded";
 
     public static Shader? LoadShader(string assetPath, Action<string> log)
     {
@@ -31,7 +29,6 @@ internal static class ShaderAssets
             if (shader == null || !shader.isSupported)
                 throw new InvalidDataException("Shader missing or unsupported: " + assetPath);
             Shaders.Add(assetPath, shader);
-            log("[assets] Loaded shader " + shader.name);
             return shader;
         }
         catch (Exception ex)
@@ -56,20 +53,19 @@ internal static class ShaderAssets
             using var buffer = new MemoryStream((int)stream.Length);
             stream.CopyTo(buffer);
             byte[] bytes = buffer.ToArray();
-            BundleHash = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
             _bundle = TryLoadFromMemory(bytes, log);
-            if (_bundle != null) LoadRoute = "embedded-memory";
-            else
+            if (_bundle == null)
             {
+                string bundleHash = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
                 string directory = SafeStorage.GetUserDataPath("WorldLook", "ShaderCache");
                 Directory.CreateDirectory(directory);
-                string path = Path.Combine(directory, BundleHash + ".bundle");
+                string path = Path.Combine(directory, bundleHash + ".bundle");
                 bool matches = false;
                 if (File.Exists(path))
                 {
                     byte[] old = File.ReadAllBytes(path);
                     matches = old.Length == bytes.Length &&
-                        Convert.ToHexString(SHA256.HashData(old)).Equals(BundleHash, StringComparison.OrdinalIgnoreCase);
+                        Convert.ToHexString(SHA256.HashData(old)).Equals(bundleHash, StringComparison.OrdinalIgnoreCase);
                 }
                 if (!matches)
                 {
@@ -83,15 +79,12 @@ internal static class ShaderAssets
                     finally { try { if (File.Exists(temporary)) File.Delete(temporary); } catch { } }
                 }
                 _bundle = AssetBundle.LoadFromFile(path);
-                LoadRoute = "embedded-cache";
             }
             if (_bundle == null) throw new InvalidDataException("Unity rejected the embedded bundle.");
-            log($"[assets] route={LoadRoute}, bytes={bytes.Length}, sha256={BundleHash}");
             return true;
         }
         catch (Exception ex)
         {
-            LoadRoute = "failed";
             log("[assets] Water shader unavailable; native recipe retained: " + ex.GetType().Name + ": " + ex.Message);
             return false;
         }

@@ -42,7 +42,6 @@ public sealed class Mod
         GameLifecycle.OnLoadComplete += OnLoadComplete;
         _loading = false;
         _initialized = true;
-        _log.Info("native lighting initialized — enabled state and warmth are controlled by WorldLook.");
     }
 
     public void SetEnabled(bool enabled, double warmth)
@@ -109,10 +108,10 @@ public sealed class Mod
         GameLifecycle.OnLoadComplete -= OnLoadComplete;
         ReleaseWorld();
         if (_targets.PendingRestores > 0)
-            _log.Warn($"lighting shutdown has {_targets.PendingRestores} unresolved color restores; see F9/errors.");
+            _log.Warn($"lighting shutdown has {_targets.PendingRestores} unresolved color restores.");
     }
 
-    /// <summary>Small cached status only; taking diagnostics does not resolve native resources.</summary>
+    /// <summary>Cached lifecycle state for wiring tests; reading it does not resolve native resources.</summary>
     public Dictionary<string, object?> GetDiagnosticsSnapshot() => new()
     {
         ["desiredEnabled"] = _desiredEnabled,
