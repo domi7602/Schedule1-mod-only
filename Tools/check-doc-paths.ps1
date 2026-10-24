@@ -50,7 +50,16 @@ $workspaceRoot = Split-Path $PSScriptRoot -Parent
 # (GameReferences/.gitignore:1) — Doku (README.md) referenziert ihn bewusst,
 # der Pfad ist nach `pwsh Tools/bootstrap-game-references.ps1` lokal vorhanden,
 # aber nie Teil des Worktrees.
-$defaultAllow = @('^GameReferences/decompiled(/|$)')
+# ThirdParty/<Submodule>/local.build.props: von `Tools/setup-workspace.ps1`
+# erzeugt und per .gitignore ausgeschlossen. Die generische "gitignored = lokal
+# OK"-Toleranz (siehe Test-Schleife) kann diese Pfade NICHT abdecken: `git
+# check-ignore` bricht fuer Pfade innerhalb eines Submodules mit exit 128 ab
+# ("Pathspec ... is in submodule"), statt eine Regel zu liefern. Ohne diesen
+# Eintrag wird der Pfad auf einem frischen Clone/CI als toter Link gemeldet.
+$defaultAllow = @(
+    '^GameReferences/decompiled(/|$)'
+    '^ThirdParty/[^/]+/local\.build\.props$'
+)
 $Allow = $defaultAllow + $Allow
 
 # Submodule: Inhalt existiert erst nach `git submodule update --init --recursive`.
