@@ -62,9 +62,7 @@ gameplay acceptance record and it does not replace `docs/compatibility.md`.
   installed DLLs require an explicit owner-managed upgrade and are never silently overwritten.
 - [ ] Game-launch race after preflight remains: keep the game closed until deployment finishes.
 - [ ] Complete the native checks below with the owner; no new gameplay session was run by the agent.
-- **Working tree state (2026-10-24):** clean and synced with `origin/main` at the start of this
-  pass; the S1MCP clock fix, the Minimap `SearchStore`, the retired-probe clean-up and the
-  documentation updates are new local changes. No commit, push or history rewrite is authorized.
+- **Working tree state:** `git status` and `git log` are the source of truth for what is committed; this record is not. Never assume the tree is clean or synced because an older line here said so, and never commit, push or rewrite history without explicit authorization.
 
 ### Guardrails
 
@@ -177,20 +175,6 @@ excluded from every list below.
   - [ ] Save/reload roundtrip per slot (including per-room overrides).
   - [ ] Historical 0.1.4 UI acceptance does **not** cover 0.1.8.
 
-### Minimap 2.3.5-dev.1
-
-- **Evidence:** 215 tests; Release build 0 warnings/errors. The versioned `SearchStore` is new
-  and **not runtime-wired**. Details: `Source/Mods/Minimap/docs/search-mode-phase0.md`.
-- **Open native checks:**
-  - [ ] Waypoint create/rename/colour/delete and A → B → A retention; the slot file survives a
-    reload.
-  - [ ] HUD markers, police heat ring, health bar and portrait/name settings at real range.
-  - [ ] Settings persistence and per-slot applied state.
-  - [ ] `minimap searchdev` stays opt-in/read-only.
-  - [ ] Search mode itself is **not** testable yet: production adapter/world binding, curated
-    area, Hints page, overlay and marker suppression are unimplemented. The Phase-0 experiments
-    R1/R2/R3 are prerequisites, not checkbox items.
-
 ### WorldLook 0.3.0-dev.2
 
 - **Evidence:** 1,167 water tests, full build 0/0, controlled GPU comparison and independent
@@ -230,6 +214,12 @@ excluded from every list below.
   `Source/Mods/TaxiDriver/docs/driver-binding-verification.md`. Known and accepted, not blockers:
   road-correction/jitter on some routes; multiplayer is out of scope (owner does not play MP),
   so the seat/STOP guards stay unverified in code.
+- **Minimap 2.3.5** — **verified, owner-confirmed 2026-10-24** (Dominik confirmed the work
+  is finished; actions not itemized). Stable release of the accepted 2.3.5-dev.1 code (only the
+  version string changed). 215 tests, Release 0 warnings/errors, DLL `8C133F11…` deployed and
+  hash-matched. **The optional sewer-key search feature is cancelled by the same decision:** the
+  prepared controller/store/observer stays as dormant, unwired domain code and the Phase-0
+  experiments R1/R2/R3 are no longer prerequisites for anything.
 - **PocketShop 0.3.9** — verified in-game 2026-10-24 (owner-confirmed; directory + item grid
   opened, no `ShopCatalog subscriber failed`). Last itemized purchase acceptance remains 0.3.2
   (2026-09-20) if a payment re-check is ever wanted; nothing is blocked.
@@ -255,8 +245,7 @@ excluded from every list below.
 2. **Completed with fixtures:** deploy preflight rejects running-game and invalid-target cases.
    This is tooling evidence, not a real game-launch/close session.
 3. **Proposed (cheapest first):** S1MCP clock read + one write in any loaded world.
-4. **Proposed:** Minimap waypoint roundtrip and HUD/settings checks; then LightControl dev.19
-   UI/persistence (do not reuse a dev.18 session).
+4. **Proposed:** LightControl dev.19 UI/persistence checks (do not reuse a dev.18 session).
 5. **Proposed:** PropertyLEDs layout/rainbow, MessagesPlus order menus, WorldLook water/night.
 6. **Proposed:** HitmanPhone full Release chain on a backed-up disposable slot, then save/reload.
 7. **Out of scope:** any multiplayer check (owner decision 2026-10-24). TaxiDriver is closed

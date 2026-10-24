@@ -1,5 +1,12 @@
 # Optional sewer-key search: Phase 0
 
+> **CANCELLED 2026-10-24 by owner decision.** Dominik confirmed the Minimap work is finished and
+> cancelled this feature. There is no playable search mode, none is planned, and the runtime
+> experiments R1/R2/R3 below are **not** prerequisites for anything any more. The prepared
+> `SearchController`/`SearchStore`/observer code remains in the tree as dormant, tested domain
+> code (never instantiated at runtime) so a future revival does not start from zero. This page is
+> kept as a historical investigation record.
+
 Status: source/reference investigation and compile baseline complete; runtime contract and Phase 0 acceptance OPEN. No search implementation, version bump, deployment, game launch or save mutation in this slice.
 
 ## Scope and source
