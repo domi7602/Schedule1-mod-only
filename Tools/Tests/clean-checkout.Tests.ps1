@@ -31,7 +31,7 @@ function Write-File([string]$Root, [string]$Path, [string]$Text) {
 }
 
 function Git([string]$Root, [string[]]$Arguments) {
-    $gitExecutable = (Get-Command git -CommandType Application -ErrorAction Stop).Source
+    $gitExecutable = (Get-Command git -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
     $result = & $gitExecutable -c core.longpaths=true -C $Root @Arguments 2>&1 | Out-String
     if ($LASTEXITCODE -ne 0) { throw $result }
     return $result.Trim()

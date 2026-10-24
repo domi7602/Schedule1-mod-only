@@ -13,7 +13,7 @@ param([string]$ScratchRoot)
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $checker = Join-Path $repoRoot 'Tools/check-doc-paths.ps1'
-$gitExecutable = (Get-Command git -CommandType Application -ErrorAction Stop).Source
+$gitExecutable = (Get-Command git -CommandType Application -ErrorAction Stop | Select-Object -First 1).Source
 if (-not $ScratchRoot) { $ScratchRoot = [IO.Path]::GetTempPath() }
 $scratchFull = [IO.Path]::GetFullPath($ScratchRoot)
 $repoFull = [IO.Path]::GetFullPath($repoRoot).TrimEnd('\', '/')
