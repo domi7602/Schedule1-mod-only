@@ -381,9 +381,21 @@ pwsh Tools/check-version-sync.ps1     # code <-> mod.json <-> README/AGENTS must
 pwsh Tools/check-doc-paths.ps1        # every repo path referenced in docs must exist
 ```
 
-- **CI** (`.github/workflows/ci.yml`): always runs restore, format, the game-free tests (xUnit suites plus the `LightControl.Tests` console host), SLN determinism, version-sync and doc-path checks. Build + full test suite run only where game assemblies exist (self-hosted runner) and use `S1NoDeploy=true`.
+- **CI** (`.github/workflows/ci.yml`): always runs restore, format, the game-free tests (xUnit suites plus the `LightControl.Tests` console host), SLN determinism, version-sync and doc-path checks. Build + full test suite run only where game assemblies exist (self-hosted runner) and use `S1NoDeploy=true`. Checkout uses `submodules: recursive`, because some contract tests read pinned S1API sources under `ThirdParty/`.
 - **Release** (`.github/workflows/release.yml`): manual `workflow_dispatch` only; fails fast without a runner that has the game installed.
 - **Pre-commit hook** (`.githooks/pre-commit`): opt-in — `git config core.hooksPath .githooks`.
+- **Green locally is not green in CI.** The working copy carries state that a checkout does not: git-ignored files (`ThirdParty/*/local.build.props`, `GameReferences/`, local `*.zip`), initialised submodules, and old `bin`/`obj` output. Gates that read any of it pass here and fail on the runner. Whenever you touch docs, tests, `.gitignore`, `.github/` or anything under `ThirdParty/`, run the gates once in a fresh clone:
+
+  ```pwsh
+  git clone --quiet . "$env:TEMP\ci-repro"; cd "$env:TEMP\ci-repro"
+  git submodule update --init --recursive
+  pwsh Tools/test-all.ps1 -Selection pure
+  pwsh Tools/check-doc-paths.ps1
+  pwsh Tools/check-version-sync.ps1
+  pwsh Tools/gen-sln.ps1; git diff --exit-code -- Source/Mods/S1Mods.sln
+  ```
+
+  Two real hits on 2026-10-24: `PocketShop.Tests.ShopDirectoryPolicyTests` reads `ThirdParty/S1API/S1API/Internal/Entities/Suppliers/SupplierRuntimeIds.cs` and failed without submodules, and `check-doc-paths` reported `ThirdParty/*/local.build.props` as dead links because `git check-ignore` **exits 128 inside a submodule** instead of answering, so the script's gitignored tolerance never fired.
 
 ### Mod update cycle
 
