@@ -20,6 +20,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # Contract tests read pinned S1API sources (e.g. SupplierRuntimeIds.cs) from
+          # the submodule. Both submodules are public, so the runner's token clones
+          # them at the recorded gitlink SHA - no secrets involved.
+          submodules: recursive
 
       - name: Setup .NET 8 SDK and .NET 6 runtime
         uses: actions/setup-dotnet@v6
