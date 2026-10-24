@@ -37,6 +37,7 @@ The build does not install. Deployment uses `Tools/deploy-mod.ps1` for the candi
 
 ## Verification and history
 
+- [Prepared in-game acceptance](in-game-acceptance.md): step-by-step dev.2 session, evidence capture, expected state transitions and remaining measurement prerequisites; not an executed test.
 - [Water-surface verification](water-surface-verification.md): current dev.2 implementation/check status, backup and manual acceptance.
 - [Native-baseline verification](native-baseline-verification.md): historical dev.1 artifact/check status and observed morning/midday comparisons.
 - `Source/Tests/GoldenHour.Tests`, `Source/Tests/WaterShader.Tests`, `Source/Tests/WorldLook.Tests`: native-free logic/configuration checks and limited adapter contracts. Their success is not an in-game visual result.

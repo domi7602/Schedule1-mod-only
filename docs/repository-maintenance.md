@@ -5,11 +5,11 @@ tracker; [compatibility](compatibility.md) owns gameplay acceptance and its limi
 [The preceding snapshot](history/repository-maintenance-20261024.md) preserves earlier
 checklists, deployment fingerprints, warnings and test totals.
 
-## Current repository cleanup
+## Completed repository cleanup
 
-Scope: clear documentation ownership, consistent verification/setup, predictable local
-storage and guarded cache cleanup. Existing mod edits are retained. Mod versions,
-gameplay code, installed files and current Unity/backups are outside this pass.
+Completed scope: clear documentation ownership, consistent verification/setup, predictable
+local storage and guarded cache cleanup. Existing mod edits were preserved. Mod versions,
+gameplay code, installed files and current Unity/backups were outside the cleanup pass.
 
 | Package | Status | Result / remaining check |
 |---|---|---|
@@ -20,14 +20,26 @@ gameplay code, installed files and current Unity/backups are outside this pass.
 | Documentation paths | Implemented, fixture-tested | 289 maintained documents checked; file-relative links repaired, historical literal paths narrowly annotated. |
 | Unity cache helper | Implemented, independently reviewed | 53 synthetic checks passed; real workspace preview found zero remaining allowed candidates and changed nothing. |
 | Independent review | Passed | 701 baseline C# / project / mod-metadata files unchanged; archived originals preserved and documentation agrees with the tools. |
+| Warning follow-up | Committed and pushed as `cf9baae` | Historical skill evidence retained; scoped LightControl test-host EOL exception documented; mod/test target frameworks unchanged. |
 
-### Verification evidence for this pass
+### Latest committed verification — 2026-10-24
+
+Commit `cf9baaef858dff52ea07dc8216b37ced3ec19852` is on `main`.
+[CI #128](https://github.com/domi7602/Schedule1-mod-only/actions/runs/40117028773)
+completed successfully: Auto selected Pure, all 19 verification blocks and all 17 selected
+test projects passed, including 265 LightControl checks. The uploaded report and logs
+confirmed zero skill warnings and zero NETSDK1138 warnings; the downloaded artifact's
+SHA-256 matched GitHub's digest. The isolated local Pure snapshot also passed all 19 blocks.
+These results cover that revision, not subsequent edits or new gameplay acceptance.
+
+### Earlier Full verification and preservation evidence
 
 The local no-deploy Full run `verify-6ed568455baf` passed all 20 blocks: Release
 compilation, all 18 mod test projects (3,144 xUnit tests plus 265 LightControl checks)
 and 627 tool assertions. Two existing deployment symlink cases were skipped because
 the host lacks the required privilege. The known net6 support and skills-version
-warnings remain visible. This is build/test evidence, not a new gameplay acceptance.
+warnings were visible in that run; the later warning follow-up above does not rewrite
+this historical result. This is build/test evidence, not a new gameplay acceptance.
 
 The final default-scratch adjustment avoids AppData virtualization; it has dedicated
 path-selection fixtures. The final isolated Pure verdict, snapshot identity and report
@@ -41,8 +53,8 @@ manifest: 29,216 files matched SHA-256, length and modification time. The embedd
 bundle verifier still identifies `29557b87…`. No real cache deletion was needed in this
 pass; only the helper's synthetic fixtures exercise deletion and failure paths.
 
-No commit, push or installation is implied by this tracker. Consult `git status` and
-`git log` for the actual committed state. Git hooks remain opt-in.
+Only the revision explicitly identified above carries a commit/push claim. Consult
+`git status` and `git log` for later edits; no installation is implied. Git hooks remain opt-in.
 
 ## Completed foundation
 
@@ -60,8 +72,10 @@ No commit, push or installation is implied by this tracker. Consult `git status`
   it is machine-local, not a clone prerequisite.
 - Known retained limits: no crash/solution-wide deployment rollback, no automatic backup
   pruning or stale installed-file deletion. Keep the game closed throughout deployment.
-  The net6 console-host support warning is retained for runtime parity; skills evidence
-  warnings are classified rather than hidden. See [Tools](../Tools/README.md).
+  .NET 6 remains out of support; the LightControl test host retains runtime parity through
+  the narrowly scoped [EOL diagnostic exception](../DEVELOPERS.md#test). The later skill
+  follow-up preserves dated evidence with explicit annotations and current source links.
+  See [Tools](../Tools/README.md) for the deployment limits.
 
 ## Documentation ownership
 
@@ -97,6 +111,12 @@ WorldLook 0.3.0-dev.2 is the only active development mod. Its
 identifies DLL `410fecf7…` and bundle `29557b87…`, the inherited 1,167 water tests,
 GPU/build reviews and owner-confirmed calm morning motion. No new native check is
 claimed by repository maintenance.
+
+The [prepared in-game runbook](../Source/Mods/WorldLook/docs/in-game-acceptance.md) orders
+the remaining checks and evidence capture. Preparation on 2026-10-24 verified the installed
+candidate/profile identity and preserved the existing reports without starting the game.
+It claims no new runtime acceptance. Quantitative frame-time work still needs a verified
+recorder and an owner-agreed performance budget.
 
 - [ ] Overall/direct-sun appearance.
 - [ ] Positive warmth near 06:00 or 18:00; zero strength after 07:30 is expected.
