@@ -24,5 +24,6 @@
     <Compile Include="../../Mods/Minimap/src/SearchArea.cs" Link="SearchArea.cs" />
     <Compile Include="../../Mods/Minimap/src/SearchRecord.cs" Link="SearchRecord.cs" />
     <Compile Include="../../Mods/Minimap/src/SearchController.cs" Link="SearchController.cs" />
+    <Compile Include="../../Mods/Minimap/src/SearchStore.cs" Link="SearchStore.cs" />
   </ItemGroup>
 </Project>

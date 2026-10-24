@@ -21,6 +21,33 @@ public static class MinimapJson
 
     public static List<WaypointFile>? DeserializeWaypoints(string json)
         => JsonSerializer.Deserialize<List<WaypointFile>>(json, ReadOptions);
+
+    public static string SerializeSearch(SearchFile file)
+        => JsonSerializer.Serialize(file, WriteOptions);
+
+    public static SearchFile? DeserializeSearch(string json)
+        => JsonSerializer.Deserialize<SearchFile>(json, ReadOptions);
+}
+
+/// <summary>
+/// Versioned search-store document. <see cref="Version"/> is written on every save and a file
+/// with any other version is rejected (never silently migrated), so a future format change
+/// cannot be mistaken for data.
+/// </summary>
+public sealed class SearchFile
+{
+    public int Version { get; set; }
+    public List<SearchRow>? Records { get; set; } = new();
+}
+
+/// <summary>Persistence row for one world's search intent. Never carries a completed flag.</summary>
+public sealed class SearchRow
+{
+    public string World { get; set; } = "";
+    public string Target { get; set; } = "";
+    public string AreaId { get; set; } = "";
+    public int AreaVersion { get; set; }
+    public bool Accepted { get; set; }
 }
 
 /// <summary>

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,7 +16,12 @@ namespace S1MCPServer.Handlers;
 
 /// <summary>
 /// Handles get_time_of_day / set_time_of_day against <c>ScheduleOne.GameTime.TimeManager</c>.
-/// The in-game clock is stored as minutes-since-midnight (0-1439) plus elapsed days.
+/// <c>CurrentTime</c> is a 24-hour <b>HHMM</b> integer (1954 = 19:54), not minutes since
+/// midnight - see <see cref="TimeOfDay"/> for the evidence. Responses therefore carry both
+/// <c>*_hhmm</c> (the native value) and <c>*_minutes</c> (true minutes since midnight), so a
+/// client never has to guess which shape it received.
+/// <c>set_time_of_day</c> accepts exactly one of <c>time</c> (decimal hours, 0-24),
+/// <c>minutes</c> (0-1439) or <c>hhmm</c> (0-2359, or "19:54").
 /// TimeManager is a NetworkSingleton that only exists once the game world is loaded; in the
 /// main menu the handlers answer with a clean <c>available:false</c> instead of crashing.
 /// </summary>
@@ -63,15 +69,26 @@ public class TimeCommandHandler : ICommandHandler
             }
 
             TimeManager tm = TimeManager.Instance;
-            int minutes = tm.CurrentTime;
-            _responseQueue.EnqueueResponse(ProtocolHandler.CreateSuccessResponse(request.Id,
-                new Dictionary<string, object>
-                {
-                    ["available"] = true,
-                    ["time_minutes"] = minutes,
-                    ["elapsed_days"] = tm.ElapsedDays,
-                    ["display"] = TimeManager.GetMinutesToDisplayTime(minutes)
-                }));
+            int hhmm = tm.CurrentTime;
+            var result = new Dictionary<string, object>
+            {
+                ["available"] = true,
+                ["time_hhmm"] = hhmm,
+                ["elapsed_days"] = tm.ElapsedDays,
+                ["display"] = TimeOfDay.Format(hhmm)
+            };
+
+            if (TimeOfDay.TryHhmmToMinutes(hhmm, out int minutes))
+            {
+                result["time_minutes"] = minutes;
+            }
+            else
+            {
+                // Never invent a minute value from a malformed clock reading.
+                result["warning"] = $"the native clock returned {hhmm}, which is not a valid HHMM value";
+            }
+
+            _responseQueue.EnqueueResponse(ProtocolHandler.CreateSuccessResponse(request.Id, result));
         }
         catch (Exception ex)
         {
@@ -88,46 +105,14 @@ public class TimeCommandHandler : ICommandHandler
     {
         try
         {
-            if (request.Params == null
-                || (!request.Params.TryGetValue("time", out var timeObj)
-                    && !request.Params.TryGetValue("minutes", out timeObj)))
+            if (!TryResolveRequestedTime(request.Params, out int hhmm, out int minutes, out string error))
             {
                 _responseQueue.EnqueueResponse(ProtocolHandler.CreateErrorResponse(
                     request.Id,
                     -32602, // Invalid params
-                    "provide \"time\" (hours, 0-24) or \"minutes\" (0-1439)"));
+                    error));
                 return;
             }
-
-            if (!TryGetDouble(timeObj, out double value))
-            {
-                _responseQueue.EnqueueResponse(ProtocolHandler.CreateErrorResponse(
-                    request.Id,
-                    -32602, // Invalid params
-                    "time/minutes must be a number"));
-                return;
-            }
-
-            bool asHours = request.Params.ContainsKey("time");
-            if (double.IsNaN(value) || double.IsInfinity(value) || value < 0 || (asHours ? value > 24 : value > 1439))
-            {
-                _responseQueue.EnqueueResponse(ProtocolHandler.CreateErrorResponse(
-                    request.Id,
-                    -32602, // Invalid params
-                    asHours
-                        ? "time must be within [0, 24] hours"
-                        : "minutes must be within [0, 1439]"));
-                return;
-            }
-
-            // Validate on the double BEFORE casting: an unchecked (int) cast of an
-            // out-of-range double silently becomes int.MinValue, which would survive the
-            // range check above and reach SetTime_Server as garbage.
-            int minutes = asHours
-                ? (int)Math.Round(value * 60.0)
-                : (int)Math.Round(value);
-
-            minutes = ((minutes % 1440) + 1440) % 1440;
 
             if (!TimeManager.InstanceExists)
             {
@@ -141,21 +126,27 @@ public class TimeCommandHandler : ICommandHandler
             }
 
             TimeManager tm = TimeManager.Instance;
-            tm.SetTime_Server(minutes);
+            tm.SetTime_Server(hhmm);
             int readback = tm.CurrentTime;
-            bool changed = readback == minutes;
+            bool changed = readback == hhmm;
 
             var result = new Dictionary<string, object>
             {
                 ["available"] = true,
+                ["applied_hhmm"] = hhmm,
                 ["applied_minutes"] = minutes,
-                ["readback_minutes"] = readback,
+                ["readback_hhmm"] = readback,
                 ["changed"] = changed,
-                ["display"] = TimeManager.GetMinutesToDisplayTime(readback)
+                ["display"] = TimeOfDay.Format(readback)
             };
+
+            if (TimeOfDay.TryHhmmToMinutes(readback, out int readbackMinutes))
+                result["readback_minutes"] = readbackMinutes;
+
             if (!changed)
                 result["note"] = "SetTime_Server is host-authoritative; the readback did not change, " +
                                  "so the request most likely ran on a non-host client";
+
             _responseQueue.EnqueueResponse(ProtocolHandler.CreateSuccessResponse(request.Id, result));
         }
         catch (Exception ex)
@@ -167,6 +158,97 @@ public class TimeCommandHandler : ICommandHandler
                 "Failed to set the in-game time",
                 new { details = ex.Message }));
         }
+    }
+
+    /// <summary>
+    /// Resolves the requested clock value to a validated HHMM plus its minutes-since-midnight
+    /// equivalent. Exactly one of <c>time</c>, <c>minutes</c> or <c>hhmm</c> must be supplied;
+    /// validation happens on the raw double/string before any cast, so an out-of-range value can
+    /// never silently become <see cref="int.MinValue"/> and reach <c>SetTime_Server</c> as garbage.
+    /// </summary>
+    private static bool TryResolveRequestedTime(
+        Dictionary<string, object>? parameters,
+        out int hhmm,
+        out int minutes,
+        out string error)
+    {
+        hhmm = -1;
+        minutes = -1;
+        error = string.Empty;
+
+        if (parameters == null)
+        {
+            error = "provide \"time\" (hours, 0-24), \"minutes\" (0-1439) or \"hhmm\" (0-2359)";
+            return false;
+        }
+
+        bool hasTime = parameters.TryGetValue("time", out var timeObj);
+        bool hasMinutes = parameters.TryGetValue("minutes", out var minutesObj);
+        bool hasHhmm = parameters.TryGetValue("hhmm", out var hhmmObj);
+        int supplied = (hasTime ? 1 : 0) + (hasMinutes ? 1 : 0) + (hasHhmm ? 1 : 0);
+
+        if (supplied == 0)
+        {
+            error = "provide \"time\" (hours, 0-24), \"minutes\" (0-1439) or \"hhmm\" (0-2359)";
+            return false;
+        }
+
+        if (supplied > 1)
+        {
+            error = "provide only one of \"time\", \"minutes\" or \"hhmm\"";
+            return false;
+        }
+
+        if (hasTime)
+        {
+            if (!TryGetDouble(timeObj, out double hours))
+            {
+                error = "time must be a number of hours within [0, 24]";
+                return false;
+            }
+
+            if (!TimeOfDay.TryHoursToHhmm(hours, out hhmm))
+            {
+                error = "time must be within [0, 24] hours";
+                return false;
+            }
+
+            TimeOfDay.TryHhmmToMinutes(hhmm, out minutes);
+            return true;
+        }
+
+        if (hasMinutes)
+        {
+            if (!TryGetDouble(minutesObj, out double rawMinutes))
+            {
+                error = "minutes must be a number within [0, 1439]";
+                return false;
+            }
+
+            if (double.IsNaN(rawMinutes) || double.IsInfinity(rawMinutes) || rawMinutes < 0 || rawMinutes > 1439)
+            {
+                error = "minutes must be within [0, 1439]";
+                return false;
+            }
+
+            minutes = (int)Math.Round(rawMinutes, MidpointRounding.AwayFromZero);
+            if (!TimeOfDay.TryMinutesToHhmm(minutes, out hhmm))
+            {
+                error = "minutes must be within [0, 1439]";
+                return false;
+            }
+
+            return true;
+        }
+
+        if (!TryGetHhmm(hhmmObj, out hhmm))
+        {
+            error = "hhmm must be a 24-hour value within [0, 2359] (for example 1954 or \"19:54\")";
+            return false;
+        }
+
+        TimeOfDay.TryHhmmToMinutes(hhmm, out minutes);
+        return true;
     }
 
     /// <summary>
@@ -190,5 +272,41 @@ public class TimeCommandHandler : ICommandHandler
             return false;
         }
         return double.TryParse(value.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out result);
+    }
+
+    /// <summary>
+    /// Accepts a numeric HHMM (1954) or the text forms "1954" / "19:54". A JSON number with a
+    /// fractional part is rejected instead of being silently truncated - a caller that means
+    /// decimal hours must use <c>time</c>.
+    /// </summary>
+    private static bool TryGetHhmm(object? value, out int hhmm)
+    {
+        hhmm = -1;
+        if (value == null)
+            return false;
+
+        if (value is JsonElement je)
+        {
+            if (je.ValueKind == JsonValueKind.Number)
+            {
+                if (!je.TryGetInt32(out hhmm))
+                    return false;
+                return TimeOfDay.IsValidHhmm(hhmm);
+            }
+
+            if (je.ValueKind == JsonValueKind.String)
+                return TimeOfDay.TryParseHhmmText(je.GetString(), out hhmm);
+
+            return false;
+        }
+
+        if (value is int i)
+        {
+            hhmm = i;
+            return TimeOfDay.IsValidHhmm(hhmm);
+        }
+
+        return int.TryParse(value.ToString(), NumberStyles.Integer, CultureInfo.InvariantCulture, out hhmm)
+               && TimeOfDay.IsValidHhmm(hhmm);
     }
 }

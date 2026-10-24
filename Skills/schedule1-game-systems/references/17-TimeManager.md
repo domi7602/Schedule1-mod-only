@@ -8,7 +8,7 @@
 - Format: `int CurrentTime` in 24h format (HHMM, e.g. 900 = 09:00)
 - `CycleDuration` = 24 minutes real-time per game day
 
-**Local unit confirmation, 2026-10-22 (0.4.7f12):** read-only observation returned `CurrentTime=1954` while the native DayNightController reported about `19.90776` hours / `.82951415` day fraction. Convert HHMM to minutes before minute-based policy calculations; `1954` is 19:54, not 1,954 elapsed minutes. S1MCP 1.0.4's current `get_time_of_day` wrapper mislabels this raw value as `time_minutes` and displayed `32h 34m`. This verifies the clock units only, not the event/cycle claims below. WorldLook's native-baseline repair corrects its own conversion; the bridge handler is a separate repair.
+**Local unit confirmation, 2026-10-22 (0.4.7f12):** read-only observation returned `CurrentTime=1954` while the native DayNightController reported about `19.90776` hours / `.82951415` day fraction. Convert HHMM to minutes before minute-based policy calculations; `1954` is 19:54, not 1,954 elapsed minutes. **S1MCP 1.0.5 (2026-10-24) repairs the bridge:** it returns `time_hhmm` (native) and `time_minutes` (true 0-1439) plus a 24-hour `display`, and `set_time_of_day` accepts `time` (hours) / `minutes` / `hhmm`. 1.0.4 mislabelled the raw value as `time_minutes` (`32h 34m`) and its write path landed on 07:20 for a requested 12:00 - that write acceptance is superseded and needs one fresh in-game check. WorldLook's native-baseline repair corrects its own conversion. This verifies the clock units only, not the event/cycle claims below.
 
 ## Important Constants
 | Constant | Value | Description |

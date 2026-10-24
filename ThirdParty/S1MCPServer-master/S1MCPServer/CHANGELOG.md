@@ -1,5 +1,29 @@
 # Changelog
 
+## 1.0.5 (2026-10-24)
+- **Fixed: the clock is HHMM, not minutes since midnight.** `TimeManager.CurrentTime` is a
+  24-hour integer (1954 = 19:54); 1.0.4 treated it as minutes, so `get_time_of_day` reported
+  `time_minutes: 1954` and a `display` of `32h 34m` for a 19:54 clock, and `set_time_of_day`
+  sent minutes into `SetTime_Server` - `{"time": 12}` produced 07:20 instead of 12:00.
+  Evidence: `CurrentTime` is compared directly against contract/schedule windows that S1API
+  documents as `hhmm`, the native helpers are `IsValid24HourTime(int)` /
+  `Normalized24HourTime(int)` / `AddMinutesTo24HourTime(int, int)`, `DailyMinSum` is the
+  minutes member, and a live read-only capture on 2026-10-23 returned 1954 while the HUD
+  showed 19:54.
+- `get_time_of_day` now returns `time_hhmm` (native value), `time_minutes` (true minutes since
+  midnight, 0-1439) and a 24-hour `display` (`19:54`). A malformed clock reading withholds
+  `time_minutes` and adds a `warning` instead of inventing a value.
+- `set_time_of_day` accepts exactly one of `time` (decimal hours, 0-24 - unchanged contract,
+  now converted correctly), `minutes` (0-1439) or the new `hhmm` (0-2359, or `"19:54"`).
+  Responses carry `applied_hhmm`, `applied_minutes`, `readback_hhmm`, `readback_minutes` and
+  the honest `changed` verdict. `24:00`/`24` wraps to `00:00`, matching the native clock.
+- Validation still happens on the raw double/string before any cast, so an out-of-range value
+  cannot reach `SetTime_Server` as garbage. Passing more than one time parameter is an explicit
+  error instead of a silent precedence rule.
+- New game-free suite `Source/Tests/S1MCP.Tests` (50 tests: both-way conversion, a full
+  `0..2359` round-trip, decimal hours, text parsing and every rejection path).
+  In-game acceptance of the read/write path on a real clock remains open.
+
 ## 1.0.4 (2026-10-17)
 - **New: `set_time_of_day` / `get_time_of_day`.** Reads and writes the in-game clock against
   `ScheduleOne.GameTime.TimeManager`: `CurrentTime` is minutes-since-midnight (0-1439),

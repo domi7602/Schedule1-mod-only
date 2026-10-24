@@ -1,8 +1,14 @@
 # Registered driver-controller repair — TaxiDriver 0.8.22
 
+> **Verified, owner-confirmed 2026-10-24:** Dominik confirmed the tax driver work is finished.
+> Individual tested actions and the exact session were not itemized, so the per-finding sections
+> below remain their own evidence record and are not retroactively marked passed. Known and
+> accepted, not blockers: road-correction/jitter on some routes; multiplayer is out of scope
+> (owner does not play MP, 2026-10-24) and the seat/STOP guards stay unverified in code.
+
 ## Approved boundary
 
-Use the driver's existing NPCBehaviour, verify exact native ownership and initialized registration, never add networking components after spawn, preserve existing components and use the existing direct Navigate fallback if a safe patrol is unavailable. Do not change S1API, prefab/network construction, saves, traffic-light behavior, obstacle geometry, road recovery, fares or recovery budgets. Native gameplay acceptance remains open.
+Use the driver's existing NPCBehaviour, verify exact native ownership and initialized registration, never add networking components after spawn, preserve existing components and use the existing direct Navigate fallback if a safe patrol is unavailable. Do not change S1API, prefab/network construction, saves, traffic-light behavior, obstacle geometry, road recovery, fares or recovery budgets. Native gameplay acceptance is closed by the owner confirmation above (2026-10-24).
 
 ## Evidence and scope of diagnosis
 

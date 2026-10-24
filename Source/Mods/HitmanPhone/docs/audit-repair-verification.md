@@ -91,8 +91,10 @@ DEBUG force-offer/kill commands cannot establish Release acceptance.
     Observe `[context]` and `[checkpoint]`; no foreign identity/path writes.
 11. Registration temporarily unavailable, then available; both evidence IDs must be present
     before native item restoration. Log success must correspond to registry readback.
-12. Multiplayer lobby host/client: explicit unsupported status, no offers, evidence mutation,
-    photo consumption or payouts. This is a rejection check, not multiplayer feature coverage.
+12. ~~Multiplayer lobby host/client: explicit unsupported status, no offers, evidence mutation,
+    photo consumption or payouts.~~ **Not applicable (2026-10-24):** the owner does not play
+    multiplayer, so this rejection check is out of scope. The SP-only readiness gate, tracker
+    status and local notice remain in the code, unverified.
 13. Controlled checkpoint IO/native-save failure: mutation pauses, original/frozen state is
     retained, failure is visible, retry does not write an old snapshot to a new slot.
 

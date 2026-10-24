@@ -3,7 +3,7 @@
 Durable tracker for repository clean-up and remaining native (in-game) checks. This is not a
 gameplay acceptance record and it does not replace `docs/compatibility.md`.
 
-**Snapshot:** 2026-10-19. Status labels used below:
+**Snapshot:** 2026-10-24. Status labels used below:
 
 - **Observed** — verified by reading the working tree, files, hashes or `Latest.log` during this snapshot.
 - **Parent-reported** — reported by the coordinating agent's run; not independently repeated here.
@@ -61,9 +61,10 @@ gameplay acceptance record and it does not replace `docs/compatibility.md`.
   deletion. Third-party deployment installs new DLLs or accepts identical content; differing
   installed DLLs require an explicit owner-managed upgrade and are never silently overwritten.
 - [ ] Game-launch race after preflight remains: keep the game closed until deployment finishes.
-- [ ] Complete the native checks below with the owner; no new gameplay session was run.
-- **Working tree is intentionally dirty.** Existing HitmanPhone/LightControl changes are
-  preserved. No commit, push or history rewrite is authorized by this checklist.
+- [ ] Complete the native checks below with the owner; no new gameplay session was run by the agent.
+- **Working tree state (2026-10-24):** clean and synced with `origin/main` at the start of this
+  pass; the S1MCP clock fix, the Minimap `SearchStore`, the retired-probe clean-up and the
+  documentation updates are new local changes. No commit, push or history rewrite is authorized.
 
 ### Guardrails
 
@@ -87,8 +88,8 @@ No commit, staging, push, hook activation or remote CI run was performed. New to
 including `ThirdParty/.deployallow`, must be included when a commit is explicitly authorized.
 The pre-push hook remains opt-in; its syntax was checked, not activated.
 
-Installed DLL fingerprints for the consolidated test round (SHA256 prefixes; complete hashes
-are in the per-project receipts):
+Installed DLL fingerprints for the consolidated test round (**2026-10-19 snapshot — historical;
+current versions live in the per-mod CHANGELOGs and the compatibility matrix**):
 
 | Mod | Installed source version | SHA256 prefix |
 |---|---|---|
@@ -109,16 +110,35 @@ maintenance edits received compile/review evidence, not a new gameplay acceptanc
 ## 2. Remaining native checks
 
 Each item below has non-native evidence (tests/build/review) but **no current gameplay
-acceptance**. Treat every checkbox as open until a real session is recorded.
+acceptance**. Treat every checkbox as open until a real session is recorded. Tick a box only with
+the artifact hash, the log excerpt and the exact slot/checkpoint that produced it.
+
+**Multiplayer is not a check.** Dominik does not play MP (2026-10-24). Host-authority and
+MP-refusal guards stay in the code and fail closed, but they are not acceptance criteria and are
+excluded from every list below.
+
+### S1MCP 1.0.5 — clock units (smallest check, do this first)
+
+- **Evidence:** 50 game-free tests in `Source/Tests/S1MCP.Tests`; Release IL2CPP 0 errors, no new
+  warnings; deployed DLL `03DE264F…` matches the build output.
+- **Why:** 1.0.4 treated `TimeManager.CurrentTime` as minutes. A 19:54 clock reported
+  `32h 34m`, and `{"time": 12}` landed on 07:20.
+- **Open native checks:**
+  - [ ] `get_time_of_day` returns `time_hhmm` matching the HUD, `time_minutes` = hh*60+mm, and a
+    24-hour `display` (`19:54`, not `32h 34m`).
+  - [ ] `set_time_of_day {"time": 12}` reaches 12:00 (`readback_hhmm: 1200`, `changed: true`).
+    A first call that reports `changed:false` with a stale readback is the known async-apply
+    race — retry once before calling it a failure.
+  - [ ] `hhmm` (e.g. `1954`) and `minutes` (e.g. `720`) reach the same clock value.
 
 ### HitmanPhone 0.3.0-dev.1
 
 - **Evidence:** 148 pure/delegate/source checks; Release/Debug compile clean; deployed
-  DLL/PDB/mod.json hash-matched. **Observed:** an empty-state checkpoint restore → native save
-  commit → reload restore with the deployed artifact. Exact log lines and hashes are in
-  `Source/Mods/HitmanPhone/docs/audit-repair-verification.md`.
-- **Limitation:** the session loaded `active=0`, `history=0` and no kill events. No offer,
-  acceptance, elimination, photo, drop, payout, slot switch, journal phase or MP rejection ran.
+  DLL/PDB/mod.json hash-matched. First native checkpoint evidence 2026-10-24: `Latest.log`
+  08:22:55 restores checkpoint `56391B779CBE` for the confirmed world on a real save reload.
+  Details: `Source/Mods/HitmanPhone/docs/audit-repair-verification.md`.
+- **Limitation:** the restore path ran; registry ordering, GUID persistence and the cash paths
+  did not.
 - **Open native checks:**
   - [ ] Normal offer → accept → KO → actual photo → first journal objective → assigned drop →
     exactly one cash increase and completed journal.
@@ -129,99 +149,118 @@ acceptance**. Treat every checkbox as open until a real session is recorded.
     contract, tracker and journal select the same checkpoint.
   - [ ] Registry failure then recovery; both evidence IDs present before native item restore.
   - [ ] Journal phase/GUID persistence across reload, slot change and history.
-  - [ ] MP lobby host/client: explicit unsupported status, no offers/mutation/payout
-    (rejection check only).
+  - [x] ~~MP lobby host/client: explicit unsupported status, no offers/mutation/payout~~
+    **Not applicable:** multiplayer is out of scope (owner decision 2026-10-24). The refusal
+    guard stays in the code, unverified.
   - [ ] Controlled checkpoint/native-save failure pauses mutations and preserves frozen state.
 
-### TaxiDriver 0.8.19
+### LightControl 0.1.0-dev.19
 
-- **Evidence:** 605 tests; final delta review PASS; nonincremental Release compile clean.
-  Source-policy, delegate-seam and source-contract evidence only.
+- **Evidence:** 264 core/adapter/source checks; forced Release 0 warnings/errors; scoped format
+  clean; independent delta review PASS; three installed targets hash-verified; native
+  list/picker screenshots checked 2026-10-22. Details:
+  `Source/Mods/LightControl/docs/graphite-ui-verification.md`.
 - **Open native checks:**
-  - [ ] Blocked-front departure, dynamic rear obstacle, ineffective short reverse, and normal
-    pickup/ride/arrival on the current build.
-  - [ ] STOP, reroute, pause and slot change; native callback ordering.
-  - [ ] No `GetWheelSweepCollision` ERROR spam; player cannot drive the taxi during an active ride.
-  - [ ] Fare balance readback matches the charged fare; teardown logs one meter settlement and
-    no taxi despawn on quit.
-
-### LightControl 0.1.0-dev.13
-
-- **Evidence:** 151 tests; split-control UI and persistence model checks pass.
-- **Caution:** the observed 2026-10-19 session loaded **v0.1.0-dev.12**, not dev.13. Do not use
-  that session as dev.13 acceptance.
-- **Open native checks:**
-  - [ ] Property headers with the lamp list left and selected-lamp controls right.
-  - [ ] Tap sets one lamp; direct brightness step; original color keeps brightness; reset restores.
-  - [ ] Apply to property vs the separate all-properties action; changed target list is rejected.
-  - [ ] Temporarily unloaded lamps stay registered but are not recolored by a state command.
-  - [ ] Save pending / save failed / saved states remain distinct; no per-frame signature rebuild.
+  - [ ] Tap/hit-testing across the four-column table, sticky heading and both footer buttons.
+  - [ ] Colour picker (ten choices incl. Rainbow) and the seven brightness steps apply correctly.
+  - [ ] Long-list scrolling, reopen and scene/lifecycle transitions.
+  - [ ] Exact font parity (Arial fallback is active because the Segoe UI array overload throws).
   - [ ] Save/reload restores slot-scoped state and original lamp values.
 
-### PropertyLEDs 0.1.7
+### PropertyLEDs 0.1.8
 
-- **Evidence:** 94 tests; scoped review PASS; larger phone typography implemented.
+- **Evidence:** 115 tests; first-actual-open property selection and property-named power status
+  2026-10-20. Details: `Source/Mods/PropertyLEDs/docs/implementation-status.md`.
 - **Open native checks:**
-  - [ ] Full rainbow visibility at hue 0/1 and middle hues; white-to-colour saturation.
-  - [ ] Expanded Advanced panel opens/closes, collapses on reopen, and remains scroll-reachable.
-  - [ ] Scope switching never enables LEDs or writes settings.
-  - [ ] Edits, inheritance and save/reload persist per slot.
-  - [ ] Only measured/marked rooms receive persistent LED geometry; inspect real layouts.
+  - [ ] Native location/status fitting for every owned property.
+  - [ ] Toggle and colour application on real lamp geometry.
+  - [ ] Save/reload roundtrip per slot (including per-room overrides).
+  - [ ] Historical 0.1.4 UI acceptance does **not** cover 0.1.8.
 
-### PocketShop 0.3.7
+### Minimap 2.3.5-dev.1
 
-- **Evidence:** 52 tests; independent scoped/name-band review PASS; Release deployed with hashes
-  matched.
+- **Evidence:** 215 tests; Release build 0 warnings/errors. The versioned `SearchStore` is new
+  and **not runtime-wired**. Details: `Source/Mods/Minimap/docs/search-mode-phase0.md`.
 - **Open native checks:**
-  - [ ] Four-column, three-visible-row grid with scroll overflow and trailing filler cells.
-  - [ ] Two-line name band fits real shop names at UI scale; tile size stable across catalogs/search.
-  - [ ] v0.3.3 payment rewrite: cash shop debits cash, online/card shop uses the bank path,
-    locks and refunds behave (last real session was v0.3.2).
-  - [ ] Purchase status/SFX and level-rank rejection are visible and correct.
-
-### Minimap 2.3.4-dev.1
-
-- **Evidence:** 186 tests; Release clean; HUD and four settings pages initialized in the menu /
-  disposable test world. Manual waypoint roundtrip was postponed.
-- **Open native checks:**
-  - [ ] Waypoint create/rename/color/delete and A → B → A retention; slot file survives reload.
+  - [ ] Waypoint create/rename/colour/delete and A → B → A retention; the slot file survives a
+    reload.
   - [ ] HUD markers, police heat ring, health bar and portrait/name settings at real range.
   - [ ] Settings persistence and per-slot applied state.
-  - [ ] `minimap searchdev` stays opt-in/read-only; the prepared search core is not runtime-wired.
+  - [ ] `minimap searchdev` stays opt-in/read-only.
+  - [ ] Search mode itself is **not** testable yet: production adapter/world binding, curated
+    area, Hints page, overlay and marker suppression are unimplemented. The Phase-0 experiments
+    R1/R2/R3 are prerequisites, not checkbox items.
 
-### WorldLook 0.1.2
+### WorldLook 0.3.0-dev.2
 
-- **Evidence:** merged GoldenHour + WaterShader + GraphicsProbe into one DLL; 1,143-test suite;
-  light look owner-confirmed 2026-10-18; manual probe capture exercised 2026-10-18.
+- **Evidence:** 1,167 water tests, full build 0/0, controlled GPU comparison and independent
+  shader/fixture reviews PASS; DLL `410fecf7…` + bundle `29557b87…` match the owner run; morning
+  motion owner-confirmed ("ruhig"). Details:
+  `Source/Mods/WorldLook/docs/water-surface-verification.md`.
 - **Open native checks:**
-  - [ ] Water clarity step: `_Absorption=0.38`, `_RippleStrength=0.45`,
-    `_ShallowTint=(0.50,0.75,0.75)`; foam values untouched.
-  - [ ] Owner judges whether the clarity step is the right size.
-  - [ ] Confirm the Linear-colour-space effect on `_ShallowTint` (the percentages in the
-    changelog are arithmetic on raw shader literals).
-  - [ ] Only `WorldLook.dll` is loaded beside the merged mod; Ctrl+Shift+F7/F8 work as documented.
+  - [ ] Overall/direct-sun appearance (the morning pair showed no strong direct-sun glint).
+  - [ ] Positive warmth (strength 0 is expected after 07:30 — test before that).
+  - [ ] ON after OFF (water re-applies cleanly).
+  - [ ] Night look and save/scene reload.
+  - [ ] Measured performance; no FPS measurement exists for this build.
 
-## 3. Merged mods are not separate releases
+### AutoPackagingStation 0.4.7
 
-- `GoldenHour`, `WaterShader` and `GraphicsProbe` were merged into **WorldLook 0.1.0** and are
-  **not** separate active releases. Do not package, deploy or list them as independent mods.
-- Only `WorldLook.dll` is installed at snapshot; no standalone `WaterShader.dll`,
-  `GraphicsProbe.dll` or `GoldenHour.dll` is present in `Mods\`.
-- Their test projects (`GoldenHour.Tests`, `WaterShader.Tests`, `GraphicsProbe.Tests`) remain in
-  `Source/Tests` for the merged components. Test presence does not make them separate releases.
-- Release notes and the compatibility matrix should describe the merged WorldLook artifact only.
+- **Evidence:** 66/66 tests; Release 0/0; retirement-scoped review PASS; owner-confirmed tested
+  session 2026-10-15 (Pack/Unpack/mode mirroring). Details:
+  `Source/Mods/AutoPackagingStation/docs/interaction-diagnostics.md`.
+- **Open native checks:**
+  - [x] ~~Separate multiplayer acceptance (host + client)~~ **not applicable** — multiplayer is
+    out of scope (owner decision 2026-10-24); the host-authority guards stay in the code, unverified.
+  - [ ] 0.4.1 cauldron-save migration (optional, only if such a save is still relevant).
+
+### MessagesPlus 0.4.6
+
+- **Evidence:** 25 tests; Release clean; popup/response repair owner-confirmed 2026-10-15.
+- **Open native checks:**
+  - [ ] Vanilla order menus (`MSGConversation.responseContainer`, `DealWindowSelector.Container`)
+    stay undarkened while the rest of the app keeps the permanent dark theme.
+
+### Closed — no action
+
+- **TaxiDriver 1.0.0** — **verified, owner-confirmed 2026-10-24** (Dominik confirmed the work is
+  finished; individual actions and the exact session were not itemized). 1.0.0 is a version-only
+  milestone of the accepted 0.8.22 code (only the `MelonInfo` string and metadata changed), built
+  and deployed with hash-matched DLL/PDB/metadata (`64CE7256…`). Per-finding record:
+  `Source/Mods/TaxiDriver/docs/driver-binding-verification.md`. Known and accepted, not blockers:
+  road-correction/jitter on some routes; multiplayer is out of scope (owner does not play MP),
+  so the seat/STOP guards stay unverified in code.
+- **PocketShop 0.3.9** — verified in-game 2026-10-24 (owner-confirmed; directory + item grid
+  opened, no `ShopCatalog subscriber failed`). Last itemized purchase acceptance remains 0.3.2
+  (2026-09-20) if a payment re-check is ever wanted; nothing is blocked.
+- **S1MCP transport/routing** — 10/10 menu integration checks 2026-10-17, unchanged by 1.0.5.
+
+## 3. Merged and retired graphics mods are not separate releases
+
+- `GoldenHour` and `WaterShader` were merged into **WorldLook**; their code now lives in
+  `Source/Mods/WorldLook/src/` and the modules ship inside `WorldLook.dll`. They are **not**
+  separate active releases - do not package, deploy or list them independently.
+- `GraphicsProbe` is **retired**: its source is archived under
+  `Source/Archive/WorldLook/GraphicsProbe/`, its tests under `Source/Archive/Tests/GraphicsProbe.Tests/`,
+  and its empty mirrored build-output folder under `Source/Tests/` was deleted on 2026-10-24.
+  The "still open" probe items in older notes are not outstanding work.
+- Only `WorldLook.dll` is installed; no standalone `WaterShader.dll`, `GoldenHour.dll` or
+  `GraphicsProbe.dll` belongs in `Mods\`.
+- Release notes and the compatibility matrix describe the merged WorldLook artifact only.
 
 ## 4. Proposed verification order (not executed here)
 
-1. **Completed:** final `Tools/test-all.ps1 -Selection all` run passed all 17 projects without deployment.
+1. **Completed:** final `Tools/test-all.ps1 -Selection pure` run — 17 projects, 0 failures
+   (`Shared.Tests` is game-required).
 2. **Completed with fixtures:** deploy preflight rejects running-game and invalid-target cases.
    This is tooling evidence, not a real game-launch/close session.
-3. **Proposed:** HitmanPhone full Release chain on a backed-up disposable slot, then save/reload
-   and MP rejection checks.
-4. **Proposed:** LightControl dev.13 fresh deploy and UI/persistence checks (do not reuse the
-   dev.12 session).
-5. **Proposed:** PocketShop visual/payment, PropertyLEDs layout/rainbow, Minimap waypoint/HUD.
-6. **Proposed:** WorldLook water/one-DLL check, then TaxiDriver reverse/ride/teardown.
+3. **Proposed (cheapest first):** S1MCP clock read + one write in any loaded world.
+4. **Proposed:** Minimap waypoint roundtrip and HUD/settings checks; then LightControl dev.19
+   UI/persistence (do not reuse a dev.18 session).
+5. **Proposed:** PropertyLEDs layout/rainbow, MessagesPlus order menus, WorldLook water/night.
+6. **Proposed:** HitmanPhone full Release chain on a backed-up disposable slot, then save/reload.
+7. **Out of scope:** any multiplayer check (owner decision 2026-10-24). TaxiDriver is closed
+   (owner-confirmed 2026-10-24).
 
 Record each result with the artifact hash, log excerpt and exact checkpoint/slot used. Do not
 promote a checkbox on compile or unit-test evidence alone.

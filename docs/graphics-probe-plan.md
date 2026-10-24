@@ -1,4 +1,11 @@
-# GraphicsProbe — read-only rendering discovery
+# GraphicsProbe - read-only rendering discovery
+
+> **Status 2026-10-24: retired.** This plan describes an archived diagnostic tool. The
+> native-sky consolidation removed GraphicsProbe from the tree; its source lives under
+> `Source/Archive/WorldLook/GraphicsProbe/` and its tests under
+> `Source/Archive/Tests/GraphicsProbe.Tests/`. Nothing here is built, deployed or part of the
+> solution, and the "still open" runtime items are not outstanding work. Kept as the historical
+> record of what the probe did and how it was accepted.
 
 ## Approved scope
 

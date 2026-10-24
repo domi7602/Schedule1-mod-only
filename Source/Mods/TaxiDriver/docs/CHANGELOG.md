@@ -1,6 +1,22 @@
 # Changelog
 
+## 1.0.0 (2026-10-24) — Milestone release of the accepted driver-controller repair
+- Version-only milestone: the production code is the owner-accepted 0.8.22 build. `git diff`
+  shows only the `MelonInfo` version string and `mod.json` metadata changed; no behaviour,
+  patch, prefab, save or S1API/S1MAPI surface was touched.
+- **Verified, owner-confirmed 2026-10-24:** Dominik confirmed the tax driver work is finished.
+  Individual tested actions and the exact session were not itemized, so the per-finding checks
+  in `driver-binding-verification.md` remain their own record.
+- The rebuilt 1.0.0 assembly carries the new version string and therefore has a different hash;
+  the code path is the accepted one. Known and unchanged: road-correction/jitter on some routes;
+  multiplayer is out of scope (owner does not play MP, 2026-10-24).
+
 ## 0.8.22 (2026-10-20) — Registered driver controller and retained patrol release
+- **Verified in-game 2026-10-24 (owner-confirmed):** Dominik confirmed the tax driver work is
+  finished. Individual tested actions and the exact session were not itemized, so the per-finding
+  checks in `driver-binding-verification.md` remain their own record rather than being marked
+  passed one by one. Known and unchanged: road-correction/jitter on some routes, and no separate
+  multiplayer acceptance.
 - Use driver.Behaviour and require exact owner, shared NetworkObject, ComponentIndex registration, BehaviourIndex stack membership and server readiness. No runtime-added NPCBehaviour/VehiclePatrolBehaviour, owner rewiring, registration repair or S1API/prefab/save changes. If no registered idle patrol exists, use the existing direct VehicleAgent.Navigate path.
 - Preserve borrowed route/vehicle/aggression/enabled state; retain the original lease and waypoint objects until release is confirmed. Reentrant cleanup cannot discard or resnapshot dirty state. Deactivate is requested at most once and need not complete synchronously. Pending release fences fallback, redispatch, polling retries, reverse and relocation without pausing the operation deadline or refilling budgets.
 - Permanent ownership/initialization loss can keep replacement navigation blocked until the native instance is destroyed or the scene is reloaded. During player takeover only the leased component is quiesced; no vehicle/seat actuation is issued, and restoration requires safe ownership again. Do not claim every pending condition is automatically recoverable.

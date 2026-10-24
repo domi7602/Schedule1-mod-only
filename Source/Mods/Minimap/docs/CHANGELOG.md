@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.3.5-dev.1 (2026-10-24) — Versioned search-store persistence
+- Development preparation, still NOT a playable sewer-key search release. No Hints tab, curated catalogue, area overlay, exact-marker suppression or production world/session binding is installed; existing HUD, markers, settings and waypoints are unchanged.
+- Add the unwired `SearchStore`: the versioned, fail-closed persistence layer the Phase-0 record listed as missing. It stores exactly the controller's `SearchRecord` values (world, target, area id/version, accepted) and deliberately has no completed/found field - completion stays a world observation.
+- Format `Version: 1`, at most 16 world-keyed records (newest first), 64 KB document cap and per-field length caps. An unknown version, a null/duplicate/invalid row, too many rows or an oversized document rejects the whole file; nothing is migrated, truncated or invented.
+- Atomic writes report success only when the write returned true; a failed write stays dirty and retries the same path. A corrupt primary is never overwritten: the `.bak` is tried once and, if valid, served read-only, and an explicit `Clear()` is the recovery that re-enables saving.
+- Rows are keyed by the adapter-verified world identity string, so a world replaced inside the same save slot cannot match an older record. `Find` never answers for a blank or unknown world.
+- 29 new tests in `Source/Tests/Minimap.Tests/SearchStoreTests.cs` (fresh store, round-trip, cancellation persistence, normalization, replacement/front ordering, cap eviction, dirty retry, corrupt primary with and without backup, unknown version, duplicate/invalid rows, oversized document, unreadable IO). Full suite 215 tests, Release build 0 warnings/errors.
+- Still open and explicitly not claimed: production adapter/world binding, curated area, Hints page, overlay, marker suppression and any in-game behaviour. See `search-mode-phase0.md`.
+
 ## 2.3.4-dev.1 (2026-10-18) — Waypoint safety and opt-in search investigation
 - Development preparation, NOT a playable sewer-key search release. No Hints tab, search-area overlay, production world/session binding or search-store IO is installed. Existing marker/configuration behavior remains unchanged.
 - Repair field-only waypoint JSON loss with a property-based DTO and production roundtrip tests. Lost `[{}]` entries are not reconstructed. Trim and validate names before lookup, reject markup/control characters/nonfinite positions, cap labels and usable rows, and canonicalize colors.

@@ -28,7 +28,7 @@ public static class BuildInfo
     public const string Name = "S1MCPServer";
     public const string Description = "MCP Server for Schedule I - Enables agentic LLM access to game objects";
     public const string Author = "SirTidez";
-    public const string Version = "1.0.4";
+    public const string Version = "1.0.5";
 }
 
 public class S1MCPServer : MelonMod

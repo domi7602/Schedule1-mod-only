@@ -136,8 +136,8 @@ These are historical local capabilities to check, not automatically exposed conn
 
 | Reported method | Described behavior | Verification boundary |
 |---|---|---|
-| `get_time_of_day` | No arguments; minutes, elapsed days, display, or unavailable in menu | Confirm units and actual fields |
-| `set_time_of_day` | `time` in hours or `minutes`; attempted host-owned time change with readback | Inspect authority and compare exact resulting state |
+| `get_time_of_day` | No arguments; `time_hhmm` (native HHMM, e.g. 1954 = 19:54), `time_minutes` (0-1439), `elapsed_days`, 24-hour `display`, or unavailable in menu | Units are proven since 1.0.5; one fresh in-game read check is still open |
+| `set_time_of_day` | Exactly one of `time` (decimal hours), `minutes` (0-1439) or `hhmm` (0-2359 or `"19:54"`); host-owned time change with `readback_hhmm`/`changed` | Inspect authority and compare the exact resulting clock |
 | `get_weather` | No arguments; current weather-weight fields or unavailable | Reading weights does not prove visual weather effects |
 | `list_mods` | Managed mod metadata and total count | A list alone is not patch-health evidence |
 
