@@ -5,7 +5,7 @@ versioning: SemVer.
 
 ## 0.1.10 (2026-10-25)
 - Tighten the landscape phone insets from 4.5 percent to about 1.2 percent and move the title band up so the controls sit closer to the glass. Inner card padding, sliders, selection and lighting are unchanged.
-- **Verified, owner-confirmed 2026-10-25.** Dominik confirmed the open landscape and tighter-inset look works. `Latest.log` 14:53:44–15:11:59 loaded v0.1.10, DLL `31E6E129…`, initialized `PropertyLEDsApp`, reported 35 verified rooms, built 5 LED groups and marked slot 1 ready for 3 owned properties. The log does not measure the 1.2 percent insets or edge clearance; those are owner-confirmed, not log-measured. An earlier screenshot the same day showed landscape only, not these insets.
+- **Verified, owner-confirmed 2026-10-25.** Dominik confirmed the LED edges are correct. `Latest.log` 14:53:44–15:11:59 loaded v0.1.10, DLL `31E6E129…`, initialized `PropertyLEDsApp`, reported 35 verified rooms, built 5 LED groups and marked slot 1 ready for 3 owned properties. The log does not measure the 1.2 percent insets; the edge clearance is his explicit confirmation, not a log measurement. An earlier screenshot the same day showed landscape only, not these insets.
 - Deployed 2026-10-25 with the game closed: installed `PropertyLEDs.dll` SHA-256 `31E6E1299F3C40B3DD0A5853510E6FE8D2FD30AA6DDF7042E26FB52673F516CD` (125,952 bytes). Release build 0 warnings/errors; 116 tests pass.
 
 ## 0.1.9 (2026-10-25)
