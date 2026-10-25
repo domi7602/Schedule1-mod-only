@@ -1,7 +1,7 @@
 {
   "name": "WorldLook",
   "author": "Dominik",
-  "version": "0.3.0-dev.3",
+  "version": "0.3.0-dev.4",
   "description": "Native sky with mild clock-weighted light and clear coastal water. Correct HHMM time conversion and one session toggle. Water shader embedded in the DLL.",
   "status": "experimental",
   "inGameVerify": "open",

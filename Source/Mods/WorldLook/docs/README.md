@@ -3,6 +3,7 @@
 WorldLook combines a mild native-light adjustment with clearer coastal water. The game owns its sky, clouds, sun, moon and stars.
 
 - **Ctrl+Shift+F7:** light and water ON/OFF together for this session; the profile is not rewritten.
+- [Direct MCP control](mcp-automation.md): explicit ON/OFF, status and menu transitions for automated acceptance with screenshots.
 - The F9 development status dump is removed in dev.3. Existing reports are historical evidence and are retained.
 - Light: correct native HHMM conversion; mild warmth peaks at 06:00/18:00 and is neutral at noon/night. Five evidenced color channels, native drift retained, owned writes restored.
 - Water: exact `Main/Map/StylizedWater2_Ocean`, native sky/weather inputs, an owned material clone and weak environment-color reflection. The water shader is embedded in `WorldLook.dll`.
@@ -44,7 +45,11 @@ The build does not install. Deployment uses `Tools/deploy-mod.ps1` for the candi
 - [Changelog](CHANGELOG.md) and `docs/history/`: historical 0.1.x observations. The standalone 0.2.0 prototype is an archived source reference, not the current build root.
 
 **Water and ON/OFF are owner-accepted and closed (2026-10-24, dev.2).** The dev.3 cleanup
-removes debug output without changing the shader, recipe or normal toggle behavior. It has not
-received new gameplay acceptance. It was installed and hash-verified on 2026-10-24.
-Overall WorldLook acceptance remains open for visible warmth,
-night/menu/reload and measured performance; the accepted water work is not part of that backlog.
+removes debug output without changing the shader, recipe or normal toggle behavior. It was
+installed and hash-verified on 2026-10-24; installation alone did not establish gameplay acceptance.
+The dev.3 session on 2026-10-25 measured repeatable Sun tint and restored ON lighting after
+reloading Dominik; the owner accepted normal night appearance. Dev.4 was installed on
+2026-10-25 and its agent-run MCP checks preserved OFF and ON through menu/reload, including
+measured light behavior and seven automatic screenshots. The reference-water shader reload
+failure was reproduced and remains open. Visible warmth and measured performance remain
+separate limits; the accepted water appearance stays closed.

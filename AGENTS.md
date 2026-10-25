@@ -117,7 +117,7 @@ Keep exactly one inventory row per mod and supported bold acceptance labels.
 | **LightControl** | ✅ (v0.1.1; 0.1.0 **Verified, owner-confirmed 2026-10-24**) | `Mods/LightControl/` | `LightControl.dll` | 0.1.1 deployed log-only Rainbow fix; prior acceptance not itemized |
 | **PropertyLEDs** | ✅ (v0.1.8, **Verified, owner-confirmed 2026-10-24**) | `Mods/PropertyLEDs/` | `PropertyLEDs.dll` + icon | Room LEDs, slot-isolated settings; actions not itemized |
 | **PhoneScrollFix** | ✅ (v2.0.0, hover look **Verified 2026-10-11**) | `Mods/PhoneScrollFix/` | `PhoneScrollFix.dll` | Clipped home-icon hover |
-| **WorldLook** | 🧪 (v0.3.0-dev.3, installed 2026-10-24; **In-Game-Verify open**) | `Mods/WorldLook/` | `WorldLook.dll` + embedded bundle | dev.2 water and ON/OFF owner-accepted 2026-10-24; remaining WorldLook limits below |
+| **WorldLook** | 🧪 (v0.3.0-dev.4, installed 2026-10-25; **In-Game-Verify open**) | `Mods/WorldLook/` | `WorldLook.dll` + embedded bundle | MCP ON/OFF/menu/reload tested; dev.2 water/ON-OFF and dev.3 night accepted; shader reload defect below |
 | **Shared** | ✅ workspace library | `Mods/Shared/` | `Shared.dll` | Reusable helpers; section 5 |
 | **S1API** | ✅ 3.2.1 stable | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | Pinned dependency; section 1 |
 
@@ -132,9 +132,16 @@ _DiagPerfCounter plus archived tests. Retired dependencies and their old version
 The [water-surface record](Source/Mods/WorldLook/docs/water-surface-verification.md) identifies
 the accepted dev.2 session: DLL `410fecf7…`, bundle `29557b87…`. **Water and ON/OFF are owner-accepted
 and closed (2026-10-24)**; do not reopen them from older checklists. Positive numeric warmth
-was observed at 17:42; visible warmth, night/reload and measured performance remain unverified.
+was observed at 17:42. The dev.3 session on 2026-10-25 measured repeatable Sun tint near 18:00,
+and Dominik accepted normal night appearance. ON lighting survived a same-process Dominik
+menu/reload, but the water renderer fell back to its native shader; that is a separate reload
+defect. Visible warmth and measured performance remain unverified.
 Dev.3 removes F9/debug chatter without changing the shader/recipe; installed 2026-10-24,
-DLL `cc9a206a…`. Installation is hash-verified; no new gameplay acceptance is implied.
+DLL `cc9a206a…`. Dev.4 (`5522f394…`, installed 2026-10-25) adds explicit session-only MCP control:
+automated OFF/ON menu roundtrips preserve requested state and measured lighting, with seven
+screenshots. Reference-water reload still falls back to the native shader. See the
+[automation contract](Source/Mods/WorldLook/docs/mcp-automation.md) and
+[current acceptance record](Source/Mods/WorldLook/docs/in-game-acceptance.md).
 Preserve earlier reports as evidence. Mild light peaks at 06:00/18:00;
 zero strength from 07:30 through 16:30 is expected.
 [Prior narrative](docs/history/agent-mod-history-20261024.md) is historical, not a current backlog.

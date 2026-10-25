@@ -1,5 +1,14 @@
 # WorldLook
 
+## 0.3.0-dev.4 (2026-10-25)
+
+- Add an owned persistent `WorldLook.Automation` component for existing S1MCP reflection tools: parameterless status, explicit ON/OFF and native return-to-menu commands. No new S1MCP dependency/server, periodic diagnostics or profile writes.
+- F7 and MCP share one idempotent session setter. Repeated same-state requests retain resource/fault state; OFF→ON remains deliberate recovery. Mutations require the game thread and a ready singleplayer save; status remains available in Menu. A requested state is not a claim that every render channel is applied.
+- Add the bounded local MCP driver and synthetic transport/identity/readback tests, plus coordinator/adapter lifecycle tests. Screenshots remain agent-driven through supported Computer Use APIs, paired with timestamps and evidence hashes. [Automation contract](mcp-automation.md).
+- Preserve the dev.3 session evidence from 2026-10-25: repeated Sun tint at 18:00, owner-accepted normal night, and restored ON lighting after Dominik menu/reload. The reference-water shader failed on that reload and remains a separate known defect; this control change does not alter shader assets or recipes. [Acceptance record](in-game-acceptance.md).
+- Installed/hash-verified DLL `5522f394523dbaaba7eab675bb579df8523892b7db7890d7baed5201640949e4`; Full 21/21 and 41 WorldLook tests passed. Agent-run MCP acceptance in Dominik verified explicit/idempotent ON/OFF and both same-process menu/reload state/light paths, with seven screenshots. All 44 backed-up native-save files and the profile stayed byte-identical. Reference-water fallback after reload was reproduced and remains open; no full visual/performance acceptance is implied.
+- A real initial loading-frame status timeout led to bounded read-only status retries; mutations remain once-only and failed evidence is retained. The revised driver passed 81/81 synthetic checks and independent review. Both complete reload runs then succeeded without a timeout.
+
 ## 0.3.0-dev.3 (2026-10-24)
 
 - Remove Ctrl+Shift+F9, the runtime JSON status export and water diagnostic snapshots/timing. Remove successful shader/material/input/transition detail logs. Keep F7, concise startup/toggle confirmation, and errors/fallback/restore warnings. The internal light snapshot remains for the existing lifecycle tests, with no runtime export.

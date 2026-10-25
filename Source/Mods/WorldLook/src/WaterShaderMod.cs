@@ -19,6 +19,10 @@ namespace WaterShader
         private bool _shutdown;
         private bool _enabled = true;
 
+        // Cached state only; on-demand tooling must not discover or clone water resources.
+        internal string AutomationState => _session?.State.ToString() ?? "Uninitialized";
+        internal bool ReferenceReady => _reference?.IsReady == true;
+
         public void OnLateInitializeMelon()
         {
             if (_session != null) return;

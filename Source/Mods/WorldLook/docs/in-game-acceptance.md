@@ -1,6 +1,6 @@
 # WorldLook — acceptance status and remaining checks
 
-## Current status — 2026-10-24
+## Current status — 2026-10-25
 
 **Water and ON/OFF are accepted by Dominik and closed.** His request to mark water finished
 supersedes the open water items in the original protocol below. The
@@ -13,8 +13,10 @@ preserves the exact owner statements, candidate identity, screenshots, log and F
 | Calm morning motion | Owner-confirmed 2026-10-23; remains closed |
 | ON/OFF including re-enable | Owner-confirmed without errors, 2026-10-24; captured ON→OFF additionally has clean state reports |
 | Startup ON | Expected from profile `Enabled=true`, owner-confirmed; session OFF is not persisted across a process restart |
-| Positive warmth | Numeric strength 0.9045084971874737 observed at 17:42; visible effect not separately accepted |
-| Native night, menu/reload, named save/scene roundtrip | Not separately observed in this session |
+| Positive warmth | dev.2 numeric strength 0.9045084971874737 at 17:42; dev.3 same-session MCP ON/OFF/ON at 18:00 shows repeatable controller-Sun red +6% / blue -6%; visible warmth is not separately accepted |
+| Native night | Owner-confirmed normal appearance without unusual coloration on dev.3, 2026-10-25, after MCP set time to 21:00 |
+| Menu/reload | dev.4 MCP-driven OFF→Menu→reload and ON→Menu→reload preserve requested state and measured lighting in Dominik, 2026-10-25; reference-water shader reload still fails separately |
+| Automated control/screenshots | dev.4 parameterless MCP commands, idempotence and both reload sequences observed; seven game/menu screenshots captured by the agent |
 | Comparable frame timings | Not measured; recorder and acceptance budget still pending |
 
 The dev.3 cleanup removes F9 and normal diagnostic chatter. **Do not request fresh F9 reports
@@ -23,10 +25,89 @@ reports and backups as evidence. The water shader/recipe and F7 behavior are unc
 the cleanup build was installed and hash-verified on 2026-10-24, with no new gameplay acceptance.
 
 For remaining WorldLook work, use labelled visual observations and `MelonLoader/Latest.log`
-with the actual candidate/slot/time. Night/menu/reload checks and any raw frame-time experiment
-need their own observed results. Do not add hidden debug output again or reopen accepted water
+with the actual candidate/slot/time. The scoped night/menu/reload results below do not establish
+visual warmth or frame-time acceptance. Do not add hidden debug output again or reopen accepted water
 merely to fill the original protocol. Measured performance requires a verified recorder and
 an agreed budget; a screenshot, log timestamp or average FPS is not that measurement.
+
+### dev.3 MCP session — 2026-10-25
+
+Installed DLL `cc9a206a2e13b3824ff25e7d8d36e4d73114eefae9beff78cfc9b1bd610ae356`,
+game v0.4.7f12, S1MCP 1.0.5, process 18124, owner-selected `Dominik` / `SaveGame_1`.
+Local raw evidence is preserved under `.scratch/WorldLook/mcp-lightcheck-20261025/`:
+`07-sun-comparison.json`, `09-night-owner-acceptance.json`, `20-reload-on-result.json`
+and `25-automation-result.json`, with correlated requests, logs and screenshot hashes.
+These optional local files are not tracked fixtures. The clock was changed with the owner's
+explicit authorization; native-save backups and the unchanged startup profile were retained.
+
+The ON→Menu→reload sequence used one confirmed `load_save` request, then independently
+confirmed `Main`, `IsGameLoaded=true`, `IsLoading=false`, the exact save path/name and the
+same process. The Sun color differed by less than 0.09% from the pre-menu ON sample near
+18:00. This establishes that measured light behavior, not every render channel or resource
+cleanup. Menu loaded three times during the native return sequence; that observation remains
+part of the record.
+
+At 08:55:39.731 local time, the reload logged `reference shader unavailable or unsupported`.
+Subsequent renderer readback returned `Stylized Water 2/Standard (Tessellation)` instead of
+`S1Mods/ReferenceWater`. The reference-shader reload path therefore remains a separate
+defect; earlier owner acceptance of the water appearance stays closed. A stale shader cache
+is a source-supported hypothesis, not a proven native unload cause.
+
+The owner requested direct MCP control after synthetic Windows hotkeys failed to produce
+an ON/OFF log entry. Screenshot capture and time/readback already work; see the
+[automation contract](mcp-automation.md) for deterministic commands and evidence limits.
+
+### dev.4 automated MCP session — 2026-10-25
+
+Installed DLL SHA-256 `5522f394523dbaaba7eab675bb579df8523892b7db7890d7baed5201640949e4`;
+game v0.4.7f12, S1MCP 1.0.5, process **17524**, started **08:18:29.2887241 UTC** through Steam.
+All loads resolved the owner-selected `Dominik` / `SaveGame_1` from fresh save metadata.
+The endpoint registered in IL2CPP and its parameterless methods returned JSON through the
+existing bridge. No S1MCP binary or shader asset changed.
+
+| Check | Observed result |
+| --- | --- |
+| Startup/status in Menu | ON from the unchanged profile; both modules initialized; status readable before a save is loaded |
+| Explicit ON/OFF | Real ON→OFF and OFF→ON setter responses have `changed=true`; repeated ON and OFF have `changed=false`, with separate status readbacks |
+| OFF→Menu→reload | One `load_save`, complete load of Dominik in the same process; OFF remains OFF, water `Stopped`, native shader retained |
+| ON→Menu→reload | One `load_save`, complete load of Dominik in the same process; ON remains ON and measured light tint is retained |
+| Images | Seven unedited game/menu captures with hashes and associated requests; no owner screenshot upload needed |
+| Reference water after reload | **FAIL:** ON reports `referenceWaterReady=false` and the renderer uses the native shader; the prior reload defect is reproduced |
+
+At matched **18:05–18:08** sampling windows before the first menu transition, Sun RGB was
+ON `(0.73883194, 0.6216188, 0.5267627)` and OFF `(0.69736606, 0.62152785, 0.5598719)`:
+approximately **+5.95% red / −5.91% blue**, with green nearly unchanged. The renderer changed
+from `S1Mods/ReferenceWater` to `Stylized Water 2/Standard (Tessellation)` on OFF.
+The maximum absolute RGB drift after OFF reload was **0.0005792** (18:04–18:07); after ON
+reload it was **0.00001741** relative to the preceding ON sample. This verifies the measured
+light channel and state preservation, not subjective warmth, every lighting channel or performance.
+
+The reference-water warning appeared at **09:24:18.486** and **09:25:39.368 local time**.
+Both subsequent ON readbacks showed native fallback despite `waterState=Applied` and false
+coordinator fault flags. The automation correctly exposes this distinction; no shader fix is
+included in dev.4. Each native menu transition again emitted three Menu-loaded callbacks;
+the record therefore does not assert universally clean resource lifecycle behavior.
+
+The first load was accepted but its subsequent status query timed out during a long loading
+frame. A later independent query confirmed readiness; the load command was never repeated.
+The driver was then hardened to retry **only** confirmed transport timeouts on read-only
+status polling within the original deadline. Both complete OFF/ON reload runs finished
+without a timeout. The initial failure and resulting bridge send error are preserved.
+
+Local evidence is under `.scratch/WorldLook/mcp-control-20261025/`: `acceptance-result.json`,
+action/readback JSONL files (notably `12-reload-off.jsonl` and `20-reload-on.jsonl`),
+`Latest-after-test.log`, deployment receipt, installed identities and `screenshots/manifest.jsonl`.
+These are optional local artifacts, not tracked CI fixtures. The first image's time is its
+save time as explicitly corrected in the manifest; subsequent images have capture intervals.
+The HUD/camera are visible, but moving traffic and small clock differences preclude exact-frame
+pixel claims. A shifted Minimap after reload is recorded separately; no Minimap change is included.
+
+The game was quit through its menu after testing. All **44 backed-up native save files** and
+the WorldLook profile remained byte-identical. Profile SHA-256
+`73b8e6dc25029a817bdcddac5487a1a8fc254597f43d57a1745cf07a559a1d65`; startup remains ON.
+The game-closed backup and earlier dev.2/dev.3 evidence are retained. Release build and Full
+verification passed **21/21** before deployment, including **41 WorldLook tests**; the later
+read-only timeout improvement passed **81/81** driver checks and an independent code review.
 
 ## Historical dev.2 protocol — prepared before the owner session
 

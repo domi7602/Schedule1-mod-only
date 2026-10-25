@@ -169,6 +169,16 @@ WorldLook/backup files before and after. Receipts and preservation manifests rem
 distinguishes completed targets from a possibly partial target. There is no rollback or
 automatic background cleanup. An empty selection is a successful no-op.
 
+## WorldLook live acceptance
+
+`invoke-worldlook-mcp.ps1` provides explicit `Status`, `On`, `Off`, `Menu`, `Load` and `Time`
+actions against the local S1MCP bridge. Mutations bind to an owner-selected native save and
+game process, use deterministic WorldLook commands and independently verify completion.
+Each action writes a fresh JSONL evidence file; ambiguous mutation outcomes are not retried.
+See the [WorldLook automation contract](../Source/Mods/WorldLook/docs/mcp-automation.md)
+for parameters, screenshot orchestration and the distinction between requested state and
+rendering acceptance. This helper is not a CI gate and never launches/builds/deploys the game.
+
 ## Conventions
 
 - Scripts are UTF-8, LF line endings (enforced by `.gitattributes`), 4-space indentation (`.editorconfig`).
