@@ -13,37 +13,49 @@ internal static class ShaderAssets
 {
     private const string ResourceName = "WorldLook.Shaders.bundle";
     private const int MaximumBytes = 64 * 1024 * 1024;
-    private static readonly Dictionary<string, Shader> Shaders = new(StringComparer.Ordinal);
-    private static readonly HashSet<string> FailedAssets = new(StringComparer.Ordinal);
+    private static readonly Dictionary<string, CachedShader> Shaders = new(StringComparer.Ordinal);
     private static AssetBundle? _bundle;
-    private static bool _attempted;
 
+    // Called once per explicit ReferenceWaterRuntime initialization, never from its frame loop.
+    // A failed request may retry on the next enable/load; managed wrappers are not native roots.
     public static Shader? LoadShader(string assetPath, Action<string> log)
     {
-        if (Shaders.TryGetValue(assetPath, out var cached)) return cached;
-        if (FailedAssets.Contains(assetPath)) return null;
+        if (Shaders.TryGetValue(assetPath, out var cached))
+        {
+            if (IsSupported(cached.Value)) return cached.Value;
+            cached.ReleaseRetention();
+            Shaders.Remove(assetPath);
+        }
         if (!EnsureLoaded(log)) return null;
+        CachedShader? candidate = null;
         try
         {
             var shader = _bundle!.LoadAsset<Shader>(assetPath);
-            if (shader == null || !shader.isSupported)
+            if (!IsSupported(shader))
                 throw new InvalidDataException("Shader missing or unsupported: " + assetPath);
-            Shaders.Add(assetPath, shader);
+            candidate = new CachedShader(shader!);
+            candidate.Retain();
+            Shaders.Add(assetPath, candidate);
             return shader;
         }
         catch (Exception ex)
         {
-            FailedAssets.Add(assetPath);
+            candidate?.ReleaseRetention();
             log("[assets] " + ex.GetType().Name + ": " + ex.Message);
             return null;
         }
     }
 
+    private static bool IsSupported(Shader? shader)
+    {
+        try { return WaterShader.WaterEnvironment.IsUsable(shader) && shader!.isSupported; }
+        catch { return false; }
+    }
+
     private static bool EnsureLoaded(Action<string> log)
     {
-        if (_bundle != null) return true;
-        if (_attempted) return false;
-        _attempted = true;
+        if (WaterShader.WaterEnvironment.IsUsable(_bundle)) return true;
+        _bundle = null;
         try
         {
             using Stream stream = typeof(ShaderAssets).Assembly.GetManifestResourceStream(ResourceName)
@@ -54,7 +66,7 @@ internal static class ShaderAssets
             stream.CopyTo(buffer);
             byte[] bytes = buffer.ToArray();
             _bundle = TryLoadFromMemory(bytes, log);
-            if (_bundle == null)
+            if (!WaterShader.WaterEnvironment.IsUsable(_bundle))
             {
                 string bundleHash = Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
                 string directory = SafeStorage.GetUserDataPath("WorldLook", "ShaderCache");
@@ -80,7 +92,8 @@ internal static class ShaderAssets
                 }
                 _bundle = AssetBundle.LoadFromFile(path);
             }
-            if (_bundle == null) throw new InvalidDataException("Unity rejected the embedded bundle.");
+            if (!WaterShader.WaterEnvironment.IsUsable(_bundle))
+                throw new InvalidDataException("Unity rejected the embedded bundle.");
             return true;
         }
         catch (Exception ex)
@@ -107,7 +120,7 @@ internal static class ShaderAssets
                     : new object?[] { nativeBytes, 0u };
                 var loaded = method.Invoke(null, arguments) as AssetBundle;
                 GC.KeepAlive(nativeBytes);
-                if (loaded != null) return loaded;
+                if (WaterShader.WaterEnvironment.IsUsable(loaded)) return loaded;
             }
             catch (Exception ex)
             {
@@ -142,11 +155,40 @@ internal static class ShaderAssets
 
     public static void Dispose()
     {
+        foreach (var shader in Shaders.Values) shader.ReleaseRetention();
         Shaders.Clear();
-        FailedAssets.Clear();
         // Retained material consumers may still borrow the shader after a failed restore.
-        try { if (_bundle != null) _bundle.Unload(false); } catch { }
+        try { if (WaterShader.WaterEnvironment.IsUsable(_bundle)) _bundle!.Unload(false); } catch { }
         _bundle = null;
-        _attempted = false;
+    }
+
+    private sealed class CachedShader
+    {
+        internal Shader Value { get; }
+        private bool _addedRetention;
+
+        internal CachedShader(Shader value) { Value = value; }
+
+        internal void Retain()
+        {
+            HideFlags flags = Value.hideFlags;
+            if ((flags & HideFlags.DontUnloadUnusedAsset) != 0) return;
+            // Own only this bit; scene teardown may leave no native material using the asset.
+            _addedRetention = true;
+            Value.hideFlags = flags | HideFlags.DontUnloadUnusedAsset;
+            if ((Value.hideFlags & HideFlags.DontUnloadUnusedAsset) == 0)
+                throw new InvalidDataException("Unity did not retain the embedded water shader.");
+        }
+
+        internal void ReleaseRetention()
+        {
+            if (!_addedRetention || !WaterShader.WaterEnvironment.IsUsable(Value)) return;
+            try
+            {
+                Value.hideFlags &= ~HideFlags.DontUnloadUnusedAsset;
+                _addedRetention = false;
+            }
+            catch { /* Never destroy an asset that a retained material may still borrow. */ }
+        }
     }
 }

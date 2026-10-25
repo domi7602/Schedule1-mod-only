@@ -10,7 +10,7 @@ using S1Mods.Shared;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-[assembly: MelonInfo(typeof(WorldLook.WorldLookMod), "WorldLook", "0.3.0-dev.4", "Dominik")]
+[assembly: MelonInfo(typeof(WorldLook.WorldLookMod), "WorldLook", "0.3.0-dev.5", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace WorldLook;

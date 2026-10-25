@@ -1,0 +1,1 @@
+WorldLook cache test payload; not a Unity bundle or render fixture.

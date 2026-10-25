@@ -15,8 +15,8 @@ preserves the exact owner statements, candidate identity, screenshots, log and F
 | Startup ON | Expected from profile `Enabled=true`, owner-confirmed; session OFF is not persisted across a process restart |
 | Positive warmth | dev.2 numeric strength 0.9045084971874737 at 17:42; dev.3 same-session MCP ON/OFF/ON at 18:00 shows repeatable controller-Sun red +6% / blue -6%; visible warmth is not separately accepted |
 | Native night | Owner-confirmed normal appearance without unusual coloration on dev.3, 2026-10-25, after MCP set time to 21:00 |
-| Menu/reload | dev.4 MCP-driven OFF→Menu→reload and ON→Menu→reload preserve requested state and measured lighting in Dominik, 2026-10-25; reference-water shader reload still fails separately |
-| Automated control/screenshots | dev.4 parameterless MCP commands, idempotence and both reload sequences observed; seven game/menu screenshots captured by the agent |
+| Menu/reload | dev.5, 2026-10-25: two ON reloads and two OFF reloads followed by ON passed in Dominik; actual renderer shader/support readbacks confirm the reference-water reload fix |
+| Automated control/screenshots | dev.4 control/idempotence evidence retained; dev.5 adds four completed reloads, eight renderer samples and ten agent-captured game/menu screenshots |
 | Comparable frame timings | Not measured; recorder and acceptance budget still pending |
 
 The dev.3 cleanup removes F9 and normal diagnostic chatter. **Do not request fresh F9 reports
@@ -108,6 +108,64 @@ the WorldLook profile remained byte-identical. Profile SHA-256
 The game-closed backup and earlier dev.2/dev.3 evidence are retained. Release build and Full
 verification passed **21/21** before deployment, including **41 WorldLook tests**; the later
 read-only timeout improvement passed **81/81** driver checks and an independent code review.
+
+### dev.5 shader-cache repair and automated reloads — 2026-10-25
+
+**The separately observed reference-water reload defect is resolved in this tested session.**
+Installed DLL SHA-256 `3f46ae888db9b7dcc61db7a4c83a211274c849451056dae08292a730daebd8c9`,
+embedded bundle `29557b87609c367e3b568d84d10400d67c980581a1e3491fbd455def9794c8ef`
+(unchanged from accepted dev.2). Game v0.4.7f12 / Unity 2022.3.62f2, S1MCP 1.0.5,
+process **12360**, started through Steam at **08:52:01.9945477 UTC**. Each load freshly
+resolved `Dominik` / `SaveGame_1`; all four roundtrips stayed in that same singleplayer process.
+
+The cache now checks native shader/bundle validity and shader support before reuse. It retains
+its owned shader with `DontUnloadUnusedAsset`, preserves other flags, and permits a new bounded
+acquisition on the next explicit initialization after failure. There is no per-frame reload loop.
+Shutdown clears only the retention bit this owner added and still uses `Unload(false)`.
+Unity documents [the retention flag](https://docs.unity3d.com/2022.3/Documentation/ScriptReference/HideFlags.DontUnloadUnusedAsset.html)
+and [non-destructive bundle unloading](https://docs.unity3d.com/2022.3/Documentation/ScriptReference/AssetBundle.Unload.html).
+The unchecked stale-cache path was present in the source; the exact native unload trigger in
+the earlier sessions remains unproven. Shader code, bundle and water recipe were not changed.
+
+| Automated check | Result and independent readback |
+| --- | --- |
+| ON→Menu→reload, twice | Requested ON preserved; water `Applied`, `referenceWaterReady=true`; renderer shader `S1Mods/ReferenceWater`, `isSupported=true` |
+| OFF→Menu→reload, twice | Requested OFF preserved; water `Stopped`, `referenceWaterReady=false`; renderer uses `Stylized Water 2/Standard (Tessellation)`, supported |
+| ON after each OFF reload | Both re-enables restore the supported `S1Mods/ReferenceWater`; neither falls back to native water |
+| Final repeated ON | Idempotent acknowledgement (`changed=false`), followed by independent state readback |
+| Log and exit | No reference-shader warning in this process; final Menu reached and game quit through its native UI |
+| Saved data | All 44 backed-up native-save files byte-identical, no new files in that slot; WorldLook profile unchanged |
+
+The eight renderer samples read **`sharedMaterial`**, never the allocating `material` getter.
+Ten unedited screenshots include Main and Menu, with actual capture intervals, process identity,
+associated request files and SHA-256 hashes. They document the saved street viewpoint and HUD,
+not a fresh close-up water appearance assessment. No water-appearance acceptance is inferred
+from those screenshots; the owner's earlier acceptance remains closed. Sun readings are retained
+as context, with differing clock/capture times, not as a new exact-frame visual comparison.
+
+The initial cold load was accepted once. Its read-only status polling hit a long loading-frame
+timeout; a later response carried the old request ID, which the driver rejected. A fresh query
+then independently confirmed ready Main/Dominik in the pinned process. No load mutation was
+repeated. **All four subsequent reload commands completed successfully**, each with exactly one
+`load_save` request and independent renderer verification. The initial transport failure remains
+in the evidence; this run does not claim that cold-load polling is free of bridge timing issues.
+The previously observed three Menu callbacks per native transition and shifted Minimap after
+reload remain separate observations, outside this cache repair.
+
+Local evidence: `.scratch/WorldLook/reload-fix-20261025/acceptance-result.json`, the numbered
+JSONL files (reloads `07`, `13`, `19`, `24`; renderer samples `05`, `09`, `11`, `15`, `17`, `21`,
+`26`, `29`), `Latest-after-test.log`, installed/embedded identities, deployment receipts and
+`screenshots/manifest.jsonl`. Backup: `.backups/WorldLook/reload-fix-dev5-20261025-07db56f6/`
+with a hash manifest of the prior installation, profile, log and native save. These are optional
+local artifacts, not tracked CI fixtures. Profile SHA-256 remains
+`73b8e6dc25029a817bdcddac5487a1a8fc254597f43d57a1745cf07a559a1d65`.
+
+Before installation, Full verification passed **21/21** including **1,183 water tests**
+(16 new cache cases), **41 WorldLook tests** and **81 MCP-driver checks**. Independent cache
+review found no blocking issue. The native-free cache tests execute production cache code
+against explicit Unity boundary doubles; actual Unity lifetime behavior is evidenced only by
+the scoped live checks above. Visible warmth and measured performance remain separate open
+WorldLook acceptance items; multiplayer remains out of scope.
 
 ## Historical dev.2 protocol — prepared before the owner session
 

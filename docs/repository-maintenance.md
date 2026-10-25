@@ -112,7 +112,8 @@ and closed as of 2026-10-24**. The
 identifies the accepted dev.2 DLL `410fecf7…` and bundle `29557b87…`, prior GPU/build reviews,
 calm morning motion, the fresh ON→OFF reports and Dominik's acceptance. The dev.3 diagnostic
 cleanup leaves the shader/recipe unchanged and was installed/hash-verified on 2026-10-24.
-Dev.4 MCP control was installed and tested on 2026-10-25; scope and retained defects follow below.
+Dev.4 MCP control and the dev.5 shader-reload repair were installed and tested on 2026-10-25;
+their scoped results and remaining checks follow below.
 
 The [acceptance record and protocol](../Source/Mods/WorldLook/docs/in-game-acceptance.md)
 separates closed water work from remaining WorldLook evidence. Positive numeric warmth was
@@ -123,8 +124,8 @@ owner-agreed performance budget. F9 is removed in dev.3; existing reports remain
 - [x] ON/OFF including re-enable; owner confirmed without errors 2026-10-24.
 - [ ] Visible positive warmth near 06:00 or 18:00; positive numeric strength already observed.
 - [x] Native night; dev.3 owner-confirmed normal on 2026-10-25.
-- [x] Automated ON/OFF menu/reload state and measured-light checks, dev.4 on 2026-10-25 in Dominik; seven agent-captured screenshots. Reference-water shader reload still fails separately.
-- [ ] Repair and recheck the reference-water shader reload path; prior appearance acceptance remains closed.
+- [x] Automated ON/OFF menu/reload state and measured-light checks, dev.4 on 2026-10-25 in Dominik; seven agent-captured screenshots. Its separate shader fallback remains historical evidence.
+- [x] Reference-water shader reload repaired in dev.5 and MCP-tested on 2026-10-25: two ON reloads and two OFF reloads followed by ON passed actual renderer/support checks, with ten scene/menu screenshots. Prior appearance acceptance remains closed.
 - [ ] Comparable ON/OFF game frame-time measurements.
 
 Owner-accepted mods remain closed, including the version-only Minimap/TaxiDriver releases.

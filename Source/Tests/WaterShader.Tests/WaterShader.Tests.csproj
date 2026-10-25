@@ -12,5 +12,8 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2"><PrivateAssets>all</PrivateAssets></PackageReference>
     <!-- Pure water recipes, environment validation, shader transactions and session ownership. -->
     <Compile Include="../../Mods/WorldLook/src/WaterRecipePolicies.cs" Link="WaterRecipePolicies.cs" />
+    <!-- Execute the production asset cache against explicit native/loader boundary doubles. -->
+    <Compile Include="../../Mods/WorldLook/src/ShaderAssets.cs" Link="ShaderAssets.cs" />
+    <EmbeddedResource Include="ShaderCacheBundle.txt" LogicalName="WorldLook.Shaders.bundle" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,12 @@
 # WorldLook
 
+## 0.3.0-dev.5 (2026-10-25)
+
+- Repair shader-cache lifetime across menu/reload: validate native shader and bundle objects, retain the owned shader with `DontUnloadUnusedAsset`, and allow one acquisition per explicit initialization after stale or failed loads. Existing flags are preserved; shutdown releases only the owned retention bit and keeps `Unload(false)` for borrowed material consumers.
+- Keep the embedded water shader, bundle and recipe unchanged. The dev.3/dev.4 fallback evidence remains in the [acceptance record](in-game-acceptance.md); the exact native unload trigger is not established by those observations.
+- Add native-free tests of the real cache implementation with Unity boundary doubles. These cover lifetime and recovery decisions; native reload verification is recorded separately.
+- Installed DLL `3f46ae888db9b7dcc61db7a4c83a211274c849451056dae08292a730daebd8c9`; Full 21/21 passed (1,183 water tests, including 16 new cache cases; 41 WorldLook and 81 driver checks). Agent-run MCP tests in Dominik passed two ON reloads and two OFF reloads followed by ON, confirmed by eight actual renderer shader/support readbacks and ten screenshots. No shader warning; all 44 native-save files and the profile stayed unchanged. Initial cold-load polling rejected a stale response after a timeout; fresh readiness was confirmed without repeating the load. Earlier failure evidence and remaining visual/performance limits are retained in the acceptance record.
+
 ## 0.3.0-dev.4 (2026-10-25)
 
 - Add an owned persistent `WorldLook.Automation` component for existing S1MCP reflection tools: parameterless status, explicit ON/OFF and native return-to-menu commands. No new S1MCP dependency/server, periodic diagnostics or profile writes.

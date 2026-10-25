@@ -50,6 +50,10 @@ installed and hash-verified on 2026-10-24; installation alone did not establish 
 The dev.3 session on 2026-10-25 measured repeatable Sun tint and restored ON lighting after
 reloading Dominik; the owner accepted normal night appearance. Dev.4 was installed on
 2026-10-25 and its agent-run MCP checks preserved OFF and ON through menu/reload, including
-measured light behavior and seven automatic screenshots. The reference-water shader reload
-failure was reproduced and remains open. Visible warmth and measured performance remain
-separate limits; the accepted water appearance stays closed.
+measured light behavior and seven automatic screenshots; its shader fallback remains historical
+evidence. Dev.5 repairs shader-cache lifetime with the same bundle/recipe. On 2026-10-25,
+four automated Dominik reloads (two ON, two OFF followed by ON) passed actual shader/support
+readbacks, with ten scene/menu screenshots and unchanged profile/native saves. The reload
+defect is closed for these tested paths. Visible warmth and measured performance remain
+separate limits; the accepted water appearance stays closed. See the acceptance record for
+the initial cold-load transport failure and limits of the scene screenshots.

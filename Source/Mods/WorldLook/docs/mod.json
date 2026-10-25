@@ -1,12 +1,12 @@
 {
   "name": "WorldLook",
   "author": "Dominik",
-  "version": "0.3.0-dev.4",
+  "version": "0.3.0-dev.5",
   "description": "Native sky with mild clock-weighted light and clear coastal water. Correct HHMM time conversion and one session toggle. Water shader embedded in the DLL.",
   "status": "experimental",
   "inGameVerify": "open",
   "manualTrigger": "Ctrl+Shift+F7 toggles light and water together for the session. Configuration is read on startup from UserData/WorldLook/WorldLook.json. F9 diagnostics removed in dev.3.",
-  "reportPath": "Startup, toggle confirmations and warnings/errors in MelonLoader/Latest.log; existing status.json reports are historical only",
-  "limitations": "Native sky/clouds/sun/moon/stars remain game-owned. Mild warmth peaks at 06:00 and 18:00, neutral at noon/night. Water targets only Main/Map/StylizedWater2_Ocean and needs camera depth/opaque input requests; those settings do not prove texture contents. Water and ON/OFF owner-accepted on dev.2, 2026-10-24. Visible warmth, night/reload and measured performance remain unverified; dev.3 cleanup has no new gameplay acceptance.",
+  "reportPath": "Startup, toggle confirmations and warnings/errors in MelonLoader/Latest.log; on-demand MCP status via WorldLook.Automation. Existing status.json reports are historical only; scoped evidence is in docs/in-game-acceptance.md",
+  "limitations": "Native sky/clouds/sun/moon/stars remain game-owned. Mild warmth peaks at 06:00 and 18:00, neutral at noon/night. Water targets only Main/Map/StylizedWater2_Ocean and needs camera depth/opaque input requests; those settings do not prove texture contents. Dev.2 water/ON-OFF owner-accepted 2026-10-24; dev.3 normal night owner-accepted 2026-10-25. Dev.5 reference-shader reload repair passed four same-process singleplayer MCP roundtrips on 2026-10-25. Visible warmth and measured performance remain unverified; multiplayer is out of scope.",
   "removal": "With the game closed, remove Mods/WorldLook.dll and its optional PDB/metadata under UserData/WorldLook. Keep Shared. The old external s1reference.bundle belongs to the archived 0.1.x build."
 }
