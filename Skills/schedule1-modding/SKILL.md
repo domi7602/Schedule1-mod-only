@@ -1,43 +1,38 @@
 ---
 name: schedule1-modding
-description: "Plan, build and verify Schedule I mods. Keywords: Schedule I, MelonLoader, IL2CPP, Harmony, HarmonyPatch, PhoneApp, S1API, Unity, mod scaffolding, SafeStorage, UITheme."
+description: "Plan, build and verify Schedule I mods."
 ---
 
 # Schedule I modding
 
 ## Scope and prerequisites
 
-Use this entry point for a new mod, a cross-domain change, build/deployment work or a repository-wide review. For a narrow API lookup, load the matching specialty directly.
+Use for new mods, cross-domain changes, builds/deployment or repository reviews. Narrow lookups can load the matching specialty directly.
 
-Before changing code, read the [workspace contract](references/working-contract.md) once for this task. Locate the real repository, its current AGENTS.md, compatibility record and build configuration. Distinguish the skill installation path from the mod repository and the game installation.
+Before mutation or compatibility claims, read the [workspace contract](references/working-contract.md) once. It owns environment resolution, AGENTS.md, authorization and the new-mod file budget.
 
 ## Workflow
 
-1. Establish the requested outcome, mode (review, plan, implement, test or deploy), affected mod and acceptance criteria. Preserve existing unrelated work.
-2. Inspect the current implementation and the smallest relevant reference. Read actual helper contracts before using a named Shared service.
-3. Resolve relevant APIs against the target assemblies and matching source. A name in a reference is a search lead, not a usable signature. Use the [evidence policy](references/evidence-policy.md).
-4. Choose the smallest coherent change. Separate domain rules, runtime integration and presentation where that makes failures easier to contain. For a new mod, target at most 20 hand-maintained production source/project files including the csproj; keep smaller mods smaller. Tests/assets/docs do not count. Do not consolidate an existing mod unless requested.
-5. For lifecycle, persistence, financial or network changes, state the relevant transitions and partial-failure behavior before editing. Follow any concrete, already configured review process; do not invent a reviewer or request authorization already given.
-6. Implement within scope, retaining observability and restoration paths. Reuse verified project helpers rather than copying a similarly named example.
-7. Build with deployment disabled by the actual repository mechanism. Inspect targets first; a plain build may otherwise copy files into the game. Do not invent a property name for disabling it.
-8. Run focused tests that distinguish the intended behavior from the reported failure. Treat unavailable gameplay testing as pending, not passed.
-9. Deploy only when covered by the current task. Verify the installed artifact by identity/hash, then inspect its actual startup and affected gameplay paths.
-10. Report the change, evidence, checks run, remaining limitations and any local manual test that is still needed.
+1. Establish the task mode, affected mod, outcome and acceptance criteria; inspect existing code and actual Shared contracts.
+2. Select the relevant specialty below. Resolve APIs against target assemblies/matching source under the [evidence policy](references/evidence-policy.md).
+3. Make the smallest coherent change, separating domain rules, runtime integration and UI where useful. For lifecycle, persistence, payments or network changes, state transitions and partial-failure behavior using [change planning](references/spec-first-workflow.md).
+4. Retain diagnostics and restoration paths. Build through the repository's no-deploy mechanism; run checks that distinguish the fix from the old failure.
+5. If deployment is authorized, verify installed identity/hash, startup and affected gameplay. Report actual results and limits; accepted work stays closed.
 
 ## Route to the specialty
 
 | Task | Load |
 |---|---|
-| Find an API, source owner or decompile | [Knowledge](../schedule1-knowledge/SKILL.md), then [S1API](../schedule1-s1api/SKILL.md) or [game systems](../schedule1-game-systems/SKILL.md) |
+| API/source lookup | [S1API](../schedule1-s1api/SKILL.md) for wrappers; [game systems](../schedule1-game-systems/SKILL.md) for native systems; [Knowledge](../schedule1-knowledge/SKILL.md) when source ownership is unclear |
 | Save/load, migration, backup or slot switching | [Persistence](../schedule1-persistence/SKILL.md) |
 | Purchases, transfers or income | [Economy](../schedule1-economy/SKILL.md) |
 | Phone UI, input or app lifecycle | [PhoneApp](../schedule1-phoneapp/SKILL.md) |
 | Runtime errors, stalls or regressions | [Troubleshooting](../schedule1-troubleshooting/SKILL.md) |
-| Native patching or reflection | [Harmony bootstrap](../schedule1-harmony-bootstrap/SKILL.md), [IL2CPP reflection](../schedule1-il2cpp-reflection/SKILL.md) |
+| Native patching or reflection | [Harmony bootstrap](../schedule1-harmony-bootstrap/SKILL.md) for patches; [IL2CPP reflection](../schedule1-il2cpp-reflection/SKILL.md) for member access |
 | Live game inspection | [MCP](../schedule1-mcp/SKILL.md) |
 | Custom NPCs | [Custom NPCs](../schedule1-custom-npcs/SKILL.md) |
 | New items or inventory changes | [Items](../schedule1-items/SKILL.md) |
-| World geometry, interiors or materials | [World expansion](../schedule1-world-expansion/SKILL.md), then the relevant domain |
+| World geometry | [Grid](../schedule1-grid/SKILL.md) for placement; [Interiors](../schedule1-interiors/SKILL.md) for rooms/travel; [3D assets](../schedule1-3d-assets/SKILL.md) for models/materials; [World expansion](../schedule1-world-expansion/SKILL.md) for staged additions |
 | Multiplayer world edits | [Networked world state](../schedule1-networked-world-state/SKILL.md) |
 
 ## Failure handling
@@ -45,11 +40,11 @@ Before changing code, read the [workspace contract](references/working-contract.
 - Unknown save identity, unknown payment outcome or uncertain resource ownership must block only the affected mutation, while preserving diagnosis and recoverable state.
 - A failed optional observer must not silently disable unrelated gameplay. A failed safety condition must not be reported as a successful feature.
 - Preserve foreign state. Do not clear another mod's listeners, destroy borrowed materials, strip networking or overwrite unknown data to make a test pass.
-- Keep retries bounded and idempotent. A timeout does not prove an operation had no effect.
+- Follow the workspace contract's bounded-retry rule; a timeout does not prove no effect.
 
 ## Verification and delivery
 
-Choose applicable checks: baseline build, API/compile contracts, unit-level state transitions, save round-trip, menu/scene/slot transitions, UI reopen/rebuild, host/client behavior and cleanup. Publish observed results with their environment; do not demand irrelevant tests for a text-only change.
+Use the chosen specialty's checks for changed behavior. The workspace contract governs scope: documentation needs no gameplay acceptance; multiplayer tests need explicit scope. Unrun checks are never passed results.
 
 ## Load when needed
 

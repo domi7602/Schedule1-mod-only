@@ -1,6 +1,6 @@
 # Skateboard (Schedule I)
 
-> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+> Inherited, not rerun; [evidence scope](README.md#source-history).
 
 > **Redirect stub** (consolidated 2026-10-05): the deep, previously reported skateboard analysis (PID values, API signatures, Harmony hook point, TaxiDriver spike results) lives in **[`07-Vehicle.md`](07-Vehicle.md)** (skateboard section, "previously reported API observations (2026-09-25)" block). This file keeps only the class register. Class-list only — not yet re-verified.
 

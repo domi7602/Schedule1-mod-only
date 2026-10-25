@@ -14,8 +14,11 @@
 | Compiled | Actual command/environment and successful compiler output | Gameplay correctness or deployment |
 | Runtime observed | Reproduction steps, inputs, identity/role, logs/readbacks and observed result | Universal behavior outside that tested scope |
 | Failure path tested | Injected failure, expected invariant and observed recovery | Other untested failure points |
+| Owner-confirmed completion | Attributed owner statement, date and accepted scope | Unitemized test actions or measurements |
 
 Do not treat these as a single automatic ladder: a runtime observation can be valid for one path without proving a general source claim.
+
+Owner acceptance closes the accepted work. Preserve missing individual observations as evidence limits, not a new backlog; reopen only when the owner does. Unexecuted checks required for a new change remain unexecuted.
 
 ## Record enough to reproduce
 

@@ -1,16 +1,13 @@
 ---
 name: schedule1-knowledge
-description: "Find and maintain Schedule I knowledge and evidence. Keywords: Decompiles, Assembly-CSharp, Il2CppScheduleOne, GameReferences, Game Systems, S1API, S1MAPI, ilspycmd, research."
+description: "Find and maintain Schedule I knowledge and evidence."
 ---
 
 # Schedule I — Knowledge Navigation
 
 ## Scope and prerequisites
 
-Follow the [working contract](../schedule1-modding/references/working-contract.md).
-Establish the actual repository root and available files before using historical paths.
-The reference directories below are expected workspace locations, not bundled sources.
-Do not treat a curated note or a symbol sweep as current-runtime verification.
+Follow [AGENTS.md](../../AGENTS.md); read the [working contract](../schedule1-modding/references/working-contract.md) once before mutation or compatibility claims. Read-only lookup can use the relevant source directly.
 
 ## Choose the evidence needed
 
@@ -26,25 +23,13 @@ Do not treat a curated note or a symbol sweep as current-runtime verification.
 
 ## Research workflow
 
-1. Write the exact unknown: existence, signature, ownership, ordering, or behavior.
-2. Locate the relevant index entry, then open only the matching reference.
-3. Locate the named source/decompile and record assembly/source identity.
-4. Search within the declaring type and inspect parameter/return types and callers.
-5. Compare the source checkout with the deployed binary before relying on implementation.
-6. When proxies hide the answer, state the limitation and design a bounded runtime probe.
-7. Record the result and evidence level; update contradictory examples together.
+1. Define the unknown: existence, signature, ownership, ordering or behavior. Select one relevant source/reference.
+2. Record source/assembly identity; inspect the declaring type, parameters, return type and callers. Match source to deployed bytes before relying on implementation.
+3. If proxies hide behavior, state the limit and design a bounded probe. Record supported conclusions and update contradictory examples together.
 
 ## Typical workspace map
 
-| Location | Purpose and limit |
-|---|---|
-| `GameReferences/decompiled/Assembly-CSharp/` | Generated game/proxy surface; provenance must match the binary |
-| `ThirdParty/S1API/` | Framework source; not proof of the deployed DLL's implementation |
-| `ThirdParty/S1MAPI/` | Mapping/building source if available |
-| `ThirdParty/S1MCPServer-master/` | Bridge source; compare with the running bridge |
-| `Source/Mods/` | Current local implementations and tests |
-| `Source/Archive/` | Historical patterns, not automatically supported examples |
-| `AGENTS.md` and `docs/compatibility.md` | Workspace-specific environment record if supplied |
+If the source location is unknown, use the [workspace inventory](references/inventory.md#locate-before-reading). Known paths can be inspected directly; the inventory records external workspace candidates, not bundled or currently verified artifacts.
 
 ## Search and interpretation rules
 
@@ -58,10 +43,9 @@ Do not treat a curated note or a symbol sweep as current-runtime verification.
 
 ## Verification and delivery
 
-Return the exact type/member, source or assembly identity, evidence scope, and the next
-smallest check needed. Cite local file/member or official documentation for material claims.
-Separate proposed implementation from inspected behavior and tested acceptance.
-Do not start a build, deploy, launch, or mutation solely as part of source lookup.
+Return the exact member/file, artifact identity and supported conclusion under the
+[evidence policy](../schedule1-modding/references/evidence-policy.md).
+Source lookup alone does not call for a build, deploy, launch or mutation.
 
 ## Read triggers
 

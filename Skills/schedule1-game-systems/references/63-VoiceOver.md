@@ -1,6 +1,6 @@
 # VoiceOver (Schedule I)
 
-> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+> Inherited, not rerun; [evidence scope](README.md#source-history).
 
 > **Redirect stub** (consolidated 2026-10-05): NPC behaviour + the VO emitter/type content lives in **[`14-NPC-Behaviour.md`](14-NPC-Behaviour.md)** (VO-Types section). This file keeps only the class register. Class-list only — not yet re-verified.
 

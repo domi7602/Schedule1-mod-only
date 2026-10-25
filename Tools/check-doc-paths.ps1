@@ -73,11 +73,44 @@ function Test-InUninitializedSubmodule([string]$Token) {
     return $false
 }
 
+function Invoke-DocPathGit {
+    param([string[]]$Arguments)
+    # Console OutputEncoding is not UTF-8 on every host. Decoding a native git
+    # pipeline with that code page drops non-ASCII names before Test-Path runs.
+    # -c is process-local and does not change the user's Git configuration.
+    $start = [System.Diagnostics.ProcessStartInfo]::new('git')
+    $start.UseShellExecute = $false
+    $start.CreateNoWindow = $true
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
+    $start.StandardOutputEncoding = [Text.UTF8Encoding]::new($false)
+    $start.StandardErrorEncoding = [Text.UTF8Encoding]::new($false)
+    foreach ($config in @('core.quotepath=false', 'i18n.logOutputEncoding=utf-8')) {
+        $start.ArgumentList.Add('-c')
+        $start.ArgumentList.Add($config)
+    }
+    $start.ArgumentList.Add('-C')
+    $start.ArgumentList.Add($workspaceRoot)
+    foreach ($argument in $Arguments) { $start.ArgumentList.Add($argument) }
+    $start.Environment['GIT_OPTIONAL_LOCKS'] = '0'
+    $process = [System.Diagnostics.Process]::Start($start)
+    try {
+        $stdout = $process.StandardOutput.ReadToEndAsync()
+        $stderr = $process.StandardError.ReadToEndAsync()
+        $process.WaitForExit()
+        $errorText = $stderr.GetAwaiter().GetResult()
+        if ($process.ExitCode -ne 0) {
+            throw "Git-Markdown-Inventar konnte nicht gelesen werden (exit $($process.ExitCode)): $errorText"
+        }
+        return $stdout.GetAwaiter().GetResult()
+    }
+    finally { $process.Dispose() }
+}
+
 function Get-ScanFiles {
     # -z preserves spaces/non-ASCII names; Git is read-only even in an unborn repo.
-    $inventory = & git -C $workspaceRoot -c core.quotepath=false ls-files -z --cached --others --exclude-standard -- ':(icase)*.md'
-    if ($LASTEXITCODE -ne 0) { throw 'Git-Markdown-Inventar konnte nicht gelesen werden.' }
-    foreach ($path in (($inventory -join "`n") -split "`0" | Sort-Object -Unique)) {
+    $inventory = Invoke-DocPathGit @('ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', ':(icase)*.md')
+    foreach ($path in ($inventory -split "`0" | Sort-Object -Unique)) {
         if (-not $path) { continue }
         if ($path -notmatch '^[^/]+\.[mM][dD]$|^(docs|Skills|Tools|Source/Mods)/|^(ThirdParty|GameReferences)/README\.md$') { continue }
         if ($path -match '(^|/)(bin|obj|Library|node_modules|vendor|vendored)/|(^|/)build/logs/|(^|/)docs/upstream/') { continue }

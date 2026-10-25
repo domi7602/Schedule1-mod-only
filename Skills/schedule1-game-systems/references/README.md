@@ -10,6 +10,8 @@ The source package reports an AssetRipper/ILSpy-derived export and a static iden
 
 A token match does not establish the declaring type, overload, accessibility, units, control flow, authority, side effects or execution order. A token reported absent may belong to another assembly or be a placeholder. IL2CPP interop proxies commonly expose signatures without readable native behavior. Numerical game-balance tables and formulas need their own versioned source or runtime evidence.
 
+An `Unresolved identifiers` list records that scan's search scope, not confirmed API removals. Tokens may also be drift candidates; check their actual declaring assembly and version before concluding removal.
+
 ## How to use a file
 
 1. Select a file in the [index](_index.md); load only the relevant system and a specialist workflow if needed.

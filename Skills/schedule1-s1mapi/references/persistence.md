@@ -26,14 +26,10 @@ Runtime references belong to a separate owner/generation-bound registry and are 
 
 ## Save identity and load gate
 
-Follow the current [persistence skill](../../schedule1-persistence/SKILL.md) and its canonical file contracts.
-
-1. Resolve the exact active save identity and authority before loading or writing.
-2. Distinguish a confirmed absent file from unreadable, malformed, incompatible, or wrong-save data.
-3. Validate a recovered backup against the same schema, identity, and domain rules.
-4. Keep dependent writes frozen after an unresolved load error; a default empty state is not permission to overwrite.
-5. Do not reuse the previous slot identity during a transition or infer world identity from a slot number alone.
-6. Perform legacy migration only after proving source/destination identity and preserving recoverable copies.
+Use [slot identity and migration](../../schedule1-persistence/references/slot-isolation.md)
+and [validation/recovery gates](../../schedule1-persistence/references/frozen-writes.md#validation-and-recovery).
+Resolve authority before loading or writing; unresolved identity or load failure
+keeps affected writes closed.
 
 ## Commit at a verified save boundary
 
@@ -45,24 +41,30 @@ On native save failure, retain dirty state and diagnostics; do not report the si
 
 ## Restoration sequence
 
-1. Establish save identity and load/validate state before enabling mutations.
-2. Discover which native objects the game will or did restore.
-3. For native-owned objects, stage extra data by their persistent identity and attach at a verified readiness point.
-4. For mod-owned geometry, create one root and rebuild each missing owned placement from its saved definition.
-5. For already-live owned IDs, reconcile instead of spawning another instance.
-6. Reapply owned terrain/navigation changes only after geometry and native prerequisites are ready.
-7. Complete network linking/late-join synchronization separately from disk restoration.
-8. Publish readiness only after invariants and mandatory dependencies pass.
+After the load gate, follow [native restoration and duplicate prevention](../../schedule1-persistence/references/buildable-restore.md#restore-metadata-without-spawning-duplicates).
+For mod-owned geometry, create one root and reconcile missing owned placements
+from saved definitions. Reapply owned terrain/navigation changes only after
+geometry and native prerequisites are ready. Network linking/late-join
+synchronization is separate from disk restoration. Publish readiness only after
+invariants and mandatory dependencies pass.
 
 ## Runtime teardown versus durable state
 
 Dispose roots, navigation owners, listeners, and runtime caches on the relevant world teardown, including same-save reload. A persistent root is optional and must not leak children across worlds.
 
-Keep pending durable snapshots, dirty state, and recovery records until their save outcome is known. Do not clear all state on every additive scene unload, and do not retain dead Unity objects merely to protect durable data. Filter by the actual gameplay-world lifetime and save transaction.
+Follow [cleanup/save coordination](../../schedule1-persistence/references/buildable-restore.md#cleanup-and-save-coordination)
+and [retained-write ownership](../../schedule1-persistence/references/frozen-writes.md#preserve-the-datadestination-pair).
+Keep recovery records until the save outcome is known; retaining durable data
+does not require retaining dead Unity objects.
 
 ## Failure and regression matrix
 
-Test: native-restored object plus mod side data; mod-owned object; duplicate IDs; missing definition; corrupt primary with valid/invalid backup; access denied; exact-save mismatch; transition with unknown save identity; repeated rebuild; client attempt to write; interrupted native save; interrupted sidecar save; late network link after scene exit.
+Use the canonical [restore checks](../../schedule1-persistence/references/buildable-restore.md#verification),
+[identity/migration checks](../../schedule1-persistence/references/slot-isolation.md#verification)
+and [write-failure checks](../../schedule1-persistence/references/frozen-writes.md#verification).
+Add missing geometry definitions, repeated mod-owned rebuilds, corrupt-primary
+recovery with valid/invalid backups, access denied, client writes, interrupted native/sidecar saves
+and late network links after scene exit where applicable.
 
 Acceptance requires one restored object per ID, no lost/duplicated inventory, no cross-save state, preserved recoverable data, and bounded cleanup. Historical reports that a particular lifecycle event fired zero times are a reason to measure the current event path, not a universal API prohibition.
 
@@ -70,5 +72,3 @@ Acceptance requires one restored object per ID, no lost/duplicated inventory, no
 
 - Historical examples: `Source/Mods/AutoPackagingStation/src/AutoPackStore.cs`, `Source/Archive/HomelessMod/src/StreetPropertyManager.cs`, and deterministic TaxiDriver geometry rebuilds.
 - S1MAPI source search: prefab placement, network linking, terrain changes, navigation lifecycle, and resource tracking under `ThirdParty/S1MAPI/`.
-- [Canonical buildable restoration](../../schedule1-persistence/references/buildable-restore.md).
-- [Canonical write freezing](../../schedule1-persistence/references/frozen-writes.md).

@@ -4,7 +4,7 @@
 
 ## Entry point standard
 
-Keep the existing skill name and directory stable unless a migration is explicitly planned. Use valid YAML name/description fields and one concise description that separates the skill from neighboring domains. This package adopts short Hermes descriptions; the generic Agent Skills format allows a larger field.
+Keep names/directories stable unless a migration is planned. Use YAML `name` and `description`; make the description distinguish its task from neighboring skills. Keyword catalogs and arbitrary character quotas are unnecessary.
 
 Keep the main file focused on routing, prerequisites, decisions, failure handling and observable completion. Move detailed domain knowledge into references with a concrete read trigger. Do not add a historical incident to every entry point.
 
@@ -25,23 +25,49 @@ Use [evidence policy](evidence-policy.md). Label an implementation contract, a s
 
 ## Quality checks
 
-Run the package validator after changes. It checks the package profile, names, links, inventory and selected known regressions; it does not prove API semantics. Re-run focused scenario tasks for behavior the changed instruction affects. Keep expected results outside the skill body so a test cannot pass by copying its answer.
+Use this repository's checks, invoked as `pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/<script>.ps1`: `check-skills-health.ps1` and `check-doc-paths.ps1` cover structure; `check-xml.ps1` parses tracked MSBuild files. `verify.ps1 -Mode Quick` runs the required quick gates. Follow `AGENTS.md` for isolated checkout verification after documentation/tool changes. These checks do not establish API semantics or gameplay acceptance.
+
+If changing the checker, run `Tools/Tests/skills-health.Tests.ps1`. Use an external package validator only when producing that external distribution, with its actual path supplied.
 
 ## Evaluation cases
 
-Use realistic user tasks covering selection and execution:
-- A clear task that should select this skill.
-- A nearby task that should select a different skill.
-- A missing-prerequisite case.
-- A failure/partial-effect case.
-- A normal success case.
-
-Record the prompt, model/harness, loaded files, response/actions, rubric result and limits. Compare baseline and revised skills when claiming improved outcomes. A few passing dry runs are regression evidence, not a benchmark guarantee.
+For changed routing or behavior, try relevant normal, neighboring-task, missing-input or partial-effect scenarios. Keep expected answers outside the skill body. Record inputs, loaded files, outcomes and limits; baseline/revision comparisons support improvement claims, while a few dry runs are only regression evidence.
 
 ## Distribution
 
-Distribute this collection as a coherent set because it has sibling references. Preserve the existing repository's other skills. Check the installed Hermes source path for name shadowing after replacement. Treat the current public Hermes documentation as guidance; validate features against the installed Hermes version before changing its configuration.
+Distribute the coherent collection because sibling references are dependencies; preserve unrelated skills. For installation work, verify the actually loaded source and name shadowing against the installed tool. Repository editing alone does not require installation changes.
 
 ## Learning from incidents
 
-An incident belongs in a scoped case note with evidence and limits. Promote a rule only after identifying which conditions generalize. Remove duplicate rules, obsolete “verified” banners and empty section clutter instead of endlessly appending corrections.
+Keep incidents in scoped case notes. Generalize only supported conditions; remove duplicate explanations while retaining dated evidence, hashes, attribution and limitations. Owner-accepted work remains closed under the [evidence policy](evidence-policy.md).
+
+## Package verification and installation
+
+For current repository checks, use the [maintenance workflow](#quality-checks). The following describes the external 2026-10-21 distribution, not prerequisites for routine edits here.
+
+Its outer handover contains `LIESMICH.md`, `RECHERCHE.md`, `PRUEFBERICHT.md`, a content manifest and a standard-library Python validator. Keep those files outside the active skill directory. That validator checks package integrity/structure, not compilation, gameplay or SDK compatibility.
+
+For Hermes, verify the actual loaded source after replacement. Current documentation describes precedence as project, local user skills, configured creation directory, then external directories. A higher-priority old copy can shadow the updated repository copy. Check behavior against the installed Hermes version; do not assume changing one directory changes the active skill.
+
+## Local adoption of the 2026-10-21 professional package
+
+The collection in this folder was replaced on 2026-10-21 with the externally prepared professional revision
+(`Skills-Professional-2026-10-21`), then adapted locally. The previous collection is retained outside every
+active skill search path under `%LOCALAPPDATA%/Schedule1Tools/SkillsBackups/2026-10-21-astra-baseline/`
+(full tree, ZIP and a SHA-256 manifest of all 158 files).
+
+Local deviations from the delivered package, applied deliberately and therefore **not** matching its manifest hashes:
+
+- **Verification provenance restored:** 106 reference files had lost the dated `> verified:` / `> UNVERIFIED:`
+  line during the external edit. That line was restored verbatim from the previous collection for each file;
+  no date, scope or result was reformulated. The three new shared references carry an explicit
+  `> UNVERIFIED locally:` line because their checks were not re-run here.
+- **Repository conventions re-applied:** every `SKILL.md` again links the workspace `AGENTS.md` pointer line
+  (20 were missing) and carries the previous `Keywords:` list inside its description (23 were missing).
+  <!-- skills-health: version-evidence (historical package adoption, not a dependency pin) -->
+  The five `S1API 3.2.1` mentions are annotated as the requested target rather than an installed-build pin.
+- **Byte hygiene:** all files are UTF-8/LF with a final newline.
+
+Checks after adoption: `Tools/check-skills-health.ps1` → **clean (0 warnings)**,
+`Tools/check-doc-paths.ps1` → exit 0, all 137 reference files carry a header, 23/23 entries link `AGENTS.md`
+and carry `Keywords:`. This is document-level acceptance only: no mod was built and no game session was run.

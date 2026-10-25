@@ -1,13 +1,13 @@
 ---
 name: schedule1-interiors
-description: "Build Schedule I interiors, exits and load lifecycles. Keywords: Interior, Building, StaticDoor, DoorKnocker, NpcSummonMenu, RawArcadeSceneService, ArcadeEntranceService, IArcadeGame, Texture2D, SetPixels32, CRT, PacMan, Pinball, CabinetInteraction, AudioSource, Ambience, TeleportPlayerWithController."
+description: "Build Schedule I interiors, exits and load lifecycles."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — Interiors and In-World Screens
 
-Apply the [shared working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Separate entrance routing, room ownership, input focus, rendering, and audio lifetimes.
 
 ## Establish prerequisites
@@ -38,31 +38,22 @@ Separate entrance routing, room ownership, input focus, rendering, and audio lif
 - On exit, scene change, component disable, or player replacement, release the same lease exactly once.
 - Do not force global movement enabled if another UI or gameplay system still owns the restriction.
 
-## Screen and audio workflow
-
-1. Keep simulation separate from pixels and Unity resource access.
-2. Reuse a bounded pixel buffer; upload only changed/visible content at a measured cadence.
-3. Use an appropriate unlit/emissive presentation; skipping mipmap generation does not remove the GPU upload cost.
-4. Validate local audio paths and decode results; cancel stale loads and destroy owned clips on replacement.
-5. Limit spatial sources and shadow-casting lights; measure performance with the intended number of rooms/cabinets.
-
 ## Verify
 
-Test enter/exit, menu cancellation, repeated interactions, load inside, missing entrance/assets,
+Select relevant checks: enter/exit, menu cancellation, repeated interactions, load inside, missing entrance/assets,
 blocked destination, collision seams, navigation, input restoration, pause/time scale, audio failures,
-scene unload, repeated rebuilds, and supported multiplayer roles. A headless geometry or image check
-can assist development; final interaction and rendering acceptance requires the running game.
+scene unload and rebuilds. Multiplayer checks require explicit scope; headless geometry/image tests
+do not establish in-game interaction or rendering acceptance.
 
 ## Read on demand
 
 | Trigger | Reference |
 |---|---|
 | Door/menu integration and safe return | [Door hooking](references/door-hooking.md) |
-| Mesh validation, room coordinates, collision | [Procedural room](references/procedural-room.md) |
-| Pixel buffer, upload budget, focus and cleanup | [Minigame screens](references/minigame-screens.md) |
+| Mesh validation, room coordinates, collision and lighting budget | [Procedural room](references/procedural-room.md) |
+| Screens/cabinets: simulation, pixel/upload budget, focus, audio and cleanup | [Minigame screens](references/minigame-screens.md) |
 
 ## Evidence and output
 
-Historical ScheduleIArcade/HomelessMod observations are retained as design context, not verified APIs.
-Return subsystem responsibilities, source evidence for concrete calls, changed files/assets, failure
-recovery, and playtest results. Report unperformed runtime checks explicitly.
+ScheduleIArcade/HomelessMod observations remain historical design context. Report subsystem
+responsibilities and recovery under the shared evidence policy.

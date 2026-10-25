@@ -56,7 +56,7 @@ function New-Case {
     $null = New-Item -ItemType Directory -Path (Join-Path $root 'Tools') -Force
     Copy-Item -LiteralPath (Join-Path $repoRoot 'Tools/verify.ps1') -Destination (Join-Path $root 'Tools/verify.ps1')
     Copy-Item -LiteralPath (Join-Path $repoRoot 'Tools/dotnet-sdk.ps1') -Destination (Join-Path $root 'Tools/dotnet-sdk.ps1')
-    foreach ($helper in @('gen-sln', 'check-version-sync', 'check-doc-paths', 'check-skills-health', 'build-all', 'test-all')) {
+    foreach ($helper in @('gen-sln', 'check-version-sync', 'check-doc-paths', 'check-skills-health', 'check-xml', 'build-all', 'test-all')) {
         Write-Fixture (Join-Path $root "Tools/$helper.ps1") ($helperTemplate.Replace('__PARAM__', '').Replace('__NAME__', $helper))
     }
     Write-Fixture (Join-Path $root 'Tools/Tests/a.Tests.ps1') ($helperTemplate.Replace('__PARAM__', 'param([string]$ScratchRoot)').Replace('__NAME__', 'suite-a'))
@@ -108,7 +108,7 @@ $quickRoot = New-Case 'quick'
 $quick = Run-Case $quickRoot 'Quick'
 Check ($quick.Code -eq 0) 'Quick succeeds with passing fake checks.'
 Check ($quick.Report.Mode -eq 'Quick' -and $quick.Report.Failed -eq 0) 'Quick JSON report records the selected mode and result.'
-Check (($quick.Trace.Name -join ',') -eq 'dotnet---version,dotnet-format,gen-sln,check-version-sync,check-doc-paths,check-skills-health') 'Quick calls exactly the shared quick checks, in order.'
+Check (($quick.Trace.Name -join ',') -eq 'dotnet---version,dotnet-format,gen-sln,check-version-sync,check-doc-paths,check-skills-health,check-xml') 'Quick calls exactly the shared quick checks, in order.'
 Check (@($quick.Trace | Where-Object NoDeploy -ne 'true').Count -eq 0) 'Every child receives deployment disabled.'
 Check (@($quick.Trace | Where-Object Location -ne $quickRoot).Count -eq 0) 'Checks run from the fixture repository even when invoked elsewhere.'
 Check (($quick.Trace | Where-Object Name -eq 'gen-sln').Arguments -contains '-Check') 'Solution validation uses the nonmutating generator mode.'

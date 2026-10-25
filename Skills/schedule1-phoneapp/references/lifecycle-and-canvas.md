@@ -79,6 +79,9 @@ scene reload, and slot A to B to A. Count subscriptions and root instances. Veri
 run and current handlers still run after a normal close. Report observed callback order with runtime
 versions; a source identifier match is insufficient.
 
+For asset changes, verify fresh-build deployment when authorized, icon decoding and owned-resource
+cleanup after scene exit. A source image or successful compile does not prove the installed icon works.
+
 ## Primary source and related references
 
 - [S1API PhoneApp public API](https://ifbars.github.io/S1API/api/S1API.PhoneApp.PhoneApp.html).

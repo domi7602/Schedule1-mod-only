@@ -30,13 +30,13 @@ For an initial mod, use only the boundaries needed by the current feature. Do no
 4. Compare the intended multiplayer and save identity assumptions.
 5. Extract the general mechanism; do not copy project-specific IDs, paths or timing constants without evidence.
 
-## Required specialties
+## Load for the chosen responsibility
 
 - Phone UI: [PhoneApp](../../schedule1-phoneapp/SKILL.md).
 - Storage: [Persistence](../../schedule1-persistence/SKILL.md).
 - Purchases/income: [Economy](../../schedule1-economy/SKILL.md).
-- Polling/resources: [Runtime cache](../../schedule1-runtime-unity-cache/SKILL.md) and [reload](../../schedule1-debounced-reload/SKILL.md).
-- World/multiplayer: [World expansion](../../schedule1-world-expansion/SKILL.md) and [networked state](../../schedule1-networked-world-state/SKILL.md).
+- Owned Unity resources: [Runtime cache](../../schedule1-runtime-unity-cache/SKILL.md); file-change scheduling: [reload](../../schedule1-debounced-reload/SKILL.md). Polling alone does not require either mechanism.
+- World additions: [World expansion](../../schedule1-world-expansion/SKILL.md); explicitly requested multiplayer: [networked state](../../schedule1-networked-world-state/SKILL.md).
 
 ## Verify the chosen design
 

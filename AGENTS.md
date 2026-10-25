@@ -81,7 +81,8 @@ runtimes **6.0.36 / 8.0.32** are global in `C:\Program Files\dotnet` (2026-10-24
 
 ## 2. Mod Inventory
 
-**WorldLook is the only active development mod** (2026-10-24). ✅/🆕 mean feature-complete;
+**No mod is currently under active development:** WorldLook was confirmed finished by Dominik
+on 2026-10-25, referring to the last session. ✅/🆕 mean feature-complete;
 🧪 means development, independently of gameplay verification. `Verified` is a recorded
 real-session or attributed owner-confirmation claim, not an assertion that a test artifact
 exists here. Owner acceptance without itemized actions does not prove each earlier checklist
@@ -117,7 +118,7 @@ Keep exactly one inventory row per mod and supported bold acceptance labels.
 | **LightControl** | ✅ (v0.1.1; 0.1.0 **Verified, owner-confirmed 2026-10-24**) | `Mods/LightControl/` | `LightControl.dll` | 0.1.1 deployed log-only Rainbow fix; prior acceptance not itemized |
 | **PropertyLEDs** | ✅ (v0.1.8, **Verified, owner-confirmed 2026-10-24**) | `Mods/PropertyLEDs/` | `PropertyLEDs.dll` + icon | Room LEDs, slot-isolated settings; actions not itemized |
 | **PhoneScrollFix** | ✅ (v2.0.0, hover look **Verified 2026-10-11**) | `Mods/PhoneScrollFix/` | `PhoneScrollFix.dll` | Clipped home-icon hover |
-| **WorldLook** | 🧪 (v0.3.0-dev.5, installed 2026-10-25; **In-Game-Verify open**) | `Mods/WorldLook/` | `WorldLook.dll` + embedded bundle | Shader reload repaired and MCP-tested; dev.2 water/ON-OFF and dev.3 night accepted; remaining limits below |
+| **WorldLook** | ✅ (v0.3.0-dev.5, **Verified, owner-confirmed 2026-10-25**) | `Mods/WorldLook/` | `WorldLook.dll` + embedded bundle | Owner-confirmed finished in the last session; actions not itemized; prior shader-reload evidence retained |
 | **Shared** | ✅ workspace library | `Mods/Shared/` | `Shared.dll` | Reusable helpers; section 5 |
 | **S1API** | ✅ 3.2.1 stable | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | Pinned dependency; section 1 |
 
@@ -127,7 +128,15 @@ _DiagPerfCounter plus archived tests. Retired dependencies and their old version
 
 <a id="worldlook-continuation--installed-standalone-candidate-2026-10-22"></a>
 
-### WorldLook continuation and detailed history
+<a id="worldlook-continuation-and-detailed-history"></a>
+
+### WorldLook completion and detailed history
+
+**WorldLook is finished and owner-accepted.** Dominik confirmed this on 2026-10-25,
+referring to the last session. Current version remains `0.3.0-dev.5`; no version-only
+release is implied. The confirmation does not itemize additional actions or supply frame-time
+measurements. Those evidence limits are not an open backlog; do not propose warmth or
+performance acceptance work unless the owner explicitly reopens it.
 
 The [water-surface record](Source/Mods/WorldLook/docs/water-surface-verification.md) identifies
 the accepted dev.2 session: DLL `410fecf7…`, bundle `29557b87…`. **Water and ON/OFF are owner-accepted
@@ -135,7 +144,8 @@ and closed (2026-10-24)**; do not reopen them from older checklists. Positive nu
 was observed at 17:42. The dev.3 session on 2026-10-25 measured repeatable Sun tint near 18:00,
 and Dominik accepted normal night appearance. ON lighting survived a same-process Dominik
 menu/reload, but the water renderer fell back to its native shader. That historical reload
-defect is repaired in dev.5; visible warmth and measured performance remain unverified.
+defect is repaired in dev.5. A separate visible-warmth verdict and quantitative performance
+measurements were not itemized in the completion confirmation.
 Dev.3 removes F9/debug chatter without changing the shader/recipe; installed 2026-10-24,
 DLL `cc9a206a…`. Dev.4 (`5522f394…`, installed 2026-10-25) adds explicit session-only MCP control:
 automated OFF/ON menu roundtrips preserve requested state and measured lighting, with seven
@@ -247,7 +257,7 @@ Run `Tools/verify.ps1` with `-Mode Quick`, `Pure`, `Full` or `Auto`.
 All modes disable deployment and retain reports; [the Tools guide](Tools/README.md#repository-checks-ci-pre-commit-and-pre-push)
 defines the checks:
 
-- **Quick:** format, solution determinism, versions, documentation paths and skills.
+- **Quick:** format, solution determinism, versions, documentation paths, skills and tracked MSBuild XML.
 - **Pure:** Quick + game-free tests (including LightControl console) + tool suites.
 - **Full:** Quick + Release build + all tests/tool suites; requires game references and a closed game.
 - **Auto:** Full with game references, otherwise Pure. CI/pre-push use Auto; pre-commit uses Quick.

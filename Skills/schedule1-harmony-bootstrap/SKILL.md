@@ -1,19 +1,19 @@
 ---
 name: schedule1-harmony-bootstrap
-description: "Resolve and install Harmony patches with clear outcomes. Keywords: PatchClassProcessor, HarmonyBootstrap, PatchTargetGuard, IsAllowed, applied/skipped/failed counter, auto-discovery, LogHealth, UnpatchSelf, HarmonyId."
+description: "Resolve and install Harmony patches with clear outcomes."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — Harmony Bootstrap
 
 ## Scope and prerequisites
 
-Follow the [working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Inspect the installed Harmony/HarmonyX and MelonLoader integration before choosing APIs.
 Check whether the loader already patches this assembly; choose one owner for installation.
 Use the existing workspace patch helper if its actual contract meets the requirements.
-This document is an implementation contract, not a compiled drop-in implementation.
+This is a contract, not a compiled implementation.
 
 ## Select the simplest suitable approach
 
@@ -73,10 +73,10 @@ flag that permanently prevents recovery, and partial installation requires recon
 
 ## Verification and delivery
 
-Test missing targets, an intentional skip, a failing class, partial discovery, repeated
+Select relevant checks: missing targets, intentional skips, a failing class, partial discovery, repeated
 initialization, a required-feature failure, and owner-scoped removal.
 Confirm counts against actual target metadata, then instrument a representative invocation.
-Report what compiled, what installed, what ran, and what gameplay behavior was observed.
+Distinguish compilation, installation, invocation and gameplay evidence.
 
 ## References and evidence
 

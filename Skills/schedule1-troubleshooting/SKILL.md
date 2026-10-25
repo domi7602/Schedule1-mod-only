@@ -1,20 +1,18 @@
 ---
 name: schedule1-troubleshooting
-description: "Diagnose Schedule I crashes, slowdowns and load failures. Keywords: troubleshooting, crash, Latest.log, log triage, 0xc0000005, 0x80131506, WasCollected, Harmony patch silent, no-op, save-load timing, IL2CPP pitfalls, slot_-1, FishNet, SyncVar, breakage log, update resilience, s1interop, ilspycmd."
+description: "Diagnose Schedule I crashes, slowdowns and load failures."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — Troubleshooting
 
 ## Scope and prerequisites
 
 Use this skill to isolate a fault before choosing a repair.
-Follow the [working contract](../schedule1-modding/references/working-contract.md).
-Identify the installed game build, backend, loader, framework DLLs, affected mod,
-network role, save identity, and last known working configuration.
-Repository sources and decompiles are optional inputs; establish their availability first.
-A historical incident is a hypothesis for this session, not its diagnosis.
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
+Identify installed artifacts, backend, affected mod, role, save and last working configuration.
+Locate available sources/decompiles; historical incidents are hypotheses, not diagnoses.
 
 ## Workflow
 
@@ -62,11 +60,11 @@ A historical incident is a hypothesis for this session, not its diagnosis.
 
 ## Verification and delivery
 
-Verify the original reproduction, same-world reload, relevant scene transitions,
-shutdown, and host/client behavior when the repair changes shared state.
+Verify the reproduction and affected reload, scene-transition and shutdown paths.
+Host/client tests require explicit scope.
 Do not deploy or launch the game merely because a diagnostic document contains commands.
-Report the confirmed cause, changed behavior, evidence, tests performed, and open checks.
-Separate build success, patch installation, callback invocation, and gameplay acceptance.
+Report cause and behavior under the shared evidence policy, distinguishing build, patch installation,
+invocation and gameplay acceptance.
 
 ## Read the relevant reference
 

@@ -1,6 +1,6 @@
 # Vehicle (Schedule I)
 
-> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+> Inherited, not rerun; [evidence scope](README.md#source-history).
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 119/122 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## Vehicle Types
@@ -65,7 +65,7 @@ Signatures confirmed via ilspycmd against the installed build; some sections abo
 - **The only observable path-search boundary from managed code**: `VehicleAgent.NavigationCalculationCallback(NavigationUtility.ENavigationCalculationResult result, PathSmoothingUtility.SmoothedPath path)` — public, Harmony-prefixable, `ENavigationCalculationResult { Success, Failed }` (nested in `NavigationUtility`). Fires for EVERY dispatch. The managed `NavigationUtility.CalculatePath` wrapper is NEVER called by the native Navigate body (0 trace hits despite a valid patch) — do not instrument it expecting traffic.
 - **Before dispatching Navigate**: turn the vehicle toward the target (`transform.rotation = Quaternion.LookRotation(flatDir)`) — otherwise the agent burns its first ~8 s in reverse maneuvers (54/89 reverse polls, no arrival) and clears `BrakesApplied` AND `HandbrakeApplied`.
 - **Heartbeat polling that works**: `agent.AutoDriving`, `veh.Speed_Kmh`, `agent.IsOnVehicleGraph()`, `agent.GetIsStuck()`, `agent.IsReversing` at 0.5 s intervals; arrival = `NavigationCallback(Complete)` (~8 m residual with `endAtRoad=true`, e.g. 25.6 m trip → Complete after 20.2 s, max 20.6 km/h).
-- **Test hotkeys (TaxiDriver spike)**: F1 road target A · F2 road target B · F3 full run to road target · F4 visual toggle · F5 call-taxi · F6 full run · F7 probe · F8 trace (logs `native ptr` of Navigate: `0x327431F8` this session) · F9 ride/out · F10 Navigate settings=null · F11 spawn without NPC · F12 Navigate on a vanilla vehicle. MelonLoader console has NO input field — in-game `taxi ...` commands are unreachable; use hotkeys (all fit F1-F12, scene-gated to the gameplay scene). In a later TaxiDriver iteration, the taxi could also be ordered from the in-game phone (Taxi app); the hotkeys remain for diagnostics.
+- **Historical test hotkeys (TaxiDriver spike)**: F1 road target A · F2 road target B · F3 full run to road target · F4 visual toggle · F5 call-taxi · F6 full run · F7 probe · F8 trace (logs `native ptr` of Navigate: `0x327431F8` this session) · F9 ride/out · F10 Navigate settings=null · F11 spawn without NPC · F12 Navigate on a vanilla vehicle. The spike used scene-gated F1-F12 because the MelonLoader console had no input field for `taxi ...` commands. A later iteration added phone ordering. **The current TaxiDriver installs no keyboard bindings**; use its [current service instructions](../../../Source/Mods/TaxiDriver/docs/README.md).
 - **Input pitfall**: F13+ VKs (≥ 0x7C) are still dropped by synthetic key events, but since the 2026-09-26 remap no taxi hotkey needs them — all fit F1-F12 (VK < 0x7C).
 - `LandVehicle` exposes BOTH `BrakesApplied` and `HandbrakeApplied`; `VehicleAgent.KinematicMode` and `IsPhysicallySimulated`/`ShouldBePhysicallySimulated()` explain drive capability (spawned player-owned vehicles are simulated; vanilla traffic drives non-simulated/kinematic).
 
@@ -81,7 +81,7 @@ Signatures confirmed via ilspycmd against the installed build; some sections abo
 
 ## Unresolved identifiers in the imported 2026-10-08 record
 
-The imported scan did not resolve the following tokens within its recorded search scope. These may be placeholders, attributes from another assembly or drift candidates. Search the actual declaring assembly and version before concluding that an API was removed.
+See [scan limits](README.md#source-history); unresolved does not mean removed.
 
 - `VehicleModStation`
 - `BUY_ONLINE`

@@ -2,6 +2,9 @@
 
 WorldLook combines a mild native-light adjustment with clearer coastal water. The game owns its sky, clouds, sun, moon and stars.
 
+**Completed — Verified, owner-confirmed 2026-10-25**, referring to the prior session.
+The version remains `0.3.0-dev.5`; individual acceptance actions were not itemized.
+
 - **Ctrl+Shift+F7:** light and water ON/OFF together for this session; the profile is not rewritten.
 - [Direct MCP control](mcp-automation.md): explicit ON/OFF, status and menu transitions for automated acceptance with screenshots.
 - The F9 development status dump is removed in dev.3. Existing reports are historical evidence and are retained.
@@ -38,7 +41,7 @@ The build does not install. Deployment uses `Tools/deploy-mod.ps1` for the candi
 
 ## Verification and history
 
-- [Acceptance status and remaining checks](in-game-acceptance.md): owner-accepted water/ON-OFF, remaining WorldLook evidence limits and the preserved dev.2 diagnostic protocol.
+- [Owner acceptance and evidence](in-game-acceptance.md): completed WorldLook work, dated session results, evidence limits and the preserved dev.2 diagnostic protocol.
 - [Water-surface verification](water-surface-verification.md): current dev.2 implementation/check status, backup and manual acceptance.
 - [Native-baseline verification](native-baseline-verification.md): historical dev.1 artifact/check status and observed morning/midday comparisons.
 - `Source/Tests/GoldenHour.Tests`, `Source/Tests/WaterShader.Tests`, `Source/Tests/WorldLook.Tests`: native-free logic/configuration checks and limited adapter contracts. Their success is not an in-game visual result.
@@ -54,6 +57,8 @@ measured light behavior and seven automatic screenshots; its shader fallback rem
 evidence. Dev.5 repairs shader-cache lifetime with the same bundle/recipe. On 2026-10-25,
 four automated Dominik reloads (two ON, two OFF followed by ON) passed actual shader/support
 readbacks, with ten scene/menu screenshots and unchanged profile/native saves. The reload
-defect is closed for these tested paths. Visible warmth and measured performance remain
-separate limits; the accepted water appearance stays closed. See the acceptance record for
-the initial cold-load transport failure and limits of the scene screenshots.
+defect is closed for these tested paths. Dominik confirmed on 2026-10-25 that WorldLook was
+finished in the prior session. No acceptance work remains open. A separate visible-warmth
+test was not itemized, and quantitative frame times were not measured. These are evidence
+limits; see the acceptance record for the initial cold-load transport failure and limits
+of the scene screenshots.

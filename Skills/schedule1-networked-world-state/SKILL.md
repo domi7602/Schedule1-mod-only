@@ -1,13 +1,14 @@
 ---
 name: schedule1-networked-world-state
-description: "Design Schedule I host authority and replicated world state. Keywords: multiplayer, FishNet, authority, world state, delta, revision, snapshot, recovery journal."
+description: "Design Schedule I host authority and replicated world state."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — Networked World State
 
-Apply the [shared working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
+Use this workflow only for explicitly requested multiplayer work; existing authority/refusal guards remain required.
 Prefer the verified FishNet/S1API transport and workspace infrastructure over a third-party protocol.
 
 ## Establish prerequisites
@@ -67,6 +68,6 @@ Confirm one authoritative result, correct resource accounting, and no cross-save
 
 ## Evidence and output
 
-Third-party decompiles inform the architecture only; no transport compatibility or runtime verification
-is implied. Return protocol/authority decisions, commit boundaries, recovery evidence, changed files,
-and actual multiplayer tests. Do not present a session ID or atomic sidecar file as a complete safety guarantee.
+Third-party decompiles provide architectural leads. Report authority, commit/recovery boundaries
+and actual multiplayer tests under the shared evidence policy. Session IDs or atomic sidecars
+alone do not establish safety.

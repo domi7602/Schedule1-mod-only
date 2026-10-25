@@ -1,21 +1,17 @@
 ---
 name: schedule1-persistence
-description: "Protect Schedule I saves, world identity and migrations. Keywords: SafeStorage, SaveAtomic, SaveTextAtomic, LoadSafe, slot, SaveSlotNumber, TryMigrateLegacy, GameLifecycle, OnSaveInfoLoaded, OnLoadComplete, OnSaveComplete, TOML, ConfigJsonStore."
+description: "Protect Schedule I saves, world identity and migrations."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Persistence and save isolation
 
 ## Scope and prerequisites
 
-Use the [working contract](../schedule1-modding/references/working-contract.md).
-Inspect the actual storage helper, lifecycle implementation, serializer, and save
-identity contract. `SafeStorage`, `SaveSlots`, and `ModConfig` are repository
-helpers; their implementations are not supplied by this package.
-
-Inherited source notes are retained as research leads. They have not been
-revalidated against the installed game in this package.
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
+Inspect actual storage, lifecycle, serializer and identity contracts. `SafeStorage`,
+`SaveSlots` and `ModConfig` are external repository helpers, not bundled implementations.
 
 ## Select the persistence model
 
@@ -71,11 +67,11 @@ readiness gates. Pure helper tests do not prove real callsites execute.
 
 ## Verification
 
-Exercise missing files, denied access, corrupt primary with valid backup, both
+Select relevant checks: missing files, denied access, corrupt primary with valid backup, both
 invalid, unknown schema, failed write, slot switch during pending write, and
 explicit clear-to-empty. Verify the actual serializer roundtrip with useful data.
-For native-coupled data, also test save/reload, rollback, interrupted save, and
-host/client behavior. Report policy tests and in-game acceptance separately.
+For native-coupled data, include save/reload, rollback and interrupted save;
+host/client tests require explicit scope. Distinguish policy tests from gameplay acceptance.
 
 ## References
 

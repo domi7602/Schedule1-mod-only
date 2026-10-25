@@ -1,13 +1,13 @@
 ---
 name: schedule1-world-expansion
-description: "Add Schedule I world geometry, travel and spawn behavior. Keywords: world expansion, custom property, map layout, NavMesh, clone, world build, NPC population."
+description: "Add Schedule I world geometry, travel and spawn behavior."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — World Expansion
 
-Apply the [shared working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Coordinate geometry, property integration, navigation, population, persistence, and teardown as separate stages.
 
 ## Establish prerequisites
@@ -49,9 +49,9 @@ Do not assume a smaller renderer count improves every target scene.
 
 ## Verify
 
-Test clean installation, repeated scene entry, same-save reload, slot switch, host and client,
-late join, each navigation agent, all entrances/exits, optional feature toggles, absent source assets,
-interrupted construction/save, and cleanup. Record measured build time and exact support limits.
+Select relevant checks: clean installation, scene re-entry, reload, slot switch, each navigation agent,
+entrances/exits, optional features, absent assets, interrupted construction/save and cleanup.
+Host/client and late-join tests require explicit scope. Record construction time and support limits.
 
 ## Read on demand
 
@@ -66,6 +66,5 @@ interrupted construction/save, and cleanup. Record measured build time and exact
 
 ## Evidence and output
 
-The case references are inherited static observations of third-party binaries. Their APIs, coordinates,
-and constants are not current game truth. Return the dependency graph, ownership/restore decisions,
-phases and rollback boundaries, changed files, test evidence, and remaining integration questions.
+Case references are inherited binary observations, not current API/coordinate/constant guarantees.
+Report dependencies, ownership/restore decisions, phases and rollback boundaries under the shared evidence policy.

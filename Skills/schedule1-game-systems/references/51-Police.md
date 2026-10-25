@@ -1,6 +1,6 @@
 # Police (Schedule I)
 
-> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+> Inherited, not rerun; [evidence scope](README.md#source-history).
 
 > **Redirect stub** (consolidated 2026-10-05): the deep law-enforcement analysis (LE_Intensity mechanics +0.15/Tag, 4 pursuit levels, 16-crime fines table, arrest constants) lives in **[`12-Heat-Pursuit-Law.md`](12-Heat-Pursuit-Law.md)**. This file keeps only the class register. Class-list only — not yet re-verified.
 

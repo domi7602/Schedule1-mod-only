@@ -3,6 +3,8 @@
 > verified: recipes tested against workspace 2026-10-05 (ilspycmd needs scoped `DOTNET_ROOT="$env:USERPROFILE\.dotnet"` — Pitfall 6 in `../schedule1-lifecycle-verify/SKILL.md`).
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 24/26 identifier-shaped tokens resolve (0 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
+The header's tool setup is historical. Use current [AGENTS.md](../../../AGENTS.md) for tooling; this device must not set `DOTNET_ROOT`.
+
 > Evidence scope: these are research procedures, not commands already executed against
 > the user's repository. Resolve the actual root, tool version, and target assembly first.
 

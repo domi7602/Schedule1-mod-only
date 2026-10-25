@@ -1,15 +1,15 @@
 ---
 name: schedule1-il2cpp-reflection
-description: "Resolve IL2CPP members and verify reflection access. Keywords: Il2CppStructArray, Il2CppReferenceArray, Il2CppInterop, RuntimeReflection, byte[] overload, Texture2D.LoadImage, Sprite array, type cache, namespace fallback."
+description: "Resolve IL2CPP members and verify reflection access."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — IL2CPP Reflection
 
 ## Scope and prerequisites
 
-Follow the [working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Identify the backend, proxy assembly identity, and installed Il2CppInterop version.
 Prefer an available, verified S1API wrapper or typed binding over reflection.
 Do not infer cross-backend compatibility merely because one code branch is not executed;
@@ -65,11 +65,10 @@ A missing managed invocation site cannot establish that a native event never fir
 
 ## Verification and delivery
 
-Verify successful access, missing and ambiguous members, expected null results, stale
+Select relevant checks: successful access, missing/ambiguous members, expected null results, stale
 instances, scene changes, empty collections, and each supported backend independently.
 For writes, verify exact readback and restoration; for images, verify load failure cleanup.
-Report the observed signature, assembly identity, chosen conversion, and unsupported cases.
-Do not claim a recipe is compiled or runtime verified without the actual corresponding test.
+Report signature, artifact identity, conversion and unsupported cases under the shared evidence policy.
 
 ## References and read triggers
 

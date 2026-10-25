@@ -3,7 +3,7 @@
 .SYNOPSIS
     Common repository verification entry point. Never deploys.
 .DESCRIPTION
-    Quick: format, solution determinism, versions, documentation and skills.
+    Quick: format, solution determinism, versions, documentation, skills and tracked MSBuild XML.
     Pure: Quick plus game-free test projects and every Tools/Tests/*.Tests.ps1.
     Full: Quick plus a compile-only Release build, all test projects and tool tests.
     Auto: Full when game references exist, otherwise Pure. No profile runs tests twice.
@@ -90,6 +90,7 @@ function Set-VerifyPlan {
     Add-ScriptStep 'versions' 'Tools/check-version-sync.ps1'
     Add-ScriptStep 'docs' 'Tools/check-doc-paths.ps1'
     Add-ScriptStep 'skills' 'Tools/check-skills-health.ps1'
+    Add-ScriptStep 'xml' 'Tools/check-xml.ps1'
     if ($effectiveMode -eq 'Quick') { return }
     if ($effectiveMode -eq 'Full') {
         Add-ScriptStep 'build' 'Tools/build-all.ps1' @('-NoDeploy', '-Config', 'Release', '-DotnetPath', $dotnet)

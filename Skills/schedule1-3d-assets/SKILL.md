@@ -1,13 +1,13 @@
 ---
 name: schedule1-3d-assets
-description: "Create Schedule I meshes, materials and texture assets. Keywords: Blender, 3D, Mesh, URP, Universal Render Pipeline, Shader, Material, Lit, Unlit, Pink Texture, Flipped Normals, Backface Culling, ObjLoader, GLTF, GLB, AssetBundle, Bone Attachment, Spine2, Humanoid, Zero Collider, Scale."
+description: "Create Schedule I meshes, materials and texture assets."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — 3D Assets
 
-Apply the [shared working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Choose the asset pipeline from the required content and the actual loader capabilities.
 
 ## Establish prerequisites
@@ -62,7 +62,6 @@ a new shader needs a compatible build/asset route. A C# DLL is not a general Uni
 
 ## Evidence and output
 
-Unity ownership and resource-lifetime guidance is linked to official documentation in the references.
-Game-specific paths, bones, dimensions, and loader behaviors require the installed asset/runtime.
-Return the chosen pipeline, assumptions, changed assets/settings, measured checks, and remaining in-game
-verification. Do not label static identifier matches as visual or runtime validation.
+References link Unity ownership documentation; verify game-specific paths, bones, dimensions
+and loaders against the installed assets/runtime. Report the selected pipeline and measured
+visual/resource results under the shared evidence policy.

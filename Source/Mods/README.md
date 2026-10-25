@@ -2,7 +2,8 @@
 
 All **active** mods and the shared library live here, one folder per project, and are built together through `S1Mods.sln`. Archived mods are in [`../Archive/`](../Archive/) and are not part of the solution. The current inventory is [`AGENTS.md`](../../AGENTS.md#2-mod-inventory); verification scope and evidence live in [compatibility](../../docs/compatibility.md#verification-matrix). Player-facing descriptions are in the root [README](../../README.md).
 
-WorldLook is the only mod under active development. The inventory distinguishes completed
+No mod is currently under active development; WorldLook was owner-confirmed finished on
+2026-10-25. The inventory distinguishes completed
 mods from their separately recorded gameplay acceptance; historical checklists do not reopen
 owner-accepted work.
 
@@ -37,7 +38,7 @@ Source/Mods/
 ├── StorageScanner/             Phone: storage overview
 ├── TaxiDriver/                 NPC-driven taxi; known road/jitter limits in compatibility
 ├── Weather/                    Phone: weather dashboard
-└── WorldLook/                  Active sky, light and water development
+└── WorldLook/                  Native sky, mild light and clear coastal water; owner-accepted
 ```
 
 Every mod folder follows the same structure (scaffolded by `Tools/new-mod.ps1`):

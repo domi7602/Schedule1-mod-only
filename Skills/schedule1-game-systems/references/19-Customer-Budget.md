@@ -2,7 +2,7 @@
 
 > UNVERIFIED against the installed runtime. This file contains no backticked identifier claims, so the f12 static identifier sweep 2026-10-08 had nothing to check: its prose, tables and numbers are **not covered** by the static check and must be re-derived from the decompiles before being relied on.
 
-> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+> Inherited, not rerun; [evidence scope](README.md#source-history).
 
 ## Customer Budget Calculation
 ```

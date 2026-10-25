@@ -70,7 +70,7 @@ it does not replace their individual commands.
 
 | Mode | Checks |
 |---|---|
-| `Quick` | Formatting, read-only solution determinism, version sync, documentation paths and skills health. |
+| `Quick` | Formatting, read-only solution determinism, version sync, documentation paths, skills health and tracked MSBuild XML. |
 | `Pure` | Quick checks, game-free tests and every discovered `Tools/Tests/*.Tests.ps1` suite. |
 | `Full` | Quick checks, a Release build with deployment disabled, all test projects and tool suites. Requires game references. |
 | `Auto` (default) | Full when game references exist; otherwise Pure. |
@@ -112,6 +112,7 @@ commit. A plain `git clone .` alone checks only committed content.
 | `check-version-sync.ps1` | Verifies that the code version (`MelonInfo` attribute or `Constants.ModVersion`) matches `<Mod>/docs/mod.json`, the mod table in `README.md` and the inventory row (plus detail header) in `AGENTS.md`. Exit 1 on drift. |
 | `check-doc-paths.ps1` | Checks maintained root, docs, Skills, Tools and Source/Mods Markdown plus the ThirdParty/GameReferences READMEs. Actual Markdown links resolve from their source document, including parent paths and plain filenames. Exit 1 on missing nonoptional file targets. |
 | `check-skills-health.ps1` | Static health scan of `Skills/`: frontmatter, reference verification headers, duplicate reference filenames, stale pinned versions, broken relative links, CRLF line endings. Exit 1 only on FAIL-level findings; warnings exit 0. |
+| `check-xml.ps1` | Parses Git-tracked `.csproj`, `.props` and `.targets`, including archived projects. Does not read untracked or generated files. Exit 1 on invalid XML; the message names the file. |
 | `bump-version.ps1` | `-Mod <Name> -Version x.y.z [-DryRun]` — updates code, `mod.json`, `CHANGELOG.md` header, `AGENTS.md` and `README.md` in one step. The only supported way to change a version. |
 
 ## Release

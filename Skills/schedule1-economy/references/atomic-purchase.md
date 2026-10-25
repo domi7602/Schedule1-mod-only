@@ -50,6 +50,14 @@ earlier items remain with the player. Removing arbitrary matching item IDs is no
 a safe rollback if they could belong to the player's pre-existing inventory.
 Define fee treatment for cancellation and partial delivery explicitly.
 
+## Supplier payments
+
+A re-entry latch prevents overlap; it does not provide durable idempotency. Record cash and bank
+portions separately; reduce debt only by confirmed payments. Reconcile any unknown
+provider or debt result before continuing. Apply relationship rewards once after
+confirmed settlement, using the target contract and bounds. Cash-first spends cash
+first; it does not preserve it.
+
 ## Save boundary
 
 A receipt or journal must describe the same world checkpoint as money, inventory,

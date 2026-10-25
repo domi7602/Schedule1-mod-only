@@ -7,26 +7,18 @@
 
 Confirm whether the feature belongs in a PhoneApp, HUD, world-space UI or existing native screen. Inspect the matching current base class and project UI helpers; do not infer override accessibility or registration APIs from an old skeleton.
 
-Use [PhoneApp](../../schedule1-phoneapp/SKILL.md) for lifecycle, input and layout. Use [S1API](../../schedule1-s1api/SKILL.md) to locate the actual public interface.
+## Choose the relevant contract
 
-## Presentation contract
+| Concern | Canonical reference |
+|---|---|
+| Close/reopen, container ownership, subscriptions, independent model state | [PhoneApp lifecycle](../../schedule1-phoneapp/references/lifecycle-and-canvas.md) |
+| Add/update/remove rows, stable selection/scroll, control rebinding | [Components and reconciliation](../../schedule1-phoneapp/references/components-and-ugui.md) |
+| Typing and modal ownership | [Input arbitration](../../schedule1-phoneapp/references/input-focus-and-controls.md) |
+| Shared UITheme, measured rects, display/scale/long-text checks | [Responsive layout](../../schedule1-phoneapp/references/responsive-ui-theme.md) |
+| Framework members, icon lookup and owned sprite/texture lifetime | [S1API PhoneApp contract](../../schedule1-s1api/references/phoneapp.md) |
 
-- Keep domain state independent from concrete UI objects.
-- Reconcile added, changed and removed rows, not only visible additions.
-- Rebuild event bindings for the actual control instance and dispose final subscriptions owned by that instance.
-- Distinguish close/hide from destruction. Reopen must remain functional.
-- Acquire and release typing/focus through a shared owner-aware coordinator.
-- Preserve selection and scroll position by stable domain identity when still valid.
-
-## Scaling
-
-Reuse the actual Shared UITheme where present. The uploaded collection described text and dashboard profiles with different scaling curves; inspect their current implementation rather than copying constants into every mod. Define which rect is measured and when layout has settled.
-
-Validate narrow phone content, long text, supported resolutions, user scale and repeated rebuild. A clamp alone does not prevent overflow or guarantee legibility.
-
-## Assets
-
-Confirm how icons/resources are resolved and deployed by the current framework and project. Give runtime-generated sprites/textures explicit ownership and cleanup. A missing icon should produce a bounded diagnostic and a supported fallback, not repeated allocation.
+Confirm resource deployment in the current project. Missing icons need a bounded
+diagnostic and supported fallback, not repeated allocation.
 
 ## Commands
 
@@ -34,4 +26,4 @@ If a diagnostic console command is needed, inspect the actual S1API BaseConsoleC
 
 ## Acceptance
 
-Verify create, first open, close/reopen, rebuild, scene transition, input focus, removed data and final teardown. Report compile and gameplay checks separately.
+Use the selected reference's checks; report compile and gameplay evidence separately.

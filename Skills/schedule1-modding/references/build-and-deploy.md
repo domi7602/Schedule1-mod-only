@@ -25,7 +25,7 @@ Do not assume a plain Release build is read-only: the uploaded runbook describes
 Inspect existing changes first. Build the smallest affected project and required dependencies. Broaden to the solution when shared APIs, imported targets or an explicit gate justify it. Report baseline failures separately from new regressions; do not edit unrelated code just to obtain a clean total.
 
 For repository maintenance, use `Tools/verify.ps1` as the shared gate entry point:
-Quick runs formatting/solution/version/documentation/skill guards; Pure also runs
+Quick runs formatting/solution/version/documentation/skill/tracked-XML guards; Pure also runs
 game-free and tooling tests; Full also builds without deployment and runs all test
 projects. Auto selects Full only when game references are present. Existing focused
 tools remain available, and every actual verifier run records its steps and results.

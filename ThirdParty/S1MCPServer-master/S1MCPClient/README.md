@@ -41,7 +41,17 @@ The client can also launch and control the game process itself:
 
 ## Configuration
 
-Configuration file (`config.json` in project root):
+The client loads `config.json` from this `S1MCPClient/` directory. The default path
+is resolved relative to [src/utils/config.py](src/utils/config.py), independently
+of the current working directory. Files in the parent server directory are not
+read by this default loader. If the local file is absent, built-in defaults apply.
+
+For a new setup, copy [game_config.json.example](game_config.json.example) to the
+local `config.json` only if that file does not already exist, then adjust the game
+path. Keep this machine-local file untracked; the client ignore rules already
+exclude it. The workspace uses the IL2CPP installation and leaves the Mono path unset.
+
+Example configuration:
 
 ```json
 {
@@ -50,15 +60,13 @@ Configuration file (`config.json` in project root):
   "log_level": "DEBUG",
   "connection_timeout": 5.0,
   "reconnect_delay": 1.0,
-  "game_il2cpp_path": "D:\\Schedule 1 Modding\\Dev Env\\IL2CPP_Version",
-  "game_mono_path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I",
+  "game_il2cpp_path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I",
+  "game_mono_path": null,
   "game_executable": "Schedule I.exe",
   "game_startup_timeout": 60.0,
   "game_connection_poll_interval": 2.0
 }
 ```
-
-See `game_config.json.example` for a template configuration file.
 
 ### Configuration Options
 
@@ -94,8 +102,8 @@ s1mcpclient
 
 ```json
 {
-  "game_il2cpp_path": "D:\\Path\\To\\IL2CPP\\Game",
-  "game_mono_path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I"
+  "game_il2cpp_path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I",
+  "game_mono_path": null
 }
 ```
 

@@ -1,23 +1,21 @@
 ---
 name: schedule1-s1api
-description: "Resolve S1API contracts against the installed version. Keywords: S1API, Folders, Money, GameTime, Lifecycle, PhoneApp, Quests, NPCs, Saveables, Items, Products, Building, Law, Vehicles, GameLifecycle, OnSaveInfoLoaded, OnLoadComplete, OnPreLoad, Property, Il2CppScheduleOne, MelonLoader."
+description: "Resolve S1API contracts against the installed version."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # S1API integration
 
 ## Scope and prerequisites
 
-Use the [working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Treat this skill as an API map, not a replacement for the target assembly.
 The user's target is S1API 3.2.1 when no newer target is explicitly supplied. <!-- skills-health: version-evidence (S1API target requested by the owner; installed build state lives in AGENTS.md) -->
 Do not silently substitute current website documentation for that target.
 
-Resolve the project, active runtime branch, package reference, deployed assembly,
-and available matching source before choosing an integration. Expected workspace
-locations are `ThirdParty/S1API/`, `GameReferences/`, and `Source/Mods/Shared/`;
-they are optional external prerequisites, not included in this package.
+Resolve project/backend, compile reference, deployed assembly and matching source.
+Expected external locations: `ThirdParty/S1API/`, `GameReferences/`, `Source/Mods/Shared/`.
 
 ## Workflow
 
@@ -72,10 +70,8 @@ before compensating or issuing the same mutation again.
 
 ## Verification and handoff
 
-Record the assembly/source identity, exact members used, build result, and runtime
-scenarios exercised. Include reload, teardown, repeated action, and host/client
-coverage when they affect this feature. Treat online API pages as research
-references until matched to the target assembly.
+Select relevant reload, teardown and repeated-action checks; host/client tests require explicit scope.
+Report under the shared evidence policy. Match online API documentation to the target assembly.
 
 Official entry points: [API documentation](https://ifbars.github.io/S1API/) and
 [release history](https://github.com/ifBars/S1API/releases).

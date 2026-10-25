@@ -3,7 +3,7 @@
 | Document | Audience | Content |
 |---|---|---|
 | [`../README.md`](../README.md) | Players | Mod overview, compatibility, installation, download. |
-| [`repository-maintenance.md`](repository-maintenance.md) | Maintainers | Current repository work, documentation ownership, local storage and remaining WorldLook checks. |
+| [`repository-maintenance.md`](repository-maintenance.md) | Maintainers | Current repository work, documentation ownership, local storage and WorldLook completion evidence. |
 | [`history/agent-mod-history-20261024.md`](history/agent-mod-history-20261024.md) | Maintainers, researchers | Dated inherited mod details and former checklists; historical evidence, not the current backlog. |
 | [`history/repository-maintenance-20261024.md`](history/repository-maintenance-20261024.md) | Maintainers, researchers | Prior repository checks, deployment fingerprints and completed maintenance history. |
 | [`compatibility.md`](compatibility.md) | Players, developers | Toolchain versions and the per-mod verification matrix. |
@@ -21,6 +21,6 @@
 | [`../AGENTS.md`](../AGENTS.md) | AI agents | Bootstrap file: setup, authoritative mod inventory, agent workflows. |
 | [`../THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md) | Everyone | Third-party components and their licenses. |
 
-PropertyLEDs documentation: [`README`](../Source/Mods/PropertyLEDs/docs/README.md) · [`milestones`](../Source/Mods/PropertyLEDs/docs/implementation-status.md). Version 0.1.8 is feature-complete and owner-confirmed 2026-10-24; individual native checks were not itemized. WorldLook is the only mod still under active development.
+PropertyLEDs documentation: [`README`](../Source/Mods/PropertyLEDs/docs/README.md) · [`milestones`](../Source/Mods/PropertyLEDs/docs/implementation-status.md). Version 0.1.8 is feature-complete and owner-confirmed 2026-10-24; individual native checks were not itemized. WorldLook was also owner-confirmed finished on 2026-10-25; no mod is currently under active development.
 
 Per-mod documentation lives next to the code: `Source/Mods/<ModName>/docs/README.md` (features, configuration, usage) and `Source/Mods/<ModName>/docs/CHANGELOG.md` (version history).

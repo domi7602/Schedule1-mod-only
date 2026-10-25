@@ -1,15 +1,15 @@
 ---
 name: schedule1-mod-reversing
-description: "Inspect Schedule I binaries, symbols and compatibility. Keywords: decompile, ilspycmd, reverse engineering, third-party mod, foreign DLL,."
+description: "Inspect Schedule I binaries, symbols and compatibility."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — Third-Party Mod Reversing
 
 ## Scope and prerequisites
 
-Follow the [working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Analysis does not authorize installing or executing a supplied DLL.
 Use the archive and dependencies the user supplied or otherwise authorized.
 Identify available decompiler tooling, backend, game references, and source provenance.
@@ -29,13 +29,9 @@ Keep extracted material within the analysis workspace and respect its license an
 
 ## Compatibility evidence levels
 
-| Evidence | Supported statement |
-|---|---|
-| Name occurs in a decompile | A candidate symbol was found |
-| Correct declaring type and full signature match | This static API anchor matches |
-| Dependency and bootstrap inspection | No inspected static blocker found, with coverage stated |
-| Controlled start and patch readback | Initialization/installation succeeded in that session |
-| Reproduced gameplay scenario | The tested behavior worked under the recorded conditions |
+Use the shared [evidence policy](../schedule1-modding/references/evidence-policy.md).
+Dependency/bootstrap inspection supports bounded static findings; controlled startup
+and patch readback establish installation for that session, not gameplay acceptance.
 
 Symbol presence alone cannot prove that a mod initializes or that a native hook runs.
 A global search for `Update` does not verify `ListingUI.Update`; a class declaration does
@@ -64,10 +60,9 @@ another mod merely because the inspected binary used them.
 
 ## Verification and delivery
 
-Report artifact identity, inspection method, useful architecture, mechanics with evidence,
-patch inventory, compatibility findings, file/network effects, and open runtime checks.
+Report architecture, mechanics, patch inventory and file/network effects with artifact identity and coverage.
 Distinguish assembly metadata, loader-declared version, and release label if they disagree.
-Record the exact file/member for each high-impact finding; avoid unsupported verdicts.
+Cite the exact file/member for high-impact findings.
 
 ## Read triggers
 

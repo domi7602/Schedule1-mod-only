@@ -1,13 +1,13 @@
 ---
 name: schedule1-custom-npcs
-description: "Build and restore custom Schedule I NPCs. Keywords: NPC, NPCPrefabBuilder, ConfigurePrefab, OnCreated, Appearance, Avatar, Schedule, Dialogue, Customer, Dealer, EnsureDealSignal, OnResponseLoaded, layers."
+description: "Build and restore custom Schedule I NPCs."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — Custom NPCs
 
-Apply the [shared working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Use the installed S1API assembly as the signature authority; the requested target is S1API 3.2.1. <!-- skills-health: version-evidence (S1API target requested by the owner; installed build state lives in AGENTS.md) -->
 
 ## Establish the NPC contract
@@ -52,8 +52,9 @@ as an incidental refactor. Role properties must not depend on initialization tha
 
 ## Verify
 
-Test spawn, appearance/mugshot, direct interaction, complete scheduled routes, role-specific behavior,
-dialogue exit, same-save reload, save switch, restored responses, host/client behavior, and teardown.
+Select checks for changed behavior: spawn, appearance/mugshot, interaction, scheduled routes,
+role behavior, dialogue exit, reload, save switch, restored responses and teardown.
+Host/client checks apply only when explicitly in scope.
 Include blocked/missing destinations, unavailable assets, and repeated callbacks. Compile against the
 actual target assembly before describing an API pattern as supported.
 
@@ -66,6 +67,5 @@ actual target assembly before describing an API pattern as supported.
 
 ## Evidence and output
 
-The inherited NPC reference records a 2026-10-05 source/DLL mismatch; no current-runtime validation is
-implied. Preserve useful source anchors, but recheck exact members in the supplied build. Return role,
-identity policy, stage responsibilities, changed files, verified API evidence, and concrete playtests.
+The NPC reference records a 2026-10-05 source/DLL mismatch, not current-runtime validation.
+Recheck exact members; report role, identity and stage responsibilities under the shared evidence policy.

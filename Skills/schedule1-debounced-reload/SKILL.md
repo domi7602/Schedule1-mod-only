@@ -1,18 +1,18 @@
 ---
 name: schedule1-debounced-reload
-description: "Debounce config reloads with retries and clean shutdown. Keywords: FileSystemWatcher, debounce, TryConsumeScheduledReload, OnUpdate, main-thread pump, config hot-reload, ImageFolderWatcher, PreferencesFileWatcher."
+description: "Debounce config reloads with retries and clean shutdown."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — Debounced Reload
 
 ## Scope and prerequisites
 
-Follow the [working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Identify the watched paths, their owner, valid input schema, reload cost, and scene lifetime.
 Reuse a tested workspace watcher if its current contract meets these requirements.
-This is a design and validation contract; no drop-in watcher is claimed to be compiled.
+This is a design contract, not a compiled watcher.
 
 ## Responsibilities
 
@@ -65,7 +65,7 @@ parsing only unless a particular API is explicitly documented as thread safe.
 
 ## Verification and delivery
 
-Exercise duplicate events, atomic rename saves, partial writes, locked and invalid input,
+Select relevant checks: duplicate events, atomic rename saves, partial writes, locked and invalid input,
 continuous edits, an event during loading, watcher error/rescan, and disposal races.
 Verify that a failed reload retains the last valid state and does not flood logs or frames.
 Measure reload cost and allocation behavior before making performance claims.

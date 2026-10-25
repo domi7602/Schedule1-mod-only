@@ -19,6 +19,7 @@
         (array-singleton regression: '$refs + $skillFiles' used to throw op_Addition
         and skip the version/link/CRLF sections);
       - the checker emits no unexpected PowerShell errors in either tree.
+      - concise descriptions need no keyword list, while missing/empty metadata fails.
 
 .EXAMPLE
     pwsh Tools/Tests/skills-health.Tests.ps1
@@ -179,6 +180,48 @@ Check ($exit2 -eq 0) "checker exits 0 on the single-reference fixture (got $exit
 Test-NoCheckerError $output2 'single-reference fixture'
 Check ($output2 -match "only\.md:\d+ stale string 'S1API 3\.2\.1'") 'single-reference tree still reaches the version scan (active S1API pin warned)'
 Check ($output2 -match "only\.md: header ok") 'single-reference tree still runs reference-header checks'
+
+# --- concise descriptions and required metadata -------------------------
+$metadataRoot = Join-Path $ScratchRoot 'fixture-metadata'
+$metadataSkill = Join-Path $metadataRoot 'Skills/schedule1-metadata/SKILL.md'
+Write-FixtureFile $metadataSkill @"
+---
+name: schedule1-metadata
+description: "Inspect the owning runtime member."
+---
+
+Runtime configuration: AGENTS.md.
+"@
+$metadataOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $checker -Root $metadataRoot *>&1 | Out-String
+Check ($LASTEXITCODE -eq 0 -and $metadataOutput -match 'RESULT: clean') 'concise description without a keyword catalog passes cleanly'
+Test-NoCheckerError $metadataOutput 'description fixture'
+
+foreach ($descriptionLine in @('', 'description: "   "', 'description: "" # placeholder', "description: '   ' # placeholder", 'description: # placeholder')) {
+    Write-FixtureFile $metadataSkill @"
+---
+name: schedule1-metadata
+$descriptionLine
+---
+
+Runtime configuration: AGENTS.md.
+description: Body text must not satisfy required metadata.
+"@
+    $metadataOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $checker -Root $metadataRoot *>&1 | Out-String
+    Check ($LASTEXITCODE -eq 1 -and $metadataOutput -match 'missing or empty frontmatter description') 'missing/empty metadata fails even with a description in the body'
+}
+
+foreach ($descriptionLine in @('description: "# tags are literal inside quotes." # comment', "description: 'Inspect the member''s owner.' # comment")) {
+    Write-FixtureFile $metadataSkill @"
+---
+name: schedule1-metadata
+$descriptionLine
+---
+
+Runtime configuration: AGENTS.md.
+"@
+    $metadataOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $checker -Root $metadataRoot *>&1 | Out-String
+    Check ($LASTEXITCODE -eq 0 -and $metadataOutput -match 'RESULT: clean') 'quoted content remains valid with an optional trailing comment'
+}
 
 # ---------------------------------------------------------------------------
 

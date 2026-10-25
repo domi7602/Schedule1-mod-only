@@ -4,7 +4,7 @@ Health check for the Skills/ directory (schedule1-mod-only workspace).
 
 .DESCRIPTION
 Static scans only — no game required. Reports, per category:
-  1. SKILL.md issues: missing/mismatched frontmatter, missing canonical runtime-config pointer
+  1. SKILL.md issues: missing/mismatched frontmatter, empty description, missing canonical runtime-config pointer
   2. Reference files: missing verification header (> verified / > UNVERIFIED)
   3. Duplicate reference filenames across skills (drift risk)
   4. Pinned game/framework/tool versions in Skills; non-existent "OnSaveLoaded" event.
@@ -55,6 +55,9 @@ $stalePatterns = @(
 # not to the nearest token — a deliberately simple rule, so keep evidence lines short.
 # It never applies to API-name or structural patterns, and never beyond the next line.
 $versionEvidencePattern = '<!--\s*skills-health:\s*version-evidence\s*\((?=[^)]*[^\s)])[^)]*\)\s*-->'
+$quotedDescriptionPattern = @'
+^(?:"(?<value>(?:\\.|[^"\\])*)"|'(?<value>(?:''|[^'])*)')(?:[ \t]+#.*)?$
+'@
 
 function Add-Fail($msg) { Write-Host "  [FAIL] $msg" -ForegroundColor Red; $script:fail++ }
 function Add-Warn($msg) { Write-Host "  [WARN] $msg" -ForegroundColor Yellow; $script:warn++ }
@@ -71,8 +74,24 @@ foreach ($s in $skills) {
     if ($skillRaw -notmatch '(?m)^---\s*\n') { Add-Warn "$($s.Name): no frontmatter block" }
     elseif ($skillRaw -notmatch "(?m)^name:\s*$([regex]::Escape($s.Name))\s*$") { Add-Fail "$($s.Name): frontmatter name != directory name" }
     if ($skillRaw -notmatch '(?i)AGENTS\.md') { Add-Warn "$($s.Name): no link to canonical runtime/dependency configuration" }
-    $desc = if ($skillRaw -match '(?ms)^description:\s*(.+?)\n\w') { $Matches[1] } else { '' }
-    if ($skillRaw -notmatch '(?m)^.*Keywords:') { Add-Warn "$($s.Name): description has no Keywords (README convention)" }
+    # The repository profile uses one-line descriptions. Check the actual metadata
+    # block; body text and keyword catalogs are not substitutes for a description.
+    $frontmatter = [regex]::Match($skillRaw, '\A---\r?\n(?<body>.*?)\r?\n---(?:\r?\n|\z)', 'Singleline')
+    $description = [regex]::Match($frontmatter.Groups['body'].Value, '(?m)^description:[ \t]*([^\r\n]*)')
+    $descriptionValue = $description.Groups[1].Value.Trim()
+    $quotedDescription = [regex]::Match($descriptionValue, $quotedDescriptionPattern)
+    if ($quotedDescription.Success) {
+        $descriptionText = $quotedDescription.Groups['value'].Value.Trim()
+    }
+    elseif ($descriptionValue.StartsWith('"') -or $descriptionValue.StartsWith("'")) {
+        $descriptionText = '' # Incomplete or malformed quoted metadata is not a description.
+    }
+    else {
+        $descriptionText = ($descriptionValue -replace '[ \t]+#.*$', '').Trim()
+    }
+    if (-not $descriptionText -or $descriptionValue.StartsWith('#')) {
+        Add-Fail "$($s.Name): missing or empty frontmatter description"
+    }
 }
 
 # --- 2. Reference verification headers ----------------------------------

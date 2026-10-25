@@ -2,36 +2,21 @@
 
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 5 of 5 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
-## Choose the task mode
-
-- Review: inspect and explain; do not silently implement.
-- Plan: produce a concrete implementation plan and acceptance checks.
-- Implement: execute the requested change and its authorized verification.
-- Configured maker/checker: use the actual project's reviewer and approval requirement when present.
-
-An explicit implementation request is not automatically converted into a second permission request. Conversely, a bug report alone is not a request to deploy, publish or rewrite unrelated systems. Resolve mode from the current task and repository instructions. Do not invent @gatekeeper, @designer or @coder roles when they do not exist.
+Use the [working contract](working-contract.md) for task mode, authorization and preservation of unrelated work. This reference adds planning detail for risky integrations; a plan request itself does not authorize implementation.
 
 ## Minimum plan for risky integration changes
 
-Before editing lifecycle, persistent data, payments, native detours or networked state, state:
+For lifecycle, persistence, payments, native detours or networked state, state:
 
-1. Problem and observed evidence.
-2. Intended behavior and numbered acceptance criteria.
-3. Owners and dependencies.
-4. Relevant transitions and failure/partial-effect cases.
-5. Proposed implementation boundary and order.
-6. Verification that discriminates the fix from the old failure.
-7. Missing evidence and how it affects only the dependent work.
+1. Problem/evidence and intended behavior.
+2. Acceptance criteria, owners and dependencies.
+3. Transitions, partial/unknown effects and recovery.
+4. Implementation boundary and order.
+5. Checks that distinguish the fix from the old failure, including missing prerequisites.
 
-For a small isolated change this can be a short working note. Do not create a multi-stage bureaucracy for a spelling correction.
+Scale this to the change: a small isolated fix needs only a short note, not a separate planning document.
 
-## Implementation
-
-Inspect existing changes, preserve unrelated work and implement within the agreed scope. If new evidence invalidates the plan, explain the material change and adjust. Ask only when the remaining choice changes authorization, the user's outcome or an important unresolved requirement.
-
-## Review and delivery
-
-Show what changed and why, actual checks and results, residual risks and any unexecuted manual step. Do not imply that a plan, source inspection or build is gameplay acceptance.
+Adjust the plan when evidence changes it. Ask only for unresolved choices that affect authorization, outcome or requirements. Report actual checks and limits using the [evidence policy](evidence-policy.md).
 
 ## Historical context
 

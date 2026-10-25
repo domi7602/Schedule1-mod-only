@@ -2,6 +2,11 @@
 
 **Water accepted by Dominik on 2026-10-24; closed.** ON/OFF is also owner-confirmed without errors. This acceptance concerns the dev.2 water candidate used in that session (DLL `410fecf7…`, bundle `29557b87…`); it is not an itemized night/reload or performance result. The later diagnostic cleanup preserves this water acceptance and does not change the shader or water recipe. The dated implementation, build, deployment and runtime evidence below remains intact.
 
+**Overall WorldLook completion was owner-confirmed on 2026-10-25**, referring to the prior
+session without itemized actions. The [current acceptance record](in-game-acceptance.md)
+closes the overall backlog while retaining the limits of each dated observation below;
+no quantitative frame-time measurement is implied.
+
 ## Diagnostic cleanup deployment — dev.3, 2026-10-24
 
 The owner authorized installation, commit and push after the cleanup passed Release/Full
@@ -71,7 +76,7 @@ These local artifacts are not promised as files in a fresh clone.
 | `04-owner-image-labels-20261024-184116/01-owner-labelled-on-1202.png` | `1a8765a53b545d91882c1d2baafccf9245842984ebdbf22690013d1989c7aa03` |
 | `04-owner-image-labels-20261024-184116/02-owner-labelled-off-1759.png` | `9fe1c3ca109bee268adf52a9519dd6d55eeab47f2515bce2aa567d890d57aaeb` |
 
-Remaining WorldLook evidence limits: visible warmth has not received a separate owner verdict;
+Evidence limits of the 2026-10-24 session: visible warmth had no separate owner verdict;
 night/menu/reload and quantitative frame times were not measured in this session. Positive numeric
 warmth was observed. These limits do not reopen the accepted water work. The sections below describe
 the earlier state of knowledge at their dates; the owner decision above supersedes their open water items.

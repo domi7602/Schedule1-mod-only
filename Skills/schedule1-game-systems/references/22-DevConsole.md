@@ -2,7 +2,7 @@
 
 > verified: static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check — 7 of 7 identifier-shaped tokens resolve (0 documented as absent; 0 lowercase parameter tokens are out of scope). Static coverage only; runtime behaviour still needs an in-game session.
 
-> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+> Inherited, not rerun; [evidence scope](README.md#source-history).
 
 ## Activation
 Resolve the target build’s supported console setting or activation path first. The old note proposed editing `Game.json` and also named an unrelated movement multiplier; neither establishes a current console activation contract. Do not alter a save or memory merely to inspect available commands.

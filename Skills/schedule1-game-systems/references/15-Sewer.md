@@ -1,6 +1,6 @@
 # Sewer (Schedule I)
 
-> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+> Inherited, not rerun; [evidence scope](README.md#source-history).
 > UNVERIFIED against the installed runtime. Static identifier sweep 2026-10-08 against the freshly regenerated f12 decompile (`GameReferences/decompiled/Assembly-CSharp`), replacing the earlier decompile-generation check: 22/25 identifier-shaped tokens resolve (2 documented as absent). Unresolved identifiers are listed at the end of this file. Runtime behaviour is not covered by this sweep.
 
 ## Status: FULLY IMPLEMENTED (Not Cut Content)
@@ -53,6 +53,6 @@
 
 ## Unresolved identifiers in the imported 2026-10-08 record
 
-The imported scan did not resolve the following tokens within its recorded search scope. These may be placeholders, attributes from another assembly or drift candidates. Search the actual declaring assembly and version before concluding that an API was removed.
+See [scan limits](README.md#source-history); unresolved does not mean removed.
 
 - `SewerSkyProfileOverride`

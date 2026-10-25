@@ -1,6 +1,6 @@
 # Repository maintenance
 
-Current work and remaining native checks, updated 2026-10-25. This page is a work
+Repository maintenance and recorded mod completion, updated 2026-10-25. This page is a work
 tracker; [compatibility](compatibility.md) owns gameplay acceptance and its limits.
 [The preceding snapshot](history/repository-maintenance-20261024.md) preserves earlier
 checklists, deployment fingerprints, warnings and test totals.
@@ -58,6 +58,12 @@ Only the revision explicitly identified above carries a commit/push claim. Consu
 
 ## Completed foundation
 
+- Follow-up on 2026-10-25: corrected the public HitmanPhone acceptance text and installation
+  layout, repaired the archive's XML deployment guards, and documented the S1MCP client's
+  actual local-config path. The unused parent-level config is no longer tracked; its local
+  bytes are retained. WorldLook's original dev.2 protocol now lives in its
+  [history](../Source/Mods/WorldLook/docs/history/in-game-acceptance-dev2-20261024.md), with
+  navigation from the current record. Mod code, versions and gameplay acceptance are unchanged.
 - Shared `Tools/verify.ps1` entry point, isolated working-file snapshot verification and
   release-package source/payload provenance were implemented before this pass. The
   [preceding record](history/repository-maintenance-20261024.md#current-repository-improvement--2026-10-24)
@@ -83,7 +89,7 @@ Only the revision explicitly identified above carries a commit/push claim. Consu
 |---|---|
 | [AGENTS.md](../AGENTS.md) | Agent rules and machine-checked mod inventory rows |
 | [compatibility.md](compatibility.md) | Current gameplay evidence, attribution and limits |
-| This page | Repository work and links to the remaining WorldLook work |
+| This page | Repository work and links to WorldLook completion evidence |
 | Mod docs/README.md and CHANGELOG.md | Behaviour, usage and dated release changes |
 | docs/history and mod-local docs/history | Superseded narratives and preserved evidence, not an active backlog |
 
@@ -104,29 +110,37 @@ silently upgraded to individually verified actions.
 - Mod-local `tests/` can retain specific notes/fixtures. New scaffolds do not create a
   competing executable-test location. [Developer workflow](../DEVELOPERS.md#test).
 
-## Remaining native work: WorldLook
+<a id="remaining-native-work-worldlook"></a>
 
-WorldLook is the only active development mod; its **water work and ON/OFF are owner-accepted
-and closed as of 2026-10-24**. The
+## Completed: WorldLook
+
+**WorldLook is finished and owner-accepted.** Dominik confirmed on 2026-10-25 that it was
+completed in the last session. Current version remains `0.3.0-dev.5`; no mod is currently
+under active development. Additional session actions were not itemized, and no quantitative
+frame-time measurements were supplied. These are evidence limits, not remaining tasks.
+
+Its **water work and ON/OFF are owner-accepted and closed as of 2026-10-24**. The
 [canonical water-surface record](../Source/Mods/WorldLook/docs/water-surface-verification.md)
 identifies the accepted dev.2 DLL `410fecf7…` and bundle `29557b87…`, prior GPU/build reviews,
 calm morning motion, the fresh ON→OFF reports and Dominik's acceptance. The dev.3 diagnostic
 cleanup leaves the shader/recipe unchanged and was installed/hash-verified on 2026-10-24.
 Dev.4 MCP control and the dev.5 shader-reload repair were installed and tested on 2026-10-25;
-their scoped results and remaining checks follow below.
+their scoped results remain recorded below.
 
 The [acceptance record and protocol](../Source/Mods/WorldLook/docs/in-game-acceptance.md)
-separates closed water work from remaining WorldLook evidence. Positive numeric warmth was
-observed at 17:42. Quantitative frame-time work still needs a verified recorder and an
-owner-agreed performance budget. F9 is removed in dev.3; existing reports remain historical.
+records overall completion separately from the individually observed checks. Positive numeric
+warmth was observed at 17:42; no separate visible-warmth verdict or comparable frame-time
+measurements were supplied with the final confirmation. F9 is removed in dev.3; existing
+reports remain historical. Do not reopen the former warmth/performance checklist without
+a new owner request.
 
 - [x] Water appearance, including direct sun; owner accepted 2026-10-24.
 - [x] ON/OFF including re-enable; owner confirmed without errors 2026-10-24.
-- [ ] Visible positive warmth near 06:00 or 18:00; positive numeric strength already observed.
+- Positive warmth near 06:00 or 18:00: numeric strength observed; no separate visual verdict itemized. Covered by overall owner completion, not a new individual test pass.
 - [x] Native night; dev.3 owner-confirmed normal on 2026-10-25.
 - [x] Automated ON/OFF menu/reload state and measured-light checks, dev.4 on 2026-10-25 in Dominik; seven agent-captured screenshots. Its separate shader fallback remains historical evidence.
 - [x] Reference-water shader reload repaired in dev.5 and MCP-tested on 2026-10-25: two ON reloads and two OFF reloads followed by ON passed actual renderer/support checks, with ten scene/menu screenshots. Prior appearance acceptance remains closed.
-- [ ] Comparable ON/OFF game frame-time measurements.
+- Comparable ON/OFF game frame-time measurements: not recorded; no outstanding acceptance task.
 
 Owner-accepted mods remain closed, including the version-only Minimap/TaxiDriver releases.
 Cancelled Minimap search is not a backlog. Multiplayer is out of scope; existing guards

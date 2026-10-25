@@ -21,18 +21,10 @@ do not substitute the entire phone's open flag for the app's state.
 
 ## Lifetime design
 
-Create UI under the framework-provided container and identify who owns each root,
-canvas, texture, sprite, and subscription. Reuse the owned UI when the phone closes
-and reopens. Close should release temporary input focus and hide relevant UI;
-destruction should release the owning instance's resources and subscriptions.
-
-The inherited failure case destroyed UI or removed essential update handlers on
-phone close, then expected OnCreated to run on the next open. Do not rely on that
-recreation assumption. Test actual create/open/close/destroy counts in the target.
-
-If scene reload creates another app instance, detach the old instance explicitly.
-A new instance unsubscribing its own method does not remove the old handler.
-Keep world model state independent of a canvas that can be recreated.
+Use the canonical [PhoneApp lifetime contract](../../schedule1-phoneapp/references/lifecycle-and-canvas.md#resource-lifetime-table)
+for container ownership, close versus destruction, instance-bound subscriptions
+and save-bound models. Its historical blank-second-open case explains why ordinary
+phone closure must not destroy the reopen mechanism.
 
 ## Icons and UI factories
 
@@ -56,10 +48,9 @@ for missing lifecycle ownership.
 
 ## Verification
 
-Test repeated phone open/close, switching apps, typing and hotkeys, save reload,
-menu return, and new app instance creation. Check selected-control focus, canvas
-visibility, callback counts, and resource counts. Confirm icons and model state
-survive the intended lifetime without carrying another world's data.
+Run the [reopen/reload checks](../../schedule1-phoneapp/references/lifecycle-and-canvas.md#reopen-and-reload-verification),
+including focus, canvas visibility and callback counts. Also confirm icon resource
+counts and lifetime; test configured hotkeys without leaking input into gameplay.
 
 Read [lifecycle](lifecycle.md) for callbacks and
 [cross-runtime compatibility](cross-compat.md) for delegate/native boundaries.

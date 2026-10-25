@@ -2,6 +2,7 @@
 
 ## 0.3.0-dev.5 (2026-10-25)
 
+- **Completed; Verified, owner-confirmed 2026-10-25.** Dominik clarified "wordlook haben wir letzte session fertig gemacht". This records overall acceptance of the prior session; its exact acceptance time and individual actions were not supplied. WorldLook has no remaining acceptance backlog. Separate visible-warmth checks were not itemized and quantitative frame times were not measured; those evidence limits remain. This status correction changes no code, version, installed artifact or prior test result.
 - Repair shader-cache lifetime across menu/reload: validate native shader and bundle objects, retain the owned shader with `DontUnloadUnusedAsset`, and allow one acquisition per explicit initialization after stale or failed loads. Existing flags are preserved; shutdown releases only the owned retention bit and keeps `Unload(false)` for borrowed material consumers.
 - Keep the embedded water shader, bundle and recipe unchanged. The dev.3/dev.4 fallback evidence remains in the [acceptance record](in-game-acceptance.md); the exact native unload trigger is not established by those observations.
 - Add native-free tests of the real cache implementation with Unity boundary doubles. These cover lifetime and recovery decisions; native reload verification is recorded separately.

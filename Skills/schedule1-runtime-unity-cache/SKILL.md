@@ -1,18 +1,18 @@
 ---
 name: schedule1-runtime-unity-cache
-description: "Cache Unity resources with ownership and staged replacement. Keywords: Object.Destroy, SpriteCache, dirty flag, MarkDirty, EnsureLoaded, IDisposable, Texture2D cache, AudioClip pool, GC.Alloc-free reload."
+description: "Cache Unity resources with ownership and staged replacement."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — Runtime Unity Asset Cache
 
 ## Scope and prerequisites
 
-Follow the [working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Identify the cache owner, consumers, scene/session lifetime, and each resource's origin.
 Distinguish owned runtime creations from borrowed game assets and shared dependencies.
-This is an ownership contract, not a generic compiled cache implementation.
+This is an ownership contract, not a compiled cache.
 
 ## Required ownership model
 
@@ -64,7 +64,7 @@ and dirty/generation state; disposal instead marks the cache terminal.
 
 ## Verification and delivery
 
-Verify initial load, repeated reloads, partial creation failure, invalid input, shared
+Select relevant checks: initial load, repeated reloads, partial creation failure, invalid input, shared
 texture ownership, multiple consumers, scene exit during load, and repeated cleanup.
 Measure peak and retained native/GPU resources over repeated cycles after settling;
 managed GC statistics alone do not establish that Unity resources were released.

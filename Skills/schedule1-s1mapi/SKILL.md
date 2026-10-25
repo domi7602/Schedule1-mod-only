@@ -1,13 +1,13 @@
 ---
 name: schedule1-s1mapi
-description: "Build Schedule I geometry with verified S1MAPI contracts. Keywords: S1MAPI, ProceduralMesh, MeshBuilder, BuildingBuilder, InteriorBuilder, GltfLoader, glb, TerrainClearer, FlattenTerrain, NavigationBuilder, PrefabPlacer, NetworkPrefab, MaterialPresets, URP, UnityEngine, no AssetBundle, no Assembly-CSharp."
+description: "Build Schedule I geometry with verified S1MAPI contracts."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — S1MAPI Integration
 
-Apply the [shared working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Treat this skill as a module-selection and integration guide, not a replacement for the installed assembly.
 
 ## Establish prerequisites
@@ -59,13 +59,12 @@ on each supported branch; a single DLL is not guaranteed by a documentation labe
 
 ## Verification
 
-Check generated bounds, normals, materials, collision, navigation, missing assets, repeated builds,
-same-save reload, slot switch, host/client behavior, late join, and teardown. Measure construction
-latency and resource counts for the target layout; do not assign constant-time guarantees without evidence.
+Select relevant checks: bounds, normals, materials, collision, navigation, missing assets, repeated
+builds, reload, slot switch and teardown. Host/client and late-join tests require explicit scope.
+Measure construction latency and resources; do not assume constant-time behavior.
 
 ## Evidence and output
 
-Official S1MAPI API documentation was consulted on 2026-10-21. Each reference distinguishes this
-public documentation from inherited workspace observations. The user's deployed S1MAPI DLL and
-S1API 3.2.1 runtime were not supplied for this revision. Report the selected API evidence, integration <!-- skills-health: version-evidence (S1API target requested by the owner; installed build state lives in AGENTS.md) -->
-assumptions, changed files, and runtime acceptance checks without claiming compilation or game testing.
+Official S1MAPI documentation was consulted on 2026-10-21; references distinguish it from inherited
+observations. The deployed S1MAPI DLL and S1API 3.2.1 runtime were not supplied for that revision. <!-- skills-health: version-evidence (S1API target requested by the owner; installed build state lives in AGENTS.md) -->
+Report integration assumptions and selected API evidence under the shared policy.

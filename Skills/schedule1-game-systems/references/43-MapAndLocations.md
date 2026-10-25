@@ -1,6 +1,6 @@
 # Map & Locations (Schedule I)
 
-> Evidence: inherited notes from the supplied Skills.zip. The reported 2026-10-08 static scan was not rerun for this package. Treat symbols, values and behavior as lookup candidates until checked against the target build; [scope and workflow](README.md).
+> Inherited, not rerun; [evidence scope](README.md#source-history).
 
 > **Redirect stub** (consolidated 2026-10-05): region mechanics/unlocks live in **[`13-Regions.md`](13-Regions.md)**; the previously reported map-POI/S1API `MapPOIBuilder` analysis lives in the map section of **[`07-Vehicle.md`](07-Vehicle.md)** (previously reported 2026-09-25). This file keeps only the class register. Class-list only — not yet re-verified.
 

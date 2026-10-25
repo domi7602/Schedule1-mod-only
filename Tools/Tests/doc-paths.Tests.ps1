@@ -63,6 +63,39 @@ function Run-Fixture([string]$Root, [string[]]$Extra = @()) {
     return [pscustomobject]@{ Code = $code; Output = $output }
 }
 
+function Invoke-OemFixture([string]$Root) {
+    # A new pwsh adopts the console code page at startup. Set CP437 in a parent
+    # of the checker, then read a UTF-8 receipt so the assertion does not depend
+    # on the outer host decoding CP437 console bytes. Restore the shared console.
+    $script:runs++
+    $checkerPath = (Join-Path $Root 'Tools/check-doc-paths.ps1').Replace("'", "''")
+    $receipt = Join-Path $scratch ("oem-run-{0:D2}.txt" -f $script:runs)
+    $quotedReceipt = $receipt.Replace("'", "''")
+    $launcher = Join-Path $scratch ("oem-launcher-{0:D2}.ps1" -f $script:runs)
+    $launcherText = @"
+`$ErrorActionPreference = 'Stop'
+[Console]::InputEncoding = [Text.Encoding]::GetEncoding(437)
+[Console]::OutputEncoding = [Text.Encoding]::GetEncoding(437)
+`$output = & pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File '$checkerPath' 2>&1 | Out-String
+`$code = `$LASTEXITCODE
+[IO.File]::WriteAllText('$quotedReceipt', "ExitCode: `$code`n`$output", [Text.UTF8Encoding]::new(`$false))
+exit `$code
+"@
+    [IO.File]::WriteAllText($launcher, ($launcherText -replace "`r`n", "`n"), [Text.UTF8Encoding]::new($false))
+    $savedOut = [Console]::OutputEncoding
+    $savedIn = [Console]::InputEncoding
+    try {
+        $null = & pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $launcher
+        $code = $LASTEXITCODE
+    }
+    finally {
+        [Console]::InputEncoding = $savedIn
+        [Console]::OutputEncoding = $savedOut
+    }
+    $text = if (Test-Path -LiteralPath $receipt) { [IO.File]::ReadAllText($receipt) } else { '' }
+    return [pscustomobject]@{ Code = $code; Output = $text }
+}
+
 # Real links resolve relative to their document, including parent/simple paths,
 # spaces, encoded Unicode, fragments, parentheses and optional link titles.
 $root = New-Fixture 'valid'
@@ -111,6 +144,15 @@ $result = Run-Fixture $root
 Check ($result.Code -eq 0) "supported valid links and literal examples pass: $($result.Output)"
 Check ($result.Output -match '6 Markdown-Dateien, 6 Quelle/Ziel-Paare') 'valid links are recognized and equivalent encoded/title/code targets deduplicate'
 Check ($result.Output -match 'Anker nicht geprueft') 'success states that anchor targets were not checked'
+$savedCodePage = [Console]::OutputEncoding.CodePage
+$oemValid = Invoke-OemFixture $root
+Check ($oemValid.Code -eq 0 -and $oemValid.Output -match '6 Markdown-Dateien, 6 Quelle/Ziel-Paare') 'CP437 console still inventories docs/Grüße.md'
+$oemRoot = New-Fixture 'oem-unicode'
+Write-File $oemRoot 'docs/untracked ünicode.md' '[broken](missing-owned.md)'
+$oemUnicode = Invoke-OemFixture $oemRoot
+Check ($oemUnicode.Code -eq 1 -and $oemUnicode.Output -match '1 Markdown-Dateien') 'CP437 console still scans the untracked Unicode document'
+Check ($oemUnicode.Output.Contains('docs/untracked ünicode.md:1:')) 'CP437 report names docs/untracked ünicode.md'
+Check ([Console]::OutputEncoding.CodePage -eq $savedCodePage) 'OEM fixture restores the parent console code page'
 Check ((Get-FileHash -LiteralPath (Join-Path $root '.git/index')).Hash -eq $indexBefore) 'guard does not mutate the fixture Git index'
 Check ((Git $root @('status', '--porcelain', '--untracked-files=all')) -eq $statusBefore) 'guard does not mutate fixture files/status'
 

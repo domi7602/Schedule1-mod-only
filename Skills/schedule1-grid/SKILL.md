@@ -1,13 +1,13 @@
 ---
 name: schedule1-grid
-description: "Build Schedule I grids and validate placement. Keywords: Grid, GridItem, BuildableItem, BuildUpdate_Grid, GridManager, FootprintTile, StreetPropertyManager, outdoor placement, anti-dupe, slot isolation."
+description: "Build Schedule I grids and validate placement."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Schedule I — Grid and Placement
 
-Apply the [shared working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Treat historical HomelessMod recipes as one implementation model, not universal native behavior.
 
 ## Choose the ownership model first
@@ -51,9 +51,9 @@ Load [networked world state](../schedule1-networked-world-state/SKILL.md) when m
 
 ## Verify
 
-Cover native and custom placement, blocked/full inventory, repeated placement requests, cancellation,
-curbs/slopes, masked layers, footprint visibility, culling, pack-up failure, host/client behavior,
-late join where supported, same-save reload, slot switch, interrupted saves, and scene cleanup.
+Select relevant checks: native/custom placement, blocked/full inventory, duplicate requests,
+cancellation, curbs/slopes, masked layers, footprint visibility, culling, pack-up failure,
+reload, slot switch, interrupted saves and cleanup. Host/client and late-join tests require explicit scope.
 
 ## Read on demand
 
@@ -65,6 +65,5 @@ late join where supported, same-save reload, slot switch, interrupted saves, and
 
 ## Evidence and output
 
-Class names and historical observations in these references must be checked against the deployed game.
-Return the selected ownership model, exact intercepted targets, transaction/restore responsibilities,
-changed files, and measured in-game evidence. Do not claim multiplayer or anti-duplication support from a single-player example.
+Report ownership, intercepted targets and transaction/restore responsibilities under the shared
+evidence policy. A singleplayer example does not prove multiplayer or anti-duplication support.

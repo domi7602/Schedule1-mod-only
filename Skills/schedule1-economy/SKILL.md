@@ -1,18 +1,17 @@
 ---
 name: schedule1-economy
-description: "Handle Schedule I payments, stock and partial failures. Keywords: Money, MoneyManager, onlineBalance, cashBalance, Business, OwnedBusinesses, ShopInterface, PurchaseService, BankService, TransactionHistory, weekly limit, cash slot, Auto payment, CreateOnlineTransaction, ChangeCashBalance."
+description: "Handle Schedule I payments, stock and partial failures."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Economy operations
 
 ## Scope and prerequisites
 
-Use the [working contract](../schedule1-modding/references/working-contract.md).
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Inspect the target money, inventory, stock, and save contracts before mutation.
-`BankApp`, `PocketShop`, and `BusinessIncome` are inherited workspace examples;
-their current implementations are not included or revalidated here.
+`BankApp`, `PocketShop` and `BusinessIncome` are external workspace examples to inspect.
 
 Identify whether the operation affects local cash, shared bank balance, stock,
 world ownership, or several stores. Determine the authoritative peer for each.
@@ -53,26 +52,18 @@ Cash storage and capacity are inventory concerns, not merely float arithmetic.
 | Operation | Reference |
 |---|---|
 | Purchase with stock and inventory delivery | [Purchase workflow](references/atomic-purchase.md) |
+| Supplier debt, split payments and relationship rewards | [Supplier settlement](references/atomic-purchase.md#supplier-payments) |
 | Cash to bank or bank to cash | [ATM transfer workflow](references/atm-double-entry.md) |
 | Daily business revenue and rollback recovery | [Passive revenue](references/passive-revenue.md) |
 | Wrapper names and time representation | [Money and game time](../schedule1-s1api/references/money-economy.md) |
 | Capacity and stack behavior | [Inventory capacity](../schedule1-items/references/inventory-capacity.md) |
 | Checkpoints, IO failures, identity | [Persistence](../schedule1-persistence/SKILL.md) |
 
-## Supplier payment specialization
-
-A re-entry flag prevents overlapping callbacks; it is not durable idempotency.
-For a mixed-source payment, record the cash and bank portions separately, then
-change debt only for the confirmed paid amount. If either provider or debt mutation
-has an unknown outcome, stop automatic continuation and reconcile all legs.
-Apply relationship rewards once after confirmed settlement, using the target
-contract and bounds. Cash-first consumes cash first; it does not preserve it.
-
 ## Verification
 
-Test out-of-stock zero, explicit unlimited stock, invalid/overflowing totals,
+Select relevant checks: out-of-stock zero, explicit unlimited stock, invalid/overflowing totals,
 insufficient capacity, failure before deduction, failure after mutation, partial
 item transfer, failed compensation, duplicate action, and slot/world change.
-For recurring revenue test two host callbacks, a client callback, reload, rollback,
-and failed marker persistence. Assert ledger, inventory, stock, and receipt
-consistency together; a successful build alone does not establish transaction safety.
+For recurring revenue test duplicate authoritative callbacks, refused unauthorized calls,
+reload, rollback and failed marker persistence. Assert ledger, inventory, stock and receipt
+consistency together. Multiplayer sessions require explicit scope.

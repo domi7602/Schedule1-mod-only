@@ -19,7 +19,7 @@ Record source commit, binary identity/hash, backend, and decompile provenance wh
 | `ThirdParty/S1API/` | Framework implementation at a known commit | May differ from deployed framework DLLs |
 | `ThirdParty/S1MAPI/` | Mapping/building/import implementation | Availability and current API require inspection |
 | `ThirdParty/S1MCPServer-master/` | Bridge schemas and handlers | Local modifications may differ from public source and running bridge |
-| `Source/Mods/` | Current workspace implementations and tests | A copied pattern is not automatically safe for a new lifetime/authority model |
+| `Source/Mods/`, `Source/Tests/` | Current implementations and tests | A copied pattern is not automatically safe for a new lifetime/authority model |
 | `Source/Archive/` | Historical implementations | Not an active compatibility guarantee |
 | `AGENTS.md`, `docs/compatibility.md` | Workspace environment and dependency choices | Not included by default in this skill package |
 | Actual game's `MelonLoader/Il2CppAssemblies/` | Generated interop bindings for that installation | Match their generation to the running game |
@@ -27,19 +27,7 @@ Record source commit, binary identity/hash, backend, and decompile provenance wh
 
 ## Curated system entry points
 
-Read the [systems index](../../schedule1-game-systems/references/_index.md) before opening
-individual notes. The collection groups 64 system topics; it is not proof that every
-possible system or every native implementation detail is covered.
-
-| Topic | Examples in the collection |
-|---|---|
-| Production and growing | Growing, mixing, products, drug effects |
-| Money and trade | Money, businesses, customers, dark market |
-| World and navigation | Regions, property, doors, map, vehicles |
-| NPCs and communication | Behavior, employees, dialogue/quest, messaging |
-| Player and inventory | Player, item framework, equipping, storage |
-| Environment | Weather, lighting, audio, temperature |
-| Infrastructure | Networking, persistence, time, configuration, variables |
+Use the [systems index](../../schedule1-game-systems/references/_index.md) to locate an unknown topic; known references can be opened directly. Its category table owns navigation across the 64 topics, without claiming complete native implementation coverage.
 
 ## Evidence provenance
 

@@ -1,18 +1,17 @@
 ---
 name: schedule1-lifecycle-verify
-description: "Verify Schedule I lifecycle timing and subscription cleanup. Keywords: lifecycle, verify, ilspycmd, GameLifecycle, OnPreLoad, OnLoadComplete, OnSaveInfoLoaded, event order, UNVERIFIED, verification log, DOTNET_ROOT, LoadManager, SaveManager."
+description: "Verify Schedule I lifecycle timing and subscription cleanup."
 ---
 
-> Runtime and dependency details are maintained in workspace [AGENTS.md](../../AGENTS.md). Verification notes in this skill describe evidence scope; they do not imply current-runtime verification.
+> Workspace and runtime rules: [AGENTS.md](../../AGENTS.md).
 
 # Lifecycle verification
 
 ## Scope and prerequisites
 
-Use the [working contract](../schedule1-modding/references/working-contract.md).
-Record the game build, runtime branch, S1API assembly identity, and scenario.
-Use the actual project/deployed assembly paths; do not assume a particular Steam
-location, assembly count, DLL size, or globally configured environment variable.
+Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
+Record build, backend, S1API artifact and scenario. Resolve actual assembly paths;
+do not assume a Steam location, assembly count, DLL size or environment override.
 
 The package contains inherited observations, not the live DLLs or their logs.
 Use `ilspycmd` only after checking the installed tool's help and runtime support.
@@ -20,18 +19,15 @@ Do not install or replace the project's toolchain merely to inspect one member.
 
 ## Choose evidence for the claim
 
-| Claim | Sufficient starting evidence | Limitation |
-|---|---|---|
-| Member exists with a signature | Exact target assembly or matching source | Does not prove the callback fires |
-| Wrapper subscribes to a native event | Managed wrapper implementation | Does not prove native event order |
-| Managed call path order | Readable implementation plus relevant control flow | Only proves the inspected path |
-| IL2CPP native event order/readiness | Instrumented runtime traces or verified native implementation | Interop proxy thunks cannot establish it |
-| Handler survives reload without duplication | Repeated load/teardown trace with instance identity | One startup trace is insufficient |
+Use the shared [evidence policy](../schedule1-modding/references/evidence-policy.md).
+Signatures and wrapper subscriptions do not establish callback execution or native event order;
+managed control flow proves only its inspected path. Native readiness/order needs runtime traces
+or native implementation evidence. Reload claims need repeated load/teardown with instance identity.
 
 ## Verification workflow
 
-1. State one testable claim and its required scenario: menu scan, first load,
-   same-slot reload, different-slot load, save, quit, host, or client.
+1. State one claim and relevant scenario: menu scan, first load, reload, slot change,
+   save or quit. Host/client scenarios require explicit scope.
 2. Locate the exact fully qualified owner. List candidate types when unsure;
    decompile the smallest relevant managed type instead of dumping every assembly.
 3. Determine whether the body is managed behavior or an IL2CPP interop thunk.
@@ -76,6 +72,4 @@ to the installed version before relying on them.
 - Existing diagnosis cases: [Save/load timing](../schedule1-troubleshooting/references/save-load-timing.md).
 - Data/write boundary: [Persistence](../schedule1-persistence/SKILL.md).
 
-Return a compact evidence record: claim, environment, observed sequence, affected
-implementation, completed checks, and open runtime tests. Do not mark a claim
-verified solely because a symbol search succeeded.
+Report the observed sequence and instance lifetime under the shared evidence policy.

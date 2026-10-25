@@ -39,7 +39,7 @@ The per-mod verification matrix (which mod was verified on which game version, a
 
 ## Mods
 
-Status legend: **Active** = feature-complete; gameplay evidence and any version-specific limits are stated per row · **Experimental** = active development · **Shelved** = not deployed (pulled from service). WorldLook is the only mod currently under active development.
+Status legend: **Active** = feature-complete; gameplay evidence and any version-specific limits are stated per row · **Experimental** = active development · **Shelved** = not deployed (pulled from service). No mod is currently under active development; WorldLook's completion was owner-confirmed on 2026-10-25.
 
 | Mod | Category | Version | Status | Description |
 |---|---|---|---|---|
@@ -62,7 +62,7 @@ Status legend: **Active** = feature-complete; gameplay evidence and any version-
 | [**StorageScanner**](Source/Mods/StorageScanner/) | Phone | 0.2.0 | Active | Read-only overview of every storage container across your owned properties: per-item totals, property filter chips, live search and an explicit incomplete-data banner. |
 | [**LightControl**](Source/Mods/LightControl/docs/README.md) | Lighting / Phone | 0.1.1 | Active / Verified, owner-confirmed 2026-10-24 (0.1.0); 0.1.1 is a log-only Rainbow-tick fix | Graphite HTML design port: owned 1201x655 reference canvas, large typography, outlined lamp glyphs, four-column table with sticky heading, labelled color controls and brightness meters. 5x2 Cancel/Apply palette with Rainbow tenth, seven immediate brightness steps and separate More/global-copy cards. Unique click bindings repair repeated Close handlers. **Installed 2026-10-22**, three targets and dev.18 backups hash-verified; 264 checks, forced Release 0/0, final independent delta review PASS. Native list/picker screenshots checked 2026-10-22; Arial fallback active because Segoe UI creation fails. Interaction/lifecycle acceptance and exact font parity are owner-accepted 2026-10-24 (not itemized). [Verification and deployment](Source/Mods/LightControl/docs/graphite-ui-verification.md). |
 | [**PropertyLEDs**](Source/Mods/PropertyLEDs/docs/README.md) | Visual / Phone | 0.1.8 | Active / Verified, owner-confirmed 2026-10-24 | Independently developed room/property RGB LEDs, phone controls and layout surveying tools. Segment-beam geometry plus 33 imported rooms across 11 properties (2026-10-11, reference-ported lines). Confirmation had been missing from the record; native fitting, toggle/color and save roundtrip not itemized. |
-| [**WorldLook**](Source/Mods/WorldLook/docs/README.md) | Visual | 0.3.0-dev.5 | Experimental | Native sky, mild light and clear coastal water. Shader reload repaired; four automated MCP reloads passed with renderer readbacks and screenshots. Dev.2 water/ON-OFF and dev.3 night are owner-accepted; visible warmth and measured performance remain open. [Evidence](Source/Mods/WorldLook/docs/in-game-acceptance.md). |
+| [**WorldLook**](Source/Mods/WorldLook/docs/README.md) | Visual | 0.3.0-dev.5 | Active / Verified, owner-confirmed 2026-10-25 | Native sky, mild light and clear coastal water. Owner-confirmed finished in the last session; additional actions were not itemized. Shader reload repaired; four automated MCP reloads passed with renderer readbacks and screenshots. Quantitative performance was not measured. [Evidence](Source/Mods/WorldLook/docs/in-game-acceptance.md). |
 | [**PhoneScrollFix**](Source/Mods/PhoneScrollFix/) | Phone / QoL | 2.0.0 | Active | Fixes the white hover plate on phone home-screen app icons: the vanilla non-maskable `Outline` highlight is turned into a slim clipped frame and the scroll viewport uses a stencil-free `RectMask2D`. Hover appearance verified in-game 2026-10-11. |
 
 Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not built or shipped): BackpackMod, DayCounter, HomelessMod, ProfitTracker, SnackVendor, TVBrowser, `_DiagPerfCounter`. Each mod folder contains its own documentation (`Source/Mods/<Mod>/docs/README.md`) and version history (`Source/Mods/<Mod>/docs/CHANGELOG.md`).
@@ -104,7 +104,7 @@ Archived mods (source preserved under [`Source/Archive/`](Source/Archive/), not 
     </td>
     <td align="center" width="25%">
       <b>HitmanPhone</b> · v0.3.0<br>
-      <sub>Feature-complete, singleplayer-only bounty repair; gameplay acceptance open.</sub><br>
+      <sub>Singleplayer-only bounty repair; owner-confirmed 2026-10-24, individual acceptance actions not itemized.</sub><br>
       <a href="Source/Mods/HitmanPhone/docs/README.md">Docs</a> · <a href="Source/Mods/HitmanPhone/docs/CHANGELOG.md">Changelog</a>
     </td>
     <td align="center" width="25%">
@@ -135,7 +135,7 @@ Screenshots for the phone apps (NotesApp, CalculatorApp, PotScanner, PocketShop,
 
 1. **Schedule I** (Steam, IL2CPP default branch) — see [Compatibility](#compatibility).
 2. **[MelonLoader](https://melonwiki.xyz/#/?id=readme) 0.7.3** installed into the game directory.
-3. **[S1API](https://github.com/ifBars/S1API)** 3.2.x — provides `Mods\S1API.Il2Cpp.MelonLoader.dll` and `Plugins\S1APILoader.dll`. Needed by every mod in this repository.
+3. **[S1API](https://github.com/ifBars/S1API)** 3.2.1 stable — provides `Mods\S1API.Il2Cpp.MelonLoader.dll` and `Plugins\S1APILoader.MelonLoader.dll`. Check each mod's framework requirements in the [compatibility matrix](docs/compatibility.md#verification-matrix). Use the [pinned dependency](AGENTS.md#1-setup); 3.2.0 is incompatible with the current f12 NPC APIs.
 4. **S1MAPI** (`UserLibs\S1MAPI_Il2Cpp.dll`) — only if you install `AutoPackagingStation` or `TaxiDriver`.
 
 ### Install a mod
@@ -146,23 +146,27 @@ Screenshots for the phone apps (NotesApp, CalculatorApp, PotScanner, PocketShop,
    <ModName>-vX.Y.Z.zip
    ├── Mods/
    │   ├── <ModName>.dll
-   │   ├── Shared.dll            (common library used by all mods here)
-   │   └── <icon>.png            (phone apps only)
+   │   ├── Shared.dll            (common library included in mod packages)
+   │   ├── <icon>.png            (when supplied)
+   │   ├── <asset>.bundle        (when supplied as a separate file)
+   │   └── <ModName>/
+   │       └── <model>.glb       (when supplied)
    ├── UserData/<ModName>/
    │   ├── mod.json
    │   └── <ModName>.pdb
+   ├── release-manifest.json     (source identity and payload hashes)
    ├── README.md
    └── CHANGELOG.md
    ```
-3. Copy the contents of `Mods/` into `<GameDir>\Mods\`.
+3. Copy the contents of `Mods/` into `<GameDir>\Mods\`, preserving any asset subfolders.
 4. Copy the `UserData/<ModName>/` folder into `<GameDir>\UserData\`.
-5. Start the game. Mods create their configuration files under `UserData\<ModName>\` on first launch.
+5. Start the game through Steam. Mods create their configuration files under `UserData\<ModName>\` on first launch.
 
 `<GameDir>` is normally `C:\Program Files (x86)\Steam\steamapps\common\Schedule I`.
 
 ### Important
 
-- Only `.dll` and `.png` files belong in `Mods\`. **Never** put `mod.json` or `.pdb` files into `Mods\` — MelonLoader will try to load them and log errors.
+- Keep the package layout: mod DLLs, icons and separate bundles go in `Mods\`; GLB models go in `Mods\<ModName>\`. Metadata (`mod.json`) and debug symbols (`.pdb`) go in `UserData\<ModName>\`. Do not add reference-only assemblies to `Mods\`.
 - Mods are independent: install only the ones you want. Nothing here requires another mod from this repository.
 - `Shared.dll` is the common library (`S1Mods.Shared`) that every mod here uses. Keep exactly one copy in `Mods\` and do not delete it when removing a single mod.
 - Phone apps add an icon to the in-game phone home screen; `MessagesPlus` and `MoreSaveSlots` patch existing screens and have no icon.

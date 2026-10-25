@@ -15,8 +15,8 @@ A connected bridge can precede player/world readiness.
 
 ## 2. Capture the relevant failure
 
-Prefer a bounded log read around the reproduction time. The inherited schema uses
-`last_n_lines` with `keyword`; the live schema is authoritative.
+Prefer a bounded log read around the reproduction time using the live schema.
+For changed parameter names, consult [historical log filtering](tool-signatures.md#3-log-filtering-details).
 Preserve complete exception context through a file capture when a filtered response omits it.
 Record time bounds, truncation, process/session identity, and failed reads.
 See [log triage](../../schedule1-troubleshooting/references/logscan-and-logs.md).
@@ -24,17 +24,16 @@ See [log triage](../../schedule1-troubleshooting/references/logscan-and-logs.md)
 ## 3. Inspect an exact target
 
 Resolve player/NPC/object identity, then read only the members needed for the hypothesis.
-The inherited object-inspection parameter is `object_name`; component-level inspection is
-separate. Do not use the obsolete `game_object_name`/`component_name` pair as a call recipe.
+Object and component inspection are separate; resolve schema drift through the
+[historical inspection notes](tool-signatures.md#5-objectcomponent-inspection).
 Prefer a known path/member over a broad reflective sweep because getters can have effects.
 Record scan caps and incomplete coverage; an empty capped search is not proof of absence.
 
 ## 4. Establish implemented mutation capability
 
 Before changing state, inspect the actual tool schema and handler/capability evidence.
-The inherited bridge revision contains non-mutating stubs for item addition/spawning,
-NPC teleportation, NPC health, and property enumeration. A success response from those
-handlers cannot test money, inventory, NPC movement, or a quest.
+The [historical tool table](tool-signatures.md#2-historical-tool-status-and-parameters)
+identifies inherited stubs; their success responses cannot establish gameplay changes.
 If only a stub is available, use an independently verified native/UI path within the task's
 scope or report that the test cannot be performed through this bridge.
 
@@ -47,8 +46,6 @@ scope or report that the test cannot be performed through this bridge.
 5. Observe the gameplay behavior required by the test, not just the tool's response.
 6. Restore temporary state and verify cleanup.
 
-For historical teleport/position-based handlers, the notes use a `position` object with
-coordinates; do not infer that separate top-level `x`, `y`, and `z` are accepted.
 Never retry a timed-out non-idempotent operation before resolving whether it already applied.
 
 ## 6. Handle uncertainty

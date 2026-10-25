@@ -74,7 +74,7 @@ Preserve editing shortcuts and caret behavior while suppressing gameplay actions
 
 ## Verify
 
-Type movement and hotkey characters, switch between fields and modals, close while typing/dragging,
+Type WASD, numbers, navigation keys and configured hotkeys; switch between fields and modals, close while typing/dragging,
 lose application focus, reopen, and reload the scene. Verify controller and mouse parity and ensure
 another game's/mod's input owner remains respected. Count listeners before and after repeated opens.
 

@@ -9,15 +9,7 @@
 > binary; treat them as evidence about that binary, not as current game truth, and re-verify every
 > API against the live game before adapting anything. No third-party code or assets are copied here.
 
-> Inherited evidence record, not re-decompiled or run during this revision. Evidence scope: the original
-> static decompile of a user-provided third-party assembly (`HylandSmokeShop.dll`),
-> SHA-256 `0a76e5651c60c4e033c77828a445aaa80d8564a7af573059c4dd4781ac422896` (6,845,952 bytes),
-> decompiled 2026-10-18 with `ilspycmd` 9.1.0.7988 (ICSharpCode.Decompiler 9.1.0.7988) to a scratch
-> directory only. **None of this was run in game**, no DLL was loaded into the game, and no runtime
-> behaviour is claimed. ILSpy emitted unresolved-IL annotations on many bodies, so a decompiled
-> method may be incomplete. Identifiers, field names and coordinates below are read from that one
-> binary; treat them as evidence about that binary, not as current game truth, and re-verify every
-> API against the live game before adapting anything. No third-party code or assets are copied here.
+> Inherited evidence record, not re-decompiled or run during this revision.
 
 This note retains the original case evidence for the [staged expansion pipeline](world-expansion-pipeline.md).
 It records what one binary appeared to do, including fragile implementation choices. Observation does
