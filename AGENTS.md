@@ -18,8 +18,8 @@ then the matching specialty. The rules below apply on any machine; local provena
   Do not rely on the ambient shell or execution policy.
 - Use the **.NET 8 SDK** for C# 12, even though mods target `net6.0`. On this device
   **do not set `DOTNET_ROOT`**: `%USERPROFILE%\.dotnet` contains tools, not a runtime, and
-  breaks testhost (`hostfxr.dll` missing). Consider a local override only when
-  `dotnet --list-sdks` is empty and that directory actually contains the SDK/runtime.
+  breaks testhost (`hostfxr.dll` missing). Override locally only when `dotnet --list-sdks` is
+  empty and that directory really contains an SDK/runtime.
 - Versions change only through `Tools/bump-version.ps1 -Mod <Name> -Version x.y.z`.
   Never hand-edit versions or `S1Mods.sln`; use `Tools/gen-sln.ps1` for the solution.
 - Preserve unrelated working changes. **No commit or push without Dominik's explicit go.**
@@ -128,41 +128,35 @@ _DiagPerfCounter plus archived tests. Retired dependencies and their old version
 
 <a id="worldlook-continuation--installed-standalone-candidate-2026-10-22"></a>
 
-<a id="worldlook-continuation-and-detailed-history"></a>
-
 ### WorldLook completion and detailed history
 
-**WorldLook is finished and owner-accepted.** Dominik confirmed this on 2026-10-25,
-referring to the last session. Current version remains `0.3.0-dev.5`; no version-only
-release is implied. The confirmation does not itemize additional actions or supply frame-time
-measurements. Those evidence limits are not an open backlog; do not propose warmth or
-performance acceptance work unless the owner explicitly reopens it.
+**WorldLook is finished and owner-accepted** (Dominik, 2026-10-25, referring to the last
+session). Version stays `0.3.0-dev.5`; no version-only release is implied. The confirmation
+itemized no further actions and supplied no frame-time measurements and no separate
+visible-warmth verdict. That is an evidence limit, **not an open backlog**: do not propose
+warmth or performance acceptance work unless the owner explicitly reopens it.
 
-The [water-surface record](Source/Mods/WorldLook/docs/water-surface-verification.md) identifies
-the accepted dev.2 session: DLL `410fecf7…`, bundle `29557b87…`. **Water and ON/OFF are owner-accepted
-and closed (2026-10-24)**; do not reopen them from older checklists. Positive numeric warmth
-was observed at 17:42. The dev.3 session on 2026-10-25 measured repeatable Sun tint near 18:00,
-and Dominik accepted normal night appearance. ON lighting survived a same-process Dominik
-menu/reload, but the water renderer fell back to its native shader. That historical reload
-defect is repaired in dev.5. A separate visible-warmth verdict and quantitative performance
-measurements were not itemized in the completion confirmation.
-Dev.3 removes F9/debug chatter without changing the shader/recipe; installed 2026-10-24,
-DLL `cc9a206a…`. Dev.4 (`5522f394…`, installed 2026-10-25) adds explicit session-only MCP control:
-automated OFF/ON menu roundtrips preserve requested state and measured lighting, with seven
-screenshots; it reproduced the reference-water fallback. Dev.5 (`3f46ae88…`, installed
-2026-10-25) repairs shader-cache lifetime without changing the bundle/recipe. Four automated
-Dominik reloads (two ON, two OFF followed by ON) passed actual shader/support readbacks;
-ten scene/menu screenshots are retained. Profile and all 44 native-save files were unchanged.
-See the [automation contract](Source/Mods/WorldLook/docs/mcp-automation.md) and
-[current acceptance record](Source/Mods/WorldLook/docs/in-game-acceptance.md).
-Preserve earlier reports as evidence. Mild light peaks at 06:00/18:00;
-zero strength from 07:30 through 16:30 is expected.
+Project path: `Source/Mods/WorldLook/`. Preserved evidence and history:
+
+- [Water-surface record](Source/Mods/WorldLook/docs/water-surface-verification.md): the accepted
+  dev.2 session, DLL `410fecf7…`, bundle `29557b87…`. **Water and ON/OFF are owner-accepted and
+  closed (2026-10-24)**; do not reopen them from older checklists. Positive numeric warmth at 17:42.
+- dev.3 (DLL `cc9a206a…`, installed 2026-10-24) removes F9/debug chatter only; shader and recipe
+  unchanged. Its 2026-10-25 session measured repeatable Sun tint near 18:00, and Dominik accepted
+  normal night appearance. ON lighting survived a same-process Dominik menu/reload, but the water
+  renderer fell back to its native shader — a historical reload defect, repaired in dev.5.
+- dev.4 (`5522f394…`, installed 2026-10-25): explicit session-only MCP control. Automated OFF/ON
+  menu roundtrips preserved requested state and measured lighting (seven screenshots); it
+  reproduced the reference-water fallback. [Automation contract](Source/Mods/WorldLook/docs/mcp-automation.md).
+- dev.5 (`3f46ae88…`, installed 2026-10-25): shader-cache lifetime repair, bundle/recipe unchanged.
+  Four automated Dominik reloads (two ON, two OFF followed by ON) passed actual shader/support
+  readbacks; ten scene/menu screenshots are retained. Profile and all 44 native-save files were
+  unchanged. [Current acceptance record](Source/Mods/WorldLook/docs/in-game-acceptance.md).
+
+Expected look: mild light peaks at 06:00/18:00; zero strength from 07:30 through 16:30.
 [Prior narrative](docs/history/agent-mod-history-20261024.md) is historical, not a current backlog.
 
 ## 3. Build & Deploy
-
-<a id="commands"></a>
-<a id="build-rules"></a>
 
 Use [DEVELOPERS.md](DEVELOPERS.md#build) for the full workflow and [Tools/README.md](Tools/README.md)
 for helper parameters. A compile-only solution build is:
@@ -171,20 +165,16 @@ for helper parameters. A compile-only solution build is:
 dotnet build Source/Mods/S1Mods.sln -c Release -p:S1NoDeploy=true
 ```
 
-<a id="what-a-build-deploys-automatic-via-directorybuildtargets"></a>
-
 - Plain builds deploy DLL/PNG/bundle files into `Mods/`; GLB files go into `Mods/<Mod>/`.
   Metadata/PDB go into `UserData/<Mod>/`, **never `Mods/`**. Do not put reference-only
   assemblies in `Mods/` (`BadImageFormatException`).
 - `Tools/deploy-mod.ps1` checks planned hashes, leaves identical files unchanged, and backs up
   changed targets with bounded in-process rollback. Receipts/limits are in the Tools guide.
   `S1NoDeploy=true` skips every deployment copy.
-- Use `Tools/new-mod.ps1` to scaffold, `Tools/gen-sln.ps1` after project changes,
-  `Tools/bump-version.ps1` for versions and `Tools/package-release.ps1` for ZIPs.
-  Packaging needs game references and does not deploy; Shared and archived _DiagPerfCounter
-  are not standalone release selections.
-<a id="multi-pc-workflow"></a>
-
+- Use `Tools/new-mod.ps1` to scaffold, `Tools/gen-sln.ps1` after project changes (deterministic
+  GUIDs; commit the regenerated SLN), `Tools/bump-version.ps1` for versions and
+  `Tools/package-release.ps1` for ZIPs. Packaging needs game references and does not deploy;
+  Shared and archived _DiagPerfCounter are not standalone release selections.
 - A new laptop sandbox uses `Tools/new-laptop-workspace.ps1`, not a GitHub fork; it renames
   `origin` to `upstream`. Sync with `git fetch upstream` then `git merge upstream/main`.
 - Native saves are PC/user-local at `%USERPROFILE%\AppData\LocalLow\TVGS\Schedule I\Saves`,
@@ -220,8 +210,6 @@ Use `Sp` for fonts, `Dp` for spacing, and shared `GamePalette`/`UISprites`.
 The high-DPI, often rotated phone canvas makes fixed sizes unreliable.
 
 ### IL2CPP pitfalls (checklist; full list in `docs/pitfalls.md`)
-
-Keep these immediate checks; [docs/pitfalls.md](docs/pitfalls.md) explains their causes:
 
 - Registered MonoBehaviours need `public X(IntPtr ptr) : base(ptr) { }`.
 - Wire buttons with `S1API.Utils.EventHelper.AddListener` / `ButtonUtils.AddListener`,
@@ -287,11 +275,11 @@ remote CI. See [snapshot limits](Tools/README.md#verify-uncommitted-work-in-isol
 
 ### Pre-flight with S1Interop (advisory, local only)
 
-`dotnet tool install --global S1Interop --version 0.1.0-alpha.1`, then
+Installed 2026-10-25 as `S1Interop 0.1.0-alpha.1` (install with
+`dotnet tool install --global S1Interop --version 0.1.0-alpha.1`), then run
 `s1interop analyze "Source/Mods/<Name>/src/<Name>.csproj"`. It always exits 0: read the report,
-never treat exit status as a gate. The last availability check (2026-10-05) found no tool;
-verify installation before relying on it. Known false positives: centrally defined TFM/LangVersion,
-mod-internal collections and guarded reflection.
+never treat exit status as a gate. Known false positives: centrally defined TFM/LangVersion
+(reports `tfm=<unknown>`), mod-internal collections and guarded reflection.
 
 ### Maker-checker workflow
 
