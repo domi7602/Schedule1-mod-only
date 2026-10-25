@@ -6,13 +6,11 @@ using HitmanPhone.Persistence;
 namespace HitmanPhone.Bounty;
 
 /// <summary>
-/// R07 — pure render gate for <see cref="BountyTrackerApp"/>.
+/// R07 — pure render gate formerly used by the removed Hitman Tracker phone app.
 ///
-/// The app only re-renders when the value it would display changes. The key is
-/// committed with <see cref="Commit"/> ONLY after a rebuild actually succeeded:
-/// a transient UI failure with unchanged data therefore stays pending and is
-/// retried on the next tick instead of being masked until the app is reopened.
-/// Kept Unity-free so the pure suite covers the invariant.
+/// The key is committed with <see cref="Commit"/> only after a rebuild succeeds,
+/// so a transient failure with unchanged data stays pending. Kept Unity-free so
+/// the pure suite still covers that invariant. No phone UI consumes it anymore.
 /// </summary>
 public sealed class TrackerRenderGate
 {
@@ -33,8 +31,8 @@ public sealed class TrackerRenderGate
 /// Phase E — save-scoped kill/contract tracker queries.
 ///
 /// Pure aggregation over <see cref="BountySaveData"/> (no Unity, no game types)
-/// so Source/Tests/HitmanPhone.Tests can cover it. The UI lives in
-/// <see cref="BountyTrackerApp"/>.
+/// so Source/Tests/HitmanPhone.Tests can cover it. The phone app that displayed
+/// these rows was removed; this model is no longer registered on the phone.
 ///
 /// Scope rule: ONLY hitman-contract targets are tracked (records are written by
 /// <see cref="BountyService.RecordKillEvent"/>, which only ever fires for a

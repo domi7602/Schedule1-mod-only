@@ -1,14 +1,36 @@
 # HitmanPhone audit repair — verification record
 
-Status: **Verified, owner-confirmed 2026-10-24** for the audited code (shipped as 0.3.0 with
-version metadata only). The confirmation had been missing from the record and was supplied
+Current code is 0.3.2. The Hitman Tracker phone app was removed in 0.3.1, and 0.3.2 widened
+offer targets to the player's own unlocked customers. Dominik confirmed 0.3.2 on 2026-10-25;
+the session note below records what the log and end-of-session save actually show. The older
+audit rows do not verify either change. Status of the audited 0.3.0 code: **Verified, owner-confirmed 2026-10-24**
+(shipped as 0.3.0 with version metadata only). The confirmation had been missing from the record and was supplied
 retroactively; individual actions and the exact session were not itemized. This record separates
 executable model tests, source-wiring checks, builds and native gameplay observations.
 The normal Release offer → elimination → photo → assigned drop → exactly one cash payout and
-saved reload/slot roundtrip is owner-accepted as working; no separate log artifact for that chain
-is stored here. A session on 2026-10-19 observed an **empty-state** checkpoint restore → save
+saved reload/slot roundtrip is owner-accepted as working. The 0.3.0 confirmation has no separate
+log artifact for that chain. A session on 2026-10-19 observed an **empty-state** checkpoint restore → save
 commit → reload restore with this artifact (see the final evidence section), and a 2026-10-24
 log adds a real save-reload checkpoint restore. Those remain the stored evidence samples.
+
+## 2026-10-25 session (0.3.2)
+
+- Game 0.4.7f12, Unity 2022.3.62f2, MelonLoader 0.7.3. `Latest.log` 14:53:44–15:11:59.
+  Loaded `HitmanPhone.dll` SHA-256 `B03899BD0ADA582AF87B0FFB70A07D40696911C3F5CFAA88BADD405B73AB2393`.
+- Phone-app init listed no `BountyTrackerApp`. Registered apps were Bank, Calculator, LightControl,
+  Minimap, Notes, PocketShop, PotScanner, PropertyLEDs, StorageScanner, SeedWorks, Taxi and Weather.
+- Day 2 20:02 slot was dispatched: Jackal offered `donna_martin` ($150, Behind Thompson Construction),
+  accepted as `hitman-f64d2e14270`, kill matched, cash payout $150, journal completed, polaroid consumed.
+  Later offers: day 3 07:18 `geraldine_poon`, day 3 11:00 `peggy_myers`. Checkpoints `E6D2A61ECCE0`
+  and `19A7DFA1DDE7` committed for `SaveGame_1`.
+- End-of-session `NPCs.json`, read after `19A7DFA1DDE7`: only `benji_coleman` recruited among 11
+  dealer-like records. `donna_martin` is in his assigned list. `geraldine_poon` and `peggy_myers`
+  are not. The log does not print why a target was eligible. This file is not a snapshot from before
+  the day-2 offer, so it does not independently prove the empty-network path.
+- Geraldine's polaroid was kept at the wrong drops and that contract expired at 15:11. That is the
+  assigned-drop guard. A load-window multiplayer notice fired before the save was ready; later offers
+  show the singleplayer gate opened. MP remains out of scope. A quit-time `LandVehicle.SetVisible`
+  null reference is not this mod.
 
 ## Baseline and scope
 

@@ -52,9 +52,31 @@ public class PersistenceWiringTests
         int preload = runtime.IndexOf("private static void OnPreLoad()", StringComparison.Ordinal);
         Assert.Contains("BountyEvidenceItemRegistry.InvalidateRegistration()", runtime[preload..runtime.IndexOf("private static void OnLoadComplete()", preload, StringComparison.Ordinal)]);
         Assert.Contains("BountyEvidenceItemRegistry.EnsureRegistered()", runtime[preload..runtime.IndexOf("private static void OnLoadComplete()", preload, StringComparison.Ordinal)]);
-        string app = Source("BountyTrackerApp.cs");
-        Assert.Contains("SaveStateGuard.StatusMessage", app);
-        Assert.Contains("SaveStateGuard.IsReady", app);
+    }
+
+    [Fact]
+    public void PhoneHomeDoesNotDiscoverAHitmanTrackerApp()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null)
+        {
+            string src = Path.Combine(dir.FullName, "Source", "Mods", "HitmanPhone", "src");
+            if (Directory.Exists(src))
+            {
+                foreach (string file in Directory.GetFiles(src, "*.cs", SearchOption.AllDirectories))
+                {
+                    if (file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}") ||
+                        file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}"))
+                        continue;
+                    string text = File.ReadAllText(file);
+                    Assert.DoesNotContain(": PhoneApp", text);
+                    Assert.DoesNotContain("\"Hitman Tracker\"", text);
+                }
+                return;
+            }
+            dir = dir.Parent;
+        }
+        throw new InvalidOperationException("Repository root not found.");
     }
 
     [Fact]
@@ -94,7 +116,6 @@ public class PersistenceWiringTests
         int expiry = contracts.IndexOf("c.Status != EBountyStatus.Active || c.RewardPaymentUncertain", StringComparison.Ordinal);
         int death = contracts.IndexOf("if (c.RewardPaymentUncertain) continue", StringComparison.Ordinal);
         Assert.True(expiry >= 0 && death > expiry);
-        Assert.Contains("review:{save.Active.Exists(c => c.RewardPaymentUncertain)}", Source("BountyTrackerApp.cs"));
     }
 
     [Fact]

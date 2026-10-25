@@ -39,6 +39,7 @@ public static class BountyCallScheduler
     private static int _offersMade;
     private static int _offersSkippedCooldown;
     private static int _offersDeferred;
+    private static int _noTargetNotice;
     private static long _lastTickRealtime;
 
     /// <summary>Total successful caller-rings across the save lifetime.</summary>
@@ -130,16 +131,21 @@ public static class BountyCallScheduler
             return;
         }
 
-        // Pick a target NPC.
+        // Pick a target NPC. An empty network is often transient (dealers not
+        // recruited, customer registry still loading). Moving the slot here used
+        // to park a due call days later on the first empty tick, so no SMS was
+        // ever written. Leave it due and retry until the missed-call grace
+        // cancels it. Quota, cooldown and delivery failure still reschedule.
         var target = TargetSelector.PickRandom();
         if (target == null)
         {
-            BountyCallSchedulePlan.RescheduleToFreeSlot(slot, plan, day, nowMin, horizon, Rng);
-            Interlocked.Increment(ref _offersDeferred);
-            BountyPersistence.PersistCurrent();
-            Mod.Log.Debug($"BountyCallScheduler: call deferred — no eligible target for day={day}.");
+            if (Interlocked.Exchange(ref _noTargetNotice, 1) == 0)
+            {
+                Mod.Log.Info("[BountyScheduler] offer waiting — no living customer in the player's own network yet. The due slot stays and retries.");
+            }
             return;
         }
+        Interlocked.Exchange(ref _noTargetNotice, 0);
 
         // Audit H2 pattern: roll the terms ONCE and pass them structurally into
         // the offer AND the accept handler — the body is display-only.

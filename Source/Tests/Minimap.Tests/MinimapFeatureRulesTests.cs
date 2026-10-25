@@ -101,4 +101,42 @@ public sealed class MinimapFeatureRulesTests
             Assert.Matches(new Regex("^#[0-9A-F]{6}$"), hex);
         }
     }
+
+    [Theory]
+    [InlineData(923, false, "9:23 AM")]
+    [InlineData(0, false, "12:00 AM")]
+    [InlineData(1200, false, "12:00 PM")]
+    [InlineData(1320, false, "1:20 PM")]
+    [InlineData(923, true, "09:23")]
+    public void Clock_StaysOneTokenWithoutALineBreak(int hhmm, bool use24H, string expected)
+    {
+        string clock = MinimapFeatureRules.FormatClock(hhmm, use24H);
+        Assert.Equal(expected, clock);
+        Assert.DoesNotContain("\n", clock);
+    }
+
+    [Fact]
+    public void DayHeader_KeepsAmPmOnTheClockLine()
+    {
+        string text = MinimapFeatureRules.FormatDayHeader(2, "Wed", MinimapFeatureRules.FormatClock(923, false),
+            showDayNumber: true, showDayName: true, showTime: true);
+        Assert.Equal("DAY 2 │ Wed 9:23 AM", text);
+        Assert.DoesNotContain("\n", text);
+    }
+
+    [Fact]
+    public void DayHeader_DoesNotAskVanillaToFormatTwelveHourTime()
+    {
+        string hud = ReadModSource("MinimapHUD.cs");
+        Assert.DoesNotContain("Get12HourTime", hud);
+        Assert.Contains("_dayTmp.enableWordWrapping = false;", hud);
+        Assert.Contains("config.ShowTime || config.ShortDayName", hud);
+    }
+
+    private static string ReadModSource(string name)
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "AGENTS.md"))) dir = dir.Parent;
+        return File.ReadAllText(Path.Combine(dir!.FullName, "Source", "Mods", "Minimap", "src", name));
+    }
 }

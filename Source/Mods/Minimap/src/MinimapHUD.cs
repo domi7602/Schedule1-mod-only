@@ -242,7 +242,8 @@ public sealed class MinimapHUD
         _dayTmp.fontStyle = FontStyles.Bold;
         _dayTmp.alignment = TextAlignmentOptions.Center;
         _dayTmp.color = Color.white;
-        _dayTmp.text = "DAY 1 │ Tuesday 08:00";
+        _dayTmp.enableWordWrapping = false;
+        _dayTmp.text = "DAY 1 │ Tue 08:00";
         _dayTmp.raycastTarget = false;
     }
 
@@ -1051,43 +1052,14 @@ public sealed class MinimapHUD
         _last24H = config.Time24H;
         _lastShortDay = config.ShortDayName;
 
-        string dayName = config.ShortDayName ? GetShortDayName(dayEnum) : dayEnum.ToString();
-        string timeStr = FormatTime(currentTime, config.Time24H);
-
-        if (config.ShowDayNumber && config.ShowDayName && config.ShowTime)
-            _dayTmp.text = $"DAY {elapsedDays} │ {dayName} {timeStr}";
-        else if (config.ShowDayNumber && config.ShowTime)
-            _dayTmp.text = $"DAY {elapsedDays} │ {timeStr}";
-        else if (config.ShowDayName && config.ShowTime)
-            _dayTmp.text = $"{dayName} {timeStr}";
-        else if (config.ShowDayNumber)
-            _dayTmp.text = $"DAY {elapsedDays}";
-        else
-            _dayTmp.text = timeStr;
-    }
-
-    private static string FormatTime(int currentTime, bool use24H)
-    {
-        if (use24H)
-        {
-            float f = currentTime;
-            int hours = Mathf.FloorToInt(f / 100f);
-            int mins = Mathf.FloorToInt(f - hours * 100f);
-            return $"{hours:D2}:{mins:D2}";
-        }
-        try
-        {
-            return TimeManager.Get12HourTime(currentTime, true);
-        }
-        catch
-        {
-            int hours = (currentTime / 100) % 24;
-            int mins = currentTime % 100;
-            string ampm = hours >= 12 ? "PM" : "AM";
-            int h12 = hours % 12;
-            if (h12 == 0) h12 = 12;
-            return $"{h12}:{mins:D2} {ampm}";
-        }
+        // The header is only as wide as the map. A full weekday plus AM/PM wraps;
+        // keep the clock on one line whenever it is shown.
+        string dayName = config.ShowTime || config.ShortDayName
+            ? GetShortDayName(dayEnum)
+            : dayEnum.ToString();
+        string timeStr = MinimapFeatureRules.FormatClock(currentTime, config.Time24H);
+        _dayTmp.text = MinimapFeatureRules.FormatDayHeader(
+            elapsedDays, dayName, timeStr, config.ShowDayNumber, config.ShowDayName, config.ShowTime);
     }
 
     private static string GetShortDayName(EDay day) => day switch

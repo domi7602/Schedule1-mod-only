@@ -64,6 +64,38 @@ public static class MinimapFeatureRules
 
     public static bool ShouldShowRegionLock(bool isUnlocked)
         => !isUnlocked;
+
+    /// <summary>
+    /// One-line clock for the narrow map header. 12-hour text is local so a vanilla
+    /// formatter cannot insert a line break before AM/PM.
+    /// </summary>
+    public static string FormatClock(int hhmm, bool use24H)
+    {
+        int hours = Math.DivRem(Math.Abs(hhmm), 100, out int mins);
+        hours %= 24;
+        if (mins > 59) mins = 59;
+        if (use24H)
+            return $"{hours:D2}:{mins:D2}";
+
+        int h12 = hours % 12;
+        if (h12 == 0) h12 = 12;
+        return $"{h12}:{mins:D2} {(hours >= 12 ? "PM" : "AM")}";
+    }
+
+    /// <summary>Compact header text. The caller supplies an already shortened day name.</summary>
+    public static string FormatDayHeader(int elapsedDays, string dayName, string time,
+        bool showDayNumber, bool showDayName, bool showTime)
+    {
+        if (showDayNumber && showDayName && showTime)
+            return $"DAY {elapsedDays} │ {dayName} {time}";
+        if (showDayNumber && showTime)
+            return $"DAY {elapsedDays} │ {time}";
+        if (showDayName && showTime)
+            return $"{dayName} {time}";
+        if (showDayNumber)
+            return $"DAY {elapsedDays}";
+        return time ?? string.Empty;
+    }
 }
 
 public enum MinimapMarkerKind

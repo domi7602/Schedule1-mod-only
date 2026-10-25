@@ -4,19 +4,28 @@ Anonymous bounty contracts: accept an offer, eliminate the assigned customer (KO
 receive the evidence photo and use the **assigned** dead drop for a cash reward.
 Existing reward tiers and delivery windows are retained.
 
-**Verified, owner-confirmed 2026-10-24 (v0.3.0, version metadata only over the audited
-0.3.0-dev.1 code).** Target: Schedule I 0.4.7f12, S1API 3.2.1, MelonLoader IL2CPP. The
-confirmation had been missing from the record and was supplied retroactively; individual actions
-and the exact session were not itemized. Historical 0.2.9 gameplay evidence does not verify this
-repair. Builds, model tests and source checks do not establish the native gameplay chain on their
-own; the owner acceptance is the verification for that chain.
+**0.3.2 sends offers for the player's own unlocked customers**, not only dealer-assigned ones.
+0.3.1 removed the Hitman Tracker phone app. Calls, journal, evidence and payouts remain.
+**Verified, owner-confirmed 2026-10-25 for v0.3.2.** The same-day log records an offer, kill,
+assigned-drop cash payout and checkpoint commit; no tracker app was registered. Geraldine and
+Peggy were not dealer-assigned in the end-of-session save. That save is not a pre-offer snapshot
+of an empty dealer network, and the log does not print the eligibility reason. Prior acceptance
+is **owner-confirmed 2026-10-24 for v0.3.0** (version metadata only over the audited 0.3.0-dev.1
+code) and does not by itself cover 0.3.1/0.3.2. Target: Schedule I 0.4.7f12, S1API 3.2.1,
+MelonLoader IL2CPP. The 0.3.0 confirmation had been missing from the record and was supplied
+retroactively; individual actions and the exact session were not itemized. Historical 0.2.9
+gameplay evidence does not verify the repair. Builds, model tests and source checks do not
+establish the native gameplay chain on their own.
 
 ## Session and gameplay rules
 
-- **Singleplayer only.** Multiplayer hosts and clients are unsupported; the tracker shows
-  that status and contract mutation/receipt paths are gated. This is not an MP protocol.
-- Targets are customers assigned to recruited player dealers. Acceptance re-resolves and
-  revalidates the target; an already dead/KO target cannot be accepted normally.
+- **Singleplayer only.** Multiplayer hosts and clients are unsupported. Contract mutation
+  and receipt paths are gated, and the refusal is logged. There is no phone app for that
+  status. This is not an MP protocol.
+- Targets are the player's unlocked customers, including people they sell to directly,
+  plus customers assigned to a recruited dealer. Dealers, suppliers and police stay excluded.
+  Acceptance re-resolves and revalidates the target; an already dead/KO target cannot be
+  accepted normally.
 - Five caller identities share one message thread, with at most one open offer. Information
   and notices preserve its responses. Stale session callbacks are rejected. Failed delivery
   is deferred with a bounded retry budget and is not counted as a successful call.
@@ -34,12 +43,15 @@ own; the owner acceptance is the verification for that chain.
   photo repair is not a fresh elimination. The reward remains cash.
 - Journal objectives are structural. Quest binding uses a contract-derived persistent GUID,
   not display text or the first unbound quest. Unknown old quests are not fabricated successes.
-- Tracker evidence, KO, confirmed death and contract status are distinct. Two completed
-  contracts on one target count as two contracts, not two distinct eliminated targets.
+- Saved elimination records keep KO, confirmed death and contract status distinct. Two
+  completed contracts on one target count as two contracts, not two distinct eliminated targets.
+  The Hitman Tracker phone app that listed them was removed; the journal remains.
 - A native cash-call exception has an unknown effect. The claim/photo is retained with
-  `RewardPaymentUncertain` and a tracker warning; automatic payment retry, expiry and death
-  forfeiture are disabled for that claim. Review balances/logs manually; do not blindly clear
-  the flag or repay. A normal void API return is not independent proof that money moved.
+  `RewardPaymentUncertain`; automatic payment retry, expiry and death forfeiture are disabled
+  for that claim. The former Hitman Tracker phone app, which showed the review warning, was
+  removed. Review balances and the log (`Manual balance review required`) manually; do not
+  blindly clear the flag or repay. A normal void API return is not independent proof that
+  money moved.
 
 ## Saving and migration
 

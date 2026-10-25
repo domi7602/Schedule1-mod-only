@@ -97,32 +97,6 @@ public class JournalTrackerSourceContractTests
         Assert.Contains("ApplyJournalPhase", rebind);
     }
 
-    // ---- R07: render key committed only after a successful rebuild ---------
-
-    [Fact]
-    public void TrackerApp_CommitsRenderKeyOnlyAfterSuccessfulRebuild()
-    {
-        string app = ReadSource("BountyTrackerApp.cs");
-
-        // Old bug: _renderedKey was adopted before the guarded rebuild ran.
-        Assert.DoesNotContain("_renderedKey = BuildRenderKey();", app);
-        Assert.Contains("TrackerRenderGate", app);
-
-        string rebuild = MethodBody(app, "void Rebuild(");
-        int tryIdx = rebuild.IndexOf("try", StringComparison.Ordinal);
-        int commitIdx = rebuild.IndexOf(".Commit(", StringComparison.Ordinal);
-        Assert.True(tryIdx >= 0, "Rebuild must guard its UI work with try/catch");
-        Assert.True(commitIdx > tryIdx,
-            "the render key must be committed only after the guarded rebuild succeeds");
-    }
-
-    [Fact]
-    public void TrackerApp_DisplayUsesThreeWayEliminationState()
-    {
-        string app = ReadSource("BountyTrackerApp.cs");
-        Assert.Contains("HasElimination", app);
-    }
-
     // ------------------------------------------------------------------ helpers
 
     private static string ReadSource(string name)

@@ -3,6 +3,15 @@
 All notable changes to PropertyLEDs are documented here. Format: Keep a Changelog;
 versioning: SemVer.
 
+## 0.1.10 (2026-10-25)
+- Tighten the landscape phone insets from 4.5 percent to about 1.2 percent and move the title band up so the controls sit closer to the glass. Inner card padding, sliders, selection and lighting are unchanged.
+- **Verified, owner-confirmed 2026-10-25.** Dominik confirmed the open landscape and tighter-inset look works. `Latest.log` 14:53:44–15:11:59 loaded v0.1.10, DLL `31E6E129…`, initialized `PropertyLEDsApp`, reported 35 verified rooms, built 5 LED groups and marked slot 1 ready for 3 owned properties. The log does not measure the 1.2 percent insets or edge clearance; those are owner-confirmed, not log-measured. An earlier screenshot the same day showed landscape only, not these insets.
+- Deployed 2026-10-25 with the game closed: installed `PropertyLEDs.dll` SHA-256 `31E6E1299F3C40B3DD0A5853510E6FE8D2FD30AA6DDF7042E26FB52673F516CD` (125,952 bytes). Release build 0 warnings/errors; 116 tests pass.
+
+## 0.1.9 (2026-10-25)
+- The phone app opens landscape, same orientation contract as Minimap and LightControl (`EOrientation.Horizontal`, `Phone.SetIsHorizontal(true)`). Theme scale follows the visible short side so the portrait UITheme helper does not inflate controls on a wide canvas. Control stack, settings and lighting are unchanged. Native landscape appearance is not verified.
+- Deployed 2026-10-25 with the game closed: installed `PropertyLEDs.dll` SHA-256 `75B57C386B26B44E4E2DB24D4D216C3640452CF26F8CE8823F311F5DCCBB851C` (125,952 bytes); installed metadata reports `0.1.9`. Release build 0 warnings/errors; 116 tests pass.
+
 ## 0.1.8 (2026-10-20)
 - On the first actual app open after a load, select the local player's exact current owned property/business code when available; never infer it from distance. Preserve manual selection across close/reopen; outdoors or unavailable identity falls back to the existing/first owned selection.
 - Name the selected property in the power status, with the enabled/disabled state first so long names cannot hide it. The reported motel/OFF mismatch showed Greenhouse Island selected while the motel settings were enabled; no renderer/toggle repair was justified. Existing room-override and property-edit semantics are unchanged.

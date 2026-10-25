@@ -65,13 +65,22 @@ public sealed class ResponsiveLayoutWiringTests
     }
 
     [Fact]
+    public void PhoneOpensLandscapeLikeTheOtherDashboardApps()
+    {
+        string s = Source();
+        Assert.Contains("EOrientation.Horizontal", s);
+        Assert.Contains("LandscapeReferenceHeight", s);
+        Assert.DoesNotContain("EOrientation.Vertical", s);
+    }
+
+    [Fact]
     public void FooterIsRemovedAndInlineFailuresReserveSpaceOnlyWhenVisible()
     {
         string s = Source();
         Assert.DoesNotContain("DrawIcon(\"Info\"", s);
         Assert.DoesNotContain("verified room layouts", s);
         Assert.DoesNotContain("Label(\"Status\"", s);
-        Assert.Contains("0.045f, 0.015f, 0.955f, 0.90f", s);
+        Assert.Contains("0.012f, 0.008f, 0.988f, 0.922f", s);
         Assert.Contains("Label(\"InlineState\"", s);
         Assert.Contains("_status.gameObject.SetActive(visible);", s);
         Assert.Contains("SetInlineState(\"Edit failed: \" + ex.Message)", s);

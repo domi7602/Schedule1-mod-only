@@ -4,7 +4,7 @@ Room-by-room RGB LED strips along the ceiling and wall edges of your owned prope
 businesses, controlled from a dedicated phone app. Developed independently for *Schedule I*
 (MelonLoader, IL2CPP, S1API). No code, models or textures from any existing LED mod are used.
 
-> **Status: Verified, owner-confirmed 2026-10-24 (v0.1.8, location-aware initial selection and property-named power status; 115 tests pass).** The confirmation had been missing from the record and was supplied retroactively; native location/status fitting, toggle/color and the save roundtrip were not itemized. The mod builds, deploys and ships a complete settings,
+> **Status: Verified, owner-confirmed 2026-10-25 (v0.1.10, landscape phone and tighter insets).** Dominik confirmed that look. The same-day log shows the app initialized and LED groups built; it does not measure edge clearance. v0.1.8 remains **Verified, owner-confirmed 2026-10-24** (location-aware initial selection and property-named power status; 115 tests pass). That confirmation had been missing from the record and was supplied retroactively; native location/status fitting, toggle/color and the save roundtrip were not itemized. The mod builds, deploys and ships a complete settings,
 > rendering, phone and diagnostics implementation. It deliberately contains **no built-in room
 > coordinates**: until a room has been measured and marked verified in the layout catalog, no
 > persistent LED geometry is placed there. See
@@ -25,8 +25,8 @@ businesses, controlled from a dedicated phone app. Developed independently for *
   the controls with bounded growth. Loading/failure messages appear inline only when needed;
   small screens retain scrolling. All original slider ranges and edit semantics are retained.
   The English mockup-inspired UI has been compiled, tested and compared in a rendered HTML preview
-    ([visual comparison](visual-preview/README.md)). Native rendering and hit testing still need
-    a game check. Only the stateful switch changes power; there is no duplicate power button.
+    ([visual comparison](visual-preview/README.md)). Landscape appearance is owner-confirmed
+    for 0.1.10; hit testing was not separately itemized. Only the stateful switch changes power; there is no duplicate power button.
 - **Console command** `led` for measurement, preview, export and manual control (see
   [`diagnostics.md`](diagnostics.md)).
 - **Saved per save slot** (`settings_slot_{n}.json`, atomic writes with `.bak`, 1 s debounce).
@@ -51,7 +51,7 @@ businesses, controlled from a dedicated phone app. Developed independently for *
 ## Usage
 
 1. Buy a property or business, load the save and open the phone.
-2. Open **Property LEDs**. The property selector lists only owned properties/businesses. On the first actual opening after loading, it selects the player's exact current owned property/business if available; otherwise it falls back to the first owned entry. No nearest-property guess is used.
+2. Open **Property LEDs**. The phone turns landscape, like Minimap and LightControl. The property selector lists only owned properties/businesses. On the first actual opening after loading, it selects the player's exact current owned property/business if available; otherwise it falls back to the first owned entry. No nearest-property guess is used.
 3. Pick a property if needed. Manual choices survive app close/reopen within the loaded session; loading a save re-arms initial location selection. The power status names the selected property, not necessarily the room you are standing in. Phone controls edit its **Property default**; merely opening/navigating retains saved room overrides.
 4. Move a slider, press **White**, or switch **LEDs ON/OFF**. Changes apply to the world
    immediately and are written to disk at most once per second.

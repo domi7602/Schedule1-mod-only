@@ -1,7 +1,7 @@
 {
   "name": "PropertyLEDs",
   "author": "Dominik",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "description": "Independent RGB ceiling LEDs for owned properties and businesses. Phone controls edit the property default, initially select the exact current owned property when available, and name the selected property in the power status. Saved room overrides remain supported by the runtime. Experimental: measured verified layouts only; native acceptance of 0.1.8 remains open.",
   "requires": ["S1API"]
 }

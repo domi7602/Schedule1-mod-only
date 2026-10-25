@@ -257,9 +257,12 @@ namespace HitmanPhone.Bounty
     /// <summary>
     /// Selects bounty targets from the player's actual deal network.
     ///
-    /// A target is eligible only when it is assigned to a recruited dealer in
-    /// <c>Dealer.AllPlayerDealers</c>. The old implementation used a hard-coded list
-    /// of generic NPC IDs and could therefore select unrelated civilians.
+    /// A target is eligible when it is one of the player's unlocked customers
+    /// (<c>Customer.UnlockedCustomers</c>) or assigned to a recruited dealer in
+    /// <c>Dealer.AllPlayerDealers</c>. Direct customers count: a save with no
+    /// recruited dealer still has a network. The old implementation used a
+    /// hard-coded list of generic NPC IDs and could therefore select unrelated
+    /// civilians; that list is not restored.
     /// </summary>
     public static class TargetSelector
     {
@@ -283,8 +286,8 @@ namespace HitmanPhone.Bounty
         };
 
         /// <summary>
-        /// Picks a random living customer from the player's recruited dealers.
-        /// Returns null when the player has no assigned customers.
+        /// Picks a random living customer from the player's own network.
+        /// Returns null when that network has no eligible customer.
         /// </summary>
         public static S1NPC? PickRandom()
         {
@@ -314,32 +317,14 @@ namespace HitmanPhone.Bounty
 
             try
             {
-                var dealers = S1Dealer.AllPlayerDealers;
-                if (dealers == null) return false;
-
-                for (int dealerIndex = 0; dealerIndex < dealers.Count; dealerIndex++)
-                {
-                    var dealer = dealers[dealerIndex];
-                    if (dealer == null || !dealer.IsRecruited) continue;
-
-                    var assignedCustomers = dealer.AssignedCustomers;
-                    if (assignedCustomers == null) continue;
-
-                    for (int customerIndex = 0; customerIndex < assignedCustomers.Count; customerIndex++)
-                    {
-                        var customerNpc = assignedCustomers[customerIndex]?.NPC;
-                        if (customerNpc == null) continue;
-                        if (string.Equals(customerNpc.ID, targetId, StringComparison.OrdinalIgnoreCase))
-                            return true;
-                    }
-                }
+                if (IsUnlockedCustomer(targetId)) return true;
+                return IsAssignedToRecruitedDealer(targetId);
             }
             catch (Exception ex)
             {
                 Mod.Log.Warn($"TargetSelector.IsOwnCustomer failed: {ex.Message}");
+                return false;
             }
-
-            return false;
         }
 
         /// <summary>
@@ -393,36 +378,121 @@ namespace HitmanPhone.Bounty
             var candidates = new List<S1NPC>();
             var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+            // A missing dealer registry must not hide the player's own customers.
             try
             {
-                var dealers = S1Dealer.AllPlayerDealers;
-                if (dealers == null) return candidates;
-
-                // IL2CPP collections must be indexed, not enumerated with foreach.
-                for (int dealerIndex = 0; dealerIndex < dealers.Count; dealerIndex++)
-                {
-                    var dealer = dealers[dealerIndex];
-                    if (dealer == null || !dealer.IsRecruited) continue;
-
-                    var assignedCustomers = dealer.AssignedCustomers;
-                    if (assignedCustomers == null) continue;
-
-                    for (int customerIndex = 0; customerIndex < assignedCustomers.Count; customerIndex++)
-                    {
-                        var customerNpc = assignedCustomers[customerIndex]?.NPC;
-                        if (!IsEligible(customerNpc)) continue;
-
-                        string id = customerNpc!.ID;
-                        if (seenIds.Add(id)) candidates.Add(customerNpc);
-                    }
-                }
+                CollectUnlockedCustomers(candidates, seenIds);
             }
             catch (Exception ex)
             {
-                Mod.Log.Warn($"TargetSelector.CollectOwnCustomers failed: {ex.Message}");
+                Mod.Log.Warn($"TargetSelector.CollectOwnCustomers unlocked scan failed: {ex.Message}");
+            }
+
+            try
+            {
+                CollectDealerCustomers(candidates, seenIds);
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Warn($"TargetSelector.CollectOwnCustomers dealer scan failed: {ex.Message}");
             }
 
             return candidates;
+        }
+
+        /// <summary>
+        /// Player's own unlocked customers. Confirmed on the f12 assembly as
+        /// <c>Customer.UnlockedCustomers</c> with <c>Customer.NPC</c>.
+        /// </summary>
+        private static void CollectUnlockedCustomers(List<S1NPC> candidates, HashSet<string> seenIds)
+        {
+            var unlocked = S1Customer.UnlockedCustomers;
+            if (unlocked == null) return;
+
+            // IL2CPP collections must be indexed, not enumerated with foreach.
+            for (int i = 0; i < unlocked.Count; i++)
+            {
+                var customer = unlocked[i];
+                if (customer == null || customer.WasCollected) continue;
+                TryAddCandidate(candidates, seenIds, customer.NPC);
+            }
+        }
+
+        private static void CollectDealerCustomers(List<S1NPC> candidates, HashSet<string> seenIds)
+        {
+            var dealers = S1Dealer.AllPlayerDealers;
+            if (dealers == null) return;
+
+            for (int dealerIndex = 0; dealerIndex < dealers.Count; dealerIndex++)
+            {
+                var dealer = dealers[dealerIndex];
+                if (dealer == null || !dealer.IsRecruited) continue;
+
+                var assignedCustomers = dealer.AssignedCustomers;
+                if (assignedCustomers == null) continue;
+
+                for (int customerIndex = 0; customerIndex < assignedCustomers.Count; customerIndex++)
+                {
+                    TryAddCandidate(candidates, seenIds, assignedCustomers[customerIndex]?.NPC);
+                }
+            }
+        }
+
+        private static void TryAddCandidate(List<S1NPC> candidates, HashSet<string> seenIds, S1NPC? npc)
+        {
+            if (!IsEligible(npc)) return;
+            string id = npc!.ID;
+            if (seenIds.Add(id)) candidates.Add(npc);
+        }
+
+        private static bool IsUnlockedCustomer(string targetId)
+        {
+            var unlocked = S1Customer.UnlockedCustomers;
+            if (unlocked == null) return false;
+
+            for (int i = 0; i < unlocked.Count; i++)
+            {
+                var customer = unlocked[i];
+                if (customer == null || customer.WasCollected) continue;
+                if (MatchesId(customer.NPC, targetId)) return true;
+            }
+
+            return false;
+        }
+
+        private static bool IsAssignedToRecruitedDealer(string targetId)
+        {
+            var dealers = S1Dealer.AllPlayerDealers;
+            if (dealers == null) return false;
+
+            for (int dealerIndex = 0; dealerIndex < dealers.Count; dealerIndex++)
+            {
+                var dealer = dealers[dealerIndex];
+                if (dealer == null || !dealer.IsRecruited) continue;
+
+                var assignedCustomers = dealer.AssignedCustomers;
+                if (assignedCustomers == null) continue;
+
+                for (int customerIndex = 0; customerIndex < assignedCustomers.Count; customerIndex++)
+                {
+                    if (MatchesId(assignedCustomers[customerIndex]?.NPC, targetId)) return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool MatchesId(S1NPC? npc, string targetId)
+        {
+            if (npc == null || npc.WasCollected) return false;
+            try
+            {
+                return string.Equals(npc.ID, targetId, StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private static bool IsEligible(S1NPC? npc)

@@ -21,6 +21,6 @@
 | [`../AGENTS.md`](../AGENTS.md) | AI agents | Bootstrap file: setup, authoritative mod inventory, agent workflows. |
 | [`../THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md) | Everyone | Third-party components and their licenses. |
 
-PropertyLEDs documentation: [`README`](../Source/Mods/PropertyLEDs/docs/README.md) · [`milestones`](../Source/Mods/PropertyLEDs/docs/implementation-status.md). Version 0.1.8 is feature-complete and owner-confirmed 2026-10-24; individual native checks were not itemized. WorldLook was also owner-confirmed finished on 2026-10-25; no mod is currently under active development.
+PropertyLEDs documentation: [`README`](../Source/Mods/PropertyLEDs/docs/README.md) · [`milestones`](../Source/Mods/PropertyLEDs/docs/implementation-status.md). Version 0.1.10 was owner-confirmed 2026-10-25; the log does not measure the tighter insets. The 0.1.8 confirmation does not cover 0.1.9/0.1.10. WorldLook was owner-confirmed finished on 2026-10-25.
 
 Per-mod documentation lives next to the code: `Source/Mods/<ModName>/docs/README.md` (features, configuration, usage) and `Source/Mods/<ModName>/docs/CHANGELOG.md` (version history).

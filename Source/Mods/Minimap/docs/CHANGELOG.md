@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.3.6 (2026-10-25)
+- Keep AM/PM on the clock line. The narrow header now formats 12-hour time locally as `h:mm AM` and uses the short weekday whenever the clock is shown. Word wrapping on the day label is off. 24-hour mode, map size and header position are unchanged.
+- **Verified, owner-confirmed 2026-10-25.** Dominik confirmed the open clock-line fix works. `Latest.log` 14:53:44–15:11:59 loaded v2.3.6, DLL `676719AD…`, and recorded `Minimap HUD created successfully` plus several M-key visibility events. The log does not measure one-line AM/PM wrapping; that appearance is owner-confirmed, not log-measured.
+- Deployed 2026-10-25 with the game closed: installed `Minimap.dll` SHA-256 `676719ADB8A102533B481308BCA9E366E8E9AA5C67CA1FA036F7C56B206B0BDE` (157,696 bytes). Release build 0 warnings/errors; 222 tests pass.
+
 ## 2.3.5 (2026-10-24) — Stable release of the owner-accepted 2.3.5-dev.1 code
 - Version-string-only release (the owner-confirmed `MelonInfo`/`mod.json` bump); no source, behaviour, test or deployment-target change beyond the version metadata.
 - The optional sewer-key search feature stays cancelled by the owner; the prepared core/store remains dormant, unwired domain code.

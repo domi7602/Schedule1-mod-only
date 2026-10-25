@@ -107,16 +107,16 @@ Keep exactly one inventory row per mod and supported bold acceptance labels.
 | **Weather** | ✅ (v0.4.0, **Verified 2026-10-11**) | `Mods/Weather/` | `Weather.dll` + icon | Read-only dashboard |
 | **BusinessIncome** | ✅ (v0.1.6, **Verified 2026-09-19**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | Host-only income, slot isolation |
 | **StackLimitMod** | ✅ (v0.1.7, **Verified, owner-confirmed 2026-10-15**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` | Agriculture only; original test date not supplied |
-| **Minimap** | ✅ (v2.3.5, **Verified, owner-confirmed 2026-10-24**) | `Mods/Minimap/` | `Minimap.dll` | Version-only dev.1 release; search cancelled, dormant core retained |
+| **Minimap** | ✅ (v2.3.6, **Verified, owner-confirmed 2026-10-25**) | `Mods/Minimap/` | `Minimap.dll` | Clock AM/PM stays on one line; search cancelled, dormant core retained |
 | **AutoPackagingStation** | ✅ (v0.4.7, **Verified 2026-10-15, owner-confirmed tested session**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable; legacy migration unverified |
-| **HitmanPhone** | ✅ (v0.3.0, **Verified, owner-confirmed 2026-10-24**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Singleplayer only; actions not itemized |
+| **HitmanPhone** | ✅ (v0.3.2, **Verified, owner-confirmed 2026-10-25**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Singleplayer only; offers use own customers; tracker app removed |
 | **MessagesPlus** | ✅ (v0.4.6, **Verified, owner-confirmed 2026-10-15**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | Popup/response repair; original test date not supplied |
 | **ProductAppQoL** | ✅ (v0.1.0, **Verified 2026-10-10**) | `Mods/ProductAppQoL/` | `ProductAppQoL.dll` | Mouse/touch asking-price buttons |
 | **TaxiDriver** | ✅ (v1.0.0, **Verified, owner-confirmed 2026-10-24**) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB folder | Version-only 0.8.22 milestone; known road/jitter issues |
 | **StorageScanner** | 🆕 (v0.2.0, **Verified 2026-10-11**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | Read-only storage overview |
 | **S1MCP** | ✅ (v1.0.5, **Verified, owner-confirmed 2026-10-24**) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | HHMM fix; read/no-op write observed, not every write form |
 | **LightControl** | ✅ (v0.1.1; 0.1.0 **Verified, owner-confirmed 2026-10-24**) | `Mods/LightControl/` | `LightControl.dll` | 0.1.1 deployed log-only Rainbow fix; prior acceptance not itemized |
-| **PropertyLEDs** | ✅ (v0.1.8, **Verified, owner-confirmed 2026-10-24**) | `Mods/PropertyLEDs/` | `PropertyLEDs.dll` + icon | Room LEDs, slot-isolated settings; actions not itemized |
+| **PropertyLEDs** | ✅ (v0.1.10, **Verified, owner-confirmed 2026-10-25**) | `Mods/PropertyLEDs/` | `PropertyLEDs.dll` + icon | Landscape phone, tighter insets; prior 0.1.8 actions not itemized |
 | **PhoneScrollFix** | ✅ (v2.0.0, hover look **Verified 2026-10-11**) | `Mods/PhoneScrollFix/` | `PhoneScrollFix.dll` | Clipped home-icon hover |
 | **WorldLook** | ✅ (v0.3.0-dev.5, **Verified, owner-confirmed 2026-10-25**) | `Mods/WorldLook/` | `WorldLook.dll` + embedded bundle | Owner-confirmed finished in the last session; actions not itemized; prior shader-reload evidence retained |
 | **Shared** | ✅ workspace library | `Mods/Shared/` | `Shared.dll` | Reusable helpers; section 5 |

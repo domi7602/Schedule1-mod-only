@@ -22,7 +22,7 @@ public sealed class PropertyLEDsApp : PhoneApp
     protected override string AppTitle => "Property LEDs";
     protected override string IconLabel => "LEDs";
     protected override string IconFileName => string.Empty;
-    protected override EOrientation Orientation => EOrientation.Vertical;
+    protected override EOrientation Orientation => EOrientation.Horizontal;
     protected override Sprite IconSprite => GetIcon();
 
     private static readonly Color Background = new(0.035f, 0.055f, 0.075f, 1f);
@@ -67,6 +67,21 @@ public sealed class PropertyLEDsApp : PhoneApp
     private LayoutElement _advancedSize = null!, _advancedButtonSize = null!,
         _advancedPanelSize = null!, _powerSize = null!, _actionSize = null!;
 
+    /// <summary>
+    /// Reference height that makes <see cref="UITheme"/> scale from the visible short side.
+    /// LightControl measured the horizontal phone container at 1201 x 655; 655 is that short side.
+    /// </summary>
+    private static float LandscapeReferenceHeight(RectTransform containerRt)
+    {
+        const float visibleHeight = 655f;
+        if (!NetworkGuard.IsAlive(containerRt)) return visibleHeight;
+        var rect = containerRt.rect;
+        float longSide = Mathf.Max(rect.width, rect.height);
+        float shortSide = Mathf.Min(rect.width, rect.height);
+        if (longSide <= 200f || shortSide <= 100f) return visibleHeight;
+        return longSide * visibleHeight / shortSide;
+    }
+
     protected override void OnCreated()
     {
         base.OnCreated();
@@ -80,21 +95,25 @@ public sealed class PropertyLEDsApp : PhoneApp
 
     protected override void OnCreatedUI(GameObject container)
     {
-        UITheme.InitializeForTextApp(container.GetComponent<RectTransform>());
+        var containerRt = container.GetComponent<RectTransform>();
+        // UITheme treats the long side as height. A landscape phone is short, so compensate
+        // or the portrait scale inflates every control on the 1201 x 655 canvas used by
+        // LightControl and Minimap.
+        UITheme.Initialize(containerRt, LandscapeReferenceHeight(containerRt), 0.85f, 1.35f);
         _layoutScale = UITheme.Scale;
         _mainBG = UIFactory.Panel("PropertyLEDs_MainBG", container.transform, Background, fullAnchor: true);
         _mainBG.SetActive(false);
         var header = Label("Title", "PROPERTY LEDs", _mainBG.transform, AppLayout.FontTitle, FontStyle.Bold);
-        Rect(header.rectTransform, 0.17f, 0.94f, 0.95f, 0.99f);
+        Rect(header.rectTransform, 0.10f, 0.958f, 0.988f, 0.995f);
         header.fontSize = UITheme.Sp(AppLayout.FontTitle);
         var subtitle = Label("Subtitle", "CONTROL THE LED LIGHTING FOR YOUR PROPERTIES", _mainBG.transform, AppLayout.FontSubtitle);
         subtitle.color = new Color(0.65f, 0.73f, 0.80f, 1);
-        Rect(subtitle.rectTransform, 0.13f, 0.915f, 0.97f, 0.943f);
+        Rect(subtitle.rectTransform, 0.10f, 0.928f, 0.988f, 0.955f);
         var bulb = DrawIcon("Bulb", _mainBG.transform, new Color(1f, 0.84f, 0.25f, 1));
-        Rect(bulb.rectTransform, 0.045f, 0.94f, 0.13f, 0.99f);
+        Rect(bulb.rectTransform, 0.012f, 0.958f, 0.09f, 0.995f);
 
         var content = UIFactory.ScrollableVerticalList("LEDControls", _mainBG.transform, out var scroll);
-        Rect(scroll.GetComponent<RectTransform>(), 0.045f, 0.015f, 0.955f, 0.90f);
+        Rect(scroll.GetComponent<RectTransform>(), 0.012f, 0.008f, 0.988f, 0.922f);
         scroll.scrollSensitivity = UITheme.Dp(24f);
         _scrollViewport = scroll.viewport;
         _scrollContent = content;
