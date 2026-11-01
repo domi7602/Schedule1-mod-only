@@ -79,6 +79,15 @@ public static class PropertyStatus
         return string.IsNullOrWhiteSpace(displayName) ? state : state + ": " + displayName!.Trim();
     }
 
+    /// <summary>Catalog availability only, not proof that native geometry was rendered.</summary>
+    public static string LayoutWarning(IReadOnlyList<RoomLayout> rooms)
+    {
+        if (rooms.Count == 0) return "No LED layout available";
+        for (int i = 0; i < rooms.Count; i++)
+            if (rooms[i].Verified) return "";
+        return "No LED layout available - Unverified";
+    }
+
     public static string Detail(bool enabled)
         => enabled ? "Property LEDs are currently on" : "Property LEDs are currently off";
 }

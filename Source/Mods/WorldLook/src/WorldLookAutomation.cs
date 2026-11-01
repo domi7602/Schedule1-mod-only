@@ -18,6 +18,10 @@ public sealed class WorldLookAutomation : MonoBehaviour
     public WorldLookAutomation(IntPtr pointer) : base(pointer) { }
 
     public string GetStatus() => Invoke("status", null);
+    public string GetWaterMaterialDiagnostic() => Invoke("water-material", null);
+    public string EnableWaterDepthDiagnostic() => Invoke("water-depth", null);
+    public string EnableWaterWeightsDiagnostic() => Invoke("water-weights", null);
+    public string DisableWaterDiagnostic() => Invoke("water-diagnostic-off", null);
     public string EnableLook() => SetLookEnabled(true);
     public string DisableLook() => SetLookEnabled(false);
     public string SetLookEnabled(bool enabled) => Invoke(enabled ? "enable" : "disable", enabled);

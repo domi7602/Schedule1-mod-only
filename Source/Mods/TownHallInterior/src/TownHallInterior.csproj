@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>TownHallInterior</AssemblyName>
+    <RootNamespace>TownHallInterior</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Local, hash-pinned native slices; do not distribute this data or the DLL embedding it. -->
+    <EmbeddedResource Include="../assets/native-facade.json" LogicalName="TownHallInterior.NativeFacade" />
+    <EmbeddedResource Include="../assets/native-furniture.json" LogicalName="TownHallInterior.NativeFurniture" />
+  </ItemGroup>
+</Project>

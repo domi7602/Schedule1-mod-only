@@ -1,0 +1,131 @@
+{
+  "SchemaVersion": 1,
+  "Repository": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checkout",
+  "RequestedMode": "Quick",
+  "Mode": "Quick",
+  "StartedUtc": "2026-10-29T06:13:41.3125129Z",
+  "FinishedUtc": "2026-10-29T06:14:16.3601036Z",
+  "GameReferences": true,
+  "GameProbe": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\Il2CppAssemblies\\Assembly-CSharp.dll",
+  "Dotnet": "C:\\Program Files\\dotnet\\dotnet.exe",
+  "ExitCode": 1,
+  "Passed": 4,
+  "Failed": 3,
+  "Skipped": 0,
+  "Steps": [
+    {
+      "Name": "sdk",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.1,
+      "Command": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "Arguments": [
+        "--version"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checks\\verify-c109c072f173\\sdk.log",
+      "Error": null
+    },
+    {
+      "Name": "format",
+      "Status": "Failed",
+      "ExitCode": 2,
+      "Seconds": 28.65,
+      "Command": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "Arguments": [
+        "format",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checkout\\Source\\Mods\\S1Mods.sln",
+        "--verify-no-changes",
+        "--verbosity",
+        "minimal"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checks\\verify-c109c072f173\\format.log",
+      "Error": "Child process exited 2."
+    },
+    {
+      "Name": "solution",
+      "Status": "Failed",
+      "ExitCode": 1,
+      "Seconds": 0.42,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checkout\\Tools\\gen-sln.ps1",
+        "-Check"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checks\\verify-c109c072f173\\solution.log",
+      "Error": "Child process exited 1."
+    },
+    {
+      "Name": "versions",
+      "Status": "Failed",
+      "ExitCode": 1,
+      "Seconds": 1.11,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checkout\\Tools\\check-version-sync.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checks\\verify-c109c072f173\\versions.log",
+      "Error": "Child process exited 1."
+    },
+    {
+      "Name": "docs",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 3.18,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checkout\\Tools\\check-doc-paths.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checks\\verify-c109c072f173\\docs.log",
+      "Error": null
+    },
+    {
+      "Name": "skills",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 1.11,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checkout\\Tools\\check-skills-health.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checks\\verify-c109c072f173\\skills.log",
+      "Error": null
+    },
+    {
+      "Name": "xml",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.38,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checkout\\Tools\\check-xml.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-furniture-doc-gates\\clean-checkout-6e4f7e29ee8a\\checks\\verify-c109c072f173\\xml.log",
+      "Error": null
+    }
+  ]
+}

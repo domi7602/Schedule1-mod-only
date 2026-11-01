@@ -42,7 +42,7 @@ public static class WorldLookWaterPreview
         public string fixtureSha256, unity, urp, gpu, graphicsApi, colorSpace;
         public string capture = "URP SingleCameraRequest -> ARGBFloat Linear GPU target -> RGBAFloat ReadPixels; PNG linear-to-sRGB encoding, clamped to 8 bit; no tone mapping.";
         public string scene = "Water plane y=0 (300x300); checker floor y=-1.8 (200x200); 12 submerged colored cubes; synthetic neutral daylight sky/horizon inputs, not sampled game colors.";
-        public string settings = "960x540; vertical FOV=50; clip=.1..400; HDR; depth after opaques; full-resolution opaque texture; renderScale=1; MSAA=1; mipmapped/trilinear checker; no postprocessing, shadows, fog, camera jitter or auto exposure; wind=.2. Sun/wave/foam defaults retained from bundle.";
+        public string settings = "960x540; vertical FOV=50; clip=.1..400; HDR; depth after opaques; full-resolution opaque texture; renderScale=1; MSAA=1; mipmapped/trilinear checker; no postprocessing, shadows, fog, camera jitter or auto exposure; wind=.25, wave amplitude=.15, scale=1.6, speed=1.3, diagnostic=0; sun/foam defaults retained from bundle.";
         public string limitations = "Controlled Editor GPU comparison only. Not native game lighting/camera, FPS, shadow-variant coverage, motion/flicker or owner visual acceptance. Float target detects observed nonfinite output, not every intermediate shader operation.";
         public Vector3 sunEuler;
         public Color sunColor, skyColor, horizonColor, ambientColor;
@@ -89,12 +89,18 @@ public static class WorldLookWaterPreview
                 throw new InvalidDataException("Supported bundled ReferenceWater shader required.");
             receipt.shaderName = shader.name;
             var water = Keep(new Material(shader));
-            water.SetFloat("_Absorption", .10f);
+            water.SetFloat("_Absorption", .12f);
             water.SetFloat("_RippleStrength", .28f);
             water.SetFloat("_SurfaceOpacity", .22f);
-            water.SetFloat("_ReflectionStrength", .12f);
-            water.SetFloat("_WindActivity", .2f);
+            string variant = receipt.label;
+            water.SetFloat("_ReflectionStrength", variant == "C" ? .138f : .12f);
+            water.SetFloat("_WaveAmp", .15f);
+            water.SetFloat("_WaveScale", 1.6f);
+            water.SetFloat("_WaveSpeed", 1.3f);
+            water.SetFloat("_WindActivity", .25f);
+            water.SetFloat("_DiagnosticMode", 0f);
             water.SetColor("_ShallowTint", new Color(.46f, .52f, .55f, 1));
+            water.SetColor("_DeepTint", variant == "B" ? new Color(.06f, .34f, .28f, 1) : new Color(.06f, .27f, .32f, 1));
             water.SetColor("_SkyColor", Sky);
             water.SetColor("_AmbientColor", Horizon);
             receipt.material = Enumerable.Range(0, shader.GetPropertyCount()).Select(i =>
@@ -166,6 +172,41 @@ public static class WorldLookWaterPreview
                 if (repeated.sha256 != images.First(i => i.file == prefix + "-t0.png").sha256)
                     throw new InvalidDataException("Fixed-time repeat was not pixel-identical: " + prefix);
             }
+            // Additional controlled night and shallow scenes; identical in all variants.
+            camera.transform.position = new Vector3(0, 3, -8);
+            Vector3 controlAim = new Vector3(0, 0, 7);
+            camera.transform.LookAt(controlAim);
+            sun.intensity = .05f;
+            RenderSettings.ambientLight = new Color(.025f, .03f, .04f, 1);
+            water.SetColor("_SkyColor", new Color(.025f, .035f, .06f, 1));
+            water.SetColor("_AmbientColor", new Color(.015f, .02f, .03f, 1));
+            camera.backgroundColor = new Color(.015f, .02f, .03f, 1);
+            images.Add(Capture(camera, target, output, "night-near-t0", controlAim, 0, true));
+            images.Add(Capture(camera, target, output, "night-near-t7p5", controlAim, 7.5f, true));
+            camera.transform.position = new Vector3(0, 16, -48);
+            Vector3 nightFarAim = new Vector3(0, 0, 32);
+            camera.transform.LookAt(nightFarAim);
+            images.Add(Capture(camera, target, output, "night-far-t0", nightFarAim, 0, true));
+            images.Add(Capture(camera, target, output, "night-far-t7p5", nightFarAim, 7.5f, true));
+            camera.transform.position = new Vector3(0, 3, -8);
+            camera.transform.LookAt(controlAim);
+            sun.intensity = 1.2f;
+            RenderSettings.ambientLight = new Color(.32f, .36f, .40f, 1);
+            water.SetColor("_SkyColor", Sky);
+            water.SetColor("_AmbientColor", Horizon);
+            camera.backgroundColor = Horizon;
+            GameObject.Find("Submerged checker floor").transform.position = new Vector3(0, -.15f, 50);
+            foreach (var go in Owned.OfType<GameObject>().Where(o => o.name.StartsWith("Submerged color "))) go.SetActive(false);
+            waterRenderer.enabled = false;
+            images.Add(Capture(camera, target, output, "shallow-dry", controlAim, 0, false));
+            waterRenderer.enabled = true;
+            images.Add(Capture(camera, target, output, "shallow-near-t0", controlAim, 0, true));
+            // Deep control shares camera and light; only floor height changes.
+            GameObject.Find("Submerged checker floor").transform.position = new Vector3(0, -8f, 50);
+            waterRenderer.enabled = false;
+            images.Add(Capture(camera, target, output, "deep-dry", controlAim, 0, false));
+            waterRenderer.enabled = true;
+            images.Add(Capture(camera, target, output, "deep-near-t0", controlAim, 0, true));
             receipt.repeatedTimeZeroPngIdentical = true;
             foreach (var message in ShaderUtil.GetShaderMessages(shader))
                 if (message.severity.ToString() == "Error") Errors.Add(message.message);

@@ -130,7 +130,10 @@ public sealed class MinimapFeatureRulesTests
         string hud = ReadModSource("MinimapHUD.cs");
         Assert.DoesNotContain("Get12HourTime", hud);
         Assert.Contains("_dayTmp.enableWordWrapping = false;", hud);
+        Assert.Contains("_dayTmp.enableAutoSizing = true;", hud);
         Assert.Contains("config.ShowTime || config.ShortDayName", hud);
+        string config = ReadModSource("MinimapConfig.cs");
+        Assert.Contains("public bool Time24H { get; set; } = false;", config);
     }
 
     private static string ReadModSource(string name)

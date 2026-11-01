@@ -20,7 +20,7 @@ using S1NPC = ScheduleOne.NPCs.NPC;
 using S1NPCHealth = ScheduleOne.NPCs.NPCHealth;
 #endif
 
-[assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.3.2", "Dominik")]
+[assembly: MelonInfo(typeof(HitmanPhone.Mod), "HitmanPhone", "0.3.4", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace HitmanPhone;

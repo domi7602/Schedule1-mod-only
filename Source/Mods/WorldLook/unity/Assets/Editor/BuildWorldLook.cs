@@ -20,7 +20,7 @@ public static class BuildWorldLook
     {
         "_ShallowTint", "_DeepTint", "_Absorption", "_SurfaceOpacity", "_ReflectionStrength",
         "_WaveAmp", "_WaveScale", "_WaveSpeed", "_RippleStrength", "_WindActivity",
-        "_SunStrength", "_SunSharpness", "_FoamColor", "_FoamDepth", "_FoamStrength", "_SkyColor", "_AmbientColor"
+        "_SunStrength", "_SunSharpness", "_FoamColor", "_FoamDepth", "_FoamStrength", "_SkyColor", "_AmbientColor", "_DiagnosticMode"
     };
 
     [Serializable] private sealed class FileHash
@@ -153,7 +153,7 @@ public static class BuildWorldLook
                     if (material.passCount < 1) throw new InvalidDataException("No water material pass in the built bundle.");
                     var properties = Enumerable.Range(0, shader.GetPropertyCount()).Select(shader.GetPropertyName).ToArray();
                     if (properties.Length != RequiredProperties.Length || RequiredProperties.Any(name => !material.HasProperty(name)))
-                        throw new InvalidDataException("The built water shader does not expose all 17 required material properties.");
+                        throw new InvalidDataException("The built water shader does not expose all 18 required material properties.");
                     contract = new ShaderContract
                     {
                         assetPath = ShaderPath, shaderName = shader.name, passCount = material.passCount,
@@ -185,7 +185,7 @@ public static class BuildWorldLook
                 generatedFixture = fixture,
                 resolvedPackageLockSha256 = Sha256(Path.Combine(unityRoot, "Packages/packages-lock.json")),
                 shaders = new[] { contract },
-                validation = "Editor bundle rebuilt, loaded, shader messages/pass/17-property contracts and all 8 SVC entries checked. SVC presence is not native GPU-variant execution or game visual/performance validation."
+                validation = "Editor bundle rebuilt, loaded, shader messages/pass/18-property contracts and all 8 SVC entries checked. SVC presence is not native GPU-variant execution or game visual/performance validation."
             };
             File.WriteAllText(Path.Combine(output, "shader-build.json"), JsonUtility.ToJson(receipt, true));
             Debug.Log("[WorldLookBuild] SUCCESS: " + bundlePath + " sha256=" + receipt.bundleSha256);

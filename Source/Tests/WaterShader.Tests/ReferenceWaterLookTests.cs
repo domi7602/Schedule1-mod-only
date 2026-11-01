@@ -13,7 +13,7 @@ public sealed class ReferenceWaterLookTests
 {
     private static readonly (string name, float value)[] ApprovedFloats =
     {
-        ("_Absorption", 0.10f),
+        ("_Absorption", 0.12f),
         ("_RippleStrength", 0.28f),
         ("_SurfaceOpacity", 0.22f),
         ("_ReflectionStrength", 0.12f),
@@ -22,6 +22,7 @@ public sealed class ReferenceWaterLookTests
     private static readonly (string name, float r, float g, float b)[] ApprovedColors =
     {
         ("_ShallowTint", 0.46f, 0.52f, 0.55f),
+        ("_DeepTint", 0.06f, 0.27f, 0.32f),
     };
 
     /// <summary>
@@ -54,6 +55,35 @@ public sealed class ReferenceWaterLookTests
     };
 
     private const string ShaderPath = "Source/Mods/WorldLook/unity/Assets/S1Mods/ReferenceWater.shader";
+
+    [Fact]
+    public void PreviewUsesMeasuredAbsorptionBaseline()
+    {
+        string preview = RepoFile("Source/Mods/WorldLook/build/preview/WorldLookWaterPreview.cs");
+        Assert.Contains("water.SetFloat(\"_Absorption\", .12f);", preview);
+        // Runtime material diagnostic from the matched baseline, not shader defaults.
+        Assert.Contains("water.SetFloat(\"_WaveAmp\", .15f);", preview);
+        Assert.Contains("water.SetFloat(\"_WaveScale\", 1.6f);", preview);
+        Assert.Contains("water.SetFloat(\"_WaveSpeed\", 1.3f);", preview);
+        Assert.Contains("water.SetFloat(\"_WindActivity\", .25f);", preview);
+        Assert.Contains("water.SetFloat(\"_DiagnosticMode\", 0f);", preview);
+    }
+
+    [Fact]
+    public void PreviewIncludesExplicitDeepFloorControl()
+    {
+        string preview = RepoFile("Source/Mods/WorldLook/build/preview/WorldLookWaterPreview.cs");
+        Assert.Contains("new Vector3(0, -8f, 50)", preview);
+        Assert.Contains("\"deep-near-t0\"", preview);
+    }
+
+    [Fact]
+    public void PreviewUsesMeasuredDeepTintBaseline()
+    {
+        string preview = RepoFile("Source/Mods/WorldLook/build/preview/WorldLookWaterPreview.cs");
+        Assert.Contains("water.SetColor(\"_DeepTint\", variant == \"B\" ? new Color(.06f, .34f, .28f, 1) : new Color(.06f, .27f, .32f, 1));", preview);
+        Assert.Contains("water.SetFloat(\"_ReflectionStrength\", variant == \"C\" ? .138f : .12f);", preview);
+    }
 
     [Fact]
     public void AppliesOnlyApprovedFloatsAndColors()
@@ -121,7 +151,7 @@ public sealed class ReferenceWaterLookTests
         string shader = RepoFile(ShaderPath);
         string fragment = shader[shader.IndexOf("half4 frag(", StringComparison.Ordinal)..];
         Assert.Contains("float2 refractionGrad = RefractionGradient(IN.positionWS.xz, _Time.y);", fragment);
-        Assert.Contains("float2 refractUV = saturate(screenUV + refractionGrad * 0.012);", fragment);
+        Assert.Contains("float2 refractUV = saturate(screenUV + (refractionGrad + broadWave) * 0.012);", fragment);
         Assert.Contains("float2 surfaceGrad = SurfaceGradient(IN.positionWS.xz, _Time.y, unresolvedVariance);", fragment);
         Assert.Contains("float3 normalWS = normalize(float3(-surfaceGrad.x, 1.0, -surfaceGrad.y));", fragment);
         Assert.Contains("foamBand + refractionGrad.x * 0.15", fragment);
@@ -130,18 +160,38 @@ public sealed class ReferenceWaterLookTests
     }
 
     [Fact]
-    public void ShaderKeepsLateDyeWithIndependentPremultipliedSurfaceComposition()
+    public void ShaderBringsDeepDyeForwardWhileKeepingPremultipliedSurfaceComposition()
     {
-        // The standalone shader retires the old alpha floor; body and environment
-        // reflection now contribute separately to premultiplied output.
+        // The shader's actual exponent determines both tint and body opacity.
+        // Keep very shallow water near clear while moving medium eye-depth forward.
         string shader = RepoFile(ShaderPath);
         Assert.DoesNotContain("0.35 + absorb * 0.65", shader);
-        Assert.Contains("float dye = lerp(1.0, saturate(pow(absorb, 2.2)), depthValid);", shader);
+        var match = Regex.Match(shader, @"float dye = lerp\(1\.0, saturate\(pow\(absorb, ([\d.]+)\)\), depthValid\);");
+        Assert.True(match.Success, "Expected depth-valid dye expression is missing");
+        double exponent = double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+        double Dye(double thickness) => Math.Pow(1 - Math.Exp(-thickness * 0.12), exponent);
+        Assert.InRange(Dye(0.15), 0.0, 0.001);
+        Assert.InRange(Dye(4), 0.17, 0.19);
+        Assert.InRange(Dye(30), 0.94, 1.0);
+        Assert.Contains("float dye = lerp(1.0, saturate(pow(absorb, 1.8)), depthValid);", shader);
         Assert.Contains("lerp(_ShallowTint.rgb, _DeepTint.rgb, dye)", shader);
         Assert.Contains("Blend One OneMinusSrcAlpha", shader);
         Assert.Contains("float bodyOpacity = lerp(clamp(_SurfaceOpacity, 0.1, 0.65), 0.89, dye);", shader);
         Assert.Contains("float alpha = reflectionWeight + bodyWeight;", shader);
-        Assert.Contains("refractionGrad * 0.012", shader);
+        Assert.Contains("(refractionGrad + broadWave) * 0.012", shader);
+    }
+
+    [Fact]
+    public void IndependentBodyColorKeepsOpacityCurveAndUsesEnvironmentLight()
+    {
+        // Source contract only: actual perceptibility and night appearance require GPU/game checks.
+        string shader = RepoFile(ShaderPath);
+        Assert.Contains("float bodyColorWeight = 0.45 * lerp(1.0, smoothstep(0.03, 0.65, absorb), depthValid);", shader);
+        Assert.Contains("float3 naturalBody = float3(0.06, 0.48, 0.20) * environmentLight * 1.5;", shader);
+        Assert.Contains("transmitted = lerp(transmitted, naturalBody, bodyColorWeight);", shader);
+        Assert.Contains("float dye = lerp(1.0, saturate(pow(absorb, 1.8)), depthValid);", shader);
+        Assert.Contains("float bodyOpacity = lerp(clamp(_SurfaceOpacity, 0.1, 0.65), 0.89, dye);", shader);
+        Assert.Contains("float alpha = reflectionWeight + bodyWeight;", shader);
     }
 
     [Fact]
@@ -188,7 +238,16 @@ public sealed class ReferenceWaterLookTests
     }
 
     [Fact]
-    public void LeavesDeepTintRestOfPaletteSunAndWaveValuesUntouched()
+    public void AppliesMutedTealDeepTintOverInheritedMaterialValue()
+    {
+        var material = new TestMaterial();
+        material.Colors["_DeepTint"] = (0.9f, 0.05f, 0.9f, 0.4f);
+        ReferenceWaterLook.Apply(material);
+        Assert.Equal((0.06f, 0.27f, 0.32f, 1f), material.Colors["_DeepTint"]);
+    }
+
+    [Fact]
+    public void LeavesRestOfPaletteSunAndWaveValuesUntouched()
     {
         var material = new TestMaterial();
         var preservedFloats = material.Floats
@@ -256,7 +315,7 @@ public sealed class ReferenceWaterLookTests
 
             string diagnostic = ReferenceWaterLook.Apply(material);
 
-            Assert.Equal("[water-shader] reference clarity applied: _Absorption=0.1 _ShallowTint=(0.46,0.52,0.55)", diagnostic);
+            Assert.Equal("[water-shader] reference clarity applied: _Absorption=0.12 _ShallowTint=(0.46,0.52,0.55)", diagnostic);
             Assert.Single(material.FloatWrites);
             Assert.Single(material.ColorWrites);
         }

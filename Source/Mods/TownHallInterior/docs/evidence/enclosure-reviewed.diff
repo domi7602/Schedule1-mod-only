@@ -1,0 +1,517 @@
+--- baseline/Source/Mods/TownHallInterior/docs/mod.json
++++ candidate/Source/Mods/TownHallInterior/docs/mod.json
+@@ -2,5 +2,5 @@
+   "name": "TownHallInterior",
+   "author": "Dominik",
+   "version": "0.1.0",
+-  "description": "Local experimental public hall with decorative vanilla reception furniture, inset ceiling, four lights and a raised visual frame. Hash-pinned native slices; do not redistribute. No furniture interactions, upper-floor fit-out or business."
++  "description": "Local experimental public hall: proximity-only sliding entrance, joined lower enclosure, visible upper floor/walls/ceiling and eight local lights. Decorative vanilla reception furniture. Hash-pinned native slices; do not redistribute. No furniture interactions, upper-floor furniture or business."
+ }
+--- baseline/Source/Mods/TownHallInterior/src/FurniturePlan.cs
++++ candidate/Source/Mods/TownHallInterior/src/FurniturePlan.cs
+@@ -35,6 +35,7 @@
+ }
+ 
+ public sealed record FurniturePlacement(string Name, string Key, float X, float Y, float Z, float Yaw, bool Solid);
++public sealed record InteriorLight(string Name, float X, float Y, float Z, float Range, float Intensity);
+ 
+ // Pure decorative layout. Accepted floor, stairs and entrance collision stay separate.
+ public static class FurniturePlan
+@@ -167,23 +168,73 @@
+                 throw new InvalidOperationException("Invalid furniture bounds");
+     }
+ 
++    public static IReadOnlyList<InteriorLight> CreateLights()
++    {
++        var lights = new List<InteriorLight>();
++        foreach (float y in new[] { 4.15f, 7.8f })
++            foreach (float z in new[] { 24f, 28.5f, 33.5f, 38f })
++                lights.Add(new InteriorLight((y < RoomPlan.Upper ? "reception-" : "upper-") + lights.Count,
++                    58.7f, y, z, 5f, 1.1f));
++        return lights;
++    }
++
+     public static IReadOnlyList<RoomBox> CreateShell()
+     {
+         var boxes = new List<RoomBox>();
+         var skin = PublicEntrance.CreateInterior();
+         var west = skin.Single(b => b.Name == "inner-west-south");
+         var east = skin.Single(b => b.Name == "inner-east");
++        var floor = skin.Single(b => b.Name == "public-floor");
++        VisualBox(boxes, "floor-edge-west", west.X + west.Width / 2, floor.Y - floor.Height / 2, floor.Z - floor.Depth / 2,
++            floor.X - floor.Width / 2, PublicEntrance.FloorTop, floor.Z + floor.Depth / 2, 0);
++        VisualBox(boxes, "floor-edge-east", floor.X + floor.Width / 2, floor.Y - floor.Height / 2, floor.Z - floor.Depth / 2,
++            east.X - east.Width / 2, PublicEntrance.FloorTop, floor.Z + floor.Depth / 2, 0);
+         foreach (var slab in RoomPlan.Create().Where(b => b.Name.StartsWith("upper-")))
+         {
+             var x1 = Math.Max(west.X + west.Width / 2, slab.X - slab.Width / 2);
+             var x2 = Math.Min(east.X - east.Width / 2, slab.X + slab.Width / 2);
+             var z1 = Math.Max(21.6f, slab.Z - slab.Depth / 2);
+             var z2 = Math.Min(40.4f, slab.Z + slab.Depth / 2);
+-            boxes.Add(new RoomBox("ceiling-" + slab.Name, (x1 + x2) / 2, 4.44f, (z1 + z2) / 2,
+-                x2 - x1, .08f, z2 - z1, false, 1));
++            boxes.Add(new RoomBox("ceiling-" + slab.Name, (x1 + x2) / 2, (4.4f + RoomPlan.Upper) / 2, (z1 + z2) / 2,
++                x2 - x1, RoomPlan.Upper - 4.4f, z2 - z1, false, 1));
+         }
+         foreach (var wall in PublicEntrance.CreateInterior().Where(b => b.Name.StartsWith("inner-") && b.Name != "inner-lintel"))
+             boxes.Add(wall with { Name = "crown-" + wall.Name, Y = 4.34f, Height = .28f, Solid = false });
++        foreach (var wall in skin.Where(b => b.Name is "inner-south" or "inner-north"))
++        {
++            float z1 = wall.Z - wall.Depth / 2, z2 = wall.Z + wall.Depth / 2;
++            VisualBox(boxes, "corner-west-" + wall.Name, west.X + west.Width / 2, 1.5f, z1,
++                wall.X - wall.Width / 2, 4.48f, z2, 2);
++            VisualBox(boxes, "corner-east-" + wall.Name, wall.X + wall.Width / 2, 1.5f, z1,
++                east.X - east.Width / 2, 4.48f, z2, 2);
++        }
++        // Slightly overlap frame backs; offset exposed wall faces and bury tops below the floor
++        // to avoid coplanar surfaces. These small overlaps do not enter the accepted portal.
++        VisualBox(boxes, "reveal-south", 54.34f, 1.41f, 29.95f, 54.951f, RoomPlan.Upper - .001f, 30.04f, 2);
++        VisualBox(boxes, "reveal-north", 54.34f, 1.41f, 31.96f, 54.951f, RoomPlan.Upper - .001f, 32.05f, 2);
++        // Finish the existing upper support footprint; the entry header fills the west-center notch.
++        // This leaves the full-height portal and the existing stair void untouched.
++        VisualBox(boxes, "floor-rim-west-south", 54.55f, 4.4f, 20.7f, 54.95f, RoomPlan.Upper, 30.04f, 1);
++        VisualBox(boxes, "floor-rim-west-north", 54.55f, 4.4f, 31.96f, 54.95f, RoomPlan.Upper, 41.3f, 1);
++        VisualBox(boxes, "floor-rim-east", 62.45f, 4.4f, 20.7f, 63.15f, RoomPlan.Upper, 41.3f, 1);
++        VisualBox(boxes, "floor-rim-south", 54.95f, 4.4f, 20.7f, 62.45f, RoomPlan.Upper, 21.6f, 1);
++        VisualBox(boxes, "floor-rim-north", 54.95f, 4.4f, 40.4f, 62.45f, RoomPlan.Upper, 41.3f, 1);
++        // Thin inward skins follow the EXISTING upper perimeter collision, not the narrower EG room.
++        // A deeply inset render-only wall would let the player walk through it before hitting collision.
++        const float roofBottom = 8.05f, roofTop = 8.13f; // Chosen interior design heights.
++        VisualBox(boxes, "upper-skin-west", 54.55f, RoomPlan.Upper, 20.7f, 54.57f, roofTop, 41.3f, 2);
++        VisualBox(boxes, "upper-skin-east", 63.13f, RoomPlan.Upper, 20.7f, 63.15f, roofTop, 41.3f, 2);
++        VisualBox(boxes, "upper-skin-south", 54.55f, RoomPlan.Upper, 20.7f, 63.15f, roofTop, 20.72f, 2);
++        VisualBox(boxes, "upper-skin-north", 54.55f, RoomPlan.Upper, 41.28f, 63.15f, roofTop, 41.3f, 2);
++        VisualBox(boxes, "upper-ceiling", 54.55f, roofBottom, 20.7f, 63.15f, roofTop, 41.3f, 1);
+         return boxes;
+     }
+-}
++
++    private static void VisualBox(List<RoomBox> boxes, string name,
++        float x1, float y1, float z1, float x2, float y2, float z2, int style)
++    {
++        if (!(x2 > x1 && y2 > y1 && z2 > z1)) throw new InvalidOperationException("Invalid visual enclosure: " + name);
++        boxes.Add(new RoomBox(name, (x1 + x2) / 2, (y1 + y2) / 2, (z1 + z2) / 2,
++            x2 - x1, y2 - y1, z2 - z1, false, style));
++    }
++}
+--- baseline/Source/Mods/TownHallInterior/src/PublicEntrance.cs
++++ candidate/Source/Mods/TownHallInterior/src/PublicEntrance.cs
+@@ -12,7 +12,7 @@
+     public const float PortalTop = 4.55f;
+     public const float LeafHeight = 3.2f;
+     public const float LeafCenterY = PortalTop - LeafHeight / 2;
+-    public const float LintelHeight = 0.3f;
++    public const float LintelHeight = RoomPlan.Upper - PortalTop;
+     // These are owned geometry coordinates, NOT measured native floor/player heights.
+     public const float FloorCenterY = 1.48f, FloorThickness = 0.1f;
+     public const float FloorTop = FloorCenterY + FloorThickness / 2;
+@@ -22,7 +22,7 @@
+         new RoomBox("public-floor", 58.7f, FloorCenterY, 31f, 7.4f, FloorThickness, 18.8f, true, 0),
+         new RoomBox("inner-west-south", 54.85f, 2.85f, 25.6f, 0.2f, 2.7f, 8.8f, true, 1),
+         new RoomBox("inner-west-north", 54.85f, 2.85f, 36.4f, 0.2f, 2.7f, 8.8f, true, 1),
+-        new RoomBox("inner-lintel", 54.85f, PortalTop + LintelHeight / 2, 31f, 0.2f, LintelHeight, 1.92f, true, 1),
++        new RoomBox("inner-lintel", 54.65f, PortalTop + LintelHeight / 2, 31f, 0.6f, LintelHeight, 1.92f, true, 1),
+         new RoomBox("inner-east", 62.55f, 2.85f, 31f, 0.2f, 2.7f, 18.8f, true, 1),
+         new RoomBox("inner-south", 58.7f, 2.85f, 21.5f, 7.4f, 2.7f, 0.2f, true, 1),
+         new RoomBox("inner-north", 58.7f, 2.85f, 40.5f, 7.4f, 2.7f, 0.2f, true, 1),
+@@ -44,6 +44,12 @@
+     public static bool ColliderSwapAllowed(NativeSceneInspection inspection) =>
+         inspection.IdentityAndGeometryMatch && !inspection.CanPublish;
+ 
++    public static bool WantsDoorOpen(float x, float y, float z)
++    {
++        // Keep both approaches and the occupied threshold, not the entire public hall.
++        return x >= 51.6f && x <= 56.4f && z >= 29.2f && z <= 32.8f && y >= 0.8f && y <= 4.2f;
++    }
++
+     public static float MoveLeaf(float current, bool occupied, float deltaSeconds)
+     {
+         if (float.IsNaN(current) || float.IsInfinity(current)) current = 0f;
+--- baseline/Source/Mods/TownHallInterior/src/PublicHallHost.cs
++++ candidate/Source/Mods/TownHallInterior/src/PublicHallHost.cs
+@@ -237,9 +237,7 @@
+         var player = Player.Local;
+         if (player == null) return false;
+         var p = player.transform.position;
+-        bool doorway = p.x >= 51.6f && p.x <= 56.4f && p.z >= 29.2f && p.z <= 32.8f && p.y >= 0.8f && p.y <= 4.2f;
+-        bool inside = p.x >= 55.2f && p.x <= 62.2f && p.z >= 22f && p.z <= 40f && p.y >= 1.2f && p.y <= 4.4f;
+-        return doorway || inside;
++        return PublicEntrance.WantsDoorOpen(p.x, p.y, p.z);
+     }
+ 
+     private void Restore()
+--- baseline/Source/Mods/TownHallInterior/src/VanillaFurnishings.cs
++++ candidate/Source/Mods/TownHallInterior/src/VanillaFurnishings.cs
+@@ -17,9 +17,9 @@
+     private readonly List<GameObject> _objects = new();
+     private readonly List<MeshFilter> _filters = new();
+     private readonly List<Renderer> _paintConsumers = new();
++    private readonly List<Material> _paints = new();
+     private readonly Dictionary<string, Part[]> _parts = new(StringComparer.Ordinal);
+     private GameObject? _root;
+-    private Material? _paint;
+     private MeshRenderer? _nativeFrame;
+     private bool _frameWasOff;
+     private bool _framePublished;
+@@ -59,14 +59,14 @@
+             _parts.Add(asset.Key, parts.ToArray());
+         }
+         foreach (var placement in placements) Place(assets[placement.Key], placement);
+-        CreateShellAndLights();
++        int lightCount = CreateShellAndLights();
+         if (_nativeFrame == null) throw new InvalidOperationException("Native visual frame missing");
+         // Mark first: publication failure still restores the exact captured renderer.
+         _framePublished = true;
+         _nativeFrame.forceRenderingOff = true;
+         _root.SetActive(true);
+         MelonLogger.Msg("TownHallInterior: vanilla reception published: " + placements.Count +
+-            " model instances, " + _meshes.Count + " owned shared meshes, 4 local lights; decorative only.");
++            " model instances, " + _meshes.Count + " owned shared meshes, " + lightCount + " local lights; decorative only.");
+     }
+ 
+     private static MeshRenderer Resolve(FurniturePart part, string key)
+@@ -154,24 +154,32 @@
+         }
+     }
+ 
+-    private void CreateShellAndLights()
++    private int CreateShellAndLights()
+     {
+         var shader = Shader.Find("Universal Render Pipeline/Lit")
+             ?? throw new InvalidOperationException("URP/Lit unavailable for inset ceiling");
+-        _paint = new Material(shader);
+-        _paint.color = new Color(.84f, .82f, .76f);
++        // Floor edges match the accepted hall floor; wall infills match its paint.
++        // Ceiling/lamp color and the existing four reception lights remain unchanged.
++        foreach (var color in new[] { new Color(.72f, .68f, .60f), new Color(.84f, .82f, .76f), new Color(.78f, .74f, .66f) })
++        {
++            var paint = new Material(shader);
++            _paints.Add(paint); // Register before the next fallible native setter.
++            paint.color = color;
++        }
+         foreach (var box in FurniturePlan.CreateShell()) DecorativeBox(box);
+-        foreach (float z in new[] { 24f, 28.5f, 33.5f, 38f })
+-        {
+-            DecorativeBox(new RoomBox("ceiling-lamp-" + z, 58.7f, 4.37f, z, 1.2f, .04f, .35f, false, 1));
+-            var node = Own(new GameObject("reception-light-" + z));
++        var lights = FurniturePlan.CreateLights();
++        foreach (var planned in lights)
++        {
++            DecorativeBox(new RoomBox("ceiling-lamp-" + planned.Name, planned.X, planned.Y + .22f, planned.Z, 1.2f, .04f, .35f, false, 1));
++            var node = Own(new GameObject("light-" + planned.Name));
+             node.transform.SetParent(_root!.transform, false);
+-            node.transform.localPosition = new Vector3(58.7f, 4.15f, z);
++            node.transform.localPosition = new Vector3(planned.X, planned.Y, planned.Z);
+             var light = node.AddComponent<Light>();
+             light.type = LightType.Point; light.color = new Color(1f, .94f, .83f);
+-            light.range = 5f; light.intensity = 1.1f; light.shadows = LightShadows.None;
++            light.range = planned.Range; light.intensity = planned.Intensity; light.shadows = LightShadows.None;
+             light.cullingMask = -1; light.renderMode = LightRenderMode.ForcePixel;
+         }
++        return lights.Count;
+     }
+ 
+     private void DecorativeBox(RoomBox box)
+@@ -183,7 +191,7 @@
+         var collider = node.GetComponent<Collider>();
+         collider.enabled = false; UnityEngine.Object.Destroy(collider);
+         var renderer = node.GetComponent<Renderer>();
+-        _paintConsumers.Add(renderer); renderer.sharedMaterial = _paint;
++        _paintConsumers.Add(renderer); renderer.sharedMaterial = _paints[box.Style];
+     }
+ 
+     private GameObject Own(GameObject node) { _objects.Add(node); return node; }
+@@ -193,7 +201,7 @@
+         if (CleanupComplete) return;
+         _cleanup ??= CreateCleanup();
+         CleanupComplete = _cleanup.Run((step, ex) => MelonLogger.Warning("TownHallInterior furniture cleanup pending (" + step + "): " + ex.Message));
+-        if (CleanupComplete) { _parts.Clear(); _filters.Clear(); _paintConsumers.Clear(); _meshes.Clear(); _objects.Clear(); _root = null; }
++        if (CleanupComplete) { _parts.Clear(); _filters.Clear(); _paintConsumers.Clear(); _paints.Clear(); _meshes.Clear(); _objects.Clear(); _root = null; }
+     }
+ 
+     private CleanupJournal CreateCleanup()
+@@ -215,7 +223,8 @@
+             cleanup.Add("owned furniture node", () => { if (node != null) UnityEngine.Object.Destroy(node); }, Ready);
+         foreach (var mesh in _meshes)
+             cleanup.Add("owned furniture mesh", () => { if (mesh != null) UnityEngine.Object.Destroy(mesh); }, Ready);
+-        cleanup.Add("owned ceiling material", () => { if (_paint != null) UnityEngine.Object.Destroy(_paint); _paint = null; }, Ready);
++        foreach (var paint in _paints)
++            cleanup.Add("owned enclosure material", () => { if (paint != null) UnityEngine.Object.Destroy(paint); }, Ready);
+         return cleanup;
+     }
+ }
+--- baseline/Source/Tests/TownHallInterior.Tests/EnclosureTests.cs
++++ candidate/Source/Tests/TownHallInterior.Tests/EnclosureTests.cs
+@@ -0,0 +1,220 @@
++using TownHallInterior;
++using Xunit;
++
++// Geometric rays through the actual production plans; no Unity/URP simulation.
++public sealed class EnclosureTests
++{
++    [Theory]
++    [InlineData(54.95, 4.515, 31)]
++    [InlineData(54.75, 4.86, 31)]
++    [InlineData(54.75, 4.6, 30.02)]
++    [InlineData(54.75, 4.6, 31.98)]
++    public void ReproducedHeaderSightlinesMeetOwnedGeometry(double x, double y, double z)
++    {
++        // Same previously-red rays as the independently executed native-fixture forensic repro.
++        Assert.Contains(Visible(), b => Hit(b, new[] { 52.8, 3.1, 31 }, new[] { x - 52.8, y - 3.1, z - 31 }) is <= 2);
++    }
++
++    [Fact]
++    public void NewSkinKeepsPortalAndStairVoidVisuallyClear()
++    {
++        var skin = FurniturePlan.CreateShell();
++        Assert.All(skin, b => Assert.False(b.Solid));
++        Assert.Equal(skin.Count, skin.Select(b => b.Name).Distinct().Count());
++        foreach (var b in Visible())
++            Assert.False(Overlap(b, new[] { 54.18, 1.41, 30.04 }, new[] { 54.95, 4.55, 31.96 }), "portal: " + b.Name);
++        foreach (var b in skin)
++            Assert.False(Overlap(b, new[] { 60.7, 4.4, 24 }, new[] { 62.1, 7.25, 29.6 }), "stair void: " + b.Name);
++    }
++
++    [Fact]
++    public void UpperPerimeterClosesHorizontalViewsAtMultipleHeights()
++    {
++        var visible = Visible().ToArray();
++        foreach (double y in new[] { 4.85, 6.3, 7.95 })
++            for (int degree = 0; degree < 360; degree++)
++            {
++                double angle = degree * Math.PI / 180;
++                Assert.Contains(visible, b => Hit(b, new[] { 58.7, y, 31 }, new[] { Math.Cos(angle), 0, Math.Sin(angle) }) is <= 30);
++            }
++    }
++
++    [Fact]
++    public void JambFacesAreNotCoplanarWithExposedWallOrUpperFloorFaces()
++    {
++        var face = PublicEntrance.CreateInterior().Single(b => b.Name == "inner-west-south");
++        foreach (var reveal in FurniturePlan.CreateShell().Where(b => b.Name.StartsWith("reveal-")))
++        {
++            Assert.InRange(reveal.X + reveal.Width / 2 - (face.X + face.Width / 2), .0005f, .002f);
++            Assert.InRange(RoomPlan.Upper - (reveal.Y + reveal.Height / 2), .0005f, .002f);
++        }
++    }
++
++    [Fact]
++    public void EnclosureStylesUseOwnedPaintsWithConsumerGatedCleanup()
++    {
++        // Static runtime wiring check; native Material failures/unload still need owner evidence.
++        var repo = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../../"));
++        var source = File.ReadAllText(Path.Combine(repo, "Source/Mods/TownHallInterior/src/VanillaFurnishings.cs"));
++        Assert.Contains("renderer.sharedMaterial = _paints[box.Style]", source);
++        Assert.Contains("foreach (var paint in _paints)", source);
++        Assert.Contains("UnityEngine.Object.Destroy(paint); }, Ready)", source);
++        Assert.Contains("_paints.Add(paint)", source);
++        Assert.Contains("paint.color = color", source);
++        Assert.True(source.IndexOf("_paints.Add(paint)", StringComparison.Ordinal) < source.IndexOf("paint.color = color", StringComparison.Ordinal));
++        Assert.All(FurniturePlan.CreateShell(), b => Assert.InRange(b.Style, 0, 2));
++    }
++
++    [Fact]
++    public void LightingPlanPreservesReceptionLightsAndIlluminatesTheClosedUpperFloor()
++    {
++        var method = typeof(FurniturePlan).GetMethod("CreateLights");
++        Assert.NotNull(method);
++        var rows = System.Text.Json.JsonSerializer.SerializeToElement(method.Invoke(null, null)).EnumerateArray().ToArray();
++        Assert.Equal(8, rows.Length);
++        var ground = rows.Where(r => r.GetProperty("Y").GetDouble() < RoomPlan.Upper).ToArray();
++        var upper = rows.Where(r => r.GetProperty("Y").GetDouble() > RoomPlan.Upper).ToArray();
++        Assert.Equal(4, ground.Length); Assert.Equal(4, upper.Length);
++        Assert.Equal(new[] { 24d, 28.5, 33.5, 38 }, ground.Select(r => r.GetProperty("Z").GetDouble()));
++        foreach (var row in rows)
++        {
++            double y = row.GetProperty("Y").GetDouble();
++            Assert.Equal(y < RoomPlan.Upper ? 4.15 : 7.8, y, 4);
++            Assert.Equal(58.7, row.GetProperty("X").GetDouble(), 4);
++            Assert.Equal(5, row.GetProperty("Range").GetDouble());
++            Assert.Equal(1.1, row.GetProperty("Intensity").GetDouble(), 4);
++        }
++        var repo = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../../"));
++        var runtime = File.ReadAllText(Path.Combine(repo, "Source/Mods/TownHallInterior/src/VanillaFurnishings.cs"));
++        Assert.Contains("FurniturePlan.CreateLights()", runtime); // Wiring guard, not native lighting acceptance.
++    }
++
++    [Theory]
++    [InlineData(54.975)]
++    [InlineData(62.425)]
++    public void GroundFloorReachesTheInsetSideWalls(double x)
++    {
++        var hit = Visible().Select(b => Hit(b, new[] { x, 2.0, 31 }, new[] { 0d, -1, 0 })).Where(t => t.HasValue).Min();
++        Assert.NotNull(hit);
++        Assert.Equal(PublicEntrance.FloorTop, 2.0 - hit.Value, 4);
++    }
++
++    [Theory]
++    [InlineData("west-lintel", -1, 0)]
++    [InlineData("east", 1, 0)]
++    [InlineData("south", 0, -1)]
++    [InlineData("north", 0, 1)]
++    public void UpperWallSkinsMeetExistingPerimeterCollisionRatherThanHidingItFarBehindThem(string wallName, double dx, double dz)
++    {
++        double[] origin = { 58.7, 6.3, 31 }, direction = { dx, 0, dz };
++        var support = Hit(RoomPlan.Create().Single(b => b.Name == wallName), origin, direction)!.Value;
++        var visible = Visible().Select(b => Hit(b, origin, direction)).Where(t => t.HasValue).Min();
++        Assert.NotNull(visible);
++        Assert.InRange(visible.Value, support - .025, support + .001);
++    }
++
++    [Theory]
++    [InlineData(61.4, 4, 27)]
++    [InlineData(58.7, 6.3, 31)]
++    public void UpperCeilingClosesTheSkyAboveRoomAndStairwell(double x, double y, double z)
++    {
++        var visible = Visible().Select(b => Hit(b, new[] { x, y, z }, new[] { 0d, 1, 0 })).Where(t => t.HasValue).Min();
++        Assert.NotNull(visible);
++        Assert.Equal(8.05, y + visible.Value, 4); // Chosen design underside, not a native measurement.
++    }
++
++    [Fact]
++    public void VisibleUpperFloorCoversTheFullExistingSlabsIncludingTheirOuterRims()
++    {
++        // Test floor coverage even beneath the perimeter skins, not a camera embedded in a wall.
++        var visible = Visible().Where(b => b.Y + b.Height / 2 <= RoomPlan.Upper + .0001f).ToArray();
++        foreach (var slab in RoomPlan.Create().Where(b => b.Name.StartsWith("upper-")))
++            for (double x = slab.X - slab.Width / 2 + .05; x < slab.X + slab.Width / 2; x += .2)
++                for (double z = slab.Z - slab.Depth / 2 + .05; z < slab.Z + slab.Depth / 2; z += .2)
++                {
++                    var hit = visible.Select(b => Hit(b, new[] { x, 5.5, z }, new[] { 0d, -1, 0 })).Where(t => t.HasValue).Min();
++                    Assert.True(hit.HasValue, $"Unrendered support at x={x}, z={z}");
++                    Assert.Equal(RoomPlan.Upper, 5.5 - hit.Value, 4);
++                }
++    }
++
++    [Theory]
++    [InlineData(3, 30.02)]
++    [InlineData(3, 31.98)]
++    [InlineData(4.3, 30.02)]
++    [InlineData(4.3, 31.98)]
++    public void DoorJambReturnsCloseTheGapNextToTheInsetWalls(double y, double z)
++    {
++        Assert.Contains(Visible(), b => Hit(b, new[] { 55.5, y, z }, new[] { -1d, 0, 0 }) is <= 1.2);
++    }
++
++    [Fact]
++    public void HeaderJoinsFrameToCeilingWithoutProjectingAboveTheUpperFloor()
++    {
++        var header = PublicEntrance.CreateInterior().Single(b => b.Name == "inner-lintel");
++        Assert.Equal(54.35, header.X - header.Width / 2, 4);
++        Assert.Equal(54.95, header.X + header.Width / 2, 4);
++        Assert.Equal(PublicEntrance.PortalTop, header.Y - header.Height / 2, 4);
++        Assert.Equal(RoomPlan.Upper, header.Y + header.Height / 2, 4);
++        Assert.Equal(30.04, header.Z - header.Depth / 2, 4);
++        Assert.Equal(31.96, header.Z + header.Depth / 2, 4);
++    }
++
++    [Fact]
++    public void VisibleUpperFloorMeetsTheExistingSupportInsteadOfFloatingFeet()
++    {
++        var slab = RoomPlan.Create().Single(b => b.Name == "upper-west");
++        var top = slab.Y + slab.Height / 2;
++        var hit = Visible().Select(b => Hit(b, new[] { 58.7, 5.5, 31 }, new[] { 0d, -1, 0 })).Where(t => t.HasValue).Min();
++        Assert.NotNull(hit);
++        Assert.Equal(top, 5.5 - hit.Value, 4);
++        Assert.All(FurniturePlan.CreateShell().Where(b => b.Name.StartsWith("ceiling-")), b =>
++        {
++            Assert.Equal(4.4, b.Y - b.Height / 2, 4);
++            Assert.False(b.Solid);
++        });
++    }
++
++    [Theory]
++    [InlineData(55.035, 3, 23, -.04, -1)]
++    [InlineData(62.365, 3, 23, .04, -1)]
++    [InlineData(55.035, 3, 39, -.04, 1)]
++    [InlineData(62.365, 3, 39, .04, 1)]
++    [InlineData(55.035, 4.3, 23, -.04, -1)]
++    [InlineData(62.365, 4.3, 23, .04, -1)]
++    [InlineData(55.035, 4.3, 39, -.04, 1)]
++    [InlineData(62.365, 4.3, 39, .04, 1)]
++    public void CornerAndCrownRaysCannotSeeThroughTheOwnedShell(double x, double y, double z, double dx, double dz)
++    {
++        Assert.Contains(Visible(), b => Hit(b, new[] { x, y, z }, new[] { dx, 0, dz }) is <= 3);
++    }
++
++    private static IEnumerable<RoomBox> Visible() => PublicEntrance.CreateInterior().Concat(FurniturePlan.CreateShell());
++
++    private static bool Overlap(RoomBox b, double[] lo, double[] hi)
++    {
++        double[] center = { b.X, b.Y, b.Z }, size = { b.Width, b.Height, b.Depth };
++        return Enumerable.Range(0, 3).All(i => Math.Min(center[i] + size[i] / 2, hi[i]) - Math.Max(center[i] - size[i] / 2, lo[i]) > 1e-5);
++    }
++
++    private static double? Hit(RoomBox b, double[] origin, double[] direction)
++    {
++        double[] center = { b.X, b.Y, b.Z }, size = { b.Width, b.Height, b.Depth };
++        double enter = double.NegativeInfinity, leave = double.PositiveInfinity;
++        for (int i = 0; i < 3; i++)
++        {
++            double lo = center[i] - size[i] / 2, hi = center[i] + size[i] / 2;
++            if (Math.Abs(direction[i]) < 1e-10)
++            {
++                if (origin[i] < lo - 1e-6 || origin[i] > hi + 1e-6) return null;
++            }
++            else
++            {
++                double a = (lo - origin[i]) / direction[i], c = (hi - origin[i]) / direction[i];
++                enter = Math.Max(enter, Math.Min(a, c)); leave = Math.Min(leave, Math.Max(a, c));
++                if (leave < enter - 1e-6) return null;
++            }
++        }
++        return leave < 1e-7 ? null : Math.Max(0, enter);
++    }
++}
+--- baseline/Source/Tests/TownHallInterior.Tests/PublicEntranceTests.cs
++++ candidate/Source/Tests/TownHallInterior.Tests/PublicEntranceTests.cs
+@@ -3,6 +3,49 @@
+ 
+ public sealed class PublicEntranceTests
+ {
++    [Theory]
++    [InlineData(58.7f, 1.6f, 31f)]
++    [InlineData(61.2f, 1.6f, 35.65f)]
++    [InlineData(55.7f, 1.6f, 24f)]
++    [InlineData(56.8f, 1.6f, 39.4f)]
++    public void MovingAwayInsideLetsTheLeavesClose(float x, float y, float z)
++    {
++        Assert.False(PublicEntrance.WantsDoorOpen(x, y, z));
++        Assert.Equal(0f, PublicEntrance.MoveLeaf(1f, PublicEntrance.WantsDoorOpen(x, y, z), PublicEntrance.SlideSeconds));
++    }
++
++    [Theory]
++    [InlineData(52.5f, 1.6f, 31f)]
++    [InlineData(55.8f, 1.6f, 31f)]
++    [InlineData(54.12f, 1.6f, 30.2f)]
++    [InlineData(54.12f, 3.5f, 31.8f)]
++    public void BothApproachesAndOccupiedThresholdKeepTheDoorOpen(float x, float y, float z)
++    {
++        Assert.True(PublicEntrance.WantsDoorOpen(x, y, z));
++        Assert.Equal(1f, PublicEntrance.MoveLeaf(1f, PublicEntrance.WantsDoorOpen(x, y, z), 2f));
++    }
++
++    [Theory]
++    [InlineData(48f, 1.6f, 31f)]
++    [InlineData(54.12f, 5f, 31f)]
++    [InlineData(54.12f, 1.6f, 35f)]
++    [InlineData(float.NaN, 1.6f, 31f)]
++    [InlineData(54.12f, float.PositiveInfinity, 31f)]
++    public void RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor(float x, float y, float z) =>
++        Assert.False(PublicEntrance.WantsDoorOpen(x, y, z));
++
++    [Fact]
++    public void ProximityDecisionHasOneTestablePolicyUsedByTheRuntime()
++    {
++        var method = typeof(PublicEntrance).GetMethod("WantsDoorOpen");
++        Assert.NotNull(method);
++        Assert.True(Assert.IsType<bool>(method.Invoke(null, new object[] { 52.5f, 1.6f, 31f })));
++        Assert.True(Assert.IsType<bool>(method.Invoke(null, new object[] { 55.8f, 1.6f, 31f })));
++        var repo = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../../"));
++        var host = File.ReadAllText(Path.Combine(repo, "Source/Mods/TownHallInterior/src/PublicHallHost.cs"));
++        Assert.Contains("PublicEntrance.WantsDoorOpen(p.x, p.y, p.z)", host);
++    }
++
+     [Fact]
+     public void ColliderSwapStaysClosedUntilIdentityMatchesAndVisualPublicationIsStillRefused()
+     {

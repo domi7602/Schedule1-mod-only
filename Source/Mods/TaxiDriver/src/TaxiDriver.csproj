@@ -5,6 +5,10 @@
     <!-- Same pattern as HitmanPhone: picks up the IL2CPP MelonLoader/S1API code paths. -->
     <DefineConstants>$(DefineConstants);IL2CPPMELON</DefineConstants>
   </PropertyGroup>
+  <!-- Instrumented causal baseline by default; explicit no-deploy development build opt-in. -->
+  <PropertyGroup Condition="'$(TaxiShortcutGuard)' == 'true'">
+    <DefineConstants>$(DefineConstants);TAXI_SHORTCUT_GUARD</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <!-- Read-only actuator diagnostics use the live WheelCollider interop API. -->
     <Reference Include="UnityEngine.VehiclesModule">

@@ -69,7 +69,9 @@ public static class AppLayout
 
     public static Tone InlineColor(string? message)
     {
-        if (!string.IsNullOrEmpty(message) && message.Contains("Unverified", System.StringComparison.Ordinal))
+        if (!string.IsNullOrEmpty(message) &&
+            (message.Contains("Unverified", System.StringComparison.Ordinal) ||
+             message.StartsWith("No LED layout available", System.StringComparison.Ordinal)))
             return new(0.95f, 0.78f, 0.28f, 1f);
         if (!string.IsNullOrEmpty(message) && message.Contains("failed", System.StringComparison.OrdinalIgnoreCase))
             return new(0.91f, 0.29f, 0.27f, 1f);

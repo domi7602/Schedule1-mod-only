@@ -148,7 +148,7 @@ public class ReverseRecoveryFunctionalSourceContractTests
         Assert.Contains("internal static long OperationId;", state);
         Assert.Contains("NextOperationId()", state);
         Assert.Contains("readonly ReverseManoeuvrePolicy Reverse", state);
-        string begin = Section("internal static void BeginNavigationOperation()", "private static bool StopIfNavigationExpired");
+        string begin = Section("internal static void BeginNavigationOperation(", "private static bool StopIfNavigationExpired");
         Assert.Contains("SpikeState.NextOperationId()", begin);
     }
 
@@ -160,10 +160,14 @@ public class ReverseRecoveryFunctionalSourceContractTests
         string patrol = Section("private static void TickPatrolSupervision", "private static void TickReDispatch");
         // Review D1: the patrol arrival requires a readable, finite speed, a confirmed stop and no
         // managed/native reverse — a moving or unreadable taxi near the target never completes.
-        Assert.Contains("SupervisedArrivalPolicy.IsConfirmedArrival", patrol);
+        Assert.Contains("TryCompleteBeforeRecovery(", patrol);
         Assert.Contains("NavigationArrivalPolicy.IsWithinArrival", patrol);
         Assert.Contains("TryReadReversing", patrol);
-        Assert.Contains("operationProgress: _driveStartConfirmed", patrol);
+        Assert.DoesNotContain("operationProgress: _driveStartConfirmed", patrol);
+        string arrival = Section("private static bool TryCompleteBeforeRecovery", "private static bool TryBeginRecovery");
+        Assert.Contains("SupervisedArrivalPolicy.IsConfirmedArrival(", arrival);
+        Assert.Contains("HasCurrentForwardEvidence()", arrival);
+        Assert.DoesNotContain("_driveStartConfirmed", arrival);
         Assert.DoesNotContain("if (!reversing && (nearTarget || standingNear))", patrol);
         Assert.DoesNotContain("speedReadable && !reversing", patrol);
         string callback = Section("internal static void OnNavigationResult", "// ---------------------------------------------------------- nav polling");

@@ -29,6 +29,22 @@ public sealed class PropertySelectionWiringTests
     }
 
     [Fact]
+    public void LayoutWarningUsesSelectedRuntimeRoomsWithoutChangingSavedPower()
+    {
+        string app = Source("PropertyLEDsApp.cs");
+        int start = app.IndexOf("private void RefreshView()", StringComparison.Ordinal);
+        int end = app.IndexOf("private bool CanEdit()", start, StringComparison.Ordinal);
+        string refresh = app.Substring(start, end - start);
+        Assert.Contains("PropertyStatus.LayoutWarning(LEDRuntime.GetRooms(property.Id))", refresh);
+        Assert.Contains("_powerDetail.text = layoutWarning.Length > 0 ? layoutWarning : PropertyStatus.Detail(_shown.Enabled);", refresh);
+        Assert.Contains("SetInlineState(_editError ?? layoutWarning);", refresh);
+        Assert.DoesNotContain("LEDRuntime.Apply(", refresh);
+        Assert.DoesNotContain("_shown.Enabled =", refresh);
+        Assert.Contains("_powerTrack.color = _shown.Enabled ? Accent : Surface;", refresh);
+        Assert.Contains("SetEnabled(property != null);", refresh);
+    }
+
+    [Fact]
     public void HiddenUiCreationCannotConsumeTheFirstOpenSelection()
     {
         string app = Source("PropertyLEDsApp.cs");

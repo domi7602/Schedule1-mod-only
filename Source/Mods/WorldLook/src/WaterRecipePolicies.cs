@@ -80,8 +80,9 @@ namespace WaterShader
     /// recipe preserves the installed standalone's clear-shallows tuning. Scene-depth
     /// difference is an eye-space thickness approximation. Body opacity and the weak
     /// environment reflection are composed separately; this does not force opaque water.
-    /// Sky/horizon colors and wind activity are live native inputs. Deep tint, sun
-    /// highlight and shore-foam values use the shader/material settings.
+    /// Sky/horizon colors and wind activity are live native inputs. Sun highlight
+    /// and shore-foam values use the shader/material settings; deep tint is explicit
+    /// because the owned clone can retain properties inherited from its native material.
     /// Every write is HasProperty-guarded and Unity-free, so a shader revision that drops a
     /// name degrades to "that value is not applied" instead of faulting the render path.
     /// </summary>
@@ -89,8 +90,8 @@ namespace WaterShader
     {
         private static readonly (string name, float value)[] Floats =
         {
-            // Preserve the approved late-dye tuning and environment-only composition.
-            ("_Absorption", 0.10f),
+            // Modest depth-weighted body increase; retain late dye and clear shallows.
+            ("_Absorption", 0.12f),
             ("_RippleStrength", 0.28f),
             ("_SurfaceOpacity", 0.22f),
             ("_ReflectionStrength", 0.12f),
@@ -101,6 +102,8 @@ namespace WaterShader
             // Near 0.5, the shader's *2 shallow-transmission gain stays near unity.
             // Its compositor also retains a separate untinted destination contribution.
             ("_ShallowTint", 0.46f, 0.52f, 0.55f),
+            // Muted blue-green body; shallow transmission and absorption remain unchanged.
+            ("_DeepTint", 0.06f, 0.27f, 0.32f),
         };
 
         internal static string Apply(IWaterLookMaterial material)
@@ -149,7 +152,7 @@ namespace WaterShader
             "_WaveAmp", "_WaveScale", "_WaveSpeed", "_RippleStrength", "_WindActivity",
             "_SunStrength", "_SunSharpness",
             "_FoamColor", "_FoamDepth", "_FoamStrength",
-            "_SkyColor", "_AmbientColor",
+            "_SkyColor", "_AmbientColor", "_DiagnosticMode",
         };
 
         /// <summary>Decide whether the reference shader may replace the clone's shader.</summary>
@@ -248,6 +251,54 @@ namespace WaterShader
         public WaterState State { get; private set; }
         public Exception? LastError { get; private set; }
         public WaterSession(IWaterRuntime<TTarget, TMaterial> runtime) { _runtime = runtime; }
+
+        // Diagnostic callers must recheck attachment at the moment of use, not rely
+        // on the last periodic health check. Native read errors propagate to caller.
+        internal TMaterial? GetAttachedOwnedMaterial()
+        {
+            if (!_active || State != WaterState.Applied || _pendingRelease || _target == null || _owned == null)
+                return null;
+            if (!_runtime.TargetAlive(_target) || !_runtime.MaterialAlive(_owned)) return null;
+            return _runtime.SameMaterial(_runtime.ReadMaterial(_target), _owned) ? _owned : null;
+        }
+
+        // A command is one bounded transaction; never retry an uncertain native write.
+        internal bool SetDiagnosticMode(int mode, Func<TMaterial, bool> shaderMatches,
+            Func<TMaterial, bool> hasProperty, Func<TMaterial, float> read,
+            Action<TMaterial, float> write, double now)
+        {
+            if (mode < 0 || mode > 2) throw new ArgumentOutOfRangeException(nameof(mode));
+            TMaterial material = GetAttachedOwnedMaterial()
+                ?? throw new InvalidOperationException("owned-water-not-attached");
+            void Validate()
+            {
+                TMaterial attached = GetAttachedOwnedMaterial()
+                    ?? throw new InvalidOperationException("owned-water-not-attached");
+                if (!_runtime.SameMaterial(attached, material) || !shaderMatches(material))
+                    throw new InvalidOperationException("reference-water-shader-mismatch");
+                if (!hasProperty(material)) throw new InvalidOperationException("diagnostic-property-missing");
+            }
+            Validate();
+            float previous = read(material);
+            if (!float.IsFinite(previous)) throw new InvalidOperationException("diagnostic-value-invalid");
+            Validate();
+            if (previous == mode) return false;
+            try
+            {
+                write(material, mode);
+                Validate();
+                if (read(material) != mode) throw new InvalidOperationException("diagnostic-write-not-confirmed");
+                Validate();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // The setter may have changed the clone even if it threw. Schedule
+                // the existing owned-material cleanup rather than writing again.
+                ReportFailure(ex, now);
+                throw;
+            }
+        }
 
         public void Start(double now)
         {

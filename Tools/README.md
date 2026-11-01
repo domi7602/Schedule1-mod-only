@@ -5,6 +5,14 @@ Run from the repository root with `pwsh -NoProfile -ExecutionPolicy Bypass -File
 Scripts that touch the game directory resolve it from `SCHEDULE1_PATH` with the Steam default as fallback.
 Start routine checks with `verify.ps1`; use the individual tools for focused work.
 
+## Schedule I CLI
+
+[`s1-cli/`](s1-cli/README.md) is the initial Python-standard-library client for the
+existing local S1MCP bridge: `status`, `doctor`, `capabilities`, `time get`, guarded
+WorldLook ON/OFF, selected-light inspection and verified final-frame PNG capture.
+Start with `python Tools/s1-cli/s1.py --json doctor`; it never launches/deploys the
+game. Run its standalone suite with `python -m unittest discover -s Tools/s1-cli/tests -v`.
+
 ## Build and solution
 
 | Script | Purpose |
@@ -179,6 +187,18 @@ Each action writes a fresh JSONL evidence file; ambiguous mutation outcomes are 
 See the [WorldLook automation contract](../Source/Mods/WorldLook/docs/mcp-automation.md)
 for parameters, screenshot orchestration and the distinction between requested state and
 rendering acceptance. This helper is not a CI gate and never launches/builds/deploys the game.
+
+## TownHall live baseline
+
+`townhall-live-baseline.ps1` orchestrates the native door-baseline runs: `PreHash` and
+`PostHash` bind the session to a hashed save tree, `Launch` starts the game only through
+Steam, `Bridge` verifies the single S1MCP listener against the game process, and
+`State`/`Time`/`Teleport`/`Load`/`Screenshot` issue read-only reads or single-shot
+mutations with independent readback. `Quit` closes gracefully and `Collect` gathers log,
+captures and an evidence manifest. It injects no input and never retries a mutation;
+real E/Escape presses and desktop captures come from the CUA session described in the
+[TownHall live automation runbook](../Source/Mods/TownHallInterior/docs/live-automation-runbook.md).
+This helper is not a CI gate and never builds or deploys mods.
 
 ## Conventions
 

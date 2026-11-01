@@ -13,7 +13,11 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File Source/Mods/WorldLook/build/previe
 pwsh -NoProfile -ExecutionPolicy Bypass -File Source/Mods/WorldLook/build/preview/Run-Preview.ps1 -Label candidate -Bundle Source/Mods/WorldLook/assets/embedded/worldlook-shaders.bundle
 ```
 
-Run the candidate command **after** its full shader build. Each invocation has its
+Run with labels `A`, `B`, and `C` against the **same** bundle for the controlled
+experiment. A uses deep tint (.06,.27,.32) and reflection .12; B changes only
+that tint to (.06,.34,.28); C changes only reflection to .138 (+15%). Other
+labels use A's settings. The baseline/candidate commands above compare bundles,
+not the B/C recipe parameters. Each invocation has its
 own Unity process/project and copied bundle, avoiding shared bundle GUID conflicts.
 Outputs default to `.backups/WorldLook/water-detail-20261023-035705/preview/<label>-<UTC>/`.
 Scratch Unity projects use the shorter ignored `build/logs/p-<id>/` path to avoid
@@ -22,12 +26,19 @@ Existing runs are retained. No production build/deployment is invoked.
 
 ## Evidence
 
-- Ten 960x540 PNGs: near/far views at elapsed seconds 0, 7.5, 31; two water-disabled
-  controls and two exact t=0 repeats. Same geometry, cameras, light, settings and
+- Eighteen 960x540 PNGs: near/far views at elapsed seconds 0, 7.5, 31; two water-disabled
+  controls and two exact t=0 repeats; plus near and far night at t=0 and 7.5,
+  a shallow water/dry pair, and a deep water/dry pair. The deep control uses a floor at y=-8 with colored cubes off.
+  The night uses synthetic low light (sun .05, ambient .025/.03/.04, sky
+  .025/.035/.06, horizon .015/.02/.03), not measured game lighting. The shallow
+  control raises the checker floor to y=-.15 and disables the colored cubes.
+  Same geometry, cameras, light, settings and
   times for every bundle. PNGs are sRGB-encoded/clamped from real linear readback.
-- Water uses absorption .10, ripple .28, opacity .22, environment strength .12,
-  shallow tint (.46,.52,.55), wind .2. Sun, wave and foam values retain each shader's
-  defaults; `images/preview.json` records every resulting material property.
+- Baseline water uses absorption .12, ripple .28, opacity .22, environment strength .12,
+  shallow tint (.46,.52,.55), deep tint (.06,.27,.32), wind .25, wave amplitude .15,
+  scale 1.6, speed 1.3, and diagnostic mode 0, matching the recorded live material
+  diagnostic. B and C differ only as above. Sun and foam values retain shader defaults;
+  `images/preview.json` records every resulting material property.
 - A test-only render pass at `BeforeRenderingTransparents - 1` supplies `_Time`
   and related clock globals **after** URP camera setup. Both t=0 repeats must have
   identical PNG hashes. The pass execution count is checked for every render.
@@ -46,3 +57,15 @@ daylight colors. It is **not the native game**, a game-sky reconstruction, a sha
 benchmark, all-variant coverage, or proof of smooth movement/flicker-free play.
 Owner in-game acceptance remains separate. Compare matching filenames only when
 the fixture hash and recorded scene/settings agree.
+
+For the ripple experiment, run `python Source/Tests/WaterShader.Tests/test_surface_shade.py`
+separately: it interprets the production HLSL function's scalar expressions with
+controlled derivatives; it does not compile the shader or model GPU derivative
+quads. It is not currently included in `dotnet test`. The optional
+`compare_wave_preview.py BASELINE_IMAGES CANDIDATE_IMAGES` requires Pillow 13+
+for 8-bit sRGB signed and absolute differences in two fixed side rectangles. Those
+rectangles avoid the central glint but are not a semantic water-only mask; images
+and color-space clipping still require inspection. Finite patches, perspective,
+nonuniform illumination and changing footprints do not guarantee zero mean in
+final composed pixels, even if the analytic sine layers have zero mean over
+complete wave periods at fixed cross-wave coordinate and footprint.

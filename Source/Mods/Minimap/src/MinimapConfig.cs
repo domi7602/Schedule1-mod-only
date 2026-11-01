@@ -77,8 +77,8 @@ public sealed class MinimapConfig
     public bool ShowRegionalLocks { get; set; } = true;
     public bool HideInMenus { get; set; } = false;
 
-    // DayCounter Options
-    public bool Time24H { get; set; } = true;
+    // DayCounter Options. The game clock is 12-hour (AM/PM); 24-hour is opt-in.
+    public bool Time24H { get; set; } = false;
     public bool ShowDayNumber { get; set; } = true;
     public bool ShowDayName { get; set; } = true;
     public bool ShowTime { get; set; } = true;

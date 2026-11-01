@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.4 (2026-10-26)
+- The singleplayer load no longer logs "Multiplayer is not supported". That warning fired before the save was ready. The multiplayer gate itself is unchanged.
+
+## 0.3.3 (2026-10-26)
+- The assigned dead drop is no longer text-only. The drop objective gets the drop's world position, and active contracts publish that position for the minimap. A drop that is not loaded yet is retried; "any drop" still has no pin.
+
 ## 0.3.2 (2026-10-25)
 - **Offers use the player's own customers.** A due call no longer requires a recruited dealer. Living NPCs in `Customer.UnlockedCustomers` are eligible, and dealer-assigned customers still are. Dealers, suppliers, police and the old hardcoded civilian list stay excluded. Confirmed on the f12 assembly: `Customer.UnlockedCustomers` and `Customer.NPC`.
 - **An empty network no longer parks the slot days later.** The 2026-10-25 save had no recruited dealer (`Recruited: false` on Benji, Brad, Jane, Molly and the cartel dealers) but did have direct customers with completed deals. The 13:12 slot was moved to day 5 07:00 before any SMS was written. That path now leaves the due slot in place and retries until the 3-hour missed-call grace. Quota, caller cooldown and a failed send still reschedule. The already moved day-5 slot is not pulled back.

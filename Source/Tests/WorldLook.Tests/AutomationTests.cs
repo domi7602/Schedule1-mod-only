@@ -35,6 +35,35 @@ public sealed class AutomationTests : IDisposable
     private JsonElement Request(string action, bool? value = null) => JsonDocument.Parse(_mod.AutomationRequest(action, value)).RootElement;
 
     [Fact]
+    public void ReadOnlyMaterialEndpointExistsAndRejectsUnreadyWorld()
+    {
+        var method = typeof(WorldLookAutomation).GetMethod("GetWaterMaterialDiagnostic", Type.EmptyTypes);
+        Assert.NotNull(method);
+        SceneManager.Active = new("Menu");
+        var endpoint = GameObject.Find("WorldLook.Automation")!.GetComponent<WorldLookAutomation>();
+        var result = JsonDocument.Parse((string)method!.Invoke(endpoint, null)!).RootElement;
+        Assert.False(result.GetProperty("accepted").GetBoolean());
+        Assert.Equal("not-in-main", result.GetProperty("error").GetString());
+    }
+
+    [Fact]
+    public void MaterialEndpointReturnsReadbackAndSurfacesGetterFailureWithoutWrites()
+    {
+        var endpoint = GameObject.Find("WorldLook.Automation")!.GetComponent<WorldLookAutomation>();
+        int writes = SafeStorage.Writes;
+        int calls = WaterShader.WaterShaderMod.Latest.SetCalls;
+        var result = JsonDocument.Parse(endpoint.GetWaterMaterialDiagnostic()).RootElement;
+        Assert.True(result.GetProperty("accepted").GetBoolean());
+        Assert.Equal("test-boundary", result.GetProperty("material").GetProperty("shader").GetString());
+        WaterShader.WaterShaderMod.Latest.DiagnosticThrows = true;
+        var error = JsonDocument.Parse(endpoint.GetWaterMaterialDiagnostic()).RootElement;
+        Assert.False(error.GetProperty("accepted").GetBoolean());
+        Assert.Contains("getter failed", error.GetProperty("error").GetString());
+        Assert.Equal(writes, SafeStorage.Writes);
+        Assert.Equal(calls, WaterShader.WaterShaderMod.Latest.SetCalls);
+    }
+
+    [Fact]
     public void ParameterlessEndpointHasExplicitReadbackAndBecomesUnavailableAfterTeardown()
     {
         var endpoint = GameObject.Find("WorldLook.Automation")!.GetComponent<WorldLookAutomation>();

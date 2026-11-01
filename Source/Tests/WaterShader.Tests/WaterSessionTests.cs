@@ -6,6 +6,21 @@ namespace WaterShader.Tests;
 public sealed class WaterSessionTests
 {
     [Fact]
+    public void DiagnosticAccessRequiresCurrentlyAttachedOwnedMaterial()
+    {
+        var runtime = new FakeRuntime();
+        var session = new WaterSession<Handle, Handle>(runtime);
+        Assert.Null(session.GetAttachedOwnedMaterial());
+        session.Start(0);
+        session.Tick(0);
+        Assert.Same(runtime.Clone, session.GetAttachedOwnedMaterial());
+        runtime.Target.Material = new Handle();
+        Assert.Null(session.GetAttachedOwnedMaterial());
+        session.Stop();
+        Assert.Null(session.GetAttachedOwnedMaterial());
+    }
+
+    [Fact]
     public void CachedWaterNeverRepeatsDiscoveryOrMaterialCreation()
     {
         var runtime = new FakeRuntime();

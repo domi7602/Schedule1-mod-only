@@ -74,10 +74,10 @@ function Assert-ShaderBundle {
     $properties = @(
         '_ShallowTint', '_DeepTint', '_Absorption', '_SurfaceOpacity', '_ReflectionStrength',
         '_WaveAmp', '_WaveScale', '_WaveSpeed', '_RippleStrength', '_WindActivity',
-        '_SunStrength', '_SunSharpness', '_FoamColor', '_FoamDepth', '_FoamStrength', '_SkyColor', '_AmbientColor'
+        '_SunStrength', '_SunSharpness', '_FoamColor', '_FoamDepth', '_FoamStrength', '_SkyColor', '_AmbientColor', '_DiagnosticMode'
     ) | Sort-Object
     if ((@($shaders[0].properties | Sort-Object) -join '|') -cne ($properties -join '|')) {
-        throw 'The loaded-water shader must expose all 17 required properties.'
+        throw 'The loaded-water shader must expose all 18 required properties.'
     }
 
     $expected = @(Get-ShaderInputHashes $Root)
@@ -105,7 +105,7 @@ if (-not $DefinitionsOnly) {
         $ProjectRoot = [IO.Path]::GetFullPath($ProjectRoot)
         if ([string]::IsNullOrWhiteSpace($AssetDirectory)) { $AssetDirectory = Join-Path $ProjectRoot 'assets/embedded' }
         $verified = Assert-ShaderBundle -Root $ProjectRoot -Assets $AssetDirectory
-        Write-Host ('WorldLook shader bundle verified: ' + $verified.bundleSha256 + ' (8 requested/loaded variants, 17 properties).')
+        Write-Host ('WorldLook shader bundle verified: ' + $verified.bundleSha256 + ' (8 requested/loaded variants, 18 properties).')
     }
     catch {
         Write-Error -Message $_.Exception.Message -ErrorAction Continue

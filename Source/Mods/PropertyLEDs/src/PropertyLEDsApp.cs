@@ -337,12 +337,13 @@ public sealed class PropertyLEDsApp : PhoneApp
             _values[2].text = F(_shown.ColorIntensity * 100f) + "%";
             _values[3].text = F(_shown.Brightness) + " / 5";
             UpdateSaturationTrack(_shown.Hue);
-            // The status names the selected property so it can never be read as another one's state.
+            // Power remains the saved intent; catalog availability is a separate status.
+            string layoutWarning = PropertyStatus.LayoutWarning(LEDRuntime.GetRooms(property.Id));
             _toggleLabel.text = PropertyStatus.Label(property.DisplayName, _shown.Enabled);
-            _powerDetail.text = PropertyStatus.Detail(_shown.Enabled);
+            _powerDetail.text = layoutWarning.Length > 0 ? layoutWarning : PropertyStatus.Detail(_shown.Enabled);
             _powerTrack.color = _shown.Enabled ? Accent : Surface;
             _powerKnob.anchorMin = _powerKnob.anchorMax = new Vector2(_shown.Enabled ? 0.75f : 0.25f, 0.5f);
-            SetInlineState(_editError ?? "");
+            SetInlineState(_editError ?? layoutWarning);
             _shownRevision = LEDRuntime.Revision;
         }
         finally { _suppress = false; }

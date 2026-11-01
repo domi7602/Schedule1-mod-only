@@ -1,0 +1,418 @@
+{
+  "SchemaVersion": 1,
+  "Repository": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout",
+  "RequestedMode": "Pure",
+  "Mode": "Pure",
+  "StartedUtc": "2026-10-29T04:27:01.2097323Z",
+  "FinishedUtc": "2026-10-29T04:31:31.5710914Z",
+  "GameReferences": true,
+  "GameProbe": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\Il2CppAssemblies\\Assembly-CSharp.dll",
+  "Dotnet": "C:\\Program Files\\dotnet\\dotnet.exe",
+  "ExitCode": 1,
+  "Passed": 17,
+  "Failed": 5,
+  "Skipped": 0,
+  "Steps": [
+    {
+      "Name": "sdk",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.14,
+      "Command": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "Arguments": [
+        "--version"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\sdk.log",
+      "Error": null
+    },
+    {
+      "Name": "format",
+      "Status": "Failed",
+      "ExitCode": 2,
+      "Seconds": 28.41,
+      "Command": "C:\\Program Files\\dotnet\\dotnet.exe",
+      "Arguments": [
+        "format",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Source\\Mods\\S1Mods.sln",
+        "--verify-no-changes",
+        "--verbosity",
+        "minimal"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\format.log",
+      "Error": "Child process exited 2."
+    },
+    {
+      "Name": "solution",
+      "Status": "Failed",
+      "ExitCode": 1,
+      "Seconds": 0.41,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\gen-sln.ps1",
+        "-Check"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\solution.log",
+      "Error": "Child process exited 1."
+    },
+    {
+      "Name": "versions",
+      "Status": "Failed",
+      "ExitCode": 1,
+      "Seconds": 1.09,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\check-version-sync.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\versions.log",
+      "Error": "Child process exited 1."
+    },
+    {
+      "Name": "docs",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 3.5,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\check-doc-paths.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\docs.log",
+      "Error": null
+    },
+    {
+      "Name": "skills",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 1.1,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\check-skills-health.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\skills.log",
+      "Error": null
+    },
+    {
+      "Name": "xml",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.37,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\check-xml.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\xml.log",
+      "Error": null
+    },
+    {
+      "Name": "tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 45.29,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\test-all.ps1",
+        "-Selection",
+        "pure",
+        "-Configuration",
+        "Release",
+        "-DotnetPath",
+        "C:\\Program Files\\dotnet\\dotnet.exe",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tests"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-bump-version.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 7.65,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\bump-version.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\fixtures\\bump-version"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-bump-version.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-clean-checkout.Tests",
+      "Status": "Failed",
+      "ExitCode": 1,
+      "Seconds": 35.15,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\clean-checkout.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\fixtures\\clean-checkout"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-clean-checkout.Tests.log",
+      "Error": "Child process exited 1."
+    },
+    {
+      "Name": "tool-clean-unity-caches.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 23.45,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\clean-unity-caches.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\fixtures\\clean-unity-caches"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-clean-unity-caches.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-deploy-mod.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 7.95,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\deploy-mod.Tests.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-deploy-mod.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-deploy.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 13.9,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\deploy.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\fixtures\\deploy"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-deploy.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-doc-paths.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 6.8,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\doc-paths.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\fixtures\\doc-paths"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-doc-paths.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-dotnet-sdk.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.6,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\dotnet-sdk.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\fixtures\\dotnet-sdk"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-dotnet-sdk.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-release.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 0.92,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\release.Tests.ps1"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-release.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-skills-health.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 3.78,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\skills-health.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\fixtures\\skills-health"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-skills-health.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-test-all.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 33.96,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\test-all.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\fixtures\\test-all"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-test-all.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-verify.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 44.26,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\verify.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\fixtures\\verify"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-verify.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-workspace-setup.Tests",
+      "Status": "Failed",
+      "ExitCode": 1,
+      "Seconds": 8.5,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\workspace-setup.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\fixtures\\workspace-setup"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-workspace-setup.Tests.log",
+      "Error": "Child process exited 1."
+    },
+    {
+      "Name": "tool-WorldLookMcp.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 1.68,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\WorldLookMcp.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\fixtures\\WorldLookMcp"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-WorldLookMcp.Tests.log",
+      "Error": null
+    },
+    {
+      "Name": "tool-xml.Tests",
+      "Status": "Passed",
+      "ExitCode": 0,
+      "Seconds": 1.27,
+      "Command": "C:\\Program Files\\WindowsApps\\Microsoft.PowerShell_7.6.8.0_x64__8wekyb3d8bbwe\\pwsh.exe",
+      "Arguments": [
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checkout\\Tools\\Tests\\xml.Tests.ps1",
+        "-ScratchRoot",
+        "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\fixtures\\xml"
+      ],
+      "LogPath": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-clearance-gates\\retry\\clean-checkout-f872b2f08b53\\checks\\verify-f2cca922657d\\tool-xml.Tests.log",
+      "Error": null
+    }
+  ]
+}

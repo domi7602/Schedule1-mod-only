@@ -38,6 +38,21 @@ public class RecoveryRecurrenceWiringTests
     }
 
     [Fact]
+    public void DeferredProbe_IsPausedAndClearedWithItsOperation()
+    {
+        string reset = DriverSafetySourceContractTests.Section(Source,
+            "internal static void ResetDrivingState", "private const float ReverseClearanceMeters");
+        Assert.Contains("_recurringProbeAt = 0f;", reset);
+        Assert.Contains("_recurringProbeUsed = false;", reset);
+        string pause = DriverSafetySourceContractTests.Section(Source,
+            "private static void ShiftPauseDeadlines", "private static void UpdateDriveStartProof");
+        Assert.Contains("_recurringProbeAt += dt;", pause);
+        string polling = DriverSafetySourceContractTests.Section(Source,
+            "private static void TickNavigationPolling", "private static bool TryReadSignedSpeed");
+        Assert.True(polling.IndexOf("if (_recurringProbeAt > 0f)") < polling.IndexOf("if (TickStartupRecovery("));
+    }
+
+    [Fact]
     public void NearbyRecurringStall_SpendsBudgetThenUsesCheckedRescueBeforeReverse()
     {
         string recovery = DriverSafetySourceContractTests.Section(Source,
@@ -48,7 +63,8 @@ public class RecoveryRecurrenceWiringTests
         Assert.Contains("return false;", recovery);
         int branch = recovery.IndexOf("TaxiAI.StopPatrol(\"recurring stall\")");
         int seat = recovery.IndexOf("SpikeCommands.EnsureDriverSeat(veh);", branch);
-        int abort = recovery.IndexOf("if (!SpikeState.PollingActive) return false;", branch);
+        Assert.Contains("bool StillCurrent() => Mod.Lifecycle.AcceptingWork && SpikeState.PollingActive", recovery);
+        int abort = recovery.IndexOf("if (!StillCurrent()) return false;", seat);
         int rescue = recovery.IndexOf("TryFreeSpotRescue(", branch);
         Assert.True(branch >= 0 && seat > branch && abort > seat && rescue > abort,
             "Patrol release may eject the driver; re-seat and honor a safety abort before relocating.");

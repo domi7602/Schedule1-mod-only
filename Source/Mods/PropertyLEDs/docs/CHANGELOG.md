@@ -3,6 +3,12 @@
 All notable changes to PropertyLEDs are documented here. Format: Keep a Changelog;
 versioning: SemVer.
 
+## 0.1.11 (2026-10-26)
+- Show amber `No LED layout available` for the selected property when its catalog has no verified room; distinguish unverified-only entries. Replace the misleading power detail while retaining saved Enabled and toggle state. No geometry or settings schema changes.
+- Recovered the missing local catalog byte-for-byte from the historical import candidate: SHA-256 `07bbc5620ea3eac1d45e736af5dd76c377565ca39dd2481bc6ee72a0d75f5f11`, 35 rooms across 12 properties. Installed catalog readback matches; slot-1 settings hash is unchanged. Historical verification flags were preserved, not newly visually verified. Cause of file disappearance is unknown.
+- Installed 0.1.11 using the guarded deploy helper with the game closed; installed DLL matches the built SHA-256 `d5c456e009e755a6ee36f80729fae07ada218459f0eeb864460e6c23ca811145`, metadata reads 0.1.11. Layout and settings hashes rechecked unchanged after deployment.
+- Parent verification: 122 tests passed; Release no-deploy build succeeded with 0 warnings/errors. Dominik subsequently confirmed that the restored strips loaded successfully (owner-confirmed). The missing-strip issue is resolved. The new missing-layout warning and a separate save-reload roundtrip were not individually exercised in that confirmation. The isolated Pure check passed game-free suites but failed separate version/tool-fixture checks; no whole-repository green claim.
+
 ## 0.1.10 (2026-10-25)
 - Tighten the landscape phone insets from 4.5 percent to about 1.2 percent and move the title band up so the controls sit closer to the glass. Inner card padding, sliders, selection and lighting are unchanged.
 - **Verified, owner-confirmed 2026-10-25.** Dominik confirmed the LED edges are correct. `Latest.log` 14:53:44–15:11:59 loaded v0.1.10, DLL `31E6E129…`, initialized `PropertyLEDsApp`, reported 35 verified rooms, built 5 LED groups and marked slot 1 ready for 3 owned properties. The log does not measure the 1.2 percent insets; the edge clearance is his explicit confirmation, not a log measurement. An earlier screenshot the same day showed landscape only, not these insets.

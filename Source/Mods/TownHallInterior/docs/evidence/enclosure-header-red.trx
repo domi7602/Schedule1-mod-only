@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="c77f6655-4506-449b-8f4d-b9b8faf50284" name="pc@WINDOWS 2026-10-29 08:39:07" runUser="windows\pc" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-29T08:39:07.1941418+01:00" queuing="2026-10-29T08:39:07.1941418+01:00" start="2026-10-29T08:39:06.4702539+01:00" finish="2026-10-29T08:39:07.1977957+01:00" />
+  <TestSettings name="default" id="5fb3bb3f-4d44-4c1a-a727-c6e123e71352">
+    <Deployment runDeploymentRoot="pc_WINDOWS_2026-10-29_08_39_07" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="cfc177f0-7236-485d-a72b-49e497ec136a" testId="d330f606-4c3d-80cc-f73b-b1b916bbd115" testName="EnclosureTests.HeaderJoinsFrameToCeilingWithoutProjectingAboveTheUpperFloor" computerName="WINDOWS" duration="00:00:00.0040172" startTime="2026-10-29T08:39:07.0676144+01:00" endTime="2026-10-29T08:39:07.0890165+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cfc177f0-7236-485d-a72b-49e497ec136a">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Equal() Failure: Values are not within 4 decimal places&#xD;
+Expected: 54,350000000000001 (rounded from 54,350000000000001)&#xD;
+Actual:   54,75 (rounded from 54,75)</Message>
+          <StackTrace>   at EnclosureTests.HeaderJoinsFrameToCeilingWithoutProjectingAboveTheUpperFloor() in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\EnclosureTests.cs:line 11</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="EnclosureTests.HeaderJoinsFrameToCeilingWithoutProjectingAboveTheUpperFloor" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="d330f606-4c3d-80cc-f73b-b1b916bbd115">
+      <Execution id="cfc177f0-7236-485d-a72b-49e497ec136a" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="EnclosureTests" name="HeaderJoinsFrameToCeilingWithoutProjectingAboveTheUpperFloor" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="d330f606-4c3d-80cc-f73b-b1b916bbd115" executionId="cfc177f0-7236-485d-a72b-49e497ec136a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="1" executed="1" passed="0" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.0.2+dd36e86129 (64-bit .NET 6.0.36)&#xD;
+[xUnit.net 00:00:00.11]   Discovering: TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.17]   Discovered:  TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.18]   Starting:    TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.24]       Assert.Equal() Failure: Values are not within 4 decimal places&#xD;
+[xUnit.net 00:00:00.24]       Expected: 54,350000000000001 (rounded from 54,350000000000001)&#xD;
+[xUnit.net 00:00:00.24]       Actual:   54,75 (rounded from 54,75)&#xD;
+[xUnit.net 00:00:00.24]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.24]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\EnclosureTests.cs(11,0): at EnclosureTests.HeaderJoinsFrameToCeilingWithoutProjectingAboveTheUpperFloor()&#xD;
+[xUnit.net 00:00:00.25]   Finished:    TownHallInterior.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T08:39:07.0929835+01:00">
+        <Text>[xUnit.net 00:00:00.24]     EnclosureTests.HeaderJoinsFrameToCeilingWithoutProjectingAboveTheUpperFloor [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

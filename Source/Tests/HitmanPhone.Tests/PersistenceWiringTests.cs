@@ -48,6 +48,7 @@ public class PersistenceWiringTests
         Assert.True(update.IndexOf("BountyEvidenceItemRegistry.TickRegistration()", StringComparison.Ordinal) <
                     update.IndexOf("if (!SaveStateGuard.IsReady)", StringComparison.Ordinal));
         Assert.Contains("NotifyMultiplayerUnsupportedOnce()", update);
+        Assert.DoesNotContain("Multiplayer is not supported", Source("BountyCallers.cs"));
         string runtime = Source("BountyRuntime.cs");
         int preload = runtime.IndexOf("private static void OnPreLoad()", StringComparison.Ordinal);
         Assert.Contains("BountyEvidenceItemRegistry.InvalidateRegistration()", runtime[preload..runtime.IndexOf("private static void OnLoadComplete()", preload, StringComparison.Ordinal)]);

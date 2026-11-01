@@ -7,6 +7,7 @@ then the matching specialty. The rules below apply on any machine; local provena
 - [Developer workflow](DEVELOPERS.md) · [Tools](Tools/README.md) · [Architecture](docs/architecture.md)
 - [Current compatibility and evidence](docs/compatibility.md) · [Pitfalls](docs/pitfalls.md)
 - [Skills index](Skills/README.md) · [Documentation index](docs/README.md)
+- [Shared knowledge vault](docs/knowledge-vault.md) · [Workspace identity](README-AGENT.md)
 
 **Hard rules**
 
@@ -47,6 +48,24 @@ all 23 skills and their references:
 
 Keep this list, `Skills/README.md` and `README.md` aligned when adding a skill.
 
+### Shared knowledge vault
+
+Dominik requested ongoing vault maintenance on 2026-10-28. After relevant project work,
+update reusable findings in [the shared vault](docs/knowledge-vault.md) as part of the
+authorized task, without asking for a separate routine note-update approval. The project ID
+is `schedule1-mod-only`. Resolve the vault from a session-provided `LLM_WIKI_PATH`; the
+recorded local location is `C:/Users/pc/Documents/LLM-WIKI`. If accessible, read its
+`AGENTS.md`, schema and `projects/schedule1-mod-only.md`, then only relevant material.
+Keep this repository authoritative for code, skills, rules, versions and acceptance. Update
+existing notes where possible; cite source paths, inspection date, revision, working-tree
+state and file hashes where needed. Do not publish conjecture as established knowledge,
+duplicate the mod inventory or turn historical acceptance into new verification.
+A separate recurring Codex maintenance run is an additional execution path; instruction
+files alone do not schedule work or grant folder access. Follow the connection guide for
+its scope and limits. Missing vault access does not block independent project work; report
+the gap when the requested knowledge update depends on it. All other project rules remain
+in force, including preservation of unrelated changes and commit/push/deployment limits.
+
 ## 1. Setup
 
 **Recorded local baseline:** Schedule I Open Beta **v0.4.7f12**, Unity **2022.3.62f2**,
@@ -81,8 +100,9 @@ runtimes **6.0.36 / 8.0.32** are global in `C:\Program Files\dotnet` (2026-10-24
 
 ## 2. Mod Inventory
 
-**No mod is currently under active development:** WorldLook was confirmed finished by Dominik
-on 2026-10-25, referring to the last session. ✅/🆕 mean feature-complete;
+**TownHallInterior is under active development (🧪):** a local, non-distributable staging
+build whose in-game visual acceptance is still open. WorldLook was confirmed finished by
+Dominik on 2026-10-25, referring to the last session. ✅/🆕 mean feature-complete;
 🧪 means development, independently of gameplay verification. `Verified` is a recorded
 real-session or attributed owner-confirmation claim, not an assertion that a test artifact
 exists here. Owner acceptance without itemized actions does not prove each earlier checklist
@@ -112,18 +132,21 @@ Keep exactly one inventory row per mod and supported bold acceptance labels.
 | **HitmanPhone** | ✅ (v0.3.2, **Verified, owner-confirmed 2026-10-25**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Singleplayer only; offers use own customers; tracker app removed |
 | **MessagesPlus** | ✅ (v0.4.6, **Verified, owner-confirmed 2026-10-15**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | Popup/response repair; original test date not supplied |
 | **ProductAppQoL** | ✅ (v0.1.0, **Verified 2026-10-10**) | `Mods/ProductAppQoL/` | `ProductAppQoL.dll` | Mouse/touch asking-price buttons |
-| **TaxiDriver** | ✅ (v1.0.0, **Verified, owner-confirmed 2026-10-24**) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB folder | Version-only 0.8.22 milestone; known road/jitter issues |
+| **TaxiDriver** | ✅ (v1.0.5, **In-Game-Verify open** (prior v1.0.0: **Verified, owner-confirmed 2026-10-24**)) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB folder | Guard+supervisor build `012330b1…` installed; Barn 5.0 m and Bungalow 3.5 m arrived (2026-11-01, one run each); Docks still 2026-10-31 only; early boarding open |
 | **StorageScanner** | 🆕 (v0.2.0, **Verified 2026-10-11**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | Read-only storage overview |
 | **S1MCP** | ✅ (v1.0.5, **Verified, owner-confirmed 2026-10-24**) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | HHMM fix; read/no-op write observed, not every write form |
 | **LightControl** | ✅ (v0.1.1; 0.1.0 **Verified, owner-confirmed 2026-10-24**) | `Mods/LightControl/` | `LightControl.dll` | 0.1.1 deployed log-only Rainbow fix; prior acceptance not itemized |
-| **PropertyLEDs** | ✅ (v0.1.10, **Verified, owner-confirmed 2026-10-25**) | `Mods/PropertyLEDs/` | `PropertyLEDs.dll` + icon | Landscape phone, tighter insets; prior 0.1.8 actions not itemized |
+| **PropertyLEDs** | ✅ (v0.1.11, **In-Game-Verify open** (prior v0.1.10: **Verified, owner-confirmed 2026-10-25**)) | `Mods/PropertyLEDs/` | `PropertyLEDs.dll` + icon | Landscape phone, tighter insets; prior 0.1.8 actions not itemized |
 | **PhoneScrollFix** | ✅ (v2.0.0, hover look **Verified 2026-10-11**) | `Mods/PhoneScrollFix/` | `PhoneScrollFix.dll` | Clipped home-icon hover |
 | **WorldLook** | ✅ (v0.3.0-dev.5, **Verified, owner-confirmed 2026-10-25**) | `Mods/WorldLook/` | `WorldLook.dll` + embedded bundle | Owner-confirmed finished in the last session; actions not itemized; prior shader-reload evidence retained |
+| **TownHallInterior** | 🧪 (v0.1.0, **In-Game-Verify open**) | `Mods/TownHallInterior/` | `TownHallInterior.dll` | Public hall, geometric portal; hash-pinned local slices, not distributable |
 | **Shared** | ✅ workspace library | `Mods/Shared/` | `Shared.dll` | Reusable helpers; section 5 |
 | **S1API** | ✅ 3.2.1 stable | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | Pinned dependency; section 1 |
 
 Archived: BackpackMod, DayCounter, HomelessMod, ProfitTracker, SnackVendor, TVBrowser and
-_DiagPerfCounter plus archived tests. Retired dependencies and their old versions remain in
+_DiagPerfCounter plus archived tests. The staged TownHallInterior door dialog was moved to
+`Source/Archive/TownHallInterior/DoorDialog/` on 2026-10-29; its mod stays active. Retired
+dependencies and their old versions remain in
 [the dated history](docs/history/agent-mod-history-20261024.md); they are not active work.
 
 <a id="worldlook-continuation--installed-standalone-candidate-2026-10-22"></a>

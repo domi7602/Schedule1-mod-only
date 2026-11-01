@@ -225,14 +225,12 @@ namespace HitmanPhone.Bounty
         }
 
         /// <summary>
-        /// R-02 decision: multiplayer is explicitly unsupported — display that to the
-        /// player once (log + best-effort caller message) instead of silently running
-        /// as a host-shared service.
+        /// R-02: multiplayer is unsupported. The in-game note stays; the load-window
+        /// warning is not logged, it also fired in singleplayer before the save was ready.
         /// </summary>
         public static void NotifyMultiplayerUnsupportedOnce()
         {
             if (Interlocked.Exchange(ref _mpNoticeSent, 1) != 0) return;
-            Mod.Log.Warn("[BountyRouter] Multiplayer is not supported — bounty calls are disabled in this session.");
             try
             {
                 var host = GetCallerWrapper();

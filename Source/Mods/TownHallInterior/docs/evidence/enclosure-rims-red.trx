@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="6102f939-47d9-45f8-843d-2d70f2c772c5" name="pc@WINDOWS 2026-10-29 08:40:58" runUser="windows\pc" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-29T08:40:58.3456369+01:00" queuing="2026-10-29T08:40:58.3456370+01:00" start="2026-10-29T08:40:57.6012209+01:00" finish="2026-10-29T08:40:58.3493420+01:00" />
+  <TestSettings name="default" id="daee94cd-7cd2-4295-ae51-bb2cf1fa18fb">
+    <Deployment runDeploymentRoot="pc_WINDOWS_2026-10-29_08_40_58" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="a6d86439-8a8e-4213-af57-87def1fa50b0" testId="a73e7857-d95d-48dd-28f5-271e6051860b" testName="EnclosureTests.VisibleUpperFloorCoversTheFullExistingSlabsIncludingTheirOuterRims" computerName="WINDOWS" duration="00:00:00.0156654" startTime="2026-10-29T08:40:58.2034557+01:00" endTime="2026-10-29T08:40:58.2381405+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a6d86439-8a8e-4213-af57-87def1fa50b0">
+      <Output>
+        <ErrorInfo>
+          <Message>Unrendered support at x=54,599999237060544, z=20,750000762939454</Message>
+          <StackTrace>   at EnclosureTests.VisibleUpperFloorCoversTheFullExistingSlabsIncludingTheirOuterRims() in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\EnclosureTests.cs:line 16</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="EnclosureTests.VisibleUpperFloorCoversTheFullExistingSlabsIncludingTheirOuterRims" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="a73e7857-d95d-48dd-28f5-271e6051860b">
+      <Execution id="a6d86439-8a8e-4213-af57-87def1fa50b0" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="EnclosureTests" name="VisibleUpperFloorCoversTheFullExistingSlabsIncludingTheirOuterRims" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="a73e7857-d95d-48dd-28f5-271e6051860b" executionId="a6d86439-8a8e-4213-af57-87def1fa50b0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="1" executed="1" passed="0" failed="1" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.0.2+dd36e86129 (64-bit .NET 6.0.36)&#xD;
+[xUnit.net 00:00:00.11]   Discovering: TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.17]   Discovered:  TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.19]   Starting:    TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.25]       Unrendered support at x=54,599999237060544, z=20,750000762939454&#xD;
+[xUnit.net 00:00:00.25]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.25]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\EnclosureTests.cs(16,0): at EnclosureTests.VisibleUpperFloorCoversTheFullExistingSlabsIncludingTheirOuterRims()&#xD;
+[xUnit.net 00:00:00.27]   Finished:    TownHallInterior.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T08:40:58.2420453+01:00">
+        <Text>[xUnit.net 00:00:00.25]     EnclosureTests.VisibleUpperFloorCoversTheFullExistingSlabsIncludingTheirOuterRims [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

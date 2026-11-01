@@ -31,9 +31,9 @@ public class GoldenHourTargetsTests
     }
 
     [Fact]
-    public void Accepted_mild_recipe_is_preserved()
+    public void Golden_hour_sun_is_modestly_brighter_without_changing_other_tints()
     {
-        Assert.Equal(new Argb(1.06f, 1.00f, 0.94f, 1f), GoldenHourTargets.SunLightTint);
+        Assert.Equal(new Argb(1.1236f, 1.06f, 0.9964f, 1f), GoldenHourTargets.SunLightTint);
         Assert.Equal(new Argb(1.04f, 0.97f, 0.90f, 1f), GoldenHourTargets.SkySunGlowTint);
         Assert.Equal(new Argb(1.03f, 0.995f, 0.96f, 1f), GoldenHourTargets.AmbientTint);
         Assert.True(GoldenHourTargets.AmbientTint.R < GoldenHourTargets.SunLightTint.R,

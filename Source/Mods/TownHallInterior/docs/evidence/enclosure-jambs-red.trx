@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="f2fde814-7ab4-4df7-af6a-250598f0fee7" name="pc@WINDOWS 2026-10-29 08:40:15" runUser="windows\pc" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-29T08:40:15.4099908+01:00" queuing="2026-10-29T08:40:15.4099909+01:00" start="2026-10-29T08:40:14.6397400+01:00" finish="2026-10-29T08:40:15.5056862+01:00" />
+  <TestSettings name="default" id="87f4dae0-9309-4514-8aae-fd7ab601579f">
+    <Deployment runDeploymentRoot="pc_WINDOWS_2026-10-29_08_40_15" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="2bb4348a-af79-4f9d-9501-6cbbc1fe4157" testId="902aec2f-cb17-2d70-4c58-2fcf739fee76" testName="EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(y: 4,2999999999999998, z: 30,02)" computerName="WINDOWS" duration="00:00:00.0003186" startTime="2026-10-29T08:40:15.3135998+01:00" endTime="2026-10-29T08:40:15.3136614+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2bb4348a-af79-4f9d-9501-6cbbc1fe4157">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Contains() Failure: Filter not matched in collection&#xD;
+Collection: [RoomBox { Name = public-floor, X = 58,7, Y = 1,48, Z = 31, Width = 7,4, Height = 0,1, Depth = 18,8, Solid = True, Style = 0 }, RoomBox { Name = inner-west-south, X = 54,85, Y = 2,85, Z = 25,6, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-west-north, X = 54,85, Y = 2,85, Z = 36,4, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-lintel, X = 54,65, Y = 4,65, Z = 31, Width = 0,6, Height = 0,19999981, Depth = 1,92, Solid = True, Style = 1 }, RoomBox { Name = inner-east, X = 62,55, Y = 2,85, Z = 31, Width = 0,2, Height = 2,7, Depth = 18,8, Solid = True, Style = 1 }, ···]</Message>
+          <StackTrace>   at EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(Double y, Double z) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\EnclosureTests.cs:line 14</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="c078528b-419a-4546-85fe-7df3f76cbbdb" testId="67cefdcf-dfcb-6fe6-3a2b-93e4c4e7ef4c" testName="EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(y: 4,2999999999999998, z: 31,98)" computerName="WINDOWS" duration="00:00:00.0002028" startTime="2026-10-29T08:40:15.3140082+01:00" endTime="2026-10-29T08:40:15.3140456+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c078528b-419a-4546-85fe-7df3f76cbbdb">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Contains() Failure: Filter not matched in collection&#xD;
+Collection: [RoomBox { Name = public-floor, X = 58,7, Y = 1,48, Z = 31, Width = 7,4, Height = 0,1, Depth = 18,8, Solid = True, Style = 0 }, RoomBox { Name = inner-west-south, X = 54,85, Y = 2,85, Z = 25,6, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-west-north, X = 54,85, Y = 2,85, Z = 36,4, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-lintel, X = 54,65, Y = 4,65, Z = 31, Width = 0,6, Height = 0,19999981, Depth = 1,92, Solid = True, Style = 1 }, RoomBox { Name = inner-east, X = 62,55, Y = 2,85, Z = 31, Width = 0,2, Height = 2,7, Depth = 18,8, Solid = True, Style = 1 }, ···]</Message>
+          <StackTrace>   at EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(Double y, Double z) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\EnclosureTests.cs:line 14</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="94597a05-83bb-4407-92ed-e93d2b377065" testId="ee9ed087-8802-bb37-e906-d1dea5762cbc" testName="EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(y: 3, z: 30,02)" computerName="WINDOWS" duration="00:00:00.0002063" startTime="2026-10-29T08:40:15.3142400+01:00" endTime="2026-10-29T08:40:15.3142754+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="94597a05-83bb-4407-92ed-e93d2b377065">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Contains() Failure: Filter not matched in collection&#xD;
+Collection: [RoomBox { Name = public-floor, X = 58,7, Y = 1,48, Z = 31, Width = 7,4, Height = 0,1, Depth = 18,8, Solid = True, Style = 0 }, RoomBox { Name = inner-west-south, X = 54,85, Y = 2,85, Z = 25,6, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-west-north, X = 54,85, Y = 2,85, Z = 36,4, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-lintel, X = 54,65, Y = 4,65, Z = 31, Width = 0,6, Height = 0,19999981, Depth = 1,92, Solid = True, Style = 1 }, RoomBox { Name = inner-east, X = 62,55, Y = 2,85, Z = 31, Width = 0,2, Height = 2,7, Depth = 18,8, Solid = True, Style = 1 }, ···]</Message>
+          <StackTrace>   at EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(Double y, Double z) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\EnclosureTests.cs:line 14</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="841aecf7-f9cb-477b-8db4-915e8edd6fdc" testId="95736243-d321-6aa4-7437-c3a2f5a5afc0" testName="EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(y: 3, z: 31,98)" computerName="WINDOWS" duration="00:00:00.0139205" startTime="2026-10-29T08:40:15.2652915+01:00" endTime="2026-10-29T08:40:15.2974739+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="841aecf7-f9cb-477b-8db4-915e8edd6fdc">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Contains() Failure: Filter not matched in collection&#xD;
+Collection: [RoomBox { Name = public-floor, X = 58,7, Y = 1,48, Z = 31, Width = 7,4, Height = 0,1, Depth = 18,8, Solid = True, Style = 0 }, RoomBox { Name = inner-west-south, X = 54,85, Y = 2,85, Z = 25,6, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-west-north, X = 54,85, Y = 2,85, Z = 36,4, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-lintel, X = 54,65, Y = 4,65, Z = 31, Width = 0,6, Height = 0,19999981, Depth = 1,92, Solid = True, Style = 1 }, RoomBox { Name = inner-east, X = 62,55, Y = 2,85, Z = 31, Width = 0,2, Height = 2,7, Depth = 18,8, Solid = True, Style = 1 }, ···]</Message>
+          <StackTrace>   at EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(Double y, Double z) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\EnclosureTests.cs:line 14</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(y: 4,2999999999999998, z: 31,98)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="67cefdcf-dfcb-6fe6-3a2b-93e4c4e7ef4c">
+      <Execution id="c078528b-419a-4546-85fe-7df3f76cbbdb" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="EnclosureTests" name="DoorJambReturnsCloseTheGapNextToTheInsetWalls" />
+    </UnitTest>
+    <UnitTest name="EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(y: 3, z: 31,98)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="95736243-d321-6aa4-7437-c3a2f5a5afc0">
+      <Execution id="841aecf7-f9cb-477b-8db4-915e8edd6fdc" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="EnclosureTests" name="DoorJambReturnsCloseTheGapNextToTheInsetWalls" />
+    </UnitTest>
+    <UnitTest name="EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(y: 3, z: 30,02)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="ee9ed087-8802-bb37-e906-d1dea5762cbc">
+      <Execution id="94597a05-83bb-4407-92ed-e93d2b377065" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="EnclosureTests" name="DoorJambReturnsCloseTheGapNextToTheInsetWalls" />
+    </UnitTest>
+    <UnitTest name="EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(y: 4,2999999999999998, z: 30,02)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="902aec2f-cb17-2d70-4c58-2fcf739fee76">
+      <Execution id="2bb4348a-af79-4f9d-9501-6cbbc1fe4157" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="EnclosureTests" name="DoorJambReturnsCloseTheGapNextToTheInsetWalls" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="902aec2f-cb17-2d70-4c58-2fcf739fee76" executionId="2bb4348a-af79-4f9d-9501-6cbbc1fe4157" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="67cefdcf-dfcb-6fe6-3a2b-93e4c4e7ef4c" executionId="c078528b-419a-4546-85fe-7df3f76cbbdb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="ee9ed087-8802-bb37-e906-d1dea5762cbc" executionId="94597a05-83bb-4407-92ed-e93d2b377065" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="95736243-d321-6aa4-7437-c3a2f5a5afc0" executionId="841aecf7-f9cb-477b-8db4-915e8edd6fdc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="4" executed="4" passed="0" failed="4" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.0.2+dd36e86129 (64-bit .NET 6.0.36)&#xD;
+[xUnit.net 00:00:00.11]   Discovering: TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.17]   Discovered:  TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.20]   Starting:    TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.26]       Assert.Contains() Failure: Filter not matched in collection&#xD;
+[xUnit.net 00:00:00.26]       Collection: [RoomBox { Name = public-floor, X = 58,7, Y = 1,48, Z = 31, Width = 7,4, Height = 0,1, Depth = 18,8, Solid = True, Style = 0 }, RoomBox { Name = inner-west-south, X = 54,85, Y = 2,85, Z = 25,6, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-west-north, X = 54,85, Y = 2,85, Z = 36,4, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-lintel, X = 54,65, Y = 4,65, Z = 31, Width = 0,6, Height = 0,19999981, Depth = 1,92, Solid = True, Style = 1 }, RoomBox { Name = inner-east, X = 62,55, Y = 2,85, Z = 31, Width = 0,2, Height = 2,7, Depth = 18,8, Solid = True, Style = 1 }, ···]&#xD;
+[xUnit.net 00:00:00.26]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.26]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\EnclosureTests.cs(14,0): at EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(Double y, Double z)&#xD;
+[xUnit.net 00:00:00.27]       Assert.Contains() Failure: Filter not matched in collection&#xD;
+[xUnit.net 00:00:00.27]       Collection: [RoomBox { Name = public-floor, X = 58,7, Y = 1,48, Z = 31, Width = 7,4, Height = 0,1, Depth = 18,8, Solid = True, Style = 0 }, RoomBox { Name = inner-west-south, X = 54,85, Y = 2,85, Z = 25,6, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-west-north, X = 54,85, Y = 2,85, Z = 36,4, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-lintel, X = 54,65, Y = 4,65, Z = 31, Width = 0,6, Height = 0,19999981, Depth = 1,92, Solid = True, Style = 1 }, RoomBox { Name = inner-east, X = 62,55, Y = 2,85, Z = 31, Width = 0,2, Height = 2,7, Depth = 18,8, Solid = True, Style = 1 }, ···]&#xD;
+[xUnit.net 00:00:00.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.27]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\EnclosureTests.cs(14,0): at EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(Double y, Double z)&#xD;
+[xUnit.net 00:00:00.27]       Assert.Contains() Failure: Filter not matched in collection&#xD;
+[xUnit.net 00:00:00.27]       Collection: [RoomBox { Name = public-floor, X = 58,7, Y = 1,48, Z = 31, Width = 7,4, Height = 0,1, Depth = 18,8, Solid = True, Style = 0 }, RoomBox { Name = inner-west-south, X = 54,85, Y = 2,85, Z = 25,6, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-west-north, X = 54,85, Y = 2,85, Z = 36,4, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-lintel, X = 54,65, Y = 4,65, Z = 31, Width = 0,6, Height = 0,19999981, Depth = 1,92, Solid = True, Style = 1 }, RoomBox { Name = inner-east, X = 62,55, Y = 2,85, Z = 31, Width = 0,2, Height = 2,7, Depth = 18,8, Solid = True, Style = 1 }, ···]&#xD;
+[xUnit.net 00:00:00.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.27]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\EnclosureTests.cs(14,0): at EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(Double y, Double z)&#xD;
+[xUnit.net 00:00:00.27]       Assert.Contains() Failure: Filter not matched in collection&#xD;
+[xUnit.net 00:00:00.27]       Collection: [RoomBox { Name = public-floor, X = 58,7, Y = 1,48, Z = 31, Width = 7,4, Height = 0,1, Depth = 18,8, Solid = True, Style = 0 }, RoomBox { Name = inner-west-south, X = 54,85, Y = 2,85, Z = 25,6, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-west-north, X = 54,85, Y = 2,85, Z = 36,4, Width = 0,2, Height = 2,7, Depth = 8,8, Solid = True, Style = 1 }, RoomBox { Name = inner-lintel, X = 54,65, Y = 4,65, Z = 31, Width = 0,6, Height = 0,19999981, Depth = 1,92, Solid = True, Style = 1 }, RoomBox { Name = inner-east, X = 62,55, Y = 2,85, Z = 31, Width = 0,2, Height = 2,7, Depth = 18,8, Solid = True, Style = 1 }, ···]&#xD;
+[xUnit.net 00:00:00.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.27]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\EnclosureTests.cs(14,0): at EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(Double y, Double z)&#xD;
+[xUnit.net 00:00:00.27]   Finished:    TownHallInterior.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T08:40:15.3012589+01:00">
+        <Text>[xUnit.net 00:00:00.26]     EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(y: 3, z: 31,98) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T08:40:15.3139645+01:00">
+        <Text>[xUnit.net 00:00:00.27]     EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(y: 4,2999999999999998, z: 30,02) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T08:40:15.3141251+01:00">
+        <Text>[xUnit.net 00:00:00.27]     EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(y: 4,2999999999999998, z: 31,98) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T08:40:15.3143376+01:00">
+        <Text>[xUnit.net 00:00:00.27]     EnclosureTests.DoorJambReturnsCloseTheGapNextToTheInsetWalls(y: 3, z: 30,02) [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

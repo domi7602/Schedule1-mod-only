@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="742f6b8b-527a-400f-8933-e1675516a239" name="pc@WINDOWS 2026-10-29 08:06:36" runUser="windows\pc" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-29T08:06:36.8388454+01:00" queuing="2026-10-29T08:06:36.8388454+01:00" start="2026-10-29T08:06:36.1588893+01:00" finish="2026-10-29T08:06:36.8797141+01:00" />
+  <TestSettings name="default" id="7a58fe36-11dd-4353-851d-b363f9a96cc7">
+    <Deployment runDeploymentRoot="pc_WINDOWS_2026-10-29_08_06_36" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="f36b9092-68a0-423f-93ce-514f29f04a18" testId="6f2052a7-2f87-45d3-e6a8-a736dc2aad71" testName="PublicEntranceTests.ColliderSwapStaysClosedUntilIdentityMatchesAndVisualPublicationIsStillRefused" computerName="WINDOWS" duration="00:00:00.0017322" startTime="2026-10-29T08:06:36.8258866+01:00" endTime="2026-10-29T08:06:36.8259346+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f36b9092-68a0-423f-93ce-514f29f04a18" />
+    <UnitTestResult executionId="1c85b7e3-f499-4f6c-85b4-cad85f107692" testId="4dcf3905-e59e-bab3-2ccf-50fb16625737" testName="PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(x: 56,7999992, y: 1,60000002, z: 39,4000015)" computerName="WINDOWS" duration="00:00:00.0002183" startTime="2026-10-29T08:06:36.8243327+01:00" endTime="2026-10-29T08:06:36.8244147+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="1c85b7e3-f499-4f6c-85b4-cad85f107692">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(Single x, Single y, Single z) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\PublicEntranceTests.cs:line 13</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="e75eaf72-530d-4d8c-9bd8-9d82de8e26c0" testId="cc3d1e93-8ac1-51d6-5b25-2b0b976da0d9" testName="PublicEntranceTests.BothApproachesAndOccupiedThresholdKeepTheDoorOpen(x: 52,5, y: 1,60000002, z: 31)" computerName="WINDOWS" duration="00:00:00.0000019" startTime="2026-10-29T08:06:36.7905514+01:00" endTime="2026-10-29T08:06:36.7905793+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e75eaf72-530d-4d8c-9bd8-9d82de8e26c0" />
+    <UnitTestResult executionId="06d9f32c-9616-42e8-9e91-2bc1c68d60d5" testId="b8408610-0c0f-544e-d4ba-ab4b80edac5f" testName="PublicEntranceTests.RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor(x: 48, y: 1,60000002, z: 31)" computerName="WINDOWS" duration="00:00:00.0000933" startTime="2026-10-29T08:06:36.7910240+01:00" endTime="2026-10-29T08:06:36.7910751+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="06d9f32c-9616-42e8-9e91-2bc1c68d60d5" />
+    <UnitTestResult executionId="cebffb38-a2b6-41b7-91ad-e1c484595d2a" testId="12ec4dec-3ec9-2615-b23a-2e5735594b4b" testName="PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(x: 55,7000008, y: 1,60000002, z: 24)" computerName="WINDOWS" duration="00:00:00.0001633" startTime="2026-10-29T08:06:36.8251527+01:00" endTime="2026-10-29T08:06:36.8252080+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cebffb38-a2b6-41b7-91ad-e1c484595d2a">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(Single x, Single y, Single z) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\PublicEntranceTests.cs:line 13</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="cb79c59e-60b4-47ff-b988-614b71607946" testId="3f7658bb-3274-c4f7-8fcb-7dd107249031" testName="PublicEntranceTests.BothApproachesAndOccupiedThresholdKeepTheDoorOpen(x: 55,7999992, y: 1,60000002, z: 31)" computerName="WINDOWS" duration="00:00:00.0000026" startTime="2026-10-29T08:06:36.7904692+01:00" endTime="2026-10-29T08:06:36.7904979+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cb79c59e-60b4-47ff-b988-614b71607946" />
+    <UnitTestResult executionId="3547a272-3ef7-4431-b9a0-a33f36fe7600" testId="28ccde63-37dd-c885-f6f8-a2be84f89788" testName="PublicEntranceTests.LeavesSlideOpenAndShutWithoutOvershoot" computerName="WINDOWS" duration="00:00:00.0002605" startTime="2026-10-29T08:06:36.8257046+01:00" endTime="2026-10-29T08:06:36.8257596+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3547a272-3ef7-4431-b9a0-a33f36fe7600" />
+    <UnitTestResult executionId="a0fb670b-1387-4079-9327-10943d656880" testId="75ffb4ff-114c-019c-d342-4af6cfd23bff" testName="PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(x: 61,2000008, y: 1,60000002, z: 35,6500015)" computerName="WINDOWS" duration="00:00:00.0010267" startTime="2026-10-29T08:06:36.8142300+01:00" endTime="2026-10-29T08:06:36.8145901+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a0fb670b-1387-4079-9327-10943d656880">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(Single x, Single y, Single z) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\PublicEntranceTests.cs:line 13</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="21e45f20-5a02-4a96-bf85-9853b83b62b6" testId="751681d7-7ff2-fda8-3989-26cf9e509bd1" testName="PublicEntranceTests.RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor(x: 54,1199989, y: 1,60000002, z: 35)" computerName="WINDOWS" duration="00:00:00.0000014" startTime="2026-10-29T08:06:36.7912811+01:00" endTime="2026-10-29T08:06:36.7913086+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="21e45f20-5a02-4a96-bf85-9853b83b62b6" />
+    <UnitTestResult executionId="9a60396e-71f6-4011-ad1c-69b1b3028801" testId="e206daea-ca1f-882a-8632-b4ed13a4c762" testName="PublicEntranceTests.RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor(x: 54,1199989, y: ∞, z: 31)" computerName="WINDOWS" duration="00:00:00.0000015" startTime="2026-10-29T08:06:36.7912072+01:00" endTime="2026-10-29T08:06:36.7912344+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="9a60396e-71f6-4011-ad1c-69b1b3028801" />
+    <UnitTestResult executionId="3f6fb050-62e7-462d-9c1f-85d78ab73e6c" testId="710ee110-691b-b241-65fb-98565718034c" testName="PublicEntranceTests.ProximityDecisionHasOneTestablePolicyUsedByTheRuntime" computerName="WINDOWS" duration="00:00:00.0060689" startTime="2026-10-29T08:06:36.8255266+01:00" endTime="2026-10-29T08:06:36.8255768+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3f6fb050-62e7-462d-9c1f-85d78ab73e6c" />
+    <UnitTestResult executionId="676697f6-a412-40d5-aaff-719b261edd1b" testId="f06d5e7d-841e-1817-25dc-e8e567ffa4fb" testName="PublicEntranceTests.BothApproachesAndOccupiedThresholdKeepTheDoorOpen(x: 54,1199989, y: 1,60000002, z: 30,2000008)" computerName="WINDOWS" duration="00:00:00.0049628" startTime="2026-10-29T08:06:36.7674272+01:00" endTime="2026-10-29T08:06:36.7797404+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="676697f6-a412-40d5-aaff-719b261edd1b" />
+    <UnitTestResult executionId="bb7e4a5c-e979-4f2f-a6a5-acdd69dd3b9c" testId="4346264c-87ef-8c96-673a-301c12b2cac7" testName="PublicEntranceTests.RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor(x: 54,1199989, y: 5, z: 31)" computerName="WINDOWS" duration="00:00:00.0000031" startTime="2026-10-29T08:06:36.7911316+01:00" endTime="2026-10-29T08:06:36.7911594+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="bb7e4a5c-e979-4f2f-a6a5-acdd69dd3b9c" />
+    <UnitTestResult executionId="f8c8e2d9-367a-4746-af5b-fc3e9ea87208" testId="f8eac95e-834c-ca80-58e4-bdf862936cb4" testName="PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(x: 58,7000008, y: 1,60000002, z: 31)" computerName="WINDOWS" duration="00:00:00.0001587" startTime="2026-10-29T08:06:36.8247882+01:00" endTime="2026-10-29T08:06:36.8248426+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="f8c8e2d9-367a-4746-af5b-fc3e9ea87208">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.False() Failure&#xD;
+Expected: False&#xD;
+Actual:   True</Message>
+          <StackTrace>   at PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(Single x, Single y, Single z) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\PublicEntranceTests.cs:line 13</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="251c755e-284f-4b2c-a1d3-16290fb654eb" testId="6565eb23-3c31-cb4d-1cfe-e15d334f4e9d" testName="PublicEntranceTests.RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor(x: NaN, y: 1,60000002, z: 31)" computerName="WINDOWS" duration="00:00:00.0000013" startTime="2026-10-29T08:06:36.7913557+01:00" endTime="2026-10-29T08:06:36.7913824+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="251c755e-284f-4b2c-a1d3-16290fb654eb" />
+    <UnitTestResult executionId="06de2edc-ce82-43a7-8ee8-f88d53bd642b" testId="0f6a9a9c-1462-9239-f0b5-afdb61d94b1e" testName="PublicEntranceTests.BothApproachesAndOccupiedThresholdKeepTheDoorOpen(x: 54,1199989, y: 3,5, z: 31,7999992)" computerName="WINDOWS" duration="00:00:00.0000138" startTime="2026-10-29T08:06:36.7902937+01:00" endTime="2026-10-29T08:06:36.7903472+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="06de2edc-ce82-43a7-8ee8-f88d53bd642b" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="PublicEntranceTests.ColliderSwapStaysClosedUntilIdentityMatchesAndVisualPublicationIsStillRefused" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="6f2052a7-2f87-45d3-e6a8-a736dc2aad71">
+      <Execution id="f36b9092-68a0-423f-93ce-514f29f04a18" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="ColliderSwapStaysClosedUntilIdentityMatchesAndVisualPublicationIsStillRefused" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(x: 56,7999992, y: 1,60000002, z: 39,4000015)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="4dcf3905-e59e-bab3-2ccf-50fb16625737">
+      <Execution id="1c85b7e3-f499-4f6c-85b4-cad85f107692" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="MovingAwayInsideLetsTheLeavesClose" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.ProximityDecisionHasOneTestablePolicyUsedByTheRuntime" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="710ee110-691b-b241-65fb-98565718034c">
+      <Execution id="3f6fb050-62e7-462d-9c1f-85d78ab73e6c" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="ProximityDecisionHasOneTestablePolicyUsedByTheRuntime" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor(x: 54,1199989, y: 5, z: 31)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="4346264c-87ef-8c96-673a-301c12b2cac7">
+      <Execution id="bb7e4a5c-e979-4f2f-a6a5-acdd69dd3b9c" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.BothApproachesAndOccupiedThresholdKeepTheDoorOpen(x: 52,5, y: 1,60000002, z: 31)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="cc3d1e93-8ac1-51d6-5b25-2b0b976da0d9">
+      <Execution id="e75eaf72-530d-4d8c-9bd8-9d82de8e26c0" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="BothApproachesAndOccupiedThresholdKeepTheDoorOpen" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor(x: 48, y: 1,60000002, z: 31)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="b8408610-0c0f-544e-d4ba-ab4b80edac5f">
+      <Execution id="06d9f32c-9616-42e8-9e91-2bc1c68d60d5" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.BothApproachesAndOccupiedThresholdKeepTheDoorOpen(x: 54,1199989, y: 1,60000002, z: 30,2000008)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="f06d5e7d-841e-1817-25dc-e8e567ffa4fb">
+      <Execution id="676697f6-a412-40d5-aaff-719b261edd1b" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="BothApproachesAndOccupiedThresholdKeepTheDoorOpen" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(x: 61,2000008, y: 1,60000002, z: 35,6500015)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="75ffb4ff-114c-019c-d342-4af6cfd23bff">
+      <Execution id="a0fb670b-1387-4079-9327-10943d656880" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="MovingAwayInsideLetsTheLeavesClose" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.LeavesSlideOpenAndShutWithoutOvershoot" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="28ccde63-37dd-c885-f6f8-a2be84f89788">
+      <Execution id="3547a272-3ef7-4431-b9a0-a33f36fe7600" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="LeavesSlideOpenAndShutWithoutOvershoot" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor(x: 54,1199989, y: 1,60000002, z: 35)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="751681d7-7ff2-fda8-3989-26cf9e509bd1">
+      <Execution id="21e45f20-5a02-4a96-bf85-9853b83b62b6" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(x: 58,7000008, y: 1,60000002, z: 31)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="f8eac95e-834c-ca80-58e4-bdf862936cb4">
+      <Execution id="f8c8e2d9-367a-4746-af5b-fc3e9ea87208" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="MovingAwayInsideLetsTheLeavesClose" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.BothApproachesAndOccupiedThresholdKeepTheDoorOpen(x: 55,7999992, y: 1,60000002, z: 31)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="3f7658bb-3274-c4f7-8fcb-7dd107249031">
+      <Execution id="cb79c59e-60b4-47ff-b988-614b71607946" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="BothApproachesAndOccupiedThresholdKeepTheDoorOpen" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor(x: 54,1199989, y: ∞, z: 31)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="e206daea-ca1f-882a-8632-b4ed13a4c762">
+      <Execution id="9a60396e-71f6-4011-ad1c-69b1b3028801" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(x: 55,7000008, y: 1,60000002, z: 24)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="12ec4dec-3ec9-2615-b23a-2e5735594b4b">
+      <Execution id="cebffb38-a2b6-41b7-91ad-e1c484595d2a" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="MovingAwayInsideLetsTheLeavesClose" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor(x: NaN, y: 1,60000002, z: 31)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="6565eb23-3c31-cb4d-1cfe-e15d334f4e9d">
+      <Execution id="251c755e-284f-4b2c-a1d3-16290fb654eb" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="RemoteUpperFloorAndInvalidPositionsDoNotOpenTheDoor" />
+    </UnitTest>
+    <UnitTest name="PublicEntranceTests.BothApproachesAndOccupiedThresholdKeepTheDoorOpen(x: 54,1199989, y: 3,5, z: 31,7999992)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="0f6a9a9c-1462-9239-f0b5-afdb61d94b1e">
+      <Execution id="06de2edc-ce82-43a7-8ee8-f88d53bd642b" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="PublicEntranceTests" name="BothApproachesAndOccupiedThresholdKeepTheDoorOpen" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="6f2052a7-2f87-45d3-e6a8-a736dc2aad71" executionId="f36b9092-68a0-423f-93ce-514f29f04a18" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4dcf3905-e59e-bab3-2ccf-50fb16625737" executionId="1c85b7e3-f499-4f6c-85b4-cad85f107692" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cc3d1e93-8ac1-51d6-5b25-2b0b976da0d9" executionId="e75eaf72-530d-4d8c-9bd8-9d82de8e26c0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b8408610-0c0f-544e-d4ba-ab4b80edac5f" executionId="06d9f32c-9616-42e8-9e91-2bc1c68d60d5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="12ec4dec-3ec9-2615-b23a-2e5735594b4b" executionId="cebffb38-a2b6-41b7-91ad-e1c484595d2a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3f7658bb-3274-c4f7-8fcb-7dd107249031" executionId="cb79c59e-60b4-47ff-b988-614b71607946" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="28ccde63-37dd-c885-f6f8-a2be84f89788" executionId="3547a272-3ef7-4431-b9a0-a33f36fe7600" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="75ffb4ff-114c-019c-d342-4af6cfd23bff" executionId="a0fb670b-1387-4079-9327-10943d656880" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="751681d7-7ff2-fda8-3989-26cf9e509bd1" executionId="21e45f20-5a02-4a96-bf85-9853b83b62b6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e206daea-ca1f-882a-8632-b4ed13a4c762" executionId="9a60396e-71f6-4011-ad1c-69b1b3028801" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="710ee110-691b-b241-65fb-98565718034c" executionId="3f6fb050-62e7-462d-9c1f-85d78ab73e6c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f06d5e7d-841e-1817-25dc-e8e567ffa4fb" executionId="676697f6-a412-40d5-aaff-719b261edd1b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4346264c-87ef-8c96-673a-301c12b2cac7" executionId="bb7e4a5c-e979-4f2f-a6a5-acdd69dd3b9c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f8eac95e-834c-ca80-58e4-bdf862936cb4" executionId="f8c8e2d9-367a-4746-af5b-fc3e9ea87208" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6565eb23-3c31-cb4d-1cfe-e15d334f4e9d" executionId="251c755e-284f-4b2c-a1d3-16290fb654eb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0f6a9a9c-1462-9239-f0b5-afdb61d94b1e" executionId="06de2edc-ce82-43a7-8ee8-f88d53bd642b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="16" executed="16" passed="12" failed="4" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.0.2+dd36e86129 (64-bit .NET 6.0.36)&#xD;
+[xUnit.net 00:00:00.11]   Discovering: TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.17]   Discovered:  TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.21]   Starting:    TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.28]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.28]       Expected: False&#xD;
+[xUnit.net 00:00:00.28]       Actual:   True&#xD;
+[xUnit.net 00:00:00.28]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.28]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\PublicEntranceTests.cs(13,0): at PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(Single x, Single y, Single z)&#xD;
+[xUnit.net 00:00:00.29]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.29]       Expected: False&#xD;
+[xUnit.net 00:00:00.29]       Actual:   True&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\PublicEntranceTests.cs(13,0): at PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(Single x, Single y, Single z)&#xD;
+[xUnit.net 00:00:00.29]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.29]       Expected: False&#xD;
+[xUnit.net 00:00:00.29]       Actual:   True&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\PublicEntranceTests.cs(13,0): at PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(Single x, Single y, Single z)&#xD;
+[xUnit.net 00:00:00.29]       Assert.False() Failure&#xD;
+[xUnit.net 00:00:00.29]       Expected: False&#xD;
+[xUnit.net 00:00:00.29]       Actual:   True&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\PublicEntranceTests.cs(13,0): at PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(Single x, Single y, Single z)&#xD;
+[xUnit.net 00:00:00.29]   Finished:    TownHallInterior.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T08:06:36.8422565+01:00">
+        <Text>[xUnit.net 00:00:00.28]     PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(x: 61,2000008, y: 1,60000002, z: 35,6500015) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T08:06:36.8424202+01:00">
+        <Text>[xUnit.net 00:00:00.29]     PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(x: 56,7999992, y: 1,60000002, z: 39,4000015) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T08:06:36.8424507+01:00">
+        <Text>[xUnit.net 00:00:00.29]     PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(x: 58,7000008, y: 1,60000002, z: 31) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T08:06:36.8424771+01:00">
+        <Text>[xUnit.net 00:00:00.29]     PublicEntranceTests.MovingAwayInsideLetsTheLeavesClose(x: 55,7000008, y: 1,60000002, z: 24) [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

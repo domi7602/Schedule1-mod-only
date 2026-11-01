@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.3.7 (2026-10-26)
+- Clock default is now 12-hour, same as the game (`9:23 AM`), not 24-hour. 24-hour stays available if `Time24H` is set in config. The header shrinks to fit the map width so AM/PM stays on one line.
+- Assigned HitmanPhone dead drops render as a gold pulsing marker, clamped to the map edge, with the drop name. No marker if HitmanPhone is not loaded.
+
 ## 2.3.6 (2026-10-25)
 - Keep AM/PM on the clock line. The narrow header now formats 12-hour time locally as `h:mm AM` and uses the short weekday whenever the clock is shown. Word wrapping on the day label is off. 24-hour mode, map size and header position are unchanged.
 - **Verified, owner-confirmed 2026-10-25.** Dominik confirmed the clock line is correct: AM/PM stays on one line. `Latest.log` 14:53:44–15:11:59 loaded v2.3.6, DLL `676719AD…`, and recorded `Minimap HUD created successfully` plus several M-key visibility events. The log does not measure wrapping; the one-line appearance is his explicit confirmation, not a log measurement.

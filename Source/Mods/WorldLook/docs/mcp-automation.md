@@ -14,6 +14,16 @@ methods, so automation uses parameterless methods:
 - `GetStatus()` returns a JSON status with requested state, readiness and errors.
 - `EnableLook()` and `DisableLook()` request an explicit session state. Repeating the
   same request does not toggle or reapply it. Startup configuration is not rewritten.
+- `GetWaterMaterialDiagnostic()` reads the currently attached owned reference material;
+  it refuses foreign, missing, detached or non-reference water rather than cloning it.
+- `EnableWaterDepthDiagnostic()` shows opaque RGB: undistorted depth valid,
+  refracted depth valid, and dye. `EnableWaterWeightsDiagnostic()` shows pre-foam
+  body weight, reflection weight and foam opacity as RGB. These are shader inputs/
+  weights, not photographs or final composited contributions.
+- `DisableWaterDiagnostic()` returns to normal rendering. Repeated requests are
+  idempotent and the mode is session-only; each new owned clone explicitly starts OFF.
+  Setter/readback uncertainty faults the water session for owned-material cleanup;
+  do not blindly retry. Disable/re-enable the look to recover after cleanup.
 - `ReturnToMenu()` starts the game's native menu transition. WorldLook issues no save request.
 
 Status remains readable in the menu. Mutations require a ready, loaded singleplayer world
@@ -72,3 +82,28 @@ The script deliberately does not synthesize Windows input or start a background 
 service. The agent orchestrates the MCP actions and supported Computer Use captures in the
 active task. No manual screenshot upload is needed. Gameplay evidence and current limits
 remain in [the acceptance record](in-game-acceptance.md).
+
+## Same-shader diagnostics — 2026-10-27 local test
+
+- Built bundle `f7ad970cd34abb6a400fe271eb9e0cdd9e1dc266644bdfee9a3642030da8ce6c`
+  (Unity 2022.3.62f3, 8 variants, 18 properties); deployed DLL
+  `0a939cda8929ffd8f4388bf1ebb9bf239200778658120e4372c97f2cebb81677`.
+  The prior DLL/PDB are retained in the install's deploy backup
+  `20261027T055850114Z-WorldLook-08b8aa39`.
+- A synthetic URP/D3D11 GPU fixture compared the previous installed bundle
+  `1d3934deae9965b659e729c2995443f42893e8fdde8f5ae513dc93485b51d868`
+  with mode 0 of the candidate: all 13 PNG hashes matched. This is not a game frame
+  or proof of all shader variants.
+- In singleplayer Dominik, harbor water used the supported reference shader and
+  mode readbacks 0 → 1 → 2 → 0; repeat commands reported `changed=false`.
+  Water-only diagnostics rendered yellow/white for depth and red/purple for weights;
+  OFF restored normal water. With depth active, look OFF then ON returned the new
+  owned material to mode 0. Game remains open with look ON and diagnostic OFF.
+- Evidence: `.backups/WorldLook/diagnostic-live-20261027T055849Z/`, including
+  command traces, capture metadata and a pre-test 40-file native-save snapshot.
+  Capture PNGs are the absolute paths in the metadata under the game's
+  `UserData/S1MCP/Evidence/Screenshots/`. The running game's save files still
+  matched the 40-file snapshot at the post-test check; this is not a future guarantee.
+  Captures were sequential with a moving game clock and camera, not matched frames;
+  only the one harbor location/singleplayer session was tested. No menu/reload
+  lifecycle or native-GPU variant coverage is claimed.

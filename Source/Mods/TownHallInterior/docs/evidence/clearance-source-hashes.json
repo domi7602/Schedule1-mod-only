@@ -1,0 +1,143 @@
+{
+  "capturedUtc": "2026-10-29T04:20:31.606509+00:00",
+  "sourceRevision": "94a42c5b41abc9e403793de238a75688726681db",
+  "sourceWorktree": "dirty",
+  "files": [
+    {
+      "path": "Source/Mods/Directory.Build.props",
+      "sha256": "b3fac99660ee6ca956deaacfa1114d84b80b7f2931be856987dd0ca2d28103cc"
+    },
+    {
+      "path": "Source/Mods/Directory.Build.targets",
+      "sha256": "87f3281d1f7c3556fd2f4bc1f5710390f809fafa14ae6d60b7928789c4f8891f"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/assets/native-facade.json",
+      "sha256": "588d18a4d71360f7c7e68ffa0d0d6bc42c2d3cee0ed72e17a44701e09ef17553"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/CleanupJournal.cs",
+      "sha256": "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorAdapter.cs",
+      "sha256": "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorChoice.cs",
+      "sha256": "4a271ea0198cd9c57de85d42ae77de4af64c3d3d2983e887b0fbcf2dde3bc222"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorHook.cs",
+      "sha256": "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorModalHost.cs",
+      "sha256": "f1559c9d6d29ad8ef6baf6f21d3e7f38c87dd170c9b2b427308580d242eadae4"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/DoorSelector.cs",
+      "sha256": "08ec0243a7b462fbe308023ea43654219d910360d340fbe3a6643876c0e7f3bd"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/ExclusiveModalFocus.cs",
+      "sha256": "ad971cdb8c20ac496b201fe66d81b8c9486b143e9f5b16d5171ce7280455aa8e"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/FacadePortal.cs",
+      "sha256": "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "sha256": "8fda187797f592b4401218ef6f06570aa925e31c02e656c90087625bca0a84ca"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeContextMenuRuntime.cs",
+      "sha256": "c520634162ee60b1c4d106b7ebe02f95938292b8d8e1711dfbc1dcbe815f475a"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeFacadeSwap.cs",
+      "sha256": "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/NativeSceneSwap.cs",
+      "sha256": "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/PublicEntrance.cs",
+      "sha256": "543eac3402b7c9f239a6ac127a478db948a49d54fa118f00dd0bb258ff76b395"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/PublicHallHost.cs",
+      "sha256": "6ab9386843e9439dd5540515241ef55942c17769edd3397a60cf7f25337417f1"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/RoomBuilder.cs",
+      "sha256": "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/RoomPlan.cs",
+      "sha256": "5cc33c5609df3961231f7c429a05d23b8ee5064ab992dc01d477480fee14d116"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "c72b8eb079e8d7e41ba04be6b1079bdbe9b054d48b022efb6124e3ffd996b779"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/UnityRoomSink.cs",
+      "sha256": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/CleanupJournalTests.cs",
+      "sha256": "1fc594bb24f1ac542d5ee8878ce88b54b7d295b132cce3112dc0d40c4708f1cb"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorAdapterTests.cs",
+      "sha256": "97e44aee74c74d5ba2f5672deec7319876eb3b1b2b8c71a12ca516f839ed907e"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorChoiceTests.cs",
+      "sha256": "6f9f493e814b8a6db340d916f3932d5b68b77a48b608c86e6bdaa6bb85d01946"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorModalHostTests.cs",
+      "sha256": "28a807cb863d5fff4deed65a3316c4bccab4b1ed9d57210f48e11e129b1ce241"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/DoorSelectorTests.cs",
+      "sha256": "3c0c3c7695f0ca636d626eea12e19cf51e632d110aa9b1d7ef31b782e56388d0"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/ExclusiveModalFocusTests.cs",
+      "sha256": "309b527e99a156e5f1f6e9d5c8e8d8f8fb8469c0fbf9b5e3cebe48a9cc67cb17"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/FacadePortalTests.cs",
+      "sha256": "76521f92c57259fd6c445a958af129939a66cb4d89e64574ba4770614ccd7aa5"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/ModalOwnershipTests.cs",
+      "sha256": "eba02c27f89922e558c5479788aef63860d222c4b3a747dba076e2bd55d21e55"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/NativeSceneSwapTests.cs",
+      "sha256": "d77efe579cd909c42dc48245b427d30c59874955c1b0dcdb6652a110f441d37c"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/PublicEntranceTests.cs",
+      "sha256": "9e0e273acea366172b93d741b57e49beb09cf70be90d20c453ccf706f12537f3"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/RoomPlanTests.cs",
+      "sha256": "4ab6921f6fa1149e4a899da106771dd1b151f984012e7c5bc42a059d25071a83"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "sha256": "133926ac0480ee39fee9c5be72c23a005157c57b7bc6240e6e301ed2fc6ab58d"
+    }
+  ],
+  "builtDllSha256": "72bbc8073db2d8240998a5a536b6a1023b65b7b2e317cd03fc0161ab1ca5fc87",
+  "installedBaselineSha256": "641511a94e11f314f0c8df3e7fd0a00b69c452f76d3d4c8766bda5b4b20a29bf",
+  "testResult": "100 passed; 0 failed; 0 skipped",
+  "testResultSha256": "e53f0c7852afbd34b2a3badcad7e3245fb8a5a0d0f102e3097d10b14241c3efb"
+}

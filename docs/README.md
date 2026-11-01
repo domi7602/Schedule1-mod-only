@@ -19,6 +19,7 @@
 | [`../Tools/README.md`](../Tools/README.md) | Developers | What each PowerShell helper script does. |
 | [`../Skills/README.md`](../Skills/README.md) | AI agents, developers | Index of the 23 skills (runbooks and reference material). |
 | [`../AGENTS.md`](../AGENTS.md) | AI agents | Bootstrap file: setup, authoritative mod inventory, agent workflows. |
+| [`knowledge-vault.md`](knowledge-vault.md) | Owner, AI agents | Connect the external LLM-WIKI vault, resolve local paths and preserve source ownership. |
 | [`../THIRD-PARTY-NOTICES.md`](../THIRD-PARTY-NOTICES.md) | Everyone | Third-party components and their licenses. |
 
 PropertyLEDs documentation: [`README`](../Source/Mods/PropertyLEDs/docs/README.md) · [`milestones`](../Source/Mods/PropertyLEDs/docs/implementation-status.md). Version 0.1.10 was owner-confirmed 2026-10-25; Dominik explicitly confirmed the LED edges are correct, and the log does not measure the insets. The 0.1.8 confirmation does not cover 0.1.9/0.1.10. WorldLook was owner-confirmed finished on 2026-10-25.

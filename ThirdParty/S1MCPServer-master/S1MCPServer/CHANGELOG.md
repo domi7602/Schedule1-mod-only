@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased local capture endpoint (2026-10-26; not deployed)
+- Added `capture_screenshot`: deferred final-frame Unity capture including UI, fixed
+  unique PNG evidence path, dimensions/frame/UTC/timing, bounded size/deadline,
+  concurrent guard, owned texture cleanup and shutdown handling.
+- 62 S1MCP tests pass; Release IL2CPP compile has 0 errors (180 existing-file warnings).
+- Deployment/live PNG blocked by a game started during implementation; installed
+  S1MCP DLL was absent. No screenshot success is claimed. See [capture contract and
+  complete evidence/limits](SCREEN-CAPTURE.md), including the no-deploy guard incident.
+
 ## 1.0.5 (2026-10-24)
 - **Fixed: the clock is HHMM, not minutes since midnight.** `TimeManager.CurrentTime` is a
   24-hour integer (1954 = 19:54); 1.0.4 treated it as minutes, so `get_time_of_day` reported

@@ -54,6 +54,17 @@ public class JournalTrackerSourceContractTests
     }
 
     [Fact]
+    public void AssignedDeadDrop_IsPinnedForTheMinimap()
+    {
+        string quest = ReadSource("BountyQuestFlow.cs");
+        string bridge = ReadSource("BountyJournalBridge.cs");
+        Assert.Contains("PinAssignedDrop()", quest);
+        Assert.Contains("QuestEntries[1].POIPosition", quest);
+        Assert.Contains("public static int CopyActive(float[] xyz, string[] labels)", bridge);
+        Assert.Contains("BountyJournalBridge.TryPinLiveQuest", bridge);
+    }
+
+    [Fact]
     public void CreatedQuest_BindsDeterministicPersistentGuid()
     {
         string bridge = ReadSource("BountyJournalBridge.cs");

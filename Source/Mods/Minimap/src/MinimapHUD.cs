@@ -242,8 +242,14 @@ public sealed class MinimapHUD
         _dayTmp.fontStyle = FontStyles.Bold;
         _dayTmp.alignment = TextAlignmentOptions.Center;
         _dayTmp.color = Color.white;
+        // Header is only as wide as the map. AM/PM is longer than 24h, so shrink
+        // to fit instead of wrapping the meridian onto a second line.
         _dayTmp.enableWordWrapping = false;
-        _dayTmp.text = "DAY 1 │ Tue 08:00";
+        _dayTmp.overflowMode = TextOverflowModes.Overflow;
+        _dayTmp.enableAutoSizing = true;
+        _dayTmp.fontSizeMin = 8f;
+        _dayTmp.fontSizeMax = 13.5f;
+        _dayTmp.text = "DAY 1 │ Tue 8:00 AM";
         _dayTmp.raycastTarget = false;
     }
 

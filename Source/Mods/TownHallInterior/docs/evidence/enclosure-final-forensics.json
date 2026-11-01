@@ -1,0 +1,6387 @@
+{
+  "scope": "Pinned production plans + exact extracted facade/frame triangles; source-guarded visibility; no native runtime, no complete scene inventory, no shader/LOD execution. Native hit facing uses original winding; outward-facing hits are conditional backface-cull evidence.",
+  "live_sources_changed_since_snapshot": [],
+  "portal_min": [
+    54.18,
+    1.41,
+    30.04
+  ],
+  "portal_max": [
+    54.56,
+    4.550000190734863,
+    31.96
+  ],
+  "floor_top": 1.53,
+  "frame_bounds": {
+    "min": [
+      54.250001,
+      1.41,
+      29.83
+    ],
+    "max": [
+      54.349999,
+      4.75,
+      32.17
+    ]
+  },
+  "source_hashes": {
+    "src/RoomPlan.cs": "4f7468a034c6a614574bc03d142debacfb7451fb355cfc6a6b1689d3a8757201",
+    "src/PublicEntrance.cs": "10e8d2264dbb6886f64d4bf1a95b8e06c2bf57a333d85b5415213ee8a82bed1f",
+    "src/FurniturePlan.cs": "e9af0ac73df9dc9f7aa35239b0c63a53b51ee1c74e1d9fb47402f5c8ceab68ad",
+    "src/FacadePortal.cs": "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270",
+    "src/NativeSceneSwap.cs": "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa",
+    "src/UnityRoomSink.cs": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17",
+    "src/PublicHallHost.cs": "739013a87c0c6ad999a33db66a6e60fb6483e090a069094248f3fef8193eb2c4",
+    "src/VanillaFurnishings.cs": "937c0d2dde2fd83247ef7e73f9bc31792264be08505ef76e08a96f3a8ae0328f",
+    "assets/native-facade.json": "588d18a4d71360f7c7e68ffa0d0d6bc42c2d3cee0ed72e17a44701e09ef17553",
+    "assets/native-furniture.json": "687fa231785b3be8938d8c080bddb1161ac468191ef26450b6ac0504769a79aa"
+  },
+  "native_triangle_count": 210,
+  "native_winding_agrees_authored_normals": 210,
+  "visible_box_bounds": [
+    {
+      "name": "guard-west",
+      "lo": [
+        60.599999,
+        4.75,
+        24.0
+      ],
+      "hi": [
+        60.700001,
+        5.75,
+        29.6
+      ]
+    },
+    {
+      "name": "guard-east",
+      "lo": [
+        62.099999,
+        4.75,
+        24.0
+      ],
+      "hi": [
+        62.200001,
+        5.75,
+        29.6
+      ]
+    },
+    {
+      "name": "guard-south",
+      "lo": [
+        60.700001,
+        4.75,
+        23.9
+      ],
+      "hi": [
+        62.099999,
+        5.75,
+        24.0
+      ]
+    },
+    {
+      "name": "public-floor",
+      "lo": [
+        55.0,
+        1.43,
+        21.6
+      ],
+      "hi": [
+        62.4,
+        1.53,
+        40.4
+      ]
+    },
+    {
+      "name": "inner-west-south",
+      "lo": [
+        54.75,
+        1.5,
+        21.2
+      ],
+      "hi": [
+        54.95,
+        4.2,
+        30.0
+      ]
+    },
+    {
+      "name": "inner-west-north",
+      "lo": [
+        54.75,
+        1.5,
+        32.0
+      ],
+      "hi": [
+        54.95,
+        4.2,
+        40.8
+      ]
+    },
+    {
+      "name": "inner-lintel",
+      "lo": [
+        54.35,
+        4.55,
+        30.04
+      ],
+      "hi": [
+        54.95,
+        4.75,
+        31.96
+      ]
+    },
+    {
+      "name": "inner-east",
+      "lo": [
+        62.45,
+        1.5,
+        21.6
+      ],
+      "hi": [
+        62.65,
+        4.2,
+        40.4
+      ]
+    },
+    {
+      "name": "inner-south",
+      "lo": [
+        55.0,
+        1.5,
+        21.4
+      ],
+      "hi": [
+        62.4,
+        4.2,
+        21.6
+      ]
+    },
+    {
+      "name": "inner-north",
+      "lo": [
+        55.0,
+        1.5,
+        40.4
+      ],
+      "hi": [
+        62.4,
+        4.2,
+        40.6
+      ]
+    },
+    {
+      "name": "floor-edge-west",
+      "lo": [
+        54.949998,
+        1.43,
+        21.599999
+      ],
+      "hi": [
+        55.000002,
+        1.53,
+        40.400001
+      ]
+    },
+    {
+      "name": "floor-edge-east",
+      "lo": [
+        62.400003,
+        1.43,
+        21.599999
+      ],
+      "hi": [
+        62.450003,
+        1.53,
+        40.400001
+      ]
+    },
+    {
+      "name": "ceiling-upper-west",
+      "lo": [
+        54.949995,
+        4.4,
+        21.599999
+      ],
+      "hi": [
+        60.699999,
+        4.75,
+        40.400001
+      ]
+    },
+    {
+      "name": "ceiling-upper-south",
+      "lo": [
+        60.700007,
+        4.4,
+        21.6
+      ],
+      "hi": [
+        62.450003,
+        4.75,
+        24.0
+      ]
+    },
+    {
+      "name": "ceiling-upper-north",
+      "lo": [
+        60.700007,
+        4.4,
+        29.600001
+      ],
+      "hi": [
+        62.450003,
+        4.75,
+        40.399999
+      ]
+    },
+    {
+      "name": "ceiling-upper-east",
+      "lo": [
+        62.099999,
+        4.4,
+        24.000001
+      ],
+      "hi": [
+        62.450001,
+        4.75,
+        29.599999
+      ]
+    },
+    {
+      "name": "crown-inner-west-south",
+      "lo": [
+        54.75,
+        4.2,
+        21.2
+      ],
+      "hi": [
+        54.95,
+        4.48,
+        30.0
+      ]
+    },
+    {
+      "name": "crown-inner-west-north",
+      "lo": [
+        54.75,
+        4.2,
+        32.0
+      ],
+      "hi": [
+        54.95,
+        4.48,
+        40.8
+      ]
+    },
+    {
+      "name": "crown-inner-east",
+      "lo": [
+        62.45,
+        4.2,
+        21.6
+      ],
+      "hi": [
+        62.65,
+        4.48,
+        40.4
+      ]
+    },
+    {
+      "name": "crown-inner-south",
+      "lo": [
+        55.0,
+        4.2,
+        21.4
+      ],
+      "hi": [
+        62.4,
+        4.48,
+        21.6
+      ]
+    },
+    {
+      "name": "crown-inner-north",
+      "lo": [
+        55.0,
+        4.2,
+        40.4
+      ],
+      "hi": [
+        62.4,
+        4.48,
+        40.6
+      ]
+    },
+    {
+      "name": "corner-west-inner-south",
+      "lo": [
+        54.949998,
+        1.5,
+        21.4
+      ],
+      "hi": [
+        55.000002,
+        4.48,
+        21.6
+      ]
+    },
+    {
+      "name": "corner-east-inner-south",
+      "lo": [
+        62.400003,
+        1.5,
+        21.4
+      ],
+      "hi": [
+        62.450003,
+        4.48,
+        21.6
+      ]
+    },
+    {
+      "name": "corner-west-inner-north",
+      "lo": [
+        54.949998,
+        1.5,
+        40.400002
+      ],
+      "hi": [
+        55.000002,
+        4.48,
+        40.599998
+      ]
+    },
+    {
+      "name": "corner-east-inner-north",
+      "lo": [
+        62.400003,
+        1.5,
+        40.400002
+      ],
+      "hi": [
+        62.450003,
+        4.48,
+        40.599998
+      ]
+    },
+    {
+      "name": "reveal-south",
+      "lo": [
+        54.34,
+        1.41,
+        29.95
+      ],
+      "hi": [
+        54.951,
+        4.749,
+        30.04
+      ]
+    },
+    {
+      "name": "reveal-north",
+      "lo": [
+        54.34,
+        1.41,
+        31.959997
+      ],
+      "hi": [
+        54.951,
+        4.749,
+        32.049997
+      ]
+    },
+    {
+      "name": "floor-rim-west-south",
+      "lo": [
+        54.549999,
+        4.4,
+        20.7
+      ],
+      "hi": [
+        54.950001,
+        4.75,
+        30.04
+      ]
+    },
+    {
+      "name": "floor-rim-west-north",
+      "lo": [
+        54.549999,
+        4.4,
+        31.959997
+      ],
+      "hi": [
+        54.950001,
+        4.75,
+        41.299997
+      ]
+    },
+    {
+      "name": "floor-rim-east",
+      "lo": [
+        62.450003,
+        4.4,
+        20.700001
+      ],
+      "hi": [
+        63.150003,
+        4.75,
+        41.299999
+      ]
+    },
+    {
+      "name": "floor-rim-south",
+      "lo": [
+        54.95,
+        4.4,
+        20.700002
+      ],
+      "hi": [
+        62.45,
+        4.75,
+        21.600002
+      ]
+    },
+    {
+      "name": "floor-rim-north",
+      "lo": [
+        54.95,
+        4.4,
+        40.400001
+      ],
+      "hi": [
+        62.45,
+        4.75,
+        41.299999
+      ]
+    },
+    {
+      "name": "upper-skin-west",
+      "lo": [
+        54.549998,
+        4.75,
+        20.700001
+      ],
+      "hi": [
+        54.569998,
+        8.13,
+        41.299999
+      ]
+    },
+    {
+      "name": "upper-skin-east",
+      "lo": [
+        63.13,
+        4.75,
+        20.700001
+      ],
+      "hi": [
+        63.15,
+        8.13,
+        41.299999
+      ]
+    },
+    {
+      "name": "upper-skin-south",
+      "lo": [
+        54.549999,
+        4.75,
+        20.700001
+      ],
+      "hi": [
+        63.150001,
+        8.13,
+        20.719999
+      ]
+    },
+    {
+      "name": "upper-skin-north",
+      "lo": [
+        54.549999,
+        4.75,
+        41.28
+      ],
+      "hi": [
+        63.150001,
+        8.13,
+        41.3
+      ]
+    },
+    {
+      "name": "upper-ceiling",
+      "lo": [
+        54.549999,
+        8.05,
+        20.700001
+      ],
+      "hi": [
+        63.150001,
+        8.13,
+        41.299999
+      ]
+    }
+  ],
+  "current": [
+    {
+      "name": "corner-west-south",
+      "origin": [
+        55.035,
+        3,
+        23
+      ],
+      "direction": [
+        -0.039968,
+        0.0,
+        -0.999201
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "corner-west-inner-south",
+          "t": 1.401119,
+          "point": [
+            54.979,
+            3.0,
+            21.6
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "south",
+          "t": 2.301839,
+          "point": [
+            54.943,
+            3.0,
+            20.7
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 5,
+          "t": 2.401888,
+          "point": [
+            54.939001,
+            3.0,
+            20.600031
+          ],
+          "normal": [
+            -0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              0.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 25,
+          "t": 2.501969,
+          "point": [
+            54.935001,
+            3.0,
+            20.500031
+          ],
+          "normal": [
+            -0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              63.349998,
+              4.749999,
+              20.500031
+            ],
+            [
+              54.349998,
+              1.249999,
+              20.500031
+            ],
+            [
+              54.349998,
+              4.749999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 32,
+          "t": 2.51866,
+          "point": [
+            54.934334,
+            3.0,
+            20.483353
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.99647,
+          "triangle_vertices": [
+            [
+              63.351372,
+              1.405152,
+              20.483353
+            ],
+            [
+              54.348625,
+              1.405152,
+              20.483353
+            ],
+            [
+              54.348625,
+              8.282026,
+              20.483353
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "corner-east-south",
+      "origin": [
+        62.365,
+        3,
+        23
+      ],
+      "direction": [
+        0.039968,
+        0.0,
+        -0.999201
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "corner-east-inner-south",
+          "t": 1.401119,
+          "point": [
+            62.421,
+            3.0,
+            21.6
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "south",
+          "t": 2.301839,
+          "point": [
+            62.457,
+            3.0,
+            20.7
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 4,
+          "t": 2.401888,
+          "point": [
+            62.460999,
+            3.0,
+            20.600031
+          ],
+          "normal": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              63.299999,
+              0.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              0.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 24,
+          "t": 2.501969,
+          "point": [
+            62.464999,
+            3.0,
+            20.500031
+          ],
+          "normal": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              63.349998,
+              4.749999,
+              20.500031
+            ],
+            [
+              63.349998,
+              1.249999,
+              20.500031
+            ],
+            [
+              54.349998,
+              1.249999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 33,
+          "t": 2.51866,
+          "point": [
+            62.465666,
+            3.0,
+            20.483353
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.997836,
+          "triangle_vertices": [
+            [
+              63.351372,
+              1.405152,
+              20.483353
+            ],
+            [
+              54.348625,
+              8.282026,
+              20.483353
+            ],
+            [
+              63.351372,
+              8.282026,
+              20.483353
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "corner-west-north",
+      "origin": [
+        55.035,
+        3,
+        39
+      ],
+      "direction": [
+        -0.039968,
+        0.0,
+        0.999201
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "corner-west-inner-north",
+          "t": 1.401121,
+          "point": [
+            54.979,
+            3.0,
+            40.400002
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "north",
+          "t": 2.301839,
+          "point": [
+            54.943,
+            3.0,
+            41.3
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 1,
+          "t": 2.401951,
+          "point": [
+            54.938999,
+            3.0,
+            41.400032
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              9.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              0.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 17,
+          "t": 2.50203,
+          "point": [
+            54.934999,
+            3.0,
+            41.500031
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              54.349998,
+              1.250001,
+              41.500031
+            ],
+            [
+              63.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              54.349998,
+              4.750001,
+              41.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 31,
+          "t": 2.518721,
+          "point": [
+            54.934332,
+            3.0,
+            41.516708
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.997836,
+          "triangle_vertices": [
+            [
+              54.348625,
+              1.405155,
+              41.516708
+            ],
+            [
+              63.351372,
+              8.282028,
+              41.516708
+            ],
+            [
+              54.348625,
+              8.282028,
+              41.516708
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "corner-east-north",
+      "origin": [
+        62.365,
+        3,
+        39
+      ],
+      "direction": [
+        0.039968,
+        0.0,
+        0.999201
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "corner-east-inner-north",
+          "t": 1.401121,
+          "point": [
+            62.421,
+            3.0,
+            40.400002
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "north",
+          "t": 2.301839,
+          "point": [
+            62.457,
+            3.0,
+            41.3
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 0,
+          "t": 2.401951,
+          "point": [
+            62.461001,
+            3.0,
+            41.400032
+          ],
+          "normal": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              9.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 16,
+          "t": 2.50203,
+          "point": [
+            62.465001,
+            3.0,
+            41.500031
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              54.349998,
+              1.250001,
+              41.500031
+            ],
+            [
+              63.349998,
+              1.250001,
+              41.500031
+            ],
+            [
+              63.349998,
+              4.750001,
+              41.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 30,
+          "t": 2.518721,
+          "point": [
+            62.465668,
+            3.0,
+            41.516708
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.99647,
+          "triangle_vertices": [
+            [
+              54.348625,
+              1.405155,
+              41.516708
+            ],
+            [
+              63.351372,
+              1.405155,
+              41.516708
+            ],
+            [
+              63.351372,
+              8.282028,
+              41.516708
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "stair-up",
+      "origin": [
+        61.4,
+        4,
+        27
+      ],
+      "direction": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "upper-ceiling",
+          "t": 4.05,
+          "point": [
+            61.4,
+            8.05,
+            27.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 2,
+          "t": 5.65,
+          "point": [
+            61.4,
+            9.65,
+            27.0
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 1,
+          "triangle": 5,
+          "t": 7.102934,
+          "point": [
+            61.4,
+            11.102934,
+            27.0
+          ],
+          "normal": [
+            0.583771,
+            0.811918,
+            0.0
+          ],
+          "normal_dot_ray": 0.811918,
+          "authored_dot_ray": 0.811918,
+          "triangle_vertices": [
+            [
+              63.713497,
+              9.439524,
+              25.772366
+            ],
+            [
+              60.23024,
+              11.943995,
+              27.457411
+            ],
+            [
+              60.23024,
+              11.943995,
+              31.000031
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "upper-up",
+      "origin": [
+        58.7,
+        6.3,
+        31
+      ],
+      "direction": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "upper-ceiling",
+          "t": 1.75,
+          "point": [
+            58.7,
+            8.05,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 3,
+          "t": 3.35,
+          "point": [
+            58.7,
+            9.65,
+            31.0
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 1,
+          "triangle": 12,
+          "t": 5.643995,
+          "point": [
+            58.7,
+            11.943995,
+            31.0
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              57.469757,
+              11.943995,
+              27.457411
+            ],
+            [
+              57.469757,
+              11.943995,
+              31.000031
+            ],
+            [
+              60.23024,
+              11.943995,
+              31.000031
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "upper-west",
+      "origin": [
+        58.7,
+        6.3,
+        31
+      ],
+      "direction": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "upper-skin-west",
+          "t": 4.130002,
+          "point": [
+            54.569998,
+            6.3,
+            31.0
+          ],
+          "face": "xmax",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "west-lintel",
+          "t": 4.150003,
+          "point": [
+            54.549997,
+            6.3,
+            31.0
+          ],
+          "face": "xmax",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 8,
+          "t": 4.300002,
+          "point": [
+            54.399998,
+            6.3,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              54.399998,
+              0.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              9.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 14,
+          "t": 4.350002,
+          "point": [
+            54.349998,
+            6.3,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              54.349998,
+              8.249998,
+              20.500031
+            ],
+            [
+              54.349998,
+              4.749999,
+              20.500031
+            ],
+            [
+              54.349998,
+              4.750001,
+              41.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 7,
+          "t": 4.351375,
+          "point": [
+            54.348625,
+            6.3,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              54.348625,
+              4.55,
+              31.000031
+            ],
+            [
+              54.348625,
+              8.282027,
+              31.000031
+            ],
+            [
+              54.348625,
+              4.55,
+              28.212649
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "upper-east",
+      "origin": [
+        58.7,
+        6.3,
+        31
+      ],
+      "direction": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "upper-skin-east",
+          "t": 4.43,
+          "point": [
+            63.13,
+            6.3,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "east",
+          "t": 4.450002,
+          "point": [
+            63.150002,
+            6.3,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 16,
+          "t": 4.599999,
+          "point": [
+            63.299999,
+            6.3,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              20.600031
+            ],
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 22,
+          "t": 4.649998,
+          "point": [
+            63.349998,
+            6.3,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.349998,
+              8.250001,
+              41.500031
+            ],
+            [
+              63.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              63.349998,
+              4.749999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 26,
+          "t": 4.651372,
+          "point": [
+            63.351372,
+            6.3,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.351372,
+              1.405154,
+              31.000031
+            ],
+            [
+              63.351372,
+              8.282026,
+              25.863821
+            ],
+            [
+              63.351372,
+              8.282027,
+              31.000031
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "upper-south",
+      "origin": [
+        58.7,
+        6.3,
+        31
+      ],
+      "direction": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "upper-skin-south",
+          "t": 10.280001,
+          "point": [
+            58.7,
+            6.3,
+            20.719999
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "south",
+          "t": 10.3,
+          "point": [
+            58.7,
+            6.3,
+            20.7
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 5,
+          "t": 10.399969,
+          "point": [
+            58.7,
+            6.3,
+            20.600031
+          ],
+          "normal": [
+            -0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              0.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 26,
+          "t": 10.499969,
+          "point": [
+            58.7,
+            6.3,
+            20.500031
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              54.349998,
+              8.249998,
+              20.500031
+            ],
+            [
+              63.349998,
+              4.749999,
+              20.500031
+            ],
+            [
+              54.349998,
+              4.749999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 33,
+          "t": 10.516647,
+          "point": [
+            58.7,
+            6.3,
+            20.483353
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 0.998633,
+          "triangle_vertices": [
+            [
+              63.351372,
+              1.405152,
+              20.483353
+            ],
+            [
+              54.348625,
+              8.282026,
+              20.483353
+            ],
+            [
+              63.351372,
+              8.282026,
+              20.483353
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "upper-north",
+      "origin": [
+        58.7,
+        6.3,
+        31
+      ],
+      "direction": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "upper-skin-north",
+          "t": 10.28,
+          "point": [
+            58.7,
+            6.3,
+            41.28
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "north",
+          "t": 10.3,
+          "point": [
+            58.7,
+            6.3,
+            41.3
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 0,
+          "t": 10.400032,
+          "point": [
+            58.7,
+            6.3,
+            41.400032
+          ],
+          "normal": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              9.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 18,
+          "t": 10.500031,
+          "point": [
+            58.7,
+            6.3,
+            41.500031
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              54.349998,
+              8.250001,
+              41.500031
+            ],
+            [
+              54.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              63.349998,
+              4.750001,
+              41.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 31,
+          "t": 10.516708,
+          "point": [
+            58.7,
+            6.3,
+            41.516708
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 0.998633,
+          "triangle_vertices": [
+            [
+              54.348625,
+              1.405155,
+              41.516708
+            ],
+            [
+              63.351372,
+              8.282028,
+              41.516708
+            ],
+            [
+              54.348625,
+              8.282028,
+              41.516708
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "entry-below-lintel-above-ceiling",
+      "origin": [
+        52.8,
+        3.1,
+        31
+      ],
+      "direction": [
+        0.835323,
+        0.549759,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "ceiling-upper-west",
+          "t": 2.573848,
+          "point": [
+            54.949995,
+            4.514997,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-ceiling",
+          "t": 9.003942,
+          "point": [
+            60.321201,
+            8.05,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "upper-west",
+          "t": 2.546569,
+          "point": [
+            54.927208,
+            4.5,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 2,
+          "t": 11.914306,
+          "point": [
+            62.752296,
+            9.65,
+            31.0
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 0.549759,
+          "authored_dot_ray": 0.549759,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 1,
+          "triangle": 3,
+          "t": 12.332116,
+          "point": [
+            63.101302,
+            9.879694,
+            31.0
+          ],
+          "normal": [
+            0.583771,
+            0.811918,
+            0.0
+          ],
+          "normal_dot_ray": 0.933997,
+          "authored_dot_ray": 0.933997,
+          "triangle_vertices": [
+            [
+              63.713497,
+              9.439525,
+              30.999941
+            ],
+            [
+              60.23024,
+              11.943995,
+              31.000031
+            ],
+            [
+              60.23024,
+              11.943995,
+              34.557549
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "entry-above-lintel",
+      "origin": [
+        52.8,
+        3.1,
+        31
+      ],
+      "direction": [
+        0.742347,
+        0.670016,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "inner-lintel",
+          "t": 2.164129,
+          "point": [
+            54.406534,
+            4.55,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-ceiling",
+          "t": 7.387887,
+          "point": [
+            58.284375,
+            8.05,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "west-lintel",
+          "t": 2.164129,
+          "point": [
+            54.406534,
+            4.55,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-west",
+          "t": 2.357387,
+          "point": [
+            54.549999,
+            4.679487,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 2,
+          "t": 9.77589,
+          "point": [
+            60.057102,
+            9.65,
+            31.0
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 0.670016,
+          "authored_dot_ray": 0.670016,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 1,
+          "triangle": 3,
+          "t": 11.784988,
+          "point": [
+            61.54855,
+            10.996127,
+            31.0
+          ],
+          "normal": [
+            0.583771,
+            0.811918,
+            0.0
+          ],
+          "normal_dot_ray": 0.977359,
+          "authored_dot_ray": 0.977359,
+          "triangle_vertices": [
+            [
+              63.713497,
+              9.439525,
+              30.999941
+            ],
+            [
+              60.23024,
+              11.943995,
+              31.000031
+            ],
+            [
+              60.23024,
+              11.943995,
+              34.557549
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "entry-beside-lintel-south",
+      "origin": [
+        52.8,
+        3.1,
+        31
+      ],
+      "direction": [
+        0.736353,
+        0.566425,
+        -0.370064
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "inner-lintel",
+          "t": 2.559915,
+          "point": [
+            54.685,
+            4.55,
+            30.052667
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "reveal-south",
+          "t": 2.594143,
+          "point": [
+            54.710204,
+            4.569388,
+            30.04
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        },
+        {
+          "name": "floor-rim-west-south",
+          "t": 2.594143,
+          "point": [
+            54.710204,
+            4.569388,
+            30.04
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-ceiling",
+          "t": 8.739021,
+          "point": [
+            59.235,
+            8.05,
+            27.766
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "upper-west",
+          "t": 2.471642,
+          "point": [
+            54.62,
+            4.5,
+            30.085333
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 2,
+          "t": 11.563754,
+          "point": [
+            61.315,
+            9.65,
+            26.720667
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 0.566425,
+          "authored_dot_ray": 0.566425,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 1,
+          "triangle": 6,
+          "t": 12.945357,
+          "point": [
+            62.332347,
+            10.432574,
+            26.209385
+          ],
+          "normal": [
+            0.583771,
+            0.811918,
+            -0.0
+          ],
+          "normal_dot_ray": 0.889752,
+          "authored_dot_ray": 0.889752,
+          "triangle_vertices": [
+            [
+              63.713497,
+              9.439524,
+              20.153423
+            ],
+            [
+              60.23024,
+              11.943995,
+              27.457411
+            ],
+            [
+              63.713497,
+              9.439524,
+              25.772366
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "entry-beside-lintel-north",
+      "origin": [
+        52.8,
+        3.1,
+        31
+      ],
+      "direction": [
+        0.736353,
+        0.566425,
+        0.370064
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "inner-lintel",
+          "t": 2.559915,
+          "point": [
+            54.685,
+            4.55,
+            31.947333
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "reveal-north",
+          "t": 2.594135,
+          "point": [
+            54.710198,
+            4.569383,
+            31.959997
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "floor-rim-west-north",
+          "t": 2.594135,
+          "point": [
+            54.710198,
+            4.569383,
+            31.959997
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-ceiling",
+          "t": 8.739021,
+          "point": [
+            59.235,
+            8.05,
+            34.234
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "upper-west",
+          "t": 2.471642,
+          "point": [
+            54.62,
+            4.5,
+            31.914667
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 2,
+          "t": 11.563754,
+          "point": [
+            61.315,
+            9.65,
+            35.279333
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 0.566425,
+          "authored_dot_ray": 0.566425,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 1,
+          "triangle": 1,
+          "t": 12.945358,
+          "point": [
+            62.332348,
+            10.432575,
+            35.790616
+          ],
+          "normal": [
+            0.583771,
+            0.811918,
+            -0.0
+          ],
+          "normal_dot_ray": 0.889752,
+          "authored_dot_ray": 0.889752,
+          "triangle_vertices": [
+            [
+              63.713497,
+              9.439526,
+              36.2495
+            ],
+            [
+              60.23024,
+              11.943995,
+              34.557549
+            ],
+            [
+              60.23024,
+              11.943995,
+              38.350487
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "entry-low-central-control",
+      "origin": [
+        53,
+        2.5,
+        31
+      ],
+      "direction": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "inner-east",
+          "t": 9.45,
+          "point": [
+            62.45,
+            2.5,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "east",
+          "t": 10.150002,
+          "point": [
+            63.150002,
+            2.5,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 17,
+          "t": 10.299999,
+          "point": [
+            63.299999,
+            2.5,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              20.600031
+            ],
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              0.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 20,
+          "t": 10.349998,
+          "point": [
+            63.349998,
+            2.5,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              63.349998,
+              1.250001,
+              41.500031
+            ],
+            [
+              63.349998,
+              1.249999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 26,
+          "t": 10.351372,
+          "point": [
+            63.351372,
+            2.5,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.351372,
+              1.405154,
+              31.000031
+            ],
+            [
+              63.351372,
+              8.282026,
+              25.863821
+            ],
+            [
+              63.351372,
+              8.282027,
+              31.000031
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "entry-header-control",
+      "origin": [
+        53,
+        4.65,
+        31
+      ],
+      "direction": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "inner-lintel",
+          "t": 1.35,
+          "point": [
+            54.35,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "ceiling-upper-west",
+          "t": 1.949995,
+          "point": [
+            54.949995,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "ceiling-upper-north",
+          "t": 7.700007,
+          "point": [
+            60.700007,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "floor-rim-east",
+          "t": 9.450003,
+          "point": [
+            62.450003,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "west-lintel",
+          "t": 1.349997,
+          "point": [
+            54.349997,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-west",
+          "t": 1.549999,
+          "point": [
+            54.549999,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-north",
+          "t": 7.700003,
+          "point": [
+            60.700003,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "east",
+          "t": 10.150002,
+          "point": [
+            63.150002,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [
+        {
+          "name": "frame:Map/Hyland Point/Region_Downtown/TownCenter/TownHall/townhall/DoorFrame",
+          "submesh": 0,
+          "triangle": 21,
+          "t": 1.250001,
+          "point": [
+            54.250001,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.250001,
+              4.575,
+              30.005001
+            ],
+            [
+              54.250001,
+              4.575,
+              31.994999
+            ],
+            [
+              54.250001,
+              4.725,
+              31.97
+            ]
+          ]
+        }
+      ],
+      "native_two_sided": [
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 7,
+          "t": 1.348625,
+          "point": [
+            54.348625,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.348625,
+              4.55,
+              31.000031
+            ],
+            [
+              54.348625,
+              8.282027,
+              31.000031
+            ],
+            [
+              54.348625,
+              4.55,
+              28.212649
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 8,
+          "t": 1.349998,
+          "point": [
+            54.349998,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.349998,
+              4.55,
+              40.300027
+            ],
+            [
+              54.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              54.349998,
+              4.749999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 11,
+          "t": 1.399998,
+          "point": [
+            54.399998,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.399998,
+              4.55,
+              32.386698
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              4.55,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 17,
+          "t": 10.299999,
+          "point": [
+            63.299999,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              20.600031
+            ],
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              0.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 21,
+          "t": 10.349998,
+          "point": [
+            63.349998,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              63.349998,
+              1.249999,
+              20.500031
+            ],
+            [
+              63.349998,
+              4.749999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 26,
+          "t": 10.351372,
+          "point": [
+            63.351372,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.351372,
+              1.405154,
+              31.000031
+            ],
+            [
+              63.351372,
+              8.282026,
+              25.863821
+            ],
+            [
+              63.351372,
+              8.282027,
+              31.000031
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 7,
+          "t": 1.348625,
+          "point": [
+            54.348625,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.348625,
+              4.55,
+              31.000031
+            ],
+            [
+              54.348625,
+              8.282027,
+              31.000031
+            ],
+            [
+              54.348625,
+              4.55,
+              28.212649
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 8,
+          "t": 1.349998,
+          "point": [
+            54.349998,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.349998,
+              4.55,
+              40.300027
+            ],
+            [
+              54.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              54.349998,
+              4.749999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 11,
+          "t": 1.399998,
+          "point": [
+            54.399998,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.399998,
+              4.55,
+              32.386698
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              4.55,
+              20.600031
+            ]
+          ]
+        }
+      ],
+      "open_through_model": false
+    },
+    {
+      "name": "upper-down-support",
+      "origin": [
+        58.7,
+        5.5,
+        31
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "ceiling-upper-west",
+          "t": 0.75,
+          "point": [
+            58.7,
+            4.75,
+            31.0
+          ],
+          "face": "ymax",
+          "inside_at_origin": false
+        },
+        {
+          "name": "public-floor",
+          "t": 3.97,
+          "point": [
+            58.7,
+            1.53,
+            31.0
+          ],
+          "face": "ymax",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "upper-west",
+          "t": 0.75,
+          "point": [
+            58.7,
+            4.75,
+            31.0
+          ],
+          "face": "ymax",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 7,
+          "t": 4.85,
+          "point": [
+            58.7,
+            0.65,
+            31.0
+          ],
+          "normal": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              0.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              0.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 0,
+          "triangle": 18,
+          "t": 5.639174,
+          "point": [
+            58.7,
+            -0.139174,
+            31.0
+          ],
+          "normal": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.460796,
+              -0.139175,
+              25.863821
+            ],
+            [
+              63.460796,
+              -0.139174,
+              31.000031
+            ],
+            [
+              54.239201,
+              -0.139174,
+              31.000031
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    }
+  ],
+  "proposed": [
+    {
+      "name": "corner-west-south",
+      "origin": [
+        55.035,
+        3,
+        23
+      ],
+      "direction": [
+        -0.039968,
+        0.0,
+        -0.999201
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "corner-west-inner-south",
+          "t": 1.401119,
+          "point": [
+            54.979,
+            3.0,
+            21.6
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        },
+        {
+          "name": "proposal-corner-west-south",
+          "t": 1.40112,
+          "point": [
+            54.979,
+            3.0,
+            21.6
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "south",
+          "t": 2.301839,
+          "point": [
+            54.943,
+            3.0,
+            20.7
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 5,
+          "t": 2.401888,
+          "point": [
+            54.939001,
+            3.0,
+            20.600031
+          ],
+          "normal": [
+            -0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              0.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 25,
+          "t": 2.501969,
+          "point": [
+            54.935001,
+            3.0,
+            20.500031
+          ],
+          "normal": [
+            -0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              63.349998,
+              4.749999,
+              20.500031
+            ],
+            [
+              54.349998,
+              1.249999,
+              20.500031
+            ],
+            [
+              54.349998,
+              4.749999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 32,
+          "t": 2.51866,
+          "point": [
+            54.934334,
+            3.0,
+            20.483353
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.99647,
+          "triangle_vertices": [
+            [
+              63.351372,
+              1.405152,
+              20.483353
+            ],
+            [
+              54.348625,
+              1.405152,
+              20.483353
+            ],
+            [
+              54.348625,
+              8.282026,
+              20.483353
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "corner-east-south",
+      "origin": [
+        62.365,
+        3,
+        23
+      ],
+      "direction": [
+        0.039968,
+        0.0,
+        -0.999201
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "corner-east-inner-south",
+          "t": 1.401119,
+          "point": [
+            62.421,
+            3.0,
+            21.6
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        },
+        {
+          "name": "proposal-corner-east-south",
+          "t": 1.40112,
+          "point": [
+            62.421,
+            3.0,
+            21.6
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "south",
+          "t": 2.301839,
+          "point": [
+            62.457,
+            3.0,
+            20.7
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 4,
+          "t": 2.401888,
+          "point": [
+            62.460999,
+            3.0,
+            20.600031
+          ],
+          "normal": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              63.299999,
+              0.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              0.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 24,
+          "t": 2.501969,
+          "point": [
+            62.464999,
+            3.0,
+            20.500031
+          ],
+          "normal": [
+            0.0,
+            -0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              63.349998,
+              4.749999,
+              20.500031
+            ],
+            [
+              63.349998,
+              1.249999,
+              20.500031
+            ],
+            [
+              54.349998,
+              1.249999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 33,
+          "t": 2.51866,
+          "point": [
+            62.465666,
+            3.0,
+            20.483353
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.997836,
+          "triangle_vertices": [
+            [
+              63.351372,
+              1.405152,
+              20.483353
+            ],
+            [
+              54.348625,
+              8.282026,
+              20.483353
+            ],
+            [
+              63.351372,
+              8.282026,
+              20.483353
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "corner-west-north",
+      "origin": [
+        55.035,
+        3,
+        39
+      ],
+      "direction": [
+        -0.039968,
+        0.0,
+        0.999201
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "proposal-corner-west-north",
+          "t": 1.40112,
+          "point": [
+            54.979,
+            3.0,
+            40.4
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "corner-west-inner-north",
+          "t": 1.401121,
+          "point": [
+            54.979,
+            3.0,
+            40.400002
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "north",
+          "t": 2.301839,
+          "point": [
+            54.943,
+            3.0,
+            41.3
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 1,
+          "t": 2.401951,
+          "point": [
+            54.938999,
+            3.0,
+            41.400032
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              9.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              0.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 17,
+          "t": 2.50203,
+          "point": [
+            54.934999,
+            3.0,
+            41.500031
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              54.349998,
+              1.250001,
+              41.500031
+            ],
+            [
+              63.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              54.349998,
+              4.750001,
+              41.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 31,
+          "t": 2.518721,
+          "point": [
+            54.934332,
+            3.0,
+            41.516708
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.997836,
+          "triangle_vertices": [
+            [
+              54.348625,
+              1.405155,
+              41.516708
+            ],
+            [
+              63.351372,
+              8.282028,
+              41.516708
+            ],
+            [
+              54.348625,
+              8.282028,
+              41.516708
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "corner-east-north",
+      "origin": [
+        62.365,
+        3,
+        39
+      ],
+      "direction": [
+        0.039968,
+        0.0,
+        0.999201
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "proposal-corner-east-north",
+          "t": 1.40112,
+          "point": [
+            62.421,
+            3.0,
+            40.4
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "corner-east-inner-north",
+          "t": 1.401121,
+          "point": [
+            62.421,
+            3.0,
+            40.400002
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "north",
+          "t": 2.301839,
+          "point": [
+            62.457,
+            3.0,
+            41.3
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 0,
+          "t": 2.401951,
+          "point": [
+            62.461001,
+            3.0,
+            41.400032
+          ],
+          "normal": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              9.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 16,
+          "t": 2.50203,
+          "point": [
+            62.465001,
+            3.0,
+            41.500031
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.999201,
+          "triangle_vertices": [
+            [
+              54.349998,
+              1.250001,
+              41.500031
+            ],
+            [
+              63.349998,
+              1.250001,
+              41.500031
+            ],
+            [
+              63.349998,
+              4.750001,
+              41.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 30,
+          "t": 2.518721,
+          "point": [
+            62.465668,
+            3.0,
+            41.516708
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 0.999201,
+          "authored_dot_ray": 0.99647,
+          "triangle_vertices": [
+            [
+              54.348625,
+              1.405155,
+              41.516708
+            ],
+            [
+              63.351372,
+              1.405155,
+              41.516708
+            ],
+            [
+              63.351372,
+              8.282028,
+              41.516708
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "stair-up",
+      "origin": [
+        61.4,
+        4,
+        27
+      ],
+      "direction": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "upper-ceiling",
+          "t": 4.05,
+          "point": [
+            61.4,
+            8.05,
+            27.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "proposal-upper-ceiling",
+          "t": 4.05,
+          "point": [
+            61.4,
+            8.05,
+            27.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 2,
+          "t": 5.65,
+          "point": [
+            61.4,
+            9.65,
+            27.0
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 1,
+          "triangle": 5,
+          "t": 7.102934,
+          "point": [
+            61.4,
+            11.102934,
+            27.0
+          ],
+          "normal": [
+            0.583771,
+            0.811918,
+            0.0
+          ],
+          "normal_dot_ray": 0.811918,
+          "authored_dot_ray": 0.811918,
+          "triangle_vertices": [
+            [
+              63.713497,
+              9.439524,
+              25.772366
+            ],
+            [
+              60.23024,
+              11.943995,
+              27.457411
+            ],
+            [
+              60.23024,
+              11.943995,
+              31.000031
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "upper-up",
+      "origin": [
+        58.7,
+        6.3,
+        31
+      ],
+      "direction": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "upper-ceiling",
+          "t": 1.75,
+          "point": [
+            58.7,
+            8.05,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "proposal-upper-ceiling",
+          "t": 1.75,
+          "point": [
+            58.7,
+            8.05,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 3,
+          "t": 3.35,
+          "point": [
+            58.7,
+            9.65,
+            31.0
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 1,
+          "triangle": 12,
+          "t": 5.643995,
+          "point": [
+            58.7,
+            11.943995,
+            31.0
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              57.469757,
+              11.943995,
+              27.457411
+            ],
+            [
+              57.469757,
+              11.943995,
+              31.000031
+            ],
+            [
+              60.23024,
+              11.943995,
+              31.000031
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "upper-west",
+      "origin": [
+        58.7,
+        6.3,
+        31
+      ],
+      "direction": [
+        -1.0,
+        0.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "proposal-upper-west-header",
+          "t": 3.75,
+          "point": [
+            54.95,
+            6.3,
+            31.0
+          ],
+          "face": "xmax",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-skin-west",
+          "t": 4.130002,
+          "point": [
+            54.569998,
+            6.3,
+            31.0
+          ],
+          "face": "xmax",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "west-lintel",
+          "t": 4.150003,
+          "point": [
+            54.549997,
+            6.3,
+            31.0
+          ],
+          "face": "xmax",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 8,
+          "t": 4.300002,
+          "point": [
+            54.399998,
+            6.3,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              54.399998,
+              0.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              9.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 14,
+          "t": 4.350002,
+          "point": [
+            54.349998,
+            6.3,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              54.349998,
+              8.249998,
+              20.500031
+            ],
+            [
+              54.349998,
+              4.749999,
+              20.500031
+            ],
+            [
+              54.349998,
+              4.750001,
+              41.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 7,
+          "t": 4.351375,
+          "point": [
+            54.348625,
+            6.3,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              54.348625,
+              4.55,
+              31.000031
+            ],
+            [
+              54.348625,
+              8.282027,
+              31.000031
+            ],
+            [
+              54.348625,
+              4.55,
+              28.212649
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "upper-east",
+      "origin": [
+        58.7,
+        6.3,
+        31
+      ],
+      "direction": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "proposal-upper-east",
+          "t": 3.75,
+          "point": [
+            62.45,
+            6.3,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-skin-east",
+          "t": 4.43,
+          "point": [
+            63.13,
+            6.3,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "east",
+          "t": 4.450002,
+          "point": [
+            63.150002,
+            6.3,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 16,
+          "t": 4.599999,
+          "point": [
+            63.299999,
+            6.3,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              20.600031
+            ],
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 22,
+          "t": 4.649998,
+          "point": [
+            63.349998,
+            6.3,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.349998,
+              8.250001,
+              41.500031
+            ],
+            [
+              63.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              63.349998,
+              4.749999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 26,
+          "t": 4.651372,
+          "point": [
+            63.351372,
+            6.3,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.351372,
+              1.405154,
+              31.000031
+            ],
+            [
+              63.351372,
+              8.282026,
+              25.863821
+            ],
+            [
+              63.351372,
+              8.282027,
+              31.000031
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "upper-south",
+      "origin": [
+        58.7,
+        6.3,
+        31
+      ],
+      "direction": [
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "proposal-upper-south",
+          "t": 9.4,
+          "point": [
+            58.7,
+            6.3,
+            21.6
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-skin-south",
+          "t": 10.280001,
+          "point": [
+            58.7,
+            6.3,
+            20.719999
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "south",
+          "t": 10.3,
+          "point": [
+            58.7,
+            6.3,
+            20.7
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 5,
+          "t": 10.399969,
+          "point": [
+            58.7,
+            6.3,
+            20.600031
+          ],
+          "normal": [
+            -0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              0.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 26,
+          "t": 10.499969,
+          "point": [
+            58.7,
+            6.3,
+            20.500031
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              54.349998,
+              8.249998,
+              20.500031
+            ],
+            [
+              63.349998,
+              4.749999,
+              20.500031
+            ],
+            [
+              54.349998,
+              4.749999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 33,
+          "t": 10.516647,
+          "point": [
+            58.7,
+            6.3,
+            20.483353
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 0.998633,
+          "triangle_vertices": [
+            [
+              63.351372,
+              1.405152,
+              20.483353
+            ],
+            [
+              54.348625,
+              8.282026,
+              20.483353
+            ],
+            [
+              63.351372,
+              8.282026,
+              20.483353
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "upper-north",
+      "origin": [
+        58.7,
+        6.3,
+        31
+      ],
+      "direction": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "proposal-upper-north",
+          "t": 9.4,
+          "point": [
+            58.7,
+            6.3,
+            40.4
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-skin-north",
+          "t": 10.28,
+          "point": [
+            58.7,
+            6.3,
+            41.28
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "north",
+          "t": 10.3,
+          "point": [
+            58.7,
+            6.3,
+            41.3
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 0,
+          "t": 10.400032,
+          "point": [
+            58.7,
+            6.3,
+            41.400032
+          ],
+          "normal": [
+            0.0,
+            -0.0,
+            1.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              9.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 18,
+          "t": 10.500031,
+          "point": [
+            58.7,
+            6.3,
+            41.500031
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              54.349998,
+              8.250001,
+              41.500031
+            ],
+            [
+              54.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              63.349998,
+              4.750001,
+              41.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 31,
+          "t": 10.516708,
+          "point": [
+            58.7,
+            6.3,
+            41.516708
+          ],
+          "normal": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 0.998633,
+          "triangle_vertices": [
+            [
+              54.348625,
+              1.405155,
+              41.516708
+            ],
+            [
+              63.351372,
+              8.282028,
+              41.516708
+            ],
+            [
+              54.348625,
+              8.282028,
+              41.516708
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "entry-below-lintel-above-ceiling",
+      "origin": [
+        52.8,
+        3.1,
+        31
+      ],
+      "direction": [
+        0.835323,
+        0.549759,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "proposal-panel-ceiling-upper-west",
+          "t": 2.573848,
+          "point": [
+            54.949995,
+            4.514997,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-ceiling",
+          "t": 9.003942,
+          "point": [
+            60.321201,
+            8.05,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "proposal-upper-ceiling",
+          "t": 9.003942,
+          "point": [
+            60.321201,
+            8.05,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "upper-west",
+          "t": 2.546569,
+          "point": [
+            54.927208,
+            4.5,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 2,
+          "t": 11.914306,
+          "point": [
+            62.752296,
+            9.65,
+            31.0
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 0.549759,
+          "authored_dot_ray": 0.549759,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 1,
+          "triangle": 3,
+          "t": 12.332116,
+          "point": [
+            63.101302,
+            9.879694,
+            31.0
+          ],
+          "normal": [
+            0.583771,
+            0.811918,
+            0.0
+          ],
+          "normal_dot_ray": 0.933997,
+          "authored_dot_ray": 0.933997,
+          "triangle_vertices": [
+            [
+              63.713497,
+              9.439525,
+              30.999941
+            ],
+            [
+              60.23024,
+              11.943995,
+              31.000031
+            ],
+            [
+              60.23024,
+              11.943995,
+              34.557549
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "entry-above-lintel",
+      "origin": [
+        52.8,
+        3.1,
+        31
+      ],
+      "direction": [
+        0.742347,
+        0.670016,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "proposal-reveal-header",
+          "t": 2.164128,
+          "point": [
+            54.406534,
+            4.55,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "inner-lintel",
+          "t": 2.164129,
+          "point": [
+            54.406534,
+            4.55,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "proposal-upper-west-header",
+          "t": 2.626804,
+          "point": [
+            54.75,
+            4.86,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-ceiling",
+          "t": 7.387887,
+          "point": [
+            58.284375,
+            8.05,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "west-lintel",
+          "t": 2.164129,
+          "point": [
+            54.406534,
+            4.55,
+            31.0
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-west",
+          "t": 2.357387,
+          "point": [
+            54.549999,
+            4.679487,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 2,
+          "t": 9.77589,
+          "point": [
+            60.057102,
+            9.65,
+            31.0
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 0.670016,
+          "authored_dot_ray": 0.670016,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 1,
+          "triangle": 3,
+          "t": 11.784988,
+          "point": [
+            61.54855,
+            10.996127,
+            31.0
+          ],
+          "normal": [
+            0.583771,
+            0.811918,
+            0.0
+          ],
+          "normal_dot_ray": 0.977359,
+          "authored_dot_ray": 0.977359,
+          "triangle_vertices": [
+            [
+              63.713497,
+              9.439525,
+              30.999941
+            ],
+            [
+              60.23024,
+              11.943995,
+              31.000031
+            ],
+            [
+              60.23024,
+              11.943995,
+              34.557549
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "entry-beside-lintel-south",
+      "origin": [
+        52.8,
+        3.1,
+        31
+      ],
+      "direction": [
+        0.736353,
+        0.566425,
+        -0.370064
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "inner-lintel",
+          "t": 2.559915,
+          "point": [
+            54.685,
+            4.55,
+            30.052667
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "proposal-reveal-header",
+          "t": 2.559915,
+          "point": [
+            54.685,
+            4.55,
+            30.052667
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "reveal-south",
+          "t": 2.594143,
+          "point": [
+            54.710204,
+            4.569388,
+            30.04
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        },
+        {
+          "name": "floor-rim-west-south",
+          "t": 2.594143,
+          "point": [
+            54.710204,
+            4.569388,
+            30.04
+          ],
+          "face": "zmax",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "upper-west",
+          "t": 2.471642,
+          "point": [
+            54.62,
+            4.5,
+            30.085333
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 2,
+          "t": 11.563754,
+          "point": [
+            61.315,
+            9.65,
+            26.720667
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 0.566425,
+          "authored_dot_ray": 0.566425,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 1,
+          "triangle": 6,
+          "t": 12.945357,
+          "point": [
+            62.332347,
+            10.432574,
+            26.209385
+          ],
+          "normal": [
+            0.583771,
+            0.811918,
+            -0.0
+          ],
+          "normal_dot_ray": 0.889752,
+          "authored_dot_ray": 0.889752,
+          "triangle_vertices": [
+            [
+              63.713497,
+              9.439524,
+              20.153423
+            ],
+            [
+              60.23024,
+              11.943995,
+              27.457411
+            ],
+            [
+              63.713497,
+              9.439524,
+              25.772366
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "entry-beside-lintel-north",
+      "origin": [
+        52.8,
+        3.1,
+        31
+      ],
+      "direction": [
+        0.736353,
+        0.566425,
+        0.370064
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "inner-lintel",
+          "t": 2.559915,
+          "point": [
+            54.685,
+            4.55,
+            31.947333
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "proposal-reveal-header",
+          "t": 2.559915,
+          "point": [
+            54.685,
+            4.55,
+            31.947333
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "reveal-north",
+          "t": 2.594135,
+          "point": [
+            54.710198,
+            4.569383,
+            31.959997
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "floor-rim-west-north",
+          "t": 2.594135,
+          "point": [
+            54.710198,
+            4.569383,
+            31.959997
+          ],
+          "face": "zmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "upper-west",
+          "t": 2.471642,
+          "point": [
+            54.62,
+            4.5,
+            31.914667
+          ],
+          "face": "ymin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 2,
+          "t": 11.563754,
+          "point": [
+            61.315,
+            9.65,
+            35.279333
+          ],
+          "normal": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "normal_dot_ray": 0.566425,
+          "authored_dot_ray": 0.566425,
+          "triangle_vertices": [
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 1,
+          "triangle": 1,
+          "t": 12.945358,
+          "point": [
+            62.332348,
+            10.432575,
+            35.790616
+          ],
+          "normal": [
+            0.583771,
+            0.811918,
+            -0.0
+          ],
+          "normal_dot_ray": 0.889752,
+          "authored_dot_ray": 0.889752,
+          "triangle_vertices": [
+            [
+              63.713497,
+              9.439526,
+              36.2495
+            ],
+            [
+              60.23024,
+              11.943995,
+              34.557549
+            ],
+            [
+              60.23024,
+              11.943995,
+              38.350487
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "entry-low-central-control",
+      "origin": [
+        53,
+        2.5,
+        31
+      ],
+      "direction": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "inner-east",
+          "t": 9.45,
+          "point": [
+            62.45,
+            2.5,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "east",
+          "t": 10.150002,
+          "point": [
+            63.150002,
+            2.5,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 17,
+          "t": 10.299999,
+          "point": [
+            63.299999,
+            2.5,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              20.600031
+            ],
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              0.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 20,
+          "t": 10.349998,
+          "point": [
+            63.349998,
+            2.5,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              63.349998,
+              1.250001,
+              41.500031
+            ],
+            [
+              63.349998,
+              1.249999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 26,
+          "t": 10.351372,
+          "point": [
+            63.351372,
+            2.5,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.351372,
+              1.405154,
+              31.000031
+            ],
+            [
+              63.351372,
+              8.282026,
+              25.863821
+            ],
+            [
+              63.351372,
+              8.282027,
+              31.000031
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    },
+    {
+      "name": "entry-header-control",
+      "origin": [
+        53,
+        4.65,
+        31
+      ],
+      "direction": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "proposal-reveal-header",
+          "t": 1.3,
+          "point": [
+            54.3,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "inner-lintel",
+          "t": 1.35,
+          "point": [
+            54.35,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "proposal-upper-west-header",
+          "t": 1.75,
+          "point": [
+            54.75,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "proposal-panel-ceiling-upper-west",
+          "t": 1.949995,
+          "point": [
+            54.949995,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "west-lintel",
+          "t": 1.349997,
+          "point": [
+            54.349997,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-west",
+          "t": 1.549999,
+          "point": [
+            54.549999,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "upper-north",
+          "t": 7.700003,
+          "point": [
+            60.700003,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        },
+        {
+          "name": "east",
+          "t": 10.150002,
+          "point": [
+            63.150002,
+            4.65,
+            31.0
+          ],
+          "face": "xmin",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [
+        {
+          "name": "frame:Map/Hyland Point/Region_Downtown/TownCenter/TownHall/townhall/DoorFrame",
+          "submesh": 0,
+          "triangle": 21,
+          "t": 1.250001,
+          "point": [
+            54.250001,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.250001,
+              4.575,
+              30.005001
+            ],
+            [
+              54.250001,
+              4.575,
+              31.994999
+            ],
+            [
+              54.250001,
+              4.725,
+              31.97
+            ]
+          ]
+        }
+      ],
+      "native_two_sided": [
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 7,
+          "t": 1.348625,
+          "point": [
+            54.348625,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.348625,
+              4.55,
+              31.000031
+            ],
+            [
+              54.348625,
+              8.282027,
+              31.000031
+            ],
+            [
+              54.348625,
+              4.55,
+              28.212649
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 8,
+          "t": 1.349998,
+          "point": [
+            54.349998,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.349998,
+              4.55,
+              40.300027
+            ],
+            [
+              54.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              54.349998,
+              4.749999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 11,
+          "t": 1.399998,
+          "point": [
+            54.399998,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.399998,
+              4.55,
+              32.386698
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              4.55,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 17,
+          "t": 10.299999,
+          "point": [
+            63.299999,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              20.600031
+            ],
+            [
+              63.299999,
+              9.65,
+              41.400032
+            ],
+            [
+              63.299999,
+              0.65,
+              41.400032
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 21,
+          "t": 10.349998,
+          "point": [
+            63.349998,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              63.349998,
+              1.249999,
+              20.500031
+            ],
+            [
+              63.349998,
+              4.749999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 26,
+          "t": 10.351372,
+          "point": [
+            63.351372,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            1.0,
+            -0.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.351372,
+              1.405154,
+              31.000031
+            ],
+            [
+              63.351372,
+              8.282026,
+              25.863821
+            ],
+            [
+              63.351372,
+              8.282027,
+              31.000031
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 2,
+          "triangle": 7,
+          "t": 1.348625,
+          "point": [
+            54.348625,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.348625,
+              4.55,
+              31.000031
+            ],
+            [
+              54.348625,
+              8.282027,
+              31.000031
+            ],
+            [
+              54.348625,
+              4.55,
+              28.212649
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Walls",
+          "submesh": 0,
+          "triangle": 8,
+          "t": 1.349998,
+          "point": [
+            54.349998,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.349998,
+              4.55,
+              40.300027
+            ],
+            [
+              54.349998,
+              4.750001,
+              41.500031
+            ],
+            [
+              54.349998,
+              4.749999,
+              20.500031
+            ]
+          ]
+        },
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 11,
+          "t": 1.399998,
+          "point": [
+            54.399998,
+            4.65,
+            31.0
+          ],
+          "normal": [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          "normal_dot_ray": -1.0,
+          "authored_dot_ray": -1.0,
+          "triangle_vertices": [
+            [
+              54.399998,
+              4.55,
+              32.386698
+            ],
+            [
+              54.399998,
+              9.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              4.55,
+              20.600031
+            ]
+          ]
+        }
+      ],
+      "open_through_model": false
+    },
+    {
+      "name": "upper-down-support",
+      "origin": [
+        58.7,
+        5.5,
+        31
+      ],
+      "direction": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "max_distance": 100,
+      "owned_visible": [
+        {
+          "name": "proposal-panel-ceiling-upper-west",
+          "t": 0.75,
+          "point": [
+            58.7,
+            4.75,
+            31.0
+          ],
+          "face": "ymax",
+          "inside_at_origin": false
+        },
+        {
+          "name": "public-floor",
+          "t": 3.97,
+          "point": [
+            58.7,
+            1.53,
+            31.0
+          ],
+          "face": "ymax",
+          "inside_at_origin": false
+        }
+      ],
+      "hidden_collider": [
+        {
+          "name": "upper-west",
+          "t": 0.75,
+          "point": [
+            58.7,
+            4.75,
+            31.0
+          ],
+          "face": "ymax",
+          "inside_at_origin": false
+        }
+      ],
+      "frame": [],
+      "native_two_sided": [
+        {
+          "name": "native:Cube",
+          "submesh": 0,
+          "triangle": 7,
+          "t": 4.85,
+          "point": [
+            58.7,
+            0.65,
+            31.0
+          ],
+          "normal": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.299999,
+              0.65,
+              20.600031
+            ],
+            [
+              54.399998,
+              0.65,
+              41.400032
+            ],
+            [
+              54.399998,
+              0.65,
+              20.600031
+            ]
+          ]
+        },
+        {
+          "name": "native:townhall/Cube",
+          "submesh": 0,
+          "triangle": 18,
+          "t": 5.639174,
+          "point": [
+            58.7,
+            -0.139174,
+            31.0
+          ],
+          "normal": [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          "normal_dot_ray": 1.0,
+          "authored_dot_ray": 1.0,
+          "triangle_vertices": [
+            [
+              63.460796,
+              -0.139175,
+              25.863821
+            ],
+            [
+              63.460796,
+              -0.139174,
+              31.000031
+            ],
+            [
+              54.239201,
+              -0.139174,
+              31.000031
+            ]
+          ]
+        }
+      ],
+      "native_front_facing": [],
+      "open_through_model": false
+    }
+  ],
+  "proposal_boxes": [
+    {
+      "Name": "proposal-corner-west-south",
+      "X": 54.975,
+      "Y": 2.99,
+      "Z": 21.5,
+      "Width": 0.04999999999999716,
+      "Height": 2.9800000000000004,
+      "Depth": 0.20000000000000284,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-corner-west-north",
+      "X": 54.975,
+      "Y": 2.99,
+      "Z": 40.5,
+      "Width": 0.04999999999999716,
+      "Height": 2.9800000000000004,
+      "Depth": 0.20000000000000284,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-corner-east-south",
+      "X": 62.425,
+      "Y": 2.99,
+      "Z": 21.5,
+      "Width": 0.05000000000000426,
+      "Height": 2.9800000000000004,
+      "Depth": 0.20000000000000284,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-corner-east-north",
+      "X": 62.425,
+      "Y": 2.99,
+      "Z": 40.5,
+      "Width": 0.05000000000000426,
+      "Height": 2.9800000000000004,
+      "Depth": 0.20000000000000284,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-upper-west-south",
+      "X": 54.85,
+      "Y": 6.300000000000001,
+      "Z": 25.72,
+      "Width": 0.20000000000000284,
+      "Height": 3.660000000000001,
+      "Depth": 8.64,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-upper-west-north",
+      "X": 54.85,
+      "Y": 6.300000000000001,
+      "Z": 36.28,
+      "Width": 0.20000000000000284,
+      "Height": 3.660000000000001,
+      "Depth": 8.64,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-upper-west-header",
+      "X": 54.85,
+      "Y": 6.34,
+      "Z": 31.0,
+      "Width": 0.20000000000000284,
+      "Height": 3.580000000000001,
+      "Depth": 1.9200000000000017,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-upper-east",
+      "X": 62.55,
+      "Y": 6.300000000000001,
+      "Z": 31.0,
+      "Width": 0.19999999999999574,
+      "Height": 3.660000000000001,
+      "Depth": 19.200000000000003,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-upper-south",
+      "X": 58.7,
+      "Y": 6.300000000000001,
+      "Z": 21.5,
+      "Width": 7.899999999999999,
+      "Height": 3.660000000000001,
+      "Depth": 0.20000000000000284,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-upper-north",
+      "X": 58.7,
+      "Y": 6.300000000000001,
+      "Z": 40.5,
+      "Width": 7.899999999999999,
+      "Height": 3.660000000000001,
+      "Depth": 0.20000000000000284,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-upper-ceiling",
+      "X": 58.7,
+      "Y": 8.09,
+      "Z": 31.0,
+      "Width": 7.899999999999999,
+      "Height": 0.08000000000000007,
+      "Depth": 19.200000000000003,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-reveal-south",
+      "X": 54.625,
+      "Y": 3.13,
+      "Z": 29.994999999999997,
+      "Width": 0.6500000000000057,
+      "Height": 3.4399999999999995,
+      "Depth": 0.08999999999999986,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-reveal-north",
+      "X": 54.625,
+      "Y": 3.13,
+      "Z": 32.004999999999995,
+      "Width": 0.6500000000000057,
+      "Height": 3.4399999999999995,
+      "Depth": 0.0899999999999963,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-reveal-header",
+      "X": 54.625,
+      "Y": 4.699999999999999,
+      "Z": 31.0,
+      "Width": 0.6500000000000057,
+      "Height": 0.2999999999999998,
+      "Depth": 1.9200000000000017,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-panel-ceiling-upper-west",
+      "X": 57.824997,
+      "Y": 4.575000025,
+      "Z": 31.0,
+      "Width": 5.750004000000004,
+      "Height": 0.34999994999999995,
+      "Depth": 18.800001000000005,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-panel-ceiling-upper-south",
+      "X": 61.575005,
+      "Y": 4.575000025,
+      "Z": 22.8,
+      "Width": 1.7499961999999982,
+      "Height": 0.34999994999999995,
+      "Depth": 2.399999600000001,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-panel-ceiling-upper-north",
+      "X": 61.575005,
+      "Y": 4.575000025,
+      "Z": 35.0,
+      "Width": 1.7499961999999982,
+      "Height": 0.34999994999999995,
+      "Depth": 10.799999,
+      "Solid": false,
+      "Style": 1
+    },
+    {
+      "Name": "proposal-panel-ceiling-upper-east",
+      "X": 62.275,
+      "Y": 4.575000025,
+      "Z": 26.8,
+      "Width": 0.3500022999999999,
+      "Height": 0.34999994999999995,
+      "Depth": 5.599998499999998,
+      "Solid": false,
+      "Style": 1
+    }
+  ],
+  "regressions": [
+    {
+      "name": "corner-west-south",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "corner-east-south",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "corner-west-north",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "corner-east-north",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "stair-up",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "upper-up",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "upper-west",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "upper-east",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "upper-south",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "upper-north",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "entry-below-lintel-above-ceiling",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "entry-above-lintel",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "entry-beside-lintel-south",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "entry-beside-lintel-north",
+      "current_closed": true,
+      "proposal_closed": true
+    },
+    {
+      "name": "upper-rendered-floor-matches-support",
+      "current_closed": true,
+      "proposal_closed": true
+    }
+  ],
+  "proposal_safety": {
+    "proposal_render_only": true,
+    "proposal_entering_portal": [],
+    "proposal_entering_stair_void": [],
+    "entrance_volume_checked": [
+      [
+        54.18,
+        1.41,
+        30.04
+      ],
+      [
+        54.95,
+        4.55,
+        31.96
+      ]
+    ],
+    "stair_volume_checked": [
+      [
+        60.7,
+        4.4,
+        24
+      ],
+      [
+        62.1,
+        7.25,
+        29.6
+      ]
+    ],
+    "overlap_tolerance": 1e-05,
+    "ceiling_undersides_preserved": true
+  }
+}

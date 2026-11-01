@@ -15,7 +15,7 @@
 
 using MelonLoader;
 
-[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "1.0.0", "Dominik")]
+[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "1.0.5", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace TaxiDriver
@@ -66,6 +66,8 @@ namespace TaxiDriver
             // Scope private flags at parameterless consumers; never detour the
             // GetWheelSweepCollision out-parameter method that failed in 0.8.11.
             TrafficLightPatch.Apply();
+            try { NativeShortcutPatch.Apply(); }
+            catch (Exception ex) { Log.Warn($"[shortcut] bootstrap binding unavailable; native comparison retained: {ex.Message}"); }
 
             // Beta 8 exposes OnPreLoad and OnPreSceneChange on the installed API.
             // Clear the picker before a save switch and cancel deferred work before
@@ -86,6 +88,7 @@ namespace TaxiDriver
         /// </summary>
         public override void OnSceneWasLoaded(int buildIndex, string sceneName)
         {
+            NativeShortcutPatch.Invalidate();
             SpikeRunner.OnSceneLoaded(sceneName);
         }
 
@@ -104,6 +107,7 @@ namespace TaxiDriver
 
         private static void OnPreLoad()
         {
+            NativeShortcutPatch.Invalidate();
             if (!Lifecycle.AcceptingWork)
                 return;
             bool taxiTracked = !ReferenceEquals(SpikeState.Vehicle, null) ||
@@ -117,6 +121,7 @@ namespace TaxiDriver
 
         private static void OnPreSceneChange()
         {
+            NativeShortcutPatch.Invalidate();
             if (!Lifecycle.AcceptingWork)
                 return;
             SpikeRunner.OnPreSceneChange();
@@ -130,6 +135,7 @@ namespace TaxiDriver
 
         private static void Teardown(string reason)
         {
+            NativeShortcutPatch.Invalidate();
             (string Label, Action Run)[] cleanup =
             {
                 ("quiesce updates and deferred work", () =>
@@ -147,6 +153,7 @@ namespace TaxiDriver
             };
             (string Label, Action Run)[] finalization =
             {
+                ("remove native shortcut hooks", NativeShortcutPatch.Remove),
                 ("remove actuator hook", () => { NativeActuatorPatch.Remove(); }),
                 ("remove cruise hook", () => { CruiseSpeedPatch.Remove(); }),
                 ("remove traffic-light hook", () => { TrafficLightPatch.Remove(); }),

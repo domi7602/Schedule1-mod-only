@@ -1,0 +1,19 @@
+{
+  "enclosure-source-hashes.json": "feae660deea0d88626d138f4cee87ba160df61765388a41b8c51a9ecf7d4fedb",
+  "enclosure-reviewed.diff": "54a8843755de5a74a533cc2bf69aaef71e2d2ecccafe93b294c69d925a91d42c",
+  "enclosure-baseline-forensics.json": "05f8e79f6b3375062ef100796725a97556f7a7a21af02e138f07b98005e3bb1d",
+  "enclosure-final-forensics.json": "b746595330ebef2ff7a18007f5a939af0e96719bed38ed7eb36569cd9050f664",
+  "enclosure-tests.trx": "588c49a3ae124d7363f0f912d3bbdbb3b72afcbb8fcea5b110232b591994d6cd",
+  "enclosure-corners-red.trx": "c0d8b2d806d9b0e1de0ba39a3550f54ffa3493681ac0a36b9e6bbf85a2abbb24",
+  "enclosure-door-sensor-red.trx": "8774cc3912889306aaeee5eabef22f57b0c8de622a857231cfd4f0ec2023ffa0",
+  "enclosure-floor-edges-red.trx": "e421a37998378ed89cdb6339d42dbcab889c1aaf8ca21cec4ae6ce8aecf481d1",
+  "enclosure-floor-red.trx": "a220deee1b4ae8db2a130d4244216bf583a3cb68ce5a5c85ecc75eecf4d61a22",
+  "enclosure-header-red.trx": "1b03618709704c6ffd1d6a84a5b1d73da0b6652944ad8c06134ab5750b5824ea",
+  "enclosure-jambs-red.trx": "581b092fd45a8e37f1646e60a108446ed5eac2248b097cdfe1dac9ab0632a470",
+  "enclosure-join-overlap-red.trx": "3cd5306c0ebd7448e4c4b6d79b025531a5eca439bebfee5c84abe9a9d44621b8",
+  "enclosure-lighting-red.trx": "0354b2209567389e448d9f89bc7ef4aa98aa63ecfe5c0583ee517f9be59bb91f",
+  "enclosure-paint-wiring-red.trx": "884337881d579e956e6adb0ae209d2d4966905cdf404b6f3b0538b5cdd2f0058",
+  "enclosure-rims-red.trx": "9feb422067104eaed3fe2b1d8679caa161606e24b09ced3e55005e24f6e8d573",
+  "enclosure-upper-shell-red.trx": "4b2a6fe1010e9e387a4549c319531f1b884f9805dbb897f8e41d241a8a82867e",
+  "enclosure-forensic-snapshots.zip": "249bee18f07962931ac33ef1f42d088c283e11316b20d16a4df98e6db054690e"
+}

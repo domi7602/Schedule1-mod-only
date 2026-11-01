@@ -20,6 +20,13 @@ public sealed class InlineStateTests
     }
 
     [Fact]
+    public void MissingLayoutIsWarmYellow()
+    {
+        var tone = AppLayout.InlineColor("No LED layout available");
+        Assert.Equal(new AppLayout.Tone(0.95f, 0.78f, 0.28f, 1f), tone);
+    }
+
+    [Fact]
     public void UnverifiedPlacementIsWarmYellow()
     {
         var tone = AppLayout.InlineColor("Unverified: LEDs not placed");

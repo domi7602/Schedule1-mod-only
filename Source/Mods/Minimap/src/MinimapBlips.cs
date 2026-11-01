@@ -707,6 +707,8 @@ public sealed class MinimapBlips
             }
         }
 
+        AddAssignedDeadDrops();
+
         // 4. Vehicles (cached scan via VehicleManager.AllVehicles)
         if (config.ShowVehicleBlips)
         {
@@ -1122,6 +1124,61 @@ public sealed class MinimapBlips
                 pooled.Group.alpha = alpha;
                 pooled.Alpha.Commit(alpha);
             }
+        }
+    }
+
+    // --- Cached reflection for HitmanPhone assigned dead drops. Optional: missing mod is a no-op. ---
+    private static Type? _dropPinType;
+    private static MethodInfo? _copyDropPins;
+    private static bool _dropPinTried;
+    private static readonly float[] _dropXyz = new float[24];
+    private static readonly string[] _dropLabels = new string[8];
+    private static readonly object[] _dropPinArgs = { _dropXyz, _dropLabels };
+    private static readonly Color DeadDropColor = new(1f, 0.72f, 0.12f, 1f);
+
+    private void AddAssignedDeadDrops()
+    {
+        if (!_dropPinTried)
+        {
+            _dropPinTried = true;
+            try
+            {
+                _dropPinType = Type.GetType("HitmanPhone.Bounty.BountyDropPins, HitmanPhone");
+                _copyDropPins = _dropPinType?.GetMethod(
+                    "CopyActive",
+                    BindingFlags.Public | BindingFlags.Static,
+                    null,
+                    new[] { typeof(float[]), typeof(string[]) },
+                    null);
+            }
+            catch { }
+        }
+        if (_copyDropPins == null) return;
+
+        int count;
+        try
+        {
+            count = (int)(_copyDropPins.Invoke(null, _dropPinArgs) ?? 0);
+        }
+        catch
+        {
+            return;
+        }
+
+        // No range cull: the drop is often across town. Critical clamps it to the edge.
+        for (int i = 0; i < count && i < _dropLabels.Length; i++)
+        {
+            _activeBlips.Add(new BlipInfo
+            {
+                WorldPos = new Vector3(_dropXyz[i * 3], _dropXyz[i * 3 + 1], _dropXyz[i * 3 + 2]),
+                Type = BlipType.Quest,
+                Color = PaletteColor("DeadDrop", DeadDropColor),
+                Label = string.IsNullOrEmpty(_dropLabels[i]) ? "Dead Drop" : _dropLabels[i],
+                ShowLabel = true,
+                CustomScale = 1.35f,
+                IsPulsing = true,
+                IsCritical = true
+            });
         }
     }
 

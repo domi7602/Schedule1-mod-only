@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="38dcbbac-864a-4a57-a4f7-211fc0c2d739" name="pc@WINDOWS 2026-10-29 05:16:04" runUser="windows\pc" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-29T05:16:04.7585267+01:00" queuing="2026-10-29T05:16:04.7585267+01:00" start="2026-10-29T05:16:04.0150705+01:00" finish="2026-10-29T05:16:04.7629265+01:00" />
+  <TestSettings name="default" id="54606c40-ee56-452b-be07-8cf06ef431cb">
+    <Deployment runDeploymentRoot="pc_WINDOWS_2026-10-29_05_16_04" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="06b36aa8-6327-4af4-b7e3-7a379a383007" testId="07de7251-f8b0-7475-add0-5ff53a331f6e" testName="RoomPlanTests.HiddenPerimeterLintelMustNotBlockTheRaisedVisiblePortal" computerName="WINDOWS" duration="00:00:00.0024600" startTime="2026-10-29T05:16:04.6621562+01:00" endTime="2026-10-29T05:16:04.6621871+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="06b36aa8-6327-4af4-b7e3-7a379a383007">
+      <Output>
+        <ErrorInfo>
+          <Message>Hidden west-lintel starts at 3,35, below portal top 4,55</Message>
+          <StackTrace>   at RoomPlanTests.HiddenPerimeterLintelMustNotBlockTheRaisedVisiblePortal() in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\RoomPlanTests.cs:line 75</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8c1cd139-b7bf-4c0d-8d49-69f75f975e71" testId="9c0a2183-72e0-e5ac-07fb-ec5bdbfb5379" testName="RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(exiting: True, height: 1,95, radius: 0,40000000000000002)" computerName="WINDOWS" duration="00:00:00.0207095" startTime="2026-10-29T05:16:04.6050416+01:00" endTime="2026-10-29T05:16:04.6447142+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8c1cd139-b7bf-4c0d-8d49-69f75f975e71">
+      <Output>
+        <ErrorInfo>
+          <Message>west-lintel blocks exit at x=54,84, foot=1,53, height=1,95</Message>
+          <StackTrace>   at RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(Boolean exiting, Double height, Double radius) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\RoomPlanTests.cs:line 94</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2bb45f57-20b3-4739-9bab-a8d9653b6290" testId="6699f592-0449-e2d4-b8ba-1f08536ba0e2" testName="RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(exiting: False, height: 1,95, radius: 0,40000000000000002)" computerName="WINDOWS" duration="00:00:00.0003785" startTime="2026-10-29T05:16:04.6609873+01:00" endTime="2026-10-29T05:16:04.6610479+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2bb45f57-20b3-4739-9bab-a8d9653b6290">
+      <Output>
+        <ErrorInfo>
+          <Message>west-lintel blocks entry at x=54,06, foot=1,53, height=1,95</Message>
+          <StackTrace>   at RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(Boolean exiting, Double height, Double radius) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\RoomPlanTests.cs:line 94</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="cde163be-62d6-4a90-ab7f-5faa51e0be64" testId="d74f301c-e65c-cabb-fad1-d8f8d7e671ef" testName="RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(exiting: False, height: 1,8500000000000001, radius: 0,34999999999999998)" computerName="WINDOWS" duration="00:00:00.0006120" startTime="2026-10-29T05:16:04.6613643+01:00" endTime="2026-10-29T05:16:04.6613949+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cde163be-62d6-4a90-ab7f-5faa51e0be64">
+      <Output>
+        <ErrorInfo>
+          <Message>west-lintel blocks entry at x=54,21, foot=1,53, height=1,85</Message>
+          <StackTrace>   at RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(Boolean exiting, Double height, Double radius) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\RoomPlanTests.cs:line 94</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="09604b0a-af07-42bf-ad04-200338bee492" testId="8dd46c69-253b-cba2-597e-2be219ffcb49" testName="RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(exiting: True, height: 1,8500000000000001, radius: 0,34999999999999998)" computerName="WINDOWS" duration="00:00:00.0117518" startTime="2026-10-29T05:16:04.6615495+01:00" endTime="2026-10-29T05:16:04.6615783+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="09604b0a-af07-42bf-ad04-200338bee492">
+      <Output>
+        <ErrorInfo>
+          <Message>west-lintel blocks exit at x=54,69, foot=1,53, height=1,85</Message>
+          <StackTrace>   at RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(Boolean exiting, Double height, Double radius) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\RoomPlanTests.cs:line 94</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(exiting: False, height: 1,8500000000000001, radius: 0,34999999999999998)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="d74f301c-e65c-cabb-fad1-d8f8d7e671ef">
+      <Execution id="cde163be-62d6-4a90-ab7f-5faa51e0be64" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="RoomPlanTests" name="StandingCapsuleClearsTheEntireEntranceCollisionShell" />
+    </UnitTest>
+    <UnitTest name="RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(exiting: True, height: 1,95, radius: 0,40000000000000002)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="9c0a2183-72e0-e5ac-07fb-ec5bdbfb5379">
+      <Execution id="8c1cd139-b7bf-4c0d-8d49-69f75f975e71" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="RoomPlanTests" name="StandingCapsuleClearsTheEntireEntranceCollisionShell" />
+    </UnitTest>
+    <UnitTest name="RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(exiting: False, height: 1,95, radius: 0,40000000000000002)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="6699f592-0449-e2d4-b8ba-1f08536ba0e2">
+      <Execution id="2bb45f57-20b3-4739-9bab-a8d9653b6290" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="RoomPlanTests" name="StandingCapsuleClearsTheEntireEntranceCollisionShell" />
+    </UnitTest>
+    <UnitTest name="RoomPlanTests.HiddenPerimeterLintelMustNotBlockTheRaisedVisiblePortal" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="07de7251-f8b0-7475-add0-5ff53a331f6e">
+      <Execution id="06b36aa8-6327-4af4-b7e3-7a379a383007" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="RoomPlanTests" name="HiddenPerimeterLintelMustNotBlockTheRaisedVisiblePortal" />
+    </UnitTest>
+    <UnitTest name="RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(exiting: True, height: 1,8500000000000001, radius: 0,34999999999999998)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="8dd46c69-253b-cba2-597e-2be219ffcb49">
+      <Execution id="09604b0a-af07-42bf-ad04-200338bee492" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="RoomPlanTests" name="StandingCapsuleClearsTheEntireEntranceCollisionShell" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="07de7251-f8b0-7475-add0-5ff53a331f6e" executionId="06b36aa8-6327-4af4-b7e3-7a379a383007" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="9c0a2183-72e0-e5ac-07fb-ec5bdbfb5379" executionId="8c1cd139-b7bf-4c0d-8d49-69f75f975e71" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6699f592-0449-e2d4-b8ba-1f08536ba0e2" executionId="2bb45f57-20b3-4739-9bab-a8d9653b6290" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d74f301c-e65c-cabb-fad1-d8f8d7e671ef" executionId="cde163be-62d6-4a90-ab7f-5faa51e0be64" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8dd46c69-253b-cba2-597e-2be219ffcb49" executionId="09604b0a-af07-42bf-ad04-200338bee492" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="5" executed="5" passed="0" failed="5" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.0.2+dd36e86129 (64-bit .NET 6.0.36)&#xD;
+[xUnit.net 00:00:00.10]   Discovering: TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.14]   Discovered:  TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.17]   Starting:    TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.24]       west-lintel blocks exit at x=54,84, foot=1,53, height=1,95&#xD;
+[xUnit.net 00:00:00.24]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.24]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\RoomPlanTests.cs(94,0): at RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(Boolean exiting, Double height, Double radius)&#xD;
+[xUnit.net 00:00:00.25]       west-lintel blocks entry at x=54,06, foot=1,53, height=1,95&#xD;
+[xUnit.net 00:00:00.25]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.25]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\RoomPlanTests.cs(94,0): at RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(Boolean exiting, Double height, Double radius)&#xD;
+[xUnit.net 00:00:00.25]       west-lintel blocks entry at x=54,21, foot=1,53, height=1,85&#xD;
+[xUnit.net 00:00:00.25]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.25]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\RoomPlanTests.cs(94,0): at RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(Boolean exiting, Double height, Double radius)&#xD;
+[xUnit.net 00:00:00.25]       west-lintel blocks exit at x=54,69, foot=1,53, height=1,85&#xD;
+[xUnit.net 00:00:00.25]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.25]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\RoomPlanTests.cs(94,0): at RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(Boolean exiting, Double height, Double radius)&#xD;
+[xUnit.net 00:00:00.25]       Hidden west-lintel starts at 3,35, below portal top 4,55&#xD;
+[xUnit.net 00:00:00.25]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.25]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\RoomPlanTests.cs(75,0): at RoomPlanTests.HiddenPerimeterLintelMustNotBlockTheRaisedVisiblePortal()&#xD;
+[xUnit.net 00:00:00.26]   Finished:    TownHallInterior.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T05:16:04.6485261+01:00">
+        <Text>[xUnit.net 00:00:00.24]     RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(exiting: True, height: 1,95, radius: 0,40000000000000002) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T05:16:04.6613258+01:00">
+        <Text>[xUnit.net 00:00:00.25]     RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(exiting: False, height: 1,95, radius: 0,40000000000000002) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T05:16:04.6614645+01:00">
+        <Text>[xUnit.net 00:00:00.25]     RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(exiting: False, height: 1,8500000000000001, radius: 0,34999999999999998) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T05:16:04.6616389+01:00">
+        <Text>[xUnit.net 00:00:00.25]     RoomPlanTests.StandingCapsuleClearsTheEntireEntranceCollisionShell(exiting: True, height: 1,8500000000000001, radius: 0,34999999999999998) [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T05:16:04.6622581+01:00">
+        <Text>[xUnit.net 00:00:00.25]     RoomPlanTests.HiddenPerimeterLintelMustNotBlockTheRaisedVisiblePortal [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 using Il2CppScheduleOne.Map;
 using MelonLoader;
 using UnityEngine;
@@ -22,6 +23,61 @@ namespace WaterShader
         // Cached state only; on-demand tooling must not discover or clone water resources.
         internal string AutomationState => _session?.State.ToString() ?? "Uninitialized";
         internal bool ReferenceReady => _reference?.IsReady == true;
+
+        internal bool SetDiagnosticMode(int mode)
+        {
+            if (_shutdown || !_enabled || _session == null || _reference == null)
+                throw new InvalidOperationException("reference-water-unavailable");
+            try
+            {
+                return _session.SetDiagnosticMode(mode, _reference.MatchesBoundShader,
+                    material => material.HasProperty("_DiagnosticMode"),
+                    material => material.GetFloat("_DiagnosticMode"),
+                    (material, value) => material.SetFloat("_DiagnosticMode", value),
+                    _clock.Elapsed.TotalSeconds);
+            }
+            catch
+            {
+                if (_session.State == WaterState.Faulted) _reference.Detach();
+                throw;
+            }
+        }
+
+        // One known direct child only. sharedMaterial is borrowed; never use material,
+        // assign, instantiate, or destroy anything on this read-only path.
+        internal object ReadMaterialDiagnostic()
+        {
+            var map = Map.instance;
+            if (!WaterEnvironment.IsAlive(map)) throw new InvalidOperationException("map-unavailable");
+            var root = map.transform;
+            var scene = map.gameObject.scene;
+            if (!scene.IsValid() || !scene.isLoaded || scene.name != "Main" || root.name != "Map" || root.parent != null)
+                throw new InvalidOperationException("unexpected-map");
+            var water = root.Find("StylizedWater2_Ocean");
+            if (!WaterEnvironment.IsAlive(water)) throw new InvalidOperationException("ocean-unavailable");
+            var renderer = water.GetComponent<MeshRenderer>();
+            if (!WaterEnvironment.IsAlive(renderer)) throw new InvalidOperationException("renderer-unavailable");
+            var material = _session?.GetAttachedOwnedMaterial()
+                ?? throw new InvalidOperationException("owned-water-not-attached");
+            if (_reference == null || !_reference.MatchesBoundShader(material)
+                || !WaterEnvironment.SameObject(renderer.sharedMaterial, material))
+                throw new InvalidOperationException("reference-water-shader-mismatch");
+            var shader = material.shader;
+            if (!WaterEnvironment.IsAlive(shader)) throw new InvalidOperationException("shader-unavailable");
+            var floats = new Dictionary<string, float?>();
+            foreach (string name in new[] { "_DiagnosticMode", "_Absorption", "_SurfaceOpacity", "_WaveAmp", "_WaveScale", "_WaveSpeed", "_RippleStrength", "_WindActivity", "_WaveHeight", "_WaveCount" })
+                floats[name] = material.HasProperty(name) ? material.GetFloat(name) : null;
+            var colors = new Dictionary<string, float[]?>();
+            foreach (string name in new[] { "_ShallowTint", "_DeepTint", "_ShallowColor" })
+            {
+                if (!material.HasProperty(name)) { colors[name] = null; continue; }
+                var color = material.GetColor(name);
+                colors[name] = new[] { color.r, color.g, color.b, color.a };
+            }
+            var bounds = renderer.bounds;
+            return new { renderer = water.name, name = material.name, shader = shader.name,
+                shaderSupported = shader.isSupported, bounds = new { center = new[] { bounds.center.x, bounds.center.y, bounds.center.z }, size = new[] { bounds.size.x, bounds.size.y, bounds.size.z } }, floats, colors };
+        }
 
         public void OnLateInitializeMelon()
         {

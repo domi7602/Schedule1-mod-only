@@ -13,5 +13,8 @@
     <!-- The S1MCP server project itself needs game assemblies; this suite links only the pure
          clock conversion so it can run game-free in CI. -->
     <Compile Include="../../../ThirdParty/S1MCPServer-master/S1MCPServer/Utils/TimeOfDay.cs" Link="TimeOfDay.cs" />
+    <Compile Include="../../../ThirdParty/S1MCPServer-master/S1MCPServer/Utils/ScreenshotCapture.cs" Link="ScreenshotCapture.cs" />
+    <Compile Include="../../../ThirdParty/S1MCPServer-master/S1MCPServer/Handlers/ScreenshotCommandHandler.cs" Link="ScreenshotCommandHandler.cs" />
+    <Compile Include="../../../ThirdParty/S1MCPServer-master/S1MCPServer/Models/Request.cs" Link="Request.cs" />
   </ItemGroup>
 </Project>

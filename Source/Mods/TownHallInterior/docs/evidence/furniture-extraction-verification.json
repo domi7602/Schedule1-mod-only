@@ -1,0 +1,17 @@
+{
+  "fixtureSha256": "687fa231785b3be8938d8c080bddb1161ac468191ef26450b6ac0504769a79aa",
+  "extractorSha256": "d0228fdbe6890d9bd8d315b7fc4dcc60bfdf2c698cf9af2ee8d672ede51d6dd5",
+  "bytes": 1490662,
+  "twoIndependentCheckRuns": [
+    "687fa231785b3be8938d8c080bddb1161ac468191ef26450b6ac0504769a79aa",
+    "687fa231785b3be8938d8c080bddb1161ac468191ef26450b6ac0504769a79aa"
+  ],
+  "checkLeavesFixtureBytesAndMtimeUnchanged": true,
+  "invalidSourceRejected": "Native furniture extraction refused: level1: source SHA-256 mismatch: d60660e21f3a03738a7b2b5c05f3e7444b47ab40eb751bb799e10ba265a2bf73",
+  "corruptedFixtureRejected": "Fixture differs from verified native extraction",
+  "maxIndependentAabbCornerError": 1.4210854715202004e-14,
+  "maxNativeBoundsVersusTightGeometryDifference": 1.5576426664054566e-06,
+  "largestPartVertices": 1498,
+  "largestPartSubmeshes": 5,
+  "largestSlotIndices": 3648
+}

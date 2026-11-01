@@ -1,12 +1,12 @@
 {
     "schemaVersion": 1,
-    "createdUtc": "2026-10-23T04:12:28.8148671Z",
+    "createdUtc": "2026-10-27T09:01:42.6197182Z",
     "unityVersion": "2022.3.62f3",
     "platform": "StandaloneWindows64",
     "graphicsApi": "Direct3D11",
     "colorSpace": "Linear",
-    "bundleSha256": "29557b87609c367e3b568d84d10400d67c980581a1e3491fbd455def9794c8ef",
-    "bundleBytes": 25140,
+    "bundleSha256": "15886b41aff0f2caf19ce53bf40e178449061e897a76f70ff5f4b34f7747a5a1",
+    "bundleBytes": 25586,
     "urpPackageVersion": "14.0.12",
     "corePackageVersion": "14.0.12",
     "requestedWaterVariants": 8,
@@ -22,11 +22,11 @@
         },
         {
             "path": "build/Verify-ShaderBundle.ps1",
-            "sha256": "fc923237daa6357bee2de90594b431f92ea0f2e78c9878e81a3c73e88a7a3019"
+            "sha256": "5eaded7240b8ece528db253cc4a6d02bdd7f0a510cf4fd329b0da8da99211da8"
         },
         {
             "path": "unity/Assets/Editor/BuildWorldLook.cs",
-            "sha256": "c7c38016dda66c5fd53104eecd684b3442865f79d57585d6fef64836ddbdde1e"
+            "sha256": "fa6366315a02d7ede16e477ca14f5ec3ba834946d1278501b33d3b11fcfbe570"
         },
         {
             "path": "unity/Assets/Editor/BuildWorldLook.cs.meta",
@@ -34,7 +34,7 @@
         },
         {
             "path": "unity/Assets/S1Mods/ReferenceWater.shader",
-            "sha256": "2c53e90c374288d4216099816d15ef6ac051b177a496306639fa8231de25b84e"
+            "sha256": "e8193c9c34d5498f003f571d5c570fd64521be3401994d1c0a3f1bfaf1925a3e"
         },
         {
             "path": "unity/Assets/S1Mods/ReferenceWater.shader.meta",
@@ -132,19 +132,19 @@
     "generatedFixture": [
         {
             "path": "Assets/BuildSettings/WorldLookBuildPipeline.asset",
-            "sha256": "8eb3d02fd2553c011908d1cfa3a708d40a1478fec7daeaeae98e16e08c86edb3"
+            "sha256": "0b88bb666eea4e86f778be45bd490aef39da7f62c899ad68fb31df21c4c0f9c6"
         },
         {
             "path": "Assets/BuildSettings/WorldLookBuildPipeline.asset.meta",
-            "sha256": "af397e363493fcbf4c6cc71d452c3b29b6eab960814d721ddcec269eff569957"
+            "sha256": "0630768b31d207f0d796d7f7765407157c45a236eb98d12d9f9c79f6915781fe"
         },
         {
             "path": "Assets/BuildSettings/WorldLookBuildRenderer.asset",
-            "sha256": "b97fd2fbb07b458606765e495663579bdaa93085ef8462c13c69bd0f4597ea0d"
+            "sha256": "d0aeecb8af506dda83792a329e8fd47fbddd46735c9067ae88cd90dc67422c32"
         },
         {
             "path": "Assets/BuildSettings/WorldLookBuildRenderer.asset.meta",
-            "sha256": "a29caf5350029e9a2127d894638bf8ff97179aaeb498296e89f80df95fa03499"
+            "sha256": "cafb24409a1a65c826b32e3ffbb31cfe865059d667b289d7be0403f5a133664c"
         },
         {
             "path": "Assets/BuildSettings/WorldLookVariants.shadervariants",
@@ -152,7 +152,7 @@
         },
         {
             "path": "Assets/BuildSettings/WorldLookVariants.shadervariants.meta",
-            "sha256": "e4087ee08f101e8eff003fcb30f9ee68ee8e0a87b9f7e8f1dd46255dde2c767a"
+            "sha256": "466d6b7dd51e2be063b536ccfad9b33df72a0ea4f87da505be780e16ebd807b9"
         }
     ],
     "resolvedPackageLockSha256": "616dde05d199479e0fccaf5248a888fb415facb5538071e02d9623e86c4a174d",
@@ -178,10 +178,11 @@
                 "_FoamColor",
                 "_FoamDepth",
                 "_FoamStrength",
+                "_DiagnosticMode",
                 "_SkyColor",
                 "_AmbientColor"
             ]
         }
     ],
-    "validation": "Editor bundle rebuilt, loaded, shader messages/pass/17-property contracts and all 8 SVC entries checked. SVC presence is not native GPU-variant execution or game visual/performance validation."
+    "validation": "Editor bundle rebuilt, loaded, shader messages/pass/18-property contracts and all 8 SVC entries checked. SVC presence is not native GPU-variant execution or game visual/performance validation."
 }

@@ -1,6 +1,93 @@
 # TaxiDriver — Registered driver controller and scoped traffic-light bypass
 
-Installed Release 0.8.22 removes runtime-added driver networking components. It uses the existing controller and only borrows an idle, registered patrol; otherwise the existing direct Navigate path drives the taxi. Pending release retains original state and blocks replacement navigation/recovery until safe, without extending deadlines. Permanent lost registration/ownership may require scene reload; player takeover causes no vehicle/seat actuation. 683 pure/source tests and forced Release pass, scoped format clean; independent delta review PASS. Whole-solution format is blocked by unrelated LightControl whitespace, left untouched. **In-Game-Verify open.** See [driver binding verification](driver-binding-verification.md).
+## Installed Guard test build and observed routes — 2026-10-31
+
+After the owner's approval, **Observe** confirmed the native error: four times a
+valid road group was replaced by an empty Error direct path. The independently
+hash-verified **Guard** DLL `4d195888…`, still 1.0.5, was then installed and loaded.
+The tested Barn dispatch retained the original group and returned native calculation
+Success, but the ride **GAVE UP** at 5.5 m from the selected street point; it did not
+record confirmed arrival. Separately from the same reloaded Town Hall starting state,
+fresh taxis reached **Bungalow** (confirmed halt 3.5 m) and **Docks Warehouse**
+(3.1 m). Each is one agent-run observation, not owner acceptance or a general routing
+guarantee; early boarding and chained travel remain untested. [Exact live evidence,
+backup/receipt, diagnostics and limits](native-shortcut-verification.md#owner-authorized-observe--guard-test--2026-10-31).
+
+A later owner-requested **Barn recheck** on the same Guard reproduced failure at
+**5.0 m**, with three recovery episodes. Images place the taxi at the paved-road
+end/vegetated edge; the exact blocking collider is unproven. Source review found a
+missing pre-recovery halt gate for direct driving and a deferred-probe motion-check
+gap. A later **uninstalled** source candidate repairs both control-flow gaps;
+physical clearance and Barn arrival remain unverified. [Repair evidence](native-shortcut-verification.md#uninstalled-supervisor-repair-candidate--2026-10-31).
+
+## Previously uninstalled shortcut candidate — 2026-10-31
+
+A hash-pinned, exact-owned calculation guard excludes an errored empty direct shortcut
+from the native length comparison while preserving the selected road group. At source-review time the corrected
+**Observe** (`74c8c3fd…`, default) and **Guard** (`4d195888…`, explicit
+`-p:TaxiShortcutGuard=true`) builds both remain 1.0.5. Coder-focused execution: **97/97**;
+both no-deploy builds 0 warnings/errors. Parent full suite: **1,366/1,366**, zero failed/skipped.
+The earlier `dbc14e2b…`/`5d3a71dc…` artifacts were rejected for validation-time revocation
+and remain preserved. The correction adds exclusive validation, post-validation currency
+checks and a final managed-only receipt check. Independent bounded closure **PASS**:
+24/24 additional probes, including all five original revocations with zero override.
+The subsequent native observations are recorded above. [Artifact history and live
+Observe→Guard evidence](native-shortcut-verification.md).
+
+## Previous installed street-point test build — 2026-10-31
+
+The new candidate selects exact Road Nodes street points within the existing 60 m
+destination budget and preserves them on direct passenger dispatch. It removes raw
+parking/general-graph assumptions, keeps fallback/active targets coherent, and retains
+the 10 m plus confirmed-halt arrival rule and existing navigation/recovery settings.
+This is **selection-only**, not a full preflight or proven route repair. Review fixes
+also retain fallback provenance, enforce the new goal's budget before relabeling, fence
+initial preparation/cleanup against cancellation, and visibly refuse unavailable starts
+without stale cleanup. Parent: **1,269/1,269 tests**, Release no-deploy build **0 warnings/errors**,
+scoped formatting clean; independent bounded closure review **PASS** (502 focused cases,
+including 18 original review ports). DLL `7ec8773a…`, still **1.0.5**, was installed
+with owner approval at **2026-10-31T07:15:38Z**, without rebuilding. DLL/PDB changed;
+metadata/icon/GLB/Shared stayed unchanged, and the prior `fb31c4e7…` build is backed up.
+The owner-requested 2026-10-31 CUA-assisted session loaded this exact hash. Pickup
+halt and ordinary boarding were observed, but **Barn failed four complete native
+calculations**, ending 108.4 m from its selected street point; the UI showed
+COULDN'T GET THERE. CUA menus/captures were supplemented with Win32 scan-code
+walking/entry. A fresh same-start comparison at **21:39** failed the same four whole
+calculations, ending 108.2 m away; the 04:00 cap is not required for the failure.
+Native-byte inspection found a missing error check in the optional direct-shortcut
+length comparison; the final live failed path had a non-null empty vector list.
+[Native investigation and repair contract](native-shortcut-verification.md).
+Other destinations and early boarding were not tested in that earlier session; later
+Bungalow and Docks results are recorded above. Route acceptance remains open.
+Superseded `697b37e3…`/`815931f9…` candidates and their rejected reviews are retained as history.
+Whole-tree/isolated outcomes are separate; known global format/version drift is not repaired here.
+[Scope, native API limits and verification](street-dropoff-verification.md).
+
+## Previous installed settings build and observed session — 2026-10-31
+
+The previous test build was **1.0.5**, DLL `fb31c4e7…`, installed with owner approval
+at 2026-10-30T15:55:55Z. The prior DLL `f614acdd…` is backed up. The owner's 2026-10-31
+session loaded this hash and retained the corrected settings on all 19 logged direct
+dispatches/readbacks. Normal pickup halted before boarding; early boarding was not
+exercised. Barn stopped 37.1 m short, Bungalow first stalled and then stopped 12.2 m
+from its fallback target, and Docks failed three complete route calculations. Routing
+therefore remains open. This build repairs a separately confirmed
+defect: recovery and the
+one-time polling retry discarded the initial explicit navigation settings, allowing
+native defaults to change endpoint policy and re-enable the failure-teleport flag.
+
+The bounded repair retains `endAtRoad=true`, `ensureProximityToGraph=true` and
+`teleportToGraphIfCalculationFails=false` on mod-issued direct dispatches. It does not
+change road points, graphs, arrival radius or the native patrol controller's internals.
+Installation is hash-verified, not a gameplay result. Parent verification: **795/795 tests**,
+focused Release no-deploy build **0 warnings/errors**, scoped formatting passed;
+independent delta review PASS. Before edits: 767/767 tests. The installed DLL is the exact
+tested candidate; only DLL/PDB changed, metadata/icon/GLB/Shared stayed unchanged.
+[Evidence, deployment backup and limits](navigation-settings-verification.md).
+
+## Historical controller baseline — 0.8.22
+
+Release 0.8.22 removed runtime-added driver networking components. It uses the existing controller and only borrows an idle, registered patrol; otherwise the existing direct Navigate path drives the taxi. Pending release retains original state and blocks replacement navigation/recovery until safe, without extending deadlines. Permanent lost registration/ownership may require scene reload; player takeover causes no vehicle/seat actuation. 683 pure/source tests and forced Release passed, scoped format was clean; independent delta review PASS. Its broader owner-confirmed completion on 2026-10-24 is retained in CHANGELOG 0.8.22/1.0.0; the itemized limits remain in [driver binding verification](driver-binding-verification.md).
 
 Prior 0.8.21 (red-light behavior owner-confirmed 2026-10-20; broader route acceptance remains open) bypasses native TrafficLight obstacles only for the owned host autonomous physically simulated taxi. Private flags are scoped around parameterless native consumers; the old out-parameter detour remains absent. Generic obstacles, turn/destination braking, fares and wheel visuals are preserved. Explicit traffic-only wait observations protect the recovery budget; kinematic/unknown states retain vanilla. Parent reran 670 tests and forced Release compile (0 warnings/errors); native red crossing and braking acceptance remain open. See [traffic-light verification](traffic-light-repair-verification.md).
 

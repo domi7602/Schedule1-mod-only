@@ -11,7 +11,7 @@
 // body opacity keeps the water visible when the bottom depth is unavailable.
 //
 // Three advected gradient-noise layers supply finer, irregular surface normals.
-// The original four-wave field remains separate for refraction and shore foam.
+// A slower broad wave field adds motion to normals and guarded refraction.
 // Footprint filtering transfers unresolved slopes into sun-lobe roughness rather
 // than leaving a perfectly smooth distant highlight. No mesh displacement.
 // Direct sun highlights use the URP main-light shadow and attenuation inputs.
@@ -45,6 +45,9 @@ Shader "S1Mods/ReferenceWater"
         _FoamColor ("Foam Color", Color) = (0.90, 0.95, 0.97, 1.0)
         _FoamDepth ("Foam Water Depth", Range(0.02, 2.0)) = 0.35
         _FoamStrength ("Foam Strength", Range(0, 2)) = 0.8
+
+        // Session-only diagnostic: 0 normal, 1 depth/refraction/dye, 2 weights.
+        _DiagnosticMode ("Diagnostic Mode", Float) = 0
 
         // Runtime writes current sky and horizon colors, including at night.
         _SkyColor ("Sky Zenith Fallback", Color) = (0.55, 0.70, 0.85, 1.0)
@@ -115,6 +118,7 @@ Shader "S1Mods/ReferenceWater"
                 float4 _FoamColor;
                 float  _FoamDepth;
                 float  _FoamStrength;
+                float  _DiagnosticMode;
                 float4 _SkyColor;
                 float4 _AmbientColor;
             CBUFFER_END
@@ -128,8 +132,47 @@ Shader "S1Mods/ReferenceWater"
                 return OUT;
             }
 
-            // Preserve the accepted low-distortion refraction/shore field. Fine
-            // surface slopes below must not increase its UV or foam displacement.
+            // Broad slopes are bounded and footprint-filtered to avoid distant aliasing.
+            float2 BroadWaveGradient(float2 xz, float t)
+            {
+                float2 d0 = float2(0.8, 0.6);
+                float2 d1 = float2(-0.6, 0.8);
+                float footprint = sqrt(dot(ddx(xz), ddx(xz)) + dot(ddy(xz), ddy(xz)));
+                float filter = 1.0 - smoothstep(0.35, 1.2, footprint * 0.8);
+                float time = t * clamp(_WaveSpeed, 0.0, 4.0);
+                float2 slope = d0 * cos(dot(xz, d0) * 0.55 + time * 0.32)
+                    + d1 * 0.55 * cos(dot(xz, d1) * 0.8 - time * 0.24);
+                return slope * filter * clamp(_WaveAmp, 0.0, 0.6)
+                    * clamp(_RippleStrength, 0.0, 2.0) * 2.0;
+            }
+
+            // A bounded, multiplicative body-light modulation makes moving crests
+            // legible away from the sun glint without adding emission or changing
+            // the palette. Smooth phase warps avoid straight repeating bands.
+            float WaterSurfaceShade(float2 xz, float t)
+            {
+                float footprint = sqrt(dot(ddx(xz), ddx(xz)) + dot(ddy(xz), ddy(xz)));
+                float broadFilter = 1.0 - smoothstep(0.18, 0.9, footprint * 0.65);
+                float fineFilter = 1.0 - smoothstep(0.18, 0.9, footprint * 2.4);
+                float time = t * clamp(_WaveSpeed, 0.0, 4.0);
+                float along = dot(xz, float2(0.8, 0.6));
+                float across = dot(xz, float2(-0.6, 0.8));
+                // Warp and envelope depend only on the cross-wave coordinate.
+                // Each sine therefore has zero mean along each complete crest
+                // direction, independently of its filter weight and wind.
+                float warp = sin(across * 0.37 + time * 0.08) * 0.9
+                    + sin(across * 0.23 - time * 0.06) * 0.55;
+                float broad = sin(along * 0.65 + warp + time * 0.24);
+                float fine = sin(along * 2.4 + warp * 1.7 - time * 0.48)
+                    * (0.6 + 0.4 * sin(across * 0.42 + time * 0.09));
+                float crest = 0.65 * broadFilter * broad + 0.35 * fineFilter * fine;
+                float strength = saturate(clamp(_WaveAmp, 0.0, 0.6)
+                    * clamp(_RippleStrength, 0.0, 2.0) / 0.042)
+                    * (0.85 + 0.15 * saturate(_WindActivity));
+                return 1.0 + 0.60 * strength * crest;
+            }
+
+            // Existing low-distortion refraction and shore field.
             float2 RefractionGradient(float2 xz, float t)
             {
                 float2 warp = float2(
@@ -282,7 +325,8 @@ Shader "S1Mods/ReferenceWater"
                 // Reject distorted samples landing on geometry in front of the
                 // water. The accepted color and absorption use the same depth.
                 float2 refractionGrad = RefractionGradient(IN.positionWS.xz, _Time.y);
-                float2 refractUV = saturate(screenUV + refractionGrad * 0.012);
+                float2 broadWave = BroadWaveGradient(IN.positionWS.xz, _Time.y);
+                float2 refractUV = saturate(screenUV + (refractionGrad + broadWave) * 0.012);
                 float refractedRaw = SampleSceneDepth(refractUV);
                 float refractedEye = LinearEyeDepth(refractedRaw, _ZBufferParams);
                 float refractionValid = HasSceneDepth(refractedRaw) * step(surfaceEye + 1e-3, refractedEye);
@@ -295,16 +339,25 @@ Shader "S1Mods/ReferenceWater"
                 float absorb = 1.0 - exp(-thickness * _Absorption);
                 absorb = saturate(absorb);
                 // No valid bottom means deep water, not a vanished surface.
-                float dye = lerp(1.0, saturate(pow(absorb, 2.2)), depthValid);
+                float dye = lerp(1.0, saturate(pow(absorb, 1.8)), depthValid);
                 float3 transmitTint = lerp(_ShallowTint.rgb, _DeepTint.rgb, dye);
                 float3 environmentLight = max(lerp(_AmbientColor.rgb, _SkyColor.rgb, 0.35), 0.0);
                 float3 deepBody = _DeepTint.rgb * environmentLight * 1.5;
                 float3 transmitted = lerp(deepBody, sceneColor * transmitTint * 2.0, depthValid);
+                // A separate, environment-lit body color appears gradually with
+                // thickness. It does not change the existing opacity/dye curve;
+                // a missing bottom uses a matching environment-lit deep body.
+                float bodyColorWeight = 0.45 * lerp(1.0, smoothstep(0.03, 0.65, absorb), depthValid);
+                float3 naturalBody = float3(0.06, 0.48, 0.20) * environmentLight * 1.5;
+                transmitted = lerp(transmitted, naturalBody, bodyColorWeight);
+                float surfaceShade = WaterSurfaceShade(IN.positionWS.xz, _Time.y);
+                transmitted *= surfaceShade;
 
                 // Surface detail is independent of the accepted refraction field.
                 float3 viewDir = SafeWaterDirection(GetCameraPositionWS() - IN.positionWS);
                 float unresolvedVariance;
                 float2 surfaceGrad = SurfaceGradient(IN.positionWS.xz, _Time.y, unresolvedVariance);
+                surfaceGrad = surfaceGrad + broadWave;
                 float3 normalWS = normalize(float3(-surfaceGrad.x, 1.0, -surfaceGrad.y));
 
                 float3 reflectedDirection = reflect(-viewDir, normalWS);
@@ -336,6 +389,13 @@ Shader "S1Mods/ReferenceWater"
                 float foamBand = 1.0 - saturate(shoreThickness / max(_FoamDepth, 1e-3));
                 float foamEdge = smoothstep(0.35, 0.9, foamBand + refractionGrad.x * 0.15);
                 float foamOpacity = saturate(foamEdge * _FoamStrength * 0.75) * depthValid;
+                // Opaque output under premultiplied blending: RGB are raw diagnostic
+                // weights, not lit colors. Mode 2 is pre-foam body/reflection and
+                // foam opacity; mode 1 is validity/validity/dye.
+                if (_DiagnosticMode > 0.5 && _DiagnosticMode < 1.5)
+                    return half4(depthValid, refractionValid, dye, 1.0);
+                if (_DiagnosticMode >= 1.5)
+                    return half4(bodyWeight, reflectionWeight, foamOpacity, 1.0);
                 // Approximate diffuse sky illumination plus the direct main
                 // light keeps the unchanged foam pigment from glowing at night.
                 float3 foamNormalWS = normalize(float3(-refractionGrad.x, 1.0, -refractionGrad.y));

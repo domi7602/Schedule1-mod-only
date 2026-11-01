@@ -779,6 +779,73 @@ namespace TaxiDriver
         // ------------------------------------------------------------- road graph
 
         /// <summary>
+        /// Selects one finite, walkable Road Nodes candidate within the destination budget.
+        /// This is not full-path reachability, curb clearance or physical-arrival evidence.
+        /// Pickup and diagnostic sampling deliberately keep their separate existing behavior.
+        /// </summary>
+        internal static bool TryStreetDropOff(Vector3 goal, out Vector3 point, out string reason)
+        {
+            point = default;
+            reason = "no validated street candidate";
+            if (!Finite(goal))
+            {
+                reason = "non-finite goal";
+                return false;
+            }
+            try
+            {
+                var astar = global::Il2Cpp.AstarPath.active;
+                var graphs = astar == null ? null : astar.graphs;
+                string wanted = VehicleAgent.RoadNodesGraphName;
+                if (graphs == null || string.IsNullOrWhiteSpace(wanted)) return false;
+
+                NavGraph? road = null;
+                foreach (var graph in graphs)
+                {
+                    if (graph == null || !string.Equals(graph.name, wanted, StringComparison.Ordinal)) continue;
+                    if (road != null)
+                    {
+                        reason = $"ambiguous street graph '{wanted}'";
+                        return false;
+                    }
+                    road = graph;
+                }
+                if (road == null)
+                {
+                    reason = $"missing exact street graph '{wanted}'";
+                    return false;
+                }
+
+                uint graphIndex = road.graphIndex;
+                var constraint = new NNConstraint
+                {
+                    graphMask = GraphMask.FromGraph(road),
+                    constrainWalkability = true,
+                    walkable = true,
+                    distanceXZ = false,
+                    constrainDistance = false, // apply the existing explicit 3D destination budget below
+                };
+                var nearest = astar!.GetNearest(goal, constraint);
+                var node = nearest == null ? null : nearest.node;
+                if (node == null || !node.Walkable || node.GraphIndex != graphIndex) return false;
+                Vector3 candidate = nearest!.position;
+                float distance = Vector3.Distance(goal, candidate);
+                if (!Finite(candidate) || !float.IsFinite(distance) || distance > TaxiDestinations.LotDropOffRadius) return false;
+
+                point = candidate;
+                reason = $"roadside candidate on '{wanted}', {TaxiDestinations.Num(distance)} m from goal; native route and physical arrival not verified";
+                return true;
+            }
+            catch (Exception ex)
+            {
+                reason = $"street lookup unreadable: {ex.Message}";
+                return false;
+            }
+        }
+
+        private static bool Finite(Vector3 value) => float.IsFinite(value.x) && float.IsFinite(value.y) && float.IsFinite(value.z);
+
+        /// <summary>
         /// Closest node of the road A* graph — the vanilla "closest road point"
         /// (<c>AstarPath.GetNearest</c> masked to
         /// <c>VehicleAgent.RoadNodesGraphName</c>, with a "name contains road"

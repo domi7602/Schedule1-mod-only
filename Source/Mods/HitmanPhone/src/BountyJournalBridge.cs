@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using HitmanPhone.Persistence;
 using MelonLoader;
+using S1API.DeadDrops;
 using S1API.Quests;
+using UnityEngine;
 
 #if (IL2CPPMELON)
 using S1Quest = Il2CppScheduleOne.Quests.Quest;
@@ -663,10 +666,121 @@ public static class BountyJournalBridge
             {
                 eliminate.Begin();
             }
+
+            if (quest is BountyQuest bounty) bounty.PinAssignedDrop();
         }
         catch (Exception ex)
         {
             Mod.Log.Warn($"[Journal] ApplyJournalPhase failed: {ex.Message}");
         }
+    }
+
+    internal static bool TryPinLiveQuest(string contractId)
+    {
+        if (string.IsNullOrEmpty(contractId)) return false;
+        if (SessionQuests.TryGetValue(contractId, out var quest) && quest is BountyQuest bounty)
+            return bounty.PinAssignedDrop();
+        return false;
+    }
+}
+
+/// <summary>
+/// Active assigned dead drops, for the minimap. No Minimap reference: the map
+/// reads <see cref="CopyActive"/> by reflection and skips the call if this mod
+/// is not loaded. Positions are cached; a miss is retried on the next scan.
+/// </summary>
+public static class BountyDropPins
+{
+    public const int MaxPins = 8;
+
+    private static readonly Dictionary<string, Vector3> Positions = new(8);
+    private static readonly HashSet<string> PinnedContracts = new(8);
+    private static readonly float[] Xyz = new float[MaxPins * 3];
+    private static readonly string[] Labels = new string[MaxPins];
+    private static readonly string[] Guids = new string[MaxPins];
+    private static int _count;
+    private static float _nextRefresh;
+
+    public static int CopyActive(float[] xyz, string[] labels)
+    {
+        RefreshIfDue();
+        if (xyz == null || labels == null) return 0;
+        int n = Math.Min(_count, Math.Min(labels.Length, xyz.Length / 3));
+        for (int i = 0; i < n; i++)
+        {
+            labels[i] = Labels[i];
+            xyz[i * 3] = Xyz[i * 3];
+            xyz[i * 3 + 1] = Xyz[i * 3 + 1];
+            xyz[i * 3 + 2] = Xyz[i * 3 + 2];
+        }
+        return n;
+    }
+
+    public static bool TryGetPosition(string? guid, out Vector3 position)
+    {
+        position = default;
+        if (string.IsNullOrEmpty(guid)) return false;
+        if (Positions.TryGetValue(guid, out position)) return true;
+        try
+        {
+            var drop = DeadDropManager.GetByGUID(guid);
+            if (drop == null) return false;
+            position = drop.Position;
+            Positions[guid] = position;
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static void RefreshIfDue()
+    {
+        float now;
+        try { now = Time.unscaledTime; }
+        catch { return; }
+        if (now < _nextRefresh) return;
+        _nextRefresh = now + 1f;
+        Rebuild();
+    }
+
+    private static void Rebuild()
+    {
+        _count = 0;
+        var save = Mod.Instance?.Save;
+        if (save?.Active == null) return;
+
+        for (int i = 0; i < save.Active.Count && _count < MaxPins; i++)
+        {
+            var contract = save.Active[i];
+            if (contract == null || contract.Status != EBountyStatus.Active) continue;
+            if (string.IsNullOrEmpty(contract.RequiredDropId)) continue;
+            if (AlreadyListed(contract.RequiredDropId)) continue;
+            if (!TryGetPosition(contract.RequiredDropId, out Vector3 pos)) continue;
+
+            int slot = _count;
+            Xyz[slot * 3] = pos.x;
+            Xyz[slot * 3 + 1] = pos.y;
+            Xyz[slot * 3 + 2] = pos.z;
+            string label = string.IsNullOrEmpty(contract.AssignedDropName) ? "Dead Drop" : contract.AssignedDropName;
+            Labels[slot] = label.Length > 28 ? label.Substring(0, 28) : label;
+            Guids[slot] = contract.RequiredDropId;
+            _count++;
+
+            if (PinnedContracts.Contains(contract.Id)) continue;
+            if (BountyJournalBridge.TryPinLiveQuest(contract.Id))
+                PinnedContracts.Add(contract.Id);
+        }
+    }
+
+    private static bool AlreadyListed(string guid)
+    {
+        for (int i = 0; i < _count; i++)
+        {
+            if (string.Equals(Guids[i], guid, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+        return false;
     }
 }

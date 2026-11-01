@@ -28,6 +28,29 @@ Separate entrance routing, room ownership, input focus, rendering, and audio lif
 6. Prepare navigation separately when NPCs must enter; test both directions through each doorway.
 7. Activate only completed phases; remove partial owned resources if construction fails.
 
+### Facade openings: mesh evidence before renderer changes
+
+Inspect the exact renderer-owned triangles and LOD membership, not collider bounds or a
+door-sized name/bounds heuristic. The f12 Town Hall entrance is covered by three independent
+contributions: `townhall/Walls` (mesh41/sub84), root `Cube` (mesh125/sub127), and distinct LOD
+`townhall/Cube` (mesh95/sub84..86). Hiding Door/Glass/Quad does not remove those wall faces.
+Do not infer that `Renderer.enabled=false` fails for static batches from such a result.
+The trim colliders span the footprint, but their visual meshes are perimeter rings, not floor caps.
+
+For unreadable native meshes, extract only the attributed contributors offline from hash-pinned
+assets. Preserve UV0/UV1, normals, tangents, material-slot order and world-coordinate conventions;
+clip crossing polygons rather than deleting whole triangles by midpoint or bounding box.
+Build owned replacements inactive and preserve LOD membership. Never alter global combined
+mesh buffers or borrowed materials; journal exact renderer/LOD references for restoration.
+The current local extraction embeds proprietary game geometry and is not for redistribution.
+See `Source/Mods/TownHallInterior/docs/facade-portal-verification.md` for the bounded evidence.
+
+Check the complete generated collision shell, including render-hidden perimeter lintels and
+slabs, against the actual owned floor geometry. Do not promote player/camera/teleport Y to
+a measured ground height. Share the opening height between facade, perimeter and inset skin;
+sweep finite capsules through all generated fixed boxes in both directions. These offline
+tests do not establish native controller stepping or in-game traversal.
+
 ## Transition and focus contract
 
 - Use a verified movement/teleport path for the actual player controller. Do not assume toggling one CharacterController is sufficient in every game build or network role.

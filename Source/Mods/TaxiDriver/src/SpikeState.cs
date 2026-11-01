@@ -50,10 +50,10 @@ internal static class SpikeState
     internal static float LastHeartbeat;
     internal static bool NavEverAutoDriving;
 
-    /// <summary>True after the settings=null Navigate retry fired (A/B test).</summary>
+    /// <summary>True once a startup retry or recovery redispatch has claimed the retry window.</summary>
     internal static bool NavRetried;
 
-    /// <summary><see cref="Time.unscaledTime"/> of the settings=null retry, 0 when it never fired.</summary>
+    /// <summary><see cref="Time.unscaledTime"/> of the startup retry or recovery redispatch, 0 when neither fired.</summary>
     internal static float NavRetryAt;
 
     /// <summary>
@@ -158,6 +158,10 @@ internal static class SpikeState
     /// <summary>Resolved route/arrival point of the last completed destination.</summary>
     internal static Vector3? CompletedArrival;
 
+    // Completed logical/physical identity belongs to this exact terminal request.
+    internal static int CompletedNavOrder = -1;
+    internal static long CompletedOperation = -1;
+
     // ---- Deferred respawn (freeze guard, review B2/M1) ----
     /// <summary>Code of a spawn that is waiting for its own tick (never destroy + spawn in one frame).</summary>
     internal static string? PendingSpawnCode;
@@ -188,6 +192,8 @@ internal static class SpikeState
 
     // ---- Taxi app pickup automation ----
     internal static bool AutoRunning;
+    /// <summary>Invalidates retained automatic-navigation receipts at reset/new-request boundaries.</summary>
+    internal static long AutoRunSerial;
     internal static int AutoStep;
     internal static float AutoNextAt;
     internal static string? AutoCode;
@@ -306,6 +312,10 @@ internal static class SpikeState
     // Resolver identity, independent of the route's reachable/fallback rebound.
     internal static Vector3? RideResolvedArrival;
 
+    // Strict graph-validated physical candidate for the retained picker target, NOT
+    // full-route proof. Survives ordinary ride reset; native rebounds invalidate it.
+    internal static Vector3? RideStreetCandidate;
+
     /// <summary>Drop-off rule that won ("direct" / "lot entry" / "direct (loose)").</summary>
     internal static string RideDropOff = string.Empty;
 
@@ -400,6 +410,7 @@ internal static class SpikeState
 
     internal static void ResetAutoRun()
     {
+        AutoRunSerial++;
         AutoRunning = false;
         AutoStep = 0;
         AutoNextAt = 0f;
@@ -446,6 +457,7 @@ internal static class SpikeState
         RideDestination = null;
         RideGoal = null;
         RideResolvedArrival = null;
+        RideStreetCandidate = null;
         RideDestinationName = NoDestinationName;
         RideDestinationKind = string.Empty;
         RideDropOff = string.Empty;
@@ -457,6 +469,8 @@ internal static class SpikeState
         CompletedDestinationKind = string.Empty;
         CompletedGoal = null;
         CompletedArrival = null;
+        CompletedNavOrder = -1;
+        CompletedOperation = -1;
     }
 
     /// <summary>

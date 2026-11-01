@@ -32,6 +32,13 @@ namespace WaterShader
 
         internal bool IsReady { get; private set; }
 
+        // Identity, not shader name: a foreign shader can reuse the same name.
+        internal bool MatchesBoundShader(Material material)
+            => !_disposed && IsReady && WaterEnvironment.IsAlive(_shader)
+                && WaterEnvironment.IsAlive(_bound) && WaterEnvironment.SameObject(material, _bound!)
+                && WaterEnvironment.IsAlive(material.shader)
+                && WaterEnvironment.SameObject(material.shader, _shader!);
+
         internal bool Initialize()
         {
             if (_disposed) return false;
@@ -76,6 +83,9 @@ namespace WaterShader
                 string[] missing = ReferenceWaterPolicy.MissingRequiredProperties(clone.HasProperty);
                 if (!ReferenceWaterPolicy.CanApplyReference(true, shader!.isSupported, missing.Length == 0))
                     throw new InvalidOperationException($"Reference shader contract rejected: supported={shader.isSupported} missing=[{string.Join(", ", missing)}]");
+                clone.SetFloat("_DiagnosticMode", 0f);
+                if (clone.GetFloat("_DiagnosticMode") != 0f)
+                    throw new InvalidOperationException("Initial diagnostic mode was not confirmed off.");
                 _bound = clone;
                 _nativeShader = originalShader;
                 if (!UpdateEnvironment())

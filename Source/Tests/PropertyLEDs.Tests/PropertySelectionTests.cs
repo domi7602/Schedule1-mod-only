@@ -157,6 +157,38 @@ public sealed class PropertyStatusTests
     }
 
     [Fact]
+    public void MissingLayoutWarnsWithoutChangingSavedEnabledIntent()
+    {
+        var settings = new LEDSettings { Enabled = true };
+        Assert.Equal("No LED layout available", PropertyStatus.LayoutWarning(Array.Empty<RoomLayout>()));
+        Assert.True(settings.Enabled);
+        Assert.Equal("LEDs enabled: Motel Room", PropertyStatus.Label("Motel Room", settings.Enabled));
+    }
+
+    [Fact]
+    public void OnlyUnverifiedRoomsExplainWhyNoLayoutIsAvailable()
+    {
+        var rooms = new[] { new RoomLayout { Verified = false } };
+        Assert.Equal("No LED layout available - Unverified", PropertyStatus.LayoutWarning(rooms));
+        Assert.False(rooms[0].Verified);
+    }
+
+    [Fact]
+    public void VerifiedRoomClearsWarningEvenWhenOtherRoomsAreUnverified()
+    {
+        var rooms = new[] { new RoomLayout { Verified = false }, new RoomLayout { Verified = true } };
+        Assert.Equal("", PropertyStatus.LayoutWarning(rooms));
+    }
+
+    [Fact]
+    public void WarningTracksSelectedRoomsAndLayoutRestorationWithoutStickyState()
+    {
+        Assert.Equal("No LED layout available", PropertyStatus.LayoutWarning(Array.Empty<RoomLayout>()));
+        Assert.Equal("", PropertyStatus.LayoutWarning(new[] { new RoomLayout { Verified = true } }));
+        Assert.Equal("No LED layout available", PropertyStatus.LayoutWarning(Array.Empty<RoomLayout>()));
+    }
+
+    [Fact]
     public void DetailMirrorsTheSameState()
     {
         Assert.Equal("Property LEDs are currently on", PropertyStatus.Detail(true));

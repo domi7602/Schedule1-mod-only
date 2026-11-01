@@ -1,0 +1,28 @@
+{
+  "reviewer": "deleg_26c560be / sa-0-9af27bf9",
+  "scope": "Independent read-only review of the pinned enclosure delta; no native Unity or gameplay acceptance.",
+  "passed": true,
+  "security_concerns": [],
+  "logic_errors": [],
+  "suggestions": [
+    "Unity/URP appearance, light effects, actual door motion and native lifecycle/failure cleanup still need owner-run checks."
+  ],
+  "diffByteSha256": "54a8843755de5a74a533cc2bf69aaef71e2d2ecccafe93b294c69d925a91d42c",
+  "dllSha256": "932de88dc3acdee308e1315ce3a4e05f06a4abf8f8608924d2b3075b648794ed",
+  "reported_verified": [
+    "39/39 input files, two build-context files, 38 baseline files, DLL/PDB/metadata and the original 163-test TRX matched.",
+    "The complete diff was reconstructed byte-identically from the backup and candidate.",
+    "88/88 focused tests passed in a byte-identical isolated copy with a closed-game guard and no deployment.",
+    "Independent edge-based analysis covered the existing upper support in 34 partitions without a gap; upper wall skins remain about 0.02 inside perimeter collision.",
+    "No new shell intersection with the tested portal/stair void; header spans PortalTop 4.55 to Upper 4.75; RoomPlan, stairs, floor height, furniture placement and native facade clipping unchanged.",
+    "The tested proximity policy is called by the runtime; remote hall positions no longer hold the door open.",
+    "Owned materials/lights are registered before fallible setup and retained until their consumers detach; no new mutation or release of borrowed native assets.",
+    "Final source/context check had no drift. No repository or installation files were modified by the reviewer."
+  ],
+  "parent_crosschecks": [
+    "Re-read all 39 input hashes, both build-context hashes and DLL/PDB/metadata after the review.",
+    "Parsed the retained checker TRX: 88 total, 88 passed.",
+    "Parsed the independent repository-snapshot TRX: 163 total, 163 passed; captured input hashes matched the candidate."
+  ],
+  "summary": "No substantiated security or logic blocker in the reviewed delta; static and managed evidence only."
+}

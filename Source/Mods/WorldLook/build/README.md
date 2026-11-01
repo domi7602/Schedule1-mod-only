@@ -16,7 +16,7 @@ Run from the repository root using PowerShell 7 (`pwsh`). Unity 2022.3.62f3 and,
 
 The full script always regenerates the shader bundle. It copies the pinned package/project settings, the byte-preserved `ReferenceWater.shader` and the single current Editor builder into a fresh isolated project under ignored `build/logs/<run>/unity`. Unity package restore and generated build fixtures stay there. The source manifest retains the original `14.0.11` URP/Core pins; this editor must resolve both packages to `14.0.12`.
 
-The validated D3D11 / Linear / URP 14 fixture keeps main-light, cascaded, screen-space and soft-shadow branches eligible. Its explicit bundle map includes only ReferenceWater and its eight-entry shader variant collection. The newly rebuilt bundle is loaded in the Editor and checked for the sole shader, the requested collection entries, pass availability and all 17 material properties. No custom sky or pipeline asset enters the bundle.
+The validated D3D11 / Linear / URP 14 fixture keeps main-light, cascaded, screen-space and soft-shadow branches eligible. Its explicit bundle map includes only ReferenceWater and its eight-entry shader variant collection. The newly rebuilt bundle is loaded in the Editor and checked for the sole shader, the requested collection entries, pass availability and all 18 material properties. No custom sky or pipeline asset enters the bundle.
 
 Only after those checks does the script publish `Source/Mods/WorldLook/assets/embedded/worldlook-shaders.bundle` and `Source/Mods/WorldLook/assets/embedded/shader-build.json`. The nested directory intentionally avoids the repository deploy helper's nonrecursive `assets/*.bundle` scan. The logical embedded resource remains `WorldLook.Shaders.bundle`.
 

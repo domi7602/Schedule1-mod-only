@@ -62,6 +62,8 @@ public class CommandRouter
         _handlers["list_vehicles"] = new VehicleCommandHandler(_responseQueue);
         _handlers["get_vehicle"] = new VehicleCommandHandler(_responseQueue);
         
+        _handlers["capture_screenshot"] = new ScreenshotCommandHandler(_responseQueue);
+
         // Log handlers
         _handlers["capture_logs"] = new LogCommandHandler(_responseQueue);
         
@@ -113,6 +115,11 @@ public class CommandRouter
     /// <summary>
     /// Gets all available method names.
     /// </summary>
+    public void Shutdown()
+    {
+        foreach (var handler in _handlers.Values.OfType<ScreenshotCommandHandler>()) handler.Dispose();
+    }
+
     public List<string> GetAvailableMethods()
     {
         return _handlers.Keys.ToList();

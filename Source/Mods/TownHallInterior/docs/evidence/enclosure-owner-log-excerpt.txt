@@ -1,0 +1,5 @@
+Owner-run evidence for installed bbe5a5c0 candidate; filtered TownHall lines only.
+[07:19:17.514] [WARNING] [TownHallInterior] TownHallInterior: door hook installed; selector and entry unavailable, native interaction retained.
+[07:19:41.020] [TownHallInterior] TownHallInterior: geometric portal published in Walls, root Cube and LOD Cube; shared batches untouched.
+[07:19:47.332] [TownHallInterior] TownHallInterior: vanilla reception published: 26 model instances, 19 owned shared meshes, 4 local lights; decorative only.
+[07:19:47.333] [TownHallInterior] TownHallInterior: hall and geometric facade opening published; player knock disabled.

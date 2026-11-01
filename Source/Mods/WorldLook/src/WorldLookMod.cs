@@ -170,6 +170,13 @@ public sealed class WorldLookMod : MelonMod
     internal string AutomationRequest(string action, bool? enabled)
     {
         var context = ReadAutomationContext();
+        if (action == "water-material")
+        {
+            if (context.RefusalReason != null)
+                return JsonSerializer.Serialize(new { schemaVersion = 1, accepted = false, error = context.RefusalReason });
+            try { return JsonSerializer.Serialize(new { schemaVersion = 1, accepted = true, error = (string?)null, saveName = context.SaveName, savePath = context.SavePath, material = _water.ReadMaterialDiagnostic() }); }
+            catch (Exception ex) { return JsonSerializer.Serialize(new { schemaVersion = 1, accepted = false, error = ex.GetType().Name + ": " + ex.Message }); }
+        }
         bool accepted = false;
         bool changed = false;
         string? error = null;
@@ -182,6 +189,12 @@ public sealed class WorldLookMod : MelonMod
                 if (enabled.HasValue)
                 {
                     changed = SetSessionEnabled(enabled.Value);
+                    accepted = true;
+                }
+                else if (action == "water-depth" || action == "water-weights" || action == "water-diagnostic-off")
+                {
+                    int mode = action == "water-depth" ? 1 : action == "water-weights" ? 2 : 0;
+                    changed = _water.SetDiagnosticMode(mode);
                     accepted = true;
                 }
                 else if (action == "return-to-menu")

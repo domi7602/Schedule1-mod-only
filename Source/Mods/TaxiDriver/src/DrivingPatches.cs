@@ -11,8 +11,490 @@
 //   Driving/CruiseSpeedPatch.cs    -> section CruiseSpeedPatch.cs
 //   Driving/NativeActuatorPatch.cs -> section NativeActuatorPatch.cs
 //   Traffic/TrafficLightPatch.cs   -> section TrafficLightPatch.cs
+//   Navigation/NativeShortcutPatch -> hash-pinned native comparison guard
 //
 // ---------------------------------------------------------------------------
+
+namespace TaxiDriver
+{
+    using System;
+    using System.Linq;
+    using System.Reflection;
+    using HarmonyLib;
+    using Il2CppInterop.Runtime.InteropTypes;
+    using Il2CppScheduleOne.Vehicles.AI;
+    using S1Mods.Shared;
+    using UnityEngine;
+    using NativePath = Il2CppPathfinding.Path;
+    using Routine = Il2CppScheduleOne.Vehicles.AI.NavigationUtility.__c__DisplayClass5_0.ObjectCompilerGeneratedNPrivateSealedIEnumerator1ObjectIEnumeratorIDisposableInObPaLiIn1NoInVeLiUnique;
+
+    /// <summary>
+    /// f12 RVA AD0D1D: an Error/empty direct shortcut must not beat a valid road group
+    /// merely because its length is zero. Observe is the default development build.
+    /// Only the second, ordered native getter return in one bound MoveNext may change.
+    /// </summary>
+    internal static class NativeShortcutPatch
+    {
+        private const string Owner = "com.taxidriver.native-shortcut";
+#if TAXI_SHORTCUT_GUARD
+        private const bool Observe = false;
+#else
+        private const bool Observe = true;
+#endif
+        private static Harmony? _harmony;
+        private static ShortcutPatchGroup? _group;
+        private static Hook[]? _hooks;
+        private static bool _fault;
+        private static int _thread;
+        private static long _nonce;
+        private static Receipt? _receipt;
+        [ThreadStatic] private static Dispatch? _dispatch;
+        private static long _logOperation = -1;
+        private static int _lines;
+        private const int LineLimit = 32;
+
+        private sealed record Hook(MethodInfo Target, string Prefix, string? Postfix = null, string? Finalizer = null);
+        // Scalar lease only: no path, closure, coroutine, agent or Unity wrapper across yields.
+        private sealed class Receipt
+        {
+            internal long Epoch, Nonce, Operation, Generation;
+            internal int Order;
+            internal IntPtr Vehicle, Agent, General, Road, Settings, Flags, Routine, Closure, Coroutine;
+            internal Vector3 Target, Start;
+            internal bool Used;
+        }
+        private sealed class Dispatch
+        {
+            internal Dispatch? Parent;
+            internal Receipt? Receipt;
+            internal int Bindings;
+            internal bool Closed;
+        }
+        private readonly record struct PathView(IntPtr Pointer, ushort Id, bool Error,
+            Il2CppPathfinding.PathCompleteState State, int Count, float Length, Vector3 Start, Vector3 End);
+        private sealed class Move
+        {
+            internal ShortcutComparison.Frame Frame = null!;
+            internal Receipt? Receipt;
+            internal IntPtr Group;
+            internal PathView Entry, Road, Direct;
+            internal string NativeResult = "not-observed";
+            internal string NativePath = "not-observed";
+            internal bool Diagnose, Finished;
+        }
+
+        internal static void Apply()
+        {
+            Invalidate();
+            _thread = Environment.CurrentManagedThreadId;
+            try
+            {
+                bool compatible = Compatible();
+                _harmony ??= new Harmony(Owner);
+                _hooks ??= new[]
+                {
+                    new Hook(Method(typeof(VehicleAgent), nameof(VehicleAgent.Navigate), typeof(void),
+                        typeof(Vector3), typeof(NavigationSettings), typeof(VehicleAgent.NavigationCallback)),
+                        nameof(NavigatePrefix), nameof(NavigatePostfix), nameof(NavigateFinalizer)),
+                    new Hook(Method(typeof(Routine), "MoveNext", typeof(bool)),
+                        nameof(MovePrefix), nameof(MovePostfix), nameof(MoveFinalizer)),
+                    new Hook(Method(typeof(NativePath), nameof(NativePath.GetTotalLength), typeof(float)),
+                        nameof(LengthPrefix), nameof(LengthPostfix), nameof(LengthFinalizer)),
+                    new Hook(Method(typeof(VehicleAgent), nameof(VehicleAgent.NavigationCalculationCallback), typeof(void),
+                        typeof(NavigationUtility.ENavigationCalculationResult), typeof(Il2CppScheduleOne.Math.PathSmoothingUtility.SmoothedPath)),
+                        nameof(ResultPrefix))
+                };
+                _group ??= new ShortcutPatchGroup(_hooks.Length, Install, Exact, Any,
+                    i => _harmony.Unpatch(_hooks[i].Target, HarmonyPatchType.All, Owner));
+                bool ready = _group.Apply(compatible && !_fault);
+                Mod.Log.Info($"[shortcut] mode={(Observe ? "Observe" : "Guard")} compatible={compatible} registrations={ready} removalPending={_group.RemovalPending}; native binding/getter hits unverified; max {LineLimit} lines/operation.");
+            }
+            catch (Exception ex)
+            {
+                Fault("bootstrap", ex);
+                bool clean = _group?.Remove() ?? true;
+                try { Mod.Log.Warn($"[shortcut] bootstrap rollbackClean={clean} removalPending={_group?.RemovalPending == true}"); } catch { }
+            }
+        }
+
+        private static MethodInfo Method(Type type, string name, Type returns, params Type[] args)
+        {
+            var method = AccessTools.DeclaredMethod(type, name, args);
+            if (method == null || method.IsStatic || method.ReturnType != returns || method.DeclaringType != type)
+                throw new MissingMethodException(type.FullName, name);
+            return method;
+        }
+
+        private static bool Compatible()
+        {
+            static bool Hash(string path, string expected)
+            {
+                using var input = System.IO.File.OpenRead(path);
+                using var sha = System.Security.Cryptography.SHA256.Create();
+                return Convert.ToHexString(sha.ComputeHash(input)).Equals(expected, StringComparison.OrdinalIgnoreCase);
+            }
+            static void Property(Type owner, string name, Type type)
+            {
+                var p = owner.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+                if (p?.PropertyType != type || p.GetMethod == null || p.GetIndexParameters().Length != 0)
+                    throw new MissingMemberException(owner.FullName, name);
+            }
+            Property(typeof(Routine), "__1__state", typeof(int));
+            Property(typeof(Routine), "__4__this", typeof(NavigationUtility.__c__DisplayClass5_0));
+            Property(typeof(Routine), "_finalGroup_5__2", typeof(PathGroup));
+            Property(typeof(NavigationUtility.__c__DisplayClass5_0), "lastCalculatedPath", typeof(NativePath));
+            Property(typeof(NavigationUtility.__c__DisplayClass5_0), "startPosition", typeof(Vector3));
+            Property(typeof(NavigationUtility.__c__DisplayClass5_0), "destination", typeof(Vector3));
+            Property(typeof(NavigationUtility.__c__DisplayClass5_0), "generalSeeker", typeof(Il2CppPathfinding.Seeker));
+            Property(typeof(NavigationUtility.__c__DisplayClass5_0), "roadSeeker", typeof(Il2CppPathfinding.Seeker));
+            Property(typeof(NavigationUtility.__c__DisplayClass5_0), "navSettings", typeof(NavigationSettings));
+            Property(typeof(NavigationUtility.__c__DisplayClass5_0), "flags", typeof(DriveFlags));
+            foreach (string name in new[] { "startToEntryPath", "entryToExitPath", "exitToDestinationPath" })
+                Property(typeof(PathGroup), name, typeof(NativePath));
+            string? game = null;
+            using (var process = System.Diagnostics.Process.GetCurrentProcess())
+                foreach (System.Diagnostics.ProcessModule module in process.Modules)
+                    if (string.Equals(module.ModuleName, "GameAssembly.dll", StringComparison.OrdinalIgnoreCase)) game = module.FileName;
+            var support = AppDomain.CurrentDomain.GetAssemblies().Single(a => a.GetName().Name == "Il2CppInterop.HarmonySupport");
+            return game != null && Hash(game, "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d") &&
+                Hash(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(game)!, "Schedule I_Data/il2cpp_data/Metadata/global-metadata.dat"),
+                    "e775c97da277da8eb1a90265478f3b65c9c3d6464aff4f7255d45280a1d1181f") &&
+                Hash(typeof(VehicleAgent).Assembly.Location, "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8") &&
+                Hash(typeof(NativePath).Assembly.Location, "0012f0a97bfc1104c2ebbdcfc1e8debf37be92a42da6e9a00c4079c23cd6f58d") &&
+                Hash(typeof(Harmony).Assembly.Location, "6c898933b52149e8bcf6722305c7e4d94add47c9e53b364096f91721624c0877") &&
+                Hash(support.Location, "f64c53d389fc76a910ffab86f7ac6d27e437b0c7c0c60918565a5d9f34f8ad06") &&
+                Hash(typeof(Il2CppObjectBase).Assembly.Location, "3878ce0ba0c60385f76f2ba37e07ad0ee3649d019703aec8695db3402abeedd7");
+        }
+
+        private static HarmonyMethod Patch(string name, int priority) => new(typeof(NativeShortcutPatch), name) { priority = priority };
+        private static bool Install(int i)
+        {
+            var hook = _hooks![i];
+            return PatchGuard.TryPatch(_harmony!, hook.Target, prefix: Patch(hook.Prefix, Priority.First),
+                postfix: hook.Postfix == null ? null : Patch(hook.Postfix, Priority.Last),
+                finalizer: hook.Finalizer == null ? null : Patch(hook.Finalizer, Priority.Last), log: Mod.Log);
+        }
+        private static bool Any(int i) => Harmony.GetPatchInfo(_hooks![i].Target)?.Owners.Contains(Owner) == true;
+        private static bool Exact(int i)
+        {
+            var hook = _hooks![i];
+            var info = Harmony.GetPatchInfo(hook.Target);
+            if (info == null) return false;
+            bool Has(System.Collections.Generic.IEnumerable<HarmonyLib.Patch> list, string name) =>
+                list.Count(p => p.owner == Owner) == 1 &&
+                list.Any(p => p.owner == Owner && p.PatchMethod.DeclaringType == typeof(NativeShortcutPatch) && p.PatchMethod.Name == name);
+            bool Known(HarmonyLib.Patch p) => p.owner == Owner ||
+                ((i == 0 || i == 3) && p.PatchMethod.DeclaringType == typeof(SpikeTrace));
+            return Has(info.Prefixes, hook.Prefix) && (hook.Postfix == null ? !info.Postfixes.Any(p => p.owner == Owner) : Has(info.Postfixes, hook.Postfix)) &&
+                (hook.Finalizer == null ? !info.Finalizers.Any(p => p.owner == Owner) : Has(info.Finalizers, hook.Finalizer)) &&
+                info.Prefixes.Concat(info.Postfixes).Concat(info.Finalizers).All(Known) &&
+                info.Transpilers.Count == 0 && info.ILManipulators.Count == 0;
+        }
+
+        internal static void Invalidate()
+        {
+            ShortcutComparison.Invalidate();
+            _receipt = null;
+            // Existing synchronous frames still unwind via their captured Harmony state.
+        }
+        internal static void Remove()
+        {
+            Invalidate();
+            bool clean = _group?.Remove() ?? true;
+            try { Mod.Log.Info($"[shortcut] registrationsRemoved={clean}; removalPending={_group?.RemovalPending == true}"); } catch { }
+        }
+        private static void Fault(string where, Exception? ex = null)
+        {
+            bool first = !_fault;
+            _fault = true;
+            Invalidate();
+            if (first) try { Mod.Log.Warn($"[shortcut] disabled for session at {where}: {ex?.Message ?? "unexpected comparison/stack protocol"}; native behavior retained."); } catch { }
+        }
+        private static bool Ready()
+        {
+            if (_fault || Environment.CurrentManagedThreadId != _thread || _group?.Healthy != true) return false;
+            if (_group.Verify()) return true;
+            Fault("patch-health readback");
+            return false;
+        }
+        private static IntPtr Ptr(Il2CppObjectBase? value) => value == null || value.WasCollected ? IntPtr.Zero : value.Pointer;
+        private static bool Finite(Vector3 p) => float.IsFinite(p.x) && float.IsFinite(p.y) && float.IsFinite(p.z);
+        private static bool BaseCurrent(VehicleAgent agent) => Ready() && Mod.Lifecycle.AcceptingWork &&
+            NetworkGuard.IsInMainScene && NetworkGuard.IsAlive(agent) && SpikeState.PollingActive && SpikeState.Operation.Active &&
+            SpikeState.NavOrder > 0 && SpikeState.OperationId > 0 && SpikeCommands.HasAuthority() &&
+            SpikeCommands.IsOwnedTaxi(agent.vehicle) && Ptr(SpikeState.Vehicle) == Ptr(agent.vehicle) &&
+            Ptr(agent.vehicle.Agent) == Ptr(agent) && agent.vehicle.DriverPlayer == null &&
+            !SpikeState.Reverse.Active && !agent.IsReversing && !TaxiAI.Active && !TaxiAI.NavigationBlocked;
+
+        private static bool Current(Receipt r, VehicleAgent agent, bool calculating) =>
+            r.Epoch == ShortcutComparison.Epoch && r.Nonce == _nonce && BaseCurrent(agent) &&
+            r.Order == SpikeState.NavOrder && r.Operation == SpikeState.OperationId && r.Generation == SpikeState.Operation.Generation &&
+            Ptr(agent) == r.Agent && Ptr(agent.vehicle) == r.Vehicle && Ptr(agent.generalSeeker) == r.General &&
+            Ptr(agent.roadSeeker) == r.Road && Ptr(agent.Flags) == r.Flags &&
+            SpikeState.NavTarget.Equals(r.Target) && (!calculating ||
+                (agent.AutoDriving && agent.NavigationCalculationInProgress && agent.TargetLocation.Equals(r.Target) &&
+                 Ptr(agent.currentNavigationSettings) == r.Settings && Ptr(agent.navigationCalculationRoutine) == r.Coroutine));
+
+        private static void NavigatePrefix(VehicleAgent __instance, Vector3 location, NavigationSettings settings, out Dispatch? __state)
+        {
+            __state = new Dispatch { Parent = _dispatch };
+            _dispatch = __state; // always mask an outer creation context, including foreign calls
+            try
+            {
+                if (!BaseCurrent(__instance)) return;
+                _receipt = null;
+                long nonce = ++_nonce;
+                if (settings == null || !settings.endAtRoad || !settings.ensureProximityToGraph || settings.teleportToGraphIfCalculationFails ||
+                    !Finite(location) || !location.Equals(SpikeState.NavTarget) || !__instance.Flags.UseRoads) return;
+                var r = new Receipt
+                {
+                    Epoch = ShortcutComparison.Epoch,
+                    Nonce = nonce,
+                    Order = SpikeState.NavOrder,
+                    Operation = SpikeState.OperationId,
+                    Generation = SpikeState.Operation.Generation,
+                    Vehicle = Ptr(__instance.vehicle),
+                    Agent = Ptr(__instance),
+                    General = Ptr(__instance.generalSeeker),
+                    Road = Ptr(__instance.roadSeeker),
+                    Settings = Ptr(settings),
+                    Flags = Ptr(__instance.Flags),
+                    Target = location
+                };
+                if (r.General != IntPtr.Zero && r.Road != IntPtr.Zero && r.General != r.Road && r.Settings != IntPtr.Zero)
+                    __state.Receipt = r;
+            }
+            catch (Exception ex) { Fault("dispatch capture", ex); }
+        }
+        private static void NavigatePostfix(VehicleAgent __instance, Dispatch? __state)
+        {
+            try
+            {
+                if (__state?.Receipt is not { } r) return;
+                if (!ReferenceEquals(_dispatch, __state) || __state.Bindings != 1 || !Current(r, __instance, calculating: false))
+                {
+                    Log(r, $"creation-unbound state0Hits={__state.Bindings}; no late state2 adoption");
+                    return;
+                }
+                r.Coroutine = Ptr(__instance.navigationCalculationRoutine);
+                if (r.Coroutine != IntPtr.Zero && Current(r, __instance, calculating: true))
+                {
+                    _receipt = r;
+                    Log(r, $"bound-state0 routine={r.Routine} closure={r.Closure} coroutine={r.Coroutine}");
+                }
+            }
+            catch (Exception ex) { Fault("dispatch confirmation", ex); }
+        }
+        private static Exception? NavigateFinalizer(Exception? __exception, Dispatch? __state)
+        {
+            if (__state == null || __state.Closed) return __exception;
+            __state.Closed = true;
+            if (__exception != null) { Invalidate(); }
+            if (ReferenceEquals(_dispatch, __state)) _dispatch = __state.Parent;
+            else Fault("dispatch stack");
+            return __exception;
+        }
+
+        private static void MovePrefix(Routine __instance, out Move? __state)
+        {
+            var call = new Move { Frame = ShortcutComparison.Create() };
+            __state = call; // publish before activating any permission, including suppression
+            call.Frame.Context = call;
+            ShortcutComparison.Push(call.Frame);
+            try
+            {
+                if (call.Frame.Faulted) { Fault("scope entry"); return; }
+                if (!Ready() || Ptr(__instance) == IntPtr.Zero) return;
+                int entryState = __instance.__1__state;
+                var c = __instance.__4__this;
+                if (Ptr(c) == IntPtr.Zero) return;
+                if (entryState == 0 && _dispatch?.Receipt is { } created &&
+                    Current(created, SpikeState.Vehicle!.Agent, calculating: false) &&
+                    Ptr(c.generalSeeker) == created.General && Ptr(c.roadSeeker) == created.Road &&
+                    Ptr(c.navSettings) == created.Settings && Ptr(c.flags) == created.Flags && c.destination.Equals(created.Target) && Finite(c.startPosition))
+                {
+                    _dispatch.Bindings++;
+                    created.Routine = Ptr(__instance);
+                    created.Closure = Ptr(c);
+                    created.Start = c.startPosition;
+                }
+                if (entryState != 2 || _receipt is not { Used: false } r ||
+                    Ptr(__instance) != r.Routine || Ptr(c) != r.Closure || !Bound(r, __instance)) return;
+                r.Used = true;
+                call.Receipt = r;
+                call.Diagnose = true;
+                var group = __instance._finalGroup_5__2;
+                call.Group = Ptr(group);
+                // All diagnostic getters execute while this frame is inert. They cannot
+                // advance the two unsuppressed native calls or count as hook-hit evidence.
+                call.Entry = Read(group?.startToEntryPath, measure: true);
+                call.Road = Read(group?.entryToExitPath, measure: true);
+                call.Direct = Read(c.lastCalculatedPath, measure: true);
+                Log(r, $"state2-pre group={call.Group} entry=[{Show(call.Entry)}] road=[{Show(call.Road)}] direct=[{Show(call.Direct)}] start={c.startPosition} target={c.destination} ab=[{Coordinates(c.lastCalculatedPath)}]");
+                if (!ValidSnapshot(call, group)) return;
+                ShortcutComparison.Arm(call.Frame, call.Entry.Pointer.ToInt64(), call.Direct.Pointer.ToInt64(), Observe,
+                    () => Revalidate(call, __instance));
+            }
+            catch (Exception ex) { call.Frame.Cancel(); Fault("scope capture", ex); }
+        }
+
+        private static bool Bound(Receipt r, Routine routine)
+        {
+            var agent = SpikeState.Vehicle?.Agent;
+            var c = routine.__4__this;
+            return agent != null && ReferenceEquals(_receipt, r) && Current(r, agent, calculating: true) &&
+                Ptr(routine) == r.Routine && Ptr(c) == r.Closure && c.startPosition.Equals(r.Start) && c.destination.Equals(r.Target) &&
+                Ptr(c.generalSeeker) == r.General && Ptr(c.roadSeeker) == r.Road && Ptr(c.navSettings) == r.Settings &&
+                Ptr(c.flags) == r.Flags && c.flags.UseRoads && c.navSettings.endAtRoad && c.navSettings.ensureProximityToGraph &&
+                !c.navSettings.teleportToGraphIfCalculationFails;
+        }
+        private static PathView Read(NativePath? path, bool measure)
+        {
+            if (Ptr(path) == IntPtr.Zero) return default;
+            var points = path!.vectorPath;
+            int count = points?.Count ?? -1;
+            if (count > 4096) throw new InvalidOperationException("path observation bound exceeded");
+            Vector3 start = default, end = default;
+            for (int i = 0; i < count; i++)
+            {
+                Vector3 p = points![i];
+                if (!Finite(p)) throw new InvalidOperationException("non-finite native path");
+                if (i == 0) start = p;
+                end = p;
+            }
+            return new PathView(Ptr(path), path.pathID, path.error, path.CompleteState, count,
+                measure ? path.GetTotalLength() : float.NaN, start, end);
+        }
+        private static bool Leg(PathView v) => v.Pointer != IntPtr.Zero && !v.Error &&
+            v.State == Il2CppPathfinding.PathCompleteState.Complete && v.Count >= 2 && float.IsFinite(v.Length) && v.Length > 0f;
+        private static bool ValidSnapshot(Move call, PathGroup? group) => call.Group != IntPtr.Zero &&
+            Leg(call.Entry) && Leg(call.Road) && Ptr(group!.exitToDestinationPath) == IntPtr.Zero &&
+            call.Entry.Pointer != call.Road.Pointer && call.Direct.Pointer != call.Entry.Pointer && call.Direct.Pointer != call.Road.Pointer &&
+            call.Direct.Pointer != IntPtr.Zero && call.Direct.Error && call.Direct.State == Il2CppPathfinding.PathCompleteState.Error &&
+            call.Direct.Count == 0 && call.Direct.Length == 0f;
+        private static bool Same(PathView a, PathView b) => a.Pointer == b.Pointer && a.Id == b.Id &&
+            a.Error == b.Error && a.State == b.State && a.Count == b.Count && a.Start.Equals(b.Start) && a.End.Equals(b.End);
+        private static bool Revalidate(Move call, Routine routine)
+        {
+            if (call.Receipt is not { } r || !Bound(r, routine)) return false;
+            var c = routine.__4__this;
+            var group = routine._finalGroup_5__2;
+            // Do not reread state==2: the audited native entry immediately changes it to -1.
+            return Ptr(group) == call.Group && Ptr(group.exitToDestinationPath) == IntPtr.Zero &&
+                Same(call.Entry, Read(group.startToEntryPath, false)) && Same(call.Road, Read(group.entryToExitPath, false)) &&
+                Same(call.Direct, Read(c.lastCalculatedPath, false)) &&
+                Ptr(c.generalSeeker.GetCurrentPath()) == call.Direct.Pointer && ManagedReceiptCurrent(r);
+        }
+
+        // Last check after ALL native-backed reads. Keep this primitive/managed-only:
+        // no Ready/Bound, Unity getters, logging or Vector3.Equals native binding here.
+        private static bool ManagedReceiptCurrent(Receipt r) => !_fault && _group?.Healthy == true &&
+            Environment.CurrentManagedThreadId == _thread && ReferenceEquals(_receipt, r) &&
+            r.Epoch == ShortcutComparison.Epoch && r.Nonce == _nonce && Mod.Lifecycle.AcceptingWork &&
+            SpikeState.PollingActive && SpikeState.Operation.Active && !SpikeState.Reverse.Active &&
+            r.Operation == SpikeState.OperationId && r.Order == SpikeState.NavOrder && r.Generation == SpikeState.Operation.Generation &&
+            r.Target.x == SpikeState.NavTarget.x && r.Target.y == SpikeState.NavTarget.y && r.Target.z == SpikeState.NavTarget.z;
+
+        private static void LengthPrefix(NativePath __instance, out ShortcutComparison.Call? __state)
+        {
+            __state = null;
+            try
+            {
+                if (ShortcutComparison.Current is not { Stage: 1 or 2 or 3 or 4 } frame || frame.Epoch != ShortcutComparison.Epoch) return;
+                __state = ShortcutComparison.Before(Ptr(__instance).ToInt64());
+                if (ShortcutComparison.Current?.Faulted == true) Fault("getter order/reentrancy");
+            }
+            catch (Exception ex) { Fault("getter entry", ex); }
+        }
+        private static void LengthPostfix(ref float __result, ShortcutComparison.Call? __state)
+        {
+            try
+            {
+                float original = __result;
+                bool changed = ShortcutComparison.After(__state, ref __result);
+                if (__state?.Frame.Faulted == true) Fault("getter validation/result protocol");
+                if (__state is { } token && token.Frame.Context is Move { Receipt: { } r })
+                    Log(r, $"native-getter stage={token.Stage} path={token.Pointer} original={original} effective={__result} override={changed}");
+            }
+            catch (Exception ex) { Fault("getter return", ex); }
+        }
+        private static Exception? LengthFinalizer(Exception? __exception, ShortcutComparison.Call? __state)
+        {
+            if (__exception != null && __state.HasValue) { __state.Value.Frame.Cancel(); Fault("getter exception"); }
+            return __exception;
+        }
+        private static void ResultPrefix(VehicleAgent __instance, NavigationUtility.ENavigationCalculationResult result,
+            Il2CppScheduleOne.Math.PathSmoothingUtility.SmoothedPath _path)
+        {
+            try
+            {
+                if (ShortcutComparison.Current?.Context is not Move { Receipt: { } r } call || Ptr(__instance) != r.Agent) return;
+                call.NativeResult = result.ToString();
+                var points = _path?.vectorPath;
+                int count = points?.Count ?? -1;
+                call.NativePath = $"count={count},end={(count > 0 ? points![count - 1].ToString() : "none")}";
+            }
+            catch { /* read-only result detail is optional */ }
+            finally
+            {
+                // A result retires the scalar lease even when no state-2 observation was
+                // eligible. Clearing on an ambiguous same-agent result is fail-closed.
+                try { if (_receipt?.Agent == Ptr(__instance)) _receipt = null; }
+                catch { _receipt = null; }
+            }
+        }
+        private static void MovePostfix(Routine __instance, Move? __state) => Finish(__instance, __state);
+        private static Exception? MoveFinalizer(Routine __instance, Exception? __exception, Move? __state)
+        {
+            Finish(__instance, __state);
+            if (__exception != null && __state?.Receipt != null) Fault("native MoveNext exception");
+            return __exception;
+        }
+        private static void Finish(Routine routine, Move? call)
+        {
+            if (call == null || call.Finished) return;
+            call.Finished = true;
+            bool missingGetter = call.Frame.Stage is 1 or 2 or 3 or 4;
+            call.Frame.Cancel(); // no post-observation may use comparison permission
+            try
+            {
+                if (call.Diagnose && call.Receipt is { } r)
+                {
+                    var after = routine._finalGroup_5__2;
+                    Log(r, $"state2-post mode={(Observe ? "Observe" : "Guard")} override={call.Frame.Applied} groupBefore={call.Group} groupAfter={Ptr(after)} entryAfter=[{Show(Read(after?.startToEntryPath, true))}] roadAfter=[{Show(Read(after?.entryToExitPath, true))}] nativeResult={call.NativeResult} nativePath=[{call.NativePath}]");
+                    if (ReferenceEquals(_receipt, r)) _receipt = null;
+                }
+            }
+            catch (Exception ex) { Fault("scope post-observation", ex); }
+            finally
+            {
+                ShortcutComparison.Close(call.Frame);
+                if (call.Frame.Faulted) Fault("scope cleanup");
+                if (missingGetter) Fault("incomplete native getter sequence");
+                if (call.Diagnose && call.Receipt is { } r)
+                    Log(r, $"cleanup-complete closed={call.Frame.Closed} fault={call.Frame.Faulted} permissionCleared={call.Frame.Stage == 0}");
+            }
+        }
+        private static string Show(PathView p) => $"ptr={p.Pointer},id={p.Id},error={p.Error},state={p.State},count={p.Count},length={p.Length},start={p.Start},end={p.End}";
+        private static string Coordinates(NativePath? path)
+        {
+            try
+            {
+                var ab = path?.TryCast<Il2CppPathfinding.ABPath>();
+                return ab == null ? "unavailable" : $"original={ab.originalStartPoint}->{ab.originalEndPoint},effective={ab.startPoint}->{ab.endPoint}";
+            }
+            catch { return "unavailable"; }
+        }
+        private static void Log(Receipt r, string message)
+        {
+            if (_logOperation != r.Operation) { _logOperation = r.Operation; _lines = 0; }
+            if (_lines >= LineLimit) return;
+            _lines++;
+            try { Mod.Log.Info($"[shortcut] nonce={r.Nonce} op={r.Operation} order={r.Order} epoch={r.Epoch} event={_lines}/{LineLimit} {message}{(_lines == LineLimit ? " CAP reached" : "")}"); }
+            catch { /* scalar diagnostics cannot authorize an effect */ }
+        }
+    }
+}
 
 namespace TaxiDriver
 {

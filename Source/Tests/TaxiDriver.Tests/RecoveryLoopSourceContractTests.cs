@@ -41,9 +41,9 @@ public class RecoveryLoopSourceContractTests
     public void NewOrdersAndTeardown_ArmAndResetTheDeadlineWhileRedispatchKeepsIt()
     {
         string commands = DriverSafetySourceContractTests.ReadSource("SpikeCommands.cs");
-        Assert.Equal(2, commands.Split("SpikeRunner.BeginNavigationOperation();").Length - 1);
-        string begin = Section("internal static void BeginNavigationOperation()", "private static bool StopIfNavigationExpired");
-        Assert.Contains("NavigationRecovery.Begin(Time.unscaledTime, NavigationTimeoutSeconds)", begin);
+        Assert.Equal(2, commands.Split("SpikeRunner.BeginNavigationOperation(").Length - 1);
+        string begin = Section("internal static void BeginNavigationOperation(", "private static bool StopIfNavigationExpired");
+        Assert.Contains("NavigationRecovery.Begin(preparedTime ?? Time.unscaledTime, NavigationTimeoutSeconds)", begin);
         Assert.Contains("_freeSpotRescues = 0;", begin);
         string state = DriverSafetySourceContractTests.ReadSource("SpikeState.cs");
         string reset = DriverSafetySourceContractTests.Section(state, "internal static void ResetNavigation()", "internal static void ResetAutoRun()");

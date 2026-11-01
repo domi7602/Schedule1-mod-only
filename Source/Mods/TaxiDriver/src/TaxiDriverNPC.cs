@@ -27,7 +27,7 @@ public sealed class TaxiDriverNPC : NPC
     protected override void ConfigurePrefab(NPCPrefabBuilder builder)
     {
         builder.WithIdentity(NPC_ID, "Taxi", "Driver")
-            .WithSpawnPosition(TaxiStand.StandCoordinate)
+            .WithSpawnPosition(TaxiStand.DriverWaitingCoordinate)
             .WithAppearanceDefaults(av =>
             {
                 av.Gender = 0.5f;
@@ -44,7 +44,7 @@ public sealed class TaxiDriverNPC : NPC
             .WithSchedule(plan =>
             {
                 // Wait at the stand. warpIfSkipped covers spawning after midnight.
-                plan.WalkTo(TaxiStand.StandCoordinate, 0, warpIfSkipped: true);
+                plan.WalkTo(TaxiStand.DriverWaitingCoordinate, 0, warpIfSkipped: true);
             });
     }
 
@@ -201,8 +201,14 @@ public sealed class TaxiDriverNPC : NPC
 
         try
         {
-            ours.Position = TaxiStand.StandCoordinate;
-            Mod.Log.Info("Taxi driver: warped back to the stand.");
+            ours.Position = TaxiStand.DriverWaitingCoordinate;
+            Vector3 actual = ours.Position;
+            if (Vector3.Distance(actual, TaxiStand.DriverWaitingCoordinate) > 0.5f)
+            {
+                Mod.Log.Warn($"Taxi driver: waiting-point warp not confirmed; requested {TaxiStand.Fmt(TaxiStand.DriverWaitingCoordinate)}, actual {TaxiStand.Fmt(actual)}.");
+                return;
+            }
+            Mod.Log.Info($"Taxi driver: waiting point confirmed at {TaxiStand.Fmt(actual)}.");
         }
         catch (System.Exception ex)
         {

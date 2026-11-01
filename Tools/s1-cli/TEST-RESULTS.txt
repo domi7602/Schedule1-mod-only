@@ -1,0 +1,27 @@
+test_capabilities_and_time_read (test_cli.CliTests.test_capabilities_and_time_read) ... ok
+test_capture_checks_capability_and_real_png (test_cli.CliTests.test_capture_checks_capability_and_real_png) ... ok
+test_capture_unsupported_never_requests_capture (test_cli.CliTests.test_capture_unsupported_never_requests_capture) ... ok
+test_doctor_offline_retains_diagnostics (test_cli.CliTests.test_doctor_offline_retains_diagnostics) ... ok
+test_doctor_reports_process_identity (test_cli.CliTests.test_doctor_reports_process_identity) ... ok
+test_heartbeat_and_bridge_errors_are_acknowledged (test_cli.CliTests.test_heartbeat_and_bridge_errors_are_acknowledged) ... ok
+test_help (test_cli.CliTests.test_help) ... ok
+test_input_errors_are_json_and_do_not_expose_exec (test_cli.CliTests.test_input_errors_are_json_and_do_not_expose_exec) ... ok
+test_lighting_only_selected_light_members (test_cli.CliTests.test_lighting_only_selected_light_members) ... ok
+test_nonfinite_response_is_protocol_error (test_cli.CliTests.test_nonfinite_response_is_protocol_error) ... ok
+test_protocol_rejects_wrong_id_and_bad_lengths (test_cli.CliTests.test_protocol_rejects_wrong_id_and_bad_lengths) ... ok
+test_setter_requires_identity_and_delegates_existing_guard (test_cli.CliTests.test_setter_requires_identity_and_delegates_existing_guard) ... ok
+test_socket_deadline_never_retries (test_cli.CliTests.test_socket_deadline_never_retries) ... ok
+test_status_correlated_tcp_and_ack (test_cli.CliTests.test_status_correlated_tcp_and_ack) ... ok
+test_windows_s1_launcher (test_cli.CliTests.test_windows_s1_launcher) ... ok
+test_worldlook_status (test_cli.CliTests.test_worldlook_status) ... ok
+test_all_filters_are_decoded (test_png.PngTests.test_all_filters_are_decoded) ... ok
+test_bad_row_filter (test_png.PngTests.test_bad_row_filter) ... ok
+test_bad_zlib (test_png.PngTests.test_bad_zlib) ... ok
+test_deadline_is_checked (test_png.PngTests.test_deadline_is_checked) ... ok
+test_path_escape_and_mismatched_metadata (test_png.PngTests.test_path_escape_and_mismatched_metadata) ... ok
+test_truncated_and_excessive_pixels (test_png.PngTests.test_truncated_and_excessive_pixels) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 6.276s
+
+OK

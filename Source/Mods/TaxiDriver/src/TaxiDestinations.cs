@@ -23,27 +23,18 @@ namespace TaxiDriver;
 ///   </item>
 ///   <item>
 ///     <b>Parking lot entries</b> — every live <see cref="ParkingLot"/>'s
-///     <c>EntryPoint</c> (the street-side drive-in). Proven routable: the taxi
-///     stand spawns on one, and a spot spawn inside a garage structure failed
-///     path calculation in 0.1 s (see <see cref="TaxiStand"/>).
+///     <c>EntryPoint</c> as a logical anchor, not proof of a drivable endpoint.
 ///   </item>
 /// </list>
 ///
 /// <see cref="ResolveArrival"/> carries the "a taxi does not have to stop at the
-/// doorstep" rule: a goal that is not on the vehicle graph is served by the
-/// nearest lot entry instead of being force-driven into geometry (the
-/// skatepark / lamp failure mode).
+/// doorstep" rule by selecting a nearby strict street candidate. Native full
+/// calculation and a confirmed physical arrival remain separate requirements.
 /// </summary>
 internal static class TaxiDestinations
 {
-    /// <summary>Graph deviation still served directly ("you are there").</summary>
-    private const float DirectSnapTolerance = 6f;
-
-    /// <summary>Graph deviation accepted with a warning when no lot is near.</summary>
-    private const float LooseSnapTolerance = 20f;
-
-    /// <summary>Radius around a goal in which a lot entry is accepted as drop-off.</summary>
-    private const float LotDropOffRadius = 60f;
+    /// <summary>Existing 3D goal-to-drop-off selection budget, not the physical arrival radius.</summary>
+    internal const float LotDropOffRadius = 60f;
 
     internal const string KindDeal = "deal";
     internal const string KindLot = "lot";
@@ -75,7 +66,7 @@ internal static class TaxiDestinations
         internal string Tag => Kind == KindProperty ? (IsOwned ? "HOME" : "PROP") : Kind == KindDeal ? "DEAL" : "PARK";
     }
 
-    /// <summary>Where the taxi should actually stop, and why.</summary>
+    /// <summary>Selected drop-off candidate and reason; not full-route or physical-arrival evidence.</summary>
     internal sealed class Arrival
     {
         internal bool Ok;
@@ -83,7 +74,6 @@ internal static class TaxiDestinations
         internal string Kind = "<none>";
         internal float SnapDelta;
         internal string LotName = string.Empty;
-        internal float LotDistance;
         internal string Reason = string.Empty;
     }
 
@@ -366,82 +356,38 @@ internal static class TaxiDestinations
     // ----------------------------------------------------------------- arrival
 
     /// <summary>
-    /// Decides where the taxi stops for <paramref name="destination"/>:
-    /// <list type="number">
-    ///   <item>goal on the vehicle graph (within <see cref="DirectSnapTolerance"/> m) — drive it directly;</item>
-    ///   <item>otherwise the nearest lot entry within <see cref="LotDropOffRadius"/> m — drop off at the lot beside it;</item>
-    ///   <item>otherwise an off-graph goal within <see cref="LooseSnapTolerance"/> m — accept with a warning;</item>
-    ///   <item>otherwise refuse (never force-drive into geometry).</item>
-    /// </list>
+    /// Selects a roadside candidate for the logical goal without a General-graph
+    /// rebound or an assumption that raw parking entries are drivable.
     /// </summary>
     internal static bool ResolveArrival(Destination destination, out Arrival arrival)
     {
         arrival = new Arrival();
 
-        Vector3 sampled;
-        float delta;
-        try
-        {
-            sampled = NavigationUtility.SampleVehicleGraph(destination.Goal);
-            delta = Vector3.Distance(destination.Goal, sampled);
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Error($"[arrival] SampleVehicleGraph('{destination.Name}') failed: {ex.Message}");
-            return false;
-        }
-
-        arrival.SnapDelta = delta;
-
-        if (delta <= DirectSnapTolerance)
+        if (RoadTarget.TryStreetDropOff(destination.Goal, out Vector3 candidate, out string reason))
         {
             arrival.Ok = true;
-            arrival.Point = sampled;
-            arrival.Kind = "direct";
-            arrival.Reason = $"goal on the vehicle graph (delta {Num(delta)} m)";
+            arrival.Point = candidate;
+            arrival.Kind = "roadside candidate";
+            arrival.SnapDelta = Vector3.Distance(destination.Goal, candidate);
+            arrival.Reason = reason;
             return true;
         }
 
-        if (TryNearestLotEntry(destination.Goal, out Vector3 entry, out string lotName, out float lotDistance))
-        {
-            arrival.Ok = true;
-            arrival.Point = entry;
-            arrival.Kind = "lot entry";
-            arrival.LotName = lotName;
-            arrival.LotDistance = lotDistance;
-            arrival.Reason =
-                $"goal is {Num(delta)} m off the vehicle graph — dropping off at lot '{lotName}' " +
-                $"{Num(lotDistance)} m from the goal";
-            return true;
-        }
-
-        if (delta <= LooseSnapTolerance)
-        {
-            arrival.Ok = true;
-            arrival.Point = sampled;
-            arrival.Kind = "direct (loose)";
-            arrival.Reason =
-                $"goal is {Num(delta)} m off the vehicle graph and no lot is within " +
-                $"{Num(LotDropOffRadius)} m — using the graph point (may stop short)";
-            Mod.Log.Warn($"[arrival] '{destination.Name}': {arrival.Reason}.");
-            return true;
-        }
-
-        arrival.Reason =
-            $"goal is {Num(delta)} m off the vehicle graph and no lot entry is within " +
-            $"{Num(LotDropOffRadius)} m — no drivable drop-off";
+        arrival.Reason = reason;
         Mod.Log.Error($"[arrival] '{destination.Name}': {arrival.Reason} — ride refused (no blind dispatch).");
         return false;
     }
 
     /// <summary>
-    /// Watchdog fallback: a lot entry near <paramref name="goal"/> that is NOT the
-    /// target we are already failing to reach — "the taxi stops beside it instead".
+    /// Watchdog fallback: a lot-derived street candidate near the passenger's
+    /// logical goal, distinct from the physical target already failing.
     /// </summary>
     internal static bool TryFallbackDropOff(Vector3 goal, Vector3 currentTarget, out Vector3 point, out string lotName)
     {
         point = Vector3.zero;
         lotName = string.Empty;
+        if (!float.IsFinite(goal.x) || !float.IsFinite(goal.y) || !float.IsFinite(goal.z) ||
+            !float.IsFinite(currentTarget.x) || !float.IsFinite(currentTarget.y) || !float.IsFinite(currentTarget.z)) return false;
         bool found = false;
         float best = float.MaxValue;
 
@@ -461,9 +407,8 @@ internal static class TaxiDestinations
                 try
                 {
                     Transform? door = lot.EntryPoint ?? lot.ExitPoint;
-                    candidate = door != null && door.Pointer != IntPtr.Zero
-                        ? door.position
-                        : (lot.transform == null ? Vector3.zero : lot.transform.position);
+                    if (door == null || door.Pointer == IntPtr.Zero) continue;
+                    candidate = door.position;
                     name = SafeName(lot);
                 }
                 catch
@@ -471,12 +416,15 @@ internal static class TaxiDestinations
                     continue;
                 }
 
-                // Same point we are already failing on? Then it is no alternative.
-                if (Vector3.Distance(candidate, currentTarget) < 5f)
+                // Raw lot entries are only samples. Separation, ranking and the logical
+                // goal budget all apply AFTER strict street projection, never before it.
+                if (!RoadTarget.TryStreetDropOff(candidate, out candidate, out _)) continue;
+                float separation = Vector3.Distance(candidate, currentTarget);
+                if (!float.IsFinite(separation) || separation < 5f)
                     continue;
 
                 float d = Vector3.Distance(goal, candidate);
-                if (d <= LotDropOffRadius && d < best)
+                if (float.IsFinite(d) && d <= LotDropOffRadius && d < best)
                 {
                     best = d;
                     point = candidate;
@@ -489,59 +437,6 @@ internal static class TaxiDestinations
         {
             Mod.Log.Warn($"[arrival] fallback lot scan failed: {ex.Message}");
             return false;
-        }
-
-        return found;
-    }
-
-    /// <summary>Nearest lot ENTRY to a point; entries are street-side and proven routable.</summary>
-    private static bool TryNearestLotEntry(Vector3 goal, out Vector3 entry, out string lotName, out float distance)
-    {
-        entry = Vector3.zero;
-        lotName = string.Empty;
-        distance = float.MaxValue;
-        bool found = false;
-
-        ParkingLot[]? lots;
-        try
-        {
-            lots = UnityEngine.Object.FindObjectsByType<ParkingLot>(FindObjectsSortMode.None);
-        }
-        catch (Exception ex)
-        {
-            Mod.Log.Warn($"[arrival] lot scan failed: {ex.Message}");
-            return false;
-        }
-
-        if (lots == null)
-            return false;
-
-        foreach (ParkingLot? lot in lots)
-        {
-            if (!Usable(lot))
-                continue;
-
-            Vector3 candidate;
-            try
-            {
-                Transform? door = lot.EntryPoint ?? lot.ExitPoint;
-                candidate = door != null && door.Pointer != IntPtr.Zero
-                    ? door.position
-                    : (lot.transform == null ? Vector3.zero : lot.transform.position);
-            }
-            catch
-            {
-                continue;
-            }
-
-            float d = Vector3.Distance(goal, candidate);
-            if (d <= LotDropOffRadius && d < distance)
-            {
-                distance = d;
-                entry = candidate;
-                lotName = SafeName(lot);
-                found = true;
-            }
         }
 
         return found;

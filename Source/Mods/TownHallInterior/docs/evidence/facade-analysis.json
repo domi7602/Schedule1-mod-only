@@ -1,0 +1,791 @@
+{
+  "schema": 1,
+  "language": "de",
+  "scope": {
+    "mode": "offline_read_only_forensics",
+    "timestamp": "2026-10-28T19:40:48.740068+00:00",
+    "game_contact": false,
+    "production_or_test_writes": false,
+    "private_blender_read": false,
+    "rectangle": {
+      "x_slab": [
+        54.18,
+        54.56
+      ],
+      "y": [
+        1.1,
+        3.95
+      ],
+      "z": [
+        30.04,
+        31.96
+      ]
+    },
+    "tools": {
+      "python": "3.13.17",
+      "UnityPy": "1.25.4",
+      "numpy": "2.5.4"
+    }
+  },
+  "result": {
+    "verdict": "Die Tür verdeckt eine geschlossene Fassadenfläche, keine vorhandene Maueröffnung. Door-Renderer ausschalten entfernt die unabhängigen Fassadenflächen nicht.",
+    "near_brick_blocker": "townhall/Walls: Renderer302660, level1 Mesh41, Submesh84, Dreiecke0/1, x54.34999847; orange Ziegel, LOD0/1.",
+    "independent_inner_blocker": "TownHall/Cube: Renderer284066, level1 Mesh125, Submesh127, Westfläche Dreiecke8/9 bei x54.39999771. Für genau dieses Rechteck schneidet nur Dreieck9. Geschlossener 6-Seiten-Kasten; kein Mitglied der townhall-LODGroup.",
+    "additional_LOD_blocker": "townhall/Cube (GO5870, NICHT GO28103): Renderer294387, level1 Mesh95, orange Fassaden-Submesh86, Dreiecke5/6/7 bei x54.34862518; LOD1/2. Sein Submesh84 enthält außerdem die schräge Betonschwelle bis y1.40515423.",
+    "batch_caveat": "Kein Beleg, dass statische Batches Renderer.enabled=false ignorieren. Die unabhängig verbleibenden Flächen erklären die Sperrfläche. LOD0/1/2 müssen separat erhalten/ersetzt werden.",
+    "upper_trim_verdict": "UpperBrickTrim besitzt KEIN vollflächiges Deckelmesh. Nur rund3.01m2 obere Randflächen bei y4.9; drei Innenproben treffen nichts. Collider-Vollgrundriss ist kein Geometrienachweis.",
+    "inside_verdict": "Walls, root Cube und untersuchte Dachflächen haben Außenorientierung; Materialien setzen _Cull=2. Fehlende Innenhaut ist damit konsistent. Keine Sichtprüfung durchgeführt."
+  },
+  "sources": [
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\Schedule I_Data\\level1",
+      "bytes": 294264996,
+      "sha256": "8d17438080e7692895a8bb3ce63ca1a3f980bf0f2d5c8972f1ce67ea65cd047f"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\Schedule I_Data\\sharedassets1.assets",
+      "bytes": 204451428,
+      "sha256": "b4ccd4981fae098f41344a1451a2566bb985323dc265757088cb32fe30706d73"
+    },
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\Schedule I_Data\\sharedassets0.assets",
+      "bytes": 120230740,
+      "sha256": "1ed15c8cde5fc8a205fc40a92c087498638d9711689bece9d950902814cc82fe"
+    }
+  ],
+  "scene_identity": {
+    "unity_version": "2022.3.62f2",
+    "path": "Map/Hyland Point/Region_Downtown/TownCenter/TownHall",
+    "gameObject": 62727,
+    "component520158": {
+      "serialized_guid_ascii_found": true,
+      "expected_guid": "c747a750-98cb-47fc-9c40-cf5912acc390"
+    }
+  },
+  "runtime_source": {
+    "path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\PublicHallHost.cs",
+    "sha256": "7f771c869b5cf27a649713147c0b2bcced814f6db0a2beaa29413ff4dd08ea90",
+    "base_revision": "94a42c5b41abc9e403793de238a75688726681db",
+    "worktree": "dirty (observed before analysis)",
+    "findings": "HideDoorMesh only chooses door-sized/under-Door renderers (lines183-240); whole-building facade contributors exceed doorSized bounds. Collider disable does not hide a MeshRenderer."
+  },
+  "contributions": [
+    {
+      "path": "/TownHall/townhall/Cube",
+      "gameObject": 5870,
+      "renderer": 294387,
+      "mesh_file": "level1",
+      "mesh_pathID": 95,
+      "mesh_name": "Combined Mesh (root: scene) 25",
+      "submesh": 84,
+      "firstByte": 80988,
+      "indexCount": 300,
+      "baseVertex": 0,
+      "material": {
+        "ref": {
+          "m_FileID": 3,
+          "m_PathID": 133
+        },
+        "name": "concrete_browngrey light",
+        "Cull": 2.0,
+        "Surface": 0.0,
+        "AlphaClip": 0.0
+      },
+      "triangles_in_entrance": [
+        35,
+        36,
+        37
+      ],
+      "triangle_indices": [
+        [
+          23966,
+          23968,
+          23969
+        ],
+        [
+          23969,
+          23968,
+          23970
+        ],
+        [
+          23969,
+          23970,
+          23971
+        ]
+      ],
+      "xyz_bounds_of_contributing_triangles": {
+        "min": [
+          51.48059082,
+          0.19961596,
+          25.86382103
+        ],
+        "max": [
+          54.34862518,
+          1.40515423,
+          36.15784073
+        ]
+      },
+      "removed_projection_area_yz_m2": 0.13608808214874557,
+      "Door_subtree_hidden_assumption": false,
+      "serialized_active": true,
+      "serialized_renderer_enabled": true,
+      "townhall_LOD_levels": [
+        1,
+        2
+      ]
+    },
+    {
+      "path": "/TownHall/townhall/Cube",
+      "gameObject": 5870,
+      "renderer": 294387,
+      "mesh_file": "level1",
+      "mesh_pathID": 95,
+      "mesh_name": "Combined Mesh (root: scene) 25",
+      "submesh": 86,
+      "firstByte": 81768,
+      "indexCount": 66,
+      "baseVertex": 0,
+      "material": {
+        "ref": {
+          "m_FileID": 3,
+          "m_PathID": 90
+        },
+        "name": "brick dark light orange",
+        "Cull": 2.0,
+        "Surface": 0.0,
+        "AlphaClip": 0.0
+      },
+      "triangles_in_entrance": [
+        5,
+        6,
+        7
+      ],
+      "triangle_indices": [
+        [
+          24118,
+          24120,
+          24119
+        ],
+        [
+          24120,
+          24064,
+          24119
+        ],
+        [
+          24120,
+          24121,
+          24064
+        ]
+      ],
+      "xyz_bounds_of_contributing_triangles": {
+        "min": [
+          54.34862518,
+          1.4051528,
+          25.86382103
+        ],
+        "max": [
+          54.34862518,
+          8.2820282,
+          36.15784073
+        ]
+      },
+      "removed_projection_area_yz_m2": 4.88610525540382,
+      "Door_subtree_hidden_assumption": false,
+      "serialized_active": true,
+      "serialized_renderer_enabled": true,
+      "townhall_LOD_levels": [
+        1,
+        2
+      ]
+    },
+    {
+      "path": "/TownHall/townhall/Door",
+      "gameObject": 37103,
+      "renderer": 326533,
+      "mesh_file": "level1",
+      "mesh_pathID": 114,
+      "mesh_name": "Combined Mesh (root: scene) 22",
+      "submesh": 269,
+      "firstByte": 130602,
+      "indexCount": 144,
+      "baseVertex": 0,
+      "material": {
+        "ref": {
+          "m_FileID": 3,
+          "m_PathID": 217
+        },
+        "name": "wood white",
+        "Cull": 2.0,
+        "Surface": 0.0,
+        "AlphaClip": 0.0
+      },
+      "triangles_in_entrance": [
+        16,
+        17,
+        22,
+        23,
+        28,
+        29,
+        34,
+        35,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ],
+      "triangle_indices": null,
+      "xyz_bounds_of_contributing_triangles": {
+        "min": [
+          54.29999924,
+          1.25,
+          30.4750309
+        ],
+        "max": [
+          54.31999969,
+          3.3499999,
+          31.52503014
+        ]
+      },
+      "removed_projection_area_yz_m2": 0.8124993681908563,
+      "Door_subtree_hidden_assumption": true,
+      "serialized_active": true,
+      "serialized_renderer_enabled": true,
+      "townhall_LOD_levels": [
+        0,
+        1
+      ]
+    },
+    {
+      "path": "/TownHall/townhall/Door/Glass",
+      "gameObject": 102677,
+      "renderer": 315785,
+      "mesh_file": "level1",
+      "mesh_pathID": 42,
+      "mesh_name": "Combined Mesh (root: scene) 24",
+      "submesh": 71,
+      "firstByte": 98706,
+      "indexCount": 6,
+      "baseVertex": 0,
+      "material": {
+        "ref": {
+          "m_FileID": 4,
+          "m_PathID": 77
+        },
+        "name": "window_opaque_material",
+        "Cull": 2.0,
+        "Surface": 0.0,
+        "AlphaClip": 0.0
+      },
+      "triangles_in_entrance": [
+        0,
+        1
+      ],
+      "triangle_indices": null,
+      "xyz_bounds_of_contributing_triangles": {
+        "min": [
+          54.34000015,
+          1.35000002,
+          30.57503128
+        ],
+        "max": [
+          54.34000015,
+          3.25,
+          31.42502975
+        ]
+      },
+      "removed_projection_area_yz_m2": 1.614996928572964,
+      "Door_subtree_hidden_assumption": true,
+      "serialized_active": true,
+      "serialized_renderer_enabled": true,
+      "townhall_LOD_levels": [
+        0,
+        1
+      ]
+    },
+    {
+      "path": "/TownHall/townhall/Door/Quad",
+      "gameObject": 5947,
+      "renderer": 320925,
+      "mesh_file": "level1",
+      "mesh_pathID": 101,
+      "mesh_name": "Combined Mesh (root: scene) 78",
+      "submesh": 447,
+      "firstByte": 203628,
+      "indexCount": 6,
+      "baseVertex": 0,
+      "material": {
+        "ref": {
+          "m_FileID": 3,
+          "m_PathID": 501
+        },
+        "name": "town hall small window billboard",
+        "Cull": 2.0,
+        "Surface": 0.0,
+        "AlphaClip": 1.0
+      },
+      "triangles_in_entrance": [
+        0,
+        1
+      ],
+      "triangle_indices": null,
+      "xyz_bounds_of_contributing_triangles": {
+        "min": [
+          54.19200134,
+          1.09224451,
+          30.03888512
+        ],
+        "max": [
+          54.19200134,
+          3.94975519,
+          31.96117592
+        ]
+      },
+      "removed_projection_area_yz_m2": 5.471529968261692,
+      "Door_subtree_hidden_assumption": true,
+      "serialized_active": true,
+      "serialized_renderer_enabled": true,
+      "townhall_LOD_levels": [
+        2
+      ]
+    },
+    {
+      "path": "/TownHall/townhall/DoorFrame",
+      "gameObject": 95282,
+      "renderer": 329674,
+      "mesh_file": "level1",
+      "mesh_pathID": 134,
+      "mesh_name": "Combined Mesh (root: scene) 21",
+      "submesh": 557,
+      "firstByte": 202608,
+      "indexCount": 150,
+      "baseVertex": 0,
+      "material": {
+        "ref": {
+          "m_FileID": 3,
+          "m_PathID": 133
+        },
+        "name": "concrete_browngrey light",
+        "Cull": 2.0,
+        "Surface": 0.0,
+        "AlphaClip": 0.0
+      },
+      "triangles_in_entrance": [
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49
+      ],
+      "triangle_indices": null,
+      "xyz_bounds_of_contributing_triangles": {
+        "min": [
+          54.25,
+          1.25,
+          30.27503014
+        ],
+        "max": [
+          54.27499771,
+          3.54999995,
+          31.7250309
+        ]
+      },
+      "removed_projection_area_yz_m2": 1.1300031673904414,
+      "Door_subtree_hidden_assumption": false,
+      "serialized_active": true,
+      "serialized_renderer_enabled": true,
+      "townhall_LOD_levels": [
+        0,
+        1
+      ]
+    },
+    {
+      "path": "/TownHall/townhall/Walls",
+      "gameObject": 69766,
+      "renderer": 302660,
+      "mesh_file": "level1",
+      "mesh_pathID": 41,
+      "mesh_name": "Combined Mesh (root: scene) 23",
+      "submesh": 84,
+      "firstByte": 16716,
+      "indexCount": 48,
+      "baseVertex": 0,
+      "material": {
+        "ref": {
+          "m_FileID": 3,
+          "m_PathID": 90
+        },
+        "name": "brick dark light orange",
+        "Cull": 2.0,
+        "Surface": 0.0,
+        "AlphaClip": 0.0
+      },
+      "triangles_in_entrance": [
+        0,
+        1
+      ],
+      "triangle_indices": [
+        [
+          4381,
+          4382,
+          4383
+        ],
+        [
+          4381,
+          4383,
+          4384
+        ]
+      ],
+      "xyz_bounds_of_contributing_triangles": {
+        "min": [
+          54.34999847,
+          1.24999881,
+          20.50003052
+        ],
+        "max": [
+          54.34999847,
+          4.75000095,
+          41.50003052
+        ]
+      },
+      "removed_projection_area_yz_m2": 5.183999771125485,
+      "Door_subtree_hidden_assumption": false,
+      "serialized_active": true,
+      "serialized_renderer_enabled": true,
+      "townhall_LOD_levels": [
+        0,
+        1
+      ]
+    },
+    {
+      "path": "/TownHall/Cube",
+      "gameObject": 28103,
+      "renderer": 284066,
+      "mesh_file": "level1",
+      "mesh_pathID": 125,
+      "mesh_name": "Combined Mesh (root: scene) 26",
+      "submesh": 127,
+      "firstByte": 58758,
+      "indexCount": 36,
+      "baseVertex": 0,
+      "material": {
+        "ref": {
+          "m_FileID": 4,
+          "m_PathID": 745
+        },
+        "name": "Lit",
+        "Cull": 2.0,
+        "Surface": 0.0,
+        "AlphaClip": 0.0
+      },
+      "triangles_in_entrance": [
+        9
+      ],
+      "triangle_indices": [
+        [
+          17763,
+          17765,
+          17766
+        ]
+      ],
+      "xyz_bounds_of_contributing_triangles": {
+        "min": [
+          54.39999771,
+          0.6500001,
+          20.6000309
+        ],
+        "max": [
+          54.39999771,
+          9.64999962,
+          41.40003204
+        ]
+      },
+      "removed_projection_area_yz_m2": 5.472000000000008,
+      "Door_subtree_hidden_assumption": false,
+      "serialized_active": true,
+      "serialized_renderer_enabled": true,
+      "townhall_LOD_levels": []
+    }
+  ],
+  "lod_group": {
+    "gameObject": 4552,
+    "component": 455804,
+    "enabled": true,
+    "thresholds": [
+      0.24978800117969513,
+      0.15876053273677826,
+      0.0332365445792675
+    ],
+    "replacement_requirement": "Renderer302660 in LOD0/1 ersetzen, Renderer294387 in LOD1/2; root Cube284066 separat. Neue Renderer müssen dieselbe LOD-Mitgliedschaft bekommen, sonst doppelte/überlappende Fassaden oder Abstandspop-in. Originale LOD-Arrays und Flags für Restore journalisieren."
+  },
+  "bounded_removal": {
+    "volume": {
+      "x_slab": [
+        54.18,
+        54.56
+      ],
+      "y": [
+        1.1,
+        3.95
+      ],
+      "z": [
+        30.04,
+        31.96
+      ]
+    },
+    "mesh_extraction": "Nur eigene Submesh-Beiträge aus hashgebundenem level1 extrahieren. Mesh41/Sub84, Mesh125/Sub127 und Mesh95/Sub84..86. Keine gemeinsam genutzten Combined-Mesh-Assets ändern. Mesh95 benötigt alle3 Materialslots für unveränderte Außenhülle.",
+    "cut": "Exakte Polygon-Differenz gegen6 Ebenen des Eingangsvolumens; nur gemessene Eintrittsflächen schneiden, Restfächer triangulieren. Kein vollständiges Dreieck anhand AABB, Mittelpunkt oder einzelner Vertexlage löschen. Simulationswerte unter checks. DoorFrame bleibt erhalten; ein 1.92m breiter Leerraum ist deshalb nicht garantiert.",
+    "attributes": "Statische Combined-Vertices sind hier bereits Weltkoordinaten; kein doppeltes TRS. Alte Attribute unverändert; Schnittvertices baryzentrisch interpolieren (Position, Normal, Tangente, UV0, UV1); Tangentenhandedness/Winding und Submesh-Materialreihenfolge erhalten.",
+    "readability": "Alle betroffenen Originalmeshes m_IsReadable=false. Nicht Mesh.vertices/GetTriangles zur Laufzeit voraussetzen; Daten offline vorbereiten.",
+    "batch_preservation": "Originale gemeinsame Vertex/Indexbuffer und alle unbeteiligten statischen Renderer unangetastet lassen. Nur3 betroffene Renderer durch besitzte Ersatzrenderer ersetzen und originale Beiträge unter Restore-Journal ausblenden. Deren bisherige exakte Batch-Mitgliedschaft bleibt NICHT garantiert; fremde Batches werden nicht umgebaut.",
+    "strict_static_buffer_alternative": "Falls auch diese3 nativen Batch-Beiträge unverändert bleiben müssen: vorgeschlagener rendererlokaler Weltbox-Clip über eigene Material-/Shader-Instanzen in sämtlichen Forward/Depth/DepthNormals/ShadowCaster-Pässen. Das bewahrt native Meshdaten/UVs, ist aber nur visuelle Entfernung, keine Topologieänderung. Shader-Support/Build nicht geprüft; Materialwechsel kann Drawcall-Gruppierung aufteilen. Kein existierender World-Clip-Schalter im Material nachgewiesen.",
+    "threshold": "Betonschwelle in Mesh95/Sub84 ist separater Schnittfall. Vollrechteck ab y1.1 schneidet einen kleinen Teil davon; bei Boden oberhalb y1.4052 besser erhalten. Native Foundation/Trim/Frame nicht pauschal löschen.",
+    "rollback": "Originale Rendererflags, Materialien, Meshzuordnung und LOD-Arrays besitzgeprüft sichern; Ersatz vollständig vorbereiten, dann publizieren; auf Fehler/Unload nur eigene Ressourcen entfernen und eigene Änderungen zurücksetzen."
+  },
+  "trim_geometry": [
+    {
+      "renderer": 272608,
+      "submesh": 621,
+      "bounds_min": [
+        54.29999924,
+        1.09999716,
+        20.45003128
+      ],
+      "bounds_max": [
+        63.40000153,
+        1.40000248,
+        41.55003357
+      ],
+      "top_projected_xz_area": 2.8599675560035394,
+      "bottom_projected_xz_area": 2.8599675560035394,
+      "footprint_area": 192.0100691223197,
+      "center_top_hits": [
+        {
+          "xz": [
+            58.85,
+            31
+          ],
+          "hits": []
+        },
+        {
+          "xz": [
+            56,
+            25
+          ],
+          "hits": []
+        },
+        {
+          "xz": [
+            61,
+            38
+          ],
+          "hits": []
+        }
+      ]
+    },
+    {
+      "renderer": 321047,
+      "submesh": 752,
+      "bounds_min": [
+        54.29999924,
+        4.59999704,
+        20.45003128
+      ],
+      "bounds_max": [
+        63.40000153,
+        4.90000248,
+        41.55003357
+      ],
+      "top_projected_xz_area": 3.0099709892310784,
+      "bottom_projected_xz_area": 3.0099709892310784,
+      "footprint_area": 192.0100691223197,
+      "center_top_hits": [
+        {
+          "xz": [
+            58.85,
+            31
+          ],
+          "hits": []
+        },
+        {
+          "xz": [
+            56,
+            25
+          ],
+          "hits": []
+        },
+        {
+          "xz": [
+            61,
+            38
+          ],
+          "hits": []
+        }
+      ]
+    }
+  ],
+  "upper_room": {
+    "wall_orientation": "Walls: ausschließlich4 äußere Seitenflächen (16 Dreiecke), kein Innenraum, kein Dach/Deckel. Root Cube:6 nach außen orientierte Kastenflächen (12 Dreiecke), Westseite geschlossen.",
+    "roof": "Roof.001 Renderer272366/Sub186 besteht aus4 schrägen, nach oben außen gerichteten Dreiecken; Material brick dark grey/_Cull2. Nicht als Innenraumdecke verwenden.",
+    "z_fight": "Kein vollflächiger UpperBrickTrim-Deckel als Ursache. Randoberfläche y4.9 ist nicht koplanar zu einem Boden bei y4.75. Ein weiterer Renderer müsste tatsächlich dieselbe y4.9-Fläche belegen, um diese Z-Fight-Hypothese zu stützen.",
+    "interior_proposal": "Separate innenorientierte obere Wände und Decke; native Außenmaterialien weder global auf doppelseitig setzen noch Fassaden entfernen."
+  },
+  "checks": {
+    "source_and_identity_parsed": true,
+    "geometry_scan": {
+      "TownHall_renderers_enumerated": 258,
+      "renderer_owned_static_batch_contributions_inspected": 161,
+      "static_triangles_inspected": 4735,
+      "note": "Exact triangle clipping against all six entrance-box planes; owned static submeshes use baked world coordinates, nonstatic meshes use full ancestor TRS. Built-in StaticDoor primitives excluded explicitly.",
+      "nonstatic_meshes_inspected": 95,
+      "nonstatic_triangles_inspected": 2210
+    },
+    "nonstatic_crosscheck": {
+      "inspected": 95,
+      "triangles": 2210,
+      "hits": [],
+      "unresolved": [
+        {
+          "path": "/TownHall/StaticDoor/Model/Sample",
+          "mesh": {
+            "m_FileID": 5,
+            "m_PathID": 10202
+          },
+          "reason": "built-in primitive; StaticDoor subtree, not facade"
+        },
+        {
+          "path": "/TownHall/StaticDoor/IntObj",
+          "mesh": {
+            "m_FileID": 5,
+            "m_PathID": 10202
+          },
+          "reason": "built-in primitive; StaticDoor subtree, not facade"
+        }
+      ]
+    },
+    "rectangle_clipping_simulation": [
+      {
+        "renderer": 294387,
+        "submesh": 84,
+        "changed_triangles": [
+          35,
+          36,
+          37
+        ],
+        "source_triangles": 100,
+        "untouched_triangles": 97,
+        "output_triangles": 105,
+        "affected_original_yz_area": 9.313881260117569,
+        "removed_yz_area": 0.13608808214874557,
+        "retained_yz_area": 9.177793177968837,
+        "max_partition_error": 1.4210854715202004e-14,
+        "max_attribute_interpolation_error": 1.4210854715202004e-14,
+        "channels_preserved": "position normal tangent UV0 UV1; original vertices unchanged; new cut vertices barycentrically interpolated"
+      },
+      {
+        "renderer": 294387,
+        "submesh": 86,
+        "changed_triangles": [
+          5,
+          6,
+          7
+        ],
+        "source_triangles": 22,
+        "untouched_triangles": 19,
+        "output_triangles": 29,
+        "affected_original_yz_area": 53.13014222253264,
+        "removed_yz_area": 4.88610525540382,
+        "retained_yz_area": 48.24403696712889,
+        "max_partition_error": 5.684341886080802e-14,
+        "max_attribute_interpolation_error": 1.4210854715202004e-14,
+        "channels_preserved": "position normal tangent UV0 UV1; original vertices unchanged; new cut vertices barycentrically interpolated"
+      },
+      {
+        "renderer": 302660,
+        "submesh": 84,
+        "changed_triangles": [
+          0,
+          1
+        ],
+        "source_triangles": 16,
+        "untouched_triangles": 14,
+        "output_triangles": 24,
+        "affected_original_yz_area": 73.49999248981476,
+        "removed_yz_area": 5.183999771125485,
+        "retained_yz_area": 68.31599271868923,
+        "max_partition_error": 2.842170943040401e-14,
+        "max_attribute_interpolation_error": 2.1316282072803006e-14,
+        "channels_preserved": "position normal tangent UV0 UV1; original vertices unchanged; new cut vertices barycentrically interpolated"
+      },
+      {
+        "renderer": 284066,
+        "submesh": 127,
+        "changed_triangles": [
+          9
+        ],
+        "source_triangles": 12,
+        "untouched_triangles": 11,
+        "output_triangles": 18,
+        "affected_original_yz_area": 93.60000019073459,
+        "removed_yz_area": 5.472000000000008,
+        "retained_yz_area": 88.12800019073461,
+        "max_partition_error": 2.842170943040401e-14,
+        "max_attribute_interpolation_error": 1.4210854715202004e-14,
+        "channels_preserved": "position normal tangent UV0 UV1; original vertices unchanged; new cut vertices barycentrically interpolated"
+      }
+    ],
+    "fan_triangulation_assertions_passed": [
+      "retained fan triangles preserve original winding",
+      "retained fan triangles have no positive-area intersection with entrance box",
+      "retained fan area equals retained polygon area",
+      "source area = removed area + retained area",
+      "full vertex payload equals barycentric interpolation within recorded tolerance"
+    ],
+    "modified_source_triangles": 9,
+    "max_partition_error": 5.684341886080802e-14,
+    "max_attribute_error": 2.1316282072803006e-14
+  },
+  "limits": [
+    "No launch, exit, game automation, live mutation or capture occurred.",
+    "No private Blender backup read.",
+    "Static geometry identifies serialized independent blockers, not proof of renderer enabled states in the current live session.",
+    "Ray/rectangle projection ignores alpha textures except material flags; opaque brick planes are decisive independently.",
+    "Only original shipped geometry was inspected; mod-created runtime geometry is outside this asset scan.",
+    "MonoBehaviour-GUID über Originalbytes verifiziert; UnityPy-Typbaum für benutzerdefinierte Felder unvollständig (108 erwartet/32 gelesen), keine Felder geraten.",
+    "Keine neue Spielabnahme oder laufende Renderer-/LOD-Zustandsprüfung."
+  ],
+  "artifacts": {
+    "detail_report": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-mesh-forensics\\evidence-detail.json",
+    "detail_sha256": "512c2ce1d9e964014e9f1a9bb75fffc88691cf97a84d412b78b15ae76b09012a",
+    "generator": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-mesh-forensics\\forensic_report.py",
+    "compact_generator": "C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-mesh-forensics\\compact_report.py"
+  }
+}

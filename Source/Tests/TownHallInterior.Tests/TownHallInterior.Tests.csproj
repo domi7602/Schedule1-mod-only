@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net6.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><IsPackable>false</IsPackable><LangVersion>12</LangVersion></PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2"><PrivateAssets>all</PrivateAssets></PackageReference>
+    <Compile Include="../../Mods/TownHallInterior/src/DoorChoice.cs" Link="DoorChoice.cs" />
+    <Compile Include="../../Mods/TownHallInterior/src/DoorAdapter.cs" Link="DoorAdapter.cs" />
+    <Compile Include="../../Mods/TownHallInterior/src/RoomPlan.cs" Link="RoomPlan.cs" />
+    <Compile Include="../../Mods/TownHallInterior/src/RoomBuilder.cs" Link="RoomBuilder.cs" />
+    <Compile Include="../../Mods/TownHallInterior/src/NativeSceneSwap.cs" Link="NativeSceneSwap.cs" />
+    <Compile Include="../../Mods/TownHallInterior/src/PublicEntrance.cs" Link="PublicEntrance.cs" />
+    <Compile Include="../../Mods/TownHallInterior/src/FacadePortal.cs" Link="FacadePortal.cs" />
+    <Compile Include="../../Mods/TownHallInterior/src/CleanupJournal.cs" Link="CleanupJournal.cs" />
+    <Compile Include="../../Mods/TownHallInterior/src/FurniturePlan.cs" Link="FurniturePlan.cs" />
+    <Compile Include="../../Mods/TownHallInterior/src/HallFittings.cs" Link="HallFittings.cs" />
+    <EmbeddedResource Include="../../Mods/TownHallInterior/assets/native-facade.json" LogicalName="TownHallInterior.NativeFacade" />
+    <EmbeddedResource Include="../../Mods/TownHallInterior/assets/native-furniture.json" LogicalName="TownHallInterior.NativeFurniture" />
+  </ItemGroup>
+</Project>

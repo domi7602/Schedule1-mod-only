@@ -178,6 +178,29 @@ namespace HitmanPhone.Bounty
             string targetName = c != null ? FormatName(c.TargetNpcName ?? c.TargetNpcId) : "the target";
             AddEntry($"Eliminate {targetName} and collect the polaroid");
             AddEntry("Drop the polaroid at the assigned dead drop");
+            PinAssignedDrop();
+        }
+
+        /// <summary>
+        /// Point the dead-drop objective at the assigned drop. The journal text
+        /// alone does not give the minimap or compass a position.
+        /// </summary>
+        internal bool PinAssignedDrop()
+        {
+            try
+            {
+                var c = GetContract();
+                if (c == null || string.IsNullOrEmpty(c.RequiredDropId)) return false;
+                if (QuestEntries == null || QuestEntries.Count < 2 || QuestEntries[1] == null) return false;
+                if (!BountyDropPins.TryGetPosition(c.RequiredDropId, out Vector3 pos)) return false;
+                QuestEntries[1].POIPosition = pos;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Mod.Log.Debug($"[Bounty] Dead-drop pin failed: {ex.Message}");
+                return false;
+            }
         }
 
         /// <summary>

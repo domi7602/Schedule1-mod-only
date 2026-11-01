@@ -159,6 +159,10 @@ namespace WaterShader
         public WaterShaderMod() { Latest = this; }
         public string AutomationState => Enabled ? "Applied" : "Stopped";
         public bool ReferenceReady => Enabled;
+        public bool DiagnosticThrows;
+        public int DiagnosticMode;
+        public bool SetDiagnosticMode(int mode) { if (DiagnosticThrows) throw new NotSupportedException("diagnostic unavailable"); bool changed = DiagnosticMode != mode; DiagnosticMode = mode; return changed; }
+        public object ReadMaterialDiagnostic() => DiagnosticThrows ? throw new InvalidOperationException("getter failed") : new { shader = "test-boundary" };
         public void SetEnabled(bool enabled) { SetCalls++; Enabled = enabled; }
         public void OnLateInitializeMelon() { if (ThrowInitialize) throw new InvalidOperationException("water initialization failed"); }
         public void OnSceneWasLoaded(int index, string scene) { }

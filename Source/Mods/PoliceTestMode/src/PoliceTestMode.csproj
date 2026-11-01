@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>PoliceTestMode</AssemblyName>
+    <RootNamespace>PoliceTestMode</RootNamespace>
+  </PropertyGroup>
+</Project>

@@ -24,9 +24,188 @@
 //   Driving/NativeActuatorScope.cs -> section NativeActuatorScope.cs
 //   Driving/ReversePedalPolicy.cs  -> section ReversePedalPolicy.cs
 //   Traffic/PrivateFlagsScope.cs   -> section PrivateFlagsScope.cs
+//   Navigation/ShortcutComparison -> synchronous native comparison protocol
 //   Traffic/TrafficLightPolicy.cs  -> section TrafficLightPolicy.cs
 //
 // ---------------------------------------------------------------------------
+
+namespace TaxiDriver
+{
+    /// <summary>One synchronous native comparison. No native objects survive a yield.</summary>
+    internal static class ShortcutComparison
+    {
+        [System.ThreadStatic] private static Frame? _current;
+        private static long _epoch;
+        internal static long Epoch => System.Threading.Interlocked.Read(ref _epoch);
+        internal static Frame? Current => _current;
+
+        internal sealed class Frame
+        {
+            internal readonly Frame? Parent = _current;
+            internal readonly long Epoch = ShortcutComparison.Epoch;
+            internal object? Context;
+            internal bool Closed, Faulted, Applied, Observe, Validating;
+            internal long Entry, Direct;
+            internal float EntryLength, DirectLength;
+            internal int Stage; // 0=inert, 1=entry, 2=entry running, 3=direct, 4=direct running, 5=done
+            internal System.Func<bool>? Validate;
+            internal void Cancel() => Stage = 0;
+        }
+
+        internal readonly record struct Call(Frame Frame, long Pointer, int Stage);
+
+        internal static Frame Create() => new();
+        internal static void Push(Frame frame)
+        {
+            // A nested invocation never borrows or resumes an interrupted comparison.
+            frame.Parent?.Cancel();
+            if (!ReferenceEquals(_current, frame.Parent)) { frame.Faulted = true; Invalidate(); return; }
+            _current = frame;
+        }
+
+        internal static void Arm(Frame frame, long entry, long direct, bool observe, System.Func<bool> validate)
+        {
+            if (!IsCurrent(frame) || entry == 0 || direct == 0 || entry == direct) return;
+            if (frame.Validating) { frame.Faulted = true; frame.Cancel(); return; }
+            frame.Entry = entry;
+            frame.Direct = direct;
+            frame.Observe = observe;
+            frame.Validate = validate;
+            frame.Stage = 1;
+        }
+
+        internal static Call? Before(long pointer)
+        {
+            var frame = _current;
+            if (frame == null || !IsCurrent(frame) || frame.Stage is 0 or 5) return null;
+            if (frame.Validating || frame.Stage is not (1 or 3) || pointer != (frame.Stage == 1 ? frame.Entry : frame.Direct))
+            { frame.Faulted = true; frame.Cancel(); return null; }
+            int expectedStage = frame.Stage;
+            if (!ValidateStep(frame, expectedStage)) return null;
+            frame.Stage = expectedStage + 1;
+            return new Call(frame, pointer, frame.Stage);
+        }
+
+        internal static bool After(Call? call, ref float result)
+        {
+            if (!call.HasValue) return false;
+            var token = call.Value;
+            var frame = token.Frame;
+            if (!ValidateStep(frame, token.Stage)) return false;
+            if (!float.IsFinite(result))
+            { frame.Faulted = true; frame.Cancel(); return false; }
+            if (token.Stage == 2)
+            {
+                frame.EntryLength = result;
+                frame.Stage = float.IsFinite(result) && result > 0f ? 3 : 0;
+                return false;
+            }
+            frame.Stage = 5; // consume before any effect or diagnostic callback
+            frame.DirectLength = result;
+            if (token.Stage != 4 || result != 0f || !float.IsFinite(frame.EntryLength) || frame.EntryLength <= result)
+                return false;
+            if (frame.Observe) return false;
+            frame.Applied = true;
+            result = float.PositiveInfinity;
+            return true;
+        }
+
+        private static bool ValidateStep(Frame frame, int expectedStage)
+        {
+            long expectedEpoch = frame.Epoch;
+            if (!IsCurrent(frame) || frame.Stage != expectedStage) { frame.Cancel(); return false; }
+            if (frame.Validating) { frame.Faulted = true; frame.Cancel(); return false; }
+            bool valid;
+            frame.Validating = true; // native-backed validation may reenter these hooks
+            try { valid = frame.Validate?.Invoke() == true; }
+            finally { frame.Validating = false; }
+            // No external calls after this check. In particular, never advance a stage
+            // that validation cancelled, or resurrect a frame invalidated/nested away.
+            if (!valid || expectedEpoch != Epoch || !IsCurrent(frame) || frame.Stage != expectedStage)
+            { frame.Cancel(); return false; }
+            return true;
+        }
+
+        internal static void Close(Frame frame)
+        {
+            if (frame.Closed) return;
+            frame.Closed = true;
+            frame.Cancel();
+            frame.Validate = null;
+            frame.Context = null;
+            if (frame.Epoch != Epoch)
+            {
+                if (ReferenceEquals(_current, frame)) _current = null;
+                return;
+            }
+            if (!ReferenceEquals(_current, frame)) { frame.Faulted = true; Invalidate(); return; }
+            _current = frame.Parent is { Closed: false } parent && parent.Epoch == Epoch ? parent : null;
+        }
+
+        internal static void Invalidate()
+        {
+            System.Threading.Interlocked.Increment(ref _epoch);
+            _current?.Cancel();
+            _current = null;
+        }
+
+        private static bool IsCurrent(Frame frame) => !frame.Closed && !frame.Faulted &&
+            frame.Epoch == Epoch && ReferenceEquals(_current, frame);
+    }
+
+    /// <summary>Dependent shortcut hooks: readiness is exact readback, removal can remain incomplete.</summary>
+    internal sealed class ShortcutPatchGroup
+    {
+        private readonly int _count;
+        private readonly System.Func<int, bool> _install, _exact, _any;
+        private readonly System.Action<int> _remove;
+        internal bool Healthy { get; private set; }
+        internal bool RemovalPending { get; private set; }
+
+        internal ShortcutPatchGroup(int count, System.Func<int, bool> install, System.Func<int, bool> exact,
+            System.Func<int, bool> any, System.Action<int> remove) =>
+            (_count, _install, _exact, _any, _remove) = (count, install, exact, any, remove);
+
+        internal bool Verify()
+        {
+            if (!Healthy) return false;
+            try
+            {
+                for (int i = 0; i < _count; i++) if (!_exact(i)) return Healthy = false;
+                return true;
+            }
+            catch { return Healthy = false; }
+        }
+
+        internal bool Apply(bool compatible)
+        {
+            if (!compatible) { Remove(); return false; }
+            if (Verify()) return true;
+            if (!Remove()) return false;
+            try
+            {
+                for (int i = 0; i < _count; i++)
+                    if (!_install(i) || !_exact(i)) { Remove(); return false; }
+                Healthy = true;
+                if (Verify()) return true;
+            }
+            catch { }
+            Remove();
+            return false;
+        }
+
+        internal bool Remove()
+        {
+            Healthy = false;
+            for (int i = 0; i < _count; i++)
+                try { if (_any(i)) _remove(i); } catch { }
+            RemovalPending = false;
+            for (int i = 0; i < _count; i++)
+                try { RemovalPending |= _any(i); } catch { RemovalPending = true; }
+            return !RemovalPending;
+        }
+    }
+}
 
 namespace TaxiDriver
 {

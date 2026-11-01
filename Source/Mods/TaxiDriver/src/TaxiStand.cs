@@ -61,6 +61,13 @@ internal static class TaxiStand
     /// </summary>
     internal static readonly Vector3 StandCoordinate = new Vector3(-13.0f, 0.0f, 84.2f);
 
+    // NPC only; keep the vehicle's routable entry above unchanged. The recorded
+    // EntryPoint.forward is +X (2026-10-01); the exit is north at z=86.0
+    // (2026-09-25 dump). Four metres south is lateral to the driveway and away
+    // from the exit, not farther into the garage. Ground/NavMesh clearance at
+    // this waiting point still requires in-game verification.
+    internal static readonly Vector3 DriverWaitingCoordinate = new Vector3(-13.0f, 0.0f, 80.2f);
+
     /// <summary>Tolerance for the "lot at the configured coordinate" rule (metres).</summary>
     private const float CoordinateMatchTolerance = 10f;
 

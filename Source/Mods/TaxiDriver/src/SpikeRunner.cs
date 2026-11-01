@@ -18,7 +18,7 @@ internal static class SpikeRunner
     private const float AutoStepDelaySeconds = 1f;
     private const float AutoRideDistance = 40f;
 
-    /// <summary>Fresh measurement window granted to the settings=null retry (review M2).</summary>
+    /// <summary>Fresh measurement window granted to the one-time startup retry (review M2).</summary>
     private const float RetryGraceSeconds = 6f;
 
     // ------------------------------------------- Stage 3d progress supervision
@@ -81,6 +81,8 @@ internal static class SpikeRunner
     private const float PlayerOutDebounceSeconds = 0.3f;
 
     private static bool _startupArmed;
+    private static SpikeCommands.DriveRequest? _autoNavigationReceipt;
+    private static long _autoNavigationSerial = -1;
     private static float _startupAt;
     private static bool _recoveryOwnsNavigation;
 
@@ -107,6 +109,46 @@ internal static class SpikeRunner
     private static Vector3 _reverseForward;
     private static float _reverseRearCheckAt;
     private static int _freeSpotRescues;
+
+    private static float _recurringProbeAt;
+    private static bool _recurringProbeUsed;
+    private static long _recurringProbeOperation;
+    private static int _recurringProbeOrder;
+    private static IntPtr _recurringProbePointer;
+
+    // Current-operation forward-drive evidence for supervised arrival. Sticky once earned
+    // for this operation and the exact authorized target. Absolute reverse speed must not
+    // earn it: _driveStartConfirmed can, and is not reused as arrival proof.
+    private static long _forwardEvidenceOperation = -1;
+    private static Vector3 _forwardEvidenceTarget;
+    private static bool _forwardEvidenceConfirmed;
+    private static float _forwardEvidenceStartDistance;
+    private static float _forwardEvidenceBestDistance;
+    private static float _forwardEvidenceSpeedSince;
+
+    /// <summary>
+    /// Recent-motion window for recovery eligibility. Independent of the long progress
+    /// window, the 4 m recurrence reset and the operation deadline. Slightly longer than
+    /// the 2.5 s checked-probe delay so motion during that wait is still visible at due.
+    /// </summary>
+    private const float RecentMotionWindowSeconds = 3f;
+
+    /// <summary>Displacement/approach that distinguishes resumed motion from jitter, below the 4 m recurrence reset.</summary>
+    private const float RecentMotionDisplacementMeters = 2f;
+
+    private static float _recentMotionWindowStart;
+    private static Vector3 _recentMotionOrigin;
+    private static float _recentMotionOriginDistance = float.PositiveInfinity;
+    private static float _recentMotionBestDistance = float.PositiveInfinity;
+    private static float _recentMotionDisplacement;
+    private static float _recentForwardSince;
+    private static int _supervisorSampleFrame = -1;
+    private static bool _supervisorSampleReady;
+    private static Vector3 _supervisorSamplePosition;
+    private static float _supervisorSampleDistance;
+    private static bool _supervisorSampleReadable;
+    private static float _supervisorSampleSpeed;
+    private static bool _supervisorSampleReversing;
 
     private static float _playerOutSince;
     private static float _idleMovingSince;
@@ -159,6 +201,7 @@ internal static class SpikeRunner
             bool progressed = RecoveryRecurrence.ObserveProgress(
                 Vector3.Distance(position, _operationProgressTarget), eligibleForward);
             _localRecoveryProgress |= progressed;
+            ObserveSupervisorMotion(veh, position, Vector3.Distance(position, SpikeState.NavTarget), Time.unscaledTime);
         }
         catch (Exception)
         {
@@ -172,10 +215,28 @@ internal static class SpikeRunner
             Vector3.Distance(position, _operationProgressTarget), false);
         RecoveryRecurrence.ObserveProgress(Vector3.Distance(position, _operationProgressTarget), false);
         _localRecoveryProgress = false;
+        // A placement jump is not resumed driving. Rebase the recent-motion window so the
+        // teleport cannot cancel a stall or farm unconfirmed arrival approach.
+        float placedDistance = Vector3.Distance(position, SpikeState.NavTarget);
+        _recentForwardSince = 0f;
+        _recentMotionWindowStart = Time.unscaledTime;
+        _recentMotionOrigin = position;
+        _recentMotionOriginDistance = placedDistance;
+        _recentMotionBestDistance = placedDistance;
+        _recentMotionDisplacement = 0f;
+        _supervisorSampleReady = false;
+        if (!_forwardEvidenceConfirmed)
+        {
+            _forwardEvidenceOperation = SpikeState.OperationId;
+            _forwardEvidenceTarget = SpikeState.NavTarget;
+            _forwardEvidenceStartDistance = placedDistance;
+            _forwardEvidenceBestDistance = placedDistance;
+            _forwardEvidenceSpeedSince = 0f;
+        }
     }
 
     /// <summary>Only a genuinely new pickup/ride starts a new budget; redispatch never does.</summary>
-    internal static void BeginNavigationOperation()
+    internal static void BeginNavigationOperation(Vector3? preparedPosition = null, float? preparedTime = null)
     {
         _trafficWaiting = false;
         TrafficWait.Reset();
@@ -186,15 +247,19 @@ internal static class SpikeRunner
         SpikeState.NextOperationId();
         SpikeState.Operation.Begin();
         SpikeState.Reverse.End();
-        SpikeState.NavigationRecovery.Begin(Time.unscaledTime, NavigationTimeoutSeconds);
+        SpikeState.NavigationRecovery.Begin(preparedTime ?? Time.unscaledTime, NavigationTimeoutSeconds);
         _operationProgressTarget = SpikeState.NavTarget;
         LandVehicle? veh = SpikeState.Vehicle;
-        if (veh != null) ObserveArtificialPlacement(veh.transform.position);
-        RecoveryRecurrence.Begin(veh == null ? float.PositiveInfinity :
-            Vector3.Distance(veh.transform.position, _operationProgressTarget));
+        Vector3? position = preparedPosition;
+        if (!position.HasValue && veh != null) position = veh.transform.position;
+        if (position.HasValue) ObserveArtificialPlacement(position.Value);
+        RecoveryRecurrence.Begin(position.HasValue ? Vector3.Distance(position.Value, _operationProgressTarget) : float.PositiveInfinity);
         _localRecoveryProgress = false;
         _freeSpotRescues = 0;
         _reverseAttempt = 0;
+        _recurringProbeAt = 0f;
+        _recurringProbeUsed = false;
+        ResetSupervisorMotion();
     }
 
     private static bool StopIfNavigationExpired(VehicleAgent agent, LandVehicle? veh, float now)
@@ -206,6 +271,256 @@ internal static class SpikeRunner
         try { if (veh != null) position = veh.transform.position; }
         catch { /* a failed position read must not prevent the terminal stop */ }
         GiveUpNavigation(agent, position, Vector3.Distance(position, SpikeState.NavTarget), now - SpikeState.NavStartTime);
+        return true;
+    }
+
+    private static void ResetSupervisorMotion()
+    {
+        _forwardEvidenceConfirmed = false;
+        _forwardEvidenceOperation = -1;
+        _forwardEvidenceSpeedSince = 0f;
+        _forwardEvidenceStartDistance = 0f;
+        _forwardEvidenceBestDistance = 0f;
+        _recentForwardSince = 0f;
+        _recentMotionWindowStart = 0f;
+        _recentMotionDisplacement = 0f;
+        _recentMotionOriginDistance = float.PositiveInfinity;
+        _recentMotionBestDistance = float.PositiveInfinity;
+        _supervisorSampleReady = false;
+        _supervisorSampleFrame = -1;
+    }
+
+    private static bool SameAuthorizedTarget(Vector3 candidate)
+    {
+        Vector3 target = SpikeState.NavTarget;
+        float dx = candidate.x - target.x, dy = candidate.y - target.y, dz = candidate.z - target.z;
+        return dx * dx + dy * dy + dz * dz <= 0.01f;
+    }
+
+    /// <summary>
+    /// One observation of forward drive and recent motion. Reuses the speed, throttle and
+    /// reverse readings already required for supervision; a same-frame caller does not query again.
+    /// </summary>
+    private static void ObserveSupervisorMotion(LandVehicle veh, Vector3 position, float distance, float now)
+    {
+        if (veh == null) return;
+        if (_supervisorSampleFrame == Time.frameCount && _supervisorSampleReady)
+            return;
+
+        bool speedReadable = TryReadSignedSpeed(veh, out float signedSpeed);
+        bool reversing = SpikeState.Reverse.Active;
+        if (!TryReadReversing(veh, out bool nativeReversing))
+            reversing = true;
+        else
+            reversing |= nativeReversing;
+        try
+        {
+            if (veh.Agent != null && veh.Agent.IsReversing)
+                reversing = true;
+        }
+        catch (Exception)
+        {
+            reversing = true;
+        }
+
+        float throttle = 0f;
+        bool throttleReadable = true;
+        try { throttle = veh.currentThrottle; }
+        catch (Exception) { throttleReadable = false; }
+
+        bool forward = throttleReadable && speedReadable && signedSpeed >= DriveStartSustainKmh &&
+            throttle > 0f && !reversing && !_recoveryOwnsNavigation && !TaxiAI.NavigationBlocked;
+        _supervisorSampleFrame = Time.frameCount;
+        _supervisorSampleReady = true;
+        _supervisorSamplePosition = position;
+        _supervisorSampleDistance = distance;
+        _supervisorSampleReadable = speedReadable;
+        _supervisorSampleSpeed = signedSpeed;
+        _supervisorSampleReversing = reversing;
+        ObserveForwardEvidence(distance, now, forward);
+        ObserveRecentMotion(position, distance, now, forward);
+    }
+
+    private static void ObserveForwardEvidence(float distance, float now, bool forward)
+    {
+        if (_forwardEvidenceOperation != SpikeState.OperationId || !SameAuthorizedTarget(_forwardEvidenceTarget))
+        {
+            _forwardEvidenceOperation = SpikeState.OperationId;
+            _forwardEvidenceTarget = SpikeState.NavTarget;
+            _forwardEvidenceConfirmed = false;
+            _forwardEvidenceStartDistance = float.IsFinite(distance) && distance >= 0f ? distance : float.PositiveInfinity;
+            _forwardEvidenceBestDistance = _forwardEvidenceStartDistance;
+            _forwardEvidenceSpeedSince = 0f;
+        }
+        if (_forwardEvidenceConfirmed)
+            return;
+        if (!forward || !float.IsFinite(distance) || distance < 0f)
+        {
+            _forwardEvidenceSpeedSince = 0f;
+            return;
+        }
+        if (distance < _forwardEvidenceBestDistance)
+            _forwardEvidenceBestDistance = distance;
+        if (_forwardEvidenceStartDistance - _forwardEvidenceBestDistance >= DriveStartApproachMeters)
+        {
+            _forwardEvidenceConfirmed = true;
+            return;
+        }
+        if (_forwardEvidenceSpeedSince <= 0f)
+            _forwardEvidenceSpeedSince = now;
+        else if (now - _forwardEvidenceSpeedSince >= DriveStartSustainSeconds)
+            _forwardEvidenceConfirmed = true;
+    }
+
+    private static void ObserveRecentMotion(Vector3 position, float distance, float now, bool forward)
+    {
+        if (_recentMotionWindowStart <= 0f || now - _recentMotionWindowStart > RecentMotionWindowSeconds)
+        {
+            _recentMotionWindowStart = now;
+            _recentMotionOrigin = position;
+            _recentMotionOriginDistance = float.IsFinite(distance) && distance >= 0f ? distance : float.PositiveInfinity;
+            _recentMotionBestDistance = _recentMotionOriginDistance;
+            _recentMotionDisplacement = 0f;
+        }
+        if (!forward)
+        {
+            _recentForwardSince = 0f;
+            return;
+        }
+        if (_recentForwardSince <= 0f)
+            _recentForwardSince = now;
+        float moved = Vector3.Distance(position, _recentMotionOrigin);
+        if (moved > _recentMotionDisplacement)
+            _recentMotionDisplacement = moved;
+        if (float.IsFinite(distance) && distance < _recentMotionBestDistance)
+            _recentMotionBestDistance = distance;
+    }
+
+    private static bool HasCurrentForwardEvidence() =>
+        _forwardEvidenceConfirmed && _forwardEvidenceOperation == SpikeState.OperationId &&
+        SameAuthorizedTarget(_forwardEvidenceTarget);
+
+    /// <summary>
+    /// Sustained forward speed, or net forward displacement/approach inside the recent window.
+    /// A halt, reverse, spike, placement or AutoDriving flag alone is not resumed motion.
+    /// </summary>
+    private static bool RecentForwardMotionUnjustifiesStall(bool speedReadable, float signedSpeed, bool reversing)
+    {
+        bool halted = NavigationArrivalPolicy.IsConfirmedHalt(speedReadable, signedSpeed, reversing);
+        bool sustained = _recentForwardSince > 0f &&
+            Time.unscaledTime - _recentForwardSince >= DriveStartSustainSeconds;
+        float approach = _recentMotionOriginDistance - _recentMotionBestDistance;
+        bool displaced = _recentMotionDisplacement >= RecentMotionDisplacementMeters ||
+            (float.IsFinite(approach) && approach >= RecentMotionDisplacementMeters);
+        return sustained || (!halted && displaced);
+    }
+
+    private static void LogSupervisorDecision(string trigger, string action, float distance,
+        bool speedReadable, float signedSpeed, bool recentMotion, int budgetBefore, int budgetAfter)
+    {
+        Mod.Log.Info(
+            $"[nav] supervisor op={SpikeState.OperationId} order={SpikeState.NavOrder} trigger={trigger} " +
+            $"dist={distance:F1}m speedReadable={speedReadable} speed={signedSpeed:F1} recentMotion={recentMotion} " +
+            $"probePending={_recurringProbeAt > 0f} probeUsed={_recurringProbeUsed} " +
+            $"budget={budgetBefore}->{budgetAfter} action={action}");
+    }
+
+    /// <summary>Clears a due probe that motion has made obsolete. Does not spend, refill, rediscover or reset history.</summary>
+    private static void CancelDeferredProbe()
+    {
+        _recurringProbeAt = 0f;
+        // The checked probe never ran. Keep the one-per-operation allowance for a later genuine stall.
+        _recurringProbeUsed = false;
+    }
+
+    /// <summary>
+    /// Shared pre-recovery arrival for the exact authorized target. A readable halt inside the
+    /// existing 10 m radius, with no reverse and current-operation forward evidence, completes
+    /// once. Native Complete is never synthesized. Owned navigation is quiesced and its
+    /// controlled-stop callback invalidated before success is published.
+    /// </summary>
+    private static bool TryCompleteBeforeRecovery(VehicleAgent? agent, LandVehicle? veh, Vector3 position,
+        float distance, string trigger, bool logDecision)
+    {
+        if (agent == null || veh == null || !SpikeState.PollingActive || !SpikeState.Operation.Active ||
+            SpikeState.Operation.Terminal || !Mod.Lifecycle.AcceptingWork || PlayerDriver(veh) ||
+            !SpikeCommands.HasAuthority() || !SpikeCommands.IsOwnedTaxi(veh))
+            return false;
+
+        ObserveSupervisorMotion(veh, position, distance, Time.unscaledTime);
+        bool speedReadable = _supervisorSampleReadable;
+        float signedSpeed = _supervisorSampleSpeed;
+        bool reversing = _supervisorSampleReversing || SpikeState.Reverse.Active;
+        bool forwardEvidence = HasCurrentForwardEvidence();
+        bool currentComplete = ArrivalConfirmationPolicy.IsCurrent(
+            SpikeState.NavCallbackArrivalPending, SpikeState.NavCallbackArrivalOrder,
+            SpikeState.NavCallbackArrivalOperation, SpikeState.NavOrder, SpikeState.OperationId);
+        bool confirmed = SupervisedArrivalPolicy.IsConfirmedArrival(
+            currentComplete, forwardEvidence, distance, speedReadable, signedSpeed, reversing);
+        int budget = SpikeState.NavigationRecovery.Attempts;
+        bool recent = RecentForwardMotionUnjustifiesStall(speedReadable, signedSpeed, reversing);
+        if (!confirmed)
+        {
+            if (logDecision)
+                LogSupervisorDecision(trigger, "hold-arrival", distance, speedReadable, signedSpeed, recent, budget, budget);
+            return false;
+        }
+
+        long operation = SpikeState.OperationId;
+        IntPtr pointer = veh.Pointer;
+        IntPtr agentPointer = agent.Pointer;
+        int invalidated = SpikeState.NavOrder;
+        bool stopIssued = false;
+        _recoveryOwnsNavigation = true;
+        try
+        {
+            invalidated = SpikeState.NextNavOrder();
+            try { TaxiAI.StopPatrol("supervised arrival"); }
+            catch (Exception ex) { Mod.Log.Warn($"[nav] supervised arrival StopPatrol failed: {ex.Message}"); }
+            agent.StopNavigating();
+            stopIssued = true;
+        }
+        catch (Exception ex)
+        {
+            Mod.Log.Warn($"[nav] supervised arrival StopNavigating failed: {ex.Message}");
+        }
+        finally
+        {
+            _recoveryOwnsNavigation = false;
+        }
+        if (!stopIssued)
+            return false;
+
+        bool still = Mod.Lifecycle.AcceptingWork && SpikeState.PollingActive && SpikeState.Operation.Active &&
+            !SpikeState.Operation.Terminal && SpikeState.OperationId == operation && SpikeState.NavOrder == invalidated &&
+            ReferenceEquals(SpikeState.Vehicle, veh) && veh.Pointer == pointer && agent.Pointer == agentPointer &&
+            SpikeCommands.HasAuthority() && SpikeCommands.IsOwnedTaxi(veh) && !PlayerDriver(veh);
+        if (!still)
+        {
+            LogSupervisorDecision(trigger, "arrival-superseded", distance, speedReadable, signedSpeed, recent, budget, budget);
+            return false;
+        }
+
+        // Do not synthesize native Complete. A leftover recoverable failure label must not
+        // turn this accepted halt into a fare give-up.
+        if (string.Equals(SpikeState.NavCallbackResult, "Failed", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(SpikeState.NavCallbackResult, "Stopped", StringComparison.OrdinalIgnoreCase))
+            SpikeState.NavCallbackResult = null;
+        ClearPendingArrival();
+        SpikeState.NavCallbackRecoveryPending = false;
+        SpikeState.NavCallbackRecoveryOrder = -1;
+        SpikeState.NavCallbackRecoveryOperation = -1;
+        _recurringProbeAt = 0f;
+        _selfTestActive = false;
+        SpikeState.NavGaveUp = false;
+        SpikeState.PollingActive = false;
+        SpikeState.Operation.Terminate("supervised arrival", failed: false);
+        LogSupervisorDecision(trigger, "completed", distance, speedReadable, signedSpeed, recent, budget, budget);
+        if (SpikeState.NavToPlayer)
+        {
+            SpikeState.RideAwaitingBoard = true;
+            SpikeCommands.CompletePickup(veh, "supervised arrival");
+        }
         return true;
     }
 
@@ -222,33 +537,128 @@ internal static class SpikeRunner
     {
         if (_trafficWaiting) return false;
         float now = Time.unscaledTime;
+        if (_recurringProbeAt > 0f)
+        {
+            if (!Mod.Lifecycle.AcceptingWork || !SpikeState.PollingActive || !SpikeState.Operation.Active ||
+                SpikeState.OperationId != _recurringProbeOperation || SpikeState.NavOrder != _recurringProbeOrder ||
+                !ReferenceEquals(SpikeState.Vehicle, veh) || veh.Pointer != _recurringProbePointer ||
+                !SpikeCommands.HasAuthority() || !SpikeCommands.IsOwnedTaxi(veh) || PlayerDriver(veh))
+            {
+                _recurringProbeAt = 0f;
+                return false;
+            }
+        }
+        Vector3 decisionPosition = Vector3.zero;
+        float decisionDistance = float.PositiveInfinity;
+        try
+        {
+            decisionPosition = veh.transform.position;
+            decisionDistance = Vector3.Distance(decisionPosition, SpikeState.NavTarget);
+        }
+        catch (Exception)
+        {
+            // An unreadable position cannot prove arrival or resumed motion.
+        }
+        bool probeDue = _recurringProbeAt > 0f && now >= _recurringProbeAt;
+        // A not-yet-due probe is not a recovery decision. Log the arrival hold only when
+        // this call is about to spend, so the wait itself is not a heartbeat log.
+        if (!probeDue && TryCompleteBeforeRecovery(agent, veh, decisionPosition, decisionDistance, "recovery",
+                logDecision: _recurringProbeAt <= 0f))
+            return false;
         if (StopIfNavigationExpired(agent, veh, now)) return false;
+        if (_recurringProbeAt > 0f)
+        {
+            if (now < _recurringProbeAt) return false;
+            if (TryCompleteBeforeRecovery(agent, veh, decisionPosition, decisionDistance, "deferred-probe", logDecision: true))
+            {
+                _recurringProbeAt = 0f;
+                return false;
+            }
+            bool recent = RecentForwardMotionUnjustifiesStall(
+                _supervisorSampleReadable, _supervisorSampleSpeed, _supervisorSampleReversing || SpikeState.Reverse.Active);
+            if (recent)
+            {
+                int budget = SpikeState.NavigationRecovery.Attempts;
+                CancelDeferredProbe();
+                LogSupervisorDecision("deferred-probe-cancel", "cancel-without-spend", decisionDistance,
+                    _supervisorSampleReadable, _supervisorSampleSpeed, true, budget, budget);
+                return false;
+            }
+            int dueBudget = SpikeState.NavigationRecovery.Attempts;
+            LogSupervisorDecision("deferred-probe-due", "due-checked-probe", decisionDistance,
+                _supervisorSampleReadable, _supervisorSampleSpeed, false, dueBudget, dueBudget);
+            _recurringProbeAt = 0f;
+        }
         if (TaxiAI.NavigationBlocked)
         {
             TaxiAI.StopPatrol("pending release");
             if (TaxiAI.NavigationBlocked) return false;
         }
+        int budgetBefore = SpikeState.NavigationRecovery.Attempts;
         _localRecoveryProgress = false;
         if (SpikeState.NavigationRecovery.TrySpend(now, TaxiAI.PathingFailureCap))
         {
+            Mod.Log.Warn($"[nav] recovery episode={SpikeState.NavigationRecovery.Attempts} op={SpikeState.OperationId} order={SpikeState.NavOrder} callback={SpikeState.NavCallbackResult ?? "-"} target={SpikeCommands.Fmt(SpikeState.NavTarget)} age={now - SpikeState.NavStartTime:F1}s.");
             if (!maneuverPlanned)
                 return true; // budget spent; no physical manoeuvre failed at this position
 
             Vector3 stall = veh.transform.position;
-            if (!RecoveryRecurrence.RegisterStall(stall.x, stall.z)) return true;
+            if (!RecoveryRecurrence.RegisterStall(stall.x, stall.z))
+            {
+                LogSupervisorDecision(probeDue ? "deferred-probe" : "recovery", "grant-maneuver", decisionDistance,
+                    _supervisorSampleReadable, _supervisorSampleSpeed, false, budgetBefore, SpikeState.NavigationRecovery.Attempts);
+                return true;
+            }
 
             // Same area, no new forward approach: do not repeat the reverse ladder.
-            // Both successful and refused rescue keep the existing finite budgets.
+            // Keep finite budgets; a refused rescue cannot justify an unchanged redispatch.
+            long recoveryOperation = SpikeState.OperationId;
+            int recoveryOrder = SpikeState.NavOrder;
+            IntPtr recoveryPointer = veh.Pointer;
+            bool StillCurrent() => Mod.Lifecycle.AcceptingWork && SpikeState.PollingActive &&
+                SpikeState.Operation.Active && SpikeState.OperationId == recoveryOperation &&
+                SpikeState.NavOrder == recoveryOrder && ReferenceEquals(SpikeState.Vehicle, veh) &&
+                veh != null && veh.Pointer == recoveryPointer && !TaxiAI.NavigationBlocked &&
+                SpikeCommands.HasAuthority() && SpikeCommands.IsOwnedTaxi(veh) && !PlayerDriver(veh);
+
             Mod.Log.Warn($"[nav] recurring stall at {SpikeCommands.Fmt(stall)} within {RecoveryRecurrencePolicy.StallRadiusMeters:F0} m without new forward approach — checked free-spot rescue instead of reverse.");
             _recoveryOwnsNavigation = true;
             try
             {
                 TaxiAI.StopPatrol("recurring stall");
+                if (!StillCurrent()) return false;
                 SpikeCommands.EnsureDriverSeat(veh);
-                if (!SpikeState.PollingActive) return false;
+                if (!StillCurrent()) return false;
                 bool rescued = TryFreeSpotRescue(veh, agent, "recurring stall");
-                ReDispatch(agent, SpikeState.NavTarget,
-                    rescued ? "recurring stall (free-spot rescue)" : "recurring stall (no safe free spot)");
+                // Native calls may have processed STOP, teardown or a replacement operation.
+                // Neither the success nor failure continuation may act on that newer state.
+                if (!StillCurrent()) return false;
+                if (rescued)
+                    ReDispatch(agent, SpikeState.NavTarget, "recurring stall (free-spot rescue)");
+                else if (!_recurringProbeUsed && SpikeState.NavigationRecovery.Attempts < TaxiAI.PathingFailureCap)
+                {
+                    // A refused geometry probe is not proof that the next probe must fail:
+                    // the Bungalow baseline found a supported spot 2.5s later. Do NOT issue
+                    // another identical Navigate, or pretend a native Failed is still running.
+                    // Allow one delayed checked placement probe per operation, spending the
+                    // next existing episode when due; neither budget nor deadline is renewed.
+                    _recurringProbeUsed = true;
+                    _recurringProbeAt = now + 2.5f;
+                    _recurringProbeOperation = recoveryOperation;
+                    _recurringProbeOrder = recoveryOrder;
+                    _recurringProbePointer = recoveryPointer;
+                    Mod.Log.Warn("[nav] no supported free spot — one checked re-probe in 2.5s; no unchanged Navigate retry.");
+                    LogSupervisorDecision("deferred-probe-schedule", "schedule-checked-probe",
+                        Vector3.Distance(stall, SpikeState.NavTarget), _supervisorSampleReadable, _supervisorSampleSpeed,
+                        false, budgetBefore, SpikeState.NavigationRecovery.Attempts);
+                }
+                else
+                {
+                    // The bounded re-probe was refused (or no episode remains).
+                    Vector3 failedPosition = veh.transform.position;
+                    GiveUpNavigation(agent, failedPosition, Vector3.Distance(failedPosition, SpikeState.NavTarget),
+                        now - SpikeState.NavStartTime);
+                }
             }
             finally { _recoveryOwnsNavigation = false; }
             return false; // handled; no caller may fall through to another reverse
@@ -262,10 +672,10 @@ internal static class SpikeRunner
         return false;
     }
 
-    internal static void ArmStartupRecovery(LandVehicle veh)
+    internal static void ArmStartupRecovery(LandVehicle veh, float? preparedTime = null)
     {
         _startupArmed = true;
-        _startupAt = Time.unscaledTime;
+        _startupAt = preparedTime ?? Time.unscaledTime;
     }
 
     /// <summary>Patrol dispatch: the 8 s self-test owns the start, the startup rescue stays out (review point 1).</summary>
@@ -275,11 +685,11 @@ internal static class SpikeRunner
     }
 
     /// <summary>Arms the fixed start deadline for a patrol dispatch (order-bound).</summary>
-    internal static void ArmPatrolSelfTest(int order)
+    internal static void ArmPatrolSelfTest(int order, float? preparedTime = null)
     {
         _selfTestActive = true;
         _selfTestOrder = order;
-        _selfTestAt = Time.unscaledTime;
+        _selfTestAt = preparedTime ?? Time.unscaledTime;
     }
 
     /// <summary>
@@ -290,9 +700,14 @@ internal static class SpikeRunner
     internal static void ArmProgressWindow(LandVehicle veh)
     {
         Vector3 position = veh.transform.position;
+        ArmProgressWindow(position, Vector3.Distance(position, SpikeState.NavTarget), Time.unscaledTime);
+    }
+
+    internal static void ArmProgressWindow(Vector3 position, float distance, float now)
+    {
         SpikeState.ProgressFrom = position;
-        SpikeState.ProgressWindowStart = Time.unscaledTime;
-        _windowStartDistance = Vector3.Distance(position, SpikeState.NavTarget);
+        SpikeState.ProgressWindowStart = now;
+        _windowStartDistance = distance;
         _windowBestDistance = _windowStartDistance;
     }
 
@@ -339,6 +754,7 @@ internal static class SpikeRunner
     /// <summary>Managed-only drive teardown, also safe after native taxi death.</summary>
     internal static void ResetDrivingState()
     {
+        _autoNavigationReceipt = null;
         _trafficWaiting = false;
         TrafficWait.Reset();
         // A drive ending does not end the visual model's lifetime. Keep its wheel
@@ -356,6 +772,9 @@ internal static class SpikeRunner
         _navCalcSince = 0f;
         _reverseAttempt = 0;
         _freeSpotRescues = 0;
+        _recurringProbeAt = 0f;
+        _recurringProbeUsed = false;
+        ResetSupervisorMotion();
         _idleMovingSince = 0f;
         _idleStopAttempts = 0;
         _idleIneffective = false;
@@ -445,6 +864,9 @@ internal static class SpikeRunner
                 return; // no polling, ride, recovery or visual work touches a foreign/uncertain handle
             }
 
+            // Boarding supersedes the pickup before automation, reverse supervision or
+            // callback consumption can act on the old order in this frame.
+            if (SpikeCommands.TickEarlyBoard()) return;
             TickAutoRun();
             ObserveNavigationProgress();
             // Supervise the bounded reverse independently of PollingActive and BEFORE ride
@@ -497,6 +919,7 @@ internal static class SpikeRunner
     {
         float dt = Time.unscaledDeltaTime;
         SpikeState.NavigationRecovery.ShiftPause(dt);
+        if (_recurringProbeAt > 0f) _recurringProbeAt += dt;
         SpikeState.Reverse.ShiftPause(dt);
         if (SpikeState.NavReDispatchAt > 0f)
             SpikeState.NavReDispatchAt += dt;
@@ -510,6 +933,12 @@ internal static class SpikeRunner
             _navCalcSince += dt;
         if (_proofSpeedSince > 0f)
             _proofSpeedSince += dt;
+        if (_forwardEvidenceSpeedSince > 0f)
+            _forwardEvidenceSpeedSince += dt;
+        if (_recentForwardSince > 0f)
+            _recentForwardSince += dt;
+        if (_recentMotionWindowStart > 0f)
+            _recentMotionWindowStart += dt;
         if (_playerOutSince > 0f)
             _playerOutSince += dt;
         if (_idleMovingSince > 0f)
@@ -977,6 +1406,7 @@ internal static class SpikeRunner
             return;
 
         int step = SpikeState.AutoStep;
+        SpikeCommands.DriveRequest? navigation = null;
         try
         {
             if (step == 1)
@@ -1023,6 +1453,20 @@ internal static class SpikeRunner
             }
             else if (step == 3)
             {
+                // This pickup owns neither the next passenger selection nor a newer
+                // boarded ride. Keep its initial preparation/cleanup under one token.
+                if (_autoNavigationSerial != SpikeState.AutoRunSerial)
+                {
+                    _autoNavigationReceipt = null;
+                    _autoNavigationSerial = SpikeState.AutoRunSerial;
+                }
+                navigation = _autoNavigationReceipt ??= SpikeCommands.DriveRequest.CreateReceipt(
+                    SpikeState.Vehicle, bindSelection: false, bindAutomation: true);
+                if (!navigation.TryAcquire())
+                {
+                    navigation.RefuseUnavailable(passenger: false);
+                    return;
+                }
                 // TaxiApp pickup does not drive to a fixed road target, it
                 // drives to a road point resolved around the PLAYER (the central
                 // engineering problem — see RoadTarget for the cascade).
@@ -1038,11 +1482,16 @@ internal static class SpikeRunner
                     label = "to player";
                 }
 
-                if (!SpikeCommands.Go(target.HasValue ? 0f : AutoRideDistance, useSettings: true, absoluteTarget: target, toPlayer: toPlayer))
+                if (!navigation.IsCurrent()) return;
+                bool dispatched = SpikeCommands.Go(target.HasValue ? 0f : AutoRideDistance, absoluteTarget: target, toPlayer: toPlayer,
+                    preparedRequest: navigation);
+                if (!navigation.IsCurrent(allowInactive: true)) return;
+                if (!dispatched)
                     throw new InvalidOperationException("taxi go reported a failure (see the error above).");
 
                 SpikeState.AutoRunning = false;
                 SpikeState.AutoStep = 0;
+                _autoNavigationReceipt = null;
                 Mod.Log.Info($"[taxi-drive] pickup navigation started ({label}) — progress supervision is active.");
             }
             else
@@ -1053,6 +1502,7 @@ internal static class SpikeRunner
         }
         catch (Exception ex)
         {
+            if (navigation != null && !navigation.IsCurrent(allowInactive: true)) return;
             string message = SpikeState.ServiceStatus.Length > 0
                 ? SpikeState.ServiceStatus
                 : $"Taxi dispatch failed at step {step}; please try again later.";
@@ -1077,14 +1527,18 @@ internal static class SpikeRunner
     /// </summary>
     internal static void TickRide()
     {
+        if (!Mod.Lifecycle.AcceptingWork || Time.timeScale == 0f) return;
         LandVehicle? veh = SpikeState.Vehicle;
         if (!ReferenceEquals(veh, null) &&
             (!SpikeCommands.IsOwnedTaxi(veh) || !SpikeCommands.HasAuthority()))
             return;
 
+        if (SpikeCommands.TickEarlyBoard()) return;
+
         // Finding 11: settle a provisional boarding first (confirm or fail
         // loudly) — never blocks the ride kernel below.
         SpikeCommands.TickSeatVerify();
+        if (!SpikeState.RideActive && SpikeState.SeatVerifyNpc != null) return;
 
         // Board detection: the pickup reached the player (or the last ride ended with an
         // exit) and the player just got in (the game's own E-enter) — start the ride.
@@ -1191,6 +1645,8 @@ internal static class SpikeRunner
                 SpikeState.CompletedDestinationKind = SpikeState.RideDestinationKind;
                 SpikeState.CompletedGoal = SpikeState.RideGoal;
                 SpikeState.CompletedArrival = SpikeState.ActiveTripPoint;
+                SpikeState.CompletedNavOrder = SpikeState.NavOrder;
+                SpikeState.CompletedOperation = SpikeState.OperationId;
             }
             try
             {
@@ -1267,7 +1723,7 @@ internal static class SpikeRunner
     /// after that the navigation gives up with a clear message instead of 90 s of
     /// silence.
     /// </summary>
-    private static void RecoverStuck(VehicleAgent agent, LandVehicle veh, Vector3 position, float distance, float elapsed, bool autoDriving)
+    private static void RecoverStuck(VehicleAgent agent, LandVehicle veh, Vector3 position, float distance, float elapsed, bool autoDriving, bool budgetAlreadySpent = false)
     {
         // Never re-seat a driver or reverse under a player who took the wheel (brief §6.3/§7.4).
         if (PlayerDriver(veh))
@@ -1275,14 +1731,25 @@ internal static class SpikeRunner
             Mod.Log.Warn("[nav] recovery refused: a player is at the wheel — no autonomous driver/reverse action.");
             return;
         }
-        if (!TryBeginRecovery(agent, veh, maneuverPlanned: true)) return;
+        long operation = SpikeState.OperationId;
+        int order = SpikeState.NavOrder;
+        IntPtr pointer = veh.Pointer;
+        IntPtr agentPointer = agent.Pointer;
+        bool StillCurrent() => Mod.Lifecycle.AcceptingWork && SpikeState.PollingActive && SpikeState.Operation.Active &&
+            SpikeState.OperationId == operation && SpikeState.NavOrder == order && ReferenceEquals(SpikeState.Vehicle, veh) &&
+            pointer != IntPtr.Zero && veh.Pointer == pointer && agentPointer != IntPtr.Zero && veh.Agent?.Pointer == agentPointer &&
+            SpikeCommands.HasAuthority() && SpikeCommands.IsOwnedTaxi(veh) && !PlayerDriver(veh);
+        if (!StillCurrent()) return;
+        if (!budgetAlreadySpent && !TryBeginRecovery(agent, veh, maneuverPlanned: true)) return;
+        if (!StillCurrent()) return;
         SpikeState.StuckRecoveries++;
 
         // Paket G (2026-09-29): a driverless car never makes progress — re-boarding the
         // driver beats burning recovery #1/#2 on navigation re-dispatches into the void.
-        if (SpikeCommands.EnsureDriverSeat(veh))
+        bool reseated = SpikeCommands.EnsureDriverSeat(veh);
+        if (!StillCurrent()) return;
+        if (reseated)
         {
-            if (!SpikeState.PollingActive) return;
             SpikeState.StuckRecoveries--;
             ArmProgressWindow(veh);
             return;
@@ -1297,6 +1764,7 @@ internal static class SpikeRunner
         {
             // cosmetic only
         }
+        if (!StillCurrent()) return;
 
         if (SpikeState.StuckRecoveries == 1)
         {
@@ -1319,20 +1787,19 @@ internal static class SpikeRunner
             return;
         }
 
-        if (SpikeState.StuckRecoveries == 2)
+        if (SpikeState.StuckRecoveries == 2 && SpikeState.RideActive && !SpikeState.NavToPlayer && SpikeState.RideGoal.HasValue)
         {
-            Vector3 goal = SpikeState.RideGoal ?? SpikeState.NavTarget;
-            if (TaxiDestinations.TryFallbackDropOff(goal, SpikeState.NavTarget, out Vector3 fallback, out string lot))
+            // Unknown/cleared passenger goals and pickups cannot authorize an alternate drop-off.
+            Vector3 goal = SpikeState.RideGoal.Value;
+            bool found = TaxiDestinations.TryFallbackDropOff(goal, SpikeState.NavTarget, out Vector3 fallback, out string lot);
+            if (!StillCurrent() || !SpikeState.RideGoal.HasValue || !goal.Equals(SpikeState.RideGoal.Value)) return;
+            if (found)
             {
                 Mod.Log.Warn(
                     $"[nav] recovery #2: the agent cannot reach {SpikeCommands.Fmt(SpikeState.NavTarget)} — " +
                     $"dropping off at lot '{lot}' {SpikeCommands.Fmt(fallback)} instead " +
                     $"({TaxiDestinations.Num(Vector3.Distance(goal, fallback))} m from the goal).");
-                SpikeState.RideDropOff = "lot entry (fallback after a failed approach)";
-                SpikeState.RideDropOffLot = lot;
-                SpikeState.RideDestination = fallback;
-                ArmProgressWindow(veh);
-                ReDispatch(agent, fallback, "recovery #2 (fallback drop-off)");
+                ReDispatch(agent, fallback, "recovery #2 (fallback drop-off)", fallbackLot: lot);
                 return;
             }
 
@@ -1548,41 +2015,28 @@ internal static class SpikeRunner
         int waypoints = TaxiAI.WaypointCount;
         int last = Math.Max(0, waypoints - 1);
 
-        bool atLastWaypoint = waypoints > 0 && waypoint >= last;
         bool nearTarget = NavigationArrivalPolicy.IsWithinArrival(distance);
 
-        // The single supervised arrival decision (brief §8.2): proximity OR the last waypoint,
-        // but ALWAYS a readable, confirmed halt with no reverse, plus current-operation evidence
-        // (a real drive start in THIS operation) — a car parked inside the radius from before
-        // must not be completed by proximity alone.
-        bool arrivalConfirmed = SupervisedArrivalPolicy.IsConfirmedArrival(
-            currentRunComplete: ArrivalConfirmationPolicy.IsCurrent(
-                SpikeState.NavCallbackArrivalPending, SpikeState.NavCallbackArrivalOrder,
-                SpikeState.NavCallbackArrivalOperation, SpikeState.NavOrder, SpikeState.OperationId),
-            operationProgress: _driveStartConfirmed,
-            distance: distance, speedReadable: speedReadable, signedSpeed: speed, reversing: reversing);
-
-        if (arrivalConfirmed)
+        // Same pre-recovery arrival as direct navigation. Forward evidence is required;
+        // _driveStartConfirmed can be earned by absolute reverse speed and must not complete.
+        if (TryCompleteBeforeRecovery(veh.Agent, veh, position, distance, "patrol", logDecision: false))
         {
+            _selfTestActive = false;
             Mod.Log.Info(
                 $"[patrol] ARRIVED at {SpikeState.RideDestinationName} — waypoint {waypoint}/{last}, " +
                 $"{TaxiDestinations.Num(distance)} m to the target, speed={TaxiDestinations.Num(speed)} km/h " +
                 $"({(nearTarget ? $"within the {ArrivalThresholdMeters:F0} m threshold" : "standing on the last waypoint")}).");
-            _selfTestActive = false;
-            TaxiAI.StopPatrol("arrived");
-            SpikeState.PollingActive = false;
-            SpikeState.Operation.Terminate("patrol arrived", failed: false);
             return;
         }
 
-        // Inside the radius but not yet provably stopped (or no current-operation evidence):
+        // Inside the radius but not yet provably stopped (or no current-operation forward evidence):
         // hold the verdict rather than completing a moving/parked-from-before taxi.
-        if (!reversing && nearTarget && !arrivalConfirmed)
+        if (!reversing && nearTarget)
         {
             TaxiLog.Verbose(
                 $"[patrol] within the {ArrivalThresholdMeters:F0} m radius but not a confirmed arrival " +
                 $"(readable={speedReadable}, speed={TaxiDestinations.Num(speed)} km/h, reversing={reversing}, " +
-                $"progress={_driveStartConfirmed}) — holding the verdict.");
+                $"forwardEvidence={HasCurrentForwardEvidence()}) — holding the verdict.");
         }
 
         // ---- fixed start deadline (review 2026-10-02, point 1) --------------------
@@ -1646,6 +2100,14 @@ internal static class SpikeRunner
         float stallWindow = staticObstacle ? StaticObstacleStuckSeconds : StuckWindowSeconds;
         if (now - SpikeState.ProgressWindowStart < stallWindow)
             return;
+
+        if (RecentForwardMotionUnjustifiesStall(speedReadable, speed, reversing))
+        {
+            int budget = SpikeState.NavigationRecovery.Attempts;
+            LogSupervisorDecision("patrol-stall", "defer-recent-motion", distance, speedReadable, speed, true, budget, budget);
+            ArmProgressWindow(veh);
+            return;
+        }
 
         if (!TryBeginRecovery(veh.Agent, veh, maneuverPlanned: true)) return;
         SpikeState.StuckRecoveries++;
@@ -1804,8 +2266,8 @@ internal static class SpikeRunner
         ReDispatch(agent, target, "post-reverse");
     }
 
-    /// <summary>Fresh <c>Navigate</c> dispatch with settings=null and a new measurement window.</summary>
-    internal static void ReDispatch(VehicleAgent agent, Vector3 target, string why)
+    /// <summary>Fresh <c>Navigate</c> dispatch with explicit service settings and a new measurement window.</summary>
+    internal static void ReDispatch(VehicleAgent agent, Vector3 target, string why, string? fallbackLot = null)
     {
         if (TaxiAI.NavigationBlocked) return;
         if (!SpikeState.PollingActive)
@@ -1817,10 +2279,22 @@ internal static class SpikeRunner
             Mod.Log.Warn($"[nav] {why}: a player is at the wheel — no autonomous re-dispatch.");
             return;
         }
+        if (pd == null) return;
+        long operation = SpikeState.OperationId;
+        int previousOrder = SpikeState.NavOrder;
+        IntPtr pointer = pd.Pointer;
+        IntPtr agentPointer = agent.Pointer;
+        Vector3? fallbackGoal = SpikeState.RideGoal;
+        bool StillCurrent(int expectedOrder) => Mod.Lifecycle.AcceptingWork && SpikeState.PollingActive && SpikeState.Operation.Active &&
+            SpikeState.OperationId == operation && SpikeState.NavOrder == expectedOrder && ReferenceEquals(SpikeState.Vehicle, pd) &&
+            pointer != IntPtr.Zero && pd.Pointer == pointer && agentPointer != IntPtr.Zero && pd.Agent?.Pointer == agentPointer &&
+            !TaxiAI.NavigationBlocked && SpikeCommands.HasAuthority() && SpikeCommands.IsOwnedTaxi(pd) && !PlayerDriver(pd) &&
+            (fallbackLot == null || (SpikeState.RideActive && SpikeState.RideDestinationPicked && !SpikeState.NavToPlayer && fallbackGoal.HasValue &&
+                SpikeState.RideGoal.HasValue && fallbackGoal.Value.Equals(SpikeState.RideGoal.Value)));
+        if (!StillCurrent(previousOrder)) return;
         float now = Time.unscaledTime;
-        if (StopIfNavigationExpired(agent, SpikeState.Vehicle, now)) return;
+        if (StopIfNavigationExpired(agent, pd, now)) return;
         SpikeState.PollingActive = true;
-        SpikeState.NavTarget = target;
         SpikeState.NavStartTime = now;
         SpikeState.NavEverAutoDriving = false;
         SpikeState.NavCallbackResult = null;
@@ -1831,23 +2305,6 @@ internal static class SpikeRunner
         // order owns the callback from here on; a late result of the old order is stale.
         int order = SpikeState.NextNavOrder();
 
-        // The watchdog window must REALLY restart here - the log line below has
-        // promised "fresh measurement window" since v0.6.0. Bug evidence (Latest.log
-        // 2026-09-29 06:17): TickReDispatch's post-reverse path left ProgressWindowStart
-        // stale, so recovery #2 ("cannot reach") fired 0.5 s after the re-dispatch and
-        // dumped the player 24 m from the goal. ArmProgressWindow resets position,
-        // window, start distance and best distance together (review point 2).
-        try
-        {
-            LandVehicle? v = SpikeState.Vehicle;
-            if (v != null)
-                ArmProgressWindow(v);
-        }
-        catch (Exception)
-        {
-            // the window reset alone already fixes the premature give-up
-        }
-
         // Release the brakes, THEN dispatch. The car is deliberately NOT rotated toward
         // the target any more: that forced yaw ignored the road direction and the
         // collision geometry around the car, so a re-dispatch could turn it nose-first
@@ -1855,25 +2312,62 @@ internal static class SpikeRunner
         // from Go(); ReDispatch had kept the old snap). The agent picks its own heading.
         try
         {
-            LandVehicle? av = SpikeState.Vehicle;
-            if (av != null)
-            {
-                NativeActuatorPatch.ReleasePark(av);
-            }
+            NativeActuatorPatch.ReleasePark(pd);
         }
         catch (Exception)
         {
             // dispatching unaimed still beats not dispatching
         }
+        if (!StillCurrent(order)) return;
 
         try
         {
-            agent.Navigate(target, null, NavigationCallbackFor(order));
-            TaxiLog.Verbose($"[nav] {why}: Navigate(settings=null) dispatched (order {order}) to {SpikeCommands.Fmt(target)} — fresh measurement window.");
+            NavigationSettings settings = SpikeCommands.CreateNavigationSettings();
+            Action<VehicleAgent.ENavigationResult> callback = NavigationCallbackFor(order);
+
+            // The watchdog window must REALLY restart here - the log line below has
+            // promised "fresh measurement window" since v0.6.0. Bug evidence (Latest.log
+            // 2026-09-29 06:17): TickReDispatch's post-reverse path left ProgressWindowStart
+            // stale, so recovery #2 ("cannot reach") fired 0.5 s after the re-dispatch and
+            // dumped the player 24 m from the goal. Prepare native reads BEFORE publishing
+            // the replacement: a cancelled read cannot leave an undispatched target behind.
+            Vector3? windowPosition = null;
+            float windowDistance = 0f;
+            try
+            {
+                Vector3 position = pd.transform.position;
+                windowDistance = Vector3.Distance(position, target);
+                windowPosition = position;
+            }
+            catch (Exception) { /* a failed measurement must not bypass the identity check */ }
+            if (!StillCurrent(order)) return;
+
+            // Publish only the target we are about to dispatch, before a synchronous callback.
+            // Logical goal/resolver identity and the selected trip name are not route rebounds.
+            SpikeState.NavTarget = target;
+            if (SpikeState.RideActive && !SpikeState.NavToPlayer)
+            {
+                if (SpikeState.RideDestinationPicked) SpikeState.RideDestination = target;
+                if (fallbackLot != null) SpikeState.RideStreetCandidate = target;
+                else if (!SpikeState.RideDestinationPicked || !SpikeState.RideStreetCandidate.HasValue ||
+                    !target.Equals(SpikeState.RideStreetCandidate.Value)) SpikeState.RideStreetCandidate = null;
+                SpikeState.ActiveTripPoint = target;
+                if (fallbackLot != null)
+                {
+                    SpikeState.RideDropOff = "roadside candidate (fallback near lot entry)";
+                    SpikeState.RideDropOffLot = fallbackLot;
+                }
+            }
+
+            // Managed-only commit: position/window/start/best reset together against the
+            // adopted target. The operation's fixed progress goal/budget stay intact.
+            if (windowPosition.HasValue) ArmProgressWindow(windowPosition.Value, windowDistance, now);
+            agent.Navigate(target, settings, callback);
+            TaxiLog.Verbose($"[nav] {why}: Navigate(service settings) dispatched (order {order}) to {SpikeCommands.Fmt(target)} — fresh measurement window.");
         }
         catch (Exception ex)
         {
-            Mod.Log.Error($"[nav] {why}: Navigate(settings=null) failed: {ex.Message}");
+            Mod.Log.Error($"[nav] {why}: Navigate(service settings) failed: {ex.Message}");
         }
     }
 
@@ -2069,6 +2563,9 @@ internal static class SpikeRunner
         }
         string text = result.ToString();
         SpikeState.NavCallbackResult = text;
+        // Read-only callback-time evidence; no navigation/actuator changes in this observer.
+        try { SpikeTrace.RouteSnapshot(SpikeState.Vehicle?.Agent, $"navigation-callback result={text}"); }
+        catch { /* a diagnostic getter must not prevent queuing the callback */ }
         // Queue the result for the supervisor; NEVER do native work inside the native callback
         // (brief §8.1): a synchronous Stopped callback from our own StopNavigating must not recurse
         // into another stop/dispatch. The queue is order+operation aware (review D12/D16).
@@ -2163,7 +2660,7 @@ internal static class SpikeRunner
     /// <summary>
     /// 0.5 s heartbeat while <see cref="SpikeState.PollingActive"/>: logs
     /// AutoDriving / navCalc / distance / graph / stuck / speed / callback,
-    /// fires the one <c>settings = null</c> retry, applies the no-progress deadline and
+    /// fires the one explicit-settings retry, applies the no-progress deadline and
     /// prints the terminal verdict (ARRIVED within
     /// <see cref="ArrivalThresholdMeters"/> vs. STOPPED SHORT).
     /// </summary>
@@ -2199,6 +2696,11 @@ internal static class SpikeRunner
 
         float now = Time.unscaledTime;
         float elapsed = now - SpikeState.NavStartTime;
+        // A same-frame observation already read speed/reverse. Complete a confirmed halt
+        // before the deadline can give the ride up, without a second native query.
+        if (_supervisorSampleFrame == Time.frameCount && _supervisorSampleReady &&
+            TryCompleteBeforeRecovery(agent, veh, _supervisorSamplePosition, _supervisorSampleDistance, "pre-deadline", logDecision: false))
+            return;
         if (StopIfNavigationExpired(agent, veh, now)) return;
         if (TaxiAI.NavigationBlocked)
         {
@@ -2242,6 +2744,9 @@ internal static class SpikeRunner
             Vector3 position = veh.transform.position;
             float distance = Vector3.Distance(position, SpikeState.NavTarget);
             UpdateDriveStartProof(veh, position, distance, now);
+            ObserveSupervisorMotion(veh, position, distance, now);
+            if (TryCompleteBeforeRecovery(agent, veh, position, distance, "polling", logDecision: false))
+                return;
 
             // A pending post-reverse re-dispatch runs before anything else.
             if (SpikeState.NavReDispatchAt > 0f)
@@ -2250,6 +2755,18 @@ internal static class SpikeRunner
                     return;
 
                 TickReDispatch(agent);
+                return;
+            }
+
+            // A refused placement gets one delayed checked re-probe, not a route retry.
+            // Run before ordinary stall/startup supervision so .5s polls spend no budget.
+            // A true return is permission to manoeuvre; discarding it used to spend an episode
+            // and leave the stale progress window to stall again on the next heartbeat.
+            if (_recurringProbeAt > 0f)
+            {
+                bool mayManeuver = TryBeginRecovery(agent, veh, maneuverPlanned: true);
+                if (mayManeuver)
+                    RecoverStuck(agent, veh, position, distance, elapsed, autoDriving, budgetAlreadySpent: true);
                 return;
             }
 
@@ -2320,8 +2837,19 @@ internal static class SpikeRunner
                          ? StaticObstacleStuckSeconds : StuckWindowSeconds)
                      && !(navCalc && _navCalcSince > 0f && now - _navCalcSince < NavCalcGraceSeconds))
             {
-                RecoverStuck(agent, veh, position, distance, elapsed, autoDriving);
-                return;
+                if (RecentForwardMotionUnjustifiesStall(_supervisorSampleReadable, _supervisorSampleSpeed,
+                        _supervisorSampleReversing || SpikeState.Reverse.Active))
+                {
+                    int budget = SpikeState.NavigationRecovery.Attempts;
+                    LogSupervisorDecision("ordinary-stall", "defer-recent-motion", distance,
+                        _supervisorSampleReadable, _supervisorSampleSpeed, true, budget, budget);
+                    ArmProgressWindow(veh);
+                }
+                else
+                {
+                    RecoverStuck(agent, veh, position, distance, elapsed, autoDriving);
+                    return;
+                }
             }
 
             if (autoDriving)
@@ -2333,21 +2861,21 @@ internal static class SpikeRunner
 
             if (!SpikeState.NavRetried && !SpikeState.NavEverAutoDriving && elapsed >= 3f)
             {
-                // Nothing drove and no calculation is pending → one A/B retry with
-                // NavigationSettings=null (flag mismatch would show up here).
+                // Nothing drove and no calculation is pending → one retry with
+                // fresh explicit settings, keeping the same service navigation contract.
                 SpikeState.NavRetried = true;
                 SpikeState.NavRetryAt = now;
                 int retryOrder = SpikeState.NextNavOrder();
                 TaxiLog.Verbose(
-                    $"[nav] retry #1: Navigate(target, settings=null, callback) at t={elapsed:F1}s " +
-                    $"(order {retryOrder}) (nothing drove with NavigationSettings, no calculation pending) — grace window {RetryGraceSeconds:F0}s starts now.");
+                    $"[nav] retry #1: Navigate(target, service settings, callback) at t={elapsed:F1}s " +
+                    $"(order {retryOrder}) (nothing drove, no calculation pending) — grace window {RetryGraceSeconds:F0}s starts now.");
                 try
                 {
-                    agent.Navigate(SpikeState.NavTarget, null, NavigationCallbackFor(retryOrder));
+                    agent.Navigate(SpikeState.NavTarget, SpikeCommands.CreateNavigationSettings(), NavigationCallbackFor(retryOrder));
                 }
                 catch (Exception ex)
                 {
-                    Mod.Log.Error($"[nav] retry Navigate(target, null, callback) threw: {ex.Message}");
+                    Mod.Log.Error($"[nav] retry Navigate(target, service settings, callback) threw: {ex.Message}");
                 }
 
                 return;
@@ -2356,30 +2884,30 @@ internal static class SpikeRunner
             if (!SpikeState.NavEverAutoDriving && elapsed < 3f)
                 return; // give the first dispatch its 3 s before deciding.
 
-            // Review M2: the settings=null retry used to get exactly one heartbeat
+            // Review M2: the startup retry used to get exactly one heartbeat
             // before the terminal branch fired — keep its own measurement window open.
             if (SpikeState.NavRetried && SpikeState.NavRetryAt > 0f && now - SpikeState.NavRetryAt < RetryGraceSeconds)
                 return;
 
             // Terminal: either the vehicle arrived/stopped after driving, or it
-            // never drove at all (including a failed settings=null retry).
-            bool arrivedWithin = distance <= ArrivalThresholdMeters;
-            if (arrivedWithin)
-            {
-                // Never claim success while the taxi is still moving or reversing (brief §8.2):
-                // hold the terminal verdict until a readable, confirmed halt is observed.
-                bool readable = TryReadSignedSpeed(veh, out float signedSpeed);
-                bool reversing = SpikeState.Reverse.Active;
-                if (!TryReadReversing(veh, out bool nativeReversing)) reversing = true;
-                else reversing |= nativeReversing;
-                if (!NavigationArrivalPolicy.IsConfirmedHalt(readable, signedSpeed, reversing))
-                {
-                    TaxiLog.Verbose(
-                        $"[nav] within the {ArrivalThresholdMeters:F0} m radius but not a confirmed halt " +
-                        $"(readable={readable}, speed={TaxiDestinations.Num(signedSpeed)} km/h, reversing={reversing}) — holding the terminal verdict.");
-                    return;
-                }
-            }
+            // never drove at all (including a failed startup retry).
+            // Complete evidence belongs to the bounded arrival gate, not this fallback.
+            // The operation deadline above still applies while this gate is pending.
+            if (SpikeState.NavCallbackArrivalPending &&
+                SpikeState.NavCallbackArrivalOrder == SpikeState.NavOrder &&
+                SpikeState.NavCallbackArrivalOperation == SpikeState.OperationId)
+                return;
+
+            // AutoDriving=false is not a physical halt, even OUTSIDE the arrival radius.
+            // Barn reported Complete 37.1m away at 27.2km/h; terminating here parked it early.
+            bool readable = TryReadSignedSpeed(veh, out float signedSpeed);
+            bool reversing = SpikeState.Reverse.Active;
+            if (!TryReadReversing(veh, out bool nativeReversing)) reversing = true;
+            else reversing |= nativeReversing;
+            if (!NavigationArrivalPolicy.IsConfirmedHalt(readable, signedSpeed, reversing))
+                return; // bounded by normal progress/recovery and the operation deadline
+
+            bool arrivedWithin = float.IsFinite(distance) && distance <= ArrivalThresholdMeters;
             SpikeState.PollingActive = false;
             SpikeState.Operation.Terminate(arrivedWithin ? "arrived" : "stopped short", failed: !arrivedWithin);
             if (arrivedWithin && SpikeState.NavToPlayer)
@@ -2397,7 +2925,7 @@ internal static class SpikeRunner
                 $"vehicle={SpikeCommands.Fmt(position)} " +
                 $"finalDistance={distance:F1}m (startDistance={SpikeState.NavStartDistance:F1}m, " +
                 $"start={SpikeCommands.Fmt(SpikeState.NavStartPosition)}) " +
-                $"everAutoDriving={SpikeState.NavEverAutoDriving} nullRetryFired={SpikeState.NavRetried} " +
+                $"everAutoDriving={SpikeState.NavEverAutoDriving} retryFired={SpikeState.NavRetried} " +
                 $"callback={SpikeState.NavCallbackResult ?? "-"}.");
             if (SpikeState.NavToPlayer)
                 SpikeCommands.CompletePickup(veh, arrivedWithin ? "polling terminal (arrived)" : "polling terminal (stopped short)");

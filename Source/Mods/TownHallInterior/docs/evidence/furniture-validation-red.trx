@@ -1,0 +1,219 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="fa407aa0-679c-4231-bb60-851fd1464c79" name="pc@WINDOWS 2026-10-29 06:18:30" runUser="windows\pc" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-10-29T06:18:30.2474276+01:00" queuing="2026-10-29T06:18:30.2474278+01:00" start="2026-10-29T06:18:29.4293914+01:00" finish="2026-10-29T06:18:30.2530870+01:00" />
+  <TestSettings name="default" id="ed911b41-05ba-4096-8459-6f735aec9b8b">
+    <Deployment runDeploymentRoot="pc_WINDOWS_2026-10-29_06_18_30" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="b53cd22c-2a17-45ec-a836-9ed6e7e316f1" testId="14c1cdc6-d3fc-4217-b70e-c6143d8ffb16" testName="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;source-path&quot;)" computerName="WINDOWS" duration="00:00:00.0042265" startTime="2026-10-29T06:18:30.1297453+01:00" endTime="2026-10-29T06:18:30.1297801+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="b53cd22c-2a17-45ec-a836-9ed6e7e316f1">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: No exception was thrown&#xD;
+Expected: typeof(System.InvalidOperationException)</Message>
+          <StackTrace>   at FurniturePlanTests.UntrustedGeometryIsRejected(String fault) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs:line 44</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="174ccce8-c9eb-4f44-b3d9-0fdd280ccbcd" testId="b34e9d15-0c6e-a3fb-8cf4-af159565e1b9" testName="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;indices&quot;)" computerName="WINDOWS" duration="00:00:00.0039780" startTime="2026-10-29T06:18:30.1295444+01:00" endTime="2026-10-29T06:18:30.1295737+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="174ccce8-c9eb-4f44-b3d9-0fdd280ccbcd">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: No exception was thrown&#xD;
+Expected: typeof(System.InvalidOperationException)</Message>
+          <StackTrace>   at FurniturePlanTests.UntrustedGeometryIsRejected(String fault) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs:line 44</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="5524c665-a048-42d0-ad0b-0398e02878bc" testId="dcfa92e4-b186-d40c-2a64-08beb665f70d" testName="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;bounds&quot;)" computerName="WINDOWS" duration="00:00:00.0040242" startTime="2026-10-29T06:18:30.1314977+01:00" endTime="2026-10-29T06:18:30.1355478+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5524c665-a048-42d0-ad0b-0398e02878bc">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: No exception was thrown&#xD;
+Expected: typeof(System.InvalidOperationException)</Message>
+          <StackTrace>   at FurniturePlanTests.UntrustedGeometryIsRejected(String fault) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs:line 44</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="eed1be03-fc8e-4983-aa07-dcee35e03d86" testId="8b69303d-a80f-9dff-639d-d45d3dea2457" testName="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;duplicate&quot;)" computerName="WINDOWS" duration="00:00:00.0040277" startTime="2026-10-29T06:18:30.1398717+01:00" endTime="2026-10-29T06:18:30.1436135+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="eed1be03-fc8e-4983-aa07-dcee35e03d86">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: No exception was thrown&#xD;
+Expected: typeof(System.InvalidOperationException)</Message>
+          <StackTrace>   at FurniturePlanTests.UntrustedGeometryIsRejected(String fault) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs:line 44</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="84e812dc-6b89-499b-9808-5ac1df870561" testId="f341385b-5adf-4906-13ea-3b5997d59198" testName="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;materials&quot;)" computerName="WINDOWS" duration="00:00:00.0037080" startTime="2026-10-29T06:18:30.1299462+01:00" endTime="2026-10-29T06:18:30.1313329+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="84e812dc-6b89-499b-9808-5ac1df870561">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: No exception was thrown&#xD;
+Expected: typeof(System.InvalidOperationException)</Message>
+          <StackTrace>   at FurniturePlanTests.UntrustedGeometryIsRejected(String fault) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs:line 44</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="8b01c3eb-7469-4dcb-bc66-e105c498a753" testId="dbf665b3-b3b7-dfb2-6c10-839af7f65b06" testName="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;vertex&quot;)" computerName="WINDOWS" duration="00:00:00.0050406" startTime="2026-10-29T06:18:30.1289198+01:00" endTime="2026-10-29T06:18:30.1289818+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8b01c3eb-7469-4dcb-bc66-e105c498a753">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: No exception was thrown&#xD;
+Expected: typeof(System.InvalidOperationException)</Message>
+          <StackTrace>   at FurniturePlanTests.UntrustedGeometryIsRejected(String fault) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs:line 44</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="11e1a60c-6353-47a1-a285-2541dc978fa0" testId="6d2d2b2c-2c14-be64-702b-33544736fc29" testName="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;asset-null&quot;)" computerName="WINDOWS" duration="00:00:00.0326071" startTime="2026-10-29T06:18:30.0570219+01:00" endTime="2026-10-29T06:18:30.1098252+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="11e1a60c-6353-47a1-a285-2541dc978fa0">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: No exception was thrown&#xD;
+Expected: typeof(System.InvalidOperationException)</Message>
+          <StackTrace>   at FurniturePlanTests.UntrustedGeometryIsRejected(String fault) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs:line 44</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="c7c2f054-0151-4e74-9467-d8064d1ddc6a" testId="b78252f1-9962-5476-a30e-eb5fd9defdfa" testName="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;parts-null&quot;)" computerName="WINDOWS" duration="00:00:00.0040308" startTime="2026-10-29T06:18:30.1293306+01:00" endTime="2026-10-29T06:18:30.1293622+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c7c2f054-0151-4e74-9467-d8064d1ddc6a">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: No exception was thrown&#xD;
+Expected: typeof(System.InvalidOperationException)</Message>
+          <StackTrace>   at FurniturePlanTests.UntrustedGeometryIsRejected(String fault) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs:line 44</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="2676b6a1-c43f-462c-8d13-f01b36a6a40e" testId="484524dd-91cf-c658-9ff7-03a7b9db2b28" testName="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;source-bounds&quot;)" computerName="WINDOWS" duration="00:00:00.0037830" startTime="2026-10-29T06:18:30.1358507+01:00" endTime="2026-10-29T06:18:30.1394719+01:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="2676b6a1-c43f-462c-8d13-f01b36a6a40e">
+      <Output>
+        <ErrorInfo>
+          <Message>Assert.Throws() Failure: No exception was thrown&#xD;
+Expected: typeof(System.InvalidOperationException)</Message>
+          <StackTrace>   at FurniturePlanTests.UntrustedGeometryIsRejected(String fault) in C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs:line 44</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;parts-null&quot;)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="b78252f1-9962-5476-a30e-eb5fd9defdfa">
+      <Execution id="c7c2f054-0151-4e74-9467-d8064d1ddc6a" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="FurniturePlanTests" name="UntrustedGeometryIsRejected" />
+    </UnitTest>
+    <UnitTest name="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;source-bounds&quot;)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="484524dd-91cf-c658-9ff7-03a7b9db2b28">
+      <Execution id="2676b6a1-c43f-462c-8d13-f01b36a6a40e" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="FurniturePlanTests" name="UntrustedGeometryIsRejected" />
+    </UnitTest>
+    <UnitTest name="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;materials&quot;)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="f341385b-5adf-4906-13ea-3b5997d59198">
+      <Execution id="84e812dc-6b89-499b-9808-5ac1df870561" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="FurniturePlanTests" name="UntrustedGeometryIsRejected" />
+    </UnitTest>
+    <UnitTest name="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;vertex&quot;)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="dbf665b3-b3b7-dfb2-6c10-839af7f65b06">
+      <Execution id="8b01c3eb-7469-4dcb-bc66-e105c498a753" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="FurniturePlanTests" name="UntrustedGeometryIsRejected" />
+    </UnitTest>
+    <UnitTest name="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;indices&quot;)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="b34e9d15-0c6e-a3fb-8cf4-af159565e1b9">
+      <Execution id="174ccce8-c9eb-4f44-b3d9-0fdd280ccbcd" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="FurniturePlanTests" name="UntrustedGeometryIsRejected" />
+    </UnitTest>
+    <UnitTest name="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;source-path&quot;)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="14c1cdc6-d3fc-4217-b70e-c6143d8ffb16">
+      <Execution id="b53cd22c-2a17-45ec-a836-9ed6e7e316f1" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="FurniturePlanTests" name="UntrustedGeometryIsRejected" />
+    </UnitTest>
+    <UnitTest name="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;bounds&quot;)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="dcfa92e4-b186-d40c-2a64-08beb665f70d">
+      <Execution id="5524c665-a048-42d0-ad0b-0398e02878bc" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="FurniturePlanTests" name="UntrustedGeometryIsRejected" />
+    </UnitTest>
+    <UnitTest name="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;duplicate&quot;)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="8b69303d-a80f-9dff-639d-d45d3dea2457">
+      <Execution id="eed1be03-fc8e-4983-aa07-dcee35e03d86" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="FurniturePlanTests" name="UntrustedGeometryIsRejected" />
+    </UnitTest>
+    <UnitTest name="FurniturePlanTests.UntrustedGeometryIsRejected(fault: &quot;asset-null&quot;)" storage="c:\users\pc\schedule1-mod-only\source\tests\townhallinterior.tests\bin\release\net6.0\townhallinterior.tests.dll" id="6d2d2b2c-2c14-be64-702b-33544736fc29">
+      <Execution id="11e1a60c-6353-47a1-a285-2541dc978fa0" />
+      <TestMethod codeBase="C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\bin\Release\net6.0\TownHallInterior.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="FurniturePlanTests" name="UntrustedGeometryIsRejected" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="14c1cdc6-d3fc-4217-b70e-c6143d8ffb16" executionId="b53cd22c-2a17-45ec-a836-9ed6e7e316f1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b34e9d15-0c6e-a3fb-8cf4-af159565e1b9" executionId="174ccce8-c9eb-4f44-b3d9-0fdd280ccbcd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dcfa92e4-b186-d40c-2a64-08beb665f70d" executionId="5524c665-a048-42d0-ad0b-0398e02878bc" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8b69303d-a80f-9dff-639d-d45d3dea2457" executionId="eed1be03-fc8e-4983-aa07-dcee35e03d86" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f341385b-5adf-4906-13ea-3b5997d59198" executionId="84e812dc-6b89-499b-9808-5ac1df870561" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="dbf665b3-b3b7-dfb2-6c10-839af7f65b06" executionId="8b01c3eb-7469-4dcb-bc66-e105c498a753" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6d2d2b2c-2c14-be64-702b-33544736fc29" executionId="11e1a60c-6353-47a1-a285-2541dc978fa0" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b78252f1-9962-5476-a30e-eb5fd9defdfa" executionId="c7c2f054-0151-4e74-9467-d8064d1ddc6a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="484524dd-91cf-c658-9ff7-03a7b9db2b28" executionId="2676b6a1-c43f-462c-8d13-f01b36a6a40e" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="9" executed="9" passed="0" failed="9" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.0.2+dd36e86129 (64-bit .NET 6.0.36)&#xD;
+[xUnit.net 00:00:00.10]   Discovering: TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.16]   Discovered:  TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.19]   Starting:    TownHallInterior.Tests&#xD;
+[xUnit.net 00:00:00.27]       Assert.Throws() Failure: No exception was thrown&#xD;
+[xUnit.net 00:00:00.27]       Expected: typeof(System.InvalidOperationException)&#xD;
+[xUnit.net 00:00:00.27]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.28]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs(44,0): at FurniturePlanTests.UntrustedGeometryIsRejected(String fault)&#xD;
+[xUnit.net 00:00:00.29]       Assert.Throws() Failure: No exception was thrown&#xD;
+[xUnit.net 00:00:00.29]       Expected: typeof(System.InvalidOperationException)&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs(44,0): at FurniturePlanTests.UntrustedGeometryIsRejected(String fault)&#xD;
+[xUnit.net 00:00:00.29]       Assert.Throws() Failure: No exception was thrown&#xD;
+[xUnit.net 00:00:00.29]       Expected: typeof(System.InvalidOperationException)&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs(44,0): at FurniturePlanTests.UntrustedGeometryIsRejected(String fault)&#xD;
+[xUnit.net 00:00:00.29]       Assert.Throws() Failure: No exception was thrown&#xD;
+[xUnit.net 00:00:00.29]       Expected: typeof(System.InvalidOperationException)&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs(44,0): at FurniturePlanTests.UntrustedGeometryIsRejected(String fault)&#xD;
+[xUnit.net 00:00:00.29]       Assert.Throws() Failure: No exception was thrown&#xD;
+[xUnit.net 00:00:00.29]       Expected: typeof(System.InvalidOperationException)&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs(44,0): at FurniturePlanTests.UntrustedGeometryIsRejected(String fault)&#xD;
+[xUnit.net 00:00:00.29]       Assert.Throws() Failure: No exception was thrown&#xD;
+[xUnit.net 00:00:00.29]       Expected: typeof(System.InvalidOperationException)&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs(44,0): at FurniturePlanTests.UntrustedGeometryIsRejected(String fault)&#xD;
+[xUnit.net 00:00:00.29]       Assert.Throws() Failure: No exception was thrown&#xD;
+[xUnit.net 00:00:00.29]       Expected: typeof(System.InvalidOperationException)&#xD;
+[xUnit.net 00:00:00.29]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.29]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs(44,0): at FurniturePlanTests.UntrustedGeometryIsRejected(String fault)&#xD;
+[xUnit.net 00:00:00.30]       Assert.Throws() Failure: No exception was thrown&#xD;
+[xUnit.net 00:00:00.30]       Expected: typeof(System.InvalidOperationException)&#xD;
+[xUnit.net 00:00:00.30]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.30]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs(44,0): at FurniturePlanTests.UntrustedGeometryIsRejected(String fault)&#xD;
+[xUnit.net 00:00:00.30]       Assert.Throws() Failure: No exception was thrown&#xD;
+[xUnit.net 00:00:00.30]       Expected: typeof(System.InvalidOperationException)&#xD;
+[xUnit.net 00:00:00.30]       Stack Trace:&#xD;
+[xUnit.net 00:00:00.30]         C:\Users\pc\Schedule1-mod-only\Source\Tests\TownHallInterior.Tests\FurniturePlanTests.cs(44,0): at FurniturePlanTests.UntrustedGeometryIsRejected(String fault)&#xD;
+[xUnit.net 00:00:00.31]   Finished:    TownHallInterior.Tests&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T06:18:30.1145967+01:00">
+        <Text>[xUnit.net 00:00:00.27]     FurniturePlanTests.UntrustedGeometryIsRejected(fault: "asset-null") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T06:18:30.1293309+01:00">
+        <Text>[xUnit.net 00:00:00.29]     FurniturePlanTests.UntrustedGeometryIsRejected(fault: "vertex") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T06:18:30.1294755+01:00">
+        <Text>[xUnit.net 00:00:00.29]     FurniturePlanTests.UntrustedGeometryIsRejected(fault: "parts-null") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T06:18:30.1296545+01:00">
+        <Text>[xUnit.net 00:00:00.29]     FurniturePlanTests.UntrustedGeometryIsRejected(fault: "indices") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T06:18:30.1298544+01:00">
+        <Text>[xUnit.net 00:00:00.29]     FurniturePlanTests.UntrustedGeometryIsRejected(fault: "source-path") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T06:18:30.1314314+01:00">
+        <Text>[xUnit.net 00:00:00.29]     FurniturePlanTests.UntrustedGeometryIsRejected(fault: "materials") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T06:18:30.1358772+01:00">
+        <Text>[xUnit.net 00:00:00.29]     FurniturePlanTests.UntrustedGeometryIsRejected(fault: "bounds") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T06:18:30.1397517+01:00">
+        <Text>[xUnit.net 00:00:00.30]     FurniturePlanTests.UntrustedGeometryIsRejected(fault: "source-bounds") [FAIL]</Text>
+      </RunInfo>
+      <RunInfo computerName="WINDOWS" outcome="Error" timestamp="2026-10-29T06:18:30.1437747+01:00">
+        <Text>[xUnit.net 00:00:00.30]     FurniturePlanTests.UntrustedGeometryIsRejected(fault: "duplicate") [FAIL]</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

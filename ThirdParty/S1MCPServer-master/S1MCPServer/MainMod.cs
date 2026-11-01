@@ -137,6 +137,7 @@ public class S1MCPServer : MelonMod
     public override void OnApplicationQuit()
     {
         ModLogger.Info("Shutting down S1MCPServer...");
+        _commandRouter?.Shutdown();
         _tcpServer?.Stop();
         _commandQueue?.Clear();
         _responseQueue?.Clear();
