@@ -1,0 +1,78 @@
+{
+  "captured": "2026-11-03",
+  "repo": "schedule1-mod-only",
+  "head": "bcd54e9ace58dbe1a615b44f319f96efd7902fc5",
+  "worktree": "dirty",
+  "mode": "observation-only",
+  "candidate": {
+    "sha256": "48002119c044b57f655751ee735ebe3918db87c07dcba4ae09372aa486d16b32",
+    "buildFlag": "S1TownHallBusinessProbe=true",
+    "warnings": 0,
+    "errors": 0
+  },
+  "defaultBuild": {
+    "warnings": 0,
+    "errors": 0,
+    "observerNameAbsentFromAssemblyBytes": true
+  },
+  "tests": {
+    "suite": "TownHallInterior.Tests",
+    "passed": 168,
+    "failed": 0,
+    "skipped": 0
+  },
+  "review": {
+    "reviewer": "Codex subagent schedule_status",
+    "result": "PASS",
+    "scope": "Source-only read-only observer, evidence boundaries and callback isolation; not gameplay"
+  },
+  "installedHallSha256": "7681d3190a80afaa853920018733063771af5d395df17292ea4306e680ccab6b",
+  "deployed": false,
+  "gameplayTested": false,
+  "sources": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "sha256": "b936e515005bc30ef27b28f138ccc7e16915fe39fc4f7b8f7746c147fb6249f9"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessProbeEvidence.cs",
+      "sha256": "2b124f5eed936bac6b679ab1f696a15eff0d5293cfe4b3ac459f18925408a1db"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "sha256": "5491f58f8654678298c629d406ed7a497156b637389cc6024af8b0db5e2d1274"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "c5073426ea17304801312143b14bee89579c86efc4d389e7810c64c1c2b412fd"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessProbeEvidenceTests.cs",
+      "sha256": "d8ff1f60936f6e687d12c6c3582f87457e4adb45abcb284fcbdf1f4c6d4376aa"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj",
+      "sha256": "5a8a61202b78afeb00186a6fdbbc2359ddae316165d5c46249e134832d333d1e"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/README.md",
+      "sha256": "29a5671bd7881ba97706286bdbc793da9c9e7f3f33d21e0b9b4483719d7a2f0b"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+      "sha256": "60e1564aab22e502568877b9c6506f3e67c9d8d9e9ce9f1bab739de7eda53df2"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-binding-probe.md",
+      "sha256": "eb607ef68aa7008a3596277a0e3203f5b256a51f0778581c3a528e8dce3edaba"
+    },
+    {
+      "path": "ThirdParty/S1API/S1API/Internal/Patches/GenericSaveables.Patches.cs",
+      "sha256": "d72fa119aae69ab0f2a07d14134ae2c9fa85b79f68241e6ef2b56403f443bed1"
+    },
+    {
+      "path": "ThirdParty/S1API/S1API/Lifecycle/GameLifecycle.cs",
+      "sha256": "c9e470eab1940b59be4cc55c80d832202521bbef97264619f092b310de527a8e"
+    }
+  ]
+}

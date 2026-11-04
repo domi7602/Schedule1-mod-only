@@ -48,7 +48,7 @@ Working from more than one machine? See [`docs/working-across-devices.md`](docs/
 | PowerShell | 7+ (`pwsh`) | All `Tools/*.ps1` scripts (`#Requires -Version 7` where applicable). Windows execution policy can block script execution (the effective policy depends on machine/user/host scope), so invoke them explicitly as `pwsh -NoProfile -ExecutionPolicy Bypass -File Tools/<script>.ps1` from any shell. |
 | Schedule I | v0.4.7f12 (current runtime; older verifications on v0.4.6f13 / v0.4.7f6 / v0.4.7f9 / v0.4.7f11) | Provides `MelonLoader\Il2CppAssemblies\*.dll` and `MelonLoader\net6\*.dll` referenced by `Directory.Build.props`. |
 | MelonLoader | 0.7.3 | Must be installed into the game directory. |
-| S1API | 3.2.1 stable (submodule `ThirdParty/S1API` at commit `a4cbdd9` = tag `v3.2.1`) | Referenced from `<GameDir>\Mods\S1API.Il2Cpp.MelonLoader.dll` (fallback `UserLibs\S1API.dll`). Source is pinned as submodule under `ThirdParty/S1API/`. |
+| S1API | 3.2.2 stable (submodule `ThirdParty/S1API` source target `6b6d7ba` = tag `v3.2.2`; update uncommitted) | Referenced from `<GameDir>\Mods\S1API.Il2Cpp.MelonLoader.dll` (fallback `UserLibs\S1API.dll`). Official runtime installed; [upgrade checks and limits](docs/s1api-upgrade-3.2.2.md). |
 | S1MAPI | 2.0.1 | Referenced from `<GameDir>\UserLibs\S1MAPI_Il2Cpp.dll` when present; needed by `AutoPackagingStation` and `TaxiDriver`. |
 
 Without the game assemblies the solution does **not** compile. CI on GitHub-hosted runners therefore only runs restore, formatting, the game-independent test projects, solution determinism and the documentation checks (see [CI](#formatting-and-repository-checks)).

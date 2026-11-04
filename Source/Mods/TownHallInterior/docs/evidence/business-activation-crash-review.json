@@ -1,0 +1,740 @@
+{
+  "Schema": 1,
+  "ReviewedAtUtc": "2026-11-03T14:01:44.5163801Z",
+  "Reviewer": "/root/probe_review",
+  "Scope": "Independent bounded crash-log, offline native metadata, local save-byte and containment review. No game, build, test, deployment or production edits by reviewer.",
+  "InputLog": {
+    "Path": "C:\\Users\\pc\\.codex\\attachments\\c2bef89a-e22b-47c8-a65f-0e759ec699c2\\Pasted text.txt",
+    "Sha256": "02c37555776a0660ac853475b57a32cbe31af609de1294dd9b3cebfd7b5eb8de",
+    "Length": 573487
+  },
+  "ArchivedLog": {
+    "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-activation\\crash-20261103\\user-crash-log.txt",
+    "Sha256": "02c37555776a0660ac853475b57a32cbe31af609de1294dd9b3cebfd7b5eb8de",
+    "Length": 573487
+  },
+  "FirstFailure": {
+    "LocalTime": "2026-11-03 14:49:52.387 CET",
+    "Lines": [
+      332,
+      333,
+      334,
+      335
+    ],
+    "Type": "System.NullReferenceException",
+    "Location": "DMD<Il2CppScheduleOne.Property.Property::CanBePurchased> and native->managed trampoline",
+    "StackOverflowLine": 341,
+    "CanBePurchasedLogLines": 2432,
+    "Interpretation": "Global patched original/native trampoline recurses during startup. Exact first native caller and final detour chain are not captured."
+  },
+  "Lifecycle": {
+    "ArmedLocalTime": "14:49:49.882 CET",
+    "MenuSaveDisplayAwakeLocalTime": "14:49:52.793 CET",
+    "SaveLoadMessages": 0,
+    "ActivationReportCount": 0,
+    "GameProcessCount": 0,
+    "ObserverArtifact": {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\TownHallInterior\\BusinessProbe\\20261103T134949605Z-8112623da33c408b8290a54f63ea4010-g0000.json",
+      "Sha256": "3a2ad4177d36fa3ab48c8406c62db1e1843bba1a6abc68e835356b6c50c67f29",
+      "Length": 2747
+    },
+    "MainGeneration": 0,
+    "SnapshotCount": 1,
+    "LoaderEventCount": 0,
+    "HasLoadCompleteInventory": false,
+    "HasSettledInventory": false,
+    "Conclusion": "Crash precedes the six-second post-load activation attempt; no own activation/registration report or completed native Slot2 load exists for this run."
+  },
+  "SaveCheckpoint": {
+    "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.backups\\townhall-business-activation\\20261103T133420073429Z\\manifest.json",
+    "Sha256": "58bf7e2e17720d7e0f73746f6fbb5dc9d01005035b964d42ce11e79ab57f5ac9",
+    "Length": 13723
+  },
+  "SaveChecks": [
+    {
+      "Slot": "Slot2",
+      "ExpectedFiles": 39,
+      "CurrentFiles": 39,
+      "Missing": [],
+      "Added": [],
+      "Changed": [],
+      "AllBytesMatch": true
+    },
+    {
+      "Slot": "Slot1",
+      "ExpectedFiles": 38,
+      "CurrentFiles": 38,
+      "Missing": [],
+      "Added": [],
+      "Changed": [],
+      "AllBytesMatch": true
+    }
+  ],
+  "SaveScope": "All native files currently in local Slot2 and Slot1 were compared by relative path and SHA256. Other mod sidecars and remote Steam Cloud state are not covered.",
+  "NativeEvidence": {
+    "GameAssembly": {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\GameAssembly.dll",
+      "Sha256": "61829050e56ca180d67be592e4bfe61ec97d2e9573f720d90a54e318a7e4381d",
+      "Length": 66477568
+    },
+    "Cpp2IlAssembly": {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\Dependencies\\Il2CppAssemblyGenerator\\Cpp2IL\\cpp2il_out\\Assembly-CSharp.dll",
+      "Sha256": "1aec8c918c39ff75f0e4d8e2c38bd11752c593119701d7e524a4ee82fdc30f21",
+      "Length": 5888000
+    },
+    "GeneratorConfig": {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\Dependencies\\Il2CppAssemblyGenerator\\Config.cfg",
+      "Sha256": "09ab7b1947ba4f5aa8ae73b29004adae1175119afdefc12c1ac2765d68e4c7b7",
+      "Length": 4939
+    },
+    "ExpectedGameAssemblySha512": "872dfb646c9b866c53dae12d7a34e1f9df21a3e16fac6b7c6cd21bf5fc8e4b3f99932163c5de7e3798d37641712e82b914d46e1f023d56e77970be84fb74ec3a",
+    "CurrentGameAssemblySha512": "872dfb646c9b866c53dae12d7a34e1f9df21a3e16fac6b7c6cd21bf5fc8e4b3f99932163c5de7e3798d37641712e82b914d46e1f023d56e77970be84fb74ec3a",
+    "GeneratorMatchesCurrentGame": true,
+    "HarmonySupport": {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\net6\\Il2CppInterop.HarmonySupport.dll",
+      "Sha256": "f64c53d389fc76a910ffab86f7ac6d27e437b0c7c0c60918565a5d9f34f8ad06",
+      "Length": 26624
+    },
+    "NativeProxy": {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\Il2CppAssemblies\\Assembly-CSharp.dll",
+      "Sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "Length": 14168576
+    },
+    "CommonRva": "0x4574D0",
+    "RawOffset": "0x4566D0",
+    "NativeLength": 3,
+    "BytesAtRawOffset": "b001c3cccccccccccccccccccccccccc",
+    "InstructionMeaning": "B0 01 C3: mov al,1; ret. Cpp2IL dummy return statements were not treated as native implementation.",
+    "ShouldSaveToken": "0x0600142D",
+    "CanBePurchasedToken": "0x0600142F",
+    "AliasCountInAssemblyCSharp": 61,
+    "Aliases": [
+      {
+        "Type": "VLB.BeamGeometryHD",
+        "Method": "get_isCustomRenderPipelineSupported",
+        "Attributes": "Public, Static, HideBySig, SpecialName",
+        "Instance": false,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "VLB.VolumetricLightBeamHD2D",
+        "Method": "DoesSupportSorting2D",
+        "Attributes": "Public, Virtual, HideBySig",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "VLB.BeamGeometrySD",
+        "Method": "get_isCustomRenderPipelineSupported",
+        "Attributes": "Public, Static, HideBySig, SpecialName",
+        "Instance": false,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "VLB.VolumetricLightBeamSD",
+        "Method": "IsScalable",
+        "Attributes": "Public, Virtual, HideBySig",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "LiquidVolumeFX.LiquidVolume",
+        "Method": "get_useFPRenderTextures",
+        "Attributes": "Public, Static, HideBySig, SpecialName",
+        "Instance": false,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.UITab",
+        "Method": "CanNavigate",
+        "Attributes": "Family, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 1,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.SpecialCustomers.OrgyActivity",
+        "Method": "get_ShouldBeConsideredForReassignment",
+        "Attributes": "Family, Virtual, HideBySig, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.SpecialCustomers.PissingActivity",
+        "Method": "get_ShouldBeConsideredForReassignment",
+        "Attributes": "Family, Virtual, HideBySig, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.SpecialCustomers.SittingActivity",
+        "Method": "get_ShouldBeConsideredForReassignment",
+        "Attributes": "Family, Virtual, HideBySig, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.SpecialCustomers.SpecialCustomerActivity",
+        "Method": "IsValidParticipant",
+        "Attributes": "Public, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 1,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Quests.Quest",
+        "Method": "ShouldQuestShowUI",
+        "Attributes": "Family, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Quests.Quest",
+        "Method": "CanExpire",
+        "Attributes": "Family, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Quests.Quest",
+        "Method": "ShouldSave",
+        "Attributes": "Public, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Property.BusinessManager",
+        "Method": "get_ShouldSaveUnderFolder",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Property.Manor",
+        "Method": "ShouldSave",
+        "Attributes": "Public, Virtual, HideBySig",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Property.Property",
+        "Method": "ShouldSave",
+        "Attributes": "Public, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Property.Property",
+        "Method": "CanBePurchased",
+        "Attributes": "Public, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Property.Property",
+        "Method": "CanDeliverToProperty",
+        "Attributes": "Public, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Property.Property",
+        "Method": "CanRespawnInsideProperty",
+        "Attributes": "Public, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Property.PropertyManager",
+        "Method": "get_ShouldSaveUnderFolder",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.PlayerTasks.Pourable",
+        "Method": "CanPour",
+        "Attributes": "Family, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.PlayerTasks.SpawnChunk",
+        "Method": "get_RegisterDefaultLureWhenEmpty",
+        "Attributes": "Public, Virtual, HideBySig, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.PlayerTasks.ApplyAdditiveToPot",
+        "Method": "get_UseCoverage",
+        "Attributes": "Family, Virtual, HideBySig, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.PlayerTasks.Tasks.PourWaterTask",
+        "Method": "get_UseCoverage",
+        "Attributes": "Family, Virtual, HideBySig, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Networking.MockLobbyService",
+        "Method": "get_IsHost",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Money.CashSlot",
+        "Method": "CanSlotAcceptCash",
+        "Attributes": "Public, Virtual, HideBySig",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Management.EntityConfiguration",
+        "Method": "AllowRename",
+        "Attributes": "Public, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.PlayerScripts.Player",
+        "Method": "get_ShouldSaveUnderFolder",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.PlayerScripts.PlayerManager",
+        "Method": "get_ShouldSaveUnderFolder",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ItemFramework.CashPickup",
+        "Method": "CanPickup",
+        "Attributes": "Family, Virtual, HideBySig",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ItemFramework.ItemFilter",
+        "Method": "DoesItemMatchFilter",
+        "Attributes": "Public, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 1,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ItemFramework.ItemSlot",
+        "Method": "CanSlotAcceptCash",
+        "Attributes": "Public, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.EntityFramework.BuildableItem",
+        "Method": "get_ShouldSaveUnderFolder",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Employees.Botanist",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Employees.Chemist",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Employees.Cleaner",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Employees.Packager",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Doors.RollerDoor",
+        "Method": "CanOpen",
+        "Attributes": "Family, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Dialogue.DialogueHandler",
+        "Method": "ShouldChoiceBeShown",
+        "Attributes": "Public, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 1,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Cartel.CartelActivities",
+        "Method": "CanNewActivityBegin",
+        "Attributes": "Private, HideBySig",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Growing.PlantHarvestable",
+        "Method": "get_RegisterDefaultLureWhenEmpty",
+        "Attributes": "Public, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Growing.SoilChunk",
+        "Method": "get_RegisterDefaultLureWhenEmpty",
+        "Attributes": "Public, Virtual, HideBySig, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.StationFramework.MushroomSpawnStation",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.StationFramework.PourableModule",
+        "Method": "CanPour",
+        "Attributes": "Family, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Product.FunctionalProduct",
+        "Method": "get_RegisterDefaultLureWhenEmpty",
+        "Attributes": "Public, Virtual, HideBySig, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.Equipping.Equippable_RangedWeapon",
+        "Method": "CanAim",
+        "Attributes": "Private, HideBySig",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ObjectScripts.BrickPress",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ObjectScripts.Cauldron",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ObjectScripts.ChemistryStation",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ObjectScripts.DryingRack",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ObjectScripts.LabOven",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ObjectScripts.MixingStation",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ObjectScripts.PackagingStation",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ObjectScripts.MushroomBed",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ObjectScripts.Pot",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.ObjectScripts.PlaceableStorageEntity",
+        "Method": "get_CanBeSelected",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.NPCs.NPC",
+        "Method": "get_ShouldSaveUnderFolder",
+        "Attributes": "Public, Final, Virtual, HideBySig, VtableLayoutMask, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.NPCs.Behaviour.GrowContainerBehaviour",
+        "Method": "CheckSuccess",
+        "Attributes": "Family, Virtual, HideBySig, VtableLayoutMask",
+        "Instance": true,
+        "ParameterCount": 1,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.UI.GameplayMenu",
+        "Method": "get_CharacterScreenEnabled",
+        "Attributes": "Public, HideBySig, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.UI.Shop.ShopInterface",
+        "Method": "CanCartFitItem",
+        "Attributes": "Public, HideBySig",
+        "Instance": true,
+        "ParameterCount": 1,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      },
+      {
+        "Type": "ScheduleOne.UI.Shop.ShopListing",
+        "Method": "get_IsInStock",
+        "Attributes": "Public, HideBySig, SpecialName",
+        "Instance": true,
+        "ParameterCount": 0,
+        "Return": "Boolean",
+        "AddressAttributeBlobHex": "01000300530E03525641083078343537344430530E064F6666736574083078343536364430530E064C656E67746803307833"
+      }
+    ],
+    "Consequence": "A Property-typed native detour affects shared entry points of unrelated classes and static methods. Prefix ownership checks do not isolate the native patch; removing one duplicate bool hook is not a proven repair.",
+    "RetractedHypothesis": "The suggested inner Il2CppObjectBaseToPtrNotNull matcher mismatch was independently disproved. Both live proxy virtual resolvers use Il2CppObjectBaseToPtr, matching installed CopyOriginal; the outer instance/precheck uses NotNull.",
+    "MechanismLimit": "Shared native addresses and incompatible alias signatures are established offline. The exact runtime trampoline chain and the first unrelated native caller were not instrumented."
+  },
+  "Rollback": {
+    "InstalledDll": {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\Mods\\TownHallInterior.dll",
+      "Sha256": "52bb577af0fb238cb146bb5fd28fefdba762a18b21b947285655ea32406b4257",
+      "Length": 1736192
+    },
+    "InstalledPdb": {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\TownHallInterior\\TownHallInterior.pdb",
+      "Sha256": "722623f1848afbbd339370c0ad7bd32bf613a54c534efeccae949f94a8facebc",
+      "Length": 52028
+    },
+    "DllMatchesVerifiedPredecessor": true,
+    "PdbMatchesVerifiedPredecessor": true,
+    "Receipt": {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-activation\\crash-20261103\\rollback-receipt.json",
+      "Sha256": "ff77ea3ad71a57d399c2b50a13d29bd882d6379ff7390d2c9051e02da48ceb0d",
+      "Length": 3270
+    },
+    "PreviousGuardSource": {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-activation\\before-edit\\Source_Mods_TownHallInterior_src_BusinessConstruction.cs",
+      "Sha256": "f3c768be0e5e349f65b6d9b2fabe241a101d5692257676c5bfd0a1d813e45c07",
+      "Length": 30068
+    },
+    "PreviousGuards": [
+      "Il2CppScheduleOne.Property.Business.Awake",
+      "Il2CppScheduleOne.Property.Business.Start",
+      "Il2CppScheduleOne.Property.Property.Awake",
+      "Il2CppScheduleOne.Property.Property.Start",
+      "Il2CppScheduleOne.Property.Property.InitializeSaveable",
+      "Il2CppFishNet.Object.NetworkObject.Awake",
+      "Il2CppFishNet.Object.NetworkObject.Start"
+    ],
+    "KnownNewAliasGroupsExcluded": true,
+    "GlobalPredecessorAliasAudit": "Expanded all-assembly audit delegated separately to native_business_contract; no universal alias-free claim made here."
+  },
+  "Containment": {
+    "Source": {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\BusinessConstruction.cs",
+      "Sha256": "4baa5cdef8c6b69c21cd6841bc724ef5f1fe1b78ef527e4e4826fbfc3642f304",
+      "Length": 72122
+    },
+    "Project": {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\TownHallInterior.csproj",
+      "Sha256": "c34a9320ecedab6900b3ac7dc16d31c0422d02bd662f56081be60a4c66f17045",
+      "Length": 1148
+    },
+    "CompileErrorAtFileStart": true,
+    "MsBuildFlagDefinesActivation": true,
+    "ManualConstantAlsoBlocked": true,
+    "NegativeBuildExecutedByReviewer": false,
+    "Docs": {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\docs\\business-activation-probe.md",
+      "Sha256": "e09a8cee931f5ee3ec30adfbf4150ac829117c852f0b0d2b0964ef72b12405b4",
+      "Length": 11268
+    },
+    "Conclusion": "Withdraw global activation hooks and retain verified predecessor. No immediate activation repair is proven by removing one hook or by internal deduplication."
+  },
+  "NextBoundedProbe": {
+    "Status": "Design only; not implemented or installed by reviewer",
+    "Approach": "Inactive own injected IL2CPP Business subtype with isolated virtual dispatch, after checking installed ClassInjector contract.",
+    "Steps": [
+      "Register only the own subtype and inspect native class/vtable identity without detouring shared native entry points.",
+      "Under exact test-slot/singleplayer/load-complete gates, create one inactive own subtype; no SetActive or registry publication.",
+      "Exercise native virtual bool dispatch through a verified concrete native base proxy or explicit native virtual resolver/runtime_invoke, and observe own override counters. A managed base cast alone is insufficient.",
+      "Read foreign native behavior and MethodPointer state before/after without modifying them; confirm all monitored registries unchanged and bounded own cleanup."
+    ],
+    "Deferred": [
+      "Activation and expected Unity lifecycle callbacks.",
+      "NetworkObject lifecycle and FishNet behavior.",
+      "Nonvirtual native operations.",
+      "Registration, native initialization, purchase behavior and persistence."
+    ]
+  },
+  "Acceptance": "Failed startup experiment withdrawn. Offline source/build consistency did not establish shared-native-code or runtime dispatch safety; no activation gameplay acceptance."
+}

@@ -1,0 +1,69 @@
+{
+  "ReviewedUtc": "2026-11-04T04:07:36.189174+00:00",
+  "Reviewer": "Codex /root",
+  "Status": "bounded-native-subtype-observed",
+  "ReportCapturedUtc": "2026-11-04T04:04:16.6812971Z",
+  "Checks": {
+    "InstalledCandidateMatchesReport": true,
+    "ReportMatchesIndependentHash": true,
+    "ReportIsFromCurrentProcess": true,
+    "ExactSlot2AndTownHallTest": true,
+    "ContextReady": true,
+    "ObservedWithoutFindings": true,
+    "RegistrationComplete": true,
+    "ExactlyOneOwnRegistrationAndFourMappings": true,
+    "MappingScopeInactiveAndRestored": true,
+    "ForeignManagedPatchesPreserved": true,
+    "OriginalResolverRestored": true,
+    "InactiveExactComponentsAndOwnClass": true,
+    "NoUnexpectedLifecycleCalls": true,
+    "ExpectedNativeDispatch": true,
+    "TwelveOwnNativeTargets": true,
+    "OwnUnityCleanupComplete": true,
+    "CountersUnchangedAfterCleanup": true,
+    "PublicationAndNativeWritesDisabled": true,
+    "AllRegistriesUnchanged": true,
+    "AllForeignVtablesUnchanged": true,
+    "NativeSavesUnchanged": true
+  },
+  "Snapshots": [
+    {
+      "Kind": "Registries",
+      "Count": 10,
+      "StagesEqualBefore": {
+        "Registered": true,
+        "Constructed": true,
+        "Dispatched": true,
+        "After": true
+      }
+    },
+    {
+      "Kind": "ForeignVtables",
+      "Count": 14,
+      "StagesEqualBefore": {
+        "Registered": true,
+        "Constructed": true,
+        "Dispatched": true,
+        "After": true
+      }
+    }
+  ],
+  "PreviousTrial": {
+    "AssemblySha256": "659ee6a2fe2a3e12bb8dd8e61c15b48e673c5a54cdcf652167bda4035de96078",
+    "Status": "failed",
+    "RegistrationCompleted": false,
+    "Findings": [
+      "register-type:NullReferenceException:Couldn't find System.Type for Il2Cpp type: FishNet.Connection.NetworkConnection, FishNet.Runtime"
+    ]
+  },
+  "IndependentReview": {
+    "Reviewer": "/root/subtype_live_review",
+    "Result": "Read-only source and report review passed; independently compared all five snapshot stages; no game or build actions; save files checked separately by root.",
+    "ReportSha256": "1021e4a2596ff39219531a4e6b93b8520b7168b61671650f35c714bdb648e782"
+  },
+  "Limits": "Type registration persists until process exit. CleanupComplete covers the own Unity root and acquired Business component. Own callback counters and class/vtable snapshots are bounded observations, not a proof of every native side effect. Dispatch proves the Property proxy/class virtual route only; ISaveable/interface dispatch and native manager call paths remain untested. No activation, registry publication, original lifecycle calls, serialization, purchase, save, spawn or gameplay acceptance.",
+  "ReloadGuardObserved": false,
+  "GameplayAccepted": false,
+  "TypeRegistrationReversible": false,
+  "GameRunningAtCapture": true
+}

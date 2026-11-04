@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-03T13:37:20.072769+00:00",
+  "scope": "Controlled native activation and explicit four-list registration; native lifecycle bodies suppressed; native test pending",
+  "sourceRevision": "bcd54e9ace58dbe1a615b44f319f96efd7902fc5",
+  "worktree": "dirty",
+  "productionFiles": 20,
+  "candidateSha256": "54d37fe52b56659a8614176bb847dd1814ee18737b31f6682d34daf23613df62",
+  "pdbSha256": "9ade451f1c0573230f2272a24397144c12aab5eb4719c7db2e07f2ed1a47458b",
+  "defaultSha256": "90e5be7734bb09abac1e7597059915c6d452f3939b2ce595cffd726115a65162",
+  "sourceFiles": [
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "sha256": "c367f3d1312129e100e01103bca4434153b4aef8eb1a7bc1d123bd5631c1267e"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "sha256": "0e816dcee2490abf457db4eb93aa052873cf108c5b098863d1e93eae0c9c4236"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "sha256": "a8ef151a321ecb2615b99c2496cdb106247d5085f216641200f3b59ce83380fd"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "sha256": "c34a9320ecedab6900b3ac7dc16d31c0422d02bd662f56081be60a4c66f17045"
+    },
+    {
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessActivationTests.cs",
+      "sha256": "c43b5aa08c51a151d042f4a8e4a0c56cd79892ed98723e4fb883bba57b1b8a7f"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-activation-probe.md",
+      "sha256": "206f4ca8e350fe6463d5c9a3ba84d97d53fe14b5f0103e18c963b0d087c34288"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-construction-probe.md",
+      "sha256": "353e9340984ceac09de823c425fb263c166a42e110b299e56115a78d4e902060"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+      "sha256": "367db8010fc8643974ac37769ac082d378fb035a4d03c0420dd28201d668a5fa"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/README.md",
+      "sha256": "d6d6f42706d05b8c5492a2db583a71e5016d8a7207b00203c6c1834caf1c917d"
+    },
+    {
+      "path": "Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+      "sha256": "58a2beeb8738094f5501e6e1e50eef8a63680a3e402b04c0fdb6944c2ac23ed7"
+    },
+    {
+      "path": "docs/compatibility.md",
+      "sha256": "02c41526d90a97575937011e9bb771b96e379d94c447c7b00c410332318acbd3"
+    }
+  ],
+  "townHallTests": {
+    "passed": 273,
+    "failed": 0,
+    "skipped": 0
+  },
+  "candidateBuild": {
+    "warnings": 0,
+    "errors": 0
+  },
+  "defaultBuild": {
+    "warnings": 0,
+    "errors": 0
+  },
+  "reviewer": "probe_review; no remaining blocking source finding in stated scope",
+  "limitations": [
+    "Native Awake/Start bodies remain blocked; controlled activation is not full native initialization.",
+    "Native activation, save-barrier and cleanup-hook effects still require the user game test.",
+    "No native save/restore, station, purchase or money laundering acceptance.",
+    "Time/Money subscriptions and unlisted registries not inventoried.",
+    "Native Manager.WriteData outside standard Save entry points not intercepted.",
+    "PurchaseAllowed=false expresses own-method policy, not full manager/UI purchase transaction evidence.",
+    "Deployment requires a separate receipt."
+  ]
+}

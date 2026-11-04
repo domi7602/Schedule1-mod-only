@@ -1,0 +1,348 @@
+{
+  "Schema": 1,
+  "ReviewedAtUtc": "2026-11-04T04:27:30.2490896Z",
+  "Reviewer": "probe_review",
+  "Status": "offline-review-complete",
+  "OpenBlockingFindings": [],
+  "Checks": {
+    "CandidateExpectedSha256": true,
+    "PdbExpectedSha256": true,
+    "ReviewedSourceExpectedSha256": true,
+    "PePdbPair": true,
+    "All21PdbSourceDocumentsMatch": true,
+    "InterfaceModeCompiledEnabled": true,
+    "SubtypeResolverAndObserverPresent": true,
+    "NoConstructionOrActivationRuntime": true,
+    "OnlyInterfaceInitializeSaveableGameMemberReference": true,
+    "BusinessAndInterfaceConstructorsPointerOnly": true,
+    "NativePinsMatch": true,
+    "SharedReferenceIdentity": true,
+    "SharedMemberSignaturesCompatible": true,
+    "Existing411TestsPassObserved": true,
+    "ThreeBuildLogsReportZeroWarningsErrors": true,
+    "ActivationCompileTimeBlockObserved": true,
+    "FormatLogReportsNoChanges": true,
+    "MetadataAndAssignabilityGuardBeforeInterfaceResolverReviewed": true,
+    "ActualProxyMethodInfoFieldBindingReviewed": true,
+    "OneIntentionalNoBaseInitializerAndCleanupReviewed": true,
+    "OldSubtypeModeRequiresZeroInitializerCalls": true
+  },
+  "Scope": "Independent source/failure-path, installed ABI/metadata and frozen candidate review. No production edits, builds, test executions, deployment, game launch or native invocation by reviewer. Only this review file written.",
+  "BaseRevision": "bcd54e9ace58dbe1a615b44f319f96efd7902fc5",
+  "Candidate": {
+    "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-interface\\candidate\\TownHallInterior.dll",
+    "Sha256": "cb98bc95c7efcf947eaa268bbde742bffb467401fed6afb526e7cc26406ef207",
+    "Length": 1822720
+  },
+  "Pdb": {
+    "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-interface\\candidate\\TownHallInterior.pdb",
+    "Sha256": "51b90c4ce1cae26827e97c434a87e65fcd4725578e7d64015df8d9f948eed625",
+    "Length": 66952
+  },
+  "PeCodeView": [
+    {
+      "Guid": "b3934699-a2bd-4fc0-957a-ad1cdfe220f7",
+      "Stamp": 3430606312,
+      "Age": 1
+    }
+  ],
+  "PdbIdentity": {
+    "Guid": "b3934699-a2bd-4fc0-957a-ad1cdfe220f7",
+    "Stamp": 3430606312,
+    "DocumentCount": 21,
+    "Documents": [
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\BusinessBindingProbe.cs",
+        "PdbSha256": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\BusinessConstruction.cs",
+        "PdbSha256": "67b0d34fe3910729ce633e70fc94295fa344139fd528dbbfe0d79063fab56acd",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\BusinessProbeEvidence.cs",
+        "PdbSha256": "37ce332858d00368ebde93c3f13af3b20482d0de15f07b559e34078597603458",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\CleanupJournal.cs",
+        "PdbSha256": "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\DoorAdapter.cs",
+        "PdbSha256": "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\DoorChoice.cs",
+        "PdbSha256": "4a271ea0198cd9c57de85d42ae77de4af64c3d3d2983e887b0fbcf2dde3bc222",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\DoorHook.cs",
+        "PdbSha256": "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\FacadePortal.cs",
+        "PdbSha256": "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\FurniturePlan.cs",
+        "PdbSha256": "17e8402738ff124a54f1e61a076618894a6ca5b3d3e6733242f71217a5a18e6b",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\HallFittings.cs",
+        "PdbSha256": "210301b0663b1a0b3fdbedbcb2231a007d62f2d0bb19828250c4ffd6fddc7492",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\Mod.cs",
+        "PdbSha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\NativeFacadeSwap.cs",
+        "PdbSha256": "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\NativeSceneSwap.cs",
+        "PdbSha256": "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\PublicEntrance.cs",
+        "PdbSha256": "4fdb304a13cd24a496e9368c211bf09f8aaf1da9041a8912fdb364f46ec9dd5f",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\PublicHallHost.cs",
+        "PdbSha256": "d85708f66705a1ac87aec2d1def1f4daff0cebabd78b459b93a589418be65bcc",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\RoomBuilder.cs",
+        "PdbSha256": "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\RoomPlan.cs",
+        "PdbSha256": "ebe89aa2620044c170f08c33382aa420bb1aa22e78d56ed74b97a4561f864233",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\UnityRoomSink.cs",
+        "PdbSha256": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\VanillaFurnishings.cs",
+        "PdbSha256": "c434ab9c4b0055c531250b5a45b672703e266fbe962e3934ffa58f951cce98aa",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\obj\\Release\\net6.0\\.NETCoreApp,Version=v6.0.AssemblyAttributes.cs",
+        "PdbSha256": "f55a8701535cd25190399fe9b11bdb60ecd686ece28c49157ec692fbc2a1c078",
+        "Match": true
+      },
+      {
+        "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\obj\\Release\\net6.0\\TownHallInterior.AssemblyInfo.cs",
+        "PdbSha256": "9f8ba856058d04c282136824957e3c3bb299ad249440863017baab3cf53f9d62",
+        "Match": true
+      }
+    ]
+  },
+  "Sources": [
+    {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\BusinessConstruction.cs",
+      "Sha256": "67b0d34fe3910729ce633e70fc94295fa344139fd528dbbfe0d79063fab56acd",
+      "Length": 140253
+    },
+    {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\TownHallInterior.csproj",
+      "Sha256": "449d89ca35e0e62352ac07f0422fa3d8f79d9cbc9e5edaa368e1388b54274641",
+      "Length": 1670
+    },
+    {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\src\\Mod.cs",
+      "Sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385",
+      "Length": 4096
+    },
+    {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Tests\\TownHallInterior.Tests\\BusinessInterfaceTests.cs",
+      "Sha256": "8ec88a822cad2dc0f1db55df8e7bfd517d6e27f88c18445a3d6e93d951260b85",
+      "Length": 13311
+    }
+  ],
+  "NativeDependencyPins": [
+    {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\Il2CppAssemblies\\Assembly-CSharp.dll",
+      "Sha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "Length": 14168576,
+      "ExpectedSha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "Match": true
+    },
+    {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\Il2CppAssemblies\\Il2CppFishNet.Runtime.dll",
+      "Sha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+      "Length": 1996800,
+      "ExpectedSha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+      "Match": true
+    },
+    {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\Mods\\S1API.Il2Cpp.MelonLoader.dll",
+      "Sha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+      "Length": 1590784,
+      "ExpectedSha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+      "Match": true
+    },
+    {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\net6\\Il2CppInterop.Runtime.dll",
+      "Sha256": "3878ce0ba0c60385f76f2ba37e07ad0ee3649d019703aec8695db3402abeedd7",
+      "Length": 284672,
+      "ExpectedSha256": "3878ce0ba0c60385f76f2ba37e07ad0ee3649d019703aec8695db3402abeedd7",
+      "Match": true
+    },
+    {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\MelonLoader\\net6\\0Harmony.dll",
+      "Sha256": "6c898933b52149e8bcf6722305c7e4d94add47c9e53b364096f91721624c0877",
+      "Length": 264192,
+      "ExpectedSha256": "6c898933b52149e8bcf6722305c7e4d94add47c9e53b364096f91721624c0877",
+      "Match": true
+    }
+  ],
+  "InstalledShared": {
+    "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\Mods\\Shared.dll",
+    "Sha256": "bfec0d663f2ef15f7733839c3b36aa10211af08b81cdca17d0527f0b40ae4e6f",
+    "Length": 64000
+  },
+  "SharedAssemblyReference": [
+    {
+      "Name": "Shared",
+      "Version": "1.2.0.0",
+      "Token": ""
+    }
+  ],
+  "MemberReferenceEvidence": [
+    {
+      "Type": "Il2CppScheduleOne.Property.Business",
+      "Name": ".ctor",
+      "Signature": "20010118"
+    },
+    {
+      "Type": "S1Mods.Shared.NetworkGuard",
+      "Name": "IsHostOrSingleplayer",
+      "Signature": "000002"
+    },
+    {
+      "Type": "S1Mods.Shared.NetworkGuard",
+      "Name": "IsAlive",
+      "Signature": "000102128265"
+    },
+    {
+      "Type": "S1Mods.Shared.NetworkGuard",
+      "Name": "get_IsInMainScene",
+      "Signature": "000002"
+    },
+    {
+      "Type": "Il2CppScheduleOne.Persistence.ISaveable",
+      "Name": ".ctor",
+      "Signature": "20010118"
+    },
+    {
+      "Type": "Il2CppScheduleOne.Persistence.ISaveable",
+      "Name": "InitializeSaveable",
+      "Signature": "200001"
+    }
+  ],
+  "SharedSignatureEvidence": "Candidate and installed Shared decoded independently: static bool IsHostOrSingleplayer(), static bool get_IsInMainScene(), static bool IsAlive(UnityEngine.Object). IsAlive metadata TypeReference tokens differ but resolve to the same parameter type. Shared remains1.2.0.0, tokenempty, unchanged bytes.",
+  "ExistingBuildTestEvidence": [
+    {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-interface\\build-interface-final.log",
+      "Sha256": "cf2430bdbf37f2da63166ad938f6a3e6add809e0a19bb9dda3f58ad834a3fad3",
+      "Length": 388
+    },
+    {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-interface\\build-subtype-final.log",
+      "Sha256": "9662cfda96c2f90607894a901ddded4db519fe10e46531039ba7565dd040a684",
+      "Length": 388
+    },
+    {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-interface\\build-normal-final.log",
+      "Sha256": "8e6845cf429da326f12315e086ef4014bf121ff84c18aadaaf4431d55a434ffd",
+      "Length": 388
+    },
+    {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-interface\\build-activation-final.log",
+      "Sha256": "1f478e3c9ea1bb2669dd1eb630fb3441a37a4b94731f0cd2e9ee1e3a61f12b2f",
+      "Length": 1092
+    },
+    {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-interface\\tests-final.log",
+      "Sha256": "98cd8dd9f5f93b08616420355da59870000782ec955ab760a676727f63c45784",
+      "Length": 751
+    },
+    {
+      "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-interface\\format-final.log",
+      "Sha256": "f282d05a91c3e31a6713b91bf39869441a5d5ea127fa5400b29fdac5b51a5dbf",
+      "Length": 1348
+    }
+  ],
+  "EvidenceAttribution": "construction_policy executed411/411 tests, interface/subtype/normal NoDeploy builds0 warnings/0errors, activation expectedCS1029 and format0changed. probe_review independently read these logs; no independent rerun claimed. Current defaultbin is not claimed to be a separate retained normal artifact.",
+  "NativeContract": {
+    "Path": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-interface\\native-contract-review.json",
+    "Sha256": "c2e0f72d0b9ae4a1b7dd56c6ca0362776a5ad482d39cb5d8cdf7411e4d52c838",
+    "Length": 17459
+  },
+  "IndependentAbiCrossCheck": "Fresh installed ISaveable decompile confirms native token0x06001782 and object_get_virtual_method followed by runtime_invoke on fresh ISaveable(IntPtr). Stored hash-identical ClassInjector353-369 independently read: inherited ImplementedInterfaces and InterfaceOffsets copied separately. No ISaveable.ShouldSave method; ShouldSaveUnderFolder is not invoked.",
+  "PriorLiveEvidence": {
+    "Artifact": {
+      "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\TownHallInterior\\BusinessSubtype\\20261104T040416682Z.json",
+      "Sha256": "1021e4a2596ff39219531a4e6b93b8520b7168b61671650f35c714bdb648e782",
+      "Length": 25983
+    },
+    "Status": "observed",
+    "AssemblySha256": "59484a666e510a1fe48cbd5cec7277d1fa50df434a90433c74ff5d4fa7d1a794",
+    "Readback": "Prior Property class route independently read: false/false,1/1 counters, inactive/exact components/own targets,cleanuptrue; type-resolution4hits,restoredtrue,scopeinactive,postscopeoriginalconfirmed.",
+    "Limit": "Historical class-route evidence only, no interface call or new candidate acceptance."
+  },
+  "ReviewedInvariants": [
+    "Existing exact TownHallTest/SaveGame_2 path, generation, load-complete, save-idle, one-player singleplayer and hall-ready gates retained. One process attempt; denied contexts do not touch the port. Context checked again before interface metadata, resolver and call.",
+    "Interface mode is compile-time optional and actually enabled in this PE; observer/subtype runtime only. Separate BusinessInterface report folder, mode name and Schema2. Skipped results identify retained Native details as historical and NativeEvidenceFromThisAttempt=false.",
+    "ISaveable metadata prewarmed before baseline. Exact class and interface flag, native token0x06001782, name, owner, zero arguments, void, instance/virtual/abstract,23 methods and exactly one method-table match checked. Selected pointer also equals the actual private proxy NativeMethodInfoPtr field and method-by-name lookup.",
+    "Interface MethodInfo.Slot is bounded by MethodCount, never inferred from classslot43 or interface VTableCount. Base/own interface offsets each have exactly one matching interface, equal nonnegative offsets. Offset+slot computed as long and bounded before VTable dereference.",
+    "Copied base/own ImplementedInterfaces sequences must match. Direct membership is not required because the interface may be inherited; native assignability from ISaveable to both Business and own class must be true after metadata validation and before native interface resolution.",
+    "Base interface slot must equal the known Property initializer token0x06001420; own entry must equal previously bound own InitializeSaveable MethodInfo and immutable captured own code pointer, declaring own class. Existing class-route inspection still rejects original native code pointer equality.",
+    "Only after the full metadata/assignability gate does object_get_virtual_method receive the selected interface MethodInfo. Its returned own MethodInfo and MethodPointer are checked. Immediately before invocation metadata is freshly read again, then a new ISaveable(ownPointer) wrapper performs one deliberate call.",
+    "Existing own InitializeSaveable override is no-base and only increments its counter. Before the marked stage counter0, aftercounter1; ShouldSave/CanBePurchased remain1/1, all other lifecycle counters0. Old subtype mode permits no initializer call. Throwing calls remain failed and are never retried.",
+    "No NetworkObject, activation, publication, manager initialization, original Property initializer, serialization or native save operation added. Candidate MemberReferences contain only ISaveable.InitializeSaveable as a game initializer invocation.",
+    "Ten exact ordered property/business/save registries and bounded foreign fingerprints checked before, during and after. Fingerprints now include implemented-interface arrays, offsets, method table addresses, method pointers, slots and tokens. Failure does not roll back foreign state.",
+    "Own inactive Unity root/acquired Business cleanup remains bounded to two attempts with native-null and counter readbacks; only own OnDestroy delta0..1 permitted. Metadata registration is irreversible for the process and does not count as cleaned up."
+  ],
+  "ReviewRefinements": [
+    "Added actual native assignability checks instead of incorrectly requiring direct ISaveable membership in a potentially inherited interface list.",
+    "Bound guarded interface MethodInfo to the exact private static field used by the fresh proxy call.",
+    "Preserved optional old subtype behavior and explicitly marked historical Native evidence on skipped reload reports."
+  ],
+  "TestsReviewed": "59 additional pure cases over the previous352 tests: malformed token/signature/owner/interface/slot/offset/VTable/target/pointer/assignability rejected before invoke;0->1 counter and1/1 eligibility checks; exceptions and bounded cleanup; context expiry; foreign mutation; denied gate; one process attempt; original mode zero callbacks. Pure tests do not execute Unity/IL2CPP.",
+  "RemainingProofBoundaries": [
+    "Offline clearance only. Actual native interface offset/slot, native assignability, resolver target and single callback still require the next live report.",
+    "Historical Property class virtual dispatch is not interface acceptance. This candidate calls only ISaveable.InitializeSaveable to its own no-base override; all other interface methods, manager consumers, save eligibility, activation, complete native lifecycle, purchase, station and persistence remain open.",
+    "Bounded metadata/registry snapshots and owned callback counters cannot prove absence of every native side effect. ClassInjector registration remains process-lifetime even after Unity cleanup or a failed registration.",
+    "Normal/subtype/interface build logs are separate; no independent normal-build PE identity or fresh isolated Pure execution is claimed by this verifier. Root/coder handle the final isolated checkout, deployment and live verification.",
+    "This review freezes code, tests and candidate identities. Parent/coder may finish dated documentation afterward; no final documentation hash or live-success claim is inferred."
+  ],
+  "Acceptance": {
+    "OfflineReviewComplete": true,
+    "NewCandidateInterfaceDispatchAccepted": false,
+    "ManagerIntegrationAccepted": false,
+    "GameplayAccepted": false,
+    "DeploymentPerformedByReviewer": false
+  }
+}

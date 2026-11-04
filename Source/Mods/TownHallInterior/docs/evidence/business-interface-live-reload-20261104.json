@@ -1,0 +1,577 @@
+{
+  "Schema": 2,
+  "Mode": "inactive-own-business-interface-dispatch",
+  "CapturedUtc": "2026-11-04T07:00:49.3842375Z",
+  "AssemblySha256": "a8d45f2aaa10a1b97e67c3fbb7b10fbde8deace050cfea1b94a1a02aa40fb251",
+  "NativeProxySha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+  "FishNetSha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+  "S1ApiSha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+  "InteropRuntimeSha256": "3878ce0ba0c60385f76f2ba37e07ad0ee3649d019703aec8695db3402abeedd7",
+  "HarmonySha256": "6c898933b52149e8bcf6722305c7e4d94add47c9e53b364096f91721624c0877",
+  "Target": "TownHallTest / SaveGame_2",
+  "WorldPublicationAllowed": false,
+  "NativeSaveWriteAllowed": false,
+  "GameMethodDetoursAdded": false,
+  "Context": {
+    "LoadComplete": true,
+    "Singleplayer": true,
+    "HallReady": true,
+    "DependenciesMatch": true,
+    "ActiveSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+    "LoadedSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+    "OrganisationName": "TownHallTest"
+  },
+  "Generation": 7,
+  "Result": {
+    "Status": "skipped",
+    "Findings": [
+      "attempt-already-consumed"
+    ],
+    "AttemptConsumed": true,
+    "RegistrationAttempted": false,
+    "RegistrationCompleted": false,
+    "CleanupComplete": false,
+    "Before": null,
+    "Registered": null,
+    "Constructed": null,
+    "Dispatched": null,
+    "After": null,
+    "Readback": null,
+    "Dispatch": null,
+    "Interface": null
+  },
+  "Native": {
+    "RootPointer": "273074DFB60",
+    "BusinessPointer": "273068187E0",
+    "OwnClassPointer": "2730AC9B180",
+    "ClassInjectorReturned": true,
+    "TypeSlotsValidated": true,
+    "TypeRegistrationReversible": false,
+    "RootDestroyed": true,
+    "CleanupVerified": true,
+    "Components": [
+      {
+        "Type": "UnityEngine.Transform",
+        "Pointer": "273074DF820",
+        "NativeClass": "23031ECD5C0"
+      },
+      {
+        "Type": "TownHallInterior.ProbeBusinessSubtype",
+        "Pointer": "273068187E0",
+        "NativeClass": "2730AC9B180"
+      }
+    ],
+    "NativeTargets": [
+      {
+        "Name": "ShouldSave",
+        "BaseMethod": "23030B53320",
+        "BasePointer": "7FFF0F9B74D0",
+        "BaseSlot": 49,
+        "OwnMethod": "272925EA1E0",
+        "OwnPointer": "7FFF25C77664",
+        "DeclaringClass": "2730AC9B180"
+      },
+      {
+        "Name": "CanBePurchased",
+        "BaseMethod": "23030B533D0",
+        "BasePointer": "7FFF0F9B74D0",
+        "BaseSlot": 50,
+        "OwnMethod": "272925EA3C0",
+        "OwnPointer": "7FFF25C776A4",
+        "DeclaringClass": "2730AC9B180"
+      },
+      {
+        "Name": "FixedUpdate",
+        "BaseMethod": "23030B52F58",
+        "BasePointer": "7FFF0FAB4740",
+        "BaseSlot": 45,
+        "OwnMethod": "272925E9AC0",
+        "OwnPointer": "7FFF25C777A4",
+        "DeclaringClass": "2730AC9B180"
+      },
+      {
+        "Name": "InitializeSaveable",
+        "BaseMethod": "23030B52EA8",
+        "BasePointer": "7FFF0FAB4F10",
+        "BaseSlot": 43,
+        "OwnMethod": "272925EA540",
+        "OwnPointer": "7FFF25C777E4",
+        "DeclaringClass": "2730AC9B180"
+      },
+      {
+        "Name": "Awake",
+        "BaseMethod": "230329460D8",
+        "BasePointer": "7FFF0FAABFE0",
+        "BaseSlot": 42,
+        "OwnMethod": "272925EA2A0",
+        "OwnPointer": "7FFF25C776E4",
+        "DeclaringClass": "2730AC9B180"
+      },
+      {
+        "Name": "Start",
+        "BaseMethod": "23032946130",
+        "BasePointer": "7FFF0FAAD9A0",
+        "BaseSlot": 44,
+        "OwnMethod": "272925E9BE0",
+        "OwnPointer": "7FFF25C77724",
+        "DeclaringClass": "2730AC9B180"
+      },
+      {
+        "Name": "OnDestroy",
+        "BaseMethod": "23032946188",
+        "BasePointer": "7FFF0FAACCA0",
+        "BaseSlot": 46,
+        "OwnMethod": "272925E9CA0",
+        "OwnPointer": "7FFF25C77764",
+        "DeclaringClass": "2730AC9B180"
+      },
+      {
+        "Name": "NetworkInitialize___Early",
+        "BaseMethod": "230329466B0",
+        "BasePointer": "7FFF0FAACB70",
+        "BaseSlot": 58,
+        "OwnMethod": "272925EA120",
+        "OwnPointer": "7FFF25C77824",
+        "DeclaringClass": "2730AC9B180"
+      },
+      {
+        "Name": "NetworkInitialize__Late",
+        "BaseMethod": "23032946708",
+        "BasePointer": "7FFF0FAACB40",
+        "BaseSlot": 59,
+        "OwnMethod": "272925E9940",
+        "OwnPointer": "7FFF25C77864",
+        "DeclaringClass": "2730AC9B180"
+      },
+      {
+        "Name": "NetworkInitializeIfDisabled",
+        "BaseMethod": "23032946760",
+        "BasePointer": "7FFF0FAAACE0",
+        "BaseSlot": 14,
+        "OwnMethod": "272925EAC00",
+        "OwnPointer": "7FFF25C778A4",
+        "DeclaringClass": "2730AC9B180"
+      },
+      {
+        "Name": "Reset",
+        "BaseMethod": "23030B1B540",
+        "BasePointer": "7FFF0F99FEC0",
+        "BaseSlot": 15,
+        "OwnMethod": "272925E9FA0",
+        "OwnPointer": "7FFF25C778E4",
+        "DeclaringClass": "2730AC9B180"
+      },
+      {
+        "Name": "OnValidate",
+        "BaseMethod": "23030B1B598",
+        "BasePointer": "7FFF0F99FEC0",
+        "BaseSlot": 16,
+        "OwnMethod": "272925E9B80",
+        "OwnPointer": "7FFF25C77924",
+        "DeclaringClass": "2730AC9B180"
+      }
+    ],
+    "LifecycleBeforeCleanup": {
+      "ShouldSave": 1,
+      "CanBePurchased": 1,
+      "InitializeSaveable": 1
+    },
+    "CountersAfterCleanup": {
+      "ShouldSave": 1,
+      "CanBePurchased": 1,
+      "InitializeSaveable": 1
+    },
+    "TypeResolution": {
+      "Mapping": "FishNet.Connection.NetworkConnection, FishNet.Runtime",
+      "NativeClass": "23030AE8520",
+      "ProxyQualifiedName": "Il2CppFishNet.Connection.NetworkConnection, Il2CppFishNet.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "ManagedPatchOwner": "TownHallInterior.BusinessSubtype.TypeResolution",
+      "ManagedTargets": [
+        "System.String GetIl2CppTypeFullName(Il2CppInterop.Runtime.Runtime.Il2CppTypeStruct*)",
+        "Void RegisterTypeInIl2Cpp(System.Type, Il2CppInterop.Runtime.Injection.RegisterTypeOptions)"
+      ],
+      "ParameterInventory": [
+        {
+          "Slot": 0,
+          "Method": "Equals",
+          "Parameter": 0,
+          "NativeName": "System.Object"
+        },
+        {
+          "Slot": 8,
+          "Method": "OnOwnershipServer",
+          "Parameter": 0,
+          "NativeName": "FishNet.Connection.NetworkConnection, FishNet.Runtime"
+        },
+        {
+          "Slot": 9,
+          "Method": "OnSpawnServer",
+          "Parameter": 0,
+          "NativeName": "FishNet.Connection.NetworkConnection, FishNet.Runtime"
+        },
+        {
+          "Slot": 10,
+          "Method": "OnDespawnServer",
+          "Parameter": 0,
+          "NativeName": "FishNet.Connection.NetworkConnection, FishNet.Runtime"
+        },
+        {
+          "Slot": 13,
+          "Method": "OnOwnershipClient",
+          "Parameter": 0,
+          "NativeName": "FishNet.Connection.NetworkConnection, FishNet.Runtime"
+        },
+        {
+          "Slot": 17,
+          "Method": "ClearReplicateCache_Virtual",
+          "Parameter": 0,
+          "NativeName": "System.Boolean"
+        },
+        {
+          "Slot": 24,
+          "Method": "set_LocalExtraFiles",
+          "Parameter": 0,
+          "NativeName": "System.Collections.Generic.List\u00601"
+        },
+        {
+          "Slot": 26,
+          "Method": "set_LocalExtraFolders",
+          "Parameter": 0,
+          "NativeName": "System.Collections.Generic.List\u00601"
+        },
+        {
+          "Slot": 28,
+          "Method": "set_HasChanged",
+          "Parameter": 0,
+          "NativeName": "System.Boolean"
+        },
+        {
+          "Slot": 31,
+          "Method": "Save",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 32,
+          "Method": "WriteBaseData",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 32,
+          "Method": "WriteBaseData",
+          "Parameter": 1,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 33,
+          "Method": "GetLocalPath",
+          "Parameter": 0,
+          "NativeName": "System.Boolean"
+        },
+        {
+          "Slot": 34,
+          "Method": "CompleteSave",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 34,
+          "Method": "CompleteSave",
+          "Parameter": 1,
+          "NativeName": "System.Boolean"
+        },
+        {
+          "Slot": 35,
+          "Method": "WriteData",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 36,
+          "Method": "DeleteUnapprovedFiles",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 37,
+          "Method": "GetContainerFolder",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 38,
+          "Method": "WriteSubfile",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 38,
+          "Method": "WriteSubfile",
+          "Parameter": 1,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 38,
+          "Method": "WriteSubfile",
+          "Parameter": 2,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 39,
+          "Method": "WriteFolder",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 39,
+          "Method": "WriteFolder",
+          "Parameter": 1,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 40,
+          "Method": "TryLoadFile",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 40,
+          "Method": "TryLoadFile",
+          "Parameter": 1,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 40,
+          "Method": "TryLoadFile",
+          "Parameter": 2,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 41,
+          "Method": "TryLoadFile",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 41,
+          "Method": "TryLoadFile",
+          "Parameter": 1,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 41,
+          "Method": "TryLoadFile",
+          "Parameter": 2,
+          "NativeName": "System.Boolean"
+        },
+        {
+          "Slot": 47,
+          "Method": "GetNetworth",
+          "Parameter": 0,
+          "NativeName": "ScheduleOne.Money.MoneyManager\u002BFloatContainer, Assembly-CSharp"
+        },
+        {
+          "Slot": 51,
+          "Method": "SetContentCulled",
+          "Parameter": 0,
+          "NativeName": "System.Boolean"
+        },
+        {
+          "Slot": 53,
+          "Method": "WriteData",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 54,
+          "Method": "DeleteUnapprovedFiles",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 55,
+          "Method": "Load",
+          "Parameter": 0,
+          "NativeName": "ScheduleOne.Persistence.Datas.PropertyData, Assembly-CSharp"
+        },
+        {
+          "Slot": 55,
+          "Method": "Load",
+          "Parameter": 1,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 62,
+          "Method": "MinsPass",
+          "Parameter": 0,
+          "NativeName": "System.Int32"
+        }
+      ],
+      "PreflightComplete": true,
+      "OriginalResolverAlreadyResolves": false,
+      "PostScopeOriginalResolutionConfirmed": true,
+      "PostScopeFailure": null,
+      "Outcome": {
+        "InstallAttempted": true,
+        "Installed": true,
+        "Restored": true,
+        "MappingHits": 4,
+        "OwnRegistrations": 1,
+        "RemainingDepth": 0,
+        "ScopeViolated": false,
+        "ScopeActive": false,
+        "Before": [
+          "{\u0022Target\u0022:\u0022RegisterTypeInIl2Cpp\u0022,\u0022Kind\u0022:\u0022transpiler\u0022,\u0022Owner\u0022:\u0022MelonLoader\u0022,\u0022Method\u0022:\u0022deff130c-f422-4369-9d22-83d0ed85e7da:100664931\u0022,\u0022Priority\u0022:400,\u0022Index\u0022:0,\u0022Before\u0022:[],\u0022After\u0022:[]}"
+        ],
+        "After": [
+          "{\u0022Target\u0022:\u0022RegisterTypeInIl2Cpp\u0022,\u0022Kind\u0022:\u0022transpiler\u0022,\u0022Owner\u0022:\u0022MelonLoader\u0022,\u0022Method\u0022:\u0022deff130c-f422-4369-9d22-83d0ed85e7da:100664931\u0022,\u0022Priority\u0022:400,\u0022Index\u0022:0,\u0022Before\u0022:[],\u0022After\u0022:[]}"
+        ],
+        "Findings": []
+      }
+    },
+    "InterfaceEnabled": true,
+    "InterfaceInvocationAttempted": true,
+    "InterfaceStages": [
+      {
+        "Stage": "before-call",
+        "Readback": {
+          "Target": {
+            "Method": {
+              "Method": 2406036966456,
+              "DeclaringClass": 2406024298992,
+              "Name": "InitializeSaveable",
+              "Slot": 10,
+              "ParameterCount": 0,
+              "ReturnType": "System.Void",
+              "Virtual": true,
+              "Abstract": true,
+              "Static": false,
+              "Token": 100669314
+            },
+            "InterfaceClass": 2406024298992,
+            "IsInterface": true,
+            "InterfaceMethodCount": 23,
+            "InterfaceMethodMatches": 1,
+            "OwnClass": 2693125484928,
+            "ObjectClass": 2693125484928,
+            "InheritedInterfacesPreserved": true,
+            "BaseOffsetMatches": 1,
+            "OwnOffsetMatches": 1,
+            "BaseOffset": 19,
+            "OwnOffset": 19,
+            "BaseVtableCount": 64,
+            "OwnVtableCount": 64,
+            "BaseSlotMethod": 2405998866088,
+            "ExpectedBaseMethod": 2405998866088,
+            "OwnSlotMethod": 2691105203520,
+            "OwnSlotPointer": 140733827217380,
+            "Resolved": {
+              "Method": 2691105203520,
+              "DeclaringClass": 2693125484928,
+              "Name": "InitializeSaveable",
+              "Slot": 65535,
+              "ParameterCount": 0,
+              "ReturnType": "System.Void",
+              "Virtual": false,
+              "Abstract": false,
+              "Static": false,
+              "Token": 0
+            },
+            "ResolvedPointer": 140733827217380,
+            "ExpectedOwnMethod": 2691105203520,
+            "ExpectedOwnPointer": 140733827217380,
+            "BaseAssignable": true,
+            "OwnAssignable": true
+          },
+          "State": {
+            "Inactive": true,
+            "ExactComponents": true,
+            "Unowned": true,
+            "OwnNativeClass": true,
+            "OwnVirtualTargets": true,
+            "UnexpectedLifecycleCalls": 0,
+            "InitializeSaveableCalls": 0
+          },
+          "SaveCalls": 1,
+          "PurchaseCalls": 1
+        }
+      },
+      {
+        "Stage": "call-exited",
+        "Counters": {
+          "ShouldSave": 1,
+          "CanBePurchased": 1,
+          "InitializeSaveable": 1
+        }
+      },
+      {
+        "Stage": "after-call",
+        "Readback": {
+          "Target": {
+            "Method": {
+              "Method": 2406036966456,
+              "DeclaringClass": 2406024298992,
+              "Name": "InitializeSaveable",
+              "Slot": 10,
+              "ParameterCount": 0,
+              "ReturnType": "System.Void",
+              "Virtual": true,
+              "Abstract": true,
+              "Static": false,
+              "Token": 100669314
+            },
+            "InterfaceClass": 2406024298992,
+            "IsInterface": true,
+            "InterfaceMethodCount": 23,
+            "InterfaceMethodMatches": 1,
+            "OwnClass": 2693125484928,
+            "ObjectClass": 2693125484928,
+            "InheritedInterfacesPreserved": true,
+            "BaseOffsetMatches": 1,
+            "OwnOffsetMatches": 1,
+            "BaseOffset": 19,
+            "OwnOffset": 19,
+            "BaseVtableCount": 64,
+            "OwnVtableCount": 64,
+            "BaseSlotMethod": 2405998866088,
+            "ExpectedBaseMethod": 2405998866088,
+            "OwnSlotMethod": 2691105203520,
+            "OwnSlotPointer": 140733827217380,
+            "Resolved": {
+              "Method": 2691105203520,
+              "DeclaringClass": 2693125484928,
+              "Name": "InitializeSaveable",
+              "Slot": 65535,
+              "ParameterCount": 0,
+              "ReturnType": "System.Void",
+              "Virtual": false,
+              "Abstract": false,
+              "Static": false,
+              "Token": 0
+            },
+            "ResolvedPointer": 140733827217380,
+            "ExpectedOwnMethod": 2691105203520,
+            "ExpectedOwnPointer": 140733827217380,
+            "BaseAssignable": true,
+            "OwnAssignable": true
+          },
+          "State": {
+            "Inactive": true,
+            "ExactComponents": true,
+            "Unowned": true,
+            "OwnNativeClass": true,
+            "OwnVirtualTargets": true,
+            "UnexpectedLifecycleCalls": 0,
+            "InitializeSaveableCalls": 1
+          },
+          "SaveCalls": 1,
+          "PurchaseCalls": 1
+        }
+      }
+    ],
+    "ExpectedInterfaceCallbacks": 1
+  },
+  "NativeEvidenceFromThisAttempt": false,
+  "Limitation": "Type registration persists until process exit. CleanupComplete covers the own Unity root and acquired Business component. Own callback counters and class/vtable snapshots are bounded observations, not a proof of every native side effect. The added route is only ISaveable.InitializeSaveable to the own no-base callback. Other interface methods and native manager call paths remain untested. A skipped result retains historical Native details; it performs no new cleanup or readback. No activation, registry publication, original lifecycle calls, serialization, purchase, save, spawn or gameplay acceptance."
+}

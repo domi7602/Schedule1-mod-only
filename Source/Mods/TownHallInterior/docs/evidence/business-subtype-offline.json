@@ -1,0 +1,267 @@
+{
+  "Schema": 1,
+  "CheckedUtc": "2026-11-03T14:59:44.7128744Z",
+  "Coder": "/root/construction_policy",
+  "BaseRevision": "bcd54e9ace58dbe1a615b44f319f96efd7902fc5",
+  "Status": "coder-complete-with-recorded-repository-baseline-failures-and-authorized-root-deployment-observed",
+  "ProductionFileCount": 20,
+  "CandidateSha256": "659ee6a2fe2a3e12bb8dd8e61c15b48e673c5a54cdcf652167bda4035de96078",
+  "PdbSha256": "9384eb201f31d9ccd12f4c60787b13f539f25d0f83ff3511a889c77e71424777",
+  "SourceFreeze": [
+    {
+      "Path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "Sha256": "85626e06bf6971a30ff329a57a6beac85538715032fbf5e812b86a1163ae0379"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "Sha256": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "Sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "Sha256": "b0383be5f41163506cce8722aba80d4f8816abefe227b35cda1a3347008c9535"
+    },
+    {
+      "Path": "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs",
+      "Sha256": "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/business-subtype-probe.md",
+      "Sha256": "c1b7ff13c61040f119750f9ecacebcb84f3a541fc191fb0607e1ec9ad60b411f"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+      "Sha256": "b05ea8a26843ed77f4a41f5c269d15838fef92c3830670d643a68b355ea83fa6"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/README.md",
+      "Sha256": "b80af97f186e0a6f817f356b48f5483d2f95b9dd8cb84b95278dd1d330e27d95"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+      "Sha256": "75d22d1b6df4db7b8ab027c2d026adae01eb7671a61323f9526e1e4a8f129db1"
+    },
+    {
+      "Path": "docs/compatibility.md",
+      "Sha256": "1f255361fbc3af9c7b8cb6aaaf49cb11c0552ec6a9ff84faf7fcf92716b0f8ce"
+    }
+  ],
+  "FrozenFilesMatchWorkingTreeAndFinalIsolatedCheckout": true,
+  "Builds": {
+    "Normal": {
+      "ExitCode": 0,
+      "Warnings": 0,
+      "NoDeploy": true,
+      "Errors": 0
+    },
+    "Activation": {
+      "ExitCode": 1,
+      "NoDeploy": true,
+      "ExpectedError": "CS1029",
+      "ContainmentConfirmed": true
+    },
+    "Subtype": {
+      "ExitCode": 0,
+      "Warnings": 0,
+      "NoDeploy": true,
+      "Errors": 0
+    }
+  },
+  "Tests": {
+    "GameRequiredSharedProjectSkipped": true,
+    "PassedProjects": 19,
+    "ExecutedProjects": 19,
+    "TownHallFailed": 0,
+    "TownHallPassed": 318,
+    "FinalIsolatedXunitPassed": 4249,
+    "FinalIsolatedConsolePassed": 265,
+    "NewSubtypeCases": 45
+  },
+  "IndependentReview": {
+    "Sha256": "a4f374c41a27e60a9bd1fd9bdb632d16388f45cfda2c1aa84d8c2b3a71616822",
+    "CandidatePdbAnd21SourceDocumentsConfirmed": true,
+    "Path": "independent-review.json",
+    "OpenBlockingFindings": [],
+    "SubsequentChange": "Test-file whitespace only; production source, candidate and PDB unchanged; targeted format check and final isolated tests passed.",
+    "Status": "offline-review-complete"
+  },
+  "NativeApiReview": {
+    "Reviewer": "/root/native_business_contract",
+    "Evidence": "Installed-contract JSON plus final read-only code review confirmation in team coordination; no source changes or builds by that reviewer.",
+    "Status": "API-OK",
+    "SourceSha256": "85626e06bf6971a30ff329a57a6beac85538715032fbf5e812b86a1163ae0379"
+  },
+  "FinalIsolatedPure": {
+    "ExitCode": 1,
+    "NewSubtypeFormatFindings": 0,
+    "RemainingFormatFindings": 30,
+    "Snapshot": "C:/Users/pc/.cache/Schedule1Tools/clean-checkouts/clean-checkout-30c8a7bcdee1",
+    "Report": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-30c8a7bcdee1\\checks\\verify-c8e2f00e5400\\report.json",
+    "FailedSteps": [
+      "format",
+      "versions"
+    ],
+    "Failed": 2,
+    "AllOtherStepsPassed": true,
+    "ReportSha256": "4a0f6c5f9d3c6e41a22e56bffd2d4b369be8b16dcc494610b5fa4f45f946e592",
+    "Passed": 20,
+    "RemainingFormatFiles": [
+      "Source/Mods/WorldLook/src/WaterShaderMod.cs",
+      "Source/Tests/TownHallInterior.Tests/FurniturePlanTests.cs",
+      "Source/Tests/WaterShader.Tests/WaterDiagnosticBoundaryTests.cs",
+      "ThirdParty/S1MCPServer-master/S1MCPServer/Handlers/ScreenshotCommandHandler.cs",
+      "ThirdParty/S1MCPServer-master/S1MCPServer/Utils/ScreenshotCapture.cs"
+    ],
+    "VersionDriftMods": [
+      "HitmanPhone",
+      "Minimap",
+      "PoliceTestMode"
+    ]
+  },
+  "SupersededPure": {
+    "Snapshot": "C:/Users/pc/.cache/Schedule1Tools/clean-checkouts/clean-checkout-a165f6f6527d",
+    "Reason": "41 new test-file whitespace diagnostics corrected; only whitespace changed, targeted verify changed from exit 2 to exit 0; final source freeze and isolated run regenerated."
+  },
+  "EarlierInstalledNoDeployCheck": {
+    "Path": "coder-installed-unchanged.json",
+    "AllSevenUnchangedAtThatCheck": true,
+    "DllSha256": "52bb577af0fb238cb146bb5fd28fefdba762a18b21b947285655ea32406b4257",
+    "RecordedArtifactWriteUtc": "2026-11-03T14:35:21.0997159Z"
+  },
+  "InstalledBaselineAndFinalization": [
+    {
+      "Path": "Mods/TownHallInterior.dll",
+      "InitialBaseline": "52bb577af0fb238cb146bb5fd28fefdba762a18b21b947285655ea32406b4257",
+      "AtCoderFinalization": "659ee6a2fe2a3e12bb8dd8e61c15b48e673c5a54cdcf652167bda4035de96078",
+      "Unchanged": false,
+      "MatchesAuthorizedRootDeployment": true
+    },
+    {
+      "Path": "UserData/TownHallInterior/TownHallInterior.pdb",
+      "InitialBaseline": "722623f1848afbbd339370c0ad7bd32bf613a54c534efeccae949f94a8facebc",
+      "AtCoderFinalization": "9384eb201f31d9ccd12f4c60787b13f539f25d0f83ff3511a889c77e71424777",
+      "Unchanged": false,
+      "MatchesAuthorizedRootDeployment": true
+    },
+    {
+      "Path": "UserData/TownHallInterior/mod.json",
+      "InitialBaseline": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+      "AtCoderFinalization": "65938002b7273ef77dedbadf9092a186e6742f1e40fe404ef91576d3e4f81660",
+      "Unchanged": true,
+      "MatchesAuthorizedRootDeployment": true
+    },
+    {
+      "Path": "Mods/Shared.dll",
+      "InitialBaseline": "bfec0d663f2ef15f7733839c3b36aa10211af08b81cdca17d0527f0b40ae4e6f",
+      "AtCoderFinalization": "bfec0d663f2ef15f7733839c3b36aa10211af08b81cdca17d0527f0b40ae4e6f",
+      "Unchanged": true,
+      "MatchesAuthorizedRootDeployment": true
+    },
+    {
+      "Path": "Mods/S1API.Il2Cpp.MelonLoader.dll",
+      "InitialBaseline": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+      "AtCoderFinalization": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+      "Unchanged": true,
+      "MatchesAuthorizedRootDeployment": true
+    },
+    {
+      "Path": "MelonLoader/Il2CppAssemblies/Assembly-CSharp.dll",
+      "InitialBaseline": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "AtCoderFinalization": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+      "Unchanged": true,
+      "MatchesAuthorizedRootDeployment": true
+    },
+    {
+      "Path": "MelonLoader/Il2CppAssemblies/Il2CppFishNet.Runtime.dll",
+      "InitialBaseline": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+      "AtCoderFinalization": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+      "Unchanged": true,
+      "MatchesAuthorizedRootDeployment": true
+    }
+  ],
+  "AuthorizedRootDeploymentObserved": {
+    "CoderReadbackConfirmsCandidateAndPdb": true,
+    "ParentReportedUtc": "2026-11-03T14:57:49Z",
+    "OtherFiveInstalledFilesUnchanged": true,
+    "ParentReportedAttemptId": "20261103T145749125Z-baa15282d9b0"
+  },
+  "GameClosedAtCompletion": true,
+  "DeploymentPerformedByCoder": false,
+  "GameStartedByCoder": false,
+  "NativeSaveMutationPerformedByCoder": false,
+  "Limits": [
+    "No live subtype result or gameplay acceptance.",
+    "Only two Property-proxy/class virtual calls are probed; ISaveable/interface and native manager paths remain untested.",
+    "ClassInjector type registration persists until process exit; only own Unity root/acquired Business component are cleaned.",
+    "Activation remains compile-blocked; no world registry publication, native serialization/save, purchase, or spawn."
+  ],
+  "Artifacts": [
+    {
+      "Path": "candidate/TownHallInterior.dll",
+      "Sha256": "659ee6a2fe2a3e12bb8dd8e61c15b48e673c5a54cdcf652167bda4035de96078"
+    },
+    {
+      "Path": "candidate/TownHallInterior.pdb",
+      "Sha256": "9384eb201f31d9ccd12f4c60787b13f539f25d0f83ff3511a889c77e71424777"
+    },
+    {
+      "Path": "build-normal-final.log",
+      "Sha256": "ce598f6eb76456c8690573a8f7bcdf718b2ff6174ac6ad104e84cb6667394a86"
+    },
+    {
+      "Path": "build-subtype-final.log",
+      "Sha256": "c11a3f4fbe9397fc6e73c838aa6b1f01e25938679ca6c2cca59c8afe52bcdb94"
+    },
+    {
+      "Path": "build-activation-blocked.log",
+      "Sha256": "f09c060c28b5177a3b22b7e998537e9ec98dec30ffe7211f50a9bbdfd6aa9b0f"
+    },
+    {
+      "Path": "tests-final.log",
+      "Sha256": "eb504e1ec7f6889fec5ca9bbdfe923012be48b6fc1382b8e730d45c9d70a511f"
+    },
+    {
+      "Path": "format-test-before.log",
+      "Sha256": "da6daf2ff90735b5fa0bcde6cd6bc15957b0959ccc64720865a5465c5e03bfda"
+    },
+    {
+      "Path": "format-test-fix.log",
+      "Sha256": "ece94eb4f034c9eae8b1aa890d42f7bcfa0a5eba9c11b3fb9d631572ee675370"
+    },
+    {
+      "Path": "format-test-verify.log",
+      "Sha256": "925ba28e0a89f4bfb3e18d99038ffd5485b0b5fc1c6e9797a7f793ffdfc778c4"
+    },
+    {
+      "Path": "test-format.diff",
+      "Sha256": "3c6ab9830aa0cea247a4cfbe7a61625fedee36e16edef335f183e667092ebd06"
+    },
+    {
+      "Path": "coder-source-freeze.json",
+      "Sha256": "59e5af988c681fd263ba4039eb2c70f4d6ed7c8aaa13ecb1f7a0c1cc44f53bb8"
+    },
+    {
+      "Path": "format-baseline-comparison.json",
+      "Sha256": "8b3b996a48e210e068d1f448be8bfaf7e47ccd0194ffbaeca1f0f60993179288"
+    },
+    {
+      "Path": "independent-review.json",
+      "Sha256": "a4f374c41a27e60a9bd1fd9bdb632d16388f45cfda2c1aa84d8c2b3a71616822"
+    },
+    {
+      "Path": "native-contract-review.json",
+      "Sha256": "8850fca05d882b7a39dd33a76799d35f7416059e2a5244ff3520f42f9a4a0b6d"
+    },
+    {
+      "Path": "isolated-pure-final.log",
+      "Sha256": "1b1eac20d8c298a2ae3d3a86aac74e0bff45140fcbd93bb9636e47729b0b13d3"
+    },
+    {
+      "Path": "coder-installed-unchanged.json",
+      "Sha256": "e69f5060baed46a1a386a740f8da1fea4d13e57e40fb950eaa1b2ace61eeb8b6"
+    }
+  ]
+}

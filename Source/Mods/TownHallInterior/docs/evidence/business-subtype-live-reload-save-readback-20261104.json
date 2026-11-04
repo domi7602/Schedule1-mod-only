@@ -1,0 +1,24 @@
+{
+  "CheckedUtc": "2026-11-04T04:09:17.6249978Z",
+  "Scope": "Local native Slot1/Slot2 files only",
+  "Slots": [
+    {
+      "Slot": "SaveGame_2",
+      "Expected": 39,
+      "Actual": 39,
+      "Missing": [],
+      "Changed": [],
+      "Added": [],
+      "Unchanged": true
+    },
+    {
+      "Slot": "SaveGame_1",
+      "Expected": 38,
+      "Actual": 38,
+      "Missing": [],
+      "Changed": [],
+      "Added": [],
+      "Unchanged": true
+    }
+  ]
+}

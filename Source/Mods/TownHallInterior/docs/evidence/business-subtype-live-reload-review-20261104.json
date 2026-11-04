@@ -1,0 +1,30 @@
+{
+  "ReviewedUtc": "2026-11-04T04:10:36.846238+00:00",
+  "Reviewer": "Codex /root",
+  "Status": "same-process-reload-guard-observed",
+  "CapturedUtc": "2026-11-04T04:08:48.5657309Z",
+  "Checks": {
+    "SameGameProcess": true,
+    "CandidateMatches": true,
+    "ReportIdentity": true,
+    "ExactSlot2": true,
+    "ContextReady": true,
+    "AttemptConsumedAndSkipped": true,
+    "NoNewRegistrationAttempt": true,
+    "NoNewTrialSnapshotsOrDispatch": true,
+    "NativeBlockRetainedFromFirstTrial": true,
+    "ObserverSameRunNextLoad": true,
+    "ObserverCompleteAndClean": true,
+    "NativeFilesUnchanged": true
+  },
+  "PriorObservedReportSha256": "1021e4a2596ff39219531a4e6b93b8520b7168b61671650f35c714bdb648e782",
+  "Interpretation": "Reload returned before any port operation. Native block is retained evidence from the first trial, not fresh runtime readback. Result.CleanupComplete=false belongs to the skipped result and is not a cleanup failure.",
+  "IndependentReviewer": "/root/subtype_live_review: exact report and Native-block comparison, source early-return and observer/log read; no writes or game actions.",
+  "NativeSaveReadbackCounts": {
+    "SaveGame_2": 39,
+    "SaveGame_1": 38
+  },
+  "Limits": "No fresh subtype registry/vtable snapshots on skipped path. Type metadata remains registered until process exit. Interface/manager paths, activation, initialization, purchase and persistence untested.",
+  "BuildOrDeployPerformed": false,
+  "AgentGameActions": false
+}

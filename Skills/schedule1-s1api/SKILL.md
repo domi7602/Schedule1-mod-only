@@ -11,7 +11,7 @@ description: "Resolve S1API contracts against the installed version."
 
 Before mutation or compatibility claims, read the [working contract](../schedule1-modding/references/working-contract.md) once.
 Treat this skill as an API map, not a replacement for the target assembly.
-The user's target is S1API 3.2.1 when no newer target is explicitly supplied. <!-- skills-health: version-evidence (S1API target requested by the owner; installed build state lives in AGENTS.md) -->
+Resolve the requested target from the current repository's AGENTS.md and actual installed assembly; do not reuse a historical default version from a skill.
 Do not silently substitute current website documentation for that target.
 
 Resolve project/backend, compile reference, deployed assembly and matching source.
@@ -72,6 +72,25 @@ before compensating or issuing the same mutation again.
 
 Select relevant reload, teardown and repeated-action checks; host/client tests require explicit scope.
 Report under the shared evidence policy. Match online API documentation to the target assembly.
+
+## Dependency upgrade checks
+
+Stage release artifacts outside the game, verify official ZIP digest and assembly/tag
+identity, then compile consumers with `-p:ModsDir=<staged Mods> -p:S1NoDeploy=true`.
+Confirm the candidate through `ResolveReferences`; preserve explicit feature flags
+such as TaxiDriver Guard. Hash installed consumers before/after; do not redeploy them
+as a framework-upgrade side effect. Install only the required runtime backend with
+verified original-file backups, process preflight, installation mutex and readback.
+
+Compare the actual old installed DLL to the candidate with ApiCompat, including
+parameter-name and attribute rules. Inspect stdout/stderr, not just the exit code:
+diagnostics can accompany exit 0. Use reversed inputs as an additive-API negative
+control. This proves neither private/reflection compatibility nor native gameplay.
+Keep upstream contract suites distinct from consumer tests and check their SDK needs.
+
+For scratch-local dotnet tools, place tool path, CLI home and package cache in scratch
+and set `DOTNET_GENERATE_ASPNET_CERTIFICATE=false` before the first call to prevent
+unrelated HTTPS development-certificate creation.
 
 Official entry points: [API documentation](https://ifbars.github.io/S1API/) and
 [release history](https://github.com/ifBars/S1API/releases).

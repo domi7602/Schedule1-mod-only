@@ -14,10 +14,26 @@ public sealed class Mod : MelonMod
     {
         MelonLogger.Warning("TownHallInterior: experimental local hall; hash-pinned geometric portal, not a business.");
         DoorHook.Install();
+#if TOWNHALL_BUSINESS_PROBE
+        BusinessBindingProbe.Start();
+#endif
+#if TOWNHALL_BUSINESS_ACTIVATION
+        BusinessActivationRuntime.Start(() => _hall != null && _staged is UnityRoomSink room &&
+            S1Mods.Shared.NetworkGuard.IsAlive(room.Root) && room.Root!.gameObject.activeInHierarchy);
+#elif TOWNHALL_BUSINESS_SUBTYPE
+        BusinessSubtypeRuntime.Start(() => _hall != null && _staged is UnityRoomSink room &&
+            S1Mods.Shared.NetworkGuard.IsAlive(room.Root) && room.Root!.gameObject.activeInHierarchy);
+#elif TOWNHALL_BUSINESS_CONSTRUCTION
+        BusinessConstructionRuntime.Start(() => _hall != null && _staged is UnityRoomSink room &&
+            S1Mods.Shared.NetworkGuard.IsAlive(room.Root) && room.Root!.gameObject.activeInHierarchy);
+#endif
     }
 
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {
+#if TOWNHALL_BUSINESS_PROBE
+        BusinessBindingProbe.SceneLoaded(sceneName);
+#endif
         if (sceneName != "Main" || _staged != null) return;
         DoorHook.NextGeneration();
         try
@@ -33,14 +49,45 @@ public sealed class Mod : MelonMod
     public override void OnUpdate()
     {
         _hall?.Tick(UnityEngine.Time.deltaTime);
+#if TOWNHALL_BUSINESS_PROBE
+        BusinessBindingProbe.Tick();
+#endif
+#if TOWNHALL_BUSINESS_ACTIVATION
+        BusinessActivationRuntime.Tick();
+#elif TOWNHALL_BUSINESS_SUBTYPE
+        BusinessSubtypeRuntime.Tick();
+#elif TOWNHALL_BUSINESS_CONSTRUCTION
+        BusinessConstructionRuntime.Tick();
+#endif
     }
 
     public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
     {
+#if TOWNHALL_BUSINESS_ACTIVATION
+        if (sceneName == "Main") BusinessActivationRuntime.SceneUnloaded();
+#elif TOWNHALL_BUSINESS_SUBTYPE
+        if (sceneName == "Main") BusinessSubtypeRuntime.Leaving();
+#endif
+#if TOWNHALL_BUSINESS_PROBE
+        BusinessBindingProbe.SceneUnloaded(sceneName);
+#endif
         if (sceneName == "Main") { DoorHook.NextGeneration(); Cleanup(); }
     }
 
-    public override void OnDeinitializeMelon() { DoorHook.Uninstall(); Cleanup(); }
+    public override void OnDeinitializeMelon()
+    {
+#if TOWNHALL_BUSINESS_ACTIVATION
+        BusinessActivationRuntime.Stop();
+#elif TOWNHALL_BUSINESS_SUBTYPE
+        BusinessSubtypeRuntime.Stop();
+#elif TOWNHALL_BUSINESS_CONSTRUCTION
+        BusinessConstructionRuntime.Stop();
+#endif
+#if TOWNHALL_BUSINESS_PROBE
+        BusinessBindingProbe.Stop();
+#endif
+        DoorHook.Uninstall(); Cleanup();
+    }
 
     private void Cleanup()
     {

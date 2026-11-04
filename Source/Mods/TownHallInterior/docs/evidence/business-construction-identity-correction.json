@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-03T12:58:17.639918+00:00",
+  "kind": "PDB hash transcription correction only",
+  "incorrectTranscription": "722623f1848afbbd339370c0ad7bd32bf613a54c534efefccae949f94a8facebc",
+  "actualSha256": "722623f1848afbbd339370c0ad7bd32bf613a54c534efeccae949f94a8facebc",
+  "verifiedAgainst": [
+    "candidate file bytes",
+    "installed file bytes",
+    "deployment receipt"
+  ],
+  "independentReviewer": "probe_review; independently rehashed both files and acknowledged earlier transcription error",
+  "affectedMetadata": [
+    {
+      "file": "business-construction-offline.json",
+      "scope": "repository",
+      "beforeSha256": "5a800df270f24b2c5fdb6da2c164177cf2bd54597e84dff0e62b1c1543c27c4a",
+      "afterSha256": "fbc5e89f327313fcd7d3a151e9dbed26903170d315b73f8c2a93a80d896abf3c"
+    },
+    {
+      "file": "business-construction-offline.json",
+      "scope": "vault",
+      "beforeSha256": "5a800df270f24b2c5fdb6da2c164177cf2bd54597e84dff0e62b1c1543c27c4a",
+      "afterSha256": "fbc5e89f327313fcd7d3a151e9dbed26903170d315b73f8c2a93a80d896abf3c"
+    },
+    {
+      "file": "independent-review.json",
+      "scope": "vault",
+      "beforeSha256": "55ae52a26a94682afdc2ff5d330fdd7c1c0d5a9550c13dcc56c98fa0cac59588",
+      "afterSha256": "4aee2c48aa62c09eb334c12e81901c5b455be3182a7ae87466c1daa220f09211"
+    }
+  ],
+  "limitation": "Pure snapshot predates this metadata-only correction; all 12 sourceFiles still match snapshot and workspace. No source, test, DLL or PDB bytes changed."
+}

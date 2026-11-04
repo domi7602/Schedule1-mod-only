@@ -69,7 +69,7 @@ in force, including preservation of unrelated changes and commit/push/deployment
 ## 1. Setup
 
 **Recorded local baseline:** Schedule I Open Beta **v0.4.7f12**, Unity **2022.3.62f2**,
-Steam build **25796331** (log/manifest, 2026-10-08); MelonLoader **0.7.3**, S1API **3.2.1 stable**,
+Steam build **25796331** (log/manifest, 2026-10-08); MelonLoader **0.7.3**, S1API **3.2.2 stable** (installed 2026-11-02, not yet loaded),
 S1MAPI **2.0.1**. Mods use `net6.0`, C# 12 and nullable references. SDK **8.0.426** and
 runtimes **6.0.36 / 8.0.32** are global in `C:\Program Files\dotnet` (2026-10-24).
 
@@ -80,12 +80,15 @@ runtimes **6.0.36 / 8.0.32** are global in `C:\Program Files\dotnet` (2026-10-24
 - Required files: `Mods/S1API.Il2Cpp.MelonLoader.dll` (exact name),
   `UserLibs/S1MAPI_Il2Cpp.dll` and `MelonLoader/Il2CppAssemblies/`. The latter is generated
   by the game's first run; absent/wrong references break compilation.
-- S1API is pinned at `a4cbdd9e0ec54895e64fd6be0e91874ba6649c9b` / `v3.2.1`; superproject
-  pointer and checkout matched on 2026-10-24. Installed IL2CPP `79d7af28…` and loader
-  `811de671…` hashes matched local Release builds, ProductVersion `3.2.1+a4cbdd9e…`.
-  The old log's beta.8 is historical. **Do not downgrade to 3.2.0**: pre-f6 NPC renames
-  cause `MissingMethodException: NPCHealth.set_npc`. See [dependency pins](ThirdParty/README.md)
-  and [full prior provenance](docs/history/agent-mod-history-20261024.md).
+- S1API source target: `6b6d7bada39054822732224508cf0f4f45ee7c26` / `v3.2.2`;
+  clean submodule checkout updated, superproject change uncommitted. Official release
+  IL2CPP `d751a3cb…` and loader `b05187bd…` installed with verified 3.2.1 backups.
+  ProductVersion `3.2.2+6b6d7bada…`; no new game load/acceptance. Whole-solution no-deploy
+  build 0 warnings/errors, 4,157 tests + 265 console checks passed; ApiCompat passed.
+  [Upgrade evidence and rollback](docs/s1api-upgrade-3.2.2.md) owns exact hashes and limits.
+  **Do not downgrade to 3.2.0**: pre-f6 NPC renames cause
+  `MissingMethodException: NPCHealth.set_npc`. [Prior provenance](docs/history/agent-mod-history-20261024.md)
+  and older beta.8 / 3.2.1 build records remain historical.
 - Gameplay log: `MelonLoader/Latest.log`. S1MCP source: `ThirdParty/S1MCPServer-master/`;
   bridge `127.0.0.1:8765`. Use the MCP skill for client setup and live checks.
 
@@ -132,7 +135,7 @@ Keep exactly one inventory row per mod and supported bold acceptance labels.
 | **HitmanPhone** | ✅ (v0.3.2, **Verified, owner-confirmed 2026-10-25**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Singleplayer only; offers use own customers; tracker app removed |
 | **MessagesPlus** | ✅ (v0.4.6, **Verified, owner-confirmed 2026-10-15**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | Popup/response repair; original test date not supplied |
 | **ProductAppQoL** | ✅ (v0.1.0, **Verified 2026-10-10**) | `Mods/ProductAppQoL/` | `ProductAppQoL.dll` | Mouse/touch asking-price buttons |
-| **TaxiDriver** | ✅ (v1.0.5, **In-Game-Verify open** (prior v1.0.0: **Verified, owner-confirmed 2026-10-24**)) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB folder | Guard+supervisor build `012330b1…` installed; Barn 5.0 m and Bungalow 3.5 m arrived (2026-11-01, one run each); Docks still 2026-10-31 only; early boarding open |
+| **TaxiDriver** | ✅ (v1.0.6, **In-Game-Verify open** (prior v1.0.0: **Verified, owner-confirmed 2026-10-24**)) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB folder | Recovery candidate `42b7e219…` installed 2026-11-02; Guard confirmed in DLL, not launched; Barn → Bungalow chain and early boarding open; prior route observations belong to 1.0.5 |
 | **StorageScanner** | 🆕 (v0.2.0, **Verified 2026-10-11**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | Read-only storage overview |
 | **S1MCP** | ✅ (v1.0.5, **Verified, owner-confirmed 2026-10-24**) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | HHMM fix; read/no-op write observed, not every write form |
 | **LightControl** | ✅ (v0.1.1; 0.1.0 **Verified, owner-confirmed 2026-10-24**) | `Mods/LightControl/` | `LightControl.dll` | 0.1.1 deployed log-only Rainbow fix; prior acceptance not itemized |
@@ -141,7 +144,7 @@ Keep exactly one inventory row per mod and supported bold acceptance labels.
 | **WorldLook** | ✅ (v0.3.0-dev.5, **Verified, owner-confirmed 2026-10-25**) | `Mods/WorldLook/` | `WorldLook.dll` + embedded bundle | Owner-confirmed finished in the last session; actions not itemized; prior shader-reload evidence retained |
 | **TownHallInterior** | 🧪 (v0.1.0, **In-Game-Verify open**) | `Mods/TownHallInterior/` | `TownHallInterior.dll` | Public hall, geometric portal; hash-pinned local slices, not distributable |
 | **Shared** | ✅ workspace library | `Mods/Shared/` | `Shared.dll` | Reusable helpers; section 5 |
-| **S1API** | ✅ 3.2.1 stable | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | Pinned dependency; section 1 |
+| **S1API** | ✅ 3.2.2 stable (installed, not yet loaded) | — | `S1API.Il2Cpp.MelonLoader.dll` + `Plugins/S1APILoader.MelonLoader.dll` | Release hashes/backups verified; no-deploy build/tests/API checks passed; section 1 |
 
 Archived: BackpackMod, DayCounter, HomelessMod, ProfitTracker, SnackVendor, TVBrowser and
 _DiagPerfCounter plus archived tests. The staged TownHallInterior door dialog was moved to

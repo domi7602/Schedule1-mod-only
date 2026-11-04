@@ -7,6 +7,7 @@
 | [`history/agent-mod-history-20261024.md`](history/agent-mod-history-20261024.md) | Maintainers, researchers | Dated inherited mod details and former checklists; historical evidence, not the current backlog. |
 | [`history/repository-maintenance-20261024.md`](history/repository-maintenance-20261024.md) | Maintainers, researchers | Prior repository checks, deployment fingerprints and completed maintenance history. |
 | [`compatibility.md`](compatibility.md) | Players, developers | Toolchain versions and the per-mod verification matrix. |
+| [`s1api-upgrade-3.2.2.md`](s1api-upgrade-3.2.2.md) | Maintainers | S1API release provenance, concrete binary compatibility, local checks, installation and rollback; no new gameplay acceptance. |
 | [`troubleshooting.md`](troubleshooting.md) | Players | Log location, installation checklist, common symptoms, how to report bugs. |
 | [`../DEVELOPERS.md`](../DEVELOPERS.md) | Developers | Getting started, build, test, format, debugging, creating a mod. |
 | [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | Contributors | Quality gates, version bumps, definition of done, PR checklist. |

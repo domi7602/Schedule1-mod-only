@@ -635,6 +635,10 @@ namespace TaxiDriver
         private static NativeActuatorMode _lastMode;
         private static float _nextReadback;
         private static bool _errorLogged;
+        private static long _startupReadbackOperation = -1;
+        private static int _startupReadbackOrder = -1;
+        private static int _startupReadbackSamples;
+        private static float _nextStartupReadback;
 
         internal static void Apply()
         {
@@ -677,6 +681,10 @@ namespace TaxiDriver
             _diagnosticPointer = IntPtr.Zero;
             _lastMode = NativeActuatorMode.None;
             _nextReadback = 0f;
+            _startupReadbackOperation = -1;
+            _startupReadbackOrder = -1;
+            _startupReadbackSamples = 0;
+            _nextStartupReadback = 0f;
         }
 
         private sealed class CallState
@@ -685,9 +693,13 @@ namespace TaxiDriver
             internal NativeActuatorScope? Scope;
             internal readonly NativeActuatorMode Mode;
             internal readonly bool Diagnose;
+            internal readonly long Operation;
+            internal readonly int Order;
+            internal readonly IntPtr Pointer;
             internal bool Completed;
             internal CallState(LandVehicle vehicle, NativeActuatorMode mode, bool diagnose)
-                => (Vehicle, Mode, Diagnose) = (vehicle, mode, diagnose);
+                => (Vehicle, Mode, Diagnose, Operation, Order, Pointer) =
+                    (vehicle, mode, diagnose, SpikeState.OperationId, SpikeState.NavOrder, vehicle.Pointer);
         }
 
         private static void ApplyThrottlePrefix(LandVehicle __instance, out CallState? __state)
@@ -717,7 +729,28 @@ namespace TaxiDriver
                 if (diagnose) _nextReadback = Time.unscaledTime + 5f;
                 if (mode == NativeActuatorMode.None)
                 {
-                    if (diagnose) Readback(__instance, mode, "native-pass-through");
+                    // The old None log ran before the consumer and could show a stale park
+                    // output. Sample both sides of this call, without acquiring a control
+                    // scope or writing inputs. Bound cost to 8 samples in the first 3 s.
+                    if (_startupReadbackOperation != SpikeState.OperationId || _startupReadbackOrder != SpikeState.NavOrder)
+                    {
+                        _startupReadbackOperation = SpikeState.OperationId;
+                        _startupReadbackOrder = SpikeState.NavOrder;
+                        _startupReadbackSamples = 0;
+                        _nextStartupReadback = 0f;
+                    }
+                    float age = Time.unscaledTime - SpikeState.NavStartTime;
+                    bool startupSample = active && !playerDriver && SpikeState.PollingActive &&
+                        SpikeState.Operation.Active && Mod.Lifecycle.AcceptingWork && age >= 0f && age <= 3f &&
+                        _startupReadbackSamples < 8 && Time.unscaledTime >= _nextStartupReadback;
+                    if (startupSample)
+                    {
+                        _startupReadbackSamples++;
+                        _nextStartupReadback = Time.unscaledTime + 0.5f;
+                        __state = new CallState(__instance, mode, diagnose: true);
+                        Readback(__instance, mode, "startup-prefix-before");
+                    }
+                    else if (diagnose) Readback(__instance, mode, "native-pass-through");
                     return;
                 }
                 if (diagnose) Readback(__instance, mode, "prefix-before");
@@ -741,13 +774,25 @@ namespace TaxiDriver
         private static Exception? ApplyThrottleFinalizer(Exception? __exception, CallState? __state)
         {
             Complete(__state, __exception == null ? "finalizer" : "finalizer-exception");
-            if (__exception != null && __state != null) Fail(__exception);
+            if (__exception != null && __state?.Scope != null) Fail(__exception);
             return __exception; // never suppress the native/other patch exception
         }
 
         private static void Complete(CallState? state, string phase)
         {
-            if (state == null || state.Completed || state.Scope == null) return;
+            if (state == null || state.Completed) return;
+            if (state.Mode == NativeActuatorMode.None)
+            {
+                state.Completed = true;
+                try
+                {
+                    if (phase == "postfix-consumed" && IsCurrentReadback(state))
+                        Readback(state.Vehicle, state.Mode, phase);
+                }
+                catch { /* An optional diagnostic cannot disable native control. */ }
+                return; // No scope, input mutation or restoration for native pass-through.
+            }
+            if (state.Scope == null) return;
             state.Completed = true;
             try
             {
@@ -764,6 +809,14 @@ namespace TaxiDriver
             }
         }
 
+        private static bool IsCurrentReadback(CallState state) =>
+            Healthy && Mod.Lifecycle.AcceptingWork && Time.timeScale != 0f &&
+            SpikeState.Operation.Active && SpikeState.PollingActive && SpikeRunner.HasActuatorOrder &&
+            state.Operation == SpikeState.OperationId && state.Order == SpikeState.NavOrder &&
+            ReferenceEquals(state.Vehicle, SpikeState.Vehicle) && state.Pointer != IntPtr.Zero &&
+            state.Vehicle != null && state.Vehicle.Pointer == state.Pointer && state.Vehicle.DriverPlayer == null &&
+            SpikeCommands.HasAuthority() && SpikeCommands.IsOwnedTaxi(state.Vehicle);
+
         private static void Readback(LandVehicle veh, NativeActuatorMode mode, string phase)
         {
             try
@@ -779,7 +832,8 @@ namespace TaxiDriver
                             wheels.Append($" w{i}=(ground={collider.isGrounded},motor={collider.motorTorque:0.0},brake={collider.brakeTorque:0.0})");
                     }
                 }
-                Mod.Log.Info($"[actuator] frame={Time.frameCount} ptr={veh.Pointer} mode={mode} phase={phase} " +
+                Mod.Log.Info($"[actuator] op={SpikeState.OperationId} order={SpikeState.NavOrder} frame={Time.frameCount} ptr={veh.Pointer} mode={mode} phase={phase} " +
+                    $"auto={agent?.AutoDriving} navCalc={agent?.NavigationCalculationInProgress} pathPoints={agent?.path?.vectorPath?.Count ?? 0} targetSpeed={agent?.targetSpeed:0.0} " +
                     $"currentThrottle={veh.currentThrottle:0.00} throttleOverride={veh.throttleOverride:0.00} " +
                     $"overrideControls={veh.overrideControls} handbrakeOverride={veh.handbrakeOverride} " +
                     $"hand={veh.HandbrakeApplied} brakes={veh.BrakesApplied} vehRev={veh.IsReversing} agentRev={agent?.IsReversing} " +

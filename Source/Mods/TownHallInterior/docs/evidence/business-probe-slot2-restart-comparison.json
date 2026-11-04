@@ -1,0 +1,98 @@
+{
+  "oldReportSha256": "236c83da480c5ef6aee2bc2d34c50a1fd5a375df12d9cd9a788a81220f7053d1",
+  "newReportSha256": "33b335ee686eb15c8433f958297f2b3f95f1404d6a22e5a55ddeef9d85c07f60",
+  "oldGeneration": 2,
+  "newGeneration": 1,
+  "oldAndNewSlotConfirmedByLog": "SaveGame_2",
+  "oldProcessId": 25388,
+  "newProcessId": 30760,
+  "counts": {
+    "bounds": 5,
+    "bounds-collider": 5,
+    "business": 5,
+    "business-grid-membership": 7,
+    "business-state": 5,
+    "container": 5,
+    "grid": 7,
+    "interface-business": 5,
+    "interior-spawn": 5,
+    "npc-spawn": 5,
+    "property-membership": 14,
+    "spawn": 5,
+    "station": 5,
+    "station-grid": 5,
+    "station-interface": 5,
+    "station-item": 5,
+    "townhall-anchor": 1,
+    "unowned-business-membership": 5,
+    "worldspace-ui": 5
+  },
+  "newInventoriesExactlyEqual": true,
+  "normalizedInventoriesEqual": true,
+  "removedRows": [],
+  "addedRows": [],
+  "distinctCanonicalIdentities": 63,
+  "pointersChanged": 63,
+  "rolesWithoutStableObjectIdentifiers": [
+    "role:station-item@station:6e675142-61b6-4f52-9287-8c67c5d4e2bc",
+    "role:station-item@station:8ffd1dac-dba6-4ab6-aa3c-94e7caf1ae37",
+    "role:station-item@station:9e5c5409-6164-4be3-8ee2-1a9863a1c6b6",
+    "role:station-item@station:ad5374de-cb99-4550-ba59-e9f628dfcd51",
+    "role:station-item@station:cfe1a2be-0985-40b7-a58a-32b21f925e5f"
+  ],
+  "normalizationLimit": "Role association for station-item proves only reference topology; no ItemInstance data or identity was exported.",
+  "oldMethodEvents": {
+    "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)": {
+      "loader-enter": 12,
+      "loader-exit": 12
+    },
+    "Il2CppScheduleOne.Persistence.Loaders.BusinessesLoader.Void Load(System.String)": {
+      "loader-enter": 1
+    },
+    "Il2CppScheduleOne.Persistence.Loaders.PropertiesLoader.Void Load(System.String)": {
+      "loader-enter": 1,
+      "loader-exit": 1
+    },
+    "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)": {
+      "loader-enter": 14,
+      "loader-exit": 13
+    },
+    "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)": {
+      "loader-enter": 5,
+      "loader-exit": 5
+    }
+  },
+  "newMethodEvents": {
+    "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)": {
+      "loader-enter": 12,
+      "loader-exit": 12
+    },
+    "Il2CppScheduleOne.Persistence.Loaders.BusinessesLoader.Void Load(System.String)": {
+      "loader-enter": 1
+    },
+    "Il2CppScheduleOne.Persistence.Loaders.PropertiesLoader.Void Load(System.String)": {
+      "loader-enter": 1,
+      "loader-exit": 1
+    },
+    "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)": {
+      "loader-enter": 14,
+      "loader-exit": 13
+    },
+    "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)": {
+      "loader-enter": 5,
+      "loader-exit": 5
+    }
+  },
+  "methodEventCountsEqual": true,
+  "newAssessment": {
+    "Status": "incomplete",
+    "Findings": [
+      "generation=1,phase=loader-events-truncated,frame=1025:capture-incomplete",
+      "generation=1,phase=loader-events-truncated,frame=1025:read-error:loader-event-budget-exceeded"
+    ]
+  },
+  "newDroppedLoaderEvents": 26,
+  "newTraceTruncated": false,
+  "newSnapshotCount": 71,
+  "limitation": "Native baseline across process restart only; no new business creation or new business persistence established."
+}

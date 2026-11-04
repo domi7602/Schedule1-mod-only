@@ -19,12 +19,26 @@ public class RecurringStallExecutionTests
     {
         // Docks trace: a second stall has already spent two episodes, then the same
         // location fails free-spot rescue at .5-second intervals with no forward progress.
-        int[] result = Run(false);
-        Assert.Equal(0, result[0]); // no unchanged Navigate after a refused rescue
-        Assert.Equal(0, result[1]); // bounded placement re-probe is pending, not early terminal
-        Assert.Equal(3, result[2]); // spent episode retained, not reset or burned to cap
-        Assert.Equal(1, result[3]); // one checked rescue
-        Assert.Equal(0, result[4]); // no duplicate terminal graph rescue of the same spot
+        // No reverse is granted here (rear blocked), so the checked re-probe is the only
+        // remaining option.
+        int[] result = Run(false, reverseAllowed: false);
+        Assert.Equal(new[] { 0, 0, 3, 1, 0, 1 }, result);
+    }
+
+    [Fact]
+    public void FailedRecurringRescue_TriesOneDirectedReverseBeforeTheProbe()
+    {
+        // Owner Barn trace 2026-11-01 20:23: the car sat at full throttle against an
+        // embankment and the recurring branch had no physical option left.
+        int[] result = Run(false, ticks: 1);
+        Assert.Equal(new[] { 0, 0, 3, 1, 0, 1 }, result);
+    }
+
+    [Fact]
+    public void RepeatedRecurringStall_NeverReversesTwice()
+    {
+        int[] result = Run(false, ticks: 10);
+        Assert.Equal(1, result[5]);
     }
 
     [Theory]
@@ -32,29 +46,29 @@ public class RecurringStallExecutionTests
     [InlineData(true)]
     public void RefusedProbe_ThenSupportedProbe_PreservesRecoveryOpportunity(bool nativeFailed)
     {
-        int[] result = Run(false, ticks: 6, initialAttempts: 1, interrupt: "second-success", nativeFailed: nativeFailed);
-        Assert.Equal(new[] { 1, 0, 3, 2, 0 }, result);
+        int[] result = Run(false, ticks: 6, initialAttempts: 1, interrupt: "second-success", nativeFailed: nativeFailed, reverseAllowed: false);
+        Assert.Equal(new[] { 1, 0, 3, 2, 0, 1 }, result);
     }
 
     [Fact]
     public void RepeatedRefusal_EndsAfterOneDelayedProbeWithoutRedispatch()
     {
-        int[] result = Run(false, ticks: 10);
-        Assert.Equal(new[] { 0, 1, 4, 2, 0 }, result);
+        int[] result = Run(false, ticks: 10, reverseAllowed: false);
+        Assert.Equal(new[] { 0, 1, 4, 2, 0, 1 }, result);
     }
 
     [Fact]
     public void SuccessfulRecurringRescue_RedispatchesWithoutRefillingBudget()
     {
         int[] result = Run(true, ticks: 1);
-        Assert.Equal(new[] { 1, 0, 3, 1, 0 }, result);
+        Assert.Equal(new[] { 1, 0, 3, 1, 0, 0 }, result);
     }
 
     [Fact]
     public void ExhaustedOperation_StillUsesOnlyOneTerminalRescue()
     {
         int[] result = Run(false, initialAttempts: 4);
-        Assert.Equal(new[] { 0, 1, 4, 0, 1 }, result);
+        Assert.Equal(new[] { 0, 1, 4, 0, 1, 0 }, result);
     }
 
     [Theory]
@@ -85,17 +99,17 @@ public class RecurringStallExecutionTests
     [InlineData("wait-teardown")]
     public void DelayedProbe_RejectsSupersededIdentity(string interrupt)
     {
-        Assert.Equal(new[] { 0, 0, 3, 1, 0 }, Run(false, ticks: 6, interrupt: interrupt));
+        Assert.Equal(new[] { 0, 0, 3, 1, 0, 1 }, Run(false, ticks: 6, interrupt: interrupt, reverseAllowed: false));
     }
 
     [Fact]
     public void DelayedProbe_CannotExtendOperationDeadline()
     {
-        Assert.Equal(new[] { 0, 1, 3, 1, 0 }, Run(false, ticks: 6, interrupt: "deadline"));
+        Assert.Equal(new[] { 0, 1, 3, 1, 0, 1 }, Run(false, ticks: 6, interrupt: "deadline", reverseAllowed: false));
     }
 
-    private static int[] Run(bool rescue, int ticks = 2, int initialAttempts = 2, string interrupt = "", bool nativeFailed = false) =>
-        (int[])Replay.Value.Invoke(null, new object[] { rescue, ticks, initialAttempts, interrupt, nativeFailed })!;
+    private static int[] Run(bool rescue, int ticks = 2, int initialAttempts = 2, string interrupt = "", bool nativeFailed = false, bool reverseAllowed = true) =>
+        (int[])Replay.Value.Invoke(null, new object[] { rescue, ticks, initialAttempts, interrupt, nativeFailed, reverseAllowed })!;
 
     private static MethodInfo CompileReplay()
     {
@@ -174,12 +188,13 @@ public class RecurringStallExecutionTests
             private static float _supervisorSampleSpeed;
             private static float _recurringProbeAt;
             private static bool _recurringProbeUsed;
+            private static bool _recurringReverseUsed;
             private static long _recurringProbeOperation;
             private static int _recurringProbeOrder;
             private static IntPtr _recurringProbePointer;
             private static readonly RecoveryRecurrencePolicy RecoveryRecurrence = new();
-            private static int dispatched, terminal, rescues, terminalRescues;
-            private static bool rescued;
+            private static int dispatched, terminal, rescues, terminalRescues, reverseAttempts;
+            private static bool rescued, reverseAllowed;
             private static string interruption = "";
             private static bool PlayerDriver(LandVehicle v) => false;
             private static bool TryCompleteBeforeRecovery(VehicleAgent a, LandVehicle v, Vector3 p, float d, string trigger, bool logDecision) => false;
@@ -196,6 +211,11 @@ public class RecurringStallExecutionTests
                 rescues++;
                 InterruptAt("rescue");
                 return rescued || (interruption == "second-success" && rescues == 2);
+            }
+            private static bool TryStartReverse(VehicleAgent a, LandVehicle v, float now, string why) {
+                reverseAttempts++;
+                InterruptAt("reverse");
+                return reverseAllowed;
             }
             private static void ReDispatch(VehicleAgent a, Vector3 target, string why) { dispatched++; }
             private static bool TryTeleportRecovery(LandVehicle v, VehicleAgent a, Vector3 p, float distance) {
@@ -220,11 +240,13 @@ public class RecurringStallExecutionTests
                 }
                 if (interruption == boundary + "-teardown") Mod.Lifecycle.AcceptingWork = false;
             }
-            public static int[] Run(bool success, int ticks, int attempts, string interrupt, bool nativeFailed) {
-                dispatched = terminal = rescues = terminalRescues = 0;
+            public static int[] Run(bool success, int ticks, int attempts, string interrupt, bool nativeFailed, bool allowReverse) {
+                dispatched = terminal = rescues = terminalRescues = reverseAttempts = 0;
                 _recurringProbeAt = 0f;
                 _recurringProbeUsed = false;
+                _recurringReverseUsed = false;
                 rescued = success;
+                reverseAllowed = allowReverse;
                 interruption = interrupt;
                 _trafficWaiting = _localRecoveryProgress = _recoveryOwnsNavigation = false;
                 Mod.Lifecycle.AcceptingWork = true;
@@ -245,7 +267,7 @@ public class RecurringStallExecutionTests
                     }
                     TryBeginRecovery(new VehicleAgent(), SpikeState.Vehicle, true);
                 }
-                return new[] { dispatched, terminal, SpikeState.NavigationRecovery.Attempts, rescues, terminalRescues };
+                return new[] { dispatched, terminal, SpikeState.NavigationRecovery.Attempts, rescues, terminalRescues, reverseAttempts };
             }
             /* RECOVERY_METHOD */
         }

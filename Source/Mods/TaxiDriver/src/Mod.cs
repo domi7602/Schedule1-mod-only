@@ -15,7 +15,7 @@
 
 using MelonLoader;
 
-[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "1.0.5", "Dominik")]
+[assembly: MelonInfo(typeof(TaxiDriver.Mod), "TaxiDriver", "1.0.6", "Dominik")]
 [assembly: MelonGame("TVGS", "Schedule I")]
 
 namespace TaxiDriver

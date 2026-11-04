@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "capturedUtc": "2026-11-03T13:07:36.280727+00:00",
+  "gameProcessObservedPid": 20960,
+  "gameProcessStartObservedLocal": "2026-11-03T14:04:12+01:00",
+  "gameOpenDuringReview": true,
+  "sources": [
+    {
+      "archive": "live-slot2-construction.json",
+      "source": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\TownHallInterior\\BusinessConstruction\\20261103T130458006Z.json",
+      "sha256": "75074dffcb9e70e4c05e612bee67e27571e09b8d264255da32757d00cf5fecdc",
+      "bytes": 4534
+    },
+    {
+      "archive": "live-slot2-construction-g0000.json",
+      "source": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\TownHallInterior\\BusinessProbe\\20261103T130418868Z-4428c726b584419faafdbc519a52717f-g0000.json",
+      "sha256": "004c5792dcc83149047d1e2a727a351ea8ff1ffdb803aef0f65c286cbb7587d9",
+      "bytes": 2747
+    },
+    {
+      "archive": "live-slot2-construction-g0001.json",
+      "source": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\TownHallInterior\\BusinessProbe\\20261103T130418868Z-4428c726b584419faafdbc519a52717f-g0001.json",
+      "sha256": "962faa2a40bed3def03b79a4be3c14a09850f43f44c70cf98f9bd59615681af5",
+      "bytes": 83635
+    }
+  ],
+  "logCapturedByteCount": 39190,
+  "logCapturedSha256": "dfbe9e14e6cbd175e484ae7a932997c9a5ade26d1d2c714262c424ca45fe847a",
+  "logExcerptUsesOriginalLineNumbers": true,
+  "gameCommandsSent": false,
+  "repositoryCodeOrInstalledFilesChanged": false,
+  "sourceFilesMatchOfflineEvidence": 12
+}

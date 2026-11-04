@@ -1,0 +1,112 @@
+{
+  "Schema": 1,
+  "Mode": "inactive-own-business-native-dispatch",
+  "CapturedUtc": "2026-11-04T03:18:27.2430082Z",
+  "AssemblySha256": "659ee6a2fe2a3e12bb8dd8e61c15b48e673c5a54cdcf652167bda4035de96078",
+  "NativeProxySha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+  "FishNetSha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+  "S1ApiSha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+  "InteropRuntimeSha256": "3878ce0ba0c60385f76f2ba37e07ad0ee3649d019703aec8695db3402abeedd7",
+  "Target": "TownHallTest / SaveGame_2",
+  "WorldPublicationAllowed": false,
+  "NativeSaveWriteAllowed": false,
+  "GameMethodDetoursAdded": false,
+  "Context": {
+    "LoadComplete": true,
+    "Singleplayer": true,
+    "HallReady": true,
+    "DependenciesMatch": true,
+    "ActiveSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+    "LoadedSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+    "OrganisationName": "TownHallTest"
+  },
+  "Generation": 2,
+  "Result": {
+    "Status": "failed",
+    "Findings": [
+      "register-type:NullReferenceException:Couldn\u0027t find System.Type for Il2Cpp type: FishNet.Connection.NetworkConnection, FishNet.Runtime"
+    ],
+    "AttemptConsumed": true,
+    "RegistrationAttempted": true,
+    "RegistrationCompleted": false,
+    "CleanupComplete": true,
+    "Before": {
+      "Registries": {
+        "properties": "14:73fed72a57908d0129245c504321b55edbdfe6775427aa78648adc1692c26447",
+        "properties-owned": "1:0e6b4f4fdb6eeb8afc1580066dad50747ef0a353287ebf0fd5500c1bbb2519f6",
+        "properties-unowned": "13:c4688baf478b74c1d9a1b38ac1afd6f37b51edceee2e3f15708fca5394dd60cf",
+        "businesses": "5:29202282411b055a769d2410e056cf40e2bb1cdd47df1ca1c2bd74db58d20235",
+        "businesses-owned": "0:f30d07458a6d9f2051283f2e3f3d20a6265075571a497e42b553afb7e09bb682",
+        "businesses-unowned": "5:213261d8d652ca63eb4641e0e325605ca7af45377411cdec3ae8c8789ad5368d",
+        "saveables": "404:a47d4e3ca8bee507f9f26856301bdeacd4c99de6dd13e662ae95816d9a8844e5",
+        "base-saveables": "23:e432025a4b6f17a4fc6553518c646b6eb1ccdc2f6df8c4d649b9bc75111dc0f9",
+        "completed-saveables": "0:303ed4a64a9b683bb9589a2b53293ed77ef82d74a5c738b3ef491cf69a5519d2",
+        "save-requests": "0:7c4eb3e9959c90d5202926f7a3803d9fbb4b65c5f57a0937bd74773d625297a0"
+      },
+      "ForeignVtables": {
+        "14030AEF4D0": "61:8be1bcd960a439f4d0cbebb0d937814263ea1b25d1556a28d856534d081c69c5",
+        "14032911AD0": "64:5a4688b4bb1fcc31193d0863a07d199002256abf15ee5153fee5541a7a59f82b",
+        "140306E7BA0": "19:0311e181048fc823a04ae906ce4d09fef6a0771e3ea6a1951704162fb47c0d28",
+        "140306E5010": "4:6d309a06d353339f3fcce2331b9cb033ea1a37cdc9f5a199698492ffd42f5879",
+        "140306E5190": "4:37976dba0f6eb98147b88b16e8e0d10cbe0b2067942d61c71798f422df769f84",
+        "140306E5310": "4:ab95e2ad11410eac610b4bdd6c6b1def7678523ad685bdd7a8b424da912edde7",
+        "140306E5490": "4:11cb2f6a916130b12c73b5cd02a0f3efcbb6d0d3ee921462c10b7c9525d1192a",
+        "140328FAFC0": "61:fbd7dff16829774c56524a7fad4c15993ea5d935eb9d6c4bc0b053ff2f5d52f2",
+        "140329CC4A0": "61:3c3fb17e4369aadc2df2ae029072218a28329476200d81166d992a6e1b8b0bb1",
+        "140323AB2A0": "62:fb740d768d2d43aa6f12a46e62a5e94681edbbf7fa9c2f2a9f88f40c0eb50256",
+        "14032411B20": "61:11dd8ed1f9a3a94c89f0f7cb836f5147282624317db50075ee92831b08ee2833",
+        "140326BB940": "61:4112bb8c5bdce6eea8cf0bd79ee6866c126f7b3e253191ab791fd188fd5c4c31",
+        "1403290C470": "61:fb5c0aff92fed27c2b25eb060fd6c9e1b683b0d3086e6bb7a26652d8366bd009"
+      }
+    },
+    "Registered": null,
+    "Constructed": null,
+    "Dispatched": null,
+    "After": {
+      "Registries": {
+        "properties": "14:73fed72a57908d0129245c504321b55edbdfe6775427aa78648adc1692c26447",
+        "properties-owned": "1:0e6b4f4fdb6eeb8afc1580066dad50747ef0a353287ebf0fd5500c1bbb2519f6",
+        "properties-unowned": "13:c4688baf478b74c1d9a1b38ac1afd6f37b51edceee2e3f15708fca5394dd60cf",
+        "businesses": "5:29202282411b055a769d2410e056cf40e2bb1cdd47df1ca1c2bd74db58d20235",
+        "businesses-owned": "0:f30d07458a6d9f2051283f2e3f3d20a6265075571a497e42b553afb7e09bb682",
+        "businesses-unowned": "5:213261d8d652ca63eb4641e0e325605ca7af45377411cdec3ae8c8789ad5368d",
+        "saveables": "404:a47d4e3ca8bee507f9f26856301bdeacd4c99de6dd13e662ae95816d9a8844e5",
+        "base-saveables": "23:e432025a4b6f17a4fc6553518c646b6eb1ccdc2f6df8c4d649b9bc75111dc0f9",
+        "completed-saveables": "0:303ed4a64a9b683bb9589a2b53293ed77ef82d74a5c738b3ef491cf69a5519d2",
+        "save-requests": "0:7c4eb3e9959c90d5202926f7a3803d9fbb4b65c5f57a0937bd74773d625297a0"
+      },
+      "ForeignVtables": {
+        "14030AEF4D0": "61:8be1bcd960a439f4d0cbebb0d937814263ea1b25d1556a28d856534d081c69c5",
+        "14032911AD0": "64:5a4688b4bb1fcc31193d0863a07d199002256abf15ee5153fee5541a7a59f82b",
+        "140306E7BA0": "19:0311e181048fc823a04ae906ce4d09fef6a0771e3ea6a1951704162fb47c0d28",
+        "140306E5010": "4:6d309a06d353339f3fcce2331b9cb033ea1a37cdc9f5a199698492ffd42f5879",
+        "140306E5190": "4:37976dba0f6eb98147b88b16e8e0d10cbe0b2067942d61c71798f422df769f84",
+        "140306E5310": "4:ab95e2ad11410eac610b4bdd6c6b1def7678523ad685bdd7a8b424da912edde7",
+        "140306E5490": "4:11cb2f6a916130b12c73b5cd02a0f3efcbb6d0d3ee921462c10b7c9525d1192a",
+        "140328FAFC0": "61:fbd7dff16829774c56524a7fad4c15993ea5d935eb9d6c4bc0b053ff2f5d52f2",
+        "140329CC4A0": "61:3c3fb17e4369aadc2df2ae029072218a28329476200d81166d992a6e1b8b0bb1",
+        "140323AB2A0": "62:fb740d768d2d43aa6f12a46e62a5e94681edbbf7fa9c2f2a9f88f40c0eb50256",
+        "14032411B20": "61:11dd8ed1f9a3a94c89f0f7cb836f5147282624317db50075ee92831b08ee2833",
+        "140326BB940": "61:4112bb8c5bdce6eea8cf0bd79ee6866c126f7b3e253191ab791fd188fd5c4c31",
+        "1403290C470": "61:fb5c0aff92fed27c2b25eb060fd6c9e1b683b0d3086e6bb7a26652d8366bd009"
+      }
+    },
+    "Readback": null,
+    "Dispatch": null
+  },
+  "Native": {
+    "RootPointer": "0",
+    "BusinessPointer": "0",
+    "OwnClassPointer": "0",
+    "ClassInjectorReturned": false,
+    "TypeSlotsValidated": false,
+    "TypeRegistrationReversible": false,
+    "RootDestroyed": false,
+    "CleanupVerified": false,
+    "Components": [],
+    "NativeTargets": [],
+    "LifecycleBeforeCleanup": null,
+    "CountersAfterCleanup": null
+  },
+  "Limitation": "Type registration persists until process exit. CleanupComplete covers the own Unity root and acquired Business component. Own callback counters and class/vtable snapshots are bounded observations, not a proof of every native side effect. Dispatch proves the Property proxy/class virtual route only; ISaveable/interface dispatch and native manager call paths remain untested. No activation, registry publication, original lifecycle calls, serialization, purchase, save, spawn or gameplay acceptance."
+}

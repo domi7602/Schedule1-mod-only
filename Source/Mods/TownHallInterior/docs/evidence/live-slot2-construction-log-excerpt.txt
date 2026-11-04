@@ -1,0 +1,20 @@
+113: [14:04:15.054] Melon Assembly loaded: '.\Mods\TownHallInterior.dll'
+231: [14:04:15.613] TownHallInterior v0.1.0
+233: [14:04:15.613] Assembly: TownHallInterior.dll
+325: [14:04:18.860] [WARNING] [TownHallInterior] TownHallInterior: experimental local hall; hash-pinned geometric portal, not a business.
+326: [14:04:18.867] [WARNING] [TownHallInterior] TownHallInterior: door hook installed; selector and entry unavailable, native interaction retained.
+327: [14:04:18.931] [TownHallInterior] TownHall Business probe: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessProbe\20261103T130418868Z-4428c726b584419faafdbc519a52717f-g0000.json
+328: [14:04:18.982] [TownHallInterior] TownHall construction: inactive native shell test armed for TownHallTest / SaveGame_2 only.
+344: [14:04:22.388] [MoreSaveSlots] Slot 2: 'TownHallTest' v0.4.7f12 10/28/2026 8:20:32 PM
+345: [14:04:22.389] [MoreSaveSlots] Scan complete: 2/25 saves loaded. LastPlayed=Slot 2 'TownHallTest'
+350: [14:04:29.800] [MoreSaveSlots] ContinueScreen.LoadGame: mapped slot 2 -> 2 (SaveGame_2)
+378: [14:04:36.048] [TownHallInterior] TownHall Business probe: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessProbe\20261103T130418868Z-4428c726b584419faafdbc519a52717f-g0000.json
+379: [14:04:37.582] [TownHallInterior] TownHallInterior: three exact door contributions hidden (including distant billboard).
+380: [14:04:37.616] [TownHallInterior] TownHallInterior: native door mesh hidden; knock and usability retained.
+381: [14:04:37.618] [TownHallInterior] TownHallInterior: geometric portal published in Walls, root Cube and LOD Cube; shared batches untouched.
+382: [14:04:44.722] [TownHallInterior] TownHallInterior: vanilla reception published: 55 model instances, 19 owned shared meshes, 8 local lights; decorative only.
+383: [14:04:44.723] [TownHallInterior] TownHallInterior: hall and geometric facade opening published; native knock retained.
+402: [14:04:47.784] [WARNING] [LightControl] [LightControl] Could not create Segoe UI; using built-in Arial: System.MissingMethodException: Method not found: 'Void UnityEngine.Font..ctor(Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStringArray, Int32)'.
+448: [14:04:51.930] [TownHallInterior] TownHall Business probe: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessProbe\20261103T130418868Z-4428c726b584419faafdbc519a52717f-g0001.json
+461: [14:04:56.977] [TownHallInterior] TownHall Business probe: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessProbe\20261103T130418868Z-4428c726b584419faafdbc519a52717f-g0001.json
+464: [14:04:58.009] TownHall construction observed: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessConstruction\20261103T130458006Z.json

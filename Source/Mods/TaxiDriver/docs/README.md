@@ -1,5 +1,120 @@
 # TaxiDriver — Registered driver controller and scoped traffic-light bypass
 
+## Physical-start follow-up — Barn → Bungalow owner-confirmed 2026-11-02
+
+Installed DLL `9d897a865992506e87656b21876702668b43be91cb2e579e6d3327231c072d3a`,
+still version 1.0.6; replaced owner-tested `42b7e219…`. Independent delta review
+passed against all 109 pinned source/test files and both artifacts (104 focused
+no-build tests in the reviewer). Dominik subsequently confirmed the requested
+same-taxi Barn → Bungalow chain succeeded on this exact artifact.
+
+Additional owner-supplied run 15:01–15:04: **early entry during pickup braking is
+log-verified**, not merely normal boarding. Native Complete had already returned,
+but no pickup-halt confirmation was logged; the first post-entry actuator sample
+still reads 13.0 km/h. Passenger-seat correction, park and Barn dispatch followed;
+Barn ARRIVED at 5.0 m. This establishes that timing window, not all earlier entry
+phases or the suggested Bungalow → Barn origin (actual pickup target 33.8/0/32.0).
+
+The additional Bungalow continuation in that run reached an **alternate parking-lot
+target** (-156.0, -4.0, 82.3), logged 31.4 m from the goal, after three recovery
+episodes and a checked free-spot placement. Its ARRIVED 2.5 m / Complete is measured
+against that replacement, not the usual (-156.0, -4.0, 113.7) street point.
+Do not promote it to an exact normal-drop-off confirmation. No GAVE UP in the run.
+Log SHA-256 `87828a9b514b749d56d185615e5f1bd615bdda3d29af13609f112ef9d8c11615`.
+No code change, mod build, deployment or game/save operation to process this evidence.
+
+Owner run 12:53–12:56: Barn **ARRIVED 5.0 m**; Bungalow's first calculation Failed,
+recovery #1 **redispatched without reverse**, then recovery #2 performed a confirmed
+**3.2 m reverse**. Lane assist returned to the route after 21 nudges / 0 snaps;
+Bungalow **ARRIVED 3.4 m** with callback Complete. No GAVE UP line in the supplied run.
+The same-frame None-mode readback also proves park output cleared at native consumption
+(hand true → false; rear brake torque 1200 → 0), not a sustained handbrake latch here.
+Log SHA-256 `2781f6458ef2efee5af5163f4adf3f57fb70c4f279e15253dd88edf82bdd8bc9`.
+One owner-run acceptance of this chain, not all routes, early boarding or multiplayer.
+
+Deployed `2026-11-02T06:20:37.9787975Z`, attempt `20261102T062037797Z-ef54ac60ea3a`.
+Receipt and all five destinations read back; only DLL/PDB changed. Metadata, icon,
+GLB and Shared stayed identical. Installed DLL independently decompiled: Guard
+`Observe=false`. Backup `20261102T062037834Z-TaxiDriver-14e8f1a8` contains the previous
+DLL/PDB; both original-to-backup hashes verified. Game was closed for installation;
+Eve did not launch or operate it. The protected AGENTS inventory row was not changed.
+
+- The initial recovery uses existing current-operation/target-bound physical forward
+  evidence, not the native AutoDriving flag. No evidence allows one redispatch before
+  reversing; later recovery and obstacle/placement gates remain unchanged.
+- None-mode actuator startup diagnostics now sample before and after actual consumption,
+  at most eight pairs in the first three seconds, normally 0.5 s apart. No control scope
+  or input writes; stale operation/order/vehicle, STOP, teardown or player takeover
+  drops the postfix sample. Optional diagnostic state cannot disable the control hook
+  on a native pass-through exception. Logs now include order, path and calculation state.
+- RED: physical-start replay 4 failed / 3 controls; missing post-consumer replay 2 failed /
+  11 controls. GREEN: **1,402/1,402**, actual Guard rebuild **0 warnings/errors**, scoped
+  whitespace checks clean; compiled Guard and new decision/readback code decompiled.
+
+The pre-install candidate's isolated Pure passed TaxiDriver **1,402/1,402**, with
+**18 passed / 4 failed**: format, versions, clean-checkout Git fixture and workspace-setup
+Git fixture. The clean-checkout fixture is an additional failure in this run, not
+silently counted as the prior three-failure baseline. No unrelated repair applied.
+
+The requested Barn → Bungalow continuation and successful physical recovery are now
+confirmed for this owner run and closed at that scope. No new production edit, mod
+build, deployment or repeat journey is needed merely to record this acceptance.
+
+Acceptance-record verification: snapshot `abee387f8b9a` / `f8e82eeece98`, Pure
+**19 passed / 3 failed** (format, versions, workspace-setup Git fixture); docs and
+TaxiDriver **1,402/1,402** passed. All 109 production/test hashes and the installed
+DLL stayed unchanged. The overall repository gate is still not green.
+
+## Previous owner-tested build — 1.0.6, 2026-11-02
+
+Previously installed DLL SHA-256 `42b7e219a0062758dedb2e33272e02fab9f462367cfc53280801658f3af914b9`.
+Built with explicit `-p:TaxiShortcutGuard=true -p:S1NoDeploy=true`; both the candidate
+and the installed DLL were decompiled and confirmed `NativeShortcutPatch.Observe=false`.
+The first 1.0.6 artifact `75a6ab63…` was mistakenly reported as Guard but was Observe;
+it was replaced with the game closed. Only TaxiDriver DLL/PDB changed in this correction;
+metadata, icon, GLB and Shared were not replaced. Backup: `20261102T050453430Z-TaxiDriver-75b369ca`.
+
+The candidate contains the initial no-drive redispatch and one recurring-stall reverse
+fallback. Repeated offline tests: **1,382/1,382**; Release rebuild: **0 warnings/errors**.
+Independent read-only checker confirmed candidate/installed hash equality and Guard
+in both DLLs; the flag changes the existing shortcut mode only. This is build-mode
+verification, not recovery-code or gameplay acceptance. Isolated Pure: **19 passed /
+3 failed** (global format/version drift and workspace-setup Git/submodule fixture errors);
+test, documentation, skills and XML steps passed. The overall repository gate remains failed.
+**Owner run 2026-11-02 06:20, not accepted:** this exact Guard artifact loaded.
+Normal stopped boarding; Barn arrived at 5.0 m, fare $18. The same-taxi Bungalow
+continuation obtained a valid whole path but stayed at the Barn departure point.
+Recovery #1 reversed 3.2 m despite no prior physical drive; the new recurring fallback
+then reversed 2.3 m, found the front still blocked and no supported free spot, and
+gave up 332.4 m short (fare $7). The extra reverse ran, but did not repair the route.
+
+Confirmed code defect: `RecoverStuck` passes `NavEverAutoDriving` to the initial
+recovery policy. `AutoDriving=true` does not prove a physical drive start.
+Extracted-production-method diagnostic: **2 controls passed / 1 contract failed**
+for AutoDriving=true with zero motion. Native boundaries are substituted, so the
+replay does not prove physical escape. A sustained handbrake latch is a separate,
+unconfirmed hypothesis; the log has only an immediate post-dispatch sample.
+No further production edit, mod build or deployment in this diagnosis round.
+See [current findings](bugreport-navigation-2026-11-01.md#owner-retest-2026-11-02).
+The remaining sections below describe historical builds.
+
+## Owner Barn ride on the combined build — 2026-11-01 19:35
+
+Installed and loaded in Dominik's own Slot-1 session: DLL `012330b1…`, still 1.0.5,
+`mode=Guard`. Pickup parked 4.6 m away; he boarded only after that halt. Barn arrived
+at 5.0 m from `(165.3, 0.0, 25.1)` after the Guard replaced the empty Error direct path
+and the supervisor completed on a readable halt. Fare $17. This is his ride, not a
+general reliability acceptance.
+
+Without exiting he then selected Bungalow. The first calculation from the Barn street
+end failed; after a 3.3 m reverse a valid path existed, but the taxi stalled at
+`(164.6, 0.8, 19.6)` and **GAVE UP** 334.1 m short. Fare $6. That does not reopen the
+Barn arrival. Docks and early boarding were not tested. Game was closed afterward. Standalone report:
+[bugreport-navigation-2026-11-01.md](bugreport-navigation-2026-11-01.md).
+[Log](native-shortcut-verification.md) identity and the vault copy
+`raw/attachments/taxi-navigation-settings-2026-10-30/owner-barn-20261101/Latest-owner-19-35.log`,
+SHA-256 `b2b6cfe51163c5d47799a6e088ca51b7ce28954b890b022328e05ce740d0a0af`.
+
 ## Installed Guard test build and observed routes — 2026-10-31
 
 After the owner's approval, **Observe** confirmed the native error: four times a

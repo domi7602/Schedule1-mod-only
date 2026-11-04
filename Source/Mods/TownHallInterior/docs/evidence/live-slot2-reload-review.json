@@ -1,0 +1,123 @@
+{
+  "capture": {
+    "LogLineCount": 626,
+    "ProcessStartedUtc": "2026-11-03T12:11:45.9665251Z",
+    "LogExcerptLines": 56,
+    "InstalledDllSha256": "a34e3b4ae23e1448dbdb1a4f1f9abd22156e97e1b811ef69e45419a83f00bee4",
+    "SourceRun": "20261103T121152046Z-88ba70e7b1574280a8c053a724702eb3",
+    "CapturedUtc": "2026-11-03T12:18:23.3918689Z",
+    "Scope": "Read-only file capture; no game commands or save mutation",
+    "ProcessId": 22728,
+    "ConfirmedSlot": "TownHallTest / SaveGame_2"
+  },
+  "reports": [
+    {
+      "generation": 1,
+      "events": 90,
+      "pairs": 45,
+      "callIdRange": [
+        1,
+        45
+      ],
+      "sequenceRange": [
+        2,
+        100
+      ],
+      "snapshots": 9,
+      "dropped": 0,
+      "assessment": {
+        "Status": "observed",
+        "Findings": []
+      }
+    },
+    {
+      "generation": 2,
+      "events": 90,
+      "pairs": 45,
+      "callIdRange": [
+        46,
+        90
+      ],
+      "sequenceRange": [
+        101,
+        196
+      ],
+      "snapshots": 6,
+      "dropped": 0,
+      "assessment": {
+        "Status": "observed",
+        "Findings": []
+      }
+    }
+  ],
+  "firstBeforeSha256": "baf115ab17bc96c870ad9c3dc3154653a20eb6dddd3882ecefd28f52dd604ba6",
+  "firstAfterSha256": "4954346a0a133c987d524db46e7f1352099f9f35644fcf3257141c49a22185cd",
+  "secondSha256": "37fdc30acbea0f6974039838ed40537f9784510ac94503334d9e667fee320067",
+  "preservedFirstEventsAndInventory": true,
+  "changedFirstKeys": [
+    "CapturedUtc",
+    "Snapshots"
+  ],
+  "appendedFirstMarkers": [
+    {
+      "Phase": "pre-scene-change",
+      "Frame": 26899,
+      "MainGeneration": 1,
+      "Complete": true,
+      "Errors": [],
+      "Entities": [],
+      "Sequence": 98
+    },
+    {
+      "Phase": "main-scene-unloaded",
+      "Frame": 26900,
+      "MainGeneration": 1,
+      "Complete": true,
+      "Errors": [],
+      "Entities": [],
+      "Sequence": 99
+    },
+    {
+      "Phase": "pre-scene-change",
+      "Frame": 28995,
+      "MainGeneration": 1,
+      "Complete": true,
+      "Errors": [],
+      "Entities": [],
+      "Sequence": 100
+    }
+  ],
+  "generationSequenceContiguous": true,
+  "disjointCallIds": true,
+  "counts": {
+    "bounds": 5,
+    "bounds-collider": 5,
+    "business": 5,
+    "business-grid-membership": 7,
+    "business-state": 5,
+    "container": 5,
+    "grid": 7,
+    "interface-business": 5,
+    "interior-spawn": 5,
+    "npc-spawn": 5,
+    "property-membership": 14,
+    "spawn": 5,
+    "station": 5,
+    "station-grid": 5,
+    "station-interface": 5,
+    "station-item": 5,
+    "townhall-anchor": 1,
+    "unowned-business-membership": 5,
+    "worldspace-ui": 5
+  },
+  "normalizedInventoriesEqual": true,
+  "addedRows": [],
+  "removedRows": [],
+  "canonicalIdentities": 63,
+  "pointersChanged": 63,
+  "limitations": [
+    "Observed callback coverage only; BusinessLoader.Load still has zero sightings.",
+    "Station-item normalization covers topology, not unexported instance data.",
+    "No native TownHall business creation or persistence proven."
+  ]
+}

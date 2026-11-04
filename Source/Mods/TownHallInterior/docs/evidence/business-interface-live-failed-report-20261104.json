@@ -1,0 +1,607 @@
+{
+  "Schema": 2,
+  "Mode": "inactive-own-business-interface-dispatch",
+  "CapturedUtc": "2026-11-04T04:53:58.2533991Z",
+  "AssemblySha256": "cb98bc95c7efcf947eaa268bbde742bffb467401fed6afb526e7cc26406ef207",
+  "NativeProxySha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+  "FishNetSha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+  "S1ApiSha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+  "InteropRuntimeSha256": "3878ce0ba0c60385f76f2ba37e07ad0ee3649d019703aec8695db3402abeedd7",
+  "HarmonySha256": "6c898933b52149e8bcf6722305c7e4d94add47c9e53b364096f91721624c0877",
+  "Target": "TownHallTest / SaveGame_2",
+  "WorldPublicationAllowed": false,
+  "NativeSaveWriteAllowed": false,
+  "GameMethodDetoursAdded": false,
+  "Context": {
+    "LoadComplete": true,
+    "Singleplayer": true,
+    "HallReady": true,
+    "DependenciesMatch": true,
+    "ActiveSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+    "LoadedSavePath": "C:\\Users\\pc\\AppData\\LocalLow\\TVGS\\Schedule I\\Saves\\76561199109519851\\SaveGame_2",
+    "OrganisationName": "TownHallTest"
+  },
+  "Generation": 2,
+  "Result": {
+    "Status": "failed",
+    "Findings": [
+      "interface-preflight:InvalidOperationException:interface-target-or-counter-invalid"
+    ],
+    "AttemptConsumed": true,
+    "RegistrationAttempted": true,
+    "RegistrationCompleted": true,
+    "CleanupComplete": true,
+    "Before": {
+      "Registries": {
+        "properties": "14:a9bcef9739924d6d80829ad1a2405eb5619d3ab34cf0bda49872d939a80627a0",
+        "properties-owned": "1:35258f5ddf8a27a139f0790c31a356e9dd4133f4ad24988a883d47fa51d7df79",
+        "properties-unowned": "13:1b04935be6de5061b1477137b20e2e87612953b1db7b2c939602af707793a1e6",
+        "businesses": "5:e9d27757860c20878ece95478ddf6b8e4c54a954f624fd854086a01b0ca37849",
+        "businesses-owned": "0:91be70f3ada27b209267c6eef3c73f528d4a2387e023ec290a6d6d779dca23ac",
+        "businesses-unowned": "5:a941dddd8f3ea367e1788e5593151493c131daf492cba0ae0c083830dde28f83",
+        "saveables": "404:4cf32f5c7ba1a805ef997d170e7a5bbd8bdd4b160904868bfb7c523e587cfc63",
+        "base-saveables": "23:4649af6d044ebfeaaa688cd7d1f097531eec8979bfba8db876531f67fcbd9f7b",
+        "completed-saveables": "0:e041a7fa32d7be78d10fd810d666eaea72175def3865228a6cc045fca5bfab6d",
+        "save-requests": "0:2302150043eb4efc2a8a79cb41f20d556897ca9ec1d77539813b7077929bfb21"
+      },
+      "ForeignVtables": {
+        "208E0AEF4D0": "61:84387a7eaa772edff01e713a1e567e99b1a19335219b16523611b47ba9a09bc5",
+        "208E2911AD0": "64:45ef51b2efd07baa6106d1c75e1eb6c01ec4f71e3475593d62343033b90e8c25",
+        "208E06E7BA0": "19:c537c18d6abf0c89cd131fe3bdbd685d5154278027a2928423bc4358d85d293d",
+        "208E06E5010": "4:8a03231c837ccd8d9c2f397850560cee3289e7e3bcccd6eabce75ff96a725bdb",
+        "208E06E5190": "4:e32d2e3094f4cda80478ec0847b417380457f74a0c3aa07b096c19149002e4b5",
+        "208E06E5310": "4:684719021f2ba3051fe82376d4cb10b5d7459937baf971ac8e6c773f05502db3",
+        "208E06E5490": "4:d694a161b4be2c0d3aca8f2c7cef9ddd873186ccc5827f1072ebfb6569b6e42e",
+        "208E0AE8520": "5:3efcf48a84ebd238e2661abdffccca11e4b1f3ba5320186d830b15a9168b4aec",
+        "208E23941F0": "0:41169f9855885088eb4bfac9c61a4c777960a27d7d1662c7eecd04e77d9d94e0",
+        "208E28FAFC0": "61:464abf8a8321e57d5c9b06a5adbcb7ee328239696e1a50430caf7b5814fd72f7",
+        "208E29CC4A0": "61:e9ae2c3e31b9f66369ebea1b91d6e741924caa12bf1147c221e05509b592ba3b",
+        "208E23AB2A0": "62:027e152269f69727bfd4a1080e5bfaaff448ba3ae6dbd33f66ae6b512a77c6cb",
+        "208E2411B20": "61:7c4a9c176d07d389c37ce0c847c302a35e680b5a79d5d840b3e2e2981546147c",
+        "208E26BB940": "61:5e3b7d96500c280a2abb2395275591fb75e621262d450ab5db3f9c115b583af4",
+        "208E290C470": "61:9dab13f8e896a368413183344c34baaef697c644f800e0addfb9c9368d289fbd"
+      }
+    },
+    "Registered": {
+      "Registries": {
+        "properties": "14:a9bcef9739924d6d80829ad1a2405eb5619d3ab34cf0bda49872d939a80627a0",
+        "properties-owned": "1:35258f5ddf8a27a139f0790c31a356e9dd4133f4ad24988a883d47fa51d7df79",
+        "properties-unowned": "13:1b04935be6de5061b1477137b20e2e87612953b1db7b2c939602af707793a1e6",
+        "businesses": "5:e9d27757860c20878ece95478ddf6b8e4c54a954f624fd854086a01b0ca37849",
+        "businesses-owned": "0:91be70f3ada27b209267c6eef3c73f528d4a2387e023ec290a6d6d779dca23ac",
+        "businesses-unowned": "5:a941dddd8f3ea367e1788e5593151493c131daf492cba0ae0c083830dde28f83",
+        "saveables": "404:4cf32f5c7ba1a805ef997d170e7a5bbd8bdd4b160904868bfb7c523e587cfc63",
+        "base-saveables": "23:4649af6d044ebfeaaa688cd7d1f097531eec8979bfba8db876531f67fcbd9f7b",
+        "completed-saveables": "0:e041a7fa32d7be78d10fd810d666eaea72175def3865228a6cc045fca5bfab6d",
+        "save-requests": "0:2302150043eb4efc2a8a79cb41f20d556897ca9ec1d77539813b7077929bfb21"
+      },
+      "ForeignVtables": {
+        "208E0AEF4D0": "61:84387a7eaa772edff01e713a1e567e99b1a19335219b16523611b47ba9a09bc5",
+        "208E2911AD0": "64:45ef51b2efd07baa6106d1c75e1eb6c01ec4f71e3475593d62343033b90e8c25",
+        "208E06E7BA0": "19:c537c18d6abf0c89cd131fe3bdbd685d5154278027a2928423bc4358d85d293d",
+        "208E06E5010": "4:8a03231c837ccd8d9c2f397850560cee3289e7e3bcccd6eabce75ff96a725bdb",
+        "208E06E5190": "4:e32d2e3094f4cda80478ec0847b417380457f74a0c3aa07b096c19149002e4b5",
+        "208E06E5310": "4:684719021f2ba3051fe82376d4cb10b5d7459937baf971ac8e6c773f05502db3",
+        "208E06E5490": "4:d694a161b4be2c0d3aca8f2c7cef9ddd873186ccc5827f1072ebfb6569b6e42e",
+        "208E0AE8520": "5:3efcf48a84ebd238e2661abdffccca11e4b1f3ba5320186d830b15a9168b4aec",
+        "208E23941F0": "0:41169f9855885088eb4bfac9c61a4c777960a27d7d1662c7eecd04e77d9d94e0",
+        "208E28FAFC0": "61:464abf8a8321e57d5c9b06a5adbcb7ee328239696e1a50430caf7b5814fd72f7",
+        "208E29CC4A0": "61:e9ae2c3e31b9f66369ebea1b91d6e741924caa12bf1147c221e05509b592ba3b",
+        "208E23AB2A0": "62:027e152269f69727bfd4a1080e5bfaaff448ba3ae6dbd33f66ae6b512a77c6cb",
+        "208E2411B20": "61:7c4a9c176d07d389c37ce0c847c302a35e680b5a79d5d840b3e2e2981546147c",
+        "208E26BB940": "61:5e3b7d96500c280a2abb2395275591fb75e621262d450ab5db3f9c115b583af4",
+        "208E290C470": "61:9dab13f8e896a368413183344c34baaef697c644f800e0addfb9c9368d289fbd"
+      }
+    },
+    "Constructed": {
+      "Registries": {
+        "properties": "14:a9bcef9739924d6d80829ad1a2405eb5619d3ab34cf0bda49872d939a80627a0",
+        "properties-owned": "1:35258f5ddf8a27a139f0790c31a356e9dd4133f4ad24988a883d47fa51d7df79",
+        "properties-unowned": "13:1b04935be6de5061b1477137b20e2e87612953b1db7b2c939602af707793a1e6",
+        "businesses": "5:e9d27757860c20878ece95478ddf6b8e4c54a954f624fd854086a01b0ca37849",
+        "businesses-owned": "0:91be70f3ada27b209267c6eef3c73f528d4a2387e023ec290a6d6d779dca23ac",
+        "businesses-unowned": "5:a941dddd8f3ea367e1788e5593151493c131daf492cba0ae0c083830dde28f83",
+        "saveables": "404:4cf32f5c7ba1a805ef997d170e7a5bbd8bdd4b160904868bfb7c523e587cfc63",
+        "base-saveables": "23:4649af6d044ebfeaaa688cd7d1f097531eec8979bfba8db876531f67fcbd9f7b",
+        "completed-saveables": "0:e041a7fa32d7be78d10fd810d666eaea72175def3865228a6cc045fca5bfab6d",
+        "save-requests": "0:2302150043eb4efc2a8a79cb41f20d556897ca9ec1d77539813b7077929bfb21"
+      },
+      "ForeignVtables": {
+        "208E0AEF4D0": "61:84387a7eaa772edff01e713a1e567e99b1a19335219b16523611b47ba9a09bc5",
+        "208E2911AD0": "64:45ef51b2efd07baa6106d1c75e1eb6c01ec4f71e3475593d62343033b90e8c25",
+        "208E06E7BA0": "19:c537c18d6abf0c89cd131fe3bdbd685d5154278027a2928423bc4358d85d293d",
+        "208E06E5010": "4:8a03231c837ccd8d9c2f397850560cee3289e7e3bcccd6eabce75ff96a725bdb",
+        "208E06E5190": "4:e32d2e3094f4cda80478ec0847b417380457f74a0c3aa07b096c19149002e4b5",
+        "208E06E5310": "4:684719021f2ba3051fe82376d4cb10b5d7459937baf971ac8e6c773f05502db3",
+        "208E06E5490": "4:d694a161b4be2c0d3aca8f2c7cef9ddd873186ccc5827f1072ebfb6569b6e42e",
+        "208E0AE8520": "5:3efcf48a84ebd238e2661abdffccca11e4b1f3ba5320186d830b15a9168b4aec",
+        "208E23941F0": "0:41169f9855885088eb4bfac9c61a4c777960a27d7d1662c7eecd04e77d9d94e0",
+        "208E28FAFC0": "61:464abf8a8321e57d5c9b06a5adbcb7ee328239696e1a50430caf7b5814fd72f7",
+        "208E29CC4A0": "61:e9ae2c3e31b9f66369ebea1b91d6e741924caa12bf1147c221e05509b592ba3b",
+        "208E23AB2A0": "62:027e152269f69727bfd4a1080e5bfaaff448ba3ae6dbd33f66ae6b512a77c6cb",
+        "208E2411B20": "61:7c4a9c176d07d389c37ce0c847c302a35e680b5a79d5d840b3e2e2981546147c",
+        "208E26BB940": "61:5e3b7d96500c280a2abb2395275591fb75e621262d450ab5db3f9c115b583af4",
+        "208E290C470": "61:9dab13f8e896a368413183344c34baaef697c644f800e0addfb9c9368d289fbd"
+      }
+    },
+    "Dispatched": {
+      "Registries": {
+        "properties": "14:a9bcef9739924d6d80829ad1a2405eb5619d3ab34cf0bda49872d939a80627a0",
+        "properties-owned": "1:35258f5ddf8a27a139f0790c31a356e9dd4133f4ad24988a883d47fa51d7df79",
+        "properties-unowned": "13:1b04935be6de5061b1477137b20e2e87612953b1db7b2c939602af707793a1e6",
+        "businesses": "5:e9d27757860c20878ece95478ddf6b8e4c54a954f624fd854086a01b0ca37849",
+        "businesses-owned": "0:91be70f3ada27b209267c6eef3c73f528d4a2387e023ec290a6d6d779dca23ac",
+        "businesses-unowned": "5:a941dddd8f3ea367e1788e5593151493c131daf492cba0ae0c083830dde28f83",
+        "saveables": "404:4cf32f5c7ba1a805ef997d170e7a5bbd8bdd4b160904868bfb7c523e587cfc63",
+        "base-saveables": "23:4649af6d044ebfeaaa688cd7d1f097531eec8979bfba8db876531f67fcbd9f7b",
+        "completed-saveables": "0:e041a7fa32d7be78d10fd810d666eaea72175def3865228a6cc045fca5bfab6d",
+        "save-requests": "0:2302150043eb4efc2a8a79cb41f20d556897ca9ec1d77539813b7077929bfb21"
+      },
+      "ForeignVtables": {
+        "208E0AEF4D0": "61:84387a7eaa772edff01e713a1e567e99b1a19335219b16523611b47ba9a09bc5",
+        "208E2911AD0": "64:45ef51b2efd07baa6106d1c75e1eb6c01ec4f71e3475593d62343033b90e8c25",
+        "208E06E7BA0": "19:c537c18d6abf0c89cd131fe3bdbd685d5154278027a2928423bc4358d85d293d",
+        "208E06E5010": "4:8a03231c837ccd8d9c2f397850560cee3289e7e3bcccd6eabce75ff96a725bdb",
+        "208E06E5190": "4:e32d2e3094f4cda80478ec0847b417380457f74a0c3aa07b096c19149002e4b5",
+        "208E06E5310": "4:684719021f2ba3051fe82376d4cb10b5d7459937baf971ac8e6c773f05502db3",
+        "208E06E5490": "4:d694a161b4be2c0d3aca8f2c7cef9ddd873186ccc5827f1072ebfb6569b6e42e",
+        "208E0AE8520": "5:3efcf48a84ebd238e2661abdffccca11e4b1f3ba5320186d830b15a9168b4aec",
+        "208E23941F0": "0:41169f9855885088eb4bfac9c61a4c777960a27d7d1662c7eecd04e77d9d94e0",
+        "208E28FAFC0": "61:464abf8a8321e57d5c9b06a5adbcb7ee328239696e1a50430caf7b5814fd72f7",
+        "208E29CC4A0": "61:e9ae2c3e31b9f66369ebea1b91d6e741924caa12bf1147c221e05509b592ba3b",
+        "208E23AB2A0": "62:027e152269f69727bfd4a1080e5bfaaff448ba3ae6dbd33f66ae6b512a77c6cb",
+        "208E2411B20": "61:7c4a9c176d07d389c37ce0c847c302a35e680b5a79d5d840b3e2e2981546147c",
+        "208E26BB940": "61:5e3b7d96500c280a2abb2395275591fb75e621262d450ab5db3f9c115b583af4",
+        "208E290C470": "61:9dab13f8e896a368413183344c34baaef697c644f800e0addfb9c9368d289fbd"
+      }
+    },
+    "After": {
+      "Registries": {
+        "properties": "14:a9bcef9739924d6d80829ad1a2405eb5619d3ab34cf0bda49872d939a80627a0",
+        "properties-owned": "1:35258f5ddf8a27a139f0790c31a356e9dd4133f4ad24988a883d47fa51d7df79",
+        "properties-unowned": "13:1b04935be6de5061b1477137b20e2e87612953b1db7b2c939602af707793a1e6",
+        "businesses": "5:e9d27757860c20878ece95478ddf6b8e4c54a954f624fd854086a01b0ca37849",
+        "businesses-owned": "0:91be70f3ada27b209267c6eef3c73f528d4a2387e023ec290a6d6d779dca23ac",
+        "businesses-unowned": "5:a941dddd8f3ea367e1788e5593151493c131daf492cba0ae0c083830dde28f83",
+        "saveables": "404:4cf32f5c7ba1a805ef997d170e7a5bbd8bdd4b160904868bfb7c523e587cfc63",
+        "base-saveables": "23:4649af6d044ebfeaaa688cd7d1f097531eec8979bfba8db876531f67fcbd9f7b",
+        "completed-saveables": "0:e041a7fa32d7be78d10fd810d666eaea72175def3865228a6cc045fca5bfab6d",
+        "save-requests": "0:2302150043eb4efc2a8a79cb41f20d556897ca9ec1d77539813b7077929bfb21"
+      },
+      "ForeignVtables": {
+        "208E0AEF4D0": "61:84387a7eaa772edff01e713a1e567e99b1a19335219b16523611b47ba9a09bc5",
+        "208E2911AD0": "64:45ef51b2efd07baa6106d1c75e1eb6c01ec4f71e3475593d62343033b90e8c25",
+        "208E06E7BA0": "19:c537c18d6abf0c89cd131fe3bdbd685d5154278027a2928423bc4358d85d293d",
+        "208E06E5010": "4:8a03231c837ccd8d9c2f397850560cee3289e7e3bcccd6eabce75ff96a725bdb",
+        "208E06E5190": "4:e32d2e3094f4cda80478ec0847b417380457f74a0c3aa07b096c19149002e4b5",
+        "208E06E5310": "4:684719021f2ba3051fe82376d4cb10b5d7459937baf971ac8e6c773f05502db3",
+        "208E06E5490": "4:d694a161b4be2c0d3aca8f2c7cef9ddd873186ccc5827f1072ebfb6569b6e42e",
+        "208E0AE8520": "5:3efcf48a84ebd238e2661abdffccca11e4b1f3ba5320186d830b15a9168b4aec",
+        "208E23941F0": "0:41169f9855885088eb4bfac9c61a4c777960a27d7d1662c7eecd04e77d9d94e0",
+        "208E28FAFC0": "61:464abf8a8321e57d5c9b06a5adbcb7ee328239696e1a50430caf7b5814fd72f7",
+        "208E29CC4A0": "61:e9ae2c3e31b9f66369ebea1b91d6e741924caa12bf1147c221e05509b592ba3b",
+        "208E23AB2A0": "62:027e152269f69727bfd4a1080e5bfaaff448ba3ae6dbd33f66ae6b512a77c6cb",
+        "208E2411B20": "61:7c4a9c176d07d389c37ce0c847c302a35e680b5a79d5d840b3e2e2981546147c",
+        "208E26BB940": "61:5e3b7d96500c280a2abb2395275591fb75e621262d450ab5db3f9c115b583af4",
+        "208E290C470": "61:9dab13f8e896a368413183344c34baaef697c644f800e0addfb9c9368d289fbd"
+      }
+    },
+    "Readback": {
+      "Inactive": true,
+      "ExactComponents": true,
+      "Unowned": true,
+      "OwnNativeClass": true,
+      "OwnVirtualTargets": true,
+      "UnexpectedLifecycleCalls": 0,
+      "InitializeSaveableCalls": 0
+    },
+    "Dispatch": {
+      "ShouldSave": false,
+      "CanBePurchased": false,
+      "SaveCalls": 1,
+      "PurchaseCalls": 1
+    },
+    "Interface": {
+      "Before": null,
+      "After": null,
+      "BeforeSnapshot": null,
+      "AfterSnapshot": null,
+      "InvocationAttempted": false
+    }
+  },
+  "Native": {
+    "RootPointer": "20B04DC6CA0",
+    "BusinessPointer": "20B0545BA80",
+    "OwnClassPointer": "20C9A7DAF40",
+    "ClassInjectorReturned": true,
+    "TypeSlotsValidated": true,
+    "TypeRegistrationReversible": false,
+    "RootDestroyed": true,
+    "CleanupVerified": true,
+    "Components": [
+      {
+        "Type": "UnityEngine.Transform",
+        "Pointer": "20B04DC6960",
+        "NativeClass": "208E1ECD5C0"
+      },
+      {
+        "Type": "TownHallInterior.ProbeBusinessSubtype",
+        "Pointer": "20B0545BA80",
+        "NativeClass": "20C9A7DAF40"
+      }
+    ],
+    "NativeTargets": [
+      {
+        "Name": "ShouldSave",
+        "BaseMethod": "208E0B53320",
+        "BasePointer": "7FFF0F9B74D0",
+        "BaseSlot": 49,
+        "OwnMethod": "1C8276CD0C0",
+        "OwnPointer": "7FFF25C67664",
+        "DeclaringClass": "20C9A7DAF40"
+      },
+      {
+        "Name": "CanBePurchased",
+        "BaseMethod": "208E0B533D0",
+        "BasePointer": "7FFF0F9B74D0",
+        "BaseSlot": 50,
+        "OwnMethod": "1C8276CD060",
+        "OwnPointer": "7FFF25C676A4",
+        "DeclaringClass": "20C9A7DAF40"
+      },
+      {
+        "Name": "FixedUpdate",
+        "BaseMethod": "208E0B52F58",
+        "BasePointer": "7FFF0FAB4740",
+        "BaseSlot": 45,
+        "OwnMethod": "1C8276CD1E0",
+        "OwnPointer": "7FFF25C677A4",
+        "DeclaringClass": "20C9A7DAF40"
+      },
+      {
+        "Name": "InitializeSaveable",
+        "BaseMethod": "208E0B52EA8",
+        "BasePointer": "7FFF0FAB4F10",
+        "BaseSlot": 43,
+        "OwnMethod": "1C8276CD3C0",
+        "OwnPointer": "7FFF25C677E4",
+        "DeclaringClass": "20C9A7DAF40"
+      },
+      {
+        "Name": "Awake",
+        "BaseMethod": "208E29460D8",
+        "BasePointer": "7FFF0FAABFE0",
+        "BaseSlot": 42,
+        "OwnMethod": "1C8276CD120",
+        "OwnPointer": "7FFF25C676E4",
+        "DeclaringClass": "20C9A7DAF40"
+      },
+      {
+        "Name": "Start",
+        "BaseMethod": "208E2946130",
+        "BasePointer": "7FFF0FAAD9A0",
+        "BaseSlot": 44,
+        "OwnMethod": "1C8276CD360",
+        "OwnPointer": "7FFF25C67724",
+        "DeclaringClass": "20C9A7DAF40"
+      },
+      {
+        "Name": "OnDestroy",
+        "BaseMethod": "208E2946188",
+        "BasePointer": "7FFF0FAACCA0",
+        "BaseSlot": 46,
+        "OwnMethod": "1C8276CD180",
+        "OwnPointer": "7FFF25C67764",
+        "DeclaringClass": "20C9A7DAF40"
+      },
+      {
+        "Name": "NetworkInitialize___Early",
+        "BaseMethod": "208E29466B0",
+        "BasePointer": "7FFF0FAACB70",
+        "BaseSlot": 58,
+        "OwnMethod": "1C8276CD480",
+        "OwnPointer": "7FFF25C67824",
+        "DeclaringClass": "20C9A7DAF40"
+      },
+      {
+        "Name": "NetworkInitialize__Late",
+        "BaseMethod": "208E2946708",
+        "BasePointer": "7FFF0FAACB40",
+        "BaseSlot": 59,
+        "OwnMethod": "1C8276CD540",
+        "OwnPointer": "7FFF25C67864",
+        "DeclaringClass": "20C9A7DAF40"
+      },
+      {
+        "Name": "NetworkInitializeIfDisabled",
+        "BaseMethod": "208E2946760",
+        "BasePointer": "7FFF0FAAACE0",
+        "BaseSlot": 14,
+        "OwnMethod": "1C8276CD4E0",
+        "OwnPointer": "7FFF25C678A4",
+        "DeclaringClass": "20C9A7DAF40"
+      },
+      {
+        "Name": "Reset",
+        "BaseMethod": "208E0B1B540",
+        "BasePointer": "7FFF0F99FEC0",
+        "BaseSlot": 15,
+        "OwnMethod": "1C8276CD660",
+        "OwnPointer": "7FFF25C678E4",
+        "DeclaringClass": "20C9A7DAF40"
+      },
+      {
+        "Name": "OnValidate",
+        "BaseMethod": "208E0B1B598",
+        "BasePointer": "7FFF0F99FEC0",
+        "BaseSlot": 16,
+        "OwnMethod": "1C8276CD720",
+        "OwnPointer": "7FFF25C67924",
+        "DeclaringClass": "20C9A7DAF40"
+      }
+    ],
+    "LifecycleBeforeCleanup": {
+      "ShouldSave": 1,
+      "CanBePurchased": 1
+    },
+    "CountersAfterCleanup": {
+      "ShouldSave": 1,
+      "CanBePurchased": 1
+    },
+    "TypeResolution": {
+      "Mapping": "FishNet.Connection.NetworkConnection, FishNet.Runtime",
+      "NativeClass": "208E0AE8520",
+      "ProxyQualifiedName": "Il2CppFishNet.Connection.NetworkConnection, Il2CppFishNet.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "ManagedPatchOwner": "TownHallInterior.BusinessSubtype.TypeResolution",
+      "ManagedTargets": [
+        "System.String GetIl2CppTypeFullName(Il2CppInterop.Runtime.Runtime.Il2CppTypeStruct*)",
+        "Void RegisterTypeInIl2Cpp(System.Type, Il2CppInterop.Runtime.Injection.RegisterTypeOptions)"
+      ],
+      "ParameterInventory": [
+        {
+          "Slot": 0,
+          "Method": "Equals",
+          "Parameter": 0,
+          "NativeName": "System.Object"
+        },
+        {
+          "Slot": 8,
+          "Method": "OnOwnershipServer",
+          "Parameter": 0,
+          "NativeName": "FishNet.Connection.NetworkConnection, FishNet.Runtime"
+        },
+        {
+          "Slot": 9,
+          "Method": "OnSpawnServer",
+          "Parameter": 0,
+          "NativeName": "FishNet.Connection.NetworkConnection, FishNet.Runtime"
+        },
+        {
+          "Slot": 10,
+          "Method": "OnDespawnServer",
+          "Parameter": 0,
+          "NativeName": "FishNet.Connection.NetworkConnection, FishNet.Runtime"
+        },
+        {
+          "Slot": 13,
+          "Method": "OnOwnershipClient",
+          "Parameter": 0,
+          "NativeName": "FishNet.Connection.NetworkConnection, FishNet.Runtime"
+        },
+        {
+          "Slot": 17,
+          "Method": "ClearReplicateCache_Virtual",
+          "Parameter": 0,
+          "NativeName": "System.Boolean"
+        },
+        {
+          "Slot": 24,
+          "Method": "set_LocalExtraFiles",
+          "Parameter": 0,
+          "NativeName": "System.Collections.Generic.List\u00601"
+        },
+        {
+          "Slot": 26,
+          "Method": "set_LocalExtraFolders",
+          "Parameter": 0,
+          "NativeName": "System.Collections.Generic.List\u00601"
+        },
+        {
+          "Slot": 28,
+          "Method": "set_HasChanged",
+          "Parameter": 0,
+          "NativeName": "System.Boolean"
+        },
+        {
+          "Slot": 31,
+          "Method": "Save",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 32,
+          "Method": "WriteBaseData",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 32,
+          "Method": "WriteBaseData",
+          "Parameter": 1,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 33,
+          "Method": "GetLocalPath",
+          "Parameter": 0,
+          "NativeName": "System.Boolean"
+        },
+        {
+          "Slot": 34,
+          "Method": "CompleteSave",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 34,
+          "Method": "CompleteSave",
+          "Parameter": 1,
+          "NativeName": "System.Boolean"
+        },
+        {
+          "Slot": 35,
+          "Method": "WriteData",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 36,
+          "Method": "DeleteUnapprovedFiles",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 37,
+          "Method": "GetContainerFolder",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 38,
+          "Method": "WriteSubfile",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 38,
+          "Method": "WriteSubfile",
+          "Parameter": 1,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 38,
+          "Method": "WriteSubfile",
+          "Parameter": 2,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 39,
+          "Method": "WriteFolder",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 39,
+          "Method": "WriteFolder",
+          "Parameter": 1,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 40,
+          "Method": "TryLoadFile",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 40,
+          "Method": "TryLoadFile",
+          "Parameter": 1,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 40,
+          "Method": "TryLoadFile",
+          "Parameter": 2,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 41,
+          "Method": "TryLoadFile",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 41,
+          "Method": "TryLoadFile",
+          "Parameter": 1,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 41,
+          "Method": "TryLoadFile",
+          "Parameter": 2,
+          "NativeName": "System.Boolean"
+        },
+        {
+          "Slot": 47,
+          "Method": "GetNetworth",
+          "Parameter": 0,
+          "NativeName": "ScheduleOne.Money.MoneyManager\u002BFloatContainer, Assembly-CSharp"
+        },
+        {
+          "Slot": 51,
+          "Method": "SetContentCulled",
+          "Parameter": 0,
+          "NativeName": "System.Boolean"
+        },
+        {
+          "Slot": 53,
+          "Method": "WriteData",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 54,
+          "Method": "DeleteUnapprovedFiles",
+          "Parameter": 0,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 55,
+          "Method": "Load",
+          "Parameter": 0,
+          "NativeName": "ScheduleOne.Persistence.Datas.PropertyData, Assembly-CSharp"
+        },
+        {
+          "Slot": 55,
+          "Method": "Load",
+          "Parameter": 1,
+          "NativeName": "System.String"
+        },
+        {
+          "Slot": 62,
+          "Method": "MinsPass",
+          "Parameter": 0,
+          "NativeName": "System.Int32"
+        }
+      ],
+      "PreflightComplete": true,
+      "OriginalResolverAlreadyResolves": false,
+      "PostScopeOriginalResolutionConfirmed": true,
+      "PostScopeFailure": null,
+      "Outcome": {
+        "InstallAttempted": true,
+        "Installed": true,
+        "Restored": true,
+        "MappingHits": 4,
+        "OwnRegistrations": 1,
+        "RemainingDepth": 0,
+        "ScopeViolated": false,
+        "ScopeActive": false,
+        "Before": [
+          "{\u0022Target\u0022:\u0022RegisterTypeInIl2Cpp\u0022,\u0022Kind\u0022:\u0022transpiler\u0022,\u0022Owner\u0022:\u0022MelonLoader\u0022,\u0022Method\u0022:\u0022deff130c-f422-4369-9d22-83d0ed85e7da:100664931\u0022,\u0022Priority\u0022:400,\u0022Index\u0022:0,\u0022Before\u0022:[],\u0022After\u0022:[]}"
+        ],
+        "After": [
+          "{\u0022Target\u0022:\u0022RegisterTypeInIl2Cpp\u0022,\u0022Kind\u0022:\u0022transpiler\u0022,\u0022Owner\u0022:\u0022MelonLoader\u0022,\u0022Method\u0022:\u0022deff130c-f422-4369-9d22-83d0ed85e7da:100664931\u0022,\u0022Priority\u0022:400,\u0022Index\u0022:0,\u0022Before\u0022:[],\u0022After\u0022:[]}"
+        ],
+        "Findings": []
+      }
+    },
+    "InterfaceEnabled": true,
+    "InterfaceInvocationAttempted": false,
+    "InterfaceStages": [],
+    "ExpectedInterfaceCallbacks": 0
+  },
+  "NativeEvidenceFromThisAttempt": true,
+  "Limitation": "Type registration persists until process exit. CleanupComplete covers the own Unity root and acquired Business component. Own callback counters and class/vtable snapshots are bounded observations, not a proof of every native side effect. The added route is only ISaveable.InitializeSaveable to the own no-base callback. Other interface methods and native manager call paths remain untested. A skipped result retains historical Native details; it performs no new cleanup or readback. No activation, registry publication, original lifecycle calls, serialization, purchase, save, spawn or gameplay acceptance."
+}

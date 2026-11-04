@@ -1,0 +1,84 @@
+{
+  "review": "probe_review source review; cleanup propagation and late lifecycle findings fixed",
+  "fishNetSha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+  "sourceFiles": [
+    {
+      "sha256": "f3c768be0e5e349f65b6d9b2fabe241a101d5692257676c5bfd0a1d813e45c07",
+      "path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs"
+    },
+    {
+      "sha256": "ad1ba8b4f293b457b913bcf7eddad2d39e21462a646d453f5f973f6d889d3bad",
+      "path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs"
+    },
+    {
+      "sha256": "05e8836cf4a8c7e478f773572bb191708429aefa46825441c00976e0f3426bca",
+      "path": "Source/Mods/TownHallInterior/src/Mod.cs"
+    },
+    {
+      "sha256": "09cae17735d908c101ac76bdf548261a27ee7ac1e3dc999afe57913ae78304cd",
+      "path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj"
+    },
+    {
+      "sha256": "43ac3184d66a64bfc6ae9b6ba6587df6a3eb333575d93cc187c291e45e7630b8",
+      "path": "Source/Tests/TownHallInterior.Tests/BusinessConstructionTests.cs"
+    },
+    {
+      "sha256": "dc582cf6a85f3c98417c83cd67a65f28b8f8739bb1a1507fe665eaa52ceec26c",
+      "path": "Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj"
+    },
+    {
+      "sha256": "e667cb6142b20b43f80e814b9a88c37518e3835dcdafa548ba44d77d85cc58a3",
+      "path": "Source/Mods/TownHallInterior/docs/business-construction-probe.md"
+    },
+    {
+      "sha256": "8967ea6c7565f7ec092071ef6645bfe18fe6859a558658f4a57d3d725eef59c1",
+      "path": "Source/Mods/TownHallInterior/docs/business-binding-probe.md"
+    },
+    {
+      "sha256": "21d39dba5cf747feae2b35fb040bf632e1b0ae1c853e6ec2adf18568b04462fa",
+      "path": "Source/Mods/TownHallInterior/docs/business-completion-plan.md"
+    },
+    {
+      "sha256": "b6ca000a8cce8170671ae8dbf9f2b4622143648941cfebd2f310f27d1c06da1e",
+      "path": "Source/Mods/TownHallInterior/docs/README.md"
+    },
+    {
+      "sha256": "d0c5d85ecf03b6e04cdf7e1298a0b1179bc109c99b35a0a4cf89b6c0bdd6ac0c",
+      "path": "Source/Mods/TownHallInterior/docs/CHANGELOG.md"
+    },
+    {
+      "sha256": "28305181c330e688e740fe18be161965482d02843f5fe49df9a838f11ecbee90",
+      "path": "docs/compatibility.md"
+    }
+  ],
+  "productionFileCount": 20,
+  "checkedUtc": "2026-11-03T12:41:22.8335824Z",
+  "defaultBuild": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "nativeProxySha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+  "pdbSha256": "722623f1848afbbd339370c0ad7bd32bf613a54c534efeccae949f94a8facebc",
+  "harmonySupportSha256": "f64c53d389fc76a910ffab86f7ac6d27e437b0c7c0c60918565a5d9f34f8ad06",
+  "candidateSha256": "52bb577af0fb238cb146bb5fd28fefdba762a18b21b947285655ea32406b4257",
+  "limitations": [
+    "No native construction invocation yet",
+    "No activation, registration, station, purchase or persistence proof",
+    "Offline checks and review do not establish native runtime behavior",
+    "Deployment and any later native result need separate receipts/evidence"
+  ],
+  "worktree": "dirty",
+  "s1ApiSha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+  "scope": "Inactive native Business construction candidate; no game execution in this verification",
+  "schema": 1,
+  "sourceRevision": "bcd54e9ace58dbe1a615b44f319f96efd7902fc5",
+  "candidateBuild": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "townHallTests": {
+    "failed": 0,
+    "skipped": 0,
+    "passed": 229
+  }
+}

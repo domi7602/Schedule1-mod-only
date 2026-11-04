@@ -1,0 +1,26 @@
+{
+  "ReviewedUtc": "2026-11-04T05:00:35.8686921Z",
+  "Reviewer": "OpenCode continuation of the 2026-11-04 TownHall interface probe",
+  "Status": "inactive-interface-preflight-failed",
+  "ReportCapturedUtc": "2026-11-04T04:53:58.2533991Z",
+  "AssemblySha256": "cb98bc95c7efcf947eaa268bbde742bffb467401fed6afb526e7cc26406ef207",
+  "RegistryCount": 10,
+  "ForeignVtableCount": 15,
+  "Checks": {
+    "InstalledCandidateMatchesReport": true,
+    "ExactSlot2AndTownHallTest": true,
+    "ContextReady": true,
+    "FailedBeforeInterfaceCall": true,
+    "RejectedReadbackNotRecorded": true,
+    "RegistrationAndPropertyDispatchSucceeded": true,
+    "OwnCleanupVerified": true,
+    "RegistriesAndForeignVtablesUnchanged": true,
+    "PublicationAndNativeWritesDisabled": true
+  },
+  "Interpretation": "InspectInterface threw interface-target-or-counter-invalid before returning, so the trial stored no InterfaceReadback. Earlier specific exceptions for method identity, offset, vtable bounds and slot target were not the recorded finding. The generic gate therefore rejected metadata or counters that this report does not itemize. No ISaveable proxy call was attempted.",
+  "NativeSaveReadback": "39/39 Slot 2 and 38/38 Slot 1 unchanged against the pre-build checkpoint.",
+  "Limits": "Does not identify the rejected field. Does not prove interface dispatch, assignability, manager consumption, activation, initialization, purchase or persistence. Type metadata remains registered until process exit. A same-process reload cannot retry because the attempt is consumed.",
+  "GameplayAccepted": false,
+  "BuildOrDeployPerformed": false,
+  "AgentGameActions": false
+}

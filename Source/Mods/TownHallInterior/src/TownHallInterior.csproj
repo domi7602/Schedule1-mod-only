@@ -1,4 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Condition="'$(S1TownHallBusinessManager)' == 'true'">
+    <DefineConstants>$(DefineConstants);TOWNHALL_BUSINESS_PROBE;TOWNHALL_BUSINESS_SUBTYPE;TOWNHALL_BUSINESS_MANAGER</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(S1TownHallBusinessInterface)' == 'true'">
+    <DefineConstants>$(DefineConstants);TOWNHALL_BUSINESS_PROBE;TOWNHALL_BUSINESS_SUBTYPE;TOWNHALL_BUSINESS_INTERFACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(S1TownHallBusinessSubtype)' == 'true'">
+    <DefineConstants>$(DefineConstants);TOWNHALL_BUSINESS_PROBE;TOWNHALL_BUSINESS_SUBTYPE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(S1TownHallBusinessActivation)' == 'true'">
+    <DefineConstants>$(DefineConstants);TOWNHALL_BUSINESS_PROBE;TOWNHALL_BUSINESS_CONSTRUCTION;TOWNHALL_BUSINESS_ACTIVATION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(S1TownHallBusinessProbe)' == 'true'">
+    <DefineConstants>$(DefineConstants);TOWNHALL_BUSINESS_PROBE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(S1TownHallBusinessConstruction)' == 'true'">
+    <DefineConstants>$(DefineConstants);TOWNHALL_BUSINESS_PROBE;TOWNHALL_BUSINESS_CONSTRUCTION</DefineConstants>
+  </PropertyGroup>
   <PropertyGroup>
     <AssemblyName>TownHallInterior</AssemblyName>
     <RootNamespace>TownHallInterior</RootNamespace>

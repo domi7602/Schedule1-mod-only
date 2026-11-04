@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "verifiedUtc": "2026-11-03T13:46:46.7179999Z",
+  "deployedAtUtc": "2026-11-03T13:46:45.9561821Z",
+  "attemptId": "20261103T134645745Z-229f6ad99e02",
+  "backupId": "20261103T134645782Z-TownHallInterior-f3790de9",
+  "candidateSha256": "54d37fe52b56659a8614176bb847dd1814ee18737b31f6682d34daf23613df62",
+  "pdbSha256": "9ade451f1c0573230f2272a24397144c12aab5eb4719c7db2e07f2ed1a47458b",
+  "sourceFilesMatch": 11,
+  "unchangedFiles": 5,
+  "verifiedPriorBackups": 2,
+  "testCheckpointFiles": 39,
+  "purePassed": 20,
+  "pureFailed": 2,
+  "nativeRuntimeTest": "not run"
+}

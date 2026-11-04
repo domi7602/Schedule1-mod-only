@@ -1,0 +1,61 @@
+{
+  "Schema": 1,
+  "Mode": "inactive-native-construction",
+  "CapturedUtc": "2026-11-03T13:04:58.0060098Z",
+  "AssemblySha256": "52bb577af0fb238cb146bb5fd28fefdba762a18b21b947285655ea32406b4257",
+  "NativeProxySha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+  "S1ApiSha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+  "FishNetSha256": "0acb5c70078f5be6e88574be17b675657fc50898eb3dd264a3b98a54545e24ec",
+  "Target": "TownHallTest / SaveGame_2",
+  "WorldPublicationAllowed": false,
+  "NativeSaveWriteAllowed": false,
+  "UnexpectedLifecycleCalls": 0,
+  "GuardOwnersPresent": true,
+  "Result": {
+    "Status": "observed",
+    "Findings": [],
+    "SerializedJson": "{\n    \u0022DataType\u0022: \u0022BusinessData\u0022,\n    \u0022DataVersion\u0022: 0,\n    \u0022GameVersion\u0022: \u00220.4.7f12\u0022,\n    \u0022PropertyCode\u0022: \u0022townhallinterior_townhall\u0022,\n    \u0022IsOwned\u0022: false,\n    \u0022SwitchStates\u0022: [],\n    \u0022ToggleableStates\u0022: [],\n    \u0022Employees\u0022: [],\n    \u0022Objects\u0022: [],\n    \u0022LaunderingOperations\u0022: []\n}",
+    "Before": {
+      "properties": "14:73a37d42ebbb3106e89d3193823160ab129f4ae957f1e8c04a7bca3807b9424c",
+      "properties-owned": "1:be45e895b2369b8c224f4bc22d37ddd887ed52edf1790424d06eb5c1b19641ec",
+      "properties-unowned": "13:c91c576be7f0a7e4faf8d06a04d49b116b3c3b47f6039bbdb2c4ecfea158ed78",
+      "businesses": "5:b5020b53d201d329df6f17e389e3f63e4a704baa9213e2dfb01d6d1303129bd5",
+      "businesses-owned": "0:2aef03e03d5eba8f84e354e6ff833033a27c57b9913f38b6299842d44e46cafa",
+      "businesses-unowned": "5:7b2982c161c0521d80219b8921829bbe91559acf23eb50e4e364d4f2c71fb6e2",
+      "saveables": "404:c12196aba127226f798a606b925b2977128c4dcfbfded79a7253cc42bda3cf66",
+      "base-saveables": "23:21b07a89bf93bd742ad9f07db9efdb7ddb387f30f4f283b1ceaf2b647102ad5d",
+      "completed-saveables": "0:42508f5bb3a0ef661a54f3edc8386e9e366e1b0ccc6a4bf2fc789b7120366ac2",
+      "save-requests": "0:4ffc6c0fe20946eeb2cb2e54c97af5016beb13e7ffbbefa9d94d0338d817fd4a",
+      "staged-lifecycle": "uninvoked"
+    },
+    "During": {
+      "properties": "14:73a37d42ebbb3106e89d3193823160ab129f4ae957f1e8c04a7bca3807b9424c",
+      "properties-owned": "1:be45e895b2369b8c224f4bc22d37ddd887ed52edf1790424d06eb5c1b19641ec",
+      "properties-unowned": "13:c91c576be7f0a7e4faf8d06a04d49b116b3c3b47f6039bbdb2c4ecfea158ed78",
+      "businesses": "5:b5020b53d201d329df6f17e389e3f63e4a704baa9213e2dfb01d6d1303129bd5",
+      "businesses-owned": "0:2aef03e03d5eba8f84e354e6ff833033a27c57b9913f38b6299842d44e46cafa",
+      "businesses-unowned": "5:7b2982c161c0521d80219b8921829bbe91559acf23eb50e4e364d4f2c71fb6e2",
+      "saveables": "404:c12196aba127226f798a606b925b2977128c4dcfbfded79a7253cc42bda3cf66",
+      "base-saveables": "23:21b07a89bf93bd742ad9f07db9efdb7ddb387f30f4f283b1ceaf2b647102ad5d",
+      "completed-saveables": "0:42508f5bb3a0ef661a54f3edc8386e9e366e1b0ccc6a4bf2fc789b7120366ac2",
+      "save-requests": "0:4ffc6c0fe20946eeb2cb2e54c97af5016beb13e7ffbbefa9d94d0338d817fd4a",
+      "staged-lifecycle": "uninvoked"
+    },
+    "After": {
+      "properties": "14:73a37d42ebbb3106e89d3193823160ab129f4ae957f1e8c04a7bca3807b9424c",
+      "properties-owned": "1:be45e895b2369b8c224f4bc22d37ddd887ed52edf1790424d06eb5c1b19641ec",
+      "properties-unowned": "13:c91c576be7f0a7e4faf8d06a04d49b116b3c3b47f6039bbdb2c4ecfea158ed78",
+      "businesses": "5:b5020b53d201d329df6f17e389e3f63e4a704baa9213e2dfb01d6d1303129bd5",
+      "businesses-owned": "0:2aef03e03d5eba8f84e354e6ff833033a27c57b9913f38b6299842d44e46cafa",
+      "businesses-unowned": "5:7b2982c161c0521d80219b8921829bbe91559acf23eb50e4e364d4f2c71fb6e2",
+      "saveables": "404:c12196aba127226f798a606b925b2977128c4dcfbfded79a7253cc42bda3cf66",
+      "base-saveables": "23:21b07a89bf93bd742ad9f07db9efdb7ddb387f30f4f283b1ceaf2b647102ad5d",
+      "completed-saveables": "0:42508f5bb3a0ef661a54f3edc8386e9e366e1b0ccc6a4bf2fc789b7120366ac2",
+      "save-requests": "0:4ffc6c0fe20946eeb2cb2e54c97af5016beb13e7ffbbefa9d94d0338d817fd4a",
+      "staged-lifecycle": "uninvoked"
+    },
+    "CleanupComplete": true,
+    "AttemptConsumed": true
+  },
+  "Limitation": "Inactive construction and serialization only. No Awake/Start, activation, registration, station, native save/load or gameplay acceptance. Registry fingerprints cover the listed collections, not every possible native effect."
+}

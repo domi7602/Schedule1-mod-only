@@ -198,7 +198,7 @@ public class SupervisorArrivalRecoveryTests
         string[] policyNames =
         {
             "NavigationRecoveryBudget", "RecoveryRecurrencePolicy", "NavigationArrivalPolicy",
-            "SupervisedArrivalPolicy", "ArrivalConfirmationPolicy", "ArrivalGateOutcome",
+            "SupervisedArrivalPolicy", "InitialDispatchRecoveryPolicy", "ArrivalConfirmationPolicy", "ArrivalGateOutcome",
             "NavigationOperationPolicy", "OperationPhase", "NavigationTerminalPolicy", "PatrolStartPolicy", "TrafficWaitBudget"
         };
         string source = Harness

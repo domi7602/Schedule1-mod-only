@@ -1,0 +1,112 @@
+{
+  "capturedReportUtc": "2026-11-03T12:12:31.629422Z",
+  "reportSha256": "baf115ab17bc96c870ad9c3dc3154653a20eb6dddd3882ecefd28f52dd604ba6",
+  "setupSha256": "33e6687f8b1adae0739360c2190aed2767f17724c72a98c24f77254a84f0af8a",
+  "oldReportSha256": "33b335ee686eb15c8433f958297f2b3f95f1404d6a22e5a55ddeef9d85c07f60",
+  "normalizerSha256": "fd3d12f9abe400ec1439e1a2ea7c9aca285666110d2511b3f4244528bfb856d4",
+  "capture": {
+    "ProcessStartedUtc": "2026-11-03T12:11:45.9665251Z",
+    "ConfirmedSlot": "TownHallTest / SaveGame_2",
+    "LogExcerptLines": 63,
+    "ProcessId": 22728,
+    "SourceReport": "20261103T121152046Z-88ba70e7b1574280a8c053a724702eb3-g0001.json",
+    "CapturedUtc": "2026-11-03T12:14:23.1356571Z",
+    "LogLineCount": 468,
+    "Scope": "Read-only file capture; no game commands or save mutation"
+  },
+  "assemblySha256": "a34e3b4ae23e1448dbdb1a4f1f9abd22156e97e1b811ef69e45419a83f00bee4",
+  "nativeProxySha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+  "s1ApiSha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+  "assessment": {
+    "Status": "observed",
+    "Findings": []
+  },
+  "loaderEvents": 90,
+  "completeCallPairs": 45,
+  "droppedLoaderEvents": 0,
+  "previousDroppedLoaderEvents": 26,
+  "hookCounts": [
+    {
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)",
+      "OwnerPresent": true,
+      "RecordedEnters": 24,
+      "RecordedExits": 24
+    },
+    {
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertiesLoader.Void Load(System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 1,
+      "RecordedExits": 1
+    },
+    {
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.BusinessesLoader.Void Load(System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 1,
+      "RecordedExits": 1
+    },
+    {
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.BusinessLoader.Void Load(System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 0,
+      "RecordedExits": 0
+    },
+    {
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 14,
+      "RecordedExits": 14
+    },
+    {
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 5,
+      "RecordedExits": 5
+    }
+  ],
+  "snapshotCount": 6,
+  "sequenceRange": [
+    1,
+    97
+  ],
+  "sequenceGaps": 0,
+  "counts": {
+    "bounds": 5,
+    "bounds-collider": 5,
+    "business": 5,
+    "business-grid-membership": 7,
+    "business-state": 5,
+    "container": 5,
+    "grid": 7,
+    "interface-business": 5,
+    "interior-spawn": 5,
+    "npc-spawn": 5,
+    "property-membership": 14,
+    "spawn": 5,
+    "station": 5,
+    "station-grid": 5,
+    "station-interface": 5,
+    "station-item": 5,
+    "townhall-anchor": 1,
+    "unowned-business-membership": 5,
+    "worldspace-ui": 5
+  },
+  "currentInventoriesExactlyEqual": true,
+  "normalizedInventoriesEqual": true,
+  "removedRows": [],
+  "addedRows": [],
+  "distinctCanonicalIdentities": 63,
+  "pointersChanged": 63,
+  "rolesWithoutStableObjectIdentifiers": [
+    "role:station-item@station:6e675142-61b6-4f52-9287-8c67c5d4e2bc",
+    "role:station-item@station:8ffd1dac-dba6-4ab6-aa3c-94e7caf1ae37",
+    "role:station-item@station:9e5c5409-6164-4be3-8ee2-1a9863a1c6b6",
+    "role:station-item@station:ad5374de-cb99-4550-ba59-e9f628dfcd51",
+    "role:station-item@station:cfe1a2be-0985-40b7-a58a-32b21f925e5f"
+  ],
+  "limits": [
+    "Only recorded callbacks assessed; BusinessLoader.Load has zero sightings despite patch owner.",
+    "Station-item normalization covers reference topology, not unexported ItemInstance data.",
+    "No native TownHall business creation, binding or persistence established.",
+    "Same-process menu/reload generation transition remains untested."
+  ]
+}

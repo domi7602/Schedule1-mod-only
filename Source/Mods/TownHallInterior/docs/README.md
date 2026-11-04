@@ -1,5 +1,41 @@
 # TownHallInterior — local experimental public hall
 
+## Nächste Entwicklungsphase: TownHall Business
+
+Der [Fertigstellungsplan für das TownHall Business](business-completion-plan.md)
+beschreibt Kauf, Besitz, native Geldwäsche und Speicherung auf Basis des fertigen
+Innenausbaus. Stand 2026-11-04: Die [beobachtende Anbindungsprobe](business-binding-probe.md)
+hat Erstladen, Prozessneustartvergleich und Menü-Reload auf TownHallTest (Slot 2)
+bestanden. Schema 2 liefert je Ladevorgang 90 Ereignisse/45 vollständige Aufrufpaare
+ohne verworfene Daten; die früheren Daten bleiben erhalten. Kandidat `52bb577a…`
+bestand anschließend die [inaktive native Konstruktionsprobe](business-construction-probe.md):
+eigene Business-Shell, native JSON-Serialisierung und bestätigter Rückbau bei zehn
+unveränderten Registern. Die anschließende
+[Aktivierungs-/Registrierungsprobe](business-activation-probe.md) `54d37fe5…`
+stürzte vor dem Slot-Load durch Hooks auf gemeinsam genutzten nativen Code ab.
+Sie ist zurückgezogen und gegen Neubauen gesperrt; am 2026-11-03 wurde zunächst
+die geprüfte Diagnose `52bb577a…` wiederhergestellt. Die folgende
+[inaktive Untertyp-/Dispatch-Probe](business-subtype-probe.md) `659ee6a2…`
+scheiterte im Spiel am 2026-11-04 vor Instanzerzeugung an der FishNet-Typauflösung.
+Zehn Register und 13 fremde VTables blieben unverändert. Die begrenzte verwaltete
+Namenskorrektur für genau NetworkConnection (`59484a66…`) bestand anschließend
+den Live-Lauf um 04:04:16 UTC: eigener Untertyp, beide Property-Aufrufe false,
+eigener Rückbau und zehn Register/14 fremde VTables unverändert. Menü-Reload
+um 04:08:48 UTC bestätigte die Einmaligkeit ohne neuen Versuch.
+Die [zusätzliche inaktive ISaveable-Interfaceprobe](business-interface-probe.md)
+`cb98bc95…` scheiterte am 2026-11-04 um 04:53:58 UTC vor dem Interface-Aufruf.
+Die Flaggen-Korrektur `a8d45f2a…` bestand am 2026-11-04 um 06:58:38 UTC den
+inaktiven Interface-Aufruf. Der Menü-Reload um 07:00:49 UTC bestätigte die Einmalversuchsperre.
+Der inaktive Speicherlisten-Registrierungsmodus (`473064e0…`,
+`inactive-saveable-registration`) lief am 2026-11-04 um 07:11:05 UTC auf Slot 1
+(Organisation Dominik / SaveGame_1): `RegisterSaveable` genau einmal aufgerufen,
+Eintrag sofort wieder aus der Speicherliste entfernt, `Save()` unaufgerufen;
+Register, VTables und native Dateien unverändert. Kein Save-/Load-Nachweis.
+[Bericht](evidence/business-manager-live-register-saveable-20261104.json),
+[Vertrag und Herkunft](business-manager-registration-probe.md). **411 reine TownHall-Tests** bleiben der
+Offline-Stand. Aktivierung, vollständige Initialisierung und Persistenz bleiben offen.
+Keine MapExpansions-Abhängigkeit. Der abgenommene Innenraum bleibt abgeschlossen.
+
 ## Abgenommen: Innenausbau komplett (2026-10-30)
 
 Eingang, Erdgeschoss und Obergeschoss sind abgenommen („ja die interior ist fertig“). Letzter Stand: DLL `7681d319…`, 145/145 Tests, Build 0/0, Backup `20261030T140642055Z-TownHallInterior-650a4ec4`. Offen als Erweiterung, nicht als Mangel: Aushang-Beschriftung, Möbel außerhalb des Vanilla-Satzes, NPC-Navigation, Deckenwirkung im OG; der Keller bleibt verworfen (Gelände-Mesh 84 cm unter dem Hallenboden).

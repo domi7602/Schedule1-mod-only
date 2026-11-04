@@ -112,6 +112,8 @@ internal static class SpikeRunner
 
     private static float _recurringProbeAt;
     private static bool _recurringProbeUsed;
+    /// <summary>One directed reverse per operation as the last physical option before a checked re-probe.</summary>
+    private static bool _recurringReverseUsed;
     private static long _recurringProbeOperation;
     private static int _recurringProbeOrder;
     private static IntPtr _recurringProbePointer;
@@ -259,6 +261,7 @@ internal static class SpikeRunner
         _reverseAttempt = 0;
         _recurringProbeAt = 0f;
         _recurringProbeUsed = false;
+        _recurringReverseUsed = false;
         ResetSupervisorMotion();
     }
 
@@ -633,8 +636,32 @@ internal static class SpikeRunner
                 // Native calls may have processed STOP, teardown or a replacement operation.
                 // Neither the success nor failure continuation may act on that newer state.
                 if (!StillCurrent()) return false;
+
+                // A refused free spot is not proof that the car is not wedged. The owner
+                // Barn trace (2026-11-01 20:23) ended with full throttle against an
+                // embankment and no physical recovery left: episodes 2 and 3 only searched
+                // for a free spot and then gave up. One directed reverse per operation is
+                // the bounded last physical option before the checked re-probe.
+                bool reversed = false;
+                if (!rescued && !_recurringReverseUsed)
+                {
+                    _recurringReverseUsed = true;
+                    reversed = TryStartReverse(agent, veh, now, "recurring stall");
+                    if (reversed)
+                    {
+                        if (!StillCurrent()) return false;
+                        LogSupervisorDecision("recurring-stall-reverse", "grant-reverse", decisionDistance,
+                            _supervisorSampleReadable, _supervisorSampleSpeed, false, budgetBefore,
+                            SpikeState.NavigationRecovery.Attempts);
+                    }
+                }
+
                 if (rescued)
                     ReDispatch(agent, SpikeState.NavTarget, "recurring stall (free-spot rescue)");
+                else if (reversed)
+                {
+                    // The reverse owns the re-dispatch through NavReDispatchAt; no second dispatch.
+                }
                 else if (!_recurringProbeUsed && SpikeState.NavigationRecovery.Attempts < TaxiAI.PathingFailureCap)
                 {
                     // A refused geometry probe is not proof that the next probe must fail:
@@ -774,6 +801,7 @@ internal static class SpikeRunner
         _freeSpotRescues = 0;
         _recurringProbeAt = 0f;
         _recurringProbeUsed = false;
+        _recurringReverseUsed = false;
         ResetSupervisorMotion();
         _idleMovingSince = 0f;
         _idleStopAttempts = 0;
@@ -1740,7 +1768,15 @@ internal static class SpikeRunner
             pointer != IntPtr.Zero && veh.Pointer == pointer && agentPointer != IntPtr.Zero && veh.Agent?.Pointer == agentPointer &&
             SpikeCommands.HasAuthority() && SpikeCommands.IsOwnedTaxi(veh) && !PlayerDriver(veh);
         if (!StillCurrent()) return;
-        if (!budgetAlreadySpent && !TryBeginRecovery(agent, veh, maneuverPlanned: true)) return;
+        bool neverStarted = InitialDispatchRecoveryPolicy.PreferRedispatch(HasCurrentForwardEvidence());
+        bool skipFirstReverse = neverStarted && SpikeState.StuckRecoveries == 0;
+        if (!budgetAlreadySpent)
+        {
+            bool began = skipFirstReverse
+                ? TryBeginRecovery(agent, veh, maneuverPlanned: false)
+                : TryBeginRecovery(agent, veh, maneuverPlanned: true);
+            if (!began) return;
+        }
         if (!StillCurrent()) return;
         SpikeState.StuckRecoveries++;
 
@@ -1765,6 +1801,16 @@ internal static class SpikeRunner
             // cosmetic only
         }
         if (!StillCurrent()) return;
+
+        if (skipFirstReverse)
+        {
+            Mod.Log.Warn(
+                $"[nav] recovery #{SpikeState.StuckRecoveries}: no confirmed forward drive for this operation " +
+                $"(callback={SpikeState.NavCallbackResult ?? "-"}, {TaxiDestinations.Num(distance)} m) — re-dispatch, no reverse.");
+            ArmProgressWindow(veh);
+            ReDispatch(agent, SpikeState.NavTarget, "recovery (never started)");
+            return;
+        }
 
         if (SpikeState.StuckRecoveries == 1)
         {

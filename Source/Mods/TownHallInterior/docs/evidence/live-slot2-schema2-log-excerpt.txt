@@ -1,0 +1,63 @@
+112: [13:11:48.160] SHA256 Hash: '9D897A865992506E87656B21876702668B43BE91CB2E579E6D3327231C072D3A'
+113: [13:11:48.185] Melon Assembly loaded: '.\Mods\TownHallInterior.dll'
+114: [13:11:48.185] SHA256 Hash: 'A34E3B4AE23E1448DBDB1A4F1F9ABD22156E97E1B811EF69E45419A83F00BEE4'
+115: [13:11:48.187] Melon Assembly loaded: '.\Mods\Weather.dll'
+116: [13:11:48.187] SHA256 Hash: '810BA35D6C09A543847FF209F72B7745E1F712F3317E6ABB120E453F07E9142F'
+117: [13:11:48.189] Melon Assembly loaded: '.\Mods\WorldLook.dll'
+230: [13:11:48.783] ------------------------------
+231: [13:11:48.783] TownHallInterior v0.1.0
+232: [13:11:48.784] by Dominik
+233: [13:11:48.784] Assembly: TownHallInterior.dll
+234: [13:11:48.784] ------------------------------
+235: [13:11:48.788] ------------------------------
+236: [13:11:48.788] Weather v0.4.0
+237: [13:11:48.788] by Dominik
+324: [13:11:52.037] [TaxiDriver] [TaxiDriver] TaxiDriver service is controlled through the smartphone app. TaxiDriver installs no keyboard bindings; vanilla E entry/exit and Escape phone-close remain available. `taxi help` lists diagnostic commands.
+325: [13:11:52.037] [WARNING] [TownHallInterior] TownHallInterior: experimental local hall; hash-pinned geometric portal, not a business.
+326: [13:11:52.045] [WARNING] [TownHallInterior] TownHallInterior: door hook installed; selector and entry unavailable, native interaction retained.
+327: [13:11:52.114] [TownHallInterior] TownHall Business probe: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessProbe\20261103T121152046Z-88ba70e7b1574280a8c053a724702eb3-g0000.json
+328: [13:11:52.114] [Weather] [Weather] Initialized - phone app for live in-game weather.
+329: [13:11:52.117] [WorldLook] [WorldLook] v0.3.0-dev.5 initialized. Ctrl+Shift+F7: look on/off (session only).
+330: [13:11:54.126] [PotScanner] Scene unloaded: '' (#-1)
+331: [13:11:54.831] [MoreSaveSlots] SaveManager.Awake: SAVE_SLOT_COUNT set to 25.
+342: [13:11:55.522] [MoreSaveSlots] Slot 1: 'Dominik' v0.4.7f12 10/28/2026 4:22:16 AM
+343: [13:11:55.523] [MoreSaveSlots] Slot 2: 'TownHallTest' v0.4.7f12 10/28/2026 8:20:32 PM
+344: [13:11:55.524] [MoreSaveSlots] Scan complete: 2/25 saves loaded. LastPlayed=Slot 2 'TownHallTest'
+345: [13:11:55.541] [MoreSaveSlots] [MoreSaveSlots] Refresh: page 1, SaveGames=25, first='Dominik'
+346: [13:11:55.543] [MoreSaveSlots] [MoreSaveSlots] Refresh done: page 1 occupied=2 empty=3
+347: [13:11:55.544] [MoreSaveSlots] [MoreSaveSlots] Refresh: page 1, SaveGames=25, first='Dominik'
+348: [13:11:55.545] [MoreSaveSlots] [MoreSaveSlots] Refresh done: page 1 occupied=2 empty=3
+349: [13:12:05.385] [MoreSaveSlots] ContinueScreen.LoadGame: mapped slot 2 -> 2 (SaveGame_2)
+350: [13:12:09.178] [PotScanner] Scene unloaded: 'Menu' (#0)
+351: [13:12:09.919] [MoreSaveSlots] SaveManager.Awake: SAVE_SLOT_COUNT set to 25.
+352: [13:12:11.160] [Console] Registered custom command 'biz' into managed registry
+353: [13:12:11.160] [Console] Registered custom command 'skate' into managed registry
+376: [13:12:11.591] [S1MCPServer] Main scene loaded - S1MCPServer is active
+377: [13:12:11.597] [TownHallInterior] TownHall Business probe: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessProbe\20261103T121152046Z-88ba70e7b1574280a8c053a724702eb3-g0000.json
+378: [13:12:12.959] [TownHallInterior] TownHallInterior: three exact door contributions hidden (including distant billboard).
+379: [13:12:12.989] [TownHallInterior] TownHallInterior: native door mesh hidden; knock and usability retained.
+380: [13:12:12.991] [TownHallInterior] TownHallInterior: geometric portal published in Walls, root Cube and LOD Cube; shared batches untouched.
+381: [13:12:19.300] [TownHallInterior] TownHallInterior: vanilla reception published: 55 model instances, 19 owned shared meshes, 8 local lights; decorative only.
+382: [13:12:19.301] [TownHallInterior] TownHallInterior: hall and geometric facade opening published; native knock retained.
+383: [13:12:19.685] [CustomSkateboard] [CustomSkateboard] GameLifecycle.OnPreLoad: Checking custom skateboard definition...
+384: [13:12:19.686] [HitmanPhone] [HitmanPhone] [Journal] Session quest cache cleared (save load).
+385: [13:12:19.686] [HitmanPhone] [HitmanPhone] Polaroid definitions registered and verified in the native registry (current='bounty_evidence_polaroid_v2', legacy='bounty_evidence_polaroid', icon=loaded).
+386: [13:12:19.689] [PoliceTestMode] [PoliceTestMode] restore reason=lifecycle leaving pending=0
+400: [13:12:22.341] [PhoneApp] Initializing phone app: LightControl.LightControlApp
+401: [13:12:22.347] [WARNING] [LightControl] [LightControl] Could not create Segoe UI; using built-in Arial: System.MissingMethodException: Method not found: 'Void UnityEngine.Font..ctor(Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStringArray, Int32)'.
+402:    at UnityEngine.Font.CreateDynamicFontFromOSFont(Il2CppStringArray fontnames, Int32 size)
+403:    at LightControl.LightControlApp.CreateFont(String name)
+404: [13:12:23.672] [PhoneApp] Initializing phone app: Minimap.MinimapSettingsApp
+405: [13:12:23.673] [S1API (Forked by Bars)] [MinimapSettings] Registered with S1API PhoneApp system.
+446: [13:12:26.526] [StackLimitMod] [StackLimitMod] StackLimitEngine: Applied stack limit (40) to 60 items (Resources:60 Registry:0).
+447: [13:12:26.589] [TownHallInterior] TownHall Business probe: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessProbe\20261103T121152046Z-88ba70e7b1574280a8c053a724702eb3-g0001.json
+448: [13:12:26.645] [PoliceTestMode] [PoliceTestMode] status requested=True effective=True state='ACTIVE - police suppressed (TEST)' hooks=43 loaded=True singleplayer=True attempts=1/30 leases=17 officers=10 vehicles=0 playerOccupiedSkipped=0 unknownSkipped=0 checkpoints=4
+449: [13:12:26.647] [PoliceTestMode] [PoliceTestMode] activeTargets=0/14 curfewRaw=False/False/False
+450: [13:12:26.656] [PoliceTestMode] [PoliceTestMode] gate invoked PoliceOfficer.OnTick
+451: [13:12:26.683] [PoliceTestMode] [PoliceTestMode] gate invoked CurfewManager.RpcLogic___Enable_328543758
+459: [13:12:29.815] [PoliceTestMode] [PoliceTestMode] gate invoked CurfewManager.OnUncappedMinPass
+460: [13:12:31.635] [TownHallInterior] TownHall Business probe: C:\Program Files (x86)\Steam\steamapps\common\Schedule I\UserData\TownHallInterior\BusinessProbe\20261103T121152046Z-88ba70e7b1574280a8c053a724702eb3-g0001.json
+461: [13:12:32.354] [TaxiDriver] [TaxiDriver] [driver] taxi_driver protection enabled (native health field read back).
+462: [13:12:52.927] [LightControl] [LightControl] Scan complete: 0 grow lamp(s) registered, 178153 node(s) visited, 748.6 ms total.
+463: [13:13:06.311] [LightControl] [LightControl] Bounded scan started: 33 root(s) queued.
+464: [13:13:25.475] [HitmanPhone] [HitmanPhone] [BountyRouter] Sent offer regarding 'austin_steiner' from caller 2.

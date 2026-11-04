@@ -279,6 +279,21 @@ namespace TaxiDriver
 
 namespace TaxiDriver
 {
+    // ==== TaxiDriver section: InitialDispatchRecoveryPolicy.cs ====
+
+    /// <summary>
+    /// Prefer one initial redispatch without physical forward-drive evidence for
+    /// the current operation and target. An enabled native autopilot is not motion.
+    /// </summary>
+    internal static class InitialDispatchRecoveryPolicy
+    {
+        internal static bool PreferRedispatch(bool forwardDriveConfirmed) => !forwardDriveConfirmed;
+    }
+    // ==== end TaxiDriver section: InitialDispatchRecoveryPolicy.cs ====
+}
+
+namespace TaxiDriver
+{
     // ==== TaxiDriver section: NavigationCallbackPolicy.cs ====
 
     /// <summary>Pure gate that accepts only a current, still-active navigation callback.</summary>

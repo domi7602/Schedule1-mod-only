@@ -561,10 +561,32 @@ SHA-256 `c61e82ffc95ae8d0fe15859577ba828de02f54eee9515248cc2154101dd7543f`.
 ### Limits
 
 Two rides (Barn 2026-11-01 morning, Bungalow 2026-11-01 evening) and one supervised pickup
-recovery on one combined local build. This does not establish repeatability, Docks behavior,
-early boarding, chained rides, the physical collider at the street point, or owner
-acceptance. The Barn taxi stopped 4.8 m and the Bungalow taxi 3.5 m from their selected
+recovery on one combined local build. At the time of those agent runs this did not establish
+repeatability, Docks behavior, early boarding, chained rides, the physical collider at the
+street point, or owner acceptance. Dominik's own later session is recorded below and is not
+covered by that sentence. The Barn taxi stopped 4.8 m and the Bungalow taxi 3.5 m from their selected
 points; whether they stopped on paved ground or in the verge was not measured. The
 cleanup-pending dispatch failure above is a user-visible consequence of the pre-existing
 fail-closed guard, not a supervisor change. Fare, payment and save semantics are unchanged
 and untested. A fresh install is not implied by this file alone.
+
+## Owner Slot-1 Barn ride — 2026-11-01 19:35
+
+Dominik loaded Slot 1 himself. `Latest.log` for that process loaded TaxiDriver.dll
+`012330B16B8FC6470C7BC0C299F1F43146821C63D232E807FDBD36D6E2528B42` and logged
+`mode=Guard compatible=True`. Pickup halted 4.6 m from `(34.4, 0.0, 30.7)` at 0.9 km/h;
+boarding was the later passenger-seat fix, after the park. Barn dispatch `op=2 order=4`
+to `(165.3, 0.0, 25.1)` overrode only the empty Error direct path (`original=0
+effective=Infinity override=True`, group unchanged, native Success, 115-point path ending
+at the street point). Supervisor `trigger=pre-deadline dist=5.0m speed=-0.1 action=completed`,
+then `ARRIVED at Barn`, fare $17.
+
+Still seated, he selected Bungalow. The first calculation from `(161.1, 0.7, 22.4)` failed
+with no road path. Recovery reversed 3.3 m and the redispatch succeeded with
+`override=False`. The taxi then stalled at `(164.6, 0.8, 19.6)`; free-spot rescue found
+nothing, and the ride `GAVE UP` 334.1 m from `(-156.0, -4.0, 113.7)` after three episodes.
+Fare $6. This is a chained re-route from the Barn street end, not a fresh Town Hall
+Bungalow and not a reopening of the Barn arrival. Docks and early boarding were not
+tested. The game was closed afterward. Copied log SHA-256
+`b2b6cfe51163c5d47799a6e088ca51b7ce28954b890b022328e05ce740d0a0af` (112454 bytes).
+No new build, deploy, save-byte comparison, commit or push.

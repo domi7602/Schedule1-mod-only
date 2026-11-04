@@ -1,0 +1,189 @@
+{
+  "Schema": 1,
+  "CheckedUtc": "2026-11-04T04:35:37.6184763Z",
+  "Coder": "/root/construction_policy",
+  "BaseRevision": "bcd54e9ace58dbe1a615b44f319f96efd7902fc5",
+  "Status": "offline-interface-probe-complete-with-recorded-repository-baseline-failures",
+  "ProductionFiles": 20,
+  "CandidateSha256": "cb98bc95c7efcf947eaa268bbde742bffb467401fed6afb526e7cc26406ef207",
+  "PdbSha256": "51b90c4ce1cae26827e97c434a87e65fcd4725578e7d64015df8d9f948eed625",
+  "SourceFreeze": [
+    {
+      "Path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "Sha256": "67b0d34fe3910729ce633e70fc94295fa344139fd528dbbfe0d79063fab56acd"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "Sha256": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "Sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "Sha256": "449d89ca35e0e62352ac07f0422fa3d8f79d9cbc9e5edaa368e1388b54274641"
+    },
+    {
+      "Path": "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs",
+      "Sha256": "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a"
+    },
+    {
+      "Path": "Source/Tests/TownHallInterior.Tests/BusinessTypeResolutionTests.cs",
+      "Sha256": "58325e28dc822ffe2cc493c1f426d1c3acf3147efa457edc32f93e317aa82c46"
+    },
+    {
+      "Path": "Source/Tests/TownHallInterior.Tests/BusinessInterfaceTests.cs",
+      "Sha256": "8ec88a822cad2dc0f1db55df8e7bfd517d6e27f88c18445a3d6e93d951260b85"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/business-subtype-probe.md",
+      "Sha256": "90394ea243225bfb25160abd6e4238489833961eb71a922a5f5181c3dc0543b9"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/business-interface-probe.md",
+      "Sha256": "f34039763f22453a2b469abd86406c69687af6fa9b55ee5e3f1dbc04ee3665b0"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+      "Sha256": "69714bdbc27fc02b495d34c52437ffc3bb84e04afdba913ba1d07459c45d0a47"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/README.md",
+      "Sha256": "6e554c59255ea4cfb23d223e1643222915a8723697543780460a0860da37fa06"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+      "Sha256": "8cd5c245a1bdd16d124cf616bcedaf33493ad214eb8ad59078fe2620445b945c"
+    },
+    {
+      "Path": "docs/compatibility.md",
+      "Sha256": "ae399c0c5dba97dfa2a87f77219d204c783fb8e4e0a658a1f78f26cc5a1077a7"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/evidence/business-interface-native-contract.json",
+      "Sha256": "c2e0f72d0b9ae4a1b7dd56c6ca0362776a5ad482d39cb5d8cdf7411e4d52c838"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/evidence/business-subtype-live-observed-report-20261104.json",
+      "Sha256": "1021e4a2596ff39219531a4e6b93b8520b7168b61671650f35c714bdb648e782"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/evidence/business-subtype-live-observed-review-20261104.json",
+      "Sha256": "decc3ea5e68dee0019dda932571d5ddf2b93fef8810f1925c59fb1bb13a1824d"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/evidence/business-subtype-live-observed-save-readback-20261104.json",
+      "Sha256": "0200387bbdb1b04dfce508a0e4ae7ee9600faeaa46af8eea83a868d38b11d231"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/evidence/business-subtype-live-reload-report-20261104.json",
+      "Sha256": "8d180dfb54a6377dad024c5cdb8c07e8b22d7edb7f89033dd2737a365f474bff"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/evidence/business-subtype-live-reload-review-20261104.json",
+      "Sha256": "cfee3a81f3299e2da4a6d556dc645639d4dbde5fa044a8fbe4e84557a0a76af9"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/evidence/business-subtype-live-reload-save-readback-20261104.json",
+      "Sha256": "3c796ec9226861322cb2dab5e9bd546304fa33d3a114edfff3a904c79a350098"
+    }
+  ],
+  "FrozenFilesMatchWorkingTreeAndFinalIsolatedCheckout": 20,
+  "Change": "Optional inactive ISaveable.InitializeSaveable dispatch to existing own no-base override, exactly once. Validate native token/proxy field, bounded interface metadata, inherited offsets, native assignability and exact own target before native resolver/call. Stage counters0-to-1; eligibility remains1/1. No original initialization or manager invocation.",
+  "Builds": {
+    "Interface": {
+      "Warnings": 0,
+      "ExitCode": 0,
+      "Errors": 0,
+      "NoDeploy": true
+    },
+    "Activation": {
+      "ExitCode": 1,
+      "ContainmentConfirmed": true,
+      "ExpectedError": "CS1029",
+      "NoDeploy": true
+    },
+    "Subtype": {
+      "Warnings": 0,
+      "ExitCode": 0,
+      "Errors": 0,
+      "NoDeploy": true
+    },
+    "Normal": {
+      "Warnings": 0,
+      "ExitCode": 0,
+      "Errors": 0,
+      "NoDeploy": true
+    }
+  },
+  "Tests": {
+    "TownHallPassed": 411,
+    "FinalIsolatedXunitPassed": 4342,
+    "PassedProjects": 19,
+    "FinalIsolatedConsolePassed": 265,
+    "TownHallFailed": 0,
+    "ScopedFormatExitCode": 0,
+    "GameRequiredSharedProjectSkipped": true,
+    "NewInterfaceCases": 59,
+    "ExecutedProjects": 19
+  },
+  "IndependentReview": {
+    "PePdbPairAnd21SourceDocumentsConfirmed": true,
+    "Path": "independent-review.json",
+    "ChecksPassed": 21,
+    "OpenBlockingFindings": [],
+    "Sha256": "60965544bc936926be1cb7fec8938a4b9878312bfc0e7bb0b85ba831e7010950",
+    "Reviewer": "probe_review"
+  },
+  "FinalIsolatedPure": {
+    "NewSourceOrTestFormatFindings": 0,
+    "ExitCode": 1,
+    "CheckDirectory": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-4fdc93f6f590\\checks\\verify-98558582983e",
+    "AllOtherStepsPassed": true,
+    "Passed": 20,
+    "RemainingFormatFindings": 30,
+    "RemainingFormatFiles": [
+      "Source/Mods/WorldLook/src/WaterShaderMod.cs",
+      "Source/Tests/TownHallInterior.Tests/FurniturePlanTests.cs",
+      "Source/Tests/WaterShader.Tests/WaterDiagnosticBoundaryTests.cs",
+      "ThirdParty/S1MCPServer-master/S1MCPServer/Handlers/ScreenshotCommandHandler.cs",
+      "ThirdParty/S1MCPServer-master/S1MCPServer/Utils/ScreenshotCapture.cs"
+    ],
+    "Snapshot": "C:/Users/pc/.cache/Schedule1Tools/clean-checkouts/clean-checkout-4fdc93f6f590",
+    "KnownVersionDrift": [
+      "HitmanPhone docs0.3.2/code0.3.4",
+      "Minimap docs2.3.6/code2.3.7",
+      "PoliceTestMode missing AGENTS inventory/code0.1.0"
+    ],
+    "ReportSha256": "4182626b632d13889c54bc2f6563baba3532ce07fce92ab9760de3211c9a7f08",
+    "Failed": 2,
+    "FailedSteps": [
+      "format",
+      "versions"
+    ]
+  },
+  "InstalledBeforePure": {
+    "Evidence": "coder-installed-unchanged.json",
+    "InstalledDllAtThatTime": "59484a666e510a1fe48cbd5cec7277d1fa50df434a90433c74ff5d4fa7d1a794",
+    "CheckedUtc": "2026-11-04T04:26:09.4934492Z",
+    "AllNineUnchanged": true,
+    "Limit": "Timestamped pre-deployment observation; later root deployment is documented separately."
+  },
+  "PriorLiveEvidence": {
+    "ObservedReportSha256": "1021e4a2596ff39219531a4e6b93b8520b7168b61671650f35c714bdb648e782",
+    "ReloadReportSha256": "8d180dfb54a6377dad024c5cdb8c07e8b22d7edb7f89033dd2737a365f474bff",
+    "Limit": "Observed Property class virtual route and reload one-shot guard belong to predecessor59484a66, not new interface acceptance."
+  },
+  "CoderDeploymentPerformed": false,
+  "CoderGameStarted": false,
+  "NewInterfaceLiveObserved": false,
+  "GameplayAccepted": false,
+  "Limits": [
+    "Offline native API/PE review and pure tests do not prove new native interface behavior.",
+    "Class registration persists until process exit; own Unity cleanup is separate.",
+    "No save eligibility, original lifecycle, manager integration, activation, purchase, station or persistence acceptance.",
+    "No new native game-method detours; explicit injected Interfaces remain empty.",
+    "Root owns deployment and separate native-save/Cloud verification."
+  ]
+}

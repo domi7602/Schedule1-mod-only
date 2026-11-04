@@ -1,0 +1,240 @@
+{
+  "Schema": 1,
+  "CheckedUtc": "2026-11-04T04:00:25.1274913Z",
+  "Coder": "/root/construction_policy",
+  "BaseRevision": "bcd54e9ace58dbe1a615b44f319f96efd7902fc5",
+  "Status": "offline-correction-complete-with-recorded-repository-baseline-failures",
+  "ProductionFiles": 20,
+  "CandidateSha256": "59484a666e510a1fe48cbd5cec7277d1fa50df434a90433c74ff5d4fa7d1a794",
+  "PdbSha256": "4ae949089b16ad997bb6ff2edb4f21a7f559a5578a49b149c9e082c489aef67f",
+  "SourceFreeze": [
+    {
+      "Path": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs",
+      "Sha256": "0546b67b9319ed4fee6009eb7e767fbe6b9eea0257a910ab8c9a2c171bd48907"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs",
+      "Sha256": "fb82cfafbee2f92b7c52d76edc9a3fe417cb905ad7f20a90a082ce681efa7fa1"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/src/Mod.cs",
+      "Sha256": "82323dd725b033b124c0f5edd6252730676f3f1910bdd402441945f0fe4e9385"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/src/TownHallInterior.csproj",
+      "Sha256": "b0383be5f41163506cce8722aba80d4f8816abefe227b35cda1a3347008c9535"
+    },
+    {
+      "Path": "Source/Tests/TownHallInterior.Tests/BusinessSubtypeTests.cs",
+      "Sha256": "d58b1b960098861782725d71811fa17f27b0bf195d8e25ef37a5c586674f380a"
+    },
+    {
+      "Path": "Source/Tests/TownHallInterior.Tests/BusinessTypeResolutionTests.cs",
+      "Sha256": "58325e28dc822ffe2cc493c1f426d1c3acf3147efa457edc32f93e317aa82c46"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/business-subtype-probe.md",
+      "Sha256": "19c2912be40ed3f0671e17c6dc79e4106c5828cb3de48de3231373aad37eedc0"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/business-completion-plan.md",
+      "Sha256": "e4b0f2f831b13991ab1ad38a4935c1c0bfba68a508e41ffd9f39a814f255dfc3"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/README.md",
+      "Sha256": "10af5580e423b46524299aea0d5ab70ddea1dc41fa2020091f8fd652cf8fa046"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/CHANGELOG.md",
+      "Sha256": "ca3fe266bdfcd7f68661bed05f8cd917ad10bff425ab717fcf5125e20676739b"
+    },
+    {
+      "Path": "docs/compatibility.md",
+      "Sha256": "c3a1cc24e2140349f011e1e3810be671e51bcf5275e2d38791ad2f454d5194f9"
+    },
+    {
+      "Path": "Source/Mods/TownHallInterior/docs/evidence/business-subtype-live-failed-20261104.json",
+      "Sha256": "0e2c63ef0b811c9491bb07c8f40cba24e540c440fd44cb779184a8287619d27a"
+    }
+  ],
+  "FrozenFilesMatchWorkingTreeAndFinalIsolatedCheckout": 12,
+  "Change": "Exact validated NetworkConnection native-to-proxy name mapping during own registration only; managed name-helper postfix and type/thread/depth guard; original Genericinst/ByRef/RewriteType path retained; owner-specific bounded finally removal.",
+  "OriginalLiveFailure": {
+    "UnchangedRegistries": 10,
+    "ReportSha256": "0e2c63ef0b811c9491bb07c8f40cba24e540c440fd44cb779184a8287619d27a",
+    "Stage": "register-type",
+    "CapturedUtc": "2026-11-04T03:18:27.2430082Z",
+    "UnchangedForeignVtables": 13,
+    "PartialMetadataNotExcluded": true,
+    "MissingType": "FishNet.Connection.NetworkConnection, FishNet.Runtime",
+    "CandidateSha256": "659ee6a2fe2a3e12bb8dd8e61c15b48e673c5a54cdcf652167bda4035de96078",
+    "NoInstanceCreated": true
+  },
+  "Builds": {
+    "Subtype": {
+      "ExitCode": 0,
+      "NoDeploy": true,
+      "Warnings": 0,
+      "Errors": 0
+    },
+    "Normal": {
+      "ExitCode": 0,
+      "NoDeploy": true,
+      "Warnings": 0,
+      "Errors": 0
+    },
+    "Activation": {
+      "ExitCode": 1,
+      "NoDeploy": true,
+      "ContainmentConfirmed": true,
+      "ExpectedError": "CS1029"
+    }
+  },
+  "Tests": {
+    "GameRequiredSharedProjectSkipped": true,
+    "TownHallPassed": 352,
+    "NewTypeResolutionCases": 34,
+    "FinalIsolatedConsolePassed": 265,
+    "ScopedFormatExitCode": 0,
+    "CapturedNamesRedBeforeGreenAfterFixturePassed": true,
+    "FinalIsolatedXunitPassed": 4283,
+    "PassedProjects": 19,
+    "TownHallFailed": 0,
+    "ExecutedProjects": 19
+  },
+  "IndependentReview": {
+    "ChecksPassed": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "Path": "independent-review.json",
+    "PePdbPairAnd21SourceDocumentsConfirmed": true,
+    "Reviewer": "probe_review",
+    "Sha256": "9f612a4cffa71ecacec56f93d32a31c7326067ef6c7ad972b8ad719ebf93287b",
+    "OpenBlockingFindings": []
+  },
+  "FinalIsolatedPure": {
+    "RemainingFormatFindings": 30,
+    "NewSourceOrTestFormatFindings": 0,
+    "ReportSha256": "a49b1c2ae673d6d1188d408a851f5bd1fbea0edfac743c742efceb06baabf19a",
+    "Failed": 2,
+    "RemainingFormatFiles": [
+      "Source/Mods/WorldLook/src/WaterShaderMod.cs",
+      "Source/Tests/TownHallInterior.Tests/FurniturePlanTests.cs",
+      "Source/Tests/WaterShader.Tests/WaterDiagnosticBoundaryTests.cs",
+      "ThirdParty/S1MCPServer-master/S1MCPServer/Handlers/ScreenshotCommandHandler.cs",
+      "ThirdParty/S1MCPServer-master/S1MCPServer/Utils/ScreenshotCapture.cs"
+    ],
+    "AllOtherStepsPassed": true,
+    "Snapshot": "C:/Users/pc/.cache/Schedule1Tools/clean-checkouts/clean-checkout-ea36adf3bafb",
+    "Passed": 20,
+    "Report": "C:\\Users\\pc\\.cache\\Schedule1Tools\\clean-checkouts\\clean-checkout-ea36adf3bafb\\checks\\verify-b226a8d8a41c\\report.json",
+    "VersionDriftMods": [
+      "HitmanPhone",
+      "Minimap",
+      "PoliceTestMode"
+    ],
+    "FailedSteps": [
+      "format",
+      "versions"
+    ],
+    "ExitCode": 1
+  },
+  "EarlierNoDeployReadback": {
+    "CurrentInstallationIsSeparatelyDocumented": true,
+    "Path": "coder-installed-unchanged.json",
+    "RecordedArtifactWriteUtc": "2026-11-04T03:48:56.4748328Z",
+    "BaselineDllSha256": "659ee6a2fe2a3e12bb8dd8e61c15b48e673c5a54cdcf652167bda4035de96078",
+    "AllNineInstalledArtifactsUnchangedAtThatCheck": true
+  },
+  "SubsequentRootDeployment": {
+    "AttemptId": "20261104T035909267Z-4f5fec8e06c0",
+    "OtherInstalledFilesUnchanged": 7,
+    "CheckedUtc": "2026-11-04T03:59:11.2386055Z",
+    "CandidateSha256": "59484a666e510a1fe48cbd5cec7277d1fa50df434a90433c74ff5d4fa7d1a794",
+    "Source": "deployment-verification.json authored by root",
+    "BackupEntriesVerified": 2,
+    "Status": "InstalledAndHashVerified",
+    "PdbSha256": "4ae949089b16ad997bb6ff2edb4f21a7f559a5578a49b149c9e082c489aef67f"
+  },
+  "DeploymentPerformedByCoder": false,
+  "GameStartedByCoder": false,
+  "NativeSaveMutationPerformedByCoder": false,
+  "Limits": [
+    "No live result for corrected candidate; pure lookup fixture and managed-code/API review do not prove native registration success.",
+    "Two Property class-virtual calls only; ISaveable/interface/native manager paths remain untested.",
+    "Native type registration remains process-lifetime and is not retried after failure.",
+    "Managed patch restoration is read back separately from own Unity root/component cleanup; no world publication, activation, purchase, save or spawn."
+  ],
+  "Artifacts": [
+    {
+      "Path": "candidate/TownHallInterior.dll",
+      "Sha256": "59484a666e510a1fe48cbd5cec7277d1fa50df434a90433c74ff5d4fa7d1a794"
+    },
+    {
+      "Path": "candidate/TownHallInterior.pdb",
+      "Sha256": "4ae949089b16ad997bb6ff2edb4f21a7f559a5578a49b149c9e082c489aef67f"
+    },
+    {
+      "Path": "build-normal-final.log",
+      "Sha256": "ce598f6eb76456c8690573a8f7bcdf718b2ff6174ac6ad104e84cb6667394a86"
+    },
+    {
+      "Path": "build-subtype-final.log",
+      "Sha256": "c11a3f4fbe9397fc6e73c838aa6b1f01e25938679ca6c2cca59c8afe52bcdb94"
+    },
+    {
+      "Path": "build-activation-blocked.log",
+      "Sha256": "ba00de6c10cdce9e11ecb8747740d3db4baa80a31b42544cc7f860be8fa163c5"
+    },
+    {
+      "Path": "tests-review.log",
+      "Sha256": "308843292fcdb8fa70d7f06fae1cab2a65602733bc267b0d105d1b2517ac3958"
+    },
+    {
+      "Path": "format-final.log",
+      "Sha256": "ee29b5492bee29d99b96c08986e0d98ef99bd47e2a80315435c14d9f2b1cc70f"
+    },
+    {
+      "Path": "coder-source-freeze.json",
+      "Sha256": "1723d6790801adeaa84d2548cfdebe4ff112fcb48c851a4651f51b1895702dac"
+    },
+    {
+      "Path": "coder-installed-unchanged.json",
+      "Sha256": "6d68820124fdca770525eb40c5e593607a8e69e549146af7ee1f2277edf3165e"
+    },
+    {
+      "Path": "independent-review.json",
+      "Sha256": "9f612a4cffa71ecacec56f93d32a31c7326067ef6c7ad972b8ad719ebf93287b"
+    },
+    {
+      "Path": "native-contract-review.json",
+      "Sha256": "4b347482468274d830a4dad3bd125d703ff474c3fa81225ae71186d8f477bcd9"
+    },
+    {
+      "Path": "isolated-pure-final.log",
+      "Sha256": "9626da7b5cc4e55bd66c3833f3bc3db72ba56b75f27af2220d6f9acdbefa60f1"
+    },
+    {
+      "Path": "deployment-verification.json",
+      "Sha256": "d272a742049599653a6de6f6c1c172506a17f2a06d7fd82fa8827736941c75fa"
+    }
+  ]
+}

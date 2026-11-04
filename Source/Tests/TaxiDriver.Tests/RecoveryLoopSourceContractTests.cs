@@ -16,6 +16,8 @@ public class RecoveryLoopSourceContractTests
         int budget = recovery.IndexOf("TryBeginRecovery(", StringComparison.Ordinal);
         int reverse = recovery.IndexOf("TryStartReverse(", StringComparison.Ordinal);
         Assert.True(budget >= 0 && budget < reverse, "Recovery must spend the operation budget before any reverse/rescue branch can return.");
+        int neverStarted = recovery.IndexOf("InitialDispatchRecoveryPolicy.PreferRedispatch", StringComparison.Ordinal);
+        Assert.True(neverStarted >= 0 && neverStarted < reverse, "A order that never drove must be classified before recovery #1 can reverse.");
     }
 
     [Fact]

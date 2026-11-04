@@ -11,6 +11,12 @@ This directory contains dependencies that are not part of the workspace product 
 | `Herer's Minimap` | External NexusMod #899 | `HererMiniMap.dll` (v2.0.1 by JackHerer1820, retired 2026-09-17, moved to `UserData\_RemovedMods\`) |
 | `Archive/` | Archived releases & retired third-party mods | `ScheduleOne-Hash/` (deprecated; only `Hash.Api/HashCommands.cs` is still source-linked by BusinessIncome and PotScanner), `PhoneScroll/` (retired 2026-09-16, closed source by V4LEXL), `ScheduleIArcade/` (unlicensed arcade/Pac-Man assets — local-only, untracked since 2026-10-07). No archived project or Hash DLL is built/deployed; the optional command-registration shim is the explicit source-only exception |
 
+Current S1API source target is `v3.2.2` / `6b6d7bada39054822732224508cf0f4f45ee7c26`.
+The clean submodule checkout and installed official IL2CPP/loader were updated on
+2026-11-02; the superproject change is not committed yet. [Upgrade evidence and
+rollback](../docs/s1api-upgrade-3.2.2.md) distinguish installation/build checks from
+the still unrun game-load check. No Mono runtime was added.
+
 Clone with dependencies:
 
 ```pwsh

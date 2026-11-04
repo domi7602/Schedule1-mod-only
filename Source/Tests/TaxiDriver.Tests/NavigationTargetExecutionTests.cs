@@ -318,9 +318,11 @@ public class NavigationTargetExecutionTests
         var policies = CSharpSyntaxTree.ParseText(DriverSafetySourceContractTests.ReadSource("DrivingPolicies.cs")).GetRoot();
         var selection = CSharpSyntaxTree.ParseText(DriverSafetySourceContractTests.ReadSource("DestinationSelectionPolicy.cs")).GetRoot();
         string[] methods = { "RecoverStuck", "ReDispatch", "TryBeginRecovery", "BeginNavigationOperation",
-            "ObserveArtificialPlacement", "ArmProgressWindow", "StopIfNavigationExpired", "NavigationCallbackFor", "OnNavigationResult" };
+            "ObserveArtificialPlacement", "ArmProgressWindow", "StopIfNavigationExpired", "NavigationCallbackFor", "OnNavigationResult",
+            "HasCurrentForwardEvidence", "SameAuthorizedTarget" };
         string[] policyTypes = { "NavigationCallbackPolicy", "NavigationRecoveryBudget", "NavigationTerminalPolicy",
-            "RecoveryRecurrencePolicy", "NavigationOperationPolicy", "OperationPhase", "TrafficWaitBudget", "NavigationArrivalPolicy" };
+            "RecoveryRecurrencePolicy", "NavigationOperationPolicy", "OperationPhase", "TrafficWaitBudget", "NavigationArrivalPolicy",
+            "InitialDispatchRecoveryPolicy" };
         string source = Harness
             .Replace("/* RUNNER */", string.Join("\n", runner.DescendantNodes().OfType<MethodDeclarationSyntax>()
                 .Where(m => methods.Contains(m.Identifier.Text)).Select(m => m.ToFullString())))

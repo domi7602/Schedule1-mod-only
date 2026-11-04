@@ -1,0 +1,332 @@
+{
+  "schema": 1,
+  "checkedUtc": "2026-11-03T14:00:20.3335934Z",
+  "reviewer": "construction_policy",
+  "status": "passed",
+  "scope": "Offline build containment verification only; no deployment, game start, gameplay or native activation acceptance.",
+  "gameClosedBeforeEachCommand": true,
+  "gameClosedAfter": true,
+  "source": {
+    "unchanged": true,
+    "afterSha256": "4baa5cdef8c6b69c21cd6841bc724ef5f1fe1b78ef527e4e4826fbfc3642f304",
+    "beforeSha256": "4baa5cdef8c6b69c21cd6841bc724ef5f1fe1b78ef527e4e4826fbfc3642f304",
+    "file": "Source/Mods/TownHallInterior/src/BusinessConstruction.cs"
+  },
+  "activationBuild": {
+    "warnings": 0,
+    "expectedFailure": true,
+    "log": "containment-activation-build.log",
+    "exitCode": 1,
+    "errorCodes": [
+      "CS1029"
+    ],
+    "command": "dotnet build Source/Mods/TownHallInterior/src/TownHallInterior.csproj -c Release -p:S1NoDeploy=true -p:S1TownHallBusinessActivation=true",
+    "errors": 1
+  },
+  "normalBuild": {
+    "command": "dotnet build Source/Mods/TownHallInterior/src/TownHallInterior.csproj -c Release -p:S1NoDeploy=true -p:S1TownHallBusinessActivation=false",
+    "log": "containment-normal-build.log",
+    "errors": 0,
+    "warnings": 0,
+    "exitCode": 0
+  },
+  "townHallTests": {
+    "command": "dotnet test Source/Tests/TownHallInterior.Tests/TownHallInterior.Tests.csproj -c Release -p:S1NoDeploy=true -p:S1TownHallBusinessActivation=false",
+    "notExecuted": 0,
+    "log": "containment-townhall-tests.log",
+    "failed": 0,
+    "total": 273,
+    "trx": "containment-townhall-tests.trx",
+    "passed": 273,
+    "exitCode": 0
+  },
+  "installedDll": {
+    "unchanged": true,
+    "afterSha256": "52bb577af0fb238cb146bb5fd28fefdba762a18b21b947285655ea32406b4257",
+    "beforeSha256": "52bb577af0fb238cb146bb5fd28fefdba762a18b21b947285655ea32406b4257",
+    "isRollback52bb": true
+  },
+  "deploymentReceipts": {
+    "unchanged": true,
+    "beforeCount": 30,
+    "after": [
+      {
+        "name": "TownHallInterior.20261028T190536644Z-41639ab9df3b.json",
+        "sha256": "3935628ca0bdd041900ab8439620980b205cb6393c6d0589f42607978c655c5e"
+      },
+      {
+        "name": "TownHallInterior.20261028T190713305Z-ff356d53f368.json",
+        "sha256": "abc600ec02899ad7031a8a3443a27fcaf7f4f5d2a446dfd2861f7b096c0297fc"
+      },
+      {
+        "name": "TownHallInterior.20261028T190840230Z-aeec0ba6af3d.json",
+        "sha256": "276a94c3cc6272dacb9263ba04924285dd83a64a4e34f2c92609c16bf415aa98"
+      },
+      {
+        "name": "TownHallInterior.20261028T191655802Z-e56de3c9f854.json",
+        "sha256": "ec3a15424e9d325783daf19f7567f97203d8046dc3a4fa247775ff8059a9431b"
+      },
+      {
+        "name": "TownHallInterior.20261028T192334373Z-03063efa3086.json",
+        "sha256": "93fe3d93b512a0c588acb2805d1270b0682837c8f149ea182dc47f63808435b3"
+      },
+      {
+        "name": "TownHallInterior.20261028T192802170Z-b5c017b36f28.json",
+        "sha256": "b67c1540b5c5ca46834210846dcc5a4254d9968792af17c55c160042ceb55b9b"
+      },
+      {
+        "name": "TownHallInterior.20261028T203201788Z-ac3258d86c33.json",
+        "sha256": "bea145872c3eca1ebe6c67dfda3eec376cea570c4467f82f89059164aaa60f7b"
+      },
+      {
+        "name": "TownHallInterior.20261029T040156284Z-cbccc2e18141.json",
+        "sha256": "a465f48a873813a0215e864350f6f14b710f72a23e760308773759d85f8d842a"
+      },
+      {
+        "name": "TownHallInterior.20261029T043323556Z-adeb5a1fd0c1.json",
+        "sha256": "bb87d76e5bf4ae5560d40b79a967d5d9506d6c9d32cd17f7e68942a01ef95560"
+      },
+      {
+        "name": "TownHallInterior.20261029T061005509Z-899a1aff6eee.json",
+        "sha256": "8f0f2f13b1a85fa924c0c2918cdbfcdf068740b32aa7127be24d45f82ca49c2c"
+      },
+      {
+        "name": "TownHallInterior.20261029T081714399Z-afcf8e52b002.json",
+        "sha256": "e5add4d03eb208182b4237ce4e2b9c9037c42d62d59496622ed298ebd1e9016e"
+      },
+      {
+        "name": "TownHallInterior.20261029T101132709Z-29ea7082aed9.json",
+        "sha256": "dd4f0d6affb10b76bb747a9ba2081d9e9ab69263ae8a0bcb9f07a926b597299c"
+      },
+      {
+        "name": "TownHallInterior.20261029T165314948Z-d3e179601ce6.json",
+        "sha256": "f67da79e1feae2125a99fc816c3af48a61b14333527fb79d64f7f93653d3ddfa"
+      },
+      {
+        "name": "TownHallInterior.20261029T173104090Z-ff886574618a.json",
+        "sha256": "740219209c9ab073bad92157d1b6b9e0c1a7ac2884951c37e2127c0cc58e9116"
+      },
+      {
+        "name": "TownHallInterior.20261029T173935840Z-2aeebeb8c83f.json",
+        "sha256": "c3543323deb753df2a72da3abadeef97af460121de90dbac9f7b307ed9859ee2"
+      },
+      {
+        "name": "TownHallInterior.20261029T193738585Z-f2c170a8aab0.json",
+        "sha256": "bcba3b8e80d607c609f8ebb4a51b34e131f983cade5edcb80bdb3f9cb5e60885"
+      },
+      {
+        "name": "TownHallInterior.20261029T194158808Z-4a388ce29d95.json",
+        "sha256": "0513edd13fa19a77adb6c057e9d0b80c368ce5548332a8b1266a2922639fcbca"
+      },
+      {
+        "name": "TownHallInterior.20261029T195551196Z-3aaaa2720f04.json",
+        "sha256": "9667a451ab90e6c4d02e76ff60c84f9bdd9d65d445c819fa20d0a599aef62b0b"
+      },
+      {
+        "name": "TownHallInterior.20261029T202623671Z-8f72bed2a5db.json",
+        "sha256": "d17fee7d446124259711cdd08ace9f06e01a981355ef81b9e56a4511b0835616"
+      },
+      {
+        "name": "TownHallInterior.20261029T204537740Z-728bff96a6de.json",
+        "sha256": "4997e74f68754ffc263055969bdf68231b4ca6d099a080ec6d594f3010071d8a"
+      },
+      {
+        "name": "TownHallInterior.20261030T044742726Z-4a60d3cac13a.json",
+        "sha256": "f76f57521318e6b2bed9cea3112eb9cf340029f7373b16c41250223fec096a0b"
+      },
+      {
+        "name": "TownHallInterior.20261030T062905126Z-974da8aaf36c.json",
+        "sha256": "1767a40fed704e57140a276326d641ea45105a72462740c93956ef03fdb0659d"
+      },
+      {
+        "name": "TownHallInterior.20261030T135521772Z-491bf57c5fe4.json",
+        "sha256": "74807ae2e73e8a7f9bae376dc0dba3a5b884a2c3d96fcc1a3223c4d1eefbebab"
+      },
+      {
+        "name": "TownHallInterior.20261030T140642018Z-8fb999fe7582.json",
+        "sha256": "6276b290f87c394fa4b579e798db435ea9c6ef1c0ff60cc60970edf6b276805c"
+      },
+      {
+        "name": "TownHallInterior.20261103T065341161Z-09c20d5902a2.json",
+        "sha256": "7ab94026baaee58dee060fce81afb333db3031bc09f9524bae758fd32ddcbb75"
+      },
+      {
+        "name": "TownHallInterior.20261103T120509663Z-8082399c9d6a.json",
+        "sha256": "839ece4a0dfc99c23718b1d3304f21ad01aeecab0171372533eaf0d4491cde0e"
+      },
+      {
+        "name": "TownHallInterior.20261103T125412625Z-e943ac017322.json",
+        "sha256": "069684ab89c037cd0b948f6e4e27bb3ee4c01117bbc58eda60d73b0bca756e44"
+      },
+      {
+        "name": "TownHallInterior.20261103T134645745Z-229f6ad99e02.json",
+        "sha256": "b84bcf61966406b8e72b47904ed1ff31be2ade397f9f98b5d3f88e3a77ca9607"
+      },
+      {
+        "name": "TownHallInterior.20261103T135352798Z-833f0607f348.json",
+        "sha256": "ff77ea3ad71a57d399c2b50a13d29bd882d6379ff7390d2c9051e02da48ceb0d"
+      },
+      {
+        "name": "TownHallInterior.json",
+        "sha256": "ff77ea3ad71a57d399c2b50a13d29bd882d6379ff7390d2c9051e02da48ceb0d"
+      }
+    ],
+    "afterCount": 30,
+    "before": [
+      {
+        "sha256": "3935628ca0bdd041900ab8439620980b205cb6393c6d0589f42607978c655c5e",
+        "name": "TownHallInterior.20261028T190536644Z-41639ab9df3b.json"
+      },
+      {
+        "sha256": "abc600ec02899ad7031a8a3443a27fcaf7f4f5d2a446dfd2861f7b096c0297fc",
+        "name": "TownHallInterior.20261028T190713305Z-ff356d53f368.json"
+      },
+      {
+        "sha256": "276a94c3cc6272dacb9263ba04924285dd83a64a4e34f2c92609c16bf415aa98",
+        "name": "TownHallInterior.20261028T190840230Z-aeec0ba6af3d.json"
+      },
+      {
+        "sha256": "ec3a15424e9d325783daf19f7567f97203d8046dc3a4fa247775ff8059a9431b",
+        "name": "TownHallInterior.20261028T191655802Z-e56de3c9f854.json"
+      },
+      {
+        "sha256": "93fe3d93b512a0c588acb2805d1270b0682837c8f149ea182dc47f63808435b3",
+        "name": "TownHallInterior.20261028T192334373Z-03063efa3086.json"
+      },
+      {
+        "sha256": "b67c1540b5c5ca46834210846dcc5a4254d9968792af17c55c160042ceb55b9b",
+        "name": "TownHallInterior.20261028T192802170Z-b5c017b36f28.json"
+      },
+      {
+        "sha256": "bea145872c3eca1ebe6c67dfda3eec376cea570c4467f82f89059164aaa60f7b",
+        "name": "TownHallInterior.20261028T203201788Z-ac3258d86c33.json"
+      },
+      {
+        "sha256": "a465f48a873813a0215e864350f6f14b710f72a23e760308773759d85f8d842a",
+        "name": "TownHallInterior.20261029T040156284Z-cbccc2e18141.json"
+      },
+      {
+        "sha256": "bb87d76e5bf4ae5560d40b79a967d5d9506d6c9d32cd17f7e68942a01ef95560",
+        "name": "TownHallInterior.20261029T043323556Z-adeb5a1fd0c1.json"
+      },
+      {
+        "sha256": "8f0f2f13b1a85fa924c0c2918cdbfcdf068740b32aa7127be24d45f82ca49c2c",
+        "name": "TownHallInterior.20261029T061005509Z-899a1aff6eee.json"
+      },
+      {
+        "sha256": "e5add4d03eb208182b4237ce4e2b9c9037c42d62d59496622ed298ebd1e9016e",
+        "name": "TownHallInterior.20261029T081714399Z-afcf8e52b002.json"
+      },
+      {
+        "sha256": "dd4f0d6affb10b76bb747a9ba2081d9e9ab69263ae8a0bcb9f07a926b597299c",
+        "name": "TownHallInterior.20261029T101132709Z-29ea7082aed9.json"
+      },
+      {
+        "sha256": "f67da79e1feae2125a99fc816c3af48a61b14333527fb79d64f7f93653d3ddfa",
+        "name": "TownHallInterior.20261029T165314948Z-d3e179601ce6.json"
+      },
+      {
+        "sha256": "740219209c9ab073bad92157d1b6b9e0c1a7ac2884951c37e2127c0cc58e9116",
+        "name": "TownHallInterior.20261029T173104090Z-ff886574618a.json"
+      },
+      {
+        "sha256": "c3543323deb753df2a72da3abadeef97af460121de90dbac9f7b307ed9859ee2",
+        "name": "TownHallInterior.20261029T173935840Z-2aeebeb8c83f.json"
+      },
+      {
+        "sha256": "bcba3b8e80d607c609f8ebb4a51b34e131f983cade5edcb80bdb3f9cb5e60885",
+        "name": "TownHallInterior.20261029T193738585Z-f2c170a8aab0.json"
+      },
+      {
+        "sha256": "0513edd13fa19a77adb6c057e9d0b80c368ce5548332a8b1266a2922639fcbca",
+        "name": "TownHallInterior.20261029T194158808Z-4a388ce29d95.json"
+      },
+      {
+        "sha256": "9667a451ab90e6c4d02e76ff60c84f9bdd9d65d445c819fa20d0a599aef62b0b",
+        "name": "TownHallInterior.20261029T195551196Z-3aaaa2720f04.json"
+      },
+      {
+        "sha256": "d17fee7d446124259711cdd08ace9f06e01a981355ef81b9e56a4511b0835616",
+        "name": "TownHallInterior.20261029T202623671Z-8f72bed2a5db.json"
+      },
+      {
+        "sha256": "4997e74f68754ffc263055969bdf68231b4ca6d099a080ec6d594f3010071d8a",
+        "name": "TownHallInterior.20261029T204537740Z-728bff96a6de.json"
+      },
+      {
+        "sha256": "f76f57521318e6b2bed9cea3112eb9cf340029f7373b16c41250223fec096a0b",
+        "name": "TownHallInterior.20261030T044742726Z-4a60d3cac13a.json"
+      },
+      {
+        "sha256": "1767a40fed704e57140a276326d641ea45105a72462740c93956ef03fdb0659d",
+        "name": "TownHallInterior.20261030T062905126Z-974da8aaf36c.json"
+      },
+      {
+        "sha256": "74807ae2e73e8a7f9bae376dc0dba3a5b884a2c3d96fcc1a3223c4d1eefbebab",
+        "name": "TownHallInterior.20261030T135521772Z-491bf57c5fe4.json"
+      },
+      {
+        "sha256": "6276b290f87c394fa4b579e798db435ea9c6ef1c0ff60cc60970edf6b276805c",
+        "name": "TownHallInterior.20261030T140642018Z-8fb999fe7582.json"
+      },
+      {
+        "sha256": "7ab94026baaee58dee060fce81afb333db3031bc09f9524bae758fd32ddcbb75",
+        "name": "TownHallInterior.20261103T065341161Z-09c20d5902a2.json"
+      },
+      {
+        "sha256": "839ece4a0dfc99c23718b1d3304f21ad01aeecab0171372533eaf0d4491cde0e",
+        "name": "TownHallInterior.20261103T120509663Z-8082399c9d6a.json"
+      },
+      {
+        "sha256": "069684ab89c037cd0b948f6e4e27bb3ee4c01117bbc58eda60d73b0bca756e44",
+        "name": "TownHallInterior.20261103T125412625Z-e943ac017322.json"
+      },
+      {
+        "sha256": "b84bcf61966406b8e72b47904ed1ff31be2ade397f9f98b5d3f88e3a77ca9607",
+        "name": "TownHallInterior.20261103T134645745Z-229f6ad99e02.json"
+      },
+      {
+        "sha256": "ff77ea3ad71a57d399c2b50a13d29bd882d6379ff7390d2c9051e02da48ceb0d",
+        "name": "TownHallInterior.20261103T135352798Z-833f0607f348.json"
+      },
+      {
+        "sha256": "ff77ea3ad71a57d399c2b50a13d29bd882d6379ff7390d2c9051e02da48ceb0d",
+        "name": "TownHallInterior.json"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "file": "containment-activation-build.log",
+      "sha256": "14bf47e4b09f21d6b9f739641d4a0db54ac8ee9b7bc0f03844ce595971f2d546"
+    },
+    {
+      "file": "containment-activation-result.json",
+      "sha256": "d92cf1c3b2f0ae1afc25f46ace7e3403a648df7d18d48717459f4b5fcf6aabe0"
+    },
+    {
+      "file": "containment-before.json",
+      "sha256": "bd5ff514ace57d7d2114c955aed11bc492159f955d15941ec1fedb6914b0c43d"
+    },
+    {
+      "file": "containment-normal-build.log",
+      "sha256": "69fd1004c2338d115b659ad3a3997f76f772e6f6b72f3b2eaca166eded86475c"
+    },
+    {
+      "file": "containment-normal-result.json",
+      "sha256": "9ede587825159aa2b466b0bca1bdd74c76888368bdcf37bb5e0ea41bfa458bb7"
+    },
+    {
+      "file": "containment-test-result.json",
+      "sha256": "b847ecdf29e9ad0537984959d25546a7d9c730b12a760d6e8a88c235b0dedb48"
+    },
+    {
+      "file": "containment-townhall-tests.log",
+      "sha256": "71c4a0f45940e8674ef23d58c09fa58105ccafdab103a736c72e771e890e0862"
+    },
+    {
+      "file": "containment-townhall-tests.trx",
+      "sha256": "e8d014bd414cac8b32d3c19bf9e9b7b9f88ec6e827a82096094a78e37ac90860"
+    }
+  ]
+}

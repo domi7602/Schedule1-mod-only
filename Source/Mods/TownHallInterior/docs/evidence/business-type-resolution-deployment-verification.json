@@ -1,0 +1,13 @@
+{
+  "CheckedUtc": "2026-11-04T03:59:11.2386055Z",
+  "Status": "InstalledAndHashVerified",
+  "AttemptId": "20261104T035909267Z-4f5fec8e06c0",
+  "CandidateSha256": "59484a666e510a1fe48cbd5cec7277d1fa50df434a90433c74ff5d4fa7d1a794",
+  "PdbSha256": "4ae949089b16ad997bb6ff2edb4f21a7f559a5578a49b149c9e082c489aef67f",
+  "SourcesMatchSnapshot": 12,
+  "BackupEntriesVerified": 2,
+  "OtherInstalledFilesUnchanged": 7,
+  "NativeGameStartedByAgent": false,
+  "NativeAcceptance": "Not tested",
+  "ReviewBoundary": "Root must separately inspect final independent review and known format/version findings before invoking this script."
+}

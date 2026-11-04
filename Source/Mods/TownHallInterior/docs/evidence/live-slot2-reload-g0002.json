@@ -1,0 +1,2512 @@
+{
+  "Schema": 2,
+  "Mode": "observation-only",
+  "NativeMutationAllowed": false,
+  "RunId": "20261103T121152046Z-88ba70e7b1574280a8c053a724702eb3",
+  "MainGeneration": 2,
+  "RecordingKind": "load",
+  "PreviousReport": "20261103T121152046Z-88ba70e7b1574280a8c053a724702eb3-g0001.json",
+  "AssemblySha256": "a34e3b4ae23e1448dbdb1a4f1f9abd22156e97e1b811ef69e45419a83f00bee4",
+  "NativeProxySha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+  "S1ApiSha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+  "CapturedUtc": "2026-11-03T12:16:57.1455385Z",
+  "DroppedLoaderEvents": 0,
+  "Hooks": [
+    {
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)",
+      "OwnerPresent": true,
+      "RecordedEnters": 24,
+      "RecordedExits": 24
+    },
+    {
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertiesLoader.Void Load(System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 1,
+      "RecordedExits": 1
+    },
+    {
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.BusinessesLoader.Void Load(System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 1,
+      "RecordedExits": 1
+    },
+    {
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.BusinessLoader.Void Load(System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 0,
+      "RecordedExits": 0
+    },
+    {
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 14,
+      "RecordedExits": 14
+    },
+    {
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 5,
+      "RecordedExits": 5
+    }
+  ],
+  "Assessment": {
+    "Status": "observed",
+    "Findings": []
+  },
+  "SnapshotAssessment": {
+    "Status": "observed",
+    "Findings": []
+  },
+  "LoaderAssessment": {
+    "Status": "observed",
+    "Findings": []
+  },
+  "HasLoadCompleteInventory": true,
+  "HasSettledInventory": true,
+  "Truncated": false,
+  "Snapshots": [
+    {
+      "Phase": "load-recording-start",
+      "Frame": 29752,
+      "MainGeneration": 2,
+      "Complete": true,
+      "Errors": [],
+      "Entities": [],
+      "Sequence": 101
+    },
+    {
+      "Phase": "main-before-preload",
+      "Frame": 29752,
+      "MainGeneration": 2,
+      "Complete": true,
+      "Errors": [],
+      "Entities": [],
+      "Sequence": 102
+    },
+    {
+      "Phase": "main-scene-loaded",
+      "Frame": 29752,
+      "MainGeneration": 2,
+      "Complete": true,
+      "Errors": [],
+      "Entities": [],
+      "Sequence": 103
+    },
+    {
+      "Phase": "pre-load",
+      "Frame": 29752,
+      "MainGeneration": 2,
+      "Complete": true,
+      "Errors": [],
+      "Entities": [],
+      "Sequence": 104
+    },
+    {
+      "Phase": "load-complete",
+      "Frame": 29766,
+      "MainGeneration": 2,
+      "Complete": true,
+      "Errors": [],
+      "Entities": [
+        {
+          "Kind": "business",
+          "Identity": "0x1991e234000",
+          "ParentIdentity": "",
+          "Code": "hylandmedical",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical"
+        },
+        {
+          "Kind": "business-state",
+          "Identity": "0x1991e234000",
+          "ParentIdentity": "",
+          "Code": "owned=False;loaded=True",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "container",
+          "Identity": "0x197059b5c30",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "Hyland Medical Contents Container"
+        },
+        {
+          "Kind": "worldspace-ui",
+          "Identity": "0x19920c4b860",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "UI/ManagementWorldspaceCanvas/Hyland Medical Worldspace UI Container"
+        },
+        {
+          "Kind": "spawn",
+          "Identity": "0x19922b42bc0",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/SpawnPoint"
+        },
+        {
+          "Kind": "interior-spawn",
+          "Identity": "0x19922b42ba0",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/InteriorSpawnPoint"
+        },
+        {
+          "Kind": "npc-spawn",
+          "Identity": "0x19922b42bc0",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/SpawnPoint"
+        },
+        {
+          "Kind": "bounds",
+          "Identity": "0x19922b42b60",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/BoundingBox"
+        },
+        {
+          "Kind": "bounds-collider",
+          "Identity": "0x19920c4b8e0",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/BoundingBox"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x1979925d000",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "",
+          "Guid": "1b6405cb-99f5-45c0-8ebc-a1f7e2b8286b",
+          "Path": "@Businesses/Hyland Medical/Player Office/Grid"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x1979925d000",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/Player Office/Grid"
+        },
+        {
+          "Kind": "business",
+          "Identity": "0x197963fa2a0",
+          "ParentIdentity": "",
+          "Code": "laundromat",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat"
+        },
+        {
+          "Kind": "business-state",
+          "Identity": "0x197963fa2a0",
+          "ParentIdentity": "",
+          "Code": "owned=False;loaded=True",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "container",
+          "Identity": "0x1998afd6b70",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "Laundromat Contents Container"
+        },
+        {
+          "Kind": "worldspace-ui",
+          "Identity": "0x1998b02dea0",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "UI/ManagementWorldspaceCanvas/Laundromat Worldspace UI Container"
+        },
+        {
+          "Kind": "spawn",
+          "Identity": "0x19922c940e0",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/SpawnPoint"
+        },
+        {
+          "Kind": "interior-spawn",
+          "Identity": "0x19922c940e0",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/SpawnPoint"
+        },
+        {
+          "Kind": "npc-spawn",
+          "Identity": "0x19922c940e0",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/SpawnPoint"
+        },
+        {
+          "Kind": "bounds",
+          "Identity": "0x19922c94080",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/BoundingBox"
+        },
+        {
+          "Kind": "bounds-collider",
+          "Identity": "0x1998b02df20",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/BoundingBox"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x1979986e780",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "",
+          "Guid": "f83a9d8f-a82d-4c91-8c09-12e0a41aefa7",
+          "Path": "@Businesses/Laundromat/Grid"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x1979986e780",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/Grid"
+        },
+        {
+          "Kind": "business",
+          "Identity": "0x197969f5a80",
+          "ParentIdentity": "",
+          "Code": "tacoticklers",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers"
+        },
+        {
+          "Kind": "business-state",
+          "Identity": "0x197969f5a80",
+          "ParentIdentity": "",
+          "Code": "owned=False;loaded=True",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "container",
+          "Identity": "0x1970c8c2a50",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "Taco Ticklers Contents Container"
+        },
+        {
+          "Kind": "worldspace-ui",
+          "Identity": "0x1970c9a4fc0",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "UI/ManagementWorldspaceCanvas/Taco Ticklers Worldspace UI Container"
+        },
+        {
+          "Kind": "spawn",
+          "Identity": "0x19922d0e4c0",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/SpawnPoint"
+        },
+        {
+          "Kind": "interior-spawn",
+          "Identity": "0x19922d0e4c0",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/SpawnPoint"
+        },
+        {
+          "Kind": "npc-spawn",
+          "Identity": "0x19922d0e4c0",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/SpawnPoint"
+        },
+        {
+          "Kind": "bounds",
+          "Identity": "0x19922d0e460",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/BoundingBox"
+        },
+        {
+          "Kind": "bounds-collider",
+          "Identity": "0x1970c931040",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/BoundingBox"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x1979986e140",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "",
+          "Guid": "4682de5b-4113-4bdf-99f8-afda0c9fabd7",
+          "Path": "@Businesses/Taco Ticklers/Grid"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x1979986e140",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/Grid"
+        },
+        {
+          "Kind": "business",
+          "Identity": "0x1991e2342a0",
+          "ParentIdentity": "",
+          "Code": "postoffice",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice"
+        },
+        {
+          "Kind": "business-state",
+          "Identity": "0x1991e2342a0",
+          "ParentIdentity": "",
+          "Code": "owned=False;loaded=True",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "container",
+          "Identity": "0x1970e636030",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "Post Office Contents Container"
+        },
+        {
+          "Kind": "worldspace-ui",
+          "Identity": "0x1970e6518e0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "UI/ManagementWorldspaceCanvas/Post Office Worldspace UI Container"
+        },
+        {
+          "Kind": "spawn",
+          "Identity": "0x1992100cde0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/SpawnPoint"
+        },
+        {
+          "Kind": "interior-spawn",
+          "Identity": "0x1992100cde0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/SpawnPoint"
+        },
+        {
+          "Kind": "npc-spawn",
+          "Identity": "0x1992100cde0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/SpawnPoint"
+        },
+        {
+          "Kind": "bounds",
+          "Identity": "0x1992100cd60",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/BoundingBox"
+        },
+        {
+          "Kind": "bounds-collider",
+          "Identity": "0x1970e651960",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/BoundingBox"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x19797556dc0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "",
+          "Guid": "a35fca1e-7be4-4065-8032-8016a73eeb25",
+          "Path": "@Businesses/PostOffice/Grid (1)"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x19797556dc0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/Grid (1)"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x199223363c0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "",
+          "Guid": "f6decd6f-db53-4337-b318-b9edb1ec2e38",
+          "Path": "@Businesses/PostOffice/Grid"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x199223363c0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/Grid"
+        },
+        {
+          "Kind": "business",
+          "Identity": "0x197003afd20",
+          "ParentIdentity": "",
+          "Code": "carwash",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash"
+        },
+        {
+          "Kind": "business-state",
+          "Identity": "0x197003afd20",
+          "ParentIdentity": "",
+          "Code": "owned=False;loaded=True",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "container",
+          "Identity": "0x1970ea51e10",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "Car Wash Contents Container"
+        },
+        {
+          "Kind": "worldspace-ui",
+          "Identity": "0x1970ea6cbc0",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "UI/ManagementWorldspaceCanvas/Car Wash Worldspace UI Container"
+        },
+        {
+          "Kind": "spawn",
+          "Identity": "0x1992102e740",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/SpawnPoint"
+        },
+        {
+          "Kind": "interior-spawn",
+          "Identity": "0x1992102e740",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/SpawnPoint"
+        },
+        {
+          "Kind": "npc-spawn",
+          "Identity": "0x1992102e740",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/SpawnPoint"
+        },
+        {
+          "Kind": "bounds",
+          "Identity": "0x1992102e700",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/BoundingBox"
+        },
+        {
+          "Kind": "bounds-collider",
+          "Identity": "0x1970ea6cc40",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/BoundingBox"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x19700dc0140",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "",
+          "Guid": "6dd99f24-c61c-447c-84bc-aff87fedd4a5",
+          "Path": "@Businesses/Car Wash/Grid (1)"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x19700dc0140",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/Grid (1)"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x197991225a0",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "",
+          "Guid": "a94f4d7e-de6e-4f6e-8c60-aa0b2c5ab190",
+          "Path": "@Businesses/Car Wash/Grid"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x197991225a0",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/Grid"
+        },
+        {
+          "Kind": "unowned-business-membership",
+          "Identity": "0x1991e234000",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical"
+        },
+        {
+          "Kind": "unowned-business-membership",
+          "Identity": "0x197963fa2a0",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat"
+        },
+        {
+          "Kind": "unowned-business-membership",
+          "Identity": "0x197969f5a80",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers"
+        },
+        {
+          "Kind": "unowned-business-membership",
+          "Identity": "0x1991e2342a0",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice"
+        },
+        {
+          "Kind": "unowned-business-membership",
+          "Identity": "0x197003afd20",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x19920555000",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/RV"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x197004907e0",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/Sweatshop"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x1991e234000",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x1970469b640",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/Manor"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x1991e234540",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/MotelRoom"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x19920555d20",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/Sewer office"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x197963fa2a0",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x199205552a0",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/StorageUnit"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x197969f5a80",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x1991e234d20",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/Bungalow"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x197003af000",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/Barn"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x1991e2342a0",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x197003afd20",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x19920555540",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/DocksWarehouse"
+        },
+        {
+          "Kind": "station",
+          "Identity": "0x1998ae3ab40",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "",
+          "Guid": "6e675142-61b6-4f52-9287-8c67c5d4e2bc",
+          "Path": "Taco Ticklers Contents Container/LaunderingStation_Built(Clone)"
+        },
+        {
+          "Kind": "station-grid",
+          "Identity": "0x1979986e140",
+          "ParentIdentity": "0x1998ae3ab40",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/Grid"
+        },
+        {
+          "Kind": "station-item",
+          "Identity": "0x198b3e26380",
+          "ParentIdentity": "0x1998ae3ab40",
+          "Code": "hierarchy=unknown;scene=unknown",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "station-interface",
+          "Identity": "0x197056f4b00",
+          "ParentIdentity": "0x1998ae3ab40",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "Taco Ticklers Contents Container/LaunderingStation_Built(Clone)/LaunderingInterface"
+        },
+        {
+          "Kind": "interface-business",
+          "Identity": "0x197969f5a80",
+          "ParentIdentity": "0x197056f4b00",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers"
+        },
+        {
+          "Kind": "station",
+          "Identity": "0x19701028480",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "",
+          "Guid": "ad5374de-cb99-4550-ba59-e9f628dfcd51",
+          "Path": "Post Office Contents Container/LaunderingStation_Built(Clone)"
+        },
+        {
+          "Kind": "station-grid",
+          "Identity": "0x19797556dc0",
+          "ParentIdentity": "0x19701028480",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/Grid (1)"
+        },
+        {
+          "Kind": "station-item",
+          "Identity": "0x198b3de34c0",
+          "ParentIdentity": "0x19701028480",
+          "Code": "hierarchy=unknown;scene=unknown",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "station-interface",
+          "Identity": "0x197056f4c00",
+          "ParentIdentity": "0x19701028480",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "Post Office Contents Container/LaunderingStation_Built(Clone)/LaunderingInterface"
+        },
+        {
+          "Kind": "interface-business",
+          "Identity": "0x1991e2342a0",
+          "ParentIdentity": "0x197056f4c00",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice"
+        },
+        {
+          "Kind": "station",
+          "Identity": "0x19866b4d480",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "",
+          "Guid": "8ffd1dac-dba6-4ab6-aa3c-94e7caf1ae37",
+          "Path": "Laundromat Contents Container/LaunderingStation_Built(Clone)"
+        },
+        {
+          "Kind": "station-grid",
+          "Identity": "0x1979986e780",
+          "ParentIdentity": "0x19866b4d480",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/Grid"
+        },
+        {
+          "Kind": "station-item",
+          "Identity": "0x198b3dd1b80",
+          "ParentIdentity": "0x19866b4d480",
+          "Code": "hierarchy=unknown;scene=unknown",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "station-interface",
+          "Identity": "0x1998b6d1600",
+          "ParentIdentity": "0x19866b4d480",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "Laundromat Contents Container/LaunderingStation_Built(Clone)/LaunderingInterface"
+        },
+        {
+          "Kind": "interface-business",
+          "Identity": "0x197963fa2a0",
+          "ParentIdentity": "0x1998b6d1600",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat"
+        },
+        {
+          "Kind": "station",
+          "Identity": "0x19866b4d240",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "",
+          "Guid": "cfe1a2be-0985-40b7-a58a-32b21f925e5f",
+          "Path": "Hyland Medical Contents Container/LaunderingStation_Built(Clone)"
+        },
+        {
+          "Kind": "station-grid",
+          "Identity": "0x1979925d000",
+          "ParentIdentity": "0x19866b4d240",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/Player Office/Grid"
+        },
+        {
+          "Kind": "station-item",
+          "Identity": "0x19866c27bc0",
+          "ParentIdentity": "0x19866b4d240",
+          "Code": "hierarchy=unknown;scene=unknown",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "station-interface",
+          "Identity": "0x197056f4800",
+          "ParentIdentity": "0x19866b4d240",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "Hyland Medical Contents Container/LaunderingStation_Built(Clone)/LaunderingInterface"
+        },
+        {
+          "Kind": "interface-business",
+          "Identity": "0x1991e234000",
+          "ParentIdentity": "0x197056f4800",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical"
+        },
+        {
+          "Kind": "station",
+          "Identity": "0x19866b4d6c0",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "",
+          "Guid": "9e5c5409-6164-4be3-8ee2-1a9863a1c6b6",
+          "Path": "Car Wash Contents Container/LaunderingStation_Built(Clone)"
+        },
+        {
+          "Kind": "station-grid",
+          "Identity": "0x19700dc0140",
+          "ParentIdentity": "0x19866b4d6c0",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/Grid (1)"
+        },
+        {
+          "Kind": "station-item",
+          "Identity": "0x19866bdfcc0",
+          "ParentIdentity": "0x19866b4d6c0",
+          "Code": "hierarchy=unknown;scene=unknown",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "station-interface",
+          "Identity": "0x197056f4900",
+          "ParentIdentity": "0x19866b4d6c0",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "Car Wash Contents Container/LaunderingStation_Built(Clone)/LaunderingInterface"
+        },
+        {
+          "Kind": "interface-business",
+          "Identity": "0x197003afd20",
+          "ParentIdentity": "0x197056f4900",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash"
+        },
+        {
+          "Kind": "townhall-anchor",
+          "Identity": "0x1991dee04e0",
+          "ParentIdentity": "",
+          "Code": "",
+          "Guid": "",
+          "Path": "Map/Hyland Point/Region_Downtown/TownCenter/TownHall"
+        }
+      ],
+      "Sequence": 195
+    },
+    {
+      "Phase": "settled-five-seconds",
+      "Frame": 30211,
+      "MainGeneration": 2,
+      "Complete": true,
+      "Errors": [],
+      "Entities": [
+        {
+          "Kind": "business",
+          "Identity": "0x1991e234000",
+          "ParentIdentity": "",
+          "Code": "hylandmedical",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical"
+        },
+        {
+          "Kind": "business-state",
+          "Identity": "0x1991e234000",
+          "ParentIdentity": "",
+          "Code": "owned=False;loaded=True",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "container",
+          "Identity": "0x197059b5c30",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "Hyland Medical Contents Container"
+        },
+        {
+          "Kind": "worldspace-ui",
+          "Identity": "0x19920c4b860",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "UI/ManagementWorldspaceCanvas/Hyland Medical Worldspace UI Container"
+        },
+        {
+          "Kind": "spawn",
+          "Identity": "0x19922b42bc0",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/SpawnPoint"
+        },
+        {
+          "Kind": "interior-spawn",
+          "Identity": "0x19922b42ba0",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/InteriorSpawnPoint"
+        },
+        {
+          "Kind": "npc-spawn",
+          "Identity": "0x19922b42bc0",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/SpawnPoint"
+        },
+        {
+          "Kind": "bounds",
+          "Identity": "0x19922b42b60",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/BoundingBox"
+        },
+        {
+          "Kind": "bounds-collider",
+          "Identity": "0x19920c4b8e0",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/BoundingBox"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x1979925d000",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "",
+          "Guid": "1b6405cb-99f5-45c0-8ebc-a1f7e2b8286b",
+          "Path": "@Businesses/Hyland Medical/Player Office/Grid"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x1979925d000",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/Player Office/Grid"
+        },
+        {
+          "Kind": "business",
+          "Identity": "0x197963fa2a0",
+          "ParentIdentity": "",
+          "Code": "laundromat",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat"
+        },
+        {
+          "Kind": "business-state",
+          "Identity": "0x197963fa2a0",
+          "ParentIdentity": "",
+          "Code": "owned=False;loaded=True",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "container",
+          "Identity": "0x1998afd6b70",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "Laundromat Contents Container"
+        },
+        {
+          "Kind": "worldspace-ui",
+          "Identity": "0x1998b02dea0",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "UI/ManagementWorldspaceCanvas/Laundromat Worldspace UI Container"
+        },
+        {
+          "Kind": "spawn",
+          "Identity": "0x19922c940e0",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/SpawnPoint"
+        },
+        {
+          "Kind": "interior-spawn",
+          "Identity": "0x19922c940e0",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/SpawnPoint"
+        },
+        {
+          "Kind": "npc-spawn",
+          "Identity": "0x19922c940e0",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/SpawnPoint"
+        },
+        {
+          "Kind": "bounds",
+          "Identity": "0x19922c94080",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/BoundingBox"
+        },
+        {
+          "Kind": "bounds-collider",
+          "Identity": "0x1998b02df20",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/BoundingBox"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x1979986e780",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "",
+          "Guid": "f83a9d8f-a82d-4c91-8c09-12e0a41aefa7",
+          "Path": "@Businesses/Laundromat/Grid"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x1979986e780",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/Grid"
+        },
+        {
+          "Kind": "business",
+          "Identity": "0x197969f5a80",
+          "ParentIdentity": "",
+          "Code": "tacoticklers",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers"
+        },
+        {
+          "Kind": "business-state",
+          "Identity": "0x197969f5a80",
+          "ParentIdentity": "",
+          "Code": "owned=False;loaded=True",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "container",
+          "Identity": "0x1970c8c2a50",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "Taco Ticklers Contents Container"
+        },
+        {
+          "Kind": "worldspace-ui",
+          "Identity": "0x1970c9a4fc0",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "UI/ManagementWorldspaceCanvas/Taco Ticklers Worldspace UI Container"
+        },
+        {
+          "Kind": "spawn",
+          "Identity": "0x19922d0e4c0",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/SpawnPoint"
+        },
+        {
+          "Kind": "interior-spawn",
+          "Identity": "0x19922d0e4c0",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/SpawnPoint"
+        },
+        {
+          "Kind": "npc-spawn",
+          "Identity": "0x19922d0e4c0",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/SpawnPoint"
+        },
+        {
+          "Kind": "bounds",
+          "Identity": "0x19922d0e460",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/BoundingBox"
+        },
+        {
+          "Kind": "bounds-collider",
+          "Identity": "0x1970c931040",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/BoundingBox"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x1979986e140",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "",
+          "Guid": "4682de5b-4113-4bdf-99f8-afda0c9fabd7",
+          "Path": "@Businesses/Taco Ticklers/Grid"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x1979986e140",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/Grid"
+        },
+        {
+          "Kind": "business",
+          "Identity": "0x1991e2342a0",
+          "ParentIdentity": "",
+          "Code": "postoffice",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice"
+        },
+        {
+          "Kind": "business-state",
+          "Identity": "0x1991e2342a0",
+          "ParentIdentity": "",
+          "Code": "owned=False;loaded=True",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "container",
+          "Identity": "0x1970e636030",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "Post Office Contents Container"
+        },
+        {
+          "Kind": "worldspace-ui",
+          "Identity": "0x1970e6518e0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "UI/ManagementWorldspaceCanvas/Post Office Worldspace UI Container"
+        },
+        {
+          "Kind": "spawn",
+          "Identity": "0x1992100cde0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/SpawnPoint"
+        },
+        {
+          "Kind": "interior-spawn",
+          "Identity": "0x1992100cde0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/SpawnPoint"
+        },
+        {
+          "Kind": "npc-spawn",
+          "Identity": "0x1992100cde0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/SpawnPoint"
+        },
+        {
+          "Kind": "bounds",
+          "Identity": "0x1992100cd60",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/BoundingBox"
+        },
+        {
+          "Kind": "bounds-collider",
+          "Identity": "0x1970e651960",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/BoundingBox"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x19797556dc0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "",
+          "Guid": "a35fca1e-7be4-4065-8032-8016a73eeb25",
+          "Path": "@Businesses/PostOffice/Grid (1)"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x19797556dc0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/Grid (1)"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x199223363c0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "",
+          "Guid": "f6decd6f-db53-4337-b318-b9edb1ec2e38",
+          "Path": "@Businesses/PostOffice/Grid"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x199223363c0",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/Grid"
+        },
+        {
+          "Kind": "business",
+          "Identity": "0x197003afd20",
+          "ParentIdentity": "",
+          "Code": "carwash",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash"
+        },
+        {
+          "Kind": "business-state",
+          "Identity": "0x197003afd20",
+          "ParentIdentity": "",
+          "Code": "owned=False;loaded=True",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "container",
+          "Identity": "0x1970ea51e10",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "Car Wash Contents Container"
+        },
+        {
+          "Kind": "worldspace-ui",
+          "Identity": "0x1970ea6cbc0",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=external;scene=Main",
+          "Guid": "",
+          "Path": "UI/ManagementWorldspaceCanvas/Car Wash Worldspace UI Container"
+        },
+        {
+          "Kind": "spawn",
+          "Identity": "0x1992102e740",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/SpawnPoint"
+        },
+        {
+          "Kind": "interior-spawn",
+          "Identity": "0x1992102e740",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/SpawnPoint"
+        },
+        {
+          "Kind": "npc-spawn",
+          "Identity": "0x1992102e740",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/SpawnPoint"
+        },
+        {
+          "Kind": "bounds",
+          "Identity": "0x1992102e700",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/BoundingBox"
+        },
+        {
+          "Kind": "bounds-collider",
+          "Identity": "0x1970ea6cc40",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=internal;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/BoundingBox"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x19700dc0140",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "",
+          "Guid": "6dd99f24-c61c-447c-84bc-aff87fedd4a5",
+          "Path": "@Businesses/Car Wash/Grid (1)"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x19700dc0140",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/Grid (1)"
+        },
+        {
+          "Kind": "grid",
+          "Identity": "0x197991225a0",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "",
+          "Guid": "a94f4d7e-de6e-4f6e-8c60-aa0b2c5ab190",
+          "Path": "@Businesses/Car Wash/Grid"
+        },
+        {
+          "Kind": "business-grid-membership",
+          "Identity": "0x197991225a0",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/Grid"
+        },
+        {
+          "Kind": "unowned-business-membership",
+          "Identity": "0x1991e234000",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical"
+        },
+        {
+          "Kind": "unowned-business-membership",
+          "Identity": "0x197963fa2a0",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat"
+        },
+        {
+          "Kind": "unowned-business-membership",
+          "Identity": "0x197969f5a80",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers"
+        },
+        {
+          "Kind": "unowned-business-membership",
+          "Identity": "0x1991e2342a0",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice"
+        },
+        {
+          "Kind": "unowned-business-membership",
+          "Identity": "0x197003afd20",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x19920555000",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/RV"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x197004907e0",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/Sweatshop"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x1991e234000",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x1970469b640",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/Manor"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x1991e234540",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/MotelRoom"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x19920555d20",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/Sewer office"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x197963fa2a0",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x199205552a0",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/StorageUnit"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x197969f5a80",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x1991e234d20",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/Bungalow"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x197003af000",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/Barn"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x1991e2342a0",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x197003afd20",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash"
+        },
+        {
+          "Kind": "property-membership",
+          "Identity": "0x19920555540",
+          "ParentIdentity": "",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Properties/DocksWarehouse"
+        },
+        {
+          "Kind": "station",
+          "Identity": "0x1998ae3ab40",
+          "ParentIdentity": "0x197969f5a80",
+          "Code": "",
+          "Guid": "6e675142-61b6-4f52-9287-8c67c5d4e2bc",
+          "Path": "Taco Ticklers Contents Container/LaunderingStation_Built(Clone)"
+        },
+        {
+          "Kind": "station-grid",
+          "Identity": "0x1979986e140",
+          "ParentIdentity": "0x1998ae3ab40",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers/Grid"
+        },
+        {
+          "Kind": "station-item",
+          "Identity": "0x198b3e26380",
+          "ParentIdentity": "0x1998ae3ab40",
+          "Code": "hierarchy=unknown;scene=unknown",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "station-interface",
+          "Identity": "0x197056f4b00",
+          "ParentIdentity": "0x1998ae3ab40",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "Taco Ticklers Contents Container/LaunderingStation_Built(Clone)/LaunderingInterface"
+        },
+        {
+          "Kind": "interface-business",
+          "Identity": "0x197969f5a80",
+          "ParentIdentity": "0x197056f4b00",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Taco Ticklers"
+        },
+        {
+          "Kind": "station",
+          "Identity": "0x19701028480",
+          "ParentIdentity": "0x1991e2342a0",
+          "Code": "",
+          "Guid": "ad5374de-cb99-4550-ba59-e9f628dfcd51",
+          "Path": "Post Office Contents Container/LaunderingStation_Built(Clone)"
+        },
+        {
+          "Kind": "station-grid",
+          "Identity": "0x19797556dc0",
+          "ParentIdentity": "0x19701028480",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice/Grid (1)"
+        },
+        {
+          "Kind": "station-item",
+          "Identity": "0x198b3de34c0",
+          "ParentIdentity": "0x19701028480",
+          "Code": "hierarchy=unknown;scene=unknown",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "station-interface",
+          "Identity": "0x197056f4c00",
+          "ParentIdentity": "0x19701028480",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "Post Office Contents Container/LaunderingStation_Built(Clone)/LaunderingInterface"
+        },
+        {
+          "Kind": "interface-business",
+          "Identity": "0x1991e2342a0",
+          "ParentIdentity": "0x197056f4c00",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/PostOffice"
+        },
+        {
+          "Kind": "station",
+          "Identity": "0x19866b4d480",
+          "ParentIdentity": "0x197963fa2a0",
+          "Code": "",
+          "Guid": "8ffd1dac-dba6-4ab6-aa3c-94e7caf1ae37",
+          "Path": "Laundromat Contents Container/LaunderingStation_Built(Clone)"
+        },
+        {
+          "Kind": "station-grid",
+          "Identity": "0x1979986e780",
+          "ParentIdentity": "0x19866b4d480",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat/Grid"
+        },
+        {
+          "Kind": "station-item",
+          "Identity": "0x198b3dd1b80",
+          "ParentIdentity": "0x19866b4d480",
+          "Code": "hierarchy=unknown;scene=unknown",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "station-interface",
+          "Identity": "0x1998b6d1600",
+          "ParentIdentity": "0x19866b4d480",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "Laundromat Contents Container/LaunderingStation_Built(Clone)/LaunderingInterface"
+        },
+        {
+          "Kind": "interface-business",
+          "Identity": "0x197963fa2a0",
+          "ParentIdentity": "0x1998b6d1600",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Laundromat"
+        },
+        {
+          "Kind": "station",
+          "Identity": "0x19866b4d240",
+          "ParentIdentity": "0x1991e234000",
+          "Code": "",
+          "Guid": "cfe1a2be-0985-40b7-a58a-32b21f925e5f",
+          "Path": "Hyland Medical Contents Container/LaunderingStation_Built(Clone)"
+        },
+        {
+          "Kind": "station-grid",
+          "Identity": "0x1979925d000",
+          "ParentIdentity": "0x19866b4d240",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical/Player Office/Grid"
+        },
+        {
+          "Kind": "station-item",
+          "Identity": "0x19866c27bc0",
+          "ParentIdentity": "0x19866b4d240",
+          "Code": "hierarchy=unknown;scene=unknown",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "station-interface",
+          "Identity": "0x197056f4800",
+          "ParentIdentity": "0x19866b4d240",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "Hyland Medical Contents Container/LaunderingStation_Built(Clone)/LaunderingInterface"
+        },
+        {
+          "Kind": "interface-business",
+          "Identity": "0x1991e234000",
+          "ParentIdentity": "0x197056f4800",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Hyland Medical"
+        },
+        {
+          "Kind": "station",
+          "Identity": "0x19866b4d6c0",
+          "ParentIdentity": "0x197003afd20",
+          "Code": "",
+          "Guid": "9e5c5409-6164-4be3-8ee2-1a9863a1c6b6",
+          "Path": "Car Wash Contents Container/LaunderingStation_Built(Clone)"
+        },
+        {
+          "Kind": "station-grid",
+          "Identity": "0x19700dc0140",
+          "ParentIdentity": "0x19866b4d6c0",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash/Grid (1)"
+        },
+        {
+          "Kind": "station-item",
+          "Identity": "0x19866bdfcc0",
+          "ParentIdentity": "0x19866b4d6c0",
+          "Code": "hierarchy=unknown;scene=unknown",
+          "Guid": "",
+          "Path": ""
+        },
+        {
+          "Kind": "station-interface",
+          "Identity": "0x197056f4900",
+          "ParentIdentity": "0x19866b4d6c0",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "Car Wash Contents Container/LaunderingStation_Built(Clone)/LaunderingInterface"
+        },
+        {
+          "Kind": "interface-business",
+          "Identity": "0x197003afd20",
+          "ParentIdentity": "0x197056f4900",
+          "Code": "hierarchy=unknown;scene=Main",
+          "Guid": "",
+          "Path": "@Businesses/Car Wash"
+        },
+        {
+          "Kind": "townhall-anchor",
+          "Identity": "0x1991dee04e0",
+          "ParentIdentity": "",
+          "Code": "",
+          "Guid": "",
+          "Path": "Map/Hyland Point/Region_Downtown/TownCenter/TownHall"
+        }
+      ],
+      "Sequence": 196
+    }
+  ],
+  "LoaderEvents": [
+    {
+      "Sequence": 105,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 46,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 106,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 46,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 107,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 47,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 108,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 47,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 109,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 48,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 110,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 48,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 111,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 49,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 112,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 49,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 113,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 50,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 114,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 50,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 115,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 51,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 116,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 51,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 117,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 52,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 118,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 52,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 119,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 53,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 120,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 53,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 121,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 54,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 122,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 54,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 123,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 55,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 124,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 55,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 125,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 56,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 126,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 56,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 127,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 57,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 128,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 57,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 129,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 58,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 130,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 58,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 131,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 59,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 132,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 59,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 133,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 60,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 134,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 60,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 135,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 61,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 136,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 61,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 137,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 62,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 138,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 62,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 139,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 63,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 140,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 63,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 141,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 64,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 142,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 64,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 143,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 65,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 144,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 65,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 145,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 66,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 146,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 66,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 147,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 67,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 148,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 67,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 149,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 68,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 150,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 68,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 151,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 69,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 152,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 69,
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)"
+    },
+    {
+      "Sequence": 153,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 70,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertiesLoader.Void Load(System.String)"
+    },
+    {
+      "Sequence": 154,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 71,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 155,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 71,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 156,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 72,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 157,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 72,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 158,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 73,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 159,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 73,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 160,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 74,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 161,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 74,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 162,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 75,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 163,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 75,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 164,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 76,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 165,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 76,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 166,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 77,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 167,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 77,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 168,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 78,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 169,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 78,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 170,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 79,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 171,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 79,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 172,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 70,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertiesLoader.Void Load(System.String)"
+    },
+    {
+      "Sequence": 173,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 80,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.BusinessesLoader.Void Load(System.String)"
+    },
+    {
+      "Sequence": 174,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 81,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 175,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 82,
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 176,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 82,
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 177,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 81,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 178,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 83,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 179,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 84,
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 180,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 84,
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 181,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 83,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 182,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 85,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 183,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 86,
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 184,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 86,
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 185,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 85,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 186,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 87,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 187,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 88,
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 188,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 88,
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 189,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 87,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 190,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 89,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 191,
+      "Phase": "enter",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 90,
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 192,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 90,
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 193,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 89,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)"
+    },
+    {
+      "Sequence": 194,
+      "Phase": "exit",
+      "Frame": 29764,
+      "MainGeneration": 2,
+      "CallId": 80,
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.BusinessesLoader.Void Load(System.String)"
+    }
+  ],
+  "Limitation": "Only recorded callbacks are assessed. Zero method sightings do not prove absence of native calls. No creation, early registration, persistence or binding proof."
+}

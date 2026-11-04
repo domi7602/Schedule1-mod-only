@@ -1,0 +1,84 @@
+{
+  "Schema": 2,
+  "Mode": "observation-only",
+  "NativeMutationAllowed": false,
+  "RunId": "20261103T121152046Z-88ba70e7b1574280a8c053a724702eb3",
+  "MainGeneration": 0,
+  "RecordingKind": "setup",
+  "PreviousReport": "",
+  "AssemblySha256": "a34e3b4ae23e1448dbdb1a4f1f9abd22156e97e1b811ef69e45419a83f00bee4",
+  "NativeProxySha256": "346205306273805a78b01a917f14b94518498af1361595c4c417baa0b32b4bd8",
+  "S1ApiSha256": "d751a3cb66003f7a616eb9f8054daf34da0d9d7f23416a5005a586738a680852",
+  "CapturedUtc": "2026-11-03T12:12:11.5923292Z",
+  "DroppedLoaderEvents": 0,
+  "Hooks": [
+    {
+      "Method": "Il2CppScheduleOne.Persistence.LoadManager.Void QueueLoadRequest(Il2CppScheduleOne.Persistence.LoadRequest)",
+      "OwnerPresent": true,
+      "RecordedEnters": 0,
+      "RecordedExits": 0
+    },
+    {
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertiesLoader.Void Load(System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 0,
+      "RecordedExits": 0
+    },
+    {
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.BusinessesLoader.Void Load(System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 0,
+      "RecordedExits": 0
+    },
+    {
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.BusinessLoader.Void Load(System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 0,
+      "RecordedExits": 0
+    },
+    {
+      "Method": "Il2CppScheduleOne.Persistence.Loaders.PropertyLoader.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 0,
+      "RecordedExits": 0
+    },
+    {
+      "Method": "Il2CppScheduleOne.Property.Business.Void Load(Il2CppScheduleOne.Persistence.Datas.PropertyData, System.String)",
+      "OwnerPresent": true,
+      "RecordedEnters": 0,
+      "RecordedExits": 0
+    }
+  ],
+  "Assessment": {
+    "Status": "incomplete",
+    "Findings": [
+      "no-loader-events"
+    ]
+  },
+  "SnapshotAssessment": {
+    "Status": "observed",
+    "Findings": []
+  },
+  "LoaderAssessment": {
+    "Status": "incomplete",
+    "Findings": [
+      "no-loader-events"
+    ]
+  },
+  "HasLoadCompleteInventory": false,
+  "HasSettledInventory": false,
+  "Truncated": false,
+  "Snapshots": [
+    {
+      "Phase": "probe-start",
+      "Frame": 0,
+      "MainGeneration": 0,
+      "Complete": true,
+      "Errors": [],
+      "Entities": [],
+      "Sequence": 1
+    }
+  ],
+  "LoaderEvents": [],
+  "Limitation": "Only recorded callbacks are assessed. Zero method sightings do not prove absence of native calls. No creation, early registration, persistence or binding proof."
+}

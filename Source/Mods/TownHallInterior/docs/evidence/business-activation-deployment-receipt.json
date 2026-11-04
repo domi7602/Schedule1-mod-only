@@ -1,0 +1,60 @@
+{
+  "Schema": 2,
+  "Status": "Deployed",
+  "Project": "TownHallInterior",
+  "Configuration": "Release",
+  "GameDir": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I",
+  "AttemptId": "20261103T134645745Z-229f6ad99e02",
+  "DeployedAtUtc": "2026-11-03T13:46:45.9561821Z",
+  "GitRevision": "bcd54e9ace58dbe1a615b44f319f96efd7902fc5",
+  "GitDirty": true,
+  "BackupId": "20261103T134645782Z-TownHallInterior-f3790de9",
+  "BackupDir": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\.deploy\\backups\\20261103T134645782Z-TownHallInterior-f3790de9",
+  "ReceiptPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\.deploy\\receipts\\TownHallInterior.json",
+  "AttemptReceiptPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\.deploy\\receipts\\TownHallInterior.20261103T134645745Z-229f6ad99e02.json",
+  "PreviousReceipt": {
+    "AttemptId": "20261103T125412625Z-e943ac017322",
+    "DeployedAtUtc": "2026-11-03T12:54:12.8398297Z",
+    "Path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\.deploy\\receipts\\TownHallInterior.json"
+  },
+  "Stale": [],
+  "Note": "Best-effort in-process rollback only; a crash or kill between writes is not recovered automatically.",
+  "Entries": [
+    {
+      "Kind": "dll",
+      "State": "Copied",
+      "Action": "Copied",
+      "Source": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-activation\\candidate\\TownHallInterior.dll",
+      "SourceSha256": "54D37FE52B56659A8614176BB847DD1814EE18737B31F6682D34DAF23613DF62",
+      "DestinationRelative": "Mods\\TownHallInterior.dll",
+      "Destination": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\Mods\\TownHallInterior.dll",
+      "DestinationSha256": "54D37FE52B56659A8614176BB847DD1814EE18737B31F6682D34DAF23613DF62"
+    },
+    {
+      "Kind": "pdb",
+      "State": "Copied",
+      "Action": "Copied",
+      "Source": "C:\\Users\\pc\\Schedule1-mod-only\\.scratch\\townhall-business-activation\\candidate\\TownHallInterior.pdb",
+      "SourceSha256": "9ADE451F1C0573230F2272A24397144C12AAB5EB4719C7DB2E07F2ED1A47458B",
+      "DestinationRelative": "UserData\\TownHallInterior\\TownHallInterior.pdb",
+      "Destination": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\TownHallInterior\\TownHallInterior.pdb",
+      "DestinationSha256": "9ADE451F1C0573230F2272A24397144C12AAB5EB4719C7DB2E07F2ED1A47458B"
+    },
+    {
+      "Kind": "metadata",
+      "State": "NotAttempted",
+      "Action": "Unchanged",
+      "Source": "C:\\Users\\pc\\Schedule1-mod-only\\Source\\Mods\\TownHallInterior\\docs\\mod.json",
+      "SourceSha256": "65938002B7273EF77DEDBADF9092A186E6742F1E40FE404EF91576D3E4F81660",
+      "DestinationRelative": "UserData\\TownHallInterior\\mod.json",
+      "Destination": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Schedule I\\UserData\\TownHallInterior\\mod.json",
+      "DestinationSha256": "65938002B7273EF77DEDBADF9092A186E6742F1E40FE404EF91576D3E4F81660"
+    }
+  ],
+  "Rollback": {
+    "Attempted": false,
+    "Restored": 0,
+    "Removed": 0,
+    "Failures": []
+  }
+}

@@ -69,4 +69,33 @@ public class RecoveryRecurrenceWiringTests
         Assert.True(branch >= 0 && seat > branch && abort > seat && rescue > abort,
             "Patrol release may eject the driver; re-seat and honor a safety abort before relocating.");
     }
+
+    [Fact]
+    public void RecurringStall_TriesOneDirectedReverseBeforeTheCheckedProbeAndGiveUp()
+    {
+        // Owner Barn trace 2026-11-01 20:23: episodes 2 and 3 only searched for a free
+        // spot and then gave up while the car sat at full throttle against an embankment.
+        string recovery = DriverSafetySourceContractTests.Section(Source,
+            "private static bool TryBeginRecovery", "internal static void ArmStartupRecovery");
+        int rescue = recovery.IndexOf("TryFreeSpotRescue(veh, agent, \"recurring stall\")");
+        int reverse = recovery.IndexOf("TryStartReverse(agent, veh, now, \"recurring stall\")");
+        int probe = recovery.IndexOf("_recurringProbeAt = now + 2.5f;");
+        int giveUp = recovery.IndexOf("GiveUpNavigation(agent, failedPosition", rescue);
+        Assert.True(rescue >= 0 && reverse > rescue,
+            "A refused free spot must attempt the bounded directed reverse.");
+        Assert.True(probe > reverse && giveUp > reverse,
+            "The one reverse per operation must run before the checked probe and the give-up.");
+        Assert.Contains("_recurringReverseUsed = true;", recovery);
+    }
+
+    [Fact]
+    public void OneRecurringReverseFlag_IsResetWithTheOperationAndTheRide()
+    {
+        string begin = DriverSafetySourceContractTests.Section(Source,
+            "internal static void BeginNavigationOperation", "private static bool StopIfNavigationExpired");
+        Assert.Contains("_recurringReverseUsed = false;", begin);
+        string reset = DriverSafetySourceContractTests.Section(Source,
+            "internal static void ResetDrivingState", "private const float ReverseClearanceMeters");
+        Assert.Contains("_recurringReverseUsed = false;", reset);
+    }
 }
