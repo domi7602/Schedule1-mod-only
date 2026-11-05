@@ -88,9 +88,12 @@ public sealed class WaterDiagnosticBoundaryTests
     private static bool Set(WaterSession<Handle, Handle> session, Runtime runtime)
         => session.SetDiagnosticMode(1, _ => runtime.ShaderMatches, _ => runtime.HasProperty,
             m => { if (runtime.ThrowRead || (runtime.Failure == "readback" && runtime.Writes != 0)) throw new InvalidOperationException("read failed"); return m.Mode; },
-            (m, v) => { runtime.Writes++; if (runtime.Failure != "ignore") m.Mode = v;
+            (m, v) =>
+            {
+                runtime.Writes++; if (runtime.Failure != "ignore") m.Mode = v;
                 if (runtime.Failure == "replace") runtime.Target.Material = new Handle();
-                if (runtime.Failure == "after-write") throw new InvalidOperationException("unknown write"); }, 1);
+                if (runtime.Failure == "after-write") throw new InvalidOperationException("unknown write");
+            }, 1);
 
     private sealed class Handle { public Handle? Material; public float Mode; }
     private sealed class Runtime : IWaterRuntime<Handle, Handle>

@@ -68,10 +68,10 @@ public sealed class ScreenshotCapture
         ValidateDimensions(frame.Width, frame.Height);
         var png = frame.Png;
         if (png == null || png.Length < 45 || png.Length > 64 * 1024 * 1024 ||
-            !png.AsSpan(0, 8).SequenceEqual(new byte[] {137, 80, 78, 71, 13, 10, 26, 10}) ||
+            !png.AsSpan(0, 8).SequenceEqual(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 }) ||
             System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(png.AsSpan(16, 4)) != frame.Width ||
             System.Buffers.Binary.BinaryPrimitives.ReadInt32BigEndian(png.AsSpan(20, 4)) != frame.Height ||
-            !png.AsSpan(png.Length - 12).SequenceEqual(new byte[] {0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130}))
+            !png.AsSpan(png.Length - 12).SequenceEqual(new byte[] { 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130 }))
             throw new InvalidDataException("Capture returned an invalid, incomplete, oversized or mismatched PNG.");
         return await Task.Run(async () =>
         {

@@ -75,8 +75,16 @@ namespace WaterShader
                 colors[name] = new[] { color.r, color.g, color.b, color.a };
             }
             var bounds = renderer.bounds;
-            return new { renderer = water.name, name = material.name, shader = shader.name,
-                shaderSupported = shader.isSupported, bounds = new { center = new[] { bounds.center.x, bounds.center.y, bounds.center.z }, size = new[] { bounds.size.x, bounds.size.y, bounds.size.z } }, floats, colors };
+            return new
+            {
+                renderer = water.name,
+                name = material.name,
+                shader = shader.name,
+                shaderSupported = shader.isSupported,
+                bounds = new { center = new[] { bounds.center.x, bounds.center.y, bounds.center.z }, size = new[] { bounds.size.x, bounds.size.y, bounds.size.z } },
+                floats,
+                colors
+            };
         }
 
         public void OnLateInitializeMelon()

@@ -28,7 +28,7 @@
   [Vertrag und Grenzen](business-manager-registration-probe.md).
 - Phase 1 (Business-Anbindung nachweisen) bleibt offen;
   [Fertigstellungsplan](business-completion-plan.md). Diese Berichte wurden aus
-  `UserData/TownHallInterior` hashidentisch nach `docs/evidence/` übernommen.
+  `UserData/TownHallInterior` hashidentisch nach `evidence/` übernommen.
 
 ## 0.1.0 (2026-11-04) — Klassenroute beobachtet, Interfaceprobe vorbereitet
 

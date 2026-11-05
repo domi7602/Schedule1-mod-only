@@ -56,11 +56,19 @@ public sealed class ScreenshotCommandHandler : ICommandHandler, IDisposable
             var result = await _capture.CaptureAsync(StartFrameCapture, timeout).ConfigureAwait(false);
             _queue.EnqueueResponse(ProtocolHandler.CreateSuccessResponse(id, new
             {
-                schema_version = 1, success = true, path = result.Path,
-                width = result.Width, height = result.Height, frame = result.Frame,
-                captured_utc = result.CapturedUtc, started_utc = result.StartedUtc,
-                completed_utc = result.CompletedUtc, elapsed_ms = result.ElapsedMs, bytes = result.Bytes,
-                includes_ui = true, capture_source = "Unity.ScreenCapture/end-of-frame"
+                schema_version = 1,
+                success = true,
+                path = result.Path,
+                width = result.Width,
+                height = result.Height,
+                frame = result.Frame,
+                captured_utc = result.CapturedUtc,
+                started_utc = result.StartedUtc,
+                completed_utc = result.CompletedUtc,
+                elapsed_ms = result.ElapsedMs,
+                bytes = result.Bytes,
+                includes_ui = true,
+                capture_source = "Unity.ScreenCapture/end-of-frame"
             }));
         }
         catch (Exception ex)

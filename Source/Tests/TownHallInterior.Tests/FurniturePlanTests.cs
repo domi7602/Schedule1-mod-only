@@ -81,8 +81,14 @@ public sealed class FurniturePlanTests
                     double dx = d.GetProperty("X").GetDouble(), dz = d.GetProperty("Z").GetDouble();
                     double yaw = d.GetProperty("Yaw").GetDouble() * Math.PI / 180;
                     double ox = cx - dx, oz = cz - dz, len = Math.Sqrt(ox * ox + oz * oz);
-                    return new { Name = d.GetProperty("Name").GetString(), Dx = dx, Dz = dz, Len = len,
-                                 Knee = (Math.Cos(yaw) * ox - Math.Sin(yaw) * oz) / len };
+                    return new
+                    {
+                        Name = d.GetProperty("Name").GetString(),
+                        Dx = dx,
+                        Dz = dz,
+                        Len = len,
+                        Knee = (Math.Cos(yaw) * ox - Math.Sin(yaw) * oz) / len
+                    };
                 })
                 .ToArray();
             // Free-standing seating (waiting area) has no desk nearby and is not part of this rule.

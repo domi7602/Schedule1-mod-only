@@ -168,9 +168,9 @@ bestätigten eigenen Rückbau; der Menü-Reload um 07:00:49 UTC meldete
 `skipped / attempt-already-consumed`. Ein Bericht liegt unter
 `UserData/TownHallInterior/BusinessInterface` (Mode
 `inactive-own-business-interface-dispatch`, Schema2), Kopien hashidentisch in
-`docs/evidence/`. Für `inactive-saveable-registration` liegt der Bericht unter
+`evidence/`. Für `inactive-saveable-registration` liegt der Bericht unter
 `UserData/TownHallInterior/BusinessManager`, Kopie in
-`docs/evidence/business-manager-live-register-saveable-20261104.json`.
+`evidence/business-manager-live-register-saveable-20261104.json`.
 
 `NativeEvidenceFromThisAttempt=false` kennzeichnet
 die behaltenen Details des ersten Versuchs; Mapping-Hits und Cleanupdaten
