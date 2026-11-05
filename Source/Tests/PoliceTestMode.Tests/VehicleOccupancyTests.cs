@@ -1,6 +1,7 @@
 using System.Reflection;
 using Xunit;
 namespace PoliceTestMode.Tests;
+
 public class VehicleOccupancyTests
 {
     private static string Read(Func<int> count, Func<int, bool?> seat)

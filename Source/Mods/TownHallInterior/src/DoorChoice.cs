@@ -1,4 +1,5 @@
 namespace TownHallInterior;
+
 public enum DoorAction { None, Open, Knock, Cancel }
 public enum Intercept { PassNative, ShowChoice, Suppress }
 public sealed class DoorChoice

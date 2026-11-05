@@ -1,5 +1,6 @@
 using Xunit;
 namespace PoliceTestMode.Tests;
+
 public class RuntimeContractTests
 {
     internal static string Source(string file)

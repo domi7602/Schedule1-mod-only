@@ -1,6 +1,7 @@
 using System;
 
 namespace PoliceTestMode;
+
 internal enum VehicleOccupancy { Unknown, Clear, Player }
 internal static class SessionPolicy
 {

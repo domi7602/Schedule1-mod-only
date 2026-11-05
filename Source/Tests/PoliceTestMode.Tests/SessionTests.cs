@@ -1,6 +1,7 @@
 using System.Reflection;
 using Xunit;
 namespace PoliceTestMode.Tests;
+
 public class SessionTests
 {
     [Theory]
