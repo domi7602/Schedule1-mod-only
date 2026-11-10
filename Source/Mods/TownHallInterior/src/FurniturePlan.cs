@@ -80,7 +80,7 @@ public static class FurniturePlan
         Add("forms-chair-a", "chair", 56.2f, floor, 38f, 270);
         Add("forms-chair-b", "chair", 57.3f, floor, 38f, 270);
         Add("forms-plant", "plant", 56.3f, desktop, 39.4f, 0, false);
-        Add("waiting-bin", "bin", 56f, floor, 28.8f, 0);
+        // The ground-floor bin at (56, 28.8) blocked the aisle south of the entrance.
         // ---- Obergeschoss: Büros, Besprechung, Archiv -------------------------------------
         float upper = RoomPlan.Upper;                                  // 4.75, design coordinate
         float upperDesktop = upper + (float)document.Assets.Single(a => a.Key == "desk").BoundsMax[1];
@@ -119,6 +119,33 @@ public static class FurniturePlan
         Add("hall-clock", "clock", 58.8f, 3.3f, 40.377f, 180, false);
         Add("raised-native-frame", "door-frame", 54.3f, (float)FacadePortal.Minimum[1], 31f, 0, false);
         return p;
+    }
+
+    public const float StorageReach = 1.6f;
+
+    // Decorative cabinet fronts are local +X. FilingCabinet_Built faces local +Z,
+    // so the same placement yaw must be turned 90° to keep the drawers into the room.
+    public static float FilingCabinetYaw(float placementYaw) => placementYaw + 90f;
+
+    // Filing-cabinet meshes are decorative until a runtime host opens a real storage menu.
+    // Every cabinet placement is one usable host; desks, chairs and bins are not.
+    public static IReadOnlyList<FurniturePlacement> StorageHosts(FurnitureDocument document) =>
+        Create(document).Where(p => p.Key == "cabinet").ToArray();
+
+    public static FurniturePlacement? NearestStorageHost(
+        IReadOnlyList<FurniturePlacement> hosts, float x, float y, float z, float reach = StorageReach)
+    {
+        FurniturePlacement? best = null;
+        float bestSq = reach * reach;
+        foreach (var host in hosts)
+        {
+            float dx = host.X - x, dy = host.Y - y, dz = host.Z - z;
+            float sq = dx * dx + dy * dy + dz * dz;
+            if (sq > bestSq) continue;
+            bestSq = sq;
+            best = host;
+        }
+        return best;
     }
 
     public static FurnitureAsset PrepareAsset(FurnitureAsset asset)

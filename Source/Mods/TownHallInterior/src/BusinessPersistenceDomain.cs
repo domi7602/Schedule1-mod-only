@@ -20,7 +20,93 @@ public sealed class ActiveLaunderingOperationRecord
     public int GetMinutesSinceStarted() => TotalDurationMinutes - RemainingMinutes;
 }
 
+public sealed class HallSlotRecord
+{
+    public int Slot { get; set; }
+    public string ItemId { get; set; } = string.Empty;
+    public int Quantity { get; set; } = 1;
+
+    public bool IsPlausible()
+    {
+        if (Slot < 0 || Slot > 63 || Quantity < 1 || Quantity > 999) return false;
+        if (string.IsNullOrWhiteSpace(ItemId) || ItemId.Length > 64) return false;
+        foreach (char c in ItemId)
+            if (!char.IsLetterOrDigit(c) && c != '_' && c != '-') return false;
+        return true;
+    }
+}
+
+public sealed class HallPlacementRecord
+{
+    public string Id { get; set; } = string.Empty;
+    public string ItemId { get; set; } = string.Empty;
+    public float X { get; set; }
+    public float Y { get; set; }
+    public float Z { get; set; }
+    public float RotX { get; set; }
+    public float RotY { get; set; }
+    public float RotZ { get; set; }
+    public float RotW { get; set; } = 1f;
+    public List<HallSlotRecord> Contents { get; set; } = new();
+    public string? NativeContentsJson { get; set; }
+
+    public bool IsPlausible()
+    {
+        if (string.IsNullOrWhiteSpace(Id) || Id.Length > 64 || !IsToken(Id)) return false;
+        if (string.IsNullOrWhiteSpace(ItemId) || ItemId.Length > 64 || !IsToken(ItemId)) return false;
+        if (!float.IsFinite(X) || !float.IsFinite(Y) || !float.IsFinite(Z)) return false;
+        if (X < 50f || X > 70f || Z < 15f || Z > 50f || Y < 0f || Y > 12f) return false;
+        float length = RotX * RotX + RotY * RotY + RotZ * RotZ + RotW * RotW;
+        return length > 0.5f && length < 1.5f;
+    }
+
+    private static bool IsToken(string value)
+    {
+        foreach (char c in value)
+            if (!char.IsLetterOrDigit(c) && c != '_' && c != '-') return false;
+        return true;
+    }
+}
+
 public sealed record UnresolvedTownHallPayment(string OperationId, float Amount, string Reason);
+
+public sealed class HallCabinetRecord
+{
+    public string Name { get; set; } = string.Empty;
+    public string ItemSetJson { get; set; } = string.Empty;
+}
+
+public static class HallStorageSnapshot
+{
+    public static bool IsEmptyItem(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json)) return true;
+        using var item = JsonDocument.Parse(json);
+        return item.RootElement.GetProperty("ID").GetString() == "" &&
+            item.RootElement.GetProperty("Quantity").GetInt32() == 0;
+    }
+
+    public static void Validate(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json) || json.Length > 1024 * 1024)
+            throw new InvalidDataException("Ungültiger Rathaus-Lagerinhalt.");
+        using var document = JsonDocument.Parse(json);
+        var items = document.RootElement.GetProperty("Items");
+        if (items.ValueKind != JsonValueKind.Array || items.GetArrayLength() > 64)
+            throw new InvalidDataException("Ungültige Rathaus-Lagerfächer.");
+        foreach (var entry in items.EnumerateArray())
+        {
+            if (entry.ValueKind == JsonValueKind.Null) continue;
+            string? value = entry.GetString();
+            if (IsEmptyItem(value)) continue;
+            using var item = JsonDocument.Parse(value!);
+            string? id = item.RootElement.GetProperty("ID").GetString();
+            int quantity = item.RootElement.GetProperty("Quantity").GetInt32();
+            if (string.IsNullOrWhiteSpace(id) || quantity < 1 || quantity > 999)
+                throw new InvalidDataException("Ungültiges Rathaus-Lageritem.");
+        }
+    }
+}
 
 public sealed class TownHallBusinessData
 {
@@ -35,6 +121,8 @@ public sealed class TownHallBusinessData
     public int CompletedLaunderingOperations { get; set; }
     public List<ActiveLaunderingOperationRecord> ActiveOperations { get; set; } = new();
     public UnresolvedTownHallPayment? UnresolvedPayment { get; set; }
+    public List<HallPlacementRecord> PlacedItems { get; set; } = new();
+    public List<HallCabinetRecord> CabinetContents { get; set; } = new();
 }
 
 public readonly record struct TownHallNativeValues(float Bank, float Cash, int TimeOfDay, int ElapsedDays);
@@ -272,6 +360,10 @@ public sealed class TownHallSaveSession
         if (root.GetProperty("SchemaVersion").GetInt32() != TownHallBusinessData.CurrentSchemaVersion)
             throw new InvalidDataException("Rathaus-Schemaversion wird nicht unterstützt.");
         var data = root.Deserialize<TownHallBusinessData>() ?? throw new InvalidDataException("Leerer Rathausstand.");
+        data.PlacedItems ??= new List<HallPlacementRecord>();
+        data.CabinetContents ??= new List<HallCabinetRecord>();
+        foreach (var placed in data.PlacedItems)
+            if (placed != null) placed.Contents ??= new List<HallSlotRecord>();
         _ = root.GetProperty("IsOwned").GetBoolean();
         _ = root.GetProperty("PurchasePrice").GetSingle();
         _ = root.GetProperty("TotalLaundered").GetSingle();
@@ -370,7 +462,7 @@ public sealed class TownHallSaveSession
     {
         if (!float.IsFinite(data.PurchasePrice) || !float.IsFinite(data.TotalLaundered) ||
             data.PurchasePrice < 0f || data.TotalLaundered < 0f || data.CompletedLaunderingOperations < 0 ||
-            data.ActiveOperations == null ||
+            data.ActiveOperations == null || data.PlacedItems == null ||
             (data.IsOwned && (data.PurchasePrice <= 0f ||
                 data.PaymentMode is not ("Bank" or "Cash") ||
                 !DateTimeOffset.TryParse(data.PurchaseTimestampUtc, out _))) ||
@@ -400,5 +492,28 @@ public sealed class TownHallSaveSession
         }
         if (total > BusinessLaunderingManager.DefaultCapacity)
             throw new InvalidDataException("Offene Geldwäscheaufträge überschreiten die Rathauskapazität.");
+
+        var placed = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var item in data.PlacedItems)
+        {
+            if (item == null || !item.IsPlausible() || !placed.Add(item.Id))
+                throw new InvalidDataException("Ungültiges gesetztes Teil im Rathausstand.");
+            item.Contents ??= new List<HallSlotRecord>();
+            if (item.NativeContentsJson != null) HallStorageSnapshot.Validate(item.NativeContentsJson);
+            var slots = new HashSet<int>();
+            foreach (var content in item.Contents)
+            {
+                if (content == null || !content.IsPlausible() || !slots.Add(content.Slot))
+                    throw new InvalidDataException("Ungültiger Fachinhalt im Rathausstand.");
+            }
+        }
+        var cabinets = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var cabinet in data.CabinetContents)
+        {
+            if (cabinet == null || string.IsNullOrWhiteSpace(cabinet.Name) ||
+                cabinet.Name.Length > 128 || !cabinets.Add(cabinet.Name))
+                throw new InvalidDataException("Ungültiger Aktenschrank im Rathausstand.");
+            HallStorageSnapshot.Validate(cabinet.ItemSetJson);
+        }
     }
 }

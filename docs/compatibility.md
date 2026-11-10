@@ -70,6 +70,20 @@ which cannot run the game.
 | PhoneScrollFix | 2.0.0 | v0.4.7f12 | 2026-10-11 | yes | no | Hover appearance owner-verified 2026-10-11 ("jetzt ist das vanilla"): clipped slim highlight and `RectMask2D` viewport. Root cause was observed with S1MCP and the mod watcher; scene-reload re-apply was not separately retested. [Changelog](../Source/Mods/PhoneScrollFix/docs/CHANGELOG.md). |
 | S1MCP | 1.0.5 | v0.4.7f12 | 1.0.4 verified 2026-10-17 (main menu, 10/10); 1.0.5 clock fix **Verified, owner-confirmed 2026-10-24** (confirmation supplied retroactively; actions not itemized) | n/a (bridge, no S1API) | no | CurrentTime is HHMM, not minutes; the claimed noon write in 1.0.4 actually landed at 07:20. The 1.0.5 contract returns `time_hhmm`, `time_minutes` and display; writes accept exactly one of hours, minutes or HHMM. 50 game-free tests, clean Release and matched DLL `03DE264F…`. Owner-confirmed; later live read `812` → 08:12 / 492 min and no-op `hhmm:836` write/readback → 08:36 / 516 min. This does not exercise every write form. The earlier 10/10 transport/menu and loaded-world read checks remain historical; stale immediate readback is the known async-apply race. A diagnostics-only status-metric race remains documented. [Changelog](../ThirdParty/S1MCPServer-master/S1MCPServer/CHANGELOG.md). |
 
+### TownHall Lager — 2026-11-10 (installiert, neuer Spieltest offen)
+
+Kandidat `9238c44e…` um 19:26 CET bei geschlossenem Spiel lokal installiert:
+Hallen-Weltbindung, Cabinet-Checkpoint, vollständige ItemSet-Payloads und dauerhafte
+Pending-Vorbereitung vor nativer Save-Freigabe. 1.248 Tests lokal und isoliert,
+No-Deploy-Build 0/0; native Grenzen in Replays ersetzt, keine Gameplay-Abnahme daraus abgeleitet.
+DLL/PDB ersetzt; Metadaten/Icon, Shared, andere beobachtete Mods und Slot 2 unverändert.
+Vier Ziel- und zwei Backuphashes unabhängig geprüft. Danach Cabinet- und Hallenfach-Inhalt
+nach Save/Menü-Reload von Dominik bestätigt; vereinbarter Lagerkorrektur-Test abgeschlossen.
+Prozessneustart nicht separat geprüft, kein neuer Auftrag. Keine Item-Rückbuchung. Frühere
+Kauf-/Geldwäscheabnahme bleibt separat bestehen.
+[Befund und Grenzen](../Source/Mods/TownHallInterior/docs/item-loss-fix-2026-11-10.md),
+[Installationsnachweis](../Source/Mods/TownHallInterior/docs/evidence/item-loss-20261110/deployment-verification.json).
+
 ### TownHall Business — 2026-11-09 (Offline-Prüfung)
 
 Kauf und Geldwäsche bleiben an TownHallTest / Slot 2 gebunden. Der Offline-Stand

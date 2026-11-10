@@ -1,8 +1,35 @@
 # TownHallInterior — local experimental public hall
 
-## Nächste Entwicklungsphase: TownHall Business
+## Aktueller Stand und Lagerkorrektur
 
-**Aktueller Stand, 2026-11-06, 15:50 CET:** Die kapazitätsgebundene Datenprobe
+**Aktueller Stand, 2026-11-10:** Innenausbau, Kauf und zwei Geldwäsche-Durchgänge
+bleiben eigentümerbestätigt. Die später ergänzten Grids und benutzbaren Cabinets
+haben einen gesonderten Speicherfehler: Dominik meldet nach Save/Reload ein
+fehlendes Hallenregal und ein fehlendes Regal im Cabinet bei acht Restregalen im
+Inventar. Der Save-Readback enthält die Hallenplatzierung noch, aber keinen
+gespeicherten Cabinet-Inhalt. Die frühere Annahme nativer Cabinet-Persistenz ist
+damit nicht belastbar.
+
+Seit 2026-11-10, 19:26 CET ist `9238c44e…` installiert (vorher `8af979a8…`). Der Kandidat trennt alte
+Weltbindungen, erfasst native ItemSet-Inhalte im Rathauscheckpoint und verweigert
+einen Save vor dem nativen Schreiben, wenn Lagerdaten oder der dauerhafte
+Pending-Checkpoint nicht sicher vorbereitet werden können.
+1.248 Tests lokal und isoliert, vier Produktionsmethoden-Replaygruppen und No-Deploy-Release-Build
+(0 Warnungen/0 Fehler) bestanden. Unity-/IL2CPP-Grenzen sind in den Replays ersetzt;
+kein Ingame-Erfolg daraus abgeleitet. Der letzte unabhängige Reviewbefund zur
+Prepare-Reihenfolge wurde per rotem/grünem Produktionsmethoden-Replay korrigiert,
+nicht erneut unabhängig geprüft. **Cabinet- und Hallenfach-Inhalt nach Save/Reload
+von Dominik bestätigt; vereinbarte Lagerkorrektur abgeschlossen.** Vollständiger
+Prozessneustart ist eine nicht geprüfte Grenze, kein neu eröffneter Auftrag.
+Keine Save-Recovery oder Item-Rückbuchung vorgenommen.
+DLL/PDB ersetzt, Metadaten/Icon unverändert; alle vier Ziele und beide Backups
+unabhängig hashgeprüft. Shared/andere beobachtete Mods und Slot 2 unverändert.
+[Installationsnachweis](evidence/item-loss-20261110/deployment-verification.json).
+[Ursachen, Korrektur, Artefaktidentität und Grenzen](item-loss-fix-2026-11-10.md).
+
+## Historische Business-Entwicklung
+
+**Historischer Live-Stand, 2026-11-06, 15:50 CET:** Die kapazitätsgebundene Datenprobe
 bestand den dritten Slot-2-Lauf: **`observed`, keine Findings**. Der
 Listener-Snapshot zeigt `size=889`, `capacity=1024`, `nodes=889`,
 `maxChildren=0`; Datenvorbereitung und `SetProperty` sind bestätigt, die nativen

@@ -37,6 +37,7 @@ public sealed class Mod : MelonMod
     private NativePurchasePaymentPort? _paymentPort;
     private NativeLaunderingPort? _launderingPort;
     private readonly NativeTownHallInteractionPort _playerPort;
+    private readonly TownHallCabinetStorage _cabinets = new();
     private float _whiteboardRetryTimer = 2f;
     private TownHallSaveSession? _saveSession;
     private bool _persistenceFailed;
@@ -202,6 +203,9 @@ public sealed class Mod : MelonMod
         _launderingManager.RestoreActiveOperations(_businessData.ActiveOperations, _launderingPort);
         BindClock(clock!);
         _saveSession = session;
+        HallGrid.Bind(session.Data.PlacedItems);
+        HallGrid.TryRestore();
+        _cabinets.Bind(session.Data.CabinetContents);
         _settlementRequested = true;
 
         if (IsBusinessAllowedInCurrentWorld)
@@ -262,23 +266,35 @@ public sealed class Mod : MelonMod
     private static bool SameSlot(string path, string slotPath) =>
         string.Equals(TownHallSaveSession.ResolveSlotPath(path), slotPath, StringComparison.OrdinalIgnoreCase);
 
-    private static void BeforeNativeSave(SaveManager __instance, string __0, out bool __state)
+    private static bool BeforeNativeSave(SaveManager __instance, string __0, out bool __state)
     {
         __state = false;
         var mod = Instance;
         try
         {
-            if (mod?._saveSession == null || mod._persistenceFailed || __instance.IsSaving ||
-                mod._requestedSaveManager != IntPtr.Zero || mod._saveSession.HasPendingSave ||
-                mod.GetBoundContext(allowSaving: false) == null || !SameSlot(__0, mod._saveSession.SlotPath))
-                return;
+            if (mod?._saveSession == null || !SameSlot(__0, mod._saveSession.SlotPath)) return true;
+            if (__instance.IsSaving || mod._requestedSaveManager != IntPtr.Zero || mod._saveSession.HasPendingSave)
+                return false;
+            if (mod._persistenceFailed || mod.GetBoundContext(allowSaving: false) == null)
+                throw new InvalidOperationException("Rathaus-Lagerstand ist nicht sicher speicherbar.");
+            if (mod._purchaseManager.IsMutating || mod._launderingManager.IsMutating ||
+                !NetworkGuard.IsAlive(mod._clock) || !TownHallNativeMoney.TryReadWallet(out float bank, out float cash))
+                throw new InvalidOperationException("Rathaus-Geld-, Zeit- oder Mutationsstand ist ungeklärt.");
 
+            // Refuse before the native writer can persist an inventory deduction without its storage.
+            HallGrid.CaptureContents();
+            mod._cabinets.CaptureContents();
+            mod.AdvanceLaunderingClock();
+            mod._launderingManager.SyncStatsActiveOperations(mod._businessData);
+            mod._saveSession.Prepare(new TownHallNativeValues(bank, cash, mod._clock!.CurrentTime, mod._clock.ElapsedDays));
             mod._requestedSaveManager = __instance.Pointer;
             __state = true;
+            return true;
         }
         catch (Exception ex)
         {
-            MelonLogger.Warning($"TownHallInterior native save target could not be confirmed: {ex.Message}");
+            MelonLogger.Warning($"TownHallInterior: native save refused before writing to protect storage: {ex.Message}");
+            return false;
         }
     }
 
@@ -289,7 +305,8 @@ public sealed class Mod : MelonMod
         mod._requestedSaveManager = IntPtr.Zero;
         try
         {
-            if (!mod._persistenceFailed && mod._saveSession?.HasPendingSave == false && __instance.IsSaving)
+            if (!mod._persistenceFailed && mod._saveSession?.HasPendingSave == true &&
+                mod._acceptedSaveManager != __instance.Pointer)
                 mod.BlockForSaveFailure(new InvalidOperationException("Native save started without the Rathaus save-start callback."));
         }
         catch (Exception ex)
@@ -307,15 +324,11 @@ public sealed class Mod : MelonMod
             var manager = PersistentSingleton<SaveManager>.Instance;
             if (_requestedSaveManager == IntPtr.Zero || manager == null || manager.Pointer != _requestedSaveManager ||
                 !manager.IsSaving || GetBoundContext(allowSaving: true) == null ||
-                _purchaseManager.IsMutating || _launderingManager.IsMutating ||
-                !NetworkGuard.IsAlive(_clock) || !TownHallNativeMoney.TryReadWallet(out float bank, out float cash))
+                !_saveSession.HasPendingSave)
             {
-                throw new InvalidOperationException("Native save destination, wallet or Rathaus mutation is unresolved.");
+                throw new InvalidOperationException("Native save destination or prepared Rathaus snapshot is unresolved.");
             }
 
-            AdvanceLaunderingClock();
-            _launderingManager.SyncStatsActiveOperations(_businessData);
-            _saveSession.Prepare(new TownHallNativeValues(bank, cash, _clock!.CurrentTime, _clock.ElapsedDays));
             _acceptedSaveManager = manager.Pointer;
         }
         catch (Exception ex) { BlockForSaveFailure(ex); }
@@ -435,10 +448,11 @@ public sealed class Mod : MelonMod
                 BlockForSaveFailure(ex);
             }
         }
-        if (IsBusinessAllowedInCurrentWorld && !TownHallLaunderingDeskIntegration.IsInstalled)
-        {
+        bool coordinatorRan = IsBusinessAllowedInCurrentWorld && !TownHallLaunderingDeskIntegration.IsInstalled;
+        if (coordinatorRan)
             _interactionCoordinator.Tick(dt);
-        }
+        if (_hall != null)
+            _cabinets.TryPlace();
 
         TickBusiness();
 
@@ -522,6 +536,7 @@ public sealed class Mod : MelonMod
 
     private void ResetBusinessState()
     {
+        _cabinets.Release();
         _waitingForBusiness = false;
         _saveSession = null;
         _requestedSaveManager = _acceptedSaveManager = IntPtr.Zero;

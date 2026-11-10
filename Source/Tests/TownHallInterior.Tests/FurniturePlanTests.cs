@@ -76,6 +76,22 @@ public sealed class FurniturePlanTests
     }
 
     [Fact]
+    public void EveryCabinetIsAStorageHostAndTheGroundFloorBinIsGone()
+    {
+        var doc = Native();
+        var hosts = FurniturePlan.StorageHosts(doc);
+        Assert.Equal(11, hosts.Count);
+        Assert.All(hosts, h => Assert.Equal("cabinet", h.Key));
+        Assert.Contains(hosts, h => h.Name == "files-north-a");
+        Assert.DoesNotContain(FurniturePlan.Create(doc), p => p.Name == "waiting-bin" || p.Key == "bin" && p.Y < 4);
+        var near = FurniturePlan.NearestStorageHost(hosts, 61.8f, PublicEntrance.FloorTop, 38.8f);
+        Assert.Equal("files-north-a", near?.Name);
+        Assert.Null(FurniturePlan.NearestStorageHost(hosts, 56f, PublicEntrance.FloorTop, 28.8f));
+        Assert.Equal(270f, FurniturePlan.FilingCabinetYaw(180f), 3);
+        Assert.Equal(0f, FurniturePlan.FilingCabinetYaw(270f) % 360f, 3);
+    }
+
+    [Fact]
     public void EveryChairSitsInAKneeSpaceAndFacesThatDesk()
     {
         // Desk asset: 1.0 x 2.0 m, closed modesty panel on local -X, open knee space on local +X
@@ -137,7 +153,8 @@ public sealed class FurniturePlanTests
         Assert.NotNull(create);
         var plan = create.Invoke(null, new object[] { doc });
         var rows = System.Text.Json.JsonSerializer.SerializeToElement(plan).EnumerateArray().ToArray();
-        Assert.Equal(36, rows.Length); // 15 earth storey + 21 upper storey
+        Assert.Equal(35, rows.Length); // 14 earth storey + 21 upper storey
+        Assert.DoesNotContain(rows, r => r.GetProperty("Name").GetString() == "waiting-bin");
         Assert.Equal(rows.Length, rows.Select(r => r.GetProperty("Name").GetString()).Distinct().Count());
         Assert.Equal(6, rows.Count(r => r.GetProperty("Key").GetString() == "chair"));
         // Waiting zone: benches replace the eight loose chairs; two scaled plants frame the corners.

@@ -46,6 +46,7 @@ internal sealed class PublicHallHost : IDisposable
             host._facade.Publish();
             room.Publish();
             host.Furnish();
+            HallGrid.TryPublish(room.Root!);
             MelonLogger.Msg("TownHallInterior: hall and geometric facade opening published; native knock retained.");
             return host;
         }
@@ -294,6 +295,7 @@ internal sealed class PublicHallHost : IDisposable
                 throw new InvalidOperationException("Furniture cleanup has pending steps");
             _furnishings = null;
         });
+        cleanup.Add("hall grid", HallGrid.Dispose);
         cleanup.Add("facade", () =>
         {
             _facade?.Dispose();

@@ -28,6 +28,145 @@ public sealed class BusinessPersistenceTests : IDisposable
         Assert.Empty(session.Data.ActiveOperations);
         Assert.True(File.Exists(CheckpointFile(session)));
         Assert.False(Open(context).Data.IsOwned);
+        Assert.Empty(Open(context).Data.PlacedItems);
+    }
+
+    [Fact]
+    public void PlacedHallItemFollowsTheNativeSaveAndDisappearsOnRollback()
+    {
+        var context = CreateNativeSlot();
+        var session = Open(context);
+        session.Data.PlacedItems.Add(new HallPlacementRecord
+        {
+            Id = "rack-1",
+            ItemId = "largestoragerack",
+            X = 56f,
+            Y = 1.53f,
+            Z = 30f,
+            RotW = 1f,
+            Contents =
+            {
+                new HallSlotRecord { Slot = 0, ItemId = "largestoragerack", Quantity = 1 }
+            }
+        });
+        var saved = new TownHallNativeValues(500_000f, 300_000f, 1300, 0);
+        Commit(session, context, saved, revision: 1);
+
+        var kept = Assert.Single(Open(context).Data.PlacedItems);
+        Assert.Equal("largestoragerack", kept.ItemId);
+        Assert.Equal(56f, kept.X);
+        var slot = Assert.Single(kept.Contents);
+        Assert.Equal("largestoragerack", slot.ItemId);
+        Assert.Equal(0, slot.Slot);
+
+        WriteNative(context, InitialWallet, revision: 0);
+        Assert.Empty(Open(context).Data.PlacedItems);
+    }
+
+    [Fact]
+    public void CabinetContentsHaveAnExplicitCheckpointOwner()
+    {
+        // A FishNet-spawned cabinet is not part of a native property save graph.
+        // Its contents must therefore be represented in the bound Rathaus snapshot.
+        Assert.NotNull(typeof(TownHallBusinessData).GetProperty("CabinetContents"));
+    }
+
+    [Fact]
+    public void CabinetContentsAndNativeItemMetadataFollowTheCheckpoint()
+    {
+        var context = CreateNativeSlot();
+        var session = Open(context);
+        string items = JsonSerializer.Serialize(new
+        {
+            Items = new string?[]
+            {
+                null,
+                JsonSerializer.Serialize(new { DataType = "QualityItemData", ID = "largestoragerack", Quantity = 1, Quality = 4 })
+            },
+            SlotFilters = new object?[] { null, null }
+        });
+        session.Data.CabinetContents.Add(new HallCabinetRecord { Name = "archive-a", ItemSetJson = items });
+        session.Data.CabinetContents.Add(new HallCabinetRecord { Name = "archive-b", ItemSetJson = "{\"Items\":[null]}" });
+        var saved = new TownHallNativeValues(500_000f, 300_000f, 1300, 0);
+        session.Prepare(saved);
+        session.Data.CabinetContents[0].ItemSetJson = "{\"Items\":[null]}";
+        WriteNative(context, saved, revision: 1);
+        session.Complete(true);
+
+        var reopened = Open(context);
+        Assert.Equal(2, reopened.Data.CabinetContents.Count);
+        Assert.Equal(items, reopened.Data.CabinetContents[0].ItemSetJson);
+        Assert.Equal("archive-b", reopened.Data.CabinetContents[1].Name);
+        WriteNative(context, InitialWallet, revision: 0);
+        Assert.Empty(Open(context).Data.CabinetContents);
+    }
+
+    [Fact]
+    public void NativeEmptyItemDataIsAValidEmptySlot()
+    {
+        string empty = JsonSerializer.Serialize(new { DataType = "ItemData", ID = "", Quantity = 0 });
+        string set = JsonSerializer.Serialize(new { Items = new[] { empty } });
+        HallStorageSnapshot.Validate(set);
+    }
+
+    [Fact]
+    public void CheckpointWithoutNewStorageCollectionsStillLoads()
+    {
+        var context = CreateNativeSlot();
+        var session = Open(context);
+        var root = System.Text.Json.Nodes.JsonNode.Parse(File.ReadAllText(CheckpointFile(session)))!;
+        var data = root["Data"]!.AsObject();
+        data.Remove("PlacedItems");
+        data.Remove("CabinetContents");
+        File.WriteAllText(CheckpointFile(session), root.ToJsonString());
+        var reopened = Open(context);
+        Assert.Empty(reopened.Data.PlacedItems);
+        Assert.Empty(reopened.Data.CabinetContents);
+    }
+
+    [Theory]
+    [InlineData("", 1)]
+    [InlineData("largestoragerack", 0)]
+    public void InconsistentNativeItemIdentityAndQuantityAreRefused(string id, int quantity)
+    {
+        string item = JsonSerializer.Serialize(new { ID = id, Quantity = quantity });
+        string set = JsonSerializer.Serialize(new { Items = new[] { item } });
+        Assert.Throws<InvalidDataException>(() => HallStorageSnapshot.Validate(set));
+    }
+
+    [Fact]
+    public void PendingCheckpointWriteFailureLeavesNoAcceptedSave()
+    {
+        var context = CreateNativeSlot();
+        var session = Open(context);
+        string archive = Path.GetDirectoryName(CheckpointFile(session))!;
+        Directory.Move(archive, archive + ".preserved");
+        File.WriteAllText(archive, "A file blocks the checkpoint directory.");
+        string before = ReadNative(context).Fingerprint;
+
+        Assert.ThrowsAny<IOException>(() => session.Prepare(InitialWallet));
+        Assert.False(session.HasPendingSave);
+        Assert.Equal(before, ReadNative(context).Fingerprint);
+    }
+
+    [Fact]
+    public void FailedSaveCannotPublishCabinetContents()
+    {
+        var context = CreateNativeSlot();
+        var session = Open(context);
+        session.Data.CabinetContents.Add(new HallCabinetRecord { Name = "archive-a", ItemSetJson = "{\"Items\":[null]}" });
+        session.Prepare(InitialWallet);
+        Assert.Throws<InvalidDataException>(() => session.Complete(false));
+        Assert.Empty(Open(context).Data.CabinetContents);
+    }
+
+    [Fact]
+    public void DuplicateCabinetIdentityCannotBeSaved()
+    {
+        var session = Open(CreateNativeSlot());
+        session.Data.CabinetContents.Add(new HallCabinetRecord { Name = "archive-a", ItemSetJson = "{\"Items\":[null]}" });
+        session.Data.CabinetContents.Add(new HallCabinetRecord { Name = "archive-a", ItemSetJson = "{\"Items\":[null]}" });
+        Assert.Throws<InvalidDataException>(() => session.Prepare(InitialWallet));
     }
 
     [Fact]

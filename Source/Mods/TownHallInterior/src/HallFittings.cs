@@ -2,15 +2,15 @@ using System.Collections.Generic;
 
 namespace TownHallInterior;
 
-// Built-in public-hall fittings: info counter opposite the entrance, a waiting bench row along
-// the south wall, a runner and the notice board. Pure geometry, so tests can check fit,
-// collision and that the accepted portal and stair voids stay free.
+// Built-in public-hall fittings: a waiting bench row along the south wall, a runner and the
+// notice board. The info counter opposite the entrance was removed because it blocked the
+// walkway. Pure geometry, so tests can check fit, collision and that the accepted portal
+// and stair voids stay free.
 public static class HallFittings
 {
     // Style indices of the shared hall paints (0..2 are the existing shell colours).
     public const int DarkStyle = 3, LightStyle = 1, RugStyle = 4;
 
-    public const float CounterHeight = 2.50f;
     public const float BenchSeatTop = 1.96f;
 
     public static IReadOnlyList<RoomBox> Create()
@@ -23,15 +23,9 @@ public static class HallFittings
             boxes.Add(new RoomBox(name, (x1 + x2) / 2f, (y1 + y2) / 2f, (z1 + z2) / 2f,
                 x2 - x1, y2 - y1, z2 - z1, solid, style));
 
-        // 1) Info counter: body, stone top with 5 cm overhang, and a low privacy screen.
-        const float cx1 = 57.2f, cx2 = 58.1f, cz1 = 29.6f, cz2 = 32.4f;
-        Box("info-counter", cx1, floor, cz1, cx2, CounterHeight, cz2, true, DarkStyle);
-        Box("info-counter-top", cx1 - .05f, CounterHeight, cz1 - .05f,
-            cx2 + .05f, CounterHeight + .07f, cz2 + .05f, true, LightStyle);
-        Box("info-counter-screen", cx1 - .05f, CounterHeight + .07f, cz1,
-            cx1 + .03f, CounterHeight + .55f, cz2, true, DarkStyle);
+        // The info counter that stood opposite the entrance is gone: it blocked the walk-in aisle.
 
-        // 2) Waiting bench row along the south wall, facing into the hall.
+        // Waiting bench row along the south wall, facing into the hall.
         for (int i = 0; i < 3; i++)
         {
             float x1 = 55.6f + i * 2.4f, x2 = x1 + 2f;

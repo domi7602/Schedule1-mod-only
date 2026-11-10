@@ -1,0 +1,8 @@
+{
+  "variant": "candidate",
+  "source_sha256": "8862928bffa591b0b9ed74aafef57b49cfda6a3896412190a64682a52d623db0",
+  "scope": "Exact production save prefix with substituted native/storage boundaries; not a native integration test.",
+  "exit": 0,
+  "stdout": "PASS: capture/prepare failures block native writer; pending precedes writer; duplicate refused; start/finalizer handshake and missing callback protected\n",
+  "stderr": ""
+}

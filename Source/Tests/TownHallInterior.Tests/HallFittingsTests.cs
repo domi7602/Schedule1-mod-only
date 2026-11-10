@@ -61,22 +61,20 @@ public sealed class HallFittingsTests
     [Fact]
     public void OnlyWalkableFittingsCarryCollision()
     {
-        Assert.All(Fittings.Where(b => b.Name.StartsWith("info-")), b => Assert.True(b.Solid, b.Name));
         Assert.All(Fittings.Where(b => b.Name.StartsWith("wait-bench-")), b => Assert.True(b.Solid, b.Name));
+        Assert.DoesNotContain(Fittings, b => b.Name.StartsWith("info-"));
         Assert.False(Fittings.Single(b => b.Name == "wait-runner").Solid);
         Assert.False(Fittings.Single(b => b.Name == "notice-frame").Solid);
     }
 
     [Fact]
-    public void CounterSitsOppositeTheEntranceAndLeavesAislesOnBothSides()
+    public void TheEntranceAisleHasNoCounterOrOtherSolidFitting()
     {
-        var counter = Fittings.Single(b => b.Name == "info-counter");
-        var (lo, hi) = Bounds(counter);
-        Assert.InRange(lo[0], 56.5, 58.0);          // inside the hall, not at the door
-        Assert.InRange(lo[2], 29.0, 30.5);
-        Assert.True(lo[2] - 21.6 > 1.2, "south aisle");   // past the counter towards the stairs
-        Assert.True(40.4 - hi[2] > 1.2, "north aisle");   // towards reception
-        Assert.True(hi[1] - PublicEntrance.FloorTop is > 0.9 and < 1.2, "counter height");
+        // The removed info counter occupied x 57.2–58.1, z 29.6–32.4, opposite the door.
+        double[] lo = { 55.2, PublicEntrance.FloorTop + .05, 29.4 };
+        double[] hi = { 60.2, PublicEntrance.FloorTop + 1.7, 32.6 };
+        foreach (var b in Fittings.Where(b => b.Solid))
+            Assert.False(Overlaps(b, lo, hi), "walkway: " + b.Name);
     }
 
 

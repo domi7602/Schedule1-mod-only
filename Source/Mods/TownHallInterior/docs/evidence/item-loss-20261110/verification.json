@@ -1,0 +1,145 @@
+{
+  "checked_at": "2026-11-10T19:21:13.799681+01:00",
+  "revision": "4ee72b46e2218e25c377d3364c825004b614fec5",
+  "worktree": "dirty",
+  "source_sha256": {
+    "Source/Mods/TownHallInterior/src/BusinessBindingProbe.cs": "228e290ed3a9f32594ba1a3c2d237f571bf85f46da149fe5735e453380d90347",
+    "Source/Mods/TownHallInterior/src/BusinessConstruction.cs": "266cbe3fa9a275cc3f254998858c53d3e02a6091900a0bc74171bae035e96c24",
+    "Source/Mods/TownHallInterior/src/BusinessLaunderingDomain.cs": "6e1c9a1e89cf0f54f9141dfe4a7d7689aa0046875a721193ce925133a3ba3f73",
+    "Source/Mods/TownHallInterior/src/BusinessPersistenceDomain.cs": "dfa0cc819450838179595156d3ecdd052529c6f2d899521c6082477eb27fd505",
+    "Source/Mods/TownHallInterior/src/BusinessProbeEvidence.cs": "37ce332858d00368ebde93c3f13af3b20482d0de15f07b559e34078597603458",
+    "Source/Mods/TownHallInterior/src/BusinessPurchaseDomain.cs": "694acb2679dd4a4cc9627f5cb5d2d2a249b581e0239f615085b2f54754f9d781",
+    "Source/Mods/TownHallInterior/src/BusinessWorldRegistration.cs": "386ba1e174b6b30563426dd9560f79e9d09ca279d5c42da7f5fc8a492318fad2",
+    "Source/Mods/TownHallInterior/src/CleanupJournal.cs": "310955ae9d1f5115941ef5bf7920ed49f6ff47086d8187fe050f444f63f09b76",
+    "Source/Mods/TownHallInterior/src/DoorAdapter.cs": "6d5e638b3217b24d3d4a86ea768912e26bdf73449cef98196502586f036a6341",
+    "Source/Mods/TownHallInterior/src/DoorChoice.cs": "42093f9e71f5c4fe832dac0eff888654163389b86dac1d6be494f7f715943201",
+    "Source/Mods/TownHallInterior/src/DoorHook.cs": "10bfdd035b414e0727c01aef12a08b1fb0a33abbd897a6c3efc79e7da006934c",
+    "Source/Mods/TownHallInterior/src/FacadePortal.cs": "4b2cc05e14353fddccc2ddb404fed35b1859d950f5e80e6a6735a8d196cf2270",
+    "Source/Mods/TownHallInterior/src/FurniturePlan.cs": "443e7aaa3a55a5f35b682f2b247eb08425d0fc4a1d65e3df46696b2f9469d4f7",
+    "Source/Mods/TownHallInterior/src/HallFittings.cs": "37db43d35766b019eb69369a692061fd9224804179267c4e852213e9bd30cdca",
+    "Source/Mods/TownHallInterior/src/HallGrid.cs": "19811ad0e83d3e8ee1e8ef916fcdbc0801cbc8595b6ca368b2eaebb525665c53",
+    "Source/Mods/TownHallInterior/src/Mod.cs": "8862928bffa591b0b9ed74aafef57b49cfda6a3896412190a64682a52d623db0",
+    "Source/Mods/TownHallInterior/src/NativeFacadeSwap.cs": "58542a588017f540a7b546845b038174d96ef761acfacd7101c0004a5ceae5e3",
+    "Source/Mods/TownHallInterior/src/NativeLaunderingPort.cs": "02031375a2836baf32d9da381c18f7becaae744e8504a7d2dea54bddc2e6f0b5",
+    "Source/Mods/TownHallInterior/src/NativePurchasePaymentPort.cs": "2b92ae3b81d9954cab2a53e5b73c3cf8a43bbd2bc3768b41428ea9cac3fbf0c3",
+    "Source/Mods/TownHallInterior/src/NativeSceneSwap.cs": "a526e26ffb62fbf08ad8e3725779c83dbc85558fcb22a1b34cb12dc061bed6aa",
+    "Source/Mods/TownHallInterior/src/NativeTownHallInteractionPort.cs": "06b740a62deb7ff9d347e846a904fe9fe8027d35ae04ceea78289c197a98de52",
+    "Source/Mods/TownHallInterior/src/NativeWorldPort.cs": "ac68e8adac52c1db3a6d0825a29510ebbcf38bde3a512976b402148def653938",
+    "Source/Mods/TownHallInterior/src/PublicEntrance.cs": "4fdb304a13cd24a496e9368c211bf09f8aaf1da9041a8912fdb364f46ec9dd5f",
+    "Source/Mods/TownHallInterior/src/PublicHallHost.cs": "58f46725de6891757e0d40e13d63f90365e1d7a3c33fc7d7db52b33789213d14",
+    "Source/Mods/TownHallInterior/src/RoomBuilder.cs": "44b555668aecbb0055b902d204716861399ee59e439971f842d5f0b4a3a48f68",
+    "Source/Mods/TownHallInterior/src/RoomPlan.cs": "63df8d1cd3fcd27358cfd55ce7f6ed7ccf67897f1cd5b90bd331ce4ac5f7abdc",
+    "Source/Mods/TownHallInterior/src/TownHallCabinetStorage.cs": "da876173c7db6434d297ad36ff586511c9ae4a538a1711ca5598fb848a6cf153",
+    "Source/Mods/TownHallInterior/src/TownHallDialoguePatches.cs": "066a2e332f241386a1e92e05ca30280b4b23f3b5e91a4c7ed5a8c6e33f1f7b42",
+    "Source/Mods/TownHallInterior/src/TownHallIcon.cs": "646d376c95aa09099e6f31955713b600d8bf9b2120a08a5d59a1f398de2b0998",
+    "Source/Mods/TownHallInterior/src/TownHallInteractionDomain.cs": "95c2531f45952e36f978ffa60987f4d6d77240997bad3a5f2ad0ce24311efe74",
+    "Source/Mods/TownHallInterior/src/TownHallWhiteboardIntegration.cs": "fb847f9d6014de8a24c426474c04f3dd47be5ae319fc0da956d483cab1d0782f",
+    "Source/Mods/TownHallInterior/src/UnityRoomSink.cs": "646b693e349e61126bc548c59e9bdf8e4f978787eeab1173a8535323f9588d17",
+    "Source/Mods/TownHallInterior/src/VanillaFurnishings.cs": "c434ab9c4b0055c531250b5a45b672703e266fbe962e3934ffa58f951cce98aa",
+    "Source/Mods/TownHallInterior/src/TownHallInterior.csproj": "7be10ef74209d2985c0b5164010b6b6b2a3b60c656980de78af3a80d6c87b0cb",
+    "Source/Mods/TownHallInterior/assets/native-facade.json": "588d18a4d71360f7c7e68ffa0d0d6bc42c2d3cee0ed72e17a44701e09ef17553",
+    "Source/Mods/TownHallInterior/assets/native-furniture.json": "687fa231785b3be8938d8c080bddb1161ac468191ef26450b6ac0504769a79aa",
+    "Source/Mods/TownHallInterior/assets/townhall_listing.png": "d2776005e9274c359904fe81d10991fc6fe6135b1168d49c5076a2e2578975ae",
+    "Source/Tests/TownHallInterior.Tests/BusinessPersistenceTests.cs": "2bff49f6bc4c9145e068da1ef1be9199040d8c963b2a81075e17234b2fd7a3d0"
+  },
+  "tests": {
+    "total": "1248",
+    "executed": "1248",
+    "passed": "1248",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "build": "No-deploy Release: 0 warnings, 0 errors (terminal output).",
+  "isolation": {
+    "townhall_tests": "1248 passed, 0 failed; townhall-final-isolated.trx. Final copied source hashes matched current production .cs files and changed tests. Snapshot helper submodule initialization timed out; focused game-free TownHall tests do not require those submodules.",
+    "full_pure": "Not passed: first run rejected TEMP/ScratchRoot overlap; second run exceeded the tool timeout after 420 seconds. No verification processes remained afterward.",
+    "observed_checks": "RoomPlan.cs whitespace findings in pre-existing changes; version drift in HitmanPhone, Minimap, PoliceTestMode. No broad green gate claimed."
+  },
+  "installed_sha256": "8af979a80e89c4824f812c0528bcdf769da2669cef4635543f5e162ef6f8ca64",
+  "candidate_sha256": "9238c44efb1804a3f63393cff85f5915f032b17a5732c20b9b610601a0fd372c",
+  "superseded_candidate_sha256": "d219cc0623bca73ce22aecdd2f20e670feee44ae606eb0c2086b384af6f071f3",
+  "delta_review": "Independent reviewer identified durable Prepare occurring after native writer admission as the only remaining bounded blocker in d219cc06. Final Mod.cs moves Prepare into the cancellable prefix; red/green production-prefix replay and real Prepare IO-failure regression passed. Final Mod.cs delta was not independently re-reviewed; native callbacks remain unverified.",
+  "installed": false,
+  "native_save_changes_since_observed_copy": [],
+  "replays": {
+    "lifecycle": [
+      {
+        "source_sha256": "19811ad0e83d3e8ee1e8ef916fcdbc0801cbc8595b6ca368b2eaebb525665c53",
+        "scope": "Extracted production Dispose/Bind/TryRestore; Unity/spawn boundaries substituted. Pre-fix reset omission reproduced from observed original source. Not a native game test.",
+        "results": [
+          {
+            "variant": "pre-fix",
+            "exit": 3762504530,
+            "stdout": "",
+            "stderr": "Unhandled exception. System.Exception: BUG: old checkpoint restored before new-world binding\n   at Replay.Main() in C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-lifecycle-replay\\Program.cs:line 47\n"
+          },
+          {
+            "variant": "candidate",
+            "exit": 0,
+            "stdout": "PASS: no restore before bind; one new-world restore; no duplicate; empty world stays empty\n",
+            "stderr": ""
+          }
+        ]
+      }
+    ],
+    "saveguard": [
+      {
+        "variant": "candidate",
+        "source_sha256": "8862928bffa591b0b9ed74aafef57b49cfda6a3896412190a64682a52d623db0",
+        "scope": "Exact production save prefix with substituted native/storage boundaries; not a native integration test.",
+        "exit": 0,
+        "stdout": "PASS: capture/prepare failures block native writer; pending precedes writer; duplicate refused; start/finalizer handshake and missing callback protected\n",
+        "stderr": ""
+      },
+      {
+        "variant": "pre-fix",
+        "source_sha256": "54e92eebeb7a1f274fa20e49deb89aa3e810549c4b31aae3ec11b80dba17d5a6",
+        "scope": "Exact production save prefix with substituted native/storage boundaries; not a native integration test.",
+        "exit": 3762504530,
+        "stdout": "",
+        "stderr": "Unhandled exception. System.Exception: BUG: native save proceeds although storage capture failed\n   at Replay.Main() in C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-saveguard-replay\\Program.cs:line 32\n"
+      }
+    ],
+    "cabinet": [
+      {
+        "source_sha256": "da876173c7db6434d297ad36ff586511c9ae4a538a1711ca5598fb848a6cf153",
+        "scope": "Production cabinet CaptureContents method replay with substituted native read.",
+        "exit": 0,
+        "stdout": "PASS: unknown cabinet contents retained; failed capture leaves snapshot unchanged\n",
+        "stderr": ""
+      },
+      {
+        "source_sha256": "a94baefb2b69785a0614f8ee832bd94ade6f30926178ab46c870af15e8861710",
+        "scope": "Production cabinet CaptureContents method replay with substituted native read.",
+        "exit": 3762504530,
+        "stdout": "",
+        "stderr": "Unhandled exception. System.Exception: BUG: unmatched cabinet checkpoint payload was discarded\n   at Replay.Main() in C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-cabinet-replay\\Program.cs:line 21\n"
+      }
+    ],
+    "storage": [
+      {
+        "source_sha256": "da876173c7db6434d297ad36ff586511c9ae4a538a1711ca5598fb848a6cf153",
+        "scope": "Exact production NativeHallStorage and HallStorageSnapshot classes; substituted Unity and native ItemSet boundaries. Does not verify IL2CPP codec/runtime.",
+        "exit": 0,
+        "stdout": "PASS: full metadata and slot preserved; false-empty capture, missing item, and ineffective restore refused (4 scenarios)\n",
+        "stderr": ""
+      }
+    ]
+  },
+  "limits": [
+    "Native Unity/IL2CPP codec and game save/reload not exercised.",
+    "Replay native boundaries substituted; not full integration tests.",
+    "No item compensation or recovery applied."
+  ]
+}

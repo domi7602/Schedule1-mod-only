@@ -239,6 +239,18 @@ public sealed class RoomPlanTests
     }
 
     [Fact]
+    public void BothFloorsHaveTilesAndTheStairVoidDoesNot()
+    {
+        var ground = HallGridPlan.Tiles(new[] { HallGridPlan.Ground }, null, HallGridPlan.TileSize);
+        var upper = HallGridPlan.Tiles(HallGridPlan.Upper, HallGridPlan.StairVoid, HallGridPlan.TileSize);
+        Assert.InRange(ground.Count, 400, 700);
+        Assert.InRange(upper.Count, 400, 800);
+        Assert.Contains(ground, t => Math.Abs(t.WorldX - 58.5f) < 0.01f && Math.Abs(t.WorldZ - 31f) < 0.01f);
+        Assert.Contains(upper, t => Math.Abs(t.WorldX - 60f) < 0.01f && Math.Abs(t.WorldZ - 22f) < 0.01f);
+        Assert.DoesNotContain(upper, t => HallGridPlan.Overlaps(t.WorldX, t.WorldZ, HallGridPlan.TileSize, HallGridPlan.StairVoid));
+    }
+
+    [Fact]
     public void RoomHasAConcreteGeometryPlan()
     {
         Assert.NotNull(typeof(DoorChoice).Assembly.GetType("TownHallInterior.RoomPlan"));

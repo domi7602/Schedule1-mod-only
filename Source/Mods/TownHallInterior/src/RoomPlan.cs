@@ -66,3 +66,58 @@ public static class RoomPlan
         return b;
     }
 }
+
+// Walkable tile centers for the two hall floors. Not a Property and not a save record.
+public readonly record struct HallGridRect(float MinX, float MinZ, float MaxX, float MaxZ);
+
+public static class HallGridPlan
+{
+    public const float TileSize = 0.5f;
+    public const string GroundName = "TownHallInterior-grid-eg";
+    public const string UpperName = "TownHallInterior-grid-og";
+
+    // Public floor, inset so a tile does not sit inside the wall colliders.
+    public static readonly HallGridRect Ground = new(55.15f, 21.75f, 62.25f, 40.25f);
+
+    // Upper slabs from RoomPlan, inset at the outer walls. The stair void is excluded below.
+    public static readonly HallGridRect[] Upper =
+    {
+        new(54.70f, 20.85f, 60.65f, 41.15f),
+        new(60.70f, 20.85f, 63.00f, 23.85f),
+        new(60.70f, 29.75f, 63.00f, 41.15f),
+        new(62.15f, 24.00f, 63.00f, 29.60f),
+    };
+
+    public static readonly HallGridRect StairVoid = new(60.70f, 24.00f, 62.10f, 29.60f);
+
+    public static IReadOnlyList<(int X, int Z, float WorldX, float WorldZ)> Tiles(
+        IReadOnlyList<HallGridRect> floors, HallGridRect? blocked, float size)
+    {
+        if (size <= 0f) throw new ArgumentOutOfRangeException(nameof(size));
+        var tiles = new List<(int, int, float, float)>();
+        var seen = new HashSet<(int, int)>();
+        foreach (var floor in floors)
+        {
+            int x0 = (int)Math.Ceiling((floor.MinX + size * 0.5f) / size);
+            int x1 = (int)Math.Floor((floor.MaxX - size * 0.5f) / size);
+            int z0 = (int)Math.Ceiling((floor.MinZ + size * 0.5f) / size);
+            int z1 = (int)Math.Floor((floor.MaxZ - size * 0.5f) / size);
+            for (int ix = x0; ix <= x1; ix++)
+            for (int iz = z0; iz <= z1; iz++)
+            {
+                float x = ix * size, z = iz * size;
+                if (blocked is HallGridRect block && Overlaps(x, z, size, block)) continue;
+                if (!seen.Add((ix, iz))) continue;
+                tiles.Add((ix, iz, x, z));
+            }
+        }
+        return tiles;
+    }
+
+    public static bool Overlaps(float x, float z, float size, HallGridRect block)
+    {
+        float half = size * 0.5f;
+        return x + half > block.MinX && x - half < block.MaxX
+            && z + half > block.MinZ && z - half < block.MaxZ;
+    }
+}

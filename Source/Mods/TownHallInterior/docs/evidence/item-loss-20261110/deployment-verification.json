@@ -1,0 +1,16 @@
+{
+  "verified_at": "2026-11-10T19:26:44.301075+01:00",
+  "status": "installed-not-launched",
+  "dll_sha256": "9238c44efb1804a3f63393cff85f5915f032b17a5732c20b9b610601a0fd372c",
+  "receipt_attempt_id": "20261110T182612502Z-945c65eccd00",
+  "backup_id": "20261110T182612541Z-TownHallInterior-6a560bf1",
+  "verified_destinations": 4,
+  "verified_backups": 2,
+  "changed_files": [
+    "Mods\\TownHallInterior.dll",
+    "UserData\\TownHallInterior\\TownHallInterior.pdb"
+  ],
+  "native_slot_2_unchanged": true,
+  "unrelated_observed_mods_unchanged": true,
+  "runtime_tested": false
+}

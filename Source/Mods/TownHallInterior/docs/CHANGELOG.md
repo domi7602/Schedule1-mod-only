@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.1.0 (2026-11-10) — Lagerverlust: Kandidat installiert, Spielprüfung offen
+
+- Hallen-Restore erst mit neuer Weltbindung; ungebundenes Platzieren und ungültige Record-Insertion dürfen kein Inventar verbrauchen.
+- Cabinet-Inhalte erhalten optionale Checkpoint-Records unter Schema 2; Hallenlager und Cabinets verwenden vollständige native ItemSet-Payloads statt nur Default-Items. Native Leerslots (`ID=""`, Menge 0) werden berücksichtigt.
+- Lager-Capture und dauerhafte Pending-Vorbereitung erfolgen vor dem nativen Save; bei Fehler wird der Aufruf abgewiesen. Unbekannte Cabinet-Records und fehlgeschlagene/teilweise Restores bleiben geschützt, einschließlich Pickup-/Interaktionssperre.
+- 1.248 Tests lokal und isoliert und vier Produktionsmethoden-Replaygruppen bestanden; No-Deploy-Release-Build mit 0 Warnungen/0 Fehlern. Replays ersetzen native Grenzen und sind kein Gameplay-Nachweis. Vollständiges isoliertes Pure-Gate nicht bestanden (Timeout und vorhandene Format-/Versionsbefunde).
+- In-Game-Verify: **Cabinet- und Hallenfach-Inhalt nach Save/Menü-Reload von Dominik bestätigt; vereinbarter Lagerkorrektur-Test abgeschlossen**, `9238c44e…` installiert. Prozessneustart und individuelle Itemdaten bleiben nicht separat geprüfte Grenzen, kein neuer Auftrag. Nur DLL/PDB ersetzt; vier Ziele und zwei Backups hashgeprüft. Backup `20261110T182612541Z-TownHallInterior-6a560bf1` enthält vorherige `8af979a8…`. Keine Kompensation. [Befund und Nachweise](item-loss-fix-2026-11-10.md), [Installation](evidence/item-loss-20261110/deployment-verification.json).
+
+## 0.1.0 (2026-11-10) — Hallen-Grid auf beiden Böden
+
+- Erdgeschoss und Obergeschoss bekommen ein Grid aus einer vorhandenen Spielkachel. Es hängt nicht an einer Property. Gesetzte Teile stehen im Rathaus-Checkpoint und kommen nur mit dem passenden Spielstand zurück.
+- Die Treppenöffnung bleibt ohne Kacheln. Die Kachel-Collider haben die volle Rastergröße, damit die Stellfläche nicht zur Hälfte rot bleibt.
+- Der Hover auf diesem Grid ruft die Heatmap mit einer leeren Property auf. Der Null-Aufruf wird übersprungen, sonst bricht die Schnittprüfung ab und der Klick kommt nicht an.
+- Belegte Kacheln bleiben rot. Ein gesetztes Teil wird als Occupant eingetragen, damit nichts ineinander gestellt wird. Schränke und Tische blocken über ihre Collider. Dominik hat am 10. November bestätigt, dass ein gesetztes Regal wieder ins Inventar geht. Der Fachinhalt wird beim Speichern mitgeschrieben und in dieselben Slots zurückgelegt.
+
+## 0.1.0 (2026-11-10) — Laufweg frei, Aktenschränke öffenbar
+
+- Das Info-Pult gegenüber dem Eingang und der Papierkorb im Erdgeschoss sind entfernt. Sie standen im Durchgang.
+- Die Deko-Aktenschränke werden durch das vorhandene Prefab `FilingCabinet_Built` ersetzt. Es wird kein neues Item und keine eigene Fächerliste erzeugt.
+- Ingame-Platzierung und Öffnen wie im Sewer stehen aus.
+
 ## 0.1.0 (2026-11-09) — Rathauskauf und Geldwäsche an Spielsave gebunden
 
 - Besitz, Aufträge und offene Buchungsfälle werden dem passenden nativen Save

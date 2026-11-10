@@ -1,0 +1,8 @@
+{
+  "variant": "prepare-pre-fix",
+  "source_sha256": "d7d728c1eb1b284b85664c1c8c77ad6b1ade716a67d9b57c6b7e8bb74a40061e",
+  "scope": "Exact production save prefix with substituted native/storage boundaries; not a native integration test.",
+  "exit": 3762504530,
+  "stdout": "",
+  "stderr": "Unhandled exception. System.Exception: BUG: native save proceeds before durable pending preparation succeeds\n   at Replay.Main() in C:\\Users\\pc\\AppData\\Local\\hermes\\cache\\scratch\\townhall-saveguard-replay\\Program.cs:line 49\n"
+}
