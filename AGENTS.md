@@ -133,11 +133,12 @@ Keep exactly one inventory row per mod and supported bold acceptance labels.
 | **Weather** | ✅ (v0.4.0, **Verified 2026-10-11**) | `Mods/Weather/` | `Weather.dll` + icon | Read-only dashboard |
 | **BusinessIncome** | ✅ (v0.1.6, **Verified 2026-09-19**) | `Mods/BusinessIncome/` | `BusinessIncome.dll` | Host-only income, slot isolation |
 | **StackLimitMod** | ✅ (v0.1.7, **Verified, owner-confirmed 2026-10-15**) | `Mods/StackLimitMod/` | `StackLimitMod.dll` | Agriculture only; original test date not supplied |
-| **Minimap** | ✅ (v2.3.6, **Verified, owner-confirmed 2026-10-25**) | `Mods/Minimap/` | `Minimap.dll` | Clock AM/PM stays on one line; search cancelled, dormant core retained |
+| **Minimap** | ✅ (v2.3.7, **In-Game-Verify open** (prior v2.3.6: **Verified, owner-confirmed 2026-10-25**)) | `Mods/Minimap/` | `Minimap.dll` | Clock AM/PM stays on one line; search cancelled, dormant core retained |
 | **AutoPackagingStation** | ✅ (v0.4.7, **Verified 2026-10-15, owner-confirmed tested session**) | `Mods/AutoPackagingStation/` | `AutoPackagingStation.dll` | Buildable; legacy migration unverified |
-| **HitmanPhone** | ✅ (v0.3.2, **Verified, owner-confirmed 2026-10-25**) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Singleplayer only; offers use own customers; tracker app removed |
+| **HitmanPhone** | ✅ (v0.3.4, **In-Game-Verify open** (prior v0.3.2: **Verified, owner-confirmed 2026-10-25**)) | `Mods/HitmanPhone/` | `HitmanPhone.dll` | Singleplayer only; offers use own customers; tracker app removed |
 | **MessagesPlus** | ✅ (v0.4.6, **Verified, owner-confirmed 2026-10-15**) | `Mods/MessagesPlus/` | `MessagesPlus.dll` | Popup/response repair; original test date not supplied |
 | **ProductAppQoL** | ✅ (v0.1.0, **Verified 2026-10-10**) | `Mods/ProductAppQoL/` | `ProductAppQoL.dll` | Mouse/touch asking-price buttons |
+| **PoliceTestMode** | ✅ (v0.1.0, **In-Game-Verify open**) | `Mods/PoliceTestMode/` | `PoliceTestMode.dll` | Standalone singleplayer test suppression; default ON, session controls |
 | **TaxiDriver** | ✅ (v1.0.6, **In-Game-Verify open** (prior v1.0.0: **Verified, owner-confirmed 2026-10-24**)) | `Mods/TaxiDriver/` | `TaxiDriver.dll` + GLB folder | Recovery candidate `42b7e219…` installed 2026-11-02; Guard confirmed in DLL, not launched; Barn → Bungalow chain and early boarding open; prior route observations belong to 1.0.5 |
 | **StorageScanner** | 🆕 (v0.2.0, **Verified 2026-10-11**) | `Mods/StorageScanner/` | `StorageScanner.dll` + icon | Read-only storage overview |
 | **S1MCP** | ✅ (v1.0.5, **Verified, owner-confirmed 2026-10-24**) | `ThirdParty/S1MCPServer-master/` | `S1MCPServer-IL2CPP.dll` | HHMM fix; read/no-op write observed, not every write form |

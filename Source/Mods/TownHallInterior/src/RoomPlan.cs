@@ -103,13 +103,13 @@ public static class HallGridPlan
             int z0 = (int)Math.Ceiling((floor.MinZ + size * 0.5f) / size);
             int z1 = (int)Math.Floor((floor.MaxZ - size * 0.5f) / size);
             for (int ix = x0; ix <= x1; ix++)
-            for (int iz = z0; iz <= z1; iz++)
-            {
-                float x = ix * size, z = iz * size;
-                if (blocked is HallGridRect block && Overlaps(x, z, size, block)) continue;
-                if (!seen.Add((ix, iz))) continue;
-                tiles.Add((ix, iz, x, z));
-            }
+                for (int iz = z0; iz <= z1; iz++)
+                {
+                    float x = ix * size, z = iz * size;
+                    if (blocked is HallGridRect block && Overlaps(x, z, size, block)) continue;
+                    if (!seen.Add((ix, iz))) continue;
+                    tiles.Add((ix, iz, x, z));
+                }
         }
         return tiles;
     }
