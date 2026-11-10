@@ -2,6 +2,9 @@
 
 ## 0.3.4 (2026-10-26)
 - The singleplayer load no longer logs "Multiplayer is not supported". That warning fired before the save was ready. The multiplayer gate itself is unchanged.
+- **Bounded in-game verification 2026-11-10** (`TownHallTest` / `SaveGame_2`, `Schedule I.exe` PID 10708, installed DLL SHA-256 `F5A9614682A3C0129BEC251A30D34D716D3B39F661D8B254507FC4A590298FC6`):
+  - **v0.3.4 singleplayer load-gate fix verified in-game:** zero `"Multiplayer is not supported"` warnings occurred across startup, initial `SaveGame_2` load (`20:09:45`–`20:10:01`), and `Main -> Menu -> Main` reload (`20:19:58`–`20:20:12`), while polaroid definitions (`current='bounty_evidence_polaroid_v2', legacy='bounty_evidence_polaroid', icon=loaded`), checkpoint restore (`restored 9247B88CF755`), journal rebind (`active=0`), storage write hook (`[Receipt] Storage write hook alive — first storage event observed`), and due bounty call dispatch (`'Viper' offering bounty on 'sam_thompson' (reward $3500, drop 'Brown apartment block')` in the earlier same-day run) all executed cleanly. All 39 `SaveGame_2` files remained byte-identical (`diffCount=0`).
+  - Live `v0.3.3` contract progression into `Stage == 2` (`AwaitingDeadDrop`) to publish the active dead-drop world position to `Minimap` remains open.
 
 ## 0.3.3 (2026-10-26)
 - The assigned dead drop is no longer text-only. The drop objective gets the drop's world position, and active contracts publish that position for the minimap. A drop that is not loaded yet is retried; "any drop" still has no pin.

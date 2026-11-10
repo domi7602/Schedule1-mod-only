@@ -98,3 +98,23 @@ See README.md for exact GUI commands, expected log evidence and reversal limitat
 - Full PoliceTestMode Release build with `-p:S1NoDeploy=true`: zero warnings/errors.
   Six production/project files retained; no version, game, deployment or other-mod edits.
   No live occupancy or Unity activation readback claimed; gameplay acceptance remains open.
+
+## Bounded live in-game verification (2026-11-10)
+
+- **Session:** `2026-11-10T20:04:52`–`20:28:15` CET (`PID 10708`) on `Schedule I v0.4.7f12` / `S1API 3.2.2 stable` (`TownHallTest`, `SaveGame_2`, slot index `1`).
+- **Installed artifact:** `Mods/PoliceTestMode.dll` SHA-256 `033DE3DF31A6C8FA21F917A0E2A04B70980B99DA5A476658096307C5DC05E740`.
+- **Observed in `MelonLoader/Latest.log`:**
+  - Startup hook registration: `[20:04:58.128] [PoliceTestMode] hooks ready registered=43/43`.
+  - Initial `SaveGame_2` load suppression and readback:
+    - `[20:09:59.868] [PoliceTestMode] status requested=True effective=True state='ACTIVE - police suppressed (TEST)' hooks=43 loaded=True singleplayer=True attempts=1/30 leases=17 officers=10 vehicles=0 playerOccupiedSkipped=0 unknownSkipped=0 checkpoints=4`
+    - `[20:09:59.869] [PoliceTestMode] readback activeTargets=0/14 curfewRaw=False/False/False`
+  - Live blocked native hook counters across 7 distinct methods:
+    - `PoliceOfficer.OnTick=11355`, `PoliceOfficer.CanInvestigate=5710`, `CurfewManager.get_IsCurrentlyActive=568`, `CurfewManager.OnUncappedMinPass=563`, `LawActivitySettings.Evaluate=563`, `CurfewManager.get_IsEnabled=110`, `CurfewManager.RpcLogic___Enable_328543758=1`.
+  - Lifecycle restoration on `Main -> Menu` and re-suppression on `Menu -> Main` reload:
+    - `[20:19:32.004] [PoliceTestMode] restore reason=lifecycle leaving pending=0`
+    - `[20:19:32.222] [PoliceTestMode] status requested=True effective=False state='INACTIVE - menu / not loaded' ... leases=0`
+    - `[20:20:10.253] [PoliceTestMode] restore reason=load boundary pending=0`
+    - `[20:20:10.376] [PoliceTestMode] status requested=True effective=True state='ACTIVE - police suppressed (TEST)' hooks=43 loaded=True singleplayer=True attempts=1/30 leases=17 officers=10 vehicles=0 playerOccupiedSkipped=0 unknownSkipped=0 checkpoints=4`
+    - `[20:20:10.377] [PoliceTestMode] readback activeTargets=0/14 curfewRaw=False/False/False`
+  - Native save integrity: all 39 files in `SaveGame_2` remained byte-identical before and after the session (`diffCount=0`).
+- **Remaining open boundaries:** interactive console toggling (`policetest off` -> `policetest on`) during active gameplay and live player-occupied police vehicle exemption (`playerOccupiedSkipped > 0`, as `vehicles=0` were active in `SaveGame_2` at load time).

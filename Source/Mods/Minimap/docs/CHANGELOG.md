@@ -3,6 +3,10 @@
 ## 2.3.7 (2026-10-26)
 - Clock default is now 12-hour, same as the game (`9:23 AM`), not 24-hour. 24-hour stays available if `Time24H` is set in config. The header shrinks to fit the map width so AM/PM stays on one line.
 - Assigned HitmanPhone dead drops render as a gold pulsing marker, clamped to the map edge, with the drop name. No marker if HitmanPhone is not loaded.
+- **Bounded in-game verification 2026-11-10** (`TownHallTest` / `SaveGame_2`, `Schedule I.exe` PID 10708, installed DLL SHA-256 `208DAEE86972303866C95545D7A558E396B4876821A6CE50191374694C546244`):
+  - **12-hour clock (`h:mm AM/PM`) single-line header verified in-game:** visually confirmed in screenshot `capture-d87e1171d2d44b55ab5619805815f0c7.png` (SHA-256 `382D806F3DEAC1D8A64412A8DDFD8F2DA9364715688B2000EA3660073263F018`, `1920x1080`, rendering `DAY 3 | Thu 12:42 AM` on a single line above the top-right minimap card) and via live `S1MCPServer` component readback on `Minimap_HUD_Root/Minimap_Card/DayHeader_Bar/Day_TMP` (`Il2CppTMPro.TextMeshProUGUI`: `text="DAY 3 │ Thu 4:00 AM"`, `enableWordWrapping=False`, `overflowMode="Overflow"`, `enableAutoSizing=True`, `fontSize=13.5`, `fontSizeMin=8`, `fontSizeMax=13.5`).
+  - Verified HUD creation and `MinimapSettings` compact two-column layout across initial load (`[20:09:56.664] Compact layout: page=Page_Map, viewport=469.2, natural=258.2, target=469.2, columns=2`) and `Main -> Menu -> Main` reload (`[20:20:08.394]`). All 39 `SaveGame_2` files remained byte-identical (`diffCount=0`).
+  - Live visual rendering of the pulsing `HitmanPhone` dead-drop marker during an active `Stage == 2` (`AwaitingDeadDrop`) contract remains open (`active=0` contracts in `SaveGame_2`).
 
 ## 2.3.6 (2026-10-25)
 - Keep AM/PM on the clock line. The narrow header now formats 12-hour time locally as `h:mm AM` and uses the short weekday whenever the clock is shown. Word wrapping on the day label is off. 24-hour mode, map size and header position are unchanged.
